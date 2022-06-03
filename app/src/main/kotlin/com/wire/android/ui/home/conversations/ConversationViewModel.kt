@@ -8,15 +8,22 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.model.ImageAsset.PrivateAsset
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.UserStatus
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
+import com.wire.android.navigation.EXTRA_MESSAGE_TO_DELETE_ID
+import com.wire.android.navigation.EXTRA_MESSAGE_TO_DELETE_IS_SELF
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
-import com.wire.android.ui.home.conversations.ConversationErrors.ErrorMaxAssetSize
-import com.wire.android.ui.home.conversations.ConversationErrors.ErrorMaxImageSize
+import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorMaxAssetSize
+import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorMaxImageSize
+import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorOpeningAssetFile
+import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnFileDownloaded
+import com.wire.android.ui.home.conversations.DownloadedAssetDialogVisibilityState.Displayed
+import com.wire.android.ui.home.conversations.DownloadedAssetDialogVisibilityState.Hidden
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.ui.home.conversations.model.MessageBody
@@ -30,9 +37,9 @@ import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.MessageViewWrapper
 import com.wire.android.ui.home.conversations.model.User
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.extractImageParams
-import com.wire.android.util.getConversationColor
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.MemberDetails
@@ -40,6 +47,10 @@ import com.wire.kalium.logic.data.id.parseIntoQualifiedID
 import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.AssetContent.AssetMetadata.Image
 import com.wire.kalium.logic.data.message.Message
+import com.wire.kalium.logic.data.message.Message.DownloadStatus.FAILED
+import com.wire.kalium.logic.data.message.Message.DownloadStatus.IN_PROGRESS
+import com.wire.kalium.logic.data.message.Message.DownloadStatus.SAVED_EXTERNALLY
+import com.wire.kalium.logic.data.message.Message.DownloadStatus.SAVED_INTERNALLY
 import com.wire.kalium.logic.data.message.MessageContent.Asset
 import com.wire.kalium.logic.data.message.MessageContent.Text
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
@@ -48,6 +59,7 @@ import com.wire.kalium.logic.feature.asset.SendAssetMessageResult
 import com.wire.kalium.logic.feature.asset.SendAssetMessageUseCase
 import com.wire.kalium.logic.feature.asset.SendImageMessageResult
 import com.wire.kalium.logic.feature.asset.SendImageMessageUseCase
+import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
@@ -57,7 +69,9 @@ import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.util.toStringDate
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -66,7 +80,7 @@ import com.wire.kalium.logic.data.id.QualifiedID as ConversationId
 @Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel
 class ConversationViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
+    val savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
     private val getMessages: GetRecentMessagesUseCase,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
@@ -78,7 +92,10 @@ class ConversationViewModel @Inject constructor(
     private val deleteMessage: DeleteMessageUseCase,
     private val dispatchers: DispatcherProvider,
     private val markMessagesAsNotified: MarkMessagesAsNotifiedUseCase,
-    private val getSelfUserTeam: GetSelfTeamUseCase
+    private val updateAssetMessageDownloadStatus: UpdateAssetMessageDownloadStatusUseCase,
+    private val getSelfUserTeam: GetSelfTeamUseCase,
+    private val fileManager: FileManager,
+    private val userTypeMapper: UserTypeMapper
 ) : ViewModel() {
 
     var conversationViewState by mutableStateOf(ConversationViewState())
@@ -107,7 +124,7 @@ class ConversationViewModel @Inject constructor(
     private fun fetchMessages() = viewModelScope.launch {
         getMessages(conversationId).combine(observeMemberDetails(conversationId)) { messages, members ->
             messages.toUIMessages(members)
-        }.collect { uiMessages ->
+        }.flowOn(dispatchers.default()).collect { uiMessages ->
             conversationViewState = conversationViewState.copy(messages = uiMessages)
         }
     }
@@ -122,7 +139,7 @@ class ConversationViewModel @Inject constructor(
                 is ConversationDetails.OneOne ->
                     ConversationAvatar.OneOne(conversationDetails.otherUser.previewPicture?.let { UserAvatarAsset(it) })
                 is ConversationDetails.Group ->
-                    ConversationAvatar.Group(getConversationColor(conversationDetails.conversation.id))
+                    ConversationAvatar.Group(conversationDetails.conversation.id)
                 else -> ConversationAvatar.None
             }
             conversationViewState = conversationViewState.copy(
@@ -140,6 +157,18 @@ class ConversationViewModel @Inject constructor(
 
     private fun setMessagesAsNotified() = viewModelScope.launch {
         markMessagesAsNotified(conversationId, System.currentTimeMillis().toStringDate()) //TODO Failure is ignored
+    }
+
+    internal fun checkPendingActions() {
+        // Check if there are messages to delete
+        val messageToDeleteId = savedStateHandle
+            .get<String>(EXTRA_MESSAGE_TO_DELETE_ID)
+        val messageToDeleteIsSelf = savedStateHandle
+            .get<Boolean>(EXTRA_MESSAGE_TO_DELETE_IS_SELF)
+
+        if (messageToDeleteId != null && messageToDeleteIsSelf != null) {
+            showDeleteMessageDialog(messageToDeleteId, messageToDeleteIsSelf)
+        }
     }
     // endregion
 
@@ -162,7 +191,7 @@ class ConversationViewModel @Inject constructor(
                 attachmentBundle?.run {
                     when (attachmentType) {
                         AttachmentType.IMAGE -> {
-                            if (rawContent.size > IMAGE_SIZE_LIMIT_BYTES) onError(ErrorMaxImageSize)
+                            if (rawContent.size > IMAGE_SIZE_LIMIT_BYTES) onSnackbarMessage(ErrorMaxImageSize)
                             else {
                                 val (imgWidth, imgHeight) = extractImageParams(attachmentBundle.rawContent)
                                 val result = sendImageMessage(
@@ -173,22 +202,31 @@ class ConversationViewModel @Inject constructor(
                                     imgHeight = imgHeight
                                 )
                                 if (result is SendImageMessageResult.Failure) {
-                                    onError(ConversationErrors.ErrorSendingImage)
+                                    onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingImage)
                                 }
                             }
                         }
                         AttachmentType.GENERIC_FILE -> {
+                            // The max limit for sending assets changes between user types. Currently, is25MB for free users, and 100MB for
+                            // users that belong to a team
                             val assetLimitInBytes = getAssetLimitInBytes()
-                            if (rawContent.size > assetLimitInBytes) onError(ErrorMaxAssetSize(assetLimitInBytes.div(1024 * 1024)))
-                            else {
-                                val result = sendAssetMessage(
-                                    conversationId = conversationId,
-                                    assetRawData = attachmentBundle.rawContent,
-                                    assetName = attachmentBundle.fileName,
-                                    assetMimeType = attachmentBundle.mimeType
-                                )
-                                if (result is SendAssetMessageResult.Failure) {
-                                    onError(ConversationErrors.ErrorSendingAsset)
+                            val sizeOf1MB = 1024 * 1024
+                            if (rawContent.size > assetLimitInBytes) {
+                                onSnackbarMessage(ErrorMaxAssetSize(assetLimitInBytes.div(sizeOf1MB)))
+                            } else {
+                                try {
+                                    val result = sendAssetMessage(
+                                        conversationId = conversationId,
+                                        assetRawData = attachmentBundle.rawContent,
+                                        assetName = attachmentBundle.fileName,
+                                        assetMimeType = attachmentBundle.mimeType
+                                    )
+                                    if (result is SendAssetMessageResult.Failure) {
+                                        onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingAsset)
+                                    }
+                                } catch (e: OutOfMemoryError) {
+                                    appLogger.e("There was an OutOfMemory error while uploading the asset")
+                                    onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingAsset)
                                 }
                             }
                         }
@@ -198,6 +236,45 @@ class ConversationViewModel @Inject constructor(
         }
     }
 
+    // This will download the asset remotely to an internal temporary storage or fetch it from the local database if it had been previously
+    // downloaded. After doing so, a dialog is shown to ask the user whether he wants to open the file or download it to external storage
+    fun downloadOrFetchAssetToInternalStorage(messageId: String) {
+        viewModelScope.launch {
+            withContext(dispatchers.io()) {
+                try {
+                    val assetMessage = conversationViewState.messages.firstOrNull {
+                        it.messageHeader.messageId == messageId && it.messageContent is AssetMessage
+                    }
+
+                    val (isAssetDownloadedInternally, assetName) = (assetMessage?.messageContent as AssetMessage).run {
+                        (downloadStatus == SAVED_INTERNALLY || downloadStatus == IN_PROGRESS) to assetName
+                    }
+
+                    if (!isAssetDownloadedInternally)
+                        updateAssetMessageDownloadStatus(IN_PROGRESS, conversationId, messageId)
+
+                    val resultData = getRawAssetData(conversationId, messageId)
+                    updateAssetMessageDownloadStatus(if (resultData != null) SAVED_INTERNALLY else FAILED, conversationId, messageId)
+
+                    if (resultData != null) {
+                        showOnAssetDownloadedDialog(assetName, resultData, messageId)
+                    }
+                } catch (e: OutOfMemoryError) {
+                    appLogger.e("There was an OutOfMemory error while downloading the asset")
+                    onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingAsset)
+                }
+            }
+        }
+    }
+
+    fun showOnAssetDownloadedDialog(assetName: String, assetData: ByteArray, messageId: String) {
+        conversationViewState = conversationViewState.copy(downloadedAssetDialogState = Displayed(assetName, assetData, messageId))
+    }
+
+    fun hideOnAssetDownloadedDialog() {
+        conversationViewState = conversationViewState.copy(downloadedAssetDialogState = Hidden)
+    }
+
     private fun getAssetLimitInBytes(): Int {
         // Users with a team attached have larger asset sending limits than default users
         return conversationViewState.userTeam?.run {
@@ -205,30 +282,30 @@ class ConversationViewModel @Inject constructor(
         } ?: ASSET_SIZE_DEFAULT_LIMIT_BYTES
     }
 
-
-    fun onError(errorCode: ConversationErrors) {
-        conversationViewState = conversationViewState.copy(onError = errorCode)
-    }
-
-    fun downloadAsset(assetId: String) {
-        appLogger.d("Trying to download asset with id $assetId")
-        // TODO: Implement asset download flow
+    fun onSnackbarMessage(msgCode: ConversationSnackbarMessages) {
+        viewModelScope.launch {
+            // We need to reset the onSnackbarMessage state so that it doesn't show up again when going -> background -> resume back
+            // The delay added, is to ensure the snackbar message will have enough time to be shown before it is reset to null
+            conversationViewState = conversationViewState.copy(onSnackbarMessage = msgCode)
+            delay(SNACKBAR_MESSAGE_DELAY)
+            conversationViewState = conversationViewState.copy(onSnackbarMessage = null)
+        }
     }
 
     fun showDeleteMessageDialog(messageId: String, isMyMessage: Boolean) =
         if (isMyMessage) {
-            updateDialogState {
+            updateDeleteDialogState {
                 it.copy(forEveryone = DeleteMessageDialogActiveState.Visible(messageId = messageId, conversationId = conversationId))
             }
         } else {
-            updateDialogState {
+            updateDeleteDialogState {
                 it.copy(forYourself = DeleteMessageDialogActiveState.Visible(messageId = messageId, conversationId = conversationId))
             }
         }
 
     fun showDeleteMessageForYourselfDialog(messageId: String) {
-        updateDialogState { it.copy(forEveryone = DeleteMessageDialogActiveState.Hidden) }
-        updateDialogState {
+        updateDeleteDialogState { it.copy(forEveryone = DeleteMessageDialogActiveState.Hidden) }
+        updateDeleteDialogState {
             it.copy(
                 forYourself = DeleteMessageDialogActiveState.Visible(
                     messageId = messageId,
@@ -238,8 +315,8 @@ class ConversationViewModel @Inject constructor(
         }
     }
 
-    fun onDialogDismissed() {
-        updateDialogState {
+    fun onDeleteDialogDismissed() {
+        updateDeleteDialogState {
             it.copy(
                 forEveryone = DeleteMessageDialogActiveState.Hidden,
                 forYourself = DeleteMessageDialogActiveState.Hidden
@@ -251,11 +328,11 @@ class ConversationViewModel @Inject constructor(
         updateStateIfDialogVisible { it.copy(error = DeleteMessageError.None) }
     }
 
-    private fun updateDialogState(newValue: (DeleteMessageDialogsState.States) -> DeleteMessageDialogsState) =
+    private fun updateDeleteDialogState(newValue: (DeleteMessageDialogsState.States) -> DeleteMessageDialogsState) =
         (deleteMessageDialogsState as? DeleteMessageDialogsState.States)?.let { deleteMessageDialogsState = newValue(it) }
 
     private fun updateStateIfDialogVisible(newValue: (DeleteMessageDialogActiveState.Visible) -> DeleteMessageDialogActiveState) =
-        updateDialogState {
+        updateDeleteDialogState {
             when {
                 it.forEveryone is DeleteMessageDialogActiveState.Visible -> it.copy(forEveryone = newValue(it.forEveryone))
                 it.forYourself is DeleteMessageDialogActiveState.Visible -> it.copy(
@@ -270,7 +347,7 @@ class ConversationViewModel @Inject constructor(
     fun deleteMessage(messageId: String, deleteForEveryone: Boolean) = viewModelScope.launch {
         //update dialogs state to loading
         if (deleteForEveryone) {
-            updateDialogState {
+            updateDeleteDialogState {
                 it.copy(
                     forEveryone = DeleteMessageDialogActiveState.Visible(
                         messageId = messageId,
@@ -280,7 +357,7 @@ class ConversationViewModel @Inject constructor(
                 )
             }
         } else {
-            updateDialogState {
+            updateDeleteDialogState {
                 it.copy(
                     forYourself = DeleteMessageDialogActiveState.Visible(
                         messageId = messageId,
@@ -291,7 +368,7 @@ class ConversationViewModel @Inject constructor(
             }
         }
         deleteMessage(conversationId = conversationId, messageId = messageId, deleteForEveryone = deleteForEveryone)
-        onDialogDismissed()
+        onDeleteDialogDismissed()
     }
 
     private suspend fun getRawAssetData(conversationId: ConversationId, messageId: String): ByteArray? {
@@ -304,6 +381,35 @@ class ConversationViewModel @Inject constructor(
                 else -> null
             }
         }
+    }
+
+    fun onOpenFileWithExternalApp(assetName: String, assetData: ByteArray) {
+        viewModelScope.launch {
+            withContext(dispatchers.io()) {
+                fileManager.openWithExternalApp(assetName, assetData) { onOpenFileError() }
+                hideOnAssetDownloadedDialog()
+            }
+        }
+    }
+
+    fun onSaveFile(assetName: String, assetData: ByteArray, messageId: String) {
+        viewModelScope.launch {
+            withContext(dispatchers.io()) {
+                fileManager.saveToExternalStorage(assetName, assetData) {
+                    updateAssetMessageDownloadStatus(SAVED_EXTERNALLY, conversationId, messageId)
+                    onFileSavedToExternalStorage(assetName)
+                    hideOnAssetDownloadedDialog()
+                }
+            }
+        }
+    }
+
+    private fun onOpenFileError() {
+        conversationViewState = conversationViewState.copy(onSnackbarMessage = ErrorOpeningAssetFile)
+    }
+
+    private fun onFileSavedToExternalStorage(assetName: String?) {
+        onSnackbarMessage(OnFileDownloaded(assetName))
     }
     // endregion
 
@@ -324,11 +430,11 @@ class ConversationViewModel @Inject constructor(
         }
     }
 
-    fun navigateToGallery(messageId: String) {
+    fun navigateToGallery(messageId: String, isSelfMessage: Boolean) {
         viewModelScope.launch {
             navigationManager.navigate(
                 command = NavigationCommand(
-                    destination = NavigationItem.Gallery.getRouteWithArgs(listOf(PrivateAsset(conversationId, messageId)))
+                    destination = NavigationItem.Gallery.getRouteWithArgs(listOf(PrivateAsset(conversationId, messageId, isSelfMessage)))
                 )
             )
         }
@@ -339,16 +445,17 @@ class ConversationViewModel @Inject constructor(
     private suspend fun List<Message>.toUIMessages(members: List<MemberDetails>): List<MessageViewWrapper> {
         return map { message ->
             val sender = members.findSender(message.senderUserId)
+
             MessageViewWrapper(
                 messageContent = fromMessageModelToMessageContent(message),
                 messageSource = if (sender is MemberDetails.Self) MessageSource.Self else MessageSource.OtherUser,
                 messageHeader = MessageHeader(
                     // TODO: Designs for deleted users?
                     username = sender.name?.let { UIText.DynamicString(it) } ?: UIText.StringResource(R.string.member_name_deleted_label),
-                    membership = Membership.None,
+                    membership = if (sender is MemberDetails.Other) userTypeMapper.toMembership(sender.userType) else Membership.None,
                     isLegalHold = false,
                     time = message.date,
-                    messageStatus = if (message.status == Message.Status.FAILED) MessageStatus.Failure else MessageStatus.Untouched,
+                    messageStatus = if (message.status == Message.Status.FAILED) MessageStatus.SendFailure else MessageStatus.Untouched,
                     messageId = message.id
                 ),
                 user = User(
@@ -393,7 +500,8 @@ class ConversationViewModel @Inject constructor(
                             assetName = name ?: "",
                             assetExtension = name?.split(".")?.last() ?: "",
                             assetId = remoteData.assetId,
-                            assetSizeInBytes = sizeInBytes
+                            assetSizeInBytes = sizeInBytes,
+                            downloadStatus = downloadStatus
                         )
                         // On the first asset message received, the asset ID is null, so we filter it out until the second updates it
                     }
@@ -407,5 +515,6 @@ class ConversationViewModel @Inject constructor(
         const val IMAGE_SIZE_LIMIT_BYTES = 15 * 1024 * 1024 // 15 MB limit for images
         const val ASSET_SIZE_DEFAULT_LIMIT_BYTES = 25 * 1024 * 1024 // 25 MB asset default user limit size
         const val ASSET_SIZE_TEAM_USER_LIMIT_BYTES = 100 * 1024 * 1024 // 100 MB asset team user limit size
+        const val SNACKBAR_MESSAGE_DELAY = 3000L
     }
 }

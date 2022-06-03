@@ -1,65 +1,47 @@
 package com.wire.android.ui.home.conversationslist
 
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import com.wire.android.ui.home.conversationslist.bottomsheet.ModalSheetContent
-import com.wire.android.ui.home.conversationslist.model.ConversationType
+import androidx.compose.runtime.setValue
+import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
+import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationTypeDetail
+import com.wire.android.ui.home.conversationslist.model.ConversationItem
+import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 
 @ExperimentalMaterialApi
-class ConversationState(
-    val navHostController: NavHostController,
-    val modalBottomSheetContentState: MutableState<ModalSheetContent>,
-    val isEditingMutedSetting: MutableState<Boolean>
-) {
+class ConversationState {
+    var conversationSheetContent: ConversationSheetContent? by mutableStateOf(null)
 
-    fun toggleEditMutedSetting(enable: Boolean) {
-        isEditingMutedSetting.value = enable
-    }
-
-    fun changeModalSheetContentState(conversationType: ConversationType) {
+    fun changeModalSheetContentState(conversationType: ConversationItem) {
         when (conversationType) {
-            is ConversationType.GroupConversation -> {
+            is ConversationItem.GroupConversation -> {
                 with(conversationType) {
-                    modalBottomSheetContentState.value = ModalSheetContent.GroupConversationEdit(
+                    conversationSheetContent = ConversationSheetContent(
+                        conversationId = conversationId,
                         title = groupName,
-                        groupColorValue = groupColorValue,
-                        conversationId = this.conversationId,
-                        mutedStatus = this.mutedStatus
+                        mutingConversationState = mutedStatus,
+                        conversationTypeDetail = ConversationTypeDetail.Group(conversationId = conversationId)
                     )
                 }
             }
-            is ConversationType.PrivateConversation -> {
+            is ConversationItem.PrivateConversation -> {
                 with(conversationType) {
-                    modalBottomSheetContentState.value = ModalSheetContent.PrivateConversationEdit(
+                    conversationSheetContent = ConversationSheetContent(
+                        conversationId = conversationId,
                         title = conversationInfo.name,
-                        avatarAsset = userInfo.avatarAsset,
-                        conversationId = this.conversationId,
-                        mutedStatus = this.mutedStatus
+                        mutingConversationState = mutedStatus,
+                        conversationTypeDetail = ConversationTypeDetail.Private(userInfo.avatarAsset)
                     )
                 }
+            }
+            is ConversationItem.ConnectionConversation -> {
+                // TODO should we have some options for connection requests?
             }
         }
     }
-}
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalAnimationApi::class)
-@Composable
-fun rememberConversationState(
-    navHostController: NavHostController = rememberNavController(),
-    modalBottomSheetContentState: MutableState<ModalSheetContent> = remember {
-        mutableStateOf(ModalSheetContent.Initial)
-    },
-    isEditingMutedSetting: MutableState<Boolean> = remember { mutableStateOf(false) },
-) = remember(navHostController, modalBottomSheetContentState) {
-    ConversationState(
-        navHostController,
-        modalBottomSheetContentState,
-        isEditingMutedSetting
-    )
+    fun muteConversation(mutedConversationStatus: MutedConversationStatus) {
+        conversationSheetContent = conversationSheetContent?.copy(mutingConversationState = mutedConversationStatus)
+    }
 }

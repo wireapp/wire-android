@@ -1,6 +1,7 @@
 package com.wire.android.ui.authentication.welcome
 
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.mockUri
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
@@ -25,6 +26,7 @@ class WelcomeViewModelTest {
     @BeforeEach
     fun setUp() {
         MockKAnnotations.init(this, relaxUnitFun = true)
+        mockUri()
         welcomeViewModel = WelcomeViewModel(navigationManager)
     }
 

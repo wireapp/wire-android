@@ -1,5 +1,6 @@
 package com.wire.android.ui
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
@@ -20,6 +21,7 @@ import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.wire.android.navigation.NavigationGraph
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.navigateToItem
+import com.wire.android.navigation.popWithArguments
 import com.wire.android.ui.theme.WireTheme
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -31,6 +33,13 @@ import javax.inject.Inject
 @ExperimentalAnimationApi
 @ExperimentalComposeUiApi
 @ExperimentalMaterialApi
+@OptIn(
+    ExperimentalMaterial3Api::class,
+    ExperimentalAnimationApi::class,
+    ExperimentalComposeUiApi::class,
+    ExperimentalMaterialApi::class,
+)
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @AndroidEntryPoint
 class WireActivity : AppCompatActivity() {
 
@@ -42,18 +51,13 @@ class WireActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
-        handleDeepLink(intent)
+        viewModel.handleDeepLink(intent)
         setComposableContent()
     }
 
-    private fun handleDeepLink(intent: Intent) {
-        viewModel.handleDeepLink(intent)
-    }
-
     override fun onNewIntent(intent: Intent?) {
-        intent?.let {
+        if (viewModel.handleDeepLinkOnNewIntent(intent)) {
             recreate()
-            viewModel.handleDeepLink(intent)
         }
         super.onNewIntent(intent)
     }
@@ -63,10 +67,11 @@ class WireActivity : AppCompatActivity() {
             WireTheme {
                 val scope = rememberCoroutineScope()
                 val navController = rememberAnimatedNavController()
-                setUpNavigation(navController, scope)
+                val startDestination = viewModel.startNavigationRoute()
                 Scaffold {
-                    NavigationGraph(navController = navController, viewModel.startNavigationRoute(), viewModel.navigationArguments())
+                    NavigationGraph(navController = navController, startDestination, viewModel.navigationArguments())
                 }
+                setUpNavigation(navController, scope)
             }
         }
     }
@@ -79,19 +84,19 @@ class WireActivity : AppCompatActivity() {
         val keyboardController = LocalSoftwareKeyboardController.current
         // with the static key here we're sure that this effect wouldn't be canceled or restarted
         LaunchedEffect("key") {
-
-            navigationManager.navigateState.onEach { command ->
-                if (command == null) return@onEach
-                keyboardController?.hide()
-                navigateToItem(navController, command)
-            }.launchIn(scope)
+            navigationManager.navigateState
+                .onEach { command ->
+                    if (command == null) return@onEach
+                    keyboardController?.hide()
+                    navigateToItem(navController, command)
+                }
+                .launchIn(scope)
 
             navigationManager.navigateBack
                 .onEach {
                     keyboardController?.hide()
-                    navController.popBackStack()
-                }
-                .launchIn(scope)
+                    navController.popWithArguments(it)
+                }.launchIn(scope)
         }
     }
 }

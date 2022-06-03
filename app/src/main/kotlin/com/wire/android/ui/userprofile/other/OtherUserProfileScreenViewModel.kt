@@ -16,6 +16,8 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.publicuser.model.OtherUser
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.connection.CancelConnectionRequestUseCase
+import com.wire.kalium.logic.feature.connection.CancelConnectionRequestUseCaseResult
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestResult
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
 import com.wire.kalium.logic.feature.conversation.CreateConversationResult
@@ -33,11 +35,12 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val getOrCreateOneToOneConversation: GetOrCreateOneToOneConversationUseCase,
     private val getUserInfo: GetUserInfoUseCase,
-    private val sendConnectionRequest: SendConnectionRequestUseCase
+    private val sendConnectionRequest: SendConnectionRequestUseCase,
+    private val cancelConnectionRequest: CancelConnectionRequestUseCase
 ) : ViewModel() {
 
     var state: OtherUserProfileState by mutableStateOf(OtherUserProfileState())
-    var errorState: ErrorState? by mutableStateOf(null)
+    var connectionOperationState: ConnectionOperationState? by mutableStateOf(null)
 
     private val userId = UserId(
         value = savedStateHandle.get<String>(EXTRA_USER_ID)!!,
@@ -50,7 +53,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             when (val result = getUserInfo(userId)) {
                 is GetUserInfoResult.Failure -> {
                     appLogger.d("Couldn't not find the user with provided id:$userId.id and domain:$userId.domain")
-                    errorState = ErrorState.LoadUserInformationError()
+                    connectionOperationState = ConnectionOperationState.LoadUserInformationError()
                 }
                 is GetUserInfoResult.Success -> loadViewState(result.otherUser)
             }
@@ -90,28 +93,39 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             when (sendConnectionRequest(userId)) {
                 is SendConnectionRequestResult.Failure -> {
                     appLogger.d(("Couldn't send a connect request to user $userId"))
-                    errorState = ErrorState.ConnectionRequestError()
+                    connectionOperationState = ConnectionOperationState.ConnectionRequestError()
                 }
                 is SendConnectionRequestResult.Success -> {
                     state = state.copy(connectionStatus = ConnectionStatus.NotConnected(true))
-                    navigateBack()
+                    connectionOperationState = ConnectionOperationState.SuccessConnectionRequest()
                 }
             }
         }
     }
 
     fun cancelConnectionRequest() {
-        // TODO: fire a use case
-        state = state.copy(connectionStatus = ConnectionStatus.NotConnected(false))
+        viewModelScope.launch {
+            when (cancelConnectionRequest(userId)) {
+                is CancelConnectionRequestUseCaseResult.Failure -> {
+                    appLogger.d(("Couldn't cancel a connect request to user $userId"))
+                    connectionOperationState = ConnectionOperationState.ConnectionRequestError()
+                }
+                is CancelConnectionRequestUseCaseResult.Success -> {
+                    state = state.copy(connectionStatus = ConnectionStatus.NotConnected(false))
+                    connectionOperationState = ConnectionOperationState.SuccessConnectionRequest()
+                }
+            }
+        }
     }
 
     fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }
 }
 
 /**
- * We are adding a [randomEventIdentifier] as [UUID], so the error can be discarded every time after being generated.
+ * We are adding a [randomEventIdentifier] as [UUID], so the msg can be discarded every time after being generated.
  */
-sealed class ErrorState(private val randomEventIdentifier: UUID) {
-    class ConnectionRequestError : ErrorState(UUID.randomUUID())
-    class LoadUserInformationError : ErrorState(UUID.randomUUID())
+sealed class ConnectionOperationState(private val randomEventIdentifier: UUID) {
+    class SuccessConnectionRequest : ConnectionOperationState(UUID.randomUUID())
+    class ConnectionRequestError : ConnectionOperationState(UUID.randomUUID())
+    class LoadUserInformationError : ConnectionOperationState(UUID.randomUUID())
 }

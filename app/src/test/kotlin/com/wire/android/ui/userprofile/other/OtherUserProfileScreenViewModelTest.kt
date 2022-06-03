@@ -11,6 +11,7 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.publicuser.model.OtherUser
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.connection.CancelConnectionRequestUseCase
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestResult
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
 import com.wire.kalium.logic.feature.conversation.CreateConversationResult
@@ -53,6 +54,9 @@ class OtherUserProfileScreenViewModelTest {
     @MockK
     private lateinit var sendConnectionRequest: SendConnectionRequestUseCase
 
+    @MockK
+    private lateinit var cancelConnectionRequest: CancelConnectionRequestUseCase
+
     @BeforeEach
     fun setUp() {
         MockKAnnotations.init(this, relaxUnitFun = true)
@@ -65,7 +69,8 @@ class OtherUserProfileScreenViewModelTest {
             navigationManager,
             getOrCreateOneToOneConversation,
             getUserInfo,
-            sendConnectionRequest
+            sendConnectionRequest,
+            cancelConnectionRequest
         )
     }
 
@@ -81,7 +86,6 @@ class OtherUserProfileScreenViewModelTest {
             // then
             coVerify {
                 sendConnectionRequest(eq(USER_ID))
-                navigationManager.navigateBack()
             }
             assertEquals(ConnectionStatus.NotConnected(true), otherUserProfileScreenViewModel.state.connectionStatus)
         }
@@ -100,7 +104,7 @@ class OtherUserProfileScreenViewModelTest {
                 sendConnectionRequest(eq(USER_ID))
                 navigationManager wasNot Called
             }
-            assertNotNull(otherUserProfileScreenViewModel.errorState)
+            assertNotNull(otherUserProfileScreenViewModel.connectionOperationState)
         }
 
     @Test
@@ -143,6 +147,8 @@ class OtherUserProfileScreenViewModelTest {
 
         coVerify(exactly = 1) { navigationManager.navigateBack() }
     }
+
+    // todo: add tests for cancel request
 
     companion object {
         val USER_ID = UserId("some_value", "some_domain")

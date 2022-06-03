@@ -11,18 +11,19 @@ import com.wire.android.R
 import com.wire.android.ui.common.extension.rememberLazyListState
 import com.wire.android.ui.home.conversationslist.common.ConversationItemFactory
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
-import com.wire.android.ui.home.conversationslist.model.ConversationType
-import com.wire.android.ui.home.conversationslist.model.GeneralConversation
+import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.NewActivity
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.user.UserId
 
 @Composable
 fun AllConversationScreen(
     newActivities: List<NewActivity>,
-    conversations: Map<ConversationFolder, List<GeneralConversation>>,
-    onOpenConversationClick: (ConversationId) -> Unit,
-    onEditConversationItem: (ConversationType) -> Unit,
-    onScrollPositionChanged: (Int) -> Unit = {}
+    conversations: Map<ConversationFolder, List<ConversationItem>>,
+    onOpenConversation: (ConversationId) -> Unit,
+    onEditConversation: (ConversationItem) -> Unit,
+    onOpenUserProfile: (UserId) -> Unit,
+    onScrollPositionChanged: (Int) -> Unit = {},
 ) {
     val lazyListState = rememberLazyListState { firstVisibleItemIndex ->
         onScrollPositionChanged(firstVisibleItemIndex)
@@ -32,8 +33,9 @@ fun AllConversationScreen(
         lazyListState = lazyListState,
         newActivities = newActivities,
         conversations = conversations,
-        onConversationItemClick = onOpenConversationClick,
-        onEditConversationItem = onEditConversationItem
+        onOpenConversation = onOpenConversation,
+        onEditConversation = onEditConversation,
+        onOpenUserProfile = onOpenUserProfile,
     )
 }
 
@@ -41,9 +43,10 @@ fun AllConversationScreen(
 private fun AllConversationContent(
     lazyListState: LazyListState,
     newActivities: List<NewActivity>,
-    conversations: Map<ConversationFolder, List<GeneralConversation>>,
-    onConversationItemClick: (ConversationId) -> Unit,
-    onEditConversationItem: (ConversationType) -> Unit,
+    conversations: Map<ConversationFolder, List<ConversationItem>>,
+    onOpenConversation: (ConversationId) -> Unit,
+    onEditConversation: (ConversationItem) -> Unit,
+    onOpenUserProfile: (UserId) -> Unit,
 ) {
     LazyColumn(
         state = lazyListState,
@@ -57,31 +60,36 @@ private fun AllConversationContent(
                 ConversationItemFactory(
                     conversation = conversationItem,
                     eventType = eventType,
-                    onConversationItemClick = { onConversationItemClick(conversationItem.id) },
-                    onConversationItemLongClick = { onEditConversationItem(conversationItem.conversationType) }
+                    openConversation = onOpenConversation,
+                    openMenu = onEditConversation,
+                    openUserProfile = onOpenUserProfile,
                 )
             }
         }
 
         conversations.forEach { (conversationFolder, conversationList) ->
             folderWithElements(
-                header = { when(conversationFolder) {
-                    is ConversationFolder.Predefined -> stringResource(id = conversationFolder.folderNameResId)
-                    is ConversationFolder.Custom -> conversationFolder.folderName
-                } },
+                header = {
+                    when (conversationFolder) {
+                        is ConversationFolder.Predefined -> stringResource(id = conversationFolder.folderNameResId)
+                        is ConversationFolder.Custom -> conversationFolder.folderName
+                    }
+                },
                 items = conversationList
             ) { generalConversation ->
-                GeneralConversationItem(
-                    generalConversation = generalConversation,
-                    onConversationItemClick = { onConversationItemClick(generalConversation.id) },
-                    onConversationItemLongClick = { onEditConversationItem(generalConversation.conversationType) }
+                ConversationItemFactory(
+                    conversation = generalConversation,
+                    openConversation = onOpenConversation,
+                    openMenu = onEditConversation,
+                    openUserProfile = onOpenUserProfile,
                 )
             }
         }
     }
 }
+
 @Preview
 @Composable
 fun ComposablePreview() {
-    AllConversationScreen(listOf(), mapOf(), {}, {})
+    AllConversationScreen(listOf(), mapOf(), {}, {}, {}, {})
 }

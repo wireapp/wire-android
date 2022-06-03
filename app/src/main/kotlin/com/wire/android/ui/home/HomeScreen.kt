@@ -1,7 +1,9 @@
 package com.wire.android.ui.home
 
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.ModalDrawer
@@ -10,6 +12,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -18,6 +21,7 @@ import com.wire.android.navigation.HomeNavigationGraph
 import com.wire.android.navigation.HomeNavigationItem
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.topappbar.search.AppTopBarWithSearchBar
+import kotlinx.coroutines.CoroutineScope
 
 @OptIn(
     ExperimentalAnimationApi::class,
@@ -30,23 +34,21 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
     val homeState = rememberHomeState()
 
     with(homeState) {
-        val drawerContent: @Composable ColumnScope.() -> Unit = {
-            HomeDrawer(
-                drawerState = drawerState,
-                currentRoute = currentNavigationItem.route,
-                homeNavController = navController,
-                topItems = HomeNavigationItem.all,
-                scope = coroutineScope,
-                viewModel = viewModel
-            )
-        }
-
         ModalDrawer(
             drawerBackgroundColor = MaterialTheme.colorScheme.surface,
             drawerElevation = 0.dp,
             drawerShape = RectangleShape,
             drawerState = drawerState,
-            drawerContent = drawerContent,
+            drawerContent = {
+                HomeDrawer(
+                    drawerState = drawerState,
+                    currentRoute = currentNavigationItem.route,
+                    homeNavController = navController,
+                    topItems = HomeNavigationItem.all,
+                    scope = coroutineScope,
+                    viewModel = viewModel
+                )
+            },
             gesturesEnabled = drawerState.isOpen
         ) {
             HomeContent(
@@ -55,14 +57,19 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
                 homeBottomSheetState = homeState.bottomSheetState,
                 homeTopBar = {
                     HomeTopBar(
-                        viewModel.userAvatar,
+                        avatarAsset = viewModel.userAvatar,
                         currentNavigationItem = homeState.currentNavigationItem,
                         onOpenDrawerClicked = { openDrawer() },
-                        onNavigateToUserProfile = { viewModel.navigateToUserProfile() },
+                        onNavigateToUserProfile = viewModel::navigateToUserProfile,
                     )
                 },
                 currentNavigationItem = homeState.currentNavigationItem,
-                homeNavigationGraph = { HomeNavigationGraph(homeState = homeState, startScreen = startScreen) }
+                homeNavigationGraph = {
+                    HomeNavigationGraph(
+                        homeState = homeState,
+                        startScreen = startScreen
+                    )
+                }
             )
         }
     }
@@ -79,7 +86,16 @@ fun HomeContent(
     homeTopBar: @Composable () -> Unit
 ) {
     with(currentNavigationItem) {
-        val homeContent = @Composable {
+        WireModalSheetLayout(
+            sheetState = homeBottomSheetState,
+            coroutineScope = rememberCoroutineScope(),
+            // we want to render "nothing" instead of doing a if/else check
+            // on homeBottomSheetContent and wrap homeContent() into WireModalSheetLayout
+            // or render it without WireModalSheetLayout to avoid
+            // recomposing the homeContent() when homeBottomSheetContent
+            // changes from null to "something"
+            sheetContent = homeBottomSheetContent ?: { }
+        ) {
             if (isSearchable) {
                 AppTopBarWithSearchBar(
                     scrollPosition = scrollPosition,
@@ -96,21 +112,11 @@ fun HomeContent(
                 )
             } else {
                 Scaffold(topBar = homeTopBar) {
-                    homeNavigationGraph()
+                    Box(modifier = Modifier.padding(it)) {
+                        homeNavigationGraph()
+                    }
                 }
             }
-        }
-
-        if (homeBottomSheetContent != null) {
-            WireModalSheetLayout(
-                sheetState = homeBottomSheetState,
-                coroutineScope = rememberCoroutineScope(),
-                sheetContent = homeBottomSheetContent
-            ) {
-                homeContent()
-            }
-        } else {
-            homeContent()
         }
     }
 }

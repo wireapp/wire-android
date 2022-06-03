@@ -8,18 +8,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
-import com.wire.android.ui.home.conversationslist.model.ConversationMissedCall
-import com.wire.android.ui.home.conversationslist.model.ConversationType
+import com.wire.android.ui.home.conversationslist.common.ConversationItemFactory
+import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.EventType
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.user.UserId
 
 @Composable
 fun CallsScreen(
-    missedCalls: List<ConversationMissedCall> = emptyList(),
-    callHistory: List<ConversationMissedCall> = emptyList(),
+    missedCalls: List<ConversationItem> = emptyList(),
+    callHistory: List<ConversationItem> = emptyList(),
     onCallItemClick: (ConversationId) -> Unit,
-    onEditConversationItem: (ConversationType) -> Unit,
-    onScrollPositionChanged: (Int) -> Unit = {}
+    onEditConversationItem: (ConversationItem) -> Unit,
+    onScrollPositionChanged: (Int) -> Unit = {},
+    onOpenUserProfile: (UserId) -> Unit,
 ) {
     val lazyListState = com.wire.android.ui.common.extension.rememberLazyListState { firstVisibleItemIndex ->
         onScrollPositionChanged(firstVisibleItemIndex)
@@ -30,7 +32,8 @@ fun CallsScreen(
         missedCalls = missedCalls,
         callHistory = callHistory,
         onCallItemClick = onCallItemClick,
-        onEditConversationItem = onEditConversationItem
+        onEditConversationItem = onEditConversationItem,
+        onOpenUserProfile = onOpenUserProfile,
     )
 }
 
@@ -38,10 +41,11 @@ fun CallsScreen(
 @Composable
 fun CallContent(
     lazyListState: LazyListState,
-    missedCalls: List<ConversationMissedCall>,
-    callHistory: List<ConversationMissedCall>,
+    missedCalls: List<ConversationItem>,
+    callHistory: List<ConversationItem>,
     onCallItemClick: (ConversationId) -> Unit,
-    onEditConversationItem: (ConversationType) -> Unit
+    onEditConversationItem: (ConversationItem) -> Unit,
+    onOpenUserProfile: (UserId) -> Unit,
 ) {
     LazyColumn(
         state = lazyListState,
@@ -51,11 +55,12 @@ fun CallContent(
             header = { stringResource(id = R.string.calls_label_missed_calls) },
             items = missedCalls
         ) { missedCall ->
-            CallConversationItem(
-                conversationMissedCall = missedCall,
+            ConversationItemFactory(
+                conversation = missedCall,
                 eventType = EventType.MissedCall,
-                onCallItemClick = { onCallItemClick(missedCall.id) },
-                onCallItemLongClick = { onEditConversationItem(missedCall.conversationType) }
+                openConversation = onCallItemClick,
+                openMenu = onEditConversationItem,
+                openUserProfile = onOpenUserProfile,
             )
         }
 
@@ -63,12 +68,12 @@ fun CallContent(
             header = { stringResource(id = R.string.calls_label_calls_history) },
             items = callHistory
         ) { callHistory ->
-            CallConversationItem(
-                conversationMissedCall = callHistory,
-                onCallItemClick = { onCallItemClick(callHistory.id) },
-                onCallItemLongClick = { onEditConversationItem(callHistory.conversationType) }
+            ConversationItemFactory(
+                conversation = callHistory,
+                openConversation = onCallItemClick,
+                openMenu = onEditConversationItem,
+                openUserProfile = onOpenUserProfile,
             )
         }
     }
 }
-

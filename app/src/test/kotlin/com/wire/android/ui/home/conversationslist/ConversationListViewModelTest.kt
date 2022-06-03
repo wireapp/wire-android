@@ -2,11 +2,20 @@ package com.wire.android.ui.home.conversationslist
 
 import androidx.compose.material3.ExperimentalMaterial3Api
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.TestDispatcherProvider
+import com.wire.android.config.mockUri
+import com.wire.android.model.UserStatus
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.home.conversationslist.model.ConversationInfo
+import com.wire.android.ui.home.conversationslist.model.ConversationItem
+import com.wire.android.ui.home.conversationslist.model.ConversationLastEvent
+import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.ui.home.conversationslist.model.UserInfo
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.feature.connection.ObserveConnectionListUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
@@ -24,6 +33,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalMaterial3Api::class)
 @ExtendWith(CoroutineTestExtension::class)
+//TODO write more tests
 class ConversationListViewModelTest {
 
     private lateinit var conversationListViewModel: ConversationListViewModel
@@ -38,18 +48,24 @@ class ConversationListViewModelTest {
     lateinit var updateConversationMutedStatus: UpdateConversationMutedStatusUseCase
 
     @MockK
+    lateinit var observeConnectionList: ObserveConnectionListUseCase
+
+    @MockK
     lateinit var markMessagesAsNotified: MarkMessagesAsNotifiedUseCase
 
     @BeforeEach
     fun setUp() {
         MockKAnnotations.init(this, relaxUnitFun = true)
 
+        mockUri()
         conversationListViewModel =
             ConversationListViewModel(
                 navigationManager,
                 observeConversationDetailsList,
                 updateConversationMutedStatus,
-                markMessagesAsNotified
+                markMessagesAsNotified,
+                observeConnectionList,
+                TestDispatcherProvider()
             )
 
         coEvery { observeConversationDetailsList.invoke() } returns flowOf(listOf())
@@ -73,7 +89,7 @@ class ConversationListViewModelTest {
     @Test
     fun `given a conversations list, when opening a conversation, then should delegate call to manager to Conversation with args`() =
         runTest {
-            conversationListViewModel.openConversation(conversationId)
+            conversationListViewModel.openConversation(conversationItem.conversationId)
 
             coVerify(exactly = 1) {
                 navigationManager.navigate(
@@ -90,5 +106,20 @@ class ConversationListViewModelTest {
 
     companion object {
         private val conversationId = ConversationId("some_id", "some_domain")
+
+        private val conversationItem = ConversationItem.PrivateConversation(
+            userInfo = UserInfo(
+                avatarAsset = null,
+                availabilityStatus = UserStatus.NONE
+            ),
+            conversationInfo = ConversationInfo(
+                name = "",
+                membership = Membership.None
+            ),
+            conversationId = conversationId,
+            mutedStatus = MutedConversationStatus.AllAllowed,
+            isLegalHold = false,
+            lastEvent = ConversationLastEvent.None,
+        )
     }
 }

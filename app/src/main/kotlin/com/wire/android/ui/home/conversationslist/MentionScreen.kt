@@ -9,18 +9,20 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.ui.common.extension.rememberLazyListState
-import com.wire.android.ui.home.conversationslist.model.ConversationType
-import com.wire.android.ui.home.conversationslist.model.ConversationUnreadMention
+import com.wire.android.ui.home.conversationslist.common.ConversationItemFactory
+import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.EventType
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.user.UserId
 
 @Composable
 fun MentionScreen(
-    unreadMentions: List<ConversationUnreadMention> = emptyList(),
-    allMentions: List<ConversationUnreadMention> = emptyList(),
+    unreadMentions: List<ConversationItem> = emptyList(),
+    allMentions: List<ConversationItem> = emptyList(),
     onMentionItemClick: (ConversationId) -> Unit,
-    onEditConversationItem: (ConversationType) -> Unit,
-    onScrollPositionChanged: (Int) -> Unit = {}
+    onEditConversationItem: (ConversationItem) -> Unit,
+    onScrollPositionChanged: (Int) -> Unit = {},
+    onOpenUserProfile: (UserId) -> Unit,
 ) {
     val lazyListState = rememberLazyListState { firstVisibleItemIndex ->
         onScrollPositionChanged(firstVisibleItemIndex)
@@ -31,7 +33,8 @@ fun MentionScreen(
         unreadMentions = unreadMentions,
         allMentions = allMentions,
         onMentionItemClick = onMentionItemClick,
-        onEditConversationItem = onEditConversationItem
+        onEditConversationItem = onEditConversationItem,
+        onOpenUserProfile = onOpenUserProfile,
     )
 }
 
@@ -39,10 +42,11 @@ fun MentionScreen(
 @Composable
 private fun MentionContent(
     lazyListState: LazyListState,
-    unreadMentions: List<ConversationUnreadMention>,
-    allMentions: List<ConversationUnreadMention>,
+    unreadMentions: List<ConversationItem>,
+    allMentions: List<ConversationItem>,
     onMentionItemClick: (ConversationId) -> Unit,
-    onEditConversationItem: (ConversationType) -> Unit
+    onEditConversationItem: (ConversationItem) -> Unit,
+    onOpenUserProfile: (UserId) -> Unit,
 ) {
     LazyColumn(
         state = lazyListState,
@@ -52,11 +56,12 @@ private fun MentionContent(
             header = { stringResource(id = R.string.mention_label_unread_mentions) },
             items = unreadMentions
         ) { unreadMention ->
-            MentionConversationItem(
-                mention = unreadMention,
+            ConversationItemFactory(
+                conversation = unreadMention,
                 eventType = EventType.UnreadMention,
-                onMentionItemClick = { onMentionItemClick(unreadMention.id) },
-                onConversationItemLongClick = { onEditConversationItem(unreadMention.conversationType) }
+                openConversation = onMentionItemClick,
+                openMenu = onEditConversationItem,
+                openUserProfile = onOpenUserProfile,
             )
         }
 
@@ -64,10 +69,11 @@ private fun MentionContent(
             header = { stringResource(R.string.mention_label_all_mentions) },
             items = allMentions
         ) { mention ->
-            MentionConversationItem(
-                mention = mention,
-                onMentionItemClick = { onMentionItemClick(mention.id) },
-                onConversationItemLongClick = { onEditConversationItem(mention.conversationType) }
+            ConversationItemFactory(
+                conversation = mention,
+                openConversation = onMentionItemClick,
+                openMenu = onEditConversationItem,
+                openUserProfile = onOpenUserProfile,
             )
         }
     }

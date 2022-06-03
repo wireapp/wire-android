@@ -3,6 +3,7 @@ package com.wire.android.ui.authentication.devices.register
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.mockUri
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
@@ -53,6 +54,7 @@ class RegisterDeviceViewModelTest {
     @BeforeEach
     fun setup() {
         MockKAnnotations.init(this)
+        mockUri()
         registerDeviceViewModel = RegisterDeviceViewModel(navigationManager, validatePasswordUseCase, registerClientUseCase)
     }
 

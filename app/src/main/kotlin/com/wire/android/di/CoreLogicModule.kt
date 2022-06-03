@@ -95,6 +95,21 @@ class ConnectionModule {
     @Provides
     fun sendConnectionRequestUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).connection.sendConnectionRequest
+
+    @ViewModelScoped
+    @Provides
+    fun cancelConnectionRequestUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).connection.cancelConnectionRequest
+
+    @ViewModelScoped
+    @Provides
+    fun ignoreConnectionRequestUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).connection.ignoreConnectionRequest
+
+    @ViewModelScoped
+    @Provides
+    fun acceptConnectionRequestUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).connection.acceptConnectionRequest
 }
 
 @Module
@@ -161,6 +176,11 @@ class UseCaseModule {
     @Provides
     fun provideObserveConversationListDetailsUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).conversations.observeConversationListDetails
+
+    @ViewModelScoped
+    @Provides
+    fun provideObserveConnectionListUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).conversations.observeConnectionList
 
     @ViewModelScoped
     @Provides
@@ -415,4 +435,9 @@ class UseCaseModule {
     @Provides
     fun getUserInfoUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).users.getUserInfo
+
+    @ViewModelScoped
+    @Provides
+    fun getCurrentSessionFlowUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
+        coreLogic.getAuthenticationScope().session.currentSessionFlow
 }

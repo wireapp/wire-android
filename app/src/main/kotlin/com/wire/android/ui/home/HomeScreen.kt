@@ -33,23 +33,21 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
     val homeState = rememberHomeState()
 
     with(homeState) {
-        val drawerContent: @Composable ColumnScope.() -> Unit = {
-            HomeDrawer(
-                drawerState = drawerState,
-                currentRoute = currentNavigationItem.route,
-                homeNavController = navController,
-                topItems = HomeNavigationItem.all,
-                scope = coroutineScope,
-                viewModel = viewModel
-            )
-        }
-
         ModalDrawer(
             drawerBackgroundColor = MaterialTheme.colorScheme.surface,
             drawerElevation = 0.dp,
             drawerShape = RectangleShape,
             drawerState = drawerState,
-            drawerContent = drawerContent,
+            drawerContent = {
+                HomeDrawer(
+                    drawerState = drawerState,
+                    currentRoute = currentNavigationItem.route,
+                    homeNavController = navController,
+                    topItems = HomeNavigationItem.all,
+                    scope = coroutineScope,
+                    viewModel = viewModel
+                )
+            },
             gesturesEnabled = drawerState.isOpen
         ) {
             HomeContent(
@@ -58,14 +56,19 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
                 homeBottomSheetState = homeState.bottomSheetState,
                 homeTopBar = {
                     HomeTopBar(
-                        viewModel.userAvatar,
+                        avatarAsset = viewModel.userAvatar,
                         currentNavigationItem = homeState.currentNavigationItem,
                         onOpenDrawerClicked = { openDrawer() },
-                        onNavigateToUserProfile =  viewModel::navigateToUserProfile ,
+                        onNavigateToUserProfile = viewModel::navigateToUserProfile,
                     )
                 },
                 currentNavigationItem = homeState.currentNavigationItem,
-                homeNavigationGraph = { HomeNavigationGraph(homeState = homeState, startScreen = startScreen) }
+                homeNavigationGraph = {
+                    HomeNavigationGraph(
+                        homeState = homeState,
+                        startScreen = startScreen
+                    )
+                }
             )
         }
     }
@@ -82,7 +85,16 @@ fun HomeContent(
     homeTopBar: @Composable () -> Unit
 ) {
     with(currentNavigationItem) {
-        val homeContent = @Composable {
+        WireModalSheetLayout(
+            sheetState = homeBottomSheetState,
+            coroutineScope = rememberCoroutineScope(),
+            // we want to render "nothing" instead of doing a if/else check
+            // on homeBottomSheetContent and wrap homeContent() into WireModalSheetLayout
+            // or render it without WireModalSheetLayout to avoid
+            // recomposing the homeContent() when homeBottomSheetContent
+            // changes from null to "something"
+            sheetContent = homeBottomSheetContent ?: { }
+        ) {
             if (isSearchable) {
                 AppTopBarWithSearchBar(
                     scrollPosition = scrollPosition,
@@ -104,18 +116,6 @@ fun HomeContent(
                     }
                 }
             }
-        }
-
-        if (homeBottomSheetContent != null) {
-            WireModalSheetLayout(
-                sheetState = homeBottomSheetState,
-                coroutineScope = rememberCoroutineScope(),
-                sheetContent = homeBottomSheetContent
-            ) {
-                homeContent()
-            }
-        } else {
-            homeContent()
         }
     }
 }

@@ -12,16 +12,19 @@ import com.wire.android.ui.common.extension.rememberLazyListState
 import com.wire.android.ui.home.conversationslist.common.ConversationItemFactory
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
-import com.wire.android.ui.home.conversationslist.model.GeneralConversation
 import com.wire.android.ui.home.conversationslist.model.NewActivity
+import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.user.UserId
 
 @Composable
 fun AllConversationScreen(
     newActivities: List<NewActivity>,
-    conversations: Map<ConversationFolder, List<GeneralConversation>>,
-    onOpenConversationClick: (ConversationItem) -> Unit,
-    onEditConversationItem: (ConversationItem) -> Unit,
-    onScrollPositionChanged: (Int) -> Unit = {}
+    conversations: Map<ConversationFolder, List<ConversationItem>>,
+    onOpenConversation: (ConversationId) -> Unit,
+    onEditConversation: (ConversationItem) -> Unit,
+    onOpenUserProfile: (UserId) -> Unit,
+    onScrollPositionChanged: (Int) -> Unit = {},
+    onOpenConversationNotificationsSettings: (ConversationItem) -> Unit,
 ) {
     val lazyListState = rememberLazyListState { firstVisibleItemIndex ->
         onScrollPositionChanged(firstVisibleItemIndex)
@@ -31,8 +34,10 @@ fun AllConversationScreen(
         lazyListState = lazyListState,
         newActivities = newActivities,
         conversations = conversations,
-        onConversationItemClick = onOpenConversationClick,
-        onEditConversationItem = onEditConversationItem
+        onOpenConversation = onOpenConversation,
+        onEditConversation = onEditConversation,
+        onOpenUserProfile = onOpenUserProfile,
+        onOpenConversationNotificationsSettings = onOpenConversationNotificationsSettings,
     )
 }
 
@@ -40,9 +45,11 @@ fun AllConversationScreen(
 private fun AllConversationContent(
     lazyListState: LazyListState,
     newActivities: List<NewActivity>,
-    conversations: Map<ConversationFolder, List<GeneralConversation>>,
-    onConversationItemClick: (ConversationItem) -> Unit,
-    onEditConversationItem: (ConversationItem) -> Unit,
+    conversations: Map<ConversationFolder, List<ConversationItem>>,
+    onOpenConversation: (ConversationId) -> Unit,
+    onEditConversation: (ConversationItem) -> Unit,
+    onOpenUserProfile: (UserId) -> Unit,
+    onOpenConversationNotificationsSettings: (ConversationItem) -> Unit,
 ) {
     LazyColumn(
         state = lazyListState,
@@ -56,8 +63,10 @@ private fun AllConversationContent(
                 ConversationItemFactory(
                     conversation = conversationItem,
                     eventType = eventType,
-                    onConversationItemClick = onConversationItemClick,
-                    onConversationItemLongClick = onEditConversationItem
+                    openConversation = onOpenConversation,
+                    openMenu = onEditConversation,
+                    openUserProfile = onOpenUserProfile,
+                    openNotificationsOptions = onOpenConversationNotificationsSettings,
                 )
             }
         }
@@ -72,19 +81,20 @@ private fun AllConversationContent(
                 },
                 items = conversationList
             ) { generalConversation ->
-                GeneralConversationItem(
-                    generalConversation = generalConversation,
-                    onConversationItemClick = onConversationItemClick,
-                    onConversationItemLongClick = onEditConversationItem
+                ConversationItemFactory(
+                    conversation = generalConversation,
+                    openConversation = onOpenConversation,
+                    openMenu = onEditConversation,
+                    openUserProfile = onOpenUserProfile,
+                    openNotificationsOptions = onOpenConversationNotificationsSettings,
                 )
             }
         }
     }
 }
 
-
 @Preview
 @Composable
 fun ComposablePreview() {
-    AllConversationScreen(listOf(), mapOf(), {}, {})
+    AllConversationScreen(listOf(), mapOf(), {}, {}, {}, {}, {})
 }

@@ -54,7 +54,7 @@ class WireActivityViewModel @Inject constructor(
     private val isAppVisibleFlow = MutableStateFlow(true)
     private val navigationArguments = mutableMapOf<String, Any>(SERVER_CONFIG_ARG to ServerConfig.DEFAULT)
 
-    private val userIdFlow = currentSessionFlow()
+    private val observeUserId = currentSessionFlow()
         .map { result ->
             if (result is CurrentSessionResult.Success) result.authSession.userId
             else null
@@ -65,19 +65,19 @@ class WireActivityViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            launch { notificationManager.observeMessageNotifications(userIdFlow) }
+            launch { notificationManager.observeMessageNotifications(observeUserId) }
             launch {
                 notificationManager.observeIncomingCalls(
                     isAppVisibleFlow,
-                    userIdFlow
+                    observeUserId
                 ) { openIncomingCall(it.conversationId) }
             }
             launch {
-                userIdFlow
+                observeUserId
                     .filterNotNull()
                     .collect { userId ->
                         // listen for the WebSockets updates and update DB accordingly
-                        launch { coreLogic.getSessionScope(userId).listenToEvents() }
+                        coreLogic.getSessionScope(userId).listenToEvents()
                     }
             }
         }
@@ -171,7 +171,7 @@ class WireActivityViewModel @Inject constructor(
     private fun shouldGoToIncomingCall(): Boolean =
         (navigationArguments[INCOMING_CALL_CONVERSATION_ID_ARG] as? ConversationId) != null
 
-    private fun shouldGoToWelcome(): Boolean = runBlocking { userIdFlow.first() } == null
+    private fun shouldGoToWelcome(): Boolean = runBlocking { observeUserId.first() } == null
 
     companion object {
         private const val SERVER_CONFIG_ARG = "server_config"

@@ -23,8 +23,8 @@ import javax.inject.Singleton
 @Singleton
 class WireNotificationManager @Inject constructor(
     @KaliumCoreLogic private val coreLogic: CoreLogic,
-    private val messagesManager: MessageNotificationManager,
-    private val callsManager: CallNotificationManager,
+    private val messagesNotificationManager: MessageNotificationManager,
+    private val callNotificationManager: CallNotificationManager,
 ) {
     /**
      * Sync all the Pending events, fetch Message notifications from DB once and show it.
@@ -33,7 +33,9 @@ class WireNotificationManager @Inject constructor(
      */
     suspend fun fetchAndShowNotificationsOnce(userIdValue: String) {
         checkIfUserIsAuthenticated(userId = userIdValue)?.let { userId ->
-            coreLogic.getSessionScope(userId).syncPendingEvents()
+            println("cyka fetchAndShowNotificationsOnce $userId")
+            coreLogic.getSessionScope(userId).syncManager.waitUntilLive()
+            println("cyka fetchAndShowNotificationsOnce step 2")
             fetchAndShowMessageNotificationsOnce(userId)
             fetchAndShowCallNotificationsOnce(userId)
         }
@@ -45,17 +47,24 @@ class WireNotificationManager @Inject constructor(
         // but we don't get it from the first GetIncomingCallsUseCase() call.
         // To cover that case we have this `intervalFlow().take(CHECK_INCOMING_CALLS_TRIES)`
         // to try get incoming calls 6 times, if it returns nothing we assume there is no incoming call
+        println("cyka start trying")
         intervalFlow(CHECK_INCOMING_CALLS_PERIOD_MS)
             .map {
+                println("cyka trying")
                 coreLogic.getSessionScope(userId)
                     .calls
                     .getIncomingCalls()
                     .first()
             }
+            .map {
+                println("cyka try: ${it.size}")
+                it
+            }
             .take(CHECK_INCOMING_CALLS_TRIES)
             .distinctUntilChanged()
             .collect { callsList ->
-                callsManager.handleNotifications(callsList, userId)
+                println("cyka calls: ${callsList.size}")
+                callNotificationManager.handleNotifications(callsList, userId)
             }
     }
 
@@ -65,7 +74,7 @@ class WireNotificationManager @Inject constructor(
             .getNotifications()
             .first()
 
-        messagesManager.handleNotification(notificationsList, userId)
+        messagesNotificationManager.handleNotification(notificationsList, userId)
     }
 
     /**
@@ -84,16 +93,16 @@ class WireNotificationManager @Inject constructor(
     /**
      * Infinitely listen for the new IncomingCalls, notify about it and do additional actions if needed.
      * Can be used for listening for the Notifications when the app is running.
-     * @param userIdFlow Flow of QualifiedID of User
-     * @param isAppVisibleFlow StateFlow that informs if app is currently visible,
+     * @param observeUserId Flow of QualifiedID of User
+     * @param observeAppVisibility StateFlow that informs if app is currently visible,
      * so we can decide: should we show notification, or just open the IncomingCall screen
      */
     suspend fun observeIncomingCalls(
-        isAppVisibleFlow: StateFlow<Boolean>,
-        userIdFlow: Flow<UserId?>,
+        observeAppVisibility: StateFlow<Boolean>,
+        observeUserId: Flow<UserId?>,
         doIfCallCameAndAppVisible: (Call) -> Unit
     ) {
-        userIdFlow
+        observeUserId
             .flatMapLatest { userId ->
                 if (userId == null) {
                     flowOf(listOf())
@@ -105,10 +114,10 @@ class WireNotificationManager @Inject constructor(
                     .map { list -> list to userId }
             }
             .collect { (calls, userId) ->
-                if (isAppVisibleFlow.value) {
+                if (observeAppVisibility.value) {
                     calls.firstOrNull()?.run { doIfCallCameAndAppVisible(this) }
                 } else {
-                    callsManager.handleNotifications(calls, userId)
+                    callNotificationManager.handleNotifications(calls, userId)
                 }
             }
     }
@@ -141,7 +150,7 @@ class WireNotificationManager @Inject constructor(
                     }
             }
             .collect { (newNotifications, userId) ->
-                messagesManager.handleNotification(newNotifications, userId)
+                messagesNotificationManager.handleNotification(newNotifications, userId)
             }
     }
 

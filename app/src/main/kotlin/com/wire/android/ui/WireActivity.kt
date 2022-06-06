@@ -54,6 +54,7 @@ class WireActivity : AppCompatActivity() {
     }
 
     override fun onNewIntent(intent: Intent?) {
+        println("cyka onNewIntent ${intent?.data}")
         if (viewModel.handleDeepLinkOnNewIntent(intent)) {
             recreate()
         }

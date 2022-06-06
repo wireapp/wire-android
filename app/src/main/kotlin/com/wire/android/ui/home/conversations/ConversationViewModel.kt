@@ -54,7 +54,9 @@ import com.wire.kalium.logic.data.message.Message.DownloadStatus.SAVED_EXTERNALL
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.SAVED_INTERNALLY
 import com.wire.kalium.logic.data.message.MessageContent.Asset
 import com.wire.kalium.logic.data.message.MessageContent.MemberChange
+import com.wire.kalium.logic.data.message.MessageContent.Server
 import com.wire.kalium.logic.data.message.MessageContent.Text
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import com.wire.kalium.logic.feature.asset.SendAssetMessageResult
@@ -484,24 +486,30 @@ class ConversationViewModel @Inject constructor(
             Message.Visibility.VISIBLE -> when (val content = message.content) {
                 is Asset -> mapToMessageUI(content.value, message.conversationId, message.id)
                 is Text -> TextMessage(messageBody = MessageBody(UIText.DynamicString(content.value)))
-                is MemberChange -> {
-                    val sender = members.findUser(message.senderUserId)
-                    val isAuthorSelfAction = content.members.size == 1 && message.senderUserId == content.members.first().id
-                    val authorName = sender.toSystemMessageName()
-                    val memberNameList = content.members.map { members.findUser(it.id).toSystemMessageName(true) }
-                    when (content) {
-                        is MemberChange.Join -> ServerMessage.MemberAdded(authorName, memberNameList)
-                        is MemberChange.Leave ->
-                            if(isAuthorSelfAction) ServerMessage.MemberLeft(authorName)
-                            else ServerMessage.MemberRemoved(authorName, memberNameList)
-                    }
-                }
+                is Server -> mapToServerMessageContent(content, message.senderUserId, members)
                 else -> TextMessage(messageBody = MessageBody((content as? Text)?.let { UIText.DynamicString(it.value) }
                     ?: UIText.StringResource(R.string.content_is_not_available)))
             }
             Message.Visibility.DELETED -> DeletedMessage
             Message.Visibility.HIDDEN -> DeletedMessage
         }
+
+    private fun mapToServerMessageContent(content: Server, senderUserId: UserId, members: List<MemberDetails>): MessageContent {
+        return when (content) {
+            is MemberChange -> {
+                val sender = members.findUser(senderUserId)
+                val isAuthorSelfAction = content.members.size == 1 && senderUserId == content.members.first().id
+                val authorName = sender.toSystemMessageName()
+                val memberNameList = content.members.map { members.findUser(it.id).toSystemMessageName(true) }
+                when (content) {
+                    is MemberChange.Join -> ServerMessage.MemberAdded(authorName, memberNameList)
+                    is MemberChange.Leave ->
+                        if(isAuthorSelfAction) ServerMessage.MemberLeft(authorName)
+                        else ServerMessage.MemberRemoved(authorName, memberNameList)
+                }
+            }
+        }
+    }
 
     private suspend fun mapToMessageUI(assetContent: AssetContent, conversationId: ConversationId, messageId: String): MessageContent? {
         with(assetContent) {

@@ -208,7 +208,9 @@ class ConversationsViewModelTest {
         // When - Then
         every { arrangement.uiText.asString(any()) } returns (secondUserName)
         arrangement.withChannelUpdates(messages, listOf(mockOtherUserDetails(secondUserName, senderId)))
-        assertEquals(secondUserName, viewModel.conversationViewState.messages.first().messageHeader.username.asString(arrangement.resources))
+        assertEquals(
+            secondUserName, viewModel.conversationViewState.messages.first().messageHeader.username.asString(arrangement.resources)
+        )
     }
 
     @Test

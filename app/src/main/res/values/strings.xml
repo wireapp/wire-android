@@ -355,9 +355,18 @@
     <string name="connection_label_cancel_request">Cancel Request</string>
     <string name="connection_label_member_not_belongs_to_team">This user does not belong to your team. If they accept your connection request, they are available as a contact</string>
     <string name="connection_request_sent">Connection request sent</string>
+    <string name="connection_request_canceled">Connection request canceled</string>
+    <string name="connection_request_ignored">Connection request ignored</string>
+    <string name="connection_request_accepted">Connection request accepted</string>
+
     <string name="connection_request_sent_error">Connection request could not be sent</string>
     <string name="connection_pending_message">Wants to connect</string>
     <string name="connection_pending_label">pending</string>
+    <string name="connection_label_user_wants_to_conect">This user wants to connect with you.</string>
+    <string name="connection_label_accepting_request_description">If you accept their request, they will be added as a contact and you two can communicate directly.</string>
+    <string name="connection_label_accept">Accept</string>
+    <string name="connection_label_ignore">Ignore</string>
+
 
     <!-- Gallery -->
     <string name="media_gallery_default_title_name">Media Gallery</string>

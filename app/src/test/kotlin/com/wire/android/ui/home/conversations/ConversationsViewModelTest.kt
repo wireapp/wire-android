@@ -6,7 +6,6 @@ import com.wire.android.ui.home.conversations.ConversationViewModel.Companion.IM
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.kalium.logic.data.team.Team
-import com.wire.kalium.logic.data.user.UserId
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.verify
@@ -119,7 +118,7 @@ class ConversationsViewModelTest {
     fun `given message sent by self user, when solving the message header, then the state should contain the self user name`() = runTest {
         // Given
         val selfUserName = "self user"
-        val messages = listOf(mockUIMessage(selfUserName))
+        val messages = listOf(mockUITextMessage(selfUserName))
         val (arrangement, viewModel) = Arrangement()
             .withMessagesUpdate(messages)
             .arrange()
@@ -133,7 +132,7 @@ class ConversationsViewModelTest {
     fun `given message sent by another user, when solving the message header, then the state should contain that user name`() = runTest {
         // Given
         val otherUserName = "other user"
-        val messages = listOf(mockUIMessage(otherUserName))
+        val messages = listOf(mockUITextMessage(otherUserName))
         val (arrangement, viewModel) = Arrangement()
             .withMessagesUpdate(messages)
             .arrange()
@@ -147,9 +146,9 @@ class ConversationsViewModelTest {
     fun `given the sender is updated, when solving the message header, then the update is propagated in the state`() = runTest {
         // Given
         val firstUserName = "other user"
-        val originalMessages = listOf(mockUIMessage(firstUserName))
+        val originalMessages = listOf(mockUITextMessage(firstUserName))
         val secondUserName = "User changed their name"
-        val updatedMessages = listOf(mockUIMessage(secondUserName))
+        val updatedMessages = listOf(mockUITextMessage(secondUserName))
         val (arrangement, viewModel) = Arrangement()
             .withMessagesUpdate(originalMessages)
             .arrange()

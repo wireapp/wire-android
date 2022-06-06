@@ -47,6 +47,7 @@ import io.mockk.mockk
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 
 internal class Arrangement {
     init {
@@ -144,6 +145,7 @@ internal class Arrangement {
         return this
     }
 
+
     fun withSuccessfulSendAttachmentMessage(): Arrangement {
         coEvery { sendAssetMessage(any(), any(), any(), any()) } returns SendAssetMessageResult.Success
         coEvery { sendImageMessage(any(), any(), any(), any(), any()) } returns SendImageMessageResult.Success
@@ -191,7 +193,7 @@ internal fun mockConversationDetailsGroup(conversationName: String) = Conversati
     every { id } returns ConversationId("someId", "someDomain")
 }, mockk())
 
-internal fun mockUIMessage(userName: String = "mockUserName"): UIMessage {
+internal fun mockUITextMessage(userName: String = "mockUserName"): UIMessage {
     return mockk<UIMessage>().also {
         every { it.user } returns mockk<User>().also {
             every { it.avatarAsset } returns null

@@ -99,10 +99,13 @@ class GetMessageForConversationsUseCaseTest {
 
                 with(onlyMessage) {
                     assertEquals(expectedUserName, (messageHeader.username as UIText.DynamicString).value)
+
+                    val messageBody = (messageContent as MessageContent.TextMessage).messageBody
+                    assertEquals(expectedMessageBody, ((messageBody.message as UIText.DynamicString).value))
                 }
             }
 
-            coVerify { messageMapper.toUIMessages(listOf(mockSelfUserDetails), listOf(mockTextMessage))  }
+            coVerify { messageMapper.toUIMessages(listOf(mockSelfUserDetails), listOf(mockTextMessage)) }
         }
 
     private fun mockedTextMessage(content: String = "Some Text Message") = Message(

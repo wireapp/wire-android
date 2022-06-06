@@ -1,6 +1,6 @@
 package com.wire.android.ui.home.conversations
 
-import android.content.Context
+import android.content.res.Resources
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
@@ -172,7 +172,7 @@ class ConversationsViewModelTest {
 
         // When - Then
         every { arrangement.uiText.asString(any()) } returns (selfUserName)
-        assertEquals(selfUserName, viewModel.conversationViewState.messages.first().messageHeader.username.asString(arrangement.context.resources))
+        assertEquals(selfUserName, viewModel.conversationViewState.messages.first().messageHeader.username.asString(arrangement.resources))
     }
 
     @Test
@@ -188,7 +188,7 @@ class ConversationsViewModelTest {
 
         // When - Then
         every { arrangement.uiText.asString(any()) } returns (otherUserName)
-        assertEquals(otherUserName, viewModel.conversationViewState.messages.first().messageHeader.username.asString(arrangement.context.resources))
+        assertEquals(otherUserName, viewModel.conversationViewState.messages.first().messageHeader.username.asString(arrangement.resources))
     }
 
     @Test
@@ -203,12 +203,12 @@ class ConversationsViewModelTest {
 
         // When - Then
         every { arrangement.uiText.asString(any()) } returns (firstUserName)
-        assertEquals(firstUserName, viewModel.conversationViewState.messages.first().messageHeader.username.asString(arrangement.context.resources))
+        assertEquals(firstUserName, viewModel.conversationViewState.messages.first().messageHeader.username.asString(arrangement.resources))
 
         // When - Then
         every { arrangement.uiText.asString(any()) } returns (secondUserName)
         arrangement.withChannelUpdates(messages, listOf(mockOtherUserDetails(secondUserName, senderId)))
-        assertEquals(secondUserName, viewModel.conversationViewState.messages.first().messageHeader.username.asString(arrangement.context.resources))
+        assertEquals(secondUserName, viewModel.conversationViewState.messages.first().messageHeader.username.asString(arrangement.resources))
     }
 
     @Test
@@ -422,7 +422,7 @@ class ConversationsViewModelTest {
         lateinit var userTypeMapper: UserTypeMapper
 
         @MockK
-        lateinit var context: Context
+        lateinit var resources: Resources
 
         @MockK
         lateinit var uiText: UIText

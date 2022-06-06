@@ -115,7 +115,7 @@ class ConversationsViewModelTest {
         assertEquals(secondConversationDetails.conversation.name, viewModel.conversationViewState.conversationName)
     }
     @Test
-    fun `given message sent by self user, when solving the message header, then the state should contain the self user name`() = runTest {
+    fun `given message sent a user, when solving the message header, then the state should contain the user name`() = runTest {
         // Given
         val selfUserName = "self user"
         val messages = listOf(mockUITextMessage(selfUserName))
@@ -126,20 +126,6 @@ class ConversationsViewModelTest {
         // When - Then
         every { arrangement.uiText.asString(any()) } returns (selfUserName)
         assertEquals(selfUserName, viewModel.conversationViewState.messages.first().messageHeader.username.asString(arrangement.context))
-    }
-
-    @Test
-    fun `given message sent by another user, when solving the message header, then the state should contain that user name`() = runTest {
-        // Given
-        val otherUserName = "other user"
-        val messages = listOf(mockUITextMessage(otherUserName))
-        val (arrangement, viewModel) = Arrangement()
-            .withMessagesUpdate(messages)
-            .arrange()
-
-        // When - Then
-        every { arrangement.uiText.asString(any()) } returns (otherUserName)
-        assertEquals(otherUserName, viewModel.conversationViewState.messages.first().messageHeader.username.asString(arrangement.context))
     }
 
     @Test

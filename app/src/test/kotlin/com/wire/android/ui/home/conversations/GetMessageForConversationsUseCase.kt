@@ -53,7 +53,6 @@ class GetMessageForConversationsUseCaseTest {
 
     lateinit var getMessagesForConversationUseCase: GetMessagesForConversationUseCase
 
-
     @BeforeEach
     fun setup() {
         MockKAnnotations.init(this)

@@ -47,7 +47,6 @@ import io.mockk.mockk
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.map
 
 internal class Arrangement {
     init {
@@ -108,8 +107,6 @@ internal class Arrangement {
     @MockK
     lateinit var uiText: UIText
 
-    private val otherMemberUpdatesChannel = Channel<List<MemberDetails>>(capacity = Channel.UNLIMITED)
-
     private val conversationDetailsChannel = Channel<ConversationDetails>(capacity = Channel.UNLIMITED)
 
     private val messagesChannel = Channel<List<UIMessage>>(capacity = Channel.UNLIMITED)
@@ -143,12 +140,6 @@ internal class Arrangement {
     suspend fun withConversationDetailUpdate(conversationDetails: ConversationDetails): Arrangement {
         coEvery { observeConversationDetails(any()) } returns conversationDetailsChannel.consumeAsFlow()
         conversationDetailsChannel.send(conversationDetails)
-
-        return this
-    }
-
-    fun withSuccessFullMessages(messages: List<UIMessage>): Arrangement {
-        coEvery { getMessagesForConversationUseCase(any()) } returns flowOf(messages)
 
         return this
     }
@@ -200,30 +191,6 @@ internal fun mockConversationDetailsGroup(conversationName: String) = Conversati
     every { id } returns ConversationId("someId", "someDomain")
 }, mockk())
 
-internal fun mockSelfUserDetails(
-    name: String,
-    id: UserId = UserId("self", "user")
-): MemberDetails.Self = mockk<MemberDetails.Self>().also {
-    every { it.selfUser } returns mockk<SelfUser>().also { user ->
-        every { user.id } returns id
-        every { user.name } returns name
-        every { user.previewPicture } returns null
-    }
-}
-
-internal fun mockOtherUserDetails(
-    name: String,
-    id: UserId = UserId("other", "user"),
-    userType: UserType = UserType.INTERNAL
-): MemberDetails.Other = mockk<MemberDetails.Other>().also {
-    every { it.otherUser } returns mockk<OtherUser>().also { user ->
-        every { user.id } returns id
-        every { user.name } returns name
-        every { user.previewPicture } returns null
-    }
-    every { it.userType } returns userType
-}
-
 internal fun mockUIMessage(userName: String = "mockUserName"): UIMessage {
     return mockk<UIMessage>().also {
         every { it.user } returns mockk<User>().also {
@@ -241,14 +208,3 @@ internal fun mockUIMessage(userName: String = "mockUserName"): UIMessage {
         every { it.messageContent } returns null
     }
 }
-
-internal fun mockedMessage(senderId: UserId) = Message(
-    id = "messageID",
-    content = com.wire.kalium.logic.data.message.MessageContent.Text("Some Text Message"),
-    conversationId = ConversationId("convo-id", "convo.domain"),
-    date = "some-date",
-    senderUserId = senderId,
-    senderClientId = ClientId("client-id"),
-    status = Message.Status.SENT,
-    editStatus = Message.EditStatus.NotEdited
-)

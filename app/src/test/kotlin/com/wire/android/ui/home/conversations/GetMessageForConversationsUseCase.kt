@@ -24,9 +24,11 @@ import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseC
 import com.wire.kalium.logic.feature.message.GetRecentMessagesUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
+import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
@@ -81,7 +83,7 @@ class GetMessageForConversationsUseCaseTest {
 
             coEvery { getMessages(any()) } returns flowOf(listOf(mockTextMessage))
             coEvery { observeMemberDetails(any()) } returns flowOf(listOf(mockSelfUserDetails))
-            coEvery { messageMapper.toUIMessages(eq(listOf(mockSelfUserDetails)), eq(listOf(mockTextMessage))) } returns listOf(
+            coEvery { messageMapper.toUIMessages(any(), any()) } returns listOf(
                 mockUITextMessage(
                     userName = mockSelfUserDetails.name!!,
                     messageBody = (mockTextMessage.content as com.wire.kalium.logic.data.message.MessageContent.Text).value
@@ -99,6 +101,8 @@ class GetMessageForConversationsUseCaseTest {
                     assertEquals(expectedUserName, (messageHeader.username as UIText.DynamicString).value)
                 }
             }
+
+            coVerify { messageMapper.toUIMessages(listOf(mockSelfUserDetails), listOf(mockTextMessage))  }
         }
 
     private fun mockedTextMessage(content: String = "Some Text Message") = Message(

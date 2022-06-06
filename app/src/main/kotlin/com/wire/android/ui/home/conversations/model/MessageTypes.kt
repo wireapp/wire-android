@@ -44,12 +44,14 @@ import com.wire.android.ui.common.WireCircularProgressIndicator
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.ConversationViewModel
 import com.wire.android.ui.home.conversations.MessageItem
+import com.wire.android.ui.home.conversations.SystemMessageItem
 import com.wire.android.ui.home.conversations.mock.mockAssetMessage
 import com.wire.android.ui.home.conversations.mock.mockMessageWithText
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.getUriFromDrawable
 import com.wire.android.util.toBitmap
+import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.FAILED
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.IN_PROGRESS
@@ -282,4 +284,17 @@ fun PreviewDeletedMessage() {
 @Composable
 fun PreviewAssetMessage() {
     MessageItem(mockAssetMessage, {}, {}, { _, _ -> })
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewMessageWithSystemMessage() {
+    Column {
+        MessageItem(mockMessageWithText, {}, {}, { _, _ -> })
+        SystemMessageItem(MessageContent.ServerMessage.MemberAdded(
+            UIText.DynamicString("You"),
+            listOf(UIText.DynamicString("Adam Smmith"))
+        ))
+    }
+
 }

@@ -54,7 +54,9 @@ fun SystemMessageItem(message: ServerMessage) {
             .fillMaxWidth()
     ) {
         Box(
-            modifier = Modifier.width(dimensions().userAvatarDefaultSize),
+            modifier = Modifier
+                .padding(horizontal = dimensions().userAvatarStatusBorderSize)
+                .width(dimensions().userAvatarDefaultSize),
             contentAlignment = Alignment.TopEnd
         ) {
             if (message.iconResId != null)
@@ -63,7 +65,6 @@ fun SystemMessageItem(message: ServerMessage) {
                     contentDescription = stringResource(R.string.content_description_system_message_icon),
                     modifier = Modifier
                         .padding(
-                            horizontal = dimensions().spacing2x,
                             vertical = dimensions().spacing4x
                         )
                         .size(dimensions().systemMessageIconSize),

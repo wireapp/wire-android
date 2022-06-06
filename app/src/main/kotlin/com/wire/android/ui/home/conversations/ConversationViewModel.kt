@@ -6,13 +6,9 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.R
 import com.wire.android.appLogger
-import com.wire.android.mapper.MessageMapper
-import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.model.ImageAsset.PrivateAsset
 import com.wire.android.model.ImageAsset.UserAvatarAsset
-import com.wire.android.model.UserStatus
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.EXTRA_MESSAGE_TO_DELETE_ID
 import com.wire.android.navigation.EXTRA_MESSAGE_TO_DELETE_IS_SELF
@@ -27,33 +23,17 @@ import com.wire.android.ui.home.conversations.DownloadedAssetDialogVisibilitySta
 import com.wire.android.ui.home.conversations.DownloadedAssetDialogVisibilityState.Hidden
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
-import com.wire.android.ui.home.conversations.model.MessageBody
-import com.wire.android.ui.home.conversations.model.MessageContent
 import com.wire.android.ui.home.conversations.model.MessageContent.AssetMessage
-import com.wire.android.ui.home.conversations.model.MessageContent.DeletedMessage
-import com.wire.android.ui.home.conversations.model.MessageContent.TextMessage
-import com.wire.android.ui.home.conversations.model.MessageHeader
-import com.wire.android.ui.home.conversations.model.MessageSource
-import com.wire.android.ui.home.conversations.model.MessageStatus
-import com.wire.android.ui.home.conversations.model.UIMessage
-import com.wire.android.ui.home.conversations.model.User
-import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
 import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.extractImageParams
-import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.ConversationDetails
-import com.wire.kalium.logic.data.conversation.MemberDetails
 import com.wire.kalium.logic.data.id.parseIntoQualifiedID
-import com.wire.kalium.logic.data.message.AssetContent
-import com.wire.kalium.logic.data.message.AssetContent.AssetMetadata.Image
-import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.FAILED
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.IN_PROGRESS
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.SAVED_EXTERNALLY
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.SAVED_INTERNALLY
-import com.wire.kalium.logic.data.message.MessageContent.Asset
-import com.wire.kalium.logic.data.message.MessageContent.Text
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import com.wire.kalium.logic.feature.asset.SendAssetMessageResult
@@ -62,17 +42,13 @@ import com.wire.kalium.logic.feature.asset.SendImageMessageResult
 import com.wire.kalium.logic.feature.asset.SendImageMessageUseCase
 import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
-import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
-import com.wire.kalium.logic.feature.message.GetRecentMessagesUseCase
 import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.util.toStringDate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -83,9 +59,7 @@ import com.wire.kalium.logic.data.id.QualifiedID as ConversationId
 class ConversationViewModel @Inject constructor(
     val savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
-    private val getMessages: GetRecentMessagesUseCase,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
-    private val observeMemberDetails: ObserveConversationMembersUseCase,
     private val sendImageMessage: SendImageMessageUseCase,
     private val sendAssetMessage: SendAssetMessageUseCase,
     private val sendTextMessage: SendTextMessageUseCase,
@@ -96,7 +70,7 @@ class ConversationViewModel @Inject constructor(
     private val updateAssetMessageDownloadStatus: UpdateAssetMessageDownloadStatusUseCase,
     private val getSelfUserTeam: GetSelfTeamUseCase,
     private val fileManager: FileManager,
-    private val messageMapper: MessageMapper,
+    private val getMessagesForConversationUseCase: GetMessagesForConversationUseCase
 ) : ViewModel() {
 
     var conversationViewState by mutableStateOf(ConversationViewState())
@@ -123,10 +97,8 @@ class ConversationViewModel @Inject constructor(
 
     // region ------------------------------ Init Methods -------------------------------------
     private fun fetchMessages() = viewModelScope.launch {
-        getMessages(conversationId).combine(observeMemberDetails(conversationId)) { messages, members ->
-            messageMapper.toUIMessages(members, messages)
-        }.flowOn(dispatchers.default()).collect { uiMessages ->
-            conversationViewState = conversationViewState.copy(messages = uiMessages)
+        getMessagesForConversationUseCase(conversationId).collect { messages ->
+            conversationViewState = conversationViewState.copy(messages = messages)
         }
     }
 

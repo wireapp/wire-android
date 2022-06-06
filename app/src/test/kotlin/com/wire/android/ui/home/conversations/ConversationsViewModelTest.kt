@@ -35,6 +35,7 @@ import com.wire.kalium.logic.feature.asset.SendImageMessageResult
 import com.wire.kalium.logic.feature.asset.SendImageMessageUseCase
 import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveMemberDetailsByIdsUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.GetRecentMessagesUseCase
@@ -535,7 +536,7 @@ class ConversationsViewModelTest {
         every { it.userType } returns userType
     }
 
-    private fun mockedMessage(senderId: UserId) = Message(
+    private fun mockedMessage(senderId: UserId) = Message.Client(
         id = "messageID",
         content = Text("Some Text Message"),
         conversationId = ConversationId("convo-id", "convo.domain"),

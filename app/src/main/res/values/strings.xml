@@ -371,12 +371,20 @@
     <!-- Gallery -->
     <string name="media_gallery_default_title_name">Media Gallery</string>
     <string name="media_gallery_on_image_downloaded">Saved to Downloads folder</string>
-    <string name="media_gallery_on_image_download_error">There was an error when saving the image to Downloads folder. Please check your Internet connection and try again</string>
+    <string name="media_gallery_on_image_download_error">There was an error when saving the image to
+        Downloads folder. Please check your Internet connection and try again
+    </string>
 
     <!--sso dialog-->
     <string name="sso_erro_dialog_title">Unable to log in with SSO</string>
-    <string name="sso_erro_dialog_message">Please try again. If this does not help, contact your admin and provide this code:\n%d"</string>
+    <string name="sso_erro_dialog_message">Please try again. If this does not help, contact your
+        admin and provide this code:\n%d"
+    </string>
     <string name="asset_download_dialog_default_title">Download file</string>
     <string name="empty_group_label">Unnamed conversation</string>
+
+    <!--wire dropdown-->
+    <string name="wire_dropdown_default_indicator">(Default)</string>
+    <string name="wire_dropdown_placeholder">Select an Item</string>
 
 </resources>

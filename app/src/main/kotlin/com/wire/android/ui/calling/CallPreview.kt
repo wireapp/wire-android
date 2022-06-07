@@ -4,11 +4,10 @@ import android.view.View
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Text
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -30,9 +29,7 @@ fun CallPreview(
     Box {
         if (isCameraOn) {
             AndroidView(
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxSize(),
                 factory = {
                     val videoPreview = VideoPreview(it)
                     onVideoPreviewCreated(videoPreview)
@@ -51,12 +48,12 @@ fun CallPreview(
                     is ConversationName.Unknown -> stringResource(id = conversationName.resourceId)
                     else -> ""
                 },
-                style = androidx.compose.material3.MaterialTheme.wireTypography.title01,
+                style = MaterialTheme.wireTypography.title01,
                 modifier = Modifier.padding(top = dimensions().spacing24x)
             )
             Text(
                 text = stringResource(id = com.wire.android.R.string.calling_label_ringing_call),
-                style = androidx.compose.material3.MaterialTheme.wireTypography.body01,
+                style = MaterialTheme.wireTypography.body01,
                 modifier = Modifier.padding(top = dimensions().spacing8x)
             )
             if (!isCameraOn)

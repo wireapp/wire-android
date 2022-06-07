@@ -11,9 +11,12 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.data.client.Client
+import com.wire.kalium.logic.data.client.ClientType
+import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.client.RegisterClientUseCase
+import com.wire.kalium.logic.feature.session.RegisterTokenResult
 import com.wire.kalium.logic.feature.session.RegisterTokenUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -49,9 +52,6 @@ class RegisterDeviceViewModelTest {
     @MockK
     private lateinit var registerTokenUseCase: RegisterTokenUseCase
 
-    @MockK
-    private lateinit var client: Client
-
     private lateinit var registerDeviceViewModel: RegisterDeviceViewModel
 
     @BeforeEach
@@ -83,7 +83,7 @@ class RegisterDeviceViewModelTest {
         coEvery { validatePasswordUseCase.invoke(any()) } returns true
         coEvery {
             registerClientUseCase.invoke(any())
-        } returns RegisterClientResult.Success(client)
+        } returns RegisterClientResult.Success(CLIENT)
 
         registerDeviceViewModel.onPasswordChange(TextFieldValue("abc"))
         registerDeviceViewModel.state.continueEnabled shouldBeEqualTo true
@@ -103,7 +103,11 @@ class RegisterDeviceViewModelTest {
             registerClientUseCase.invoke(
                 any()
             )
-        } returns RegisterClientResult.Success(client)
+        } returns RegisterClientResult.Success(CLIENT)
+        coEvery {
+            registerTokenUseCase.invoke(any(), any())
+        } returns RegisterTokenResult.Failure.PushTokenRegister
+
         coEvery { navigationManager.navigate(any()) } returns Unit
         registerDeviceViewModel.onPasswordChange(TextFieldValue(password))
 
@@ -179,5 +183,13 @@ class RegisterDeviceViewModelTest {
         registerDeviceViewModel.state.error shouldBeInstanceOf RegisterDeviceError.GenericError::class
         registerDeviceViewModel.onErrorDismiss()
         registerDeviceViewModel.state.error shouldBe RegisterDeviceError.None
+    }
+
+    companion object {
+        val CLIENT_ID = ClientId("test")
+        val CLIENT = Client(
+            CLIENT_ID, ClientType.Permanent, "time", null,
+            null, "label", "cookie", null, "model"
+        )
     }
 }

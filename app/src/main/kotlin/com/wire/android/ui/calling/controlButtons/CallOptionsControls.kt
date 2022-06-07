@@ -17,7 +17,10 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
 @Composable
-fun CallOptionsControls() {
+fun CallOptionsControls(
+    isMuted: Boolean,
+    toggleMute: () -> Unit
+) {
     Row(
         horizontalArrangement = Arrangement.SpaceEvenly,
         verticalAlignment = Alignment.CenterVertically,
@@ -29,7 +32,7 @@ fun CallOptionsControls() {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            MicrophoneButton(isMuted = true) { }
+            MicrophoneButton(isMuted = isMuted, toggleMute)
             Text(
                 text = stringResource(id = R.string.calling_label_microphone).uppercase(),
                 style = MaterialTheme.wireTypography.label01,
@@ -68,5 +71,5 @@ fun CallOptionsControls() {
 @Preview
 @Composable
 fun ComposablePreview() {
-    CallOptionsControls()
+    CallOptionsControls(isMuted = true) { }
 }

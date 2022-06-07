@@ -36,11 +36,11 @@ import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.MessageContent
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageImage
+import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.MessageViewWrapper
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.wireColorScheme
-import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -49,14 +49,14 @@ fun MessageItem(
     message: MessageViewWrapper,
     onLongClicked: (MessageViewWrapper) -> Unit,
     onAssetMessageClicked: (String) -> Unit,
-    onImageMessageClicked: (String) -> Unit
+    onImageMessageClicked: (String, Boolean) -> Unit
 ) {
     with(message) {
         Row(
             Modifier
                 .padding(
-                    end = MaterialTheme.wireDimensions.spacing16x,
-                    bottom = MaterialTheme.wireDimensions.messageItemBottomPadding
+                    end = dimensions().spacing16x,
+                    bottom = dimensions().messageItemBottomPadding - dimensions().userAvatarClickablePadding
                 )
                 .fillMaxWidth()
                 .combinedClickable(
@@ -65,21 +65,25 @@ fun MessageItem(
                     onLongClick = { onLongClicked(message) }
                 )
         ) {
-            Spacer(Modifier.padding(start = dimensions().spacing2x))
+            Spacer(Modifier.padding(start = dimensions().spacing8x - dimensions().userAvatarClickablePadding))
             UserProfileAvatar(
                 userAvatarAsset = message.user.avatarAsset,
                 status = message.user.availabilityStatus
             )
-            Spacer(Modifier.padding(start = dimensions().spacing12x))
+            Spacer(Modifier.padding(start = dimensions().spacing16x - dimensions().userAvatarClickablePadding))
             Column {
+                Spacer(modifier = Modifier.height(dimensions().userAvatarClickablePadding))
                 MessageHeader(messageHeader)
-                Spacer(modifier = Modifier.height(dimensions().spacing6x))
                 if (!isDeleted) {
                     MessageContent(messageContent,
                         onAssetClick = { onAssetMessageClicked(message.messageHeader.messageId) },
                         onImageClick = {
-                            onImageMessageClicked(message.messageHeader.messageId)
-                        })
+                            onImageMessageClicked(
+                                message.messageHeader.messageId,
+                                message.messageSource == MessageSource.Self
+                            )
+                        }
+                    )
                 }
             }
         }

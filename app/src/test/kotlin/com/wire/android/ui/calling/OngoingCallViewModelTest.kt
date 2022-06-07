@@ -2,13 +2,8 @@ package com.wire.android.ui.calling
 
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.navigation.NavigationManager
-import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
-import com.wire.kalium.logic.feature.call.usecase.GetAllCallsUseCase
-import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
-import com.wire.kalium.logic.feature.call.usecase.UnMuteCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.GetOngoingCallUseCase
 import io.mockk.MockKAnnotations
-import io.mockk.coEvery
-import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.Dispatchers
@@ -16,13 +11,9 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.resetMain
-import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import org.amshove.kluent.shouldBeEqualTo
 import org.junit.After
 import org.junit.jupiter.api.BeforeEach
-import org.junit.jupiter.api.Test
-import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class OngoingCallViewModelTest {
@@ -34,19 +25,7 @@ class OngoingCallViewModelTest {
     private lateinit var navigationManager: NavigationManager
 
     @MockK
-    private lateinit var allCalls: GetAllCallsUseCase
-
-    @MockK
-    private lateinit var endCall: EndCallUseCase
-
-    @MockK
-    private lateinit var muteCall: MuteCallUseCase
-
-    @MockK
-    private lateinit var unMuteCall: UnMuteCallUseCase
-
-    @MockK
-    private lateinit var observeConversationDetails: ObserveConversationDetailsUseCase
+    private lateinit var ongoingCall: GetOngoingCallUseCase
 
     private lateinit var ongoingCallViewModel: OngoingCallViewModel
 
@@ -62,35 +41,8 @@ class OngoingCallViewModelTest {
         ongoingCallViewModel = OngoingCallViewModel(
             savedStateHandle = savedStateHandle,
             navigationManager = navigationManager,
-            conversationDetails = observeConversationDetails,
-            allCalls = allCalls,
-            endCall = endCall,
-            muteCall = muteCall,
-            unMuteCall = unMuteCall
+            ongoingCall = ongoingCall
         )
-    }
-
-    @Test
-    fun `given muteOrUnMuteCall is called, when active call is muted, then un-mute the call`() {
-        ongoingCallViewModel.callEstablishedState = ongoingCallViewModel.callEstablishedState.copy(isMuted = false)
-        coEvery { muteCall.invoke() } returns Unit
-
-        runTest { ongoingCallViewModel.muteOrUnMuteCall() }
-
-        coVerify(exactly = 1) { muteCall.invoke() }
-        ongoingCallViewModel.callEstablishedState.isMuted shouldBeEqualTo true
-    }
-
-    @Test
-    fun `given muteOrUnMuteCall is called, when active call is un-muted, then mute the call`() {
-        ongoingCallViewModel.callEstablishedState = ongoingCallViewModel.callEstablishedState.copy(isMuted = true)
-        coEvery { unMuteCall.invoke() } returns Unit
-
-        runTest { ongoingCallViewModel.muteOrUnMuteCall() }
-
-        coVerify(exactly = 1) { unMuteCall.invoke() }
-        ongoingCallViewModel.callEstablishedState.isMuted shouldBeEqualTo false
-
     }
 
     @After

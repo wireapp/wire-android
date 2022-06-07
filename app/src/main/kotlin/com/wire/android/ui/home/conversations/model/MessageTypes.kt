@@ -1,6 +1,7 @@
 package com.wire.android.ui.home.conversations.model
 
 import android.graphics.Bitmap
+import android.text.util.Linkify
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -38,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import coil.compose.rememberAsyncImagePainter
 import com.wire.android.R
+import com.wire.android.ui.common.LinkifyText
 import com.wire.android.ui.common.WireCircularProgressIndicator
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.ConversationViewModel
@@ -49,21 +51,18 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.getUriFromDrawable
 import com.wire.android.util.toBitmap
 import com.wire.kalium.logic.data.message.Message
-import com.wire.kalium.logic.data.message.Message.DownloadStatus.DOWNLOADED
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.FAILED
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.IN_PROGRESS
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.NOT_DOWNLOADED
+import com.wire.kalium.logic.data.message.Message.DownloadStatus.SAVED_EXTERNALLY
+import com.wire.kalium.logic.data.message.Message.DownloadStatus.SAVED_INTERNALLY
 import kotlin.math.roundToInt
 
 // TODO: Here we actually need to implement some logic that will distinguish MentionLabel with Body of the message,
 // waiting for the backend to implement mapping logic for the MessageBody
 @Composable
 internal fun MessageBody(messageBody: MessageBody) {
-    Text(
-        buildAnnotatedString {
-            appendBody(messageBody = messageBody)
-        }
-    )
+    LinkifyText(text = messageBody.message.asString(), mask = Linkify.WEB_URLS or Linkify.EMAIL_ADDRESSES)
 }
 
 @Composable
@@ -92,9 +91,10 @@ internal fun DeletedMessage() {
 
 @Composable
 fun MessageImage(rawImgData: ByteArray?, imgParams: ImageMessageParams, onImageClick: () -> Unit) {
-    Box(Modifier
-        .clip(shape = RoundedCornerShape(dimensions().messageAssetBorderRadius))
-        .clickable { onImageClick() }
+    Box(
+        Modifier
+            .clip(shape = RoundedCornerShape(dimensions().messageAssetBorderRadius))
+            .clickable { onImageClick() }
     ) {
         val imageData: Bitmap? =
             if (rawImgData != null && rawImgData.size < ConversationViewModel.IMAGE_SIZE_LIMIT_BYTES) rawImgData.toBitmap() else null
@@ -121,6 +121,7 @@ internal fun MessageAsset(
     val assetDescription = provideAssetDescription(assetExtension, assetSizeInBytes)
     Box(
         modifier = Modifier
+            .padding(top = dimensions().spacing4x)
             .background(
                 color = MaterialTheme.wireColorScheme.onPrimary,
                 shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
@@ -170,11 +171,13 @@ internal fun MessageAsset(
                     style = MaterialTheme.wireTypography.subline01
                 )
                 Row(
-                    modifier = Modifier.wrapContentWidth().constrainAs(downloadStatus) {
-                        top.linkTo(parent.top)
-                        end.linkTo(parent.end)
-                        bottom.linkTo(parent.bottom)
-                    },
+                    modifier = Modifier
+                        .wrapContentWidth()
+                        .constrainAs(downloadStatus) {
+                            top.linkTo(parent.top)
+                            end.linkTo(parent.end)
+                            bottom.linkTo(parent.bottom)
+                        },
                 ) {
                     Text(
                         modifier = Modifier.padding(end = dimensions().spacing4x),
@@ -198,7 +201,13 @@ private fun DownloadStatusIcon(assetDownloadStatus: Message.DownloadStatus) {
             progressColor = MaterialTheme.wireColorScheme.secondaryText,
             size = dimensions().spacing16x
         )
-        DOWNLOADED -> Icon(
+        SAVED_INTERNALLY -> Icon(
+            painter = painterResource(id = R.drawable.ic_download),
+            contentDescription = stringResource(R.string.content_description_download_icon),
+            modifier = Modifier.size(dimensions().wireIconButtonSize),
+            tint = MaterialTheme.wireColorScheme.secondaryText
+        )
+        SAVED_EXTERNALLY -> Icon(
             painter = painterResource(id = R.drawable.ic_check_tick),
             contentDescription = stringResource(R.string.content_description_check),
             modifier = Modifier.size(dimensions().wireIconButtonSize),
@@ -212,8 +221,9 @@ private fun DownloadStatusIcon(assetDownloadStatus: Message.DownloadStatus) {
 fun getDownloadStatusText(assetDownloadStatus: Message.DownloadStatus): String =
     when (assetDownloadStatus) {
         NOT_DOWNLOADED -> stringResource(R.string.asset_message_tap_to_download_text)
+        SAVED_INTERNALLY -> stringResource(R.string.asset_message_downloaded_internally_text)
         IN_PROGRESS -> stringResource(R.string.asset_message_download_in_progress_text)
-        DOWNLOADED -> stringResource(R.string.asset_message_downloaded_text)
+        SAVED_EXTERNALLY -> stringResource(R.string.asset_message_saved_externally_text)
         FAILED -> stringResource(R.string.asset_message_failed_download_text)
     }
 
@@ -259,7 +269,7 @@ class ImageMessageParams(private val realImgWidth: Int, private val realImgHeigh
 @Preview(showBackground = true)
 @Composable
 fun PreviewMessage() {
-    MessageItem(mockMessageWithText, {}, {}, {})
+    MessageItem(mockMessageWithText, {}, {}, { _, _ -> })
 }
 
 @Preview(showBackground = true)
@@ -271,5 +281,5 @@ fun PreviewDeletedMessage() {
 @Preview(showBackground = true)
 @Composable
 fun PreviewAssetMessage() {
-    MessageItem(mockAssetMessage, {}, {}, {})
+    MessageItem(mockAssetMessage, {}, {}, { _, _ -> })
 }

@@ -20,6 +20,7 @@ fun NavigationGraph(navController: NavHostController, startDestination: String, 
             composable(
                 route = item.getCanonicalRoute(),
                 content = { navBackStackEntry -> item.content(ContentParams(navBackStackEntry, appInitialArgs)) },
+                deepLinks = item.deepLinks,
                 enterTransition = { item.animationConfig.enterTransition },
                 exitTransition = { item.animationConfig.exitTransition }
             )

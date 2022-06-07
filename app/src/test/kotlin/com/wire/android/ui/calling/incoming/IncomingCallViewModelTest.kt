@@ -5,9 +5,8 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.media.CallRinger
 import com.wire.android.navigation.NavigationManager
 import com.wire.kalium.logic.feature.call.AnswerCallUseCase
-import com.wire.kalium.logic.feature.call.usecase.GetAllCallsUseCase
+import com.wire.kalium.logic.feature.call.usecase.GetIncomingCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.RejectCallUseCase
-import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -15,7 +14,6 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.flowOf
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -31,13 +29,10 @@ class IncomingCallViewModelTest {
     lateinit var navigationManager: NavigationManager
 
     @MockK
-    lateinit var conversationDetails: ObserveConversationDetailsUseCase
-
-    @MockK
-    private lateinit var allCalls: GetAllCallsUseCase
-
-    @MockK
     lateinit var rejectCall: RejectCallUseCase
+
+    @MockK
+    lateinit var incomingCalls: GetIncomingCallsUseCase
 
     @MockK
     lateinit var acceptCall: AnswerCallUseCase
@@ -56,15 +51,14 @@ class IncomingCallViewModelTest {
         // Default empty values
         coEvery { navigationManager.navigateBack() } returns Unit
         coEvery { navigationManager.navigate(any()) } returns Unit
-        coEvery { conversationDetails(any()) } returns flowOf()
         coEvery { rejectCall(any()) } returns Unit
         coEvery { acceptCall(any()) } returns Unit
+        coEvery { callRinger.ring(any(), any()) } returns Unit
 
         viewModel = IncomingCallViewModel(
             savedStateHandle = savedStateHandle,
             navigationManager = navigationManager,
-            conversationDetails = conversationDetails,
-            allCalls = allCalls,
+            incomingCalls = incomingCalls,
             rejectCall = rejectCall,
             acceptCall = acceptCall,
             callRinger = callRinger
@@ -78,7 +72,6 @@ class IncomingCallViewModelTest {
         viewModel.declineCall()
 
         coVerify(exactly = 1) { rejectCall(conversationId = any()) }
-        coVerify(exactly = 1) { navigationManager.navigateBack() }
         verify(exactly = 1) { callRinger.stop() }
     }
 

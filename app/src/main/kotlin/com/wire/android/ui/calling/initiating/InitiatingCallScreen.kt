@@ -41,17 +41,21 @@ fun InitiatingCallScreen(
     sharedCallingViewModel: SharedCallingViewModel = hiltViewModel(),
     initiatingCallViewModel: InitiatingCallViewModel = hiltViewModel()
 ) {
-    InitiatingCallContent(
-        callState = sharedCallingViewModel.callState,
-        onNavigateBack = { sharedCallingViewModel.navigateBack() },
-        onHangUpCall = { sharedCallingViewModel.hangUpCall() }
-    )
+    with(sharedCallingViewModel) {
+        InitiatingCallContent(
+            callState = callState,
+            toggleMute = ::toggleMute,
+            onNavigateBack = ::navigateBack,
+            onHangUpCall = ::hangUpCall
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun InitiatingCallContent(
     callState: CallState,
+    toggleMute: () -> Unit,
     onNavigateBack: () -> Unit,
     onHangUpCall: () -> Unit
 ) {
@@ -70,7 +74,10 @@ fun InitiatingCallContent(
                 modifier = Modifier.fillMaxSize(),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                CallOptionsControls()
+                CallOptionsControls(
+                    isMuted = callState.isMuted,
+                    toggleMute = toggleMute
+                )
                 Spacer(
                     modifier = Modifier
                         .fillMaxWidth()

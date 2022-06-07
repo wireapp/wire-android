@@ -52,7 +52,7 @@ fun IncomingCallScreen(
             toggleVideo = ::toggleVideo,
             declineCall = incomingCallViewModel::declineCall,
             acceptCall = audioPermissionCheck::launch,
-            onVideoPreviewCreated = { setVideoPreview(it) }
+            onVideoPreviewCreated = ::setVideoPreview
         )
     }
 }

@@ -61,7 +61,7 @@ import com.wire.kalium.logic.feature.asset.SendImageMessageResult
 import com.wire.kalium.logic.feature.asset.SendImageMessageUseCase
 import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
-import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveMemberDetailsByIdsUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.GetRecentMessagesUseCase
 import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
@@ -69,9 +69,11 @@ import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.util.toStringDate
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -84,7 +86,7 @@ class ConversationViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val getMessages: GetRecentMessagesUseCase,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
-    private val observeMemberDetails: ObserveConversationMembersUseCase,
+    private val observeMemberDetails: ObserveMemberDetailsByIdsUseCase,
     private val sendImageMessage: SendImageMessageUseCase,
     private val sendAssetMessage: SendAssetMessageUseCase,
     private val sendTextMessage: SendTextMessageUseCase,
@@ -121,9 +123,11 @@ class ConversationViewModel @Inject constructor(
     }
 
     // region ------------------------------ Init Methods -------------------------------------
+    @OptIn(ExperimentalCoroutinesApi::class)
     private fun fetchMessages() = viewModelScope.launch {
-        getMessages(conversationId).combine(observeMemberDetails(conversationId)) { messages, members ->
-            messages.toUIMessages(members)
+        getMessages(conversationId).flatMapLatest { messages ->
+            observeMemberDetails(messages.map { it.senderUserId }.distinct())
+                .map { members -> messages.toUIMessages(members) }
         }.flowOn(dispatchers.default()).collect { uiMessages ->
             conversationViewState = conversationViewState.copy(messages = uiMessages)
         }

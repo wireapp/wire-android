@@ -36,6 +36,7 @@ import com.wire.kalium.logic.feature.asset.SendImageMessageUseCase
 import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveMemberDetailsByIdsUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.GetRecentMessagesUseCase
 import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
@@ -403,7 +404,7 @@ class ConversationsViewModelTest {
         lateinit var observeConversationDetails: ObserveConversationDetailsUseCase
 
         @MockK
-        lateinit var observeMemberDetails: ObserveConversationMembersUseCase
+        lateinit var observeMemberDetails: ObserveMemberDetailsByIdsUseCase
 
         @MockK
         lateinit var markMessagesAsNotified: MarkMessagesAsNotifiedUseCase

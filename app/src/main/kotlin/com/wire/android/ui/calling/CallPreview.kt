@@ -30,9 +30,7 @@ fun CallPreview(
     Box {
         if (isCameraOn) {
             AndroidView(
-                modifier = Modifier
-                    .fillMaxHeight()
-                    .fillMaxWidth(),
+                modifier = Modifier.fillMaxSize(),
                 factory = {
                     val videoPreview = VideoPreview(it)
                     onVideoPreviewCreated(videoPreview)
@@ -51,12 +49,12 @@ fun CallPreview(
                     is ConversationName.Unknown -> stringResource(id = conversationName.resourceId)
                     else -> ""
                 },
-                style = androidx.compose.material3.MaterialTheme.wireTypography.title01,
+                style = MaterialTheme.wireTypography.title01,
                 modifier = Modifier.padding(top = dimensions().spacing24x)
             )
             Text(
                 text = stringResource(id = com.wire.android.R.string.calling_label_ringing_call),
-                style = androidx.compose.material3.MaterialTheme.wireTypography.body01,
+                style = MaterialTheme.wireTypography.body01,
                 modifier = Modifier.padding(top = dimensions().spacing8x)
             )
             if (!isCameraOn)

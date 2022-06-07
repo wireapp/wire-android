@@ -30,9 +30,14 @@ import com.wire.android.ui.common.WireBottomNavigationItemData
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.home.conversationslist.ConversationOperationErrorState.MutingOperationErrorState
+import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationOptionNavigation
+import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationOptionSheetState
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.navigation.ConversationsNavigationItem
+import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 
 @ExperimentalAnimationApi
 @ExperimentalMaterial3Api
@@ -51,6 +56,10 @@ fun ConversationRouterHomeBridge(
         ConversationState()
     }
 
+    val conversationOptionSheetState = remember(conversationState.conversationSheetContent) {
+        ConversationOptionSheetState(initialNavigation = ConversationOptionNavigation.Home)
+    }
+
     // we want to relaunch the onHomeBottomSheetContentChange lambda each time the content changes
     // to pass the new Composable
     LaunchedEffect(conversationState.conversationSheetContent) {
@@ -58,7 +67,12 @@ fun ConversationRouterHomeBridge(
             onHomeBottomSheetContentChange {
                 ConversationSheetContent(
                     conversationSheetContent = conversationSheetContent,
-                    onMutingConversationStatusChange = conversationState::muteConversation,
+                    conversationOptionSheetState = conversationOptionSheetState,
+                    // FIXME: Compose - Find a way to not recreate this lambda
+                    onMutingConversationStatusChange = { mutedStatus ->
+                        conversationState.muteConversation(mutedStatus)
+                        viewModel.muteConversation(conversationId = conversationSheetContent.conversationId, mutedStatus)
+                    },
                     addConversationToFavourites = viewModel::addConversationToFavourites,
                     moveConversationToFolder = viewModel::moveConversationToFolder,
                     moveConversationToArchive = viewModel::moveConversationToArchive,
@@ -76,14 +90,19 @@ fun ConversationRouterHomeBridge(
         openConversation = viewModel::openConversation,
         openNewConversation = viewModel::openNewConversation,
         onEditConversationItem = { conversationItem ->
-            conversationState.changeModalSheetContentState(conversationItem.conversationType)
+            conversationState.changeModalSheetContentState(conversationItem)
             onBottomSheetVisibilityChanged()
         },
         onScrollPositionChanged = onScrollPositionChanged,
-        onError = onBottomSheetVisibilityChanged
+        onError = onBottomSheetVisibilityChanged,
+        openProfile = viewModel::openUserProfile,
+        onEditNotifications = { conversationItem ->
+            conversationState.changeModalSheetContentState(conversationItem)
+            onBottomSheetVisibilityChanged()
+            conversationOptionSheetState.toMutingNotificationOption()
+        },
     )
 }
-
 
 @ExperimentalAnimationApi
 @ExperimentalMaterial3Api
@@ -92,11 +111,13 @@ fun ConversationRouterHomeBridge(
 private fun ConversationRouter(
     uiState: ConversationListState,
     errorState: ConversationOperationErrorState?,
-    openConversation: (ConversationItem) -> Unit,
+    openConversation: (ConversationId) -> Unit,
     openNewConversation: () -> Unit,
     onEditConversationItem: (ConversationItem) -> Unit,
+    onEditNotifications: (ConversationItem) -> Unit,
     onScrollPositionChanged: (Int) -> Unit,
-    onError: () -> Unit
+    onError: () -> Unit,
+    openProfile: (UserId) -> Unit,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val navHostController = rememberNavController()
@@ -153,9 +174,11 @@ private fun ConversationRouter(
                         AllConversationScreen(
                             newActivities = newActivities,
                             conversations = conversations,
-                            onOpenConversationClick = openConversation,
-                            onEditConversationItem = onEditConversationItem,
-                            onScrollPositionChanged = onScrollPositionChanged
+                            onOpenConversation = openConversation,
+                            onEditConversation = onEditConversationItem,
+                            onScrollPositionChanged = onScrollPositionChanged,
+                            onOpenUserProfile = openProfile,
+                            onOpenConversationNotificationsSettings = onEditNotifications
                         )
                     }
                 )
@@ -167,7 +190,9 @@ private fun ConversationRouter(
                             callHistory = callHistory,
                             onCallItemClick = openConversation,
                             onEditConversationItem = onEditConversationItem,
-                            onScrollPositionChanged = onScrollPositionChanged
+                            onScrollPositionChanged = onScrollPositionChanged,
+                            onOpenUserProfile = openProfile,
+                            openConversationNotificationsSettings = onEditNotifications
                         )
                     }
                 )
@@ -179,7 +204,9 @@ private fun ConversationRouter(
                             allMentions = allMentions,
                             onMentionItemClick = openConversation,
                             onEditConversationItem = onEditConversationItem,
-                            onScrollPositionChanged = onScrollPositionChanged
+                            onScrollPositionChanged = onScrollPositionChanged,
+                            onOpenUserProfile = openProfile,
+                            openConversationNotificationsSettings = onEditNotifications
                         )
                     }
                 )

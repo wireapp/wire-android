@@ -6,34 +6,37 @@ import com.wire.android.ui.home.conversationslist.common.UserInfoLabel
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 
-sealed class ConversationItem(val conversationType: ConversationType) {
-    val id = conversationType.conversationId
-}
-
-class GeneralConversation(conversationType: ConversationType) : ConversationItem(conversationType)
-class ConversationMissedCall(val callInfo: CallInfo, conversationType: ConversationType) : ConversationItem(conversationType)
-class ConversationUnreadMention(val mentionInfo: MentionInfo, conversationType: ConversationType) : ConversationItem(conversationType)
-
-sealed class ConversationType {
-
+sealed class ConversationItem {
     abstract val conversationId: ConversationId
     abstract val mutedStatus: MutedConversationStatus
     abstract val isLegalHold: Boolean
+    abstract val lastEvent: ConversationLastEvent
 
     data class GroupConversation(
         val groupName: String,
         override val conversationId: ConversationId,
         override val mutedStatus: MutedConversationStatus,
-        override val isLegalHold: Boolean = false
-    ) : ConversationType()
+        override val isLegalHold: Boolean = false,
+        override val lastEvent: ConversationLastEvent,
+    ) : ConversationItem()
 
     data class PrivateConversation(
         val userInfo: UserInfo,
         val conversationInfo: ConversationInfo,
         override val conversationId: ConversationId,
         override val mutedStatus: MutedConversationStatus,
-        override val isLegalHold: Boolean = false
-    ) : ConversationType()
+        override val isLegalHold: Boolean = false,
+        override val lastEvent: ConversationLastEvent,
+        ) : ConversationItem()
+
+    data class ConnectionConversation(
+        val userInfo: UserInfo,
+        val conversationInfo: ConversationInfo,
+        override val conversationId: ConversationId,
+        override val mutedStatus: MutedConversationStatus,
+        override val isLegalHold: Boolean = false,
+        override val lastEvent: ConversationLastEvent,
+        ) : ConversationItem()
 }
 
 data class ConversationInfo(
@@ -46,8 +49,16 @@ data class UserInfo(
     val availabilityStatus: UserStatus = UserStatus.NONE
 )
 
-fun ConversationType.PrivateConversation.toUserInfoLabel() = UserInfoLabel(
-    labelName = conversationInfo.name,
-    isLegalHold = isLegalHold,
-    membership = conversationInfo.membership,
-)
+fun ConversationItem.PrivateConversation.toUserInfoLabel() =
+    UserInfoLabel(
+        labelName = conversationInfo.name,
+        isLegalHold = isLegalHold,
+        membership = conversationInfo.membership,
+    )
+
+fun ConversationItem.ConnectionConversation.toUserInfoLabel() =
+    UserInfoLabel(
+        labelName = conversationInfo.name,
+        isLegalHold = isLegalHold,
+        membership = conversationInfo.membership,
+    )

@@ -30,7 +30,6 @@ import com.wire.android.ui.common.MembershipQualifierLabel
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.model.DeletedMessage
-import com.wire.android.ui.home.conversations.model.EditedMessage
 import com.wire.android.ui.home.conversations.model.ImageMessageParams
 import com.wire.android.ui.home.conversations.model.MessageAsset
 import com.wire.android.ui.home.conversations.model.MessageBody

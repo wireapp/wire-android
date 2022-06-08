@@ -2,8 +2,6 @@ package com.wire.android.ui.home.newconversation
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
@@ -13,7 +11,6 @@ import com.wire.android.R
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.search.AppTopBarWithSearchBar
-import com.wire.android.ui.common.topappbar.search.SearchBarState
 import com.wire.android.ui.common.topappbar.search.rememberSearchbarState
 import com.wire.android.ui.home.newconversation.common.SearchListScreens
 import com.wire.android.ui.home.newconversation.contacts.ContactsScreen
@@ -31,7 +28,6 @@ fun SearchPeopleRouter(
     onAddContactToGroup: (Contact) -> Unit,
     onRemoveContactFromGroup: (Contact) -> Unit,
     onOpenUserProfile: (SearchOpenUserProfile) -> Unit,
-    onScrollPositionChanged: (Int) -> Unit,
 ) {
     val searchNavController = rememberNavController()
     val searchBarState = rememberSearchbarState()
@@ -39,7 +35,7 @@ fun SearchPeopleRouter(
     with(searchPeopleState) {
         AppTopBarWithSearchBar(
             searchBarState = searchBarState,
-            scrollPositionProvider = { 0 },
+            scrollPositionProvider = searchBarState.scrollPositionProvider,
             searchBarHint = stringResource(R.string.label_search_people),
             searchQuery = searchQuery,
             onSearchQueryChanged = { searchTerm ->
@@ -74,7 +70,7 @@ fun SearchPeopleRouter(
                         route = SearchListScreens.KnownContactsScreen.route,
                         content = {
                             ContactsScreen(
-                                onScrollPositionChanged = onScrollPositionChanged,
+                                scrollPositionProvider = { searchBarState.scrollPositionProvider = it },
                                 allKnownContact = allKnownContacts,
                                 contactsAddedToGroup = contactsAddedToGroup,
                                 onAddToGroup = onAddContactToGroup,
@@ -88,6 +84,7 @@ fun SearchPeopleRouter(
                         route = SearchListScreens.SearchPeopleScreen.route,
                         content = {
                             SearchPeopleScreen(
+                                scrollPositionProvider = { searchBarState.scrollPositionProvider = it },
                                 searchQuery = searchQuery,
                                 noneSearchSucceed = noneSearchSucceed,
                                 knownContactSearchResult = localContactSearchResult,

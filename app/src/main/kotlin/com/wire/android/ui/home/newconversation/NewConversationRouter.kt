@@ -1,6 +1,7 @@
 package com.wire.android.ui.home.newconversation
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
@@ -29,7 +30,6 @@ fun NewConversationRouter() {
                     onAddContactToGroup = newConversationViewModel::addContactToGroup,
                     onRemoveContactFromGroup = newConversationViewModel::removeContactFromGroup,
                     onOpenUserProfile = { newConversationViewModel.openUserProfile(it.contact) },
-                    onScrollPositionChanged = newConversationViewModel::updateScrollPosition
                 )
             }
         )

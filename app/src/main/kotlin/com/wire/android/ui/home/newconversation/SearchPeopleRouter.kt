@@ -39,7 +39,7 @@ fun SearchPeopleRouter(
     with(searchPeopleState) {
         AppTopBarWithSearchBar(
             searchBarState = searchBarState,
-            scrollPosition = scrollPosition,
+            scrollPositionProvider = { 0 },
             searchBarHint = stringResource(R.string.label_search_people),
             searchQuery = searchQuery,
             onSearchQueryChanged = { searchTerm ->

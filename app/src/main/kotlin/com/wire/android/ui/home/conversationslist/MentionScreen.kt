@@ -21,13 +21,13 @@ fun MentionScreen(
     allMentions: List<ConversationItem> = emptyList(),
     onMentionItemClick: (ConversationId) -> Unit,
     onEditConversationItem: (ConversationItem) -> Unit,
-    onScrollPositionChanged: (Int) -> Unit = {},
+    onScrollPositionProviderChanged: (() -> Int) -> Unit,
     onOpenUserProfile: (UserId) -> Unit,
     openConversationNotificationsSettings: (ConversationItem) -> Unit,
 ) {
-    val lazyListState = rememberLazyListState { firstVisibleItemIndex ->
-        onScrollPositionChanged(firstVisibleItemIndex)
-    }
+    val lazyListState = androidx.compose.foundation.lazy.rememberLazyListState()
+
+    onScrollPositionProviderChanged { lazyListState.firstVisibleItemIndex }
 
     MentionContent(
         lazyListState = lazyListState,

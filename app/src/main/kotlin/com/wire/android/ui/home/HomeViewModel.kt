@@ -11,11 +11,13 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.kalium.logic.feature.call.Call
+import com.wire.kalium.logic.feature.call.usecase.GetIncomingCallsUseCase
 import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
+import com.wire.kalium.logic.feature.featureConfig.GetAndSaveFileSharingStatusUseCase
+import com.wire.kalium.logic.feature.featureConfig.GetFileSharingStatusResult
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.sync.ListenToEventsUseCase
-import com.wire.kalium.logic.feature.call.usecase.GetIncomingCallsUseCase
-import com.wire.kalium.logic.feature.call.Call
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -28,7 +30,8 @@ class HomeViewModel @Inject constructor(
     private val listenToEvents: ListenToEventsUseCase,
     private val incomingCalls: GetIncomingCallsUseCase,
     private val getSelf: GetSelfUserUseCase,
-    private val needsToRegisterClient: NeedsToRegisterClientUseCase
+    private val needsToRegisterClient: NeedsToRegisterClientUseCase,
+    private val getAndSaveFileSharingStatusUseCase: GetAndSaveFileSharingStatusUseCase
 ) : ViewModel() {
 
     var userAvatar by mutableStateOf<UserAvatarAsset?>(null)
@@ -40,6 +43,21 @@ class HomeViewModel @Inject constructor(
             launch { loadUserAvatar() }
             launch {
                 incomingCalls().collect { observeIncomingCalls(calls = it) }
+            }
+        }
+        getAndSaveFileSharingConfig()
+    }
+
+    private fun getAndSaveFileSharingConfig() {
+        viewModelScope.launch {
+            getAndSaveFileSharingStatusUseCase().let {
+                when (it) {
+                    is GetFileSharingStatusResult.Failure.NoTeam -> {}
+                    is GetFileSharingStatusResult.Failure.Generic -> {}
+                    is GetFileSharingStatusResult.Failure.OperationDenied -> {}
+                    is GetFileSharingStatusResult.Success -> { // todo update the UI with dialog }
+                    }
+                }
             }
         }
     }

@@ -8,10 +8,9 @@ import javax.inject.Inject
 class ISOFormatter @Inject constructor() {
 
     fun fromISO8601ToTimeFormat(utcISO: String): String {
-        val instant = Instant.parse(utcISO)
         val formatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.MEDIUM)
 
-        return formatter.format(instant)
+        return formatter.format(Instant.parse(utcISO))
     }
 
 }

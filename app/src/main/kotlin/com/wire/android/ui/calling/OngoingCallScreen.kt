@@ -99,11 +99,10 @@ private fun OngoingCallContent(
                     // but we are still getting it with our current compose version 1.2.0-beta01
                     AndroidView(factory = {
                         val videoPreview = VideoPreview(it)
-                        setVideoPreview(null)
-                        setVideoPreview(videoPreview)
+                        sharedCallingViewModel.setVideoPreview(videoPreview)
                         videoPreview
                     })
-                }
+                } else sharedCallingViewModel.clearVideoPreview()
                 UserProfileAvatar(
                     userAvatarAsset = callState.avatarAssetId,
                     size = dimensions().onGoingCallUserAvatarSize

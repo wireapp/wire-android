@@ -123,19 +123,22 @@ class SharedCallingViewModel @Inject constructor(
 
     fun toggleVideo() {
         viewModelScope.launch {
-            callState = if (callState.isCameraOn) {
-                updateVideoState(conversationId, VideoState.STOPPED)
-                callState.copy(isCameraOn = false)
-            } else {
-                updateVideoState(conversationId, VideoState.STARTED)
-                callState.copy(isCameraOn = true)
-            }
+            callState = callState.copy(isCameraOn = !callState.isCameraOn)
+        }
+    }
+
+    fun clearVideoPreview() {
+        viewModelScope.launch {
+            setVideoPreview(conversationId, PlatformView(null))
+            updateVideoState(conversationId, VideoState.STOPPED)
         }
     }
 
     fun setVideoPreview(view: View?) {
         viewModelScope.launch {
+            setVideoPreview(conversationId, PlatformView(null))
             setVideoPreview(conversationId, PlatformView(view))
+            updateVideoState(conversationId, VideoState.STARTED)
         }
     }
 
@@ -143,7 +146,7 @@ class SharedCallingViewModel @Inject constructor(
         viewModelScope.launch {
             if (callState.isCameraOn) {
                 updateVideoState(conversationId, VideoState.PAUSED)
-                setVideoPreview(null)
+                setVideoPreview(conversationId, PlatformView(null))
                 callState = callState.copy(isCameraOn = false)
             }
         }

@@ -13,20 +13,15 @@ import com.wire.android.ui.home.conversations.model.User
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
 import com.wire.android.util.FileManager
 import com.wire.android.util.ui.UIText
-import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.LegalHoldStatus
-import com.wire.kalium.logic.data.conversation.MemberDetails
 import com.wire.kalium.logic.data.conversation.UserType
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.publicuser.model.OtherUser
 import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.data.user.ConnectionState
-import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.UserAssetId
-import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.SendAssetMessageResult
 import com.wire.kalium.logic.feature.asset.SendAssetMessageUseCase
@@ -47,9 +42,8 @@ import io.mockk.mockk
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.map
 
-internal class Arrangement {
+internal class ConversationsViewModelArrangement {
     init {
         // Tests setup
         val dummyConversationId = "some-dummy-value@some.dummy.domain"
@@ -127,18 +121,18 @@ internal class Arrangement {
             updateAssetMessageDownloadStatus = updateAssetMessageDownloadStatus,
             getSelfUserTeam = getSelfUserTeam,
             fileManager = fileManager,
-            getMessagesForConversationUseCase = getMessagesForConversationUseCase
+            getMessagesForConversation = getMessagesForConversationUseCase
         )
     }
 
-    suspend fun withMessagesUpdate(messages: List<UIMessage>): Arrangement {
+    suspend fun withMessagesUpdate(messages: List<UIMessage>): ConversationsViewModelArrangement {
         coEvery { getMessagesForConversationUseCase(any()) } returns messagesChannel.consumeAsFlow()
         messagesChannel.send(messages)
 
         return this
     }
 
-    suspend fun withConversationDetailUpdate(conversationDetails: ConversationDetails): Arrangement {
+    suspend fun withConversationDetailUpdate(conversationDetails: ConversationDetails): ConversationsViewModelArrangement {
         coEvery { observeConversationDetails(any()) } returns conversationDetailsChannel.consumeAsFlow()
         conversationDetailsChannel.send(conversationDetails)
 
@@ -146,13 +140,13 @@ internal class Arrangement {
     }
 
 
-    fun withSuccessfulSendAttachmentMessage(): Arrangement {
+    fun withSuccessfulSendAttachmentMessage(): ConversationsViewModelArrangement {
         coEvery { sendAssetMessage(any(), any(), any(), any()) } returns SendAssetMessageResult.Success
         coEvery { sendImageMessage(any(), any(), any(), any(), any()) } returns SendImageMessageResult.Success
         return this
     }
 
-    fun withSuccessfulSaveAssetMessage(assetName: String, assetData: ByteArray, messageId: String): Arrangement {
+    fun withSuccessfulSaveAssetMessage(assetName: String, assetData: ByteArray, messageId: String): ConversationsViewModelArrangement {
         viewModel.showOnAssetDownloadedDialog(assetName, assetData, messageId)
         coEvery { fileManager.saveToExternalStorage(any(), any(), any()) }.answers {
             viewModel.hideOnAssetDownloadedDialog()
@@ -160,7 +154,7 @@ internal class Arrangement {
         return this
     }
 
-    fun withSuccessfulOpenAssetMessage(assetName: String, assetData: ByteArray, messageId: String): Arrangement {
+    fun withSuccessfulOpenAssetMessage(assetName: String, assetData: ByteArray, messageId: String): ConversationsViewModelArrangement {
         viewModel.showOnAssetDownloadedDialog(assetName, assetData, messageId)
         every { fileManager.openWithExternalApp(any(), any(), any()) }.answers {
             viewModel.hideOnAssetDownloadedDialog()
@@ -168,7 +162,7 @@ internal class Arrangement {
         return this
     }
 
-    fun withTeamUser(userTeam: Team): Arrangement {
+    fun withTeamUser(userTeam: Team): ConversationsViewModelArrangement {
         coEvery { getSelfUserTeam() } returns flowOf(userTeam)
         return this
     }

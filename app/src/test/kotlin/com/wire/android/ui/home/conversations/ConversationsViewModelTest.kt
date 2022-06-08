@@ -6,27 +6,6 @@ import com.wire.android.ui.home.conversations.ConversationViewModel.Companion.IM
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.kalium.logic.data.team.Team
-import com.wire.kalium.logic.data.user.ConnectionState
-import com.wire.kalium.logic.data.user.SelfUser
-import com.wire.kalium.logic.data.user.UserAssetId
-import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
-import com.wire.kalium.logic.feature.asset.SendAssetMessageResult
-import com.wire.kalium.logic.feature.asset.SendAssetMessageUseCase
-import com.wire.kalium.logic.feature.asset.SendImageMessageResult
-import com.wire.kalium.logic.feature.asset.SendImageMessageUseCase
-import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCase
-import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
-import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
-import com.wire.kalium.logic.feature.conversation.ObserveMemberDetailsByIdsUseCase
-import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
-import com.wire.kalium.logic.feature.message.GetRecentMessagesUseCase
-import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
-import com.wire.kalium.logic.feature.message.Result.Success
-import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
-import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
-import io.mockk.MockKAnnotations
-import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.verify
@@ -45,7 +24,7 @@ class ConversationsViewModelTest {
     @Test
     fun `validate deleteMessageDialogsState states when deleteMessageDialog is visible for my message`() {
         // Given
-        val (_, viewModel) = Arrangement().arrange()
+        val (_, viewModel) = ConversationsViewModelArrangement().arrange()
 
         // When
         viewModel.showDeleteMessageDialog("", true)
@@ -60,7 +39,7 @@ class ConversationsViewModelTest {
     @Test
     fun `validate deleteMessageDialogsState states when deleteMessageDialog is visible for others message`() {
         // Given
-        val (_, viewModel) = Arrangement().arrange()
+        val (_, viewModel) = ConversationsViewModelArrangement().arrange()
 
         // When
         viewModel.showDeleteMessageDialog("", false)
@@ -75,7 +54,7 @@ class ConversationsViewModelTest {
     @Test
     fun `validate deleteMessageDialogsState states when deleteMessageForYourselfDialog is visible`() {
         // Given
-        val (_, viewModel) = Arrangement().arrange()
+        val (_, viewModel) = ConversationsViewModelArrangement().arrange()
 
         // When
         viewModel.showDeleteMessageForYourselfDialog("")
@@ -90,7 +69,7 @@ class ConversationsViewModelTest {
     @Test
     fun `validate deleteMessageDialogsState states when dialogs are dismissed`() {
         // Given
-        val (_, viewModel) = Arrangement().arrange()
+        val (_, viewModel) = ConversationsViewModelArrangement().arrange()
 
         // When
         viewModel.onDeleteDialogDismissed()
@@ -105,7 +84,7 @@ class ConversationsViewModelTest {
     fun `given a 1 on 1 conversation, when solving the conversation name, then the name of the other user is used`() = runTest {
         // Given
         val oneToOneConversationDetails = withMockConversationDetailsOneOnOne("Other User Name Goes Here")
-        val (_, viewModel) = Arrangement().withConversationDetailUpdate(conversationDetails = oneToOneConversationDetails).arrange()
+        val (_, viewModel) = ConversationsViewModelArrangement().withConversationDetailUpdate(conversationDetails = oneToOneConversationDetails).arrange()
 
         // When - Then
         assertEquals(oneToOneConversationDetails.otherUser.name, viewModel.conversationViewState.conversationName)
@@ -115,7 +94,7 @@ class ConversationsViewModelTest {
     fun `given a group conversation, when solving the conversation name, then the name of the conversation is used`() = runTest {
         // Given
         val groupConversationDetails = mockConversationDetailsGroup("Conversation Name Goes Here")
-        val (_, viewModel) = Arrangement().withConversationDetailUpdate(conversationDetails = groupConversationDetails).arrange()
+        val (_, viewModel) = ConversationsViewModelArrangement().withConversationDetailUpdate(conversationDetails = groupConversationDetails).arrange()
 
         // When - Then
         assertEquals( groupConversationDetails.conversation.name, viewModel.conversationViewState.conversationName)
@@ -126,7 +105,7 @@ class ConversationsViewModelTest {
         // Given
         val firstConversationDetails = mockConversationDetailsGroup("Conversation Name Goes Here")
         val secondConversationDetails = mockConversationDetailsGroup("Conversation Name Was Updated")
-        val (arrangement, viewModel) = Arrangement().withConversationDetailUpdate(conversationDetails = firstConversationDetails).arrange()
+        val (arrangement, viewModel) = ConversationsViewModelArrangement().withConversationDetailUpdate(conversationDetails = firstConversationDetails).arrange()
 
         // When - Then
         assertEquals(firstConversationDetails.conversation.name, viewModel.conversationViewState.conversationName)
@@ -140,7 +119,7 @@ class ConversationsViewModelTest {
         // Given
         val selfUserName = "self user"
         val messages = listOf(mockUITextMessage(selfUserName))
-        val (arrangement, viewModel) = Arrangement()
+        val (arrangement, viewModel) = ConversationsViewModelArrangement()
             .withMessagesUpdate(messages)
             .arrange()
 
@@ -156,7 +135,7 @@ class ConversationsViewModelTest {
         val originalMessages = listOf(mockUITextMessage(firstUserName))
         val secondUserName = "User changed their name"
         val updatedMessages = listOf(mockUITextMessage(secondUserName))
-        val (arrangement, viewModel) = Arrangement()
+        val (arrangement, viewModel) = ConversationsViewModelArrangement()
             .withMessagesUpdate(originalMessages)
             .arrange()
 
@@ -176,7 +155,7 @@ class ConversationsViewModelTest {
     @Test
     fun `given the user sends an asset message, when invoked, then sendAssetMessageUseCase gets called`() = runTest {
         // Given
-        val (arrangement, viewModel) = Arrangement().withSuccessfulSendAttachmentMessage().arrange()
+        val (arrangement, viewModel) = ConversationsViewModelArrangement().withSuccessfulSendAttachmentMessage().arrange()
         val mockedAttachment = AttachmentBundle(
             "file/x-zip", "Mocked asset data".toByteArray(), "mocked_file.zip", AttachmentType.GENERIC_FILE
         )
@@ -191,7 +170,7 @@ class ConversationsViewModelTest {
     @Test
     fun `given the user sends an image message, when invoked, then sendImageMessageUseCase gets called`() = runTest {
         // Given
-        val (arrangement, viewModel) = Arrangement().withSuccessfulSendAttachmentMessage().arrange()
+        val (arrangement, viewModel) = ConversationsViewModelArrangement().withSuccessfulSendAttachmentMessage().arrange()
         val mockedAttachment = AttachmentBundle(
             "image/jpeg", "Mocked asset data".toByteArray(), "mocked_image.jpeg", AttachmentType.IMAGE
         )
@@ -206,7 +185,7 @@ class ConversationsViewModelTest {
     @Test
     fun `given the user picks a null attachment, when invoking sendAttachmentMessage, no use case gets called`() = runTest {
         // Given
-        val (arrangement, viewModel) = Arrangement().withSuccessfulSendAttachmentMessage().arrange()
+        val (arrangement, viewModel) = ConversationsViewModelArrangement().withSuccessfulSendAttachmentMessage().arrange()
         val mockedAttachment = null
 
         // When
@@ -221,7 +200,7 @@ class ConversationsViewModelTest {
         // Given
         val conversationDetails = withMockConversationDetailsOneOnOne("", "userAssetId")
         val otherUserAvatar = conversationDetails.otherUser.previewPicture
-        val (_, viewModel) = Arrangement().withConversationDetailUpdate(conversationDetails = conversationDetails).arrange()
+        val (_, viewModel) = ConversationsViewModelArrangement().withConversationDetailUpdate(conversationDetails = conversationDetails).arrange()
         val actualAvatar = viewModel.conversationViewState.conversationAvatar
         // When - Then
         assert(actualAvatar is ConversationAvatar.OneOne)
@@ -231,7 +210,7 @@ class ConversationsViewModelTest {
     @Test
     fun `given a user sends an image message larger than 15MB, when invoked, then sendImageMessageUseCase isn't called`() = runTest {
         // Given
-        val (arrangement, viewModel) = Arrangement().withSuccessfulSendAttachmentMessage().arrange()
+        val (arrangement, viewModel) = ConversationsViewModelArrangement().withSuccessfulSendAttachmentMessage().arrange()
         val mockedAttachment = AttachmentBundle(
             "image/jpeg", ByteArray(IMAGE_SIZE_LIMIT_BYTES + 1), "mocked_image.jpeg", AttachmentType.IMAGE
         )
@@ -248,7 +227,7 @@ class ConversationsViewModelTest {
     fun `given that a free user sends an asset message larger than 25MB, when invoked, then sendAssetMessageUseCase isn't called`() =
         runTest {
             // Given
-            val (arrangement, viewModel) = Arrangement().withSuccessfulSendAttachmentMessage().arrange()
+            val (arrangement, viewModel) = ConversationsViewModelArrangement().withSuccessfulSendAttachmentMessage().arrange()
             val mockedAttachment = AttachmentBundle(
                 "file/x-zip", ByteArray(ASSET_SIZE_DEFAULT_LIMIT_BYTES + 1), "mocked_asset.jpeg", AttachmentType.GENERIC_FILE
             )
@@ -265,7 +244,7 @@ class ConversationsViewModelTest {
     fun `given that a team user sends an asset message larger than 25MB, when invoked, then sendAssetMessageUseCase is called`() = runTest {
         // Given
         val userTeam = Team("mocked-team-id", "mocked-team-name")
-        val (arrangement, viewModel) = Arrangement()
+        val (arrangement, viewModel) = ConversationsViewModelArrangement()
             .withSuccessfulSendAttachmentMessage()
             .withTeamUser(userTeam)
             .arrange()
@@ -288,7 +267,7 @@ class ConversationsViewModelTest {
             val messageId = "mocked-msg-id"
             val assetName = "mocked-asset"
             val assetData = assetName.toByteArray()
-            val (arrangement, viewModel) = Arrangement()
+            val (arrangement, viewModel) = ConversationsViewModelArrangement()
                 .withSuccessfulSaveAssetMessage(assetName, assetData, messageId)
                 .arrange()
 
@@ -308,7 +287,7 @@ class ConversationsViewModelTest {
             val messageId = "mocked-msg-id"
             val assetName = "mocked-asset"
             val assetData = assetName.toByteArray()
-            val (arrangement, viewModel) = Arrangement()
+            val (arrangement, viewModel) = ConversationsViewModelArrangement()
                 .withSuccessfulOpenAssetMessage(assetName, assetData, messageId)
                 .arrange()
 

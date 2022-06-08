@@ -20,11 +20,14 @@ import com.wire.android.ui.home.newconversation.search.SearchPeopleState
 import com.wire.android.ui.home.newconversation.search.SearchResultState
 import com.wire.android.util.flow.SearchQueryStateFlow
 import com.wire.kalium.logic.data.conversation.ConversationOptions
+import com.wire.kalium.logic.data.id.VALUE_DOMAIN_SEPARATOR
+import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
 import com.wire.kalium.logic.feature.publicuser.Result
 import com.wire.kalium.logic.feature.publicuser.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.SearchUserDirectoryUseCase
+import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.functional.Either
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -40,12 +43,12 @@ class NewConversationViewModel
     private val searchKnownUsers: SearchKnownUsersUseCase,
     private val searchPublicUsers: SearchUserDirectoryUseCase,
     private val getAllContacts: GetAllContactsUseCase,
-    private val createGroupConversation: CreateGroupConversationUseCase
+    private val createGroupConversation: CreateGroupConversationUseCase,
+    private val getSelf: GetSelfUserUseCase,
 ) : ViewModel() {
 
-    // TODO: map this value out with the given back-end configuration later on
     private companion object {
-        const val HARDCODED_TEST_DOMAIN = "wire.com"
+        val FEDERATION_REGEX = Regex("[^@.]+@[^@.]+\\.[^@]+")
         const val GROUP_NAME_MAX_COUNT = 64
     }
 
@@ -67,6 +70,8 @@ class NewConversationViewModel
 
     private var innerSearchPeopleState: SearchPeopleState by mutableStateOf(SearchPeopleState())
 
+    var self by mutableStateOf<SelfUser?>(null)
+
     private var localContactSearchResult by mutableStateOf(
         ContactSearchResult.InternalContact(searchResultState = SearchResultState.Initial)
     )
@@ -87,6 +92,8 @@ class NewConversationViewModel
 
     init {
         viewModelScope.launch {
+            launch { loadUser() }
+
             launch {
                 val allContacts = getAllContacts()
 
@@ -98,6 +105,14 @@ class NewConversationViewModel
             searchQueryStateFlow.onSearchAction { searchTerm ->
                 launch { searchPublic(searchTerm) }
                 launch { searchKnown(searchTerm) }
+            }
+        }
+    }
+
+    private suspend fun loadUser() {
+        viewModelScope.launch {
+            getSelf().collect { selfUser ->
+                self = selfUser
             }
         }
     }
@@ -129,10 +144,23 @@ class NewConversationViewModel
     private suspend fun searchPublic(searchTerm: String) {
         publicContactsSearchResult = ContactSearchResult.ExternalContact(SearchResultState.InProgress)
 
-        val result = withContext(Dispatchers.IO) {
+        val result: Result
+        val isFederationSearch = searchTerm.matches(FEDERATION_REGEX)
+        val query: String
+        val domain: String
+
+        if (isFederationSearch) {
+            query = searchTerm.split(VALUE_DOMAIN_SEPARATOR)[0]
+            domain = searchTerm.split(VALUE_DOMAIN_SEPARATOR)[1]
+        } else {
+            query = searchTerm
+            domain = self?.id?.domain ?: ""
+        }
+
+        result = withContext(Dispatchers.IO) {
             searchPublicUsers(
-                searchQuery = searchTerm,
-                domain = HARDCODED_TEST_DOMAIN
+                searchQuery = query,
+                domain = domain
             )
         }
 

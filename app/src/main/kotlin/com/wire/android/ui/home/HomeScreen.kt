@@ -21,7 +21,6 @@ import com.wire.android.navigation.HomeNavigationGraph
 import com.wire.android.navigation.HomeNavigationItem
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.topappbar.search.AppTopBarWithSearchBar
-import kotlinx.coroutines.CoroutineScope
 
 @OptIn(
     ExperimentalAnimationApi::class,

@@ -102,6 +102,16 @@ class ConnectionModule {
     @Provides
     fun cancelConnectionRequestUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).connection.cancelConnectionRequest
+
+    @ViewModelScoped
+    @Provides
+    fun ignoreConnectionRequestUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).connection.ignoreConnectionRequest
+
+    @ViewModelScoped
+    @Provides
+    fun acceptConnectionRequestUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).connection.acceptConnectionRequest
 }
 
 @Module
@@ -208,6 +218,11 @@ class UseCaseModule {
     @Provides
     fun observeConversationMembersUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).conversations.observeConversationMembers
+
+    @ViewModelScoped
+    @Provides
+    fun observeMemberDetailsByIdsUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).conversations.observeMemberDetailsByIds
 
     @ViewModelScoped
     @Provides

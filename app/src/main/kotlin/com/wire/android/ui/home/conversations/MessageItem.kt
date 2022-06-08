@@ -155,7 +155,9 @@ private fun MessageContent(
             imgParams = ImageMessageParams(messageContent.width, messageContent.height),
             onImageClick = { onImageClick() }
         )
-        is MessageContent.TextMessage -> MessageBody(messageBody = messageContent.messageBody)
+        is MessageContent.TextMessage -> MessageBody(
+            messageBody = messageContent.messageBody
+        )
         is MessageContent.DeletedMessage -> DeletedMessage()
         is MessageContent.AssetMessage -> MessageAsset(
             assetName = messageContent.assetName.split(".").dropLast(1).joinToString("."),
@@ -164,7 +166,7 @@ private fun MessageContent(
             assetDownloadStatus = messageContent.downloadStatus,
             onAssetClick = { onAssetClick() }
         )
-        is MessageContent.EditedMessage -> EditedMessage(
+        is MessageContent.EditedMessage -> MessageBody(
             messageBody = messageContent.messageBody,
             editTime = messageContent.editTimeStamp
         )

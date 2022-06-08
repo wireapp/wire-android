@@ -61,8 +61,33 @@ import kotlin.math.roundToInt
 // TODO: Here we actually need to implement some logic that will distinguish MentionLabel with Body of the message,
 // waiting for the backend to implement mapping logic for the MessageBody
 @Composable
-internal fun MessageBody(messageBody: MessageBody) {
-    LinkifyText(text = messageBody.message.asString(), mask = Linkify.WEB_URLS or Linkify.EMAIL_ADDRESSES)
+internal fun MessageBody(messageBody: MessageBody, editTime: String? = null) {
+    Column {
+        if (editTime != null)
+            Box(
+                modifier = Modifier
+                    .border(
+                        width = 1.dp,
+                        color = MaterialTheme.wireColorScheme.divider,
+                        shape = RoundedCornerShape(dimensions().corner4x)
+                    )
+            ) {
+                Text(
+                    text = stringResource(R.string.label_message_status_edited_with_date, editTime),
+                    color = MaterialTheme.wireColorScheme.labelText,
+                    style = MaterialTheme.wireTypography.label03,
+                    modifier = Modifier
+                        .padding(
+                            horizontal = dimensions().spacing4x,
+                            vertical = dimensions().spacing2x
+                        )
+                )
+            }
+    }
+    LinkifyText(
+        text = messageBody.message.asString(),
+        mask = Linkify.WEB_URLS or Linkify.EMAIL_ADDRESSES
+    )
 }
 
 @Composable
@@ -87,36 +112,6 @@ internal fun DeletedMessage() {
         )
     }
 
-}
-
-@Composable
-internal fun EditedMessage(messageBody: MessageBody, editTime: String) {
-    Column {
-        Box(
-            modifier = Modifier
-                .border(
-                    width = 1.dp,
-                    color = MaterialTheme.wireColorScheme.divider,
-                    shape = RoundedCornerShape(dimensions().corner4x)
-                )
-        ) {
-            Text(
-                text = stringResource(R.string.label_message_status_edited_with_date, editTime),
-                color = MaterialTheme.wireColorScheme.labelText,
-                style = MaterialTheme.wireTypography.label03,
-                modifier = Modifier
-                    .padding(
-                        horizontal = dimensions().spacing4x,
-                        vertical = dimensions().spacing2x
-                    )
-            )
-        }
-        Text(
-            buildAnnotatedString {
-                appendBody(messageBody = messageBody)
-            }
-        )
-    }
 }
 
 @Composable

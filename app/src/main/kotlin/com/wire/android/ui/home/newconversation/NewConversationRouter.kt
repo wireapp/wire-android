@@ -37,7 +37,7 @@ fun NewConversationRouter() {
             route = Screen.NewGroupNameScreen.route,
             content = {
                 NewGroupScreen(
-                    onBackPressed = { newConversationNavController.popBackStack() },
+                    onBackPressed =  newConversationNavController::popBackStack ,
                     newGroupState = newConversationViewModel.groupNameState,
                     onGroupNameChange = newConversationViewModel::onGroupNameChange,
                     onCreateGroup = newConversationViewModel::createGroup,

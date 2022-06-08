@@ -52,7 +52,7 @@ class SharedCallingViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             launch {
-                initializeScreenState()
+                observeConversationDetails()
             }
             launch {
                 initializeCallingButtons()
@@ -60,7 +60,7 @@ class SharedCallingViewModel @Inject constructor(
         }
     }
 
-    private suspend fun initializeScreenState() {
+    private suspend fun observeConversationDetails() {
         conversationDetails(conversationId = conversationId)
             .collect { details ->
                 callState = when (details) {
@@ -87,7 +87,10 @@ class SharedCallingViewModel @Inject constructor(
             calls.find { call ->
                 call.conversationId == conversationId
             }?.let {
-                // TODO update screen state
+                callState = callState.copy(
+                    isMuted = it.isMuted,
+                    isCameraOn = it.isCameraOn
+                )
             }
         }
     }
@@ -109,10 +112,10 @@ class SharedCallingViewModel @Inject constructor(
     fun toggleMute() {
         viewModelScope.launch {
             callState = if (callState.isMuted) {
-                unMuteCall()
+                unMuteCall(conversationId)
                 callState.copy(isMuted = false)
             } else {
-                muteCall()
+                muteCall(conversationId)
                 callState.copy(isMuted = true)
             }
         }
@@ -120,27 +123,32 @@ class SharedCallingViewModel @Inject constructor(
 
     fun toggleVideo() {
         viewModelScope.launch {
-            callState = if (callState.isCameraOn) {
-                updateVideoState(conversationId, VideoState.STOPPED)
-                callState.copy(isCameraOn = false)
-            } else {
-                updateVideoState(conversationId, VideoState.STARTED)
-                callState.copy(isCameraOn = true)
-            }
+            callState = callState.copy(isCameraOn = !callState.isCameraOn)
+        }
+    }
+
+    fun clearVideoPreview() {
+        viewModelScope.launch {
+            setVideoPreview(conversationId, PlatformView(null))
+            updateVideoState(conversationId, VideoState.STOPPED)
         }
     }
 
     fun setVideoPreview(view: View?) {
         viewModelScope.launch {
+            setVideoPreview(conversationId, PlatformView(null))
             setVideoPreview(conversationId, PlatformView(view))
+            updateVideoState(conversationId, VideoState.STARTED)
         }
     }
 
     fun pauseVideo() {
         viewModelScope.launch {
-            updateVideoState(conversationId, VideoState.PAUSED)
-            setVideoPreview(null)
-            callState = callState.copy(isCameraOn = false)
+            if (callState.isCameraOn) {
+                updateVideoState(conversationId, VideoState.PAUSED)
+                setVideoPreview(conversationId, PlatformView(null))
+                callState = callState.copy(isCameraOn = false)
+            }
         }
     }
 

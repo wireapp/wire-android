@@ -27,12 +27,10 @@ class OngoingCallViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            val job = launch {
-                ongoingCall().first { it.isNotEmpty() }
+            ongoingCall().first { it.isNotEmpty() }.run {
+                // We start observing once we have an ongoing call
+                observeCurrentCall()
             }
-            job.join()
-            // We start observing once we have an ongoing call
-            observeCurrentCall()
         }
     }
 

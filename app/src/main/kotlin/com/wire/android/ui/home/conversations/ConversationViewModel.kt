@@ -42,18 +42,13 @@ import com.wire.kalium.logic.feature.asset.SendImageMessageResult
 import com.wire.kalium.logic.feature.asset.SendImageMessageUseCase
 import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
-import com.wire.kalium.logic.feature.conversation.ObserveMemberDetailsByIdsUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.util.toStringDate
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -75,7 +70,7 @@ class ConversationViewModel @Inject constructor(
     private val updateAssetMessageDownloadStatus: UpdateAssetMessageDownloadStatusUseCase,
     private val getSelfUserTeam: GetSelfTeamUseCase,
     private val fileManager: FileManager,
-    private val getMessagesForConversationUseCase: GetMessagesForConversationUseCase
+    private val getMessagesForConversation: GetMessagesForConversationUseCase
 ) : ViewModel() {
 
     var conversationViewState by mutableStateOf(ConversationViewState())
@@ -102,7 +97,7 @@ class ConversationViewModel @Inject constructor(
 
     // region ------------------------------ Init Methods -------------------------------------
     private fun fetchMessages() = viewModelScope.launch {
-        getMessagesForConversationUseCase(conversationId).collect { messages ->
+        getMessagesForConversation(conversationId).collect { messages ->
             conversationViewState = conversationViewState.copy(messages = messages)
         }
     }

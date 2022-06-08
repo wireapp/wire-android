@@ -84,7 +84,11 @@ class ConversationsViewModelTest {
     fun `given a 1 on 1 conversation, when solving the conversation name, then the name of the other user is used`() = runTest {
         // Given
         val oneToOneConversationDetails = withMockConversationDetailsOneOnOne("Other User Name Goes Here")
-        val (_, viewModel) = ConversationsViewModelArrangement().withConversationDetailUpdate(conversationDetails = oneToOneConversationDetails).arrange()
+        val (_, viewModel) = ConversationsViewModelArrangement()
+            .withConversationDetailUpdate(
+                conversationDetails = oneToOneConversationDetails
+            )
+            .arrange()
 
         // When - Then
         assertEquals(oneToOneConversationDetails.otherUser.name, viewModel.conversationViewState.conversationName)
@@ -94,10 +98,11 @@ class ConversationsViewModelTest {
     fun `given a group conversation, when solving the conversation name, then the name of the conversation is used`() = runTest {
         // Given
         val groupConversationDetails = mockConversationDetailsGroup("Conversation Name Goes Here")
-        val (_, viewModel) = ConversationsViewModelArrangement().withConversationDetailUpdate(conversationDetails = groupConversationDetails).arrange()
+        val (_, viewModel) = ConversationsViewModelArrangement().withConversationDetailUpdate(conversationDetails = groupConversationDetails)
+            .arrange()
 
         // When - Then
-        assertEquals( groupConversationDetails.conversation.name, viewModel.conversationViewState.conversationName)
+        assertEquals(groupConversationDetails.conversation.name, viewModel.conversationViewState.conversationName)
     }
 
     @Test
@@ -105,7 +110,11 @@ class ConversationsViewModelTest {
         // Given
         val firstConversationDetails = mockConversationDetailsGroup("Conversation Name Goes Here")
         val secondConversationDetails = mockConversationDetailsGroup("Conversation Name Was Updated")
-        val (arrangement, viewModel) = ConversationsViewModelArrangement().withConversationDetailUpdate(conversationDetails = firstConversationDetails).arrange()
+        val (arrangement, viewModel) = ConversationsViewModelArrangement()
+            .withConversationDetailUpdate(
+                conversationDetails = firstConversationDetails
+            )
+            .arrange()
 
         // When - Then
         assertEquals(firstConversationDetails.conversation.name, viewModel.conversationViewState.conversationName)
@@ -114,6 +123,7 @@ class ConversationsViewModelTest {
         arrangement.withConversationDetailUpdate(conversationDetails = secondConversationDetails)
         assertEquals(secondConversationDetails.conversation.name, viewModel.conversationViewState.conversationName)
     }
+
     @Test
     fun `given message sent a user, when solving the message header, then the state should contain the user name`() = runTest {
         // Given
@@ -200,7 +210,9 @@ class ConversationsViewModelTest {
         // Given
         val conversationDetails = withMockConversationDetailsOneOnOne("", "userAssetId")
         val otherUserAvatar = conversationDetails.otherUser.previewPicture
-        val (_, viewModel) = ConversationsViewModelArrangement().withConversationDetailUpdate(conversationDetails = conversationDetails).arrange()
+        val (_, viewModel) = ConversationsViewModelArrangement()
+            .withConversationDetailUpdate(conversationDetails = conversationDetails)
+            .arrange()
         val actualAvatar = viewModel.conversationViewState.conversationAvatar
         // When - Then
         assert(actualAvatar is ConversationAvatar.OneOne)

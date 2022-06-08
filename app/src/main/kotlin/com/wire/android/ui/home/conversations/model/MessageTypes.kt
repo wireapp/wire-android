@@ -30,7 +30,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
@@ -87,6 +86,8 @@ internal fun MessageBody(messageBody: MessageBody, editTime: String? = null) {
     LinkifyText(
         text = messageBody.message.asString(),
         mask = Linkify.WEB_URLS or Linkify.EMAIL_ADDRESSES
+    ,
+        color = MaterialTheme.colorScheme.onBackground
     )
 }
 

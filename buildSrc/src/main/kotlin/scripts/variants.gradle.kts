@@ -1,5 +1,17 @@
 package scripts
 
+import CertificatePin
+import ClientConfig
+import ConfigFields
+import ConfigType
+import Customization
+import Customization.defaultBuildtimeConfiguration
+import FeatureConfigs
+import FeatureFlags
+import Features
+import FlavourConfigs
+import com.android.build.api.dsl.ProductFlavor
+
 plugins { id("com.android.application") apply false }
 
 object BuildTypes {
@@ -84,6 +96,8 @@ android {
      *
      * @see "ClientConfig.kt" file definition.
      */
+    val buildtimeConfiguration = defaultBuildtimeConfiguration(rootDir = rootDir)
+
     buildTypes.map { type ->
         ConfigFields.values().forEach { configField ->
             val configValuesMap = ClientConfig.properties[type.name].orEmpty()
@@ -107,5 +121,103 @@ android {
             val activated = FeatureFlags.activated[flavor.name].orEmpty().contains(feature)
             flavor.buildConfigField("Boolean", feature.name, activated.toString())
         }
+
+        FeatureConfigs.values().forEach { configs ->
+            when (configs.configType) {
+                ConfigType.STRING -> {
+                    buildStringConfig(
+                        flavor,
+                        configs.configType.type,
+                        configs.name,
+                        buildtimeConfiguration?.configuration?.get(configs.value).toString()
+                    )
+                }
+                ConfigType.INT, ConfigType.BOOLEAN -> {
+                    buildNonStringConfig(
+                        flavor,
+                        configs.configType.type, configs.name, buildtimeConfiguration?.configuration?.get(configs.value).toString()
+                    )
+                }
+                ConfigType.CERTIFICATE_PIN -> {
+                    buildCertificatePinConfig(flavor, buildtimeConfiguration)
+                }
+
+                ConfigType.FLAVOUR_CONFIG -> {
+                    buildFlavorConfig(flavor, configs, buildtimeConfiguration)
+
+                }
+            }
+
+        }
+    }
+
+}
+
+fun buildFlavorConfig(productFlavour: ProductFlavor, configs: FeatureConfigs, buildTimeConfiguration: Customization.BuildTimeConfiguration?) {
+    if (configs.value == productFlavour.name.toLowerCase()) {
+        val falvourMap = buildTimeConfiguration?.configuration?.get(productFlavour.name.toLowerCase()) as Map<*, *>
+
+        FlavourConfigs.values().forEach { flavourConfigs ->
+            when (flavourConfigs.configType) {
+                ConfigType.STRING -> {
+                    buildStringConfig(
+                        productFlavour,
+                        flavourConfigs.configType.type,
+                        flavourConfigs.name,
+                        falvourMap[flavourConfigs.value].toString()
+                    )
+                }
+                ConfigType.INT, ConfigType.BOOLEAN -> {
+                    buildNonStringConfig(
+                        productFlavour, flavourConfigs.configType.type,
+                        flavourConfigs.name,
+                        falvourMap[flavourConfigs.value].toString()
+                    )
+                }
+            }
+        }
     }
 }
+
+
+fun buildCertificatePinConfig(productFlavour: ProductFlavor, buildTimeConfiguration: Customization.BuildTimeConfiguration?) {
+    val certificatePinMap = buildTimeConfiguration?.configuration?.get(FeatureConfigs.CERTIFICATE_PIN.value) as Map<*, *>
+    CertificatePin.values().forEach { certificatePin ->
+        when (certificatePin.configType) {
+            ConfigType.STRING -> {
+                buildStringConfig(
+                    productFlavour, certificatePin.configType.type,
+                    certificatePin.name,
+                    certificatePinMap[certificatePin.value].toString()
+                )
+            }
+            ConfigType.INT, ConfigType.BOOLEAN -> {
+                buildNonStringConfig(
+                    productFlavour,
+                    certificatePin.configType.type,
+                    certificatePin.name,
+                    certificatePinMap[certificatePin.value].toString()
+                )
+            }
+        }
+    }
+}
+
+fun buildStringConfig(productFlavour: ProductFlavor, type: String, name: String, value: String) {
+    productFlavour.buildConfigField(
+        type,
+        name,
+        """"$value""""
+    )
+
+}
+
+fun buildNonStringConfig(productFlavour: ProductFlavor, type: String, name: String, value: String) {
+    productFlavour.buildConfigField(
+        type,
+        name,
+        value
+    )
+
+}
+

@@ -25,6 +25,7 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.utils.EMAIL
 import com.wire.android.utils.WorkManagerTestRule
 import com.wire.kalium.logic.configuration.server.ServerConfig
+import com.wire.android.utils.waitForExecution
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import org.hamcrest.core.AllOf.allOf
@@ -87,9 +88,16 @@ class CreateTeamScreenTest {
     val cancelButton = composeTestRule.onNode(hasTestTag("cancelButton"))
     val tcButton = composeTestRule.onNode(hasTestTag("viewTC"))
     val firstName = composeTestRule.onNode(hasTestTag("firstName"))
+    val lastName = composeTestRule.onNode(hasTestTag("lastName"))
+    val teamName = composeTestRule.onNode(hasTestTag("teamName"))
+    val password = composeTestRule.onNode(hasTestTag("password"))
+    val confirmPassword = composeTestRule.onNode(hasTestTag("confirmPassword"))
 
     val invalidEmailError = "Please enter a valid format for your email."
     val createATeamText = "Enter your email to create your team:"
+    val invalidPassword = "Use at least 8 characters, with one lowercase letter, one capital letter, and a special character."
+    val passwordsNotMatch = "Passwords do not match"
+    val validEmail = "a@wire.com"
 
     @Ignore
     @Test
@@ -117,7 +125,7 @@ class CreateTeamScreenTest {
     fun create_team_tc_cancel() {
         title.assertIsDisplayed()
         continueButton.performClick()
-        emailField.onChildren()[1].performTextInput(EMAIL)
+        emailField.onChildren()[1].performTextInput(validEmail)
         continueButton.performClick()
         tcTitle.assertIsDisplayed()
         cancelButton.performClick()
@@ -129,10 +137,77 @@ class CreateTeamScreenTest {
     fun create_team_tc_view() {
         title.assertIsDisplayed()
         continueButton.performClick()
-        emailField.onChildren()[1].performTextInput(EMAIL)
+        emailField.onChildren()[1].performTextInput(validEmail)
         continueButton.performClick()
         tcTitle.assertIsDisplayed()
         tcButton.performClick()
         Intents.intending(allOf(hasAction(Intent.ACTION_VIEW), hasData("https://wire.com/en/legal/")))
+    }
+
+    @Test
+    fun create_team_invalid_password() {
+        title.assertIsDisplayed()
+        continueButton.performClick()
+        createTeamText.assertTextEquals(createATeamText)
+        emailField.onChildren()[1].performTextInput(validEmail)
+        continueButton.performClick()
+        tcTitle.assertIsDisplayed()
+        tcButton.onSiblings()[3].performClick()
+        composeTestRule.waitForExecution {
+            firstName.onChildren()[2].performTextInput("name")
+        }
+        lastName.onChildren()[2].performTextInput("surName")
+        teamName.onChildren()[2].performTextInput("teamName")
+        password.onChildren()[2].performTextInput("password")
+        confirmPassword.onChildren()[2].performTextInput("password")
+        continueButton.performClick()
+        composeTestRule.waitForExecution {
+            composeTestRule.onNodeWithText(invalidPassword).assertDoesNotExist()
+        }
+    }
+
+    @Test
+    fun create_team_missmatch_password() {
+        title.assertIsDisplayed()
+        continueButton.performClick()
+        createTeamText.assertTextEquals(createATeamText)
+        emailField.onChildren()[1].performTextInput(validEmail)
+        continueButton.performClick()
+        tcTitle.assertIsDisplayed()
+        tcButton.onSiblings()[3].performClick()
+        composeTestRule.waitForExecution {
+            firstName.onChildren()[2].performTextInput("name")
+        }
+        lastName.onChildren()[2].performTextInput("surName")
+        teamName.onChildren()[2].performTextInput("teamName")
+        password.onChildren()[2].performTextInput("Abcd1234!")
+        confirmPassword.onChildren()[2].performTextInput("Abcd1234.")
+        continueButton.performClick()
+        composeTestRule.waitForExecution {
+            composeTestRule.onNodeWithText(passwordsNotMatch).assertDoesNotExist()
+        }
+    }
+
+    @Test
+    fun create_team_required_fields() {
+        title.assertIsDisplayed()
+        continueButton.performClick()
+        createTeamText.assertTextEquals(createATeamText)
+        emailField.onChildren()[1].performTextInput(validEmail)
+        continueButton.performClick()
+        tcTitle.assertIsDisplayed()
+        tcButton.onSiblings()[3].performClick()
+        composeTestRule.waitForExecution {
+            firstName.onChildren()[2].performTextInput("name")
+        }
+        continueButton.assertIsNotEnabled()
+        lastName.onChildren()[2].performTextInput("surName")
+        continueButton.assertIsNotEnabled()
+        teamName.onChildren()[2].performTextInput("teamName")
+        continueButton.assertIsNotEnabled()
+        password.onChildren()[2].performTextInput("Abcd1234!")
+        continueButton.assertIsNotEnabled()
+        confirmPassword.onChildren()[2].performTextInput("Abcd1234.")
+        continueButton.assertIsEnabled()
     }
 }

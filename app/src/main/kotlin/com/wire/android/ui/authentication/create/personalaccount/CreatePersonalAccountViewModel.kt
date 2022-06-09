@@ -1,6 +1,7 @@
 package com.wire.android.ui.authentication.create.personalaccount
 
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.di.ClientScopeProvider
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
@@ -23,6 +24,7 @@ import javax.inject.Inject
 @OptIn(ExperimentalMaterialApi::class)
 @HiltViewModel
 class CreatePersonalAccountViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
     validateEmailUseCase: ValidateEmailUseCase,
     validatePasswordUseCase: ValidatePasswordUseCase,
@@ -32,6 +34,7 @@ class CreatePersonalAccountViewModel @Inject constructor(
     clientScopeProviderFactory: ClientScopeProvider.Factory
 ) : CreateAccountBaseViewModel(
     CreateAccountFlowType.CreatePersonalAccount,
+    savedStateHandle,
     navigationManager,
     validateEmailUseCase,
     validatePasswordUseCase,

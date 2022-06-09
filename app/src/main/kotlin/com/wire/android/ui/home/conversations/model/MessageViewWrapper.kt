@@ -1,15 +1,14 @@
 package com.wire.android.ui.home.conversations.model
 
+import androidx.annotation.DrawableRes
+import androidx.annotation.StringRes
 import com.wire.android.R
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.UserStatus
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.ui.UIText
-import com.wire.kalium.logic.data.user.UserAssetId
-import com.wire.kalium.logic.data.message.Message.DownloadStatus.DOWNLOADED
-import com.wire.kalium.logic.data.message.Message.DownloadStatus.NOT_DOWNLOADED
-import com.wire.kalium.logic.data.message.Message.DownloadStatus.IN_PROGRESS
 import com.wire.kalium.logic.data.message.Message
+import com.wire.kalium.logic.data.user.UserAssetId
 
 data class MessageViewWrapper(
     val user: User,
@@ -40,8 +39,11 @@ enum class MessageStatus(val stringResourceId: Int) {
 }
 
 sealed class MessageContent {
-    data class TextMessage(val messageBody: MessageBody) : MessageContent()
-    object DeletedMessage : MessageContent()
+
+    sealed class ClientMessage : MessageContent()
+
+    data class TextMessage(val messageBody: MessageBody) : ClientMessage()
+    object DeletedMessage : ClientMessage()
 
     data class AssetMessage(
         val assetName: String,
@@ -49,9 +51,9 @@ sealed class MessageContent {
         val assetId: String,
         val assetSizeInBytes: Long,
         val downloadStatus: Message.DownloadStatus
-    ) : MessageContent()
+    ) : ClientMessage()
 
-    data class ImageMessage(val assetId: UserAssetId, val rawImgData: ByteArray?, val width: Int, val height: Int) : MessageContent() {
+    data class ImageMessage(val assetId: UserAssetId, val rawImgData: ByteArray?, val width: Int, val height: Int) : ClientMessage() {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (javaClass != other?.javaClass) return false
@@ -65,6 +67,20 @@ sealed class MessageContent {
             return rawImgData.contentHashCode()
         }
     }
+    sealed class ServerMessage(@DrawableRes val iconResId: Int?, @StringRes val stringResId: Int) : MessageContent() {
+        data class MemberAdded(
+            val author: UIText,
+            val memberNames: List<UIText>
+            ) : ServerMessage(R.drawable.ic_add, R.string.label_system_message_added)
+        data class MemberRemoved(
+            val author: UIText,
+            val memberNames: List<UIText>
+            ) : ServerMessage(R.drawable.ic_minus, R.string.label_system_message_removed)
+        data class MemberLeft(
+            val author: UIText
+            ) : ServerMessage(R.drawable.ic_minus, R.string.label_system_message_left_the_conversation)
+    }
+
 }
 
 data class MessageBody(

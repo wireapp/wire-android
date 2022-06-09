@@ -28,7 +28,6 @@ fun SearchPeopleRouter(
     onAddContactToGroup: (Contact) -> Unit,
     onRemoveContactFromGroup: (Contact) -> Unit,
     onOpenUserProfile: (SearchOpenUserProfile) -> Unit,
-    onScrollPositionChanged: (Int) -> Unit,
 ) {
     val searchNavController = rememberNavController()
     val searchBarState = rememberSearchbarState()
@@ -36,7 +35,7 @@ fun SearchPeopleRouter(
     with(searchPeopleState) {
         AppTopBarWithSearchBar(
             searchBarState = searchBarState,
-            scrollPosition = scrollPosition,
+            scrollPositionProvider = searchBarState.scrollPositionProvider,
             searchBarHint = stringResource(R.string.label_search_people),
             searchQuery = searchQuery,
             onSearchQueryChanged = { searchTerm ->
@@ -51,6 +50,7 @@ fun SearchPeopleRouter(
                 searchNavController.navigate(SearchListScreens.SearchPeopleScreen.route)
             },
             onCloseSearchClicked = {
+                searchBarState.closeSearch()
                 searchNavController.popBackStack()
             },
             appTopBar = {
@@ -70,7 +70,7 @@ fun SearchPeopleRouter(
                         route = SearchListScreens.KnownContactsScreen.route,
                         content = {
                             ContactsScreen(
-                                onScrollPositionChanged = onScrollPositionChanged,
+                                scrollPositionProvider = { searchBarState.scrollPositionProvider = it },
                                 allKnownContact = allKnownContacts,
                                 contactsAddedToGroup = contactsAddedToGroup,
                                 onAddToGroup = onAddContactToGroup,
@@ -84,6 +84,7 @@ fun SearchPeopleRouter(
                         route = SearchListScreens.SearchPeopleScreen.route,
                         content = {
                             SearchPeopleScreen(
+                                scrollPositionProvider = { searchBarState.scrollPositionProvider = it },
                                 searchQuery = searchQuery,
                                 noneSearchSucceed = noneSearchSucceed,
                                 knownContactSearchResult = localContactSearchResult,
@@ -105,7 +106,7 @@ fun SearchPeopleRouter(
     }
 
     BackHandler(searchBarState.isSearchActive) {
-        searchBarState.cancelSearch()
+        searchBarState.closeSearch()
         searchNavController.popBackStack()
     }
 }

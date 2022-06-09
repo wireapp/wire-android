@@ -5,13 +5,11 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
-import androidx.navigation.compose.currentBackStackEntryAsState
 import com.wire.android.R
 import com.wire.android.ui.home.HomeState
 import com.wire.android.ui.home.archive.ArchiveScreen
@@ -75,11 +73,9 @@ enum class HomeNavigationItem(
         content = { homeState ->
             {
                 ConversationRouterHomeBridge(
-                    onHomeBottomSheetContentChange = { bottomSheetContent ->
-                        homeState.changeBottomSheetContent(bottomSheetContent)
-                    },
-                    onBottomSheetVisibilityToggled = { homeState.toggleBottomSheetVisibility() },
-                    onScrollPositionChanged = { newScrollPosition -> homeState.updateScrollPosition(newScrollPosition) }
+                    onHomeBottomSheetContentChanged = homeState::changeBottomSheetContent,
+                    onBottomSheetVisibilityChanged = homeState::toggleBottomSheetVisibility,
+                    onScrollPositionProviderChanged = homeState::updateScrollPositionProvider
                 )
             }
         }
@@ -99,17 +95,6 @@ enum class HomeNavigationItem(
 
     companion object {
         val all = listOf(Conversations, Archive, Vault)
-
-        @Composable
-        fun getCurrentNavigationItem(controller: NavController): HomeNavigationItem {
-            val navBackStackEntry by controller.currentBackStackEntryAsState()
-
-            return when (navBackStackEntry?.destination?.route) {
-                Archive.route -> Archive
-                Vault.route -> Vault
-                else -> Conversations
-            }
-        }
     }
 }
 

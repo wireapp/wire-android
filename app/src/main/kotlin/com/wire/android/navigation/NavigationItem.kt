@@ -5,6 +5,9 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavBackStackEntry
+import com.wire.android.util.deeplink.DeepLinkProcessor
+import androidx.navigation.NavDeepLink
+import androidx.navigation.navDeepLink
 import com.wire.android.BuildConfig
 import com.wire.android.model.ImageAsset
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CONVERSATION
@@ -40,6 +43,7 @@ import com.wire.android.ui.calling.incoming.IncomingCallScreen
 import com.wire.android.ui.calling.initiating.InitiatingCallScreen
 import com.wire.android.ui.home.HomeScreen
 import com.wire.android.ui.home.conversations.ConversationScreen
+import com.wire.android.ui.home.conversations.ConversationViewModel
 import com.wire.android.ui.home.gallery.MediaGalleryScreen
 import com.wire.android.ui.home.newconversation.NewConversationRouter
 import com.wire.android.ui.settings.SettingsScreen
@@ -49,6 +53,7 @@ import com.wire.android.ui.userprofile.self.SelfUserProfileScreen
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.toConversationId
 import io.github.esentsov.PackagePrivate
 
 @OptIn(
@@ -62,7 +67,8 @@ enum class NavigationItem(
     @PackagePrivate
     internal val primaryRoute: String,
     private val canonicalRoute: String = primaryRoute,
-    open val content: @Composable (ContentParams) -> Unit,
+    val deepLinks: List<NavDeepLink> = listOf(),
+    val content: @Composable (ContentParams) -> Unit,
     val animationConfig: NavigationAnimationConfig = NavigationAnimationConfig.NoAnimation
 ) {
     Welcome(
@@ -175,11 +181,19 @@ enum class NavigationItem(
     Conversation(
         primaryRoute = CONVERSATION,
         canonicalRoute = "$CONVERSATION/{$EXTRA_CONVERSATION_ID}",
-        content = { ConversationScreen(hiltViewModel()) }
+        content = {
+            ConversationScreen(hiltViewModel<ConversationViewModel>().apply {
+                it.navBackStackEntry.savedStateHandle.keys().forEach { key ->
+                    savedStateHandle[key] = it.navBackStackEntry.savedStateHandle.get<Any?>(key)
+                }
+            })
+        },
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
             val conversationId: ConversationId? = arguments.filterIsInstance<ConversationId>().firstOrNull()
-            return conversationId?.run { "$primaryRoute/${toString()}" } ?: primaryRoute
+            return conversationId?.let {
+                "$primaryRoute/$it"
+            } ?: primaryRoute
         }
     },
 
@@ -213,12 +227,18 @@ enum class NavigationItem(
 
     IncomingCall(
         primaryRoute = INCOMING_CALL,
-        canonicalRoute = "$INCOMING_CALL/{$EXTRA_CONVERSATION_ID}",
-        content = { IncomingCallScreen() }
+        canonicalRoute = "$INCOMING_CALL?$EXTRA_CONVERSATION_ID={$EXTRA_CONVERSATION_ID}",
+        deepLinks = listOf(navDeepLink {
+            uriPattern = "${DeepLinkProcessor.DEEP_LINK_SCHEME}://" +
+                    "${DeepLinkProcessor.INCOMING_CALL_DEEPLINK_HOST}/" +
+                    "{$EXTRA_CONVERSATION_ID}"
+        }),
+        content = { IncomingCallScreen() },
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
-            val conversationId: ConversationId? = arguments.filterIsInstance<ConversationId>().firstOrNull()
-            return conversationId?.run { "$primaryRoute/${toString()}" } ?: primaryRoute
+            val conversationIdString: String = arguments.filterIsInstance<ConversationId>().firstOrNull()?.toString()
+                ?: "{$EXTRA_CONVERSATION_ID}"
+            return "$INCOMING_CALL?$EXTRA_CONVERSATION_ID=$conversationIdString"
         }
     },
 
@@ -279,6 +299,8 @@ const val EXTRA_USER_DOMAIN = "extra_user_domain"
 const val EXTRA_CONVERSATION_ID = "extra_conversation_id"
 const val EXTRA_CREATE_ACCOUNT_FLOW_TYPE = "extra_create_account_flow_type"
 const val EXTRA_IMAGE_DATA = "extra_image_data"
+const val EXTRA_MESSAGE_TO_DELETE_ID = "extra_message_to_delete"
+const val EXTRA_MESSAGE_TO_DELETE_IS_SELF = "extra_message_to_delete_is_self"
 
 fun NavigationItem.isExternalRoute() = this.getRouteWithArgs().startsWith("http")
 

@@ -31,14 +31,12 @@ class HomeState(
     val navController: NavHostController,
     val drawerState: DrawerState,
     val bottomSheetState: ModalBottomSheetState,
-    bottomSheetContent: @Composable (ColumnScope.() -> Unit)?,
     val currentNavigationItem: HomeNavigationItem
 ) {
 
-    var scrollPosition by mutableStateOf(0)
-        private set
+    var scrollPositionProvider: (() -> Int)? by mutableStateOf(null)
 
-    var homeBottomSheetContent by mutableStateOf(bottomSheetContent)
+    var homeBottomSheetContent: @Composable (ColumnScope.() -> Unit)? by mutableStateOf(null)
         private set
 
     fun toggleBottomSheetVisibility() {
@@ -52,8 +50,8 @@ class HomeState(
         homeBottomSheetContent = content
     }
 
-    fun updateScrollPosition(newScrollPosition: Int) {
-        scrollPosition = newScrollPosition
+    fun updateScrollPositionProvider(newScrollPositionProvider: () -> Int) {
+        scrollPositionProvider = newScrollPositionProvider
     }
 
     fun openDrawer() {
@@ -69,8 +67,7 @@ fun rememberHomeState(
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
     navController: NavHostController = rememberAnimatedNavController(),
     drawerState: DrawerState = rememberDrawerState(DrawerValue.Closed),
-    bottomSheetState: ModalBottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden),
-    bottomSheetContent: @Composable (ColumnScope.() -> Unit)? = null
+    bottomSheetState: ModalBottomSheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden),
 ): HomeState {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
 
@@ -88,7 +85,6 @@ fun rememberHomeState(
             navController,
             drawerState,
             bottomSheetState,
-            bottomSheetContent,
             navigationItem
         )
     }

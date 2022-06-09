@@ -25,6 +25,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
@@ -52,7 +53,7 @@ import com.wire.android.ui.theme.wireColorScheme
 @Composable
 fun AppTopBarWithSearchBar(
     searchBarState: SearchBarState = rememberSearchbarState(),
-    scrollPosition: Int,
+    scrollPositionProvider: (() -> Int)?,
     searchBarHint: String,
     searchQuery: String,
     onSearchQueryChanged: (String) -> Unit,
@@ -100,7 +101,7 @@ fun AppTopBarWithSearchBar(
         }
     }
 
-    ScrollingDownEffect(scrollPosition) { shouldCollapse -> searchBarState.isSearchBarCollapsed = shouldCollapse }
+    scrollPositionProvider?.let { ScrollingDownEffect(it()) { shouldCollapse -> searchBarState.isSearchBarCollapsed = shouldCollapse } }
 }
 
 @Composable
@@ -120,13 +121,12 @@ private fun AppTopBarWithSearchBar(
         searchQuery = if (searchBarState.isSearchActive) searchQuery else "",
         onSearchQueryChanged = onSearchQueryChanged,
         onInputClicked = {
-            searchBarState.startSearch()
+            searchBarState.openSearch()
 
             onSearchClicked()
         },
         onCloseSearchClicked = {
             onCloseSearchClicked()
-            searchBarState.cancelSearch()
         },
         appTopBar = appTopBar
     )
@@ -181,8 +181,11 @@ private fun AppTopBarWithSearchBarContent(
 
                     val focusManager = LocalFocusManager.current
 
-                    LaunchedEffect(isSearchActive){
-                        if(!isSearchActive)focusManager.clearFocus()
+                    LaunchedEffect(isSearchActive) {
+                        if (!isSearchActive) {
+                            focusManager.clearFocus()
+                            onSearchQueryChanged("")
+                        }
                     }
 
                     SearchBarInput(

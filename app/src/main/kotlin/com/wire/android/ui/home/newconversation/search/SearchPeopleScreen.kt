@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -37,6 +38,7 @@ data class SearchOpenUserProfile(val contact: Contact)
 
 @Composable
 fun SearchPeopleScreen(
+    scrollPositionProvider: (() -> Int) -> Unit,
     searchQuery: String,
     noneSearchSucceed: Boolean,
     knownContactSearchResult: ContactSearchResult,
@@ -56,6 +58,7 @@ fun SearchPeopleScreen(
         } else {
             Column {
                 SearchResult(
+                    scrollPositionProvider = scrollPositionProvider,
                     searchQuery = searchQuery,
                     knownContactSearchResult = knownContactSearchResult,
                     publicContactSearchResult = publicContactSearchResult,
@@ -73,6 +76,7 @@ fun SearchPeopleScreen(
 
 @Composable
 private fun SearchResult(
+    scrollPositionProvider: (() -> Int) -> Unit,
     searchQuery: String,
     knownContactSearchResult: ContactSearchResult,
     publicContactSearchResult: ContactSearchResult,
@@ -84,10 +88,13 @@ private fun SearchResult(
     onNewGroupClicked: () -> Unit
 ) {
     val searchPeopleScreenState = rememberSearchPeopleScreenState()
+    val lazyListState = rememberLazyListState()
+
+    scrollPositionProvider { lazyListState.firstVisibleItemIndex }
 
     Column {
         LazyColumn(
-            state = searchPeopleScreenState.lazyListState,
+            state = lazyListState,
             modifier = Modifier
                 .weight(1f),
         ) {
@@ -317,7 +324,6 @@ fun LazyListScope.inProgressItem() {
 }
 
 fun LazyListScope.failureItem(@StringRes failureMessage: Int) {
-
     item {
         Box(
             Modifier

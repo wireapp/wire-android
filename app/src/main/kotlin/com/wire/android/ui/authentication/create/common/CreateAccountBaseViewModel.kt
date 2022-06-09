@@ -5,6 +5,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig
@@ -39,6 +40,7 @@ import com.wire.kalium.logic.feature.client.RegisterClientUseCase.RegisterClient
 @OptIn(ExperimentalMaterialApi::class)
 abstract class CreateAccountBaseViewModel(
     final override val type: CreateAccountFlowType,
+    private val savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
     private val validateEmailUseCase: ValidateEmailUseCase,
     private val validatePasswordUseCase: ValidatePasswordUseCase,
@@ -51,7 +53,12 @@ abstract class CreateAccountBaseViewModel(
     CreateAccountEmailViewModel,
     CreateAccountDetailsViewModel,
     CreateAccountCodeViewModel {
-    override var emailState: CreateAccountEmailViewState by mutableStateOf(CreateAccountEmailViewState(type))
+    override var emailState: CreateAccountEmailViewState by mutableStateOf(
+        CreateAccountEmailViewState(
+            type,
+            TextFieldValue(savedStateHandle.get<String>(CreateAccountDetailsViewModel.EMAIL).orEmpty())
+        )
+    )
     override var detailsState: CreateAccountDetailsViewState by mutableStateOf(CreateAccountDetailsViewState(type))
     override var codeState: CreateAccountCodeViewState by mutableStateOf(CreateAccountCodeViewState(type))
 
@@ -77,6 +84,7 @@ abstract class CreateAccountBaseViewModel(
             continueEnabled = newText.text.isNotEmpty() && !emailState.loading
         )
         codeState = codeState.copy(email = newText.text)
+        savedStateHandle[CreateAccountDetailsViewModel.EMAIL] = newText.text
     }
 
     final override fun onEmailErrorDismiss() {

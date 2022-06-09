@@ -4,10 +4,10 @@ import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.kalium.logic.data.conversation.MemberDetails
 import com.wire.kalium.logic.data.user.UserId
 
-fun List<MemberDetails>.findSender(senderId: UserId): MemberDetails = first { member ->
+fun List<MemberDetails>.findUser(userId: UserId): MemberDetails = first { member ->
     when (member) {
-        is MemberDetails.Other -> member.otherUser.id == senderId
-        is MemberDetails.Self -> member.selfUser.id == senderId
+        is MemberDetails.Other -> member.otherUser.id == userId
+        is MemberDetails.Self -> member.selfUser.id == userId
     }
 }
 

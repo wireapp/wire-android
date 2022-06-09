@@ -53,6 +53,7 @@ import com.wire.kalium.logic.data.message.Message.DownloadStatus.SAVED_EXTERNALL
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.SAVED_INTERNALLY
 import com.wire.kalium.logic.data.message.MessageContent.Asset
 import com.wire.kalium.logic.data.message.MessageContent.Text
+import com.wire.kalium.logic.data.user.AssetId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import com.wire.kalium.logic.feature.asset.SendAssetMessageResult
@@ -492,7 +493,7 @@ class ConversationViewModel @Inject constructor(
                 when {
                     // If it's an image, we download it right away
                     mimeType.contains("image") -> MessageContent.ImageMessage(
-                        assetId = remoteData.assetId,
+                        assetId = AssetId(remoteData.assetId, remoteData.assetDomain.orEmpty()),
                         rawImgData = getRawAssetData(conversationId, messageId),
                         width = imgWidth,
                         height = imgHeight
@@ -503,7 +504,7 @@ class ConversationViewModel @Inject constructor(
                         AssetMessage(
                             assetName = name ?: "",
                             assetExtension = name?.split(".")?.last() ?: "",
-                            assetId = remoteData.assetId,
+                            assetId = AssetId(remoteData.assetId, remoteData.assetDomain.orEmpty()),
                             assetSizeInBytes = sizeInBytes,
                             downloadStatus = downloadStatus
                         )

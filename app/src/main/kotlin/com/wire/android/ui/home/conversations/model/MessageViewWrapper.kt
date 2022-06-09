@@ -6,7 +6,7 @@ import com.wire.android.model.UserStatus
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.message.Message
-import com.wire.kalium.logic.data.user.UserAssetId
+import com.wire.kalium.logic.data.user.AssetId
 
 data class MessageViewWrapper(
     val user: User,
@@ -43,12 +43,12 @@ sealed class MessageContent {
     data class AssetMessage(
         val assetName: String,
         val assetExtension: String,
-        val assetId: String,
+        val assetId: AssetId,
         val assetSizeInBytes: Long,
         val downloadStatus: Message.DownloadStatus
     ) : MessageContent()
 
-    data class ImageMessage(val assetId: UserAssetId, val rawImgData: ByteArray?, val width: Int, val height: Int) : MessageContent() {
+    data class ImageMessage(val assetId: AssetId, val rawImgData: ByteArray?, val width: Int, val height: Int) : MessageContent() {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (javaClass != other?.javaClass) return false

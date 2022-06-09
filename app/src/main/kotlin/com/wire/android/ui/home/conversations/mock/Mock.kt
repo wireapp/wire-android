@@ -11,6 +11,7 @@ import com.wire.android.ui.home.conversations.model.MessageViewWrapper
 import com.wire.android.ui.home.conversations.model.User
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.id.parseIntoQualifiedID
 import com.wire.kalium.logic.data.message.Message
 
 val mockMessageWithText = MessageViewWrapper(
@@ -37,7 +38,7 @@ val mockMessageWithText = MessageViewWrapper(
 )
 
 val mockAssetMessage = MessageViewWrapper(
-    user = User(UserAvatarAsset(""), UserStatus.AVAILABLE),
+    user = User(UserAvatarAsset("a@domain".parseIntoQualifiedID()), UserStatus.AVAILABLE),
     messageHeader = MessageHeader(
         username = UIText.DynamicString("John Doe"),
         membership = Membership.Guest,
@@ -49,7 +50,7 @@ val mockAssetMessage = MessageViewWrapper(
     messageContent = MessageContent.AssetMessage(
         assetName = "This is some test asset message",
         assetExtension = "ZIP",
-        assetId = "asset-id",
+        assetId = "asset-id@domain".parseIntoQualifiedID(),
         assetSizeInBytes = 21957335,
         downloadStatus = Message.DownloadStatus.NOT_DOWNLOADED
     ),
@@ -57,7 +58,7 @@ val mockAssetMessage = MessageViewWrapper(
 )
 
 @Suppress("MagicNumber")
-val mockedImg = MessageContent.ImageMessage("asset-id", ByteArray(16), 0, 0)
+val mockedImg = MessageContent.ImageMessage("a@domain".parseIntoQualifiedID(), ByteArray(16), 0, 0)
 
 @Suppress("LongMethod", "MagicNumber")
 fun getMockedMessages(): List<MessageViewWrapper> = listOf(

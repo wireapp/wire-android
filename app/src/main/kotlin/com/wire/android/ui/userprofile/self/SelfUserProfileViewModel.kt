@@ -91,7 +91,7 @@ class SelfUserProfileViewModel @Inject constructor(
 
                     // Update avatar asset id on user data store
                     // TODO: obtain the asset id through a useCase once we also store assets ids
-                    dataStore.updateUserAvatarAssetId(avatarAssetId)
+                    dataStore.updateUserAvatarAssetId(avatarAssetId.toString())
                 } catch (e: ClassCastException) {
                     appLogger.e("There was an error while downloading the user avatar", e)
                     // Show error snackbar if avatar download fails

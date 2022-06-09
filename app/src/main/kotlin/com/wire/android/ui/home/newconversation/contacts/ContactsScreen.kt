@@ -17,7 +17,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.model.ImageAsset.UserAvatarAsset
-import com.wire.android.model.UserStatus
+import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.UserProfileAvatar
@@ -79,7 +79,7 @@ fun ContactsScreen(
 private fun ContactItem(
     name: String,
     avatarAsset: UserAvatarAsset?,
-    userStatus: UserStatus,
+    userStatus: UserAvailabilityStatus,
     belongsToGroup: Boolean,
     addToGroup: () -> Unit,
     removeFromGroup: () -> Unit,

@@ -8,7 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.model.ImageAsset.UserAvatarAsset
-import com.wire.android.model.UserStatus
+import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
@@ -213,7 +213,7 @@ private fun ConversationDetails.toType(): ConversationItem = when (this) {
         ConversationItem.PrivateConversation(
             userInfo = UserInfo(
                 otherUser.previewPicture?.let { UserAvatarAsset(it) },
-                UserStatus.NONE // TODO Get actual status
+                UserAvailabilityStatus.NONE // TODO Get actual status
             ),
             conversationInfo = ConversationInfo(
                 name = otherUser.name.orEmpty(),
@@ -229,7 +229,7 @@ private fun ConversationDetails.toType(): ConversationItem = when (this) {
         ConversationItem.ConnectionConversation(
             userInfo = UserInfo(
                 otherUser?.previewPicture?.let { UserAvatarAsset(it) },
-                UserStatus.NONE // TODO Get actual status
+                UserAvailabilityStatus.NONE // TODO Get actual status
             ),
             conversationInfo = ConversationInfo(
                 name = otherUser?.name.orEmpty(),

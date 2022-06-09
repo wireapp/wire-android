@@ -9,7 +9,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.wire.android.model.ImageAsset.UserAvatarAsset
-import com.wire.android.model.UserStatus
+import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.android.ui.common.AddContactButton
 import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.RowItemTemplate
@@ -19,7 +19,7 @@ import com.wire.android.ui.common.WireCheckbox
 @Composable
 fun InternalContactSearchResultItem(
     avatarAsset: UserAvatarAsset?,
-    userStatus: UserStatus,
+    userStatus: UserAvailabilityStatus,
     name: String,
     label: String,
     searchQuery: String,
@@ -74,7 +74,7 @@ fun InternalContactSearchResultItem(
 @Composable
 fun ExternalContactSearchResultItem(
     avatarAsset: UserAvatarAsset?,
-    userStatus: UserStatus,
+    userStatus: UserAvailabilityStatus,
     name: String,
     label: String,
     searchQuery: String,

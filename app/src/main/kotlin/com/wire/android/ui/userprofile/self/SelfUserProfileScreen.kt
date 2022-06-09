@@ -35,7 +35,6 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
-import com.wire.android.model.UserStatus
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.UserStatusIndicator
 import com.wire.android.ui.common.button.WireButtonState
@@ -54,6 +53,7 @@ import com.wire.android.ui.userprofile.self.SelfUserProfileViewModel.ErrorCodes
 import com.wire.android.ui.userprofile.self.SelfUserProfileViewModel.ErrorCodes.DownloadUserInfoError
 import com.wire.android.ui.userprofile.self.dialog.ChangeStatusDialogContent
 import com.wire.android.ui.userprofile.self.model.OtherAccount
+import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -81,10 +81,10 @@ private fun SelfUserProfileContent(
     onLogoutClick: () -> Unit = {},
     onChangeUserProfilePicture: () -> Unit = {},
     onEditClick: () -> Unit = {},
-    onStatusClicked: (UserStatus) -> Unit = {},
+    onStatusClicked: (UserAvailabilityStatus) -> Unit = {},
     onAddAccountClick: () -> Unit = {},
     dismissStatusDialog: () -> Unit = {},
-    onStatusChange: (UserStatus) -> Unit = {},
+    onStatusChange: (UserAvailabilityStatus) -> Unit = {},
     onNotShowRationaleAgainChange: (Boolean) -> Unit = {},
     onMessageShown: () -> Unit = {}
 ) {
@@ -202,8 +202,8 @@ private fun SelfUserProfileTopBar(
 
 @Composable
 private fun CurrentSelfUserStatus(
-    userStatus: UserStatus,
-    onStatusClicked: (UserStatus) -> Unit
+    userStatus: UserAvailabilityStatus,
+    onStatusClicked: (UserAvailabilityStatus) -> Unit
 ) {
     val minButtonWeight = 4F
     Row(
@@ -213,7 +213,7 @@ private fun CurrentSelfUserStatus(
             .padding(dimensions().spacing16x),
     ) {
         ProfileStatusButton(
-            userStatus = UserStatus.AVAILABLE,
+            userStatus = UserAvailabilityStatus.AVAILABLE,
             modifier = Modifier.weight(weight = minButtonWeight + stringResource(R.string.user_profile_status_available).length.toFloat()),
             onClick = { status -> onStatusClicked(status) },
             text = stringResource(R.string.user_profile_status_available),
@@ -224,21 +224,21 @@ private fun CurrentSelfUserStatus(
             ),
         )
         ProfileStatusButton(
-            userStatus = UserStatus.BUSY,
+            userStatus = UserAvailabilityStatus.BUSY,
             modifier = Modifier.weight(weight = minButtonWeight + stringResource(R.string.user_profile_status_busy).length.toFloat()),
             onClick = { status -> onStatusClicked(status) },
             text = stringResource(R.string.user_profile_status_busy),
             currentStatus = userStatus,
         )
         ProfileStatusButton(
-            userStatus = UserStatus.AWAY,
+            userStatus = UserAvailabilityStatus.AWAY,
             modifier = Modifier.weight(weight = minButtonWeight + stringResource(R.string.user_profile_status_away).length.toFloat()),
             onClick = { status -> onStatusClicked(status) },
             text = stringResource(R.string.user_profile_status_away),
             currentStatus = userStatus,
         )
         ProfileStatusButton(
-            userStatus = UserStatus.NONE,
+            userStatus = UserAvailabilityStatus.NONE,
             modifier = Modifier.weight(weight = minButtonWeight + stringResource(R.string.user_profile_status_none).length.toFloat()),
             onClick = { status -> onStatusClicked(status) },
             text = stringResource(R.string.user_profile_status_none),
@@ -253,9 +253,9 @@ private fun CurrentSelfUserStatus(
 
 @Composable
 private fun ProfileStatusButton(
-    onClick: (UserStatus) -> Unit,
-    userStatus: UserStatus,
-    currentStatus: UserStatus,
+    onClick: (UserAvailabilityStatus) -> Unit,
+    userStatus: UserAvailabilityStatus,
+    currentStatus: UserAvailabilityStatus,
     text: String,
     shape: Shape = RoundedCornerShape(0.dp),
     modifier: Modifier = Modifier,
@@ -368,7 +368,7 @@ private fun OtherAccountItem(
 private fun SelfUserProfileScreenPreview() {
     SelfUserProfileContent(
         SelfUserProfileState(
-            status = UserStatus.BUSY,
+            status = UserAvailabilityStatus.BUSY,
             fullName = "Tester Tost_long_long_long long  long  long  long  long  long ",
             userName = "userName_long_long_long_long_long_long_long_long_long_long",
             teamName = "Best team ever long  long  long  long  long  long  long  long  long ",
@@ -390,5 +390,5 @@ private fun SelfUserProfileScreenPreview() {
 @Preview(widthDp = 400)
 @Composable
 private fun CurrentSelfUserStatusPreview() {
-    CurrentSelfUserStatus(UserStatus.AVAILABLE, onStatusClicked = {})
+    CurrentSelfUserStatus(UserAvailabilityStatus.AVAILABLE, onStatusClicked = {})
 }

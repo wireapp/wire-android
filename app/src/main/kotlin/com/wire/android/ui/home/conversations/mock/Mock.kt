@@ -1,7 +1,7 @@
 package com.wire.android.ui.home.conversations.mock
 
 import com.wire.android.model.ImageAsset.UserAvatarAsset
-import com.wire.android.model.UserStatus
+import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.MessageContent
 import com.wire.android.ui.home.conversations.model.MessageHeader
@@ -14,7 +14,7 @@ import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.message.Message
 
 val mockMessageWithText = MessageViewWrapper(
-    user = User(null, UserStatus.AVAILABLE),
+    user = User(null, UserAvailabilityStatus.AVAILABLE),
     messageHeader = MessageHeader(
         username = UIText.DynamicString("John Doe"),
         membership = Membership.Guest,
@@ -37,7 +37,7 @@ val mockMessageWithText = MessageViewWrapper(
 )
 
 val mockAssetMessage = MessageViewWrapper(
-    user = User(UserAvatarAsset(""), UserStatus.AVAILABLE),
+    user = User(UserAvatarAsset(""), UserAvailabilityStatus.AVAILABLE),
     messageHeader = MessageHeader(
         username = UIText.DynamicString("John Doe"),
         membership = Membership.Guest,
@@ -62,7 +62,7 @@ val mockedImg = MessageContent.ImageMessage("asset-id", ByteArray(16), 0, 0)
 @Suppress("LongMethod", "MagicNumber")
 fun getMockedMessages(): List<MessageViewWrapper> = listOf(
     MessageViewWrapper(
-        user = User(null, UserStatus.AVAILABLE),
+        user = User(null, UserAvailabilityStatus.AVAILABLE),
         messageHeader = MessageHeader(
             username = UIText.DynamicString("John Doe"),
             membership = Membership.Guest,
@@ -84,7 +84,7 @@ fun getMockedMessages(): List<MessageViewWrapper> = listOf(
         messageSource = MessageSource.Self
     ),
     MessageViewWrapper(
-        user = User(null, UserStatus.AVAILABLE),
+        user = User(null, UserAvailabilityStatus.AVAILABLE),
         messageHeader = MessageHeader(
             username = UIText.DynamicString("John Doe"),
             membership = Membership.Guest,
@@ -97,7 +97,7 @@ fun getMockedMessages(): List<MessageViewWrapper> = listOf(
         messageSource = MessageSource.Self
     ),
     MessageViewWrapper(
-        user = User(null, UserStatus.AVAILABLE),
+        user = User(null, UserAvailabilityStatus.AVAILABLE),
         messageHeader = MessageHeader(
             username = UIText.DynamicString("John Doe"),
             membership = Membership.External,
@@ -110,7 +110,7 @@ fun getMockedMessages(): List<MessageViewWrapper> = listOf(
         messageSource = MessageSource.Self
     ),
     MessageViewWrapper(
-        user = User(null, UserStatus.AVAILABLE),
+        user = User(null, UserAvailabilityStatus.AVAILABLE),
         messageHeader = MessageHeader(
             username = UIText.DynamicString("John Doe"),
             membership = Membership.External,
@@ -123,7 +123,7 @@ fun getMockedMessages(): List<MessageViewWrapper> = listOf(
         messageSource = MessageSource.Self
     ),
     MessageViewWrapper(
-        user = User(null, UserStatus.AVAILABLE),
+        user = User(null, UserAvailabilityStatus.AVAILABLE),
         messageHeader = MessageHeader(
             username = UIText.DynamicString("John Doe"),
             membership = Membership.External,
@@ -145,7 +145,7 @@ fun getMockedMessages(): List<MessageViewWrapper> = listOf(
         messageSource = MessageSource.Self
     ),
     MessageViewWrapper(
-        user = User(null, UserStatus.AVAILABLE),
+        user = User(null, UserAvailabilityStatus.AVAILABLE),
         messageHeader = MessageHeader(
             username = UIText.DynamicString("John Doe"),
             membership = Membership.External,
@@ -158,7 +158,7 @@ fun getMockedMessages(): List<MessageViewWrapper> = listOf(
         messageSource = MessageSource.Self
     ),
     MessageViewWrapper(
-        user = User(null, UserStatus.AVAILABLE),
+        user = User(null, UserAvailabilityStatus.AVAILABLE),
         messageHeader = MessageHeader(
             username = UIText.DynamicString("John Doe"),
             membership = Membership.External,

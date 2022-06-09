@@ -9,7 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.model.ImageAsset.UserAvatarAsset
-import com.wire.android.model.UserStatus
+import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
@@ -18,6 +18,7 @@ import com.wire.android.ui.userprofile.self.dialog.StatusDialogData
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
+import com.wire.kalium.logic.feature.user.UpdateSelfAvailabilityStatusUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -36,6 +37,7 @@ class SelfUserProfileViewModel @Inject constructor(
     private val dataStore: UserDataStore,
     private val getSelf: GetSelfUserUseCase,
     private val getSelfTeam: GetSelfTeamUseCase,
+    private val updateStatus: UpdateSelfAvailabilityStatusUseCase,
     private val logout: LogoutUseCase,
     private val dispatchers: DispatcherProvider
 ) : ViewModel() {
@@ -59,7 +61,7 @@ class SelfUserProfileViewModel @Inject constructor(
 
                         // Update user data state
                         userProfileState = SelfUserProfileState(
-                            status = UserStatus.AVAILABLE,
+                            status = availabilityStatus,
                             fullName = name.orEmpty(),
                             userName = handle.orEmpty(),
                             teamName = selfTeam?.name,
@@ -133,9 +135,10 @@ class SelfUserProfileViewModel @Inject constructor(
         userProfileState = userProfileState.copy(statusDialogData = null)
     }
 
-    fun changeStatus(status: UserStatus) {
+    fun changeStatus(status: UserAvailabilityStatus) {
         setNotShowStatusRationaleAgainIfNeeded(status)
-        userProfileState = userProfileState.copy(status = status)
+        viewModelScope.launch {  updateStatus(status) }
+//        userProfileState = userProfileState.copy(status = status)
         dismissStatusDialog()
     }
 
@@ -145,16 +148,16 @@ class SelfUserProfileViewModel @Inject constructor(
         }
     }
 
-    fun changeStatusClick(status: UserStatus) {
+    fun changeStatusClick(status: UserAvailabilityStatus) {
         if (userProfileState.status == status) return
 
         viewModelScope.launch {
             if (shouldShowStatusRationaleDialog(status)) {
                 val statusDialogInfo = when (status) {
-                    UserStatus.AVAILABLE -> StatusDialogData.StateAvailable()
-                    UserStatus.BUSY -> StatusDialogData.StateBusy()
-                    UserStatus.AWAY -> StatusDialogData.StateAway()
-                    UserStatus.NONE -> StatusDialogData.StateNone()
+                    UserAvailabilityStatus.AVAILABLE -> StatusDialogData.StateAvailable()
+                    UserAvailabilityStatus.BUSY -> StatusDialogData.StateBusy()
+                    UserAvailabilityStatus.AWAY -> StatusDialogData.StateAway()
+                    UserAvailabilityStatus.NONE -> StatusDialogData.StateNone()
                 }
                 userProfileState = userProfileState.copy(statusDialogData = statusDialogInfo)
             } else {
@@ -163,7 +166,7 @@ class SelfUserProfileViewModel @Inject constructor(
         }
     }
 
-    private fun setNotShowStatusRationaleAgainIfNeeded(status: UserStatus) {
+    private fun setNotShowStatusRationaleAgainIfNeeded(status: UserAvailabilityStatus) {
         userProfileState.statusDialogData.let { dialogState ->
             if (dialogState?.isCheckBoxChecked == true) {
                 viewModelScope.launch { dataStore.dontShowStatusRationaleAgain(status) }
@@ -171,7 +174,7 @@ class SelfUserProfileViewModel @Inject constructor(
         }
     }
 
-    private suspend fun shouldShowStatusRationaleDialog(status: UserStatus): Boolean =
+    private suspend fun shouldShowStatusRationaleDialog(status: UserAvailabilityStatus): Boolean =
         dataStore.shouldShowStatusRationaleFlow(status).first()
 
     fun clearErrorMessage() {

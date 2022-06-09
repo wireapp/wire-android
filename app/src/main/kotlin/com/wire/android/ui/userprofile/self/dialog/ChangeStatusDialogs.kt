@@ -8,7 +8,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
-import com.wire.android.model.UserStatus
+import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
@@ -18,7 +18,7 @@ import com.wire.android.ui.common.WireLabelledCheckbox
 fun ChangeStatusDialogContent(
     data: StatusDialogData?,
     dismiss: () -> Unit = {},
-    onStatusChange: (UserStatus) -> Unit = {},
+    onStatusChange: (UserAvailabilityStatus) -> Unit = {},
     onNotShowRationaleAgainChange: (Boolean) -> Unit = {}
 ) {
     if (data != null) {
@@ -31,7 +31,7 @@ fun ChangeStatusDialogContent(
 private fun ChangeStatusDialog(
     data: StatusDialogData,
     dismiss: () -> Unit = {},
-    onStatusChange: (UserStatus) -> Unit = {},
+    onStatusChange: (UserAvailabilityStatus) -> Unit = {},
     onNotShowRationaleAgainChange: (Boolean) -> Unit = {}
 ) {
     WireDialog(

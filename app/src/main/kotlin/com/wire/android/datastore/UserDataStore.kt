@@ -7,7 +7,7 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import androidx.datastore.preferences.preferencesDataStore
-import com.wire.android.model.UserStatus
+import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -29,13 +29,13 @@ class UserDataStore @Inject constructor(@ApplicationContext private val context:
         private val Context.dataStore: DataStore<Preferences> by preferencesDataStore(name = PREFERENCES_NAME)
     }
 
-    suspend fun dontShowStatusRationaleAgain(status: UserStatus) {
+    suspend fun dontShowStatusRationaleAgain(status: UserAvailabilityStatus) {
         context.dataStore.edit { preferences ->
             preferences[getStatusKey(status)] = false
         }
     }
 
-    fun shouldShowStatusRationaleFlow(status: UserStatus): Flow<Boolean> = context.dataStore.data
+    fun shouldShowStatusRationaleFlow(status: UserAvailabilityStatus): Flow<Boolean> = context.dataStore.data
         .map { preferences ->
             preferences[getStatusKey(status)] ?: true
         }
@@ -55,10 +55,10 @@ class UserDataStore @Inject constructor(@ApplicationContext private val context:
         context.dataStore.edit { it.clear() }
     }
 
-    private fun getStatusKey(status: UserStatus) = when (status) {
-        UserStatus.AVAILABLE -> SHOW_STATUS_RATIONALE_AVAILABLE
-        UserStatus.BUSY -> SHOW_STATUS_RATIONALE_BUSY
-        UserStatus.AWAY -> SHOW_STATUS_RATIONALE_AWAY
-        UserStatus.NONE -> SHOW_STATUS_RATIONALE_NONE
+    private fun getStatusKey(status: UserAvailabilityStatus) = when (status) {
+        UserAvailabilityStatus.AVAILABLE -> SHOW_STATUS_RATIONALE_AVAILABLE
+        UserAvailabilityStatus.BUSY -> SHOW_STATUS_RATIONALE_BUSY
+        UserAvailabilityStatus.AWAY -> SHOW_STATUS_RATIONALE_AWAY
+        UserAvailabilityStatus.NONE -> SHOW_STATUS_RATIONALE_NONE
     }
 }

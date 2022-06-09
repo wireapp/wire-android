@@ -4,7 +4,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
-import com.wire.android.model.UserStatus
+import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
@@ -110,7 +110,7 @@ class ConversationListViewModelTest {
         private val conversationItem = ConversationItem.PrivateConversation(
             userInfo = UserInfo(
                 avatarAsset = null,
-                availabilityStatus = UserStatus.NONE
+                availabilityStatus = UserAvailabilityStatus.NONE
             ),
             conversationInfo = ConversationInfo(
                 name = "",

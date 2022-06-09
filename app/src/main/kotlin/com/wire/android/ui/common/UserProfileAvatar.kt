@@ -25,7 +25,7 @@ import androidx.compose.ui.unit.Dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.model.ImageAsset.UserAvatarAsset
-import com.wire.android.model.UserStatus
+import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.getUriFromDrawable
@@ -33,7 +33,7 @@ import com.wire.android.util.getUriFromDrawable
 @Composable
 fun UserProfileAvatar(
     userAvatarAsset: UserAvatarAsset? = null,
-    status: UserStatus = UserStatus.NONE,
+    status: UserAvailabilityStatus = UserAvailabilityStatus.NONE,
     isClickable: Boolean = false,
     size: Dp = MaterialTheme.wireDimensions.userAvatarDefaultSize,
     modifier: Modifier = Modifier,
@@ -91,6 +91,6 @@ private fun painter(userAvatarAsset: UserAvatarAsset?): Painter {
 @Composable
 fun UserProfileAvatarPreview() {
     UserProfileAvatar(
-        status = UserStatus.BUSY
+        status = UserAvailabilityStatus.BUSY
     ) {}
 }

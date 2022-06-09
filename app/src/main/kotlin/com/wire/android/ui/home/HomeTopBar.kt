@@ -7,7 +7,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.wire.android.model.ImageAsset.UserAvatarAsset
-import com.wire.android.model.UserStatus
+import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.android.navigation.HomeNavigationItem
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.dimensions
@@ -30,7 +30,7 @@ fun HomeTopBar(
             UserProfileAvatar(
                 avatarAsset,
                 isClickable = true,
-                status = UserStatus.AVAILABLE
+                status = UserAvailabilityStatus.AVAILABLE
             ) {
                 onNavigateToUserProfile()
             }

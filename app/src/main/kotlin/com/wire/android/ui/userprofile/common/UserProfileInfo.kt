@@ -23,7 +23,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.wire.android.model.ImageAsset.UserAvatarAsset
-import com.wire.android.model.UserStatus
+import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.WireCircularProgressIndicator
@@ -57,7 +57,7 @@ fun UserProfileInfo(
             isClickable = editableState is EditableState.IsEditable,
             size = dimensions().userAvatarDefaultBigSize,
             userAvatarAsset = avatarAsset,
-            status = UserStatus.NONE,
+            status = UserAvailabilityStatus.NONE,
         )
         if (isLoading) {
             Box(

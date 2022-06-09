@@ -18,6 +18,9 @@ import com.wire.kalium.logic.data.message.MessageContent.Server
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
+import com.wire.kalium.logic.data.message.MessageContent.MemberChange.Added
+import com.wire.kalium.logic.data.message.MessageContent.MemberChange.Removed
+import com.wire.kalium.logic.data.message.MessageContent.MemberChange
 import javax.inject.Inject
 
 class MessageContentMapper @Inject constructor(
@@ -26,99 +29,77 @@ class MessageContentMapper @Inject constructor(
     private val messageResourceProvider: MessageResourceProvider
 ) {
 
-    enum class SelfNameType {
-        ResourceLowercase, ResourceTitlecase, NameOrDeleted
-    }
-
     suspend fun fromMessage(
         message: Message,
         members: List<MemberDetails>
     ): MessageContent? {
-        return when(message.visibility){
-            Message.Visibility.VISIBLE ->
-                when (val content = message.content) {
-                    is Asset -> toAsset(
-                        conversationId = message.conversationId,
-                        messageId = message.id,
-                        assetContent = content.value
-                    )
-                    is Text -> toClientText(
-                        content = content.value,
-                        editStatus = message.editStatus
-                    )
-                    is Server -> toServer(
-                        content = content,
-                        senderUserId = message.senderUserId,
-                        members = members
-                    )
-                    else -> toClientText()
-                }
-            Message.Visibility.DELETED -> MessageContent.DeletedMessage
-            Message.Visibility.HIDDEN -> MessageContent.DeletedMessage
-        }
-        return when (message){
-
-            is Message.Client -> mapClientMessage(message,members)
-            is Message.Server -> mapServerMessage(message,members)
-        }
-
-        return when (message.visibility) {
-
-        }
-    }
-
-    private fun mapServerMessage(message: Message.Server, members: List<MemberDetails>): MessageContent? {
         return when (message.visibility) {
             Message.Visibility.VISIBLE ->
-                when (val content = message.content) {
-                    is Asset -> toAsset(
-                        conversationId = message.conversationId,
-                        messageId = message.id,
-                        assetContent = content.value
-                    )
-                    is Text -> toClientText(
-                        content = content.value,
-                        editStatus = message.editStatus
-                    )
-                    is Server -> toServer(
-                        content = content,
-                        senderUserId = message.senderUserId,
-                        members = members
-                    )
-                    else -> toClientText()
+                return when (message) {
+                    is Message.Client -> mapClientMessage(message, members)
+                    is Message.Server -> mapServerMessage(message, members)
                 }
             Message.Visibility.DELETED -> MessageContent.DeletedMessage
             Message.Visibility.HIDDEN -> MessageContent.DeletedMessage
         }
     }
 
-    private fun mapClientMessage(message: Message.Client, members: List<MemberDetails>): MessageContent? {
-        return when (message.visibility) {
-            Message.Visibility.VISIBLE ->
-                when (val content = message.content) {
-                    is Asset -> toAsset(
-                        conversationId = message.conversationId,
-                        messageId = message.id,
-                        assetContent = content.value
-                    )
-                    is Text -> toClientText(
-                        content = content.value,
-                        editStatus = message.editStatus
-                    )
-                    is Server -> toServer(
-                        content = content,
-                        senderUserId = message.senderUserId,
-                        members = members
-                    )
-                    else -> toClientText()
-                }
-            Message.Visibility.DELETED -> MessageContent.DeletedMessage
-            Message.Visibility.HIDDEN -> MessageContent.DeletedMessage
+    private fun mapServerMessage(
+        message: Message.Server,
+        members: List<MemberDetails>
+    ) = when (val content = message.content) {
+        is MemberChange -> {
+            val sender = members.findUser(userId = message.senderUserId)
+            val isAuthorSelfAction = content.members.size == 1 && message.senderUserId == content.members.first().id
+            val authorName = toSystemMessageMemberName(
+                member = sender,
+                type = SelfNameType.ResourceTitleCase
+            )
+            val memberNameList = content.members.map {
+                toSystemMessageMemberName(
+                    member = members.findUser(userId = it.id),
+                    type = SelfNameType.ResourceLowercase
+                )
+            }
+            when (content) {
+                is Added -> MessageContent.ServerMessage.MemberAdded(
+                    author = authorName,
+                    memberNames = memberNameList
+                )
+                is Removed ->
+                    if (isAuthorSelfAction) {
+                        MessageContent.ServerMessage.MemberLeft(
+                            author = authorName
+                        )
+                    } else {
+                        MessageContent.ServerMessage.MemberRemoved(
+                            author = authorName,
+                            memberNames = memberNameList
+                        )
+                    }
+            }
         }
     }
 
-    private fun toClientText(content: String, editStatus: Message.EditStatus) =
-        when (editStatus) {
+    private suspend fun mapClientMessage(
+        message: Message.Client,
+        members: List<MemberDetails>
+    ) = when (val content = message.content) {
+        is Asset -> toAsset(
+            conversationId = message.conversationId,
+            messageId = message.id,
+            assetContent = content.value
+        )
+        is Text -> toText(
+            content = content.value,
+            editStatus = message.editStatus
+        )
+    }
+
+    private fun toText(
+        content: String,
+        editStatus: Message.EditStatus
+    ) = when (editStatus) {
             is Message.EditStatus.Edited -> {
                 MessageContent.EditedMessage(
                     messageBody = MessageBody(message = UIText.DynamicString(content)),
@@ -137,19 +118,19 @@ class MessageContentMapper @Inject constructor(
         senderUserId: UserId,
         members: List<MemberDetails>
     ): MessageContent = when (content) {
-        is com.wire.kalium.logic.data.message.MessageContent.MemberChange -> {
+        is MemberChange -> {
             val sender = members.findUser(senderUserId)
             val isAuthorSelfAction = content.members.size == 1 && senderUserId == content.members.first().id
-            val authorName = toSystemMessageMemberName(sender, SelfNameType.ResourceTitlecase)
+            val authorName = toSystemMessageMemberName(sender, SelfNameType.ResourceTitleCase)
             val memberNameList = content.members.map {
                 toSystemMessageMemberName(members.findUser(it.id), SelfNameType.ResourceLowercase)
             }
             when (content) {
-                is com.wire.kalium.logic.data.message.MessageContent.MemberChange.Added -> MessageContent.ServerMessage.MemberAdded(
+                is Added -> MessageContent.ServerMessage.MemberAdded(
                     authorName,
                     memberNameList
                 )
-                is com.wire.kalium.logic.data.message.MessageContent.MemberChange.Removed ->
+                is Removed ->
                     if (isAuthorSelfAction) MessageContent.ServerMessage.MemberLeft(authorName)
                     else MessageContent.ServerMessage.MemberRemoved(authorName, memberNameList)
             }
@@ -198,7 +179,7 @@ class MessageContentMapper @Inject constructor(
             ?: UIText.StringResource(messageResourceProvider.memberNameDeleted)
         is MemberDetails.Self -> when (type) {
             SelfNameType.ResourceLowercase -> UIText.StringResource(messageResourceProvider.memberNameYouLowercase)
-            SelfNameType.ResourceTitlecase -> UIText.StringResource(messageResourceProvider.memberNameYouTitlecase)
+            SelfNameType.ResourceTitleCase -> UIText.StringResource(messageResourceProvider.memberNameYouTitlecase)
             SelfNameType.NameOrDeleted -> member.name?.let { UIText.DynamicString(it) }
                 ?: UIText.StringResource(messageResourceProvider.memberNameDeleted)
         }
@@ -214,6 +195,10 @@ class MessageContentMapper @Inject constructor(
                 else -> null
             }
         }
+}
+
+private enum class SelfNameType {
+    ResourceLowercase, ResourceTitleCase, NameOrDeleted
 }
 
 data class MessageResourceProvider(

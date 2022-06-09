@@ -30,8 +30,11 @@ class MessageContentMapper @Inject constructor(
         ResourceLowercase, ResourceTitlecase, NameOrDeleted
     }
 
-    suspend fun fromMessage(message: Message, members: List<MemberDetails>): MessageContent? {
-        return when (message.visibility) {
+    suspend fun fromMessage(
+        message: Message,
+        members: List<MemberDetails>
+    ): MessageContent? {
+        return when(message.visibility){
             Message.Visibility.VISIBLE ->
                 when (val content = message.content) {
                     is Asset -> toAsset(
@@ -39,7 +42,7 @@ class MessageContentMapper @Inject constructor(
                         messageId = message.id,
                         assetContent = content.value
                     )
-                    is Text -> toText(
+                    is Text -> toClientText(
                         content = content.value,
                         editStatus = message.editStatus
                     )
@@ -48,14 +51,73 @@ class MessageContentMapper @Inject constructor(
                         senderUserId = message.senderUserId,
                         members = members
                     )
-                    else -> toText()
+                    else -> toClientText()
+                }
+            Message.Visibility.DELETED -> MessageContent.DeletedMessage
+            Message.Visibility.HIDDEN -> MessageContent.DeletedMessage
+        }
+        return when (message){
+
+            is Message.Client -> mapClientMessage(message,members)
+            is Message.Server -> mapServerMessage(message,members)
+        }
+
+        return when (message.visibility) {
+
+        }
+    }
+
+    private fun mapServerMessage(message: Message.Server, members: List<MemberDetails>): MessageContent? {
+        return when (message.visibility) {
+            Message.Visibility.VISIBLE ->
+                when (val content = message.content) {
+                    is Asset -> toAsset(
+                        conversationId = message.conversationId,
+                        messageId = message.id,
+                        assetContent = content.value
+                    )
+                    is Text -> toClientText(
+                        content = content.value,
+                        editStatus = message.editStatus
+                    )
+                    is Server -> toServer(
+                        content = content,
+                        senderUserId = message.senderUserId,
+                        members = members
+                    )
+                    else -> toClientText()
                 }
             Message.Visibility.DELETED -> MessageContent.DeletedMessage
             Message.Visibility.HIDDEN -> MessageContent.DeletedMessage
         }
     }
 
-    private fun toText(content: String, editStatus: Message.EditStatus) =
+    private fun mapClientMessage(message: Message.Client, members: List<MemberDetails>): MessageContent? {
+        return when (message.visibility) {
+            Message.Visibility.VISIBLE ->
+                when (val content = message.content) {
+                    is Asset -> toAsset(
+                        conversationId = message.conversationId,
+                        messageId = message.id,
+                        assetContent = content.value
+                    )
+                    is Text -> toClientText(
+                        content = content.value,
+                        editStatus = message.editStatus
+                    )
+                    is Server -> toServer(
+                        content = content,
+                        senderUserId = message.senderUserId,
+                        members = members
+                    )
+                    else -> toClientText()
+                }
+            Message.Visibility.DELETED -> MessageContent.DeletedMessage
+            Message.Visibility.HIDDEN -> MessageContent.DeletedMessage
+        }
+    }
+
+    private fun toClientText(content: String, editStatus: Message.EditStatus) =
         when (editStatus) {
             is Message.EditStatus.Edited -> {
                 MessageContent.EditedMessage(

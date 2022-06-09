@@ -13,4 +13,8 @@ interface CreateAccountDetailsViewModel {
     enum class DetailsFieldType {
         FirstName, LastName, Password, ConfirmPassword, TeamName
     }
+
+    companion object {
+        const val EMAIL = "email"
+    }
 }

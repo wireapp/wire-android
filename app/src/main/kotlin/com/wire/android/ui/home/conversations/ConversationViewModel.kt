@@ -6,12 +6,10 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.R
 import com.wire.android.appLogger
-import com.wire.android.mapper.UserTypeMapper
+import com.wire.android.mapper.MessageMapper
 import com.wire.android.model.ImageAsset.PrivateAsset
 import com.wire.android.model.ImageAsset.UserAvatarAsset
-import com.wire.android.model.UserStatus
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.EXTRA_MESSAGE_TO_DELETE_ID
 import com.wire.android.navigation.EXTRA_MESSAGE_TO_DELETE_IS_SELF
@@ -26,33 +24,17 @@ import com.wire.android.ui.home.conversations.DownloadedAssetDialogVisibilitySta
 import com.wire.android.ui.home.conversations.DownloadedAssetDialogVisibilityState.Hidden
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
-import com.wire.android.ui.home.conversations.model.MessageBody
-import com.wire.android.ui.home.conversations.model.MessageContent
 import com.wire.android.ui.home.conversations.model.MessageContent.AssetMessage
-import com.wire.android.ui.home.conversations.model.MessageContent.DeletedMessage
-import com.wire.android.ui.home.conversations.model.MessageContent.TextMessage
-import com.wire.android.ui.home.conversations.model.MessageHeader
-import com.wire.android.ui.home.conversations.model.MessageSource
-import com.wire.android.ui.home.conversations.model.MessageStatus
-import com.wire.android.ui.home.conversations.model.MessageViewWrapper
-import com.wire.android.ui.home.conversations.model.User
-import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.extractImageParams
-import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.MemberDetails
 import com.wire.kalium.logic.data.id.parseIntoQualifiedID
-import com.wire.kalium.logic.data.message.AssetContent
-import com.wire.kalium.logic.data.message.AssetContent.AssetMetadata.Image
-import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.FAILED
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.IN_PROGRESS
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.SAVED_EXTERNALLY
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.SAVED_INTERNALLY
-import com.wire.kalium.logic.data.message.MessageContent.Asset
-import com.wire.kalium.logic.data.message.MessageContent.Text
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import com.wire.kalium.logic.feature.asset.SendAssetMessageResult
@@ -86,7 +68,7 @@ class ConversationViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val getMessages: GetRecentMessagesUseCase,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
-    private val observeMemberDetails: ObserveMemberDetailsByIdsUseCase,
+    private val observeMemberDetailsByIds: ObserveMemberDetailsByIdsUseCase,
     private val sendImageMessage: SendImageMessageUseCase,
     private val sendAssetMessage: SendAssetMessageUseCase,
     private val sendTextMessage: SendTextMessageUseCase,
@@ -97,7 +79,7 @@ class ConversationViewModel @Inject constructor(
     private val updateAssetMessageDownloadStatus: UpdateAssetMessageDownloadStatusUseCase,
     private val getSelfUserTeam: GetSelfTeamUseCase,
     private val fileManager: FileManager,
-    private val userTypeMapper: UserTypeMapper
+    private val messageMapper: MessageMapper
 ) : ViewModel() {
 
     var conversationViewState by mutableStateOf(ConversationViewState())
@@ -126,8 +108,8 @@ class ConversationViewModel @Inject constructor(
     @OptIn(ExperimentalCoroutinesApi::class)
     private fun fetchMessages() = viewModelScope.launch {
         getMessages(conversationId).flatMapLatest { messages ->
-            observeMemberDetails(messages.map { it.senderUserId }.distinct())
-                .map { members -> messages.toUIMessages(members) }
+            observeMemberDetailsByIds(messageMapper.memberIdList(messages))
+                .map { members -> messageMapper.toUIMessages(messages, members) }
         }.flowOn(dispatchers.default()).collect { uiMessages ->
             conversationViewState = conversationViewState.copy(messages = uiMessages)
         }
@@ -441,76 +423,6 @@ class ConversationViewModel @Inject constructor(
                     destination = NavigationItem.Gallery.getRouteWithArgs(listOf(PrivateAsset(conversationId, messageId, isSelfMessage)))
                 )
             )
-        }
-    }
-    // endregion
-
-    // region ------------------------------ Mapper Helpers ------------------------------
-    private suspend fun List<Message>.toUIMessages(members: List<MemberDetails>): List<MessageViewWrapper> {
-        return map { message ->
-            val sender = members.findSender(message.senderUserId)
-
-            MessageViewWrapper(
-                messageContent = fromMessageModelToMessageContent(message),
-                messageSource = if (sender is MemberDetails.Self) MessageSource.Self else MessageSource.OtherUser,
-                messageHeader = MessageHeader(
-                    // TODO: Designs for deleted users?
-                    username = sender.name?.let { UIText.DynamicString(it) } ?: UIText.StringResource(R.string.member_name_deleted_label),
-                    membership = if (sender is MemberDetails.Other) userTypeMapper.toMembership(sender.userType) else Membership.None,
-                    isLegalHold = false,
-                    time = message.date,
-                    messageStatus = if (message.status == Message.Status.FAILED) MessageStatus.SendFailure else MessageStatus.Untouched,
-                    messageId = message.id
-                ),
-                user = User(
-                    avatarAsset = sender.previewAsset, availabilityStatus = UserStatus.NONE
-                )
-            )
-        }
-    }
-
-    private suspend fun fromMessageModelToMessageContent(message: Message): MessageContent? =
-        when (message.visibility) {
-            Message.Visibility.VISIBLE -> when (val content = message.content) {
-                is Asset -> mapToMessageUI(content.value, message.conversationId, message.id)
-                is Text -> TextMessage(messageBody = MessageBody(UIText.DynamicString(content.value)))
-                else -> TextMessage(messageBody = MessageBody((content as? Text)?.let { UIText.DynamicString(it.value) }
-                    ?: UIText.StringResource(R.string.content_is_not_available)))
-            }
-            Message.Visibility.DELETED -> DeletedMessage
-            Message.Visibility.HIDDEN -> DeletedMessage
-        }
-
-    private suspend fun mapToMessageUI(assetContent: AssetContent, conversationId: ConversationId, messageId: String): MessageContent? {
-        with(assetContent) {
-            val (imgWidth, imgHeight) = when (val md = metadata) {
-                is Image -> md.width to md.height
-                else -> 0 to 0
-            }
-
-            return if (remoteData.assetId.isNotEmpty()) {
-                when {
-                    // If it's an image, we download it right away
-                    mimeType.contains("image") -> MessageContent.ImageMessage(
-                        assetId = remoteData.assetId,
-                        rawImgData = getRawAssetData(conversationId, messageId),
-                        width = imgWidth,
-                        height = imgHeight
-                    )
-
-                    // It's a generic Asset Message so let's not download it yet
-                    else -> {
-                        AssetMessage(
-                            assetName = name ?: "",
-                            assetExtension = name?.split(".")?.last() ?: "",
-                            assetId = remoteData.assetId,
-                            assetSizeInBytes = sizeInBytes,
-                            downloadStatus = downloadStatus
-                        )
-                        // On the first asset message received, the asset ID is null, so we filter it out until the second updates it
-                    }
-                }
-            } else null
         }
     }
     // endregion

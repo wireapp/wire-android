@@ -51,14 +51,14 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
             gesturesEnabled = drawerState.isOpen
         ) {
             HomeContent(
-                scrollPosition = homeState.scrollPosition,
+                scrollPositionProvider = homeState.scrollPositionProvider,
                 homeBottomSheetContent = homeState.homeBottomSheetContent,
                 homeBottomSheetState = homeState.bottomSheetState,
                 homeTopBar = {
                     HomeTopBar(
                         avatarAsset = viewModel.userAvatar,
                         currentNavigationItem = homeState.currentNavigationItem,
-                        onOpenDrawerClicked = { openDrawer() },
+                        onOpenDrawerClicked = ::openDrawer,
                         onNavigateToUserProfile = viewModel::navigateToUserProfile,
                     )
                 },
@@ -77,7 +77,7 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
 fun HomeContent(
-    scrollPosition: Int,
+    scrollPositionProvider: (() -> Int)?,
     homeBottomSheetState: ModalBottomSheetState,
     homeBottomSheetContent: @Composable (ColumnScope.() -> Unit)?,
     currentNavigationItem: HomeNavigationItem,
@@ -97,7 +97,7 @@ fun HomeContent(
         ) {
             if (isSearchable) {
                 AppTopBarWithSearchBar(
-                    scrollPosition = scrollPosition,
+                    scrollPositionProvider = scrollPositionProvider,
                     searchBarHint = stringResource(R.string.search_bar_hint, stringResource(id = title).lowercase()),
                     // TODO: implement the search for home once we work on it, for now we do not care
                     searchQuery = "",

@@ -73,11 +73,9 @@ enum class HomeNavigationItem(
         content = { homeState ->
             {
                 ConversationRouterHomeBridge(
-                    onHomeBottomSheetContentChange = { bottomSheetContent ->
-                        homeState.changeBottomSheetContent(bottomSheetContent)
-                    },
-                    onBottomSheetVisibilityChanged = { homeState.toggleBottomSheetVisibility() },
-                    onScrollPositionChanged = { newScrollPosition -> homeState.updateScrollPosition(newScrollPosition) }
+                    onHomeBottomSheetContentChanged = homeState::changeBottomSheetContent,
+                    onBottomSheetVisibilityChanged = homeState::toggleBottomSheetVisibility,
+                    onScrollPositionProviderChanged = homeState::updateScrollPositionProvider
                 )
             }
         }

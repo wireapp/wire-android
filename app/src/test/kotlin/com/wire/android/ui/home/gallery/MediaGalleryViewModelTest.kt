@@ -18,6 +18,7 @@ import com.wire.kalium.logic.data.conversation.UserType
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.publicuser.model.OtherUser
 import com.wire.kalium.logic.data.user.ConnectionState
+import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
@@ -215,7 +216,8 @@ class MediaGalleryViewModelTest {
             OtherUser(
                 QualifiedID("other-user-id", "domain-id"),
                 null, null, null, null,
-                1, null, ConnectionState.ACCEPTED, null, null
+                1, null, ConnectionState.ACCEPTED, null, null,
+                UserAvailabilityStatus.AVAILABLE
             ),
             ConnectionState.ACCEPTED,
             LegalHoldStatus.DISABLED,

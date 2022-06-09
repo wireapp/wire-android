@@ -16,19 +16,16 @@ import kotlinx.coroutines.CoroutineScope
 @Composable
 fun rememberSearchPeopleScreenState(
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
-    lazyListState: LazyListState = rememberLazyListState()
 ): SearchPeopleScreenState {
     return remember {
         SearchPeopleScreenState(
             coroutineScope = coroutineScope,
-            lazyListState = lazyListState
         )
     }
 }
 
 class SearchPeopleScreenState(
     val coroutineScope: CoroutineScope,
-    val lazyListState: LazyListState,
 ) {
 
     private val newGroupContacts = mutableStateListOf<Contact>()

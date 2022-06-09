@@ -1,6 +1,6 @@
 package com.wire.android.util.ui
 
-import android.content.Context
+import android.content.res.Resources
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
@@ -19,8 +19,10 @@ sealed class UIText {
         is StringResource -> stringResource(id = resId, args)
     }
 
-    fun asString(context: Context) = when (this) {
+    fun asString(resources: Resources) = when (this) {
         is DynamicString -> value
-        is StringResource -> context.getString(resId, args)
+        is StringResource -> resources.getString(resId, args)
     }
 }
+
+fun String.toUIText() = UIText.DynamicString(this)

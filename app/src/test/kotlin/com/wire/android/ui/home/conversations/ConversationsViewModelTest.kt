@@ -1,11 +1,49 @@
 package com.wire.android.ui.home.conversations
 
+import android.content.res.Resources
+import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.TestDispatcherProvider
+import com.wire.android.framework.TestMessage
+import com.wire.android.framework.TestUser
+import com.wire.android.mapper.MessageMapper
+import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.ConversationViewModel.Companion.ASSET_SIZE_DEFAULT_LIMIT_BYTES
 import com.wire.android.ui.home.conversations.ConversationViewModel.Companion.IMAGE_SIZE_LIMIT_BYTES
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
+import com.wire.android.ui.home.conversations.model.MessageSource
+import com.wire.android.ui.home.conversations.model.MessageViewWrapper
+import com.wire.android.util.FileManager
+import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.conversation.Conversation
+import com.wire.kalium.logic.data.conversation.ConversationDetails
+import com.wire.kalium.logic.data.conversation.LegalHoldStatus
+import com.wire.kalium.logic.data.conversation.MemberDetails
+import com.wire.kalium.logic.data.conversation.UserType
+import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.message.Message
+import com.wire.kalium.logic.data.publicuser.model.OtherUser
 import com.wire.kalium.logic.data.team.Team
+import com.wire.kalium.logic.data.user.ConnectionState
+import com.wire.kalium.logic.data.user.UserAssetId
+import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
+import com.wire.kalium.logic.feature.asset.SendAssetMessageResult
+import com.wire.kalium.logic.feature.asset.SendAssetMessageUseCase
+import com.wire.kalium.logic.feature.asset.SendImageMessageResult
+import com.wire.kalium.logic.feature.asset.SendImageMessageUseCase
+import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveMemberDetailsByIdsUseCase
+import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
+import com.wire.kalium.logic.feature.message.GetRecentMessagesUseCase
+import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
+import com.wire.kalium.logic.feature.message.Result.Success
+import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
+import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
+import io.mockk.MockKAnnotations
+import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.verify
@@ -134,8 +172,7 @@ class ConversationsViewModelTest {
             .arrange()
 
         // When - Then
-        every { arrangement.uiText.asString(any()) } returns (selfUserName)
-        assertEquals(selfUserName, viewModel.conversationViewState.messages.first().messageHeader.username.asString(arrangement.context))
+        assertEquals(selfUserName, viewModel.conversationViewState.messages.first().messageHeader.username.asString(arrangement.resources))
     }
 
     @Test

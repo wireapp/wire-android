@@ -7,6 +7,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
+import com.wire.android.mapper.MessageMapper
 import com.wire.android.model.ImageAsset.PrivateAsset
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
@@ -24,7 +25,6 @@ import com.wire.android.ui.home.conversations.DownloadedAssetDialogVisibilitySta
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.ui.home.conversations.model.MessageContent.AssetMessage
-import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
 import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.extractImageParams
@@ -69,8 +69,7 @@ class ConversationViewModel @Inject constructor(
     private val markMessagesAsNotified: MarkMessagesAsNotifiedUseCase,
     private val updateAssetMessageDownloadStatus: UpdateAssetMessageDownloadStatusUseCase,
     private val getSelfUserTeam: GetSelfTeamUseCase,
-    private val fileManager: FileManager,
-    private val getMessagesForConversation: GetMessagesForConversationUseCase
+    private val fileManager: FileManager
 ) : ViewModel() {
 
     var conversationViewState by mutableStateOf(ConversationViewState())

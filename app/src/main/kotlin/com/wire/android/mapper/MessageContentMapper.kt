@@ -1,25 +1,36 @@
 package com.wire.android.mapper
 
+import androidx.annotation.StringRes
 import com.wire.android.R
+import com.wire.android.ui.home.conversations.findUser
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.MessageContent
+import com.wire.android.ui.home.conversations.name
 import com.wire.android.util.time.ISOFormatter
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.conversation.MemberDetails
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent.Asset
 import com.wire.kalium.logic.data.message.MessageContent.Text
+import com.wire.kalium.logic.data.message.MessageContent.Server
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import javax.inject.Inject
 
 class MessageContentMapper @Inject constructor(
     private val isoFormatter: ISOFormatter,
-    private val getMessageAsset: GetMessageAssetUseCase
+    private val getMessageAsset: GetMessageAssetUseCase,
+    private val messageResourceProvider: MessageResourceProvider
 ) {
 
-    suspend fun fromMessage(message: Message): MessageContent? {
+    enum class SelfNameType {
+        ResourceLowercase, ResourceTitlecase, NameOrDeleted
+    }
+
+    suspend fun fromMessage(message: Message, members: List<MemberDetails>): MessageContent? {
         return when (message.visibility) {
             Message.Visibility.VISIBLE ->
                 when (val content = message.content) {
@@ -32,11 +43,12 @@ class MessageContentMapper @Inject constructor(
                         content = content.value,
                         editStatus = message.editStatus
                     )
-                    else -> MessageContent.TextMessage(
-                        messageBody = MessageBody(
-                            message = UIText.StringResource(R.string.content_is_not_available)
-                        )
+                    is Server -> toServer(
+                        content = content,
+                        senderUserId = message.senderUserId,
+                        members = members
                     )
+                    else -> toText()
                 }
             Message.Visibility.DELETED -> MessageContent.DeletedMessage
             Message.Visibility.HIDDEN -> MessageContent.DeletedMessage
@@ -57,6 +69,30 @@ class MessageContentMapper @Inject constructor(
                 )
             }
         }
+
+    fun toServer(
+        content: Server,
+        senderUserId: UserId,
+        members: List<MemberDetails>
+    ): MessageContent = when (content) {
+        is com.wire.kalium.logic.data.message.MessageContent.MemberChange -> {
+            val sender = members.findUser(senderUserId)
+            val isAuthorSelfAction = content.members.size == 1 && senderUserId == content.members.first().id
+            val authorName = toSystemMessageMemberName(sender, SelfNameType.ResourceTitlecase)
+            val memberNameList = content.members.map {
+                toSystemMessageMemberName(members.findUser(it.id), SelfNameType.ResourceLowercase)
+            }
+            when (content) {
+                is com.wire.kalium.logic.data.message.MessageContent.MemberChange.Added -> MessageContent.ServerMessage.MemberAdded(
+                    authorName,
+                    memberNameList
+                )
+                is com.wire.kalium.logic.data.message.MessageContent.MemberChange.Removed ->
+                    if (isAuthorSelfAction) MessageContent.ServerMessage.MemberLeft(authorName)
+                    else MessageContent.ServerMessage.MemberRemoved(authorName, memberNameList)
+            }
+        }
+    }
 
     private suspend fun toAsset(
         conversationId: QualifiedID,
@@ -95,6 +131,17 @@ class MessageContentMapper @Inject constructor(
         } else null
     }
 
+    fun toSystemMessageMemberName(member: MemberDetails, type: SelfNameType = SelfNameType.NameOrDeleted): UIText = when (member) {
+        is MemberDetails.Other -> member.name?.let { UIText.DynamicString(it) }
+            ?: UIText.StringResource(messageResourceProvider.memberNameDeleted)
+        is MemberDetails.Self -> when (type) {
+            SelfNameType.ResourceLowercase -> UIText.StringResource(messageResourceProvider.memberNameYouLowercase)
+            SelfNameType.ResourceTitlecase -> UIText.StringResource(messageResourceProvider.memberNameYouTitlecase)
+            SelfNameType.NameOrDeleted -> member.name?.let { UIText.DynamicString(it) }
+                ?: UIText.StringResource(messageResourceProvider.memberNameDeleted)
+        }
+    }
+
     private suspend fun getRawAssetData(conversationId: QualifiedID, messageId: String) =
         getMessageAsset(
             conversationId = conversationId,
@@ -105,5 +152,12 @@ class MessageContentMapper @Inject constructor(
                 else -> null
             }
         }
-
 }
+
+data class MessageResourceProvider(
+    @StringRes val memberNameDeleted: Int = R.string.member_name_deleted_label,
+    @StringRes val memberNameYouLowercase: Int = R.string.member_name_you_label_lowercase,
+    @StringRes val memberNameYouTitlecase: Int = R.string.member_name_you_label_titlecase,
+    @StringRes val contentNotAvailable: Int = R.string.content_is_not_available
+)
+

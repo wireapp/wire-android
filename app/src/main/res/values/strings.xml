@@ -211,6 +211,8 @@
     <string name="asset_download_dialog_open_text">Open</string>
     <string name="asset_download_dialog_save_text">Save</string>
     <string name="member_name_deleted_label">Deleted User</string>
+    <string name="member_name_you_label_titlecase">You</string>
+    <string name="member_name_you_label_lowercase">you</string>
 
     <!-- Attachment options -->
     <string name="attachment_share_file">Attach File</string>

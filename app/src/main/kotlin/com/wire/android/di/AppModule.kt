@@ -2,6 +2,7 @@ package com.wire.android.di
 
 import android.content.Context
 import androidx.compose.material3.ExperimentalMaterial3Api
+import com.wire.android.mapper.MessageResourceProvider
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.FileManager
 import com.wire.android.util.deeplink.DeepLinkProcessor
@@ -37,4 +38,7 @@ object AppModule {
 
     @Provides
     fun provideDeepLinkProcessor(): DeepLinkProcessor = DeepLinkProcessor()
+
+    @Provides
+    fun provideMessageResourceProvider(): MessageResourceProvider = MessageResourceProvider()
 }

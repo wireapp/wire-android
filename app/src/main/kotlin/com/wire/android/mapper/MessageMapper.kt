@@ -34,14 +34,17 @@ class MessageMapper @Inject constructor(
     }.distinct()
 
     suspend fun toUIMessages(
-        memberDetails: List<MemberDetails>,
+        members: List<MemberDetails>,
         messages: List<Message>
     ): List<UIMessage> = withContext(dispatcherProvider.io()) {
         messages.map { message ->
-            val sender = memberDetails.findUser(message.senderUserId)
+            val sender = members.findUser(message.senderUserId)
 
             UIMessage(
-                messageContent = messageContentMapper.fromMessage(message),
+                messageContent = messageContentMapper.fromMessage(
+                    message = message,
+                    members = members
+                ),
                 messageSource = if (sender is MemberDetails.Self) MessageSource.Self else MessageSource.OtherUser,
                 messageHeader = MessageHeader(
                     // TODO: Designs for deleted users?
@@ -53,7 +56,8 @@ class MessageMapper @Inject constructor(
                     messageId = message.id
                 ),
                 user = User(
-                    avatarAsset = sender.previewAsset, availabilityStatus = UserStatus.NONE
+                    avatarAsset = sender.previewAsset,
+                    availabilityStatus = UserStatus.NONE
                 )
             )
         }

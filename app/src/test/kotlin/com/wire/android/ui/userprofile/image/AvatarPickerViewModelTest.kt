@@ -61,9 +61,9 @@ class AvatarPickerViewModelTest {
         // setup mocks for view model
         mockkStatic(Uri::class)
         every { Uri.parse(any()) } returns mockUri
-        every { userDataStore.avatarAssetId } returns flow { emit("some-asset-id") }
+        every { userDataStore.avatarAssetId } returns flow { emit("value@domain") }
         coEvery { userDataStore.updateUserAvatarAssetId(any()) } returns Unit
-        coEvery { getAvatarAsset(any()) } returns PublicAssetResult.Success("some-asset-id".toByteArray())
+        coEvery { getAvatarAsset(any()) } returns PublicAssetResult.Success("some-asset-data".toByteArray())
         coEvery { avatarImageManager.getWritableAvatarUri(any()) } returns mockUri
 
         avatarPickerViewModel =

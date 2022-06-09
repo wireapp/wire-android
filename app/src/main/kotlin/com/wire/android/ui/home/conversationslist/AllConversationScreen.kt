@@ -3,12 +3,12 @@ package com.wire.android.ui.home.conversationslist
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
-import com.wire.android.ui.common.extension.rememberLazyListState
 import com.wire.android.ui.home.conversationslist.common.ConversationItemFactory
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
@@ -23,12 +23,12 @@ fun AllConversationScreen(
     onOpenConversation: (ConversationId) -> Unit,
     onEditConversation: (ConversationItem) -> Unit,
     onOpenUserProfile: (UserId) -> Unit,
-    onScrollPositionChanged: (Int) -> Unit = {},
+    onScrollPositionProviderChanged: (() -> Int) -> Unit = { 0 },
     onOpenConversationNotificationsSettings: (ConversationItem) -> Unit,
 ) {
-    val lazyListState = rememberLazyListState { firstVisibleItemIndex ->
-        onScrollPositionChanged(firstVisibleItemIndex)
-    }
+    val lazyListState = rememberLazyListState()
+
+    onScrollPositionProviderChanged { lazyListState.firstVisibleItemIndex }
 
     AllConversationContent(
         lazyListState = lazyListState,

@@ -40,6 +40,7 @@ import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
 import com.wire.android.ui.home.conversations.edit.EditMessageMenuItems
 import com.wire.android.ui.home.conversations.mock.getMockedMessages
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
+import com.wire.android.ui.home.conversations.model.MessageContent
 import com.wire.android.ui.home.conversations.model.MessageViewWrapper
 import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
 import com.wire.android.ui.home.messagecomposer.MessageComposeInputState
@@ -265,12 +266,15 @@ fun MessageList(
         items(messages, key = {
             it.messageHeader.messageId
         }) { message ->
-            MessageItem(
-                message = message,
-                onLongClicked = onShowContextMenu,
-                onAssetMessageClicked = onDownloadAsset,
-                onImageMessageClicked = onImageFullScreenMode
-            )
+            if (message.messageContent is MessageContent.ServerMessage)
+                SystemMessageItem(message = message.messageContent)
+            else
+                MessageItem(
+                    message = message,
+                    onLongClicked = onShowContextMenu,
+                    onAssetMessageClicked = onDownloadAsset,
+                    onImageMessageClicked = onImageFullScreenMode
+                )
         }
     }
 }

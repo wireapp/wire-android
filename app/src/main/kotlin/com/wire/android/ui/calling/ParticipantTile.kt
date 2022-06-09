@@ -130,4 +130,5 @@ fun ParticipantTile(
 
 @Preview
 @Composable
+@Suppress("EmptyFunctionBlock")
 private fun ParticipantTilePreview() { }

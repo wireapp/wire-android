@@ -1,6 +1,5 @@
 package com.wire.android.mapper
 
-import com.wire.android.model.UserStatus
 import com.wire.android.ui.home.conversations.findUser
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageSource
@@ -13,6 +12,7 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.conversation.MemberDetails
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
+import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -51,7 +51,7 @@ class MessageMapper @Inject constructor(
                     messageId = message.id
                 ),
                 user = User(
-                    avatarAsset = sender.previewAsset, availabilityStatus = UserStatus.NONE
+                    avatarAsset = sender.previewAsset, availabilityStatus = UserAvailabilityStatus.NONE
                 )
             )
         }

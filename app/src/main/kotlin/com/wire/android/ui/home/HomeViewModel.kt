@@ -11,11 +11,12 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.kalium.logic.data.user.UserAvailabilityStatus
+import com.wire.kalium.logic.feature.call.Call
+import com.wire.kalium.logic.feature.call.usecase.GetIncomingCallsUseCase
 import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.sync.ListenToEventsUseCase
-import com.wire.kalium.logic.feature.call.usecase.GetIncomingCallsUseCase
-import com.wire.kalium.logic.feature.call.Call
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -31,7 +32,7 @@ class HomeViewModel @Inject constructor(
     private val needsToRegisterClient: NeedsToRegisterClientUseCase
 ) : ViewModel() {
 
-    var userAvatar by mutableStateOf<UserAvatarAsset?>(null)
+    var userAvatar by mutableStateOf<AvatarData>(AvatarData())
         private set
 
     init {
@@ -72,7 +73,7 @@ class HomeViewModel @Inject constructor(
     private suspend fun loadUserAvatar() {
         viewModelScope.launch {
             getSelf().collect { selfUser ->
-                userAvatar = selfUser.previewPicture?.let { UserAvatarAsset(it) }
+                userAvatar = AvatarData(selfUser.previewPicture?.let { UserAvatarAsset(it) }, selfUser.availabilityStatus)
             }
         }
     }
@@ -97,3 +98,5 @@ class HomeViewModel @Inject constructor(
         const val MY_USER_PROFILE_SUBROUTE = "myUserProfile"
     }
 }
+
+data class AvatarData(val asset: UserAvatarAsset? = null, val status: UserAvailabilityStatus = UserAvailabilityStatus.NONE)

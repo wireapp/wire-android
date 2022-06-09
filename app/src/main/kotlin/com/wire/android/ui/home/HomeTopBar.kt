@@ -18,6 +18,7 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 @Composable
 fun HomeTopBar(
     avatarAsset: UserAvatarAsset?,
+    status: UserAvailabilityStatus,
     currentNavigationItem: HomeNavigationItem,
     onOpenDrawerClicked: () -> Unit,
     onNavigateToUserProfile: () -> Unit
@@ -30,7 +31,7 @@ fun HomeTopBar(
             UserProfileAvatar(
                 avatarAsset,
                 isClickable = true,
-                status = UserAvailabilityStatus.AVAILABLE
+                status = status
             ) {
                 onNavigateToUserProfile()
             }

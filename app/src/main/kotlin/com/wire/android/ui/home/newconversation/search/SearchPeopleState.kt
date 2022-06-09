@@ -2,6 +2,7 @@ package com.wire.android.ui.home.newconversation.search
 
 import androidx.annotation.StringRes
 import com.wire.android.ui.home.newconversation.model.Contact
+import com.wire.kalium.logic.data.user.SelfUser
 
 data class SearchPeopleState(
     val searchQuery: String = "",
@@ -21,6 +22,7 @@ data class SearchPeopleState(
     val contactsAddedToGroup: List<Contact> = emptyList(),
     val allKnownContacts: List<Contact> = emptyList(),
     val scrollPosition: Int = 0,
+    val self: SelfUser? = null
 )
 
 sealed class ContactSearchResult(val searchResultState: SearchResultState) {

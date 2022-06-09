@@ -20,8 +20,7 @@ import com.wire.android.ui.home.newconversation.search.SearchPeopleState
 import com.wire.android.ui.home.newconversation.search.SearchResultState
 import com.wire.android.util.flow.SearchQueryStateFlow
 import com.wire.kalium.logic.data.conversation.ConversationOptions
-import com.wire.kalium.logic.data.id.VALUE_DOMAIN_SEPARATOR
-import com.wire.kalium.logic.data.user.SelfUser
+import com.wire.kalium.logic.data.id.parseSearchQueryToQualifiedID
 import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
 import com.wire.kalium.logic.feature.publicuser.Result
@@ -48,7 +47,6 @@ class NewConversationViewModel
 ) : ViewModel() {
 
     private companion object {
-        val FEDERATION_REGEX = Regex("[^@.]+@[^@.]+\\.[^@]+")
         const val GROUP_NAME_MAX_COUNT = 64
     }
 
@@ -69,8 +67,6 @@ class NewConversationViewModel
     var groupNameState: NewGroupState by mutableStateOf(NewGroupState())
 
     private var innerSearchPeopleState: SearchPeopleState by mutableStateOf(SearchPeopleState())
-
-    var self by mutableStateOf<SelfUser?>(null)
 
     private var localContactSearchResult by mutableStateOf(
         ContactSearchResult.InternalContact(searchResultState = SearchResultState.Initial)
@@ -112,7 +108,7 @@ class NewConversationViewModel
     private suspend fun loadUser() {
         viewModelScope.launch {
             getSelf().collect { selfUser ->
-                self = selfUser
+                innerSearchPeopleState = innerSearchPeopleState.copy(self = selfUser)
             }
         }
     }
@@ -144,23 +140,12 @@ class NewConversationViewModel
     private suspend fun searchPublic(searchTerm: String) {
         publicContactsSearchResult = ContactSearchResult.ExternalContact(SearchResultState.InProgress)
 
-        val result: Result
-        val isFederationSearch = searchTerm.matches(FEDERATION_REGEX)
-        val query: String
-        val domain: String
+        val qualifiedId = searchTerm.parseSearchQueryToQualifiedID()
 
-        if (isFederationSearch) {
-            query = searchTerm.split(VALUE_DOMAIN_SEPARATOR)[0]
-            domain = searchTerm.split(VALUE_DOMAIN_SEPARATOR)[1]
-        } else {
-            query = searchTerm
-            domain = self?.id?.domain ?: ""
-        }
-
-        result = withContext(Dispatchers.IO) {
+        val result = withContext(Dispatchers.IO) {
             searchPublicUsers(
-                searchQuery = query,
-                domain = domain
+                searchQuery = qualifiedId.value,
+                domain = qualifiedId.domain.ifEmpty { state.self?.id?.domain ?: "" }
             )
         }
 
@@ -239,10 +224,10 @@ class NewConversationViewModel
             groupNameState = groupNameState.copy(isLoading = true)
 
             when (val result = createGroupConversation(
-                    name = groupNameState.groupName.text,
-                    members = state.contactsAddedToGroup.map { contact -> contact.toMember() },
-                    options = ConversationOptions()
-                )
+                name = groupNameState.groupName.text,
+                members = state.contactsAddedToGroup.map { contact -> contact.toMember() },
+                options = ConversationOptions()
+            )
             ) {
                 // TODO: handle the error state
                 is Either.Left -> {

@@ -34,8 +34,7 @@ class HomeState(
     val currentNavigationItem: HomeNavigationItem
 ) {
 
-    var scrollPosition by mutableStateOf(0)
-        private set
+    var scrollPositionProvider: (() -> Int)? by mutableStateOf(null)
 
     var homeBottomSheetContent: @Composable (ColumnScope.() -> Unit)? by mutableStateOf(null)
         private set
@@ -51,8 +50,8 @@ class HomeState(
         homeBottomSheetContent = content
     }
 
-    fun updateScrollPosition(newScrollPosition: Int) {
-        scrollPosition = newScrollPosition
+    fun updateScrollPositionProvider(newScrollPositionProvider: () -> Int) {
+        scrollPositionProvider = newScrollPositionProvider
     }
 
     fun openDrawer() {

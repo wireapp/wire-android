@@ -1,5 +1,6 @@
 package com.wire.android.ui.authentication.create.personalaccount
 
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.di.ClientScopeProvider
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
@@ -22,6 +23,7 @@ import javax.inject.Inject
 @Suppress("LongParameterList")
 @HiltViewModel
 class CreatePersonalAccountViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
     validateEmailUseCase: ValidateEmailUseCase,
     validatePasswordUseCase: ValidatePasswordUseCase,
@@ -32,6 +34,7 @@ class CreatePersonalAccountViewModel @Inject constructor(
     pushTokenUseCase: RegisterTokenUseCase
 ) : CreateAccountBaseViewModel(
     CreateAccountFlowType.CreatePersonalAccount,
+    savedStateHandle,
     navigationManager,
     validateEmailUseCase,
     validatePasswordUseCase,

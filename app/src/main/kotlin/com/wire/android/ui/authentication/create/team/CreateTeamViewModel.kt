@@ -1,6 +1,7 @@
 package com.wire.android.ui.authentication.create.team
 
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.navigation.BackStackMode
@@ -23,6 +24,7 @@ import javax.inject.Inject
 @Suppress("LongParameterList")
 @HiltViewModel
 class CreateTeamViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
     validateEmailUseCase: ValidateEmailUseCase,
     validatePasswordUseCase: ValidatePasswordUseCase,
@@ -33,6 +35,7 @@ class CreateTeamViewModel @Inject constructor(
     pushTokenUseCase: RegisterTokenUseCase
 ) : CreateAccountBaseViewModel(
     CreateAccountFlowType.CreateTeam,
+    savedStateHandle,
     navigationManager,
     validateEmailUseCase,
     validatePasswordUseCase,

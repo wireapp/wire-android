@@ -23,6 +23,8 @@ import com.wire.kalium.logic.data.message.MessageContent.MemberChange.Removed
 import com.wire.kalium.logic.data.message.MessageContent.MemberChange
 import javax.inject.Inject
 
+
+//TODO: splits mapping into more classes
 class MessageContentMapper @Inject constructor(
     private val isoFormatter: ISOFormatter,
     private val getMessageAsset: GetMessageAssetUseCase,
@@ -36,7 +38,7 @@ class MessageContentMapper @Inject constructor(
         return when (message.visibility) {
             Message.Visibility.VISIBLE ->
                 return when (message) {
-                    is Message.Client -> mapClientMessage(message, members)
+                    is Message.Client -> mapClientMessage(message)
                     is Message.Server -> mapServerMessage(message, members)
                 }
             Message.Visibility.DELETED -> MessageContent.DeletedMessage
@@ -83,7 +85,6 @@ class MessageContentMapper @Inject constructor(
 
     private suspend fun mapClientMessage(
         message: Message.Client,
-        members: List<MemberDetails>
     ) = when (val content = message.content) {
         is Asset -> toAsset(
             conversationId = message.conversationId,
@@ -94,24 +95,28 @@ class MessageContentMapper @Inject constructor(
             content = content.value,
             editStatus = message.editStatus
         )
+        else -> toText(null, Message.EditStatus.NotEdited)
     }
 
     private fun toText(
-        content: String,
+        content: String?,
         editStatus: Message.EditStatus
     ) = when (editStatus) {
-            is Message.EditStatus.Edited -> {
-                MessageContent.EditedMessage(
-                    messageBody = MessageBody(message = UIText.DynamicString(content)),
-                    editTimeStamp = isoFormatter.fromISO8601ToTimeFormat(utcISO = editStatus.lastTimeStamp)
-                )
-            }
-            Message.EditStatus.NotEdited -> {
-                MessageContent.TextMessage(
-                    messageBody = MessageBody(message = UIText.DynamicString(content))
-                )
-            }
+        is Message.EditStatus.Edited -> {
+            MessageContent.EditedMessage(
+                messageBody = MessageBody(message = toTextMessageContent(content)),
+                editTimeStamp = isoFormatter.fromISO8601ToTimeFormat(utcISO = editStatus.lastTimeStamp)
+            )
         }
+        Message.EditStatus.NotEdited -> {
+            MessageContent.TextMessage(
+                messageBody = MessageBody(message = toTextMessageContent(content))
+            )
+        }
+    }
+
+    private fun toTextMessageContent(content: String?): UIText =
+        content?.let { UIText.DynamicString(it) } ?: UIText.StringResource(messageResourceProvider.contentNotAvailable)
 
     fun toServer(
         content: Server,
@@ -197,10 +202,12 @@ class MessageContentMapper @Inject constructor(
         }
 }
 
-private enum class SelfNameType {
+//TODO: should we keep it here ?
+enum class SelfNameType {
     ResourceLowercase, ResourceTitleCase, NameOrDeleted
 }
 
+//TODO: should we keep it here ?
 data class MessageResourceProvider(
     @StringRes val memberNameDeleted: Int = R.string.member_name_deleted_label,
     @StringRes val memberNameYouLowercase: Int = R.string.member_name_you_label_lowercase,

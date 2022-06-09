@@ -130,6 +130,7 @@ fun ParticipantTile(
 
 @Preview
 @Composable
+@Suppress("empty-blocks")
 private fun ParticipantTilePreview() {
 
 }

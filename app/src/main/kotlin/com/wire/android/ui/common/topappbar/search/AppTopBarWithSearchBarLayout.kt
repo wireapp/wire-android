@@ -53,7 +53,7 @@ import com.wire.android.ui.theme.wireColorScheme
 @Composable
 fun AppTopBarWithSearchBar(
     searchBarState: SearchBarState = rememberSearchbarState(),
-    scrollPosition: Int,
+    scrollPositionProvider: (() -> Int)?,
     searchBarHint: String,
     searchQuery: String,
     onSearchQueryChanged: (String) -> Unit,
@@ -101,7 +101,7 @@ fun AppTopBarWithSearchBar(
         }
     }
 
-    ScrollingDownEffect(scrollPosition) { shouldCollapse -> searchBarState.isSearchBarCollapsed = shouldCollapse }
+    scrollPositionProvider?.let { ScrollingDownEffect(it()) { shouldCollapse -> searchBarState.isSearchBarCollapsed = shouldCollapse } }
 }
 
 @Composable

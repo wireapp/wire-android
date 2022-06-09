@@ -238,8 +238,7 @@ class NewConversationViewModel
         viewModelScope.launch {
             groupNameState = groupNameState.copy(isLoading = true)
 
-            when (
-                val result = createGroupConversation(
+            when (val result = createGroupConversation(
                     name = groupNameState.groupName.text,
                     members = state.contactsAddedToGroup.map { contact -> contact.toMember() },
                     options = ConversationOptions()

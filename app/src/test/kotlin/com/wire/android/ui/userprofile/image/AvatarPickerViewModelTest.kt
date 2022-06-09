@@ -9,6 +9,7 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerViewModel
 import com.wire.android.util.AvatarImageManager
 import com.wire.kalium.logic.CoreFailure.Unknown
+import com.wire.kalium.logic.data.id.parseIntoQualifiedID
 import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.asset.PublicAssetResult
 import com.wire.kalium.logic.feature.user.UploadAvatarResult
@@ -92,9 +93,9 @@ class AvatarPickerViewModelTest {
 
     @Test
     fun `given a valid image, when uploading the asset succeed, then should call the usecase and navigate back on success`() = runTest {
-        val uploadedAssetId = "some-asset-id"
+        val uploadedAssetId = "value@domain"
         val rawImage = uploadedAssetId.toByteArray()
-        coEvery { uploadUserAvatarUseCase(any()) } returns UploadAvatarResult.Success(uploadedAssetId)
+        coEvery { uploadUserAvatarUseCase(any()) } returns UploadAvatarResult.Success(uploadedAssetId.parseIntoQualifiedID())
         coEvery { avatarImageManager.uriToByteArray(any()) } returns rawImage
 
         avatarPickerViewModel.uploadNewPickedAvatarAndBack()

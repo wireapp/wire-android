@@ -2,14 +2,13 @@ package com.wire.android.ui.home.conversations
 
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.mapper.MessageMapper
-import com.wire.android.model.UserStatus
+import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.MessageContent
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
-import com.wire.android.ui.home.conversations.model.User
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.ClientId
@@ -128,10 +127,7 @@ class GetMessageForConversationsUseCaseTest {
 
     private fun mockUITextMessage(userName: String = "mockUserName", messageBody: String): UIMessage {
         return mockk<UIMessage>().also {
-            every { it.user } returns mockk<User>().also {
-                every { it.avatarAsset } returns null
-                every { it.availabilityStatus } returns UserStatus.AVAILABLE
-            }
+            every { it.userAvatarData } returns UserAvatarData()
             every { it.messageSource } returns MessageSource.OtherUser
             every { it.messageHeader } returns mockk<MessageHeader>().also {
                 every { it.messageId } returns "someId"

@@ -14,7 +14,7 @@ import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.message.Message
 
 val mockMessageWithText = UIMessage(
-    user = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
+    userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
     messageHeader = MessageHeader(
         username = UIText.DynamicString("John Doe"),
         membership = Membership.Guest,
@@ -37,7 +37,7 @@ val mockMessageWithText = UIMessage(
 )
 
 val mockAssetMessage = UIMessage(
-    user = UserAvatarData(UserAvatarAsset(""), UserAvailabilityStatus.AVAILABLE),
+    userAvatarData = UserAvatarData(UserAvatarAsset(""), UserAvailabilityStatus.AVAILABLE),
     messageHeader = MessageHeader(
         username = UIText.DynamicString("John Doe"),
         membership = Membership.Guest,
@@ -62,7 +62,7 @@ val mockedImg = MessageContent.ImageMessage("asset-id", ByteArray(16), 0, 0)
 @Suppress("LongMethod", "MagicNumber")
 fun getMockedMessages(): List<UIMessage> = listOf(
     UIMessage(
-        user = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
+        userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
         messageHeader = MessageHeader(
             username = UIText.DynamicString("John Doe"),
             membership = Membership.Guest,
@@ -84,7 +84,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
         messageSource = MessageSource.Self
     ),
     UIMessage(
-        user = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
+        userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
         messageHeader = MessageHeader(
             username = UIText.DynamicString("John Doe"),
             membership = Membership.Guest,
@@ -97,7 +97,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
         messageSource = MessageSource.Self
     ),
     UIMessage(
-        user = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
+        userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
         messageHeader = MessageHeader(
             username = UIText.DynamicString("John Doe"),
             membership = Membership.External,
@@ -110,7 +110,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
         messageSource = MessageSource.Self
     ),
     UIMessage(
-        user = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
+        userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
         messageHeader = MessageHeader(
             username = UIText.DynamicString("John Doe"),
             membership = Membership.External,
@@ -123,7 +123,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
         messageSource = MessageSource.Self
     ),
     UIMessage(
-        user = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
+        userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
         messageHeader = MessageHeader(
             username = UIText.DynamicString("John Doe"),
             membership = Membership.External,
@@ -145,7 +145,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
         messageSource = MessageSource.Self
     ),
     UIMessage(
-        user = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
+        userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
         messageHeader = MessageHeader(
             username = UIText.DynamicString("John Doe"),
             membership = Membership.External,
@@ -158,7 +158,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
         messageSource = MessageSource.Self
     ),
     UIMessage(
-        user = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
+        userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
         messageHeader = MessageHeader(
             username = UIText.DynamicString("John Doe"),
             membership = Membership.External,

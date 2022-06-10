@@ -10,7 +10,7 @@ import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.user.UserAssetId
 
 data class UIMessage(
-    val user: UserAvatarData,
+    val userAvatarData: UserAvatarData,
     val messageSource: MessageSource,
     val messageHeader: MessageHeader,
     val messageContent: MessageContent?,

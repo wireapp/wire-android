@@ -55,7 +55,7 @@ class MessageMapper @Inject constructor(
                     messageStatus = if (message.status == Message.Status.FAILED) MessageStatus.SendFailure else MessageStatus.Untouched,
                     messageId = message.id
                 ),
-                user = UserAvatarData(asset = sender.previewAsset)
+                userAvatarData = UserAvatarData(asset = sender.previewAsset)
             )
         }
     }

@@ -68,7 +68,7 @@ fun MessageItem(
         ) {
             Spacer(Modifier.padding(start = dimensions().spacing8x - dimensions().userAvatarClickablePadding))
             UserProfileAvatar(
-                avatarData = UserAvatarData(message.user.asset, message.user.availabilityStatus)
+                avatarData = UserAvatarData(message.userAvatarData.asset, message.userAvatarData.availabilityStatus)
             )
             Spacer(Modifier.padding(start = dimensions().spacing16x - dimensions().userAvatarClickablePadding))
             Column {

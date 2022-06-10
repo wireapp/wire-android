@@ -1,6 +1,5 @@
 package com.wire.android.ui.home.conversations
 
-import android.content.Context
 import android.content.res.Resources
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.TestDispatcherProvider
@@ -190,7 +189,7 @@ internal fun mockConversationDetailsGroup(conversationName: String) = Conversati
 
 internal fun mockUITextMessage(userName: String = "mockUserName"): UIMessage {
     return mockk<UIMessage>().also {
-        every { it.user } returns mockk<User>().also {
+        every { it.userAvatarData } returns mockk<User>().also {
             every { it.avatarAsset } returns null
             every { it.availabilityStatus } returns UserStatus.AVAILABLE
         }

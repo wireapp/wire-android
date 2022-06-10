@@ -57,7 +57,7 @@ object TestMessage {
         messageId = "messageID"
     )
     val UI_TEXT_MESSAGE = UIMessage(
-        user = UserAvatarData(asset = null, availabilityStatus = UserAvailabilityStatus.NONE),
+        userAvatarData = UserAvatarData(asset = null, availabilityStatus = UserAvailabilityStatus.NONE),
         messageSource = MessageSource.OtherUser,
         messageHeader = UI_MESSAGE_HEADER,
         messageContent = TextMessage(MessageBody(UIText.DynamicString("Some Text Message")))

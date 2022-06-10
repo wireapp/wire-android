@@ -123,18 +123,18 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun loginUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) =
-        coreLogic.getAuthenticationScope(ServerConfig.DEFAULT).login
+    fun loginUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, authServerConfigProvider: AuthServerConfigProvider) =
+        coreLogic.getAuthenticationScope(authServerConfigProvider.authServer.value).login
 
     @ViewModelScoped
     @Provides
-    fun ssoInitiateLoginUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) =
-        coreLogic.getAuthenticationScope(ServerConfig.DEFAULT).ssoLoginScope.initiate
+    fun ssoInitiateLoginUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, authServerConfigProvider: AuthServerConfigProvider) =
+        coreLogic.getAuthenticationScope(authServerConfigProvider.authServer.value).ssoLoginScope.initiate
 
     @ViewModelScoped
     @Provides
-    fun getLoginSessionUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) =
-        coreLogic.getAuthenticationScope(ServerConfig.DEFAULT).ssoLoginScope.getLoginSessionGet
+    fun getLoginSessionUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, authServerConfigProvider: AuthServerConfigProvider) =
+        coreLogic.getAuthenticationScope(authServerConfigProvider.authServer.value).ssoLoginScope.getLoginSessionGet
 
     @ViewModelScoped
     @Provides
@@ -143,33 +143,33 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun validateEmailUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) =
-        coreLogic.getAuthenticationScope(ServerConfig.DEFAULT).validateEmailUseCase
+    fun validateEmailUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, authServerConfigProvider: AuthServerConfigProvider) =
+        coreLogic.getAuthenticationScope(authServerConfigProvider.authServer.value).validateEmailUseCase
 
     @ViewModelScoped
     @Provides
-    fun validatePasswordUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) =
-        coreLogic.getAuthenticationScope(ServerConfig.DEFAULT).validatePasswordUseCase
+    fun validatePasswordUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, authServerConfigProvider: AuthServerConfigProvider) =
+        coreLogic.getAuthenticationScope(authServerConfigProvider.authServer.value).validatePasswordUseCase
 
     @ViewModelScoped
     @Provides
-    fun validateUserHandleUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) =
-        coreLogic.getAuthenticationScope(ServerConfig.DEFAULT).validateUserHandleUseCase
+    fun validateUserHandleUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, authServerConfigProvider: AuthServerConfigProvider) =
+        coreLogic.getAuthenticationScope(authServerConfigProvider.authServer.value).validateUserHandleUseCase
 
     @ViewModelScoped
     @Provides
-    fun registerAccountUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) =
-        coreLogic.getAuthenticationScope(ServerConfig.DEFAULT).register.register
+    fun registerAccountUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, authServerConfigProvider: AuthServerConfigProvider) =
+        coreLogic.getAuthenticationScope(authServerConfigProvider.authServer.value).register.register
 
     @ViewModelScoped
     @Provides
-    fun requestCodeUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) =
-        coreLogic.getAuthenticationScope(ServerConfig.DEFAULT).register.requestActivationCode
+    fun requestCodeUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, authServerConfigProvider: AuthServerConfigProvider) =
+        coreLogic.getAuthenticationScope(authServerConfigProvider.authServer.value).register.requestActivationCode
 
     @ViewModelScoped
     @Provides
-    fun verifyCodeUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) =
-        coreLogic.getAuthenticationScope(ServerConfig.DEFAULT).register.activate
+    fun verifyCodeUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, authServerConfigProvider: AuthServerConfigProvider) =
+        coreLogic.getAuthenticationScope(authServerConfigProvider.authServer.value).register.activate
 
     @ViewModelScoped
     @Provides

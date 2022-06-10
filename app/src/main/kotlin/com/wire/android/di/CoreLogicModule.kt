@@ -3,6 +3,7 @@ package com.wire.android.di
 import android.content.Context
 import com.wire.android.util.DeviceLabel
 import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
@@ -123,17 +124,17 @@ class UseCaseModule {
     @ViewModelScoped
     @Provides
     fun loginUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) =
-        coreLogic.getAuthenticationScope(TODO()).login
+        coreLogic.getAuthenticationScope(ServerConfig.DEFAULT).login
 
     @ViewModelScoped
     @Provides
     fun ssoInitiateLoginUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) =
-        coreLogic.getAuthenticationScope(TODO()).ssoLoginScope.initiate
+        coreLogic.getAuthenticationScope(ServerConfig.DEFAULT).ssoLoginScope.initiate
 
     @ViewModelScoped
     @Provides
     fun getLoginSessionUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) =
-        coreLogic.getAuthenticationScope(TODO()).ssoLoginScope.getLoginSessionGet
+        coreLogic.getAuthenticationScope(ServerConfig.DEFAULT).ssoLoginScope.getLoginSessionGet
 
     @ViewModelScoped
     @Provides
@@ -143,32 +144,32 @@ class UseCaseModule {
     @ViewModelScoped
     @Provides
     fun validateEmailUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) =
-        coreLogic.getAuthenticationScope(TODO()).validateEmailUseCase
+        coreLogic.getAuthenticationScope(ServerConfig.DEFAULT).validateEmailUseCase
 
     @ViewModelScoped
     @Provides
     fun validatePasswordUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) =
-        coreLogic.getAuthenticationScope(TODO()).validatePasswordUseCase
+        coreLogic.getAuthenticationScope(ServerConfig.DEFAULT).validatePasswordUseCase
 
     @ViewModelScoped
     @Provides
     fun validateUserHandleUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) =
-        coreLogic.getAuthenticationScope(TODO()).validateUserHandleUseCase
+        coreLogic.getAuthenticationScope(ServerConfig.DEFAULT).validateUserHandleUseCase
 
     @ViewModelScoped
     @Provides
     fun registerAccountUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) =
-        coreLogic.getAuthenticationScope(TODO()).register.register
+        coreLogic.getAuthenticationScope(ServerConfig.DEFAULT).register.register
 
     @ViewModelScoped
     @Provides
     fun requestCodeUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) =
-        coreLogic.getAuthenticationScope(TODO()).register.requestActivationCode
+        coreLogic.getAuthenticationScope(ServerConfig.DEFAULT).register.requestActivationCode
 
     @ViewModelScoped
     @Provides
     fun verifyCodeUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) =
-        coreLogic.getAuthenticationScope(TODO()).register.activate
+        coreLogic.getAuthenticationScope(ServerConfig.DEFAULT).register.activate
 
     @ViewModelScoped
     @Provides

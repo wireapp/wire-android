@@ -4,6 +4,8 @@ import android.content.Intent
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.appLogger
+import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
@@ -41,7 +43,8 @@ class WireActivityViewModel @Inject constructor(
     private val getServerConfigUseCase: GetServerConfigUseCase,
     private val deepLinkProcessor: DeepLinkProcessor,
     private val notificationManager: WireNotificationManager,
-    private val navigationManager: NavigationManager
+    private val navigationManager: NavigationManager,
+    private val authServerConfigProvider: AuthServerConfigProvider
 ) : ViewModel() {
 
     private val navigationArguments = mutableMapOf<String, Any>(SERVER_CONFIG_ARG to ServerConfig.DEFAULT)
@@ -72,17 +75,22 @@ class WireActivityViewModel @Inject constructor(
         }
 
     fun handleDeepLink(intent: Intent?) {
-        intent?.data?.let {
-            val result = deepLinkProcessor(it)
+        intent?.data?.let { deepLink ->
+            val result = deepLinkProcessor(deepLink)
             with(result) {
                 when (this) {
                     is DeepLinkResult.CustomServerConfig ->
-                        navigationArguments.put(SERVER_CONFIG_ARG, loadServerConfig(url))
+                        loadServerConfig(url)?.let { serverLinks ->
+                            authServerConfigProvider.updateAuthServer(serverLinks)
+                            navigationArguments.put(SERVER_CONFIG_ARG, serverLinks)
+                        }
                     is DeepLinkResult.SSOLogin ->
                         navigationArguments.put(SSO_DEEPLINK_ARG, this)
                     is DeepLinkResult.IncomingCall ->
                         navigationArguments.put(INCOMING_CALL_CONVERSATION_ID_ARG, this.conversationsId)
-                    DeepLinkResult.Unknown -> TODO()
+                    DeepLinkResult.Unknown -> {
+                        appLogger.e("unknown deeplink result $this")
+                    }
                 }
             }
         }
@@ -125,10 +133,13 @@ class WireActivityViewModel @Inject constructor(
         }
     }
 
-    private fun loadServerConfig(url: String): ServerConfig.Links = runBlocking {
+    private fun loadServerConfig(url: String): ServerConfig.Links? = runBlocking {
         return@runBlocking when (val result = getServerConfigUseCase(url)) {
             is GetServerConfigResult.Success -> result.serverConfig.links
-            else -> ServerConfig.DEFAULT
+            // TODO: show error message on failure
+            is GetServerConfigResult.Failure.Generic -> null
+            GetServerConfigResult.Failure.TooNewVersion -> null
+            GetServerConfigResult.Failure.UnknownServerVersion -> null
         }
     }
 

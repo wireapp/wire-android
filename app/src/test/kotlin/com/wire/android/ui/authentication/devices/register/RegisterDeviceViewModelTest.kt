@@ -1,6 +1,5 @@
 package com.wire.android.ui.authentication.devices.register
 
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.mockUri

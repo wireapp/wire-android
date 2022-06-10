@@ -15,6 +15,7 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.publicuser.model.OtherUser
+import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCase
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCaseResult
@@ -62,18 +63,18 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                     appLogger.d("Couldn't not find the user with provided id:$userId.id and domain:$userId.domain")
                     connectionOperationState = ConnectionOperationState.LoadUserInformationError()
                 }
-                is GetUserInfoResult.Success -> loadViewState(result.otherUser)
+                is GetUserInfoResult.Success -> loadViewState(result.otherUser,result.team)
             }
         }
     }
 
-    private fun loadViewState(otherUser: OtherUser) {
+    private fun loadViewState(otherUser: OtherUser, team: Team?) {
         state = state.copy(
             isDataLoading = false,
             userAvatarAsset = otherUser.completePicture?.let { pic -> ImageAsset.UserAvatarAsset(pic) },
             fullName = otherUser.name ?: String.EMPTY,
             userName = otherUser.handle ?: String.EMPTY,
-            teamName = otherUser.team ?: String.EMPTY,
+            teamName = team?.name ?: String.EMPTY,
             email = otherUser.email ?: String.EMPTY,
             phone = otherUser.phone ?: String.EMPTY,
             connectionStatus = otherUser.connectionStatus.toOtherUserProfileConnectionStatus()
@@ -87,7 +88,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                 is CreateConversationResult.Success ->
                     navigationManager.navigate(
                         command = NavigationCommand(
-                            destination = NavigationItem.Conversation.getRouteWithArgs(listOf(result.conversationId.id))
+                            destination = NavigationItem.Conversation.getRouteWithArgs(listOf(result.conversation.id))
                         )
                     )
             }

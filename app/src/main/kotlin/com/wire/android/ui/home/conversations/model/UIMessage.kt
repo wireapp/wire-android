@@ -3,15 +3,14 @@ package com.wire.android.ui.home.conversations.model
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import com.wire.android.R
-import com.wire.android.model.ImageAsset.UserAvatarAsset
-import com.wire.android.model.UserStatus
+import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.user.UserAssetId
 
 data class UIMessage(
-    val user: User,
+    val userAvatarData: UserAvatarData,
     val messageSource: MessageSource,
     val messageHeader: MessageHeader,
     val messageContent: MessageContent?,
@@ -86,11 +85,6 @@ sealed class MessageContent {
 
 data class MessageBody(
     val message: UIText
-)
-
-data class User(
-    val avatarAsset: UserAvatarAsset?,
-    val availabilityStatus: UserStatus,
 )
 
 enum class MessageSource {

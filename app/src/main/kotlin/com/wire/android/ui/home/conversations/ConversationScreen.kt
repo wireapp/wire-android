@@ -23,6 +23,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
+import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.colorsScheme
@@ -129,7 +130,7 @@ private fun ConversationScreen(
                                         GroupConversationAvatar(
                                             color = colorsScheme().conversationColor(id = conversationAvatar.conversationId)
                                         )
-                                    is ConversationAvatar.OneOne -> UserProfileAvatar(userAvatarAsset = conversationAvatar.avatarAsset)
+                                    is ConversationAvatar.OneOne -> UserProfileAvatar(UserAvatarData(conversationAvatar.avatarAsset))
                                     ConversationAvatar.None -> Box(modifier = Modifier.size(dimensions().userAvatarDefaultSize))
                                 }
                             },

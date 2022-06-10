@@ -8,18 +8,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
-import com.wire.android.model.ImageAsset.UserAvatarAsset
-import com.wire.android.model.UserStatus
 import com.wire.android.ui.common.AddContactButton
 import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.RowItemTemplate
+import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.WireCheckbox
 
 @Composable
 fun InternalContactSearchResultItem(
-    avatarAsset: UserAvatarAsset?,
-    userStatus: UserStatus,
+    avatarData: UserAvatarData,
     name: String,
     label: String,
     searchQuery: String,
@@ -38,10 +36,7 @@ fun InternalContactSearchResultItem(
                     onCheckedChange = { if (it) addToGroup() else removeFromGroup() }
                 )
 
-                UserProfileAvatar(
-                    userAvatarAsset = avatarAsset,
-                    status = userStatus
-                )
+                UserProfileAvatar(avatarData)
             }
         },
         title = {
@@ -73,8 +68,7 @@ fun InternalContactSearchResultItem(
 
 @Composable
 fun ExternalContactSearchResultItem(
-    avatarAsset: UserAvatarAsset?,
-    userStatus: UserStatus,
+    avatarData: UserAvatarData,
     name: String,
     label: String,
     searchQuery: String,
@@ -86,10 +80,7 @@ fun ExternalContactSearchResultItem(
     RowItemTemplate(
         leadingIcon = {
             Row {
-                UserProfileAvatar(
-                    userAvatarAsset = avatarAsset,
-                    status = userStatus
-                )
+                UserProfileAvatar(avatarData)
             }
         },
         title = {

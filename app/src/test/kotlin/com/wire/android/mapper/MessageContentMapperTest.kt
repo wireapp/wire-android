@@ -101,17 +101,17 @@ class MessageContentMapperTest {
         val resultContentAdded = mapper.toServer(contentAdded, userId1, listOf(member1, member2, member3))
         // Then
         assert(
-            resultContentLeft is MessageViewContent.ServerMessage.MemberLeft
+            resultContentLeft is MessageViewContent.SystemMessage.MemberLeft
                     && resultContentLeft.author.asString(arrangement.resources) == member1.otherUser.name
         )
         assert(
-            resultContentRemoved is MessageViewContent.ServerMessage.MemberRemoved
+            resultContentRemoved is MessageViewContent.SystemMessage.MemberRemoved
                     && resultContentRemoved.author.asString(arrangement.resources) == member1.otherUser.name
                     && resultContentRemoved.memberNames.size == 1
                     && resultContentRemoved.memberNames[0].asString(arrangement.resources) == member2.otherUser.name
         )
         assert(
-            resultContentAdded is MessageViewContent.ServerMessage.MemberAdded
+            resultContentAdded is MessageViewContent.SystemMessage.MemberAdded
                     && resultContentAdded.author.asString(arrangement.resources) == member1.otherUser.name
                     && resultContentAdded.memberNames.size == 2
                     && resultContentAdded.memberNames[0].asString(arrangement.resources) == member2.otherUser.name

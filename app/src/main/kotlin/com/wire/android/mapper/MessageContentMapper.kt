@@ -14,8 +14,7 @@ import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent.Asset
-import com.wire.kalium.logic.data.message.MessageContent.Text
-import com.wire.kalium.logic.data.message.MessageContent.Server
+import com.wire.kalium.logic.data.message.MessageContent.System
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
@@ -39,16 +38,16 @@ class MessageContentMapper @Inject constructor(
         return when (message.visibility) {
             Message.Visibility.VISIBLE ->
                 return when (message) {
-                    is Message.Client -> mapClientMessage(message)
-                    is Message.Server -> mapServerMessage(message, members)
+                    is Message.Regular -> mapRegularMessage(message)
+                    is Message.System -> mapSystemMessage(message, members)
                 }
             Message.Visibility.DELETED -> UIMessageContent.DeletedMessage
             Message.Visibility.HIDDEN -> null // we don't want to show hidden messages in any way
         }
     }
 
-    private fun mapServerMessage(
-        message: Message.Server,
+    private fun mapSystemMessage(
+        message: Message.System,
         members: List<MemberDetails>
     ) = when (val content = message.content) {
         is MemberChange -> {
@@ -65,17 +64,17 @@ class MessageContentMapper @Inject constructor(
                 )
             }
             when (content) {
-                is Added -> UIMessageContent.ServerMessage.MemberAdded(
+                is Added -> UIMessageContent.SystemMessage.MemberAdded(
                     author = authorName,
                     memberNames = memberNameList
                 )
                 is Removed ->
                     if (isAuthorSelfAction) {
-                        UIMessageContent.ServerMessage.MemberLeft(
+                        UIMessageContent.SystemMessage.MemberLeft(
                             author = authorName
                         )
                     } else {
-                        UIMessageContent.ServerMessage.MemberRemoved(
+                        UIMessageContent.SystemMessage.MemberRemoved(
                             author = authorName,
                             memberNames = memberNameList
                         )
@@ -84,15 +83,15 @@ class MessageContentMapper @Inject constructor(
         }
     }
 
-    private suspend fun mapClientMessage(
-        message: Message.Client,
+    private suspend fun mapRegularMessage(
+        message: Message.Regular,
     ) = when (val content = message.content) {
         is Asset -> toAsset(
             conversationId = message.conversationId,
             messageId = message.id,
             assetContent = content.value
         )
-        else -> toText(content, Message.EditStatus.NotEdited)
+        else -> toText(content, message.editStatus)
     }
 
     fun toText(
@@ -120,7 +119,7 @@ class MessageContentMapper @Inject constructor(
     }
 
     fun toServer(
-        content: Server,
+        content: System,
         senderUserId: UserId,
         members: List<MemberDetails>
     ): UIMessageContent = when (content) {
@@ -132,13 +131,13 @@ class MessageContentMapper @Inject constructor(
                 toSystemMessageMemberName(members.findUser(it.id), SelfNameType.ResourceLowercase)
             }
             when (content) {
-                is Added -> UIMessageContent.ServerMessage.MemberAdded(
+                is Added -> UIMessageContent.SystemMessage.MemberAdded(
                     authorName,
                     memberNameList
                 )
                 is Removed ->
-                    if (isAuthorSelfAction) UIMessageContent.ServerMessage.MemberLeft(authorName)
-                    else UIMessageContent.ServerMessage.MemberRemoved(authorName, memberNameList)
+                    if (isAuthorSelfAction) UIMessageContent.SystemMessage.MemberLeft(authorName)
+                    else UIMessageContent.SystemMessage.MemberRemoved(authorName, memberNameList)
             }
         }
     }

@@ -49,7 +49,7 @@ class LoginSSOViewModel @Inject constructor(
     fun login() {
         loginState = loginState.copy(loading = true, loginSSOError = LoginError.None).updateLoginEnabled()
         viewModelScope.launch {
-            ssoInitiateLoginUseCase(SSOInitiateLoginUseCase.Param.WithRedirect(loginState.ssoCode.text, serverConfig)).let { result ->
+            ssoInitiateLoginUseCase(SSOInitiateLoginUseCase.Param.WithRedirect(loginState.ssoCode.text)).let { result ->
                 when (result) {
                     is SSOInitiateLoginResult.Failure -> updateLoginError(result.toLoginSSOError())
                     is SSOInitiateLoginResult.Success -> openWebUrl(result.requestUrl)
@@ -61,7 +61,7 @@ class LoginSSOViewModel @Inject constructor(
     @VisibleForTesting
     fun establishSSOSession(cookie: String) {
         viewModelScope.launch {
-            val authSession = getSSOLoginSessionUseCase(cookie, serverConfig)
+            val authSession = getSSOLoginSessionUseCase(cookie)
                 .let {
                     when (it) {
                         is SSOLoginSessionResult.Failure -> {

@@ -45,7 +45,7 @@ class WireApplication : Application(), Configuration.Provider {
         if (this.isGoogleServicesAvailable()) {
             FirebaseApp.initializeApp(this)
         }
-        if (BuildConfig.DEBUG || coreLogic.getAuthenticationScope().isLoggingEnabled()) {
+        if (BuildConfig.DEBUG || coreLogic.getGlobalScope().isLoggingEnabled()) {
             enableLoggingAndInitiateFileLogging()
         }
 

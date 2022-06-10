@@ -9,13 +9,13 @@ import com.wire.android.ui.authentication.create.overview.CreateAccountOverviewS
 import com.wire.kalium.logic.configuration.server.ServerConfig
 
 enum class CreateTeamNavigationItem(val route: String, val content: @Composable (ContentParams) -> Unit) {
-    Overview("create_team_overview_screen", { CreateAccountOverviewScreen(it.viewModel, it.serverConfig) }),
-    Email("create_team_email_screen", { CreateAccountEmailScreen(it.viewModel, it.serverConfig) }),
-    Details("create_team_details_screen", { CreateAccountDetailsScreen(it.viewModel, it.serverConfig) }),
-    Code("create_team_code_screen", { CreateAccountCodeScreen(it.viewModel, it.serverConfig) })
+    Overview("create_team_overview_screen", { CreateAccountOverviewScreen(it.viewModel) }),
+    Email("create_team_email_screen", { CreateAccountEmailScreen(it.viewModel) }),
+    Details("create_team_details_screen", { CreateAccountDetailsScreen(it.viewModel) }),
+    Code("create_team_code_screen", { CreateAccountCodeScreen(it.viewModel) })
 }
 
-data class ContentParams(val viewModel: CreateTeamViewModel, val serverConfig: ServerConfig)
+data class ContentParams(val viewModel: CreateTeamViewModel)
 
 internal fun navigateToItemInCreateTeam(navController: NavController, item: CreateTeamNavigationItem) {
     navController.navigate(item.route)

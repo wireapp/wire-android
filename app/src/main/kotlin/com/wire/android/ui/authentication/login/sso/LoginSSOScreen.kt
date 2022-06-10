@@ -52,14 +52,12 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun LoginSSOScreen(
-    serverConfig: ServerConfig,
     ssoLoginResult: DeepLinkResult.SSOLogin?,
     scrollState: ScrollState = rememberScrollState()
 ) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val loginSSOViewModel: LoginSSOViewModel = hiltViewModel()
-    loginSSOViewModel.updateServerConfig(ssoLoginResult, serverConfig)
     val loginSSOState: LoginSSOState = loginSSOViewModel.loginState
     loginSSOViewModel.handleSSOResult(ssoLoginResult)
     LoginSSOContent(
@@ -82,7 +80,6 @@ fun LoginSSOScreen(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun LoginSSOContent(
     scrollState: ScrollState,
@@ -188,7 +185,6 @@ private fun SSOCodeInput(
     )
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 private fun LoginButton(modifier: Modifier, loading: Boolean, enabled: Boolean, onClick: () -> Unit) {
     val interactionSource = remember { MutableInteractionSource() }

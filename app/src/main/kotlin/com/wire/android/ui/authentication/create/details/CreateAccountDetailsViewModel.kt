@@ -6,7 +6,7 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 interface CreateAccountDetailsViewModel {
     val detailsState: CreateAccountDetailsViewState
     fun goBackToPreviousStep()
-    fun onDetailsContinue(serverConfig: ServerConfig)
+    fun onDetailsContinue()
     fun onDetailsChange(newText: TextFieldValue, fieldType: DetailsFieldType)
     fun onDetailsErrorDismiss()
 

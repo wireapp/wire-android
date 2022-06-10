@@ -53,12 +53,12 @@ class WireNotificationManager @Inject constructor(
      */
     @Suppress("NestedBlockDepth")
     private fun checkIfUserIsAuthenticated(userId: String): QualifiedID? =
-        coreLogic.getAuthenticationScope().getSessions().let {
+        coreLogic.globalScope { getSessions() }.let {
             when (it) {
                 is GetAllSessionsResult.Success -> {
                     for (sessions in it.sessions) {
-                        if (sessions.userId.value == userId)
-                            return@let sessions.userId
+                        if (sessions.tokens.userId.value == userId)
+                            return@let sessions.tokens.userId
                     }
                     null
                 }

@@ -11,9 +11,9 @@ import com.wire.android.notification.WireNotificationManager
 import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.kalium.logic.configuration.GetServerConfigResult
-import com.wire.kalium.logic.configuration.GetServerConfigUseCase
-import com.wire.kalium.logic.configuration.ServerConfig
+import com.wire.kalium.logic.feature.server.GetServerConfigResult
+import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
+import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
@@ -48,7 +48,7 @@ class WireActivityViewModel @Inject constructor(
 
     private val userIdFlow = currentSessionFlow()
         .map { result ->
-            if (result is CurrentSessionResult.Success) result.authSession.userId
+            if (result is CurrentSessionResult.Success) result.authSession.tokens.userId
             else null
         }
         .distinctUntilChanged()
@@ -133,7 +133,7 @@ class WireActivityViewModel @Inject constructor(
     }
 
     private fun shouldGoToLogin(): Boolean =
-        (navigationArguments[SERVER_CONFIG_ARG] as ServerConfig).apiBaseUrl != ServerConfig.DEFAULT.apiBaseUrl ||
+        (navigationArguments[SERVER_CONFIG_ARG] as ServerConfig).links.api != ServerConfig.DEFAULT.api ||
                 navigationArguments[SSO_DEEPLINK_ARG] != null
 
     private fun shouldGoToIncomingCall(): Boolean =

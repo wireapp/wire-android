@@ -42,7 +42,7 @@ class LoginEmailViewModel @Inject constructor(
     fun login() {
         loginState = loginState.copy(loading = true, loginEmailError = LoginError.None).updateLoginEnabled()
         viewModelScope.launch {
-            val authSession = loginUseCase(loginState.userIdentifier.text, loginState.password.text, true, serverConfig)
+            val authSession = loginUseCase(loginState.userIdentifier.text, loginState.password.text, true)
                 .let {
                     when (it) {
                         is AuthenticationResult.Failure -> {
@@ -103,7 +103,3 @@ class LoginEmailViewModel @Inject constructor(
         const val USER_IDENTIFIER_SAVED_STATE_KEY = "user_identifier"
     }
 }
-
-// TODO: login error Mapper ?
-
-

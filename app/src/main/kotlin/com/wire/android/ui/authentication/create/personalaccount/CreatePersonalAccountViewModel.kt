@@ -1,6 +1,5 @@
 package com.wire.android.ui.authentication.create.personalaccount
 
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.di.ClientScopeProvider
@@ -15,13 +14,13 @@ import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import com.wire.kalium.logic.feature.register.RegisterAccountUseCase
 import com.wire.kalium.logic.feature.register.RequestActivationCodeUseCase
+import com.wire.kalium.logic.feature.session.RegisterTokenUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @Suppress("LongParameterList")
-@OptIn(ExperimentalMaterialApi::class)
 @HiltViewModel
 class CreatePersonalAccountViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
@@ -31,7 +30,8 @@ class CreatePersonalAccountViewModel @Inject constructor(
     requestActivationCodeUseCase: RequestActivationCodeUseCase,
     addAuthenticatedUserUseCase: AddAuthenticatedUserUseCase,
     registerAccountUseCase: RegisterAccountUseCase,
-    clientScopeProviderFactory: ClientScopeProvider.Factory
+    clientScopeProviderFactory: ClientScopeProvider.Factory,
+    pushTokenUseCase: RegisterTokenUseCase
 ) : CreateAccountBaseViewModel(
     CreateAccountFlowType.CreatePersonalAccount,
     savedStateHandle,
@@ -41,7 +41,8 @@ class CreatePersonalAccountViewModel @Inject constructor(
     requestActivationCodeUseCase,
     addAuthenticatedUserUseCase,
     registerAccountUseCase,
-    clientScopeProviderFactory
+    clientScopeProviderFactory,
+    pushTokenUseCase
 ) {
     var moveToStep = MutableSharedFlow<CreatePersonalAccountNavigationItem>()
     var moveBack = MutableSharedFlow<Unit>()

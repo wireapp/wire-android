@@ -15,13 +15,13 @@ import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import com.wire.kalium.logic.feature.register.RegisterAccountUseCase
 import com.wire.kalium.logic.feature.register.RequestActivationCodeUseCase
+import com.wire.kalium.logic.feature.session.RegisterTokenUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @Suppress("LongParameterList")
-@OptIn(ExperimentalMaterialApi::class)
 @HiltViewModel
 class CreateTeamViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
@@ -31,7 +31,8 @@ class CreateTeamViewModel @Inject constructor(
     requestActivationCodeUseCase: RequestActivationCodeUseCase,
     addAuthenticatedUserUseCase: AddAuthenticatedUserUseCase,
     registerAccountUseCase: RegisterAccountUseCase,
-    clientScopeProviderFactory: ClientScopeProvider.Factory
+    clientScopeProviderFactory: ClientScopeProvider.Factory,
+    pushTokenUseCase: RegisterTokenUseCase
 ) : CreateAccountBaseViewModel(
     CreateAccountFlowType.CreateTeam,
     savedStateHandle,
@@ -41,7 +42,8 @@ class CreateTeamViewModel @Inject constructor(
     requestActivationCodeUseCase,
     addAuthenticatedUserUseCase,
     registerAccountUseCase,
-    clientScopeProviderFactory
+    clientScopeProviderFactory,
+    pushTokenUseCase
 ) {
     var moveToStep = MutableSharedFlow<CreateTeamNavigationItem>()
     var moveBack = MutableSharedFlow<Unit>()

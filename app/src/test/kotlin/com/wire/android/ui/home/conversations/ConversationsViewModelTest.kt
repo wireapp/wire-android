@@ -136,7 +136,8 @@ class ConversationsViewModelTest {
     fun `given a group conversation, when solving the conversation name, then the name of the conversation is used`() = runTest {
         // Given
         val groupConversationDetails = mockConversationDetailsGroup("Conversation Name Goes Here")
-        val (_, viewModel) = ConversationsViewModelArrangement().withConversationDetailUpdate(conversationDetails = groupConversationDetails)
+        val (_, viewModel) = ConversationsViewModelArrangement()
+            .withConversationDetailUpdate(conversationDetails = groupConversationDetails)
             .arrange()
 
         // When - Then

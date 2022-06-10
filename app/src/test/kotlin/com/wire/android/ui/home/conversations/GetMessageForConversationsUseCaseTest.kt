@@ -104,7 +104,7 @@ class GetMessageForConversationsUseCaseTest {
             coVerify { messageMapper.toUIMessages(listOf(mockSelfUserDetails), listOf(mockTextMessage)) }
         }
 
-    private fun mockedTextMessage(content: String = "Some Text Message") = Message(
+    private fun mockedTextMessage(content: String = "Some Text Message") = Message.Client(
         id = "messageID",
         content = com.wire.kalium.logic.data.message.MessageContent.Text(content),
         conversationId = ConversationId("someId", "someDomain"),

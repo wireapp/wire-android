@@ -121,7 +121,7 @@ internal class ConversationsViewModelArrangement {
             updateAssetMessageDownloadStatus = updateAssetMessageDownloadStatus,
             getSelfUserTeam = getSelfUserTeam,
             fileManager = fileManager,
-            getMessagesForConversation = getMessagesForConversationUseCase
+            getMessageForConversation = getMessagesForConversationUseCase
         )
     }
 

@@ -33,7 +33,7 @@ class LoginEmailViewModel @Inject constructor(
 
     var loginState by mutableStateOf(
         LoginEmailState(
-            userIdentifier = TextFieldValue(savedStateHandle.get(USER_IDENTIFIER_SAVED_STATE_KEY) ?: String.EMPTY),
+            userIdentifier = TextFieldValue(savedStateHandle[USER_IDENTIFIER_SAVED_STATE_KEY] ?: String.EMPTY),
             password = TextFieldValue(String.EMPTY)
         )
     )
@@ -67,7 +67,10 @@ class LoginEmailViewModel @Inject constructor(
                         updateLoginError(it.toLoginError())
                         return@launch
                     }
-                    is RegisterClientResult.Success -> navigateToConvScreen()
+                    is RegisterClientResult.Success -> {
+                        registerPushToken(storedUserId, it.client.clientId.value)
+                        navigateToConvScreen()
+                    }
                 }
             }
         }

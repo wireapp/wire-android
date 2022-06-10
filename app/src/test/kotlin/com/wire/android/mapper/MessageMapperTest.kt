@@ -61,7 +61,7 @@ class MessageMapperTest {
         val member2 = TestUser.MEMBER_OTHER.copy(TestUser.OTHER_USER.copy(id = userId2))
         val members = listOf(member1, member2)
         // When
-        val result = mapper.toUIMessages(messages, members)
+        val result = mapper.toUIMessages(members,messages)
         // Then
         assert(
             result.size == 2

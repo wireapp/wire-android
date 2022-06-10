@@ -7,14 +7,14 @@ import com.wire.android.ui.home.conversations.model.MessageContent
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
-import com.wire.android.ui.home.conversations.model.MessageViewWrapper
+import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.User
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.id.parseIntoQualifiedID
 import com.wire.kalium.logic.data.message.Message
 
-val mockMessageWithText = MessageViewWrapper(
+val mockMessageWithText = UIMessage(
     user = User(null, UserStatus.AVAILABLE),
     messageHeader = MessageHeader(
         username = UIText.DynamicString("John Doe"),
@@ -37,7 +37,7 @@ val mockMessageWithText = MessageViewWrapper(
     messageSource = MessageSource.Self
 )
 
-val mockAssetMessage = MessageViewWrapper(
+val mockAssetMessage = UIMessage(
     user = User(UserAvatarAsset("a@domain".parseIntoQualifiedID()), UserStatus.AVAILABLE),
     messageHeader = MessageHeader(
         username = UIText.DynamicString("John Doe"),
@@ -61,8 +61,8 @@ val mockAssetMessage = MessageViewWrapper(
 val mockedImg = MessageContent.ImageMessage("a@domain".parseIntoQualifiedID(), ByteArray(16), 0, 0)
 
 @Suppress("LongMethod", "MagicNumber")
-fun getMockedMessages(): List<MessageViewWrapper> = listOf(
-    MessageViewWrapper(
+fun getMockedMessages(): List<UIMessage> = listOf(
+    UIMessage(
         user = User(null, UserStatus.AVAILABLE),
         messageHeader = MessageHeader(
             username = UIText.DynamicString("John Doe"),
@@ -84,7 +84,7 @@ fun getMockedMessages(): List<MessageViewWrapper> = listOf(
         ),
         messageSource = MessageSource.Self
     ),
-    MessageViewWrapper(
+    UIMessage(
         user = User(null, UserStatus.AVAILABLE),
         messageHeader = MessageHeader(
             username = UIText.DynamicString("John Doe"),
@@ -97,7 +97,7 @@ fun getMockedMessages(): List<MessageViewWrapper> = listOf(
         messageContent = mockedImg,
         messageSource = MessageSource.Self
     ),
-    MessageViewWrapper(
+    UIMessage(
         user = User(null, UserStatus.AVAILABLE),
         messageHeader = MessageHeader(
             username = UIText.DynamicString("John Doe"),
@@ -110,7 +110,7 @@ fun getMockedMessages(): List<MessageViewWrapper> = listOf(
         messageContent = mockedImg,
         messageSource = MessageSource.Self
     ),
-    MessageViewWrapper(
+    UIMessage(
         user = User(null, UserStatus.AVAILABLE),
         messageHeader = MessageHeader(
             username = UIText.DynamicString("John Doe"),
@@ -123,7 +123,7 @@ fun getMockedMessages(): List<MessageViewWrapper> = listOf(
         messageContent = mockedImg,
         messageSource = MessageSource.Self
     ),
-    MessageViewWrapper(
+    UIMessage(
         user = User(null, UserStatus.AVAILABLE),
         messageHeader = MessageHeader(
             username = UIText.DynamicString("John Doe"),
@@ -145,7 +145,7 @@ fun getMockedMessages(): List<MessageViewWrapper> = listOf(
         ),
         messageSource = MessageSource.Self
     ),
-    MessageViewWrapper(
+    UIMessage(
         user = User(null, UserStatus.AVAILABLE),
         messageHeader = MessageHeader(
             username = UIText.DynamicString("John Doe"),
@@ -158,7 +158,7 @@ fun getMockedMessages(): List<MessageViewWrapper> = listOf(
         messageContent = mockedImg,
         messageSource = MessageSource.Self
     ),
-    MessageViewWrapper(
+    UIMessage(
         user = User(null, UserStatus.AVAILABLE),
         messageHeader = MessageHeader(
             username = UIText.DynamicString("John Doe"),

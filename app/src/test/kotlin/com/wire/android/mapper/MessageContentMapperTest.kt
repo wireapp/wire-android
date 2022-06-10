@@ -4,7 +4,11 @@ import android.content.res.Resources
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.framework.TestMessage
 import com.wire.android.framework.TestUser
-import com.wire.android.ui.home.conversations.model.MessageContent as MessageViewContent
+import com.wire.android.ui.home.conversations.model.MessageContent.AssetMessage
+import com.wire.android.ui.home.conversations.model.MessageContent.DeletedMessage
+import com.wire.android.ui.home.conversations.model.MessageContent.ImageMessage
+import com.wire.android.ui.home.conversations.model.MessageContent.ServerMessage
+import com.wire.android.util.time.ISOFormatter
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.Member
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -37,7 +41,7 @@ class MessageContentMapperTest {
         // When
         val selfName = mapper.toSystemMessageMemberName(selfMemberDetails, MessageContentMapper.SelfNameType.NameOrDeleted)
         val selfResLower = mapper.toSystemMessageMemberName(selfMemberDetails, MessageContentMapper.SelfNameType.ResourceLowercase)
-        val selfResTitle = mapper.toSystemMessageMemberName(selfMemberDetails, MessageContentMapper.SelfNameType.ResourceTitlecase)
+        val selfResTitle = mapper.toSystemMessageMemberName(selfMemberDetails, MessageContentMapper.SelfNameType.ResourceTitleCase)
         val deleted = mapper.toSystemMessageMemberName(deletedMemberDetails, MessageContentMapper.SelfNameType.NameOrDeleted)
         val otherName = mapper.toSystemMessageMemberName(otherMemberDetails, MessageContentMapper.SelfNameType.NameOrDeleted)
         // Then
@@ -79,17 +83,17 @@ class MessageContentMapperTest {
         val resultContentAdded = mapper.toServer(contentAdded, userId1, listOf(member1, member2, member3))
         // Then
         assert(
-            resultContentLeft is MessageViewContent.ServerMessage.MemberLeft &&
+            resultContentLeft is ServerMessage.MemberLeft &&
                 resultContentLeft.author.asString(arrangement.resources) == member1.otherUser.name
         )
         assert(
-            resultContentRemoved is MessageViewContent.ServerMessage.MemberRemoved &&
+            resultContentRemoved is com.wire.android.ui.home.conversations.model.MessageContent.ServerMessage.MemberRemoved &&
                 resultContentRemoved.author.asString(arrangement.resources) == member1.otherUser.name &&
                 resultContentRemoved.memberNames.size == 1 &&
                 resultContentRemoved.memberNames[0].asString(arrangement.resources) == member2.otherUser.name
         )
         assert(
-            resultContentAdded is MessageViewContent.ServerMessage.MemberAdded &&
+            resultContentAdded is ServerMessage.MemberAdded &&
                 resultContentAdded.author.asString(arrangement.resources) == member1.otherUser.name &&
                 resultContentAdded.memberNames.size == 2 &&
                 resultContentAdded.memberNames[0].asString(arrangement.resources) == member2.otherUser.name &&
@@ -112,11 +116,11 @@ class MessageContentMapperTest {
         // When - Then
         val resultContentOther = mapper.toAsset(QualifiedID("id", "domain"), "message-id", contentOther)
         coVerify(exactly = 0) { arrangement.getMessageAssetUseCase.invoke(any(), any()) }
-        assert(resultContentOther is MessageViewContent.AssetMessage && resultContentOther.assetId.value == contentOther.remoteData.assetId)
+        assert(resultContentOther is AssetMessage && resultContentOther.assetId.value == contentOther.remoteData.assetId)
         // When - Then
         val resultContentImage = mapper.toAsset(QualifiedID("id", "domain"), "message-id", contentImage)
         coVerify(exactly = 1) { arrangement.getMessageAssetUseCase.invoke(any(), any()) }
-        assert(resultContentImage is MessageViewContent.ImageMessage && resultContentImage.assetId.value == contentImage.remoteData.assetId)
+        assert(resultContentImage is ImageMessage && resultContentImage.assetId.value == contentImage.remoteData.assetId)
     }
 
     @Test
@@ -132,8 +136,8 @@ class MessageContentMapperTest {
         val resultContentVisible = mapper.fromMessage(visibleMessage, listOf())
         val resultContentNonVisible = mapper.fromMessage(nonVisibleMessage, listOf())
         // Then
-        assert(resultContentVisible !is MessageViewContent.DeletedMessage)
-        assert(resultContentNonVisible is MessageViewContent.DeletedMessage)
+        assert(resultContentVisible !is DeletedMessage)
+        assert(resultContentNonVisible is DeletedMessage)
     }
 
     private class Arrangement {
@@ -145,9 +149,14 @@ class MessageContentMapperTest {
         lateinit var messageResourceProvider: MessageResourceProvider
 
         @MockK
+        lateinit var isoFormatter: ISOFormatter
+
+        @MockK
         lateinit var resources: Resources
 
-        private val messageContentMapper by lazy { MessageContentMapper(getMessageAssetUseCase, messageResourceProvider) }
+        private val messageContentMapper by lazy {
+            MessageContentMapper(isoFormatter, getMessageAssetUseCase, messageResourceProvider)
+        }
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)

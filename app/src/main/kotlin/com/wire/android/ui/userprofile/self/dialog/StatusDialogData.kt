@@ -2,12 +2,12 @@ package com.wire.android.ui.userprofile.self.dialog
 
 import androidx.annotation.StringRes
 import com.wire.android.R
-import com.wire.android.model.UserStatus
+import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 
 sealed class StatusDialogData(
     @StringRes val title: Int,
     @StringRes val text: Int,
-    val status: UserStatus,
+    val status: UserAvailabilityStatus,
 ) {
 
     abstract val isCheckBoxChecked: Boolean
@@ -16,7 +16,7 @@ sealed class StatusDialogData(
     data class StateAvailable(override val isCheckBoxChecked: Boolean = false) : StatusDialogData(
         title = R.string.user_profile_change_status_dialog_available_title,
         text = R.string.user_profile_change_status_dialog_available_text,
-        status = UserStatus.AVAILABLE
+        status = UserAvailabilityStatus.AVAILABLE
     ) {
         override fun changeCheckBoxState(isChecked: Boolean): StatusDialogData = copy(isCheckBoxChecked = isChecked)
     }
@@ -24,7 +24,7 @@ sealed class StatusDialogData(
     data class StateBusy(override val isCheckBoxChecked: Boolean = false) : StatusDialogData(
         title = R.string.user_profile_change_status_dialog_busy_title,
         text = R.string.user_profile_change_status_dialog_busy_text,
-        status = UserStatus.BUSY
+        status = UserAvailabilityStatus.BUSY
     ) {
         override fun changeCheckBoxState(isChecked: Boolean): StatusDialogData = copy(isCheckBoxChecked = isChecked)
     }
@@ -32,7 +32,7 @@ sealed class StatusDialogData(
     data class StateAway(override val isCheckBoxChecked: Boolean = false) : StatusDialogData(
         title = R.string.user_profile_change_status_dialog_away_title,
         text = R.string.user_profile_change_status_dialog_away_text,
-        status = UserStatus.AWAY
+        status = UserAvailabilityStatus.AWAY
     ) {
         override fun changeCheckBoxState(isChecked: Boolean): StatusDialogData = copy(isCheckBoxChecked = isChecked)
     }
@@ -40,7 +40,7 @@ sealed class StatusDialogData(
     data class StateNone(override val isCheckBoxChecked: Boolean = false) : StatusDialogData(
         title = R.string.user_profile_change_status_dialog_none_title,
         text = R.string.user_profile_change_status_dialog_none_text,
-        status = UserStatus.NONE
+        status = UserAvailabilityStatus.NONE
     ) {
         override fun changeCheckBoxState(isChecked: Boolean): StatusDialogData = copy(isCheckBoxChecked = isChecked)
     }

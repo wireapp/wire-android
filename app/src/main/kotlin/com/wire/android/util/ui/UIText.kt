@@ -10,18 +10,18 @@ sealed class UIText {
 
     class StringResource(
         @StringRes val resId: Int,
-        vararg val args: Any
+        vararg val formatArgs: Any
     ) : UIText()
 
     @Composable
     fun asString() = when (this) {
         is DynamicString -> value
-        is StringResource -> stringResource(id = resId, *args)
+        is StringResource -> stringResource(id = resId, *formatArgs)
     }
 
     fun asString(resources: Resources) = when (this) {
         is DynamicString -> value
-        is StringResource -> resources.getString(resId, *args)
+        is StringResource -> resources.getString(resId, *formatArgs)
     }
 }
 

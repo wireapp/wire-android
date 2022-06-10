@@ -8,11 +8,12 @@ import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import javax.inject.Inject
 import com.wire.android.ui.home.conversations.model.MessageBody
-import com.wire.android.ui.home.conversations.model.MessageContent
+import com.wire.android.ui.home.conversations.model.MessageContent as UIMessageContent
 import com.wire.android.ui.home.conversations.name
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.AssetContent
+import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.message.MessageContent.Asset
 import com.wire.kalium.logic.data.message.MessageContent.Text
 import com.wire.kalium.logic.data.user.UserId
@@ -34,7 +35,7 @@ class MessageContentMapper @Inject constructor(
     fun toSystemMessageMemberName(member: MemberDetails, type: SelfNameType = SelfNameType.NameOrDeleted): UIText = when (member) {
         is MemberDetails.Other -> member.name?.let { UIText.DynamicString(it) }
             ?: UIText.StringResource(messageResourceProvider.memberNameDeleted)
-        is MemberDetails.Self -> when(type) {
+        is MemberDetails.Self -> when (type) {
             SelfNameType.ResourceLowercase -> UIText.StringResource(messageResourceProvider.memberNameYouLowercase)
             SelfNameType.ResourceTitlecase -> UIText.StringResource(messageResourceProvider.memberNameYouTitlecase)
             SelfNameType.NameOrDeleted -> member.name?.let { UIText.DynamicString(it) }
@@ -42,10 +43,7 @@ class MessageContentMapper @Inject constructor(
         }
     }
 
-    fun toTextMessageContent(content: String?): UIText =
-        content?.let { UIText.DynamicString(it) } ?: UIText.StringResource(messageResourceProvider.contentNotAvailable)
-
-    suspend fun fromMessage(message: Message, members: List<MemberDetails>): MessageContent? {
+    suspend fun fromMessage(message: Message, members: List<MemberDetails>): UIMessageContent? {
         return when (message.visibility) {
             Message.Visibility.VISIBLE ->
                 when (val content = message.content) {
@@ -59,22 +57,26 @@ class MessageContentMapper @Inject constructor(
                         senderUserId = message.senderUserId,
                         members = members
                     )
-                    is Text -> toText(
-                        content = content.value
-                    )
-                    else -> toText()
+                    else -> toText(content)
                 }
-            Message.Visibility.DELETED -> MessageContent.DeletedMessage
-            Message.Visibility.HIDDEN -> MessageContent.DeletedMessage
+            Message.Visibility.DELETED -> UIMessageContent.DeletedMessage
+            Message.Visibility.HIDDEN -> null // we don't want to show hidden messages in any way
         }
     }
 
-    private fun toText(content: String? = null) =
-                MessageContent.TextMessage(
-                    messageBody = MessageBody(message = toTextMessageContent(content))
+    fun toText(content: MessageContent): UIMessageContent.TextMessage = UIMessageContent.TextMessage(
+        messageBody = MessageBody(
+            message = when (content) {
+                is MessageContent.Text -> UIText.DynamicString(content.value)
+                is MessageContent.Unknown -> UIText.StringResource(
+                    messageResourceProvider.sentAMessageWithContent, content.typeName ?: content::javaClass.name
                 )
+                else -> UIText.StringResource(messageResourceProvider.sentAMessageWithContent, content::javaClass.name)
+            }
+        )
+    )
 
-    fun toServer(content: Server, senderUserId: UserId, members: List<MemberDetails>): MessageContent = when (content) {
+    fun toServer(content: Server, senderUserId: UserId, members: List<MemberDetails>): UIMessageContent = when (content) {
         is MemberChange -> {
             val sender = members.findUser(senderUserId)
             val isAuthorSelfAction = content.members.size == 1 && senderUserId == content.members.first().id
@@ -83,10 +85,10 @@ class MessageContentMapper @Inject constructor(
                 toSystemMessageMemberName(members.findUser(it.id), SelfNameType.ResourceLowercase)
             }
             when (content) {
-                is Added -> MessageContent.ServerMessage.MemberAdded(authorName, memberNameList)
+                is Added -> UIMessageContent.ServerMessage.MemberAdded(authorName, memberNameList)
                 is Removed ->
-                    if (isAuthorSelfAction) MessageContent.ServerMessage.MemberLeft(authorName)
-                    else MessageContent.ServerMessage.MemberRemoved(authorName, memberNameList)
+                    if (isAuthorSelfAction) UIMessageContent.ServerMessage.MemberLeft(authorName)
+                    else UIMessageContent.ServerMessage.MemberRemoved(authorName, memberNameList)
             }
         }
     }
@@ -99,7 +101,7 @@ class MessageContentMapper @Inject constructor(
         if (remoteData.assetId.isNotEmpty()) {
             when {
                 // If it's an image, we download it right away
-                mimeType.contains("image") -> MessageContent.ImageMessage(
+                mimeType.contains("image") -> UIMessageContent.ImageMessage(
                     assetId = remoteData.assetId,
                     rawImgData = getRawAssetData(
                         conversationId = conversationId,
@@ -111,7 +113,7 @@ class MessageContentMapper @Inject constructor(
 
                 // It's a generic Asset Message so let's not download it yet
                 else -> {
-                    MessageContent.AssetMessage(
+                    UIMessageContent.AssetMessage(
                         assetName = name ?: "",
                         assetExtension = name?.split(".")?.last() ?: "",
                         assetId = remoteData.assetId,
@@ -140,5 +142,5 @@ data class MessageResourceProvider(
     @StringRes val memberNameDeleted: Int = R.string.member_name_deleted_label,
     @StringRes val memberNameYouLowercase: Int = R.string.member_name_you_label_lowercase,
     @StringRes val memberNameYouTitlecase: Int = R.string.member_name_you_label_titlecase,
-    @StringRes val contentNotAvailable: Int = R.string.content_is_not_available
+    @StringRes val sentAMessageWithContent: Int = R.string.sent_a_message_with_content
 )

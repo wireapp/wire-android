@@ -52,12 +52,20 @@ class MessageContentMapperTest {
     fun givenTextOrNullContent_whenMappingToTextMessageContent_thenCorrectValuesShouldBeReturned() = runTest {
         // Given
         val (arrangement, mapper) = Arrangement().arrange()
-        val message = "text-message"
+        val textContent = MessageContent.Text("text-message")
+        val nonTextContent = MessageContent.Unknown("type-name")
         // When
-        val resultText = mapper.toTextMessageContent(message)
-        val resultNonText = mapper.toTextMessageContent(null)
-        assert(resultText is UIText.DynamicString && resultText.value == message)
-        assert(resultNonText is UIText.StringResource && resultNonText.resId == arrangement.messageResourceProvider.contentNotAvailable)
+        val resultText = mapper.toText(textContent)
+        val resultNonText = mapper.toText(nonTextContent)
+        with(resultText.messageBody.message) {
+            assert(this is UIText.DynamicString && this.value == textContent.value)
+        }
+        with(resultNonText.messageBody.message) {
+            assert(this is UIText.StringResource
+                    && this.resId == arrangement.messageResourceProvider.sentAMessageWithContent
+                    && this.args[0] == nonTextContent.typeName
+            )
+        }
     }
 
     @Test
@@ -124,16 +132,22 @@ class MessageContentMapperTest {
         // Given
         val (_, mapper) = Arrangement().arrange()
         val visibleMessage = TestMessage.TEXT_MESSAGE.copy(visibility = Message.Visibility.VISIBLE)
-        val nonVisibleMessage = TestMessage.TEXT_MESSAGE.copy(
+        val deletedMessage = TestMessage.TEXT_MESSAGE.copy(
             visibility = Message.Visibility.DELETED,
+            content = MessageContent.DeleteMessage("")
+        )
+        val hiddenMessage = TestMessage.TEXT_MESSAGE.copy(
+            visibility = Message.Visibility.HIDDEN,
             content = MessageContent.DeleteMessage("")
         )
         // When
         val resultContentVisible = mapper.fromMessage(visibleMessage, listOf())
-        val resultContentNonVisible = mapper.fromMessage(nonVisibleMessage, listOf())
+        val resultContentDeleted = mapper.fromMessage(deletedMessage, listOf())
+        val resultContentHidden = mapper.fromMessage(hiddenMessage, listOf())
         // Then
-        assert(resultContentVisible !is MessageViewContent.DeletedMessage)
-        assert(resultContentNonVisible is MessageViewContent.DeletedMessage)
+        assert(resultContentVisible != null && resultContentVisible !is MessageViewContent.DeletedMessage)
+        assert(resultContentDeleted is MessageViewContent.DeletedMessage)
+        assert(resultContentHidden == null)
     }
 
     private class Arrangement {
@@ -155,7 +169,7 @@ class MessageContentMapperTest {
             every { messageResourceProvider.memberNameDeleted } returns 10584735
             every { messageResourceProvider.memberNameYouLowercase } returns 24153498
             every { messageResourceProvider.memberNameYouTitlecase } returns 38946214
-            every { messageResourceProvider.contentNotAvailable } returns 45407124
+            every { messageResourceProvider.sentAMessageWithContent } returns 45407124
         }
 
         fun arrange() = this to messageContentMapper

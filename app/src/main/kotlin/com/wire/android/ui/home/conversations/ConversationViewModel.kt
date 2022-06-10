@@ -31,6 +31,7 @@ import com.wire.android.util.extractImageParams
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.MemberDetails
 import com.wire.kalium.logic.data.id.parseIntoQualifiedID
+import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.FAILED
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.IN_PROGRESS
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.SAVED_EXTERNALLY
@@ -107,7 +108,10 @@ class ConversationViewModel @Inject constructor(
     // region ------------------------------ Init Methods -------------------------------------
     @OptIn(ExperimentalCoroutinesApi::class)
     private fun fetchMessages() = viewModelScope.launch {
-        getMessages(conversationId).flatMapLatest { messages ->
+        getMessages(
+            conversationId = conversationId,
+            visibility = listOf(Message.Visibility.VISIBLE, Message.Visibility.DELETED)
+        ).flatMapLatest { messages ->
             observeMemberDetailsByIds(messageMapper.memberIdList(messages))
                 .map { members -> messageMapper.toUIMessages(messages, members) }
         }.flowOn(dispatchers.default()).collect { uiMessages ->

@@ -115,7 +115,7 @@ class MessageContentMapper @Inject constructor(
         }
     }
 
-    private fun toTextMessageContent(content: String?): UIText =
+    fun toTextMessageContent(content: String?): UIText =
         content?.let { UIText.DynamicString(it) } ?: UIText.StringResource(messageResourceProvider.contentNotAvailable)
 
     fun toServer(
@@ -142,7 +142,7 @@ class MessageContentMapper @Inject constructor(
         }
     }
 
-    private suspend fun toAsset(
+    suspend fun toAsset(
         conversationId: QualifiedID,
         messageId: String,
         assetContent: AssetContent
@@ -200,12 +200,13 @@ class MessageContentMapper @Inject constructor(
                 else -> null
             }
         }
+
+    //TODO: should we keep it here ?
+    enum class SelfNameType {
+        ResourceLowercase, ResourceTitleCase, NameOrDeleted
+    }
 }
 
-//TODO: should we keep it here ?
-enum class SelfNameType {
-    ResourceLowercase, ResourceTitleCase, NameOrDeleted
-}
 
 //TODO: should we keep it here ?
 data class MessageResourceProvider(

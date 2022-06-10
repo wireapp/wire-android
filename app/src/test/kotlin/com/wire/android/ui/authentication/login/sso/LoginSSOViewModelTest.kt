@@ -52,9 +52,6 @@ class LoginSSOViewModelTest {
     private lateinit var savedStateHandle: SavedStateHandle
 
     @MockK
-    private lateinit var serverConfig: ServerConfig
-
-    @MockK
     private lateinit var ssoInitiateLoginUseCase: SSOInitiateLoginUseCase
 
     @MockK
@@ -82,7 +79,6 @@ class LoginSSOViewModelTest {
     private lateinit var navigationManager: NavigationManager
     private lateinit var loginViewModel: LoginSSOViewModel
 
-    private val apiBaseUrl: String = "apiBaseUrl"
     private val userId: QualifiedID = QualifiedID("userId", "domain")
 
     @BeforeEach
@@ -91,10 +87,8 @@ class LoginSSOViewModelTest {
         mockUri()
         every { savedStateHandle.get<String>(any()) } returns ""
         every { savedStateHandle.set(any(), any<String>()) } returns Unit
-        every { serverConfig.apiBaseUrl } returns apiBaseUrl
         every { clientScopeProviderFactory.create(any()).clientScope } returns clientScope
         every { clientScope.register } returns registerClientUseCase
-        every { serverConfig.id } returns "0"
         loginViewModel = LoginSSOViewModel(
             savedStateHandle,
             ssoInitiateLoginUseCase,
@@ -123,7 +117,7 @@ class LoginSSOViewModelTest {
     fun `given button is clicked, when logging in, then show loading`() {
         val scheduler = TestCoroutineScheduler()
         Dispatchers.setMain(StandardTestDispatcher(scheduler))
-        coEvery { ssoInitiateLoginUseCase.invoke(any()) } returns SSOInitiateLoginResult.Success("")
+        coEvery { ssoInitiateLoginUseCase(any()) } returns SSOInitiateLoginResult.Success("")
 
         loginViewModel.onSSOCodeChange(TextFieldValue("abc"))
         loginViewModel.loginState.loginEnabled shouldBeEqualTo true
@@ -141,9 +135,9 @@ class LoginSSOViewModelTest {
         val scheduler = TestCoroutineScheduler()
         Dispatchers.setMain(StandardTestDispatcher(scheduler))
         val ssoCode = "wire-fd994b20-b9af-11ec-ae36-00163e9b33ca"
-        val param = SSOInitiateLoginUseCase.Param.WithRedirect(ssoCode, loginViewModel.serverConfig)
+        val param = SSOInitiateLoginUseCase.Param.WithRedirect(ssoCode)
         val url = "https://wire.com/sso"
-        coEvery { ssoInitiateLoginUseCase.invoke(param) } returns SSOInitiateLoginResult.Success(url)
+        coEvery { ssoInitiateLoginUseCase(param) } returns SSOInitiateLoginResult.Success(url)
         loginViewModel.onSSOCodeChange(TextFieldValue(ssoCode))
 
         runTest {
@@ -151,12 +145,12 @@ class LoginSSOViewModelTest {
             loginViewModel.openWebUrl.first() shouldBe url
         }
 
-        coVerify(exactly = 1) { ssoInitiateLoginUseCase.invoke(param) }
+        coVerify(exactly = 1) { ssoInitiateLoginUseCase(param) }
     }
 
     @Test
     fun `given button is clicked, when login returns InvalidCodeFormat error, then InvalidCodeFormatError is passed`() {
-        coEvery { ssoInitiateLoginUseCase.invoke(any()) } returns SSOInitiateLoginResult.Failure.InvalidCodeFormat
+        coEvery { ssoInitiateLoginUseCase(any()) } returns SSOInitiateLoginResult.Failure.InvalidCodeFormat
 
         runTest { loginViewModel.login() }
 
@@ -165,7 +159,7 @@ class LoginSSOViewModelTest {
 
     @Test
     fun `given button is clicked, when login returns InvalidCode error, then InvalidCodeError is passed`() {
-        coEvery { ssoInitiateLoginUseCase.invoke(any()) } returns SSOInitiateLoginResult.Failure.InvalidCode
+        coEvery { ssoInitiateLoginUseCase(any()) } returns SSOInitiateLoginResult.Failure.InvalidCode
 
         runTest { loginViewModel.login() }
 
@@ -174,7 +168,7 @@ class LoginSSOViewModelTest {
 
     @Test
     fun `given button is clicked, when login returns InvalidRequest error, then GenericError IllegalArgument is passed`() {
-        coEvery { ssoInitiateLoginUseCase.invoke(any()) } returns SSOInitiateLoginResult.Failure.InvalidRedirect
+        coEvery { ssoInitiateLoginUseCase(any()) } returns SSOInitiateLoginResult.Failure.InvalidRedirect
 
         runTest { loginViewModel.login() }
 
@@ -190,7 +184,7 @@ class LoginSSOViewModelTest {
     @Test
     fun `given button is clicked, when login returns Generic error, then GenericError is passed`() {
         val networkFailure = NetworkFailure.NoNetworkConnection(null)
-        coEvery { ssoInitiateLoginUseCase.invoke(any()) } returns SSOInitiateLoginResult.Failure.Generic(networkFailure)
+        coEvery { ssoInitiateLoginUseCase(any()) } returns SSOInitiateLoginResult.Failure.Generic(networkFailure)
 
         runTest { loginViewModel.login() }
 
@@ -200,35 +194,35 @@ class LoginSSOViewModelTest {
 
     @Test
     fun `given establishSSOSession is called, when SSOLogin Success, then SSOLoginResult is passed`() {
-        coEvery { getSSOLoginSessionUseCase.invoke(any(), any()) } returns SSOLoginSessionResult.Success(authSession)
-        coEvery { addAuthenticatedUserUseCase.invoke(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
+        coEvery { getSSOLoginSessionUseCase(any()) } returns SSOLoginSessionResult.Success(authSession)
+        coEvery { addAuthenticatedUserUseCase(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
         coEvery {
-            registerClientUseCase.invoke(any())
+            registerClientUseCase(any())
         } returns RegisterClientResult.Success(client)
 
         runTest { loginViewModel.establishSSOSession("") }
 
         coVerify(exactly = 1) { navigationManager.navigate(any()) }
-        coVerify(exactly = 1) { getSSOLoginSessionUseCase.invoke(any(), any()) }
+        coVerify(exactly = 1) { getSSOLoginSessionUseCase(any()) }
         coVerify(exactly = 1) {
-            registerClientUseCase.invoke(any())
+            registerClientUseCase(any())
         }
-        coVerify(exactly = 1) { addAuthenticatedUserUseCase.invoke(any(), any()) }
+        coVerify(exactly = 1) { addAuthenticatedUserUseCase(any(), any()) }
     }
 
     @Test
     fun `given establishSSOSession is called, when SSOLoginSessionResult return InvalidCookie, then SSOLoginResult fails`() {
-        coEvery { getSSOLoginSessionUseCase.invoke(any(), any()) } returns SSOLoginSessionResult.Failure.InvalidCookie
-        coEvery { addAuthenticatedUserUseCase.invoke(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
+        coEvery { getSSOLoginSessionUseCase(any()) } returns SSOLoginSessionResult.Failure.InvalidCookie
+        coEvery { addAuthenticatedUserUseCase(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
         coEvery {
-            registerClientUseCase.invoke(any())
+            registerClientUseCase(any())
         } returns RegisterClientResult.Success(client)
 
         runTest { loginViewModel.establishSSOSession("") }
         loginViewModel.loginState.loginSSOError shouldBeInstanceOf LoginError.DialogError.InvalidSSOCookie::class
-        coVerify(exactly = 1) { getSSOLoginSessionUseCase.invoke(any(), any()) }
+        coVerify(exactly = 1) { getSSOLoginSessionUseCase(any()) }
         coVerify(exactly = 0) { loginViewModel.registerClient(any()) }
-        coVerify(exactly = 0) { addAuthenticatedUserUseCase.invoke(any(), any()) }
+        coVerify(exactly = 0) { addAuthenticatedUserUseCase(any(), any()) }
         coVerify(exactly = 0) { loginViewModel.navigateToConvScreen() }
     }
 
@@ -246,10 +240,10 @@ class LoginSSOViewModelTest {
 
     @Test
     fun `given HandleSSOResult is called, when SSOLoginResult is success, then establishSSOSession should be called once`() {
-        coEvery { getSSOLoginSessionUseCase.invoke(any(), any()) } returns SSOLoginSessionResult.Success(authSession)
-        coEvery { addAuthenticatedUserUseCase.invoke(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
+        coEvery { getSSOLoginSessionUseCase(any()) } returns SSOLoginSessionResult.Success(authSession)
+        coEvery { addAuthenticatedUserUseCase(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
         coEvery {
-            registerClientUseCase.invoke(any())
+            registerClientUseCase(any())
         } returns RegisterClientResult.Success(client)
 
         runTest { loginViewModel.handleSSOResult(DeepLinkResult.SSOLogin.Success("", "")) }
@@ -259,35 +253,33 @@ class LoginSSOViewModelTest {
 
     @Test
     fun `given establishSSOSession called, when addAuthenticatedUser returns UserAlreadyExists error, then UserAlreadyExists is passed`() {
-        coEvery { getSSOLoginSessionUseCase.invoke(any(), any()) } returns SSOLoginSessionResult.Success(authSession)
-        coEvery { addAuthenticatedUserUseCase.invoke(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists
+        coEvery { getSSOLoginSessionUseCase(any()) } returns SSOLoginSessionResult.Success(authSession)
+        coEvery { addAuthenticatedUserUseCase(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists
 
         runTest { loginViewModel.establishSSOSession("") }
 
         loginViewModel.loginState.loginSSOError shouldBeInstanceOf LoginError.DialogError.UserAlreadyExists::class
-        coVerify(exactly = 1) { getSSOLoginSessionUseCase.invoke(any(), any()) }
+        coVerify(exactly = 1) { getSSOLoginSessionUseCase(any()) }
         coVerify(exactly = 0) { loginViewModel.registerClient(any()) }
-        coVerify(exactly = 1) { addAuthenticatedUserUseCase.invoke(any(), any()) }
+        coVerify(exactly = 1) { addAuthenticatedUserUseCase(any(), any()) }
         coVerify(exactly = 0) { loginViewModel.navigateToConvScreen() }
     }
 
     @Test
     fun `given establishSSOSession is called, when registerClientUseCase returns TooManyClients error, then TooManyClients is passed`() {
-        coEvery { getSSOLoginSessionUseCase.invoke(any(), any()) } returns SSOLoginSessionResult.Success(authSession)
-        coEvery { addAuthenticatedUserUseCase.invoke(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
+        coEvery { getSSOLoginSessionUseCase(any()) } returns SSOLoginSessionResult.Success(authSession)
+        coEvery { addAuthenticatedUserUseCase(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
         coEvery {
-            registerClientUseCase.invoke(any())
+            registerClientUseCase(any())
         } returns RegisterClientResult.Failure.TooManyClients
 
         runTest { loginViewModel.establishSSOSession("") }
 
         loginViewModel.loginState.loginSSOError shouldBeInstanceOf LoginError.TooManyDevicesError::class
 
-        coVerify(exactly = 1) {
-            registerClientUseCase.invoke(any())
-        }
-        coVerify(exactly = 1) { getSSOLoginSessionUseCase.invoke(any(), any()) }
-        coVerify(exactly = 1) { addAuthenticatedUserUseCase.invoke(any(), any()) }
+        coVerify(exactly = 1) { registerClientUseCase(any()) }
+        coVerify(exactly = 1) { getSSOLoginSessionUseCase(any()) }
+        coVerify(exactly = 1) { addAuthenticatedUserUseCase(any(), any()) }
         coVerify(exactly = 0) { loginViewModel.navigateToConvScreen() }
     }
 }

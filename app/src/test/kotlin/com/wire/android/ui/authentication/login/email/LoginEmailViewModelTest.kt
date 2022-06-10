@@ -15,6 +15,8 @@ import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.configuration.ServerConfig
 import com.wire.kalium.logic.data.client.Client
+import com.wire.kalium.logic.data.client.ClientType
+import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthSession
@@ -23,6 +25,8 @@ import com.wire.kalium.logic.feature.auth.LoginUseCase
 import com.wire.kalium.logic.feature.client.ClientScope
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.client.RegisterClientUseCase
+import com.wire.kalium.logic.feature.session.RegisterTokenResult
+import com.wire.kalium.logic.feature.session.RegisterTokenUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -62,6 +66,9 @@ class LoginEmailViewModelTest {
     private lateinit var registerClientUseCase: RegisterClientUseCase
 
     @MockK
+    private lateinit var registerTokenUseCase: RegisterTokenUseCase
+
+    @MockK
     private lateinit var savedStateHandle: SavedStateHandle
 
     @MockK
@@ -72,9 +79,6 @@ class LoginEmailViewModelTest {
 
     @MockK
     private lateinit var serverConfig: ServerConfig
-
-    @MockK
-    private lateinit var client: Client
 
     private lateinit var loginViewModel: LoginEmailViewModel
 
@@ -89,6 +93,7 @@ class LoginEmailViewModelTest {
         every { savedStateHandle.set(any(), any<String>()) } returns Unit
         every { clientScopeProviderFactory.create(any()).clientScope } returns clientScope
         every { clientScope.register } returns registerClientUseCase
+        every { clientScope.registerPushToken } returns registerTokenUseCase
         every { serverConfig.apiBaseUrl } returns apiBaseUrl
         every { authSession.userId } returns userId
         loginViewModel = LoginEmailViewModel(
@@ -145,7 +150,11 @@ class LoginEmailViewModelTest {
         coEvery { navigationManager.navigate(any()) } returns Unit
         coEvery {
             registerClientUseCase.invoke(any())
-        } returns RegisterClientResult.Success(client)
+        } returns RegisterClientResult.Success(CLIENT)
+        coEvery {
+            registerTokenUseCase.invoke(any(), any())
+        } returns RegisterTokenResult.Success
+
         loginViewModel.onPasswordChange(TextFieldValue(password))
 
         runTest { loginViewModel.login() }
@@ -207,6 +216,14 @@ class LoginEmailViewModelTest {
         runTest { loginViewModel.login() }
 
         loginViewModel.loginState.loginEmailError shouldBeInstanceOf LoginError.DialogError.UserAlreadyExists::class
+    }
+
+    companion object {
+        val CLIENT_ID = ClientId("test")
+        val CLIENT = Client(
+            CLIENT_ID, ClientType.Permanent, "time", null,
+            null, "label", "cookie", null, "model"
+        )
     }
 }
 

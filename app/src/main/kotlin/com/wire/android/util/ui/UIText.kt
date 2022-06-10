@@ -13,12 +13,14 @@ sealed class UIText {
         vararg val formatArgs: Any
     ) : UIText()
 
+    @Suppress("SpreadOperator")
     @Composable
     fun asString() = when (this) {
         is DynamicString -> value
         is StringResource -> stringResource(id = resId, *formatArgs)
     }
 
+    @Suppress("SpreadOperator")
     fun asString(resources: Resources) = when (this) {
         is DynamicString -> value
         is StringResource -> resources.getString(resId, *formatArgs)

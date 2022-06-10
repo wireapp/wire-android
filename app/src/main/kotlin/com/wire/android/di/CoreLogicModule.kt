@@ -97,7 +97,23 @@ class ConnectionModule {
     @Provides
     fun sendConnectionRequestUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).connection.sendConnectionRequest
+
+    @ViewModelScoped
+    @Provides
+    fun cancelConnectionRequestUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).connection.cancelConnectionRequest
+
+    @ViewModelScoped
+    @Provides
+    fun ignoreConnectionRequestUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).connection.ignoreConnectionRequest
+
+    @ViewModelScoped
+    @Provides
+    fun acceptConnectionRequestUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).connection.acceptConnectionRequest
 }
+
 
 @Module
 @InstallIn(ViewModelComponent::class)
@@ -449,8 +465,5 @@ class UseCaseModule {
     fun getBuildConfigUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) =
         coreLogic.getGlobalScope().buildConfigs
 
-    @ViewModelScoped
-    @Provides
-    fun getCurrentSessionFlowUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
-        coreLogic.getGlobalScope().session.currentSessionFlow
+
 }

@@ -1,6 +1,7 @@
 package com.wire.android.ui.home.conversations
 
 import android.content.Context
+import android.content.res.Resources
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.model.UserStatus
@@ -97,7 +98,7 @@ internal class ConversationsViewModelArrangement {
     lateinit var getMessagesForConversationUseCase: GetMessagesForConversationUseCase
 
     @MockK
-    lateinit var context: Context
+    lateinit var resources: Resources
 
     @MockK
     lateinit var uiText: UIText

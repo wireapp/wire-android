@@ -87,7 +87,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                 is CreateConversationResult.Success ->
                     navigationManager.navigate(
                         command = NavigationCommand(
-                            destination = NavigationItem.Conversation.getRouteWithArgs(listOf(result.conversationId.id))
+                            destination = NavigationItem.Conversation.getRouteWithArgs(listOf(result.conversation.id))
                         )
                     )
             }

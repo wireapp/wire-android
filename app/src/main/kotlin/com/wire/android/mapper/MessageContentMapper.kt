@@ -95,11 +95,10 @@ class MessageContentMapper @Inject constructor(
         else -> toText(content, Message.EditStatus.NotEdited)
     }
 
-    private fun toText(
+    fun toText(
         content: MessageContent,
         editStatus: Message.EditStatus
-    ) = MessageBody(
-        message = when (content) {
+    ) = MessageBody(when (content) {
             is MessageContent.Text -> UIText.DynamicString(content.value)
             is MessageContent.Unknown -> UIText.StringResource(
                 messageResourceProvider.sentAMessageWithContent, content.typeName ?: content::javaClass.name

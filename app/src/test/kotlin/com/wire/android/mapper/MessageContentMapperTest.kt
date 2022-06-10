@@ -56,15 +56,28 @@ class MessageContentMapperTest {
         val textContent = MessageContent.Text("text-message")
         val nonTextContent = MessageContent.Unknown("type-name")
         // When
-        val resultText = mapper.toText(textContent)
-        val resultNonText = mapper.toText(nonTextContent)
-        with(resultText.messageBody.message) {
-            assert(this is UIText.DynamicString && this.value == textContent.value)
+        val resultText = mapper.toText(textContent, Message.EditStatus.NotEdited)
+        val resultNonText = mapper.toText(nonTextContent, Message.EditStatus.NotEdited)
+        val resultTextEdited = mapper.toText(textContent, Message.EditStatus.Edited("timestamp"))
+        assert(resultText is MessageViewContent.TextMessage)
+        with(resultText as MessageViewContent.TextMessage) {
+            assert(
+                messageBody.message is UIText.DynamicString &&
+                        (messageBody.message as UIText.DynamicString).value == textContent.value
+            )
         }
-        with(resultNonText.messageBody.message) {
-            assert(this is UIText.StringResource
-                    && this.resId == arrangement.messageResourceProvider.sentAMessageWithContent
-                    && this.args[0] == nonTextContent.typeName
+        assert(resultNonText is MessageViewContent.TextMessage)
+        with(resultNonText as MessageViewContent.TextMessage) {
+            assert(
+                messageBody.message is UIText.StringResource &&
+                        (messageBody.message as UIText.StringResource).resId == arrangement.messageResourceProvider.sentAMessageWithContent
+            )
+        }
+        assert(resultTextEdited is MessageViewContent.EditedMessage)
+        with(resultTextEdited as MessageViewContent.EditedMessage) {
+            assert(
+                messageBody.message is UIText.DynamicString &&
+                        (messageBody.message as UIText.DynamicString).value == textContent.value
             )
         }
     }
@@ -176,6 +189,7 @@ class MessageContentMapperTest {
             every { messageResourceProvider.memberNameYouLowercase } returns 24153498
             every { messageResourceProvider.memberNameYouTitlecase } returns 38946214
             every { messageResourceProvider.sentAMessageWithContent } returns 45407124
+            every { isoFormatter.fromISO8601ToTimeFormat(any()) } returns "formatted-time"
         }
 
         fun arrange() = this to messageContentMapper

@@ -1,7 +1,7 @@
 package com.wire.android.ui.home.newconversation.model
 
 import com.wire.android.model.ImageAsset.UserAvatarAsset
-import com.wire.kalium.logic.data.user.UserAvailabilityStatus
+import com.wire.android.model.UserAvatarData
 import com.wire.kalium.logic.data.conversation.Member
 import com.wire.kalium.logic.data.publicuser.model.OtherUser
 import com.wire.kalium.logic.data.user.ConnectionState
@@ -11,8 +11,7 @@ data class Contact(
     val id: String,
     val domain: String,
     val name: String,
-    val userStatus: UserAvailabilityStatus = UserAvailabilityStatus.NONE,
-    val avatarAsset: UserAvatarAsset? = null,
+    val avatarData: UserAvatarData = UserAvatarData(),
     val label: String = "",
     val connectionState: ConnectionState = ConnectionState.NOT_CONNECTED
 ) {
@@ -33,6 +32,5 @@ fun OtherUser.toContact() =
         domain = id.domain,
         name = name ?: "",
         label = handle ?: "",
-        avatarAsset = completePicture?.let { UserAvatarAsset(it) },
-        connectionState = connectionStatus
+        avatarData = UserAvatarData(completePicture?.let { UserAvatarAsset(it) }),
     )

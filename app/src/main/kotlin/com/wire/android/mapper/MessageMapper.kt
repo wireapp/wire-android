@@ -5,7 +5,7 @@ import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.MessageViewWrapper
-import com.wire.android.ui.home.conversations.model.User
+import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversations.previewAsset
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -50,8 +50,8 @@ class MessageMapper @Inject constructor(
                     messageStatus = if (message.status == Message.Status.FAILED) MessageStatus.SendFailure else MessageStatus.Untouched,
                     messageId = message.id
                 ),
-                user = User(
-                    avatarAsset = sender.previewAsset, availabilityStatus = UserAvailabilityStatus.NONE
+                user = UserAvatarData(
+                    asset = sender.previewAsset, availabilityStatus = UserAvailabilityStatus.NONE
                 )
             )
         }

@@ -17,10 +17,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
-import com.wire.android.model.ImageAsset.UserAvatarAsset
-import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.RowItemTemplate
+import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.WireCheckbox
 import com.wire.android.ui.common.loading.CenteredCircularProgressBarIndicator
@@ -60,8 +59,7 @@ fun ContactsScreen(
                 ) { contact ->
                     ContactItem(
                         name = contact.name,
-                        avatarAsset = contact.avatarAsset,
-                        userStatus = contact.userStatus,
+                        avatarData = contact.avatarData,
                         belongsToGroup = contactsAddedToGroup.contains(contact),
                         addToGroup = { onAddToGroup(contact) },
                         removeFromGroup = { onRemoveFromGroup(contact) },
@@ -78,8 +76,7 @@ fun ContactsScreen(
 @Composable
 private fun ContactItem(
     name: String,
-    avatarAsset: UserAvatarAsset?,
-    userStatus: UserAvailabilityStatus,
+    avatarData: UserAvatarData,
     belongsToGroup: Boolean,
     addToGroup: () -> Unit,
     removeFromGroup: () -> Unit,
@@ -89,10 +86,7 @@ private fun ContactItem(
         leadingIcon = {
             Row {
                 WireCheckbox(checked = belongsToGroup, onCheckedChange = { if (it) addToGroup() else removeFromGroup() })
-                UserProfileAvatar(
-                    userAvatarAsset = avatarAsset,
-                    status = userStatus
-                )
+                UserProfileAvatar(avatarData)
             }
         },
         title = {

@@ -32,7 +32,7 @@ class HomeViewModel @Inject constructor(
     private val needsToRegisterClient: NeedsToRegisterClientUseCase
 ) : ViewModel() {
 
-    var userAvatar by mutableStateOf<AvatarData>(AvatarData())
+    var userAvatar by mutableStateOf(SelfUserData())
         private set
 
     init {
@@ -73,7 +73,7 @@ class HomeViewModel @Inject constructor(
     private suspend fun loadUserAvatar() {
         viewModelScope.launch {
             getSelf().collect { selfUser ->
-                userAvatar = AvatarData(selfUser.previewPicture?.let { UserAvatarAsset(it) }, selfUser.availabilityStatus)
+                userAvatar = SelfUserData(selfUser.previewPicture?.let { UserAvatarAsset(it) }, selfUser.availabilityStatus)
             }
         }
     }
@@ -99,4 +99,7 @@ class HomeViewModel @Inject constructor(
     }
 }
 
-data class AvatarData(val asset: UserAvatarAsset? = null, val status: UserAvailabilityStatus = UserAvailabilityStatus.NONE)
+data class SelfUserData(
+    val avatarAsset: UserAvatarAsset? = null,
+    val status: UserAvailabilityStatus = UserAvailabilityStatus.NONE
+)

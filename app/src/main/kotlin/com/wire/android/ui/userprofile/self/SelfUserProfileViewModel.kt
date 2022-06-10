@@ -9,7 +9,6 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.model.ImageAsset.UserAvatarAsset
-import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
@@ -17,10 +16,11 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.userprofile.self.dialog.StatusDialogData
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.user.UserAssetId
+import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
-import com.wire.kalium.logic.feature.user.UpdateSelfAvailabilityStatusUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
+import com.wire.kalium.logic.feature.user.UpdateSelfAvailabilityStatusUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
@@ -137,8 +137,8 @@ class SelfUserProfileViewModel @Inject constructor(
 
     fun changeStatus(status: UserAvailabilityStatus) {
         setNotShowStatusRationaleAgainIfNeeded(status)
-        viewModelScope.launch {  updateStatus(status) }
-//        userProfileState = userProfileState.copy(status = status)
+        //TODO add the broadcast message to inform everyone about the self user new status
+        viewModelScope.launch { updateStatus(status) }
         dismissStatusDialog()
     }
 

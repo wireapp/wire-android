@@ -12,6 +12,7 @@ import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversationslist.mock.mockAllMentionList
 import com.wire.android.ui.home.conversationslist.mock.mockCallHistory
 import com.wire.android.ui.home.conversationslist.mock.mockMissedCalls
@@ -23,7 +24,6 @@ import com.wire.android.ui.home.conversationslist.model.ConversationLastEvent
 import com.wire.android.ui.home.conversationslist.model.EventType
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.conversationslist.model.NewActivity
-import com.wire.android.ui.home.conversationslist.model.UserInfo
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.ConversationDetails.Group
@@ -211,7 +211,7 @@ private fun ConversationDetails.toType(): ConversationItem = when (this) {
     }
     is OneOne -> {
         ConversationItem.PrivateConversation(
-            userInfo = UserInfo(
+            userAvatarData = UserAvatarData(
                 otherUser.previewPicture?.let { UserAvatarAsset(it) },
                 UserAvailabilityStatus.NONE // TODO Get actual status
             ),
@@ -227,7 +227,7 @@ private fun ConversationDetails.toType(): ConversationItem = when (this) {
     }
     is ConversationDetails.Connection -> {
         ConversationItem.ConnectionConversation(
-            userInfo = UserInfo(
+            userAvatarData = UserAvatarData(
                 otherUser?.previewPicture?.let { UserAvatarAsset(it) },
                 UserAvailabilityStatus.NONE // TODO Get actual status
             ),

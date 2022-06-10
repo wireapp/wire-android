@@ -10,7 +10,6 @@ import com.wire.android.appLogger
 import com.wire.android.mapper.MessageMapper
 import com.wire.android.model.ImageAsset.PrivateAsset
 import com.wire.android.model.ImageAsset.UserAvatarAsset
-import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.EXTRA_MESSAGE_TO_DELETE_ID
 import com.wire.android.navigation.EXTRA_MESSAGE_TO_DELETE_IS_SELF

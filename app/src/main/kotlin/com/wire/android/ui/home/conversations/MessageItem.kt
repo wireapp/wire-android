@@ -27,6 +27,7 @@ import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.LegalHoldIndicator
 import com.wire.android.ui.common.MembershipQualifierLabel
+import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.model.DeletedMessage
@@ -67,8 +68,7 @@ fun MessageItem(
         ) {
             Spacer(Modifier.padding(start = dimensions().spacing8x - dimensions().userAvatarClickablePadding))
             UserProfileAvatar(
-                userAvatarAsset = message.user.avatarAsset,
-                status = message.user.availabilityStatus
+                avatarData = UserAvatarData(message.user.asset, message.user.availabilityStatus)
             )
             Spacer(Modifier.padding(start = dimensions().spacing16x - dimensions().userAvatarClickablePadding))
             Column {

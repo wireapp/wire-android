@@ -6,7 +6,7 @@ import com.wire.android.ui.home.conversations.model.MessageContent.TextMessage
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
-import com.wire.android.ui.home.conversations.model.MessageViewWrapper
+import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.User
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.ui.UIText
@@ -56,7 +56,7 @@ object TestMessage {
         messageStatus = MessageStatus.Untouched,
         messageId = "messageID"
     )
-    val UI_TEXT_MESSAGE = MessageViewWrapper(
+    val UI_TEXT_MESSAGE = UIMessage(
         user = User(avatarAsset = null, availabilityStatus = UserStatus.NONE),
         messageSource = MessageSource.OtherUser,
         messageHeader = UI_MESSAGE_HEADER,

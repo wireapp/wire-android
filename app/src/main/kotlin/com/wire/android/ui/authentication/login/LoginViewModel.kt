@@ -19,10 +19,13 @@ import com.wire.kalium.logic.feature.auth.AuthenticationResult
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.client.RegisterClientUseCase
 import com.wire.kalium.logic.feature.session.RegisterTokenResult
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
 @ExperimentalMaterialApi
-open class LoginViewModel(
+@HiltViewModel
+open class LoginViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val clientScopeProviderFactory: ClientScopeProvider.Factory,
     private val authServerConfigProvider: AuthServerConfigProvider

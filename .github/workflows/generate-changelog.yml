@@ -11,7 +11,7 @@ jobs:
 
     steps:
       - name: 'Checkout Git repository with history for all branches and tags'
-        uses: actions/checkout@v2.3.4
+        uses: actions/checkout@v3
         with:
           fetch-depth: 0
           submodules: recursive # Needed in order to fetch Kalium sources for building

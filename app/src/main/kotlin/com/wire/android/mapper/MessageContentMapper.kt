@@ -100,9 +100,9 @@ class MessageContentMapper @Inject constructor(
     ) = MessageBody(when (content) {
             is MessageContent.Text -> UIText.DynamicString(content.value)
             is MessageContent.Unknown -> UIText.StringResource(
-                messageResourceProvider.sentAMessageWithContent, content.typeName ?: content::javaClass.name
+                messageResourceProvider.sentAMessageWithContent, content.typeName ?: "Unknown"
             )
-            else -> UIText.StringResource(messageResourceProvider.sentAMessageWithContent, content::javaClass.name)
+            else -> UIText.StringResource(messageResourceProvider.sentAMessageWithContent, "Unknown")
         }
     ).let { messageBody ->
         when (editStatus) {

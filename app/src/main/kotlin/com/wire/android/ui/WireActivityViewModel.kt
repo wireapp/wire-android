@@ -1,7 +1,6 @@
 package com.wire.android.ui
 
 import android.content.Intent
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
@@ -32,10 +31,7 @@ import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @Suppress("LongParameterList")
-@OptIn(
-    ExperimentalCoroutinesApi::class,
-    ExperimentalMaterial3Api::class
-)
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class WireActivityViewModel @Inject constructor(
     dispatchers: DispatcherProvider,

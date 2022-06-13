@@ -8,12 +8,14 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig
+import com.wire.android.appLogger
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.kalium.logic.data.client.DeleteClientParam
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import com.wire.kalium.logic.feature.client.DeleteClientResult
 import com.wire.kalium.logic.feature.client.DeleteClientUseCase
@@ -21,6 +23,8 @@ import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.client.RegisterClientUseCase
 import com.wire.kalium.logic.feature.client.SelfClientsResult
 import com.wire.kalium.logic.feature.client.SelfClientsUseCase
+import com.wire.kalium.logic.feature.session.RegisterTokenResult
+import com.wire.kalium.logic.feature.session.RegisterTokenUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -32,7 +36,8 @@ class RemoveDeviceViewModel @Inject constructor(
     private val selfClientsUseCase: SelfClientsUseCase,
     private val deleteClientUseCase: DeleteClientUseCase,
     private val registerClientUseCase: RegisterClientUseCase,
-    private val validatePasswordUseCase: ValidatePasswordUseCase
+    private val validatePasswordUseCase: ValidatePasswordUseCase,
+    private val pushTokenUseCase: RegisterTokenUseCase
 ) : ViewModel() {
 
     var state: RemoveDeviceState by mutableStateOf(
@@ -87,13 +92,18 @@ class RemoveDeviceViewModel @Inject constructor(
                     val removeDeviceError =
                         if (deleteClientResult is DeleteClientResult.Success)
                             if (!validatePasswordUseCase(dialogStateVisible.password.text)) RemoveDeviceError.InvalidCredentialsError
-                            else registerClientUseCase(
-                                RegisterClientUseCase.RegisterClientParam.ClientWithToken(
-                                    password = dialogStateVisible.password.text,
-                                    capabilities = null,
-                                    senderId = BuildConfig.SENDER_ID
-                                )
-                            ).toRemoveDeviceError()
+                            else {
+                                registerClientUseCase(
+                                    RegisterClientUseCase.RegisterClientParam(
+                                        password = dialogStateVisible.password.text,
+                                        capabilities = null,
+                                    )
+                                ).let { registerClientResult ->
+                                    if (registerClientResult is RegisterClientResult.Success)
+                                        registerPushToken(registerClientResult.client.clientId.value)
+                                    registerClientResult.toRemoveDeviceError()
+                                }
+                            }
                         else
                             deleteClientResult.toRemoveDeviceError()
                     updateStateIfDialogVisible { it.copy(loading = false, error = removeDeviceError) }
@@ -102,6 +112,18 @@ class RemoveDeviceViewModel @Inject constructor(
                         navigateToConvScreen()
                     }
                 }
+            }
+        }
+    }
+
+    private suspend fun registerPushToken(clientId: String) {
+        pushTokenUseCase(BuildConfig.SENDER_ID, clientId).let { registerTokenResult ->
+            when (registerTokenResult) {
+                is RegisterTokenResult.Success ->
+                    appLogger.i("PushToken Registered Successfully")
+                is RegisterTokenResult.Failure ->
+                    //TODO: handle failure in settings to allow the user to retry tokenRegistration
+                    appLogger.i("PushToken Registration Failed: $registerTokenResult")
             }
         }
     }

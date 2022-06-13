@@ -5,9 +5,11 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig
+import com.wire.android.appLogger
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
@@ -20,38 +22,47 @@ import com.wire.android.ui.authentication.create.details.CreateAccountDetailsVie
 import com.wire.android.ui.authentication.create.email.CreateAccountEmailViewModel
 import com.wire.android.ui.authentication.create.email.CreateAccountEmailViewState
 import com.wire.android.ui.authentication.create.overview.CreateAccountOverviewViewModel
-import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.android.ui.common.textfield.CodeFieldValue
 import com.wire.kalium.logic.configuration.ServerConfig
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
+import com.wire.kalium.logic.feature.client.RegisterClientUseCase.RegisterClientParam
 import com.wire.kalium.logic.feature.register.RegisterAccountUseCase
 import com.wire.kalium.logic.feature.register.RegisterParam
 import com.wire.kalium.logic.feature.register.RegisterResult
 import com.wire.kalium.logic.feature.register.RequestActivationCodeResult
 import com.wire.kalium.logic.feature.register.RequestActivationCodeUseCase
+import com.wire.kalium.logic.feature.session.RegisterTokenResult
+import com.wire.kalium.logic.feature.session.RegisterTokenUseCase
 import kotlinx.coroutines.launch
-import com.wire.kalium.logic.feature.client.RegisterClientUseCase.RegisterClientParam
 
 @Suppress("TooManyFunctions", "LongParameterList")
 @OptIn(ExperimentalMaterialApi::class)
 abstract class CreateAccountBaseViewModel(
     final override val type: CreateAccountFlowType,
+    private val savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
     private val validateEmailUseCase: ValidateEmailUseCase,
     private val validatePasswordUseCase: ValidatePasswordUseCase,
     private val requestActivationCodeUseCase: RequestActivationCodeUseCase,
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
     private val registerAccountUseCase: RegisterAccountUseCase,
-    private val clientScopeProviderFactory: ClientScopeProvider.Factory
+    private val clientScopeProviderFactory: ClientScopeProvider.Factory,
+    private val pushTokenUseCase: RegisterTokenUseCase
 ) : ViewModel(),
     CreateAccountOverviewViewModel,
     CreateAccountEmailViewModel,
     CreateAccountDetailsViewModel,
     CreateAccountCodeViewModel {
-    override var emailState: CreateAccountEmailViewState by mutableStateOf(CreateAccountEmailViewState(type))
+    override var emailState: CreateAccountEmailViewState by mutableStateOf(
+        CreateAccountEmailViewState(
+            type,
+            TextFieldValue(savedStateHandle.get<String>(CreateAccountDetailsViewModel.EMAIL).orEmpty())
+        )
+    )
     override var detailsState: CreateAccountDetailsViewState by mutableStateOf(CreateAccountDetailsViewState(type))
     override var codeState: CreateAccountCodeViewState by mutableStateOf(CreateAccountCodeViewState(type))
 
@@ -77,6 +88,7 @@ abstract class CreateAccountBaseViewModel(
             continueEnabled = newText.text.isNotEmpty() && !emailState.loading
         )
         codeState = codeState.copy(email = newText.text)
+        savedStateHandle[CreateAccountDetailsViewModel.EMAIL] = newText.text
     }
 
     final override fun onEmailErrorDismiss() {
@@ -232,7 +244,10 @@ abstract class CreateAccountBaseViewModel(
                         updateCodeErrorState(it.toCodeError())
                         return@launch
                     }
-                    is RegisterClientResult.Success -> onCodeSuccess()
+                    is RegisterClientResult.Success -> {
+                        registerPushToken(storedUserId, it.client.clientId.value)
+                        onCodeSuccess()
+                    }
                 }
             }
         }
@@ -249,12 +264,24 @@ abstract class CreateAccountBaseViewModel(
 
     private suspend fun registerClient(userId: UserId, password: String) =
         clientScopeProviderFactory.create(userId).clientScope.register(
-            RegisterClientParam.ClientWithToken(
+            RegisterClientParam(
                 password = password,
-                capabilities = null,
-                senderId = BuildConfig.SENDER_ID
+                capabilities = null
             )
         )
+
+    private suspend fun registerPushToken(userId: UserId, clientId: String) {
+        clientScopeProviderFactory.create(userId).clientScope.registerPushToken(BuildConfig.SENDER_ID, clientId)
+            .let { registerTokenResult ->
+                when (registerTokenResult) {
+                    is RegisterTokenResult.Success ->
+                        appLogger.i("PushToken Registered Successfully")
+                    is RegisterTokenResult.Failure ->
+                        //TODO: handle failure in settings to allow the user to retry tokenRegistration
+                        appLogger.i("PushToken Registration Failed: $registerTokenResult")
+                }
+            }
+    }
 
 
     abstract fun onCodeSuccess()

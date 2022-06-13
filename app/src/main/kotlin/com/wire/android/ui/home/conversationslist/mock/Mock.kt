@@ -1,5 +1,6 @@
 package com.wire.android.ui.home.conversationslist.mock
 
+import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversationslist.model.CallEvent
 import com.wire.android.ui.home.conversationslist.model.CallTime
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
@@ -10,7 +11,6 @@ import com.wire.android.ui.home.conversationslist.model.EventType
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.conversationslist.model.MentionMessage
 import com.wire.android.ui.home.conversationslist.model.NewActivity
-import com.wire.android.ui.home.conversationslist.model.UserInfo
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.ConnectionState
@@ -29,7 +29,7 @@ val mockLongMentionInfo = ConversationLastEvent.Mention(
 
 val mockConversations1 = listOf(
     ConversationItem.PrivateConversation(
-        userInfo = UserInfo(),
+        userAvatarData = UserAvatarData(),
         conversationInfo = ConversationInfo(
             name = "some test value",
             membership = Membership.Guest
@@ -40,7 +40,7 @@ val mockConversations1 = listOf(
         lastEvent = ConversationLastEvent.None
     ),
     ConversationItem.PrivateConversation(
-        userInfo = UserInfo(),
+        userAvatarData = UserAvatarData(),
         conversationInfo = ConversationInfo(
             name = "some test value",
             membership = Membership.Guest
@@ -51,7 +51,7 @@ val mockConversations1 = listOf(
         lastEvent = ConversationLastEvent.None
     ),
     ConversationItem.PrivateConversation(
-        userInfo = UserInfo(),
+        userAvatarData = UserAvatarData(),
         conversationInfo = ConversationInfo(
             name = "some test value",
             membership = Membership.Guest
@@ -69,7 +69,7 @@ fun mockCallConversation(
         CallEvent.NoAnswerCall
     )
 ): ConversationItem.PrivateConversation = ConversationItem.PrivateConversation(
-    userInfo = UserInfo(),
+    userAvatarData = UserAvatarData(),
     conversationInfo = ConversationInfo(
         name = "some test value",
         membership = Membership.None
@@ -94,7 +94,7 @@ fun mockCallGroupConversation(
 )
 
 val mockConversation = ConversationItem.PrivateConversation(
-    userInfo = UserInfo(),
+    userAvatarData = UserAvatarData(),
     conversationInfo = ConversationInfo(
         name = "some test valueeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
         membership = Membership.Guest
@@ -114,7 +114,7 @@ val mockGroupConversation = ConversationItem.GroupConversation(
 )
 
 val mockMentionPrivateConversation = ConversationItem.PrivateConversation(
-    userInfo = UserInfo(),
+    userAvatarData = UserAvatarData(),
     conversationInfo = ConversationInfo(
         name = "some very long naaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaame",
         membership = Membership.Guest
@@ -126,7 +126,7 @@ val mockMentionPrivateConversation = ConversationItem.PrivateConversation(
 )
 
 val mockGeneralConversation = ConversationItem.PrivateConversation(
-    userInfo = UserInfo(),
+    userAvatarData = UserAvatarData(),
     conversationInfo = ConversationInfo(
         name = "some very long naaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaame",
         membership = Membership.Guest
@@ -141,7 +141,7 @@ val mockGeneralConversationPending = ConversationItem.ConnectionConversation(
     conversationId = ConversationId("someId", "someDomain"),
     mutedStatus = MutedConversationStatus.AllAllowed,
     isLegalHold = true,
-    userInfo = UserInfo(),
+    userAvatarData = UserAvatarData(),
     conversationInfo = ConversationInfo(
         name = "some very long teeeeeeeeeeeeeeeeeeeeeeeeest value",
         membership = Membership.Guest

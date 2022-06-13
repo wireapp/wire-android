@@ -3,15 +3,14 @@ package com.wire.android.ui.home.conversations.model
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import com.wire.android.R
-import com.wire.android.model.ImageAsset.UserAvatarAsset
-import com.wire.android.model.UserStatus
+import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.user.UserAssetId
 
-data class MessageViewWrapper(
-    val user: User,
+data class UIMessage(
+    val userAvatarData: UserAvatarData,
     val messageSource: MessageSource,
     val messageHeader: MessageHeader,
     val messageContent: MessageContent?,
@@ -44,6 +43,7 @@ sealed class MessageContent {
 
     data class TextMessage(val messageBody: MessageBody) : ClientMessage()
     object DeletedMessage : ClientMessage()
+    data class EditedMessage(val messageBody: MessageBody, val editTimeStamp: String) : MessageContent()
 
     data class AssetMessage(
         val assetName: String,
@@ -85,11 +85,6 @@ sealed class MessageContent {
 
 data class MessageBody(
     val message: UIText
-)
-
-data class User(
-    val avatarAsset: UserAvatarAsset?,
-    val availabilityStatus: UserStatus,
 )
 
 enum class MessageSource {

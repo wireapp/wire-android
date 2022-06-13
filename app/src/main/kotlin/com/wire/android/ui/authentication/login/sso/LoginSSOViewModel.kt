@@ -18,15 +18,15 @@ import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
-import com.wire.kalium.logic.feature.auth.sso.SSOLoginSessionResult
+import com.wire.kalium.logic.feature.auth.sso.GetSSOLoginSessionUseCase
 import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginResult
 import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginUseCase
+import com.wire.kalium.logic.feature.auth.sso.SSOLoginSessionResult
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
-import com.wire.kalium.logic.feature.auth.sso.GetSSOLoginSessionUseCase
 
 @ExperimentalMaterialApi
 @HiltViewModel
@@ -82,11 +82,14 @@ class LoginSSOViewModel @Inject constructor(
             }
             registerClient(storedUserId).let {
                 when (it) {
+                    is RegisterClientResult.Success -> {
+                        registerPushToken(storedUserId, it.client.clientId.value)
+                        navigateToConvScreen()
+                    }
                     is RegisterClientResult.Failure -> {
                         updateLoginError(it.toLoginError())
                         return@launch
                     }
-                    is RegisterClientResult.Success -> navigateToConvScreen()
                 }
             }
         }
@@ -116,8 +119,6 @@ class LoginSSOViewModel @Inject constructor(
         is DeepLinkResult.SSOLogin.Failure -> updateLoginError(LoginError.DialogError.SSOResultError(ssoLoginResult.ssoError))
         else -> {}
     }
-
-
 
     private fun openWebUrl(url: String) {
         viewModelScope.launch {

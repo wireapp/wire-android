@@ -114,7 +114,6 @@ class ConnectionModule {
         coreLogic.getSessionScope(currentAccount).connection.acceptConnectionRequest
 }
 
-
 @Module
 @InstallIn(ViewModelComponent::class)
 @Suppress("TooManyFunctions")
@@ -465,5 +464,8 @@ class UseCaseModule {
     fun getBuildConfigUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) =
         coreLogic.getGlobalScope().buildConfigs
 
-
+    @ViewModelScoped
+    @Provides
+    fun updateSelfAvailabilityStatusUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).users.updateSelfAvailabilityStatus
 }

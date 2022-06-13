@@ -13,8 +13,8 @@ import com.wire.android.ui.home.conversationslist.model.ConversationLastEvent
 import com.wire.android.ui.home.conversationslist.model.EventType
 import com.wire.android.ui.home.conversationslist.model.toUserInfoLabel
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
-import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.user.UserId
 
 @Composable
 fun ConversationItemFactory(
@@ -33,7 +33,8 @@ fun ConversationItemFactory(
                 is ConversationLastEvent.Call -> CallLabel(callInfo = lastEvent)
                 is ConversationLastEvent.Mention -> MentionLabel(mentionMessage = lastEvent.mentionMessage)
                 is ConversationLastEvent.Connection -> ConnectionLabel(lastEvent)
-                is ConversationLastEvent.None -> {}
+                is ConversationLastEvent.None -> {
+                }
             }
         },
         onConversationItemClick = {
@@ -44,7 +45,8 @@ fun ConversationItemFactory(
         },
         onConversationItemLongClick = {
             when (conversation.lastEvent) {
-                is ConversationLastEvent.Connection -> {}
+                is ConversationLastEvent.Connection -> {
+                }
                 else -> openMenu(conversation)
             }
         },
@@ -84,7 +86,7 @@ private fun GeneralConversationItem(
         is ConversationItem.PrivateConversation -> {
             with(conversation) {
                 RowItemTemplate(
-                    leadingIcon = { with(userInfo) { ConversationUserAvatar(avatarAsset, availabilityStatus) } },
+                    leadingIcon = { ConversationUserAvatar(userAvatarData) },
                     title = { UserLabel(userInfoLabel = toUserInfoLabel()) },
                     subTitle = subTitle,
                     eventType = eventType,
@@ -101,7 +103,7 @@ private fun GeneralConversationItem(
         is ConversationItem.ConnectionConversation -> {
             with(conversation) {
                 RowItemTemplate(
-                    leadingIcon = { with(userInfo) { ConversationUserAvatar(avatarAsset, availabilityStatus) } },
+                    leadingIcon = { ConversationUserAvatar(userAvatarData) },
                     title = { UserLabel(userInfoLabel = toUserInfoLabel()) },
                     subTitle = subTitle,
                     eventType = eventType,

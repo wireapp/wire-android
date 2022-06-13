@@ -1,6 +1,5 @@
 package com.wire.android.ui.authentication.login.sso
 
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
@@ -18,7 +17,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -61,7 +59,9 @@ fun LoginSSOScreen(
     val loginSSOViewModel: LoginSSOViewModel = hiltViewModel()
     loginSSOViewModel.updateServerConfig(ssoLoginResult, serverConfig)
     val loginSSOState: LoginSSOState = loginSSOViewModel.loginState
-    loginSSOViewModel.handleSSOResult(ssoLoginResult)
+    LaunchedEffect(ssoLoginResult){
+        loginSSOViewModel.handleSSOResult(ssoLoginResult)
+    }
     LoginSSOContent(
         scrollState = scrollState,
         loginSSOState = loginSSOState,
@@ -82,7 +82,6 @@ fun LoginSSOScreen(
     }
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun LoginSSOContent(
     scrollState: ScrollState,
@@ -188,7 +187,6 @@ private fun SSOCodeInput(
     )
 }
 
-@OptIn(ExperimentalAnimationApi::class)
 @Composable
 private fun LoginButton(modifier: Modifier, loading: Boolean, enabled: Boolean, onClick: () -> Unit) {
     val interactionSource = remember { MutableInteractionSource() }

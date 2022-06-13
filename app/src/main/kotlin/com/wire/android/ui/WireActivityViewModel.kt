@@ -149,7 +149,7 @@ class WireActivityViewModel @Inject constructor(
     }
 
     private fun shouldGoToLogin(): Boolean =
-        (navigationArguments[SERVER_CONFIG_ARG] as ServerConfig.Links).api != ServerConfig.DEFAULT.api ||
+        (navigationArguments[SERVER_CONFIG_ARG] as ServerConfig.Links) != ServerConfig.DEFAULT ||
                 navigationArguments[SSO_DEEPLINK_ARG] != null
 
     private fun shouldGoToIncomingCall(): Boolean =

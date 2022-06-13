@@ -26,6 +26,7 @@
     <string name="label_show">Show</string>
     <string name="label_show_all">Show All</string>
     <string name="label_show_less">Show Less</string>
+    <string name="label_message_status_edited_with_date">Edited on %s</string>
 
     <!-- Content descriptions -->
     <string name="content_description_search_back">Search back icon</string>
@@ -211,6 +212,8 @@
     <string name="asset_download_dialog_open_text">Open</string>
     <string name="asset_download_dialog_save_text">Save</string>
     <string name="member_name_deleted_label">Deleted User</string>
+    <string name="member_name_you_label_titlecase">You</string>
+    <string name="member_name_you_label_lowercase">you</string>
 
     <!-- Attachment options -->
     <string name="attachment_share_file">Attach File</string>

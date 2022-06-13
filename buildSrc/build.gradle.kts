@@ -7,11 +7,13 @@ private object Dependencies {
     const val hilt = "com.google.dagger:hilt-android-gradle-plugin:2.38.1"
     const val spotless = "com.diffplug.spotless:spotless-plugin-gradle:6.1.2"
     const val junit5 = "de.mannodermaus.gradle.plugins:android-junit5:1.8.2.0"
+    const val grgit = "org.ajoberstar.grgit:grgit-core:5.0.0-rc.3"
 }
 
 plugins {
     `kotlin-dsl`
     `kotlin-dsl-precompiled-script-plugins`
+    id("org.ajoberstar.grgit") version "5.0.0-rc.3"
 }
 
 repositories {
@@ -28,4 +30,5 @@ dependencies {
 
     testImplementation(Dependencies.junit)
     testImplementation(Dependencies.kluent)
+    implementation(Dependencies.grgit)
 }

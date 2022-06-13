@@ -23,6 +23,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
+import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.colorsScheme
@@ -40,7 +41,8 @@ import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
 import com.wire.android.ui.home.conversations.edit.EditMessageMenuItems
 import com.wire.android.ui.home.conversations.mock.getMockedMessages
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
-import com.wire.android.ui.home.conversations.model.MessageViewWrapper
+import com.wire.android.ui.home.conversations.model.MessageContent
+import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
 import com.wire.android.ui.home.messagecomposer.MessageComposeInputState
 import com.wire.android.ui.home.messagecomposer.MessageComposer
@@ -128,7 +130,7 @@ private fun ConversationScreen(
                                         GroupConversationAvatar(
                                             color = colorsScheme().conversationColor(id = conversationAvatar.conversationId)
                                         )
-                                    is ConversationAvatar.OneOne -> UserProfileAvatar(userAvatarAsset = conversationAvatar.avatarAsset)
+                                    is ConversationAvatar.OneOne -> UserProfileAvatar(UserAvatarData(conversationAvatar.avatarAsset))
                                     ConversationAvatar.None -> Box(modifier = Modifier.size(dimensions().userAvatarDefaultSize))
                                 }
                             },
@@ -169,11 +171,11 @@ private fun ConversationScreen(
 
 @Composable
 private fun ConversationScreenContent(
-    messages: List<MessageViewWrapper>,
+    messages: List<UIMessage>,
     onMessageChanged: (String) -> Unit,
     messageText: String,
     onSendButtonClicked: () -> Unit,
-    onShowContextMenu: (MessageViewWrapper) -> Unit,
+    onShowContextMenu: (UIMessage) -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onDownloadAsset: (String) -> Unit,
     onImageFullScreenMode: (String, Boolean) -> Unit,
@@ -249,9 +251,9 @@ private fun getSnackbarMessage(messageCode: ConversationSnackbarMessages): Pair<
 
 @Composable
 fun MessageList(
-    messages: List<MessageViewWrapper>,
+    messages: List<UIMessage>,
     lazyListState: LazyListState,
-    onShowContextMenu: (MessageViewWrapper) -> Unit,
+    onShowContextMenu: (UIMessage) -> Unit,
     onDownloadAsset: (String) -> Unit,
     onImageFullScreenMode: (String, Boolean) -> Unit
 ) {
@@ -265,12 +267,15 @@ fun MessageList(
         items(messages, key = {
             it.messageHeader.messageId
         }) { message ->
-            MessageItem(
-                message = message,
-                onLongClicked = onShowContextMenu,
-                onAssetMessageClicked = onDownloadAsset,
-                onImageMessageClicked = onImageFullScreenMode
-            )
+            if (message.messageContent is MessageContent.ServerMessage)
+                SystemMessageItem(message = message.messageContent)
+            else
+                MessageItem(
+                    message = message,
+                    onLongClicked = onShowContextMenu,
+                    onAssetMessageClicked = onDownloadAsset,
+                    onImageMessageClicked = onImageFullScreenMode
+                )
         }
     }
 }

@@ -23,6 +23,7 @@ fun ConversationItemFactory(
     openConversation: (ConversationId) -> Unit,
     openMenu: (ConversationItem) -> Unit,
     openUserProfile: (UserId) -> Unit,
+    openNotificationsOptions: (ConversationItem) -> Unit,
 ) {
     GeneralConversationItem(
         conversation = conversation,
@@ -32,7 +33,8 @@ fun ConversationItemFactory(
                 is ConversationLastEvent.Call -> CallLabel(callInfo = lastEvent)
                 is ConversationLastEvent.Mention -> MentionLabel(mentionMessage = lastEvent.mentionMessage)
                 is ConversationLastEvent.Connection -> ConnectionLabel(lastEvent)
-                is ConversationLastEvent.None -> {}
+                is ConversationLastEvent.None -> {
+                }
             }
         },
         onConversationItemClick = {
@@ -43,12 +45,13 @@ fun ConversationItemFactory(
         },
         onConversationItemLongClick = {
             when (conversation.lastEvent) {
-                is ConversationLastEvent.Connection -> {}
+                is ConversationLastEvent.Connection -> {
+                }
                 else -> openMenu(conversation)
             }
         },
         onMutedIconClick = {
-           // openNotificationsOptions(conversation)
+            openNotificationsOptions(conversation)
         },
     )
 }
@@ -83,7 +86,7 @@ private fun GeneralConversationItem(
         is ConversationItem.PrivateConversation -> {
             with(conversation) {
                 RowItemTemplate(
-                    leadingIcon = { with(userInfo) { ConversationUserAvatar(avatarAsset, availabilityStatus) } },
+                    leadingIcon = { ConversationUserAvatar(userAvatarData) },
                     title = { UserLabel(userInfoLabel = toUserInfoLabel()) },
                     subTitle = subTitle,
                     eventType = eventType,
@@ -100,7 +103,7 @@ private fun GeneralConversationItem(
         is ConversationItem.ConnectionConversation -> {
             with(conversation) {
                 RowItemTemplate(
-                    leadingIcon = { with(userInfo) { ConversationUserAvatar(avatarAsset, availabilityStatus) } },
+                    leadingIcon = { ConversationUserAvatar(userAvatarData) },
                     title = { UserLabel(userInfoLabel = toUserInfoLabel()) },
                     subTitle = subTitle,
                     eventType = eventType,

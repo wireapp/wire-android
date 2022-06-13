@@ -31,6 +31,7 @@ import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.UploadUserAvatarUseCase
+import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -57,14 +58,15 @@ class CoreLogicModule {
     @KaliumCoreLogic
     @Singleton
     @Provides
-    fun coreLogicProvider(@ApplicationContext context: Context): CoreLogic {
+    fun coreLogicProvider(@ApplicationContext context: Context, kaliumConfigs: KaliumConfigs): CoreLogic {
         val rootPath = context.getDir("accounts", Context.MODE_PRIVATE).path
         val deviceLabel = DeviceLabel.label
 
         return CoreLogic(
             appContext = context,
             rootPath = rootPath,
-            clientLabel = deviceLabel
+            clientLabel = deviceLabel,
+            kaliumConfigs = kaliumConfigs
         )
     }
 }
@@ -100,6 +102,16 @@ class ConnectionModule {
     @Provides
     fun cancelConnectionRequestUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).connection.cancelConnectionRequest
+
+    @ViewModelScoped
+    @Provides
+    fun ignoreConnectionRequestUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).connection.ignoreConnectionRequest
+
+    @ViewModelScoped
+    @Provides
+    fun acceptConnectionRequestUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).connection.acceptConnectionRequest
 }
 
 @Module
@@ -209,6 +221,11 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun observeMemberDetailsByIdsUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).conversations.observeMemberDetailsByIds
+
+    @ViewModelScoped
+    @Provides
     fun getMessagesUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).messages.getRecentMessages
 
@@ -221,6 +238,12 @@ class UseCaseModule {
     @Provides
     fun registerClientUseCase(@CurrentAccount currentAccount: UserId, clientScopeProviderFactory: ClientScopeProvider.Factory) =
         clientScopeProviderFactory.create(currentAccount).clientScope.register
+
+    @ViewModelScoped
+    @Provides
+    fun registerPushTokenUseCase(@CurrentAccount currentAccount: UserId, clientScopeProviderFactory: ClientScopeProvider.Factory) =
+        clientScopeProviderFactory.create(currentAccount).clientScope.registerPushToken
+
 
     @ViewModelScoped
     @Provides
@@ -428,6 +451,16 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun getBuildConfigUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) =
+        coreLogic.getAuthenticationScope().buildConfigs
+
+    @ViewModelScoped
+    @Provides
     fun getCurrentSessionFlowUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
         coreLogic.getAuthenticationScope().session.currentSessionFlow
+
+    @ViewModelScoped
+    @Provides
+    fun updateSelfAvailabilityStatusUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).users.updateSelfAvailabilityStatus
 }

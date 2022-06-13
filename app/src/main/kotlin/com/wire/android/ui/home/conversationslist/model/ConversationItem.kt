@@ -1,7 +1,6 @@
 package com.wire.android.ui.home.conversationslist.model
 
-import com.wire.android.model.ImageAsset.UserAvatarAsset
-import com.wire.android.model.UserStatus
+import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversationslist.common.UserInfoLabel
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
@@ -21,7 +20,7 @@ sealed class ConversationItem {
     ) : ConversationItem()
 
     data class PrivateConversation(
-        val userInfo: UserInfo,
+        val userAvatarData: UserAvatarData,
         val conversationInfo: ConversationInfo,
         override val conversationId: ConversationId,
         override val mutedStatus: MutedConversationStatus,
@@ -30,7 +29,7 @@ sealed class ConversationItem {
     ) : ConversationItem()
 
     data class ConnectionConversation(
-        val userInfo: UserInfo,
+        val userAvatarData: UserAvatarData,
         val conversationInfo: ConversationInfo,
         override val conversationId: ConversationId,
         override val mutedStatus: MutedConversationStatus,
@@ -42,11 +41,6 @@ sealed class ConversationItem {
 data class ConversationInfo(
     val name: String,
     val membership: Membership = Membership.None
-)
-
-data class UserInfo(
-    val avatarAsset: UserAvatarAsset? = null,
-    val availabilityStatus: UserStatus = UserStatus.NONE
 )
 
 fun ConversationItem.PrivateConversation.toUserInfoLabel() =

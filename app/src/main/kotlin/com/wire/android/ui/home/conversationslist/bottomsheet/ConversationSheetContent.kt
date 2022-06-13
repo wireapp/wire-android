@@ -5,7 +5,6 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
@@ -14,6 +13,7 @@ import com.wire.kalium.logic.data.id.ConversationId
 @Composable
 fun ConversationSheetContent(
     conversationSheetContent: ConversationSheetContent,
+    conversationOptionSheetState: ConversationOptionSheetState,
     onMutingConversationStatusChange: (MutedConversationStatus) -> Unit,
     addConversationToFavourites: () -> Unit,
     moveConversationToFolder: () -> Unit,
@@ -22,9 +22,6 @@ fun ConversationSheetContent(
     blockUser: () -> Unit,
     leaveGroup: () -> Unit
 ) {
-    val conversationOptionSheetState = remember(conversationSheetContent) {
-        ConversationOptionSheetState(initialNavigation = ConversationOptionNavigation.Home)
-    }
 
     when (conversationOptionSheetState.currentNavigation) {
         ConversationOptionNavigation.Home -> {
@@ -53,12 +50,12 @@ fun ConversationSheetContent(
     }
 }
 
-internal sealed class ConversationOptionNavigation {
+sealed class ConversationOptionNavigation {
     object Home : ConversationOptionNavigation()
     object MutingNotificationOption : ConversationOptionNavigation()
 }
 
-internal class ConversationOptionSheetState(initialNavigation: ConversationOptionNavigation) {
+class ConversationOptionSheetState(initialNavigation: ConversationOptionNavigation) {
 
     var currentNavigation: ConversationOptionNavigation by mutableStateOf(initialNavigation)
         private set
@@ -83,4 +80,3 @@ data class ConversationSheetContent(
     val mutingConversationState: MutedConversationStatus,
     val conversationTypeDetail: ConversationTypeDetail,
 )
-

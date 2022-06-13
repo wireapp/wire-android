@@ -15,7 +15,7 @@ import com.wire.android.ui.theme.wireDimensions
 
 @Composable
 fun MicrophoneButton(
-    isMuted: Boolean = true,
+    isMuted: Boolean,
     onMicrophoneButtonClicked: () -> Unit
 ) {
     IconButton(
@@ -40,5 +40,5 @@ fun MicrophoneButton(
 @Preview
 @Composable
 fun ComposableMicrophoneButtonPreview() {
-    MicrophoneButton(onMicrophoneButtonClicked = { })
+    MicrophoneButton(isMuted = true, onMicrophoneButtonClicked = { })
 }

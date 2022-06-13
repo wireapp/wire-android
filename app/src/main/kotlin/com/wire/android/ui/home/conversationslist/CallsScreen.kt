@@ -3,6 +3,7 @@ package com.wire.android.ui.home.conversationslist
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -20,12 +21,13 @@ fun CallsScreen(
     callHistory: List<ConversationItem> = emptyList(),
     onCallItemClick: (ConversationId) -> Unit,
     onEditConversationItem: (ConversationItem) -> Unit,
-    onScrollPositionChanged: (Int) -> Unit = {},
+    onScrollPositionProviderChanged: (() -> Int) -> Unit,
     onOpenUserProfile: (UserId) -> Unit,
+    openConversationNotificationsSettings: (ConversationItem) -> Unit,
 ) {
-    val lazyListState = com.wire.android.ui.common.extension.rememberLazyListState { firstVisibleItemIndex ->
-        onScrollPositionChanged(firstVisibleItemIndex)
-    }
+    val lazyListState = rememberLazyListState()
+
+    onScrollPositionProviderChanged { lazyListState.firstVisibleItemIndex }
 
     CallContent(
         lazyListState = lazyListState,
@@ -34,6 +36,7 @@ fun CallsScreen(
         onCallItemClick = onCallItemClick,
         onEditConversationItem = onEditConversationItem,
         onOpenUserProfile = onOpenUserProfile,
+        openConversationNotificationsSettings = openConversationNotificationsSettings
     )
 }
 
@@ -46,6 +49,7 @@ fun CallContent(
     onCallItemClick: (ConversationId) -> Unit,
     onEditConversationItem: (ConversationItem) -> Unit,
     onOpenUserProfile: (UserId) -> Unit,
+    openConversationNotificationsSettings: (ConversationItem) -> Unit,
 ) {
     LazyColumn(
         state = lazyListState,
@@ -61,6 +65,7 @@ fun CallContent(
                 openConversation = onCallItemClick,
                 openMenu = onEditConversationItem,
                 openUserProfile = onOpenUserProfile,
+                openNotificationsOptions = openConversationNotificationsSettings,
             )
         }
 
@@ -73,6 +78,7 @@ fun CallContent(
                 openConversation = onCallItemClick,
                 openMenu = onEditConversationItem,
                 openUserProfile = onOpenUserProfile,
+                openNotificationsOptions = openConversationNotificationsSettings,
             )
         }
     }

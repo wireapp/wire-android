@@ -12,19 +12,26 @@ fun rememberSearchbarState(): SearchBarState {
     val searchBarState = rememberSaveable(saver = SearchBarState.saver()) {
         SearchBarState(
             isSearchActive = false,
-            isSearchBarCollapsed = false
+            isSearchBarCollapsed = false,
+            scrollPositionProvider = null
         )
     }
 
     return searchBarState
 }
 
-class SearchBarState(isSearchActive: Boolean, isSearchBarCollapsed: Boolean) {
+class SearchBarState(
+    isSearchActive: Boolean,
+    isSearchBarCollapsed: Boolean,
+    scrollPositionProvider: (() -> Int)?
+) {
 
     var isSearchBarCollapsed by mutableStateOf(isSearchBarCollapsed)
 
     var isSearchActive by mutableStateOf(isSearchActive)
         private set
+
+    var scrollPositionProvider: (() -> Int)? by mutableStateOf(null)
 
     fun closeSearch() {
         isSearchActive = false
@@ -36,9 +43,9 @@ class SearchBarState(isSearchActive: Boolean, isSearchBarCollapsed: Boolean) {
 
     companion object {
         fun saver(): Saver<SearchBarState, *> = Saver(
-            save = { Pair(it.isSearchActive, it.isSearchBarCollapsed) },
-            restore = { (isSearchActive, isSearchBarCollapsed) ->
-                SearchBarState(isSearchActive, isSearchBarCollapsed)
+            save = { Triple(it.isSearchActive, it.isSearchBarCollapsed, it.scrollPositionProvider) },
+            restore = { (isSearchActive, isSearchBarCollapsed, scrollPositionProvider) ->
+                SearchBarState(isSearchActive, isSearchBarCollapsed, scrollPositionProvider)
             }
         )
     }

@@ -30,6 +30,8 @@ import com.wire.android.ui.common.WireBottomNavigationItemData
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.home.conversationslist.ConversationOperationErrorState.MutingOperationErrorState
+import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationOptionNavigation
+import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationOptionSheetState
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.navigation.ConversationsNavigationItem
@@ -44,25 +46,31 @@ import com.wire.kalium.logic.data.user.UserId
 // also we expose the lambda which expands the bottomsheet from the homescreen
 @Composable
 fun ConversationRouterHomeBridge(
-    onHomeBottomSheetContentChange: (@Composable ColumnScope.() -> Unit) -> Unit,
+    onHomeBottomSheetContentChanged : (@Composable ColumnScope.() -> Unit) -> Unit,
     onBottomSheetVisibilityChanged: () -> Unit,
-    onScrollPositionChanged: (Int) -> Unit
+    onScrollPositionProviderChanged: (() -> Int) -> Unit
 ) {
     val viewModel: ConversationListViewModel = hiltViewModel()
     val conversationState = remember {
         ConversationState()
     }
 
+    val conversationOptionSheetState = remember(conversationState.conversationSheetContent) {
+        ConversationOptionSheetState(initialNavigation = ConversationOptionNavigation.Home)
+    }
+
     // we want to relaunch the onHomeBottomSheetContentChange lambda each time the content changes
     // to pass the new Composable
     LaunchedEffect(conversationState.conversationSheetContent) {
         conversationState.conversationSheetContent?.let { conversationSheetContent ->
-            onHomeBottomSheetContentChange {
+            onHomeBottomSheetContentChanged {
                 ConversationSheetContent(
                     conversationSheetContent = conversationSheetContent,
-                    onMutingConversationStatusChange = {
-                        conversationState.muteConversation(it)
-                        viewModel.muteConversation(conversationSheetContent.conversationId, it)
+                    conversationOptionSheetState = conversationOptionSheetState,
+                    // FIXME: Compose - Find a way to not recreate this lambda
+                    onMutingConversationStatusChange = { mutedStatus ->
+                        conversationState.muteConversation(mutedStatus)
+                        viewModel.muteConversation(conversationId = conversationSheetContent.conversationId, mutedStatus)
                     },
                     addConversationToFavourites = viewModel::addConversationToFavourites,
                     moveConversationToFolder = viewModel::moveConversationToFolder,
@@ -84,9 +92,14 @@ fun ConversationRouterHomeBridge(
             conversationState.changeModalSheetContentState(conversationItem)
             onBottomSheetVisibilityChanged()
         },
-        onScrollPositionChanged = onScrollPositionChanged,
+        onScrollPositionProviderChanged = onScrollPositionProviderChanged,
         onError = onBottomSheetVisibilityChanged,
-        openProfile = viewModel::openUserProfile
+        openProfile = viewModel::openUserProfile,
+        onEditNotifications = { conversationItem ->
+            conversationState.changeModalSheetContentState(conversationItem)
+            onBottomSheetVisibilityChanged()
+            conversationOptionSheetState.toMutingNotificationOption()
+        },
     )
 }
 
@@ -100,7 +113,8 @@ private fun ConversationRouter(
     openConversation: (ConversationId) -> Unit,
     openNewConversation: () -> Unit,
     onEditConversationItem: (ConversationItem) -> Unit,
-    onScrollPositionChanged: (Int) -> Unit,
+    onEditNotifications: (ConversationItem) -> Unit,
+    onScrollPositionProviderChanged: (() -> Int) -> Unit,
     onError: () -> Unit,
     openProfile: (UserId) -> Unit,
 ) {
@@ -161,8 +175,9 @@ private fun ConversationRouter(
                             conversations = conversations,
                             onOpenConversation = openConversation,
                             onEditConversation = onEditConversationItem,
-                            onScrollPositionChanged = onScrollPositionChanged,
+                            onScrollPositionProviderChanged = onScrollPositionProviderChanged,
                             onOpenUserProfile = openProfile,
+                            onOpenConversationNotificationsSettings = onEditNotifications
                         )
                     }
                 )
@@ -174,8 +189,9 @@ private fun ConversationRouter(
                             callHistory = callHistory,
                             onCallItemClick = openConversation,
                             onEditConversationItem = onEditConversationItem,
-                            onScrollPositionChanged = onScrollPositionChanged,
+                            onScrollPositionProviderChanged = onScrollPositionProviderChanged,
                             onOpenUserProfile = openProfile,
+                            openConversationNotificationsSettings = onEditNotifications
                         )
                     }
                 )
@@ -187,8 +203,9 @@ private fun ConversationRouter(
                             allMentions = allMentions,
                             onMentionItemClick = openConversation,
                             onEditConversationItem = onEditConversationItem,
-                            onScrollPositionChanged = onScrollPositionChanged,
-                            onOpenUserProfile = openProfile
+                            onScrollPositionProviderChanged = onScrollPositionProviderChanged,
+                            onOpenUserProfile = openProfile,
+                            openConversationNotificationsSettings = onEditNotifications
                         )
                     }
                 )

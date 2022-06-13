@@ -5,13 +5,12 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig
+import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
-import com.wire.android.util.deeplink.DeepLinkResult
-import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.client.ClientCapability
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -27,10 +26,10 @@ import com.wire.kalium.logic.feature.client.RegisterClientUseCase
 open class LoginViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val clientScopeProviderFactory: ClientScopeProvider.Factory,
+    private val authServerConfigProvider: AuthServerConfigProvider
 ) : ViewModel() {
 
-    //todo: will inject it later
-    var serverConfig = ServerConfig.DEFAULT
+    val serverConfig = authServerConfigProvider.authServer.value
 
     open fun updateLoginError(error: LoginError) {}
 

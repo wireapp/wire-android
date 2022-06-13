@@ -11,6 +11,7 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.feature.call.Call
 import com.wire.kalium.logic.feature.call.usecase.GetIncomingCallsUseCase
 import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
@@ -34,7 +35,7 @@ class HomeViewModel @Inject constructor(
     private val getAndSaveFileSharingStatusUseCase: GetAndSaveFileSharingStatusUseCase
 ) : ViewModel() {
 
-    var userAvatar by mutableStateOf<UserAvatarAsset?>(null)
+    var userAvatar by mutableStateOf(SelfUserData())
         private set
 
     init {
@@ -90,7 +91,7 @@ class HomeViewModel @Inject constructor(
     private suspend fun loadUserAvatar() {
         viewModelScope.launch {
             getSelf().collect { selfUser ->
-                userAvatar = selfUser.previewPicture?.let { UserAvatarAsset(it) }
+                userAvatar = SelfUserData(selfUser.previewPicture?.let { UserAvatarAsset(it) }, selfUser.availabilityStatus)
             }
         }
     }
@@ -115,3 +116,8 @@ class HomeViewModel @Inject constructor(
         const val MY_USER_PROFILE_SUBROUTE = "myUserProfile"
     }
 }
+
+data class SelfUserData(
+    val avatarAsset: UserAvatarAsset? = null,
+    val status: UserAvailabilityStatus = UserAvailabilityStatus.NONE
+)

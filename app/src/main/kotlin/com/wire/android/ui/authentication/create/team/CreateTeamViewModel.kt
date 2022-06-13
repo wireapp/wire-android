@@ -1,6 +1,7 @@
 package com.wire.android.ui.authentication.create.team
 
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.navigation.BackStackMode
@@ -14,31 +15,35 @@ import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import com.wire.kalium.logic.feature.register.RegisterAccountUseCase
 import com.wire.kalium.logic.feature.register.RequestActivationCodeUseCase
+import com.wire.kalium.logic.feature.session.RegisterTokenUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @Suppress("LongParameterList")
-@OptIn(ExperimentalMaterialApi::class)
 @HiltViewModel
 class CreateTeamViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
     validateEmailUseCase: ValidateEmailUseCase,
     validatePasswordUseCase: ValidatePasswordUseCase,
     requestActivationCodeUseCase: RequestActivationCodeUseCase,
     addAuthenticatedUserUseCase: AddAuthenticatedUserUseCase,
     registerAccountUseCase: RegisterAccountUseCase,
-    clientScopeProviderFactory: ClientScopeProvider.Factory
+    clientScopeProviderFactory: ClientScopeProvider.Factory,
+    pushTokenUseCase: RegisterTokenUseCase
 ) : CreateAccountBaseViewModel(
     CreateAccountFlowType.CreateTeam,
+    savedStateHandle,
     navigationManager,
     validateEmailUseCase,
     validatePasswordUseCase,
     requestActivationCodeUseCase,
     addAuthenticatedUserUseCase,
     registerAccountUseCase,
-    clientScopeProviderFactory
+    clientScopeProviderFactory,
+    pushTokenUseCase
 ) {
     var moveToStep = MutableSharedFlow<CreateTeamNavigationItem>()
     var moveBack = MutableSharedFlow<Unit>()

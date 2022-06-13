@@ -37,7 +37,6 @@ import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.navigation.ConversationsNavigationItem
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 
 @ExperimentalAnimationApi
 @ExperimentalMaterial3Api
@@ -47,9 +46,9 @@ import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 // also we expose the lambda which expands the bottomsheet from the homescreen
 @Composable
 fun ConversationRouterHomeBridge(
-    onHomeBottomSheetContentChange: (@Composable ColumnScope.() -> Unit) -> Unit,
+    onHomeBottomSheetContentChanged : (@Composable ColumnScope.() -> Unit) -> Unit,
     onBottomSheetVisibilityChanged: () -> Unit,
-    onScrollPositionChanged: (Int) -> Unit
+    onScrollPositionProviderChanged: (() -> Int) -> Unit
 ) {
     val viewModel: ConversationListViewModel = hiltViewModel()
     val conversationState = remember {
@@ -64,7 +63,7 @@ fun ConversationRouterHomeBridge(
     // to pass the new Composable
     LaunchedEffect(conversationState.conversationSheetContent) {
         conversationState.conversationSheetContent?.let { conversationSheetContent ->
-            onHomeBottomSheetContentChange {
+            onHomeBottomSheetContentChanged {
                 ConversationSheetContent(
                     conversationSheetContent = conversationSheetContent,
                     conversationOptionSheetState = conversationOptionSheetState,
@@ -93,7 +92,7 @@ fun ConversationRouterHomeBridge(
             conversationState.changeModalSheetContentState(conversationItem)
             onBottomSheetVisibilityChanged()
         },
-        onScrollPositionChanged = onScrollPositionChanged,
+        onScrollPositionProviderChanged = onScrollPositionProviderChanged,
         onError = onBottomSheetVisibilityChanged,
         openProfile = viewModel::openUserProfile,
         onEditNotifications = { conversationItem ->
@@ -115,7 +114,7 @@ private fun ConversationRouter(
     openNewConversation: () -> Unit,
     onEditConversationItem: (ConversationItem) -> Unit,
     onEditNotifications: (ConversationItem) -> Unit,
-    onScrollPositionChanged: (Int) -> Unit,
+    onScrollPositionProviderChanged: (() -> Int) -> Unit,
     onError: () -> Unit,
     openProfile: (UserId) -> Unit,
 ) {
@@ -176,7 +175,7 @@ private fun ConversationRouter(
                             conversations = conversations,
                             onOpenConversation = openConversation,
                             onEditConversation = onEditConversationItem,
-                            onScrollPositionChanged = onScrollPositionChanged,
+                            onScrollPositionProviderChanged = onScrollPositionProviderChanged,
                             onOpenUserProfile = openProfile,
                             onOpenConversationNotificationsSettings = onEditNotifications
                         )
@@ -190,7 +189,7 @@ private fun ConversationRouter(
                             callHistory = callHistory,
                             onCallItemClick = openConversation,
                             onEditConversationItem = onEditConversationItem,
-                            onScrollPositionChanged = onScrollPositionChanged,
+                            onScrollPositionProviderChanged = onScrollPositionProviderChanged,
                             onOpenUserProfile = openProfile,
                             openConversationNotificationsSettings = onEditNotifications
                         )
@@ -204,7 +203,7 @@ private fun ConversationRouter(
                             allMentions = allMentions,
                             onMentionItemClick = openConversation,
                             onEditConversationItem = onEditConversationItem,
-                            onScrollPositionChanged = onScrollPositionChanged,
+                            onScrollPositionProviderChanged = onScrollPositionProviderChanged,
                             onOpenUserProfile = openProfile,
                             openConversationNotificationsSettings = onEditNotifications
                         )

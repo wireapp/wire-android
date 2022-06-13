@@ -13,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.ui.common.ArrowRightIcon
+import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.MenuItemIcon
@@ -45,7 +46,7 @@ internal fun HomeSheetContent(
                         .conversationColor(id = conversationSheetContent.conversationTypeDetail.conversationId)
                 )
             } else if (conversationSheetContent.conversationTypeDetail is ConversationTypeDetail.Private) {
-                UserProfileAvatar(userAvatarAsset = conversationSheetContent.conversationTypeDetail.avatarAsset)
+                UserProfileAvatar(avatarData = UserAvatarData(conversationSheetContent.conversationTypeDetail.avatarAsset))
             }
         },
         menuItems = listOf(

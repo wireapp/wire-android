@@ -10,16 +10,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
-import com.wire.android.model.UserStatus
+import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.android.ui.theme.wireColorScheme
 
 @Composable
-fun UserStatusIndicator(status: UserStatus, modifier: Modifier = Modifier) {
+fun UserStatusIndicator(status: UserAvailabilityStatus, modifier: Modifier = Modifier) {
     when (status) {
-        UserStatus.AVAILABLE -> AvailableDot(modifier)
-        UserStatus.BUSY -> BusyDot(modifier)
-        UserStatus.AWAY -> AwayDot(modifier)
-        UserStatus.NONE -> None()
+        UserAvailabilityStatus.AVAILABLE -> AvailableDot(modifier)
+        UserAvailabilityStatus.BUSY -> BusyDot(modifier)
+        UserAvailabilityStatus.AWAY -> AwayDot(modifier)
+        UserAvailabilityStatus.NONE -> None()
     }
 }
 
@@ -73,23 +73,23 @@ private fun None() {
 @Preview(name = "AvailablePreview")
 @Composable
 private fun AvailablePreview() {
-    UserStatusIndicator(UserStatus.AVAILABLE)
+    UserStatusIndicator(UserAvailabilityStatus.AVAILABLE)
 }
 
 @Preview(name = "BusyPreview")
 @Composable
 private fun BusyPreview() {
-    UserStatusIndicator(UserStatus.BUSY)
+    UserStatusIndicator(UserAvailabilityStatus.BUSY)
 }
 
 @Preview(name = "AwayPreview")
 @Composable
 private fun AwayPreview() {
-    UserStatusIndicator(UserStatus.AWAY)
+    UserStatusIndicator(UserAvailabilityStatus.AWAY)
 }
 
 @Preview(name = "NonePreview")
 @Composable
 private fun NonePreview() {
-    UserStatusIndicator(UserStatus.NONE)
+    UserStatusIndicator(UserAvailabilityStatus.NONE)
 }

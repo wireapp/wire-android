@@ -30,7 +30,7 @@ jobs:
           branch: ${{env.PLAYTEST_BRANCH_NAME}}
       - name: Automatically Create a named playtest branch
         uses: peterjgrainger/action-create-branch@v2.2.0
-        if: "${{ github.event.inputs.playtest-branch-manual-name != '' }}"
+        if: "${{ github.event.inputs.playtest-branch-manual-name == '' }}"
         env:
           PLAYTEST_BRANCH_NAME: playtest/${{ steps.date.outputs.date }}
         with:

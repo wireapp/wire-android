@@ -101,7 +101,7 @@ internal fun WireDropdown(
                     modifier = Modifier
                         .padding(top = 1.dp)
                         .align(Alignment.CenterHorizontally).fillMaxWidth(),
-                    text = if (selectedIndex != -1) items[selectedIndex] else placeHolderText,
+                    text = if (selectedIndex != -1) "${items[selectedIndex]} $defaultText" else placeHolderText,
                     style = MaterialTheme.wireTypography.body01,
                     color = MaterialTheme.wireColorScheme.onSecondaryButtonEnabled
                 )

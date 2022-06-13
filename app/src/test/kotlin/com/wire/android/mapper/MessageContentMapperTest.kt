@@ -4,6 +4,7 @@ import android.content.res.Resources
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.framework.TestMessage
 import com.wire.android.framework.TestUser
+import com.wire.android.util.time.ISOFormatter
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.Member
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -37,7 +38,7 @@ class MessageContentMapperTest {
         // When
         val selfName = mapper.toSystemMessageMemberName(selfMemberDetails, MessageContentMapper.SelfNameType.NameOrDeleted)
         val selfResLower = mapper.toSystemMessageMemberName(selfMemberDetails, MessageContentMapper.SelfNameType.ResourceLowercase)
-        val selfResTitle = mapper.toSystemMessageMemberName(selfMemberDetails, MessageContentMapper.SelfNameType.ResourceTitlecase)
+        val selfResTitle = mapper.toSystemMessageMemberName(selfMemberDetails, MessageContentMapper.SelfNameType.ResourceTitleCase)
         val deleted = mapper.toSystemMessageMemberName(deletedMemberDetails, MessageContentMapper.SelfNameType.NameOrDeleted)
         val otherName = mapper.toSystemMessageMemberName(otherMemberDetails, MessageContentMapper.SelfNameType.NameOrDeleted)
         // Then
@@ -145,9 +146,14 @@ class MessageContentMapperTest {
         lateinit var messageResourceProvider: MessageResourceProvider
 
         @MockK
+        lateinit var isoFormatter: ISOFormatter
+
+        @MockK
         lateinit var resources: Resources
 
-        private val messageContentMapper by lazy { MessageContentMapper(getMessageAssetUseCase, messageResourceProvider) }
+        private val messageContentMapper by lazy {
+            MessageContentMapper(isoFormatter, getMessageAssetUseCase, messageResourceProvider)
+        }
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)

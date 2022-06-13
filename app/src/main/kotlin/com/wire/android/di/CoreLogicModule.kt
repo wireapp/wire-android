@@ -29,6 +29,7 @@ import com.wire.kalium.logic.feature.publicuser.GetKnownUserUseCase
 import com.wire.kalium.logic.feature.publicuser.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.SearchUserDirectoryUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
+import com.wire.kalium.logic.feature.session.RegisterTokenUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.UploadUserAvatarUseCase
@@ -114,7 +115,6 @@ class ConnectionModule {
     fun acceptConnectionRequestUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).connection.acceptConnectionRequest
 }
-
 
 @Module
 @InstallIn(ViewModelComponent::class)
@@ -466,5 +466,13 @@ class UseCaseModule {
     fun getBuildConfigUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic) =
         coreLogic.getGlobalScope().buildConfigs
 
+    @ViewModelScoped
+    @Provides
+    fun updateSelfAvailabilityStatusUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).users.updateSelfAvailabilityStatus
 
+    @ViewModelScoped
+    @Provides
+    fun registerTokenUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): RegisterTokenUseCase =
+        coreLogic.getSessionScope(currentAccount).client.registerPushToken
 }

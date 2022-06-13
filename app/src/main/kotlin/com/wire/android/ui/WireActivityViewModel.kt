@@ -133,9 +133,18 @@ class WireActivityViewModel @Inject constructor(
         return@runBlocking when (val result = getServerConfigUseCase(url)) {
             is GetServerConfigResult.Success -> result.serverConfig.links
             // TODO: show error message on failure
-            is GetServerConfigResult.Failure.Generic -> null
-            GetServerConfigResult.Failure.TooNewVersion -> null
-            GetServerConfigResult.Failure.UnknownServerVersion -> null
+            is GetServerConfigResult.Failure.Generic -> {
+                appLogger.e("something went wrong during handling the scustom server deep link: ${result.genericFailure}")
+                null
+            }
+            GetServerConfigResult.Failure.TooNewVersion -> {
+                appLogger.e("server version is too new")
+                null
+            }
+            GetServerConfigResult.Failure.UnknownServerVersion -> {
+                appLogger.e("unknown server version")
+                null
+            }
         }
     }
 

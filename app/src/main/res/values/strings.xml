@@ -28,6 +28,7 @@
     <string name="label_show">Show</string>
     <string name="label_show_all">Show All</string>
     <string name="label_show_less">Show Less</string>
+    <string name="label_message_status_edited_with_date">Edited on %s</string>
 
     <!-- Content descriptions -->
     <string name="content_description_search_back">Search back icon</string>

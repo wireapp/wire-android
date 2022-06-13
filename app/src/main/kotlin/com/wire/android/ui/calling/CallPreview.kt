@@ -15,6 +15,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.viewinterop.AndroidView
 import com.waz.avs.VideoPreview
 import com.wire.android.model.ImageAsset
+import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireTypography
@@ -58,7 +59,7 @@ fun CallPreview(
             )
             if (!isCameraOn)
                 UserProfileAvatar(
-                    userAvatarAsset = avatarAssetId,
+                    avatarData = UserAvatarData(avatarAssetId),
                     size = dimensions().initiatingCallUserAvatarSize,
                     modifier = Modifier.padding(top = dimensions().spacing16x)
                 )

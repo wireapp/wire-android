@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.login.LoginError
@@ -28,12 +29,13 @@ class LoginEmailViewModel @Inject constructor(
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
     clientScopeProviderFactory: ClientScopeProvider.Factory,
     private val savedStateHandle: SavedStateHandle,
-    navigationManager: NavigationManager
-) : LoginViewModel(navigationManager, clientScopeProviderFactory) {
+    navigationManager: NavigationManager,
+    authServerConfigProvider: AuthServerConfigProvider
+) : LoginViewModel(navigationManager, clientScopeProviderFactory, authServerConfigProvider) {
 
     var loginState by mutableStateOf(
         LoginEmailState(
-            userIdentifier = TextFieldValue(savedStateHandle.get(USER_IDENTIFIER_SAVED_STATE_KEY) ?: String.EMPTY),
+            userIdentifier = TextFieldValue(savedStateHandle[USER_IDENTIFIER_SAVED_STATE_KEY] ?: String.EMPTY),
             password = TextFieldValue(String.EMPTY)
         )
     )
@@ -67,7 +69,10 @@ class LoginEmailViewModel @Inject constructor(
                         updateLoginError(it.toLoginError())
                         return@launch
                     }
-                    is RegisterClientResult.Success -> navigateToConvScreen()
+                    is RegisterClientResult.Success -> {
+                        registerPushToken(storedUserId, it.client.clientId.value)
+                        navigateToConvScreen()
+                    }
                 }
             }
         }

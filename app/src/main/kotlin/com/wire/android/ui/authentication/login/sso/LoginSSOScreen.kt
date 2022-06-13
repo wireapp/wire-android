@@ -1,6 +1,5 @@
 package com.wire.android.ui.authentication.login.sso
 
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
@@ -18,7 +17,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
@@ -59,7 +57,9 @@ fun LoginSSOScreen(
     val context = LocalContext.current
     val loginSSOViewModel: LoginSSOViewModel = hiltViewModel()
     val loginSSOState: LoginSSOState = loginSSOViewModel.loginState
-    loginSSOViewModel.handleSSOResult(ssoLoginResult)
+    LaunchedEffect(ssoLoginResult) {
+        loginSSOViewModel.handleSSOResult(ssoLoginResult)
+    }
     LoginSSOContent(
         scrollState = scrollState,
         loginSSOState = loginSSOState,

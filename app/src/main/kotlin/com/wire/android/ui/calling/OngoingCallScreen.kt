@@ -32,6 +32,7 @@ import com.wire.android.ui.calling.controlButtons.CameraButton
 import com.wire.android.ui.calling.controlButtons.HangUpButton
 import com.wire.android.ui.calling.controlButtons.MicrophoneButton
 import com.wire.android.ui.calling.controlButtons.SpeakerButton
+import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.topappbar.NavigationIconType
@@ -104,7 +105,7 @@ private fun OngoingCallContent(
                     })
                 } else sharedCallingViewModel.clearVideoPreview()
                 UserProfileAvatar(
-                    userAvatarAsset = callState.avatarAssetId,
+                    avatarData = UserAvatarData(callState.avatarAssetId),
                     size = dimensions().onGoingCallUserAvatarSize
                 )
             }

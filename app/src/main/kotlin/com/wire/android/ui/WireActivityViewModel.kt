@@ -72,21 +72,18 @@ class WireActivityViewModel @Inject constructor(
 
     fun handleDeepLink(intent: Intent?) {
         intent?.data?.let { deepLink ->
-            val result = deepLinkProcessor(deepLink)
-            with(result) {
-                when (this) {
-                    is DeepLinkResult.CustomServerConfig ->
-                        loadServerConfig(url)?.let { serverLinks ->
-                            authServerConfigProvider.updateAuthServer(serverLinks)
-                            navigationArguments.put(SERVER_CONFIG_ARG, serverLinks)
-                        }
-                    is DeepLinkResult.SSOLogin ->
-                        navigationArguments.put(SSO_DEEPLINK_ARG, this)
-                    is DeepLinkResult.IncomingCall ->
-                        navigationArguments.put(INCOMING_CALL_CONVERSATION_ID_ARG, this.conversationsId)
-                    DeepLinkResult.Unknown -> {
-                        appLogger.e("unknown deeplink result $this")
+            when (val result = deepLinkProcessor(deepLink)) {
+                is DeepLinkResult.CustomServerConfig ->
+                    loadServerConfig(result.url)?.let { serverLinks ->
+                        authServerConfigProvider.updateAuthServer(serverLinks)
+                        navigationArguments.put(SERVER_CONFIG_ARG, serverLinks)
                     }
+                is DeepLinkResult.SSOLogin ->
+                    navigationArguments.put(SSO_DEEPLINK_ARG, result)
+                is DeepLinkResult.IncomingCall ->
+                    navigationArguments.put(INCOMING_CALL_CONVERSATION_ID_ARG, result.conversationsId)
+                DeepLinkResult.Unknown -> {
+                    appLogger.e("unknown deeplink result $result")
                 }
             }
         }

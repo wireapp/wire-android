@@ -28,6 +28,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@Suppress("LongParameterList")
 @ExperimentalMaterialApi
 @HiltViewModel
 class LoginSSOViewModel @Inject constructor(

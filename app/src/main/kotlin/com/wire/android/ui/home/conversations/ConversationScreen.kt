@@ -68,7 +68,8 @@ fun ConversationScreen(conversationViewModel: ConversationViewModel) {
         onBackButtonClick = conversationViewModel::navigateBack,
         onDeleteMessage = conversationViewModel::showDeleteMessageDialog,
         onCallStart = audioPermissionCheck::launch,
-        onSnackbarMessage = conversationViewModel::onSnackbarMessage
+        onSnackbarMessage = conversationViewModel::onSnackbarMessage,
+        isFileSharingEnabled = conversationViewModel.isFileSharingEnabled()
     )
     DeleteMessageDialog(conversationViewModel = conversationViewModel)
     DownloadedAssetDialog(
@@ -99,7 +100,8 @@ private fun ConversationScreen(
     onBackButtonClick: () -> Unit,
     onDeleteMessage: (String, Boolean) -> Unit,
     onCallStart: () -> Unit,
-    onSnackbarMessage: (ConversationSnackbarMessages) -> Unit
+    onSnackbarMessage: (ConversationSnackbarMessages) -> Unit,
+    isFileSharingEnabled: Boolean
 ) {
     val conversationScreenState = rememberConversationScreenState()
     val scope = rememberCoroutineScope()
@@ -159,7 +161,8 @@ private fun ConversationScreen(
                                 onImageFullScreenMode = onImageFullScreenMode,
                                 conversationState = conversationViewState,
                                 onMessageComposerError = onSnackbarMessage,
-                                conversationScreenState = conversationScreenState
+                                conversationScreenState = conversationScreenState,
+                                isFileSharingEnabled = isFileSharingEnabled
                             )
                         }
                     }
@@ -181,7 +184,8 @@ private fun ConversationScreenContent(
     onImageFullScreenMode: (String, Boolean) -> Unit,
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
     conversationState: ConversationViewState,
-    conversationScreenState: ConversationScreenState
+    conversationScreenState: ConversationScreenState,
+    isFileSharingEnabled: Boolean
 ) {
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -226,7 +230,7 @@ private fun ConversationScreenContent(
             ) {
                 coroutineScope.launch { lazyListState.animateScrollToItem(messages.size) }
             }
-        }
+        }, isFileSharingEnabled = isFileSharingEnabled
     )
 }
 
@@ -288,6 +292,6 @@ fun ConversationScreenPreview() {
             conversationName = "Some test conversation",
             messages = getMockedMessages(),
         ),
-        {}, {}, {}, {}, { _, _ -> }, {}, { _, _ -> }, {}, {}
+        {}, {}, {}, {}, { _, _ -> }, {}, { _, _ -> }, {}, {}, true
     )
 }

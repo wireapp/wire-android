@@ -40,10 +40,12 @@ fun AttachmentOptionsComponent(
     attachmentInnerState: AttachmentInnerState,
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onError: (ConversationSnackbarMessages) -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    isFileSharingEnabled: Boolean
 ) {
     val scope = rememberCoroutineScope()
-    val attachmentOptions = buildAttachmentOptionItems { pickedUri -> scope.launch { attachmentInnerState.pickAttachment(pickedUri) } }
+    val attachmentOptions =
+        buildAttachmentOptionItems(isFileSharingEnabled) { pickedUri -> scope.launch { attachmentInnerState.pickAttachment(pickedUri) } }
     configureStateHandling(attachmentInnerState, onSendAttachment, onError)
 
     LazyVerticalGrid(
@@ -54,7 +56,9 @@ fun AttachmentOptionsComponent(
         horizontalArrangement = Arrangement.SpaceEvenly
     ) {
         attachmentOptions.forEach { option ->
-            item { AttachmentButton(stringResource(option.text), option.icon) { option.onClick() } }
+            if (option.shouldShow) {
+                item { AttachmentButton(stringResource(option.text), option.icon) { option.onClick() } }
+            }
         }
     }
 }
@@ -135,7 +139,10 @@ private fun RecordAudioFlow() =
     )
 
 @Composable
-private fun buildAttachmentOptionItems(onFilePicked: (Uri) -> Unit): List<AttachmentOptionItem> {
+private fun buildAttachmentOptionItems(
+    isFileSharingEnabled: Boolean,
+    onFilePicked: (Uri) -> Unit
+): List<AttachmentOptionItem> {
     val fileFlow = FileBrowserFlow(onFilePicked)
     val galleryFlow = GalleryFlow(onFilePicked)
     val cameraFlow = TakePictureFlow(onFilePicked)
@@ -144,20 +151,28 @@ private fun buildAttachmentOptionItems(onFilePicked: (Uri) -> Unit): List<Attach
     val recordAudioFlow = RecordAudioFlow()
 
     return listOf(
-        AttachmentOptionItem(R.string.attachment_share_file, R.drawable.ic_attach_file) { fileFlow.launch() },
-        AttachmentOptionItem(R.string.attachment_share_image, R.drawable.ic_gallery) { galleryFlow.launch() },
-        AttachmentOptionItem(R.string.attachment_take_photo, R.drawable.ic_camera) { cameraFlow.launch() },
-        AttachmentOptionItem(R.string.attachment_record_video, R.drawable.ic_video) { captureVideoFlow.launch() },
-        AttachmentOptionItem(R.string.attachment_voice_message, R.drawable.ic_mic_on) { recordAudioFlow.launch() },
-        AttachmentOptionItem(R.string.attachment_share_location, R.drawable.ic_location) { shareCurrentLocationFlow.launch() }
+        AttachmentOptionItem(isFileSharingEnabled, R.string.attachment_share_file, R.drawable.ic_attach_file) { fileFlow.launch() },
+        AttachmentOptionItem(isFileSharingEnabled, R.string.attachment_share_image, R.drawable.ic_gallery) { galleryFlow.launch() },
+        AttachmentOptionItem(isFileSharingEnabled, R.string.attachment_take_photo, R.drawable.ic_camera) { cameraFlow.launch() },
+        AttachmentOptionItem(isFileSharingEnabled, R.string.attachment_record_video, R.drawable.ic_video) { captureVideoFlow.launch() },
+        AttachmentOptionItem(isFileSharingEnabled, R.string.attachment_voice_message, R.drawable.ic_mic_on) { recordAudioFlow.launch() },
+        AttachmentOptionItem(
+            text = R.string.attachment_share_location,
+            icon = R.drawable.ic_location
+        ) { shareCurrentLocationFlow.launch() }
     )
 }
 
-private data class AttachmentOptionItem(@StringRes val text: Int, @DrawableRes val icon: Int, val onClick: () -> Unit)
+private data class AttachmentOptionItem(
+    val shouldShow: Boolean = true,
+    @StringRes val text: Int,
+    @DrawableRes val icon: Int,
+    val onClick: () -> Unit
+)
 
 @Preview(showBackground = true)
 @Composable
 fun PreviewAttachmentComponents() {
     val context = LocalContext.current
-    AttachmentOptionsComponent(AttachmentInnerState(context), {}, {})
+    AttachmentOptionsComponent(AttachmentInnerState(context), {}, {}, isFileSharingEnabled = true)
 }

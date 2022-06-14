@@ -7,7 +7,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
-import com.wire.android.mapper.MessageMapper
 import com.wire.android.model.ImageAsset.PrivateAsset
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
@@ -47,6 +46,7 @@ import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
+import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
 import com.wire.kalium.logic.util.toStringDate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
@@ -70,8 +70,9 @@ class ConversationViewModel @Inject constructor(
     private val markMessagesAsNotified: MarkMessagesAsNotifiedUseCase,
     private val updateAssetMessageDownloadStatus: UpdateAssetMessageDownloadStatusUseCase,
     private val getSelfUserTeam: GetSelfTeamUseCase,
-    private val getMessageForConversation : GetMessagesForConversationUseCase,
-    private val fileManager: FileManager
+    private val getMessageForConversation: GetMessagesForConversationUseCase,
+    private val fileManager: FileManager,
+    private val isFileSharingEnabledUseCase: IsFileSharingEnabledUseCase
 ) : ViewModel() {
 
     var conversationViewState by mutableStateOf(ConversationViewState())
@@ -247,6 +248,10 @@ class ConversationViewModel @Inject constructor(
 
     fun hideOnAssetDownloadedDialog() {
         conversationViewState = conversationViewState.copy(downloadedAssetDialogState = Hidden)
+    }
+
+    fun isFileSharingEnabled(): Boolean {
+        return isFileSharingEnabledUseCase.invoke()
     }
 
     private fun getAssetLimitInBytes(): Int {

@@ -49,7 +49,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun CreateAccountDetailsScreen(viewModel: CreateAccountDetailsViewModel, serverConfig: ServerConfig) {
+fun CreateAccountDetailsScreen(viewModel: CreateAccountDetailsViewModel) {
     DetailsContent(
         state = viewModel.detailsState,
         onFirstNameChange = { viewModel.onDetailsChange(it, CreateAccountDetailsViewModel.DetailsFieldType.FirstName) },
@@ -58,7 +58,7 @@ fun CreateAccountDetailsScreen(viewModel: CreateAccountDetailsViewModel, serverC
         onConfirmPasswordChange = { viewModel.onDetailsChange(it, CreateAccountDetailsViewModel.DetailsFieldType.ConfirmPassword) },
         onTeamNameChange = { viewModel.onDetailsChange(it, CreateAccountDetailsViewModel.DetailsFieldType.TeamName) },
         onBackPressed = viewModel::goBackToPreviousStep,
-        onContinuePressed = { viewModel.onDetailsContinue(serverConfig) },
+        onContinuePressed = { viewModel.onDetailsContinue() },
         onErrorDismiss = viewModel::onDetailsErrorDismiss,
     )
 }
@@ -147,7 +147,8 @@ private fun NameTextFields(
                 start = MaterialTheme.wireDimensions.spacing16x,
                 end = MaterialTheme.wireDimensions.spacing16x,
                 bottom = MaterialTheme.wireDimensions.spacing16x
-            ).testTag("firstName")
+            )
+            .testTag("firstName")
             .bringIntoViewOnFocus(coroutineScope)
     )
     WireTextField(
@@ -164,7 +165,8 @@ private fun NameTextFields(
                 end = MaterialTheme.wireDimensions.spacing16x,
                 bottom = MaterialTheme.wireDimensions.spacing16x
             )
-            .bringIntoViewOnFocus(coroutineScope).testTag("lastName")
+            .bringIntoViewOnFocus(coroutineScope)
+            .testTag("lastName")
     )
     if (state.type == CreateAccountFlowType.CreateTeam)
         WireTextField(
@@ -181,7 +183,8 @@ private fun NameTextFields(
                     end = MaterialTheme.wireDimensions.spacing16x,
                     bottom = MaterialTheme.wireDimensions.spacing16x
                 )
-                .bringIntoViewOnFocus(coroutineScope).testTag("teamName")
+                .bringIntoViewOnFocus(coroutineScope)
+                .testTag("teamName")
         )
 }
 
@@ -202,7 +205,8 @@ private fun PasswordTextFields(
         imeAction = ImeAction.Next,
         modifier = Modifier
             .padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
-            .bringIntoViewOnFocus(coroutineScope).testTag("password"),
+            .bringIntoViewOnFocus(coroutineScope)
+            .testTag("password"),
         state = if (state.error is CreateAccountDetailsViewState.DetailsError.None) WireTextFieldState.Default
         else WireTextFieldState.Error()
     )
@@ -218,7 +222,8 @@ private fun PasswordTextFields(
                 horizontal = MaterialTheme.wireDimensions.spacing16x,
                 vertical = MaterialTheme.wireDimensions.spacing16x
             )
-            .bringIntoViewOnFocus(coroutineScope).testTag("confirmPassword"),
+            .bringIntoViewOnFocus(coroutineScope)
+            .testTag("confirmPassword"),
         state = if (state.error is CreateAccountDetailsViewState.DetailsError.TextFieldError) when (state.error) {
             CreateAccountDetailsViewState.DetailsError.TextFieldError.PasswordsNotMatchingError ->
                 WireTextFieldState.Error(stringResource(id = R.string.create_account_details_password_not_matching_error))

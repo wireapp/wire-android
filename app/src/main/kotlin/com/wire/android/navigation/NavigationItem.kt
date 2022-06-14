@@ -80,22 +80,21 @@ enum class NavigationItem(
     Login(
         primaryRoute = LOGIN,
         content = { contentParams ->
-            val serverConfig = contentParams.arguments.filterIsInstance<ServerConfig>().firstOrNull()
             val ssoLoginResult = contentParams.arguments.filterIsInstance<DeepLinkResult.SSOLogin>().firstOrNull()
-            LoginScreen(serverConfig ?: ServerConfig.DEFAULT, ssoLoginResult)
+            LoginScreen(ssoLoginResult)
         },
         animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
     ),
 
     CreateTeam(
         primaryRoute = CREATE_TEAM,
-        content = { CreateTeamScreen(serverConfig = ServerConfig.DEFAULT) },
+        content = { CreateTeamScreen() },
         animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
     ),
 
     CreatePersonalAccount(
         primaryRoute = CREATE_PERSONAL_ACCOUNT,
-        content = { CreatePersonalAccountScreen(ServerConfig.DEFAULT) },
+        content = { CreatePersonalAccountScreen() },
         animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
     ),
 

@@ -7,9 +7,9 @@ interface CreateAccountEmailViewModel {
     val emailState: CreateAccountEmailViewState
     fun onEmailChange(newText: TextFieldValue)
     fun goBackToPreviousStep()
-    fun onEmailContinue(serverConfig: ServerConfig)
+    fun onEmailContinue()
     fun openLogin()
     fun onTermsDialogDismiss()
-    fun onTermsAccept(serverConfig: ServerConfig)
+    fun onTermsAccept()
     fun onEmailErrorDismiss()
 }

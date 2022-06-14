@@ -50,16 +50,14 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun LoginSSOScreen(
-    serverConfig: ServerConfig,
     ssoLoginResult: DeepLinkResult.SSOLogin?,
     scrollState: ScrollState = rememberScrollState()
 ) {
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val loginSSOViewModel: LoginSSOViewModel = hiltViewModel()
-    loginSSOViewModel.updateServerConfig(ssoLoginResult, serverConfig)
     val loginSSOState: LoginSSOState = loginSSOViewModel.loginState
-    LaunchedEffect(ssoLoginResult){
+    LaunchedEffect(ssoLoginResult) {
         loginSSOViewModel.handleSSOResult(ssoLoginResult)
     }
     LoginSSOContent(

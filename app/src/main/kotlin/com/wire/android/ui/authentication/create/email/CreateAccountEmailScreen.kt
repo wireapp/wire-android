@@ -54,17 +54,17 @@ import com.wire.android.util.CustomTabsHelper
 import com.wire.kalium.logic.configuration.server.ServerConfig
 
 @Composable
-fun CreateAccountEmailScreen(viewModel: CreateAccountEmailViewModel, serverConfig: ServerConfig) {
+fun CreateAccountEmailScreen(viewModel: CreateAccountEmailViewModel) {
     EmailContent(
         state = viewModel.emailState,
         onEmailChange = viewModel::onEmailChange,
         onBackPressed = viewModel::goBackToPreviousStep,
-        onContinuePressed = { viewModel.onEmailContinue(serverConfig) },
+        onContinuePressed = { viewModel.onEmailContinue() },
         onLoginPressed = viewModel::openLogin,
         onTermsDialogDismiss = viewModel::onTermsDialogDismiss,
-        onTermsAccept = { viewModel.onTermsAccept(serverConfig) },
+        onTermsAccept = { viewModel.onTermsAccept() },
         onErrorDismiss = viewModel::onEmailErrorDismiss,
-        websiteBaseUrl = serverConfig.websiteUrl
+        websiteBaseUrl = TODO()
     )
 }
 
@@ -102,7 +102,8 @@ private fun EmailContent(
                     .padding(
                         horizontal = MaterialTheme.wireDimensions.spacing16x,
                         vertical = MaterialTheme.wireDimensions.spacing24x
-                    ).testTag("createTeamText")
+                    )
+                    .testTag("createTeamText")
             )
             WireTextField(
                 value = state.email,
@@ -113,7 +114,9 @@ private fun EmailContent(
                 else WireTextFieldState.Error(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Done),
                 keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
-                modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing16x).testTag("emailField")
+                modifier = Modifier
+                    .padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
+                    .testTag("emailField")
             )
             AnimatedVisibility(visible = state.error !is CreateAccountEmailViewState.EmailError.None) {
                 EmailErrorText(state.error)
@@ -238,13 +241,16 @@ private fun TermsConditionsDialog(onDialogDismiss: () -> Unit, onContinuePressed
                 fillMaxWidth = true,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = MaterialTheme.wireDimensions.spacing8x).testTag("cancelButton"),
+                    .padding(bottom = MaterialTheme.wireDimensions.spacing8x)
+                    .testTag("cancelButton"),
             )
             WireSecondaryButton(
                 text = stringResource(R.string.create_account_email_terms_dialog_view_policy),
                 onClick = onViewPolicyPressed,
                 fillMaxWidth = true,
-                modifier = Modifier.fillMaxWidth().testTag("viewTC")
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .testTag("viewTC")
             )
         }
     }

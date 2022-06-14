@@ -58,12 +58,10 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun LoginEmailScreen(
-    serverConfig: ServerConfig,
     scrollState: ScrollState = rememberScrollState()
 ) {
     val scope = rememberCoroutineScope()
     val loginEmailViewModel: LoginEmailViewModel = hiltViewModel()
-    loginEmailViewModel.updateServerConfig(ssoLoginResult = null, serverConfig)
     val loginEmailState: LoginEmailState = loginEmailViewModel.loginState
     LoginEmailContent(
         scrollState = scrollState,
@@ -73,13 +71,12 @@ fun LoginEmailScreen(
         onDialogDismiss = { loginEmailViewModel.onDialogDismiss() },
         onRemoveDeviceOpen = { loginEmailViewModel.onTooManyDevicesError() },
         onLoginButtonClick = suspend { loginEmailViewModel.login() },
-        accountsBaseUrl = loginEmailViewModel.serverConfig.accountsBaseUrl,
+        accountsBaseUrl = loginEmailViewModel.serverConfig.api,
         scope = scope,
         serverTitle = loginEmailViewModel.serverConfig.title
     )
 }
 
-@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun LoginEmailContent(
     scrollState: ScrollState,

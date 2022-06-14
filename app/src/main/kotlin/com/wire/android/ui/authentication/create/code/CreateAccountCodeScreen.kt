@@ -46,11 +46,11 @@ import com.wire.android.util.dialogErrorStrings
 import com.wire.kalium.logic.configuration.server.ServerConfig
 
 @Composable
-fun CreateAccountCodeScreen(viewModel: CreateAccountCodeViewModel, serverConfig: ServerConfig) {
+fun CreateAccountCodeScreen(viewModel: CreateAccountCodeViewModel) {
     CodeContent(
         state = viewModel.codeState,
-        onCodeChange = { viewModel.onCodeChange(it, serverConfig) },
-        onResendCodePressed = { viewModel.resendCode(serverConfig) },
+        onCodeChange = { viewModel.onCodeChange(it) },
+        onResendCodePressed = { viewModel.resendCode() },
         onBackPressed = viewModel::goBackToPreviousStep,
         onErrorDismiss = viewModel::onCodeErrorDismiss,
         onRemoveDeviceOpen = viewModel::onTooManyDevicesError
@@ -79,7 +79,9 @@ private fun CodeContent(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Top,
-            modifier = Modifier.fillMaxHeight().padding(internalPadding)
+            modifier = Modifier
+                .fillMaxHeight()
+                .padding(internalPadding)
         ) {
             Text(
                 text = stringResource(R.string.create_account_code_text, state.email),

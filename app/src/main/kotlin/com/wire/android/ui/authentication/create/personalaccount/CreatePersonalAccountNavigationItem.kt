@@ -9,13 +9,13 @@ import com.wire.android.ui.authentication.create.overview.CreateAccountOverviewS
 import com.wire.kalium.logic.configuration.server.ServerConfig
 
 enum class CreatePersonalAccountNavigationItem(val route: String, val content: @Composable (ContentParams) -> Unit) {
-    Overview("create_personal_account_overview_screen", { CreateAccountOverviewScreen(it.viewModel, it.serverConfig) }),
-    Email("create_personal_account_email_screen", { CreateAccountEmailScreen(it.viewModel, it.serverConfig) }),
-    Details("create_personal_account_details_screen", { CreateAccountDetailsScreen(it.viewModel, it.serverConfig) }),
-    Code("create_personal_account_code_screen", { CreateAccountCodeScreen(it.viewModel, it.serverConfig) })
+    Overview("create_personal_account_overview_screen", { CreateAccountOverviewScreen(it.viewModel) }),
+    Email("create_personal_account_email_screen", { CreateAccountEmailScreen(it.viewModel) }),
+    Details("create_personal_account_details_screen", { CreateAccountDetailsScreen(it.viewModel) }),
+    Code("create_personal_account_code_screen", { CreateAccountCodeScreen(it.viewModel) })
 }
 
-data class ContentParams(val viewModel: CreatePersonalAccountViewModel, val serverConfig: ServerConfig)
+data class ContentParams(val viewModel: CreatePersonalAccountViewModel)
 
 internal fun navigateToItemInCreatePersonalAccount(navController: NavController, item: CreatePersonalAccountNavigationItem) {
     navController.navigate(item.route)

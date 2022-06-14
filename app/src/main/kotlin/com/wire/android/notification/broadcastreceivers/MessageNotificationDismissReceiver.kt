@@ -35,9 +35,9 @@ class MessageNotificationDismissReceiver : BroadcastReceiver() {
                 if (userId != null) {
                     coreLogic.getSessionScope(userId)
                 } else {
-                    val currentSession = coreLogic.getAuthenticationScope().session.currentSession()
+                    val currentSession = coreLogic.globalScope { session.currentSession() }
                     if (currentSession is CurrentSessionResult.Success) {
-                        coreLogic.getSessionScope(currentSession.authSession.userId)
+                        coreLogic.getSessionScope(currentSession.authSession.tokens.userId)
                     } else {
                         null
                     }

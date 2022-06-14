@@ -402,21 +402,21 @@ class UseCaseModule {
     fun turnLoudSpeakerOffUseCaseProvider(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ): TurnLoudSpeakerOffUseCase = coreLogic.getSessionScope(currentAccount).calls.turnLoudSpeakerOffUseCase
+    ): TurnLoudSpeakerOffUseCase = coreLogic.getSessionScope(currentAccount).calls.turnLoudSpeakerOff
 
     @ViewModelScoped
     @Provides
     fun turnLoudSpeakerOnUseCaseProvider(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ): TurnLoudSpeakerOnUseCase = coreLogic.getSessionScope(currentAccount).calls.turnLoudSpeakerOnUseCase
+    ): TurnLoudSpeakerOnUseCase = coreLogic.getSessionScope(currentAccount).calls.turnLoudSpeakerOn
 
     @ViewModelScoped
     @Provides
     fun observeSpeakerUseCaseProvider(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ): ObserveSpeakerUseCase = coreLogic.getSessionScope(currentAccount).calls.observeSpeakerUseCase
+    ): ObserveSpeakerUseCase = coreLogic.getSessionScope(currentAccount).calls.observeSpeaker
 
     @ViewModelScoped
     @Provides

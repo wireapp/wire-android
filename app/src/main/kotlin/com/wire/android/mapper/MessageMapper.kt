@@ -52,7 +52,12 @@ class MessageMapper @Inject constructor(
                     membership = if (sender is MemberDetails.Other) userTypeMapper.toMembership(sender.userType) else Membership.None,
                     isLegalHold = false,
                     time = message.date,
-                    messageStatus = if (message.status == Message.Status.FAILED) MessageStatus.SendFailure else MessageStatus.Untouched,
+                    messageStatus = when {
+                        message.status == Message.Status.FAILED -> MessageStatus.SendFailure
+                        message.content is MessageContent.DeleteMessage -> MessageStatus.Deleted
+                        message.content is MessageContent.TextEdited -> MessageStatus.Edited
+                        else -> MessageStatus.Untouched
+                    },
                     messageId = message.id
                 ),
                 userAvatarData = UserAvatarData(asset = sender.previewAsset)

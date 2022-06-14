@@ -25,6 +25,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
+import com.wire.android.model.Clickable
 import com.wire.android.ui.common.LegalHoldIndicator
 import com.wire.android.ui.common.MembershipQualifierLabel
 import com.wire.android.model.UserAvatarData
@@ -60,11 +61,13 @@ fun MessageItem(
                     bottom = dimensions().messageItemBottomPadding - dimensions().userAvatarClickablePadding
                 )
                 .fillMaxWidth()
-                .combinedClickable(
-                    //TODO: implement some action onClick
-                    onClick = { },
-                    onLongClick = { onLongClicked(message) }
-                )
+                .let {
+                    if (!message.isDeleted) it.combinedClickable(
+                        //TODO: implement some action onClick
+                        onClick = { },
+                        onLongClick = { onLongClicked(message) }
+                    ) else it
+                }
         ) {
             Spacer(Modifier.padding(start = dimensions().spacing8x - dimensions().userAvatarClickablePadding))
             UserProfileAvatar(
@@ -76,8 +79,8 @@ fun MessageItem(
                 MessageHeader(messageHeader)
                 if (!isDeleted) {
                     MessageContent(messageContent,
-                        onAssetClick = { onAssetMessageClicked(message.messageHeader.messageId) },
-                        onImageClick = {
+                        onAssetClick = Clickable(enabled = !isDeleted) { onAssetMessageClicked(message.messageHeader.messageId) },
+                        onImageClick = Clickable(enabled = !isDeleted) {
                             onImageMessageClicked(
                                 message.messageHeader.messageId,
                                 message.messageSource == MessageSource.Self
@@ -145,14 +148,14 @@ private fun Username(username: String) {
 @Composable
 private fun MessageContent(
     messageContent: MessageContent?,
-    onAssetClick: () -> Unit,
-    onImageClick: () -> Unit = {}
+    onAssetClick: Clickable,
+    onImageClick: Clickable = Clickable {}
 ) {
     when (messageContent) {
         is MessageContent.ImageMessage -> MessageImage(
             rawImgData = messageContent.rawImgData,
             imgParams = ImageMessageParams(messageContent.width, messageContent.height),
-            onImageClick = { onImageClick() }
+            onImageClick = onImageClick
         )
         is MessageContent.TextMessage -> MessageBody(
             messageBody = messageContent.messageBody
@@ -163,7 +166,7 @@ private fun MessageContent(
             assetExtension = messageContent.assetExtension,
             assetSizeInBytes = messageContent.assetSizeInBytes,
             assetDownloadStatus = messageContent.downloadStatus,
-            onAssetClick = { onAssetClick() }
+            onAssetClick = onAssetClick
         )
         is MessageContent.EditedMessage -> MessageBody(
             messageBody = messageContent.messageBody,

@@ -133,7 +133,16 @@ enum class NavigationItem(
 
     Home(
         primaryRoute = HOME,
-        content = { HomeScreen(it.navBackStackEntry.arguments?.getString(EXTRA_HOME_TAB_ITEM), hiltViewModel()) },
+        content = {
+            HomeScreen(
+                it.navBackStackEntry.arguments?.getString(EXTRA_HOME_TAB_ITEM),
+                hiltViewModel<com.wire.android.ui.home.HomeViewModel>().apply {
+                    it.navBackStackEntry.savedStateHandle.keys().forEach { key ->
+                        savedStateHandle[key] = it.navBackStackEntry.savedStateHandle.get<Any?>(key)
+                    }
+                    it.navBackStackEntry.arguments?.clear() //TODO this doesn't work
+                }
+            ) },
         animationConfig = NavigationAnimationConfig.DelegatedAnimation
     ),
 
@@ -301,6 +310,8 @@ const val EXTRA_CREATE_ACCOUNT_FLOW_TYPE = "extra_create_account_flow_type"
 const val EXTRA_IMAGE_DATA = "extra_image_data"
 const val EXTRA_MESSAGE_TO_DELETE_ID = "extra_message_to_delete"
 const val EXTRA_MESSAGE_TO_DELETE_IS_SELF = "extra_message_to_delete_is_self"
+
+const val EXTRA_CONNECTION_IGNORED_USER_NAME = "extra_connection_ignored_user_name"
 
 fun NavigationItem.isExternalRoute() = this.getRouteWithArgs().startsWith("http")
 

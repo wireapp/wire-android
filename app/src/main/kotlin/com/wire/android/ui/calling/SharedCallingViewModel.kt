@@ -89,7 +89,8 @@ class SharedCallingViewModel @Inject constructor(
             }?.let {
                 callState = callState.copy(
                     isMuted = it.isMuted,
-                    isCameraOn = it.isCameraOn
+                    isCameraOn = it.isCameraOn,
+                    participants = it.participants
                 )
             }
         }

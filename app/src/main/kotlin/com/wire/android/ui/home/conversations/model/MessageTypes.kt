@@ -87,8 +87,7 @@ internal fun MessageBody(messageBody: MessageBody, editTime: String? = null) {
     }
     LinkifyText(
         text = messageBody.message.asString(),
-        mask = Linkify.WEB_URLS or Linkify.EMAIL_ADDRESSES
-    ,
+        mask = Linkify.WEB_URLS or Linkify.EMAIL_ADDRESSES,
         color = MaterialTheme.colorScheme.onBackground
     )
 }

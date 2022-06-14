@@ -223,8 +223,7 @@ private fun LazyListScope.internalSuccessItem(
         items(if (showAllItems) searchResult else searchResult.take(DEFAULT_SEARCH_RESULT_ITEM_SIZE)) { contact ->
             with(contact) {
                 InternalContactSearchResultItem(
-                    avatarAsset = avatarAsset,
-                    userStatus = userStatus,
+                    avatarData = avatarData,
                     name = name,
                     label = label,
                     searchQuery = searchQuery,
@@ -273,8 +272,7 @@ private fun LazyListScope.externalSuccessItem(
         items(if (showAllItems) searchResult else searchResult.take(DEFAULT_SEARCH_RESULT_ITEM_SIZE)) { contact ->
             with(contact) {
                 ExternalContactSearchResultItem(
-                    avatarAsset = avatarAsset,
-                    userStatus = userStatus,
+                    avatarData = avatarData,
                     name = name,
                     label = label,
                     isConnectedOrPending = contact.isConnectedOrPending,

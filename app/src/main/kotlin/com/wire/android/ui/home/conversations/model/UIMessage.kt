@@ -3,15 +3,14 @@ package com.wire.android.ui.home.conversations.model
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import com.wire.android.R
-import com.wire.android.model.ImageAsset.UserAvatarAsset
-import com.wire.android.model.UserStatus
+import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.user.UserAssetId
 
-data class MessageViewWrapper(
-    val user: User,
+data class UIMessage(
+    val userAvatarData: UserAvatarData,
     val messageSource: MessageSource,
     val messageHeader: MessageHeader,
     val messageContent: MessageContent?,
@@ -44,6 +43,7 @@ sealed class MessageContent {
 
     data class TextMessage(val messageBody: MessageBody) : ClientMessage()
     object DeletedMessage : ClientMessage()
+    data class EditedMessage(val messageBody: MessageBody, val editTimeStamp: String) : MessageContent()
 
     data class AssetMessage(
         val assetName: String,
@@ -67,29 +67,24 @@ sealed class MessageContent {
             return rawImgData.contentHashCode()
         }
     }
-    sealed class ServerMessage(@DrawableRes val iconResId: Int?, @StringRes val stringResId: Int) : MessageContent() {
+    sealed class SystemMessage(@DrawableRes val iconResId: Int?, @StringRes val stringResId: Int) : MessageContent() {
         data class MemberAdded(
             val author: UIText,
             val memberNames: List<UIText>
-            ) : ServerMessage(R.drawable.ic_add, R.string.label_system_message_added)
+            ) : SystemMessage(R.drawable.ic_add, R.string.label_system_message_added)
         data class MemberRemoved(
             val author: UIText,
             val memberNames: List<UIText>
-            ) : ServerMessage(R.drawable.ic_minus, R.string.label_system_message_removed)
+            ) : SystemMessage(R.drawable.ic_minus, R.string.label_system_message_removed)
         data class MemberLeft(
             val author: UIText
-            ) : ServerMessage(R.drawable.ic_minus, R.string.label_system_message_left_the_conversation)
+            ) : SystemMessage(R.drawable.ic_minus, R.string.label_system_message_left_the_conversation)
     }
 
 }
 
 data class MessageBody(
     val message: UIText
-)
-
-data class User(
-    val avatarAsset: UserAvatarAsset?,
-    val availabilityStatus: UserStatus,
 )
 
 enum class MessageSource {

@@ -31,7 +31,7 @@ class ConversationState {
                         conversationId = conversationId,
                         title = conversationInfo.name,
                         mutingConversationState = mutedStatus,
-                        conversationTypeDetail = ConversationTypeDetail.Private(userInfo.avatarAsset)
+                        conversationTypeDetail = ConversationTypeDetail.Private(userAvatarData.asset)
                     )
                 }
             }

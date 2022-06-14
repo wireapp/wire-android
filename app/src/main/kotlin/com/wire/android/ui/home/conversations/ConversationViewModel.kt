@@ -25,12 +25,13 @@ import com.wire.android.ui.home.conversations.DownloadedAssetDialogVisibilitySta
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.ui.home.conversations.model.MessageContent.AssetMessage
+import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
 import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.extractImageParams
 import com.wire.kalium.logic.data.conversation.ConversationDetails
-import com.wire.kalium.logic.data.conversation.MemberDetails
 import com.wire.kalium.logic.data.id.parseIntoQualifiedID
+import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.FAILED
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.IN_PROGRESS
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.SAVED_EXTERNALLY
@@ -43,19 +44,13 @@ import com.wire.kalium.logic.feature.asset.SendImageMessageResult
 import com.wire.kalium.logic.feature.asset.SendImageMessageUseCase
 import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
-import com.wire.kalium.logic.feature.conversation.ObserveMemberDetailsByIdsUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
-import com.wire.kalium.logic.feature.message.GetRecentMessagesUseCase
 import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.util.toStringDate
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -66,9 +61,7 @@ import com.wire.kalium.logic.data.id.QualifiedID as ConversationId
 class ConversationViewModel @Inject constructor(
     val savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
-    private val getMessages: GetRecentMessagesUseCase,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
-    private val observeMemberDetailsByIds: ObserveMemberDetailsByIdsUseCase,
     private val sendImageMessage: SendImageMessageUseCase,
     private val sendAssetMessage: SendAssetMessageUseCase,
     private val sendTextMessage: SendTextMessageUseCase,
@@ -78,8 +71,8 @@ class ConversationViewModel @Inject constructor(
     private val markMessagesAsNotified: MarkMessagesAsNotifiedUseCase,
     private val updateAssetMessageDownloadStatus: UpdateAssetMessageDownloadStatusUseCase,
     private val getSelfUserTeam: GetSelfTeamUseCase,
-    private val fileManager: FileManager,
-    private val messageMapper: MessageMapper
+    private val getMessageForConversation : GetMessagesForConversationUseCase,
+    private val fileManager: FileManager
 ) : ViewModel() {
 
     var conversationViewState by mutableStateOf(ConversationViewState())
@@ -105,13 +98,9 @@ class ConversationViewModel @Inject constructor(
     }
 
     // region ------------------------------ Init Methods -------------------------------------
-    @OptIn(ExperimentalCoroutinesApi::class)
     private fun fetchMessages() = viewModelScope.launch {
-        getMessages(conversationId).flatMapLatest { messages ->
-            observeMemberDetailsByIds(messageMapper.memberIdList(messages))
-                .map { members -> messageMapper.toUIMessages(messages, members) }
-        }.flowOn(dispatchers.default()).collect { uiMessages ->
-            conversationViewState = conversationViewState.copy(messages = uiMessages)
+        getMessageForConversation(conversationId).collect { messages ->
+            conversationViewState = conversationViewState.copy(messages = messages)
         }
     }
 
@@ -425,7 +414,6 @@ class ConversationViewModel @Inject constructor(
             )
         }
     }
-    // endregion
 
     companion object {
         const val IMAGE_SIZE_LIMIT_BYTES = 15 * 1024 * 1024 // 15 MB limit for images

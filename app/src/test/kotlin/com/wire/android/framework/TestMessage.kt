@@ -1,13 +1,12 @@
 package com.wire.android.framework
 
-import com.wire.android.model.UserStatus
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.MessageContent.TextMessage
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
-import com.wire.android.ui.home.conversations.model.MessageViewWrapper
-import com.wire.android.ui.home.conversations.model.User
+import com.wire.android.ui.home.conversations.model.UIMessage
+import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.ClientId
@@ -16,10 +15,11 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
+import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 
 object TestMessage {
-    val TEXT_MESSAGE = Message.Client(
+    val TEXT_MESSAGE = Message.Regular(
         id = "messageID",
         content = MessageContent.Text("Some Text Message"),
         conversationId = ConversationId("convo-id", "convo.domain"),
@@ -40,7 +40,7 @@ object TestMessage {
     val ASSET_IMAGE_CONTENT = AssetContent(
         0L, "name", "image", null, ASSET_REMOTE_DATA, Message.DownloadStatus.NOT_DOWNLOADED
     )
-    val MEMBER_REMOVED_MESSAGE = Message.Server(
+    val MEMBER_REMOVED_MESSAGE = Message.System(
         id = "messageID",
         content = MessageContent.MemberChange.Removed(listOf(Member(UserId("user-id", "domain")))),
         conversationId = ConversationId("convo-id", "convo.domain"),
@@ -56,8 +56,8 @@ object TestMessage {
         messageStatus = MessageStatus.Untouched,
         messageId = "messageID"
     )
-    val UI_TEXT_MESSAGE = MessageViewWrapper(
-        user = User(avatarAsset = null, availabilityStatus = UserStatus.NONE),
+    val UI_TEXT_MESSAGE = UIMessage(
+        userAvatarData = UserAvatarData(asset = null, availabilityStatus = UserAvailabilityStatus.NONE),
         messageSource = MessageSource.OtherUser,
         messageHeader = UI_MESSAGE_HEADER,
         messageContent = TextMessage(MessageBody(UIText.DynamicString("Some Text Message")))

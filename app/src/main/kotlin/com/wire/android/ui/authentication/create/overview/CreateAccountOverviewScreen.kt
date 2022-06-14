@@ -29,10 +29,10 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
-import com.wire.kalium.logic.configuration.ServerConfig
+import com.wire.kalium.logic.configuration.server.ServerConfig
 
 @Composable
-fun CreateAccountOverviewScreen(viewModel: CreateAccountOverviewViewModel, serverConfig: ServerConfig) {
+fun CreateAccountOverviewScreen(viewModel: CreateAccountOverviewViewModel) {
     OverviewContent(
         onBackPressed = viewModel::goBackToPreviousStep,
         onContinuePressed = viewModel::onOverviewContinue,
@@ -42,7 +42,7 @@ fun CreateAccountOverviewScreen(viewModel: CreateAccountOverviewViewModel, serve
             contentText = stringResource(id = viewModel.type.overviewResources.overviewContentTextResId),
             contentIconResId = viewModel.type.overviewResources.overviewContentIconResId,
             learnMoreText = stringResource(id = viewModel.type.overviewResources.overviewLearnMoreTextResId),
-            learnMoreUrl = "${serverConfig.websiteUrl}/pricing"
+            learnMoreUrl = TODO("get server config from viewModel  websiteUrl}/pricing")
         )
     )
 }

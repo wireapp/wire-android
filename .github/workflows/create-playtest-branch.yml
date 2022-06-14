@@ -14,6 +14,7 @@ jobs:
     runs-on: ubuntu-latest
     env:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      SLACK_WEBHOOK_URL: ${{ secrets.WIRE_ANDROID_TEAM_WEBHOOK_URL }}
     steps:
       - uses: actions/checkout@v3
         with:
@@ -22,25 +23,27 @@ jobs:
         id: date
         run: echo "::set-output name=date::$(date +'%Y-%m-%d')"
       - name: Manually create a named playtest branch
-        uses: peterjgrainger/action-create-branch@v2.2.0
         if: ${{ github.event.inputs.playtest-branch-manual-name }}  
+        - uses: peterjgrainger/action-create-branch@v2.2.0
+          with:
+            branch: ${{env.PLAYTEST_BRANCH_NAME}}
+         - uses: 8398a7/action-slack@v3
+          with:
+            status: ${{ job.status }}
+            text: "**PLAYTEST BRANCH CREATED** ${{env.PLAYTEST_BRANCH_NAME}} 🚀 - Hotfixes only"
         env:
           PLAYTEST_BRANCH_NAME: playtest/${{ github.event.inputs.playtest-branch-manual-name }}
-        with:
-          branch: ${{env.PLAYTEST_BRANCH_NAME}}
       - name: Automatically Create a named playtest branch
-        uses: peterjgrainger/action-create-branch@v2.2.0
         if: "${{ github.event.inputs.playtest-branch-manual-name == '' }}"
+        - uses: peterjgrainger/action-create-branch@v2.2.0
+          with:
+            branch: ${{env.PLAYTEST_BRANCH_NAME}}
+        - uses: 8398a7/action-slack@v3
+          with:
+            status: ${{ job.status }}
+            text: "**PLAYTEST BRANCH CREATED** ${{env.PLAYTEST_BRANCH_NAME}} 🚀 - Hotfixes only"
         env:
           PLAYTEST_BRANCH_NAME: playtest/${{ steps.date.outputs.date }}
-        with:
-          branch: ${{env.PLAYTEST_BRANCH_NAME}}
 
-      - name: Notify on Wire
-        uses: 8398a7/action-slack@v3
-        with:
-          status: ${{ job.status }}
-          text: "**PLAYTEST BRANCH CREATED** ${{env.PLAYTEST_BRANCH_NAME}} 🚀 - Hotfixes only"
-        env:
-          SLACK_WEBHOOK_URL: ${{ secrets.WIRE_ANDROID_TEAM_WEBHOOK_URL }}
+          
   

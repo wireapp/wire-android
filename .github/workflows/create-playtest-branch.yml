@@ -35,6 +35,7 @@ jobs:
           PLAYTEST_BRANCH_NAME: playtest/${{ steps.date.outputs.date }}
         with:
           branch: ${{env.PLAYTEST_BRANCH_NAME}}
+
       - name: Notify on Wire
         uses: 8398a7/action-slack@v3
         with:

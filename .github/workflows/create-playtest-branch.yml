@@ -36,7 +36,7 @@ jobs:
           PLAYTEST_BRANCH_NAME: playtest/${{ github.event.inputs.playtest-branch-manual-name }}
         with:
           status: ${{ job.status }}
-          text: "**PLAYTEST BRANCH CREATED** ${{env.PLAYTEST_BRANCH_NAME}} 🚀 - Hotfixes only"
+          text: "PLAYTEST BRANCH CREATED **${{env.PLAYTEST_BRANCH_NAME}}** 🚀 - Hotfixes only"
       - name: Automatically Create a named playtest branch
         uses: peterjgrainger/action-create-branch@v2.2.0
         if: "${{ github.event.inputs.playtest-branch-manual-name == '' }}"
@@ -51,4 +51,4 @@ jobs:
           PLAYTEST_BRANCH_NAME: playtest/${{ steps.date.outputs.date }}
         with:
           status: ${{ job.status }}
-          text: "**PLAYTEST BRANCH CREATED** ${{env.PLAYTEST_BRANCH_NAME}} 🚀 - Hotfixes only"
+          text: "PLAYTEST BRANCH CREATED **${{env.PLAYTEST_BRANCH_NAME}}** 🚀 - Hotfixes only"

@@ -13,6 +13,12 @@ on:
         type: string
 
 jobs:
+  run-unit-tests:
+    uses: ./.github/workflows/gradle-run-unit-tests.yml
+    if: github.ref == 'refs/heads/main' && ${{ github.event.inputs.rebase-answer }} == 'y'
+  run-ui-tests:
+    uses: ./.github/workflows/gradle-run-ui-tests.yml
+    if: github.ref == 'refs/heads/main' && ${{ github.event.inputs.rebase-answer }} == 'y'
   rebase-main:
     runs-on: ubuntu-latest
     env:
@@ -24,12 +30,6 @@ jobs:
         with:
           submodules: recursive # Needed in order to fetch Kalium sources for building
           fetch-depth: 0
-      - name: Run unit tests
-        if: github.ref == 'refs/heads/main' && ${{ github.event.inputs.rebase-answer }} == 'y'
-        uses: ./.github/workflows/gradle-run-unit-tests.yml
-      - name: Run UI tests
-        if: github.ref == 'refs/heads/main' && ${{ github.event.inputs.rebase-answer }} == 'y'
-        uses: ./.github/workflows/gradle-run-ui-tests.yml
       - name: Rebase develop onto main
         if: github.ref == 'refs/heads/main' && ${{ github.event.inputs.rebase-answer }} == 'y'
         run: |

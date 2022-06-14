@@ -29,7 +29,7 @@ jobs:
           PLAYTEST_BRANCH_NAME: playtest/${{ github.event.inputs.playtest-branch-manual-name }}
         with:
           branch: ${{env.PLAYTEST_BRANCH_NAME}}
-       - name: Notify on Wire (Manual branch)
+      - name: Notify on Wire (Manual branch)
         uses: 8398a7/action-slack@v3
         if: ${{ github.event.inputs.playtest-branch-manual-name }}
         env:

@@ -19,6 +19,11 @@ jobs:
       GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       SLACK_WEBHOOK_URL: ${{ secrets.WIRE_ANDROID_TEAM_WEBHOOK_URL }}
     steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive # Needed in order to fetch Kalium sources for building
+          fetch-depth: 0
       - name: Run unit tests
         if: github.ref == 'refs/heads/main' && ${{ github.event.inputs.rebase-answer }} == 'y'
         uses: ./.github/workflows/gradle-run-unit-tests.yml
@@ -30,7 +35,7 @@ jobs:
         run: |
           git rebase develop --strategy recursive -Xours
           git push
-      - name: Notify on Wire (Manual branch)
+      - name: Notify on Wire
         uses: 8398a7/action-slack@v3
         if: github.ref == 'refs/heads/main' && ${{ github.event.inputs.rebase-answer }} == 'y'
         with:

@@ -34,13 +34,12 @@ jobs:
       - name: Rebase develop onto main
         if: ${{ github.ref }} == 'refs/heads/main' && ${{ github.event.inputs.rebase-answer }} == 'y'
         run: |
+          git checkout develop
+          git sumodule update
+          git checkout main
+          git sumodule update
           git rebase develop --strategy recursive -Xours
-      - name: Push changes
-        if: ${{ github.ref }} == 'refs/heads/main' && ${{ github.event.inputs.rebase-answer }} == 'y'
-        uses: ad-m/github-push-action@master
-        with:
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-          branch: ${{ github.ref }}
+          git push
       - name: Notify on Wire
         uses: 8398a7/action-slack@v3
         if: ${{ github.ref }} == 'refs/heads/main' && ${{ github.event.inputs.rebase-answer }} == 'y'

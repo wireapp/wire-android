@@ -4,12 +4,14 @@ import android.content.Intent
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
+import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.notification.WireNotificationManager
 import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
+import com.wire.android.util.newServerConfig
 import com.wire.kalium.logic.configuration.server.CommonApiVersionType
 import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
@@ -223,6 +225,9 @@ class WireActivityViewModelTest {
         @MockK
         lateinit var navigationManager: NavigationManager
 
+        @MockK
+        private lateinit var authServerConfigProvider: AuthServerConfigProvider
+
         private val viewModel by lazy {
             WireActivityViewModel(
                 TestDispatcherProvider(),
@@ -230,7 +235,8 @@ class WireActivityViewModelTest {
                 getServerConfigUseCase,
                 deepLinkProcessor,
                 notificationManager,
-                navigationManager
+                navigationManager,
+                authServerConfigProvider
             )
         }
 
@@ -271,23 +277,5 @@ class WireActivityViewModelTest {
                 every { it.data } returns mockk()
             }
         }
-
-        private fun newServerConfig(id: Int) = ServerConfig(
-            id = "config-$id",
-            links = ServerConfig.Links(
-                api = "https://server$id-apiBaseUrl.de/",
-                accounts = "https://server$id-accountBaseUrl.de/",
-                webSocket = "https://server$id-webSocketBaseUrl.de/",
-                blackList = "https://server$id-blackListUrl.de/",
-                teams = "https://server$id-teamsUrl.de/",
-                website = "https://server$id-websiteUrl.de/",
-                title = "server$id-title"
-            ),
-            metaData = ServerConfig.MetaData(
-                commonApiVersion = CommonApiVersionType.Valid(id),
-                domain = "domain$id.com",
-                federation = false
-            )
-        )
     }
 }

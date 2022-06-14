@@ -5,12 +5,14 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.mockUri
+import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.login.LoginError
 import com.wire.android.util.EMPTY
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.deeplink.SSOFailureCodes
+import com.wire.android.util.newServerConfig
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.configuration.server.ServerConfig
@@ -80,6 +82,9 @@ class LoginSSOViewModelTest {
     private lateinit var authSession: AuthSession
 
     @MockK
+    private lateinit var authServerConfigProvider: AuthServerConfigProvider
+
+    @MockK
     private lateinit var navigationManager: NavigationManager
     private lateinit var loginViewModel: LoginSSOViewModel
 
@@ -94,13 +99,15 @@ class LoginSSOViewModelTest {
         every { clientScopeProviderFactory.create(any()).clientScope } returns clientScope
         every { clientScope.register } returns registerClientUseCase
         every { clientScope.registerPushToken } returns registerTokenUseCase
+        every { authServerConfigProvider.authServer.value } returns newServerConfig(1).links
         loginViewModel = LoginSSOViewModel(
             savedStateHandle,
             ssoInitiateLoginUseCase,
             getSSOLoginSessionUseCase,
             addAuthenticatedUserUseCase,
             clientScopeProviderFactory,
-            navigationManager
+            navigationManager,
+            authServerConfigProvider
         )
     }
 
@@ -293,7 +300,7 @@ class LoginSSOViewModelTest {
 
     @Test
     fun `given establishSSOSession is called, when registerTokenUseCase returns PushTokenFailure error, then LoginError is None`() {
-        coEvery { getSSOLoginSessionUseCase.invoke(any(), any()) } returns SSOLoginSessionResult.Success(authSession)
+        coEvery { getSSOLoginSessionUseCase.invoke(any()) } returns SSOLoginSessionResult.Success(authSession)
         coEvery { addAuthenticatedUserUseCase.invoke(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
         coEvery {
             registerClientUseCase.invoke(any())
@@ -307,7 +314,7 @@ class LoginSSOViewModelTest {
         loginViewModel.loginState.loginSSOError shouldBeInstanceOf LoginError.None::class
 
         coVerify(exactly = 1) { navigationManager.navigate(any()) }
-        coVerify(exactly = 1) { getSSOLoginSessionUseCase.invoke(any(), any()) }
+        coVerify(exactly = 1) { getSSOLoginSessionUseCase.invoke(any()) }
         coVerify(exactly = 1) {
             registerClientUseCase.invoke(any())
         }

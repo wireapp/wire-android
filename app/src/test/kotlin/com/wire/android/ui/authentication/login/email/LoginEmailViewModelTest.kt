@@ -5,6 +5,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.mockUri
+import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
@@ -12,6 +13,7 @@ import com.wire.android.navigation.NavigationItemDestinationsRoutes
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.login.LoginError
 import com.wire.android.util.EMPTY
+import com.wire.android.util.newServerConfig
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.client.Client
@@ -80,6 +82,9 @@ class LoginEmailViewModelTest {
     @MockK
     private lateinit var client: Client
 
+    @MockK
+    private lateinit var authServerConfigProvider: AuthServerConfigProvider
+
     private lateinit var loginViewModel: LoginEmailViewModel
 
     private val apiBaseUrl: String = "apiBaseUrl"
@@ -95,12 +100,14 @@ class LoginEmailViewModelTest {
         every { clientScope.register } returns registerClientUseCase
         every { clientScope.registerPushToken } returns registerTokenUseCase
         every { authSession.tokens.userId } returns userId
+        every { authServerConfigProvider.authServer.value } returns newServerConfig(1).links
         loginViewModel = LoginEmailViewModel(
             loginUseCase,
             addAuthenticatedUserUseCase,
             clientScopeProviderFactory,
             savedStateHandle,
-            navigationManager
+            navigationManager,
+            authServerConfigProvider
         )
     }
 

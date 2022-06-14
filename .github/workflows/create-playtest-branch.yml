@@ -33,7 +33,7 @@ jobs:
         uses: 8398a7/action-slack@v3
         if: ${{ github.event.inputs.playtest-branch-manual-name }}
         env:
-          PLAYTEST_BRANCH_NAME: playtest/${{ steps.date.outputs.date }}
+          PLAYTEST_BRANCH_NAME: playtest/${{ github.event.inputs.playtest-branch-manual-name }}
         with:
           status: ${{ job.status }}
           text: "**PLAYTEST BRANCH CREATED** ${{env.PLAYTEST_BRANCH_NAME}} 🚀 - Hotfixes only"

@@ -1,7 +1,6 @@
 package com.wire.android.ui.calling
 
 import android.view.View
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -9,6 +8,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -87,7 +87,7 @@ fun ParticipantTile(
             }
 
             if (isMuted) {
-                Image(
+                Surface(
                     modifier = Modifier
                         .padding(
                             start = MaterialTheme.wireDimensions.spacing8x,
@@ -97,9 +97,20 @@ fun ParticipantTile(
                             bottom.linkTo(parent.bottom)
                             start.linkTo(parent.start)
                         },
-                    imageVector = ImageVector.vectorResource(id = R.drawable.ic_participant_muted),
-                    contentDescription = stringResource(R.string.calling_content_description_participant_muted)
-                )
+                    color = Color.Black,
+                    shape = RoundedCornerShape(MaterialTheme.wireDimensions.corner6x)
+                ) {
+                    Icon(
+                        modifier = Modifier
+                            .padding(
+                                MaterialTheme.wireDimensions.spacing6x
+                            ),
+                        imageVector = ImageVector.vectorResource(id = R.drawable.ic_participant_muted),
+                        tint = MaterialTheme.wireColorScheme.muteButtonColor,
+                        contentDescription = stringResource(R.string.calling_content_description_participant_muted)
+                    )
+                }
+
             }
 
             Surface(

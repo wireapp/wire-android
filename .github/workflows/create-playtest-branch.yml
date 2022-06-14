@@ -59,4 +59,4 @@ jobs:
           PLAYTEST_BRANCH_NAME: playtest/${{ steps.date.outputs.date }}
         with:
           status: ${{ job.status }}
-          text: "Playtest branch **${{env.PLAYTEST_BRANCH_NAME}}** created 🚀 - Hotfixes only on this branch
+          text: "Playtest branch **${{env.PLAYTEST_BRANCH_NAME}}** created 🚀 - Hotfixes only on this branch"

@@ -26,6 +26,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import com.waz.avs.VideoPreview
 import com.wire.android.R
 import com.wire.android.model.ImageAsset
+import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireColorScheme
@@ -81,7 +82,7 @@ fun ParticipantTile(
                     UserProfileAvatar(
                         modifier = Modifier.padding(top = dimensions().spacing16x),
                         size = dimensions().onGoingCallUserAvatarSize,
-                        userAvatarAsset = participantAvatar
+                        avatarData = UserAvatarData(participantAvatar)
                     )
                 }
             }
@@ -142,4 +143,4 @@ fun ParticipantTile(
 @Preview
 @Composable
 @Suppress("EmptyFunctionBlock")
-private fun ParticipantTilePreview() { }
+private fun ParticipantTilePreview() {}

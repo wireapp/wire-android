@@ -9,7 +9,9 @@ import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.MessageContent.TextMessage
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
+import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.util.time.ISOFormatter
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.Member
 import com.wire.kalium.logic.data.message.Message
@@ -17,6 +19,7 @@ import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.user.UserId
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
@@ -54,27 +57,34 @@ class MessageMapperTest {
         val (arrangement, mapper) = Arrangement().arrange()
         val userId1 = UserId("user-id1", "user-domain")
         val userId2 = UserId("user-id2", "user-domain")
-        val message1 = TestMessage.TEXT_MESSAGE.copy(senderUserId = userId1, status = Message.Status.READ, date = "date1")
-        val message2 = TestMessage.TEXT_MESSAGE.copy(senderUserId = userId2, status = Message.Status.FAILED, date = "date2")
-        val messages = listOf(message1, message2)
+        val message1 = arrangement.testMessage(id = 1, senderUserId = userId1)
+        val message2 = arrangement.testMessage(id = 2, senderUserId = userId2, status = Message.Status.FAILED)
+        val message3 = arrangement.testMessage(
+            id = 3, senderUserId = userId1, editStatus = Message.EditStatus.Edited("edited-date3")
+        )
+        val message4 = arrangement.testMessage(id = 4, senderUserId = userId1, visibility = Message.Visibility.DELETED)
+        val messages = listOf(message1, message2, message3, message4)
         val member1 = TestUser.MEMBER_SELF.copy(TestUser.SELF_USER.copy(id = userId1))
         val member2 = TestUser.MEMBER_OTHER.copy(TestUser.OTHER_USER.copy(id = userId2))
         val members = listOf(member1, member2)
         // When
-        val result = mapper.toUIMessages(members,messages)
+        val result = mapper.toUIMessages(members, messages)
         // Then
-        assert(
-            result.size == 2
-                    && result[0].messageSource == MessageSource.Self
-                    && result[0].messageHeader.membership == Membership.None
-                    && result[0].messageHeader.time == message1.date
-                    && result[0].messageHeader.messageStatus == MessageStatus.Untouched
-                    && result[1].messageSource == MessageSource.OtherUser
-                    && result[1].messageHeader.membership == Membership.Guest
-                    && result[1].messageHeader.time == message2.date
-                    && result[1].messageHeader.messageStatus == MessageStatus.SendFailure
-        )
+        assert(result.size == 4)
+        assert(checkMessageData(result[0], message1.date))
+        assert(checkMessageData(result[1], message2.date, MessageSource.OtherUser, Membership.Guest, MessageStatus.SendFailure))
+        assert(checkMessageData(result[2], message3.date, status = MessageStatus.Edited("formatted-edited-date3")))
+        assert(checkMessageData(result[3], message4.date, status = MessageStatus.Deleted))
     }
+
+    private fun checkMessageData(
+        uiMessage: UIMessage,
+        time: String,
+        source: MessageSource = MessageSource.Self,
+        membership: Membership = Membership.None,
+        status: MessageStatus = MessageStatus.Untouched
+    ) = uiMessage.messageSource == source && uiMessage.messageHeader.membership == membership
+                && uiMessage.messageHeader.time == time && uiMessage.messageHeader.messageStatus == status
 
     private class Arrangement {
         @MockK
@@ -84,9 +94,12 @@ class MessageMapperTest {
         lateinit var messageContentMapper: MessageContentMapper
 
         @MockK
+        lateinit var isoFormatter: ISOFormatter
+
+        @MockK
         lateinit var resources: Resources
 
-        private val messageMapper by lazy { MessageMapper(TestDispatcherProvider(), userTypeMapper, messageContentMapper) }
+        private val messageMapper by lazy { MessageMapper(TestDispatcherProvider(), userTypeMapper, messageContentMapper, isoFormatter) }
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
@@ -95,8 +108,23 @@ class MessageMapperTest {
                 MessageBody(UIText.DynamicString("some message text"))
             )
             coEvery { messageContentMapper.toSystemMessageMemberName(any(), any()) } returns UIText.DynamicString("username")
+            every { isoFormatter.fromISO8601ToTimeFormat(any()) } answers { "formatted-" + firstArg() }
         }
 
         fun arrange() = this to messageMapper
+
+        fun testMessage(
+            id: Int,
+            senderUserId: UserId,
+            status: Message.Status = Message.Status.READ,
+            visibility: Message.Visibility = Message.Visibility.VISIBLE,
+            editStatus: Message.EditStatus = Message.EditStatus.NotEdited
+        ): Message.Regular = TestMessage.TEXT_MESSAGE.copy(
+            senderUserId = senderUserId,
+            status = status,
+            date = "date$id",
+            visibility = visibility,
+            editStatus = editStatus
+        )
     }
 }

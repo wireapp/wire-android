@@ -29,12 +29,14 @@ data class MessageHeader(
     val messageId: String
 )
 
-enum class MessageStatus(val stringResourceId: Int) {
-    Untouched(-1),
-    Deleted(R.string.label_message_status_deleted),
-    Edited(R.string.label_message_status_edited),
-    SendFailure(R.string.label_message_sent_failure),
-    ReceiveFailure(R.string.label_message_receive_failure)
+
+sealed class MessageStatus(val text: UIText) {
+    object Untouched : MessageStatus(UIText.DynamicString(""))
+    object Deleted : MessageStatus(UIText.StringResource(R.string.deleted_message_text))
+    data class Edited(val formattedEditTimeStamp: String) :
+        MessageStatus(UIText.StringResource(R.string.label_message_status_edited_with_date, formattedEditTimeStamp))
+    object SendFailure : MessageStatus(UIText.StringResource(R.string.label_message_sent_failure))
+    object ReceiveFailure : MessageStatus(UIText.StringResource(R.string.label_message_receive_failure))
 }
 
 sealed class MessageContent {
@@ -42,8 +44,6 @@ sealed class MessageContent {
     sealed class ClientMessage : MessageContent()
 
     data class TextMessage(val messageBody: MessageBody) : ClientMessage()
-    object DeletedMessage : ClientMessage()
-    data class EditedMessage(val messageBody: MessageBody, val editTimeStamp: String) : MessageContent()
 
     data class AssetMessage(
         val assetName: String,
@@ -67,18 +67,21 @@ sealed class MessageContent {
             return rawImgData.contentHashCode()
         }
     }
+
     sealed class SystemMessage(@DrawableRes val iconResId: Int?, @StringRes val stringResId: Int) : MessageContent() {
         data class MemberAdded(
             val author: UIText,
             val memberNames: List<UIText>
-            ) : SystemMessage(R.drawable.ic_add, R.string.label_system_message_added)
+        ) : SystemMessage(R.drawable.ic_add, R.string.label_system_message_added)
+
         data class MemberRemoved(
             val author: UIText,
             val memberNames: List<UIText>
-            ) : SystemMessage(R.drawable.ic_minus, R.string.label_system_message_removed)
+        ) : SystemMessage(R.drawable.ic_minus, R.string.label_system_message_removed)
+
         data class MemberLeft(
             val author: UIText
-            ) : SystemMessage(R.drawable.ic_minus, R.string.label_system_message_left_the_conversation)
+        ) : SystemMessage(R.drawable.ic_minus, R.string.label_system_message_left_the_conversation)
     }
 
 }

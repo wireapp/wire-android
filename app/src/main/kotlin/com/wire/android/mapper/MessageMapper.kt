@@ -13,6 +13,7 @@ import com.wire.kalium.logic.data.message.Message
 import com.wire.android.R
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.name
+import com.wire.android.util.time.ISOFormatter
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.message.MessageContent
 import kotlinx.coroutines.withContext
@@ -22,6 +23,7 @@ class MessageMapper @Inject constructor(
     private val dispatcherProvider: DispatcherProvider,
     private val userTypeMapper: UserTypeMapper,
     private val messageContentMapper: MessageContentMapper,
+    private val isoFormatter: ISOFormatter
 ) {
 
     fun memberIdList(messages: List<Message>) = messages.flatMap { message ->
@@ -54,8 +56,11 @@ class MessageMapper @Inject constructor(
                     time = message.date,
                     messageStatus = when {
                         message.status == Message.Status.FAILED -> MessageStatus.SendFailure
-                        message.content is MessageContent.DeleteMessage -> MessageStatus.Deleted
-                        message.content is MessageContent.TextEdited -> MessageStatus.Edited
+                        message.visibility == Message.Visibility.DELETED -> MessageStatus.Deleted
+                        message is Message.Regular && message.editStatus is Message.EditStatus.Edited ->
+                            MessageStatus.Edited(isoFormatter.fromISO8601ToTimeFormat(
+                                utcISO = (message.editStatus as Message.EditStatus.Edited).lastTimeStamp)
+                            )
                         else -> MessageStatus.Untouched
                     },
                     messageId = message.id

@@ -103,7 +103,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             membership = Membership.External,
             isLegalHold = false,
             time = "12.23pm",
-            messageStatus = MessageStatus.Edited,
+            messageStatus = MessageStatus.Edited("May 31, 2022 12.24pm"),
             messageId = ""
         ),
         messageContent = mockedImg,
@@ -116,7 +116,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             membership = Membership.External,
             isLegalHold = false,
             time = "12.23pm",
-            messageStatus = MessageStatus.Edited,
+            messageStatus = MessageStatus.Edited("May 31, 2022 12.24pm"),
             messageId = ""
         ),
         messageContent = mockedImg,
@@ -151,7 +151,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             membership = Membership.External,
             isLegalHold = false,
             time = "12.23pm",
-            messageStatus = MessageStatus.Edited,
+            messageStatus = MessageStatus.Edited("May 31, 2022 12.24pm"),
             messageId = ""
         ),
         messageContent = mockedImg,
@@ -164,7 +164,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             membership = Membership.External,
             isLegalHold = false,
             time = "12.23pm",
-            messageStatus = MessageStatus.Edited,
+            messageStatus = MessageStatus.Edited("May 31, 2022 12.24pm"),
             messageId = ""
         ),
         messageContent = MessageContent.TextMessage(

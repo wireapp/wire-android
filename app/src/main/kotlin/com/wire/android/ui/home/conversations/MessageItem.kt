@@ -31,7 +31,6 @@ import com.wire.android.ui.common.MembershipQualifierLabel
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.home.conversations.model.DeletedMessage
 import com.wire.android.ui.home.conversations.model.ImageMessageParams
 import com.wire.android.ui.home.conversations.model.MessageAsset
 import com.wire.android.ui.home.conversations.model.MessageBody
@@ -121,9 +120,7 @@ time, modifier = Modifier
 */
             }
         }
-        if (messageStatus != MessageStatus.Untouched) {
-            MessageStatusLabel(messageStatus = messageStatus)
-        }
+        MessageStatusLabel(messageStatus = messageStatus)
     }
 }
 
@@ -160,17 +157,12 @@ private fun MessageContent(
         is MessageContent.TextMessage -> MessageBody(
             messageBody = messageContent.messageBody
         )
-        is MessageContent.DeletedMessage -> DeletedMessage()
         is MessageContent.AssetMessage -> MessageAsset(
             assetName = messageContent.assetName.split(".").dropLast(1).joinToString("."),
             assetExtension = messageContent.assetExtension,
             assetSizeInBytes = messageContent.assetSizeInBytes,
             assetDownloadStatus = messageContent.downloadStatus,
             onAssetClick = onAssetClick
-        )
-        is MessageContent.EditedMessage -> MessageBody(
-            messageBody = messageContent.messageBody,
-            editTime = messageContent.editTimeStamp
         )
         else -> {}
     }
@@ -181,43 +173,49 @@ private fun MessageStatusLabel(messageStatus: MessageStatus) {
     CompositionLocalProvider(
         LocalTextStyle provides MaterialTheme.typography.labelSmall
     ) {
-        if (messageStatus != MessageStatus.SendFailure) {
-            Box(
-                modifier = Modifier
-                    .wrapContentSize()
-                    .border(
-                        BorderStroke(
-                            width = 1.dp,
-                            color = MaterialTheme.wireColorScheme.divider
+        when(messageStatus) {
+            MessageStatus.Deleted,
+            is MessageStatus.Edited,
+            MessageStatus.ReceiveFailure -> {
+                Box(
+                    modifier = Modifier
+                        .wrapContentSize()
+                        .border(
+                            BorderStroke(
+                                width = 1.dp,
+                                color = MaterialTheme.wireColorScheme.divider
+                            ),
+                            shape = RoundedCornerShape(size = dimensions().spacing4x)
+                        )
+                        .padding(
+                            horizontal = dimensions().spacing4x,
+                            vertical = dimensions().spacing2x
+                        )
+                ) {
+                    Text(
+                        text = messageStatus.text.asString(),
+                        style = LocalTextStyle.current.copy(color = MaterialTheme.wireColorScheme.labelText)
+                    )
+                }
+            }
+            MessageStatus.SendFailure -> {
+                Row {
+                    Text(
+                        text = messageStatus.text.asString(),
+                        style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.error)
+                    )
+                    Spacer(Modifier.width(dimensions().spacing4x))
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        style = LocalTextStyle.current.copy(
+                            color = MaterialTheme.wireColorScheme.onTertiaryButtonSelected,
+                            textDecoration = TextDecoration.Underline
                         ),
-                        shape = RoundedCornerShape(size = dimensions().spacing4x)
+                        text = stringResource(R.string.label_try_again),
                     )
-                    .padding(
-                        horizontal = dimensions().spacing4x,
-                        vertical = dimensions().spacing2x
-                    )
-            ) {
-                Text(
-                    text = stringResource(id = messageStatus.stringResourceId),
-                    style = LocalTextStyle.current.copy(color = MaterialTheme.wireColorScheme.labelText)
-                )
+                }
             }
-        } else {
-            Row {
-                Text(
-                    text = stringResource(id = messageStatus.stringResourceId),
-                    style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.error)
-                )
-                Spacer(Modifier.width(dimensions().spacing4x))
-                Text(
-                    modifier = Modifier.fillMaxWidth(),
-                    style = LocalTextStyle.current.copy(
-                        color = MaterialTheme.wireColorScheme.onTertiaryButtonSelected,
-                        textDecoration = TextDecoration.Underline
-                    ),
-                    text = stringResource(R.string.label_try_again),
-                )
-            }
+            else -> {}
         }
     }
 }

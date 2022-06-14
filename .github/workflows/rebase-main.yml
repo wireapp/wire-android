@@ -1,0 +1,38 @@
+name: "Rebase main"
+
+on:
+  workflow_dispatch:
+    inputs:
+      rebase-answer:
+        description: 'Are you sure you want to rebase main? [y/N] '
+        required: true
+  workflow_call:
+    inputs:
+      rebase-answer:
+        required: true
+        type: string
+
+jobs:
+  rebase-main:
+    runs-on: ubuntu-latest
+    env:
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      SLACK_WEBHOOK_URL: ${{ secrets.WIRE_ANDROID_TEAM_WEBHOOK_URL }}
+    steps:
+      - name: Run unit tests
+        if: github.ref == 'refs/heads/main' && ${{ github.event.inputs.rebase-answer }} == 'y'
+        uses: ./.github/workflows/gradle-run-unit-tests.yml
+      - name: Run UI tests
+        if: github.ref == 'refs/heads/main' && ${{ github.event.inputs.rebase-answer }} == 'y'
+        uses: ./.github/workflows/gradle-run-ui-tests.yml
+      - name: Rebase develop onto main
+        if: github.ref == 'refs/heads/main' && ${{ github.event.inputs.rebase-answer }} == 'y'
+        run: |
+          git rebase develop --strategy recursive -Xours
+          git push
+      - name: Notify on Wire (Manual branch)
+        uses: 8398a7/action-slack@v3
+        if: github.ref == 'refs/heads/main' && ${{ github.event.inputs.rebase-answer }} == 'y'
+        with:
+          status: ${{ job.status }}
+          text: "Rebased `main` onto `develop` - Playstore build triggered 🚀"

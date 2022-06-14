@@ -10,20 +10,20 @@ import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.MemberDetails
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.AssetContent
-import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.message.Message
+import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.message.MessageContent.Asset
+import com.wire.kalium.logic.data.message.MessageContent.MemberChange
+import com.wire.kalium.logic.data.message.MessageContent.MemberChange.Added
+import com.wire.kalium.logic.data.message.MessageContent.MemberChange.Removed
 import com.wire.kalium.logic.data.message.MessageContent.System
+import com.wire.kalium.logic.data.user.AssetId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
-import com.wire.kalium.logic.data.message.MessageContent.MemberChange.Added
-import com.wire.kalium.logic.data.message.MessageContent.MemberChange.Removed
-import com.wire.kalium.logic.data.message.MessageContent.MemberChange
 import javax.inject.Inject
 
-
-//TODO: splits mapping into more classes
+// TODO: splits mapping into more classes
 class MessageContentMapper @Inject constructor(
     private val getMessageAsset: GetMessageAssetUseCase,
     private val messageResourceProvider: MessageResourceProvider
@@ -94,7 +94,8 @@ class MessageContentMapper @Inject constructor(
 
     fun toText(
         content: MessageContent
-    ) = MessageBody(when (content) {
+    ) = MessageBody(
+        when (content) {
             is MessageContent.Text -> UIText.DynamicString(content.value)
             is MessageContent.Unknown -> UIText.StringResource(
                 messageResourceProvider.sentAMessageWithContent, content.typeName ?: "Unknown"
@@ -140,7 +141,7 @@ class MessageContentMapper @Inject constructor(
             when {
                 // If it's an image, we download it right away
                 mimeType.contains("image") -> UIMessageContent.ImageMessage(
-                    assetId = remoteData.assetId,
+                    assetId = AssetId(remoteData.assetId, remoteData.assetDomain.orEmpty()),
                     rawImgData = getRawAssetData(
                         conversationId = conversationId,
                         messageId = messageId
@@ -154,7 +155,7 @@ class MessageContentMapper @Inject constructor(
                     UIMessageContent.AssetMessage(
                         assetName = name ?: "",
                         assetExtension = name?.split(".")?.last() ?: "",
-                        assetId = remoteData.assetId,
+                        assetId = AssetId(remoteData.assetId, remoteData.assetDomain.orEmpty()),
                         assetSizeInBytes = sizeInBytes,
                         downloadStatus = downloadStatus
                     )
@@ -186,18 +187,16 @@ class MessageContentMapper @Inject constructor(
             }
         }
 
-    //TODO: should we keep it here ?
+    // TODO: should we keep it here ?
     enum class SelfNameType {
         ResourceLowercase, ResourceTitleCase, NameOrDeleted
     }
 }
 
-
-//TODO: should we keep it here ?
+// TODO: should we keep it here ?
 data class MessageResourceProvider(
     @StringRes val memberNameDeleted: Int = R.string.member_name_deleted_label,
     @StringRes val memberNameYouLowercase: Int = R.string.member_name_you_label_lowercase,
     @StringRes val memberNameYouTitlecase: Int = R.string.member_name_you_label_titlecase,
     @StringRes val sentAMessageWithContent: Int = R.string.sent_a_message_with_content
 )
-

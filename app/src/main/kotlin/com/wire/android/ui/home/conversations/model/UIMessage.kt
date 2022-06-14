@@ -7,7 +7,7 @@ import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.message.Message
-import com.wire.kalium.logic.data.user.UserAssetId
+import com.wire.kalium.logic.data.user.AssetId
 
 data class UIMessage(
     val userAvatarData: UserAvatarData,
@@ -48,12 +48,12 @@ sealed class MessageContent {
     data class AssetMessage(
         val assetName: String,
         val assetExtension: String,
-        val assetId: String,
+        val assetId: AssetId,
         val assetSizeInBytes: Long,
         val downloadStatus: Message.DownloadStatus
     ) : ClientMessage()
 
-    data class ImageMessage(val assetId: UserAssetId, val rawImgData: ByteArray?, val width: Int, val height: Int) : ClientMessage() {
+    data class ImageMessage(val assetId: AssetId, val rawImgData: ByteArray?, val width: Int, val height: Int) : MessageContent() {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (javaClass != other?.javaClass) return false
@@ -83,7 +83,6 @@ sealed class MessageContent {
             val author: UIText
         ) : SystemMessage(R.drawable.ic_minus, R.string.label_system_message_left_the_conversation)
     }
-
 }
 
 data class MessageBody(

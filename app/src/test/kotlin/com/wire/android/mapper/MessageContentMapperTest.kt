@@ -4,6 +4,13 @@ import android.content.res.Resources
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.framework.TestMessage
 import com.wire.android.framework.TestUser
+import com.wire.android.ui.home.conversations.model.MessageContent.AssetMessage
+import com.wire.android.ui.home.conversations.model.MessageContent.DeletedMessage
+import com.wire.android.ui.home.conversations.model.MessageContent.EditedMessage
+import com.wire.android.ui.home.conversations.model.MessageContent.ImageMessage
+import com.wire.android.ui.home.conversations.model.MessageContent.SystemMessage
+import com.wire.android.ui.home.conversations.model.MessageContent.TextMessage
+import com.wire.android.util.time.ISOFormatter
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.Member
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -21,7 +28,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import com.wire.android.ui.home.conversations.model.MessageContent as MessageViewContent
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
@@ -60,13 +66,13 @@ class MessageContentMapperTest {
         with(resultText) {
             assert(
                 messageBody.message is UIText.DynamicString &&
-                        (messageBody.message as UIText.DynamicString).value == textContent.value
+                    (messageBody.message as UIText.DynamicString).value == textContent.value
             )
         }
         with(resultNonText) {
             assert(
                 messageBody.message is UIText.StringResource &&
-                        (messageBody.message as UIText.StringResource).resId == arrangement.messageResourceProvider.sentAMessageWithContent
+                    (messageBody.message as UIText.StringResource).resId == arrangement.messageResourceProvider.sentAMessageWithContent
             )
         }
     }
@@ -90,21 +96,22 @@ class MessageContentMapperTest {
         val resultContentAdded = mapper.toServer(contentAdded, userId1, listOf(member1, member2, member3))
         // Then
         assert(
-            resultContentLeft is MessageViewContent.SystemMessage.MemberLeft
-                    && resultContentLeft.author.asString(arrangement.resources) == member1.otherUser.name
+            resultContentLeft is SystemMessage.MemberLeft &&
+                resultContentLeft.author.asString(arrangement.resources) == member1.otherUser.name
         )
         assert(
-            resultContentRemoved is MessageViewContent.SystemMessage.MemberRemoved
-                    && resultContentRemoved.author.asString(arrangement.resources) == member1.otherUser.name
-                    && resultContentRemoved.memberNames.size == 1
-                    && resultContentRemoved.memberNames[0].asString(arrangement.resources) == member2.otherUser.name
+            resultContentRemoved is SystemMessage.MemberRemoved &&
+                resultContentRemoved.author.asString(arrangement.resources) == member1.otherUser.name &&
+                resultContentRemoved.memberNames.size == 1 &&
+                resultContentRemoved.memberNames[0].asString(arrangement.resources) == member2.otherUser.name
+
         )
         assert(
-            resultContentAdded is MessageViewContent.SystemMessage.MemberAdded
-                    && resultContentAdded.author.asString(arrangement.resources) == member1.otherUser.name
-                    && resultContentAdded.memberNames.size == 2
-                    && resultContentAdded.memberNames[0].asString(arrangement.resources) == member2.otherUser.name
-                    && resultContentAdded.memberNames[1].asString(arrangement.resources) == member3.otherUser.name
+            resultContentAdded is SystemMessage.MemberAdded &&
+                resultContentAdded.author.asString(arrangement.resources) == member1.otherUser.name &&
+                resultContentAdded.memberNames.size == 2 &&
+                resultContentAdded.memberNames[0].asString(arrangement.resources) == member2.otherUser.name &&
+                resultContentAdded.memberNames[1].asString(arrangement.resources) == member3.otherUser.name
         )
     }
 
@@ -123,11 +130,11 @@ class MessageContentMapperTest {
         // When - Then
         val resultContentOther = mapper.toAsset(QualifiedID("id", "domain"), "message-id", contentOther)
         coVerify(exactly = 0) { arrangement.getMessageAssetUseCase.invoke(any(), any()) }
-        assert(resultContentOther is MessageViewContent.AssetMessage && resultContentOther.assetId == contentOther.remoteData.assetId)
+        assert(resultContentOther is AssetMessage && resultContentOther.assetId.value == contentOther.remoteData.assetId)
         // When - Then
         val resultContentImage = mapper.toAsset(QualifiedID("id", "domain"), "message-id", contentImage)
         coVerify(exactly = 1) { arrangement.getMessageAssetUseCase.invoke(any(), any()) }
-        assert(resultContentImage is MessageViewContent.ImageMessage && resultContentImage.assetId == contentImage.remoteData.assetId)
+        assert(resultContentImage is ImageMessage && resultContentImage.assetId.value == contentImage.remoteData.assetId)
     }
 
     @Test

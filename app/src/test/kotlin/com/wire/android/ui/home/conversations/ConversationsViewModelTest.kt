@@ -5,6 +5,7 @@ import com.wire.android.ui.home.conversations.ConversationViewModel.Companion.AS
 import com.wire.android.ui.home.conversations.ConversationViewModel.Companion.IMAGE_SIZE_LIMIT_BYTES
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
+import com.wire.kalium.logic.data.id.parseIntoQualifiedID
 import com.wire.kalium.logic.data.team.Team
 import io.mockk.coVerify
 import io.mockk.every
@@ -217,7 +218,7 @@ class ConversationsViewModelTest {
     @Test
     fun `given a 1 on 1 conversation, when solving the conversation avatar, then the avatar of the other user is used`() = runTest {
         // Given
-        val conversationDetails = withMockConversationDetailsOneOnOne("", "userAssetId")
+        val conversationDetails = withMockConversationDetailsOneOnOne("", "userAssetId@domain".parseIntoQualifiedID())
         val otherUserAvatar = conversationDetails.otherUser.previewPicture
         val (_, viewModel) = ConversationsViewModelArrangement()
             .withConversationDetailUpdate(conversationDetails = conversationDetails)
@@ -320,5 +321,4 @@ class ConversationsViewModelTest {
             verify(exactly = 1) { arrangement.fileManager.openWithExternalApp(any(), any(), any()) }
             assert(viewModel.conversationViewState.downloadedAssetDialogState == DownloadedAssetDialogVisibilityState.Hidden)
         }
-
 }

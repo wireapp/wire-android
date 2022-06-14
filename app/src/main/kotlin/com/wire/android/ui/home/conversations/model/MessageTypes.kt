@@ -87,8 +87,7 @@ internal fun MessageBody(messageBody: MessageBody, editTime: String? = null) {
     }
     LinkifyText(
         text = messageBody.message.asString(),
-        mask = Linkify.WEB_URLS or Linkify.EMAIL_ADDRESSES
-    ,
+        mask = Linkify.WEB_URLS or Linkify.EMAIL_ADDRESSES,
         color = MaterialTheme.colorScheme.onBackground
     )
 }
@@ -317,7 +316,7 @@ fun PreviewAssetMessage() {
 fun PreviewMessageWithSystemMessage() {
     Column {
         MessageItem(mockMessageWithText, {}, {}, { _, _ -> })
-        SystemMessageItem(MessageContent.ServerMessage.MemberAdded(
+        SystemMessageItem(MessageContent.SystemMessage.MemberAdded(
             UIText.DynamicString("You"),
             listOf(UIText.DynamicString("Adam Smmith"))
         ))

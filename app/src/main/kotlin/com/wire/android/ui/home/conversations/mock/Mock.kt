@@ -1,20 +1,21 @@
 package com.wire.android.ui.home.conversations.mock
 
 import com.wire.android.model.ImageAsset.UserAvatarAsset
-import com.wire.android.model.UserStatus
+import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.MessageContent
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
-import com.wire.android.ui.home.conversations.model.User
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.id.parseIntoQualifiedID
 import com.wire.kalium.logic.data.message.Message
+import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 
 val mockMessageWithText = UIMessage(
-    user = User(null, UserStatus.AVAILABLE),
+    userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
     messageHeader = MessageHeader(
         username = UIText.DynamicString("John Doe"),
         membership = Membership.Guest,
@@ -27,9 +28,9 @@ val mockMessageWithText = UIMessage(
         messageBody = MessageBody(
             UIText.DynamicString(
                 "This is some test message that is very very" +
-                        "very very very very" +
-                        " very very very" +
-                        "very very very very very long"
+                    "very very very very" +
+                    " very very very" +
+                    "very very very very very long"
             )
         )
     ),
@@ -37,7 +38,7 @@ val mockMessageWithText = UIMessage(
 )
 
 val mockAssetMessage = UIMessage(
-    user = User(UserAvatarAsset(""), UserStatus.AVAILABLE),
+    userAvatarData = UserAvatarData(UserAvatarAsset("a@domain".parseIntoQualifiedID()), UserAvailabilityStatus.AVAILABLE),
     messageHeader = MessageHeader(
         username = UIText.DynamicString("John Doe"),
         membership = Membership.Guest,
@@ -49,7 +50,7 @@ val mockAssetMessage = UIMessage(
     messageContent = MessageContent.AssetMessage(
         assetName = "This is some test asset message",
         assetExtension = "ZIP",
-        assetId = "asset-id",
+        assetId = "asset-id@domain".parseIntoQualifiedID(),
         assetSizeInBytes = 21957335,
         downloadStatus = Message.DownloadStatus.NOT_DOWNLOADED
     ),
@@ -57,12 +58,12 @@ val mockAssetMessage = UIMessage(
 )
 
 @Suppress("MagicNumber")
-val mockedImg = MessageContent.ImageMessage("asset-id", ByteArray(16), 0, 0)
+val mockedImg = MessageContent.ImageMessage("a@domain".parseIntoQualifiedID(), ByteArray(16), 0, 0)
 
 @Suppress("LongMethod", "MagicNumber")
 fun getMockedMessages(): List<UIMessage> = listOf(
     UIMessage(
-        user = User(null, UserStatus.AVAILABLE),
+        userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
         messageHeader = MessageHeader(
             username = UIText.DynamicString("John Doe"),
             membership = Membership.Guest,
@@ -75,16 +76,16 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             messageBody = MessageBody(
                 UIText.DynamicString(
                     "This is some test message that is very very" +
-                            "very very very very" +
-                            " very very very" +
-                            "very very very very very long"
+                        "very very very very" +
+                        " very very very" +
+                        "very very very very very long"
                 )
             )
         ),
         messageSource = MessageSource.Self
     ),
     UIMessage(
-        user = User(null, UserStatus.AVAILABLE),
+        userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
         messageHeader = MessageHeader(
             username = UIText.DynamicString("John Doe"),
             membership = Membership.Guest,
@@ -97,7 +98,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
         messageSource = MessageSource.Self
     ),
     UIMessage(
-        user = User(null, UserStatus.AVAILABLE),
+        userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
         messageHeader = MessageHeader(
             username = UIText.DynamicString("John Doe"),
             membership = Membership.External,
@@ -110,7 +111,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
         messageSource = MessageSource.Self
     ),
     UIMessage(
-        user = User(null, UserStatus.AVAILABLE),
+        userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
         messageHeader = MessageHeader(
             username = UIText.DynamicString("John Doe"),
             membership = Membership.External,
@@ -123,7 +124,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
         messageSource = MessageSource.Self
     ),
     UIMessage(
-        user = User(null, UserStatus.AVAILABLE),
+        userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
         messageHeader = MessageHeader(
             username = UIText.DynamicString("John Doe"),
             membership = Membership.External,
@@ -136,16 +137,16 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             messageBody = MessageBody(
                 UIText.DynamicString(
                     "This is some test message that is very very" +
-                            "very very very very" +
-                            " very very very" +
-                            "very very very very very long"
+                        "very very very very" +
+                        " very very very" +
+                        "very very very very very long"
                 )
             )
         ),
         messageSource = MessageSource.Self
     ),
     UIMessage(
-        user = User(null, UserStatus.AVAILABLE),
+        userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
         messageHeader = MessageHeader(
             username = UIText.DynamicString("John Doe"),
             membership = Membership.External,
@@ -158,7 +159,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
         messageSource = MessageSource.Self
     ),
     UIMessage(
-        user = User(null, UserStatus.AVAILABLE),
+        userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
         messageHeader = MessageHeader(
             username = UIText.DynamicString("John Doe"),
             membership = Membership.External,
@@ -171,25 +172,25 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             messageBody = MessageBody(
                 UIText.DynamicString(
                     "This is some test message that is very very" +
-                            "very very very very" +
-                            " very very very" +
-                            "very very very very very long" +
-                            "This is some test message that is very very" +
-                            "very very very very" +
-                            " very very very" +
-                            "very very very very very long" +
-                            "This is some test message that is very very" +
-                            "very very very very" +
-                            " very very very" +
-                            "very very very very very long" +
-                            "This is some test message that is very very" +
-                            "very very very very" +
-                            " very very very" +
-                            "very very very very very long" +
-                            "This is some test message that is very very" +
-                            "very very very very" +
-                            " very very very" +
-                            "very very very very very long"
+                        "very very very very" +
+                        " very very very" +
+                        "very very very very very long" +
+                        "This is some test message that is very very" +
+                        "very very very very" +
+                        " very very very" +
+                        "very very very very very long" +
+                        "This is some test message that is very very" +
+                        "very very very very" +
+                        " very very very" +
+                        "very very very very very long" +
+                        "This is some test message that is very very" +
+                        "very very very very" +
+                        " very very very" +
+                        "very very very very very long" +
+                        "This is some test message that is very very" +
+                        "very very very very" +
+                        " very very very" +
+                        "very very very very very long"
                 )
             )
         ),

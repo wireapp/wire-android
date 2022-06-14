@@ -1,11 +1,10 @@
 package com.wire.android.mapper
 
-import com.wire.android.model.UserStatus
 import com.wire.android.ui.home.conversations.findUser
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
-import com.wire.android.ui.home.conversations.model.User
+import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversations.previewAsset
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -15,6 +14,7 @@ import com.wire.android.R
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.name
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.message.MessageContent
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -27,7 +27,7 @@ class MessageMapper @Inject constructor(
     fun memberIdList(messages: List<Message>) = messages.flatMap { message ->
         listOf(message.senderUserId).plus(
             when (val content = message.content) {
-                is com.wire.kalium.logic.data.message.MessageContent.MemberChange -> content.members.map { it.id }
+                is MessageContent.MemberChange -> content.members.map { it.id }
                 else -> listOf()
             }
         )
@@ -55,10 +55,7 @@ class MessageMapper @Inject constructor(
                     messageStatus = if (message.status == Message.Status.FAILED) MessageStatus.SendFailure else MessageStatus.Untouched,
                     messageId = message.id
                 ),
-                user = User(
-                    avatarAsset = sender.previewAsset,
-                    availabilityStatus = UserStatus.NONE
-                )
+                userAvatarData = UserAvatarData(asset = sender.previewAsset)
             )
         }
     }

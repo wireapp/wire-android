@@ -8,6 +8,7 @@ import android.graphics.BitmapFactory
 import android.net.Uri
 import androidx.exifinterface.media.ExifInterface
 import java.io.ByteArrayOutputStream
+import java.io.InputStream
 
 const val DEFAULT_IMAGE_MIME_TYPE = "image/jpeg"
 const val DEFAULT_FILE_MIME_TYPE = "file/*"
@@ -42,8 +43,8 @@ fun Uri.toBitmap(context: Context): Bitmap? {
     }
 }
 
-fun extractImageParams(imageRawData: ByteArray): Pair<Int, Int> {
-    val exif = ExifInterface(imageRawData.inputStream())
+fun extractImageParams(imageDataStream: InputStream): Pair<Int, Int> {
+    val exif = ExifInterface(imageDataStream)
     val width: Int = exif.getAttributeInt(ExifInterface.TAG_IMAGE_WIDTH, 0)
     val height: Int = exif.getAttributeInt(ExifInterface.TAG_IMAGE_LENGTH, 0)
     return width to height

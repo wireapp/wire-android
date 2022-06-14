@@ -17,11 +17,12 @@ import androidx.annotation.AnyRes
 import androidx.annotation.NonNull
 import androidx.core.content.FileProvider
 import com.wire.android.appLogger
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
-import java.io.BufferedInputStream
+import com.wire.kalium.logic.data.asset.KaliumFileSystem
+import okio.Path
+import okio.Path.Companion.toOkioPath
+import okio.buffer
 import java.io.File
-import java.io.FileInputStream
+import java.io.InputStream
 
 /**
  * Gets the uri of any drawable or given resource
@@ -41,13 +42,6 @@ fun getUriFromDrawable(
     )
 }
 
-@Suppress("MagicNumber")
-suspend fun Uri.toByteArray(context: Context): ByteArray {
-    return withContext(Dispatchers.IO) {
-        context.contentResolver.openInputStream(this@toByteArray)?.use { it.readBytes() } ?: ByteArray(16)
-    }
-}
-
 fun Context.getTempWritableImageUri() = getTempWritableAttachmentUri(this, TEMP_IMG_ATTACHMENT_FILENAME)
 fun Context.getTempWritableVideoUri() = getTempWritableAttachmentUri(this, TEMP_VIDEO_ATTACHMENT_FILENAME)
 
@@ -57,24 +51,24 @@ private fun getTempWritableAttachmentUri(context: Context, fileName: String): Ur
     return FileProvider.getUriForFile(context, context.getProviderAuthority(), file)
 }
 
-private fun Context.saveFileDataToDownloadsFolder(downloadedFile: File, fileSize: Int): Uri? {
+private fun Context.saveFileDataToDownloadsFolder(downloadedDataPath: Path, fileSize: Long, kaliumFileSystem: KaliumFileSystem): Uri? {
     val resolver = contentResolver
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
         val contentValues = ContentValues().apply {
-            put(MediaStore.MediaColumns.DISPLAY_NAME, downloadedFile.name)
-            put(MediaStore.MediaColumns.MIME_TYPE, Uri.parse(downloadedFile.path).getMimeType(this@saveFileDataToDownloadsFolder))
+            put(MediaStore.MediaColumns.DISPLAY_NAME, downloadedDataPath.name)
+            put(MediaStore.MediaColumns.MIME_TYPE, Uri.parse(downloadedDataPath.name).getMimeType(this@saveFileDataToDownloadsFolder))
             put(MediaStore.MediaColumns.SIZE, fileSize)
         }
         resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
     } else {
         val authority = getProviderAuthority()
-        val destinyFile = File(getExternalFilesDir(DIRECTORY_DOWNLOADS), downloadedFile.name)
-        FileProvider.getUriForFile(this, authority, destinyFile)
+        val destinationFile = File(getExternalFilesDir(DIRECTORY_DOWNLOADS), downloadedDataPath.name)
+        FileProvider.getUriForFile(this, authority, destinationFile)
     }?.also { downloadedUri ->
         resolver.openOutputStream(downloadedUri).use { outputStream ->
             val brr = ByteArray(DATA_COPY_BUFFER_SIZE)
             var len: Int
-            val bufferedInputStream = BufferedInputStream(FileInputStream(downloadedFile.absoluteFile))
+            val bufferedInputStream: InputStream = kaliumFileSystem.source(downloadedDataPath).buffer().inputStream()
             while ((bufferedInputStream.read(brr, 0, brr.size).also { len = it }) != -1) {
                 outputStream?.write(brr, 0, len)
             }
@@ -84,17 +78,31 @@ private fun Context.saveFileDataToDownloadsFolder(downloadedFile: File, fileSize
     }
 }
 
-fun Context.copyDataToTempFile(assetName: String, assetData: ByteArray): Uri {
-    val file = File(cacheDir, assetName)
-    file.setWritable(true)
-    file.writeBytes(assetData)
-    return FileProvider.getUriForFile(this, getProviderAuthority(), file)
+fun Context.copyDataToTempShareableFile(assetName: String, assetDataPath: Path, kaliumFileSystem: KaliumFileSystem): Uri {
+    val tempOutputFile = File(cacheDir, assetName)
+    tempOutputFile.setWritable(true)
+
+    // Copy asset data to temp file
+    kaliumFileSystem.writeData(tempOutputFile.toOkioPath(), kaliumFileSystem.source(assetDataPath))
+    return FileProvider.getUriForFile(this, getProviderAuthority(), tempOutputFile)
 }
 
 fun Uri.getMimeType(context: Context): String? {
     val extension = MimeTypeMap.getFileExtensionFromUrl(path)
     return context.contentResolver.getType(this)
         ?: MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)
+}
+
+fun Uri.copyToTempPath(context: Context): Pair<Path, Long> {
+    val file = File(context.cacheDir, "temp_path")
+    var size: Long
+    file.setWritable(true)
+    context.contentResolver.openInputStream(this).use { inputStream ->
+        file.outputStream().use {
+            size = inputStream?.copyTo(it) ?: 0L
+        }
+    }
+    return file.toOkioPath() to size
 }
 
 fun Context.getFileName(uri: Uri): String? = when (uri.scheme) {
@@ -129,15 +137,24 @@ fun Context.startFileShareIntent(path: String) {
     startActivity(shareIntent)
 }
 
-fun saveFileToDownloadsFolder(assetName: String, assetData: ByteArray, context: Context) {
-    val file = File(context.getExternalFilesDir(DIRECTORY_DOWNLOADS), assetName)
-    file.setWritable(true)
-    file.writeBytes(assetData)
-    context.saveFileDataToDownloadsFolder(file, assetData.size)
+fun saveFileToDownloadsFolder(
+    assetName: String,
+    assetDataPath: Path,
+    assetDataSize: Long,
+    context: Context,
+    kaliumFileSystem: KaliumFileSystem
+) {
+    context.saveFileDataToDownloadsFolder(assetDataPath, assetDataSize, kaliumFileSystem)
 }
 
-fun openAssetFileWithExternalApp(assetName: String?, assetData: ByteArray, context: Context, onError: () -> Unit) {
-    val assetUri = context.copyDataToTempFile(assetName ?: System.currentTimeMillis().toString(), assetData)
+fun openAssetFileWithExternalApp(
+    assetName: String,
+    assetDataPath: Path,
+    context: Context,
+    kaliumFileSystem: KaliumFileSystem,
+    onError: () -> Unit
+) {
+    val assetUri = context.copyDataToTempShareableFile(assetName, assetDataPath, kaliumFileSystem)
 
     // Set intent and launch
     val intent = Intent()

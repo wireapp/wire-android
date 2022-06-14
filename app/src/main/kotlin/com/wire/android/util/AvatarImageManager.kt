@@ -7,9 +7,10 @@ import android.net.Uri
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
 import androidx.exifinterface.media.ExifInterface
-import com.wire.android.BuildConfig
+import okio.Path
 import java.io.File
 import javax.inject.Inject
+import okio.Path.Companion.toOkioPath
 
 class AvatarImageManager @Inject constructor(val context: Context) {
 
@@ -75,14 +76,9 @@ class AvatarImageManager @Inject constructor(val context: Context) {
         return file.toUri()
     }
 
-    fun getWritableAvatarUri(imageData: ByteArray): Uri {
-        val file = getAvatarFile(context)
-        file.writeBytes(imageData)
+    fun getWritableAvatarUri(imageDataPath: Path): Uri {
+        val file = imageDataPath.toFile()
         return file.toUri()
-    }
-
-    suspend fun uriToByteArray(uri: Uri): ByteArray {
-        return uri.toByteArray(context)
     }
 
     fun getShareableTempAvatarUri(): Uri {

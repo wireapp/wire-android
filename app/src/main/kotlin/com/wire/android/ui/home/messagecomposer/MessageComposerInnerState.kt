@@ -14,10 +14,10 @@ import com.wire.android.appLogger
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.util.DEFAULT_FILE_MIME_TYPE
+import com.wire.android.util.copyToTempPath
 import com.wire.android.util.getFileName
 import com.wire.android.util.getMimeType
 import com.wire.android.util.orDefault
-import com.wire.android.util.toByteArray
 import java.io.IOException
 
 @Composable
@@ -113,13 +113,13 @@ class MessageComposerInnerState(
 class AttachmentInnerState(val context: Context) {
     var attachmentState by mutableStateOf<AttachmentState>(AttachmentState.NotPicked)
 
-    suspend fun pickAttachment(attachmentUri: Uri) {
+    fun pickAttachment(attachmentUri: Uri) {
         attachmentState = try {
             val mimeType = attachmentUri.getMimeType(context).orDefault(DEFAULT_FILE_MIME_TYPE)
-            val assetRawData = attachmentUri.toByteArray(context)
-            val assetFileName = context.getFileName(attachmentUri)
+            val (assetDataPath, assetSize) = attachmentUri.copyToTempPath(context)
+            val assetFileName = context.getFileName(attachmentUri) ?: "Untitled"
             val attachmentType = if (mimeType.contains("image/")) AttachmentType.IMAGE else AttachmentType.GENERIC_FILE
-            val attachment = AttachmentBundle(mimeType, assetRawData, assetFileName, attachmentType)
+            val attachment = AttachmentBundle(mimeType, assetDataPath, assetSize, assetFileName, attachmentType)
             AttachmentState.Picked(attachment)
         } catch (e: IOException) {
             appLogger.e("There was an error while obtaining the file from disk", e)

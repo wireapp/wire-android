@@ -3,6 +3,7 @@ package com.wire.android.ui.home.conversations
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.ui.home.conversations.model.MessageViewWrapper
 import com.wire.kalium.logic.data.team.Team
+import okio.Path
 
 data class ConversationViewState(
     val conversationName: String = "",
@@ -22,5 +23,5 @@ sealed class ConversationAvatar {
 
 sealed class DownloadedAssetDialogVisibilityState {
     object Hidden : DownloadedAssetDialogVisibilityState()
-    class Displayed (val assetName: String, val assetData: ByteArray, val messageId: String) : DownloadedAssetDialogVisibilityState()
+    class Displayed(val assetName: String, val assetDataPath: Path, val assetSize: Long, val messageId: String) : DownloadedAssetDialogVisibilityState()
 }

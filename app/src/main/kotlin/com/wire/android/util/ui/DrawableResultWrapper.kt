@@ -5,11 +5,13 @@ import android.graphics.drawable.BitmapDrawable
 import coil.decode.DataSource
 import coil.fetch.DrawableResult
 import coil.fetch.FetchResult
-import com.wire.android.util.toBitmap
+import com.wire.kalium.logic.data.asset.KaliumFileSystem
+import okio.Path
+import okio.buffer
 
-internal class DrawableResultWrapper(val resources: Resources) {
+internal class DrawableResultWrapper(val resources: Resources, val kaliumFileSystem: KaliumFileSystem) {
 
-    internal fun toFetchResult(decodedAsset: ByteArray): FetchResult = DrawableResult(
-        BitmapDrawable(resources, decodedAsset.toBitmap()), false, DataSource.DISK
+    internal fun toFetchResult(decodedAssetPath: Path): FetchResult = DrawableResult(
+        BitmapDrawable(resources, kaliumFileSystem.source(decodedAssetPath).buffer().inputStream()), false, DataSource.DISK
     )
 }

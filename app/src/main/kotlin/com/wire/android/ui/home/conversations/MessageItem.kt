@@ -42,6 +42,7 @@ import com.wire.android.ui.home.conversations.model.MessageViewWrapper
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.kalium.logic.util.fileExtension
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -153,7 +154,7 @@ private fun MessageContent(messageContent: MessageContent?, onAssetClick: () -> 
         is MessageContent.TextMessage -> MessageBody(messageBody = messageContent.messageBody)
         is MessageContent.DeletedMessage -> DeletedMessage()
         is MessageContent.AssetMessage -> MessageAsset(
-            assetName = messageContent.assetName.split(".").dropLast(1).joinToString("."),
+            assetName = messageContent.assetName.fileExtension(),
             assetExtension = messageContent.assetExtension,
             assetSizeInBytes = messageContent.assetSizeInBytes,
             assetDownloadStatus = messageContent.downloadStatus,

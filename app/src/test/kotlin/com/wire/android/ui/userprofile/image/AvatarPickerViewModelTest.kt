@@ -95,12 +95,12 @@ class AvatarPickerViewModelTest {
         val uploadedAssetId = "some-asset-id"
         val rawImage = uploadedAssetId.toByteArray()
         coEvery { uploadUserAvatarUseCase(any()) } returns UploadAvatarResult.Success(uploadedAssetId)
-        coEvery { avatarImageManager.uriToByteArray(any()) } returns rawImage
+        coEvery { avatarImageManager.uriToTempPath(any()) } returns rawImage
 
         avatarPickerViewModel.uploadNewPickedAvatarAndBack()
 
         coVerify {
-            avatarImageManager.uriToByteArray(mockUri)
+            avatarImageManager.uriToTempPath(mockUri)
             uploadUserAvatarUseCase(rawImage)
             userDataStore.updateUserAvatarAssetId(uploadedAssetId)
             avatarImageManager.getWritableAvatarUri(rawImage)
@@ -112,13 +112,13 @@ class AvatarPickerViewModelTest {
     fun `given a valid image, when uploading the asset fails, then should emit an error`() = runTest {
         val uploadedAssetId = "some-asset-id"
         val rawImage = uploadedAssetId.toByteArray()
-        coEvery { avatarImageManager.uriToByteArray(any()) } returns rawImage
+        coEvery { avatarImageManager.uriToTempPath(any()) } returns rawImage
         coEvery { uploadUserAvatarUseCase(any()) } returns UploadAvatarResult.Failure(Unknown(RuntimeException("some error")))
 
         avatarPickerViewModel.uploadNewPickedAvatarAndBack()
 
         coVerify {
-            avatarImageManager.uriToByteArray(mockUri)
+            avatarImageManager.uriToTempPath(mockUri)
             uploadUserAvatarUseCase(rawImage)
         }
         coVerify {

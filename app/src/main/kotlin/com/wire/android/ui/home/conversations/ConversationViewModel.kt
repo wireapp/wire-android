@@ -42,6 +42,7 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.extractImageParams
 import com.wire.android.util.getConversationColor
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.MemberDetails
 import com.wire.kalium.logic.data.id.parseIntoQualifiedID
@@ -75,6 +76,8 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okio.Path
+import okio.buffer
 import javax.inject.Inject
 import com.wire.kalium.logic.data.id.QualifiedID as ConversationId
 
@@ -96,7 +99,8 @@ class ConversationViewModel @Inject constructor(
     private val updateAssetMessageDownloadStatus: UpdateAssetMessageDownloadStatusUseCase,
     private val getSelfUserTeam: GetSelfTeamUseCase,
     private val fileManager: FileManager,
-    private val userTypeMapper: UserTypeMapper
+    private val userTypeMapper: UserTypeMapper,
+    private val kaliumFileSystem: KaliumFileSystem
 ) : ViewModel() {
 
     var conversationViewState by mutableStateOf(ConversationViewState())
@@ -192,12 +196,15 @@ class ConversationViewModel @Inject constructor(
                 attachmentBundle?.run {
                     when (attachmentType) {
                         AttachmentType.IMAGE -> {
-                            if (rawContent.size > IMAGE_SIZE_LIMIT_BYTES) onSnackbarMessage(ErrorMaxImageSize)
+                            if (dataSize > IMAGE_SIZE_LIMIT_BYTES) onSnackbarMessage(ErrorMaxImageSize)
                             else {
-                                val (imgWidth, imgHeight) = extractImageParams(attachmentBundle.rawContent)
+                                val (imgWidth, imgHeight) = extractImageParams(
+                                    kaliumFileSystem.source(attachmentBundle.dataPath).buffer().inputStream()
+                                )
                                 val result = sendImageMessage(
                                     conversationId = conversationId,
-                                    imageRawData = attachmentBundle.rawContent,
+                                    imageDataPath = attachmentBundle.dataPath,
+                                    imageDataSize = attachmentBundle.dataSize,
                                     imageName = attachmentBundle.fileName,
                                     imgWidth = imgWidth,
                                     imgHeight = imgHeight
@@ -212,13 +219,14 @@ class ConversationViewModel @Inject constructor(
                             // users that belong to a team
                             val assetLimitInBytes = getAssetLimitInBytes()
                             val sizeOf1MB = 1024 * 1024
-                            if (rawContent.size > assetLimitInBytes) {
+                            if (dataSize > assetLimitInBytes) {
                                 onSnackbarMessage(ErrorMaxAssetSize(assetLimitInBytes.div(sizeOf1MB)))
                             } else {
                                 try {
                                     val result = sendAssetMessage(
                                         conversationId = conversationId,
-                                        assetRawData = attachmentBundle.rawContent,
+                                        assetDataPath = attachmentBundle.dataPath,
+                                        assetDataSize = attachmentBundle.dataSize,
                                         assetName = attachmentBundle.fileName,
                                         assetMimeType = attachmentBundle.mimeType
                                     )
@@ -247,18 +255,18 @@ class ConversationViewModel @Inject constructor(
                         it.messageHeader.messageId == messageId && it.messageContent is AssetMessage
                     }
 
-                    val (isAssetDownloadedInternally, assetName) = (assetMessage?.messageContent as AssetMessage).run {
-                        (downloadStatus == SAVED_INTERNALLY || downloadStatus == IN_PROGRESS) to assetName
+                    val (isAssetDownloadedInternally, assetName, assetSize) = (assetMessage?.messageContent as AssetMessage).run {
+                        Triple((downloadStatus == SAVED_INTERNALLY || downloadStatus == IN_PROGRESS), assetName, assetSizeInBytes)
                     }
 
                     if (!isAssetDownloadedInternally)
                         updateAssetMessageDownloadStatus(IN_PROGRESS, conversationId, messageId)
 
-                    val resultData = getRawAssetData(conversationId, messageId)
+                    val resultData = assetDataPath(conversationId, messageId)
                     updateAssetMessageDownloadStatus(if (resultData != null) SAVED_INTERNALLY else FAILED, conversationId, messageId)
 
                     if (resultData != null) {
-                        showOnAssetDownloadedDialog(assetName, resultData, messageId)
+                        showOnAssetDownloadedDialog(assetName, resultData, assetSize, messageId)
                     }
                 } catch (e: OutOfMemoryError) {
                     appLogger.e("There was an OutOfMemory error while downloading the asset")
@@ -268,8 +276,9 @@ class ConversationViewModel @Inject constructor(
         }
     }
 
-    fun showOnAssetDownloadedDialog(assetName: String, assetData: ByteArray, messageId: String) {
-        conversationViewState = conversationViewState.copy(downloadedAssetDialogState = Displayed(assetName, assetData, messageId))
+    fun showOnAssetDownloadedDialog(assetName: String, assetDataPath: Path, assetSize: Long, messageId: String) {
+        conversationViewState =
+            conversationViewState.copy(downloadedAssetDialogState = Displayed(assetName, assetDataPath, assetSize, messageId))
     }
 
     fun hideOnAssetDownloadedDialog() {
@@ -372,31 +381,31 @@ class ConversationViewModel @Inject constructor(
         onDeleteDialogDismissed()
     }
 
-    private suspend fun getRawAssetData(conversationId: ConversationId, messageId: String): ByteArray? {
+    private suspend fun assetDataPath(conversationId: ConversationId, messageId: String): Path? {
         getMessageAsset(
             conversationId = conversationId,
             messageId = messageId
         ).run {
             return when (this) {
-                is MessageAssetResult.Success -> decodedAsset
+                is MessageAssetResult.Success -> decodedAssetPath
                 else -> null
             }
         }
     }
 
-    fun onOpenFileWithExternalApp(assetName: String, assetData: ByteArray) {
+    fun onOpenFileWithExternalApp(assetName: String, assetDataPath: Path) {
         viewModelScope.launch {
             withContext(dispatchers.io()) {
-                fileManager.openWithExternalApp(assetName, assetData) { onOpenFileError() }
+                fileManager.openWithExternalApp(assetName, assetDataPath, kaliumFileSystem) { onOpenFileError() }
                 hideOnAssetDownloadedDialog()
             }
         }
     }
 
-    fun onSaveFile(assetName: String, assetData: ByteArray, messageId: String) {
+    fun onSaveFile(assetName: String, assetDataPath: Path, assetSize: Long, messageId: String) {
         viewModelScope.launch {
             withContext(dispatchers.io()) {
-                fileManager.saveToExternalStorage(assetName, assetData) {
+                fileManager.saveToExternalStorage(assetName, assetDataPath, assetSize, kaliumFileSystem) {
                     updateAssetMessageDownloadStatus(SAVED_EXTERNALLY, conversationId, messageId)
                     onFileSavedToExternalStorage(assetName)
                     hideOnAssetDownloadedDialog()
@@ -488,12 +497,15 @@ class ConversationViewModel @Inject constructor(
             return if (remoteData.assetId.isNotEmpty()) {
                 when {
                     // If it's an image, we download it right away
-                    mimeType.contains("image") -> MessageContent.ImageMessage(
-                        assetId = remoteData.assetId,
-                        rawImgData = getRawAssetData(conversationId, messageId),
-                        width = imgWidth,
-                        height = imgHeight
-                    )
+                    mimeType.contains("image") -> {
+                        val imageData = assetDataPath(conversationId, messageId)?.let { kaliumFileSystem.readByteArray(it) }
+                        MessageContent.ImageMessage(
+                            assetId = remoteData.assetId,
+                            rawImgData = imageData,
+                            width = imgWidth,
+                            height = imgHeight
+                        )
+                    }
 
                     // It's a generic Asset Message so let's not download it yet
                     else -> {

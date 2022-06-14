@@ -12,7 +12,6 @@ import com.wire.android.notification.WireNotificationManager
 import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.newServerConfig
-import com.wire.kalium.logic.configuration.server.CommonApiVersionType
 import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
 import com.wire.kalium.logic.configuration.server.ServerConfig
@@ -85,7 +84,6 @@ class WireActivityViewModelTest {
 
         assertEquals(NavigationItem.Login.getRouteWithArgs(), viewModel.startNavigationRoute())
         assert(viewModel.navigationArguments().filterIsInstance<DeepLinkResult.SSOLogin>().isEmpty())
-        //assert(viewModel.navigationArguments().filterIsInstance<ServerConfig>().isNotEmpty())
     }
 
     @Test
@@ -99,7 +97,6 @@ class WireActivityViewModelTest {
 
         assertEquals(NavigationItem.Login.getRouteWithArgs(), viewModel.startNavigationRoute())
         assert(viewModel.navigationArguments().filterIsInstance<DeepLinkResult.SSOLogin>().isEmpty())
-        //assert(viewModel.navigationArguments().filterIsInstance<ServerConfig>().isNotEmpty())
     }
 
     @Test

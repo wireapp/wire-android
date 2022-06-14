@@ -31,6 +31,7 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.extractImageParams
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.parseIntoQualifiedID
+import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.FAILED
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.IN_PROGRESS
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.SAVED_EXTERNALLY
@@ -319,7 +320,7 @@ class ConversationViewModel @Inject constructor(
         }
 
     fun deleteMessage(messageId: String, deleteForEveryone: Boolean) = viewModelScope.launch {
-        //update dialogs state to loading
+        // update dialogs state to loading
         if (deleteForEveryone) {
             updateDeleteDialogState {
                 it.copy(

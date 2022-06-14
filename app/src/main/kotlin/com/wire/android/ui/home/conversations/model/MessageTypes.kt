@@ -316,7 +316,7 @@ fun PreviewAssetMessage() {
 fun PreviewMessageWithSystemMessage() {
     Column {
         MessageItem(mockMessageWithText, {}, {}, { _, _ -> })
-        SystemMessageItem(MessageContent.ServerMessage.MemberAdded(
+        SystemMessageItem(MessageContent.SystemMessage.MemberAdded(
             UIText.DynamicString("You"),
             listOf(UIText.DynamicString("Adam Smmith"))
         ))

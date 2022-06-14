@@ -27,6 +27,8 @@ jobs:
       - name: Manually create a named playtest branch
         if: ${{ github.event.inputs.playtest-branch-manual-name }}  
         run: |
+          git checkout develop
+          git submodule update
           git checkout -b ${{ env.PLAYTEST_BRANCH_NAME }}
           git push origin ${{ env.PLAYTEST_BRANCH_NAME }}
         env:
@@ -42,6 +44,8 @@ jobs:
       - name: Automatically Create a named playtest branch
         if: "${{ github.event.inputs.playtest-branch-manual-name == '' }}"
         run: |
+          git checkout develop
+          git submodule update
           git checkout -b ${{ env.PLAYTEST_BRANCH_NAME }}
           git push origin ${{ env.PLAYTEST_BRANCH_NAME }}
         env:

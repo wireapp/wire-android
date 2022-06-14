@@ -4,7 +4,7 @@ import androidx.annotation.StringRes
 import com.wire.android.R
 import com.wire.android.ui.home.conversations.findUser
 import com.wire.android.ui.home.conversations.model.MessageBody
-import com.wire.android.ui.home.conversations.model.MessageContent
+import com.wire.android.ui.home.conversations.model.MessageContent as UIMessageContent
 import com.wire.android.ui.home.conversations.name
 import com.wire.android.util.time.ISOFormatter
 import com.wire.android.util.ui.UIText
@@ -12,12 +12,12 @@ import com.wire.kalium.logic.data.conversation.MemberDetails
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.Message
+import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.message.MessageContent.Asset
 import com.wire.kalium.logic.data.message.MessageContent.MemberChange
 import com.wire.kalium.logic.data.message.MessageContent.MemberChange.Added
 import com.wire.kalium.logic.data.message.MessageContent.MemberChange.Removed
-import com.wire.kalium.logic.data.message.MessageContent.Server
-import com.wire.kalium.logic.data.message.MessageContent.Text
+import com.wire.kalium.logic.data.message.MessageContent.System
 import com.wire.kalium.logic.data.user.AssetId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
@@ -34,20 +34,20 @@ class MessageContentMapper @Inject constructor(
     suspend fun fromMessage(
         message: Message,
         members: List<MemberDetails>
-    ): MessageContent? {
+    ): UIMessageContent? {
         return when (message.visibility) {
             Message.Visibility.VISIBLE ->
                 return when (message) {
-                    is Message.Client -> mapClientMessage(message)
-                    is Message.Server -> mapServerMessage(message, members)
+                    is Message.Regular -> mapRegularMessage(message)
+                    is Message.System -> mapSystemMessage(message, members)
                 }
-            Message.Visibility.DELETED -> MessageContent.DeletedMessage
-            Message.Visibility.HIDDEN -> MessageContent.DeletedMessage
+            Message.Visibility.DELETED -> UIMessageContent.DeletedMessage
+            Message.Visibility.HIDDEN -> null // we don't want to show hidden messages in any way
         }
     }
 
-    private fun mapServerMessage(
-        message: Message.Server,
+    private fun mapSystemMessage(
+        message: Message.System,
         members: List<MemberDetails>
     ) = when (val content = message.content) {
         is MemberChange -> {
@@ -64,17 +64,17 @@ class MessageContentMapper @Inject constructor(
                 )
             }
             when (content) {
-                is Added -> MessageContent.ServerMessage.MemberAdded(
+                is Added -> UIMessageContent.SystemMessage.MemberAdded(
                     author = authorName,
                     memberNames = memberNameList
                 )
                 is Removed ->
                     if (isAuthorSelfAction) {
-                        MessageContent.ServerMessage.MemberLeft(
+                        UIMessageContent.SystemMessage.MemberLeft(
                             author = authorName
                         )
                     } else {
-                        MessageContent.ServerMessage.MemberRemoved(
+                        UIMessageContent.SystemMessage.MemberRemoved(
                             author = authorName,
                             memberNames = memberNameList
                         )
@@ -83,46 +83,47 @@ class MessageContentMapper @Inject constructor(
         }
     }
 
-    private suspend fun mapClientMessage(
-        message: Message.Client,
+    private suspend fun mapRegularMessage(
+        message: Message.Regular,
     ) = when (val content = message.content) {
         is Asset -> toAsset(
             conversationId = message.conversationId,
             messageId = message.id,
             assetContent = content.value
         )
-        is Text -> toText(
-            content = content.value,
-            editStatus = message.editStatus
-        )
-        else -> toText(null, Message.EditStatus.NotEdited)
+        else -> toText(content, message.editStatus)
     }
 
-    private fun toText(
-        content: String?,
+    fun toText(
+        content: MessageContent,
         editStatus: Message.EditStatus
-    ) = when (editStatus) {
-        is Message.EditStatus.Edited -> {
-            MessageContent.EditedMessage(
-                messageBody = MessageBody(message = toTextMessageContent(content)),
-                editTimeStamp = isoFormatter.fromISO8601ToTimeFormat(utcISO = editStatus.lastTimeStamp)
+    ) = MessageBody(
+        when (content) {
+            is MessageContent.Text -> UIText.DynamicString(content.value)
+            is MessageContent.Unknown -> UIText.StringResource(
+                messageResourceProvider.sentAMessageWithContent, content.typeName ?: "Unknown"
             )
+            else -> UIText.StringResource(messageResourceProvider.sentAMessageWithContent, "Unknown")
         }
-        Message.EditStatus.NotEdited -> {
-            MessageContent.TextMessage(
-                messageBody = MessageBody(message = toTextMessageContent(content))
-            )
+    ).let { messageBody ->
+        when (editStatus) {
+            is Message.EditStatus.Edited -> {
+                UIMessageContent.EditedMessage(
+                    messageBody = messageBody,
+                    editTimeStamp = isoFormatter.fromISO8601ToTimeFormat(utcISO = editStatus.lastTimeStamp)
+                )
+            }
+            Message.EditStatus.NotEdited -> {
+                UIMessageContent.TextMessage(messageBody = messageBody)
+            }
         }
     }
-
-    fun toTextMessageContent(content: String?): UIText =
-        content?.let { UIText.DynamicString(it) } ?: UIText.StringResource(messageResourceProvider.contentNotAvailable)
 
     fun toServer(
-        content: Server,
+        content: System,
         senderUserId: UserId,
         members: List<MemberDetails>
-    ): MessageContent = when (content) {
+    ): UIMessageContent = when (content) {
         is MemberChange -> {
             val sender = members.findUser(senderUserId)
             val isAuthorSelfAction = content.members.size == 1 && senderUserId == content.members.first().id
@@ -131,13 +132,13 @@ class MessageContentMapper @Inject constructor(
                 toSystemMessageMemberName(members.findUser(it.id), SelfNameType.ResourceLowercase)
             }
             when (content) {
-                is Added -> MessageContent.ServerMessage.MemberAdded(
+                is Added -> UIMessageContent.SystemMessage.MemberAdded(
                     authorName,
                     memberNameList
                 )
                 is Removed ->
-                    if (isAuthorSelfAction) MessageContent.ServerMessage.MemberLeft(authorName)
-                    else MessageContent.ServerMessage.MemberRemoved(authorName, memberNameList)
+                    if (isAuthorSelfAction) UIMessageContent.SystemMessage.MemberLeft(authorName)
+                    else UIMessageContent.SystemMessage.MemberRemoved(authorName, memberNameList)
             }
         }
     }
@@ -154,7 +155,7 @@ class MessageContentMapper @Inject constructor(
         if (remoteData.assetId.isNotEmpty()) {
             when {
                 // If it's an image, we download it right away
-                mimeType.contains("image") -> MessageContent.ImageMessage(
+                mimeType.contains("image") -> UIMessageContent.ImageMessage(
                     assetId = AssetId(remoteData.assetId, remoteData.assetDomain.orEmpty()),
                     rawImgData = getRawAssetData(
                         conversationId = conversationId,
@@ -166,7 +167,7 @@ class MessageContentMapper @Inject constructor(
 
                 // It's a generic Asset Message so let's not download it yet
                 else -> {
-                    MessageContent.AssetMessage(
+                    UIMessageContent.AssetMessage(
                         assetName = name ?: "",
                         assetExtension = name?.split(".")?.last() ?: "",
                         assetId = AssetId(remoteData.assetId, remoteData.assetDomain.orEmpty()),
@@ -212,5 +213,5 @@ data class MessageResourceProvider(
     @StringRes val memberNameDeleted: Int = R.string.member_name_deleted_label,
     @StringRes val memberNameYouLowercase: Int = R.string.member_name_you_label_lowercase,
     @StringRes val memberNameYouTitlecase: Int = R.string.member_name_you_label_titlecase,
-    @StringRes val contentNotAvailable: Int = R.string.content_is_not_available
+    @StringRes val sentAMessageWithContent: Int = R.string.sent_a_message_with_content
 )

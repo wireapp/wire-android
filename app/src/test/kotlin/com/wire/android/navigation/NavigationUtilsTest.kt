@@ -45,12 +45,21 @@ internal class NavigationUtilsTest {
     }
 
     @Test
-    fun `Given an incorrect string, when parsing it to QualifiedId, then it throws an exception`() {
+    fun `Given an incorrect string, when parsing it to QualifiedId, then returns a qualifiedID with an empty domain`() {
         // Given
         val mockWrongImagePrivateAssetString = "wrong-private-asset/image"
 
-        // When, Then
-        assertThrows<Exception> { mockWrongImagePrivateAssetString.parseIntoQualifiedID() }
+        // When
+        val result = mockWrongImagePrivateAssetString.parseIntoQualifiedID()
+
+        // Then
+        assertEquals(
+            QualifiedID(
+                value = "wrong-private-asset/image",
+                domain = ""
+            ),
+            result
+        )
     }
 
     @Test

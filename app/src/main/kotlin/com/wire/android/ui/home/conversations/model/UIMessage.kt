@@ -67,18 +67,18 @@ sealed class MessageContent {
             return rawImgData.contentHashCode()
         }
     }
-    sealed class ServerMessage(@DrawableRes val iconResId: Int?, @StringRes val stringResId: Int) : MessageContent() {
+    sealed class SystemMessage(@DrawableRes val iconResId: Int?, @StringRes val stringResId: Int) : MessageContent() {
         data class MemberAdded(
             val author: UIText,
             val memberNames: List<UIText>
-            ) : ServerMessage(R.drawable.ic_add, R.string.label_system_message_added)
+            ) : SystemMessage(R.drawable.ic_add, R.string.label_system_message_added)
         data class MemberRemoved(
             val author: UIText,
             val memberNames: List<UIText>
-            ) : ServerMessage(R.drawable.ic_minus, R.string.label_system_message_removed)
+            ) : SystemMessage(R.drawable.ic_minus, R.string.label_system_message_removed)
         data class MemberLeft(
             val author: UIText
-            ) : ServerMessage(R.drawable.ic_minus, R.string.label_system_message_left_the_conversation)
+            ) : SystemMessage(R.drawable.ic_minus, R.string.label_system_message_left_the_conversation)
     }
 
 }

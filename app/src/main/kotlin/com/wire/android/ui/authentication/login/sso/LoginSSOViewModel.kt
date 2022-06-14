@@ -8,6 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.login.LoginError
@@ -27,6 +28,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@Suppress("LongParameterList")
 @ExperimentalMaterialApi
 @HiltViewModel
 class LoginSSOViewModel @Inject constructor(
@@ -36,7 +38,8 @@ class LoginSSOViewModel @Inject constructor(
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
     clientScopeProviderFactory: ClientScopeProvider.Factory,
     navigationManager: NavigationManager,
-) : LoginViewModel(navigationManager, clientScopeProviderFactory) {
+    authServerConfigProvider: AuthServerConfigProvider
+) : LoginViewModel(navigationManager, clientScopeProviderFactory, authServerConfigProvider) {
 
     var loginState by mutableStateOf(
         LoginSSOState(ssoCode = TextFieldValue(savedStateHandle.get(SSO_CODE_SAVED_STATE_KEY) ?: String.EMPTY))
@@ -48,7 +51,7 @@ class LoginSSOViewModel @Inject constructor(
     fun login() {
         loginState = loginState.copy(loading = true, loginSSOError = LoginError.None).updateLoginEnabled()
         viewModelScope.launch {
-            ssoInitiateLoginUseCase(SSOInitiateLoginUseCase.Param.WithRedirect(loginState.ssoCode.text, serverConfig)).let { result ->
+            ssoInitiateLoginUseCase(SSOInitiateLoginUseCase.Param.WithRedirect(loginState.ssoCode.text)).let { result ->
                 when (result) {
                     is SSOInitiateLoginResult.Failure -> updateLoginError(result.toLoginSSOError())
                     is SSOInitiateLoginResult.Success -> openWebUrl(result.requestUrl)
@@ -60,7 +63,7 @@ class LoginSSOViewModel @Inject constructor(
     @VisibleForTesting
     fun establishSSOSession(cookie: String) {
         viewModelScope.launch {
-            val authSession = getSSOLoginSessionUseCase(cookie, serverConfig)
+            val authSession = getSSOLoginSessionUseCase(cookie)
                 .let {
                     when (it) {
                         is SSOLoginSessionResult.Failure -> {
@@ -118,7 +121,6 @@ class LoginSSOViewModel @Inject constructor(
         is DeepLinkResult.SSOLogin.Failure -> updateLoginError(LoginError.DialogError.SSOResultError(ssoLoginResult.ssoError))
         else -> {}
     }
-
 
     private fun openWebUrl(url: String) {
         viewModelScope.launch {

@@ -10,10 +10,6 @@ on:
         required: true
 
 jobs:
-  run-unit-tests:
-    uses: ./.github/workflows/gradle-run-unit-tests.yml
-  run-ui-tests:
-    uses: ./.github/workflows/gradle-run-ui-tests.yml
   create-playtest-branch:
     runs-on: ubuntu-latest
     env:
@@ -35,10 +31,7 @@ jobs:
           git submodule update
           git checkout -b ${{ env.PLAYTEST_BRANCH_NAME }}
           git push origin ${{ env.PLAYTEST_BRANCH_NAME }}
-          git checkout main
-          git submodule update
-          git rebase develop --strategy recursive -Xours
-          git push origin main
+          gh pr create --draft --base main --title "Playtest Placeholder PR" --body "Do not merge"
         env:
           PLAYTEST_BRANCH_NAME: playtest/${{ github.event.inputs.playtest-branch-manual-name }}
       - name: Notify on Wire (Manual branch)
@@ -56,10 +49,7 @@ jobs:
           git submodule update
           git checkout -b ${{ env.PLAYTEST_BRANCH_NAME }}
           git push origin ${{ env.PLAYTEST_BRANCH_NAME }}
-          git checkout main
-          git submodule update
-          git rebase develop --strategy recursive -Xours
-          git push origin main
+          gh pr create --draft --base main --title "Playtest Placeholder PR" --body "Do not merge"
         env:
           PLAYTEST_BRANCH_NAME: playtest/${{ steps.date.outputs.date }}
       - name: Notify on Wire (Automatic Branch)
@@ -69,4 +59,4 @@ jobs:
           PLAYTEST_BRANCH_NAME: playtest/${{ steps.date.outputs.date }}
         with:
           status: ${{ job.status }}
-          text: "Playtest branch **${{env.PLAYTEST_BRANCH_NAME}}** created 🚀 - Hotfixes only on this branch - Triggered main branch rebase & playstore build"
+          text: "Playtest branch **${{env.PLAYTEST_BRANCH_NAME}}** created 🚀 - Hotfixes only on this branch

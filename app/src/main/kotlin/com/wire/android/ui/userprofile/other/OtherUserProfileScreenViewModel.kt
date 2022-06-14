@@ -63,7 +63,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                     appLogger.d("Couldn't not find the user with provided id:$userId.id and domain:$userId.domain")
                     connectionOperationState = ConnectionOperationState.LoadUserInformationError()
                 }
-                is GetUserInfoResult.Success -> loadViewState(result.otherUser,result.team)
+                is GetUserInfoResult.Success -> loadViewState(result.otherUser, result.team)
             }
         }
     }

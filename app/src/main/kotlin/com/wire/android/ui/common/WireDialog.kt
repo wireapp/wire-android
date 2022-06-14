@@ -48,11 +48,12 @@ fun WireDialog(
     modifier: Modifier = Modifier,
     shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.dialogCornerSize),
     contentPadding: PaddingValues = PaddingValues(MaterialTheme.wireDimensions.dialogContentPadding),
+    properties: DialogProperties = DialogProperties(usePlatformDefaultWidth = false),
     content: @Composable (() -> Unit)? = null
 ) {
     Dialog(
         onDismissRequest = onDismiss,
-        properties = DialogProperties(usePlatformDefaultWidth = false)
+        properties = properties
     ) {
         WireDialogContent(
             optionButton1Properties = optionButton1Properties,

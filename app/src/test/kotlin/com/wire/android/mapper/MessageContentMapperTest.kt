@@ -5,12 +5,8 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.framework.TestMessage
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.home.conversations.model.MessageContent.AssetMessage
-import com.wire.android.ui.home.conversations.model.MessageContent.DeletedMessage
-import com.wire.android.ui.home.conversations.model.MessageContent.EditedMessage
 import com.wire.android.ui.home.conversations.model.MessageContent.ImageMessage
 import com.wire.android.ui.home.conversations.model.MessageContent.SystemMessage
-import com.wire.android.ui.home.conversations.model.MessageContent.TextMessage
-import com.wire.android.util.time.ISOFormatter
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.Member
 import com.wire.kalium.logic.data.id.QualifiedID

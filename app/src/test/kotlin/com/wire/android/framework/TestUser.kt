@@ -20,8 +20,8 @@ object TestUser {
         accentId = 0,
         team = "teamId",
         connectionStatus = ConnectionState.ACCEPTED,
-        previewPicture = UserAssetId(),
-        completePicture = UserAssetId(),
+        previewPicture = UserAssetId("value", "domain"),
+        completePicture = UserAssetId("value", "domain"),
         availabilityStatus = UserAvailabilityStatus.AVAILABLE
     )
     val OTHER_USER = OtherUser(
@@ -33,8 +33,8 @@ object TestUser {
         accentId = 0,
         team = "otherTeamId",
         connectionStatus = ConnectionState.ACCEPTED,
-        previewPicture = UserAssetId(),
-        completePicture = UserAssetId(),
+        previewPicture = UserAssetId("value", "domain"),
+        completePicture = UserAssetId("value", "domain"),
         availabilityStatus = UserAvailabilityStatus.AVAILABLE
     )
     val MEMBER_SELF = MemberDetails.Self(SELF_USER)

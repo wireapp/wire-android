@@ -1,5 +1,6 @@
 package com.wire.android.ui.debugscreen
 
+import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -35,14 +36,14 @@ import com.wire.android.util.startFileShareIntent
 fun DebugScreen() {
     val debugScreenViewModel: DebugScreenViewModel = hiltViewModel()
     Column {
-        topBar("Debug")
-        list("MLS Data") { debugScreenViewModel.mlsData.map { textRowItem(it) } }
-        list("Logs") { debugLog(debugScreenViewModel) }
+        TopBar(title = "Debug")
+        ListWithHeader("MLS Data") { debugScreenViewModel.mlsData.map { TextRowItem(it) } }
+        ListWithHeader("Logs") { LoggingSection(debugScreenViewModel) }
     }
 }
 
 @Composable
-fun topBar(title: String) {
+fun TopBar(title: String) {
     val colors = wireTopAppBarColors()
     Surface(
         shadowElevation = MaterialTheme.wireDimensions.topBarShadowElevation,
@@ -56,7 +57,7 @@ fun topBar(title: String) {
 }
 
 @Composable
-fun list(
+fun ListWithHeader(
     headerTitle: String, content: @Composable () -> Unit = {}
 ) {
     Column {
@@ -66,12 +67,12 @@ fun list(
 }
 
 @Composable
-fun textRowItem(text: String, trailingIcon: Int? = null, onIconClick: () -> Unit = {}) {
+fun TextRowItem(text: String, @DrawableRes trailingIcon: Int? = null, onIconClick: () -> Unit = {}) {
     Row(modifier = Modifier.fillMaxWidth().background(Color.White)) {
         Text(
             text = text,
             fontWeight = FontWeight.Normal,
-            color = Color.DarkGray,
+            color = MaterialTheme.colorScheme.onSecondary,
             modifier = Modifier.padding(12.dp).weight(1f),
             textAlign = TextAlign.Left,
             fontSize = 14.sp
@@ -79,7 +80,7 @@ fun textRowItem(text: String, trailingIcon: Int? = null, onIconClick: () -> Unit
         trailingIcon?.let {
             Icon(painter = painterResource(id = trailingIcon),
                 contentDescription = "",
-                tint = Color.Black,
+                tint = MaterialTheme.colorScheme.onSecondary,
                 modifier = Modifier.defaultMinSize(80.dp).clickable { onIconClick() }
             )
         }
@@ -88,29 +89,29 @@ fun textRowItem(text: String, trailingIcon: Int? = null, onIconClick: () -> Unit
 }
 
 @Composable
-fun debugLog(debugScreenViewModel: DebugScreenViewModel) {
+fun LoggingSection(debugScreenViewModel: DebugScreenViewModel) {
     val context = LocalContext.current
     val absolutePath = context.cacheDir.absolutePath
-    switchRowItem(
+    SwitchRowItem(
         text = "Enable Logging", checked = debugScreenViewModel.checkedState.value
     ) { state: Boolean ->
         debugScreenViewModel.setLoggingEnabledState(state, absolutePath)
     }
-    textRowItem(
+    TextRowItem(
         "Share Logs",
         trailingIcon = android.R.drawable.ic_menu_share
     ) { context.startFileShareIntent(debugScreenViewModel.logFilePath(absolutePath)) }
 }
 
 @Composable
-fun switchRowItem(
+fun SwitchRowItem(
     text: String, checked: Boolean = false, onCheckedChange: ((Boolean) -> Unit)?
 ) {
     Row(modifier = Modifier.fillMaxWidth().background(Color.White)) {
         Text(
             text = text,
             fontWeight = FontWeight.Normal,
-            color = Color.DarkGray,
+            color = MaterialTheme.colorScheme.onSecondary,
             modifier = Modifier.padding(12.dp).weight(1f),
             textAlign = TextAlign.Left,
             fontSize = 14.sp

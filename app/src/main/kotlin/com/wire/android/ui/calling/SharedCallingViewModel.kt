@@ -1,5 +1,6 @@
 package com.wire.android.ui.calling
 
+import android.util.Log
 import android.view.View
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -19,7 +20,10 @@ import com.wire.kalium.logic.data.id.parseIntoQualifiedID
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.GetAllCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveSpeakerUseCase
 import com.wire.kalium.logic.feature.call.usecase.SetVideoPreviewUseCase
+import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOffUseCase
+import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOnUseCase
 import com.wire.kalium.logic.feature.call.usecase.UnMuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.UpdateVideoStateUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
@@ -40,6 +44,9 @@ class SharedCallingViewModel @Inject constructor(
     private val unMuteCall: UnMuteCallUseCase,
     private val updateVideoState: UpdateVideoStateUseCase,
     private val setVideoPreview: SetVideoPreviewUseCase,
+    private val turnLoudSpeakerOff: TurnLoudSpeakerOffUseCase,
+    private val turnLoudSpeakerOn: TurnLoudSpeakerOnUseCase,
+    private val observeSpeaker: ObserveSpeakerUseCase,
     private val callRinger: CallRinger
 ) : ViewModel() {
 
@@ -56,6 +63,9 @@ class SharedCallingViewModel @Inject constructor(
             }
             launch {
                 initializeCallingButtons()
+            }
+            launch {
+                observeOnSpeaker()
             }
         }
     }
@@ -80,6 +90,12 @@ class SharedCallingViewModel @Inject constructor(
                     else -> throw IllegalStateException("Invalid conversation type")
                 }
             }
+    }
+
+    private suspend fun observeOnSpeaker() {
+        observeSpeaker().collect {
+            callState = callState.copy(isSpeakerOn = it)
+        }
     }
 
     private suspend fun initializeCallingButtons() {
@@ -109,6 +125,18 @@ class SharedCallingViewModel @Inject constructor(
         }
     }
 
+    fun toggleSpeaker() {
+        viewModelScope.launch {
+            callState = if (callState.isSpeakerOn) {
+                turnLoudSpeakerOff()
+                callState.copy(isSpeakerOn = false)
+            } else {
+                turnLoudSpeakerOn()
+                callState.copy(isSpeakerOn = true)
+            }
+        }
+    }
+
     fun toggleMute() {
         viewModelScope.launch {
             callState = if (callState.isMuted) {
@@ -123,7 +151,19 @@ class SharedCallingViewModel @Inject constructor(
 
     fun toggleVideo() {
         viewModelScope.launch {
-            callState = callState.copy(isCameraOn = !callState.isCameraOn)
+            callState = if (callState.isCameraOn) {
+                turnLoudSpeakerOff()
+                callState.copy(
+                    isCameraOn = false,
+                    isSpeakerOn = false
+                )
+            } else {
+                turnLoudSpeakerOn()
+                callState.copy(
+                    isCameraOn = true,
+                    isSpeakerOn = true
+                )
+            }
         }
     }
 

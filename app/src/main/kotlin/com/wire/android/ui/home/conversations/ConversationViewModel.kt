@@ -71,7 +71,7 @@ class ConversationViewModel @Inject constructor(
     private val markMessagesAsNotified: MarkMessagesAsNotifiedUseCase,
     private val updateAssetMessageDownloadStatus: UpdateAssetMessageDownloadStatusUseCase,
     private val getSelfUserTeam: GetSelfTeamUseCase,
-    private val getMessageForConversation : GetMessagesForConversationUseCase,
+    private val getMessageForConversation: GetMessagesForConversationUseCase,
     private val fileManager: FileManager
 ) : ViewModel() {
 
@@ -320,7 +320,7 @@ class ConversationViewModel @Inject constructor(
         }
 
     fun deleteMessage(messageId: String, deleteForEveryone: Boolean) = viewModelScope.launch {
-        //update dialogs state to loading
+        // update dialogs state to loading
         if (deleteForEveryone) {
             updateDeleteDialogState {
                 it.copy(

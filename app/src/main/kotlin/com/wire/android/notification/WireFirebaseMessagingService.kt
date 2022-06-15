@@ -5,7 +5,7 @@ import com.google.firebase.messaging.RemoteMessage
 import com.wire.android.appLogger
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.kalium.logic.CoreLogic
-import com.wire.kalium.logic.feature.notification_token.SaveNotificationTokenUseCase
+import com.wire.kalium.logic.feature.notificationToken.SaveNotificationTokenUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
@@ -22,13 +22,15 @@ class WireFirebaseMessagingService : FirebaseMessagingService() {
 
     override fun onNewToken(p0: String) {
         super.onNewToken(p0)
-        coreLogic.getAuthenticationScope().saveNotificationToken(p0, "GCM").let { result ->
+        coreLogic.globalScope {
+            saveNotificationToken(p0, "GCM")
+        }.let { result ->
             when (result) {
                 is SaveNotificationTokenUseCase.Result.Failure.Generic -> {
                     appLogger.e("token registration has an issue : ${result.failure} ")
 
                 }
-                is SaveNotificationTokenUseCase.Result.Success -> {
+                SaveNotificationTokenUseCase.Result.Success -> {
                     appLogger.i("token registered successfully ")
                 }
             }

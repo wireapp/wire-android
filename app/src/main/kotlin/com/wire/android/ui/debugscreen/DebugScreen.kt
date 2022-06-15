@@ -16,7 +16,6 @@ import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -68,7 +67,7 @@ fun ListWithHeader(
 
 @Composable
 fun TextRowItem(text: String, @DrawableRes trailingIcon: Int? = null, onIconClick: () -> Unit = {}) {
-    Row(modifier = Modifier.fillMaxWidth().background(Color.White)) {
+    Row(modifier = Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface)) {
         Text(
             text = text,
             fontWeight = FontWeight.Normal,
@@ -78,7 +77,8 @@ fun TextRowItem(text: String, @DrawableRes trailingIcon: Int? = null, onIconClic
             fontSize = 14.sp
         )
         trailingIcon?.let {
-            Icon(painter = painterResource(id = trailingIcon),
+            Icon(
+                painter = painterResource(id = trailingIcon),
                 contentDescription = "",
                 tint = MaterialTheme.colorScheme.onSecondary,
                 modifier = Modifier.defaultMinSize(80.dp).clickable { onIconClick() }
@@ -107,7 +107,7 @@ fun LoggingSection(debugScreenViewModel: DebugScreenViewModel) {
 fun SwitchRowItem(
     text: String, checked: Boolean = false, onCheckedChange: ((Boolean) -> Unit)?
 ) {
-    Row(modifier = Modifier.fillMaxWidth().background(Color.White)) {
+    Row(modifier = Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface)) {
         Text(
             text = text,
             fontWeight = FontWeight.Normal,

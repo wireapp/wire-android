@@ -324,7 +324,7 @@ class ConversationViewModel @Inject constructor(
         }
 
     fun deleteMessage(messageId: String, deleteForEveryone: Boolean) = viewModelScope.launch {
-        //update dialogs state to loading
+        // update dialogs state to loading
         if (deleteForEveryone) {
             updateDeleteDialogState {
                 it.copy(

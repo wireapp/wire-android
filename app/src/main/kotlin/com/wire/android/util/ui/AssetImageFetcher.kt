@@ -40,6 +40,7 @@ internal class AssetImageFetcher(
                         // imageLoader.memoryCache.set(MemoryCache.Key("assetKey"), MemoryCache.Value("result.asset.toBitmap()"))
                         drawableResultWrapper.toFetchResult(result.decodedAsset)
                     }
+                    is MessageAssetResult.RestrictedAsset -> TODO()
                 }
             }
         }

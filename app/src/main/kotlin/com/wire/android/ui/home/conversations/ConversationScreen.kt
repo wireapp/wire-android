@@ -271,7 +271,7 @@ fun MessageList(
         items(messages, key = {
             it.messageHeader.messageId
         }) { message ->
-            if (message.messageContent is MessageContent.ServerMessage)
+            if (message.messageContent is MessageContent.SystemMessage)
                 SystemMessageItem(message = message.messageContent)
             else
                 MessageItem(

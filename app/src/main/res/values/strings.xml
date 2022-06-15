@@ -22,6 +22,8 @@
     <string name="label_message_receive_failure">Download Error</string>
     <string name="label_try_again">Try again</string>
     <string name="label_federated_membership">Federated</string>
+    <string name="label_update">Update</string>
+    <string name="label_close">Close</string>
     <string name="label_download">Download</string>
     <string name="label_show">Show</string>
     <string name="label_show_all">Show All</string>
@@ -85,6 +87,12 @@
     <string name="welcome_button_create_enterprise_account">Create Enterprise Account</string>
     <string name="welcome_button_create_personal_account">Create a Personal Account</string>
     <string name="welcome_button_create_team">Create a Team</string>
+
+    <!-- API Versioning Dialogs -->
+    <string name="api_versioning_client_update_required_title">Update required</string>
+    <string name="api_versioning_client_update_required_message">You are missing out on new features. Update to the latest version of Wire to continue using the app with this account.</string>
+    <string name="api_versioning_server_version_not_supported_title">Server version not supported</string>
+    <string name="api_versioning_server_version_not_supported_message">Your Wire server needs to be updated. Please notify your system administrator.</string>
 
     <!-- Login -->
     <string name="login_title">Login</string>
@@ -196,7 +204,7 @@
     <string name="conversations_all_tab_title">All</string>
     <string name="conversations_calls_tab_title">Calls</string>
     <string name="conversations_mentions_tab_title">Mentions</string>
-    <string name="content_is_not_available">content is not available</string>
+    <string name="sent_a_message_with_content">sent a message with %s content</string>
     <string name="new_group_title">New Group</string>
     <string name="new_group_description">Up to 500 people can join a group conversation.</string>
     <string name="group_name">Group name</string>
@@ -326,6 +334,7 @@
     <string name="notification_shared_picture">Shared a picture</string>
     <string name="notification_shared_file">Shared a file</string>
     <string name="notification_reacted">Added a reaction</string>
+    <string name="notification_not_suppotred_notification">Something not supported in notifications</string>
     <string name="notification_action_call">Call</string>
     <string name="notification_action_reply">Reply</string>
     <string name="notification_receiver_name">You</string>
@@ -351,6 +360,7 @@
     <string name="calling_label_constant_bit_rate">CONSTANT BIT RATE</string>
     <string name="calling_label_decline">Decline</string>
     <string name="calling_label_accept">Accept</string>
+    <string name="calling_content_description_participant_muted">Participant muted</string>
 
     <!-- Connections -->
     <string name="connection_label_connect">Connect</string>
@@ -358,7 +368,7 @@
     <string name="connection_label_member_not_belongs_to_team">This user does not belong to your team. If they accept your connection request, they are available as a contact</string>
     <string name="connection_request_sent">Connection request sent</string>
     <string name="connection_request_canceled">Connection request canceled</string>
-    <string name="connection_request_ignored">Connection request ignored</string>
+    <string name="connection_request_ignored">You ignored %1$s\'s request</string>
     <string name="connection_request_accepted">Connection request accepted</string>
 
     <string name="connection_request_sent_error">Connection request could not be sent</string>

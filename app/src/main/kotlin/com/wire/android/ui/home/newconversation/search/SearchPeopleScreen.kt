@@ -43,7 +43,6 @@ fun SearchPeopleScreen(
     noneSearchSucceed: Boolean,
     knownContactSearchResult: ContactSearchResult,
     publicContactSearchResult: ContactSearchResult,
-    federatedBackendResultContact: ContactSearchResult,
     contactsAddedToGroup: List<Contact>,
     onAddToGroup: (Contact) -> Unit,
     onRemoveFromGroup: (Contact) -> Unit,
@@ -62,7 +61,6 @@ fun SearchPeopleScreen(
                     searchQuery = searchQuery,
                     knownContactSearchResult = knownContactSearchResult,
                     publicContactSearchResult = publicContactSearchResult,
-                    federatedBackendResultContact = federatedBackendResultContact,
                     contactsAddedToGroup = contactsAddedToGroup,
                     onAddToGroup = onAddToGroup,
                     onRemoveContactFromGroup = onRemoveFromGroup,
@@ -80,7 +78,6 @@ private fun SearchResult(
     searchQuery: String,
     knownContactSearchResult: ContactSearchResult,
     publicContactSearchResult: ContactSearchResult,
-    federatedBackendResultContact: ContactSearchResult,
     contactsAddedToGroup: List<Contact>,
     onAddToGroup: (Contact) -> Unit,
     onRemoveContactFromGroup: (Contact) -> Unit,
@@ -116,14 +113,6 @@ private fun SearchResult(
                 showAllItems = searchPeopleScreenState.publicResultsCollapsed,
                 onShowAllButtonClicked = { searchPeopleScreenState.toggleShowAllPublicResult() },
                 onOpenUserProfile = { externalUser -> onOpenUserProfile(SearchOpenUserProfile(externalUser)) }
-            )
-            externalSearchResults(
-                searchTitle = { stringResource(R.string.label_federated_backends) },
-                searchQuery = searchQuery,
-                contactSearchResult = federatedBackendResultContact,
-                showAllItems = searchPeopleScreenState.federatedBackendResultsCollapsed,
-                onShowAllButtonClicked = { searchPeopleScreenState.toggleShowFederatedBackendResult() },
-                onOpenUserProfile = { federatedUser -> onOpenUserProfile(SearchOpenUserProfile(federatedUser)) }
             )
         }
         Divider()

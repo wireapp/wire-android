@@ -15,10 +15,6 @@ data class SearchPeopleState(
         ContactSearchResult.ExternalContact(
             searchResultState = SearchResultState.Initial
         ),
-    val federatedContactSearchResult: ContactSearchResult =
-        ContactSearchResult.ExternalContact(
-            searchResultState = SearchResultState.Initial
-        ),
     val contactsAddedToGroup: List<Contact> = emptyList(),
     val allKnownContacts: List<Contact> = emptyList(),
     val scrollPosition: Int = 0,

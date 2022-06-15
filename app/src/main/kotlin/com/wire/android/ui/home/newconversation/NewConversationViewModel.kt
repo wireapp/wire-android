@@ -20,13 +20,11 @@ import com.wire.android.ui.home.newconversation.search.SearchPeopleState
 import com.wire.android.ui.home.newconversation.search.SearchResultState
 import com.wire.android.util.flow.SearchQueryStateFlow
 import com.wire.kalium.logic.data.conversation.ConversationOptions
-import com.wire.kalium.logic.data.id.parseSearchQueryToQualifiedID
 import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
 import com.wire.kalium.logic.feature.publicuser.Result
 import com.wire.kalium.logic.feature.publicuser.SearchKnownUsersUseCase
-import com.wire.kalium.logic.feature.publicuser.SearchUserDirectoryUseCase
-import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
+import com.wire.kalium.logic.feature.publicuser.SearchUsersUseCase
 import com.wire.kalium.logic.functional.Either
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -39,11 +37,10 @@ import javax.inject.Inject
 class NewConversationViewModel
 @Inject constructor(
     private val navigationManager: NavigationManager,
+    private val searchUsers: SearchUsersUseCase,
     private val searchKnownUsers: SearchKnownUsersUseCase,
-    private val searchPublicUsers: SearchUserDirectoryUseCase,
     private val getAllContacts: GetAllContactsUseCase,
     private val createGroupConversation: CreateGroupConversationUseCase,
-    private val getSelf: GetSelfUserUseCase,
 ) : ViewModel() {
 
     private companion object {
@@ -53,14 +50,15 @@ class NewConversationViewModel
     val state: SearchPeopleState by derivedStateOf {
         val noneSearchSucceed: Boolean =
             localContactSearchResult.searchResultState is SearchResultState.Failure &&
-                    publicContactsSearchResult.searchResultState is SearchResultState.Failure &&
-                    federatedContactSearchResult.searchResultState is SearchResultState.Failure
+                    publicContactsSearchResult.searchResultState is SearchResultState.Failure
+
+        val filteredPublicContactsSearchResult: ContactSearchResult =
+            publicContactsSearchResult.filterContacts(localContactSearchResult)
 
         innerSearchPeopleState.copy(
             noneSearchSucceed = noneSearchSucceed,
             localContactSearchResult = localContactSearchResult,
-            publicContactsSearchResult = publicContactsSearchResult,
-            federatedContactSearchResult = federatedContactSearchResult
+            publicContactsSearchResult = filteredPublicContactsSearchResult,
         )
     }
 
@@ -76,10 +74,6 @@ class NewConversationViewModel
         ContactSearchResult.ExternalContact(searchResultState = SearchResultState.Initial)
     )
 
-    private var federatedContactSearchResult by mutableStateOf(
-        ContactSearchResult.ExternalContact(searchResultState = SearchResultState.Initial)
-    )
-
     private val searchQueryStateFlow = SearchQueryStateFlow()
 
     fun updateScrollPosition(newScrollPosition: Int) {
@@ -88,8 +82,6 @@ class NewConversationViewModel
 
     init {
         viewModelScope.launch {
-            launch { loadUser() }
-
             launch {
                 val allContacts = getAllContacts()
 
@@ -105,11 +97,17 @@ class NewConversationViewModel
         }
     }
 
-    private suspend fun loadUser() {
-        viewModelScope.launch {
-            getSelf().collect { selfUser ->
-                innerSearchPeopleState = innerSearchPeopleState.copy(self = selfUser)
-            }
+    private fun ContactSearchResult.filterContacts(contactSearchResult: ContactSearchResult): ContactSearchResult {
+        return if (searchResultState is SearchResultState.Success &&
+            contactSearchResult.searchResultState is SearchResultState.Success
+        ) {
+            ContactSearchResult.ExternalContact(SearchResultState.Success(searchResultState.result.filterNot { contact ->
+                contactSearchResult.searchResultState.result.map { it.id }.contains(
+                    contact.id
+                )
+            }))
+        } else {
+            this
         }
     }
 
@@ -120,32 +118,25 @@ class NewConversationViewModel
         searchQueryStateFlow.search(searchTerm)
     }
 
-    //TODO: suppress for now,
-    // we should  map the result to a custom Result class containing Error on Kalium side for this use case
-    @Suppress("TooGenericExceptionCaught")
     private suspend fun searchKnown(searchTerm: String) {
         localContactSearchResult = ContactSearchResult.InternalContact(SearchResultState.InProgress)
 
-        localContactSearchResult = try {
-            val searchResult = searchKnownUsers(searchTerm)
+        val result = searchKnownUsers(searchTerm)
 
-            ContactSearchResult.InternalContact(
-                SearchResultState.Success(searchResult.result.map { otherUser -> otherUser.toContact() })
+        localContactSearchResult = when (result) {
+            is Result.Success -> ContactSearchResult.InternalContact(
+                SearchResultState.Success(result.userSearchResult.result.map { otherUser -> otherUser.toContact() })
             )
-        } catch (exception: Exception) {
-            ContactSearchResult.InternalContact(SearchResultState.Failure(R.string.label_general_error))
+            else -> ContactSearchResult.InternalContact(SearchResultState.Failure(R.string.label_general_error))
         }
     }
 
     private suspend fun searchPublic(searchTerm: String) {
         publicContactsSearchResult = ContactSearchResult.ExternalContact(SearchResultState.InProgress)
 
-        val qualifiedId = searchTerm.parseSearchQueryToQualifiedID()
-
         val result = withContext(Dispatchers.IO) {
-            searchPublicUsers(
-                searchQuery = qualifiedId.value,
-                domain = qualifiedId.domain.ifEmpty { state.self?.id?.domain ?: "" }
+            searchUsers(
+                searchQuery = searchTerm
             )
         }
 

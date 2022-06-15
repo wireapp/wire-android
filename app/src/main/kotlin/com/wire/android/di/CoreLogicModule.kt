@@ -26,6 +26,7 @@ import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
 import com.wire.kalium.logic.feature.publicuser.GetKnownUserUseCase
 import com.wire.kalium.logic.feature.publicuser.SearchKnownUsersUseCase
+import com.wire.kalium.logic.feature.publicuser.SearchUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.SearchUserDirectoryUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
@@ -301,6 +302,14 @@ class UseCaseModule {
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
     ): GetMessageAssetUseCase = coreLogic.getSessionScope(currentAccount).messages.getAssetMessage
+
+    @ViewModelScoped
+    @Provides
+    fun providesSearchUsersUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): SearchUsersUseCase =
+        coreLogic.getSessionScope(currentAccount).users.searchUsers
 
     @ViewModelScoped
     @Provides

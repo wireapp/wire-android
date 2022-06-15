@@ -18,6 +18,7 @@ import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveMemberDetailsByIdsUseCase
 import com.wire.kalium.logic.feature.message.GetRecentMessagesUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -43,7 +44,7 @@ class GetMessageForConversationsUseCaseTest {
     lateinit var getMessages: GetRecentMessagesUseCase
 
     @MockK
-    lateinit var observeMemberDetails: ObserveConversationMembersUseCase
+    lateinit var observeMemberDetails: ObserveMemberDetailsByIdsUseCase
 
     @MockK
     lateinit var messageMapper: MessageMapper
@@ -84,6 +85,7 @@ class GetMessageForConversationsUseCaseTest {
                     messageBody = (mockTextMessage.content as com.wire.kalium.logic.data.message.MessageContent.Text).value
                 )
             )
+            every { messageMapper.memberIdList(any()) } returns listOf(mockSelfUserDetails.selfUser.id)
 
             // When
             getMessagesForConversationUseCase(ConversationId("someValue", "someId")).collect { messages ->
@@ -103,7 +105,7 @@ class GetMessageForConversationsUseCaseTest {
             coVerify { messageMapper.toUIMessages(listOf(mockSelfUserDetails), listOf(mockTextMessage)) }
         }
 
-    private fun mockedTextMessage(content: String = "Some Text Message") = Message.Client(
+    private fun mockedTextMessage(content: String = "Some Text Message") = Message.Regular(
         id = "messageID",
         content = com.wire.kalium.logic.data.message.MessageContent.Text(content),
         conversationId = ConversationId("someId", "someDomain"),

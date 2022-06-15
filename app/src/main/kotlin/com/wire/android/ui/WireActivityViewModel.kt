@@ -7,6 +7,8 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.appLogger
+import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
@@ -15,9 +17,9 @@ import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
-import com.wire.kalium.logic.configuration.GetServerConfigResult
-import com.wire.kalium.logic.configuration.GetServerConfigUseCase
-import com.wire.kalium.logic.configuration.ServerConfig
+import com.wire.kalium.logic.feature.server.GetServerConfigResult
+import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
+import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
@@ -36,10 +38,7 @@ import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @Suppress("LongParameterList")
-@OptIn(
-    ExperimentalCoroutinesApi::class,
-    ExperimentalMaterial3Api::class
-)
+@OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class WireActivityViewModel @Inject constructor(
     @KaliumCoreLogic private val coreLogic: CoreLogic,
@@ -48,7 +47,8 @@ class WireActivityViewModel @Inject constructor(
     private val getServerConfigUseCase: GetServerConfigUseCase,
     private val deepLinkProcessor: DeepLinkProcessor,
     private val notificationManager: WireNotificationManager,
-    private val navigationManager: NavigationManager
+    private val navigationManager: NavigationManager,
+    private val authServerConfigProvider: AuthServerConfigProvider
 ) : ViewModel(), DefaultLifecycleObserver {
 
     private val isAppVisibleFlow = MutableStateFlow(true)
@@ -56,7 +56,7 @@ class WireActivityViewModel @Inject constructor(
 
     private val observeUserId = currentSessionFlow()
         .map { result ->
-            if (result is CurrentSessionResult.Success) result.authSession.userId
+            if (result is CurrentSessionResult.Success) result.authSession.tokens.userId
             else null
         }
         .distinctUntilChanged()
@@ -94,17 +94,19 @@ class WireActivityViewModel @Inject constructor(
         }
 
     fun handleDeepLink(intent: Intent?) {
-        intent?.data?.let {
-            val result = deepLinkProcessor(it)
-            with(result) {
-                when (this) {
-                    is DeepLinkResult.CustomServerConfig ->
-                        navigationArguments.put(SERVER_CONFIG_ARG, loadServerConfig(url))
-                    is DeepLinkResult.SSOLogin ->
-                        navigationArguments.put(SSO_DEEPLINK_ARG, this)
-                    is DeepLinkResult.IncomingCall ->
-                        navigationArguments.put(INCOMING_CALL_CONVERSATION_ID_ARG, this.conversationsId)
-                    DeepLinkResult.Unknown -> TODO()
+        intent?.data?.let { deepLink ->
+            when (val result = deepLinkProcessor(deepLink)) {
+                is DeepLinkResult.CustomServerConfig ->
+                    loadServerConfig(result.url)?.let { serverLinks ->
+                        authServerConfigProvider.updateAuthServer(serverLinks)
+                        navigationArguments.put(SERVER_CONFIG_ARG, serverLinks)
+                    }
+                is DeepLinkResult.SSOLogin ->
+                    navigationArguments.put(SSO_DEEPLINK_ARG, result)
+                is DeepLinkResult.IncomingCall ->
+                    navigationArguments.put(INCOMING_CALL_CONVERSATION_ID_ARG, result.conversationsId)
+                DeepLinkResult.Unknown -> {
+                    appLogger.e("unknown deeplink result $result")
                 }
             }
         }
@@ -157,15 +159,27 @@ class WireActivityViewModel @Inject constructor(
         }
     }
 
-    private fun loadServerConfig(url: String) = runBlocking {
+    private fun loadServerConfig(url: String): ServerConfig.Links? = runBlocking {
         return@runBlocking when (val result = getServerConfigUseCase(url)) {
-            is GetServerConfigResult.Success -> result.serverConfig
-            else -> ServerConfig.DEFAULT
+            is GetServerConfigResult.Success -> result.serverConfig.links
+            // TODO: show error message on failure
+            is GetServerConfigResult.Failure.Generic -> {
+                appLogger.e("something went wrong during handling the scustom server deep link: ${result.genericFailure}")
+                null
+            }
+            GetServerConfigResult.Failure.TooNewVersion -> {
+                appLogger.e("server version is too new")
+                null
+            }
+            GetServerConfigResult.Failure.UnknownServerVersion -> {
+                appLogger.e("unknown server version")
+                null
+            }
         }
     }
 
     private fun shouldGoToLogin(): Boolean =
-        (navigationArguments[SERVER_CONFIG_ARG] as ServerConfig).apiBaseUrl != ServerConfig.DEFAULT.apiBaseUrl ||
+        (navigationArguments[SERVER_CONFIG_ARG] as ServerConfig.Links) != ServerConfig.DEFAULT ||
                 navigationArguments[SSO_DEEPLINK_ARG] != null
 
     private fun shouldGoToIncomingCall(): Boolean =

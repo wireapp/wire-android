@@ -51,7 +51,7 @@ import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerScreen
 import com.wire.android.ui.userprofile.other.OtherUserProfileScreen
 import com.wire.android.ui.userprofile.self.SelfUserProfileScreen
 import com.wire.android.util.deeplink.DeepLinkResult
-import com.wire.kalium.logic.configuration.ServerConfig
+import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.toConversationId
 import io.github.esentsov.PackagePrivate
@@ -81,22 +81,21 @@ enum class NavigationItem(
     Login(
         primaryRoute = LOGIN,
         content = { contentParams ->
-            val serverConfig = contentParams.arguments.filterIsInstance<ServerConfig>().firstOrNull()
             val ssoLoginResult = contentParams.arguments.filterIsInstance<DeepLinkResult.SSOLogin>().firstOrNull()
-            LoginScreen(serverConfig ?: ServerConfig.DEFAULT, ssoLoginResult)
+            LoginScreen(ssoLoginResult)
         },
         animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
     ),
 
     CreateTeam(
         primaryRoute = CREATE_TEAM,
-        content = { CreateTeamScreen(serverConfig = ServerConfig.DEFAULT) },
+        content = { CreateTeamScreen() },
         animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
     ),
 
     CreatePersonalAccount(
         primaryRoute = CREATE_PERSONAL_ACCOUNT,
-        content = { CreatePersonalAccountScreen(ServerConfig.DEFAULT) },
+        content = { CreatePersonalAccountScreen() },
         animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
     ),
 

@@ -1,5 +1,6 @@
 package com.wire.android.notification
 
+import com.wire.android.appLogger
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.util.extension.intervalFlow
 import com.wire.kalium.logic.CoreLogic
@@ -8,6 +9,7 @@ import com.wire.kalium.logic.data.notification.LocalNotificationConversation
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.Call
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
+import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
@@ -84,10 +86,23 @@ class WireNotificationManager @Inject constructor(
      *
      * return the userId if the user is authenticated and null otherwise
      */
+    @Suppress("NestedBlockDepth")
     private fun checkIfUserIsAuthenticated(userId: String): QualifiedID? =
-        when (val currentSession = coreLogic.getAuthenticationScope().session.currentSession()) {
-            is CurrentSessionResult.Success -> currentSession.authSession.userId
-            else -> null
+        coreLogic.globalScope { getSessions() }.let {
+            when (it) {
+                is GetAllSessionsResult.Success -> {
+                    for (sessions in it.sessions) {
+                        if (sessions.tokens.userId.value == userId)
+                            return@let sessions.tokens.userId
+                    }
+                    null
+                }
+                is GetAllSessionsResult.Failure.Generic -> {
+                    appLogger.e("get sessions failed ${it.genericFailure} ")
+                    null
+                }
+                GetAllSessionsResult.Failure.NoSessionFound -> null
+            }
         }
 
     /**
@@ -121,6 +136,7 @@ class WireNotificationManager @Inject constructor(
                 }
             }
     }
+
 
     /**
      * Infinitely listen for the new Message notifications and show it.

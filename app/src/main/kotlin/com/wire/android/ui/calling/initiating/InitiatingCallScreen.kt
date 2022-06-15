@@ -39,6 +39,7 @@ fun InitiatingCallScreen(
         InitiatingCallContent(
             callState = callState,
             toggleMute = ::toggleMute,
+            toggleSpeaker = ::toggleSpeaker,
             toggleVideo = ::toggleVideo,
             onNavigateBack = ::navigateBack,
             onHangUpCall = ::hangUpCall,
@@ -49,9 +50,10 @@ fun InitiatingCallScreen(
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun InitiatingCallContent(
+private fun InitiatingCallContent(
     callState: CallState,
     toggleMute: () -> Unit,
+    toggleSpeaker: () -> Unit,
     toggleVideo: () -> Unit,
     onNavigateBack: () -> Unit,
     onHangUpCall: () -> Unit,
@@ -75,6 +77,8 @@ fun InitiatingCallContent(
                 CallOptionsControls(
                     isMuted = callState.isMuted,
                     isCameraOn = callState.isCameraOn,
+                    isSpeakerOn = callState.isSpeakerOn,
+                    toggleSpeaker = toggleSpeaker,
                     toggleMute = toggleMute,
                     toggleVideo = toggleVideo
                 )

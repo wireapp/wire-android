@@ -7,8 +7,6 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.test.assertIsDisplayed
-import androidx.compose.ui.test.assertIsEnabled
-import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
@@ -26,8 +24,8 @@ import com.wire.android.ui.authentication.create.team.CreateTeamScreen
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.utils.EMAIL
 import com.wire.android.utils.WorkManagerTestRule
+import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.android.utils.waitForExecution
-import com.wire.kalium.logic.configuration.ServerConfig
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import org.hamcrest.core.AllOf.allOf

@@ -62,17 +62,17 @@ class RegisterDeviceViewModel @Inject constructor(
                         loading = false,
                         continueEnabled = true,
                         error = RegisterDeviceError.GenericError(registerDeviceResult.genericFailure)
-                    )
+                )
                 RegisterClientResult.Failure.InvalidCredentials -> state = state.copy(
-                        loading = false,
-                        continueEnabled = true,
-                        error = RegisterDeviceError.InvalidCredentialsError
-                    )
+                    loading = false,
+                    continueEnabled = true,
+                    error = RegisterDeviceError.InvalidCredentialsError
+                )
             }
         }
     }
 
-    private suspend fun registerPushToken(clientId: String){
+    private suspend fun registerPushToken(clientId: String) {
         pushTokenUseCase(BuildConfig.SENDER_ID, clientId).let { registerTokenResult ->
             when (registerTokenResult) {
                 is RegisterTokenResult.Success ->

@@ -2,6 +2,7 @@ package com.wire.android.ui.authentication.create.personalaccount
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.android.navigation.BackStackMode
@@ -31,7 +32,7 @@ class CreatePersonalAccountViewModel @Inject constructor(
     addAuthenticatedUserUseCase: AddAuthenticatedUserUseCase,
     registerAccountUseCase: RegisterAccountUseCase,
     clientScopeProviderFactory: ClientScopeProvider.Factory,
-    pushTokenUseCase: RegisterTokenUseCase
+    authServerConfigProvider: AuthServerConfigProvider
 ) : CreateAccountBaseViewModel(
     CreateAccountFlowType.CreatePersonalAccount,
     savedStateHandle,
@@ -42,7 +43,7 @@ class CreatePersonalAccountViewModel @Inject constructor(
     addAuthenticatedUserUseCase,
     registerAccountUseCase,
     clientScopeProviderFactory,
-    pushTokenUseCase
+    authServerConfigProvider
 ) {
     var moveToStep = MutableSharedFlow<CreatePersonalAccountNavigationItem>()
     var moveBack = MutableSharedFlow<Unit>()

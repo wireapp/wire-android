@@ -31,7 +31,7 @@ jobs:
           git submodule update
           git checkout -b ${{ env.PLAYTEST_BRANCH_NAME }}
           git push origin ${{ env.PLAYTEST_BRANCH_NAME }}
-          gh pr create --draft --base main --title "Playtest Placeholder PR" --body "Do not merge"
+          gh pr create --draft --base main --title "Playtest Placeholder PR ${{ github.event.inputs.playtest-branch-manual-name }}" --body "Do not merge"
         env:
           PLAYTEST_BRANCH_NAME: playtest/${{ github.event.inputs.playtest-branch-manual-name }}
       - name: Notify on Wire (Manual branch)
@@ -49,7 +49,7 @@ jobs:
           git submodule update
           git checkout -b ${{ env.PLAYTEST_BRANCH_NAME }}
           git push origin ${{ env.PLAYTEST_BRANCH_NAME }}
-          gh pr create --draft --base main --title "Playtest Placeholder PR" --body "Do not merge"
+          gh pr create --draft --base main --title "Playtest Placeholder PR ${{ steps.date.outputs.date }}" --body "Do not merge"
         env:
           PLAYTEST_BRANCH_NAME: playtest/${{ steps.date.outputs.date }}
       - name: Notify on Wire (Automatic Branch)

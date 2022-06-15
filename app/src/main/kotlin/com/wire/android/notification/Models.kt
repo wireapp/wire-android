@@ -30,7 +30,8 @@ data class NotificationMessageAuthor(val name: String, val image: ByteArray?)
 enum class CommentResId(@StringRes val value: Int) {
     PICTURE(R.string.notification_shared_picture),
     FILE(R.string.notification_shared_file),
-    REACTION(R.string.notification_reacted)
+    REACTION(R.string.notification_reacted),
+    NOT_SUPPORTED(R.string.notification_not_suppotred_notification)
 }
 
 fun LocalNotificationConversation.intoNotificationConversation() : NotificationConversation{
@@ -68,4 +69,5 @@ fun LocalNotificationCommentType.intoCommentResId(): CommentResId =
         LocalNotificationCommentType.PICTURE -> CommentResId.PICTURE
         LocalNotificationCommentType.FILE -> CommentResId.FILE
         LocalNotificationCommentType.REACTION -> CommentResId.REACTION
+        LocalNotificationCommentType.NOT_SUPPORTED_YET -> CommentResId.NOT_SUPPORTED
     }

@@ -38,14 +38,6 @@ private fun Activity.wakeUpDevice() {
                     or WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
         )
     }
-
-    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-        with(getSystemService(AppCompatActivity.KEYGUARD_SERVICE) as KeyguardManager) {
-            requestDismissKeyguard(this@wakeUpDevice, null)
-        }
-    } else {
-        window.addFlags(WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD)
-    }
 }
 
 private fun Activity.addScreenOnFlags() {
@@ -68,7 +60,6 @@ private fun Activity.removeScreenOnFlags() {
         window.clearFlags(
             WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON
                     or WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
-                    or WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
         )
     }
 }

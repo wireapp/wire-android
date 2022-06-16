@@ -29,13 +29,15 @@ class IncomingCallViewModel @Inject constructor(
     private val rejectCall: RejectCallUseCase,
     private val acceptCall: AnswerCallUseCase,
     private val callRinger: CallRinger,
-    private val notificationManager: CallNotificationManager
+    notificationManager: CallNotificationManager
 ) : ViewModel() {
 
     private val conversationId: ConversationId = savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!.parseIntoQualifiedID()
     lateinit var observeIncomingCallJob: Job
 
     init {
+        notificationManager.hideCallNotification()
+
         viewModelScope.launch {
             callRinger.ring(R.raw.ringing_from_them)
             observeIncomingCallJob = launch {
@@ -56,7 +58,7 @@ class IncomingCallViewModel @Inject constructor(
     private fun onCallClosed() {
         viewModelScope.launch {
             navigationManager.navigateBack()
-            stopRinging()
+            callRinger.stop()
         }
     }
 
@@ -65,12 +67,12 @@ class IncomingCallViewModel @Inject constructor(
             observeIncomingCallJob.cancel()
             rejectCall(conversationId = conversationId)
             navigationManager.navigateBack()
-            stopRinging()
+            callRinger.stop()
         }
     }
 
     fun acceptCall() {
-        stopRinging()
+        callRinger.stop()
         viewModelScope.launch {
             observeIncomingCallJob.cancel()
             acceptCall(conversationId = conversationId)
@@ -83,8 +85,4 @@ class IncomingCallViewModel @Inject constructor(
         }
     }
 
-    private fun stopRinging() {
-        callRinger.stop()
-        notificationManager.hideCallNotification()
-    }
 }

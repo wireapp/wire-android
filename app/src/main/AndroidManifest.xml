@@ -20,7 +20,6 @@
 
     <!-- Allows showing incoming call when device is sleeping -->
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
-    <uses-permission android:name="android.permission.DISABLE_KEYGUARD"/>
 
     <application
             android:name=".WireApplication"

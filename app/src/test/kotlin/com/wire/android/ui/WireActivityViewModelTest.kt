@@ -12,14 +12,16 @@ import com.wire.android.notification.WireNotificationManager
 import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.newServerConfig
+import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
-import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.UserSessionScope
 import com.wire.kalium.logic.feature.auth.AuthSession
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
+import com.wire.kalium.logic.sync.ListenToEventsUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -200,12 +202,24 @@ class WireActivityViewModelTest {
 
             // Default empty values
             mockUri()
+            coEvery { listenToEventsUseCase() } returns Unit
+            coEvery { userSessionScope.listenToEvents } returns listenToEventsUseCase
+            coEvery { coreLogic.getSessionScope(any()) } returns userSessionScope
             coEvery { currentSessionFlow() } returns flowOf()
             coEvery { getServerConfigUseCase(any()) } returns GetServerConfigResult.Success(newServerConfig(1))
             coEvery { deepLinkProcessor(any()) } returns DeepLinkResult.Unknown
             coEvery { notificationManager.observeMessageNotifications(any()) } returns Unit
             coEvery { navigationManager.navigate(any()) } returns Unit
         }
+
+        @MockK
+        lateinit var listenToEventsUseCase: ListenToEventsUseCase
+
+        @MockK
+        lateinit var userSessionScope: UserSessionScope
+
+        @MockK
+        lateinit var coreLogic: CoreLogic
 
         @MockK
         lateinit var currentSessionFlow: CurrentSessionFlowUseCase
@@ -227,13 +241,14 @@ class WireActivityViewModelTest {
 
         private val viewModel by lazy {
             WireActivityViewModel(
-                TestDispatcherProvider(),
-                currentSessionFlow,
-                getServerConfigUseCase,
-                deepLinkProcessor,
-                notificationManager,
-                navigationManager,
-                authServerConfigProvider
+                coreLogic = coreLogic,
+                dispatchers = TestDispatcherProvider(),
+                currentSessionFlow = currentSessionFlow,
+                getServerConfigUseCase = getServerConfigUseCase,
+                deepLinkProcessor = deepLinkProcessor,
+                notificationManager = notificationManager,
+                navigationManager = navigationManager,
+                authServerConfigProvider = authServerConfigProvider
             )
         }
 

@@ -19,7 +19,7 @@ import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 
 object TestMessage {
-    val TEXT_MESSAGE = Message.Client(
+    val TEXT_MESSAGE = Message.Regular(
         id = "messageID",
         content = MessageContent.Text("Some Text Message"),
         conversationId = ConversationId("convo-id", "convo.domain"),
@@ -40,7 +40,7 @@ object TestMessage {
     val ASSET_IMAGE_CONTENT = AssetContent(
         0L, "name", "image", null, ASSET_REMOTE_DATA, Message.DownloadStatus.NOT_DOWNLOADED
     )
-    val MEMBER_REMOVED_MESSAGE = Message.Server(
+    val MEMBER_REMOVED_MESSAGE = Message.System(
         id = "messageID",
         content = MessageContent.MemberChange.Removed(listOf(Member(UserId("user-id", "domain")))),
         conversationId = ConversationId("convo-id", "convo.domain"),

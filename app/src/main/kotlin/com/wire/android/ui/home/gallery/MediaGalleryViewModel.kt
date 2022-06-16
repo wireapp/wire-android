@@ -77,8 +77,8 @@ class MediaGalleryViewModel @Inject constructor(
                 val imageData = getImageData(imageAssetId.conversationId, imageAssetId.messageId)
                 if (imageData is Success) {
                     val defaultImageName = "Wire downloaded image ${getCurrentParsedDateTime()}.jpeg"
-                    fileManager.saveToExternalStorage(defaultImageName, imageData.decodedAssetPath, imageData.assetSize, kaliumFileSystem) {
-                        onFileSavedToExternalStorage()
+                    fileManager.saveToExternalStorage(imageData.decodedAssetPath, imageData.assetSize) {
+                        onImageSavedToExternalStorage()
                     }
                 } else {
                     onSaveError()
@@ -97,7 +97,7 @@ class MediaGalleryViewModel @Inject constructor(
         }
     }
 
-    private fun onFileSavedToExternalStorage() {
+    private fun onImageSavedToExternalStorage() {
         onSnackbarMessage(MediaGallerySnackbarMessages.OnImageDownloaded())
     }
 

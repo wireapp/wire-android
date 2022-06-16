@@ -17,11 +17,10 @@ import androidx.annotation.AnyRes
 import androidx.annotation.NonNull
 import androidx.core.content.FileProvider
 import com.wire.android.appLogger
-import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import okio.Path
 import okio.Path.Companion.toOkioPath
-import okio.buffer
 import java.io.File
+import java.io.FileNotFoundException
 import java.io.InputStream
 
 /**
@@ -51,7 +50,7 @@ private fun getTempWritableAttachmentUri(context: Context, fileName: String): Ur
     return FileProvider.getUriForFile(context, context.getProviderAuthority(), file)
 }
 
-private fun Context.saveFileDataToDownloadsFolder(downloadedDataPath: Path, fileSize: Long, kaliumFileSystem: KaliumFileSystem): Uri? {
+private fun Context.saveFileDataToDownloadsFolder(downloadedDataPath: Path, fileSize: Long): Uri? {
     val resolver = contentResolver
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
         val contentValues = ContentValues().apply {
@@ -68,7 +67,7 @@ private fun Context.saveFileDataToDownloadsFolder(downloadedDataPath: Path, file
         resolver.openOutputStream(downloadedUri).use { outputStream ->
             val brr = ByteArray(DATA_COPY_BUFFER_SIZE)
             var len: Int
-            val bufferedInputStream: InputStream = kaliumFileSystem.source(downloadedDataPath).buffer().inputStream()
+            val bufferedInputStream: InputStream = File(downloadedDataPath.name).inputStream()
             while ((bufferedInputStream.read(brr, 0, brr.size).also { len = it }) != -1) {
                 outputStream?.write(brr, 0, len)
             }
@@ -78,14 +77,7 @@ private fun Context.saveFileDataToDownloadsFolder(downloadedDataPath: Path, file
     }
 }
 
-fun Context.copyDataToTempShareableFile(assetName: String, assetDataPath: Path, kaliumFileSystem: KaliumFileSystem): Uri {
-    val tempOutputFile = File(cacheDir, assetName)
-    tempOutputFile.setWritable(true)
-
-    // Copy asset data to temp file
-    kaliumFileSystem.writeData(tempOutputFile.toOkioPath(), kaliumFileSystem.source(assetDataPath))
-    return FileProvider.getUriForFile(this, getProviderAuthority(), tempOutputFile)
-}
+fun Context.pathToUri(assetDataPath: Path): Uri = FileProvider.getUriForFile(this, getProviderAuthority(), assetDataPath.toFile())
 
 fun Uri.getMimeType(context: Context): String? {
     val extension = MimeTypeMap.getFileExtensionFromUrl(path)
@@ -94,15 +86,52 @@ fun Uri.getMimeType(context: Context): String? {
 }
 
 fun Uri.copyToTempPath(context: Context): Pair<Path, Long> {
-    val file = File(context.cacheDir, "temp_path")
+//    val size: Long = length(context.contentResolver)
+//    return path?.let { File(it).toOkioPath() to size } ?: throw IOException("The given Uri path is null or empty")
+    val file = File(context.cacheDir, "temp_file_asset")
+
     var size: Long
     file.setWritable(true)
     context.contentResolver.openInputStream(this).use { inputStream ->
         file.outputStream().use {
-            size = inputStream?.copyTo(it) ?: 0L
+            size = inputStream?.copyTo(it) ?: -1L
         }
     }
     return file.toOkioPath() to size
+}
+
+fun Uri.length(contentResolver: ContentResolver): Long {
+    val assetFileDescriptor = try {
+        contentResolver.openAssetFileDescriptor(this, "r")
+    } catch (e: FileNotFoundException) {
+        null
+    }
+
+    // uses ParcelFileDescriptor#getStatSize underneath if failed
+    val length = assetFileDescriptor?.use { it.length } ?: -1L
+    if (length != -1L) {
+        return length
+    }
+
+    // if "content://" uri scheme, try contentResolver table
+    if (scheme.equals(ContentResolver.SCHEME_CONTENT)) {
+        return contentResolver.query(this, arrayOf(OpenableColumns.SIZE), null, null, null)
+            ?.use { cursor ->
+                // maybe shouldn't trust ContentResolver for size: https://stackoverflow.com/questions/48302972/content-resolver-returns-wrong-size
+                val sizeIndex = cursor.getColumnIndex(OpenableColumns.SIZE)
+                if (sizeIndex == -1) {
+                    return@use -1L
+                }
+                cursor.moveToFirst()
+                return try {
+                    cursor.getLong(sizeIndex)
+                } catch (_: Throwable) {
+                    -1L
+                }
+            } ?: -1L
+    } else {
+        return -1L
+    }
 }
 
 fun Context.getFileName(uri: Uri): String? = when (uri.scheme) {
@@ -137,24 +166,12 @@ fun Context.startFileShareIntent(path: String) {
     startActivity(shareIntent)
 }
 
-fun saveFileToDownloadsFolder(
-    assetName: String,
-    assetDataPath: Path,
-    assetDataSize: Long,
-    context: Context,
-    kaliumFileSystem: KaliumFileSystem
-) {
-    context.saveFileDataToDownloadsFolder(assetDataPath, assetDataSize, kaliumFileSystem)
+fun saveFileToDownloadsFolder(assetDataPath: Path, assetDataSize: Long, context: Context) {
+    context.saveFileDataToDownloadsFolder(assetDataPath, assetDataSize)
 }
 
-fun openAssetFileWithExternalApp(
-    assetName: String,
-    assetDataPath: Path,
-    context: Context,
-    kaliumFileSystem: KaliumFileSystem,
-    onError: () -> Unit
-) {
-    val assetUri = context.copyDataToTempShareableFile(assetName, assetDataPath, kaliumFileSystem)
+fun openAssetFileWithExternalApp(assetDataPath: Path, context: Context, onError: () -> Unit) {
+    val assetUri = context.pathToUri(assetDataPath)
 
     // Set intent and launch
     val intent = Intent()

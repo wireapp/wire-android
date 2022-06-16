@@ -204,7 +204,6 @@ class ConversationViewModel @Inject constructor(
                                 val result = sendImageMessage(
                                     conversationId = conversationId,
                                     imageDataPath = attachmentBundle.dataPath,
-                                    imageDataSize = attachmentBundle.dataSize,
                                     imageName = attachmentBundle.fileName,
                                     imgWidth = imgWidth,
                                     imgHeight = imgHeight
@@ -226,7 +225,6 @@ class ConversationViewModel @Inject constructor(
                                     val result = sendAssetMessage(
                                         conversationId = conversationId,
                                         assetDataPath = attachmentBundle.dataPath,
-                                        assetDataSize = attachmentBundle.dataSize,
                                         assetName = attachmentBundle.fileName,
                                         assetMimeType = attachmentBundle.mimeType
                                     )
@@ -393,10 +391,10 @@ class ConversationViewModel @Inject constructor(
         }
     }
 
-    fun onOpenFileWithExternalApp(assetName: String, assetDataPath: Path) {
+    fun onOpenFileWithExternalApp(assetDataPath: Path) {
         viewModelScope.launch {
             withContext(dispatchers.io()) {
-                fileManager.openWithExternalApp(assetName, assetDataPath, kaliumFileSystem) { onOpenFileError() }
+                fileManager.openWithExternalApp(assetDataPath) { onOpenFileError() }
                 hideOnAssetDownloadedDialog()
             }
         }
@@ -405,7 +403,7 @@ class ConversationViewModel @Inject constructor(
     fun onSaveFile(assetName: String, assetDataPath: Path, assetSize: Long, messageId: String) {
         viewModelScope.launch {
             withContext(dispatchers.io()) {
-                fileManager.saveToExternalStorage(assetName, assetDataPath, assetSize, kaliumFileSystem) {
+                fileManager.saveToExternalStorage(assetDataPath, assetSize) {
                     updateAssetMessageDownloadStatus(SAVED_EXTERNALLY, conversationId, messageId)
                     onFileSavedToExternalStorage(assetName)
                     hideOnAssetDownloadedDialog()

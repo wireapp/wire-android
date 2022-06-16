@@ -118,7 +118,7 @@ class AttachmentInnerState(val context: Context) {
             val mimeType = attachmentUri.getMimeType(context).orDefault(DEFAULT_FILE_MIME_TYPE)
             val (assetDataPath, assetSize) = attachmentUri.copyToTempPath(context)
             val assetFileName = context.getFileName(attachmentUri) ?: "Untitled"
-            val attachmentType = if (mimeType.contains("image/")) AttachmentType.IMAGE else AttachmentType.GENERIC_FILE
+            val attachmentType = if (isImage(mimeType)) AttachmentType.IMAGE else AttachmentType.GENERIC_FILE
             val attachment = AttachmentBundle(mimeType, assetDataPath, assetSize, assetFileName, attachmentType)
             AttachmentState.Picked(attachment)
         } catch (e: IOException) {
@@ -126,6 +126,14 @@ class AttachmentInnerState(val context: Context) {
             AttachmentState.Error
         }
     }
+
+    private fun isImage(mimeType: String): Boolean =
+        when (mimeType) {
+            "image/jpg" -> true
+            "image/jpeg" -> true
+            "image/png" -> true
+            else -> false
+        }
 
     fun resetAttachmentState() {
         attachmentState = AttachmentState.NotPicked

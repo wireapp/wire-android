@@ -16,7 +16,7 @@ import okio.Path
 fun DownloadedAssetDialog(
     downloadedAssetDialogState: DownloadedAssetDialogVisibilityState,
     onSaveFileToExternalStorage: (String, Path, Long, String) -> Unit,
-    onOpenFileWithExternalApp: (String, Path) -> Unit,
+    onOpenFileWithExternalApp: (Path) -> Unit,
     hideOnAssetDownloadedDialog: () -> Unit
 ) {
     val context = LocalContext.current
@@ -48,7 +48,7 @@ fun DownloadedAssetDialog(
             optionButton2Properties = WireDialogButtonProperties(
                 text = stringResource(R.string.asset_download_dialog_open_text),
                 type = WireDialogButtonType.Primary,
-                onClick = { onOpenFileWithExternalApp(assetName, assetDataPath) }
+                onClick = { onOpenFileWithExternalApp(assetDataPath) }
             ),
             optionButton1Properties = WireDialogButtonProperties(
                 text = stringResource(R.string.asset_download_dialog_save_text),

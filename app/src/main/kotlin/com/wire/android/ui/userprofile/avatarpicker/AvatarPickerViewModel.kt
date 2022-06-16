@@ -13,8 +13,8 @@ import com.wire.android.appLogger
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.AvatarImageManager
-import com.wire.android.util.copyToTempPath
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.android.util.copyToTempPath
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.asset.PublicAssetResult

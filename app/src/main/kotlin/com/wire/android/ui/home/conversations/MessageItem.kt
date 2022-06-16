@@ -154,7 +154,7 @@ private fun MessageContent(messageContent: MessageContent?, onAssetClick: () -> 
         is MessageContent.TextMessage -> MessageBody(messageBody = messageContent.messageBody)
         is MessageContent.DeletedMessage -> DeletedMessage()
         is MessageContent.AssetMessage -> MessageAsset(
-            assetName = messageContent.assetName.fileExtension(),
+            assetName = messageContent.assetName,
             assetExtension = messageContent.assetExtension,
             assetSizeInBytes = messageContent.assetSizeInBytes,
             assetDownloadStatus = messageContent.downloadStatus,

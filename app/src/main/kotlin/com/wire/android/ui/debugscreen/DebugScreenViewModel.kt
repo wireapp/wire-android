@@ -2,7 +2,6 @@ package com.wire.android.ui.debugscreen
 
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -24,10 +23,11 @@ class DebugScreenViewModel
 @Inject constructor(
     private val mlsKeyPackageCountUseCase: MLSKeyPackageCountUseCase,
     private val enableLoggingUseCase: EnableLoggingUseCase,
-    private val isLoggingEnabled: IsLoggingEnabledUseCase
+    isLoggingEnabledUseCase: IsLoggingEnabledUseCase
 ) : ViewModel() {
+    var isLoggingEnabled by mutableStateOf(isLoggingEnabledUseCase())
+
     var mlsData by mutableStateOf(listOf<String>())
-    val checkedState = remember { mutableStateOf(isLoggingEnabled.invoke()) }
 
     fun logFilePath(absolutePath: String) = "$absolutePath/logs/$LOG_FILE_NAME"
 
@@ -52,7 +52,7 @@ class DebugScreenViewModel
 
     fun setLoggingEnabledState(isEnabled: Boolean, absolutePath: String) {
         enableLoggingUseCase.invoke(isEnabled)
-        checkedState.value = isEnabled
+        isLoggingEnabled = isEnabled
         if (isEnabled) {
             kaliumFileWriter.init(absolutePath)
             CoreLogger.setLoggingLevel(

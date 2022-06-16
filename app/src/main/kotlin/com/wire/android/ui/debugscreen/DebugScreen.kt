@@ -93,7 +93,7 @@ fun LoggingSection(debugScreenViewModel: DebugScreenViewModel) {
     val context = LocalContext.current
     val absolutePath = context.cacheDir.absolutePath
     SwitchRowItem(
-        text = "Enable Logging", checked = debugScreenViewModel.checkedState.value
+        text = "Enable Logging", checked = debugScreenViewModel.isLoggingEnabled
     ) { state: Boolean ->
         debugScreenViewModel.setLoggingEnabledState(state, absolutePath)
     }

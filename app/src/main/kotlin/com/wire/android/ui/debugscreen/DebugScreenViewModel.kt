@@ -38,8 +38,11 @@ class DebugScreenViewModel
                     is MLSKeyPackageCountResult.Success -> {
                         mlsData = listOf("KeyPackages Count: ${it.count}", "ClientId: ${it.clientId.value}")
                     }
-                    is MLSKeyPackageCountResult.Failure.Generic -> {
-                        mlsData = listOf("KeyPackages Count: ${it.genericFailure}")
+                    is MLSKeyPackageCountResult.Failure.NetworkCallFailure -> {
+                        mlsData = listOf("Network Error!")
+                    }
+                    is MLSKeyPackageCountResult.Failure.FetchClientIdFailure -> {
+                        mlsData = listOf("ClientId Fetch Error!")
                     }
                     else -> {}
                 }

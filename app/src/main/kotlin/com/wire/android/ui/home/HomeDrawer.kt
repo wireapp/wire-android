@@ -35,6 +35,7 @@ import com.wire.android.navigation.HomeNavigationItem
 import com.wire.android.navigation.HomeNavigationItem.Archive
 import com.wire.android.navigation.HomeNavigationItem.Conversations
 import com.wire.android.navigation.HomeNavigationItem.Vault
+import com.wire.android.navigation.NavigationItem.Debug
 import com.wire.android.navigation.NavigationItem.Settings
 import com.wire.android.navigation.NavigationItem.Support
 import com.wire.android.navigation.isExternalRoute
@@ -88,7 +89,7 @@ fun HomeDrawer(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        val bottomItems = listOf(Settings, Support)
+        val bottomItems = listOf(Settings, Support, Debug)
         bottomItems.forEach { item ->
             DrawerItem(
                 data = item.getDrawerData(),
@@ -156,5 +157,6 @@ private fun Any.getDrawerData(): DrawerItemData =
         Conversations -> DrawerItemData(R.string.conversations_screen_title, R.drawable.ic_conversation)
         Settings -> DrawerItemData(R.string.settings_screen_title, R.drawable.ic_settings)
         Support -> DrawerItemData(R.string.support_screen_title, R.drawable.ic_support)
+        Debug -> DrawerItemData(R.string.debug_screen_title, R.drawable.ic_bug)
         else -> DrawerItemData(null, null)
     }

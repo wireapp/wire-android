@@ -45,6 +45,7 @@ sealed class MessageContent {
     object DeletedMessage : ClientMessage()
     data class EditedMessage(val messageBody: MessageBody, val editTimeStamp: String) : MessageContent()
 
+    data class RestrictedAsset(val mimeType: String) : ClientMessage()
     data class AssetMessage(
         val assetName: String,
         val assetExtension: String,

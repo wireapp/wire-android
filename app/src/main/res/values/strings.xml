@@ -391,4 +391,12 @@
     <string name="asset_download_dialog_default_title">Download file</string>
     <string name="empty_group_label">Unnamed conversation</string>
 
+    <!--prohibited asset messages -->
+    <string name="prohibited_images_message">Receiving Images is Prohibited</string>
+    <string name="prohibited_videos_message">Receiving Videos is Prohibited</string>
+    <string name="prohibited_audio_message">Receiving Audio is Prohibited</string>
+    <string name="prohibited_file_message">Receiving Files is Prohibited</string>
+
+
+
 </resources>

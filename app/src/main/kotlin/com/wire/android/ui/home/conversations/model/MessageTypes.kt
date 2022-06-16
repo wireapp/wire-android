@@ -6,6 +6,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -134,6 +135,38 @@ fun MessageImage(rawImgData: ByteArray?, imgParams: ImageMessageParams, onImageC
                 .height(if (imageData != null) imgParams.normalizedHeight else dimensions().spacing24x),
             contentScale = ContentScale.Crop
         )
+    }
+}
+
+@Composable
+fun RestrictedAssetMessage(assetTypeIcon: Int, restrictedAssetMessage: String) {
+    Box(
+        Modifier.background(MaterialTheme.wireColorScheme.primaryButtonDisabled)
+            .clip(shape = RoundedCornerShape(dimensions().messageAssetBorderRadius))
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Image(
+                modifier = Modifier.padding(bottom = 4.dp),
+                painter = painterResource(
+                    id = assetTypeIcon
+                ),
+                alignment = Alignment.Center,
+                contentDescription = stringResource(R.string.content_description_image_message),
+            )
+
+            Text(
+                text = restrictedAssetMessage,
+                style = MaterialTheme.wireTypography.body02.copy(color = MaterialTheme.wireColorScheme.secondaryText),
+
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
     }
 }
 
@@ -313,13 +346,21 @@ fun PreviewAssetMessage() {
 
 @Preview(showBackground = true)
 @Composable
+fun PreviewRestrictedMessage() {
+    RestrictedAssetMessage(R.drawable.ic_gallery, "RECEIVING IMAGES IS PROHIBITED")
+}
+
+@Preview(showBackground = true)
+@Composable
 fun PreviewMessageWithSystemMessage() {
     Column {
         MessageItem(mockMessageWithText, {}, {}, { _, _ -> })
-        SystemMessageItem(MessageContent.SystemMessage.MemberAdded(
-            UIText.DynamicString("You"),
-            listOf(UIText.DynamicString("Adam Smmith"))
-        ))
+        SystemMessageItem(
+            MessageContent.SystemMessage.MemberAdded(
+                UIText.DynamicString("You"),
+                listOf(UIText.DynamicString("Adam Smmith"))
+            )
+        )
     }
 
 }

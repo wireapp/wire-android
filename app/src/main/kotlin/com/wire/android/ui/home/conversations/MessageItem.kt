@@ -25,9 +25,9 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
+import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.LegalHoldIndicator
 import com.wire.android.ui.common.MembershipQualifierLabel
-import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.model.DeletedMessage
@@ -39,6 +39,7 @@ import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageImage
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
+import com.wire.android.ui.home.conversations.model.RestrictedAssetMessage
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.wireColorScheme
@@ -169,7 +170,25 @@ private fun MessageContent(
             messageBody = messageContent.messageBody,
             editTime = messageContent.editTimeStamp
         )
-        else -> {}
+        is MessageContent.SystemMessage.MemberAdded -> {}
+        is MessageContent.SystemMessage.MemberLeft -> {}
+        is MessageContent.SystemMessage.MemberRemoved -> {}
+        is MessageContent.RestrictedAsset -> {
+            when {
+                messageContent.mimeType.contains("image/") -> {
+                    RestrictedAssetMessage(R.drawable.ic_gallery, stringResource(id = R.string.prohibited_images_message))
+                }
+                messageContent.mimeType.contains("video/") -> {
+                    RestrictedAssetMessage(R.drawable.ic_video, stringResource(id = R.string.prohibited_videos_message))
+                }
+                messageContent.mimeType.contains("audio/") -> {
+                    RestrictedAssetMessage(R.drawable.ic_speaker_on, stringResource(id = R.string.prohibited_audio_message))
+                }
+                else -> {
+                    RestrictedAssetMessage(R.drawable.ic_file, stringResource(id = R.string.prohibited_file_message))
+                }
+            }
+        }
     }
 }
 

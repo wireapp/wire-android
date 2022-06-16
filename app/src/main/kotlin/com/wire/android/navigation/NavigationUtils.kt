@@ -25,9 +25,7 @@ internal fun navigateToItem(
             }
             BackStackMode.REMOVE_CURRENT -> {
                 navController.run {
-                    println("cyka 0 ${backQueue.map { it.destination.route }}")
                     backQueue.lastOrNull { it.destination.route != null }?.let { entry ->
-                        println("cyka 1 ${entry.destination.route}")
                         val inclusive = true
                         val startId = entry.destination.id
                         popBackStack(startId, inclusive)

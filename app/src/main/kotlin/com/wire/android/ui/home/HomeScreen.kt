@@ -19,6 +19,9 @@ import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.navigation.HomeNavigationGraph
 import com.wire.android.navigation.HomeNavigationItem
+import com.wire.android.ui.common.WireDialog
+import com.wire.android.ui.common.WireDialogButtonProperties
+import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.topappbar.search.AppTopBarWithSearchBar
 
@@ -72,6 +75,26 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
                 }
             )
         }
+    }
+    if (viewModel.showFileSharingDialog) {
+
+        val text: String = if (viewModel.isFileSharingEnabled()) {
+            stringResource(id = R.string.sharing_files_enabled)
+        } else {
+            stringResource(id = R.string.sharing_files_disabled)
+        }
+
+        WireDialog(
+            title = stringResource(id = R.string.there_has_been_a_change),
+            text = text,
+            onDismiss = { viewModel.showFileSharingDialog = false },
+            optionButton1Properties = WireDialogButtonProperties(
+                onClick = { viewModel.showFileSharingDialog = false },
+                text = stringResource(id = R.string.label_ok),
+                type = WireDialogButtonType.Primary,
+            )
+        )
+
     }
 }
 

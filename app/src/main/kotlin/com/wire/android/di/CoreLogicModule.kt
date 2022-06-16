@@ -497,7 +497,7 @@ class UseCaseModule {
     @ViewModelScoped
     @Provides
     fun getFileSharingStatusProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
-        coreLogic.getSessionScope(currentAccount).getAndSaveFileSharingStatus
+        coreLogic.getSessionScope(currentAccount).getRemoteFileSharingStatusAndPersistUseCase
 
     @ViewModelScoped
     @Provides

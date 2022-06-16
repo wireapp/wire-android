@@ -15,9 +15,10 @@ import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.feature.call.Call
 import com.wire.kalium.logic.feature.call.usecase.GetIncomingCallsUseCase
 import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
-import com.wire.kalium.logic.feature.featureConfig.GetAndSaveFileSharingStatusUseCase
 import com.wire.kalium.logic.feature.featureConfig.GetFileSharingStatusResult
+import com.wire.kalium.logic.feature.featureConfig.GetRemoteFileSharingStatusAndPersistUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
+import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
 import com.wire.kalium.logic.sync.ListenToEventsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.first
@@ -32,8 +33,11 @@ class HomeViewModel @Inject constructor(
     private val incomingCalls: GetIncomingCallsUseCase,
     private val getSelf: GetSelfUserUseCase,
     private val needsToRegisterClient: NeedsToRegisterClientUseCase,
-    private val getAndSaveFileSharingStatusUseCase: GetAndSaveFileSharingStatusUseCase
+    private val getAndSaveFileSharingStatusUseCase: GetRemoteFileSharingStatusAndPersistUseCase,
+    private val isFileSharingEnabledUseCase: IsFileSharingEnabledUseCase
 ) : ViewModel() {
+
+    var showFileSharingDialog by mutableStateOf(false)
 
     var userAvatar by mutableStateOf(SelfUserData())
         private set
@@ -56,11 +60,18 @@ class HomeViewModel @Inject constructor(
                     is GetFileSharingStatusResult.Failure.NoTeam -> {}
                     is GetFileSharingStatusResult.Failure.Generic -> {}
                     is GetFileSharingStatusResult.Failure.OperationDenied -> {}
-                    is GetFileSharingStatusResult.Success -> { // todo update the UI with dialog }
+                    is GetFileSharingStatusResult.Success -> {
+                        if (it.isStatusChanged) {
+                            showFileSharingDialog = true
+                        }
                     }
                 }
             }
         }
+    }
+
+    fun isFileSharingEnabled(): Boolean {
+        return isFileSharingEnabledUseCase.invoke()
     }
 
     fun checkRequirements() {
@@ -114,6 +125,7 @@ class HomeViewModel @Inject constructor(
 
     companion object {
         const val MY_USER_PROFILE_SUBROUTE = "myUserProfile"
+        const val ENABLED = "enabled"
     }
 }
 

@@ -221,6 +221,11 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun mlsKeyPackageCountUseCase(@CurrentAccount currentAccount: UserId, clientScopeProviderFactory: ClientScopeProvider.Factory) =
+        clientScopeProviderFactory.create(currentAccount).clientScope.mlsKeyPackageCountUseCase
+
+    @ViewModelScoped
+    @Provides
     fun getAvatarAsset(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): GetAvatarAssetUseCase =
         coreLogic.getSessionScope(currentAccount).users.getPublicAsset
 

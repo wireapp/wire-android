@@ -9,6 +9,7 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerViewModel
 import com.wire.android.util.AvatarImageManager
 import com.wire.kalium.logic.CoreFailure.Unknown
+import com.wire.kalium.logic.data.id.parseIntoQualifiedID
 import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.asset.PublicAssetResult
 import com.wire.kalium.logic.feature.user.UploadAvatarResult
@@ -60,9 +61,9 @@ class AvatarPickerViewModelTest {
         // setup mocks for view model
         mockkStatic(Uri::class)
         every { Uri.parse(any()) } returns mockUri
-        every { userDataStore.avatarAssetId } returns flow { emit("some-asset-id") }
+        every { userDataStore.avatarAssetId } returns flow { emit("value@domain") }
         coEvery { userDataStore.updateUserAvatarAssetId(any()) } returns Unit
-        coEvery { getAvatarAsset(any()) } returns PublicAssetResult.Success("some-asset-id".toByteArray())
+        coEvery { getAvatarAsset(any()) } returns PublicAssetResult.Success("some-asset-data".toByteArray())
         coEvery { avatarImageManager.getWritableAvatarUri(any()) } returns mockUri
 
         avatarPickerViewModel =
@@ -92,9 +93,9 @@ class AvatarPickerViewModelTest {
 
     @Test
     fun `given a valid image, when uploading the asset succeed, then should call the usecase and navigate back on success`() = runTest {
-        val uploadedAssetId = "some-asset-id"
+        val uploadedAssetId = "value@domain"
         val rawImage = uploadedAssetId.toByteArray()
-        coEvery { uploadUserAvatarUseCase(any()) } returns UploadAvatarResult.Success(uploadedAssetId)
+        coEvery { uploadUserAvatarUseCase(any()) } returns UploadAvatarResult.Success(uploadedAssetId.parseIntoQualifiedID())
         coEvery { avatarImageManager.uriToTempPath(any()) } returns rawImage
 
         avatarPickerViewModel.uploadNewPickedAvatarAndBack()

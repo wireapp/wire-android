@@ -18,14 +18,16 @@ data class OtherUserProfileState(
 sealed class ConnectionStatus {
     object Unknown : ConnectionStatus()
     object Connected : ConnectionStatus()
-    data class NotConnected(val isConnectionRequestPending: Boolean = false) : ConnectionStatus()
+    object Pending: ConnectionStatus()
+    object Sent: ConnectionStatus()
+    object NotConnected : ConnectionStatus()
 }
 
 fun ConnectionState.toOtherUserProfileConnectionStatus() = when (this) {
-    ConnectionState.NOT_CONNECTED -> ConnectionStatus.NotConnected(false)
-    ConnectionState.CANCELLED -> ConnectionStatus.NotConnected(false)
-    ConnectionState.PENDING -> ConnectionStatus.NotConnected(true)
-    ConnectionState.SENT -> ConnectionStatus.NotConnected(true)
+    ConnectionState.NOT_CONNECTED -> ConnectionStatus.NotConnected
+    ConnectionState.CANCELLED -> ConnectionStatus.NotConnected
+    ConnectionState.PENDING -> ConnectionStatus.Pending
+    ConnectionState.SENT -> ConnectionStatus.Sent
     ConnectionState.ACCEPTED -> ConnectionStatus.Connected
     else -> ConnectionStatus.Unknown // TODO: what about other states?
 }

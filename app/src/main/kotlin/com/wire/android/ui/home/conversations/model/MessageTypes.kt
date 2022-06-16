@@ -30,7 +30,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
@@ -44,12 +43,14 @@ import com.wire.android.ui.common.WireCircularProgressIndicator
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.ConversationViewModel
 import com.wire.android.ui.home.conversations.MessageItem
+import com.wire.android.ui.home.conversations.SystemMessageItem
 import com.wire.android.ui.home.conversations.mock.mockAssetMessage
 import com.wire.android.ui.home.conversations.mock.mockMessageWithText
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.getUriFromDrawable
 import com.wire.android.util.toBitmap
+import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.FAILED
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.IN_PROGRESS
@@ -61,8 +62,34 @@ import kotlin.math.roundToInt
 // TODO: Here we actually need to implement some logic that will distinguish MentionLabel with Body of the message,
 // waiting for the backend to implement mapping logic for the MessageBody
 @Composable
-internal fun MessageBody(messageBody: MessageBody) {
-    LinkifyText(text = messageBody.message.asString(), mask = Linkify.WEB_URLS)
+internal fun MessageBody(messageBody: MessageBody, editTime: String? = null) {
+    Column {
+        if (editTime != null)
+            Box(
+                modifier = Modifier
+                    .border(
+                        width = 1.dp,
+                        color = MaterialTheme.wireColorScheme.divider,
+                        shape = RoundedCornerShape(dimensions().corner4x)
+                    )
+            ) {
+                Text(
+                    text = stringResource(R.string.label_message_status_edited_with_date, editTime),
+                    color = MaterialTheme.wireColorScheme.labelText,
+                    style = MaterialTheme.wireTypography.label03,
+                    modifier = Modifier
+                        .padding(
+                            horizontal = dimensions().spacing4x,
+                            vertical = dimensions().spacing2x
+                        )
+                )
+            }
+    }
+    LinkifyText(
+        text = messageBody.message.asString(),
+        mask = Linkify.WEB_URLS or Linkify.EMAIL_ADDRESSES,
+        color = MaterialTheme.colorScheme.onBackground
+    )
 }
 
 @Composable
@@ -227,7 +254,6 @@ fun getDownloadStatusText(assetDownloadStatus: Message.DownloadStatus): String =
         FAILED -> stringResource(R.string.asset_message_failed_download_text)
     }
 
-
 @Suppress("MagicNumber")
 private fun provideAssetDescription(assetExtension: String, assetSizeInBytes: Long): String {
     return when {
@@ -282,4 +308,18 @@ fun PreviewDeletedMessage() {
 @Composable
 fun PreviewAssetMessage() {
     MessageItem(mockAssetMessage, {}, {}, { _, _ -> })
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewMessageWithSystemMessage() {
+    Column {
+        MessageItem(mockMessageWithText, {}, {}, { _, _ -> })
+        SystemMessageItem(
+            MessageContent.SystemMessage.MemberAdded(
+                UIText.DynamicString("You"),
+                listOf(UIText.DynamicString("Adam Smmith"))
+            )
+        )
+    }
 }

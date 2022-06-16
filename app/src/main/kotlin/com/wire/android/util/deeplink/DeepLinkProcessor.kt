@@ -2,7 +2,8 @@ package com.wire.android.util.deeplink
 
 import android.net.Uri
 import androidx.annotation.VisibleForTesting
-import com.wire.android.R
+import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.toConversationId
 
 sealed class DeepLinkResult {
     object Unknown : DeepLinkResult()
@@ -11,36 +12,45 @@ sealed class DeepLinkResult {
         data class Success(val cookie: String, val serverConfigId: String) : SSOLogin()
         data class Failure(val ssoError: SSOFailureCodes) : SSOLogin()
     }
+
+    data class IncomingCall(val conversationsId: ConversationId) : DeepLinkResult()
 }
 
 class DeepLinkProcessor {
     operator fun invoke(uri: Uri): DeepLinkResult = when (uri.host) {
-        ACCESS_DEEPLINK_HOST ->
-            uri.getQueryParameter(SERVER_CONFIG_PARAM)?.let {
-                DeepLinkResult.CustomServerConfig(it)
-            } ?: DeepLinkResult.Unknown
-        SSO_LOGIN_DEEPLINK_HOST -> {
-            when (uri.lastPathSegment) {
-                SSO_LOGIN_FAILURE -> {
-                    uri.getQueryParameter(SSO_LOGIN_ERROR_PARAM)?.let { value ->
-                        DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.getByLabel(value))
-                    } ?: DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.Unknown)
-                }
-                SSO_LOGIN_SUCCESS -> {
-                    val cookie = uri.getQueryParameter(SSO_LOGIN_COOKIE_PARAM)
-                    val location = uri.getQueryParameter(SSO_LOGIN_SERVER_CONFIG_PARAM)
-                    if (cookie == null || location == null)
-                        DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.Unknown)
-                    else
-                        DeepLinkResult.SSOLogin.Success(cookie, location)
-                }
-                else -> DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.Unknown)
-            }
-        }
+        ACCESS_DEEPLINK_HOST -> getCustomServerConfigDeepLinkResult(uri)
+        SSO_LOGIN_DEEPLINK_HOST -> getSSOLoginDeepLinkResult(uri)
+        INCOMING_CALL_DEEPLINK_HOST -> getIncomingCallDeepLinkResult(uri)
         else -> DeepLinkResult.Unknown
+    }
+    private fun getCustomServerConfigDeepLinkResult(uri: Uri) = uri.getQueryParameter(SERVER_CONFIG_PARAM)?.let {
+        DeepLinkResult.CustomServerConfig(it)
+    } ?: DeepLinkResult.Unknown
+
+    private fun getIncomingCallDeepLinkResult(uri: Uri) =
+        uri.lastPathSegment?.toConversationId()?.let {
+            DeepLinkResult.IncomingCall(it)
+        } ?: DeepLinkResult.Unknown
+
+    private fun getSSOLoginDeepLinkResult(uri: Uri) = when (uri.lastPathSegment) {
+        SSO_LOGIN_FAILURE -> {
+            uri.getQueryParameter(SSO_LOGIN_ERROR_PARAM)?.let { value ->
+                DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.getByLabel(value))
+            } ?: DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.Unknown)
+        }
+        SSO_LOGIN_SUCCESS -> {
+            val cookie = uri.getQueryParameter(SSO_LOGIN_COOKIE_PARAM)
+            val location = uri.getQueryParameter(SSO_LOGIN_SERVER_CONFIG_PARAM)
+            if (cookie == null || location == null)
+                DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.Unknown)
+            else
+                DeepLinkResult.SSOLogin.Success(cookie, location)
+        }
+        else -> DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.Unknown)
     }
 
     companion object {
+        const val DEEP_LINK_SCHEME = "wire"
         const val ACCESS_DEEPLINK_HOST = "access"
         const val SERVER_CONFIG_PARAM = "config"
         const val SSO_LOGIN_DEEPLINK_HOST = "sso-login"
@@ -50,6 +60,7 @@ class DeepLinkProcessor {
         const val SSO_LOGIN_COOKIE_PARAM = "cookie"
         const val SSO_LOGIN_ERROR_PARAM = "error"
         const val SSO_LOGIN_SERVER_CONFIG_PARAM = "location"
+        const val INCOMING_CALL_DEEPLINK_HOST = "incoming-call"
 
     }
 }

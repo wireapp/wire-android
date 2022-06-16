@@ -6,6 +6,7 @@ import coil.fetch.FetchResult
 import com.wire.android.model.ImageAsset
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.parseIntoQualifiedID
 import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
@@ -23,8 +24,8 @@ internal class AssetImageFetcherTest {
     @Test
     fun givenAUserAvatarAssetData_WhenCallingFetch_ThenGetPublicAssetUseCaseGetsInvoked() = runTest {
         // Given
-        val someUserAssetId = "some-user-asset-id"
-        val data = ImageAsset.UserAvatarAsset(someUserAssetId)
+        val someUserAssetId = "value@domain"
+        val data = ImageAsset.UserAvatarAsset(someUserAssetId.parseIntoQualifiedID())
         val (arrangement, assetImageFetcher) = Arrangement().withSuccessfulImageData(data).arrange()
 
         // When
@@ -53,8 +54,8 @@ internal class AssetImageFetcherTest {
     @Test
     fun givenAUserAvatarAssetData_WhenCallingFetchUnsuccessfully_ThenFetchResultIsNotReturned() = runTest {
         // Given
-        val someUserAssetId = "some-user-asset-id"
-        val data = ImageAsset.UserAvatarAsset(someUserAssetId)
+        val someUserAssetId = "value@domain"
+        val data = ImageAsset.UserAvatarAsset(someUserAssetId.parseIntoQualifiedID())
         val (arrangement, assetImageFetcher) = Arrangement().withErrorResponse(data).arrange()
 
         // When

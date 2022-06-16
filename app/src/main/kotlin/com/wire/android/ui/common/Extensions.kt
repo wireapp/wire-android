@@ -21,8 +21,11 @@ import androidx.compose.ui.unit.dp
 import com.google.accompanist.placeholder.PlaceholderHighlight
 import com.google.accompanist.placeholder.placeholder
 import com.google.accompanist.placeholder.shimmer
+import com.wire.android.ui.theme.WireColorScheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
+import com.wire.kalium.logic.data.id.ConversationId
+import kotlin.math.absoluteValue
 
 @Composable
 fun Modifier.selectableBackground(isSelected: Boolean, onClick: () -> Unit): Modifier =
@@ -48,6 +51,12 @@ internal fun dimensions() = MaterialTheme.wireDimensions
 
 @Composable
 internal fun colorsScheme() = MaterialTheme.wireColorScheme
+
+@Composable
+internal fun WireColorScheme.conversationColor(id: ConversationId): Color {
+    val colors = this.groupAvatarColors
+    return  colors[(id.hashCode() % colors.size).absoluteValue]
+}
 
 @Composable
 fun LazyListState.appBarElevation(): Dp = MaterialTheme.wireDimensions.topBarShadowElevation.let {  maxElevation ->

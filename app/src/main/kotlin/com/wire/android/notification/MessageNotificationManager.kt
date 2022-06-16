@@ -1,8 +1,6 @@
 package com.wire.android.notification
 
-import android.app.PendingIntent
 import android.content.Context
-import android.content.Intent
 import android.graphics.Typeface
 import android.os.Build
 import android.text.Spannable
@@ -19,7 +17,6 @@ import androidx.core.app.RemoteInput
 import androidx.core.graphics.drawable.IconCompat
 import androidx.core.text.toSpannable
 import com.wire.android.R
-import com.wire.android.ui.WireActivity
 import com.wire.android.util.toBitmap
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -42,7 +39,6 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
     private var prevNotificationsData: List<LocalNotificationConversation> = listOf()
 
     fun handleNotification(
-        oldDataDeprecated: List<LocalNotificationConversation>,
         newData: List<LocalNotificationConversation>,
         userId: QualifiedID?
     ) {
@@ -103,8 +99,8 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
         .setGroupSummary(true)
         .setDefaults(NotificationCompat.DEFAULT_ALL)
         .setPriority(NotificationCompat.PRIORITY_MAX)
-        .setContentIntent(getPendingIntentSummary())
-        .setDeleteIntent(getDismissPendingIntent(null, userId))
+        .setContentIntent(summaryMessagePendingIntent(context))
+        .setDeleteIntent(dismissMessagePendingIntent(context, null, userId))
         .build()
 
     private fun getConversationNotification(conversation: NotificationConversation, userId: String?) =
@@ -117,8 +113,8 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
             setGroup(GROUP_KEY)
             setAutoCancel(true)
 
-            setContentIntent(getPendingIntentMessage(conversation.id))
-            setDeleteIntent(getDismissPendingIntent(conversation.id, userId))
+            setContentIntent(messagePendingIntent(context, conversation.id))
+            setDeleteIntent(dismissMessagePendingIntent(context, conversation.id, userId))
             addAction(getActionCall(conversation.id))
             addAction(getActionReply(conversation.id))
 
@@ -165,12 +161,7 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
     }
 
     private fun getActionReply(conversationId: String): NotificationCompat.Action {
-        val resultPendingIntent = PendingIntent.getBroadcast(
-            context,
-            conversationId.hashCode(),
-            NotificationReplyReceiver.newIntent(context, conversationId),
-            PendingIntent.FLAG_MUTABLE
-        )
+        val resultPendingIntent = replyMessagePendingIntent(context, conversationId)
 
         val remoteInput = RemoteInput.Builder(KEY_TEXT_REPLY).build()
 
@@ -182,41 +173,8 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
     private fun getActionCall(conversationId: String) = NotificationCompat.Action(
         null,
         context.getString(R.string.notification_action_call),
-        getPendingIntentCall(conversationId)
+        callMessagePendingIntent(context, conversationId)
     )
-
-    //TODO
-    private fun getPendingIntentMessage(conversationId: String): PendingIntent {
-        return getPendingIntentSummary()
-    }
-
-    private fun getDismissPendingIntent(conversationId: String?, userId: String?): PendingIntent {
-        val intent = NotificationDismissReceiver.newIntent(context, conversationId, userId)
-        val requestCode = conversationId?.hashCode() ?: DISMISS_DEFAULT_REQUEST_CODE
-
-        return PendingIntent.getBroadcast(
-            context.applicationContext,
-            requestCode,
-            intent,
-            PendingIntent.FLAG_IMMUTABLE
-        )
-    }
-
-    //TODO
-    private fun getPendingIntentCall(conversationId: String): PendingIntent = getPendingIntentSummary()
-
-    private fun getPendingIntentSummary(): PendingIntent {
-        val intent = Intent(context.applicationContext, WireActivity::class.java).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TASK
-        }
-
-        return PendingIntent.getActivity(
-            context.applicationContext,
-            SUMMARY_REQUEST_CODE,
-            intent,
-            PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
-        )
-    }
 
     private fun getNotificationId(conversationId: ConversationId) = getNotificationId(conversationId.toString())
     private fun getNotificationId(conversationIdString: String) = conversationIdString.hashCode()
@@ -226,8 +184,6 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
         private const val CHANNEL_NAME = "Messages Channel"
         private const val GROUP_KEY = "wire_reloaded_notification_group"
         private const val SUMMARY_ID = 0
-        private const val SUMMARY_REQUEST_CODE = 0
-        private const val DISMISS_DEFAULT_REQUEST_CODE = 1
 
         const val KEY_TEXT_REPLY = "key_text_notification_reply"
 

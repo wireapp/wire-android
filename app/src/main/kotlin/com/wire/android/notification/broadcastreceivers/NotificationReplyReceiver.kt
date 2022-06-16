@@ -1,9 +1,10 @@
-package com.wire.android.notification
+package com.wire.android.notification.broadcastreceivers
 
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
 import androidx.core.app.RemoteInput
+import com.wire.android.notification.MessageNotificationManager
 
 class NotificationReplyReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {

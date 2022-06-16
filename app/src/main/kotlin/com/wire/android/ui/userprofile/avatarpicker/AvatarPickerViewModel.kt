@@ -13,9 +13,10 @@ import com.wire.android.appLogger
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.AvatarImageManager
-import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.copyToTempPath
+import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.NetworkFailure
+import com.wire.kalium.logic.data.id.parseIntoQualifiedID
 import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.asset.PublicAssetResult
 import com.wire.kalium.logic.feature.user.UploadAvatarResult
@@ -49,7 +50,8 @@ class AvatarPickerViewModel @Inject constructor(
     fun loadInitialAvatarState() = viewModelScope.launch {
         try {
             dataStore.avatarAssetId.first()?.apply {
-                val avatarRawPath = (getAvatarAsset(assetKey = this) as PublicAssetResult.Success).asset
+                val qualifiedAsset = this.parseIntoQualifiedID()
+                val avatarRawPath = (getAvatarAsset(assetKey = qualifiedAsset) as PublicAssetResult.Success).asset
                 val currentAvatarUri = avatarImageManager.getWritableAvatarUri(avatarRawPath)
                 pictureState = PictureState.Initial(currentAvatarUri)
             }
@@ -66,7 +68,7 @@ class AvatarPickerViewModel @Inject constructor(
                 val (imageDataPath, imageDataSize) = imgUri.copyToTempPath(context)
                 val result = uploadUserAvatar(imageDataPath, imageDataSize)
                 if (result is UploadAvatarResult.Success) {
-                    dataStore.updateUserAvatarAssetId(result.userAssetId)
+                    dataStore.updateUserAvatarAssetId(result.userAssetId.toString())
                     avatarImageManager.getWritableAvatarUri(imageDataPath)
                     navigateBack()
                 } else {

@@ -1,11 +1,8 @@
 package com.wire.android.ui.home.conversations
 
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -28,7 +25,6 @@ import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.topappbar.BackNavigationIconButton
 import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.getConversationColor
 
 @Composable
 fun ConversationScreenTopAppBar(
@@ -100,7 +96,7 @@ fun ConversationScreenTopAppBar(
 fun ConversationScreenTopAppBarLongTitlePreview() {
     ConversationScreenTopAppBar(
         "This is some very very very very very very very very very very long conversation title",
-        { GroupConversationAvatar(colorValue = 0xFF00FF00) },
+        { GroupConversationAvatar(color = Color.Green) },
         {},
         {},
         {},
@@ -113,7 +109,7 @@ fun ConversationScreenTopAppBarLongTitlePreview() {
 fun ConversationScreenTopAppBarShortTitlePreview() {
     ConversationScreenTopAppBar(
         "Short title",
-        { GroupConversationAvatar(colorValue = 0xFF00FF00) },
+        { GroupConversationAvatar(color = Color.Blue) },
         {},
         {},
         {},

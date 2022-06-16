@@ -39,7 +39,7 @@ fun RowItemTemplate(
         Box(
             modifier = Modifier
                 .wrapContentWidth()
-                .padding(end = dimensions().spacing8x)
+                .padding(horizontal = dimensions().spacing8x)
         ) {
             actions()
         }
@@ -65,7 +65,7 @@ fun RowItemTemplate(
         leadingIcon()
         Column(
             modifier = Modifier
-                .weight(DEFAULT_WEIGHT)
+                .weight(DEFAULT_WEIGHT),
         ) {
             title()
             subTitle()
@@ -73,7 +73,7 @@ fun RowItemTemplate(
         Box(
             modifier = Modifier
                 .wrapContentWidth()
-                .padding(end = dimensions().spacing8x)
+                .padding(horizontal = dimensions().spacing8x)
         ) {
             if (eventType != null) {
                 EventBadgeFactory(eventType = eventType, modifier = Modifier.align(Alignment.TopEnd))

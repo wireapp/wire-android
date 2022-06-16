@@ -1,14 +1,15 @@
 package com.wire.android.ui.home.conversations
 
 import com.wire.android.model.ImageAsset.UserAvatarAsset
-import com.wire.android.ui.home.conversations.model.MessageViewWrapper
+import com.wire.android.ui.home.conversations.model.UIMessage
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.team.Team
 import okio.Path
 
 data class ConversationViewState(
     val conversationName: String = "",
     val conversationAvatar: ConversationAvatar = ConversationAvatar.None,
-    val messages: List<MessageViewWrapper> = emptyList(),
+    val messages: List<UIMessage> = emptyList(),
     val onSnackbarMessage: ConversationSnackbarMessages? = null,
     val messageText: String = "",
     val downloadedAssetDialogState: DownloadedAssetDialogVisibilityState = DownloadedAssetDialogVisibilityState.Hidden,
@@ -18,7 +19,7 @@ data class ConversationViewState(
 sealed class ConversationAvatar {
     object None : ConversationAvatar()
     class OneOne(val avatarAsset: UserAvatarAsset?) : ConversationAvatar()
-    class Group(val groupColorValue: Long) : ConversationAvatar()
+    class Group(val conversationId: ConversationId) : ConversationAvatar()
 }
 
 sealed class DownloadedAssetDialogVisibilityState {

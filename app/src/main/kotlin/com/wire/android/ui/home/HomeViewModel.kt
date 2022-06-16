@@ -25,6 +25,7 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@Suppress("LongParameterList")
 @ExperimentalMaterial3Api
 @HiltViewModel
 class HomeViewModel @Inject constructor(

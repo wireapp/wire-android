@@ -346,12 +346,6 @@ fun PreviewAssetMessage() {
 
 @Preview(showBackground = true)
 @Composable
-fun PreviewRestrictedMessage() {
-    RestrictedAssetMessage(R.drawable.ic_gallery, "RECEIVING IMAGES IS PROHIBITED")
-}
-
-@Preview(showBackground = true)
-@Composable
 fun PreviewMessageWithSystemMessage() {
     Column {
         MessageItem(mockMessageWithText, {}, {}, { _, _ -> })
@@ -362,5 +356,4 @@ fun PreviewMessageWithSystemMessage() {
             )
         )
     }
-
 }

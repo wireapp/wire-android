@@ -387,7 +387,7 @@
     <string name="empty_group_label">Unnamed conversation</string>
 
     <!--wire dropdown-->
-    <string name="wire_dropdown_default_indicator">(Default)</string>
+    <string name="wire_dropdown_default_indicator">(default)</string>
     <string name="wire_dropdown_placeholder">Select an Item</string>
 
 </resources>

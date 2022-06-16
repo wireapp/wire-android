@@ -26,7 +26,6 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import com.wire.android.R
 import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.ShakeAnimation
-import com.wire.android.ui.common.WireDropdown
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.common.textfield.WireTextField
@@ -121,7 +120,7 @@ fun NewGroupScreenContent(
 
                 }
 
-                WireDropdown(
+                WireDropDown(
                     items =
                     ConversationOptions.Protocol.values().map { it.name },
                     defaultItemIndex = 0,

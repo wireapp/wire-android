@@ -49,7 +49,7 @@ import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.conversation.ConversationOptions
 
 @Composable
-internal fun WireDropdown(
+internal fun WireDropDown(
     items: List<String>,
     defaultItemIndex: Int = -1,
     label: String,
@@ -79,40 +79,37 @@ internal fun WireDropdown(
         Box(
             Modifier
                 .fillMaxWidth()
-                .clip(textBoxShape(isExpanded = expanded))
+                .clip(TextBoxShape(isExpanded = expanded))
                 .background(
                     color = MaterialTheme.wireColorScheme.secondaryButtonEnabled,
-                    shape = textBoxShape(isExpanded = expanded)
+                    shape = TextBoxShape(isExpanded = expanded)
                 )
                 .border(
                     width = 1.dp,
                     color = borderColor,
-                    shape = textBoxShape(expanded)
+                    shape = TextBoxShape(expanded)
                 ).clickable {
                     focusManager.clearFocus()
                     expanded = !expanded
                 }.onSizeChanged {
                     dropDownWidth = it.toSize()
                 }
-                .padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 12.dp)
+                .padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 12.dp),
+            contentAlignment = Alignment.Center
         ) {
-            Column(Modifier.padding(end = 32.dp)) {
+            Box(Modifier.padding(end = 32.dp)) {
                 Text(
-                    modifier = Modifier
-                        .padding(top = 1.dp)
-                        .align(Alignment.CenterHorizontally).fillMaxWidth(),
-                    text = if (selectedIndex != -1) "${items[selectedIndex]} $defaultText" else placeHolderText,
+                    text = if (selectedIndex != -1) items[selectedIndex] + defaultText else placeHolderText,
                     style = MaterialTheme.wireTypography.body01,
-                    color = MaterialTheme.wireColorScheme.onSecondaryButtonEnabled
+                    color = MaterialTheme.wireColorScheme.secondaryText
                 )
             }
             Icon(
                 imageVector = Icons.Filled.ExpandMore,
                 contentDescription = "Change",
-                tint = MaterialTheme.wireColorScheme.onSecondaryButtonEnabled,
+                tint = MaterialTheme.wireColorScheme.secondaryText,
                 modifier = Modifier
                     .padding(top = 4.dp)
-                    .align(Alignment.CenterEnd)
                     .rotate(arrowRotation),
             )
         }
@@ -162,7 +159,7 @@ internal fun WireDropdown(
 }
 
 @Composable
-private fun textBoxShape(isExpanded: Boolean) = if (isExpanded) RoundedCornerShape(
+private fun TextBoxShape(isExpanded: Boolean) = if (isExpanded) RoundedCornerShape(
     MaterialTheme.wireDimensions.textFieldCornerSize,
     MaterialTheme.wireDimensions.textFieldCornerSize,
     0.dp,
@@ -189,7 +186,7 @@ private fun DropdownItem(text: String, isSelected: Boolean, onClick: () -> Unit)
 @Composable
 @Preview
 private fun WireDropdownPreviewWithLabel() {
-    WireDropdown(
+    WireDropDown(
         items =
         ConversationOptions.Protocol.values().map { it.name },
         defaultItemIndex = 0,

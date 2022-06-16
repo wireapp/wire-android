@@ -27,6 +27,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.ui.common.topappbar.WireTopAppBarTitle
 import com.wire.android.ui.common.topappbar.wireTopAppBarColors
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
+import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.startFileShareIntent
@@ -71,8 +72,8 @@ fun TextRowItem(text: String, @DrawableRes trailingIcon: Int? = null, onIconClic
         Text(
             text = text,
             fontWeight = FontWeight.Normal,
-            color = MaterialTheme.colorScheme.onSecondary,
-            modifier = Modifier.padding(12.dp).weight(1f),
+            color = MaterialTheme.wireColorScheme.onSecondaryButtonEnabled,
+            modifier = Modifier.padding(10.dp).weight(1f),
             textAlign = TextAlign.Left,
             fontSize = 14.sp
         )
@@ -80,7 +81,7 @@ fun TextRowItem(text: String, @DrawableRes trailingIcon: Int? = null, onIconClic
             Icon(
                 painter = painterResource(id = trailingIcon),
                 contentDescription = "",
-                tint = MaterialTheme.colorScheme.onSecondary,
+                tint = MaterialTheme.wireColorScheme.onSecondaryButtonEnabled,
                 modifier = Modifier.defaultMinSize(80.dp).clickable { onIconClick() }
             )
         }
@@ -111,8 +112,8 @@ fun SwitchRowItem(
         Text(
             text = text,
             fontWeight = FontWeight.Normal,
-            color = MaterialTheme.colorScheme.onSecondary,
-            modifier = Modifier.padding(12.dp).weight(1f),
+            color = MaterialTheme.wireColorScheme.onSecondaryButtonEnabled,
+            modifier = Modifier.padding(10.dp).weight(1f),
             textAlign = TextAlign.Left,
             fontSize = 14.sp
         )

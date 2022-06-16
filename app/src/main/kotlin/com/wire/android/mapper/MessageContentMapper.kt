@@ -59,7 +59,7 @@ class MessageContentMapper @Inject constructor(
         members: List<MemberDetails>
     ) : UIMessageContent.SystemMessage? {
         val sender = members.findUser(userId = senderUserId)
-        val isAuthorSelfAction = members.size == 1 && senderUserId == content.members.first().id
+        val isAuthorSelfAction = content.members.size == 1 && senderUserId == content.members.first().id
         val authorName = toSystemMessageMemberName(
             member = sender,
             type = SelfNameType.ResourceTitleCase

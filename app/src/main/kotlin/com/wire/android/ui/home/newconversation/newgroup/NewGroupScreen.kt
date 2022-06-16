@@ -26,6 +26,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import com.wire.android.R
 import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.ShakeAnimation
+import com.wire.android.ui.common.WireDropDown
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.common.textfield.WireTextField

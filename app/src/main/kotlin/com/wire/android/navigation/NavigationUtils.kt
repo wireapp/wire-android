@@ -23,21 +23,37 @@ internal fun navigateToItem(
                     }
                 }
             }
-            BackStackMode.NONE -> {}
+            BackStackMode.REMOVE_CURRENT -> {
+                navController.run {
+                    println("cyka 0 ${backQueue.map { it.destination.route }}")
+                    backQueue.lastOrNull { it.destination.route != null }?.let { entry ->
+                        println("cyka 1 ${entry.destination.route}")
+                        val inclusive = true
+                        val startId = entry.destination.id
+                        popBackStack(startId, inclusive)
+                    }
+                }
+            }
+            BackStackMode.NONE -> {
+            }
         }
         launchSingleTop = true
         restoreState = true
     }
 }
 
-internal fun NavController.popWithArguments(arguments: Map<String, Any>?) {
+/**
+ * @return true if the stack was popped at least once and the user has been navigated to another destination,
+ * false otherwise
+ */
+internal fun NavController.popWithArguments(arguments: Map<String, Any>?): Boolean {
     previousBackStackEntry?.let {
         arguments?.forEach { (key, value) ->
             appLogger.d("Destination is ${it.destination}")
             it.savedStateHandle[key] = value
         }
     }
-    popBackStack()
+    return popBackStack()
 }
 
 @ExperimentalMaterial3Api

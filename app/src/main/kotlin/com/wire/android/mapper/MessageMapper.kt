@@ -48,14 +48,14 @@ class MessageMapper @Inject constructor(
                 messageSource = if (sender is MemberDetails.Self) MessageSource.Self else MessageSource.OtherUser,
                 messageHeader = MessageHeader(
                     // TODO: Designs for deleted users?
-                    username = sender.name?.let { UIText.DynamicString(it) } ?: UIText.StringResource(R.string.member_name_deleted_label),
+                    username = sender?.name?.let { UIText.DynamicString(it) } ?: UIText.StringResource(R.string.member_name_deleted_label),
                     membership = if (sender is MemberDetails.Other) userTypeMapper.toMembership(sender.userType) else Membership.None,
                     isLegalHold = false,
                     time = message.date,
                     messageStatus = if (message.status == Message.Status.FAILED) MessageStatus.SendFailure else MessageStatus.Untouched,
                     messageId = message.id
                 ),
-                userAvatarData = UserAvatarData(asset = sender.previewAsset)
+                userAvatarData = UserAvatarData(asset = sender?.previewAsset)
             )
         }
     }

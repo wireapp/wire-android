@@ -44,8 +44,10 @@ class MessageMapper @Inject constructor(
                 message = message,
                 members = members
             )
-            if (message is Message.System && content == null) null // system messages doesn't have header so there is nothing to be displayed
-            else UIMessage(
+            if (message is Message.System && content == null)
+                null // system messages doesn't have header so without the content there is nothing to be displayed
+            else
+                UIMessage(
                 messageContent = messageContentMapper.fromMessage(
                     message = message,
                     members = members

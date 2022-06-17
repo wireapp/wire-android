@@ -32,8 +32,7 @@ internal fun navigateToItem(
                     }
                 }
             }
-            BackStackMode.NONE -> {
-            }
+            BackStackMode.NONE -> {}
         }
         launchSingleTop = true
         restoreState = true

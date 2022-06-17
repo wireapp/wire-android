@@ -76,6 +76,7 @@
     <string name="archive_screen_title">Archive</string>
     <string name="user_profile_screen_title">User Profile</string>
     <string name="settings_screen_title">Settings</string>
+    <string name="debug_screen_title">Debug</string>
     <string name="support_screen_title">Support</string>
     <string name="search_bar_hint">Search %s</string>
     <string name="search_no_results">No matches found</string>
@@ -318,6 +319,7 @@
     <string name="error_conversation_sending_asset">There was an error trying to send that file. Please check your Internet connection and try again</string>
     <string name="error_conversation_downloading_asset">There was an error trying to download that file. Please try again</string>
     <string name="error_conversation_opening_asset_file">No app was found to open the selected file</string>
+    <string name="error_conversation_deleting_message">There was an error deleting the message. Please verify your connection and try again</string>
     <string name="error_conversation_max_image_size_limit">The image you chose is too large. Please choose an image smaller than 15MB</string>
     <string name="error_conversation_max_asset_size_limit">The file you chose is too large. Please choose a file smaller than %sMB</string>
     <string name="error_conversation_generic">There was an unknown error when trying to send the message</string>

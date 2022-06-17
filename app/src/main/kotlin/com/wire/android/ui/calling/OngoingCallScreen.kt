@@ -74,16 +74,6 @@ private fun OngoingCallContent(
     )
     with(sharedCallingViewModel) {
         BottomSheetScaffold(
-            modifier = Modifier.pointerInput(Unit) {
-                detectTapGestures(onTap = {
-                    coroutineScope.launch {
-                        if (sheetState.isCollapsed)
-                            sheetState.expand()
-                        else
-                            sheetState.collapse()
-                    }
-                })
-            },
             topBar = {
                 val conversationName = callState.conversationName
                 OngoingCallTopBar(
@@ -111,10 +101,15 @@ private fun OngoingCallContent(
         ) {
             Box(
                 modifier = Modifier.padding(
-                    bottom = 102.dp
+                    bottom = 95.dp
                 )
             ) {
-                GroupCallGrid(participants = callState.participants)
+                GroupCallGrid(
+                    participants = callState.participants,
+                    isSelfUserCameraOn = callState.isCameraOn,
+                    onSelfVideoPreviewCreated = sharedCallingViewModel::setVideoPreview,
+                    onSelfClearVideoPreview = sharedCallingViewModel::clearVideoPreview
+                )
             }
         }
     }

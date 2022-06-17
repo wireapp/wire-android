@@ -99,9 +99,7 @@ fun ParticipantTile(
                 ) {
                     Icon(
                         modifier = Modifier
-                            .padding(
-                                MaterialTheme.wireDimensions.spacing6x
-                            ),
+                            .padding(MaterialTheme.wireDimensions.spacing4x),
                         imageVector = ImageVector.vectorResource(id = R.drawable.ic_participant_muted),
                         tint = MaterialTheme.wireColorScheme.muteButtonColor,
                         contentDescription = stringResource(R.string.calling_content_description_participant_muted)

@@ -1,19 +1,20 @@
 package com.wire.android.mapper
 
+import com.wire.android.R
+import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversations.findUser
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
-import com.wire.android.model.UserAvatarData
+import com.wire.android.ui.home.conversations.model.UIMessage
+import com.wire.android.ui.home.conversations.name
 import com.wire.android.ui.home.conversations.previewAsset
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.android.util.ui.UIText
+import com.wire.android.util.uiMessageDateTime
 import com.wire.kalium.logic.data.conversation.MemberDetails
 import com.wire.kalium.logic.data.message.Message
-import com.wire.android.R
-import com.wire.android.ui.home.conversations.model.UIMessage
-import com.wire.android.ui.home.conversations.name
-import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.message.MessageContent
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -55,7 +56,7 @@ class MessageMapper @Inject constructor(
                     username = sender?.name?.let { UIText.DynamicString(it) } ?: UIText.StringResource(R.string.member_name_deleted_label),
                     membership = if (sender is MemberDetails.Other) userTypeMapper.toMembership(sender.userType) else Membership.None,
                     isLegalHold = false,
-                    time = message.date,
+                    time = message.date.uiMessageDateTime() ?: "",
                     messageStatus = if (message.status == Message.Status.FAILED) MessageStatus.SendFailure else MessageStatus.Untouched,
                     messageId = message.id
                 ),
@@ -63,5 +64,4 @@ class MessageMapper @Inject constructor(
             )
         }.filterNotNull()
     }
-
 }

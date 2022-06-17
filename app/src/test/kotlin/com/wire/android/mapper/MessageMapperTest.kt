@@ -11,6 +11,7 @@ import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.ui.UIText
+import com.wire.android.util.uiMessageDateTime
 import com.wire.kalium.logic.data.conversation.Member
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
@@ -23,6 +24,11 @@ import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import java.text.SimpleDateFormat
+import java.util.Calendar
+import java.util.Date
+import java.util.Locale
+import java.util.TimeZone
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
@@ -51,11 +57,19 @@ class MessageMapperTest {
     @Test
     fun givenMessageList_whenMappingToUIMessages_thenCorrectValuesShouldBeReturned() = runTest {
         // Given
+        val serverDateFormatter = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
+            .apply { timeZone = TimeZone.getTimeZone("UTC") }
+
+        val now = serverDateFormatter.format(Date())
+        val calender = Calendar.getInstance()
+        calender.add(Calendar.DATE, -1);
+        val yesterday = serverDateFormatter.format(calender.time)
+
         val (arrangement, mapper) = Arrangement().arrange()
         val userId1 = UserId("user-id1", "user-domain")
         val userId2 = UserId("user-id2", "user-domain")
-        val message1 = TestMessage.TEXT_MESSAGE.copy(senderUserId = userId1, status = Message.Status.READ, date = "date1")
-        val message2 = TestMessage.TEXT_MESSAGE.copy(senderUserId = userId2, status = Message.Status.FAILED, date = "date2")
+        val message1 = TestMessage.TEXT_MESSAGE.copy(senderUserId = userId1, status = Message.Status.READ, date = now)
+        val message2 = TestMessage.TEXT_MESSAGE.copy(senderUserId = userId2, status = Message.Status.FAILED, date = yesterday)
         val messages = listOf(message1, message2)
         val member1 = TestUser.MEMBER_SELF.copy(TestUser.SELF_USER.copy(id = userId1))
         val member2 = TestUser.MEMBER_OTHER.copy(TestUser.OTHER_USER.copy(id = userId2))
@@ -67,11 +81,11 @@ class MessageMapperTest {
             result.size == 2
                     && result[0].messageSource == MessageSource.Self
                     && result[0].messageHeader.membership == Membership.None
-                    && result[0].messageHeader.time == message1.date
+                    && result[0].messageHeader.time == message1.date.uiMessageDateTime()
                     && result[0].messageHeader.messageStatus == MessageStatus.Untouched
                     && result[1].messageSource == MessageSource.OtherUser
                     && result[1].messageHeader.membership == Membership.Guest
-                    && result[1].messageHeader.time == message2.date
+                    && result[1].messageHeader.time == message2.date.uiMessageDateTime()
                     && result[1].messageHeader.messageStatus == MessageStatus.SendFailure
         )
     }

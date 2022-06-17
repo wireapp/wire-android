@@ -85,31 +85,31 @@ class MessageMapperTest {
         // Then
         assert(result.size == 4)
         assert(checkMessageData(
-            result[0],
-            message1.date.uiMessageDateTime()
+            uiMessage = result[0],
+            time = message1.date.uiMessageDateTime()
         ))
         assert(checkMessageData(
-            result[1],
-            message2.date.uiMessageDateTime(),
-            MessageSource.OtherUser,
-            Membership.Guest,
-            MessageStatus.SendFailure
+            uiMessage = result[1],
+            time = message2.date.uiMessageDateTime(),
+            source = MessageSource.OtherUser,
+            membership = Membership.Guest,
+            status = MessageStatus.SendFailure
         ))
         assert(checkMessageData(
-            result[2],
-            message3.date.uiMessageDateTime(),
-            status = MessageStatus.Edited("formatted-edited-date3")
+            uiMessage = result[2],
+            time = message3.date.uiMessageDateTime(),
+            status = MessageStatus.Edited(now.uiMessageDateTime() ?: "")
         ))
         assert(checkMessageData(
-            result[3],
-            message4.date.uiMessageDateTime(),
+            uiMessage = result[3],
+            time = message4.date.uiMessageDateTime(),
             status = MessageStatus.Deleted
         ))
     }
 
     private fun checkMessageData(
         uiMessage: UIMessage,
-        time: String,
+        time: String?,
         source: MessageSource = MessageSource.Self,
         membership: Membership = Membership.None,
         status: MessageStatus = MessageStatus.Untouched
@@ -138,7 +138,7 @@ class MessageMapperTest {
                 MessageBody(UIText.DynamicString("some message text"))
             )
             coEvery { messageContentMapper.toSystemMessageMemberName(any(), any()) } returns UIText.DynamicString("username")
-            every { isoFormatter.fromISO8601ToTimeFormat(any()) } answers { firstArg<String>().uiMessageDateTime() }
+            every { isoFormatter.fromISO8601ToTimeFormat(any()) } answers { firstArg<String>().uiMessageDateTime() ?: "" }
         }
 
         fun arrange() = this to messageMapper

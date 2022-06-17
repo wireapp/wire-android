@@ -98,15 +98,13 @@ private fun ConnectRequestBadge(modifier: Modifier = Modifier) {
 private fun ConnectPendingRequestBadge(modifier: Modifier = Modifier) {
     WireSecondaryButton(
         onClick = { },
-        leadingIcon = {
-            Text(text = stringResource(id = R.string.connection_pending_label))
-        },
+        text = stringResource(id = R.string.connection_pending_label),
         fillMaxWidth = false,
         minHeight = dimensions().badgeSmallMinSize.height,
         minWidth = dimensions().badgeSmallMinSize.width,
         shape = RoundedCornerShape(size = dimensions().spacing6x),
         contentPadding = PaddingValues(horizontal = dimensions().spacing6x),
-        textStyle = MaterialTheme.wireTypography.label01
+        textStyle = MaterialTheme.wireTypography.body04
     )
 }
 

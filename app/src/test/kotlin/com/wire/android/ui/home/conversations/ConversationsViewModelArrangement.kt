@@ -33,6 +33,7 @@ import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
 import com.wire.kalium.logic.feature.message.Result
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
+import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
@@ -96,6 +97,9 @@ internal class ConversationsViewModelArrangement {
     lateinit var getMessagesForConversationUseCase: GetMessagesForConversationUseCase
 
     @MockK
+    lateinit var isFileSharingEnabledUseCase: IsFileSharingEnabledUseCase
+
+    @MockK
     lateinit var resources: Resources
 
     @MockK
@@ -120,7 +124,8 @@ internal class ConversationsViewModelArrangement {
             updateAssetMessageDownloadStatus = updateAssetMessageDownloadStatus,
             getSelfUserTeam = getSelfUserTeam,
             fileManager = fileManager,
-            getMessageForConversation = getMessagesForConversationUseCase
+            getMessageForConversation = getMessagesForConversationUseCase,
+            isFileSharingEnabledUseCase = isFileSharingEnabledUseCase
         )
     }
 

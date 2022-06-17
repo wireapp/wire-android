@@ -71,11 +71,10 @@ class MessageMapperTest {
         val (arrangement, mapper) = Arrangement().arrange()
         val userId1 = UserId("user-id1", "user-domain")
         val userId2 = UserId("user-id2", "user-domain")
-        val message1 = arrangement.testMessage(id = 1, senderUserId = userId1, date = now)
-        val message2 = arrangement.testMessage(id = 2, senderUserId = userId2, status = Message.Status.FAILED, date = yesterday)
-        val message3 = arrangement.testMessage(
-            id = 3, senderUserId = userId1, editStatus = Message.EditStatus.Edited(now), date = now)
-        val message4 = arrangement.testMessage(id = 4, senderUserId = userId1, visibility = Message.Visibility.DELETED, date = now)
+        val message1 = arrangement.testMessage(senderUserId = userId1, date = now)
+        val message2 = arrangement.testMessage(senderUserId = userId2, status = Message.Status.FAILED, date = yesterday)
+        val message3 = arrangement.testMessage(senderUserId = userId1, editStatus = Message.EditStatus.Edited(now), date = now)
+        val message4 = arrangement.testMessage(senderUserId = userId1, visibility = Message.Visibility.DELETED, date = now)
         val messages = listOf(message1, message2, message3, message4)
         val member1 = TestUser.MEMBER_SELF.copy(TestUser.SELF_USER.copy(id = userId1))
         val member2 = TestUser.MEMBER_OTHER.copy(TestUser.OTHER_USER.copy(id = userId2))
@@ -144,7 +143,6 @@ class MessageMapperTest {
         fun arrange() = this to messageMapper
 
         fun testMessage(
-            id: Int,
             senderUserId: UserId,
             status: Message.Status = Message.Status.READ,
             visibility: Message.Visibility = Message.Visibility.VISIBLE,

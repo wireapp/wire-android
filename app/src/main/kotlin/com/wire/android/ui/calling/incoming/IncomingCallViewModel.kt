@@ -30,13 +30,14 @@ class IncomingCallViewModel @Inject constructor(
     private val rejectCall: RejectCallUseCase,
     private val acceptCall: AnswerCallUseCase,
     private val callRinger: CallRinger,
-    notificationManager: CallNotificationManager
+    private val notificationManager: CallNotificationManager
 ) : ViewModel() {
 
     private val conversationId: ConversationId = savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!.parseIntoQualifiedID()
     lateinit var observeIncomingCallJob: Job
 
     init {
+        println("cyka hide notification")
         notificationManager.hideCallNotification()
 
         viewModelScope.launch {

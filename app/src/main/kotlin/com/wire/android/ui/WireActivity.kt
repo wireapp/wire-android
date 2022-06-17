@@ -51,9 +51,11 @@ class WireActivity : AppCompatActivity() {
         lifecycle.addObserver(viewModel)
         viewModel.handleDeepLink(intent)
         setComposableContent()
+        println("cyka onCreate: ${intent?.data}")
     }
 
     override fun onNewIntent(intent: Intent?) {
+        println("cyka newIntent: ${intent?.data}")
         if (viewModel.handleDeepLinkOnNewIntent(intent)) {
             recreate()
         }
@@ -91,7 +93,9 @@ class WireActivity : AppCompatActivity() {
 
             navigationManager.navigateBack
                 .onEach {
-                    if (!navController.popWithArguments(it)) finish()
+                    if (!navController.popWithArguments(it)) {
+                        finish()
+                    }
                 }
                 .launchIn(scope)
 

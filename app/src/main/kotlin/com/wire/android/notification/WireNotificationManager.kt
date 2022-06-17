@@ -34,9 +34,8 @@ class WireNotificationManager @Inject constructor(
      */
     suspend fun fetchAndShowNotificationsOnce(userIdValue: String) {
         checkIfUserIsAuthenticated(userId = userIdValue)?.let { userId ->
-            println("cyka fetchAndShowNotificationsOnce $userId")
             coreLogic.getSessionScope(userId).syncManager.waitUntilLive()
-            println("cyka fetchAndShowNotificationsOnce step 2")
+            println("cyka fetchAndShowNotificationsOnce")
             fetchAndShowMessageNotificationsOnce(userId)
             fetchAndShowCallNotificationsOnce(userId)
         }
@@ -48,23 +47,17 @@ class WireNotificationManager @Inject constructor(
         // but we don't get it from the first GetIncomingCallsUseCase() call.
         // To cover that case we have this `intervalFlow().take(CHECK_INCOMING_CALLS_TRIES)`
         // to try get incoming calls 6 times, if it returns nothing we assume there is no incoming call
-        println("cyka start trying")
         intervalFlow(CHECK_INCOMING_CALLS_PERIOD_MS)
             .map {
-                println("cyka trying")
                 coreLogic.getSessionScope(userId)
                     .calls
                     .getIncomingCalls()
                     .first()
             }
-            .map {
-                println("cyka try: ${it.size}")
-                it
-            }
             .take(CHECK_INCOMING_CALLS_TRIES)
             .distinctUntilChanged()
             .collect { callsList ->
-                println("cyka calls: ${callsList.size}")
+                println("cyka calls1: ${callsList.size}")
                 callNotificationManager.handleNotifications(callsList, userId)
             }
     }
@@ -129,8 +122,11 @@ class WireNotificationManager @Inject constructor(
             }
             .collect { (calls, userId) ->
                 if (observeAppVisibility.value) {
+                    println("cyka calls2.1: ${calls.size}")
                     calls.firstOrNull()?.run { doIfCallCameAndAppVisible(this) }
+                    callNotificationManager.hideCallNotification()
                 } else {
+                    println("cyka calls2.2: ${calls.size}")
                     callNotificationManager.handleNotifications(calls, userId)
                 }
             }

@@ -42,7 +42,7 @@ fun WireItemLabel(
 ) {
     Text(
         text = text,
-        style = MaterialTheme.wireTypography.body04,
+        style = MaterialTheme.wireTypography.body03,
         textAlign = TextAlign.Center,
     )
 }

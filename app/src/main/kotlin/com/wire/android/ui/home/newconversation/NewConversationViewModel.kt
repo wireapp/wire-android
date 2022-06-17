@@ -27,10 +27,10 @@ import com.wire.kalium.logic.feature.publicuser.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.SearchUserDirectoryUseCase
 import com.wire.kalium.logic.functional.Either
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
 @Suppress("TooManyFunctions")
 @HiltViewModel
@@ -52,8 +52,8 @@ class NewConversationViewModel
     val state: SearchPeopleState by derivedStateOf {
         val noneSearchSucceed: Boolean =
             localContactSearchResult.searchResultState is SearchResultState.Failure &&
-                publicContactsSearchResult.searchResultState is SearchResultState.Failure &&
-                federatedContactSearchResult.searchResultState is SearchResultState.Failure
+                    publicContactsSearchResult.searchResultState is SearchResultState.Failure &&
+                    federatedContactSearchResult.searchResultState is SearchResultState.Failure
 
         innerSearchPeopleState.copy(
             noneSearchSucceed = noneSearchSucceed,
@@ -109,7 +109,7 @@ class NewConversationViewModel
         searchQueryStateFlow.search(searchTerm)
     }
 
-    // TODO: suppress for now,
+    //TODO: suppress for now,
     // we should  map the result to a custom Result class containing Error on Kalium side for this use case
     @Suppress("TooGenericExceptionCaught")
     private suspend fun searchKnown(searchTerm: String) {
@@ -145,14 +145,7 @@ class NewConversationViewModel
             }
             is Result.Success -> {
                 ContactSearchResult.ExternalContact(
-                    SearchResultState.Success(
-                        result.userSearchResult.result
-                            .filter { external ->
-                                state.allKnownContacts.none { contact -> external.id.value == contact.id }
-                            }.map { external ->
-                                external.toContact()
-                            }
-                    )
+                    SearchResultState.Success(result.userSearchResult.result.map { it.toContact() })
                 )
             }
         }
@@ -217,12 +210,11 @@ class NewConversationViewModel
         viewModelScope.launch {
             groupNameState = groupNameState.copy(isLoading = true)
 
-            when (
-                val result = createGroupConversation(
-                    name = groupNameState.groupName.text,
-                    members = state.contactsAddedToGroup.map { contact -> contact.toMember() },
-                    options = ConversationOptions()
-                )
+            when (val result = createGroupConversation(
+                name = groupNameState.groupName.text,
+                members = state.contactsAddedToGroup.map { contact -> contact.toMember() },
+                options = ConversationOptions()
+            )
             ) {
                 // TODO: handle the error state
                 is Either.Left -> {

@@ -51,7 +51,6 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
-import com.wire.kalium.logic.configuration.server.ServerConfig
 
 @Composable
 fun CreateAccountEmailScreen(viewModel: CreateAccountEmailViewModel) {
@@ -64,7 +63,7 @@ fun CreateAccountEmailScreen(viewModel: CreateAccountEmailViewModel) {
         onTermsDialogDismiss = viewModel::onTermsDialogDismiss,
         onTermsAccept = { viewModel.onTermsAccept() },
         onErrorDismiss = viewModel::onEmailErrorDismiss,
-        websiteBaseUrl = TODO()
+        tosUrl = viewModel.tosUrl()
     )
 }
 
@@ -79,7 +78,7 @@ private fun EmailContent(
     onTermsDialogDismiss: () -> Unit,
     onTermsAccept: () -> Unit,
     onErrorDismiss: () -> Unit,
-    websiteBaseUrl: String
+    tosUrl: String
 ) {
     Scaffold(topBar = {
         WireCenterAlignedTopAppBar(
@@ -130,7 +129,7 @@ private fun EmailContent(
         TermsConditionsDialog(
             onDialogDismiss = onTermsDialogDismiss,
             onContinuePressed = onTermsAccept,
-            onViewPolicyPressed = { CustomTabsHelper.launchUrl(context, "$websiteBaseUrl/legal") }
+            onViewPolicyPressed = { CustomTabsHelper.launchUrl(context, tosUrl) }
         )
     }
     if (state.error is CreateAccountEmailViewState.EmailError.DialogError.GenericError)

@@ -24,12 +24,12 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
+import com.wire.android.appLogger
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
-import com.wire.kalium.logic.configuration.server.ServerConfig
 
 @Composable
 fun CreateAccountOverviewScreen(viewModel: CreateAccountOverviewViewModel) {
@@ -42,7 +42,7 @@ fun CreateAccountOverviewScreen(viewModel: CreateAccountOverviewViewModel) {
             contentText = stringResource(id = viewModel.type.overviewResources.overviewContentTextResId),
             contentIconResId = viewModel.type.overviewResources.overviewContentIconResId,
             learnMoreText = stringResource(id = viewModel.type.overviewResources.overviewLearnMoreTextResId),
-            learnMoreUrl = TODO("get server config from viewModel  websiteUrl}/pricing")
+            learnMoreUrl = viewModel.learnMoreUrl()
         )
     )
 }

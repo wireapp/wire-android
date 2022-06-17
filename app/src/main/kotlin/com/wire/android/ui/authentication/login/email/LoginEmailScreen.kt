@@ -36,6 +36,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
+import com.wire.android.appLogger
 import com.wire.android.ui.authentication.login.LoginError
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
@@ -51,7 +52,6 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.DialogErrorStrings
 import com.wire.android.util.dialogErrorStrings
-import com.wire.kalium.logic.configuration.server.ServerConfig
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -71,7 +71,7 @@ fun LoginEmailScreen(
         onDialogDismiss = { loginEmailViewModel.onDialogDismiss() },
         onRemoveDeviceOpen = { loginEmailViewModel.onTooManyDevicesError() },
         onLoginButtonClick = suspend { loginEmailViewModel.login() },
-        accountsBaseUrl = loginEmailViewModel.serverConfig.api,
+        forgotPasswordUrl = loginEmailViewModel.serverConfig.forgotPassword,
         scope = scope,
         serverTitle = loginEmailViewModel.serverConfig.title
     )
@@ -86,7 +86,7 @@ private fun LoginEmailContent(
     onDialogDismiss: () -> Unit,
     onRemoveDeviceOpen: () -> Unit,
     onLoginButtonClick: suspend () -> Unit,
-    accountsBaseUrl: String,
+    forgotPasswordUrl: String,
     scope: CoroutineScope,
     //todo: temporary to show to pointing server
     serverTitle: String
@@ -121,7 +121,7 @@ private fun LoginEmailContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = MaterialTheme.wireDimensions.spacing16x),
-            accountsBaseUrl = accountsBaseUrl
+            forgotPasswordUrl = forgotPasswordUrl
         )
         Spacer(modifier = Modifier.weight(1f))
 
@@ -204,7 +204,7 @@ private fun PasswordInput(modifier: Modifier, password: TextFieldValue, onPasswo
 }
 
 @Composable
-private fun ForgotPasswordLabel(modifier: Modifier, accountsBaseUrl: String) {
+private fun ForgotPasswordLabel(modifier: Modifier, forgotPasswordUrl: String) {
     Column(horizontalAlignment = Alignment.CenterHorizontally, modifier = modifier) {
         val context = LocalContext.current
         Text(
@@ -218,16 +218,17 @@ private fun ForgotPasswordLabel(modifier: Modifier, accountsBaseUrl: String) {
                 .clickable(
                     interactionSource = remember { MutableInteractionSource() },
                     indication = null,
-                    onClick = { openForgotPasswordPage(context, accountsBaseUrl) }
+                    onClick = { openForgotPasswordPage(context, forgotPasswordUrl) }
                 )
                 .testTag("Forgot password?")
         )
     }
 }
 
-private fun openForgotPasswordPage(context: Context, accountsBaseUrl: String) {
-    val url = "$accountsBaseUrl/forgot"
-    CustomTabsHelper.launchUrl(context, url)
+private fun openForgotPasswordPage(context: Context, forgotPasswordUrl: String) {
+    CustomTabsHelper.launchUrl(context, forgotPasswordUrl).also {
+        appLogger.d(forgotPasswordUrl)
+    }
 }
 
 @OptIn(ExperimentalAnimationApi::class)
@@ -262,7 +263,7 @@ private fun LoginEmailScreenPreview() {
             onDialogDismiss = { },
             onRemoveDeviceOpen = { },
             onLoginButtonClick = suspend { },
-            accountsBaseUrl = "",
+            forgotPasswordUrl = "",
             scope = scope,
             serverTitle = "Test Server"
         )

@@ -40,7 +40,7 @@ import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireDimensions
 import kotlinx.coroutines.launch
-import com.wire.android.model.ImageAsset
+import com.wire.android.ui.calling.common.GroupCallGrid
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -64,7 +64,7 @@ private fun OngoingCallContent(
     val coroutineScope = rememberCoroutineScope()
 
     val sheetState = rememberBottomSheetState(
-        initialValue = BottomSheetValue.Expanded
+        initialValue = BottomSheetValue.Collapsed
     )
     val scaffoldState = rememberBottomSheetScaffoldState(
         bottomSheetState = sheetState
@@ -92,7 +92,7 @@ private fun OngoingCallContent(
                 ) { }
             },
             sheetShape = RoundedCornerShape(topStart = dimensions().corner16x, topEnd = dimensions().corner16x),
-            sheetPeekHeight = 0.dp,
+            sheetPeekHeight = dimensions().defaultSheetPeekHeight,
             scaffoldState = scaffoldState,
             sheetContent = {
                 CallingControls(
@@ -104,26 +104,12 @@ private fun OngoingCallContent(
                 )
             },
         ) {
-            Box {
-                Column(modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.spacing6x)) {
-                    if (callState.participants.isNotEmpty()) {
-                        callState.participants.forEach { participant ->
-                            //For now we are handling only self user camera state
-                            val isSelfUserCameraOn = if (callState.participants.first() == participant) callState.isCameraOn else false
-                            ParticipantTile(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .weight(1f),
-                                conversationName = getConversationName(participant.name),
-                                participantAvatar = ImageAsset.UserAvatarAsset(participant.avatarAssetId!!),
-                                isMuted = participant.isMuted,
-                                isCameraOn = isSelfUserCameraOn,
-                                onVideoPreviewCreated = sharedCallingViewModel::setVideoPreview,
-                                onClearVideoPreview = sharedCallingViewModel::clearVideoPreview
-                            )
-                        }
-                    }
-                }
+            Box(
+                modifier = Modifier.padding(
+                    bottom = 102.dp
+                )
+            ) {
+                GroupCallGrid(participants = callState.participants)
             }
         }
     }
@@ -200,8 +186,8 @@ private fun observeScreenLifecycleChanges(
     }
 }
 
-@Preview
 @Composable
+@Preview
 fun ComposablePreview() {
     OngoingCallTopBar("Default") { }
 }

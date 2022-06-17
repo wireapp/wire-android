@@ -1,6 +1,6 @@
 package com.wire.android.ui.authentication.create.common
 
-import androidx.compose.material.ExperimentalMaterialApi
+import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig
 import com.wire.android.appLogger
+import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
@@ -23,7 +24,6 @@ import com.wire.android.ui.authentication.create.email.CreateAccountEmailViewMod
 import com.wire.android.ui.authentication.create.email.CreateAccountEmailViewState
 import com.wire.android.ui.authentication.create.overview.CreateAccountOverviewViewModel
 import com.wire.android.ui.common.textfield.CodeFieldValue
-import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
@@ -38,6 +38,8 @@ import com.wire.kalium.logic.feature.register.RequestActivationCodeUseCase
 import com.wire.kalium.logic.feature.session.RegisterTokenResult
 import com.wire.kalium.logic.feature.session.RegisterTokenUseCase
 import kotlinx.coroutines.launch
+import java.net.URL
+import java.net.URLDecoder
 
 @Suppress("TooManyFunctions", "LongParameterList")
 abstract class CreateAccountBaseViewModel(
@@ -50,12 +52,17 @@ abstract class CreateAccountBaseViewModel(
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
     private val registerAccountUseCase: RegisterAccountUseCase,
     private val clientScopeProviderFactory: ClientScopeProvider.Factory,
-    private val pushTokenUseCase: RegisterTokenUseCase
+    private val authServerConfigProvider: AuthServerConfigProvider
 ) : ViewModel(),
     CreateAccountOverviewViewModel,
     CreateAccountEmailViewModel,
     CreateAccountDetailsViewModel,
     CreateAccountCodeViewModel {
+
+    override fun tosUrl(): String = authServerConfigProvider.authServer.value.tos
+
+    override fun learnMoreUrl(): String = authServerConfigProvider.authServer.value.pricing
+
     override var emailState: CreateAccountEmailViewState by mutableStateOf(
         CreateAccountEmailViewState(
             type,

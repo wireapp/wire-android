@@ -82,6 +82,36 @@ class ConversationsViewModelTest {
     }
 
     @Test
+    fun `given a failure, when deleting messages, then the error state is updated`() = runTest {
+        // Given
+        val (_, viewModel) = ConversationsViewModelArrangement().withFailureOnDeletingMessages().arrange()
+
+        viewModel.conversationViewState
+        // When
+        viewModel.deleteMessage("messageId", true)
+
+        // Then
+        assert(viewModel.conversationViewState.onSnackbarMessage is ConversationSnackbarMessages.ErrorDeletingMessage)
+    }
+
+    @Test
+    fun `given a failure, when deleting messages, then the delete dialog state is closed`() = runTest {
+        // Given
+        val (_, viewModel) = ConversationsViewModelArrangement().withFailureOnDeletingMessages().arrange()
+
+        viewModel.conversationViewState
+        // When
+        viewModel.deleteMessage("messageId", true)
+
+        // Then
+        val expectedState = DeleteMessageDialogsState.States(
+            DeleteMessageDialogActiveState.Hidden,
+            DeleteMessageDialogActiveState.Hidden
+        )
+        assertEquals(expectedState, viewModel.deleteMessageDialogsState)
+    }
+
+    @Test
     fun `given a 1 on 1 conversation, when solving the conversation name, then the name of the other user is used`() = runTest {
         // Given
         val oneToOneConversationDetails = withMockConversationDetailsOneOnOne("Other User Name Goes Here")
@@ -321,4 +351,5 @@ class ConversationsViewModelTest {
             verify(exactly = 1) { arrangement.fileManager.openWithExternalApp(any(), any(), any()) }
             assert(viewModel.conversationViewState.downloadedAssetDialogState == DownloadedAssetDialogVisibilityState.Hidden)
         }
+
 }

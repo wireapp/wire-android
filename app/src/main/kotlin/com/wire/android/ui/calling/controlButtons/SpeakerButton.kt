@@ -15,7 +15,7 @@ import com.wire.android.ui.theme.wireDimensions
 
 @Composable
 fun SpeakerButton(
-    isSpeakerOn: Boolean = false,
+    isSpeakerOn: Boolean,
     onSpeakerButtonClicked: () -> Unit
 ) {
     IconButton(
@@ -27,8 +27,8 @@ fun SpeakerButton(
         Image(
             painter = painterResource(
                 id = if (isSpeakerOn)
-                    R.drawable.ic_speaker_off
-                else R.drawable.ic_speaker_on
+                    R.drawable.ic_speaker_on
+                else R.drawable.ic_speaker_off
             ),
             contentDescription = stringResource(id = R.string.calling_turn_speaker_on_off)
         )
@@ -38,5 +38,5 @@ fun SpeakerButton(
 @Preview
 @Composable
 fun ComposableSpeakerButtonPreview() {
-    SpeakerButton(onSpeakerButtonClicked = { })
+    SpeakerButton(isSpeakerOn = true, onSpeakerButtonClicked = { })
 }

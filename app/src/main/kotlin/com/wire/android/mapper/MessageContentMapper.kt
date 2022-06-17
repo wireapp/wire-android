@@ -180,7 +180,7 @@ class MessageContentMapper @Inject constructor(
         } else null
     }
 
-    fun toSystemMessageMemberName(member: MemberDetails, type: SelfNameType = SelfNameType.NameOrDeleted): UIText = when (member) {
+    fun toSystemMessageMemberName(member: MemberDetails?, type: SelfNameType = SelfNameType.NameOrDeleted): UIText = when (member) {
         is MemberDetails.Other -> member.name?.let { UIText.DynamicString(it) }
             ?: UIText.StringResource(messageResourceProvider.memberNameDeleted)
         is MemberDetails.Self -> when (type) {
@@ -189,6 +189,7 @@ class MessageContentMapper @Inject constructor(
             SelfNameType.NameOrDeleted -> member.name?.let { UIText.DynamicString(it) }
                 ?: UIText.StringResource(messageResourceProvider.memberNameDeleted)
         }
+        else -> UIText.StringResource(messageResourceProvider.memberNameDeleted)
     }
 
     private suspend fun getRawAssetData(conversationId: QualifiedID, messageId: String) =

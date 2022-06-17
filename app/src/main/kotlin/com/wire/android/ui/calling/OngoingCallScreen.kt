@@ -1,5 +1,6 @@
 package com.wire.android.ui.calling
 
+import android.widget.Toast
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -23,6 +24,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -32,6 +34,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
 import com.wire.android.ui.calling.controlButtons.CameraButton
+import com.wire.android.ui.calling.controlButtons.CameraFlipButton
 import com.wire.android.ui.calling.controlButtons.HangUpButton
 import com.wire.android.ui.calling.controlButtons.MicrophoneButton
 import com.wire.android.ui.calling.controlButtons.SpeakerButton
@@ -98,6 +101,8 @@ private fun OngoingCallContent(
                 CallingControls(
                     isMuted = callState.isMuted,
                     isCameraOn = callState.isCameraOn,
+                    isSpeakerOn = callState.isSpeakerOn,
+                    toggleSpeaker = ::toggleSpeaker,
                     toggleMute = ::toggleMute,
                     onHangUpCall = ::hangUpCall,
                     onToggleVideo = ::toggleVideo
@@ -130,10 +135,13 @@ private fun OngoingCallTopBar(
     )
 }
 
+//TODO(refactor) use CallOptionsControls to avoid duplication
 @Composable
 private fun CallingControls(
     isMuted: Boolean,
     isCameraOn: Boolean,
+    isSpeakerOn: Boolean,
+    toggleSpeaker: () -> Unit,
     toggleMute: () -> Unit,
     onHangUpCall: () -> Unit,
     onToggleVideo: () -> Unit
@@ -153,7 +161,16 @@ private fun CallingControls(
                 onToggleVideo()
             }
         )
-        SpeakerButton(onSpeakerButtonClicked = { })
+        if (isCameraOn) {
+            val context = LocalContext.current
+            CameraFlipButton {
+                Toast.makeText(context, "Not implemented yet =)", Toast.LENGTH_SHORT).show()
+            }
+        } else SpeakerButton(
+            isSpeakerOn = isSpeakerOn,
+            onSpeakerButtonClicked = toggleSpeaker
+        )
+
         HangUpButton(
             modifier = Modifier
                 .width(MaterialTheme.wireDimensions.defaultCallingHangUpButtonSize)

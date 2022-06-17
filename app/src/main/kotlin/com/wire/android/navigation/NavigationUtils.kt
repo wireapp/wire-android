@@ -20,6 +20,15 @@ internal fun navigateToItem(
                     }
                 }
             }
+            BackStackMode.REMOVE_CURRENT -> {
+                navController.run {
+                    backQueue.lastOrNull { it.destination.route != null }?.let { entry ->
+                        val inclusive = true
+                        val startId = entry.destination.id
+                        popBackStack(startId, inclusive)
+                    }
+                }
+            }
             BackStackMode.NONE -> {}
         }
         launchSingleTop = true
@@ -27,14 +36,18 @@ internal fun navigateToItem(
     }
 }
 
-internal fun NavController.popWithArguments(arguments: Map<String, Any>?) {
+/**
+ * @return true if the stack was popped at least once and the user has been navigated to another destination,
+ * false otherwise
+ */
+internal fun NavController.popWithArguments(arguments: Map<String, Any>?): Boolean {
     previousBackStackEntry?.let {
         arguments?.forEach { (key, value) ->
             appLogger.d("Destination is ${it.destination}")
             it.savedStateHandle[key] = value
         }
     }
-    popBackStack()
+    return popBackStack()
 }
 
 internal fun NavController.getCurrentNavigationItem(): NavigationItem? {

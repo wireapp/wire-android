@@ -54,7 +54,6 @@ class WireActivity : AppCompatActivity() {
     }
 
     override fun onNewIntent(intent: Intent?) {
-        println("cyka onNewIntent ${intent?.data}")
         if (viewModel.handleDeepLinkOnNewIntent(intent)) {
             recreate()
         }
@@ -91,7 +90,9 @@ class WireActivity : AppCompatActivity() {
                 .launchIn(scope)
 
             navigationManager.navigateBack
-                .onEach { navController.popWithArguments(it) }
+                .onEach {
+                    if (!navController.popWithArguments(it)) finish()
+                }
                 .launchIn(scope)
 
             navController.addOnDestinationChangedListener { controller, _, _ ->

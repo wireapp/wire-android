@@ -76,6 +76,7 @@
     <string name="archive_screen_title">Archive</string>
     <string name="user_profile_screen_title">User Profile</string>
     <string name="settings_screen_title">Settings</string>
+    <string name="debug_screen_title">Debug</string>
     <string name="support_screen_title">Support</string>
     <string name="search_bar_hint">Search %s</string>
     <string name="search_no_results">No matches found</string>
@@ -334,6 +335,7 @@
     <string name="notification_shared_picture">Shared a picture</string>
     <string name="notification_shared_file">Shared a file</string>
     <string name="notification_reacted">Added a reaction</string>
+    <string name="notification_not_suppotred_notification">Something not supported in notifications</string>
     <string name="notification_action_call">Call</string>
     <string name="notification_action_reply">Reply</string>
     <string name="notification_receiver_name">You</string>
@@ -367,7 +369,7 @@
     <string name="connection_label_member_not_belongs_to_team">This user does not belong to your team. If they accept your connection request, they are available as a contact</string>
     <string name="connection_request_sent">Connection request sent</string>
     <string name="connection_request_canceled">Connection request canceled</string>
-    <string name="connection_request_ignored">Connection request ignored</string>
+    <string name="connection_request_ignored">You ignored %1$s\'s request</string>
     <string name="connection_request_accepted">Connection request accepted</string>
 
     <string name="connection_request_sent_error">Connection request could not be sent</string>

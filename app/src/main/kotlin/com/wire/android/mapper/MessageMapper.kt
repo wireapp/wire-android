@@ -40,8 +40,14 @@ class MessageMapper @Inject constructor(
     ): List<UIMessage> = withContext(dispatcherProvider.io()) {
         messages.map { message ->
             val sender = members.findUser(message.senderUserId)
-
-            UIMessage(
+            val content = messageContentMapper.fromMessage(
+                message = message,
+                members = members
+            )
+            if (message is Message.System && content == null)
+                null // system messages doesn't have header so without the content there is nothing to be displayed
+            else
+                UIMessage(
                 messageContent = messageContentMapper.fromMessage(
                     message = message,
                     members = members
@@ -58,6 +64,6 @@ class MessageMapper @Inject constructor(
                 ),
                 userAvatarData = UserAvatarData(asset = sender?.previewAsset)
             )
-        }
+        }.filterNotNull()
     }
 }

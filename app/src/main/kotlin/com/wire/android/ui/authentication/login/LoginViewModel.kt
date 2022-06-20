@@ -12,6 +12,7 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.client.ClientCapability
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
@@ -99,6 +100,7 @@ fun RegisterClientResult.Failure.toLoginError() = when (this) {
     is RegisterClientResult.Failure.Generic -> LoginError.DialogError.GenericError(this.genericFailure)
     RegisterClientResult.Failure.InvalidCredentials -> LoginError.DialogError.InvalidCredentialsError
     RegisterClientResult.Failure.TooManyClients -> LoginError.TooManyDevicesError
+    RegisterClientResult.Failure.PasswordAuthRequired -> LoginError.DialogError.PasswordNeededToRegisterClient
 }
 
 fun AddAuthenticatedUserUseCase.Result.Failure.toLoginError(): LoginError = when (this) {

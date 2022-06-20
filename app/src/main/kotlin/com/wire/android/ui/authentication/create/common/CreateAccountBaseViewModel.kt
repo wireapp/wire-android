@@ -1,6 +1,7 @@
 package com.wire.android.ui.authentication.create.common
 
 import android.net.Uri
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -24,6 +25,7 @@ import com.wire.android.ui.authentication.create.email.CreateAccountEmailViewMod
 import com.wire.android.ui.authentication.create.email.CreateAccountEmailViewState
 import com.wire.android.ui.authentication.create.overview.CreateAccountOverviewViewModel
 import com.wire.android.ui.common.textfield.CodeFieldValue
+import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
@@ -251,7 +253,7 @@ abstract class CreateAccountBaseViewModel(
                         return@launch
                     }
                     is RegisterClientResult.Success -> {
-                        registerPushToken(storedUserId, it.client.clientId.value)
+                        registerPushToken(storedUserId, it.client.id.value)
                         onCodeSuccess()
                     }
                 }
@@ -324,6 +326,12 @@ private fun RegisterClientResult.Failure.toCodeError() = when (this) {
     RegisterClientResult.Failure.TooManyClients -> CreateAccountCodeViewState.CodeError.TooManyDevicesError
     RegisterClientResult.Failure.InvalidCredentials -> CreateAccountCodeViewState.CodeError.DialogError.InvalidEmailError
     is RegisterClientResult.Failure.Generic -> CreateAccountCodeViewState.CodeError.DialogError.GenericError(this.genericFailure)
+    RegisterClientResult.Failure.PasswordAuthRequired -> {
+        Log.wtf("RegisterClient", "wrong password when register client after creating a new account")
+        CreateAccountCodeViewState.CodeError.DialogError.GenericError(
+            CoreFailure.Unknown(IllegalStateException("wrong password when register client after creating a new account"))
+        )
+    }
 }
 
 private fun RegisterResult.Failure.toCodeError() = when (this) {

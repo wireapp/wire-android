@@ -56,7 +56,7 @@ class RegisterDeviceViewModel @Inject constructor(
                 ))) {
                 is RegisterClientResult.Failure.TooManyClients -> navigateToRemoveDevicesScreen()
                 is RegisterClientResult.Success -> {
-                    registerPushToken(registerDeviceResult.client.clientId.value)
+                    registerPushToken(registerDeviceResult.client.id.value)
                     navigateToHomeScreen()}
                 is RegisterClientResult.Failure.Generic -> state = state.copy(
                         loading = false,

@@ -1,6 +1,5 @@
 package com.wire.android.ui.authentication.devices.remove
 
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -13,9 +12,8 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
-import com.wire.android.ui.authentication.devices.model.Device
+import com.wire.kalium.logic.data.client.Client
 import com.wire.kalium.logic.data.client.DeleteClientParam
-import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import com.wire.kalium.logic.feature.client.DeleteClientResult
 import com.wire.kalium.logic.feature.client.DeleteClientUseCase
@@ -29,7 +27,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-@OptIn(ExperimentalMaterialApi::class)
 @HiltViewModel
 class RemoveDeviceViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
@@ -51,13 +48,7 @@ class RemoveDeviceViewModel @Inject constructor(
             val selfClientsResult = selfClientsUseCase()
             if (selfClientsResult is SelfClientsResult.Success)
                 state = RemoveDeviceState.Success(
-                    deviceList = selfClientsResult.clients.map {
-                        Device(
-                            name = it.label ?: it.model ?: "",
-                            clientId = it.clientId,
-                            registrationTime = it.registrationTime
-                        )
-                    },
+                    deviceList = selfClientsResult.clients,
                     removeDeviceDialogState = RemoveDeviceDialogState.Hidden
                 )
         }
@@ -78,8 +69,14 @@ class RemoveDeviceViewModel @Inject constructor(
         updateStateIfDialogVisible { it.copy(error = RemoveDeviceError.None) }
     }
 
-    fun onItemClicked(device: Device) {
-        updateStateIfSuccess { it.copy(removeDeviceDialogState = RemoveDeviceDialogState.Visible(device = device)) }
+    fun onItemClicked(client: Client) {
+        tryToDeleteOrShowPasswordDialog(client)
+    }
+
+    private fun tryToDeleteOrShowPasswordDialog(client: Client) {
+        {
+            // try delete with no password (will success only for SSO accounts
+        }
     }
 
     fun onRemoveConfirmed(hideKeyboard: () -> Unit) {
@@ -87,7 +84,7 @@ class RemoveDeviceViewModel @Inject constructor(
             (it.removeDeviceDialogState as? RemoveDeviceDialogState.Visible)?.let { dialogStateVisible ->
                 updateStateIfDialogVisible { it.copy(loading = true, removeEnabled = false) }
                 viewModelScope.launch {
-                    val deleteClientParam = DeleteClientParam(dialogStateVisible.password.text, dialogStateVisible.device.clientId)
+                    val deleteClientParam = DeleteClientParam(dialogStateVisible.password.text, dialogStateVisible.client.id)
                     val deleteClientResult = deleteClientUseCase(deleteClientParam)
                     val removeDeviceError =
                         if (deleteClientResult is DeleteClientResult.Success)
@@ -100,7 +97,7 @@ class RemoveDeviceViewModel @Inject constructor(
                                     )
                                 ).let { registerClientResult ->
                                     if (registerClientResult is RegisterClientResult.Success)
-                                        registerPushToken(registerClientResult.client.clientId.value)
+                                        registerPushToken(registerClientResult.client.id.value)
                                     registerClientResult.toRemoveDeviceError()
                                 }
                             }
@@ -128,18 +125,20 @@ class RemoveDeviceViewModel @Inject constructor(
         }
     }
 
-    private fun DeleteClientResult.toRemoveDeviceError() =
+    private fun DeleteClientResult.toRemoveDeviceError(): RemoveDeviceError =
         when (this) {
             is DeleteClientResult.Failure.Generic -> RemoveDeviceError.GenericError(this.genericFailure)
             DeleteClientResult.Failure.InvalidCredentials -> RemoveDeviceError.InvalidCredentialsError
+            DeleteClientResult.Failure.PasswordAuthRequired -> RemoveDeviceError.PasswordRequired
             DeleteClientResult.Success -> RemoveDeviceError.None
         }
 
-    private fun RegisterClientResult.toRemoveDeviceError() =
+    private fun RegisterClientResult.toRemoveDeviceError(): RemoveDeviceError =
         when (this) {
             is RegisterClientResult.Failure.Generic -> RemoveDeviceError.GenericError(this.genericFailure)
             is RegisterClientResult.Failure.InvalidCredentials -> RemoveDeviceError.InvalidCredentialsError
             is RegisterClientResult.Failure.TooManyClients -> RemoveDeviceError.TooManyDevicesError
+            RegisterClientResult.Failure.PasswordAuthRequired -> RemoveDeviceError.PasswordRequired
             is RegisterClientResult.Success -> RemoveDeviceError.None
         }
 

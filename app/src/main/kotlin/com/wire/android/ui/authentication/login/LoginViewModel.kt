@@ -14,6 +14,7 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.client.ClientCapability
+import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
@@ -63,7 +64,7 @@ open class LoginViewModel @Inject constructor(
         )
     }
 
-    suspend fun registerPushToken(userId: UserId, clientId: String) {
+    suspend fun registerPushToken(userId: UserId, clientId: ClientId) {
         val clientScope = clientScopeProviderFactory.create(userId).clientScope
         clientScope.registerPushToken(BuildConfig.SENDER_ID, clientId).let { registerTokenResult ->
             when (registerTokenResult) {

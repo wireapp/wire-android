@@ -8,6 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.wire.android.appLogger
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.navigation.NavigationManager
@@ -63,16 +64,15 @@ class LoginSSOViewModel @Inject constructor(
     @VisibleForTesting
     fun establishSSOSession(cookie: String) {
         viewModelScope.launch {
-            val authSession = getSSOLoginSessionUseCase(cookie)
-                .let {
-                    when (it) {
-                        is SSOLoginSessionResult.Failure -> {
-                            updateLoginError(it.toLoginError())
-                            return@launch
-                        }
-                        is SSOLoginSessionResult.Success -> it.userSession
+            val authSession = getSSOLoginSessionUseCase(cookie).let {
+                when (it) {
+                    is SSOLoginSessionResult.Failure -> {
+                        updateLoginError(it.toLoginError())
+                        return@launch
                     }
+                    is SSOLoginSessionResult.Success -> it.userSession
                 }
+            }
             val storedUserId = addAuthenticatedUser(authSession, false).let {
                 when (it) {
                     is AddAuthenticatedUserUseCase.Result.Failure -> {
@@ -85,7 +85,7 @@ class LoginSSOViewModel @Inject constructor(
             registerClient(storedUserId).let {
                 when (it) {
                     is RegisterClientResult.Success -> {
-                        registerPushToken(storedUserId, it.client.id.value)
+                        registerPushToken(storedUserId, it.client.id)
                         navigateToConvScreen()
                     }
                     is RegisterClientResult.Failure -> {
@@ -119,7 +119,7 @@ class LoginSSOViewModel @Inject constructor(
             establishSSOSession(ssoLoginResult.cookie)
         }
         is DeepLinkResult.SSOLogin.Failure -> updateLoginError(LoginError.DialogError.SSOResultError(ssoLoginResult.ssoError))
-        else -> {}
+        null -> {}
     }
 
     private fun openWebUrl(url: String) {

@@ -14,6 +14,7 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.kalium.logic.data.client.Client
 import com.wire.kalium.logic.data.client.DeleteClientParam
+import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import com.wire.kalium.logic.feature.client.DeleteClientResult
 import com.wire.kalium.logic.feature.client.DeleteClientUseCase
@@ -24,6 +25,7 @@ import com.wire.kalium.logic.feature.client.SelfClientsUseCase
 import com.wire.kalium.logic.feature.session.RegisterTokenResult
 import com.wire.kalium.logic.feature.session.RegisterTokenUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -74,8 +76,49 @@ class RemoveDeviceViewModel @Inject constructor(
     }
 
     private fun tryToDeleteOrShowPasswordDialog(client: Client) {
-        {
+        // try delete with no password (will success only for SSO accounts)
+        viewModelScope.launch(Dispatchers.Main) {
             // try delete with no password (will success only for SSO accounts
+
+            when (val deleteResult = deleteClientUseCase(DeleteClientParam(null, client.id))) {
+
+                DeleteClientResult.Success -> registerClientUseCase(
+                    RegisterClientUseCase.RegisterClientParam(null, null)
+                ).also { result ->
+                    when (result) {
+                        is RegisterClientResult.Failure.PasswordAuthRequired -> updateStateIfSuccess {
+                            it.copy(
+                                removeDeviceDialogState = RemoveDeviceDialogState.Visible(
+                                    client = client
+                                )
+                            )
+                        }
+                        is RegisterClientResult.Failure.Generic -> state = RemoveDeviceState.Error(result.genericFailure)
+                        RegisterClientResult.Failure.InvalidCredentials -> { // server will never response with InvalidCredentials in case of trying with no password
+                        }
+                        RegisterClientResult.Failure.TooManyClients -> {}
+                        is RegisterClientResult.Success -> {
+                            registerPushToken(result.client.id)
+                            navigateToConvScreen()
+                        }
+                    }
+                }
+                is DeleteClientResult.Failure.Generic -> state = RemoveDeviceState.Error(deleteResult.genericFailure)
+                DeleteClientResult.Failure.InvalidCredentials -> updateStateIfSuccess {
+                    it.copy(
+                        removeDeviceDialogState = RemoveDeviceDialogState.Visible(
+                            client = client
+                        )
+                    )
+                }
+                DeleteClientResult.Failure.PasswordAuthRequired -> updateStateIfSuccess {
+                    it.copy(
+                        removeDeviceDialogState = RemoveDeviceDialogState.Visible(
+                            client = client
+                        )
+                    )
+                }
+            }
         }
     }
 
@@ -97,7 +140,7 @@ class RemoveDeviceViewModel @Inject constructor(
                                     )
                                 ).let { registerClientResult ->
                                     if (registerClientResult is RegisterClientResult.Success)
-                                        registerPushToken(registerClientResult.client.id.value)
+                                        registerPushToken(registerClientResult.client.id)
                                     registerClientResult.toRemoveDeviceError()
                                 }
                             }
@@ -113,7 +156,7 @@ class RemoveDeviceViewModel @Inject constructor(
         }
     }
 
-    private suspend fun registerPushToken(clientId: String) {
+    private suspend fun registerPushToken(clientId: ClientId) {
         pushTokenUseCase(BuildConfig.SENDER_ID, clientId).let { registerTokenResult ->
             when (registerTokenResult) {
                 is RegisterTokenResult.Success ->

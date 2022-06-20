@@ -26,6 +26,7 @@ import com.wire.android.ui.authentication.create.email.CreateAccountEmailViewSta
 import com.wire.android.ui.authentication.create.overview.CreateAccountOverviewViewModel
 import com.wire.android.ui.common.textfield.CodeFieldValue
 import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
@@ -253,7 +254,7 @@ abstract class CreateAccountBaseViewModel(
                         return@launch
                     }
                     is RegisterClientResult.Success -> {
-                        registerPushToken(storedUserId, it.client.id.value)
+                        registerPushToken(storedUserId, it.client.id)
                         onCodeSuccess()
                     }
                 }
@@ -278,7 +279,7 @@ abstract class CreateAccountBaseViewModel(
             )
         )
 
-    private suspend fun registerPushToken(userId: UserId, clientId: String) {
+    private suspend fun registerPushToken(userId: UserId, clientId: ClientId) {
         clientScopeProviderFactory.create(userId).clientScope.registerPushToken(BuildConfig.SENDER_ID, clientId)
             .let { registerTokenResult ->
                 when (registerTokenResult) {

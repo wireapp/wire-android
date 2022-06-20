@@ -212,7 +212,7 @@ class LoginSSOViewModelTest {
             registerClientUseCase(any())
         } returns RegisterClientResult.Success(CLIENT)
         coEvery {
-            registerTokenUseCase(any(), any())
+            registerTokenUseCase(any(), CLIENT.id)
         } returns RegisterTokenResult.Failure.PushTokenRegister
 
         runTest { loginViewModel.establishSSOSession("") }
@@ -223,7 +223,7 @@ class LoginSSOViewModelTest {
             registerClientUseCase(any())
         }
         coVerify(exactly = 1) { addAuthenticatedUserUseCase(any(), any()) }
-        coVerify(exactly = 1) { registerTokenUseCase(any(), any()) }
+        coVerify(exactly = 1) { registerTokenUseCase(any(), CLIENT.id) }
     }
 
     @Test
@@ -238,7 +238,7 @@ class LoginSSOViewModelTest {
         coVerify(exactly = 0) { loginViewModel.registerClient(any()) }
         coVerify(exactly = 0) { addAuthenticatedUserUseCase(any(), any()) }
         coVerify(exactly = 0) { loginViewModel.navigateToConvScreen() }
-        coVerify(exactly = 0) { registerTokenUseCase.invoke(any(), any()) }
+        coVerify(exactly = 0) { registerTokenUseCase(any(), CLIENT.id) }
     }
 
     @Test
@@ -258,7 +258,7 @@ class LoginSSOViewModelTest {
         coEvery { getSSOLoginSessionUseCase(any()) } returns SSOLoginSessionResult.Success(authSession)
         coEvery { addAuthenticatedUserUseCase(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
         coEvery { registerClientUseCase(any()) } returns RegisterClientResult.Success(CLIENT)
-        coEvery { registerTokenUseCase(any(), any()) } returns RegisterTokenResult.Success
+        coEvery { registerTokenUseCase(any(), CLIENT.id) } returns RegisterTokenResult.Success
 
         runTest { loginViewModel.handleSSOResult(DeepLinkResult.SSOLogin.Success("", "")) }
         coVerify(exactly = 1) { loginViewModel.navigateToConvScreen() }
@@ -277,7 +277,7 @@ class LoginSSOViewModelTest {
         coVerify(exactly = 0) { loginViewModel.registerClient(any()) }
         coVerify(exactly = 1) { addAuthenticatedUserUseCase(any(), any()) }
         coVerify(exactly = 0) { loginViewModel.navigateToConvScreen() }
-        coVerify(exactly = 0) { registerTokenUseCase.invoke(any(), any()) }
+        coVerify(exactly = 0) { registerTokenUseCase(any(), CLIENT.id) }
     }
 
     @Test
@@ -300,13 +300,13 @@ class LoginSSOViewModelTest {
 
     @Test
     fun `given establishSSOSession is called, when registerTokenUseCase returns PushTokenFailure error, then LoginError is None`() {
-        coEvery { getSSOLoginSessionUseCase.invoke(any()) } returns SSOLoginSessionResult.Success(authSession)
-        coEvery { addAuthenticatedUserUseCase.invoke(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
+        coEvery { getSSOLoginSessionUseCase(any()) } returns SSOLoginSessionResult.Success(authSession)
+        coEvery { addAuthenticatedUserUseCase(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
         coEvery {
-            registerClientUseCase.invoke(any())
+            registerClientUseCase(any())
         } returns RegisterClientResult.Success(CLIENT)
         coEvery {
-            registerTokenUseCase.invoke(any(), any())
+            registerTokenUseCase(any(), CLIENT.id)
         } returns RegisterTokenResult.Failure.PushTokenRegister
 
         runTest { loginViewModel.establishSSOSession("") }
@@ -314,12 +314,12 @@ class LoginSSOViewModelTest {
         loginViewModel.loginState.loginSSOError shouldBeInstanceOf LoginError.None::class
 
         coVerify(exactly = 1) { navigationManager.navigate(any()) }
-        coVerify(exactly = 1) { getSSOLoginSessionUseCase.invoke(any()) }
+        coVerify(exactly = 1) { getSSOLoginSessionUseCase(any()) }
         coVerify(exactly = 1) {
-            registerClientUseCase.invoke(any())
+            registerClientUseCase(any())
         }
-        coVerify(exactly = 1) { addAuthenticatedUserUseCase.invoke(any(), any()) }
-        coVerify(exactly = 1) { registerTokenUseCase.invoke(any(), any()) }
+        coVerify(exactly = 1) { addAuthenticatedUserUseCase(any(), any()) }
+        coVerify(exactly = 1) { registerTokenUseCase(any(), CLIENT.id) }
     }
 
     companion object {

@@ -345,7 +345,7 @@ private fun ShowButton(
     Box(modifier) {
         AnimatedContent(isShownAll) { showAll ->
             WireSecondaryButton(
-                text = if (!showAll) "Show More" else "Show Less",
+                text = if (!showAll) stringResource(R.string.label_show_more) else stringResource(R.string.label_show_less),
                 onClick = onShowButtonClicked,
                 minHeight = dimensions().showAllCollapseButtonMinHeight,
                 fillMaxWidth = false,

@@ -43,7 +43,6 @@ import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
-import com.wire.kalium.logic.util.fileExtension
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -151,7 +150,7 @@ private fun MessageContent(
 ) {
     when (messageContent) {
         is MessageContent.ImageMessage -> MessageImage(
-            rawImgData = messageContent.rawImgData,
+            rawImgData = messageContent.imgDataPath,
             imgParams = ImageMessageParams(messageContent.width, messageContent.height),
             onImageClick = { onImageClick() }
         )

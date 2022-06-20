@@ -4,10 +4,11 @@ import androidx.annotation.StringRes
 import com.wire.android.R
 import com.wire.android.ui.home.conversations.findUser
 import com.wire.android.ui.home.conversations.model.MessageBody
-import com.wire.android.ui.home.conversations.model.MessageContent as UIMessageContent
 import com.wire.android.ui.home.conversations.name
 import com.wire.android.util.time.ISOFormatter
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.asset.KaliumFileSystem
+import com.wire.kalium.logic.data.asset.isImage
 import com.wire.kalium.logic.data.conversation.MemberDetails
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.AssetContent
@@ -23,12 +24,14 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import javax.inject.Inject
+import com.wire.android.ui.home.conversations.model.MessageContent as UIMessageContent
 
 // TODO: splits mapping into more classes
 class MessageContentMapper @Inject constructor(
     private val isoFormatter: ISOFormatter,
     private val getMessageAsset: GetMessageAssetUseCase,
-    private val messageResourceProvider: MessageResourceProvider
+    private val messageResourceProvider: MessageResourceProvider,
+    private val kaliumFileSystem: KaliumFileSystem
 ) {
 
     suspend fun fromMessage(
@@ -155,12 +158,9 @@ class MessageContentMapper @Inject constructor(
         if (remoteData.assetId.isNotEmpty()) {
             when {
                 // If it's an image, we download it right away
-                mimeType.contains("image") -> UIMessageContent.ImageMessage(
+                isImage(mimeType) -> UIMessageContent.ImageMessage(
                     assetId = AssetId(remoteData.assetId, remoteData.assetDomain.orEmpty()),
-                    rawImgData = getRawAssetData(
-                        conversationId = conversationId,
-                        messageId = messageId
-                    ),
+                    imgDataPath = getImageRawData(conversationId, messageId),
                     width = imgWidth,
                     height = imgHeight
                 )
@@ -180,6 +180,13 @@ class MessageContentMapper @Inject constructor(
         } else null
     }
 
+    private suspend fun getImageRawData(conversationId: QualifiedID, messageId: String): ByteArray? {
+        return imageDataPath(
+            conversationId = conversationId,
+            messageId = messageId
+        )?.let { kaliumFileSystem.readByteArray(it) }
+    }
+
     fun toSystemMessageMemberName(member: MemberDetails, type: SelfNameType = SelfNameType.NameOrDeleted): UIText = when (member) {
         is MemberDetails.Other -> member.name?.let { UIText.DynamicString(it) }
             ?: UIText.StringResource(messageResourceProvider.memberNameDeleted)
@@ -191,13 +198,13 @@ class MessageContentMapper @Inject constructor(
         }
     }
 
-    private suspend fun getRawAssetData(conversationId: QualifiedID, messageId: String) =
+    private suspend fun imageDataPath(conversationId: QualifiedID, messageId: String) =
         getMessageAsset(
             conversationId = conversationId,
             messageId = messageId
         ).run {
             when (this) {
-                is MessageAssetResult.Success -> decodedAsset
+                is MessageAssetResult.Success -> decodedAssetPath
                 else -> null
             }
         }

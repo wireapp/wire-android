@@ -18,6 +18,7 @@ import com.wire.android.util.copyToTempPath
 import com.wire.android.util.getFileName
 import com.wire.android.util.getMimeType
 import com.wire.android.util.orDefault
+import com.wire.kalium.logic.data.asset.isImage
 import java.io.IOException
 
 @Composable
@@ -126,14 +127,6 @@ class AttachmentInnerState(val context: Context) {
             AttachmentState.Error
         }
     }
-
-    private fun isImage(mimeType: String): Boolean =
-        when (mimeType) {
-            "image/jpg" -> true
-            "image/jpeg" -> true
-            "image/png" -> true
-            else -> false
-        }
 
     fun resetAttachmentState() {
         attachmentState = AttachmentState.NotPicked

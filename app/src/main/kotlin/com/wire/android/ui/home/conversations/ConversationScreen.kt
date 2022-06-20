@@ -30,10 +30,12 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.conversationColor
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
+import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorDeletingMessage
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorDownloadingAsset
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorMaxAssetSize
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorMaxImageSize
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorOpeningAssetFile
+import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorPickingAttachment
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorSendingAsset
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorSendingImage
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnFileDownloaded
@@ -240,7 +242,8 @@ private fun getSnackbarMessage(messageCode: ConversationSnackbarMessages): Pair<
         ErrorSendingAsset -> stringResource(R.string.error_conversation_sending_asset)
         ErrorDownloadingAsset -> stringResource(R.string.error_conversation_downloading_asset)
         ErrorOpeningAssetFile -> stringResource(R.string.error_conversation_opening_asset_file)
-        ConversationSnackbarMessages.ErrorPickingAttachment -> stringResource(R.string.error_conversation_generic)
+        ErrorDeletingMessage -> stringResource(R.string.error_conversation_deleting_message)
+        ErrorPickingAttachment -> stringResource(R.string.error_conversation_generic)
     }
     val actionLabel = when (messageCode) {
         is OnFileDownloaded -> stringResource(R.string.label_show)

@@ -48,36 +48,47 @@ class MessageContentMapper @Inject constructor(
         message: Message.System,
         members: List<MemberDetails>
     ) = when (val content = message.content) {
-        is MemberChange -> {
-            val sender = members.findUser(userId = message.senderUserId)
-            val isAuthorSelfAction = content.members.size == 1 && message.senderUserId == content.members.first().id
-            val authorName = toSystemMessageMemberName(
-                member = sender,
-                type = SelfNameType.ResourceTitleCase
+        is MemberChange -> mapMemberChangeMessage(content, message.senderUserId, members)
+    }
+
+    fun mapMemberChangeMessage(
+        content: MessageContent.MemberChange,
+        senderUserId: UserId,
+        members: List<MemberDetails>
+    ) : UIMessageContent.SystemMessage? {
+        val sender = members.findUser(userId = senderUserId)
+        val isAuthorSelfAction = content.members.size == 1 && senderUserId == content.members.first().id
+        val authorName = toSystemMessageMemberName(
+            member = sender,
+            type = SelfNameType.ResourceTitleCase
+        )
+        val memberNameList = content.members.map {
+            toSystemMessageMemberName(
+                member = members.findUser(userId = it.id),
+                type = SelfNameType.ResourceLowercase
             )
-            val memberNameList = content.members.map {
-                toSystemMessageMemberName(
-                    member = members.findUser(userId = it.id),
-                    type = SelfNameType.ResourceLowercase
-                )
-            }
-            when (content) {
-                is Added -> UIMessageContent.SystemMessage.MemberAdded(
-                    author = authorName,
-                    memberNames = memberNameList
-                )
-                is Removed ->
-                    if (isAuthorSelfAction) {
-                        UIMessageContent.SystemMessage.MemberLeft(
-                            author = authorName
-                        )
-                    } else {
-                        UIMessageContent.SystemMessage.MemberRemoved(
-                            author = authorName,
-                            memberNames = memberNameList
-                        )
-                    }
-            }
+        }
+        return when (content) {
+            is Added ->
+                if (isAuthorSelfAction) {
+                    null // we don't want to show "You added you to the conversation"
+                } else {
+                    UIMessageContent.SystemMessage.MemberAdded(
+                        author = authorName,
+                        memberNames = memberNameList
+                    )
+                }
+            is Removed ->
+                if (isAuthorSelfAction) {
+                    UIMessageContent.SystemMessage.MemberLeft(
+                        author = authorName
+                    )
+                } else {
+                    UIMessageContent.SystemMessage.MemberRemoved(
+                        author = authorName,
+                        memberNames = memberNameList
+                    )
+                }
         }
     }
 
@@ -103,30 +114,6 @@ class MessageContentMapper @Inject constructor(
             else -> UIText.StringResource(messageResourceProvider.sentAMessageWithContent, "Unknown")
         }
     ).let { messageBody -> UIMessageContent.TextMessage(messageBody = messageBody) }
-
-    fun toServer(
-        content: System,
-        senderUserId: UserId,
-        members: List<MemberDetails>
-    ): UIMessageContent = when (content) {
-        is MemberChange -> {
-            val sender = members.findUser(senderUserId)
-            val isAuthorSelfAction = content.members.size == 1 && senderUserId == content.members.first().id
-            val authorName = toSystemMessageMemberName(sender, SelfNameType.ResourceTitleCase)
-            val memberNameList = content.members.map {
-                toSystemMessageMemberName(members.findUser(it.id), SelfNameType.ResourceLowercase)
-            }
-            when (content) {
-                is Added -> UIMessageContent.SystemMessage.MemberAdded(
-                    authorName,
-                    memberNameList
-                )
-                is Removed ->
-                    if (isAuthorSelfAction) UIMessageContent.SystemMessage.MemberLeft(authorName)
-                    else UIMessageContent.SystemMessage.MemberRemoved(authorName, memberNameList)
-            }
-        }
-    }
 
     suspend fun toAsset(
         conversationId: QualifiedID,

@@ -27,17 +27,13 @@ fun WireItemLabel(
     text: String,
     minHeight: Dp = dimensions().badgeSmallMinSize.height,
     minWidth: Dp = dimensions().badgeSmallMinSize.height,
+    contentPadding: PaddingValues = PaddingValues(horizontal = dimensions().spacing6x, vertical = dimensions().spacing2x),
     shape: Shape = RoundedCornerShape(dimensions().spacing6x),
     modifier: Modifier = Modifier
 ) = Box(
     modifier = modifier
         .border(width = 1.dp, color = MaterialTheme.wireColorScheme.divider, shape = shape)
-        .padding(
-            PaddingValues(
-                horizontal = dimensions().spacing6x,
-                vertical = dimensions().spacing2x
-            ),
-        )
+        .padding(contentPadding)
         .wrapContentWidth()
         .wrapContentHeight(),
 ) {

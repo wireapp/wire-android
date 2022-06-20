@@ -15,6 +15,7 @@ import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_ACCOU
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_PERSONAL_ACCOUNT
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_TEAM
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.DEBUG
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.GROUP_CONVERSATION_DETAILS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.HOME
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.IMAGE_PICKER
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.INCOMING_CALL
@@ -45,6 +46,7 @@ import com.wire.android.ui.debugscreen.DebugScreen
 import com.wire.android.ui.home.HomeScreen
 import com.wire.android.ui.home.conversations.ConversationScreen
 import com.wire.android.ui.home.conversations.ConversationViewModel
+import com.wire.android.ui.home.conversations.details.GroupConversationDetailsScreen
 import com.wire.android.ui.home.gallery.MediaGalleryScreen
 import com.wire.android.ui.home.newconversation.NewConversationRouter
 import com.wire.android.ui.settings.SettingsScreen
@@ -201,6 +203,19 @@ enum class NavigationItem(
         }
     },
 
+    GroupConversationDetails(
+        primaryRoute = GROUP_CONVERSATION_DETAILS,
+        canonicalRoute = "$GROUP_CONVERSATION_DETAILS/{$EXTRA_CONVERSATION_ID}",
+        content = { GroupConversationDetailsScreen(hiltViewModel()) },
+    ) {
+        override fun getRouteWithArgs(arguments: List<Any>): String {
+            val conversationId: ConversationId? = arguments.filterIsInstance<ConversationId>().firstOrNull()
+            return conversationId?.let {
+                "$primaryRoute/$it"
+            } ?: primaryRoute
+        }
+    },
+
     NewConversation(
         primaryRoute = NEW_CONVERSATION,
         canonicalRoute = NEW_CONVERSATION,
@@ -285,6 +300,7 @@ object NavigationItemDestinationsRoutes {
     const val SELF_USER_PROFILE = "self_user_profile_screen"
     const val OTHER_USER_PROFILE = "other_user_profile_screen"
     const val CONVERSATION = "detailed_conversation_screen"
+    const val GROUP_CONVERSATION_DETAILS = "group_conversation_details_screen"
     const val SETTINGS = "settings_screen"
     const val DEBUG = "debug_screen"
     const val REMOVE_DEVICES = "remove_devices_screen"

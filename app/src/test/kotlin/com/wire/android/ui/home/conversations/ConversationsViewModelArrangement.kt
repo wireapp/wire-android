@@ -22,6 +22,7 @@ import com.wire.kalium.logic.data.publicuser.model.OtherUser
 import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserAssetId
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.SendAssetMessageResult
 import com.wire.kalium.logic.feature.asset.SendAssetMessageUseCase
@@ -176,9 +177,14 @@ internal class ConversationsViewModelArrangement {
 
 }
 
-internal fun withMockConversationDetailsOneOnOne(senderName: String, senderAvatar: UserAssetId? = null) = ConversationDetails.OneOne(
+internal fun withMockConversationDetailsOneOnOne(
+    senderName: String,
+    senderAvatar: UserAssetId? = null,
+    senderId: UserId = UserId("user-id", "user-domain")
+) = ConversationDetails.OneOne(
     mockk(),
     mockk<OtherUser>().apply {
+        every { id } returns senderId
         every { name } returns senderName
         every { previewPicture } returns senderAvatar
     },

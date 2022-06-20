@@ -82,7 +82,8 @@ class LoginSSOViewModel @Inject constructor(
                     is AddAuthenticatedUserUseCase.Result.Success -> it.userId
                 }
             }
-            registerClient(storedUserId).let {
+            // TODO: show password dialog if BE required password for SSO
+            registerClient(storedUserId, null).let {
                 when (it) {
                     is RegisterClientResult.Success -> {
                         registerPushToken(storedUserId, it.client.id)

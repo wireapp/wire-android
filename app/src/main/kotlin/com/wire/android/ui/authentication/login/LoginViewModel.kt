@@ -52,7 +52,7 @@ open class LoginViewModel @Inject constructor(
 
     suspend fun registerClient(
         userId: UserId,
-        password: String? = null,
+        password: String?,
         capabilities: List<ClientCapability>? = null
     ): RegisterClientResult {
         val clientScope = clientScopeProviderFactory.create(userId).clientScope

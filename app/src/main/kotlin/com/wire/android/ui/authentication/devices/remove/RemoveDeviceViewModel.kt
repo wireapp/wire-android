@@ -94,7 +94,8 @@ class RemoveDeviceViewModel @Inject constructor(
                             )
                         }
                         is RegisterClientResult.Failure.Generic -> state = RemoveDeviceState.Error(result.genericFailure)
-                        RegisterClientResult.Failure.InvalidCredentials -> { // server will never response with InvalidCredentials in case of trying with no password
+                        RegisterClientResult.Failure.InvalidCredentials -> {
+                            // server will never response with InvalidCredentials in case of trying with no password
                         }
                         RegisterClientResult.Failure.TooManyClients -> {}
                         is RegisterClientResult.Success -> {

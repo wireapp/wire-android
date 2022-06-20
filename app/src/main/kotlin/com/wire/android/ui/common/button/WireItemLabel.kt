@@ -26,7 +26,7 @@ import com.wire.android.ui.theme.wireTypography
 
 @Composable
 fun WireItemLabel(
-    text: String = "",
+    text: String,
     minHeight: Dp = dimensions().badgeSmallMinSize.height,
     minWidth: Dp = dimensions().badgeSmallMinSize.height,
     shape: Shape = RoundedCornerShape(dimensions().spacing6x),
@@ -49,7 +49,7 @@ fun WireItemLabel(
 
 @Preview(name = "Wire item label", showBackground = true)
 @Composable
-private fun WireSecondaryButtonDisabledPreview() {
+private fun WireItemLabelPreview() {
     Column(modifier = Modifier.fillMaxWidth(), horizontalAlignment = Alignment.CenterHorizontally) {
         WireItemLabel(text = "pending")
     }

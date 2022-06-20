@@ -235,7 +235,7 @@ class LoginSSOViewModelTest {
         runTest { loginViewModel.establishSSOSession("") }
         loginViewModel.loginState.loginSSOError shouldBeInstanceOf LoginError.DialogError.InvalidSSOCookie::class
         coVerify(exactly = 1) { getSSOLoginSessionUseCase(any()) }
-        coVerify(exactly = 0) { loginViewModel.registerClient(any()) }
+        coVerify(exactly = 0) { loginViewModel.registerClient(any(), null) }
         coVerify(exactly = 0) { addAuthenticatedUserUseCase(any(), any()) }
         coVerify(exactly = 0) { loginViewModel.navigateToConvScreen() }
         coVerify(exactly = 0) { registerTokenUseCase(any(), CLIENT.id) }
@@ -274,7 +274,7 @@ class LoginSSOViewModelTest {
 
         loginViewModel.loginState.loginSSOError shouldBeInstanceOf LoginError.DialogError.UserAlreadyExists::class
         coVerify(exactly = 1) { getSSOLoginSessionUseCase(any()) }
-        coVerify(exactly = 0) { loginViewModel.registerClient(any()) }
+        coVerify(exactly = 0) { loginViewModel.registerClient(any(), null) }
         coVerify(exactly = 1) { addAuthenticatedUserUseCase(any(), any()) }
         coVerify(exactly = 0) { loginViewModel.navigateToConvScreen() }
         coVerify(exactly = 0) { registerTokenUseCase(any(), CLIENT.id) }

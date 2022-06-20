@@ -3,7 +3,6 @@ package com.wire.android.ui.home.conversationslist.common
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -19,8 +18,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
-import com.wire.android.ui.common.button.WireSecondaryButton
-import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.button.WireItemLabel
 import com.wire.android.ui.home.conversationslist.model.EventType
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -96,17 +94,9 @@ private fun ConnectRequestBadge(modifier: Modifier = Modifier) {
 
 @Composable
 private fun ConnectPendingRequestBadge(modifier: Modifier = Modifier) {
-    WireSecondaryButton(
-        onClick = { },
-        leadingIcon = {
-            Text(text = stringResource(id = R.string.connection_pending_label))
-        },
-        fillMaxWidth = false,
-        minHeight = dimensions().badgeSmallMinSize.height,
-        minWidth = dimensions().badgeSmallMinSize.width,
-        shape = RoundedCornerShape(size = dimensions().spacing6x),
-        contentPadding = PaddingValues(horizontal = dimensions().spacing6x),
-        textStyle = MaterialTheme.wireTypography.label01
+    WireItemLabel(
+        text = stringResource(id = R.string.connection_pending_label),
+        modifier = modifier
     )
 }
 

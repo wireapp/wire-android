@@ -392,5 +392,6 @@
     <string name="sso_erro_dialog_message">Please try again. If this does not help, contact your admin and provide this code:\n%d"</string>
     <string name="asset_download_dialog_default_title">Download file</string>
     <string name="empty_group_label">Unnamed conversation</string>
+    <string name="label_show_more">Show More</string>
 
 </resources>

@@ -29,7 +29,7 @@ sealed class DownloadedAssetDialogVisibilityState {
     class Displayed (val assetName: String, val assetData: ByteArray, val messageId: String) : DownloadedAssetDialogVisibilityState()
 }
 
-sealed class ConversationDetailsData() {
+sealed class ConversationDetailsData {
     object None : ConversationDetailsData()
     data class OneOne(val otherUserId: UserId) : ConversationDetailsData()
     data class Group(val covnersationId: QualifiedID) : ConversationDetailsData()

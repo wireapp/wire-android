@@ -206,7 +206,8 @@ private fun ConversationDetails.toType(): ConversationItem = when (this) {
             conversationId = conversation.id,
             mutedStatus = conversation.mutedStatus,
             isLegalHold = legalHoldStatus.showLegalHoldIndicator(),
-            lastEvent = ConversationLastEvent.None // TODO implement unread events
+            lastEvent = ConversationLastEvent.None, // TODO implement unread events
+            hasOnGoingCall = hasOngoingCall
         )
     }
     is OneOne -> {

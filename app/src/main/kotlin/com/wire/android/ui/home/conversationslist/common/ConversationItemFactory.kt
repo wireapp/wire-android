@@ -1,6 +1,7 @@
 package com.wire.android.ui.home.conversationslist.common
 
 import androidx.compose.runtime.Composable
+import com.wire.android.ui.calling.controlButtons.JoinButton
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.conversationColor
@@ -68,6 +69,7 @@ private fun GeneralConversationItem(
     when (conversation) {
         is ConversationItem.GroupConversation -> {
             with(conversation) {
+                // val isGoingCall = if (conversation.hasOnGoingCall) " -> JOIN" else ""
                 RowItemTemplate(
                     leadingIcon = { GroupConversationAvatar(colorsScheme().conversationColor(id = conversationId)) },
                     title = { ConversationTitle(name = groupName, isLegalHold = conversation.isLegalHold) },
@@ -76,6 +78,10 @@ private fun GeneralConversationItem(
                     onRowItemClicked = onConversationItemClick,
                     onRowItemLongClicked = onConversationItemLongClick,
                     trailingIcon = {
+                        if (hasOnGoingCall)
+                            JoinButton {
+                                // do nothing for now
+                            }
                         if (mutedStatus != MutedConversationStatus.AllAllowed) {
                             MutedConversationBadge(onMutedIconClick)
                         }

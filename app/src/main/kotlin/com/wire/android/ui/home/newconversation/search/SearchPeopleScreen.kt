@@ -212,8 +212,7 @@ private fun LazyListScope.internalSuccessItem(
         items(if (showAllItems) searchResult else searchResult.take(DEFAULT_SEARCH_RESULT_ITEM_SIZE)) { contact ->
             with(contact) {
                 InternalContactSearchResultItem(
-                    avatarAsset = avatarAsset,
-                    userStatus = userStatus,
+                    avatarData = avatarData,
                     name = name,
                     label = label,
                     searchQuery = searchQuery,
@@ -234,7 +233,6 @@ private fun LazyListScope.internalSuccessItem(
                         .wrapContentHeight()
                 ) {
                     ShowButton(
-                        totalSearchResultCount = searchResult.size,
                         isShownAll = showAllItems,
                         onShowButtonClicked = onShowAllButtonClicked,
                         modifier = Modifier
@@ -262,8 +260,7 @@ private fun LazyListScope.externalSuccessItem(
         items(if (showAllItems) searchResult else searchResult.take(DEFAULT_SEARCH_RESULT_ITEM_SIZE)) { contact ->
             with(contact) {
                 ExternalContactSearchResultItem(
-                    avatarAsset = avatarAsset,
-                    userStatus = userStatus,
+                    avatarData = avatarData,
                     name = name,
                     label = label,
                     isConnectedOrPending = contact.isConnectedOrPending,
@@ -282,7 +279,6 @@ private fun LazyListScope.externalSuccessItem(
                         .wrapContentHeight()
                 ) {
                     ShowButton(
-                        totalSearchResultCount = searchResult.size,
                         isShownAll = showAllItems,
                         onShowButtonClicked = onShowAllButtonClicked,
                         modifier = Modifier
@@ -331,7 +327,6 @@ fun LazyListScope.failureItem(@StringRes failureMessage: Int) {
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 private fun ShowButton(
-    totalSearchResultCount: Int,
     isShownAll: Boolean,
     onShowButtonClicked: () -> Unit,
     modifier: Modifier = Modifier
@@ -339,7 +334,7 @@ private fun ShowButton(
     Box(modifier) {
         AnimatedContent(isShownAll) { showAll ->
             WireSecondaryButton(
-                text = if (!showAll) "Show All ($totalSearchResultCount)" else "Show Less",
+                text = if (!showAll) stringResource(R.string.label_show_more) else stringResource(R.string.label_show_less),
                 onClick = onShowButtonClicked,
                 minHeight = dimensions().showAllCollapseButtonMinHeight,
                 fillMaxWidth = false,

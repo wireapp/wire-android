@@ -51,6 +51,7 @@ data class WireColorScheme(
     val ongoingCallBackground: Color,
     val initiatingCallBackground: Color,
     val callingIncomingBackground: Color,
+    val muteButtonColor: Color,
     val groupAvatarColors: List<Color>
 
     ) {
@@ -119,6 +120,7 @@ private val LightWireColorScheme = WireColorScheme(
     ongoingCallBackground = WireColorPalette.Gray90,
     initiatingCallBackground = WireColorPalette.Gray20,
     callingIncomingBackground = WireColorPalette.Gray20,
+    muteButtonColor = WireColorPalette.DarkRed500,
     groupAvatarColors = listOf(
         // Red
         WireColorPalette.LightRed300,
@@ -198,6 +200,7 @@ private val DarkWireColorScheme = WireColorScheme(
     ongoingCallBackground = WireColorPalette.Gray90,
     initiatingCallBackground = WireColorPalette.Gray20,
     callingIncomingBackground = WireColorPalette.Gray20,
+    muteButtonColor = WireColorPalette.DarkRed500,
     groupAvatarColors = listOf(
         // Red
         WireColorPalette.DarkRed300,

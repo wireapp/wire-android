@@ -25,22 +25,21 @@ import androidx.compose.ui.unit.Dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.model.ImageAsset.UserAvatarAsset
-import com.wire.android.model.UserStatus
+import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.getUriFromDrawable
 
 @Composable
 fun UserProfileAvatar(
-    userAvatarAsset: UserAvatarAsset? = null,
-    status: UserStatus = UserStatus.NONE,
+    avatarData: UserAvatarData = UserAvatarData(),
     isClickable: Boolean = false,
     size: Dp = MaterialTheme.wireDimensions.userAvatarDefaultSize,
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null,
 ) {
 
-    val painter = painter(userAvatarAsset)
+    val painter = painter(avatarData.asset)
 
     Box(
         contentAlignment = Alignment.Center,
@@ -58,11 +57,12 @@ fun UserProfileAvatar(
                 .padding(dimensions().userAvatarStatusBorderSize)
                 .background(MaterialTheme.wireColorScheme.divider, CircleShape)
                 .size(size)
-                .clip(CircleShape).testTag("User avatar"),
+                .clip(CircleShape)
+                .testTag("User avatar"),
             contentScale = ContentScale.Crop
         )
         UserStatusIndicator(
-            status = status,
+            status = avatarData.availabilityStatus,
             modifier = Modifier.align(Alignment.BottomEnd)
         )
     }
@@ -73,8 +73,8 @@ fun UserProfileAvatar(
  * @see [painter] https://developer.android.com/jetpack/compose/tooling
  */
 @Composable
-private fun painter(userAvatarAsset: UserAvatarAsset?): Painter {
-    val painter = if (LocalInspectionMode.current) {
+private fun painter(userAvatarAsset: UserAvatarAsset?): Painter =
+    if (LocalInspectionMode.current) {
         painterResource(id = R.drawable.ic_wire_logo)
     } else {
         hiltViewModel<CurrentSessionViewModel>().wireSessionImageLoader.paint(
@@ -84,13 +84,9 @@ private fun painter(userAvatarAsset: UserAvatarAsset?): Painter {
             )
         )
     }
-    return painter
-}
 
 @Preview
 @Composable
 fun UserProfileAvatarPreview() {
-    UserProfileAvatar(
-        status = UserStatus.BUSY
-    ) {}
+    UserProfileAvatar()
 }

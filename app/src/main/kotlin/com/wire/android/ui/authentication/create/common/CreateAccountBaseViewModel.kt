@@ -25,7 +25,7 @@ import com.wire.android.ui.authentication.create.email.CreateAccountEmailViewMod
 import com.wire.android.ui.authentication.create.email.CreateAccountEmailViewState
 import com.wire.android.ui.authentication.create.overview.CreateAccountOverviewViewModel
 import com.wire.android.ui.common.textfield.CodeFieldValue
-import com.wire.kalium.logic.CoreFailure
+import com.wire.android.util.WillNeverOccurError
 import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
@@ -39,10 +39,7 @@ import com.wire.kalium.logic.feature.register.RegisterResult
 import com.wire.kalium.logic.feature.register.RequestActivationCodeResult
 import com.wire.kalium.logic.feature.register.RequestActivationCodeUseCase
 import com.wire.kalium.logic.feature.session.RegisterTokenResult
-import com.wire.kalium.logic.feature.session.RegisterTokenUseCase
 import kotlinx.coroutines.launch
-import java.net.URL
-import java.net.URLDecoder
 
 @Suppress("TooManyFunctions", "LongParameterList")
 abstract class CreateAccountBaseViewModel(
@@ -325,14 +322,9 @@ private fun RequestActivationCodeResult.toCodeError() = when (this) {
 
 private fun RegisterClientResult.Failure.toCodeError() = when (this) {
     RegisterClientResult.Failure.TooManyClients -> CreateAccountCodeViewState.CodeError.TooManyDevicesError
-    RegisterClientResult.Failure.InvalidCredentials -> CreateAccountCodeViewState.CodeError.DialogError.InvalidEmailError
     is RegisterClientResult.Failure.Generic -> CreateAccountCodeViewState.CodeError.DialogError.GenericError(this.genericFailure)
-    RegisterClientResult.Failure.PasswordAuthRequired -> {
-        Log.wtf("RegisterClient", "wrong password when register client after creating a new account")
-        CreateAccountCodeViewState.CodeError.DialogError.GenericError(
-            CoreFailure.Unknown(IllegalStateException("wrong password when register client after creating a new account"))
-        )
-    }
+    RegisterClientResult.Failure.InvalidCredentials -> throw WillNeverOccurError("RegisterClient: wrong password when register client after creating a new account")
+    RegisterClientResult.Failure.PasswordAuthRequired -> throw WillNeverOccurError("RegisterClient: password required to register client after creating new account with email")
 }
 
 private fun RegisterResult.Failure.toCodeError() = when (this) {

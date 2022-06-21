@@ -2,24 +2,30 @@ package com.wire.android.notification
 
 import com.wire.android.appLogger
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.util.extension.intervalFlow
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.notification.LocalNotificationConversation
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.call.Call
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.take
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class WireNotificationManager @Inject constructor(
     @KaliumCoreLogic private val coreLogic: CoreLogic,
-    private val messagesManager: MessageNotificationManager,
+    private val messagesNotificationManager: MessageNotificationManager,
+    private val callNotificationManager: CallNotificationManager,
 ) {
     /**
      * Sync all the Pending events, fetch Message notifications from DB once and show it.
@@ -28,14 +34,30 @@ class WireNotificationManager @Inject constructor(
      */
     suspend fun fetchAndShowNotificationsOnce(userIdValue: String) {
         checkIfUserIsAuthenticated(userId = userIdValue)?.let { userId ->
-            coreLogic.getSessionScope(userId).syncPendingEvents()
+            coreLogic.getSessionScope(userId).syncManager.waitUntilLive()
             fetchAndShowMessageNotificationsOnce(userId)
             fetchAndShowCallNotificationsOnce(userId)
         }
     }
 
     private suspend fun fetchAndShowCallNotificationsOnce(userId: QualifiedID) {
-        //TODO
+        //TODO for now GetIncomingCallsUseCase() returns valid data not from the first try.
+        // so it's possible to have scenario, when FCM comes informing us that there is a Call,
+        // but we don't get it from the first GetIncomingCallsUseCase() call.
+        // To cover that case we have this `intervalFlow().take(CHECK_INCOMING_CALLS_TRIES)`
+        // to try get incoming calls 6 times, if it returns nothing we assume there is no incoming call
+        intervalFlow(CHECK_INCOMING_CALLS_PERIOD_MS)
+            .map {
+                coreLogic.getSessionScope(userId)
+                    .calls
+                    .getIncomingCalls()
+                    .first()
+            }
+            .take(CHECK_INCOMING_CALLS_TRIES)
+            .distinctUntilChanged()
+            .collect { callsList ->
+                callNotificationManager.handleNotifications(callsList, userId)
+            }
     }
 
     private suspend fun fetchAndShowMessageNotificationsOnce(userId: QualifiedID) {
@@ -44,11 +66,14 @@ class WireNotificationManager @Inject constructor(
             .getNotifications()
             .first()
 
-        messagesManager.handleNotification(notificationsList, userId)
+        messagesNotificationManager.handleNotification(notificationsList, userId)
     }
 
-    // TODO: to be changed as soon as we get the qualifiedID from the notification payload
     /**
+     * Showing notifications for some other user then Current one requires to change user on opening Notification,
+     * which is not implemented yet.
+     * So for now we show notifications only for Current User
+     *
      * return the userId if the user is authenticated and null otherwise
      */
     @Suppress("NestedBlockDepth")
@@ -69,6 +94,39 @@ class WireNotificationManager @Inject constructor(
                 GetAllSessionsResult.Failure.NoSessionFound -> null
             }
         }
+
+    /**
+     * Infinitely listen for the new IncomingCalls, notify about it and do additional actions if needed.
+     * Can be used for listening for the Notifications when the app is running.
+     * @param observeUserId Flow of QualifiedID of User
+     * @param observeAppVisibility StateFlow that informs if app is currently visible,
+     * so we can decide: should we show notification, or just open the IncomingCall screen
+     */
+    suspend fun observeIncomingCalls(
+        observeAppVisibility: StateFlow<Boolean>,
+        observeUserId: Flow<UserId?>,
+        doIfCallCameAndAppVisible: (Call) -> Unit
+    ) {
+        observeUserId
+            .flatMapLatest { userId ->
+                if (userId == null) {
+                    flowOf(listOf())
+                } else {
+                    coreLogic.getSessionScope(userId)
+                        .calls
+                        .getIncomingCalls()
+                }
+                    .map { list -> list to userId }
+            }
+            .collect { (calls, userId) ->
+                if (observeAppVisibility.value) {
+                    calls.firstOrNull()?.run { doIfCallCameAndAppVisible(this) }
+                    callNotificationManager.hideCallNotification()
+                } else {
+                    callNotificationManager.handleNotifications(calls, userId)
+                }
+            }
+    }
 
 
     /**
@@ -99,7 +157,7 @@ class WireNotificationManager @Inject constructor(
                     }
             }
             .collect { (newNotifications, userId) ->
-                messagesManager.handleNotification(newNotifications, userId)
+                messagesNotificationManager.handleNotification(newNotifications, userId)
             }
     }
 
@@ -107,4 +165,9 @@ class WireNotificationManager @Inject constructor(
         val newNotifications: List<LocalNotificationConversation>,
         val userId: QualifiedID?
     )
+
+    companion object {
+        private const val CHECK_INCOMING_CALLS_PERIOD_MS = 1000L
+        private const val CHECK_INCOMING_CALLS_TRIES = 6
+    }
 }

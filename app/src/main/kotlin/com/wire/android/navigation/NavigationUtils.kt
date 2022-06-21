@@ -1,10 +1,7 @@
 package com.wire.android.navigation
 
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.navigation.NavController
-import androidx.navigation.compose.currentBackStackEntryAsState
 import com.wire.android.appLogger
 
 @ExperimentalMaterial3Api
@@ -53,10 +50,7 @@ internal fun NavController.popWithArguments(arguments: Map<String, Any>?): Boole
     return popBackStack()
 }
 
-@ExperimentalMaterial3Api
-@Composable
 internal fun NavController.getCurrentNavigationItem(): NavigationItem? {
-    val navBackStackEntry by currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry?.destination?.route
+    val currentRoute = this.currentDestination?.route
     return NavigationItem.fromRoute(currentRoute)
 }

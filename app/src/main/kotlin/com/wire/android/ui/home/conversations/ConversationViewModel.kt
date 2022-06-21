@@ -36,6 +36,7 @@ import com.wire.kalium.logic.data.message.Message.DownloadStatus.FAILED
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.IN_PROGRESS
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.SAVED_EXTERNALLY
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.SAVED_INTERNALLY
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import com.wire.kalium.logic.feature.asset.SendAssetMessageResult
@@ -119,9 +120,15 @@ class ConversationViewModel @Inject constructor(
                     ConversationAvatar.Group(conversationDetails.conversation.id)
                 else -> ConversationAvatar.None
             }
+            val conversationDetailsData = when (conversationDetails) {
+                is ConversationDetails.Group -> ConversationDetailsData.Group(conversationDetails.conversation.id)
+                is ConversationDetails.OneOne -> ConversationDetailsData.OneOne(conversationDetails.otherUser.id)
+                else -> ConversationDetailsData.None
+            }
             conversationViewState = conversationViewState.copy(
                 conversationName = conversationName,
-                conversationAvatar = conversationAvatar
+                conversationAvatar = conversationAvatar,
+                conversationDetailsData = conversationDetailsData
             )
         }
     }
@@ -419,6 +426,26 @@ class ConversationViewModel @Inject constructor(
                     destination = NavigationItem.Gallery.getRouteWithArgs(listOf(PrivateAsset(conversationId, messageId, isSelfMessage)))
                 )
             )
+        }
+    }
+
+    fun navigateToDetails() {
+        viewModelScope.launch {
+            when (val data = conversationViewState.conversationDetailsData) {
+                is ConversationDetailsData.OneOne -> navigationManager.navigate(
+                    command = NavigationCommand(
+                        destination = NavigationItem.OtherUserProfile.getRouteWithArgs(
+                            listOf(data.otherUserId.domain, data.otherUserId.value)
+                        )
+                    )
+                )
+                is ConversationDetailsData.Group -> navigationManager.navigate(
+                    command = NavigationCommand(
+                        destination = NavigationItem.GroupConversationDetails.getRouteWithArgs(listOf(data.covnersationId))
+                    )
+                )
+                ConversationDetailsData.None -> { /* do nothing */ }
+            }
         }
     }
 

@@ -70,7 +70,8 @@ fun ConversationScreen(conversationViewModel: ConversationViewModel) {
         onBackButtonClick = conversationViewModel::navigateBack,
         onDeleteMessage = conversationViewModel::showDeleteMessageDialog,
         onCallStart = audioPermissionCheck::launch,
-        onSnackbarMessage = conversationViewModel::onSnackbarMessage
+        onSnackbarMessage = conversationViewModel::onSnackbarMessage,
+        onDropDownClick = conversationViewModel::navigateToDetails
     )
     DeleteMessageDialog(conversationViewModel = conversationViewModel)
     DownloadedAssetDialog(
@@ -90,6 +91,7 @@ private fun AudioBluetoothPermissionCheckFlow(conversationViewModel: Conversatio
     }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
+@Suppress("LongParameterList")
 @Composable
 private fun ConversationScreen(
     conversationViewState: ConversationViewState,
@@ -101,7 +103,8 @@ private fun ConversationScreen(
     onBackButtonClick: () -> Unit,
     onDeleteMessage: (String, Boolean) -> Unit,
     onCallStart: () -> Unit,
-    onSnackbarMessage: (ConversationSnackbarMessages) -> Unit
+    onSnackbarMessage: (ConversationSnackbarMessages) -> Unit,
+    onDropDownClick: () -> Unit
 ) {
     val conversationScreenState = rememberConversationScreenState()
     val scope = rememberCoroutineScope()
@@ -137,9 +140,9 @@ private fun ConversationScreen(
                                 }
                             },
                             onBackButtonClick = onBackButtonClick,
-                            onDropDownClick = { },
+                            onDropDownClick = onDropDownClick,
                             onSearchButtonClick = { },
-                            onPhoneButtonClick = { onCallStart() }
+                            onPhoneButtonClick = onCallStart
                         )
                     },
                     snackbarHost = {
@@ -171,6 +174,7 @@ private fun ConversationScreen(
     }
 }
 
+@Suppress("LongParameterList")
 @Composable
 private fun ConversationScreenContent(
     messages: List<UIMessage>,
@@ -291,6 +295,6 @@ fun ConversationScreenPreview() {
             conversationName = "Some test conversation",
             messages = getMockedMessages(),
         ),
-        {}, {}, {}, {}, { _, _ -> }, {}, { _, _ -> }, {}, {}
+        {}, {}, {}, {}, { _, _ -> }, {}, { _, _ -> }, {}, {}, {}
     )
 }

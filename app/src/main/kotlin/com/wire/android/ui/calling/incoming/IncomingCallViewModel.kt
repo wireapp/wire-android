@@ -10,6 +10,7 @@ import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.notification.CallNotificationManager
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.parseIntoQualifiedID
 import com.wire.kalium.logic.feature.call.AnswerCallUseCase
@@ -28,13 +29,16 @@ class IncomingCallViewModel @Inject constructor(
     private val incomingCalls: GetIncomingCallsUseCase,
     private val rejectCall: RejectCallUseCase,
     private val acceptCall: AnswerCallUseCase,
-    private val callRinger: CallRinger
+    private val callRinger: CallRinger,
+    notificationManager: CallNotificationManager
 ) : ViewModel() {
 
     private val conversationId: ConversationId = savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!.parseIntoQualifiedID()
     lateinit var observeIncomingCallJob: Job
 
     init {
+        notificationManager.hideCallNotification()
+
         viewModelScope.launch {
             callRinger.ring(R.raw.ringing_from_them)
             observeIncomingCallJob = launch {

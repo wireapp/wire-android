@@ -96,7 +96,8 @@ fun HomeContent(
             // changes from null to "something"
             sheetContent = homeBottomSheetContent ?: { }
         ) {
-            if (isSearchable) {
+            // TODO(): Enable top search bar
+            if (false) {
                 AppTopBarWithSearchBar(
                     scrollPositionProvider = scrollPositionProvider,
                     searchBarHint = stringResource(R.string.search_bar_hint, stringResource(id = title).lowercase()),

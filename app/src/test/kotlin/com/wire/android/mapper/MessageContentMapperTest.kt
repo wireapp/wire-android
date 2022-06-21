@@ -97,13 +97,15 @@ class MessageContentMapperTest {
         val contentLeft = MessageContent.MemberChange.Removed(listOf(Member(userId1)))
         val contentRemoved = MessageContent.MemberChange.Removed(listOf(Member(userId2)))
         val contentAdded = MessageContent.MemberChange.Added(listOf(Member(userId2), Member(userId3)))
+        val contentAddedSelf = MessageContent.MemberChange.Added(listOf(Member(userId1)))
         val member1 = TestUser.MEMBER_OTHER.copy(TestUser.OTHER_USER.copy(id = userId1))
         val member2 = TestUser.MEMBER_OTHER.copy(TestUser.OTHER_USER.copy(id = userId2))
         val member3 = TestUser.MEMBER_OTHER.copy(TestUser.OTHER_USER.copy(id = userId3))
         // When
-        val resultContentLeft = mapper.toServer(contentLeft, userId1, listOf(member1))
-        val resultContentRemoved = mapper.toServer(contentRemoved, userId1, listOf(member1, member2))
-        val resultContentAdded = mapper.toServer(contentAdded, userId1, listOf(member1, member2, member3))
+        val resultContentLeft = mapper.mapMemberChangeMessage(contentLeft, userId1, listOf(member1))
+        val resultContentRemoved = mapper.mapMemberChangeMessage(contentRemoved, userId1, listOf(member1, member2))
+        val resultContentAdded = mapper.mapMemberChangeMessage(contentAdded, userId1, listOf(member1, member2, member3))
+        val resultContentAddedSelf = mapper.mapMemberChangeMessage(contentAddedSelf, userId1, listOf(member1))
         // Then
         assert(
             resultContentLeft is SystemMessage.MemberLeft &&
@@ -123,6 +125,7 @@ class MessageContentMapperTest {
                 resultContentAdded.memberNames[0].asString(arrangement.resources) == member2.otherUser.name &&
                 resultContentAdded.memberNames[1].asString(arrangement.resources) == member3.otherUser.name
         )
+        assert(resultContentAddedSelf == null)
     }
 
     @Test

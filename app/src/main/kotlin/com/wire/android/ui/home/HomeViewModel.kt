@@ -11,11 +11,9 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
-import com.wire.kalium.logic.sync.ListenToEventsUseCase
-import com.wire.kalium.logic.feature.call.usecase.GetIncomingCallsUseCase
-import com.wire.kalium.logic.feature.call.Call
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -25,22 +23,16 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
-    private val listenToEvents: ListenToEventsUseCase,
-    private val incomingCalls: GetIncomingCallsUseCase,
     private val getSelf: GetSelfUserUseCase,
     private val needsToRegisterClient: NeedsToRegisterClientUseCase
 ) : ViewModel() {
 
-    var userAvatar by mutableStateOf<UserAvatarAsset?>(null)
+    var userAvatar by mutableStateOf(SelfUserData())
         private set
 
     init {
         viewModelScope.launch {
-            launch { listenToEvents() } // listen for the WebSockets updates and update DB accordingly
             launch { loadUserAvatar() }
-            launch {
-                incomingCalls().collect { observeIncomingCalls(calls = it) }
-            }
         }
     }
 
@@ -72,18 +64,8 @@ class HomeViewModel @Inject constructor(
     private suspend fun loadUserAvatar() {
         viewModelScope.launch {
             getSelf().collect { selfUser ->
-                userAvatar = selfUser.previewPicture?.let { UserAvatarAsset(it) }
+                userAvatar = SelfUserData(selfUser.previewPicture?.let { UserAvatarAsset(it) }, selfUser.availabilityStatus)
             }
-        }
-    }
-
-    private suspend fun observeIncomingCalls(calls: List<Call>) {
-        if (calls.isNotEmpty()) {
-            navigationManager.navigate(
-                command = NavigationCommand(
-                    destination = NavigationItem.IncomingCall.getRouteWithArgs(listOf(calls.first().conversationId))
-                )
-            )
         }
     }
 
@@ -97,3 +79,8 @@ class HomeViewModel @Inject constructor(
         const val MY_USER_PROFILE_SUBROUTE = "myUserProfile"
     }
 }
+
+data class SelfUserData(
+    val avatarAsset: UserAvatarAsset? = null,
+    val status: UserAvailabilityStatus = UserAvailabilityStatus.NONE
+)

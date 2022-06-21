@@ -1,10 +1,7 @@
 package com.wire.android.navigation
 
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.navigation.NavController
-import androidx.navigation.compose.currentBackStackEntryAsState
 import com.wire.android.appLogger
 
 @ExperimentalMaterial3Api
@@ -23,6 +20,15 @@ internal fun navigateToItem(
                     }
                 }
             }
+            BackStackMode.REMOVE_CURRENT -> {
+                navController.run {
+                    backQueue.lastOrNull { it.destination.route != null }?.let { entry ->
+                        val inclusive = true
+                        val startId = entry.destination.id
+                        popBackStack(startId, inclusive)
+                    }
+                }
+            }
             BackStackMode.NONE -> {}
         }
         launchSingleTop = true
@@ -30,20 +36,21 @@ internal fun navigateToItem(
     }
 }
 
-internal fun NavController.popWithArguments(arguments: Map<String, Any>?) {
+/**
+ * @return true if the stack was popped at least once and the user has been navigated to another destination,
+ * false otherwise
+ */
+internal fun NavController.popWithArguments(arguments: Map<String, Any>?): Boolean {
     previousBackStackEntry?.let {
         arguments?.forEach { (key, value) ->
             appLogger.d("Destination is ${it.destination}")
             it.savedStateHandle[key] = value
         }
     }
-    popBackStack()
+    return popBackStack()
 }
 
-@ExperimentalMaterial3Api
-@Composable
 internal fun NavController.getCurrentNavigationItem(): NavigationItem? {
-    val navBackStackEntry by currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry?.destination?.route
+    val currentRoute = this.currentDestination?.route
     return NavigationItem.fromRoute(currentRoute)
 }

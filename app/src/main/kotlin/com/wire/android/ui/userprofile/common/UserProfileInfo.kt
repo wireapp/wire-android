@@ -23,15 +23,14 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.wire.android.model.ImageAsset.UserAvatarAsset
-import com.wire.android.model.UserStatus
 import com.wire.android.ui.common.Icon
+import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.WireCircularProgressIndicator
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -56,8 +55,7 @@ fun UserProfileInfo(
             onClick = onUserProfileClick,
             isClickable = editableState is EditableState.IsEditable,
             size = dimensions().userAvatarDefaultBigSize,
-            userAvatarAsset = avatarAsset,
-            status = UserStatus.NONE,
+            avatarData = UserAvatarData(avatarAsset)
         )
         if (isLoading) {
             Box(

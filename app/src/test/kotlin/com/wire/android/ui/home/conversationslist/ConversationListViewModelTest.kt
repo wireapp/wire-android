@@ -4,15 +4,14 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
-import com.wire.android.model.UserStatus
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.ConversationLastEvent
 import com.wire.android.ui.home.conversationslist.model.Membership
-import com.wire.android.ui.home.conversationslist.model.UserInfo
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.connection.ObserveConnectionListUseCase
@@ -108,10 +107,7 @@ class ConversationListViewModelTest {
         private val conversationId = ConversationId("some_id", "some_domain")
 
         private val conversationItem = ConversationItem.PrivateConversation(
-            userInfo = UserInfo(
-                avatarAsset = null,
-                availabilityStatus = UserStatus.NONE
-            ),
+            userAvatarData = UserAvatarData(),
             conversationInfo = ConversationInfo(
                 name = "",
                 membership = Membership.None

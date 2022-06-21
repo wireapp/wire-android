@@ -17,13 +17,13 @@ import com.google.accompanist.navigation.animation.composable
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.wire.android.navigation.smoothSlideInFromRight
 import com.wire.android.navigation.smoothSlideOutFromLeft
-import com.wire.kalium.logic.configuration.ServerConfig
+import com.wire.kalium.logic.configuration.server.ServerConfig
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalAnimationApi::class, ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalAnimationApi::class, ExperimentalComposeUiApi::class)
 @Composable
-fun CreateTeamScreen(serverConfig: ServerConfig) {
+fun CreateTeamScreen() {
     val viewModel: CreateTeamViewModel = hiltViewModel()
     val navController = rememberAnimatedNavController()
     val scope = rememberCoroutineScope()
@@ -34,7 +34,7 @@ fun CreateTeamScreen(serverConfig: ServerConfig) {
                     route = destination.route,
                     enterTransition = { smoothSlideInFromRight() },
                     exitTransition = { smoothSlideOutFromLeft() },
-                    content = { destination.content(ContentParams(viewModel, serverConfig)) }
+                    content = { destination.content(ContentParams(viewModel)) }
                 )
             }
         }

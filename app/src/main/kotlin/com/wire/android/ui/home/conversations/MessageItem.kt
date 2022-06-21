@@ -4,6 +4,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,8 +24,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
+import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.LegalHoldIndicator
 import com.wire.android.ui.common.MembershipQualifierLabel
 import com.wire.android.ui.common.UserProfileAvatar
@@ -38,7 +41,7 @@ import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageImage
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
-import com.wire.android.ui.home.conversations.model.MessageViewWrapper
+import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
@@ -46,8 +49,8 @@ import com.wire.android.ui.theme.wireTypography
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MessageItem(
-    message: MessageViewWrapper,
-    onLongClicked: (MessageViewWrapper) -> Unit,
+    message: UIMessage,
+    onLongClicked: (UIMessage) -> Unit,
     onAssetMessageClicked: (String) -> Unit,
     onImageMessageClicked: (String, Boolean) -> Unit
 ) {
@@ -67,8 +70,7 @@ fun MessageItem(
         ) {
             Spacer(Modifier.padding(start = dimensions().spacing8x - dimensions().userAvatarClickablePadding))
             UserProfileAvatar(
-                userAvatarAsset = message.user.avatarAsset,
-                status = message.user.availabilityStatus
+                avatarData = UserAvatarData(message.userAvatarData.asset, message.userAvatarData.availabilityStatus)
             )
             Spacer(Modifier.padding(start = dimensions().spacing16x - dimensions().userAvatarClickablePadding))
             Column {
@@ -94,8 +96,8 @@ fun MessageItem(
 private fun MessageHeader(messageHeader: MessageHeader) {
     with(messageHeader) {
         Column {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Username(username.asString())
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
+                Username(username.asString(), modifier = Modifier.weight(weight = 1F))
 
                 if (membership != Membership.None) {
                     Spacer(modifier = Modifier.width(dimensions().spacing6x))
@@ -106,16 +108,8 @@ private fun MessageHeader(messageHeader: MessageHeader) {
                     Spacer(modifier = Modifier.width(dimensions().spacing6x))
                     LegalHoldIndicator()
                 }
-/*
-for now this feature is disabled as Wolfgang suggested
-Box(Modifier.fillMaxWidth()) {
-MessageTimeLabel(
-time, modifier = Modifier
-.align(Alignment.CenterEnd)
-.padding(end = 8.dp)
-)
-}
-*/
+
+                MessageTimeLabel(messageHeader.time)
             }
         }
         if (messageStatus != MessageStatus.Untouched) {
@@ -124,33 +118,40 @@ time, modifier = Modifier
     }
 }
 
-//TODO: just a mock label, later when back-end is ready we are going to format it correctly, probably not as a String?
 @Composable
-private fun MessageTimeLabel(time: String, modifier: Modifier) {
+private fun MessageTimeLabel(time: String) {
     Text(
         text = time,
         style = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.wireColorScheme.secondaryText),
-        modifier = modifier
     )
 }
 
 @Composable
-private fun Username(username: String) {
+private fun Username(username: String, modifier: Modifier) {
     Text(
         text = username,
-        style = MaterialTheme.wireTypography.body02
+        style = MaterialTheme.wireTypography.body02,
+        modifier = modifier,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis
     )
 }
 
 @Composable
-private fun MessageContent(messageContent: MessageContent?, onAssetClick: () -> Unit, onImageClick: () -> Unit = {}) {
+private fun MessageContent(
+    messageContent: MessageContent?,
+    onAssetClick: () -> Unit,
+    onImageClick: () -> Unit = {}
+) {
     when (messageContent) {
         is MessageContent.ImageMessage -> MessageImage(
             rawImgData = messageContent.rawImgData,
             imgParams = ImageMessageParams(messageContent.width, messageContent.height),
             onImageClick = { onImageClick() }
         )
-        is MessageContent.TextMessage -> MessageBody(messageBody = messageContent.messageBody)
+        is MessageContent.TextMessage -> MessageBody(
+            messageBody = messageContent.messageBody
+        )
         is MessageContent.DeletedMessage -> DeletedMessage()
         is MessageContent.AssetMessage -> MessageAsset(
             assetName = messageContent.assetName.split(".").dropLast(1).joinToString("."),
@@ -158,6 +159,10 @@ private fun MessageContent(messageContent: MessageContent?, onAssetClick: () -> 
             assetSizeInBytes = messageContent.assetSizeInBytes,
             assetDownloadStatus = messageContent.downloadStatus,
             onAssetClick = { onAssetClick() }
+        )
+        is MessageContent.EditedMessage -> MessageBody(
+            messageBody = messageContent.messageBody,
+            editTime = messageContent.editTimeStamp
         )
         else -> {}
     }

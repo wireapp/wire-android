@@ -56,7 +56,8 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
                 homeBottomSheetState = homeState.bottomSheetState,
                 homeTopBar = {
                     HomeTopBar(
-                        avatarAsset = viewModel.userAvatar,
+                        avatarAsset = viewModel.userAvatar.avatarAsset,
+                        status = viewModel.userAvatar.status,
                         currentNavigationItem = homeState.currentNavigationItem,
                         onOpenDrawerClicked = ::openDrawer,
                         onNavigateToUserProfile = viewModel::navigateToUserProfile,
@@ -95,7 +96,8 @@ fun HomeContent(
             // changes from null to "something"
             sheetContent = homeBottomSheetContent ?: { }
         ) {
-            if (isSearchable) {
+            // TODO(): Enable top search bar
+            if (false) {
                 AppTopBarWithSearchBar(
                     scrollPositionProvider = scrollPositionProvider,
                     searchBarHint = stringResource(R.string.search_bar_hint, stringResource(id = title).lowercase()),

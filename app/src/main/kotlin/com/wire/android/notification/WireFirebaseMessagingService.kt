@@ -5,7 +5,7 @@ import com.google.firebase.messaging.RemoteMessage
 import com.wire.android.appLogger
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.kalium.logic.CoreLogic
-import com.wire.kalium.logic.feature.notification_token.SaveNotificationTokenUseCase
+import com.wire.kalium.logic.feature.notificationToken.SaveNotificationTokenUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
@@ -22,14 +22,16 @@ class WireFirebaseMessagingService : FirebaseMessagingService() {
 
     override fun onNewToken(p0: String) {
         super.onNewToken(p0)
-        coreLogic.getAuthenticationScope().saveNotificationToken(p0, "GCM").let { result ->
+        coreLogic.globalScope {
+            saveNotificationToken(p0, "GCM")
+        }.let { result ->
             when (result) {
                 is SaveNotificationTokenUseCase.Result.Failure.Generic -> {
-                    appLogger.e("token registration has an issue : ${result.failure} ")
+                    appLogger.e("$TAG: token registration has an issue : ${result.failure} ")
 
                 }
-                is SaveNotificationTokenUseCase.Result.Success -> {
-                    appLogger.i("token registered successfully ")
+                SaveNotificationTokenUseCase.Result.Success -> {
+                    appLogger.i("$TAG: token registered successfully")
                 }
             }
         }
@@ -37,7 +39,7 @@ class WireFirebaseMessagingService : FirebaseMessagingService() {
 
     override fun onMessageReceived(message: RemoteMessage) {
         super.onMessageReceived(message)
-        appLogger.i("notification received ")
+        appLogger.i("$TAG: notification received")
         var userIdValue = ""
         for (items in message.data) {
             if (items.key == "user") {
@@ -48,5 +50,9 @@ class WireFirebaseMessagingService : FirebaseMessagingService() {
         runBlocking {
             wireNotificationManager.fetchAndShowNotificationsOnce(userIdValue)
         }
+    }
+
+    companion object {
+        private const val TAG = "WireFirebaseMessagingService"
     }
 }

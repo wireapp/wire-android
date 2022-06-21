@@ -132,8 +132,7 @@ class MessageContentMapperTest {
     fun givenAssetContent_whenMappingToUIMessageContent_thenCorrectValuesShouldBeReturned() = runTest {
         // Given
         val (arrangement, mapper) = Arrangement().arrange()
-        val userId = UserId("user-id1", "user-domain")
-        val contentOther = TestMessage.ASSET_IMAGE_CONTENT.copy(
+        val unknownImageFormatMessage = TestMessage.ASSET_IMAGE_CONTENT.copy(
             mimeType = "other",
             remoteData = TestMessage.ASSET_REMOTE_DATA.copy(assetId = "id")
         )
@@ -141,9 +140,9 @@ class MessageContentMapperTest {
             remoteData = TestMessage.ASSET_REMOTE_DATA.copy(assetId = "image-id")
         )
         // When - Then
-        val resultContentOther = mapper.toAsset(QualifiedID("id", "domain"), "message-id", contentOther)
+        val resultContentOther = mapper.toAsset(QualifiedID("id", "domain"), "message-id", unknownImageFormatMessage)
         coVerify(exactly = 0) { arrangement.getMessageAssetUseCase.invoke(any(), any()) }
-        assert(resultContentOther is AssetMessage && resultContentOther.assetId.value == contentOther.remoteData.assetId)
+        assert(resultContentOther is AssetMessage && resultContentOther.assetId.value == unknownImageFormatMessage.remoteData.assetId)
         // When - Then
         val resultContentImage = mapper.toAsset(QualifiedID("id", "domain"), "message-id", contentImage)
         coVerify(exactly = 1) { arrangement.getMessageAssetUseCase.invoke(any(), any()) }

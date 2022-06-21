@@ -12,6 +12,7 @@ import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
 import com.wire.android.util.FileManager
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.LegalHoldStatus
@@ -33,6 +34,7 @@ import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
 import com.wire.kalium.logic.feature.message.Result
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
+import com.wire.kalium.logic.functional.Either
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
@@ -138,10 +140,14 @@ internal class ConversationsViewModelArrangement {
         return this
     }
 
-
     fun withSuccessfulSendAttachmentMessage(): ConversationsViewModelArrangement {
         coEvery { sendAssetMessage(any(), any(), any(), any()) } returns SendAssetMessageResult.Success
         coEvery { sendImageMessage(any(), any(), any(), any(), any()) } returns SendImageMessageResult.Success
+        return this
+    }
+
+    fun withFailureOnDeletingMessages(): ConversationsViewModelArrangement {
+        coEvery { deleteMessage(any(), any(), any()) } returns Either.Left(CoreFailure.Unknown(null))
         return this
     }
 

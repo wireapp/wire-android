@@ -151,6 +151,22 @@ class MessageContentMapperTest {
     }
 
     @Test
+    fun givenSVGImageAssetContent_whenMappingToUIMessageContent_thenIsMappedToAssetMessage() = runTest {
+        // Given
+        val (arrangement, mapper) = Arrangement().arrange()
+        val contentImage = TestMessage.ASSET_IMAGE_CONTENT.copy(
+            mimeType = "image/svg",
+        )
+
+        // When
+        val resultContentImage = mapper.toAsset(QualifiedID("id", "domain"), "message-id", contentImage)
+
+        // Then
+        coVerify(inverse = true) { arrangement.getMessageAssetUseCase.invoke(any(), any()) }
+        assert(resultContentImage is AssetMessage)
+    }
+
+    @Test
     fun givenMessage_whenMappingToUIMessageContent_thenCorrectValuesShouldBeReturned() = runTest {
         // Given
         val (_, mapper) = Arrangement().arrange()

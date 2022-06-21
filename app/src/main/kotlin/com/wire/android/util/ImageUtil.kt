@@ -87,7 +87,7 @@ object ImageUtil {
 
     @Suppress("MagicNumber")
     private fun scaledSizeForBitmap(bitmap: Bitmap, targetDimension: Float): Pair<Float, Float> {
-        val scale1 = java.lang.Float.max(targetDimension / bitmap.width, targetDimension / bitmap.height)
+        val scale1 = kotlin.math.max(targetDimension / bitmap.width, targetDimension / bitmap.height)
         val scale2 = targetDimension / sqrt((bitmap.width * bitmap.height).toFloat())
         val scale: Float = if (scale2.isFinite() && (scale2 < scale1)) {
             0.5F * (scale2 + scale1)

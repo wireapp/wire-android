@@ -12,6 +12,7 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.util.WillNeverOccurError
 import com.wire.kalium.logic.data.client.Client
 import com.wire.kalium.logic.data.client.DeleteClientParam
 import com.wire.kalium.logic.data.conversation.ClientId
@@ -91,10 +92,8 @@ class RemoveDeviceViewModel @Inject constructor(
                             )
                         }
                         is RegisterClientResult.Failure.Generic -> state = RemoveDeviceState.Error(result.genericFailure)
-                        RegisterClientResult.Failure.InvalidCredentials -> {
-                            // server will never response with InvalidCredentials in case of trying with no password
-                        }
-                        RegisterClientResult.Failure.TooManyClients -> {}
+                        RegisterClientResult.Failure.InvalidCredentials -> throw WillNeverOccurError("RemoveDeviceViewModel: wrong password error when registering new client for accounts without password")
+                        RegisterClientResult.Failure.TooManyClients -> throw WillNeverOccurError("RemoveDeviceViewModel: TooManyClients error when registering a new client directly after deleting one of the old clients")
                         is RegisterClientResult.Success -> {
                             registerPushToken(result.client.id)
                             navigateToConvScreen()

@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.media.CallRinger
+import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
@@ -84,10 +85,10 @@ class InitiatingCallViewModel @Inject constructor(
 
     private suspend fun onCallEstablished() {
         callRinger.ring(R.raw.ready_to_talk, isLooping = false)
-        navigateBack()
         navigationManager.navigate(
             command = NavigationCommand(
-                destination = NavigationItem.OngoingCall.getRouteWithArgs(listOf(conversationId))
+                destination = NavigationItem.OngoingCall.getRouteWithArgs(listOf(conversationId)),
+                backStackMode = BackStackMode.REMOVE_CURRENT
             )
         )
     }

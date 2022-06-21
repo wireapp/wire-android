@@ -12,6 +12,7 @@ import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
 import com.wire.android.util.FileManager
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.LegalHoldStatus
@@ -21,6 +22,7 @@ import com.wire.kalium.logic.data.publicuser.model.OtherUser
 import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserAssetId
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.SendAssetMessageResult
 import com.wire.kalium.logic.feature.asset.SendAssetMessageUseCase
@@ -34,6 +36,7 @@ import com.wire.kalium.logic.feature.message.Result
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
+import com.wire.kalium.logic.functional.Either
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
@@ -143,10 +146,14 @@ internal class ConversationsViewModelArrangement {
         return this
     }
 
-
     fun withSuccessfulSendAttachmentMessage(): ConversationsViewModelArrangement {
         coEvery { sendAssetMessage(any(), any(), any(), any()) } returns SendAssetMessageResult.Success
         coEvery { sendImageMessage(any(), any(), any(), any(), any()) } returns SendImageMessageResult.Success
+        return this
+    }
+
+    fun withFailureOnDeletingMessages(): ConversationsViewModelArrangement {
+        coEvery { deleteMessage(any(), any(), any()) } returns Either.Left(CoreFailure.Unknown(null))
         return this
     }
 
@@ -175,9 +182,14 @@ internal class ConversationsViewModelArrangement {
 
 }
 
-internal fun withMockConversationDetailsOneOnOne(senderName: String, senderAvatar: UserAssetId? = null) = ConversationDetails.OneOne(
+internal fun withMockConversationDetailsOneOnOne(
+    senderName: String,
+    senderAvatar: UserAssetId? = null,
+    senderId: UserId = UserId("user-id", "user-domain")
+) = ConversationDetails.OneOne(
     mockk(),
     mockk<OtherUser>().apply {
+        every { id } returns senderId
         every { name } returns senderName
         every { previewPicture } returns senderAvatar
     },

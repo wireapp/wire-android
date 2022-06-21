@@ -30,10 +30,12 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.conversationColor
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
+import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorDeletingMessage
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorDownloadingAsset
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorMaxAssetSize
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorMaxImageSize
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorOpeningAssetFile
+import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorPickingAttachment
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorSendingAsset
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorSendingImage
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnFileDownloaded
@@ -53,11 +55,14 @@ import kotlinx.coroutines.launch
 fun ConversationScreen(conversationViewModel: ConversationViewModel) {
     val audioPermissionCheck = AudioBluetoothPermissionCheckFlow(conversationViewModel)
     val uiState = conversationViewModel.conversationViewState
-
+    val coroutineScope = rememberCoroutineScope()
+    var isFileSharingEnabled = false
     LaunchedEffect(conversationViewModel.savedStateHandle) {
         conversationViewModel.checkPendingActions()
+        coroutineScope.launch {
+            isFileSharingEnabled = conversationViewModel.isFileSharingEnabled()
+        }
     }
-
     ConversationScreen(
         conversationViewState = uiState,
         onMessageChanged = conversationViewModel::onMessageChanged,
@@ -69,8 +74,10 @@ fun ConversationScreen(conversationViewModel: ConversationViewModel) {
         onDeleteMessage = conversationViewModel::showDeleteMessageDialog,
         onCallStart = audioPermissionCheck::launch,
         onSnackbarMessage = conversationViewModel::onSnackbarMessage,
-        isFileSharingEnabled = conversationViewModel.isFileSharingEnabled()
+        isFileSharingEnabled = isFileSharingEnabled,
+        onDropDownClick = conversationViewModel::navigateToDetails
     )
+
     DeleteMessageDialog(conversationViewModel = conversationViewModel)
     DownloadedAssetDialog(
         downloadedAssetDialogState = conversationViewModel.conversationViewState.downloadedAssetDialogState,
@@ -89,6 +96,7 @@ private fun AudioBluetoothPermissionCheckFlow(conversationViewModel: Conversatio
     }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
+@Suppress("LongParameterList")
 @Composable
 private fun ConversationScreen(
     conversationViewState: ConversationViewState,
@@ -101,7 +109,8 @@ private fun ConversationScreen(
     onDeleteMessage: (String, Boolean) -> Unit,
     onCallStart: () -> Unit,
     onSnackbarMessage: (ConversationSnackbarMessages) -> Unit,
-    isFileSharingEnabled: Boolean
+    isFileSharingEnabled: Boolean,
+    onDropDownClick: () -> Unit
 ) {
     val conversationScreenState = rememberConversationScreenState()
     val scope = rememberCoroutineScope()
@@ -137,9 +146,9 @@ private fun ConversationScreen(
                                 }
                             },
                             onBackButtonClick = onBackButtonClick,
-                            onDropDownClick = { },
+                            onDropDownClick = onDropDownClick,
                             onSearchButtonClick = { },
-                            onPhoneButtonClick = { onCallStart() }
+                            onPhoneButtonClick = onCallStart
                         )
                     },
                     snackbarHost = {
@@ -172,6 +181,7 @@ private fun ConversationScreen(
     }
 }
 
+@Suppress("LongParameterList")
 @Composable
 private fun ConversationScreenContent(
     messages: List<UIMessage>,
@@ -244,7 +254,8 @@ private fun getSnackbarMessage(messageCode: ConversationSnackbarMessages): Pair<
         ErrorSendingAsset -> stringResource(R.string.error_conversation_sending_asset)
         ErrorDownloadingAsset -> stringResource(R.string.error_conversation_downloading_asset)
         ErrorOpeningAssetFile -> stringResource(R.string.error_conversation_opening_asset_file)
-        ConversationSnackbarMessages.ErrorPickingAttachment -> stringResource(R.string.error_conversation_generic)
+        ErrorDeletingMessage -> stringResource(R.string.error_conversation_deleting_message)
+        ErrorPickingAttachment -> stringResource(R.string.error_conversation_generic)
     }
     val actionLabel = when (messageCode) {
         is OnFileDownloaded -> stringResource(R.string.label_show)
@@ -292,6 +303,6 @@ fun ConversationScreenPreview() {
             conversationName = "Some test conversation",
             messages = getMockedMessages(),
         ),
-        {}, {}, {}, {}, { _, _ -> }, {}, { _, _ -> }, {}, {}, true
+        {}, {}, {}, {}, { _, _ -> }, {}, { _, _ -> }, {}, {}, true, {}
     )
 }

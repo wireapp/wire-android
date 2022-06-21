@@ -21,8 +21,10 @@ import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
 import com.wire.kalium.logic.sync.ListenToEventsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @Suppress("LongParameterList")
@@ -71,8 +73,8 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun isFileSharingEnabled(): Boolean {
-        return isFileSharingEnabled.invoke()
+    suspend fun isFileSharingEnabled(): Boolean = withContext(Dispatchers.IO) {
+        isFileSharingEnabled.invoke()
     }
 
     fun checkRequirements() {

@@ -33,6 +33,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.LifecycleEventObserver
 import androidx.lifecycle.LifecycleOwner
+import com.wire.android.model.ImageAsset
 import com.wire.android.ui.calling.controlButtons.CameraButton
 import com.wire.android.ui.calling.controlButtons.CameraFlipButton
 import com.wire.android.ui.calling.controlButtons.HangUpButton
@@ -109,36 +110,28 @@ private fun OngoingCallContent(
             },
         ) {
             Box {
-                //Some static values here for testing..
-                // This part will be changed later, after adding participants list to call state
                 Column(modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.spacing6x)) {
-                    ParticipantTile(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxWidth(),
-                        conversationName = callState.conversationName,
-                        participantAvatar = callState.avatarAssetId,
-                        isMuted = callState.isMuted,
-                        isCameraOn = callState.isCameraOn,
-                        onVideoPreviewCreated = sharedCallingViewModel::setVideoPreview,
-                        onClearVideoPreview = sharedCallingViewModel::clearVideoPreview
-                    )
-                    ParticipantTile(
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxWidth(),
-                        conversationName = ConversationName.Known("Someone"),
-                        participantAvatar = null,
-                        isMuted = true,
-                        isCameraOn = false,
-                        onVideoPreviewCreated = { },
-                        onClearVideoPreview = { }
-                    )
+                    if (callState.participants.isNotEmpty()) {
+                        callState.participants.forEach { participant ->
+                            //For now we are handling only self user camera state
+                            val isSelfUserCameraOn = if (callState.participants.first() == participant) callState.isCameraOn else false
+                            ParticipantTile(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .weight(1f),
+                                conversationName = getConversationName(participant.name),
+                                participantAvatar = ImageAsset.UserAvatarAsset(participant.avatarAssetId!!),
+                                isMuted = participant.isMuted,
+                                isCameraOn = isSelfUserCameraOn,
+                                onVideoPreviewCreated = sharedCallingViewModel::setVideoPreview,
+                                onClearVideoPreview = sharedCallingViewModel::clearVideoPreview
+                            )
+                        }
+                    }
                 }
             }
         }
     }
-
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

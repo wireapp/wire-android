@@ -81,10 +81,6 @@ class NewConversationViewModel
 
     private val searchQueryStateFlow = SearchQueryStateFlow()
 
-    fun updateScrollPosition(newScrollPosition: Int) {
-        innerSearchPeopleState = state.copy(scrollPosition = newScrollPosition)
-    }
-
     init {
         viewModelScope.launch {
             launch {

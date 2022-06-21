@@ -19,8 +19,7 @@ data class SearchPeopleState(
             searchResultState = SearchResultState.Initial
         ),
     val contactsAddedToGroup: List<Contact> = emptyList(),
-    val allKnownContacts: List<Contact> = emptyList(),
-    val scrollPosition: Int = 0,
+    val allKnownContacts: List<Contact> = emptyList()
 )
 
 sealed class ContactSearchResult(val searchResultState: SearchResultState) {

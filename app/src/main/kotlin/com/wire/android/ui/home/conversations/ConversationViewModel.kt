@@ -49,6 +49,7 @@ import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
 import com.wire.kalium.logic.util.toStringDate
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -72,7 +73,7 @@ class ConversationViewModel @Inject constructor(
     private val getSelfUserTeam: GetSelfTeamUseCase,
     private val getMessageForConversation: GetMessagesForConversationUseCase,
     private val fileManager: FileManager,
-    private val isFileSharingEnabledUseCase: IsFileSharingEnabledUseCase
+    private val isFileSharingEnabled: IsFileSharingEnabledUseCase
 ) : ViewModel() {
 
     var conversationViewState by mutableStateOf(ConversationViewState())
@@ -250,9 +251,10 @@ class ConversationViewModel @Inject constructor(
         conversationViewState = conversationViewState.copy(downloadedAssetDialogState = Hidden)
     }
 
-    fun isFileSharingEnabled(): Boolean {
-        return isFileSharingEnabledUseCase.invoke()
+    suspend fun isFileSharingEnabled(): Boolean = withContext(Dispatchers.IO) {
+        isFileSharingEnabled.invoke()
     }
+
 
     private fun getAssetLimitInBytes(): Int {
         // Users with a team attached have larger asset sending limits than default users

@@ -40,8 +40,8 @@ fun AttachmentOptionsComponent(
     attachmentInnerState: AttachmentInnerState,
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onError: (ConversationSnackbarMessages) -> Unit,
-    modifier: Modifier = Modifier,
-    isFileSharingEnabled: Boolean
+    isFileSharingEnabled: Boolean,
+    modifier: Modifier = Modifier
 ) {
     val scope = rememberCoroutineScope()
     val attachmentOptions =

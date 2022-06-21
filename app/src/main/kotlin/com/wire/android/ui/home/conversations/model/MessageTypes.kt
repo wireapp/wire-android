@@ -33,7 +33,6 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -43,15 +42,10 @@ import com.wire.android.ui.common.LinkifyText
 import com.wire.android.ui.common.WireCircularProgressIndicator
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.ConversationViewModel
-import com.wire.android.ui.home.conversations.MessageItem
-import com.wire.android.ui.home.conversations.SystemMessageItem
-import com.wire.android.ui.home.conversations.mock.mockAssetMessage
-import com.wire.android.ui.home.conversations.mock.mockMessageWithText
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.getUriFromDrawable
 import com.wire.android.util.toBitmap
-import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.FAILED
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.IN_PROGRESS
@@ -324,36 +318,4 @@ class ImageMessageParams(private val realImgWidth: Int, private val realImgHeigh
     val normalizedHeight: Dp
         @Composable
         get() = Dp(normalizedWidth.value * realImgHeight.toFloat() / realImgWidth)
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewMessage() {
-    MessageItem(mockMessageWithText, {}, {}, { _, _ -> })
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewDeletedMessage() {
-    DeletedMessage()
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewAssetMessage() {
-    MessageItem(mockAssetMessage, {}, {}, { _, _ -> })
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewMessageWithSystemMessage() {
-    Column {
-        MessageItem(mockMessageWithText, {}, {}, { _, _ -> })
-        SystemMessageItem(
-            MessageContent.SystemMessage.MemberAdded(
-                UIText.DynamicString("You"),
-                listOf(UIText.DynamicString("Adam Smmith"))
-            )
-        )
-    }
 }

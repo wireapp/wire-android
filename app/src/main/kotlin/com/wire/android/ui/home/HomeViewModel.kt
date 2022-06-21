@@ -34,8 +34,8 @@ class HomeViewModel @Inject constructor(
     private val incomingCalls: GetIncomingCallsUseCase,
     private val getSelf: GetSelfUserUseCase,
     private val needsToRegisterClient: NeedsToRegisterClientUseCase,
-    private val getAndSaveFileSharingStatusUseCase: GetRemoteFileSharingStatusAndPersistUseCase,
-    private val isFileSharingEnabledUseCase: IsFileSharingEnabledUseCase
+    private val getRemoteFileSharingStatusAndPersist: GetRemoteFileSharingStatusAndPersistUseCase,
+    private val isFileSharingEnabled: IsFileSharingEnabledUseCase
 ) : ViewModel() {
 
     var showFileSharingDialog by mutableStateOf(false)
@@ -56,7 +56,7 @@ class HomeViewModel @Inject constructor(
 
     private fun getAndSaveFileSharingConfig() {
         viewModelScope.launch {
-            getAndSaveFileSharingStatusUseCase().let {
+            getRemoteFileSharingStatusAndPersist().let {
                 when (it) {
                     is GetFileSharingStatusResult.Failure.NoTeam -> {}
                     is GetFileSharingStatusResult.Failure.Generic -> {}
@@ -72,7 +72,7 @@ class HomeViewModel @Inject constructor(
     }
 
     fun isFileSharingEnabled(): Boolean {
-        return isFileSharingEnabledUseCase.invoke()
+        return isFileSharingEnabled.invoke()
     }
 
     fun checkRequirements() {
@@ -126,7 +126,6 @@ class HomeViewModel @Inject constructor(
 
     companion object {
         const val MY_USER_PROFILE_SUBROUTE = "myUserProfile"
-        const val ENABLED = "enabled"
     }
 }
 

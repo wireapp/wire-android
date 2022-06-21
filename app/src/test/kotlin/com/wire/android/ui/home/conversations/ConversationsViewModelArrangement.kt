@@ -125,7 +125,7 @@ internal class ConversationsViewModelArrangement {
             getSelfUserTeam = getSelfUserTeam,
             fileManager = fileManager,
             getMessageForConversation = getMessagesForConversationUseCase,
-            isFileSharingEnabledUseCase = isFileSharingEnabledUseCase
+            isFileSharingEnabled = isFileSharingEnabledUseCase
         )
     }
 

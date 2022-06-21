@@ -374,8 +374,8 @@ private fun MessageComposer(
                         messageComposerState.attachmentInnerState,
                         onSendAttachment,
                         onMessageComposerError,
-                        Modifier.align(Alignment.Center),
-                        isFileSharingEnabled
+                        isFileSharingEnabled,
+                        Modifier.align(Alignment.Center)
                     )
                 }
             }

@@ -302,7 +302,6 @@
     <string name="label_new_guestroom">New Guestroom</string>
     <string name="label_new_conversation">New Conversation</string>
     <string name="label_search_people">Search people</string>
-    <string name="label_federated_backends">FEDERATED BACKENDS</string>
     <string name="label_public_wire">PUBLIC WIRE</string>
     <string name="label_search_people_instruction">Search for users with their display name or their @username</string>
     <string name="label_learn_more_searching_user">Learn more</string>

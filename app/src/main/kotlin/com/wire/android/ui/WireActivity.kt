@@ -51,11 +51,9 @@ class WireActivity : AppCompatActivity() {
         lifecycle.addObserver(viewModel)
         viewModel.handleDeepLink(intent)
         setComposableContent()
-        println("cyka onCreate: ${intent?.data}")
     }
 
     override fun onNewIntent(intent: Intent?) {
-        println("cyka newIntent: ${intent?.data}")
         if (viewModel.handleDeepLinkOnNewIntent(intent)) {
             recreate()
         }

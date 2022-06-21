@@ -53,6 +53,6 @@ class WireFirebaseMessagingService : FirebaseMessagingService() {
     }
 
     companion object {
-        private const val TAG = "cyka WireFirebaseMessagingService"
+        private const val TAG = "WireFirebaseMessagingService"
     }
 }

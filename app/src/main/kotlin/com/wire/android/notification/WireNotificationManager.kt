@@ -35,7 +35,6 @@ class WireNotificationManager @Inject constructor(
     suspend fun fetchAndShowNotificationsOnce(userIdValue: String) {
         checkIfUserIsAuthenticated(userId = userIdValue)?.let { userId ->
             coreLogic.getSessionScope(userId).syncManager.waitUntilLive()
-            println("cyka fetchAndShowNotificationsOnce")
             fetchAndShowMessageNotificationsOnce(userId)
             fetchAndShowCallNotificationsOnce(userId)
         }
@@ -57,7 +56,6 @@ class WireNotificationManager @Inject constructor(
             .take(CHECK_INCOMING_CALLS_TRIES)
             .distinctUntilChanged()
             .collect { callsList ->
-                println("cyka calls1: ${callsList.size}")
                 callNotificationManager.handleNotifications(callsList, userId)
             }
     }
@@ -122,11 +120,9 @@ class WireNotificationManager @Inject constructor(
             }
             .collect { (calls, userId) ->
                 if (observeAppVisibility.value) {
-                    println("cyka calls2.1: ${calls.size}")
                     calls.firstOrNull()?.run { doIfCallCameAndAppVisible(this) }
                     callNotificationManager.hideCallNotification()
                 } else {
-                    println("cyka calls2.2: ${calls.size}")
                     callNotificationManager.handleNotifications(calls, userId)
                 }
             }

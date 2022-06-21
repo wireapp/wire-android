@@ -26,6 +26,7 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
+import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.button.getMinTouchMargins
 import com.wire.android.ui.common.shimmerPlaceholder
@@ -38,12 +39,12 @@ import com.wire.kalium.logic.data.client.ClientType
 import com.wire.kalium.logic.data.conversation.ClientId
 
 @Composable
-fun RemoveDeviceItem(device: Client, placeholder: Boolean, onRemoveDeviceClick: (Client) -> Unit) {
+fun RemoveDeviceItem(device: Device, placeholder: Boolean, onRemoveDeviceClick: (Device) -> Unit) {
     RemoveDeviceItemContent(device = device, placeholder = placeholder, onRemoveDeviceClick = onRemoveDeviceClick)
 }
 
 @Composable
-private fun RemoveDeviceItemContent(device: Client, placeholder: Boolean, onRemoveDeviceClick: (Client) -> Unit) {
+private fun RemoveDeviceItemContent(device: Device, placeholder: Boolean, onRemoveDeviceClick: (Device) -> Unit) {
     Row(verticalAlignment = Alignment.Top) {
         Row(
             modifier = Modifier
@@ -93,7 +94,7 @@ private fun RemoveDeviceItemContent(device: Client, placeholder: Boolean, onRemo
 }
 
 @Composable
-private fun RemoveDeviceItemTexts(device: Client, placeholder: Boolean) {
+private fun RemoveDeviceItemTexts(device: Device, placeholder: Boolean) {
     Text(
         style = MaterialTheme.wireTypography.body02,
         color = MaterialTheme.wireColorScheme.onBackground,
@@ -105,7 +106,7 @@ private fun RemoveDeviceItemTexts(device: Client, placeholder: Boolean) {
     Spacer(modifier = Modifier.height(MaterialTheme.wireDimensions.removeDeviceItemTitleVerticalPadding))
     val details = stringResource(
         R.string.remove_device_id_and_time_label,
-        device.id.value,
+        device.clientId.value,
         device.registrationTime.formatMediumDateTime() ?: ""
     )
     Text(
@@ -123,10 +124,7 @@ private fun RemoveDeviceItemTexts(device: Client, placeholder: Boolean) {
 private fun RemoveDeviceItemPreview() {
     Box(modifier = Modifier.fillMaxWidth()) {
         RemoveDeviceItem(
-            device = Client(
-                ClientId("CLIENT_ID"), ClientType.Permanent, "time", null,
-                null, "label", "cookie", null, "model"
-            ), placeholder = false
+            device = Device(), placeholder = false
         ) {}
     }
 }

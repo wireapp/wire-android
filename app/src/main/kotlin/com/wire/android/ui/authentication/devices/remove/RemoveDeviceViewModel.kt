@@ -12,6 +12,7 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.util.WillNeverOccurError
 import com.wire.kalium.logic.data.client.Client
 import com.wire.kalium.logic.data.client.DeleteClientParam
@@ -51,7 +52,7 @@ class RemoveDeviceViewModel @Inject constructor(
             val selfClientsResult = selfClientsUseCase()
             if (selfClientsResult is SelfClientsResult.Success)
                 state = RemoveDeviceState.Success(
-                    deviceList = selfClientsResult.clients,
+                    deviceList = selfClientsResult.clients.map { Device(it) },
                     removeDeviceDialogState = RemoveDeviceDialogState.Hidden
                 )
         }
@@ -72,14 +73,14 @@ class RemoveDeviceViewModel @Inject constructor(
         updateStateIfDialogVisible { it.copy(error = RemoveDeviceError.None) }
     }
 
-    fun onItemClicked(client: Client) {
-        tryToDeleteOrShowPasswordDialog(client)
+    fun onItemClicked(device: Device) {
+        tryToDeleteOrShowPasswordDialog(device)
     }
 
-    private fun tryToDeleteOrShowPasswordDialog(client: Client) {
+    private fun tryToDeleteOrShowPasswordDialog(device: Device) {
         // try delete with no password (will success only for SSO accounts)
         viewModelScope.launch(Dispatchers.Main) {
-            when (val deleteResult = deleteClientUseCase(DeleteClientParam(null, client.id))) {
+            when (val deleteResult = deleteClientUseCase(DeleteClientParam(null, device.clientId))) {
                 DeleteClientResult.Success -> registerClientUseCase(
                     RegisterClientUseCase.RegisterClientParam(null, null)
                 ).also { result ->
@@ -87,7 +88,7 @@ class RemoveDeviceViewModel @Inject constructor(
                         is RegisterClientResult.Failure.PasswordAuthRequired -> updateStateIfSuccess {
                             it.copy(
                                 removeDeviceDialogState = RemoveDeviceDialogState.Visible(
-                                    client = client
+                                    device = device
                                 )
                             )
                         }
@@ -109,8 +110,8 @@ class RemoveDeviceViewModel @Inject constructor(
                     }
                 }
                 is DeleteClientResult.Failure.Generic -> state = RemoveDeviceState.Error(deleteResult.genericFailure)
-                DeleteClientResult.Failure.InvalidCredentials -> showDeleteClientDialog(client)
-                DeleteClientResult.Failure.PasswordAuthRequired -> showDeleteClientDialog(client)
+                DeleteClientResult.Failure.InvalidCredentials -> showDeleteClientDialog(device)
+                DeleteClientResult.Failure.PasswordAuthRequired -> showDeleteClientDialog(device)
             }
         }
     }
@@ -120,7 +121,7 @@ class RemoveDeviceViewModel @Inject constructor(
             (it.removeDeviceDialogState as? RemoveDeviceDialogState.Visible)?.let { dialogStateVisible ->
                 updateStateIfDialogVisible { it.copy(loading = true, removeEnabled = false) }
                 viewModelScope.launch {
-                    val deleteClientParam = DeleteClientParam(dialogStateVisible.password.text, dialogStateVisible.client.id)
+                    val deleteClientParam = DeleteClientParam(dialogStateVisible.password.text, dialogStateVisible.device.clientId)
                     val deleteClientResult = deleteClientUseCase(deleteClientParam)
                     val removeDeviceError =
                         if (deleteClientResult is DeleteClientResult.Success)
@@ -149,11 +150,11 @@ class RemoveDeviceViewModel @Inject constructor(
         }
     }
 
-    private fun showDeleteClientDialog(client: Client) {
+    private fun showDeleteClientDialog(device: Device) {
         updateStateIfSuccess {
             it.copy(
                 removeDeviceDialogState = RemoveDeviceDialogState.Visible(
-                    client = client
+                    device = device
                 )
             )
         }

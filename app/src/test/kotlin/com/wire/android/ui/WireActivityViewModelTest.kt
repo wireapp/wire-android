@@ -12,14 +12,16 @@ import com.wire.android.notification.WireNotificationManager
 import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.newServerConfig
-import com.wire.kalium.logic.feature.server.GetServerConfigResult
-import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
-import com.wire.kalium.logic.configuration.server.ServerConfig
+import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.UserSessionScope
 import com.wire.kalium.logic.feature.auth.AuthSession
+import com.wire.kalium.logic.feature.server.GetServerConfigResult
+import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
+import com.wire.kalium.logic.sync.ListenToEventsUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -125,6 +127,18 @@ class WireActivityViewModelTest {
     }
 
     @Test
+    fun `given IncomingCall Intent, when currentSession is there AND activity was created from history, then startNavigation is Home`() {
+        val (_, viewModel) = Arrangement()
+            .withSomeCurrentSession()
+            .withDeepLinkResult(DeepLinkResult.IncomingCall(ConversationId("val", "dom")))
+            .arrange()
+
+        viewModel.handleDeepLink(mockedIntent(true))
+
+        assertEquals(NavigationItem.Home.getRouteWithArgs(), viewModel.startNavigationRoute())
+    }
+
+    @Test
     fun `given newIntent with IncomingCall, when currentSession is present, then no recreation and navigate to IncomingCall is called`() {
         val conversationId = ConversationId("val", "dom")
         val (arrangement, viewModel) = Arrangement()
@@ -200,12 +214,24 @@ class WireActivityViewModelTest {
 
             // Default empty values
             mockUri()
+            coEvery { listenToEventsUseCase() } returns Unit
+            coEvery { userSessionScope.listenToEvents } returns listenToEventsUseCase
+            coEvery { coreLogic.getSessionScope(any()) } returns userSessionScope
             coEvery { currentSessionFlow() } returns flowOf()
             coEvery { getServerConfigUseCase(any()) } returns GetServerConfigResult.Success(newServerConfig(1))
             coEvery { deepLinkProcessor(any()) } returns DeepLinkResult.Unknown
             coEvery { notificationManager.observeMessageNotifications(any()) } returns Unit
             coEvery { navigationManager.navigate(any()) } returns Unit
         }
+
+        @MockK
+        lateinit var listenToEventsUseCase: ListenToEventsUseCase
+
+        @MockK
+        lateinit var userSessionScope: UserSessionScope
+
+        @MockK
+        lateinit var coreLogic: CoreLogic
 
         @MockK
         lateinit var currentSessionFlow: CurrentSessionFlowUseCase
@@ -227,13 +253,14 @@ class WireActivityViewModelTest {
 
         private val viewModel by lazy {
             WireActivityViewModel(
-                TestDispatcherProvider(),
-                currentSessionFlow,
-                getServerConfigUseCase,
-                deepLinkProcessor,
-                notificationManager,
-                navigationManager,
-                authServerConfigProvider
+                coreLogic = coreLogic,
+                dispatchers = TestDispatcherProvider(),
+                currentSessionFlow = currentSessionFlow,
+                getServerConfigUseCase = getServerConfigUseCase,
+                deepLinkProcessor = deepLinkProcessor,
+                notificationManager = notificationManager,
+                navigationManager = navigationManager,
+                authServerConfigProvider = authServerConfigProvider
             )
         }
 
@@ -269,9 +296,10 @@ class WireActivityViewModelTest {
                 newServerConfig(1).links
             )
 
-        private fun mockedIntent(): Intent {
+        private fun mockedIntent(isFromHistory: Boolean = false): Intent {
             return mockk<Intent>().also {
                 every { it.data } returns mockk()
+                every { it.flags } returns if (isFromHistory) Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY else 0
             }
         }
     }

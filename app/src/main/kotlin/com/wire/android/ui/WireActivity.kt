@@ -93,9 +93,7 @@ class WireActivity : AppCompatActivity() {
 
             navigationManager.navigateBack
                 .onEach {
-                    if (!navController.popWithArguments(it)) {
-                        finish()
-                    }
+                    if (!navController.popWithArguments(it)) finish()
                 }
                 .launchIn(scope)
 

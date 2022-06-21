@@ -1,14 +1,13 @@
 package com.wire.android.ui
 
 import android.content.Intent
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.appLogger
 import com.wire.android.di.AuthServerConfigProvider
+import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
@@ -17,10 +16,10 @@ import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
-import com.wire.kalium.logic.feature.server.GetServerConfigResult
-import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.feature.server.GetServerConfigResult
+import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -103,8 +102,16 @@ class WireActivityViewModel @Inject constructor(
                     }
                 is DeepLinkResult.SSOLogin ->
                     navigationArguments.put(SSO_DEEPLINK_ARG, result)
-                is DeepLinkResult.IncomingCall ->
-                    navigationArguments.put(INCOMING_CALL_CONVERSATION_ID_ARG, result.conversationsId)
+                is DeepLinkResult.IncomingCall -> {
+                    if (!isLaunchedFromHistory(intent)) {
+                        navigationArguments.put(INCOMING_CALL_CONVERSATION_ID_ARG, result.conversationsId)
+                    } else {
+                        //We don't need to handle deepLink, if activity was launched from history.
+                        //For example: user opened app by deepLink, then closed it by back button click,
+                        //then open the app from the "Recent Apps"
+                        appLogger.i("IncomingCall deepLink launched from the history")
+                    }
+                }
                 DeepLinkResult.Unknown -> {
                     appLogger.e("unknown deeplink result $result")
                 }
@@ -152,6 +159,9 @@ class WireActivityViewModel @Inject constructor(
     private fun openIncomingCall(conversationId: ConversationId) {
         navigateTo(NavigationCommand(NavigationItem.IncomingCall.getRouteWithArgs(listOf(conversationId))))
     }
+
+    private fun isLaunchedFromHistory(intent: Intent?) =
+        intent?.flags != null && intent.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY != 0
 
     private fun navigateTo(command: NavigationCommand) {
         viewModelScope.launch {

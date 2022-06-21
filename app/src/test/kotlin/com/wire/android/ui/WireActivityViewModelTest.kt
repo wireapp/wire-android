@@ -13,12 +13,12 @@ import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.newServerConfig
 import com.wire.kalium.logic.CoreLogic
-import com.wire.kalium.logic.feature.server.GetServerConfigResult
-import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.UserSessionScope
 import com.wire.kalium.logic.feature.auth.AuthSession
+import com.wire.kalium.logic.feature.server.GetServerConfigResult
+import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.sync.ListenToEventsUseCase
@@ -124,6 +124,18 @@ class WireActivityViewModelTest {
         viewModel.handleDeepLink(mockedIntent())
 
         assertEquals(NavigationItem.Welcome.getRouteWithArgs(), viewModel.startNavigationRoute())
+    }
+
+    @Test
+    fun `given Intent with IncomingCall, when currentSession is present AND activity was created from history, then startNavigation is Home`() {
+        val (_, viewModel) = Arrangement()
+            .withSomeCurrentSession()
+            .withDeepLinkResult(DeepLinkResult.IncomingCall(ConversationId("val", "dom")))
+            .arrange()
+
+        viewModel.handleDeepLink(mockedIntent(true))
+
+        assertEquals(NavigationItem.Home.getRouteWithArgs(), viewModel.startNavigationRoute())
     }
 
     @Test
@@ -284,9 +296,10 @@ class WireActivityViewModelTest {
                 newServerConfig(1).links
             )
 
-        private fun mockedIntent(): Intent {
+        private fun mockedIntent(isFromHistory: Boolean = false): Intent {
             return mockk<Intent>().also {
                 every { it.data } returns mockk()
+                every { it.flags } returns if (isFromHistory) Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY else 0
             }
         }
     }

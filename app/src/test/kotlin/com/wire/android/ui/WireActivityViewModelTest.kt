@@ -127,7 +127,7 @@ class WireActivityViewModelTest {
     }
 
     @Test
-    fun `given Intent with IncomingCall, when currentSession is present AND activity was created from history, then startNavigation is Home`() {
+    fun `given IncomingCall Intent, when currentSession is there AND activity was created from history, then startNavigation is Home`() {
         val (_, viewModel) = Arrangement()
             .withSomeCurrentSession()
             .withDeepLinkResult(DeepLinkResult.IncomingCall(ConversationId("val", "dom")))

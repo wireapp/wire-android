@@ -28,7 +28,7 @@ class WireNotificationManager @Inject constructor(
      */
     suspend fun fetchAndShowNotificationsOnce(userIdValue: String) {
         checkIfUserIsAuthenticated(userId = userIdValue)?.let { userId ->
-            coreLogic.getSessionScope(userId).syncPendingEvents()
+            coreLogic.getSessionScope(userId).waitUntilLive()
             fetchAndShowMessageNotificationsOnce(userId)
             fetchAndShowCallNotificationsOnce(userId)
         }

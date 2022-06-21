@@ -26,7 +26,6 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
-    private val listenToEvents: ListenToEventsUseCase,
     private val incomingCalls: GetIncomingCallsUseCase,
     private val getSelf: GetSelfUserUseCase,
     private val needsToRegisterClient: NeedsToRegisterClientUseCase
@@ -37,7 +36,6 @@ class HomeViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            launch { listenToEvents() } // listen for the WebSockets updates and update DB accordingly
             launch { loadUserAvatar() }
             launch {
                 incomingCalls().collect { observeIncomingCalls(calls = it) }

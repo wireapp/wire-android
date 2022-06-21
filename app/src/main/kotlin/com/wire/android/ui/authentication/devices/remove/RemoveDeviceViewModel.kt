@@ -78,10 +78,7 @@ class RemoveDeviceViewModel @Inject constructor(
     private fun tryToDeleteOrShowPasswordDialog(client: Client) {
         // try delete with no password (will success only for SSO accounts)
         viewModelScope.launch(Dispatchers.Main) {
-            // try delete with no password (will success only for SSO accounts
-
             when (val deleteResult = deleteClientUseCase(DeleteClientParam(null, client.id))) {
-
                 DeleteClientResult.Success -> registerClientUseCase(
                     RegisterClientUseCase.RegisterClientParam(null, null)
                 ).also { result ->
@@ -105,20 +102,8 @@ class RemoveDeviceViewModel @Inject constructor(
                     }
                 }
                 is DeleteClientResult.Failure.Generic -> state = RemoveDeviceState.Error(deleteResult.genericFailure)
-                DeleteClientResult.Failure.InvalidCredentials -> updateStateIfSuccess {
-                    it.copy(
-                        removeDeviceDialogState = RemoveDeviceDialogState.Visible(
-                            client = client
-                        )
-                    )
-                }
-                DeleteClientResult.Failure.PasswordAuthRequired -> updateStateIfSuccess {
-                    it.copy(
-                        removeDeviceDialogState = RemoveDeviceDialogState.Visible(
-                            client = client
-                        )
-                    )
-                }
+                DeleteClientResult.Failure.InvalidCredentials -> showDeleteClientDialog(client)
+                DeleteClientResult.Failure.PasswordAuthRequired -> showDeleteClientDialog(client)
             }
         }
     }
@@ -154,6 +139,16 @@ class RemoveDeviceViewModel @Inject constructor(
                     }
                 }
             }
+        }
+    }
+
+    private fun showDeleteClientDialog(client: Client) {
+        updateStateIfSuccess {
+            it.copy(
+                removeDeviceDialogState = RemoveDeviceDialogState.Visible(
+                    client = client
+                )
+            )
         }
     }
 

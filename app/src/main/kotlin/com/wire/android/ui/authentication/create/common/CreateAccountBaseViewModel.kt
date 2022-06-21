@@ -323,8 +323,10 @@ private fun RequestActivationCodeResult.toCodeError() = when (this) {
 private fun RegisterClientResult.Failure.toCodeError() = when (this) {
     RegisterClientResult.Failure.TooManyClients -> CreateAccountCodeViewState.CodeError.TooManyDevicesError
     is RegisterClientResult.Failure.Generic -> CreateAccountCodeViewState.CodeError.DialogError.GenericError(this.genericFailure)
-    RegisterClientResult.Failure.InvalidCredentials -> throw WillNeverOccurError("RegisterClient: wrong password when register client after creating a new account")
-    RegisterClientResult.Failure.PasswordAuthRequired -> throw WillNeverOccurError("RegisterClient: password required to register client after creating new account with email")
+    RegisterClientResult.Failure.InvalidCredentials ->
+        throw WillNeverOccurError("RegisterClient: wrong password when register client after creating a new account")
+    RegisterClientResult.Failure.PasswordAuthRequired ->
+        throw WillNeverOccurError("RegisterClient: password required to register client after creating new account with email")
 }
 
 private fun RegisterResult.Failure.toCodeError() = when (this) {

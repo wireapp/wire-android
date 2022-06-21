@@ -92,8 +92,16 @@ class RemoveDeviceViewModel @Inject constructor(
                             )
                         }
                         is RegisterClientResult.Failure.Generic -> state = RemoveDeviceState.Error(result.genericFailure)
-                        RegisterClientResult.Failure.InvalidCredentials -> throw WillNeverOccurError("RemoveDeviceViewModel: wrong password error when registering new client for accounts without password")
-                        RegisterClientResult.Failure.TooManyClients -> throw WillNeverOccurError("RemoveDeviceViewModel: TooManyClients error when registering a new client directly after deleting one of the old clients")
+                        RegisterClientResult.Failure.InvalidCredentials ->
+                            throw WillNeverOccurError(
+                                "RemoveDeviceViewModel: " +
+                                        "wrong password error when registering new client for accounts without password"
+                            )
+                        RegisterClientResult.Failure.TooManyClients ->
+                            throw WillNeverOccurError(
+                                "RemoveDeviceViewModel: " +
+                                        "TooManyClients error when registering a new client directly after deleting one of the old clients"
+                            )
                         is RegisterClientResult.Success -> {
                             registerPushToken(result.client.id)
                             navigateToConvScreen()

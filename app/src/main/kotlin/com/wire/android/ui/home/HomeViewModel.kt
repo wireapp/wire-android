@@ -15,6 +15,8 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.SavedStateViewModel
+import com.wire.android.navigation.getBackNavArg
+import com.wire.android.navigation.getBackNavArgs
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.feature.call.Call
 import com.wire.kalium.logic.feature.call.usecase.GetIncomingCallsUseCase
@@ -54,8 +56,7 @@ class HomeViewModel @Inject constructor(
     }
 
     internal fun showPendingToast() {
-        val backNavArgs = savedStateHandle.get<Map<String, Any?>>(EXTRA_BACK_NAVIGATION_ARGUMENTS) ?: mapOf()
-        val connectionIgnoredUserName = backNavArgs[EXTRA_CONNECTION_IGNORED_USER_NAME] as? String
+        val connectionIgnoredUserName = savedStateHandle.getBackNavArg<String>(EXTRA_CONNECTION_IGNORED_USER_NAME)
         snackBarMessageState = connectionIgnoredUserName?.let { HomeSnackBarState.SuccessConnectionIgnoreRequest(it) }
     }
 

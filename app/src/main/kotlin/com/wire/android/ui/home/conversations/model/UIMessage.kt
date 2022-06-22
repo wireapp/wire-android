@@ -29,12 +29,14 @@ data class MessageHeader(
     val messageId: String
 )
 
-enum class MessageStatus(val stringResourceId: Int) {
-    Untouched(-1),
-    Deleted(R.string.label_message_status_deleted),
-    Edited(R.string.label_message_status_edited),
-    SendFailure(R.string.label_message_sent_failure),
-    ReceiveFailure(R.string.label_message_receive_failure)
+
+sealed class MessageStatus(val text: UIText) {
+    object Untouched : MessageStatus(UIText.DynamicString(""))
+    object Deleted : MessageStatus(UIText.StringResource(R.string.deleted_message_text))
+    data class Edited(val formattedEditTimeStamp: String) :
+        MessageStatus(UIText.StringResource(R.string.label_message_status_edited_with_date, formattedEditTimeStamp))
+    object SendFailure : MessageStatus(UIText.StringResource(R.string.label_message_sent_failure))
+    object ReceiveFailure : MessageStatus(UIText.StringResource(R.string.label_message_receive_failure))
 }
 
 sealed class MessageContent {
@@ -42,8 +44,6 @@ sealed class MessageContent {
     sealed class ClientMessage : MessageContent()
 
     data class TextMessage(val messageBody: MessageBody) : ClientMessage()
-    object DeletedMessage : ClientMessage()
-    data class EditedMessage(val messageBody: MessageBody, val editTimeStamp: String) : MessageContent()
 
     data class AssetMessage(
         val assetName: String,
@@ -53,18 +53,18 @@ sealed class MessageContent {
         val downloadStatus: Message.DownloadStatus
     ) : ClientMessage()
 
-    data class ImageMessage(val assetId: AssetId, val imgDataPath: ByteArray?, val width: Int, val height: Int) : MessageContent() {
+    data class ImageMessage(val assetId: AssetId, val imgData: ByteArray?, val width: Int, val height: Int) : MessageContent() {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (javaClass != other?.javaClass) return false
             other as ImageMessage
             if (assetId != other.assetId) return false
-            if (!imgDataPath.contentEquals(other.imgDataPath)) return false
+            if (!imgData.contentEquals(other.imgData)) return false
             return true
         }
 
         override fun hashCode(): Int {
-            return imgDataPath.contentHashCode()
+            return imgData.contentHashCode()
         }
     }
 

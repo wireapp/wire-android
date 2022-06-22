@@ -27,11 +27,11 @@ class WireFirebaseMessagingService : FirebaseMessagingService() {
         }.let { result ->
             when (result) {
                 is SaveNotificationTokenUseCase.Result.Failure.Generic -> {
-                    appLogger.e("token registration has an issue : ${result.failure} ")
+                    appLogger.e("$TAG: token registration has an issue : ${result.failure} ")
 
                 }
                 SaveNotificationTokenUseCase.Result.Success -> {
-                    appLogger.i("token registered successfully ")
+                    appLogger.i("$TAG: token registered successfully")
                 }
             }
         }
@@ -39,7 +39,7 @@ class WireFirebaseMessagingService : FirebaseMessagingService() {
 
     override fun onMessageReceived(message: RemoteMessage) {
         super.onMessageReceived(message)
-        appLogger.i("notification received ")
+        appLogger.i("$TAG: notification received")
         var userIdValue = ""
         for (items in message.data) {
             if (items.key == "user") {
@@ -50,5 +50,9 @@ class WireFirebaseMessagingService : FirebaseMessagingService() {
         runBlocking {
             wireNotificationManager.fetchAndShowNotificationsOnce(userIdValue)
         }
+    }
+
+    companion object {
+        private const val TAG = "WireFirebaseMessagingService"
     }
 }

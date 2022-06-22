@@ -16,6 +16,7 @@
     <!-- needed to switch between speaker/earpiece -->
     <uses-permission android:name="android.permission.MODIFY_AUDIO_SETTINGS"/>
     <uses-permission android:name="android.permission.BLUETOOTH_CONNECT"/>
+    <uses-permission android:name="android.permission.USE_FULL_SCREEN_INTENT"/>
 
     <!-- Allows showing incoming call when device is sleeping -->
     <uses-permission android:name="android.permission.WAKE_LOCK"/>
@@ -36,6 +37,7 @@
                 android:theme="@style/AppTheme.SplashScreen"
                 android:windowSoftInputMode="adjustResize|stateHidden"
                 android:exported="true"
+                android:showOnLockScreen="true"
                 android:launchMode="singleTop">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN"/>
@@ -84,6 +86,7 @@
 
         <receiver android:name=".notification.broadcastreceivers.NotificationReplyReceiver"/>
         <receiver android:name=".notification.broadcastreceivers.MessageNotificationDismissReceiver"/>
+        <receiver android:name=".notification.broadcastreceivers.CallNotificationDismissReceiver"/>
 
         <service
                 android:name=".notification.WireFirebaseMessagingService"

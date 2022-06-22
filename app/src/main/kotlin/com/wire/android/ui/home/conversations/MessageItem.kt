@@ -4,6 +4,7 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -23,14 +24,15 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
+import com.wire.android.model.Clickable
+import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.LegalHoldIndicator
 import com.wire.android.ui.common.MembershipQualifierLabel
-import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.home.conversations.model.DeletedMessage
 import com.wire.android.ui.home.conversations.model.ImageMessageParams
 import com.wire.android.ui.home.conversations.model.MessageAsset
 import com.wire.android.ui.home.conversations.model.MessageBody
@@ -60,11 +62,13 @@ fun MessageItem(
                     bottom = dimensions().messageItemBottomPadding - dimensions().userAvatarClickablePadding
                 )
                 .fillMaxWidth()
-                .combinedClickable(
-                    //TODO: implement some action onClick
-                    onClick = { },
-                    onLongClick = { onLongClicked(message) }
-                )
+                .let {
+                    if (!message.isDeleted) it.combinedClickable(
+                        //TODO: implement some action onClick
+                        onClick = { },
+                        onLongClick = { onLongClicked(message) }
+                    ) else it
+                }
         ) {
             Spacer(Modifier.padding(start = dimensions().spacing8x - dimensions().userAvatarClickablePadding))
             UserProfileAvatar(
@@ -76,8 +80,8 @@ fun MessageItem(
                 MessageHeader(messageHeader)
                 if (!isDeleted) {
                     MessageContent(messageContent,
-                        onAssetClick = { onAssetMessageClicked(message.messageHeader.messageId) },
-                        onImageClick = {
+                        onAssetClick = Clickable(enabled = !isDeleted) { onAssetMessageClicked(message.messageHeader.messageId) },
+                        onImageClick = Clickable(enabled = !isDeleted) {
                             onImageMessageClicked(
                                 message.messageHeader.messageId,
                                 message.messageSource == MessageSource.Self
@@ -94,8 +98,8 @@ fun MessageItem(
 private fun MessageHeader(messageHeader: MessageHeader) {
     with(messageHeader) {
         Column {
-            Row(verticalAlignment = Alignment.CenterVertically) {
-                Username(username.asString())
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
+                Username(username.asString(), modifier = Modifier.weight(weight = 1F))
 
                 if (membership != Membership.None) {
                     Spacer(modifier = Modifier.width(dimensions().spacing6x))
@@ -106,68 +110,54 @@ private fun MessageHeader(messageHeader: MessageHeader) {
                     Spacer(modifier = Modifier.width(dimensions().spacing6x))
                     LegalHoldIndicator()
                 }
-/*
-for now this feature is disabled as Wolfgang suggested
-Box(Modifier.fillMaxWidth()) {
-MessageTimeLabel(
-time, modifier = Modifier
-.align(Alignment.CenterEnd)
-.padding(end = 8.dp)
-)
-}
-*/
+
+                MessageTimeLabel(messageHeader.time)
             }
         }
-        if (messageStatus != MessageStatus.Untouched) {
-            MessageStatusLabel(messageStatus = messageStatus)
-        }
+        MessageStatusLabel(messageStatus = messageStatus)
     }
 }
 
-//TODO: just a mock label, later when back-end is ready we are going to format it correctly, probably not as a String?
 @Composable
-private fun MessageTimeLabel(time: String, modifier: Modifier) {
+private fun MessageTimeLabel(time: String) {
     Text(
         text = time,
         style = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.wireColorScheme.secondaryText),
-        modifier = modifier
     )
 }
 
 @Composable
-private fun Username(username: String) {
+private fun Username(username: String, modifier: Modifier) {
     Text(
         text = username,
-        style = MaterialTheme.wireTypography.body02
+        style = MaterialTheme.wireTypography.body02,
+        modifier = modifier,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis
     )
 }
 
 @Composable
 private fun MessageContent(
     messageContent: MessageContent?,
-    onAssetClick: () -> Unit,
-    onImageClick: () -> Unit = {}
+    onAssetClick: Clickable,
+    onImageClick: Clickable = Clickable {}
 ) {
     when (messageContent) {
         is MessageContent.ImageMessage -> MessageImage(
-            rawImgData = messageContent.imgDataPath,
+            rawImgData = messageContent.imgData,
             imgParams = ImageMessageParams(messageContent.width, messageContent.height),
-            onImageClick = { onImageClick() }
+            onImageClick = onImageClick
         )
         is MessageContent.TextMessage -> MessageBody(
             messageBody = messageContent.messageBody
         )
-        is MessageContent.DeletedMessage -> DeletedMessage()
         is MessageContent.AssetMessage -> MessageAsset(
             assetName = messageContent.assetName,
             assetExtension = messageContent.assetExtension,
             assetSizeInBytes = messageContent.assetSizeInBytes,
             assetDownloadStatus = messageContent.downloadStatus,
-            onAssetClick = { onAssetClick() }
-        )
-        is MessageContent.EditedMessage -> MessageBody(
-            messageBody = messageContent.messageBody,
-            editTime = messageContent.editTimeStamp
+            onAssetClick = onAssetClick
         )
         else -> {}
     }
@@ -178,43 +168,49 @@ private fun MessageStatusLabel(messageStatus: MessageStatus) {
     CompositionLocalProvider(
         LocalTextStyle provides MaterialTheme.typography.labelSmall
     ) {
-        if (messageStatus != MessageStatus.SendFailure) {
-            Box(
-                modifier = Modifier
-                    .wrapContentSize()
-                    .border(
-                        BorderStroke(
-                            width = 1.dp,
-                            color = MaterialTheme.wireColorScheme.divider
+        when (messageStatus) {
+            MessageStatus.Deleted,
+            is MessageStatus.Edited,
+            MessageStatus.ReceiveFailure -> {
+                Box(
+                    modifier = Modifier
+                        .wrapContentSize()
+                        .border(
+                            BorderStroke(
+                                width = 1.dp,
+                                color = MaterialTheme.wireColorScheme.divider
+                            ),
+                            shape = RoundedCornerShape(size = dimensions().spacing4x)
+                        )
+                        .padding(
+                            horizontal = dimensions().spacing4x,
+                            vertical = dimensions().spacing2x
+                        )
+                ) {
+                    Text(
+                        text = messageStatus.text.asString(),
+                        style = LocalTextStyle.current.copy(color = MaterialTheme.wireColorScheme.labelText)
+                    )
+                }
+            }
+            MessageStatus.SendFailure -> {
+                Row {
+                    Text(
+                        text = messageStatus.text.asString(),
+                        style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.error)
+                    )
+                    Spacer(Modifier.width(dimensions().spacing4x))
+                    Text(
+                        modifier = Modifier.fillMaxWidth(),
+                        style = LocalTextStyle.current.copy(
+                            color = MaterialTheme.wireColorScheme.onTertiaryButtonSelected,
+                            textDecoration = TextDecoration.Underline
                         ),
-                        shape = RoundedCornerShape(size = dimensions().spacing4x)
+                        text = stringResource(R.string.label_try_again),
                     )
-                    .padding(
-                        horizontal = dimensions().spacing4x,
-                        vertical = dimensions().spacing2x
-                    )
-            ) {
-                Text(
-                    text = stringResource(id = messageStatus.stringResourceId),
-                    style = LocalTextStyle.current.copy(color = MaterialTheme.wireColorScheme.labelText)
-                )
+                }
             }
-        } else {
-            Row {
-                Text(
-                    text = stringResource(id = messageStatus.stringResourceId),
-                    style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.error)
-                )
-                Spacer(Modifier.width(dimensions().spacing4x))
-                Text(
-                    modifier = Modifier.fillMaxWidth(),
-                    style = LocalTextStyle.current.copy(
-                        color = MaterialTheme.wireColorScheme.onTertiaryButtonSelected,
-                        textDecoration = TextDecoration.Underline
-                    ),
-                    text = stringResource(R.string.label_try_again),
-                )
-            }
+            MessageStatus.Untouched -> {}
         }
     }
 }

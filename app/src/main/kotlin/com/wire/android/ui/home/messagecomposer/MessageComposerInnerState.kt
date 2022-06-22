@@ -3,10 +3,10 @@ package com.wire.android.ui.home.messagecomposer
 import android.content.Context
 import android.net.Uri
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.Dp
@@ -15,6 +15,7 @@ import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.util.DEFAULT_FILE_MIME_TYPE
 import com.wire.android.util.copyToTempPath
+import com.wire.android.util.ImageUtil
 import com.wire.android.util.getFileName
 import com.wire.android.util.getMimeType
 import com.wire.android.util.orDefault

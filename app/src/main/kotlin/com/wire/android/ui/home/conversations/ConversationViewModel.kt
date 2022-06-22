@@ -15,6 +15,7 @@ import com.wire.android.navigation.EXTRA_MESSAGE_TO_DELETE_IS_SELF
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorDeletingMessage
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorMaxAssetSize
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorMaxImageSize
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorOpeningAssetFile
@@ -26,8 +27,8 @@ import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.ui.home.conversations.model.MessageContent.AssetMessage
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
 import com.wire.android.util.FileManager
+import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.android.util.extractImageParams
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.parseIntoQualifiedID
@@ -47,6 +48,7 @@ import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
+import com.wire.kalium.logic.functional.onFailure
 import com.wire.kalium.logic.util.toStringDate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
@@ -55,6 +57,7 @@ import kotlinx.coroutines.withContext
 import okio.Path
 import okio.buffer
 import javax.inject.Inject
+import kotlin.time.Duration.Companion.seconds
 import com.wire.kalium.logic.data.id.QualifiedID as ConversationId
 
 @Suppress("LongParameterList", "TooManyFunctions")
@@ -119,9 +122,15 @@ class ConversationViewModel @Inject constructor(
                     ConversationAvatar.Group(conversationDetails.conversation.id)
                 else -> ConversationAvatar.None
             }
+            val conversationDetailsData = when (conversationDetails) {
+                is ConversationDetails.Group -> ConversationDetailsData.Group(conversationDetails.conversation.id)
+                is ConversationDetails.OneOne -> ConversationDetailsData.OneOne(conversationDetails.otherUser.id)
+                else -> ConversationDetailsData.None
+            }
             conversationViewState = conversationViewState.copy(
                 conversationName = conversationName,
-                conversationAvatar = conversationAvatar
+                conversationAvatar = conversationAvatar,
+                conversationDetailsData = conversationDetailsData
             )
         }
     }
@@ -170,7 +179,7 @@ class ConversationViewModel @Inject constructor(
                         AttachmentType.IMAGE -> {
                             if (dataSize > IMAGE_SIZE_LIMIT_BYTES) onSnackbarMessage(ErrorMaxImageSize)
                             else {
-                                val (imgWidth, imgHeight) = extractImageParams(
+                                val (imgWidth, imgHeight) = ImageUtil.extractImageWidthAndHeight(
                                     kaliumFileSystem.source(attachmentBundle.dataPath).buffer().inputStream()
                                 )
                                 val result = sendImageMessage(
@@ -348,7 +357,12 @@ class ConversationViewModel @Inject constructor(
             }
         }
         deleteMessage(conversationId = conversationId, messageId = messageId, deleteForEveryone = deleteForEveryone)
+            .onFailure { onDeleteMessageError() }
         onDeleteDialogDismissed()
+    }
+
+    private fun onDeleteMessageError() {
+        onSnackbarMessage(ErrorDeletingMessage)
     }
 
     private suspend fun assetDataPath(conversationId: ConversationId, messageId: String): Path? {
@@ -420,10 +434,31 @@ class ConversationViewModel @Inject constructor(
         }
     }
 
+    fun navigateToDetails() {
+        viewModelScope.launch {
+            when (val data = conversationViewState.conversationDetailsData) {
+                is ConversationDetailsData.OneOne -> navigationManager.navigate(
+                    command = NavigationCommand(
+                        destination = NavigationItem.OtherUserProfile.getRouteWithArgs(
+                            listOf(data.otherUserId.domain, data.otherUserId.value)
+                        )
+                    )
+                )
+                is ConversationDetailsData.Group -> navigationManager.navigate(
+                    command = NavigationCommand(
+                        destination = NavigationItem.GroupConversationDetails.getRouteWithArgs(listOf(data.conversationId))
+                    )
+                )
+                ConversationDetailsData.None -> { /* do nothing */
+                }
+            }
+        }
+    }
+
     companion object {
         const val IMAGE_SIZE_LIMIT_BYTES = 15 * 1024 * 1024 // 15 MB limit for images
         const val ASSET_SIZE_DEFAULT_LIMIT_BYTES = 25 * 1024 * 1024 // 25 MB asset default user limit size
         const val ASSET_SIZE_TEAM_USER_LIMIT_BYTES = 100 * 1024 * 1024 // 100 MB asset team user limit size
-        const val SNACKBAR_MESSAGE_DELAY = 3000L
+        val SNACKBAR_MESSAGE_DELAY = 3.seconds
     }
 }

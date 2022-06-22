@@ -18,8 +18,6 @@ import com.google.accompanist.pager.rememberPagerState
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.kalium.logic.data.call.Participant
 
-private const val MAX_TILES_PER_PAGE = 8
-
 @OptIn(ExperimentalPagerApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun VerticalCallingPager(
@@ -42,7 +40,7 @@ fun VerticalCallingPager(
             ) { pageIndex ->
                 if (participants.isNotEmpty()) {
                     val participantsChunkedList = participants.chunked(MAX_TILES_PER_PAGE)
-                    if (participantsChunkedList[pageIndex].size < 4) {
+                    if (participantsChunkedList[pageIndex].size <= MAX_ITEMS_FOR_ONE_ON_ONE_VIEW) {
                         OneOnOneCallView(
                             participants = participantsChunkedList[pageIndex],
                             isSelfUserCameraOn = isSelfUserCameraOn,
@@ -72,12 +70,18 @@ fun VerticalCallingPager(
     }
 }
 
+/**
+ * Returns number of pages(with an already defined max number of tiles) needed to display x participants
+ */
 private fun pagesCount(size: Int): Int {
     val pages = size / MAX_TILES_PER_PAGE
     return if (size % MAX_TILES_PER_PAGE > 0) {
         pages + 1
     } else pages
 }
+
+private const val MAX_TILES_PER_PAGE = 8
+private const val MAX_ITEMS_FOR_ONE_ON_ONE_VIEW = 3
 
 @Composable
 @Preview

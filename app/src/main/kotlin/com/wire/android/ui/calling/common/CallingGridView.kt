@@ -19,8 +19,6 @@ import com.wire.android.ui.calling.getConversationName
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.kalium.logic.data.call.Participant
 
-private const val NUMBER_OF_GRID_CELLS = 2
-
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun GroupCallGrid(
@@ -40,12 +38,13 @@ fun GroupCallGrid(
     ) {
 
         items(participants) { participant ->
+            // We need the number of tiles rows needed to calculate their height
             val numberOfTilesRows = tilesRowsCount(participants.size)
             val isCameraOn = if (participants.first() == participant) isSelfUserCameraOn else false
 
             ParticipantTile(
                 modifier = Modifier
-                    .height(((config.screenHeightDp - 178) / numberOfTilesRows).dp)
+                    .height(((config.screenHeightDp - TOP_APP_BAR_AND_BOTTOM_SHEET_HEIGHT) / numberOfTilesRows).dp)
                     .animateItemPlacement(),
                 conversationName = getConversationName(participant.name),
                 participantAvatar = ImageAsset.UserAvatarAsset(participant.avatarAssetId!!),
@@ -58,4 +57,12 @@ fun GroupCallGrid(
     }
 }
 
-private fun tilesRowsCount(value: Int) = if (value % 2 == 0) (value / 2) else ((value / 2) + 1)
+/**
+ * Returns the number of lines needed to display x participants in a page
+ */
+private fun tilesRowsCount(participantsSize: Int): Int = with(participantsSize) {
+    return@with if (this % 2 == 0) (this / 2) else ((this / 2) + 1)
+}
+
+private const val NUMBER_OF_GRID_CELLS = 2
+private const val TOP_APP_BAR_AND_BOTTOM_SHEET_HEIGHT = 178

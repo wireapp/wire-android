@@ -84,7 +84,7 @@ class WireActivity : AppCompatActivity() {
                 .onEach { command ->
                     if (command == null) return@onEach
                     keyboardController?.hide()
-                    navigateToItem(navController, command)
+                    navController.navigateToItem(command)
                 }
                 .launchIn(scope)
 

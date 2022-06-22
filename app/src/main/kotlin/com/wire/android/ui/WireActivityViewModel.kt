@@ -71,14 +71,6 @@ class WireActivityViewModel @Inject constructor(
                     observeUserId
                 ) { openIncomingCall(it.conversationId) }
             }
-            launch {
-                observeUserId
-                    .filterNotNull()
-                    .collect { userId ->
-                        // listen for the WebSockets updates and update DB accordingly
-                        coreLogic.getSessionScope(userId).listenToEvents()
-                    }
-            }
         }
     }
 

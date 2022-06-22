@@ -32,9 +32,10 @@ internal fun navigateToItem(
 
 internal fun NavController.popWithArguments(arguments: Map<String, Any>?) {
     previousBackStackEntry?.let {
-        arguments?.forEach { (key, value) ->
+        it.savedStateHandle.remove<Map<String, Any>>(EXTRA_BACK_NAVIGATION_ARGUMENTS)
+        arguments?.let { arguments ->
             appLogger.d("Destination is ${it.destination}")
-            it.savedStateHandle[key] = value
+            it.savedStateHandle[EXTRA_BACK_NAVIGATION_ARGUMENTS] = arguments
         }
     }
     popBackStack()

@@ -16,6 +16,7 @@ import com.wire.android.navigation.EXTRA_MESSAGE_TO_DELETE_IS_SELF
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorMaxAssetSize
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorMaxImageSize
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorOpeningAssetFile
@@ -59,7 +60,7 @@ import com.wire.kalium.logic.data.id.QualifiedID as ConversationId
 @Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel
 class ConversationViewModel @Inject constructor(
-    val savedStateHandle: SavedStateHandle,
+    override val savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val sendImageMessage: SendImageMessageUseCase,
@@ -73,7 +74,7 @@ class ConversationViewModel @Inject constructor(
     private val getSelfUserTeam: GetSelfTeamUseCase,
     private val getMessageForConversation: GetMessagesForConversationUseCase,
     private val fileManager: FileManager
-) : ViewModel() {
+) : SavedStateViewModel(savedStateHandle) {
 
     var conversationViewState by mutableStateOf(ConversationViewState())
         private set

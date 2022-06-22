@@ -17,6 +17,8 @@ import androidx.annotation.AnyRes
 import androidx.annotation.NonNull
 import androidx.core.content.FileProvider
 import com.wire.android.appLogger
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 import okio.Path
 import okio.Path.Companion.toOkioPath
 import java.io.File
@@ -39,6 +41,13 @@ fun getUriFromDrawable(
                 '/' + context.resources.getResourceTypeName(drawableId) +
                 '/' + context.resources.getResourceEntryName(drawableId)
     )
+}
+
+@Suppress("MagicNumber")
+suspend fun Uri.toByteArray(context: Context): ByteArray {
+    return withContext(Dispatchers.IO) {
+        context.contentResolver.openInputStream(this@toByteArray)?.use { it.readBytes() } ?: ByteArray(16)
+    }
 }
 
 fun Context.getTempWritableImageUri() = getTempWritableAttachmentUri(this, TEMP_IMG_ATTACHMENT_FILENAME)

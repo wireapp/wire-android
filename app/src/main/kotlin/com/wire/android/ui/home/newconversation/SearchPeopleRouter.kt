@@ -89,7 +89,6 @@ fun SearchPeopleRouter(
                                 noneSearchSucceed = noneSearchSucceed,
                                 knownContactSearchResult = localContactSearchResult,
                                 publicContactSearchResult = publicContactsSearchResult,
-                                federatedBackendResultContact = federatedContactSearchResult,
                                 contactsAddedToGroup = contactsAddedToGroup,
                                 onAddToGroup = onAddContactToGroup,
                                 onRemoveFromGroup = onRemoveContactFromGroup,

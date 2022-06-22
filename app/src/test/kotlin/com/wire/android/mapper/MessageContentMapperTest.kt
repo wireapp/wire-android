@@ -14,6 +14,8 @@ import com.wire.android.util.time.ISOFormatter
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.Member
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.message.AssetContent
+import com.wire.kalium.logic.data.message.AssetContent.AssetMetadata
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.user.UserId
@@ -68,21 +70,21 @@ class MessageContentMapperTest {
         with(resultText as TextMessage) {
             assert(
                 messageBody.message is UIText.DynamicString &&
-                    (messageBody.message as UIText.DynamicString).value == textContent.value
+                        (messageBody.message as UIText.DynamicString).value == textContent.value
             )
         }
         assert(resultNonText is TextMessage)
         with(resultNonText as TextMessage) {
             assert(
                 messageBody.message is UIText.StringResource &&
-                    (messageBody.message as UIText.StringResource).resId == arrangement.messageResourceProvider.sentAMessageWithContent
+                        (messageBody.message as UIText.StringResource).resId == arrangement.messageResourceProvider.sentAMessageWithContent
             )
         }
         assert(resultTextEdited is EditedMessage)
         with(resultTextEdited as EditedMessage) {
             assert(
                 messageBody.message is UIText.DynamicString &&
-                    (messageBody.message as UIText.DynamicString).value == textContent.value
+                        (messageBody.message as UIText.DynamicString).value == textContent.value
             )
         }
     }
@@ -109,21 +111,21 @@ class MessageContentMapperTest {
         // Then
         assert(
             resultContentLeft is SystemMessage.MemberLeft &&
-                resultContentLeft.author.asString(arrangement.resources) == member1.otherUser.name
+                    resultContentLeft.author.asString(arrangement.resources) == member1.otherUser.name
         )
         assert(
             resultContentRemoved is SystemMessage.MemberRemoved &&
-                resultContentRemoved.author.asString(arrangement.resources) == member1.otherUser.name &&
-                resultContentRemoved.memberNames.size == 1 &&
-                resultContentRemoved.memberNames[0].asString(arrangement.resources) == member2.otherUser.name
+                    resultContentRemoved.author.asString(arrangement.resources) == member1.otherUser.name &&
+                    resultContentRemoved.memberNames.size == 1 &&
+                    resultContentRemoved.memberNames[0].asString(arrangement.resources) == member2.otherUser.name
 
         )
         assert(
             resultContentAdded is SystemMessage.MemberAdded &&
-                resultContentAdded.author.asString(arrangement.resources) == member1.otherUser.name &&
-                resultContentAdded.memberNames.size == 2 &&
-                resultContentAdded.memberNames[0].asString(arrangement.resources) == member2.otherUser.name &&
-                resultContentAdded.memberNames[1].asString(arrangement.resources) == member3.otherUser.name
+                    resultContentAdded.author.asString(arrangement.resources) == member1.otherUser.name &&
+                    resultContentAdded.memberNames.size == 2 &&
+                    resultContentAdded.memberNames[0].asString(arrangement.resources) == member2.otherUser.name &&
+                    resultContentAdded.memberNames[1].asString(arrangement.resources) == member3.otherUser.name
         )
         assert(resultContentAddedSelf == null)
     }
@@ -132,29 +134,43 @@ class MessageContentMapperTest {
     fun givenAssetContent_whenMappingToUIMessageContent_thenCorrectValuesShouldBeReturned() = runTest {
         // Given
         val (arrangement, mapper) = Arrangement().arrange()
-        val unknownImageFormatMessage = TestMessage.ASSET_IMAGE_CONTENT.copy(
-            mimeType = "other",
-            remoteData = TestMessage.ASSET_REMOTE_DATA.copy(assetId = "id")
+        val unknownImageFormatMessage = AssetContent(
+            0L,
+            "name1",
+            "image/xrz",
+            AssetMetadata.Image(100, 100),
+            TestMessage.DUMMY_ASSET_REMOTE_DATA.copy(assetId = "image-id"),
+            Message.DownloadStatus.NOT_DOWNLOADED
         )
-        val contentImage = TestMessage.ASSET_IMAGE_CONTENT.copy(
-            remoteData = TestMessage.ASSET_REMOTE_DATA.copy(assetId = "image-id")
+        val correctJPGImage = AssetContent(
+            0L,
+            "name2",
+            "image/jpg",
+            AssetMetadata.Image(100, 100),
+            TestMessage.DUMMY_ASSET_REMOTE_DATA.copy(assetId = "image-id2"),
+            Message.DownloadStatus.NOT_DOWNLOADED
         )
         // When - Then
         val resultContentOther = mapper.toAsset(QualifiedID("id", "domain"), "message-id", unknownImageFormatMessage)
         coVerify(exactly = 0) { arrangement.getMessageAssetUseCase.invoke(any(), any()) }
         assert(resultContentOther is AssetMessage && resultContentOther.assetId.value == unknownImageFormatMessage.remoteData.assetId)
         // When - Then
-        val resultContentImage = mapper.toAsset(QualifiedID("id", "domain"), "message-id", contentImage)
+        val resultContentImage = mapper.toAsset(QualifiedID("id", "domain"), "message-id", correctJPGImage)
         coVerify(exactly = 1) { arrangement.getMessageAssetUseCase.invoke(any(), any()) }
-        assert(resultContentImage is ImageMessage && resultContentImage.assetId.value == contentImage.remoteData.assetId)
+        assert(resultContentImage is ImageMessage && resultContentImage.assetId.value == correctJPGImage.remoteData.assetId)
     }
 
     @Test
     fun givenSVGImageAssetContent_whenMappingToUIMessageContent_thenIsMappedToAssetMessage() = runTest {
         // Given
         val (arrangement, mapper) = Arrangement().arrange()
-        val contentImage = TestMessage.ASSET_IMAGE_CONTENT.copy(
-            mimeType = "image/svg",
+        val contentImage = AssetContent(
+            0L,
+            "name",
+            "image/svg",
+            AssetMetadata.Image(100, 100),
+            TestMessage.DUMMY_ASSET_REMOTE_DATA.copy(assetId = "image-id"),
+            Message.DownloadStatus.NOT_DOWNLOADED
         )
 
         // When
@@ -163,6 +179,39 @@ class MessageContentMapperTest {
         // Then
         coVerify(inverse = true) { arrangement.getMessageAssetUseCase.invoke(any(), any()) }
         assert(resultContentImage is AssetMessage)
+    }
+
+    @Test
+    fun givenPNGImageAssetContentWith0Width_whenMappingToUIMessageContent_thenIsMappedToAssetMessage() = runTest {
+        // Given
+        val (arrangement, mapper) = Arrangement().arrange()
+        val contentImage1 = AssetContent(
+            0L,
+            "name1",
+            "image/png",
+            AssetMetadata.Image(0, 0),
+            TestMessage.DUMMY_ASSET_REMOTE_DATA.copy(assetId = "image-id"),
+            Message.DownloadStatus.NOT_DOWNLOADED
+        )
+        val contentImage2 = AssetContent(
+            0L,
+            "name2",
+            "image/png",
+            AssetMetadata.Image(100, 100),
+            TestMessage.DUMMY_ASSET_REMOTE_DATA.copy(assetId = "image-id2"),
+            Message.DownloadStatus.NOT_DOWNLOADED
+        )
+
+        // When
+        val resultContentImage1 = mapper.toAsset(QualifiedID("id", "domain"), "message-id", contentImage1)
+        val resultContentImage2 = mapper.toAsset(QualifiedID("id", "domain"), "message-id", contentImage2)
+
+        // Then
+        assert(resultContentImage1 is AssetMessage)
+        assert(resultContentImage2 is ImageMessage)
+        
+        // Only the image with valid metadata is downloaded
+        coVerify(exactly = 1) { arrangement.getMessageAssetUseCase.invoke(any(), any()) }
     }
 
     @Test

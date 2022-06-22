@@ -25,14 +25,15 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.ui.common.Icon
 import com.wire.android.model.UserAvatarData
+import com.wire.android.ui.common.MembershipQualifierLabel
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.WireCircularProgressIndicator
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserProfileInfo(
     isLoading: Boolean,
@@ -40,6 +41,7 @@ fun UserProfileInfo(
     fullName: String,
     userName: String,
     teamName: String?,
+    membership : Membership? = null,
     onUserProfileClick: (() -> Unit)? = null,
     editableState: EditableState
 ) {
@@ -138,6 +140,11 @@ fun UserProfileInfo(
                 color = MaterialTheme.colorScheme.onBackground,
             )
         }
+
+        if(membership != null){
+            MembershipQualifierLabel(membership)
+        }
+
     }
 }
 

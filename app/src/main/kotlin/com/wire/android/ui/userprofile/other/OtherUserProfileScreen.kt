@@ -57,7 +57,7 @@ fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltView
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OtherProfileScreenContent(
     state: OtherUserProfileState,

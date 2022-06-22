@@ -24,7 +24,7 @@ import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
 import com.wire.kalium.logic.feature.publicuser.Result
 import com.wire.kalium.logic.feature.publicuser.SearchKnownUsersUseCase
-import com.wire.kalium.logic.feature.publicuser.SearchUserDirectoryUseCase
+import com.wire.kalium.logic.feature.publicuser.SearchUsersUseCase
 import com.wire.kalium.logic.functional.Either
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -37,29 +37,28 @@ import javax.inject.Inject
 class NewConversationViewModel
 @Inject constructor(
     private val navigationManager: NavigationManager,
+    private val searchUsers: SearchUsersUseCase,
     private val searchKnownUsers: SearchKnownUsersUseCase,
-    private val searchPublicUsers: SearchUserDirectoryUseCase,
     private val getAllContacts: GetAllContactsUseCase,
-    private val createGroupConversation: CreateGroupConversationUseCase
+    private val createGroupConversation: CreateGroupConversationUseCase,
 ) : ViewModel() {
 
-    // TODO: map this value out with the given back-end configuration later on
     private companion object {
-        const val HARDCODED_TEST_DOMAIN = "wire.com"
         const val GROUP_NAME_MAX_COUNT = 64
     }
 
     val state: SearchPeopleState by derivedStateOf {
         val noneSearchSucceed: Boolean =
             localContactSearchResult.searchResultState is SearchResultState.Failure &&
-                    publicContactsSearchResult.searchResultState is SearchResultState.Failure &&
-                    federatedContactSearchResult.searchResultState is SearchResultState.Failure
+                    publicContactsSearchResult.searchResultState is SearchResultState.Failure
+
+        val filteredPublicContactsSearchResult: ContactSearchResult =
+            publicContactsSearchResult.filterContacts(localContactSearchResult)
 
         innerSearchPeopleState.copy(
             noneSearchSucceed = noneSearchSucceed,
             localContactSearchResult = localContactSearchResult,
-            publicContactsSearchResult = publicContactsSearchResult,
-            federatedContactSearchResult = federatedContactSearchResult
+            publicContactsSearchResult = filteredPublicContactsSearchResult,
         )
     }
 
@@ -75,15 +74,7 @@ class NewConversationViewModel
         ContactSearchResult.ExternalContact(searchResultState = SearchResultState.Initial)
     )
 
-    private var federatedContactSearchResult by mutableStateOf(
-        ContactSearchResult.ExternalContact(searchResultState = SearchResultState.Initial)
-    )
-
     private val searchQueryStateFlow = SearchQueryStateFlow()
-
-    fun updateScrollPosition(newScrollPosition: Int) {
-        innerSearchPeopleState = state.copy(scrollPosition = newScrollPosition)
-    }
 
     init {
         viewModelScope.launch {
@@ -102,6 +93,20 @@ class NewConversationViewModel
         }
     }
 
+    private fun ContactSearchResult.filterContacts(contactSearchResult: ContactSearchResult): ContactSearchResult {
+        return if (searchResultState is SearchResultState.Success &&
+            contactSearchResult.searchResultState is SearchResultState.Success
+        ) {
+            ContactSearchResult.ExternalContact(SearchResultState.Success(searchResultState.result.filterNot { contact ->
+                contactSearchResult.searchResultState.result.map { it.id }.contains(
+                    contact.id
+                )
+            }))
+        } else {
+            this
+        }
+    }
+
     fun search(searchTerm: String) {
         // we set the state with a searchQuery, immediately to update the UI first
         innerSearchPeopleState = state.copy(searchQuery = searchTerm)
@@ -109,20 +114,16 @@ class NewConversationViewModel
         searchQueryStateFlow.search(searchTerm)
     }
 
-    //TODO: suppress for now,
-    // we should  map the result to a custom Result class containing Error on Kalium side for this use case
-    @Suppress("TooGenericExceptionCaught")
     private suspend fun searchKnown(searchTerm: String) {
         localContactSearchResult = ContactSearchResult.InternalContact(SearchResultState.InProgress)
 
-        localContactSearchResult = try {
-            val searchResult = searchKnownUsers(searchTerm)
+        val result = searchKnownUsers(searchTerm)
 
-            ContactSearchResult.InternalContact(
-                SearchResultState.Success(searchResult.result.map { otherUser -> otherUser.toContact() })
+        localContactSearchResult = when (result) {
+            is Result.Success -> ContactSearchResult.InternalContact(
+                SearchResultState.Success(result.userSearchResult.result.map { otherUser -> otherUser.toContact() })
             )
-        } catch (exception: Exception) {
-            ContactSearchResult.InternalContact(SearchResultState.Failure(R.string.label_general_error))
+            else -> ContactSearchResult.InternalContact(SearchResultState.Failure(R.string.label_general_error))
         }
     }
 
@@ -130,9 +131,8 @@ class NewConversationViewModel
         publicContactsSearchResult = ContactSearchResult.ExternalContact(SearchResultState.InProgress)
 
         val result = withContext(Dispatchers.IO) {
-            searchPublicUsers(
-                searchQuery = searchTerm,
-                domain = HARDCODED_TEST_DOMAIN
+            searchUsers(
+                searchQuery = searchTerm
             )
         }
 

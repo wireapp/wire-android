@@ -3,17 +3,19 @@ package com.wire.android.ui.home.messagecomposer
 import android.content.Context
 import android.net.Uri
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.Dp
 import com.wire.android.appLogger
+import com.wire.android.mapper.isImage
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.util.DEFAULT_FILE_MIME_TYPE
+import com.wire.android.util.ImageUtil
 import com.wire.android.util.getFileName
 import com.wire.android.util.getMimeType
 import com.wire.android.util.orDefault
@@ -116,10 +118,15 @@ class AttachmentInnerState(val context: Context) {
     suspend fun pickAttachment(attachmentUri: Uri) {
         attachmentState = try {
             val mimeType = attachmentUri.getMimeType(context).orDefault(DEFAULT_FILE_MIME_TYPE)
-            val assetRawData = attachmentUri.toByteArray(context)
             val assetFileName = context.getFileName(attachmentUri)
-            val attachmentType = if (mimeType.contains("image/")) AttachmentType.IMAGE else AttachmentType.GENERIC_FILE
-            val attachment = AttachmentBundle(mimeType, assetRawData, assetFileName, attachmentType)
+            val attachmentType = if (isImage(mimeType)) AttachmentType.IMAGE else AttachmentType.GENERIC_FILE
+            val assetData = if (attachmentType == AttachmentType.IMAGE) {
+                val byteArray = attachmentUri.toByteArray(context)
+                ImageUtil.resample(byteArray, sizeClass = ImageUtil.ImageSizeClass.Medium)
+            } else {
+                attachmentUri.toByteArray(context)
+            }
+            val attachment = AttachmentBundle(mimeType, assetData, assetFileName, attachmentType)
             AttachmentState.Picked(attachment)
         } catch (e: IOException) {
             appLogger.e("There was an error while obtaining the file from disk", e)

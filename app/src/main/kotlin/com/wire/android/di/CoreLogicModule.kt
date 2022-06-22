@@ -272,11 +272,6 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun listenToEventsUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
-        coreLogic.getSessionScope(currentAccount).listenToEvents
-
-    @ViewModelScoped
-    @Provides
     fun getIncomingCallsUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).calls.getIncomingCalls
 

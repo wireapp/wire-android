@@ -34,6 +34,10 @@ class WireNotificationManager @Inject constructor(
      */
     suspend fun fetchAndShowNotificationsOnce(userIdValue: String) {
         checkIfUserIsAuthenticated(userId = userIdValue)?.let { userId ->
+            //TODO: Move logic to Kalium.
+            //      All of this could be handled inside Kalium,
+            //      and Reloaded shouldn't need to call `waitUntilLive`.
+            //      Kalium could be smarter
             coreLogic.getSessionScope(userId).syncManager.waitUntilLive()
             fetchAndShowMessageNotificationsOnce(userId)
             fetchAndShowCallNotificationsOnce(userId)
@@ -41,11 +45,11 @@ class WireNotificationManager @Inject constructor(
     }
 
     private suspend fun fetchAndShowCallNotificationsOnce(userId: QualifiedID) {
-        //TODO for now GetIncomingCallsUseCase() returns valid data not from the first try.
-        // so it's possible to have scenario, when FCM comes informing us that there is a Call,
-        // but we don't get it from the first GetIncomingCallsUseCase() call.
-        // To cover that case we have this `intervalFlow().take(CHECK_INCOMING_CALLS_TRIES)`
-        // to try get incoming calls 6 times, if it returns nothing we assume there is no incoming call
+        //TODO: for now GetIncomingCallsUseCase() doesn't return valid data on the first try.
+        //      so it's possible to have scenario, when FCM comes informing us that there is a Call,
+        //      but we don't get it from the first GetIncomingCallsUseCase() call.
+        //      To cover that case we have this `intervalFlow().take(CHECK_INCOMING_CALLS_TRIES)`
+        //      to try get incoming calls 6 times, if it returns nothing we assume there is no incoming call
         intervalFlow(CHECK_INCOMING_CALLS_PERIOD_MS)
             .map {
                 coreLogic.getSessionScope(userId)
@@ -115,8 +119,7 @@ class WireNotificationManager @Inject constructor(
                     coreLogic.getSessionScope(userId)
                         .calls
                         .getIncomingCalls()
-                }
-                    .map { list -> list to userId }
+                }.map { list -> list to userId }
             }
             .collect { (calls, userId) ->
                 if (observeAppVisibility.value) {

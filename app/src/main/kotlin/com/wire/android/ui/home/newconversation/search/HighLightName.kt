@@ -11,6 +11,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
@@ -37,7 +38,6 @@ fun HighlightName(
             )
         }
     }
-
     if (highlightIndexes.isNotEmpty()) {
         Text(
             buildAnnotatedString {
@@ -60,12 +60,16 @@ fun HighlightName(
                             end = highLightIndexes.endIndex
                         )
                     }
-            }
+            },
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
         )
     } else {
         Text(
             text = name,
-            style = MaterialTheme.wireTypography.title02
+            style = MaterialTheme.wireTypography.title02,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
         )
     }
 }

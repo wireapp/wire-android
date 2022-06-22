@@ -38,8 +38,10 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import coil.compose.rememberAsyncImagePainter
 import com.wire.android.R
+import com.wire.android.model.Clickable
 import com.wire.android.ui.common.LinkifyText
 import com.wire.android.ui.common.WireCircularProgressIndicator
+import com.wire.android.ui.common.clickable
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.ConversationViewModel
 import com.wire.android.ui.home.conversations.MessageItem
@@ -62,29 +64,7 @@ import kotlin.math.roundToInt
 // TODO: Here we actually need to implement some logic that will distinguish MentionLabel with Body of the message,
 // waiting for the backend to implement mapping logic for the MessageBody
 @Composable
-internal fun MessageBody(messageBody: MessageBody, editTime: String? = null) {
-    Column {
-        if (editTime != null)
-            Box(
-                modifier = Modifier
-                    .border(
-                        width = 1.dp,
-                        color = MaterialTheme.wireColorScheme.divider,
-                        shape = RoundedCornerShape(dimensions().corner4x)
-                    )
-            ) {
-                Text(
-                    text = stringResource(R.string.label_message_status_edited_with_date, editTime),
-                    color = MaterialTheme.wireColorScheme.labelText,
-                    style = MaterialTheme.wireTypography.label03,
-                    modifier = Modifier
-                        .padding(
-                            horizontal = dimensions().spacing4x,
-                            vertical = dimensions().spacing2x
-                        )
-                )
-            }
-    }
+internal fun MessageBody(messageBody: MessageBody) {
     LinkifyText(
         text = messageBody.message.asString(),
         mask = Linkify.WEB_URLS or Linkify.EMAIL_ADDRESSES,
@@ -93,35 +73,15 @@ internal fun MessageBody(messageBody: MessageBody, editTime: String? = null) {
 }
 
 @Composable
-internal fun DeletedMessage() {
-    Box(
-        modifier = Modifier
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.wireColorScheme.divider,
-                shape = RoundedCornerShape(dimensions().corner4x)
-            )
-    ) {
-        Text(
-            text = stringResource(R.string.deleted_message_text),
-            color = MaterialTheme.wireColorScheme.labelText,
-            style = MaterialTheme.wireTypography.label03,
-            modifier = Modifier
-                .padding(
-                    horizontal = dimensions().spacing4x,
-                    vertical = dimensions().spacing2x
-                )
-        )
-    }
-
-}
-
-@Composable
-fun MessageImage(rawImgData: ByteArray?, imgParams: ImageMessageParams, onImageClick: () -> Unit) {
+fun MessageImage(
+    rawImgData: ByteArray?,
+    imgParams: ImageMessageParams,
+    onImageClick: Clickable
+) {
     Box(
         Modifier
             .clip(shape = RoundedCornerShape(dimensions().messageAssetBorderRadius))
-            .clickable { onImageClick() }
+            .clickable(onImageClick)
     ) {
         val imageData: Bitmap? =
             if (rawImgData != null && rawImgData.size < ConversationViewModel.IMAGE_SIZE_LIMIT_BYTES) rawImgData.toBitmap() else null
@@ -142,7 +102,7 @@ internal fun MessageAsset(
     assetName: String,
     assetExtension: String,
     assetSizeInBytes: Long,
-    onAssetClick: () -> Unit,
+    onAssetClick: Clickable,
     assetDownloadStatus: Message.DownloadStatus
 ) {
     val assetDescription = provideAssetDescription(assetExtension, assetSizeInBytes)
@@ -158,7 +118,7 @@ internal fun MessageAsset(
                 color = MaterialTheme.wireColorScheme.secondaryButtonDisabledOutline,
                 shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
             )
-            .clickable { onAssetClick() }
+            .clickable(onAssetClick)
             .padding(dimensions().spacing8x)
     ) {
         Column {
@@ -302,7 +262,9 @@ fun PreviewMessage() {
 @Preview(showBackground = true)
 @Composable
 fun PreviewDeletedMessage() {
-    DeletedMessage()
+    MessageItem(mockMessageWithText.let {
+        it.copy(messageHeader = it.messageHeader.copy(messageStatus = MessageStatus.Edited("")))
+    }, {}, {}, { _, _ -> })
 }
 
 @Preview(showBackground = true)
@@ -316,10 +278,12 @@ fun PreviewAssetMessage() {
 fun PreviewMessageWithSystemMessage() {
     Column {
         MessageItem(mockMessageWithText, {}, {}, { _, _ -> })
-        SystemMessageItem(MessageContent.SystemMessage.MemberAdded(
-            UIText.DynamicString("You"),
-            listOf(UIText.DynamicString("Adam Smmith"))
-        ))
+        SystemMessageItem(
+            MessageContent.SystemMessage.MemberAdded(
+                UIText.DynamicString("You"),
+                listOf(UIText.DynamicString("Adam Smmith"))
+            )
+        )
     }
 
 }

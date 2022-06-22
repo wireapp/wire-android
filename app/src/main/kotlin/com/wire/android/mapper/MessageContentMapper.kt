@@ -143,7 +143,7 @@ class MessageContentMapper @Inject constructor(
         if (remoteData.assetId.isNotEmpty()) {
             when {
                 // If it's an image, we download it right away
-                mimeType.contains("image") -> UIMessageContent.ImageMessage(
+                isImage(mimeType) -> UIMessageContent.ImageMessage(
                     assetId = AssetId(remoteData.assetId, remoteData.assetDomain.orEmpty()),
                     rawImgData = getRawAssetData(
                         conversationId = conversationId,

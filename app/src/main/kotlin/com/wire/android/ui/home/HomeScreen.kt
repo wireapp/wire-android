@@ -11,6 +11,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
@@ -21,6 +22,7 @@ import com.wire.android.navigation.HomeNavigationGraph
 import com.wire.android.navigation.HomeNavigationItem
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.topappbar.search.AppTopBarWithSearchBar
+import com.wire.android.ui.home.sync.SyncStateViewModel
 
 @OptIn(
     ExperimentalAnimationApi::class,
@@ -28,7 +30,7 @@ import com.wire.android.ui.common.topappbar.search.AppTopBarWithSearchBar
     ExperimentalMaterial3Api::class
 )
 @Composable
-fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
+fun HomeScreen(startScreen: String?, viewModel: HomeViewModel, syncViewModel: SyncStateViewModel) {
     viewModel.checkRequirements()
     val homeState = rememberHomeState()
 
@@ -59,6 +61,7 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
                         avatarAsset = viewModel.userAvatar.avatarAsset,
                         status = viewModel.userAvatar.status,
                         currentNavigationItem = homeState.currentNavigationItem,
+                        syncState = syncViewModel.syncState,
                         onOpenDrawerClicked = ::openDrawer,
                         onNavigateToUserProfile = viewModel::navigateToUserProfile,
                     )

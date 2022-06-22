@@ -41,6 +41,9 @@ import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.dialogErrorStrings
 import com.wire.android.util.formatMediumDateTime
+import com.wire.kalium.logic.data.client.Client
+import com.wire.kalium.logic.data.client.ClientType
+import com.wire.kalium.logic.data.conversation.ClientId
 
 @Composable
 fun RemoveDeviceScreen() {
@@ -193,7 +196,10 @@ private fun RemoveDeviceDialog(
 @Composable
 private fun RemoveDeviceScreenPreview() {
     RemoveDeviceContent(
-        state = RemoveDeviceState.Success(List(10) { Device(name = "device") }, RemoveDeviceDialogState.Hidden),
+        state = RemoveDeviceState.Success(
+            List(10) { Device() },
+            RemoveDeviceDialogState.Hidden
+        ),
         onItemClicked = {},
         onPasswordChange = {},
         onRemoveConfirm = {},

@@ -168,7 +168,7 @@ private fun MessageStatusLabel(messageStatus: MessageStatus) {
     CompositionLocalProvider(
         LocalTextStyle provides MaterialTheme.typography.labelSmall
     ) {
-        when(messageStatus) {
+        when (messageStatus) {
             MessageStatus.Deleted,
             is MessageStatus.Edited,
             MessageStatus.ReceiveFailure -> {
@@ -210,7 +210,7 @@ private fun MessageStatusLabel(messageStatus: MessageStatus) {
                     )
                 }
             }
-            else -> {}
+            MessageStatus.Untouched -> {}
         }
     }
 }

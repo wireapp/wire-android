@@ -11,7 +11,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
@@ -25,7 +24,6 @@ import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.topappbar.search.AppTopBarWithSearchBar
-import kotlinx.coroutines.launch
 
 @OptIn(
     ExperimentalAnimationApi::class,
@@ -35,10 +33,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
     viewModel.checkRequirements()
-    val homeState = rememberHomeState()
+    val homeState = rememberHomeState(isFileSharingEnabled = viewModel.isFileSharingEnabledState)
     val coroutineScope = rememberCoroutineScope()
-    var isFileSharingEnabled = false
-
 
     with(homeState) {
         ModalDrawer(
@@ -80,32 +76,27 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
                 }
             )
         }
-    }
-    LaunchedEffect(viewModel) {
-        coroutineScope.launch {
-            isFileSharingEnabled = viewModel.isFileSharingEnabled()
-        }
-    }
+        if (viewModel.showFileSharingDialog) {
+            val text: String = if (isFileSharingEnabled) {
+                stringResource(id = R.string.sharing_files_enabled)
+            } else {
+                stringResource(id = R.string.sharing_files_disabled)
+            }
 
-    if (viewModel.showFileSharingDialog) {
-        val text: String = if (isFileSharingEnabled) {
-            stringResource(id = R.string.sharing_files_enabled)
-        } else {
-            stringResource(id = R.string.sharing_files_disabled)
-        }
-
-        WireDialog(
-            title = stringResource(id = R.string.there_has_been_a_change),
-            text = text,
-            onDismiss = { viewModel.showFileSharingDialog = false },
-            optionButton1Properties = WireDialogButtonProperties(
-                onClick = { viewModel.showFileSharingDialog = false },
-                text = stringResource(id = R.string.label_ok),
-                type = WireDialogButtonType.Primary,
+            WireDialog(
+                title = stringResource(id = R.string.there_has_been_a_change),
+                text = text,
+                onDismiss = { viewModel.showFileSharingDialog = false },
+                optionButton1Properties = WireDialogButtonProperties(
+                    onClick = { viewModel.showFileSharingDialog = false },
+                    text = stringResource(id = R.string.label_ok),
+                    type = WireDialogButtonType.Primary,
+                )
             )
-        )
 
+        }
     }
+
 }
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)

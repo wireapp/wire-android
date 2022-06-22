@@ -31,7 +31,8 @@ class HomeState(
     val navController: NavHostController,
     val drawerState: DrawerState,
     val bottomSheetState: ModalBottomSheetState,
-    val currentNavigationItem: HomeNavigationItem
+    val currentNavigationItem: HomeNavigationItem,
+    val isFileSharingEnabled: Boolean
 ) {
 
     var scrollPositionProvider: (() -> Int)? by mutableStateOf(null)
@@ -68,6 +69,7 @@ fun rememberHomeState(
     navController: NavHostController = rememberAnimatedNavController(),
     drawerState: DrawerState = rememberDrawerState(DrawerValue.Closed),
     bottomSheetState: ModalBottomSheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden),
+    isFileSharingEnabled: Boolean
 ): HomeState {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
 
@@ -85,7 +87,8 @@ fun rememberHomeState(
             navController,
             drawerState,
             bottomSheetState,
-            navigationItem
+            navigationItem,
+            isFileSharingEnabled
         )
     }
 

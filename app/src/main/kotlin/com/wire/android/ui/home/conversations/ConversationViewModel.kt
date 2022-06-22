@@ -35,7 +35,6 @@ import com.wire.kalium.logic.data.message.Message.DownloadStatus.FAILED
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.IN_PROGRESS
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.SAVED_EXTERNALLY
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.SAVED_INTERNALLY
-import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import com.wire.kalium.logic.feature.asset.SendAssetMessageResult
@@ -52,7 +51,6 @@ import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
 import com.wire.kalium.logic.functional.onFailure
 import com.wire.kalium.logic.util.toStringDate
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -100,6 +98,7 @@ class ConversationViewModel @Inject constructor(
         listenConversationDetails()
         fetchSelfUserTeam()
         setMessagesAsNotified()
+        isFileSharingEnabled()
     }
 
     // region ------------------------------ Init Methods -------------------------------------
@@ -261,8 +260,10 @@ class ConversationViewModel @Inject constructor(
         conversationViewState = conversationViewState.copy(downloadedAssetDialogState = Hidden)
     }
 
-    suspend fun isFileSharingEnabled(): Boolean = withContext(Dispatchers.IO) {
-        isFileSharingEnabled.invoke()
+    private fun isFileSharingEnabled() {
+        viewModelScope.launch {
+            conversationViewState = conversationViewState.copy(isFileSharingEnabled = isFileSharingEnabled.invoke())
+        }
     }
 
 

@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.appLogger
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
@@ -18,10 +19,8 @@ import com.wire.kalium.logic.feature.featureConfig.GetRemoteFileSharingStatusAnd
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @Suppress("LongParameterList")
@@ -36,6 +35,8 @@ class HomeViewModel @Inject constructor(
 ) : ViewModel() {
 
     var showFileSharingDialog by mutableStateOf(false)
+    var isFileSharingEnabledState by mutableStateOf(true)
+
 
     var userAvatar by mutableStateOf(SelfUserData())
         private set
@@ -45,15 +46,22 @@ class HomeViewModel @Inject constructor(
             launch { loadUserAvatar() }
         }
         getAndSaveFileSharingConfig()
+        isFileSharingEnabled()
     }
 
     private fun getAndSaveFileSharingConfig() {
         viewModelScope.launch {
             getRemoteFileSharingStatusAndPersist().let {
                 when (it) {
-                    is GetFileSharingStatusResult.Failure.NoTeam -> {}
-                    is GetFileSharingStatusResult.Failure.Generic -> {}
-                    is GetFileSharingStatusResult.Failure.OperationDenied -> {}
+                    is GetFileSharingStatusResult.Failure.NoTeam -> {
+                        appLogger.i("this user doesn't belong to a team")
+                    }
+                    is GetFileSharingStatusResult.Failure.Generic -> {
+                        appLogger.d("${it.failure}")
+                    }
+                    is GetFileSharingStatusResult.Failure.OperationDenied -> {
+                        appLogger.d("operation denied due to insufficient permissions")
+                    }
                     is GetFileSharingStatusResult.Success -> {
                         if (it.isStatusChanged) {
                             showFileSharingDialog = true
@@ -64,8 +72,10 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    suspend fun isFileSharingEnabled(): Boolean = withContext(Dispatchers.IO) {
-        isFileSharingEnabled.invoke()
+    private fun isFileSharingEnabled() {
+        viewModelScope.launch {
+            isFileSharingEnabledState = isFileSharingEnabled.invoke()
+        }
     }
 
     fun checkRequirements() {

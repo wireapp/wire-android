@@ -55,14 +55,10 @@ import kotlinx.coroutines.launch
 fun ConversationScreen(conversationViewModel: ConversationViewModel) {
     val audioPermissionCheck = AudioBluetoothPermissionCheckFlow(conversationViewModel)
     val uiState = conversationViewModel.conversationViewState
-    val coroutineScope = rememberCoroutineScope()
-    var isFileSharingEnabled = false
     LaunchedEffect(conversationViewModel.savedStateHandle) {
         conversationViewModel.checkPendingActions()
-        coroutineScope.launch {
-            isFileSharingEnabled = conversationViewModel.isFileSharingEnabled()
-        }
     }
+
     ConversationScreen(
         conversationViewState = uiState,
         onMessageChanged = conversationViewModel::onMessageChanged,
@@ -74,7 +70,6 @@ fun ConversationScreen(conversationViewModel: ConversationViewModel) {
         onDeleteMessage = conversationViewModel::showDeleteMessageDialog,
         onCallStart = audioPermissionCheck::launch,
         onSnackbarMessage = conversationViewModel::onSnackbarMessage,
-        isFileSharingEnabled = isFileSharingEnabled,
         onDropDownClick = conversationViewModel::navigateToDetails
     )
 
@@ -109,7 +104,6 @@ private fun ConversationScreen(
     onDeleteMessage: (String, Boolean) -> Unit,
     onCallStart: () -> Unit,
     onSnackbarMessage: (ConversationSnackbarMessages) -> Unit,
-    isFileSharingEnabled: Boolean,
     onDropDownClick: () -> Unit
 ) {
     val conversationScreenState = rememberConversationScreenState()
@@ -303,6 +297,6 @@ fun ConversationScreenPreview() {
             conversationName = "Some test conversation",
             messages = getMockedMessages(),
         ),
-        {}, {}, {}, {}, { _, _ -> }, {}, { _, _ -> }, {}, {}, true, {}
+        {}, {}, {}, {}, { _, _ -> }, {}, { _, _ -> }, {}, {}, {}
     )
 }

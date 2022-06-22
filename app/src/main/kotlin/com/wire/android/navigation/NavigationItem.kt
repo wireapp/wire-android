@@ -184,7 +184,7 @@ enum class NavigationItem(
     Conversation(
         primaryRoute = CONVERSATION,
         canonicalRoute = "$CONVERSATION/{$EXTRA_CONVERSATION_ID}",
-        content = { ConversationScreen(hiltSavedStateViewModel()) },
+        content = { ConversationScreen(hiltSavedStateViewModel(it.navBackStackEntry)) },
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
             val conversationId: ConversationId? = arguments.filterIsInstance<ConversationId>().firstOrNull()

@@ -11,6 +11,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.Dp
 import com.wire.android.appLogger
+import com.wire.android.mapper.isImage
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.util.DEFAULT_FILE_MIME_TYPE
@@ -118,7 +119,7 @@ class AttachmentInnerState(val context: Context) {
         attachmentState = try {
             val mimeType = attachmentUri.getMimeType(context).orDefault(DEFAULT_FILE_MIME_TYPE)
             val assetFileName = context.getFileName(attachmentUri)
-            val attachmentType = if (mimeType.contains("image/")) AttachmentType.IMAGE else AttachmentType.GENERIC_FILE
+            val attachmentType = if (isImage(mimeType)) AttachmentType.IMAGE else AttachmentType.GENERIC_FILE
             val assetData = if (attachmentType == AttachmentType.IMAGE) {
                 val byteArray = attachmentUri.toByteArray(context)
                 ImageUtil.resample(byteArray, sizeClass = ImageUtil.ImageSizeClass.Medium)

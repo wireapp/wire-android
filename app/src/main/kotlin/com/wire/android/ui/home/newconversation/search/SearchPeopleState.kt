@@ -17,7 +17,6 @@ data class SearchPeopleState(
         ),
     val contactsAddedToGroup: List<Contact> = emptyList(),
     val allKnownContacts: List<Contact> = emptyList(),
-    val scrollPosition: Int = 0,
     val self: SelfUser? = null
 )
 

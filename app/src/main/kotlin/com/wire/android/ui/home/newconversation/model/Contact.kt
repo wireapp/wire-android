@@ -2,6 +2,7 @@ package com.wire.android.ui.home.newconversation.model
 
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.UserAvatarData
+import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.kalium.logic.data.conversation.Member
 import com.wire.kalium.logic.data.publicuser.model.OtherUser
 import com.wire.kalium.logic.data.user.ConnectionState
@@ -13,7 +14,8 @@ data class Contact(
     val name: String,
     val avatarData: UserAvatarData = UserAvatarData(),
     val label: String = "",
-    val connectionState: ConnectionState = ConnectionState.NOT_CONNECTED
+    val connectionState: ConnectionState = ConnectionState.NOT_CONNECTED,
+    val membership: Membership = Membership.None
 ) {
 
     fun toMember(): Member {

@@ -3,8 +3,10 @@ package com.wire.android.ui.home.newconversation.contacts
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -20,10 +22,13 @@ import com.wire.android.R
 import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.model.UserAvatarData
+import com.wire.android.ui.common.MembershipQualifierLabel
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.WireCheckbox
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.loading.CenteredCircularProgressBarIndicator
 import com.wire.android.ui.home.conversationslist.folderWithElements
+import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.newconversation.common.GroupButton
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.theme.wireTypography
@@ -63,7 +68,8 @@ fun ContactsScreen(
                         belongsToGroup = contactsAddedToGroup.contains(contact),
                         addToGroup = { onAddToGroup(contact) },
                         removeFromGroup = { onRemoveFromGroup(contact) },
-                        openUserProfile = { onOpenUserProfile(contact) }
+                        openUserProfile = { onOpenUserProfile(contact) },
+                        membership = contact.memebership
                     )
                 }
             }
@@ -77,6 +83,7 @@ fun ContactsScreen(
 private fun ContactItem(
     name: String,
     avatarData: UserAvatarData,
+    membership: Membership,
     belongsToGroup: Boolean,
     addToGroup: () -> Unit,
     removeFromGroup: () -> Unit,
@@ -90,10 +97,14 @@ private fun ContactItem(
             }
         },
         title = {
-            Text(
-                text = name,
-                style = MaterialTheme.wireTypography.title02,
-            )
+            Row {
+                Text(
+                    text = name,
+                    style = MaterialTheme.wireTypography.title02,
+                )
+                Spacer(Modifier.width(dimensions().spacing8x))
+                MembershipQualifierLabel(membership = membership)
+            }
         },
 
         actions = {

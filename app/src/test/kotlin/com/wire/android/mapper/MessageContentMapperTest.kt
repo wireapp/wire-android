@@ -97,13 +97,15 @@ class MessageContentMapperTest {
         val contentLeft = MessageContent.MemberChange.Removed(listOf(Member(userId1)))
         val contentRemoved = MessageContent.MemberChange.Removed(listOf(Member(userId2)))
         val contentAdded = MessageContent.MemberChange.Added(listOf(Member(userId2), Member(userId3)))
+        val contentAddedSelf = MessageContent.MemberChange.Added(listOf(Member(userId1)))
         val member1 = TestUser.MEMBER_OTHER.copy(TestUser.OTHER_USER.copy(id = userId1))
         val member2 = TestUser.MEMBER_OTHER.copy(TestUser.OTHER_USER.copy(id = userId2))
         val member3 = TestUser.MEMBER_OTHER.copy(TestUser.OTHER_USER.copy(id = userId3))
         // When
-        val resultContentLeft = mapper.toServer(contentLeft, userId1, listOf(member1))
-        val resultContentRemoved = mapper.toServer(contentRemoved, userId1, listOf(member1, member2))
-        val resultContentAdded = mapper.toServer(contentAdded, userId1, listOf(member1, member2, member3))
+        val resultContentLeft = mapper.mapMemberChangeMessage(contentLeft, userId1, listOf(member1))
+        val resultContentRemoved = mapper.mapMemberChangeMessage(contentRemoved, userId1, listOf(member1, member2))
+        val resultContentAdded = mapper.mapMemberChangeMessage(contentAdded, userId1, listOf(member1, member2, member3))
+        val resultContentAddedSelf = mapper.mapMemberChangeMessage(contentAddedSelf, userId1, listOf(member1))
         // Then
         assert(
             resultContentLeft is SystemMessage.MemberLeft &&
@@ -123,14 +125,14 @@ class MessageContentMapperTest {
                 resultContentAdded.memberNames[0].asString(arrangement.resources) == member2.otherUser.name &&
                 resultContentAdded.memberNames[1].asString(arrangement.resources) == member3.otherUser.name
         )
+        assert(resultContentAddedSelf == null)
     }
 
     @Test
     fun givenAssetContent_whenMappingToUIMessageContent_thenCorrectValuesShouldBeReturned() = runTest {
         // Given
         val (arrangement, mapper) = Arrangement().arrange()
-        val userId = UserId("user-id1", "user-domain")
-        val contentOther = TestMessage.ASSET_IMAGE_CONTENT.copy(
+        val unknownImageFormatMessage = TestMessage.ASSET_IMAGE_CONTENT.copy(
             mimeType = "other",
             remoteData = TestMessage.ASSET_REMOTE_DATA.copy(assetId = "id")
         )
@@ -138,13 +140,29 @@ class MessageContentMapperTest {
             remoteData = TestMessage.ASSET_REMOTE_DATA.copy(assetId = "image-id")
         )
         // When - Then
-        val resultContentOther = mapper.toAsset(QualifiedID("id", "domain"), "message-id", contentOther)
+        val resultContentOther = mapper.toAsset(QualifiedID("id", "domain"), "message-id", unknownImageFormatMessage)
         coVerify(exactly = 0) { arrangement.getMessageAssetUseCase.invoke(any(), any()) }
-        assert(resultContentOther is AssetMessage && resultContentOther.assetId.value == contentOther.remoteData.assetId)
+        assert(resultContentOther is AssetMessage && resultContentOther.assetId.value == unknownImageFormatMessage.remoteData.assetId)
         // When - Then
         val resultContentImage = mapper.toAsset(QualifiedID("id", "domain"), "message-id", contentImage)
         coVerify(exactly = 1) { arrangement.getMessageAssetUseCase.invoke(any(), any()) }
         assert(resultContentImage is ImageMessage && resultContentImage.assetId.value == contentImage.remoteData.assetId)
+    }
+
+    @Test
+    fun givenSVGImageAssetContent_whenMappingToUIMessageContent_thenIsMappedToAssetMessage() = runTest {
+        // Given
+        val (arrangement, mapper) = Arrangement().arrange()
+        val contentImage = TestMessage.ASSET_IMAGE_CONTENT.copy(
+            mimeType = "image/svg",
+        )
+
+        // When
+        val resultContentImage = mapper.toAsset(QualifiedID("id", "domain"), "message-id", contentImage)
+
+        // Then
+        coVerify(inverse = true) { arrangement.getMessageAssetUseCase.invoke(any(), any()) }
+        assert(resultContentImage is AssetMessage)
     }
 
     @Test

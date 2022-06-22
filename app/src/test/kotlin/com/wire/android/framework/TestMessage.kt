@@ -15,6 +15,7 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
+import com.wire.kalium.logic.data.message.MessageEncryptionAlgorithm
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 
@@ -35,10 +36,10 @@ object TestMessage {
         assetId = "asset-id",
         assetToken = "==some-asset-token",
         assetDomain = "some-asset-domain.com",
-        encryptionAlgorithm = AssetContent.RemoteData.EncryptionAlgorithm.AES_GCM
+        encryptionAlgorithm = MessageEncryptionAlgorithm.AES_GCM
     )
     val ASSET_IMAGE_CONTENT = AssetContent(
-        0L, "name", "image", null, ASSET_REMOTE_DATA, Message.DownloadStatus.NOT_DOWNLOADED
+        0L, "name", "image/jpg", null, ASSET_REMOTE_DATA, Message.DownloadStatus.NOT_DOWNLOADED
     )
     val MEMBER_REMOVED_MESSAGE = Message.System(
         id = "messageID",

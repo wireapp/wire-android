@@ -43,7 +43,6 @@ fun SearchPeopleScreen(
     noneSearchSucceed: Boolean,
     knownContactSearchResult: ContactSearchResult,
     publicContactSearchResult: ContactSearchResult,
-    federatedBackendResultContact: ContactSearchResult,
     contactsAddedToGroup: List<Contact>,
     onAddToGroup: (Contact) -> Unit,
     onRemoveFromGroup: (Contact) -> Unit,
@@ -62,7 +61,6 @@ fun SearchPeopleScreen(
                     searchQuery = searchQuery,
                     knownContactSearchResult = knownContactSearchResult,
                     publicContactSearchResult = publicContactSearchResult,
-                    federatedBackendResultContact = federatedBackendResultContact,
                     contactsAddedToGroup = contactsAddedToGroup,
                     onAddToGroup = onAddToGroup,
                     onRemoveContactFromGroup = onRemoveFromGroup,
@@ -80,7 +78,6 @@ private fun SearchResult(
     searchQuery: String,
     knownContactSearchResult: ContactSearchResult,
     publicContactSearchResult: ContactSearchResult,
-    federatedBackendResultContact: ContactSearchResult,
     contactsAddedToGroup: List<Contact>,
     onAddToGroup: (Contact) -> Unit,
     onRemoveContactFromGroup: (Contact) -> Unit,
@@ -116,14 +113,6 @@ private fun SearchResult(
                 showAllItems = searchPeopleScreenState.publicResultsCollapsed,
                 onShowAllButtonClicked = { searchPeopleScreenState.toggleShowAllPublicResult() },
                 onOpenUserProfile = { externalUser -> onOpenUserProfile(SearchOpenUserProfile(externalUser)) }
-            )
-            externalSearchResults(
-                searchTitle = { stringResource(R.string.label_federated_backends) },
-                searchQuery = searchQuery,
-                contactSearchResult = federatedBackendResultContact,
-                showAllItems = searchPeopleScreenState.federatedBackendResultsCollapsed,
-                onShowAllButtonClicked = { searchPeopleScreenState.toggleShowFederatedBackendResult() },
-                onOpenUserProfile = { federatedUser -> onOpenUserProfile(SearchOpenUserProfile(federatedUser)) }
             )
         }
         Divider()
@@ -244,7 +233,6 @@ private fun LazyListScope.internalSuccessItem(
                         .wrapContentHeight()
                 ) {
                     ShowButton(
-                        totalSearchResultCount = searchResult.size,
                         isShownAll = showAllItems,
                         onShowButtonClicked = onShowAllButtonClicked,
                         modifier = Modifier
@@ -291,7 +279,6 @@ private fun LazyListScope.externalSuccessItem(
                         .wrapContentHeight()
                 ) {
                     ShowButton(
-                        totalSearchResultCount = searchResult.size,
                         isShownAll = showAllItems,
                         onShowButtonClicked = onShowAllButtonClicked,
                         modifier = Modifier
@@ -340,7 +327,6 @@ fun LazyListScope.failureItem(@StringRes failureMessage: Int) {
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 private fun ShowButton(
-    totalSearchResultCount: Int,
     isShownAll: Boolean,
     onShowButtonClicked: () -> Unit,
     modifier: Modifier = Modifier
@@ -348,7 +334,7 @@ private fun ShowButton(
     Box(modifier) {
         AnimatedContent(isShownAll) { showAll ->
             WireSecondaryButton(
-                text = if (!showAll) "Show All ($totalSearchResultCount)" else "Show Less",
+                text = if (!showAll) stringResource(R.string.label_show_more) else stringResource(R.string.label_show_less),
                 onClick = onShowButtonClicked,
                 minHeight = dimensions().showAllCollapseButtonMinHeight,
                 fillMaxWidth = false,

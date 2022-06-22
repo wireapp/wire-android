@@ -29,6 +29,7 @@ import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
 import com.wire.kalium.logic.feature.publicuser.GetKnownUserUseCase
 import com.wire.kalium.logic.feature.publicuser.SearchKnownUsersUseCase
+import com.wire.kalium.logic.feature.publicuser.SearchUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.SearchUserDirectoryUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.RegisterTokenUseCase
@@ -221,6 +222,11 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun mlsKeyPackageCountUseCase(@CurrentAccount currentAccount: UserId, clientScopeProviderFactory: ClientScopeProvider.Factory) =
+        clientScopeProviderFactory.create(currentAccount).clientScope.mlsKeyPackageCountUseCase
+
+    @ViewModelScoped
+    @Provides
     fun getAvatarAsset(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): GetAvatarAssetUseCase =
         coreLogic.getSessionScope(currentAccount).users.getPublicAsset
 
@@ -324,6 +330,14 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun providesSearchUsersUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): SearchUsersUseCase =
+        coreLogic.getSessionScope(currentAccount).users.searchUsers
+
+    @ViewModelScoped
+    @Provides
     fun providesSearchKnownUsersUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
@@ -384,7 +398,10 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun providesEstablishedCallUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): ObserveEstablishedCallsUseCase =
+    fun providesOnGoingCallUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): ObserveEstablishedCallsUseCase =
         coreLogic.getSessionScope(currentAccount).calls.establishedCall
 
     @ViewModelScoped

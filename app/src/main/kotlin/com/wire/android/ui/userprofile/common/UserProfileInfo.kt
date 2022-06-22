@@ -4,7 +4,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
@@ -41,7 +43,7 @@ fun UserProfileInfo(
     fullName: String,
     userName: String,
     teamName: String?,
-    membership : Membership? = null,
+    membership: Membership = Membership.None,
     onUserProfileClick: (() -> Unit)? = null,
     editableState: EditableState
 ) {
@@ -107,6 +109,10 @@ fun UserProfileInfo(
                 maxLines = 1,
                 color = MaterialTheme.wireColorScheme.labelText,
             )
+            if (membership != Membership.None) {
+                Spacer(Modifier.height(dimensions().spacing8x))
+                MembershipQualifierLabel(membership)
+            }
         }
 
         if (editableState is EditableState.IsEditable) {
@@ -140,11 +146,6 @@ fun UserProfileInfo(
                 color = MaterialTheme.colorScheme.onBackground,
             )
         }
-
-        if(membership != null){
-            MembershipQualifierLabel(membership)
-        }
-
     }
 }
 

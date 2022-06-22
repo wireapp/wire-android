@@ -15,7 +15,7 @@ data class Contact(
     val avatarData: UserAvatarData = UserAvatarData(),
     val label: String = "",
     val connectionState: ConnectionState = ConnectionState.NOT_CONNECTED,
-    val membership: Membership = Membership.None
+    val membership: Membership
 ) {
 
     fun toMember(): Member {
@@ -27,12 +27,3 @@ data class Contact(
             connectionState == ConnectionState.SENT ||
             connectionState == ConnectionState.PENDING
 }
-
-fun OtherUser.toContact() =
-    Contact(
-        id = id.value,
-        domain = id.domain,
-        name = name ?: "",
-        label = handle ?: "",
-        avatarData = UserAvatarData(completePicture?.let { UserAvatarAsset(it) }),
-    )

@@ -119,8 +119,7 @@ class WireNotificationManager @Inject constructor(
                     coreLogic.getSessionScope(userId)
                         .calls
                         .getIncomingCalls()
-                }
-                    .map { list -> list to userId }
+                }.map { list -> list to userId }
             }
             .collect { (calls, userId) ->
                 if (observeAppVisibility.value) {

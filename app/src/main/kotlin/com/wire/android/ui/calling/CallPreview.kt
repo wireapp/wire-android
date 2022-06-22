@@ -57,12 +57,12 @@ fun CallPreview(
                 style = MaterialTheme.wireTypography.body01,
                 modifier = Modifier.padding(top = dimensions().spacing8x)
             )
-            if (!isCameraOn)
-                UserProfileAvatar(
-                    avatarData = UserAvatarData(avatarAssetId),
-                    size = dimensions().initiatingCallUserAvatarSize,
-                    modifier = Modifier.padding(top = dimensions().spacing16x)
-                )
+//            if (!isCameraOn)
+//                UserProfileAvatar(
+//                    avatarData = UserAvatarData(avatarAssetId),
+//                    size = dimensions().initiatingCallUserAvatarSize,
+//                    modifier = Modifier.padding(top = dimensions().spacing16x)
+//                )
         }
     }
 }

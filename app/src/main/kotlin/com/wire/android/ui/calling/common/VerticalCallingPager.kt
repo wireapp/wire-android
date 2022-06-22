@@ -5,16 +5,21 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.VerticalPager
-import com.google.accompanist.pager.VerticalPagerIndicator
 import com.google.accompanist.pager.rememberPagerState
+import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.kalium.logic.data.call.Participant
 
@@ -61,12 +66,26 @@ fun VerticalCallingPager(
             }
             // we don't need to display the indicator if we have one page
             if (pagesCount > 1) {
-                VerticalPagerIndicator(
-                    pagerState = pagerState,
+                Surface(
+                    shape = RoundedCornerShape(dimensions().corner16x),
                     modifier = Modifier
                         .align(Alignment.CenterEnd)
-                        .padding(end = MaterialTheme.wireDimensions.spacing8x)
-                )
+                        .padding(end = MaterialTheme.wireDimensions.spacing12x),
+                    color = colorsScheme().callingPagerIndicatorBackground,
+                ) {
+                    VerticalPagerIndicator(
+                        modifier = Modifier.padding(4.dp),
+                        pagerState = pagerState,
+                        activeColor = colorsScheme().callingActiveIndicator,
+                        inactiveColor = colorsScheme().callingInActiveIndicator,
+                        inactiveBorderColor = colorsScheme().callingInActiveBorderIndicator,
+                        inactiveBorderWidth = 2.dp,
+                        indicatorHeight = 12.dp,
+                        indicatorWidth = 12.dp,
+                        spacing = 6.dp,
+                        indicatorShape = CircleShape
+                    )
+                }
             }
         }
     }

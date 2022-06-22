@@ -62,15 +62,17 @@ fun ContactsScreen(
                     header = { stringResource(R.string.label_contacts) },
                     items = allKnownContact
                 ) { contact ->
-                    ContactItem(
-                        name = contact.name,
-                        avatarData = contact.avatarData,
-                        belongsToGroup = contactsAddedToGroup.contains(contact),
-                        addToGroup = { onAddToGroup(contact) },
-                        removeFromGroup = { onRemoveFromGroup(contact) },
-                        openUserProfile = { onOpenUserProfile(contact) },
-                        membership = contact.memebership
-                    )
+                    with(contact) {
+                        ContactItem(
+                            name = name,
+                            avatarData = avatarData,
+                            belongsToGroup = contactsAddedToGroup.contains(this),
+                            addToGroup = { onAddToGroup(this) },
+                            removeFromGroup = { onRemoveFromGroup(this) },
+                            openUserProfile = { onOpenUserProfile(this) },
+                            membership = membership
+                        )
+                    }
                 }
             }
             Divider()
@@ -92,7 +94,9 @@ private fun ContactItem(
     RowItemTemplate(
         leadingIcon = {
             Row {
-                WireCheckbox(checked = belongsToGroup, onCheckedChange = { if (it) addToGroup() else removeFromGroup() })
+                WireCheckbox(
+                    checked = belongsToGroup,
+                    onCheckedChange = { isChecked -> if (isChecked) addToGroup() else removeFromGroup() })
                 UserProfileAvatar(avatarData)
             }
         },

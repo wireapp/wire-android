@@ -9,6 +9,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
+import com.wire.android.model.Clickable
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsState
 
 @Composable
@@ -24,7 +25,7 @@ fun GroupConversationOptions(
             GroupConversationOptionsItem(
                 label = stringResource(id = R.string.conversation_details_options_group_name),
                 title = groupOptionsState.groupName,
-                onClick = { /* TODO */ }
+                clickable = Clickable(enabled = false) { /* TODO */ }
             )
             Divider()
         }

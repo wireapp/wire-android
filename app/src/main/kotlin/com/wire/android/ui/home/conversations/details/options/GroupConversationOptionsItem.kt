@@ -20,8 +20,10 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
+import com.wire.android.model.Clickable
 import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.button.WireSecondaryButton
+import com.wire.android.ui.common.clickable
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -36,13 +38,13 @@ fun GroupConversationOptionsItem(
     enabled: Boolean? = null,
     titleStyle: TextStyle = MaterialTheme.wireTypography.body02,
     arrowType: ArrowType = ArrowType.CENTER_ALIGNED,
-    onClick: (() -> Unit)? = null
+    clickable: Clickable = Clickable(enabled = false) {}
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .background(MaterialTheme.wireColorScheme.surface)
-            .let { if(onClick != null) it.clickable(onClick = onClick) else it }
+            .clickable(clickable)
             .padding(MaterialTheme.wireDimensions.spacing16x)
     ) {
         Column(modifier = Modifier.weight(1f)) {
@@ -103,7 +105,7 @@ fun GroupConversationOptionsWithLabelAndTitlePreview() {
 @Composable
 @Preview(name = "Item with title and switch clickable")
 fun GroupConversationOptionsWithTitleAndSwitchClickablePreview() {
-    GroupConversationOptionsItem(title = "Services", enabled = true, onClick = {})
+    GroupConversationOptionsItem(title = "Services", enabled = true, clickable = Clickable {})
 }
 
 @Composable

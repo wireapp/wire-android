@@ -39,7 +39,7 @@ object TestMessage {
         encryptionAlgorithm = MessageEncryptionAlgorithm.AES_GCM
     )
     val ASSET_IMAGE_CONTENT = AssetContent(
-        0L, "name", "image", null, ASSET_REMOTE_DATA, Message.DownloadStatus.NOT_DOWNLOADED
+        0L, "name", "image/jpg", null, ASSET_REMOTE_DATA, Message.DownloadStatus.NOT_DOWNLOADED
     )
     val MEMBER_REMOVED_MESSAGE = Message.System(
         id = "messageID",

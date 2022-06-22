@@ -1,6 +1,5 @@
 package com.wire.android.ui.authentication.devices.remove
 
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -14,8 +13,10 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.devices.model.Device
+import com.wire.android.util.WillNeverOccurError
+import com.wire.kalium.logic.data.client.Client
 import com.wire.kalium.logic.data.client.DeleteClientParam
-import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import com.wire.kalium.logic.feature.client.DeleteClientResult
 import com.wire.kalium.logic.feature.client.DeleteClientUseCase
@@ -26,10 +27,10 @@ import com.wire.kalium.logic.feature.client.SelfClientsUseCase
 import com.wire.kalium.logic.feature.session.RegisterTokenResult
 import com.wire.kalium.logic.feature.session.RegisterTokenUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-@OptIn(ExperimentalMaterialApi::class)
 @HiltViewModel
 class RemoveDeviceViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
@@ -51,13 +52,7 @@ class RemoveDeviceViewModel @Inject constructor(
             val selfClientsResult = selfClientsUseCase()
             if (selfClientsResult is SelfClientsResult.Success)
                 state = RemoveDeviceState.Success(
-                    deviceList = selfClientsResult.clients.map {
-                        Device(
-                            name = it.label ?: it.model ?: "",
-                            clientId = it.clientId,
-                            registrationTime = it.registrationTime
-                        )
-                    },
+                    deviceList = selfClientsResult.clients.map { Device(it) },
                     removeDeviceDialogState = RemoveDeviceDialogState.Hidden
                 )
         }
@@ -79,7 +74,46 @@ class RemoveDeviceViewModel @Inject constructor(
     }
 
     fun onItemClicked(device: Device) {
-        updateStateIfSuccess { it.copy(removeDeviceDialogState = RemoveDeviceDialogState.Visible(device = device)) }
+        tryToDeleteOrShowPasswordDialog(device)
+    }
+
+    private fun tryToDeleteOrShowPasswordDialog(device: Device) {
+        // try delete with no password (will success only for SSO accounts)
+        viewModelScope.launch(Dispatchers.Main) {
+            when (val deleteResult = deleteClientUseCase(DeleteClientParam(null, device.clientId))) {
+                DeleteClientResult.Success -> registerClientUseCase(
+                    RegisterClientUseCase.RegisterClientParam(null, null)
+                ).also { result ->
+                    when (result) {
+                        is RegisterClientResult.Failure.PasswordAuthRequired -> updateStateIfSuccess {
+                            it.copy(
+                                removeDeviceDialogState = RemoveDeviceDialogState.Visible(
+                                    device = device
+                                )
+                            )
+                        }
+                        is RegisterClientResult.Failure.Generic -> state = RemoveDeviceState.Error(result.genericFailure)
+                        RegisterClientResult.Failure.InvalidCredentials ->
+                            throw WillNeverOccurError(
+                                "RemoveDeviceViewModel: " +
+                                        "wrong password error when registering new client for accounts without password"
+                            )
+                        RegisterClientResult.Failure.TooManyClients ->
+                            throw WillNeverOccurError(
+                                "RemoveDeviceViewModel: " +
+                                        "TooManyClients error when registering a new client directly after deleting one of the old clients"
+                            )
+                        is RegisterClientResult.Success -> {
+                            registerPushToken(result.client.id)
+                            navigateToConvScreen()
+                        }
+                    }
+                }
+                is DeleteClientResult.Failure.Generic -> state = RemoveDeviceState.Error(deleteResult.genericFailure)
+                DeleteClientResult.Failure.InvalidCredentials -> showDeleteClientDialog(device)
+                DeleteClientResult.Failure.PasswordAuthRequired -> showDeleteClientDialog(device)
+            }
+        }
     }
 
     fun onRemoveConfirmed(hideKeyboard: () -> Unit) {
@@ -100,7 +134,7 @@ class RemoveDeviceViewModel @Inject constructor(
                                     )
                                 ).let { registerClientResult ->
                                     if (registerClientResult is RegisterClientResult.Success)
-                                        registerPushToken(registerClientResult.client.clientId.value)
+                                        registerPushToken(registerClientResult.client.id)
                                     registerClientResult.toRemoveDeviceError()
                                 }
                             }
@@ -116,7 +150,17 @@ class RemoveDeviceViewModel @Inject constructor(
         }
     }
 
-    private suspend fun registerPushToken(clientId: String) {
+    private fun showDeleteClientDialog(device: Device) {
+        updateStateIfSuccess {
+            it.copy(
+                removeDeviceDialogState = RemoveDeviceDialogState.Visible(
+                    device = device
+                )
+            )
+        }
+    }
+
+    private suspend fun registerPushToken(clientId: ClientId) {
         pushTokenUseCase(BuildConfig.SENDER_ID, clientId).let { registerTokenResult ->
             when (registerTokenResult) {
                 is RegisterTokenResult.Success ->
@@ -128,18 +172,20 @@ class RemoveDeviceViewModel @Inject constructor(
         }
     }
 
-    private fun DeleteClientResult.toRemoveDeviceError() =
+    private fun DeleteClientResult.toRemoveDeviceError(): RemoveDeviceError =
         when (this) {
             is DeleteClientResult.Failure.Generic -> RemoveDeviceError.GenericError(this.genericFailure)
             DeleteClientResult.Failure.InvalidCredentials -> RemoveDeviceError.InvalidCredentialsError
+            DeleteClientResult.Failure.PasswordAuthRequired -> RemoveDeviceError.PasswordRequired
             DeleteClientResult.Success -> RemoveDeviceError.None
         }
 
-    private fun RegisterClientResult.toRemoveDeviceError() =
+    private fun RegisterClientResult.toRemoveDeviceError(): RemoveDeviceError =
         when (this) {
             is RegisterClientResult.Failure.Generic -> RemoveDeviceError.GenericError(this.genericFailure)
             is RegisterClientResult.Failure.InvalidCredentials -> RemoveDeviceError.InvalidCredentialsError
             is RegisterClientResult.Failure.TooManyClients -> RemoveDeviceError.TooManyDevicesError
+            RegisterClientResult.Failure.PasswordAuthRequired -> RemoveDeviceError.PasswordRequired
             is RegisterClientResult.Success -> RemoveDeviceError.None
         }
 

@@ -13,8 +13,9 @@ sealed class LoginError {
         data class GenericError(val coreFailure: CoreFailure) : LoginError.DialogError()
         object InvalidCredentialsError : DialogError()
         object InvalidSSOCookie : DialogError()
-        object InvalidCodeError: DialogError()
+        object InvalidCodeError : DialogError()
         object UserAlreadyExists : DialogError()
+        object PasswordNeededToRegisterClient : DialogError()
         data class SSOResultError constructor(val result: SSOFailureCodes) :
             LoginError.DialogError()
     }

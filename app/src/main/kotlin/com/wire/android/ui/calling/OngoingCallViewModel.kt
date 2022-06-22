@@ -7,7 +7,7 @@ import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationManager
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.parseIntoQualifiedID
-// import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -18,7 +18,7 @@ import javax.inject.Inject
 class OngoingCallViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
-    // private val ongoingCall: ObserveEstablishedCallsUseCase
+    private val ongoingCall: ObserveEstablishedCallsUseCase
 ) : ViewModel() {
 
     val conversationId: QualifiedID = savedStateHandle
@@ -27,20 +27,20 @@ class OngoingCallViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-//            ongoingCall().first { it.isNotEmpty() }.run {
-//                // We start observing once we have an ongoing call
-//                observeCurrentCall()
-//            }
+            ongoingCall().first { it.isNotEmpty() }.run {
+                // We start observing once we have an ongoing call
+                observeCurrentCall()
+            }
         }
     }
 
     private suspend fun observeCurrentCall() {
-//        ongoingCall().collect { calls ->
-//            calls.find { call -> call.conversationId == conversationId }.also {
-//                if (it == null)
-//                    navigateBack()
-//            }
-//        }
+        ongoingCall().collect { calls ->
+            calls.find { call -> call.conversationId == conversationId }.also {
+                if (it == null)
+                    navigateBack()
+            }
+        }
     }
 
     private suspend fun navigateBack() {

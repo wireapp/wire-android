@@ -117,3 +117,4 @@ fun ExternalContactSearchResultItem(
         modifier = modifier
     )
 }
+

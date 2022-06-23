@@ -211,10 +211,10 @@ class NewConversationViewModel
             groupNameState = groupNameState.copy(isLoading = true)
 
             when (val result = createGroupConversation(
-                    name = groupNameState.groupName.text,
-                    members = state.contactsAddedToGroup.map { contact -> contact.toMember() },
-                    options = ConversationOptions()
-                )
+                name = groupNameState.groupName.text,
+                members = state.contactsAddedToGroup.map { contact -> contact.toMember() },
+                options = ConversationOptions().copy(protocol = groupNameState.groupProtocol)
+            )
             ) {
                 // TODO: handle the error state
                 is Either.Left -> {

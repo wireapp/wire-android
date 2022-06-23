@@ -57,7 +57,7 @@ class MessageContentMapper @Inject constructor(
         content: MessageContent.MemberChange,
         senderUserId: UserId,
         members: List<MemberDetails>
-    ) : UIMessageContent.SystemMessage? {
+    ): UIMessageContent.SystemMessage? {
         val sender = members.findUser(userId = senderUserId)
         val isAuthorSelfAction = content.members.size == 1 && senderUserId == content.members.first().id
         val authorName = toSystemMessageMemberName(
@@ -129,7 +129,7 @@ class MessageContentMapper @Inject constructor(
         if (remoteData.assetId.isNotEmpty()) {
             when {
                 // If it's an image, we download it right away
-                isImage(mimeType) -> UIMessageContent.ImageMessage(
+                isImage(mimeType) && imgWidth > 0 && imgHeight > 0 -> UIMessageContent.ImageMessage(
                     assetId = AssetId(remoteData.assetId, remoteData.assetDomain.orEmpty()),
                     imgData = getImageRawData(conversationId, messageId),
                     width = imgWidth,

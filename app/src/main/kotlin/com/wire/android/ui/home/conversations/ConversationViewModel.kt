@@ -389,7 +389,7 @@ class ConversationViewModel @Inject constructor(
     fun onSaveFile(assetName: String, assetDataPath: Path, assetSize: Long, messageId: String) {
         viewModelScope.launch {
             withContext(dispatchers.io()) {
-                fileManager.saveToExternalStorage(assetDataPath, assetSize) {
+                fileManager.saveToExternalStorage(assetName, assetDataPath, assetSize) {
                     updateAssetMessageDownloadStatus(SAVED_EXTERNALLY, conversationId, messageId)
                     onFileSavedToExternalStorage(assetName)
                     hideOnAssetDownloadedDialog()

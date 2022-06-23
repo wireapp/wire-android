@@ -43,7 +43,7 @@ object ImageUtil {
      *
      * @param byteArray the ByteArray representing the image
      * @param sizeClass the indented size class use case
-     * @return ByteArray the resampled, downscaled and rotation normalized image
+     * @return ByteArray the resampled, downscaled and rotation normalized image or the original image if there was no need for downscaling
      */
     fun resample(byteArray: ByteArray, sizeClass: ImageSizeClass): ByteArray {
         val bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)

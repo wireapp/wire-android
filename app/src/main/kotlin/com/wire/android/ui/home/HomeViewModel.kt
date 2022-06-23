@@ -9,10 +9,14 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.EXTRA_BACK_NAVIGATION_ARGUMENTS
 import com.wire.android.navigation.EXTRA_CONNECTION_IGNORED_USER_NAME
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.navigation.SavedStateViewModel
+import com.wire.android.navigation.getBackNavArg
+import com.wire.android.navigation.getBackNavArgs
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.feature.call.Call
 import com.wire.kalium.logic.feature.call.usecase.GetIncomingCallsUseCase
@@ -28,13 +32,13 @@ import javax.inject.Inject
 @ExperimentalMaterial3Api
 @HiltViewModel
 class HomeViewModel @Inject constructor(
-    val savedStateHandle: SavedStateHandle,
+    override val savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
     private val listenToEvents: ListenToEventsUseCase,
     private val incomingCalls: GetIncomingCallsUseCase,
     private val getSelf: GetSelfUserUseCase,
     private val needsToRegisterClient: NeedsToRegisterClientUseCase
-) : ViewModel() {
+) : SavedStateViewModel(savedStateHandle) {
 
     var snackBarMessageState by mutableStateOf<HomeSnackBarState?>(null)
 
@@ -52,11 +56,8 @@ class HomeViewModel @Inject constructor(
     }
 
     internal fun showPendingToast() {
-        val connectionIgnoredUserName = savedStateHandle
-            .get<String?>(EXTRA_CONNECTION_IGNORED_USER_NAME)
-        if (connectionIgnoredUserName != null) {
-            snackBarMessageState = HomeSnackBarState.SuccessConnectionIgnoreRequest(connectionIgnoredUserName)
-        }
+        val connectionIgnoredUserName = savedStateHandle.getBackNavArg<String>(EXTRA_CONNECTION_IGNORED_USER_NAME)
+        snackBarMessageState = connectionIgnoredUserName?.let { HomeSnackBarState.SuccessConnectionIgnoreRequest(it) }
     }
 
     fun checkRequirements() {

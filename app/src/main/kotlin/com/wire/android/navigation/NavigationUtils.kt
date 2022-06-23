@@ -8,19 +8,15 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import com.wire.android.appLogger
 
 @ExperimentalMaterial3Api
-internal fun navigateToItem(
-    navController: NavController,
-    command: NavigationCommand
-) {
-    navController.navigate(command.destination) {
+internal fun NavController.navigateToItem(command: NavigationCommand) {
+    currentBackStackEntry?.savedStateHandle?.remove<Map<String, Any>>(EXTRA_BACK_NAVIGATION_ARGUMENTS)
+    navigate(command.destination) {
         when (command.backStackMode) {
             BackStackMode.CLEAR_WHOLE, BackStackMode.CLEAR_TILL_START -> {
-                navController.run {
-                    backQueue.firstOrNull { it.destination.route != null }?.let { entry ->
-                        val inclusive = command.backStackMode == BackStackMode.CLEAR_WHOLE
-                        val startId = entry.destination.id
-                        popBackStack(startId, inclusive)
-                    }
+                backQueue.firstOrNull { it.destination.route != null }?.let { entry ->
+                    val inclusive = command.backStackMode == BackStackMode.CLEAR_WHOLE
+                    val startId = entry.destination.id
+                    popBackStack(startId, inclusive)
                 }
             }
             BackStackMode.NONE -> {}
@@ -32,9 +28,10 @@ internal fun navigateToItem(
 
 internal fun NavController.popWithArguments(arguments: Map<String, Any>?) {
     previousBackStackEntry?.let {
-        arguments?.forEach { (key, value) ->
+        it.savedStateHandle.remove<Map<String, Any>>(EXTRA_BACK_NAVIGATION_ARGUMENTS)
+        arguments?.let { arguments ->
             appLogger.d("Destination is ${it.destination}")
-            it.savedStateHandle[key] = value
+            it.savedStateHandle[EXTRA_BACK_NAVIGATION_ARGUMENTS] = arguments
         }
     }
     popBackStack()

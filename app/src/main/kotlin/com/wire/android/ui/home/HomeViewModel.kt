@@ -44,28 +44,26 @@ class HomeViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             launch { loadUserAvatar() }
+            getAndSaveFileSharingConfig()
         }
-        getAndSaveFileSharingConfig()
-        setFileSharingStatus()
     }
 
-    private fun getAndSaveFileSharingConfig() {
-        viewModelScope.launch {
-            getRemoteFeatureConfigStatusAndPersist().let {
-                when (it) {
-                    is GetFeatureConfigStatusResult.Failure.NoTeam -> {
-                        appLogger.i("this user doesn't belong to a team")
-                    }
-                    is GetFeatureConfigStatusResult.Failure.Generic -> {
-                        appLogger.d("${it.failure}")
-                    }
-                    is GetFeatureConfigStatusResult.Failure.OperationDenied -> {
-                        appLogger.d("operation denied due to insufficient permissions")
-                    }
-                    is GetFeatureConfigStatusResult.Success -> {
-                        if (it.isStatusChanged) {
-                            showFileSharingDialog = true
-                        }
+    private suspend fun getAndSaveFileSharingConfig() {
+        getRemoteFeatureConfigStatusAndPersist().let {
+            when (it) {
+                is GetFeatureConfigStatusResult.Failure.NoTeam -> {
+                    appLogger.i("this user doesn't belong to a team")
+                }
+                is GetFeatureConfigStatusResult.Failure.Generic -> {
+                    appLogger.d("${it.failure}")
+                }
+                is GetFeatureConfigStatusResult.Failure.OperationDenied -> {
+                    appLogger.d("operation denied due to insufficient permissions")
+                }
+                is GetFeatureConfigStatusResult.Success -> {
+                    setFileSharingStatus()
+                    if (it.isStatusChanged) {
+                        showFileSharingDialog = true
                     }
                 }
             }

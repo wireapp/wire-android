@@ -9,6 +9,7 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.parseIntoQualifiedID
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -35,12 +36,14 @@ class OngoingCallViewModel @Inject constructor(
     }
 
     private suspend fun observeCurrentCall() {
-        establishedCall().collect { calls ->
-            calls.find { call -> call.conversationId == conversationId }.also {
-                if (it == null)
-                    navigateBack()
+        establishedCall()
+            .distinctUntilChanged()
+            .collect { calls ->
+                calls.find { call -> call.conversationId == conversationId }.also {
+                    if (it == null)
+                        navigateBack()
+                }
             }
-        }
     }
 
     private suspend fun navigateBack() {

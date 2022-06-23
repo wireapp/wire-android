@@ -1,6 +1,5 @@
 package com.wire.android.ui.calling
 
-import android.util.Log
 import android.view.View
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -121,7 +120,6 @@ class SharedCallingViewModel @Inject constructor(
     fun hangUpCall() {
         viewModelScope.launch {
             endCall(conversationId)
-            // navigateBack()
             callRinger.stop()
         }
     }

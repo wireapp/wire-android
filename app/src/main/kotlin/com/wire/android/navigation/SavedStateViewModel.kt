@@ -6,17 +6,21 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.navigation.NavBackStackEntry
 
+/*
+ * ViewModel extension which already has SavedStateHandle field.
+ * It is recommended to use it for NavigationItem together with the hiltSavedStateViewModel method which requires a NavBackStackEntry
+ * in order to be able to receive arguments when navigating back using popWithArguments.
+ */
 open class SavedStateViewModel(open val savedStateHandle: SavedStateHandle) : ViewModel()
 
 @Composable
-inline fun <reified T : SavedStateViewModel> hiltSavedStateViewModel(navBackStackEntry: NavBackStackEntry? = null) =
+inline fun <reified T : SavedStateViewModel> hiltSavedStateViewModel(navBackStackEntry: NavBackStackEntry) =
     hiltViewModel<T>().apply {
-        navBackStackEntry?.let {
-            savedStateHandle[EXTRA_BACK_NAVIGATION_ARGUMENTS] = it.savedStateHandle.get<Map<String, Any>>(EXTRA_BACK_NAVIGATION_ARGUMENTS)
-        }
+        savedStateHandle[EXTRA_BACK_NAVIGATION_ARGUMENTS] =
+            navBackStackEntry.savedStateHandle.get<Map<String, Any>>(EXTRA_BACK_NAVIGATION_ARGUMENTS)
     }
 
-fun <V: Any> SavedStateHandle.getBackNavArgs() = get<Map<String, V>>(EXTRA_BACK_NAVIGATION_ARGUMENTS) ?: mapOf()
+fun <V : Any> SavedStateHandle.getBackNavArgs() = get<Map<String, V>>(EXTRA_BACK_NAVIGATION_ARGUMENTS) ?: mapOf()
 
 @Suppress("UNCHECKED_CAST")
-fun <V: Any> SavedStateHandle.getBackNavArg(key: String): V? = getBackNavArgs<Any>()[key] as? V
+fun <V : Any> SavedStateHandle.getBackNavArg(key: String): V? = getBackNavArgs<Any>()[key] as? V

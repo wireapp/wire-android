@@ -11,6 +11,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
@@ -65,13 +66,17 @@ fun HighlightSubtitle(
                             end = highLightIndexes.endIndex + 1
                         )
                     }
-            }
+            },
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
         )
     } else {
         Text(
             text = "@$subTitle",
             style = MaterialTheme.wireTypography.subline01,
-            color = MaterialTheme.wireColorScheme.secondaryText
+            color = MaterialTheme.wireColorScheme.secondaryText,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
         )
     }
 }

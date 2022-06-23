@@ -4,9 +4,7 @@ import androidx.annotation.StringRes
 import com.wire.android.R
 import com.wire.android.ui.home.conversations.findUser
 import com.wire.android.ui.home.conversations.model.MessageBody
-import com.wire.android.ui.home.conversations.model.MessageContent as UIMessageContent
 import com.wire.android.ui.home.conversations.name
-import com.wire.android.util.time.ISOFormatter
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.MemberDetails
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -17,16 +15,15 @@ import com.wire.kalium.logic.data.message.MessageContent.Asset
 import com.wire.kalium.logic.data.message.MessageContent.MemberChange
 import com.wire.kalium.logic.data.message.MessageContent.MemberChange.Added
 import com.wire.kalium.logic.data.message.MessageContent.MemberChange.Removed
-import com.wire.kalium.logic.data.message.MessageContent.System
 import com.wire.kalium.logic.data.user.AssetId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import javax.inject.Inject
+import com.wire.android.ui.home.conversations.model.MessageContent as UIMessageContent
 
 // TODO: splits mapping into more classes
 class MessageContentMapper @Inject constructor(
-    private val isoFormatter: ISOFormatter,
     private val getMessageAsset: GetMessageAssetUseCase,
     private val messageResourceProvider: MessageResourceProvider
 ) {
@@ -41,8 +38,8 @@ class MessageContentMapper @Inject constructor(
                     is Message.Regular -> mapRegularMessage(message)
                     is Message.System -> mapSystemMessage(message, members)
                 }
-            Message.Visibility.DELETED -> UIMessageContent.DeletedMessage
-            Message.Visibility.HIDDEN -> null // we don't want to show hidden messages in any way
+            Message.Visibility.DELETED, // for deleted, there is a state label displayed only
+            Message.Visibility.HIDDEN -> null // we don't want to show hidden nor deleted message content in any way
         }
     }
 
@@ -57,7 +54,7 @@ class MessageContentMapper @Inject constructor(
         content: MessageContent.MemberChange,
         senderUserId: UserId,
         members: List<MemberDetails>
-    ) : UIMessageContent.SystemMessage? {
+    ): UIMessageContent.SystemMessage? {
         val sender = members.findUser(userId = senderUserId)
         val isAuthorSelfAction = content.members.size == 1 && senderUserId == content.members.first().id
         val authorName = toSystemMessageMemberName(
@@ -103,12 +100,11 @@ class MessageContentMapper @Inject constructor(
             assetContent = content.value
         )
         is MessageContent.RestrictedAsset -> toRestrictedAsset(content.mimeType)
-        else -> toText(content, message.editStatus)
+        else -> toText(content)
     }
 
     fun toText(
-        content: MessageContent,
-        editStatus: Message.EditStatus
+        content: MessageContent
     ) = MessageBody(
         when (content) {
             is MessageContent.Text -> UIText.DynamicString(content.value)
@@ -117,19 +113,7 @@ class MessageContentMapper @Inject constructor(
             )
             else -> UIText.StringResource(messageResourceProvider.sentAMessageWithContent, "Unknown")
         }
-    ).let { messageBody ->
-        when (editStatus) {
-            is Message.EditStatus.Edited -> {
-                UIMessageContent.EditedMessage(
-                    messageBody = messageBody,
-                    editTimeStamp = isoFormatter.fromISO8601ToTimeFormat(utcISO = editStatus.lastTimeStamp)
-                )
-            }
-            Message.EditStatus.NotEdited -> {
-                UIMessageContent.TextMessage(messageBody = messageBody)
-            }
-        }
-    }
+    ).let { messageBody -> UIMessageContent.TextMessage(messageBody = messageBody) }
 
     suspend fun toAsset(
         conversationId: QualifiedID,
@@ -142,16 +126,19 @@ class MessageContentMapper @Inject constructor(
         }
         if (remoteData.assetId.isNotEmpty()) {
             when {
-                // If it's an image, we download it right away
-                isImage(mimeType) -> UIMessageContent.ImageMessage(
-                    assetId = AssetId(remoteData.assetId, remoteData.assetDomain.orEmpty()),
-                    rawImgData = getRawAssetData(
+                // If it's an image and has valid width and height, we download it right away
+                isImage(mimeType) && imgWidth > 0 && imgHeight > 0 -> {
+                    val rawData = getRawAssetData(
                         conversationId = conversationId,
                         messageId = messageId
-                    ),
-                    width = imgWidth,
-                    height = imgHeight
-                )
+                    )
+                    UIMessageContent.ImageMessage(
+                        assetId = AssetId(remoteData.assetId, remoteData.assetDomain.orEmpty()),
+                        rawImgData = rawData,
+                        width = imgWidth,
+                        height = imgHeight
+                    )
+                }
 
                 // It's a generic Asset Message so let's not download it yet
                 else -> {

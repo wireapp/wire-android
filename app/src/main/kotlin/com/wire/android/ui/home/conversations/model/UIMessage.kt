@@ -29,12 +29,14 @@ data class MessageHeader(
     val messageId: String
 )
 
-enum class MessageStatus(val stringResourceId: Int) {
-    Untouched(-1),
-    Deleted(R.string.label_message_status_deleted),
-    Edited(R.string.label_message_status_edited),
-    SendFailure(R.string.label_message_sent_failure),
-    ReceiveFailure(R.string.label_message_receive_failure)
+
+sealed class MessageStatus(val text: UIText) {
+    object Untouched : MessageStatus(UIText.DynamicString(""))
+    object Deleted : MessageStatus(UIText.StringResource(R.string.deleted_message_text))
+    data class Edited(val formattedEditTimeStamp: String) :
+        MessageStatus(UIText.StringResource(R.string.label_message_status_edited_with_date, formattedEditTimeStamp))
+    object SendFailure : MessageStatus(UIText.StringResource(R.string.label_message_sent_failure))
+    object ReceiveFailure : MessageStatus(UIText.StringResource(R.string.label_message_receive_failure))
 }
 
 sealed class MessageContent {
@@ -42,8 +44,6 @@ sealed class MessageContent {
     sealed class ClientMessage : MessageContent()
 
     data class TextMessage(val messageBody: MessageBody) : ClientMessage()
-    object DeletedMessage : ClientMessage()
-    data class EditedMessage(val messageBody: MessageBody, val editTimeStamp: String) : MessageContent()
 
     data class RestrictedAsset(val mimeType: String) : ClientMessage()
     data class AssetMessage(

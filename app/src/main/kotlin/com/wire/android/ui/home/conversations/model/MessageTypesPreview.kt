@@ -18,7 +18,9 @@ fun PreviewMessage() {
 @Preview(showBackground = true)
 @Composable
 fun PreviewDeletedMessage() {
-    DeletedMessage()
+    MessageItem(mockMessageWithText.let {
+        it.copy(messageHeader = it.messageHeader.copy(messageStatus = MessageStatus.Edited("")))
+    }, {}, {}, { _, _ -> })
 }
 
 @Preview(showBackground = true)

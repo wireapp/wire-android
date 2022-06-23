@@ -47,6 +47,7 @@ class NewConversationViewModelTest {
                     )
                 )
             )
+
             assertEquals(
                 viewModel.state.publicContactsSearchResult.searchResultState, SearchResultState.Success(
                     result = listOf(

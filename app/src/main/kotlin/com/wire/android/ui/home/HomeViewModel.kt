@@ -14,8 +14,8 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
-import com.wire.kalium.logic.feature.featureConfig.GetFileSharingStatusResult
-import com.wire.kalium.logic.feature.featureConfig.GetRemoteFileSharingStatusAndPersistUseCase
+import com.wire.kalium.logic.feature.featureConfig.GetFeatureConfigStatusResult
+import com.wire.kalium.logic.feature.featureConfig.GetRemoteFeatureConfigStatusAndPersistUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -30,7 +30,7 @@ class HomeViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val getSelf: GetSelfUserUseCase,
     private val needsToRegisterClient: NeedsToRegisterClientUseCase,
-    private val getRemoteFileSharingStatusAndPersist: GetRemoteFileSharingStatusAndPersistUseCase,
+    private val getRemoteFeatureConfigStatusAndPersist: GetRemoteFeatureConfigStatusAndPersistUseCase,
     private val isFileSharingEnabled: IsFileSharingEnabledUseCase
 ) : ViewModel() {
 
@@ -46,23 +46,23 @@ class HomeViewModel @Inject constructor(
             launch { loadUserAvatar() }
         }
         getAndSaveFileSharingConfig()
-        isFileSharingEnabled()
+        setFileSharingStatus()
     }
 
     private fun getAndSaveFileSharingConfig() {
         viewModelScope.launch {
-            getRemoteFileSharingStatusAndPersist().let {
+            getRemoteFeatureConfigStatusAndPersist().let {
                 when (it) {
-                    is GetFileSharingStatusResult.Failure.NoTeam -> {
+                    is GetFeatureConfigStatusResult.Failure.NoTeam -> {
                         appLogger.i("this user doesn't belong to a team")
                     }
-                    is GetFileSharingStatusResult.Failure.Generic -> {
+                    is GetFeatureConfigStatusResult.Failure.Generic -> {
                         appLogger.d("${it.failure}")
                     }
-                    is GetFileSharingStatusResult.Failure.OperationDenied -> {
+                    is GetFeatureConfigStatusResult.Failure.OperationDenied -> {
                         appLogger.d("operation denied due to insufficient permissions")
                     }
-                    is GetFileSharingStatusResult.Success -> {
+                    is GetFeatureConfigStatusResult.Success -> {
                         if (it.isStatusChanged) {
                             showFileSharingDialog = true
                         }
@@ -72,9 +72,9 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    private fun isFileSharingEnabled() {
+    private fun setFileSharingStatus() {
         viewModelScope.launch {
-            isFileSharingEnabledState = isFileSharingEnabled.invoke()
+            isFileSharingEnabledState = isFileSharingEnabled()
         }
     }
 

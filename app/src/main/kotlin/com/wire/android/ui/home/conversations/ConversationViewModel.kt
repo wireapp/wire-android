@@ -98,7 +98,7 @@ class ConversationViewModel @Inject constructor(
         listenConversationDetails()
         fetchSelfUserTeam()
         setMessagesAsNotified()
-        isFileSharingEnabled()
+        setFileSharingStatus()
     }
 
     // region ------------------------------ Init Methods -------------------------------------
@@ -260,9 +260,9 @@ class ConversationViewModel @Inject constructor(
         conversationViewState = conversationViewState.copy(downloadedAssetDialogState = Hidden)
     }
 
-    private fun isFileSharingEnabled() {
+    private fun setFileSharingStatus() {
         viewModelScope.launch {
-            conversationViewState = conversationViewState.copy(isFileSharingEnabled = isFileSharingEnabled.invoke())
+            conversationViewState = conversationViewState.copy(isFileSharingEnabled = isFileSharingEnabled())
         }
     }
 

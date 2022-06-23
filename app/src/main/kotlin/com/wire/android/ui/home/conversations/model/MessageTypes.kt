@@ -146,7 +146,7 @@ fun RestrictedAssetMessage(assetTypeIcon: Int, restrictedAssetMessage: String) {
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(
-                modifier = Modifier.padding(bottom = 4.dp),
+                modifier = Modifier.padding(bottom = dimensions().spacing4x),
                 painter = painterResource(
                     id = assetTypeIcon
                 ),

@@ -38,7 +38,7 @@ class KaliumConfigsModule {
             customUrlScheme = BuildConfig.CUSTOM_URL_SCHEME,
             httpProxyPort = BuildConfig.HTTP_PROXY_PORT,
             httpProxyUrl = BuildConfig.HTTP_PROXY_URL,
-            supportEmail = BuildConfig.SUPPORT_EMAIL,
+            supportEmail  = BuildConfig.SUPPORT_EMAIL,
             teamsUrl = BuildConfig.TEAMS_URL,
             backendUrl = BuildConfig.BACKEND_URL,
             accountUrl = BuildConfig.ACCOUNT_URL,
@@ -46,7 +46,8 @@ class KaliumConfigsModule {
             newPasswordMaximumLength = BuildConfig.NEW_PASSWORD_MAXIMUM_LENGTH,
             newPasswordMinimumLength = BuildConfig.NEW_PASSWORD_MINIMUM_LENGTH,
             passwordMaxAttempts = BuildConfig.PASSWORD_MAX_ATTEMPTS,
-            appLockTimeout = BuildConfig.APP_LOCK_TIMEOUT
+            appLockTimeout = BuildConfig.APP_LOCK_TIMEOUT,
+            shouldEncryptData = !BuildConfig.DEBUG
         )
     }
 

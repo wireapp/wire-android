@@ -22,7 +22,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandMore
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -48,7 +47,6 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.conversation.ConversationOptions
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 internal fun WireDropDown(
     items: List<String>, defaultItemIndex: Int = -1, label: String, modifier: Modifier, onChange: (selectedIndex: Int) -> Unit

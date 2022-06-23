@@ -41,16 +41,12 @@ fun ParticipantTile(
     isMuted: Boolean,
     isCameraOn: Boolean,
     isActiveSpeaker: Boolean = false,
-    onVideoPreviewCreated: (view: View) -> Unit,
-    onClearVideoPreview: () -> Unit
+    onSelfUserVideoPreviewCreated: (view: View) -> Unit,
+    onClearSelfUserVideoPreview: () -> Unit
 ) {
 
     Surface(
-        modifier = modifier.padding(
-            start = MaterialTheme.wireDimensions.spacing6x,
-            end = MaterialTheme.wireDimensions.spacing6x,
-            top = MaterialTheme.wireDimensions.spacing6x
-        ),
+        modifier = modifier.padding(top = 0.dp),
         color = MaterialTheme.wireColorScheme.ongoingCallBackground,
         shape = RoundedCornerShape(MaterialTheme.wireDimensions.corner8x)
     ) {
@@ -66,11 +62,11 @@ fun ParticipantTile(
                 // The issue is marked as fixed in the issue tracker,
                 // but we are still getting it with our current compose version 1.2.0-beta01
                 AndroidView(factory = {
-                    onVideoPreviewCreated(view)
+                    onSelfUserVideoPreviewCreated(view)
                     view
                 })
             } else {
-                onClearVideoPreview()
+                onClearSelfUserVideoPreview()
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
@@ -103,9 +99,7 @@ fun ParticipantTile(
                 ) {
                     Icon(
                         modifier = Modifier
-                            .padding(
-                                MaterialTheme.wireDimensions.spacing6x
-                            ),
+                            .padding(MaterialTheme.wireDimensions.spacing4x),
                         imageVector = ImageVector.vectorResource(id = R.drawable.ic_participant_muted),
                         tint = MaterialTheme.wireColorScheme.muteButtonColor,
                         contentDescription = stringResource(R.string.calling_content_description_participant_muted)

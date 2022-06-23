@@ -35,6 +35,7 @@ import com.wire.kalium.logic.data.conversation.UserType
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.call.AnswerCallUseCase
 import com.wire.kalium.logic.feature.connection.ObserveConnectionListUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
@@ -57,6 +58,7 @@ class ConversationListViewModel @Inject constructor(
     private val updateConversationMutedStatus: UpdateConversationMutedStatusUseCase,
     private val markMessagesAsNotified: MarkMessagesAsNotifiedUseCase,
     private val observeConnectionList: ObserveConnectionListUseCase,
+    private val answerCall: AnswerCallUseCase,
     private val dispatchers: DispatcherProvider
 ) : ViewModel() {
 
@@ -159,6 +161,17 @@ class ConversationListViewModel @Inject constructor(
                     ConversationUpdateStatusResult.Success -> appLogger.d("MutedStatus changed for conversation: $conversationId")
                 }
             }
+        }
+    }
+
+    fun joinOngoingCall(conversationId: ConversationId) {
+        viewModelScope.launch {
+            answerCall(conversationId = conversationId)
+            navigationManager.navigate(
+                command = NavigationCommand(
+                    destination = NavigationItem.OngoingCall.getRouteWithArgs(listOf(conversationId))
+                )
+            )
         }
     }
 

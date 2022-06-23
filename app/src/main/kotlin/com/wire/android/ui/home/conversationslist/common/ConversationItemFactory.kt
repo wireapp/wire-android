@@ -25,6 +25,7 @@ fun ConversationItemFactory(
     openMenu: (ConversationItem) -> Unit,
     openUserProfile: (UserId) -> Unit,
     openNotificationsOptions: (ConversationItem) -> Unit,
+    joinCall: (ConversationId) -> Unit,
 ) {
     GeneralConversationItem(
         conversation = conversation,
@@ -54,6 +55,9 @@ fun ConversationItemFactory(
         onMutedIconClick = {
             openNotificationsOptions(conversation)
         },
+        onJoinCallClick = {
+            joinCall(conversation.conversationId)
+        }
     )
 }
 
@@ -65,11 +69,11 @@ private fun GeneralConversationItem(
     onConversationItemClick: () -> Unit,
     onConversationItemLongClick: () -> Unit,
     onMutedIconClick: () -> Unit,
+    onJoinCallClick: () -> Unit
 ) {
     when (conversation) {
         is ConversationItem.GroupConversation -> {
             with(conversation) {
-                // val isGoingCall = if (conversation.hasOnGoingCall) " -> JOIN" else ""
                 RowItemTemplate(
                     leadingIcon = { GroupConversationAvatar(colorsScheme().conversationColor(id = conversationId)) },
                     title = { ConversationTitle(name = groupName, isLegalHold = conversation.isLegalHold) },
@@ -79,10 +83,8 @@ private fun GeneralConversationItem(
                     onRowItemLongClicked = onConversationItemLongClick,
                     trailingIcon = {
                         if (hasOnGoingCall)
-                            JoinButton {
-                                // do nothing for now
-                            }
-                        if (mutedStatus != MutedConversationStatus.AllAllowed) {
+                            JoinButton(buttonClick = onJoinCallClick)
+                        else if (mutedStatus != MutedConversationStatus.AllAllowed) {
                             MutedConversationBadge(onMutedIconClick)
                         }
                     },

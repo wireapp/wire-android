@@ -1,12 +1,8 @@
 package com.wire.android.framework
 
-import com.wire.android.ui.home.conversations.model.MessageBody
-import com.wire.android.ui.home.conversations.model.MessageContent.TextMessage
-import com.wire.android.ui.home.conversations.model.MessageHeader
-import com.wire.android.ui.home.conversations.model.MessageSource
-import com.wire.android.ui.home.conversations.model.MessageStatus
-import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.model.UserAvatarData
+import com.wire.android.ui.home.conversations.model.*
+import com.wire.android.ui.home.conversations.model.MessageContent.TextMessage
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.ClientId
@@ -30,7 +26,7 @@ object TestMessage {
         status = Message.Status.SENT,
         editStatus = Message.EditStatus.NotEdited
     )
-    val ASSET_REMOTE_DATA = AssetContent.RemoteData(
+    val DUMMY_ASSET_REMOTE_DATA = AssetContent.RemoteData(
         otrKey = ByteArray(0),
         sha256 = ByteArray(16),
         assetId = "asset-id",
@@ -39,7 +35,7 @@ object TestMessage {
         encryptionAlgorithm = MessageEncryptionAlgorithm.AES_GCM
     )
     val ASSET_IMAGE_CONTENT = AssetContent(
-        0L, "name", "image/jpg", null, ASSET_REMOTE_DATA, Message.DownloadStatus.NOT_DOWNLOADED
+        0L, "name", "image/jpg", AssetContent.AssetMetadata.Image(100, 100), DUMMY_ASSET_REMOTE_DATA, Message.DownloadStatus.NOT_DOWNLOADED
     )
     val MEMBER_REMOVED_MESSAGE = Message.System(
         id = "messageID",

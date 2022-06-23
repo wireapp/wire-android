@@ -38,6 +38,7 @@ import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.UploadUserAvatarUseCase
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
+import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -139,6 +140,11 @@ class UseCaseModule {
     @Provides
     fun getLoginSessionUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, authServerConfigProvider: AuthServerConfigProvider) =
         coreLogic.getAuthenticationScope(authServerConfigProvider.authServer.value).ssoLoginScope.getLoginSessionGet
+
+    @ViewModelScoped
+    @Provides
+    fun observeSyncStateProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): ObserveSyncStateUseCase =
+        coreLogic.getSessionScope(currentAccount).observeSyncState
 
     @ViewModelScoped
     @Provides

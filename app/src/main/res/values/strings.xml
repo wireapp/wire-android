@@ -29,6 +29,8 @@
     <string name="label_show_all">Show All</string>
     <string name="label_show_less">Show Less</string>
     <string name="label_message_status_edited_with_date">Edited on %s</string>
+    <string name="label_on">ON</string>
+    <string name="label_off">OFF</string>
 
     <!-- Content descriptions -->
     <string name="content_description_search_back">Search back icon</string>
@@ -209,6 +211,7 @@
     <string name="new_group_title">New Group</string>
     <string name="new_group_description">Up to 500 people can join a group conversation.</string>
     <string name="group_name">Group name</string>
+    <string name="protocol">Protocol</string>
     <string name="empty_group_name_error">Group name should not be empty</string>
     <string name="group_name_exceeded_limit_error">Group name should not exceed 64 characters</string>
     <string name="asset_message_tap_to_download_text">Tap to download</string>
@@ -226,6 +229,7 @@
     <string name="conversation_details_title">Conversation Details</string>
     <string name="conversation_details_options_tab">OPTIONS</string>
     <string name="conversation_details_participants_tab">PARTICIPANTS</string>
+    <string name="conversation_details_options_group_name">GROUP NAME</string>
 
     <!-- Attachment options -->
     <string name="attachment_share_file">Attach File</string>
@@ -394,13 +398,22 @@
     <!-- Gallery -->
     <string name="media_gallery_default_title_name">Media Gallery</string>
     <string name="media_gallery_on_image_downloaded">Saved to Downloads folder</string>
-    <string name="media_gallery_on_image_download_error">There was an error when saving the image to Downloads folder. Please check your Internet connection and try again</string>
+    <string name="media_gallery_on_image_download_error">There was an error when saving the image to
+        Downloads folder. Please check your Internet connection and try again
+    </string>
 
     <!--sso dialog-->
     <string name="sso_erro_dialog_title">Unable to log in with SSO</string>
-    <string name="sso_erro_dialog_message">Please try again. If this does not help, contact your admin and provide this code:\n%d"</string>
+    <string name="sso_erro_dialog_message">Please try again. If this does not help, contact your
+        admin and provide this code:\n%d"
+    </string>
     <string name="asset_download_dialog_default_title">Download file</string>
     <string name="empty_group_label">Unnamed conversation</string>
     <string name="label_show_more">Show More</string>
+
+    <!--wire dropdown-->
+    <string name="wire_dropdown_default_indicator">" (default)"</string>
+    <string name="wire_dropdown_placeholder">Select an Item</string>
+    <string name="change">Change</string>
 
 </resources>

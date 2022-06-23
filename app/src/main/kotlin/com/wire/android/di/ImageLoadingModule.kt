@@ -30,5 +30,4 @@ class ImageLoadingModule {
     // For better performance/caching. We shouldn't create many of these ImageLoaders.
     @Provides
     fun provideWireImageLoader(imageLoaderFactory: WireSessionImageLoader.Factory) = imageLoaderFactory.newImageLoader()
-
 }

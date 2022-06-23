@@ -19,6 +19,7 @@ import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
+import com.wire.kalium.logic.feature.call.AnswerCallUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -52,6 +53,9 @@ class ConversationListViewModelTest {
     @MockK
     lateinit var markMessagesAsNotified: MarkMessagesAsNotifiedUseCase
 
+    @MockK
+    lateinit var joinCall: AnswerCallUseCase
+
     @BeforeEach
     fun setUp() {
         MockKAnnotations.init(this, relaxUnitFun = true)
@@ -64,6 +68,7 @@ class ConversationListViewModelTest {
                 updateConversationMutedStatus,
                 markMessagesAsNotified,
                 observeConnectionList,
+                joinCall,
                 TestDispatcherProvider()
             )
 

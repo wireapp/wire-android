@@ -41,7 +41,7 @@ class OngoingCallViewModelTest {
         ongoingCallViewModel = OngoingCallViewModel(
             savedStateHandle = savedStateHandle,
             navigationManager = navigationManager,
-            ongoingCall = establishedCall
+            establishedCall = establishedCall
         )
     }
 

@@ -63,7 +63,6 @@ class InitiatingCallViewModel @Inject constructor(
         }
     }
 
-
     private suspend fun observeStartedCall() {
         allCalls().collect { calls ->
             calls.find { call -> call.conversationId == conversationId }.also {
@@ -103,5 +102,4 @@ class InitiatingCallViewModel @Inject constructor(
     }
 
     fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }
-
 }

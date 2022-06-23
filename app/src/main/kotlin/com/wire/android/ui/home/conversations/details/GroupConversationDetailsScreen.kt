@@ -6,7 +6,7 @@ import androidx.compose.foundation.gestures.LocalOverScrollConfiguration
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -36,30 +36,33 @@ import com.wire.android.ui.common.appBarElevation
 import com.wire.android.ui.common.calculateCurrentTab
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
-import com.wire.kalium.logic.data.id.QualifiedID
 import kotlinx.coroutines.launch
 
 @Composable
 fun GroupConversationDetailsScreen(viewModel: GroupConversationDetailsViewModel) {
     GroupConversationDetailsContent(
-        conversationId = viewModel.conversationId,
-        onBackPressed = viewModel::navigateBack
+        onBackPressed = viewModel::navigateBack,
+        groupOptionsState = viewModel.groupOptionsState
     )
 }
 
 @OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class, ExperimentalPagerApi::class, ExperimentalFoundationApi::class)
 @Composable
-private fun GroupConversationDetailsContent(conversationId: QualifiedID, onBackPressed: () -> Unit) {
+private fun GroupConversationDetailsContent(
+    onBackPressed: () -> Unit,
+    groupOptionsState: GroupConversationOptionsState
+) {
     val scope = rememberCoroutineScope()
-    val scrollState = rememberScrollState()
+    val lazyListState = rememberLazyListState()
     val initialPageIndex = GroupConversationDetailsTabItem.OPTIONS.ordinal
     val pagerState = rememberPagerState(initialPage = initialPageIndex)
     Scaffold(
         topBar = {
             WireCenterAlignedTopAppBar(
-                elevation = scrollState.appBarElevation(),
+                elevation = lazyListState.appBarElevation(),
                 title = stringResource(R.string.conversation_details_title),
                 navigationIconType = NavigationIconType.Close,
                 onNavigationPressed = onBackPressed,
@@ -94,9 +97,10 @@ private fun GroupConversationDetailsContent(conversationId: QualifiedID, onBackP
                     .padding(internalPadding)
             ) { pageIndex ->
                 when (GroupConversationDetailsTabItem.values()[pageIndex]) {
-                    // TODO: to be implemented
-                    GroupConversationDetailsTabItem.OPTIONS -> UnderConstructionScreen(screenName = "Conversation Options")
-                    GroupConversationDetailsTabItem.PARTICIPANTS -> UnderConstructionScreen(screenName = "Conversation Participants")
+                    GroupConversationDetailsTabItem.OPTIONS ->
+                        GroupConversationOptions(groupOptionsState = groupOptionsState, lazyListState = lazyListState)
+                    GroupConversationDetailsTabItem.PARTICIPANTS ->
+                        UnderConstructionScreen(screenName = "Conversation Participants") // TODO: to be implemented
                 }
             }
             if (!pagerState.isScrollInProgress && focusedTabIndex != pagerState.currentPage)
@@ -118,7 +122,12 @@ enum class GroupConversationDetailsTabItem(@StringRes override val titleResId: I
 @Composable
 private fun GroupConversationDetailsPreview() {
     WireTheme(isPreview = true) {
-        GroupConversationDetailsContent(QualifiedID("", ""), onBackPressed = { })
+        GroupConversationDetailsContent(
+            onBackPressed = { },
+            GroupConversationOptionsState(
+                groupName = "Group name"
+            )
+        )
     }
 }
 

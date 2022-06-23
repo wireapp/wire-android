@@ -34,13 +34,15 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.formatMediumDateTime
+import com.wire.kalium.logic.data.client.Client
+import com.wire.kalium.logic.data.client.ClientType
+import com.wire.kalium.logic.data.conversation.ClientId
 
 @Composable
 fun RemoveDeviceItem(device: Device, placeholder: Boolean, onRemoveDeviceClick: (Device) -> Unit) {
     RemoveDeviceItemContent(device = device, placeholder = placeholder, onRemoveDeviceClick = onRemoveDeviceClick)
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun RemoveDeviceItemContent(device: Device, placeholder: Boolean, onRemoveDeviceClick: (Device) -> Unit) {
     Row(verticalAlignment = Alignment.Top) {
@@ -72,7 +74,9 @@ private fun RemoveDeviceItemContent(device: Device, placeholder: Boolean, onRemo
             }
         if (!placeholder)
             WireSecondaryButton(
-                modifier = Modifier.padding(top = buttonTopPadding, end = buttonEndPadding).testTag("remove device button"),
+                modifier = Modifier
+                    .padding(top = buttonTopPadding, end = buttonEndPadding)
+                    .testTag("remove device button"),
                 onClick = { onRemoveDeviceClick(device) },
                 leadingIcon = {
                     Icon(
@@ -95,7 +99,9 @@ private fun RemoveDeviceItemTexts(device: Device, placeholder: Boolean) {
         style = MaterialTheme.wireTypography.body02,
         color = MaterialTheme.wireColorScheme.onBackground,
         text = device.name,
-        modifier = Modifier.fillMaxWidth().shimmerPlaceholder(visible = placeholder)
+        modifier = Modifier
+            .fillMaxWidth()
+            .shimmerPlaceholder(visible = placeholder)
     )
     Spacer(modifier = Modifier.height(MaterialTheme.wireDimensions.removeDeviceItemTitleVerticalPadding))
     val details = stringResource(
@@ -107,7 +113,9 @@ private fun RemoveDeviceItemTexts(device: Device, placeholder: Boolean) {
         style = MaterialTheme.wireTypography.subline01,
         color = MaterialTheme.wireColorScheme.labelText,
         text = details,
-        modifier = Modifier.fillMaxWidth().shimmerPlaceholder(visible = placeholder)
+        modifier = Modifier
+            .fillMaxWidth()
+            .shimmerPlaceholder(visible = placeholder)
     )
 }
 
@@ -115,6 +123,8 @@ private fun RemoveDeviceItemTexts(device: Device, placeholder: Boolean) {
 @Composable
 private fun RemoveDeviceItemPreview() {
     Box(modifier = Modifier.fillMaxWidth()) {
-        RemoveDeviceItem(Device(name = "device"), false) {}
+        RemoveDeviceItem(
+            device = Device(), placeholder = false
+        ) {}
     }
 }

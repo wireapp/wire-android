@@ -140,6 +140,7 @@ dependencies {
     implementation(Libraries.accompanistSystemUI)
     implementation(Libraries.accompanistPlaceholder)
     implementation(Libraries.accompanistNavAnimation)
+    implementation(Libraries.accompanistIndicator)
     implementation(Libraries.composeRuntimeLiveData)
 
     // Compose iterative code, layout inspector, etc.

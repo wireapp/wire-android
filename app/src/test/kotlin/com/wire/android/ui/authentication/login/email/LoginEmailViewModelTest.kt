@@ -9,6 +9,7 @@ import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationItemDestinationsRoutes
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.login.LoginError
@@ -155,17 +156,21 @@ class LoginEmailViewModelTest {
         coEvery { addAuthenticatedUserUseCase(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
         coEvery { navigationManager.navigate(any()) } returns Unit
         coEvery { registerClientUseCase(any()) } returns RegisterClientResult.Success(CLIENT)
-        coEvery { registerTokenUseCase(any(), any()) } returns RegisterTokenResult.Success
+        coEvery { registerTokenUseCase(any(), CLIENT.id) } returns RegisterTokenResult.Success
 
         loginViewModel.onPasswordChange(TextFieldValue(password))
 
         runTest { loginViewModel.login() }
-
+        coVerify(exactly = 1) { loginUseCase(any(), any(), any()) }
+        coVerify(exactly = 1) { registerClientUseCase(any()) }
+        coVerify(exactly = 1) { registerTokenUseCase(any(), CLIENT.id) }
         coVerify(exactly = 1) {
-            registerClientUseCase(any())
-        }
-        coVerify(exactly = 1) {
-            navigationManager.navigate(NavigationCommand(NavigationItemDestinationsRoutes.HOME, BackStackMode.CLEAR_WHOLE))
+            navigationManager.navigate(
+                NavigationCommand(
+                    NavigationItemDestinationsRoutes.HOME,
+                    BackStackMode.CLEAR_WHOLE
+                )
+            )
         }
     }
 

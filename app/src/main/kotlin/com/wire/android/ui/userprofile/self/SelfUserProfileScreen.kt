@@ -156,7 +156,8 @@ private fun SelfUserProfileContent(
                         )
                     }
                 }
-                NewTeamButton(onAddAccountClick)
+                // TODO: Re-enable this when we support multiple accounts
+//                NewTeamButton(onAddAccountClick)
             }
             ChangeStatusDialogContent(
                 data = statusDialogData,

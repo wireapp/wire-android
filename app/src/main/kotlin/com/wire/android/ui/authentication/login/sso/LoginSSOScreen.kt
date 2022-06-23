@@ -149,6 +149,7 @@ private fun LoginSSOContent(
                     )
                 }
             }
+            LoginError.DialogError.PasswordNeededToRegisterClient -> TODO()
         }
         WireDialog(
             title = title,

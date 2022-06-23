@@ -7,6 +7,7 @@ sealed class ConversationSnackbarMessages {
     object ErrorSendingImage : ConversationSnackbarMessages()
     object ErrorDownloadingAsset : ConversationSnackbarMessages()
     object ErrorOpeningAssetFile : ConversationSnackbarMessages()
+    object ErrorDeletingMessage: ConversationSnackbarMessages()
     class ErrorMaxAssetSize(val maxLimitInMB: Int) : ConversationSnackbarMessages()
     class OnFileDownloaded(val assetName: String?) : ConversationSnackbarMessages()
 }

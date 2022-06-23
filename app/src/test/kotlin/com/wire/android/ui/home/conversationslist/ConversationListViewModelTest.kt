@@ -108,6 +108,26 @@ class ConversationListViewModelTest {
             }
         }
 
+    @Test
+    fun `given a conversation id, when joining an ongoing call, then verify that answer call usecase is called`() = runTest {
+        coEvery { joinCall(any()) } returns Unit
+
+        conversationListViewModel.joinOngoingCall(conversationId = conversationId)
+
+        coVerify(exactly = 1) { joinCall(conversationId = conversationId) }
+        coVerify(exactly = 1) {
+            navigationManager.navigate(
+                NavigationCommand(
+                    NavigationItem.OngoingCall.getRouteWithArgs(
+                        listOf(
+                            conversationId
+                        )
+                    )
+                )
+            )
+        }
+    }
+
     companion object {
         private val conversationId = ConversationId("some_id", "some_domain")
 

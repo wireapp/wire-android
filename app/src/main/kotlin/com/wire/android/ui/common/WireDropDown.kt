@@ -131,12 +131,19 @@ private fun TextBoxShape(isExpanded: Boolean) = if (isExpanded) RoundedCornerSha
 )
 
 @Composable
-private fun DropdownItem(text: String, isSelected: Boolean, onClick: () -> Unit) = DropdownMenuItem(onClick) {
+private fun DropdownItem(text: String, isSelected: Boolean, onClick: () -> Unit) = DropdownMenuItem(
+    onClick, Modifier.background(
+        color = if (isSelected) MaterialTheme.wireColorScheme.secondaryButtonSelected
+        else MaterialTheme.wireColorScheme.tertiaryButtonEnabled
+    )
+) {
     Text(
         text,
         modifier = Modifier.weight(1f).fillMaxWidth(),
-        style = MaterialTheme.wireTypography.body01,
-        color = MaterialTheme.wireColorScheme.onSecondaryButtonEnabled
+        style = if (isSelected) MaterialTheme.wireTypography.body02
+        else MaterialTheme.wireTypography.body01,
+        color = if (isSelected) MaterialTheme.wireColorScheme.onSecondaryButtonSelected
+        else MaterialTheme.wireColorScheme.onSecondaryButtonEnabled
     )
     if (isSelected) {
         CheckIcon()

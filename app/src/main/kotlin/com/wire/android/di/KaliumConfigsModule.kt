@@ -38,7 +38,7 @@ class KaliumConfigsModule {
             customUrlScheme = BuildConfig.CUSTOM_URL_SCHEME,
             httpProxyPort = BuildConfig.HTTP_PROXY_PORT,
             httpProxyUrl = BuildConfig.HTTP_PROXY_URL,
-            supportEmail  = BuildConfig.SUPPORT_EMAIL,
+            supportEmail = BuildConfig.SUPPORT_EMAIL,
             teamsUrl = BuildConfig.TEAMS_URL,
             backendUrl = BuildConfig.BACKEND_URL,
             accountUrl = BuildConfig.ACCOUNT_URL,

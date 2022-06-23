@@ -412,7 +412,7 @@
     <string name="label_show_more">Show More</string>
 
     <!--wire dropdown-->
-    <string name="wire_dropdown_default_indicator">(default)</string>
+    <string name="wire_dropdown_default_indicator">" (default)"</string>
     <string name="wire_dropdown_placeholder">Select an Item</string>
     <string name="change">Change</string>
 

@@ -82,13 +82,8 @@ class NewConversationViewModelTest {
             advanceTimeBy(501) // 500ms debounce
 
             // Then
-            assertEquals(
-                viewModel.state.localContactSearchResult.searchResultState, SearchResultState.Failure(2131755295)
-            )
-            assertEquals(
-                viewModel.state.publicContactsSearchResult.searchResultState, SearchResultState.Failure(2131755295)
-
-            )
+            assertEquals(viewModel.state.localContactSearchResult.searchResultState is SearchResultState.Failure, true)
+            assertEquals(viewModel.state.publicContactsSearchResult.searchResultState is SearchResultState.Failure, true)
         }
     }
 }

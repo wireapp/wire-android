@@ -51,7 +51,6 @@ import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.functional.onFailure
 import com.wire.kalium.logic.util.toStringDate
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okio.Path
@@ -272,13 +271,11 @@ class ConversationViewModel @Inject constructor(
     }
 
     fun onSnackbarMessage(msgCode: ConversationSnackbarMessages) {
-        viewModelScope.launch {
-            // We need to reset the onSnackbarMessage state so that it doesn't show up again when going -> background -> resume back
-            // The delay added, is to ensure the snackbar message will have enough time to be shown before it is reset to null
-            conversationViewState = conversationViewState.copy(onSnackbarMessage = msgCode)
-            delay(SNACKBAR_MESSAGE_DELAY)
-            conversationViewState = conversationViewState.copy(onSnackbarMessage = null)
-        }
+        conversationViewState = conversationViewState.copy(onSnackbarMessage = msgCode)
+    }
+
+    fun clearSnackbarMessage() {
+        conversationViewState = conversationViewState.copy(onSnackbarMessage = null)
     }
 
     fun showDeleteMessageDialog(messageId: String, isMyMessage: Boolean) =

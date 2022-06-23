@@ -10,11 +10,12 @@ import javax.inject.Singleton
 @Singleton
 class FileManager @Inject constructor(@ApplicationContext private val context: Context) {
     suspend fun saveToExternalStorage(
+        assetName: String,
         assetDataPath: Path,
         assetDataSize: Long,
         onFileSaved: suspend () -> Unit
     ) {
-        saveFileToDownloadsFolder(assetDataPath, assetDataSize, context)
+        saveFileToDownloadsFolder(assetName, assetDataPath, assetDataSize, context)
         onFileSaved()
     }
 

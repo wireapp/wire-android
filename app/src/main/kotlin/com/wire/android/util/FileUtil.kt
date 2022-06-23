@@ -59,24 +59,24 @@ private fun getTempWritableAttachmentUri(context: Context, fileName: String): Ur
     return FileProvider.getUriForFile(context, context.getProviderAuthority(), file)
 }
 
-private fun Context.saveFileDataToDownloadsFolder(downloadedDataPath: Path, fileSize: Long): Uri? {
+private fun Context.saveFileDataToDownloadsFolder(assetName: String, downloadedDataPath: Path, fileSize: Long): Uri? {
     val resolver = contentResolver
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
         val contentValues = ContentValues().apply {
-            put(MediaStore.MediaColumns.DISPLAY_NAME, downloadedDataPath.name)
-            put(MediaStore.MediaColumns.MIME_TYPE, Uri.parse(downloadedDataPath.name).getMimeType(this@saveFileDataToDownloadsFolder))
+            put(MediaStore.MediaColumns.DISPLAY_NAME, assetName)
+            put(MediaStore.MediaColumns.MIME_TYPE, Uri.parse(downloadedDataPath.toString()).getMimeType(this@saveFileDataToDownloadsFolder))
             put(MediaStore.MediaColumns.SIZE, fileSize)
         }
         resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
     } else {
         val authority = getProviderAuthority()
-        val destinationFile = File(getExternalFilesDir(DIRECTORY_DOWNLOADS), downloadedDataPath.name)
+        val destinationFile = File(getExternalFilesDir(DIRECTORY_DOWNLOADS), assetName)
         FileProvider.getUriForFile(this, authority, destinationFile)
     }?.also { downloadedUri ->
         resolver.openOutputStream(downloadedUri).use { outputStream ->
             val brr = ByteArray(DATA_COPY_BUFFER_SIZE)
             var len: Int
-            val bufferedInputStream: InputStream = File(downloadedDataPath.name).inputStream()
+            val bufferedInputStream: InputStream = File(downloadedDataPath.toString()).inputStream()
             while ((bufferedInputStream.read(brr, 0, brr.size).also { len = it }) != -1) {
                 outputStream?.write(brr, 0, len)
             }
@@ -175,20 +175,23 @@ fun Context.startFileShareIntent(path: String) {
     startActivity(shareIntent)
 }
 
-fun saveFileToDownloadsFolder(assetDataPath: Path, assetDataSize: Long, context: Context) {
-    context.saveFileDataToDownloadsFolder(assetDataPath, assetDataSize)
+fun saveFileToDownloadsFolder(assetName: String, assetDataPath: Path, assetDataSize: Long, context: Context) {
+    context.saveFileDataToDownloadsFolder(assetName, assetDataPath, assetDataSize)
 }
 
 fun openAssetFileWithExternalApp(assetDataPath: Path, context: Context, onError: () -> Unit) {
-    val assetUri = context.pathToUri(assetDataPath)
-
-    // Set intent and launch
-    val intent = Intent()
-    intent.setActionViewIntentFlags()
-    intent.setDataAndType(assetUri, assetUri.getMimeType(context))
-
     try {
+        val assetUri = context.pathToUri(assetDataPath)
+
+        // Set intent and launch
+        val intent = Intent()
+        intent.setActionViewIntentFlags()
+        intent.setDataAndType(assetUri, assetUri.getMimeType(context))
+
         context.startActivity(intent)
+    } catch (e: java.lang.IllegalArgumentException) {
+        appLogger.e("The file couldn't be found on the internal storage \n$e")
+        onError()
     } catch (noActivityFoundException: ActivityNotFoundException) {
         appLogger.e("Couldn't find a proper app to process the asset")
         onError()

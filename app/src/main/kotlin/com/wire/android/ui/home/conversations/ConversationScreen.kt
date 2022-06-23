@@ -71,6 +71,7 @@ fun ConversationScreen(conversationViewModel: ConversationViewModel) {
         onDeleteMessage = conversationViewModel::showDeleteMessageDialog,
         onCallStart = audioPermissionCheck::launch,
         onSnackbarMessage = conversationViewModel::onSnackbarMessage,
+        onSnackbarMessageShown = conversationViewModel::clearSnackbarMessage,
         onDropDownClick = conversationViewModel::navigateToDetails
     )
     DeleteMessageDialog(conversationViewModel = conversationViewModel)
@@ -104,6 +105,7 @@ private fun ConversationScreen(
     onDeleteMessage: (String, Boolean) -> Unit,
     onCallStart: () -> Unit,
     onSnackbarMessage: (ConversationSnackbarMessages) -> Unit,
+    onSnackbarMessageShown: () -> Unit,
     onDropDownClick: () -> Unit
 ) {
     val conversationScreenState = rememberConversationScreenState()
@@ -164,6 +166,7 @@ private fun ConversationScreen(
                                 onImageFullScreenMode = onImageFullScreenMode,
                                 conversationState = conversationViewState,
                                 onMessageComposerError = onSnackbarMessage,
+                                onSnackbarMessageShown = onSnackbarMessageShown,
                                 conversationScreenState = conversationScreenState
                             )
                         }
@@ -187,6 +190,7 @@ private fun ConversationScreenContent(
     onImageFullScreenMode: (String, Boolean) -> Unit,
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
     conversationState: ConversationViewState,
+    onSnackbarMessageShown: () -> Unit,
     conversationScreenState: ConversationScreenState
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -200,7 +204,9 @@ private fun ConversationScreenContent(
                 // Show downloads folder when clicking on Snackbar cta button
                 messageCode is OnFileDownloaded && snackbarResult == SnackbarResult.ActionPerformed -> {
                     context.startActivity(Intent(DownloadManager.ACTION_VIEW_DOWNLOADS))
+                    onSnackbarMessageShown()
                 }
+                snackbarResult == SnackbarResult.Dismissed -> onSnackbarMessageShown()
             }
         }
     }
@@ -295,6 +301,6 @@ fun ConversationScreenPreview() {
             conversationName = "Some test conversation",
             messages = getMockedMessages(),
         ),
-        {}, {}, {}, {}, { _, _ -> }, {}, { _, _ -> }, {}, {}, {}
+        {}, {}, {}, {}, { _, _ -> }, {}, { _, _ -> }, {}, {}, {}, {}
     )
 }

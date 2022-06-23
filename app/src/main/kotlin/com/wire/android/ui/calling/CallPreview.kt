@@ -19,12 +19,14 @@ import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.kalium.logic.data.call.ConversationType
 
 @Composable
 fun CallPreview(
     conversationName: ConversationName?,
     isCameraOn: Boolean,
     avatarAssetId: ImageAsset.UserAvatarAsset?,
+    conversationType: ConversationType,
     onVideoPreviewCreated: (view: View) -> Unit
 ) {
     Box {
@@ -58,7 +60,7 @@ fun CallPreview(
                 style = MaterialTheme.wireTypography.body01,
                 modifier = Modifier.padding(top = dimensions().spacing8x)
             )
-            if (!isCameraOn) {
+            if (!isCameraOn && conversationType == ConversationType.OneOnOne) {
                 UserProfileAvatar(
                     avatarData = UserAvatarData(avatarAssetId),
                     size = dimensions().initiatingCallUserAvatarSize,

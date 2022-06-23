@@ -29,6 +29,8 @@
     <string name="label_show_all">Show All</string>
     <string name="label_show_less">Show Less</string>
     <string name="label_message_status_edited_with_date">Edited on %s</string>
+    <string name="label_on">ON</string>
+    <string name="label_off">OFF</string>
 
     <!-- Content descriptions -->
     <string name="content_description_search_back">Search back icon</string>
@@ -76,6 +78,7 @@
     <string name="archive_screen_title">Archive</string>
     <string name="user_profile_screen_title">User Profile</string>
     <string name="settings_screen_title">Settings</string>
+    <string name="debug_screen_title">Debug</string>
     <string name="support_screen_title">Support</string>
     <string name="search_bar_hint">Search %s</string>
     <string name="search_no_results">No matches found</string>
@@ -222,6 +225,11 @@
     <string name="member_name_you_label_titlecase">You</string>
     <string name="member_name_you_label_lowercase">you</string>
 
+    <string name="conversation_details_title">Conversation Details</string>
+    <string name="conversation_details_options_tab">OPTIONS</string>
+    <string name="conversation_details_participants_tab">PARTICIPANTS</string>
+    <string name="conversation_details_options_group_name">GROUP NAME</string>
+
     <!-- Attachment options -->
     <string name="attachment_share_file">Attach File</string>
     <string name="attachment_share_image">Attach Image</string>
@@ -297,7 +305,6 @@
     <string name="label_new_guestroom">New Guestroom</string>
     <string name="label_new_conversation">New Conversation</string>
     <string name="label_search_people">Search people</string>
-    <string name="label_federated_backends">FEDERATED BACKENDS</string>
     <string name="label_public_wire">PUBLIC WIRE</string>
     <string name="label_search_people_instruction">Search for users with their display name or their @username</string>
     <string name="label_learn_more_searching_user">Learn more</string>
@@ -318,6 +325,7 @@
     <string name="error_conversation_sending_asset">There was an error trying to send that file. Please check your Internet connection and try again</string>
     <string name="error_conversation_downloading_asset">There was an error trying to download that file. Please try again</string>
     <string name="error_conversation_opening_asset_file">No app was found to open the selected file</string>
+    <string name="error_conversation_deleting_message">There was an error deleting the message. Please verify your connection and try again</string>
     <string name="error_conversation_max_image_size_limit">The image you chose is too large. Please choose an image smaller than 15MB</string>
     <string name="error_conversation_max_asset_size_limit">The file you chose is too large. Please choose a file smaller than %sMB</string>
     <string name="error_conversation_generic">There was an unknown error when trying to send the message</string>
@@ -341,6 +349,12 @@
     <string name="content_description_copy">Copy</string>
     <string name="content_description_show_more_options">Show more options</string>
     <string name="label_type_a_message">Type a message</string>
+    <string name="notification_action_open_call">Open Call</string>
+    <string name="notification_action_decline_call">Decline</string>
+    <string name="notification_call_content">Calling...</string>
+    <string name="notification_group_call_content">%s calling...</string>
+    <string name="notification_call_default_caller_name">Someone</string>
+    <string name="notification_call_default_group_name">Somewhere</string>
 
     <!-- Calling-->
     <string name="calling_mute_call">Mute call</string>
@@ -390,5 +404,6 @@
     <string name="sso_erro_dialog_message">Please try again. If this does not help, contact your admin and provide this code:\n%d"</string>
     <string name="asset_download_dialog_default_title">Download file</string>
     <string name="empty_group_label">Unnamed conversation</string>
+    <string name="label_show_more">Show More</string>
 
 </resources>

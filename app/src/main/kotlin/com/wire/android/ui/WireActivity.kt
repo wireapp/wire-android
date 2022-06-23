@@ -23,6 +23,7 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.navigateToItem
 import com.wire.android.navigation.popWithArguments
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.util.ui.updateScreenSettings
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.launchIn
@@ -47,6 +48,7 @@ class WireActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
+        lifecycle.addObserver(viewModel)
         viewModel.handleDeepLink(intent)
         setComposableContent()
     }
@@ -90,9 +92,14 @@ class WireActivity : AppCompatActivity() {
 
             navigationManager.navigateBack
                 .onEach {
-                    keyboardController?.hide()
-                    navController.popWithArguments(it)
-                }.launchIn(scope)
+                    if (!navController.popWithArguments(it)) finish()
+                }
+                .launchIn(scope)
+
+            navController.addOnDestinationChangedListener { controller, _, _ ->
+                keyboardController?.hide()
+                updateScreenSettings(controller)
+            }
         }
     }
 }

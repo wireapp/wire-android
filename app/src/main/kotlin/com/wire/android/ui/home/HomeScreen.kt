@@ -26,6 +26,7 @@ import com.wire.android.navigation.HomeNavigationItem
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topappbar.search.AppTopBarWithSearchBar
+import com.wire.android.ui.home.sync.SyncStateViewModel
 
 @OptIn(
     ExperimentalAnimationApi::class,
@@ -33,7 +34,7 @@ import com.wire.android.ui.common.topappbar.search.AppTopBarWithSearchBar
     ExperimentalMaterial3Api::class
 )
 @Composable
-fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
+fun HomeScreen(startScreen: String?, viewModel: HomeViewModel, syncViewModel: SyncStateViewModel) {
     viewModel.checkRequirements()
     val homeState = rememberHomeState()
 
@@ -72,6 +73,7 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
                         avatarAsset = viewModel.userAvatar.avatarAsset,
                         status = viewModel.userAvatar.status,
                         currentNavigationItem = homeState.currentNavigationItem,
+                        syncState = syncViewModel.syncState,
                         onOpenDrawerClicked = ::openDrawer,
                         onNavigateToUserProfile = viewModel::navigateToUserProfile,
                     )
@@ -110,7 +112,8 @@ fun HomeContent(
             // changes from null to "something"
             sheetContent = homeBottomSheetContent ?: { }
         ) {
-            if (isSearchable) {
+            // TODO(): Enable top search bar
+            if (false) {
                 Scaffold(
                     snackbarHost = {
                         SwipeDismissSnackbarHost(

@@ -37,8 +37,9 @@ class OngoingCallViewModel @Inject constructor(
     private suspend fun observeCurrentCall() {
         ongoingCall().collect { calls ->
             calls.find { call -> call.conversationId == conversationId }.also {
-                if (it == null)
+                if (it == null) {
                     navigateBack()
+                }
             }
         }
     }

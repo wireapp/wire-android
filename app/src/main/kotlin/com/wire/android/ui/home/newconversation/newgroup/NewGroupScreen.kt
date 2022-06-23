@@ -94,8 +94,8 @@ fun NewGroupScreenContent(
                         }
                 )
                 Box(modifier = Modifier.constrainAs(textField) {
-                    top.linkTo(parent.top)
-                    bottom.linkTo(protocol.bottom)
+                    top.linkTo(text.bottom)
+                    bottom.linkTo(protocol.top)
                 }) {
                     ShakeAnimation { animate ->
                         if (animatedGroupNameError) {
@@ -129,7 +129,7 @@ fun NewGroupScreenContent(
                     modifier = Modifier.constrainAs(protocol) {
                         top.linkTo(textField.bottom)
                     }.padding(MaterialTheme.wireDimensions.spacing16x)
-                ) { selectedIndex, _ ->
+                ) { selectedIndex ->
                     groupProtocol = ConversationOptions.Protocol.values()[selectedIndex]
                 }
                 WirePrimaryButton(

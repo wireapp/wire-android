@@ -85,7 +85,7 @@ fun MessageImage(
             .clickable(onImageClick)
     ) {
         val imageData: Bitmap? =
-            remember { if (rawImgData != null && rawImgData.size < ConversationViewModel.IMAGE_SIZE_LIMIT_BYTES) rawImgData.toBitmap() else null }
+            if (rawImgData != null && rawImgData.size < ConversationViewModel.IMAGE_SIZE_LIMIT_BYTES) rawImgData.toBitmap() else null
 
         Image(
             painter = rememberAsyncImagePainter(imageData ?: getUriFromDrawable(LocalContext.current, R.drawable.ic_gallery)),
@@ -244,7 +244,7 @@ private fun AnnotatedString.Builder.appendBody(messageBody: MessageBody) {
     append(messageBody.message.asString())
 }
 
-class ImageMessageParams(private val realImgWidth: Int, private val realImgHeight: Int) {
+data class ImageMessageParams(private val realImgWidth: Int, private val realImgHeight: Int) {
     // Image size normalizations to keep the ratio of the inline message image
     val normalizedWidth: Dp
         @Composable

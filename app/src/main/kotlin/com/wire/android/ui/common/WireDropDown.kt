@@ -1,6 +1,6 @@
 package com.wire.android.ui.common
 
-import CheckIcon
+import android.content.Context
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.animation.core.tween
@@ -14,14 +14,13 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.DropdownMenuItem
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ExpandMore
+import androidx.compose.material3.Divider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -34,6 +33,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -57,21 +57,34 @@ internal fun WireDropDown(
     val placeHolderText = stringResource(R.string.wire_dropdown_placeholder)
     val borderColor = MaterialTheme.wireColorScheme.secondaryButtonEnabledOutline
     val shape = RoundedCornerShape(MaterialTheme.wireDimensions.textFieldCornerSize)
+    val animationDuration = 500
+    val expandAnimationDelay = 400
+    val animationTweenDuration = 500
+
+
     Column(modifier) {
         Label(
             label, false, WireTextFieldState.Default, remember { MutableInteractionSource() }, wireTextFieldColors()
         )
-        Column(
-            modifier = Modifier.clip(shape).background(color = MaterialTheme.wireColorScheme.secondaryButtonEnabled, shape = shape)
-                .border(width = 1.dp, color = borderColor, shape)
-                .clickable {
-                    expanded = !expanded
-                }) {
-            Row(Modifier.padding(start = 16.dp, end = 16.dp, top = 12.dp, bottom = 12.dp)) {
+        Column(modifier = Modifier
+            .clip(shape)
+            .background(color = MaterialTheme.wireColorScheme.secondaryButtonEnabled, shape = shape)
+            .border(width = 1.dp, color = borderColor, shape)
+            .clickable {
+                expanded = !expanded
+            }) {
+            Row(
+                Modifier.padding(
+                    start = dimensions().spacing16x,
+                    end = dimensions().spacing16x,
+                    top = dimensions().spacing12x,
+                    bottom = dimensions().spacing12x
+                )
+            ) {
                 Column(Modifier.weight(1f).align(Alignment.CenterVertically)) {
                     Text(
                         text = if (selectedIndex != -1) {
-                            items[selectedIndex] + GetDefaultTextIndicator(selectedIndex, defaultItemIndex)
+                            items[selectedIndex] + LocalContext.current.defaultTextIndicator(selectedIndex, defaultItemIndex)
                         } else placeHolderText,
                         style = MaterialTheme.wireTypography.body01,
                         color = if (selectedIndex != -1) MaterialTheme.wireColorScheme.onSecondaryButtonEnabled
@@ -87,21 +100,17 @@ internal fun WireDropDown(
             }
             if (expanded) Column {
                 AnimatedVisibility(
-                    visible = expanded, enter = fadeIn(animationSpec = tween(500, 200)) + expandVertically(
-                        animationSpec = tween(
-                            500
-                        )
-                    ), exit = fadeOut(animationSpec = tween(400)) + shrinkVertically(
-                        animationSpec = tween(
-                            400
-                        )
-                    )
-
+                    visible = expanded,
+                    enter = fadeIn(animationSpec = tween(animationDuration, expandAnimationDelay)) + expandVertically(
+                        animationSpec = tween(animationTweenDuration)
+                    ),
+                    exit = fadeOut(animationSpec = tween(animationDuration)) +
+                            shrinkVertically(animationSpec = tween(animationTweenDuration))
                 ) {
                     Column {
                         Divider()
                         List(items.size) { index ->
-                            DropdownItem(text = items[index] + GetDefaultTextIndicator(index, defaultItemIndex),
+                            DropdownItem(text = items[index] + LocalContext.current.defaultTextIndicator(index, defaultItemIndex),
                                 isSelected = index == selectedIndex,
                                 onClick = {
                                     selectedIndex = index
@@ -118,16 +127,9 @@ internal fun WireDropDown(
     }
 }
 
-@Composable
-private fun Divider() = Spacer(
-    modifier = Modifier.fillMaxWidth().height(1.dp).background(
-        MaterialTheme.wireColorScheme.secondaryButtonEnabledOutline
-    )
-)
 
-@Composable
-private fun GetDefaultTextIndicator(index: Int, defaultIndex: Int): String {
-    val defaultText = stringResource(R.string.wire_dropdown_default_indicator)
+private fun Context.defaultTextIndicator(index: Int, defaultIndex: Int): String {
+    val defaultText = getString(R.string.wire_dropdown_default_indicator)
     return if (index == defaultIndex) defaultText else String.EMPTY
 }
 
@@ -139,12 +141,14 @@ private fun DropdownItem(text: String, isSelected: Boolean, onClick: () -> Unit)
     )
 ) {
     Text(
-        text, modifier = Modifier.weight(1f).fillMaxWidth(), style = if (isSelected) MaterialTheme.wireTypography.body02
-        else MaterialTheme.wireTypography.body01, color = if (isSelected) MaterialTheme.wireColorScheme.onSecondaryButtonSelected
+        text,
+        modifier = Modifier.weight(1f).fillMaxWidth(),
+        style = if (isSelected) MaterialTheme.wireTypography.body02 else MaterialTheme.wireTypography.body01,
+        color = if (isSelected) MaterialTheme.wireColorScheme.onSecondaryButtonSelected
         else MaterialTheme.wireColorScheme.onSecondaryButtonEnabled
     )
     if (isSelected) {
-        CheckIcon()
+        WireCheckIcon()
     }
 }
 

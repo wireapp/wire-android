@@ -7,6 +7,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
+import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.model.ImageAsset
 import com.wire.android.navigation.EXTRA_CONNECTION_IGNORED_USER_NAME
 import com.wire.android.navigation.EXTRA_USER_DOMAIN
@@ -18,6 +19,7 @@ import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.publicuser.model.OtherUser
 import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCase
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCaseResult
 import com.wire.kalium.logic.feature.connection.CancelConnectionRequestUseCase
@@ -46,6 +48,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val cancelConnectionRequest: CancelConnectionRequestUseCase,
     private val acceptConnectionRequest: AcceptConnectionRequestUseCase,
     private val ignoreConnectionRequest: IgnoreConnectionRequestUseCase,
+    private val userTypeMapper: UserTypeMapper
 ) : ViewModel() {
 
     var state: OtherUserProfileState by mutableStateOf(OtherUserProfileState())
@@ -78,7 +81,8 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             teamName = team?.name ?: String.EMPTY,
             email = otherUser.email ?: String.EMPTY,
             phone = otherUser.phone ?: String.EMPTY,
-            connectionStatus = otherUser.connectionStatus.toOtherUserProfileConnectionStatus()
+            connectionStatus = otherUser.connectionStatus.toOtherUserProfileConnectionStatus(),
+            membership = userTypeMapper.toMembership(otherUser.userType)
         )
     }
 

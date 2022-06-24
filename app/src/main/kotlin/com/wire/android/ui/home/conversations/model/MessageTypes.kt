@@ -5,7 +5,7 @@ import android.text.util.Linkify
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -33,7 +33,6 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -45,15 +44,10 @@ import com.wire.android.ui.common.WireCircularProgressIndicator
 import com.wire.android.ui.common.clickable
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.ConversationViewModel
-import com.wire.android.ui.home.conversations.MessageItem
-import com.wire.android.ui.home.conversations.SystemMessageItem
-import com.wire.android.ui.home.conversations.mock.mockAssetMessage
-import com.wire.android.ui.home.conversations.mock.mockMessageWithText
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.getUriFromDrawable
 import com.wire.android.util.toBitmap
-import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.FAILED
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.IN_PROGRESS
@@ -96,6 +90,38 @@ fun MessageImage(
                 .height(if (imageData != null) imgParams.normalizedHeight else dimensions().spacing24x),
             contentScale = ContentScale.Crop
         )
+    }
+}
+
+@Composable
+fun RestrictedAssetMessage(assetTypeIcon: Int, restrictedAssetMessage: String) {
+    Box(
+        Modifier.background(MaterialTheme.wireColorScheme.primaryButtonDisabled)
+            .clip(shape = RoundedCornerShape(dimensions().messageAssetBorderRadius))
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Image(
+                modifier = Modifier.padding(bottom = dimensions().spacing4x),
+                painter = painterResource(
+                    id = assetTypeIcon
+                ),
+                alignment = Alignment.Center,
+                contentDescription = stringResource(R.string.content_description_image_message),
+            )
+
+            Text(
+                text = restrictedAssetMessage,
+                style = MaterialTheme.wireTypography.body02.copy(color = MaterialTheme.wireColorScheme.secondaryText),
+
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
     }
 }
 
@@ -253,39 +279,4 @@ data class ImageMessageParams(private val realImgWidth: Int, private val realImg
     val normalizedHeight: Dp
         @Composable
         get() = Dp(normalizedWidth.value * realImgHeight.toFloat() / realImgWidth)
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewMessage() {
-    MessageItem(mockMessageWithText, {}, {}, { _, _ -> })
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewDeletedMessage() {
-    MessageItem(mockMessageWithText.let {
-        it.copy(messageHeader = it.messageHeader.copy(messageStatus = MessageStatus.Edited("")))
-    }, {}, {}, { _, _ -> })
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewAssetMessage() {
-    MessageItem(mockAssetMessage, {}, {}, { _, _ -> })
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewMessageWithSystemMessage() {
-    Column {
-        MessageItem(mockMessageWithText, {}, {}, { _, _ -> })
-        SystemMessageItem(
-            MessageContent.SystemMessage.MemberAdded(
-                UIText.DynamicString("You"),
-                listOf(UIText.DynamicString("Adam Smmith"))
-            )
-        )
-    }
-
 }

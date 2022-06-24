@@ -11,7 +11,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.wire.android.R
-import com.wire.android.ui.home.HomeState
+import com.wire.android.ui.home.HomeUIState
 import com.wire.android.ui.home.archive.ArchiveScreen
 import com.wire.android.ui.home.conversationslist.ConversationRouterHomeBridge
 import com.wire.android.ui.home.vault.VaultScreen
@@ -22,7 +22,7 @@ import com.wire.android.ui.home.vault.VaultScreen
     ExperimentalMaterial3Api::class
 )
 @Composable
-fun HomeNavigationGraph(homeState: HomeState, navController: NavHostController, startDestination: String?) {
+fun HomeNavigationGraph(homeUIState: HomeUIState, navController: NavHostController, startDestination: String?) {
     NavHost(
         navController = navController,
         startDestination = startDestination ?: HomeNavigationItem.Conversations.route
@@ -31,7 +31,7 @@ fun HomeNavigationGraph(homeState: HomeState, navController: NavHostController, 
             .forEach { item ->
                 composable(
                     route = item.route,
-                    content = item.content(homeState)
+                    content = item.content(homeUIState)
                 )
             }
     }
@@ -63,7 +63,7 @@ enum class HomeNavigationItem(
     @StringRes val title: Int,
     val isSearchable: Boolean = false,
     val isSwipeable: Boolean = true,
-    val content: (HomeState) -> (@Composable (NavBackStackEntry) -> Unit)
+    val content: (HomeUIState) -> (@Composable (NavBackStackEntry) -> Unit)
 ) {
     Conversations(
         route = HomeDestinationsRoutes.conversations,

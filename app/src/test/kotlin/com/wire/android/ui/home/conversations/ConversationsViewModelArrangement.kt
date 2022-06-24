@@ -36,6 +36,8 @@ import com.wire.kalium.logic.feature.message.Result
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
+import com.wire.kalium.logic.feature.call.AnswerCallUseCase
 import com.wire.kalium.logic.functional.Either
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -108,6 +110,12 @@ internal class ConversationsViewModelArrangement {
     @MockK
     lateinit var uiText: UIText
 
+    @MockK
+    lateinit var observeOngoingCallsUseCase: ObserveOngoingCallsUseCase
+
+    @MockK
+    lateinit var answerCallUseCase: AnswerCallUseCase
+
     private val conversationDetailsChannel = Channel<ConversationDetails>(capacity = Channel.UNLIMITED)
 
     private val messagesChannel = Channel<List<UIMessage>>(capacity = Channel.UNLIMITED)
@@ -128,7 +136,9 @@ internal class ConversationsViewModelArrangement {
             getSelfUserTeam = getSelfUserTeam,
             fileManager = fileManager,
             getMessageForConversation = getMessagesForConversationUseCase,
-            isFileSharingEnabled = isFileSharingEnabledUseCase
+            isFileSharingEnabled = isFileSharingEnabledUseCase,
+            observeOngoingCalls = observeOngoingCallsUseCase,
+            answerCall = answerCallUseCase
         )
     }
 

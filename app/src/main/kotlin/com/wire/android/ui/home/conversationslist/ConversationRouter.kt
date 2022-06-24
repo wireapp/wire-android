@@ -100,6 +100,7 @@ fun ConversationRouterHomeBridge(
             onBottomSheetVisibilityChanged()
             conversationOptionSheetState.toMutingNotificationOption()
         },
+        onJoinCall = viewModel::joinOngoingCall
     )
 }
 
@@ -114,6 +115,7 @@ private fun ConversationRouter(
     openNewConversation: () -> Unit,
     onEditConversationItem: (ConversationItem) -> Unit,
     onEditNotifications: (ConversationItem) -> Unit,
+    onJoinCall: (ConversationId) -> Unit,
     onScrollPositionProviderChanged: (() -> Int) -> Unit,
     onError: () -> Unit,
     openProfile: (UserId) -> Unit,
@@ -177,7 +179,8 @@ private fun ConversationRouter(
                             onEditConversation = onEditConversationItem,
                             onScrollPositionProviderChanged = onScrollPositionProviderChanged,
                             onOpenUserProfile = openProfile,
-                            onOpenConversationNotificationsSettings = onEditNotifications
+                            onOpenConversationNotificationsSettings = onEditNotifications,
+                            onJoinCall = onJoinCall
                         )
                     }
                 )
@@ -191,7 +194,8 @@ private fun ConversationRouter(
                             onEditConversationItem = onEditConversationItem,
                             onScrollPositionProviderChanged = onScrollPositionProviderChanged,
                             onOpenUserProfile = openProfile,
-                            openConversationNotificationsSettings = onEditNotifications
+                            openConversationNotificationsSettings = onEditNotifications,
+                            onJoinCall = onJoinCall
                         )
                     }
                 )
@@ -205,7 +209,8 @@ private fun ConversationRouter(
                             onEditConversationItem = onEditConversationItem,
                             onScrollPositionProviderChanged = onScrollPositionProviderChanged,
                             onOpenUserProfile = openProfile,
-                            openConversationNotificationsSettings = onEditNotifications
+                            openConversationNotificationsSettings = onEditNotifications,
+                            onJoinCall = onJoinCall
                         )
                     }
                 )

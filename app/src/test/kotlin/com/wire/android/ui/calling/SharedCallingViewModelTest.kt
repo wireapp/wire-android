@@ -152,7 +152,6 @@ class SharedCallingViewModelTest {
 
     @Test
     fun `given an active call, when the user ends call, then invoke endCall useCase`() {
-        coEvery { navigationManager.navigateBack() } returns Unit
         coEvery { endCall(any()) } returns Unit
         every { callRinger.stop() } returns Unit
 
@@ -160,7 +159,6 @@ class SharedCallingViewModelTest {
 
         coVerify(exactly = 1) { endCall(any()) }
         coVerify(exactly = 1) { callRinger.stop() }
-        coVerify(exactly = 1) { navigationManager.navigateBack() }
     }
 
     @Test

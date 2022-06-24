@@ -1,6 +1,7 @@
 package com.wire.android.ui.home.conversationslist.common
 
 import androidx.compose.runtime.Composable
+import com.wire.android.ui.calling.controlButtons.JoinButton
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.conversationColor
@@ -24,6 +25,7 @@ fun ConversationItemFactory(
     openMenu: (ConversationItem) -> Unit,
     openUserProfile: (UserId) -> Unit,
     openNotificationsOptions: (ConversationItem) -> Unit,
+    joinCall: (ConversationId) -> Unit,
 ) {
     GeneralConversationItem(
         conversation = conversation,
@@ -53,6 +55,9 @@ fun ConversationItemFactory(
         onMutedIconClick = {
             openNotificationsOptions(conversation)
         },
+        onJoinCallClick = {
+            joinCall(conversation.conversationId)
+        }
     )
 }
 
@@ -64,6 +69,7 @@ private fun GeneralConversationItem(
     onConversationItemClick: () -> Unit,
     onConversationItemLongClick: () -> Unit,
     onMutedIconClick: () -> Unit,
+    onJoinCallClick: () -> Unit
 ) {
     when (conversation) {
         is ConversationItem.GroupConversation -> {
@@ -76,7 +82,9 @@ private fun GeneralConversationItem(
                     onRowItemClicked = onConversationItemClick,
                     onRowItemLongClicked = onConversationItemLongClick,
                     trailingIcon = {
-                        if (mutedStatus != MutedConversationStatus.AllAllowed) {
+                        if (hasOnGoingCall)
+                            JoinButton(buttonClick = onJoinCallClick)
+                        else if (mutedStatus != MutedConversationStatus.AllAllowed) {
                             MutedConversationBadge(onMutedIconClick)
                         }
                     },

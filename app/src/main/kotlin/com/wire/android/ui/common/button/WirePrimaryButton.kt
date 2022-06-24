@@ -146,6 +146,11 @@ private fun WirePrimaryButtonErrorPreview() {
     WirePrimaryButton(onClick = { }, state = WireButtonState.Error, text = "text")
 }
 
+@Preview(name = "Positive WirePrimaryButton")
+@Composable
+private fun WirePrimaryButtonPositivePreview() {
+    WirePrimaryButton(onClick = { }, state = WireButtonState.Positive, text = "text")
+}
 
 @Preview(name = "Three WirePrimaryButton with different states")
 @Composable

@@ -82,6 +82,11 @@ class SelfUserProfileViewModel @Inject constructor(
     }
 
     private fun updateUserAvatar(avatarAssetId: UserAssetId) {
+
+        if (avatarAssetId == userProfileState.avatarAsset?.userAssetId) {
+            return
+        }
+
         // We try to download the user avatar on a separate thread so that we don't block the display of the user's info
         viewModelScope.launch {
             showLoadingAvatar(true)

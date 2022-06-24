@@ -5,19 +5,10 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.model.ImageAsset.UserAvatarAsset
-import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.EXTRA_BACK_NAVIGATION_ARGUMENTS
-import com.wire.android.navigation.EXTRA_CONNECTION_IGNORED_USER_NAME
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
-import com.wire.android.navigation.NavigationManager
-import com.wire.android.navigation.SavedStateViewModel
-import com.wire.android.navigation.getBackNavArg
-import com.wire.android.navigation.getBackNavArgs
+import com.wire.android.navigation.*
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
 import com.wire.kalium.logic.feature.featureConfig.GetFeatureConfigStatusResult
@@ -27,7 +18,6 @@ import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import java.util.UUID
 import javax.inject.Inject
 
 @Suppress("LongParameterList")
@@ -41,7 +31,8 @@ class HomeViewModel @Inject constructor(
     private val getRemoteFeatureConfigStatusAndPersist: GetRemoteFeatureConfigStatusAndPersistUseCase,
     private val isFileSharingEnabled: IsFileSharingEnabledUseCase
 ) : SavedStateViewModel(savedStateHandle) {
-    var snackBarMessageState by mutableStateOf<HomeSnackBarState?>(null)
+
+    var snackbarMessageState by mutableStateOf<HomeSnackbarState?>(null)
 
     var homeState by mutableStateOf(HomeState())
         private set
@@ -113,6 +104,17 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    fun checkPendingActions() {
+        val connectionIgnoredUsername = savedStateHandle
+            .getBackNavArg<String>(EXTRA_CONNECTION_IGNORED_USER_NAME)
+        snackbarMessageState =
+            connectionIgnoredUsername?.let { HomeSnackbarState.SuccessConnectionIgnoreRequest(it) }
+    }
+
+    fun clearSnackbarMessage() {
+        snackbarMessageState = null
+    }
+
     private suspend fun loadUserAvatar() {
         viewModelScope.launch {
             getSelf().collect { selfUser ->
@@ -137,6 +139,6 @@ data class SelfUserData(
     val status: UserAvailabilityStatus = UserAvailabilityStatus.NONE
 )
 
-sealed class HomeSnackBarState(private val randomEventIdentifier: UUID) {
-    class SuccessConnectionIgnoreRequest(val userName: String) : HomeSnackBarState(UUID.randomUUID())
+sealed class HomeSnackbarState {
+    class SuccessConnectionIgnoreRequest(val userName: String) : HomeSnackbarState()
 }

@@ -20,7 +20,7 @@ inline fun <reified T : SavedStateViewModel> hiltSavedStateViewModel(navBackStac
             navBackStackEntry.savedStateHandle.get<Map<String, Any>>(EXTRA_BACK_NAVIGATION_ARGUMENTS)
     }
 
-fun <V : Any> SavedStateHandle.getBackNavArgs() = get<Map<String, V>>(EXTRA_BACK_NAVIGATION_ARGUMENTS) ?: mapOf()
+private fun <V : Any> SavedStateHandle.getBackNavArgs() = get<Map<String, V>>(EXTRA_BACK_NAVIGATION_ARGUMENTS) ?: mapOf()
 
 @Suppress("UNCHECKED_CAST")
 fun <V : Any> SavedStateHandle.getBackNavArg(key: String): V? = getBackNavArgs<Any>()[key] as? V

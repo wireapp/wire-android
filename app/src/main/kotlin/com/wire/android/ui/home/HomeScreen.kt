@@ -30,6 +30,8 @@ import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topappbar.search.AppTopBarWithSearchBar
 import com.wire.android.ui.home.sync.SyncStateViewModel
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 @OptIn(
     ExperimentalAnimationApi::class,
@@ -43,7 +45,11 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel, syncViewModel: Sy
     val coroutineScope = rememberCoroutineScope()
     val homeState = viewModel.homeState
     val snackbarHostState = remember { SnackbarHostState() }
-    handleSnackBarMessage(snackbarHostState, viewModel.snackBarMessageState)
+    handleSnackBarMessage(snackbarHostState, viewModel.snackbarMessageState, viewModel::clearSnackbarMessage)
+
+    LaunchedEffect(viewModel.savedStateHandle) {
+        viewModel.checkPendingActions()
+    }
 
     with(homeUIState) {
         ModalDrawer(
@@ -192,15 +198,17 @@ fun HomeNavigationGraph(startScreen: String?, homeState: HomeUIState) {
 @Composable
 private fun handleSnackBarMessage(
     snackbarHostState: SnackbarHostState,
-    conversationListSnackBarState: HomeSnackBarState?
+    conversationListSnackBarState: HomeSnackbarState?,
+    onMessageShown: () -> Unit
 ) {
     conversationListSnackBarState?.let { messageType ->
         val message = when (messageType) {
-            is HomeSnackBarState.SuccessConnectionIgnoreRequest ->
+            is HomeSnackbarState.SuccessConnectionIgnoreRequest ->
                 stringResource(id = R.string.connection_request_ignored, messageType.userName)
         }
         LaunchedEffect(messageType) {
             snackbarHostState.showSnackbar(message)
+            onMessageShown()
         }
     }
 }

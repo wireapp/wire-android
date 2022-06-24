@@ -56,7 +56,6 @@ fun ConversationScreen(conversationViewModel: ConversationViewModel) {
     val startCallAudioPermissionCheck = StartCallAudioBluetoothPermissionCheckFlow(conversationViewModel)
     val joinCallAudioPermissionCheck = JoinCallAudioBluetoothPermissionCheckFlow(conversationViewModel)
     val uiState = conversationViewModel.conversationViewState
-
     LaunchedEffect(conversationViewModel.savedStateHandle) {
         conversationViewModel.checkPendingActions()
     }
@@ -75,6 +74,7 @@ fun ConversationScreen(conversationViewModel: ConversationViewModel) {
         onSnackbarMessage = conversationViewModel::onSnackbarMessage,
         onDropDownClick = conversationViewModel::navigateToDetails
     )
+
     DeleteMessageDialog(conversationViewModel = conversationViewModel)
     DownloadedAssetDialog(
         downloadedAssetDialogState = conversationViewModel.conversationViewState.downloadedAssetDialogState,
@@ -177,7 +177,8 @@ private fun ConversationScreen(
                                 onImageFullScreenMode = onImageFullScreenMode,
                                 conversationState = conversationViewState,
                                 onMessageComposerError = onSnackbarMessage,
-                                conversationScreenState = conversationScreenState
+                                conversationScreenState = conversationScreenState,
+                                isFileSharingEnabled = isFileSharingEnabled
                             )
                         }
                     }
@@ -200,7 +201,8 @@ private fun ConversationScreenContent(
     onImageFullScreenMode: (String, Boolean) -> Unit,
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
     conversationState: ConversationViewState,
-    conversationScreenState: ConversationScreenState
+    conversationScreenState: ConversationScreenState,
+    isFileSharingEnabled: Boolean
 ) {
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -245,7 +247,7 @@ private fun ConversationScreenContent(
             ) {
                 coroutineScope.launch { lazyListState.animateScrollToItem(messages.size) }
             }
-        }
+        }, isFileSharingEnabled = isFileSharingEnabled
     )
 }
 

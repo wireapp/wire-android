@@ -35,6 +35,7 @@ import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
 import com.wire.kalium.logic.feature.message.Result
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
+import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
 import com.wire.kalium.logic.feature.call.AnswerCallUseCase
 import com.wire.kalium.logic.functional.Either
@@ -101,6 +102,9 @@ internal class ConversationsViewModelArrangement {
     lateinit var getMessagesForConversationUseCase: GetMessagesForConversationUseCase
 
     @MockK
+    lateinit var isFileSharingEnabledUseCase: IsFileSharingEnabledUseCase
+
+    @MockK
     lateinit var resources: Resources
 
     @MockK
@@ -132,6 +136,7 @@ internal class ConversationsViewModelArrangement {
             getSelfUserTeam = getSelfUserTeam,
             fileManager = fileManager,
             getMessageForConversation = getMessagesForConversationUseCase,
+            isFileSharingEnabled = isFileSharingEnabledUseCase,
             observeOngoingCalls = observeOngoingCallsUseCase,
             answerCall = answerCallUseCase
         )

@@ -2,10 +2,10 @@ package com.wire.android.ui.home.conversations
 
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.ui.home.conversations.model.UIMessage
-import com.wire.kalium.logic.data.id.QualifiedID as ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.data.id.QualifiedID as ConversationId
 
 data class ConversationViewState(
     val conversationName: String = "",
@@ -16,6 +16,7 @@ data class ConversationViewState(
     val messageText: String = "",
     val downloadedAssetDialogState: DownloadedAssetDialogVisibilityState = DownloadedAssetDialogVisibilityState.Hidden,
     val userTeam: Team? = null,
+    val isFileSharingEnabled: Boolean = true,
     val hasOngoingCall: Boolean = false
 )
 

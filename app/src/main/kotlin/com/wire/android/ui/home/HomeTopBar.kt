@@ -70,6 +70,10 @@ private val SyncViewState.color: Color
 @Composable
 fun topBar() {
     HomeTopBar(
-        null, UserAvailabilityStatus.AVAILABLE, HomeNavigationItem.Archive, SyncViewState.SLOW_SYNC, {}, {}
+        null, UserAvailabilityStatus.AVAILABLE, HomeNavigationItem.Conversations, SyncViewState.SLOW_SYNC, {}, {}
     )
+    // TODO: Re-enable and recheck when we have Archive
+//    HomeTopBar(
+//        null, UserAvailabilityStatus.AVAILABLE, HomeNavigationItem.Archive, SyncViewState.SLOW_SYNC, {}, {}
+//    )
 }

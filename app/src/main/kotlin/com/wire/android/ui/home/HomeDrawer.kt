@@ -32,9 +32,7 @@ import androidx.navigation.NavController
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.navigation.HomeNavigationItem
-import com.wire.android.navigation.HomeNavigationItem.Archive
 import com.wire.android.navigation.HomeNavigationItem.Conversations
-import com.wire.android.navigation.HomeNavigationItem.Vault
 import com.wire.android.navigation.NavigationItem.Debug
 import com.wire.android.navigation.NavigationItem.Settings
 import com.wire.android.navigation.NavigationItem.Support
@@ -152,8 +150,9 @@ data class DrawerItemData(@StringRes val title: Int?, @DrawableRes val icon: Int
 @ExperimentalMaterial3Api
 private fun Any.getDrawerData(): DrawerItemData =
     when (this) {
-        Vault -> DrawerItemData(R.string.vault_screen_title, R.drawable.ic_vault)
-        Archive -> DrawerItemData(R.string.archive_screen_title, R.drawable.ic_archive)
+        // TODO: Re-enable when we have Vault & Archive
+//        Vault -> DrawerItemData(R.string.vault_screen_title, R.drawable.ic_vault)
+//        Archive -> DrawerItemData(R.string.archive_screen_title, R.drawable.ic_archive)
         Conversations -> DrawerItemData(R.string.conversations_screen_title, R.drawable.ic_conversation)
         Settings -> DrawerItemData(R.string.settings_screen_title, R.drawable.ic_settings)
         Support -> DrawerItemData(R.string.support_screen_title, R.drawable.ic_support)

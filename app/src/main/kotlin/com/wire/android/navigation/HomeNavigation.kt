@@ -79,22 +79,25 @@ enum class HomeNavigationItem(
                 )
             }
         }
-    ),
-
-    Vault(
-        route = HomeDestinationsRoutes.vault,
-        title = R.string.vault_screen_title,
-        content = { { VaultScreen() } }
-    ),
-
-    Archive(
-        route = HomeDestinationsRoutes.archive,
-        title = R.string.archive_screen_title,
-        content = { { ArchiveScreen() } }
     );
+// TODO: Re-enable once we have vault
+//    Vault(
+//        route = HomeDestinationsRoutes.vault,
+//        title = R.string.vault_screen_title,
+//        content = { { VaultScreen() } }
+//    ),
+
+// TODO: Re-enable once we have Archive
+//    Archive(
+//        route = HomeDestinationsRoutes.archive,
+//        title = R.string.archive_screen_title,
+//        content = { { ArchiveScreen() } }
+//    );
 
     companion object {
-        val all = listOf(Conversations, Archive, Vault)
+        // TODO: Re-enable once we have Archive & Vault
+        // val all = listOf(Conversations, Archive, Vault)
+        val all = listOf(Conversations)
     }
 }
 

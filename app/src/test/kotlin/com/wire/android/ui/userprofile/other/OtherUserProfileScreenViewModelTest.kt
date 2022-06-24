@@ -14,6 +14,7 @@ import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCase
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCaseResult
 import com.wire.kalium.logic.feature.connection.CancelConnectionRequestUseCase
@@ -227,7 +228,8 @@ class OtherUserProfileScreenViewModelTest {
             ConnectionState.NOT_CONNECTED,
             null,
             null,
-            UserAvailabilityStatus.AVAILABLE
+            UserAvailabilityStatus.AVAILABLE,
+            UserType.INTERNAL
         )
         val TEAM = Team("some_id", null)
         val CONVERSATION = Conversation(

@@ -218,7 +218,8 @@ class MediaGalleryViewModelTest {
                 QualifiedID("other-user-id", "domain-id"),
                 null, null, null, null,
                 1, null, ConnectionState.ACCEPTED, null, null,
-                UserAvailabilityStatus.AVAILABLE
+                UserAvailabilityStatus.AVAILABLE,
+                UserType.INTERNAL
             ),
             ConnectionState.ACCEPTED,
             LegalHoldStatus.DISABLED,

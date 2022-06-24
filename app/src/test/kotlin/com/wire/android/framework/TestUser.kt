@@ -8,6 +8,7 @@ import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.data.user.type.UserType
 
 object TestUser {
     val USER_ID = UserId("value", "domain")
@@ -18,7 +19,7 @@ object TestUser {
         email = "email",
         phone = "phone",
         accentId = 0,
-        team = "teamId",
+        teamId = "teamId",
         connectionStatus = ConnectionState.ACCEPTED,
         previewPicture = UserAssetId("value", "domain"),
         completePicture = UserAssetId("value", "domain"),
@@ -38,5 +39,5 @@ object TestUser {
         availabilityStatus = UserAvailabilityStatus.AVAILABLE
     )
     val MEMBER_SELF = MemberDetails.Self(SELF_USER)
-    val MEMBER_OTHER = MemberDetails.Other(OTHER_USER, UserType.INTERNAL)
+    val MEMBER_OTHER = MemberDetails.Other(OTHER_USER)
 }

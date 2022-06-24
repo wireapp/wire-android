@@ -72,8 +72,9 @@ fun rememberHomeUIState(
     val navBackStackEntry by navController.currentBackStackEntryAsState()
 
     val navigationItem = when (navBackStackEntry?.destination?.route) {
-        HomeNavigationItem.Archive.route -> HomeNavigationItem.Archive
-        HomeNavigationItem.Vault.route -> HomeNavigationItem.Vault
+        // TODO: Re-enable when we have Vault & Archive
+//        HomeNavigationItem.Archive.route -> HomeNavigationItem.Archive
+//        HomeNavigationItem.Vault.route -> HomeNavigationItem.Vault
         else -> HomeNavigationItem.Conversations
     }
 

@@ -72,15 +72,15 @@ fun VerticalCallingPager(
                     color = colorsScheme().callingPagerIndicatorBackground,
                 ) {
                     VerticalPagerIndicator(
-                        modifier = Modifier.padding(4.dp),
+                        modifier = Modifier.padding(dimensions().spacing4x),
                         pagerState = pagerState,
                         activeColor = colorsScheme().callingActiveIndicator,
                         inactiveColor = colorsScheme().callingInActiveIndicator,
                         inactiveBorderColor = colorsScheme().callingInActiveBorderIndicator,
-                        inactiveBorderWidth = 2.dp,
-                        indicatorHeight = 12.dp,
-                        indicatorWidth = 12.dp,
-                        spacing = 6.dp,
+                        inactiveBorderWidth = dimensions().spacing2x,
+                        indicatorHeight = dimensions().spacing12x,
+                        indicatorWidth = dimensions().spacing12x,
+                        spacing = dimensions().spacing6x,
                         indicatorShape = CircleShape
                     )
                 }

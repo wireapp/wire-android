@@ -41,10 +41,10 @@ import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerViewModel.ErrorC
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun AvatarPickerScreen(viewModel: AvatarPickerViewModel) {
-    val targetAvatarUri = viewModel.getTemporaryTargetAvatarUri()
+    val targetAvatarUri = viewModel.getTemporaryAvatarUri()
     val state = rememberAvatarPickerState(
-        onImageSelected = { viewModel.pickNewImage(it) },
-        onPictureTaken = { viewModel.postProcessAvatarImage(targetAvatarUri) },
+        onImageSelected = { viewModel.processAvatar(it) },
+        onPictureTaken = { viewModel.processAvatar(targetAvatarUri) },
         targetPictureFileUri = targetAvatarUri
     )
 

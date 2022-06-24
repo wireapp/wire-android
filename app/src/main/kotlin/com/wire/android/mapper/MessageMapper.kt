@@ -56,7 +56,11 @@ class MessageMapper @Inject constructor(
                         // TODO: Designs for deleted users?
                         username = sender?.name?.let { UIText.DynamicString(it) }
                             ?: UIText.StringResource(R.string.member_name_deleted_label),
-                        membership = if (sender is MemberDetails.Other) userTypeMapper.toMembership(sender.otherUser.userType) else Membership.None,
+                        membership = if (sender is MemberDetails.Other) {
+                            userTypeMapper.toMembership(sender.otherUser.userType)
+                        } else {
+                            Membership.None
+                        },
                         isLegalHold = false,
                         time = message.date.uiMessageDateTime() ?: "",
                         messageStatus = when {

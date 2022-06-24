@@ -113,7 +113,6 @@ private fun ContactItem(
                 MembershipQualifierLabel(membership = membership)
             }
         },
-
         actions = {
             Box(
                 modifier = Modifier

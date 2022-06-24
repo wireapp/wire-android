@@ -104,6 +104,7 @@ fun OtherProfileScreenContent(
                             fullName = fullName,
                             userName = userName,
                             teamName = teamName,
+                            membership = membership,
                             editableState = EditableState.NotEditable
                         )
                     }

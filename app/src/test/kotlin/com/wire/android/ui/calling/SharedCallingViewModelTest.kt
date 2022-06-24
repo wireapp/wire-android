@@ -111,7 +111,6 @@ class SharedCallingViewModelTest {
 
         runTest { sharedCallingViewModel.toggleMute() }
 
-        coVerify(exactly = 1) { muteCall(conversationId) }
         sharedCallingViewModel.callState.isMuted shouldBeEqualTo true
     }
 
@@ -122,9 +121,7 @@ class SharedCallingViewModelTest {
 
         runTest { sharedCallingViewModel.toggleMute() }
 
-        coVerify(exactly = 1) { unMuteCall(conversationId) }
         sharedCallingViewModel.callState.isMuted shouldBeEqualTo false
-
     }
 
     @Test

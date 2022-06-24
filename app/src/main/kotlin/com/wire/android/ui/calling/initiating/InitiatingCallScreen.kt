@@ -42,7 +42,7 @@ fun InitiatingCallScreen(
             toggleSpeaker = ::toggleSpeaker,
             toggleVideo = ::toggleVideo,
             onNavigateBack = ::navigateBack,
-            onHangUpCall = ::hangUpCall,
+            onHangUpCall = initiatingCallViewModel::hangUpCall,
             onVideoPreviewCreated = ::setVideoPreview
         )
     }

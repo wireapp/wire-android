@@ -28,5 +28,5 @@ fun UserLabel(userInfoLabel: UserInfoLabel, modifier: Modifier = Modifier) {
 data class UserInfoLabel(
     val labelName: String,
     val isLegalHold: Boolean,
-    val membership: Membership,
+    val membership: Membership
 )

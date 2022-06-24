@@ -24,6 +24,7 @@ fun CallsScreen(
     onScrollPositionProviderChanged: (() -> Int) -> Unit,
     onOpenUserProfile: (UserId) -> Unit,
     openConversationNotificationsSettings: (ConversationItem) -> Unit,
+    onJoinCall: (ConversationId) -> Unit
 ) {
     val lazyListState = rememberLazyListState()
 
@@ -36,7 +37,8 @@ fun CallsScreen(
         onCallItemClick = onCallItemClick,
         onEditConversationItem = onEditConversationItem,
         onOpenUserProfile = onOpenUserProfile,
-        openConversationNotificationsSettings = openConversationNotificationsSettings
+        openConversationNotificationsSettings = openConversationNotificationsSettings,
+        onJoinCall = onJoinCall
     )
 }
 
@@ -50,6 +52,7 @@ fun CallContent(
     onEditConversationItem: (ConversationItem) -> Unit,
     onOpenUserProfile: (UserId) -> Unit,
     openConversationNotificationsSettings: (ConversationItem) -> Unit,
+    onJoinCall: (ConversationId) -> Unit
 ) {
     LazyColumn(
         state = lazyListState,
@@ -66,6 +69,7 @@ fun CallContent(
                 openMenu = onEditConversationItem,
                 openUserProfile = onOpenUserProfile,
                 openNotificationsOptions = openConversationNotificationsSettings,
+                joinCall = onJoinCall
             )
         }
 
@@ -79,6 +83,7 @@ fun CallContent(
                 openMenu = onEditConversationItem,
                 openUserProfile = onOpenUserProfile,
                 openNotificationsOptions = openConversationNotificationsSettings,
+                joinCall = onJoinCall
             )
         }
     }

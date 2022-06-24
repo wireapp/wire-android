@@ -20,18 +20,20 @@ import com.wire.android.ui.theme.wireTypography
 fun MembershipQualifierLabel(
     membership: Membership,
 ) {
-    Text(
-        text = stringResource(id = membership.stringResourceId),
-        color = MaterialTheme.colorScheme.primary,
-        style = MaterialTheme.wireTypography.label03.copy(textAlign = TextAlign.Center),
-        maxLines = 1,
-        overflow = TextOverflow.Ellipsis,
-        modifier = Modifier
-            .wrapContentWidth()
-            .background(
-                color = MaterialTheme.colorScheme.primaryContainer,
-                shape = RoundedCornerShape(8.dp)
-            )
-            .padding(horizontal = 4.dp, vertical = 2.dp)
-    )
+    if (membership != Membership.None) {
+        Text(
+            text = stringResource(id = membership.stringResourceId),
+            color = MaterialTheme.colorScheme.primary,
+            style = MaterialTheme.wireTypography.label03.copy(textAlign = TextAlign.Center),
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier
+                .wrapContentWidth()
+                .background(
+                    color = MaterialTheme.colorScheme.primaryContainer,
+                    shape = RoundedCornerShape(8.dp)
+                )
+                .padding(horizontal = 4.dp, vertical = 2.dp)
+        )
+    }
 }

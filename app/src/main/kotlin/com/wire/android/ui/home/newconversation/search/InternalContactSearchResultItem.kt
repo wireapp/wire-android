@@ -2,7 +2,9 @@ package com.wire.android.ui.home.newconversation.search
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -12,14 +14,18 @@ import com.wire.android.ui.common.AddContactButton
 import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.model.UserAvatarData
+import com.wire.android.ui.common.MembershipQualifierLabel
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.WireCheckbox
+import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.home.conversationslist.model.Membership
 
 @Composable
 fun InternalContactSearchResultItem(
     avatarData: UserAvatarData,
     name: String,
     label: String,
+    membership: Membership,
     searchQuery: String,
     addToGroup: () -> Unit,
     removeFromGroup: () -> Unit,
@@ -35,15 +41,18 @@ fun InternalContactSearchResultItem(
                     checked = isAddedToGroup,
                     onCheckedChange = { if (it) addToGroup() else removeFromGroup() }
                 )
-
                 UserProfileAvatar(avatarData)
             }
         },
         title = {
-            HighlightName(
-                name = name,
-                searchQuery = searchQuery
-            )
+            Row {
+                HighlightName(
+                    name = name,
+                    searchQuery = searchQuery
+                )
+                Spacer(Modifier.width(dimensions().spacing8x))
+                MembershipQualifierLabel(membership)
+            }
         },
         subtitle = {
             HighlightSubtitle(
@@ -71,6 +80,7 @@ fun ExternalContactSearchResultItem(
     avatarData: UserAvatarData,
     name: String,
     label: String,
+    membership: Membership,
     searchQuery: String,
     isConnectedOrPending: Boolean,
     onRowItemClicked: () -> Unit,
@@ -84,10 +94,14 @@ fun ExternalContactSearchResultItem(
             }
         },
         title = {
-            HighlightName(
-                name = name,
-                searchQuery = searchQuery
-            )
+            Row {
+                HighlightName(
+                    name = name,
+                    searchQuery = searchQuery
+                )
+                Spacer(Modifier.width(dimensions().spacing8x))
+                MembershipQualifierLabel(membership)
+            }
         },
         subtitle = {
             HighlightSubtitle(
@@ -103,3 +117,4 @@ fun ExternalContactSearchResultItem(
         modifier = modifier
     )
 }
+

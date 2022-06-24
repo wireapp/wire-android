@@ -14,11 +14,11 @@ import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.ConversationDetails.OneOne
 import com.wire.kalium.logic.data.conversation.LegalHoldStatus
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus.AllAllowed
-import com.wire.kalium.logic.data.conversation.UserType
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.publicuser.model.OtherUser
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
+import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
@@ -217,7 +217,8 @@ class MediaGalleryViewModelTest {
                 QualifiedID("other-user-id", "domain-id"),
                 null, null, null, null,
                 1, null, ConnectionState.ACCEPTED, null, null,
-                UserAvailabilityStatus.AVAILABLE
+                UserAvailabilityStatus.AVAILABLE,
+                UserType.INTERNAL
             ),
             ConnectionState.ACCEPTED,
             LegalHoldStatus.DISABLED,

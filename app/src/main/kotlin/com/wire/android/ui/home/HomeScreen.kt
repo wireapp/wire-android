@@ -34,10 +34,11 @@ import com.wire.android.ui.home.sync.SyncStateViewModel
 @Composable
 fun HomeScreen(startScreen: String?, viewModel: HomeViewModel, syncViewModel: SyncStateViewModel) {
     viewModel.checkRequirements()
-    val homeState = rememberHomeState()
+    val homeUIState = rememberHomeUIState()
     val coroutineScope = rememberCoroutineScope()
+    val homeState = viewModel.homeState
 
-    with(homeState) {
+    with(homeUIState) {
         ModalDrawer(
             drawerBackgroundColor = MaterialTheme.colorScheme.surface,
             drawerElevation = 0.dp,
@@ -56,30 +57,30 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel, syncViewModel: Sy
             gesturesEnabled = drawerState.isOpen
         ) {
             HomeContent(
-                scrollPositionProvider = homeState.scrollPositionProvider,
-                homeBottomSheetContent = homeState.homeBottomSheetContent,
-                homeBottomSheetState = homeState.bottomSheetState,
+                scrollPositionProvider = homeUIState.scrollPositionProvider,
+                homeBottomSheetContent = homeUIState.homeBottomSheetContent,
+                homeBottomSheetState = homeUIState.bottomSheetState,
                 homeTopBar = {
                     HomeTopBar(
                         avatarAsset = viewModel.userAvatar.avatarAsset,
                         status = viewModel.userAvatar.status,
-                        currentNavigationItem = homeState.currentNavigationItem,
+                        currentNavigationItem = homeUIState.currentNavigationItem,
                         syncState = syncViewModel.syncState,
                         onOpenDrawerClicked = ::openDrawer,
                         onNavigateToUserProfile = viewModel::navigateToUserProfile,
                     )
                 },
-                currentNavigationItem = homeState.currentNavigationItem,
+                currentNavigationItem = homeUIState.currentNavigationItem,
                 homeNavigationGraph = {
                     HomeNavigationGraph(
-                        homeState = homeState,
+                        homeState = homeUIState,
                         startScreen = startScreen
                     )
                 }
             )
         }
-        if (viewModel.showFileSharingDialog) {
-            val text: String = if (viewModel.isFileSharingEnabledState) {
+        if (homeState.showFileSharingDialog) {
+            val text: String = if (homeState.isFileSharingEnabledState) {
                 stringResource(id = R.string.sharing_files_enabled)
             } else {
                 stringResource(id = R.string.sharing_files_disabled)
@@ -88,17 +89,15 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel, syncViewModel: Sy
             WireDialog(
                 title = stringResource(id = R.string.there_has_been_a_change),
                 text = text,
-                onDismiss = { viewModel.showFileSharingDialog = false },
+                onDismiss = { viewModel.hideDialogStatus() },
                 optionButton1Properties = WireDialogButtonProperties(
-                    onClick = { viewModel.showFileSharingDialog = false },
+                    onClick = { viewModel.hideDialogStatus() },
                     text = stringResource(id = R.string.label_ok),
                     type = WireDialogButtonType.Primary,
                 )
             )
-
         }
     }
-
 }
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
@@ -150,11 +149,11 @@ fun HomeContent(
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
-fun HomeNavigationGraph(startScreen: String?, homeState: HomeState) {
+fun HomeNavigationGraph(startScreen: String?, homeState: HomeUIState) {
     val startDestination = HomeNavigationItem.all.firstOrNull { startScreen == it.route }?.route
 
     HomeNavigationGraph(
-        homeState = homeState,
+        homeUIState = homeState,
         navController = homeState.navController,
         startDestination = startDestination
     )

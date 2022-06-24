@@ -34,9 +34,8 @@ class HomeViewModel @Inject constructor(
     private val isFileSharingEnabled: IsFileSharingEnabledUseCase
 ) : ViewModel() {
 
-    var showFileSharingDialog by mutableStateOf(false)
-    var isFileSharingEnabledState by mutableStateOf(true)
-
+    var homeState by mutableStateOf(HomeState())
+        private set
 
     var userAvatar by mutableStateOf(SelfUserData())
         private set
@@ -63,7 +62,7 @@ class HomeViewModel @Inject constructor(
                 is GetFeatureConfigStatusResult.Success -> {
                     setFileSharingStatus()
                     if (it.isStatusChanged) {
-                        showFileSharingDialog = true
+                        homeState = homeState.copy(showFileSharingDialog = true)
                     }
                 }
             }
@@ -72,8 +71,12 @@ class HomeViewModel @Inject constructor(
 
     private fun setFileSharingStatus() {
         viewModelScope.launch {
-            isFileSharingEnabledState = isFileSharingEnabled()
+            homeState = homeState.copy(isFileSharingEnabledState = isFileSharingEnabled())
         }
+    }
+
+    fun hideDialogStatus() {
+        homeState = homeState.copy(showFileSharingDialog = false)
     }
 
     fun checkRequirements() {

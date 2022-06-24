@@ -29,7 +29,6 @@ data class MessageHeader(
     val messageId: String
 )
 
-
 sealed class MessageStatus(val text: UIText) {
     object Untouched : MessageStatus(UIText.DynamicString(""))
     object Deleted : MessageStatus(UIText.StringResource(R.string.deleted_message_text))
@@ -45,6 +44,7 @@ sealed class MessageContent {
 
     data class TextMessage(val messageBody: MessageBody) : ClientMessage()
 
+    data class RestrictedAsset(val mimeType: String) : ClientMessage()
     data class AssetMessage(
         val assetName: String,
         val assetExtension: String,

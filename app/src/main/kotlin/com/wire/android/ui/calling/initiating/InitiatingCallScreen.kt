@@ -42,7 +42,7 @@ fun InitiatingCallScreen(
             toggleSpeaker = ::toggleSpeaker,
             toggleVideo = ::toggleVideo,
             onNavigateBack = ::navigateBack,
-            onHangUpCall = ::hangUpCall,
+            onHangUpCall = initiatingCallViewModel::hangUpCall,
             onVideoPreviewCreated = ::setVideoPreview
         )
     }
@@ -100,6 +100,7 @@ private fun InitiatingCallContent(
             conversationName = callState.conversationName,
             isCameraOn = callState.isCameraOn,
             avatarAssetId = callState.avatarAssetId,
+            conversationType = callState.conversationType,
             onVideoPreviewCreated = { onVideoPreviewCreated(it) }
         )
     }

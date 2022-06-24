@@ -17,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.ArrowRightIcon
@@ -105,7 +106,8 @@ private fun ContactItem(
                 Text(
                     text = name,
                     style = MaterialTheme.wireTypography.title02,
-                )
+                maxLines = 1,
+                overflow = TextOverflow.Ellipsis)
                 Spacer(Modifier.width(dimensions().spacing8x))
                 MembershipQualifierLabel(membership = membership)
             }

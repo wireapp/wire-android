@@ -77,10 +77,6 @@ class NewConversationViewModel
 
     private val searchQueryStateFlow = SearchQueryStateFlow()
 
-    fun updateScrollPosition(newScrollPosition: Int) {
-        innerSearchPeopleState = state.copy(scrollPosition = newScrollPosition)
-    }
-
     init {
         viewModelScope.launch {
             launch {
@@ -218,7 +214,7 @@ class NewConversationViewModel
             when (val result = createGroupConversation(
                 name = groupNameState.groupName.text,
                 members = state.contactsAddedToGroup.map { contact -> contact.toMember() },
-                options = ConversationOptions()
+                options = ConversationOptions().copy(protocol = groupNameState.groupProtocol)
             )
             ) {
                 // TODO: handle the error state

@@ -85,5 +85,4 @@ class IncomingCallViewModel @Inject constructor(
             )
         }
     }
-
 }

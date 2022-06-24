@@ -23,6 +23,7 @@ fun MentionScreen(
     onScrollPositionProviderChanged: (() -> Int) -> Unit,
     onOpenUserProfile: (UserId) -> Unit,
     openConversationNotificationsSettings: (ConversationItem) -> Unit,
+    onJoinCall: (ConversationId) -> Unit
 ) {
     val lazyListState = androidx.compose.foundation.lazy.rememberLazyListState()
 
@@ -35,7 +36,8 @@ fun MentionScreen(
         onMentionItemClick = onMentionItemClick,
         onEditConversationItem = onEditConversationItem,
         onOpenUserProfile = onOpenUserProfile,
-        openConversationNotificationsSettings = openConversationNotificationsSettings
+        openConversationNotificationsSettings = openConversationNotificationsSettings,
+        onJoinCall = onJoinCall
     )
 }
 
@@ -49,6 +51,7 @@ private fun MentionContent(
     onEditConversationItem: (ConversationItem) -> Unit,
     onOpenUserProfile: (UserId) -> Unit,
     openConversationNotificationsSettings: (ConversationItem) -> Unit,
+    onJoinCall: (ConversationId) -> Unit
 ) {
     LazyColumn(
         state = lazyListState,
@@ -65,6 +68,7 @@ private fun MentionContent(
                 openMenu = onEditConversationItem,
                 openUserProfile = onOpenUserProfile,
                 openNotificationsOptions = openConversationNotificationsSettings,
+                joinCall = onJoinCall
             )
         }
 
@@ -78,6 +82,7 @@ private fun MentionContent(
                 openMenu = onEditConversationItem,
                 openUserProfile = onOpenUserProfile,
                 openNotificationsOptions = openConversationNotificationsSettings,
+                joinCall = onJoinCall
             )
         }
     }

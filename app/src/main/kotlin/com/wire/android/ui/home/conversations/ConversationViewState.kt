@@ -15,7 +15,8 @@ data class ConversationViewState(
     val onSnackbarMessage: ConversationSnackbarMessages? = null,
     val messageText: String = "",
     val downloadedAssetDialogState: DownloadedAssetDialogVisibilityState = DownloadedAssetDialogVisibilityState.Hidden,
-    val userTeam: Team? = null
+    val userTeam: Team? = null,
+    val hasOngoingCall: Boolean = false
 )
 
 sealed class ConversationAvatar {

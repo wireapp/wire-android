@@ -4,7 +4,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
@@ -25,14 +27,15 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.ui.common.Icon
 import com.wire.android.model.UserAvatarData
+import com.wire.android.ui.common.MembershipQualifierLabel
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.WireCircularProgressIndicator
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserProfileInfo(
     isLoading: Boolean,
@@ -40,6 +43,7 @@ fun UserProfileInfo(
     fullName: String,
     userName: String,
     teamName: String?,
+    membership: Membership = Membership.None,
     onUserProfileClick: (() -> Unit)? = null,
     editableState: EditableState
 ) {
@@ -105,6 +109,10 @@ fun UserProfileInfo(
                 maxLines = 1,
                 color = MaterialTheme.wireColorScheme.labelText,
             )
+            if (membership != Membership.None) {
+                Spacer(Modifier.height(dimensions().spacing8x))
+                MembershipQualifierLabel(membership)
+            }
         }
 
         if (editableState is EditableState.IsEditable) {

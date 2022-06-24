@@ -9,11 +9,11 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
+import com.wire.android.mapper.ContactMapper
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.newconversation.model.Contact
-import com.wire.android.ui.home.newconversation.model.toContact
 import com.wire.android.ui.home.newconversation.newgroup.NewGroupState
 import com.wire.android.ui.home.newconversation.search.ContactSearchResult
 import com.wire.android.ui.home.newconversation.search.SearchPeopleState
@@ -41,6 +41,7 @@ class NewConversationViewModel
     private val searchKnownUsers: SearchKnownUsersUseCase,
     private val getAllContacts: GetAllContactsUseCase,
     private val createGroupConversation: CreateGroupConversationUseCase,
+    private val contactMapper: ContactMapper
 ) : ViewModel() {
 
     private companion object {
@@ -82,7 +83,7 @@ class NewConversationViewModel
                 val allContacts = getAllContacts()
 
                 innerSearchPeopleState = innerSearchPeopleState.copy(
-                    allKnownContacts = allContacts.map { otherUser -> otherUser.toContact() }
+                    allKnownContacts = allContacts.map { otherUser -> contactMapper.fromOtherUser(otherUser) }
                 )
             }
 
@@ -121,7 +122,7 @@ class NewConversationViewModel
 
         localContactSearchResult = when (result) {
             is Result.Success -> ContactSearchResult.InternalContact(
-                SearchResultState.Success(result.userSearchResult.result.map { otherUser -> otherUser.toContact() })
+                SearchResultState.Success(result.userSearchResult.result.map { otherUser -> contactMapper.fromOtherUser(otherUser) })
             )
             else -> ContactSearchResult.InternalContact(SearchResultState.Failure(R.string.label_general_error))
         }
@@ -145,7 +146,7 @@ class NewConversationViewModel
             }
             is Result.Success -> {
                 ContactSearchResult.ExternalContact(
-                    SearchResultState.Success(result.userSearchResult.result.map { it.toContact() })
+                    SearchResultState.Success(result.userSearchResult.result.map { otherUser -> contactMapper.fromOtherUser(otherUser) })
                 )
             }
         }

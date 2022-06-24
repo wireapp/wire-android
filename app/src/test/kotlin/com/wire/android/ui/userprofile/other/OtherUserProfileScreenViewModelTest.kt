@@ -2,9 +2,11 @@ package com.wire.android.ui.userprofile.other
 
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.navigation.EXTRA_USER_DOMAIN
 import com.wire.android.navigation.EXTRA_USER_ID
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.kalium.logic.CoreFailure.Unknown
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
@@ -14,6 +16,7 @@ import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCase
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCaseResult
 import com.wire.kalium.logic.feature.connection.CancelConnectionRequestUseCase
@@ -70,12 +73,16 @@ class OtherUserProfileScreenViewModelTest {
     @MockK
     private lateinit var ignoreConnectionRequest: IgnoreConnectionRequestUseCase
 
+    @MockK
+    private lateinit var userTypeMapper : UserTypeMapper
+
     @BeforeEach
     fun setUp() {
         MockKAnnotations.init(this, relaxUnitFun = true)
         every { savedStateHandle.get<String>(eq(EXTRA_USER_ID)) } returns CONVERSATION_ID.value
         every { savedStateHandle.get<String>(eq(EXTRA_USER_DOMAIN)) } returns CONVERSATION_ID.domain
         coEvery { getUserInfo(any()) } returns GetUserInfoResult.Success(OTHER_USER, TEAM)
+        every { userTypeMapper.toMembership(any()) } returns Membership.None
 
         otherUserProfileScreenViewModel = OtherUserProfileScreenViewModel(
             savedStateHandle,
@@ -86,6 +93,7 @@ class OtherUserProfileScreenViewModelTest {
             cancelConnectionRequest,
             acceptConnectionRequest,
             ignoreConnectionRequest,
+            userTypeMapper
         )
     }
 
@@ -227,7 +235,8 @@ class OtherUserProfileScreenViewModelTest {
             ConnectionState.NOT_CONNECTED,
             null,
             null,
-            UserAvailabilityStatus.AVAILABLE
+            UserAvailabilityStatus.AVAILABLE,
+            UserType.INTERNAL
         )
         val TEAM = Team("some_id", null)
         val CONVERSATION = Conversation(

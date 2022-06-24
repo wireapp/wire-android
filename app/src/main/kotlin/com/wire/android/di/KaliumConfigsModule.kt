@@ -46,7 +46,8 @@ class KaliumConfigsModule {
             newPasswordMaximumLength = BuildConfig.NEW_PASSWORD_MAXIMUM_LENGTH,
             newPasswordMinimumLength = BuildConfig.NEW_PASSWORD_MINIMUM_LENGTH,
             passwordMaxAttempts = BuildConfig.PASSWORD_MAX_ATTEMPTS,
-            appLockTimeout = BuildConfig.APP_LOCK_TIMEOUT
+            appLockTimeout = BuildConfig.APP_LOCK_TIMEOUT,
+            shouldEncryptData = !BuildConfig.DEBUG
         )
     }
 

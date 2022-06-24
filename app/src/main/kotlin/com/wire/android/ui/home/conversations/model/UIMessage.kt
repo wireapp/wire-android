@@ -44,6 +44,7 @@ sealed class MessageContent {
 
     data class TextMessage(val messageBody: MessageBody) : ClientMessage()
 
+    data class RestrictedAsset(val mimeType: String) : ClientMessage()
     data class AssetMessage(
         val assetName: String,
         val assetExtension: String,

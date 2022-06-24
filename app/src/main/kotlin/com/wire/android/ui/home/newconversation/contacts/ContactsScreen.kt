@@ -67,11 +67,11 @@ fun ContactsScreen(
                         ContactItem(
                             name = name,
                             avatarData = avatarData,
+                            membership = membership,
                             belongsToGroup = contactsAddedToGroup.contains(this),
                             addToGroup = { onAddToGroup(this) },
                             removeFromGroup = { onRemoveFromGroup(this) },
-                            openUserProfile = { onOpenUserProfile(this) },
-                            membership = membership
+                            openUserProfile = { onOpenUserProfile(this) }
                         )
                     }
                 }
@@ -106,8 +106,9 @@ private fun ContactItem(
                 Text(
                     text = name,
                     style = MaterialTheme.wireTypography.title02,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis)
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
+                )
                 Spacer(Modifier.width(dimensions().spacing8x))
                 MembershipQualifierLabel(membership = membership)
             }

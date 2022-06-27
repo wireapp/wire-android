@@ -21,9 +21,9 @@ val mockShortMentionInfo = ConversationLastEvent.Mention(mentionMessage = Mentio
 val mockLongMentionInfo = ConversationLastEvent.Mention(
     mentionMessage = MentionMessage(
         "THis is a very very very very very very very " +
-                "very very very very very very very" +
-                " very very very very very very very " +
-                "very very very very very very very mention message"
+            "very very very very very very very" +
+            " very very very very very very very " +
+            "very very very very very very very mention message"
     )
 )
 
@@ -147,6 +147,7 @@ val mockGeneralConversationPending = ConversationItem.ConnectionConversation(
         membership = Membership.Guest
     ),
     lastEvent = ConversationLastEvent.Connection(ConnectionState.PENDING, UserId("someId", "someDomain")),
+    connectionState = ConnectionState.PENDING
 )
 
 val conversationMockData = mapOf(
@@ -157,8 +158,8 @@ val conversationMockData = mapOf(
     ConversationFolder.Custom("THIS IS A TEST FOLDER") to mockConversations1,
     ConversationFolder.Custom(
         "THIS IS A TEST FOLDER WITH A VERY VERY VERY VERY" +
-                " VERY VERY VERY VERY VERY VERY VERY " +
-                "VERY VERY VERY VERY VERY LONG NAME"
+            " VERY VERY VERY VERY VERY VERY VERY " +
+            "VERY VERY VERY VERY VERY LONG NAME"
     ) to mockConversations1
 )
 
@@ -175,7 +176,6 @@ val newActivitiesMockData = listOf(
     NewActivity(EventType.UnreadMention, mockGeneralConversation),
     NewActivity(EventType.UnreadReply, mockGeneralConversation)
 )
-
 
 val mockMentionShortGroupConversation = ConversationItem.GroupConversation(
     groupName = "Some group name",

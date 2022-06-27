@@ -8,7 +8,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.wire.android.appLogger
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.navigation.NavigationManager
@@ -63,6 +62,7 @@ class LoginSSOViewModel @Inject constructor(
 
     @VisibleForTesting
     fun establishSSOSession(cookie: String) {
+        loginState = loginState.copy(loading = true, loginSSOError = LoginError.None).updateLoginEnabled()
         viewModelScope.launch {
             val authSession = getSSOLoginSessionUseCase(cookie).let {
                 when (it) {

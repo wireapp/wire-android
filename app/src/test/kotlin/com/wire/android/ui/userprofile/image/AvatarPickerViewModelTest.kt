@@ -85,13 +85,6 @@ class AvatarPickerViewModelTest {
     }
 
     @Test
-    fun `given an image, when picked, then should emit a picked state with uri`() = runTest {
-        avatarPickerViewModel.pickNewImage(mockUri)
-
-        assertEquals(AvatarPickerViewModel.PictureState.Picked::class, avatarPickerViewModel.pictureState::class)
-    }
-
-    @Test
     fun `given a valid image, when uploading the asset succeed, then should call the usecase and navigate back on success`() = runTest {
         val uploadedAssetId = "value@domain"
         val rawImage = uploadedAssetId.toByteArray()

@@ -8,7 +8,13 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.model.ImageAsset.UserAvatarAsset
-import com.wire.android.navigation.*
+import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.EXTRA_CONNECTION_IGNORED_USER_NAME
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.NavigationItem
+import com.wire.android.navigation.NavigationManager
+import com.wire.android.navigation.SavedStateViewModel
+import com.wire.android.navigation.getBackNavArg
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
 import com.wire.kalium.logic.feature.featureConfig.GetFeatureConfigStatusResult

@@ -376,6 +376,7 @@
     <string name="calling_label_decline">Decline</string>
     <string name="calling_label_accept">Accept</string>
     <string name="calling_content_description_participant_muted">Participant muted</string>
+    <string name="calling_label_join_call">Join</string>
 
     <!-- Connections -->
     <string name="connection_label_connect">Connect</string>
@@ -410,6 +411,15 @@
     <string name="asset_download_dialog_default_title">Download file</string>
     <string name="empty_group_label">Unnamed conversation</string>
     <string name="label_show_more">Show More</string>
+
+    <!--prohibited asset messages -->
+    <string name="prohibited_images_message">Receiving Images is Prohibited</string>
+    <string name="prohibited_videos_message">Receiving Videos is Prohibited</string>
+    <string name="prohibited_audio_message">Receiving Audio is Prohibited</string>
+    <string name="prohibited_file_message">Receiving Files is Prohibited</string>
+    <string name="there_has_been_a_change">There has been a change in wire</string>
+    <string name="sharing_files_enabled">Sharing and receiving files of any type is now enabled</string>
+    <string name="sharing_files_disabled">Sharing and receiving files of any type is now disabled</string>
 
     <!--wire dropdown-->
     <string name="wire_dropdown_default_indicator">" (default)"</string>

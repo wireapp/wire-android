@@ -15,6 +15,7 @@ import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.parseIntoQualifiedID
 import com.wire.kalium.logic.feature.call.CallStatus
+import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.GetAllCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.StartCallUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
@@ -32,6 +33,7 @@ class InitiatingCallViewModel @Inject constructor(
     private val conversationDetails: ObserveConversationDetailsUseCase,
     private val allCalls: GetAllCallsUseCase,
     private val startCall: StartCallUseCase,
+    private val endCall: EndCallUseCase,
     private val callRinger: CallRinger
 ) : ViewModel() {
 
@@ -62,7 +64,6 @@ class InitiatingCallViewModel @Inject constructor(
             else -> throw IllegalStateException("Invalid conversation type")
         }
     }
-
 
     private suspend fun observeStartedCall() {
         allCalls().collect { calls ->
@@ -104,4 +105,11 @@ class InitiatingCallViewModel @Inject constructor(
 
     fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }
 
+    fun hangUpCall() {
+        viewModelScope.launch {
+            endCall(conversationId)
+            navigateBack()
+            callRinger.stop()
+        }
+    }
 }

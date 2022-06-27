@@ -25,6 +25,7 @@ fun AllConversationScreen(
     onOpenUserProfile: (UserId) -> Unit,
     onScrollPositionProviderChanged: (() -> Int) -> Unit = { 0 },
     onOpenConversationNotificationsSettings: (ConversationItem) -> Unit,
+    onJoinCall: (ConversationId) -> Unit
 ) {
     val lazyListState = rememberLazyListState()
 
@@ -38,6 +39,7 @@ fun AllConversationScreen(
         onEditConversation = onEditConversation,
         onOpenUserProfile = onOpenUserProfile,
         onOpenConversationNotificationsSettings = onOpenConversationNotificationsSettings,
+        onJoinCall = onJoinCall
     )
 }
 
@@ -50,6 +52,7 @@ private fun AllConversationContent(
     onEditConversation: (ConversationItem) -> Unit,
     onOpenUserProfile: (UserId) -> Unit,
     onOpenConversationNotificationsSettings: (ConversationItem) -> Unit,
+    onJoinCall: (ConversationId) -> Unit
 ) {
     LazyColumn(
         state = lazyListState,
@@ -67,6 +70,7 @@ private fun AllConversationContent(
                     openMenu = onEditConversation,
                     openUserProfile = onOpenUserProfile,
                     openNotificationsOptions = onOpenConversationNotificationsSettings,
+                    joinCall = onJoinCall
                 )
             }
         }
@@ -87,6 +91,7 @@ private fun AllConversationContent(
                     openMenu = onEditConversation,
                     openUserProfile = onOpenUserProfile,
                     openNotificationsOptions = onOpenConversationNotificationsSettings,
+                    joinCall = onJoinCall
                 )
             }
         }
@@ -96,5 +101,5 @@ private fun AllConversationContent(
 @Preview
 @Composable
 fun ComposablePreview() {
-    AllConversationScreen(listOf(), mapOf(), {}, {}, {}, {}, {})
+    AllConversationScreen(listOf(), mapOf(), {}, {}, {}, {}, {}, {})
 }

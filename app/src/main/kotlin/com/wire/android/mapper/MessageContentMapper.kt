@@ -102,6 +102,7 @@ class MessageContentMapper @Inject constructor(
             messageId = message.id,
             assetContent = content.value
         )
+        is MessageContent.RestrictedAsset -> toRestrictedAsset(content.mimeType)
         else -> toText(content)
     }
 
@@ -131,7 +132,7 @@ class MessageContentMapper @Inject constructor(
                 // If it's an image, we download it right away
                 isImage(mimeType) && imgWidth > 0 && imgHeight > 0 -> UIMessageContent.ImageMessage(
                     assetId = AssetId(remoteData.assetId, remoteData.assetDomain.orEmpty()),
-                    imgData = getImageRawData(conversationId, messageId),
+                    imgData = imageRawData(conversationId, messageId),
                     width = imgWidth,
                     height = imgHeight
                 )
@@ -151,11 +152,16 @@ class MessageContentMapper @Inject constructor(
         } else null
     }
 
-    private suspend fun getImageRawData(conversationId: QualifiedID, messageId: String): ByteArray? {
-        return imageDataPath(
+    private suspend fun imageRawData(conversationId: QualifiedID, messageId: String): ByteArray? =
+        imageDataPath(
             conversationId = conversationId,
             messageId = messageId
         )?.let { kaliumFileSystem.readByteArray(it) }
+
+    private fun toRestrictedAsset(
+        mimeType: String
+    ): UIMessageContent {
+        return UIMessageContent.RestrictedAsset(mimeType)
     }
 
     fun toSystemMessageMemberName(member: MemberDetails?, type: SelfNameType = SelfNameType.NameOrDeleted): UIText = when (member) {

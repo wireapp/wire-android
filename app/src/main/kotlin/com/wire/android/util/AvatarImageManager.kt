@@ -22,18 +22,20 @@ class AvatarImageManager @Inject constructor(val context: Context) {
      * @param context
      */
     @Suppress("TooGenericExceptionCaught")
-    suspend fun postProcessCapturedAvatar(uri: Uri) {
+    suspend fun postProcessAvatar(uri: Uri): Uri? {
         try {
             val avatarByteArray = uri.toByteArray(context)
 
             // Compress image
-            val resampledByteArray = avatarByteArray?.let { ImageUtil.resample(it, ImageUtil.ImageSizeClass.Small) }
+            val resampledByteArray = avatarByteArray.let { ImageUtil.resample(it, ImageUtil.ImageSizeClass.Small) }
 
             // Save to fixed path
-            resampledByteArray?.let { getWritableTempAvatarUri(it) }
+            return resampledByteArray.let { getWritableTempAvatarUri(it) }
         } catch (exception: Exception) {
             // NOOP: None post process op performed
         }
+
+        return null
     }
 
     private fun getWritableTempAvatarUri(imageData: ByteArray): Uri {
@@ -48,7 +50,7 @@ class AvatarImageManager @Inject constructor(val context: Context) {
     }
 
     fun getShareableTempAvatarUri(): Uri {
-        return Companion.getShareableTempAvatarUri(context)
+        return getShareableAvatarUri(context)
     }
 
     companion object {
@@ -71,7 +73,7 @@ class AvatarImageManager @Inject constructor(val context: Context) {
             return FileProvider.getUriForFile(context, context.getProviderAuthority(), getAvatarFile(context))
         }
 
-        fun getShareableTempAvatarUri(context: Context): Uri {
+        fun getSharableTempAvatarUri(context: Context): Uri {
             return FileProvider.getUriForFile(context, context.getProviderAuthority(), getTempAvatarFile(context))
         }
     }

@@ -60,6 +60,16 @@ class AvatarPickerViewModel @Inject constructor(
         }
     }
 
+    fun processAvatar(imageUri: Uri) {
+        viewModelScope.launch {
+            withContext(dispatchers.io()) {
+                pictureState = avatarImageManager
+                    .postProcessAvatar(imageUri)
+                    ?.let { PictureState.Picked(it) } ?: PictureState.Empty
+            }
+        }
+    }
+
     fun uploadNewPickedAvatarAndBack(context: Context) {
         val imgUri = pictureState.avatarPath
         pictureState = PictureState.Uploading(imgUri)
@@ -83,26 +93,13 @@ class AvatarPickerViewModel @Inject constructor(
         }
     }
 
-    fun postProcessAvatarImage(imgUri: Uri) {
-        viewModelScope.launch {
-            withContext(dispatchers.io()) {
-                avatarImageManager.postProcessCapturedAvatar(imgUri)
-                pictureState = PictureState.Picked(imgUri)
-            }
-        }
-    }
-
-    fun pickNewImage(imageUri: Uri) {
-        pictureState = PictureState.Picked(imageUri)
-    }
-
     fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }
 
     fun clearErrorMessage() {
         errorMessageCode = null
     }
 
-    fun getTemporaryTargetAvatarUri(): Uri {
+    fun getTemporaryAvatarUri(): Uri {
         return avatarImageManager.getShareableTempAvatarUri()
     }
 

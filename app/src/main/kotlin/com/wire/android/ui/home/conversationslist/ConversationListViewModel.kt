@@ -20,7 +20,6 @@ import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.ConversationLastEvent
-import com.wire.android.ui.home.conversationslist.model.EventType
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.conversationslist.model.NewActivity
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -32,7 +31,6 @@ import com.wire.kalium.logic.data.conversation.ConversationDetails.Self
 import com.wire.kalium.logic.data.conversation.LegalHoldStatus
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
@@ -91,17 +89,6 @@ class ConversationListViewModel @Inject constructor(
             markMessagesAsNotified(null, System.currentTimeMillis().toStringDate()) // TODO Failure is ignored
         }
     }
-
-    private fun prepareActivities(connections: List<Connection>) =
-        connections.map {
-            NewActivity(
-                eventType = getEventTypeForConnectionState(it.connection.status),
-                it.toType()
-            )
-        }
-
-    private fun getEventTypeForConnectionState(connectionState: ConnectionState) =
-        if (connectionState == ConnectionState.SENT) EventType.SentConnectRequest else EventType.ReceivedConnectionRequest
 
     private fun List<ConversationDetails>.toConversationsFoldersMap(): Map<ConversationFolder, List<ConversationItem>> =
         mapOf(ConversationFolder.Predefined.Conversations to this.toConversationItemList())
@@ -240,6 +227,7 @@ private fun ConversationDetails.toType(): ConversationItem = when (this) {
             ),
             conversationId = conversation.id,
             mutedStatus = conversation.mutedStatus,
+            connectionState = connection.status
         )
     }
     is Self -> {

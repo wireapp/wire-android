@@ -2,6 +2,7 @@ package com.wire.android.ui.home.conversations
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -59,6 +60,7 @@ fun MessageItem(
     with(message) {
         Row(
             Modifier
+                .customizeMessageBackground(message)
                 .padding(
                     end = dimensions().spacing16x,
                     bottom = dimensions().messageItemBottomPadding - dimensions().userAvatarClickablePadding
@@ -105,11 +107,23 @@ fun MessageItem(
                         onImageClick = currentOnImageClick
                     )
                 }
+
+                if(message.sendingFailed){
+                    MessageSendFailureWarning()
+                }
             }
         }
     }
 }
 
+@Composable
+private fun Modifier.customizeMessageBackground(
+    message: UIMessage,
+) = run {
+    if (message.sendingFailed) {
+        background(MaterialTheme.wireColorScheme.messageErrorBackgroundColor)
+    } else this
+}
 
 @Composable
 private fun MessageHeader(messageHeader: MessageHeader) {
@@ -228,24 +242,26 @@ private fun MessageStatusLabel(messageStatus: MessageStatus) {
                     )
                 }
             }
-            MessageStatus.SendFailure -> {
-                Row {
-                    Text(
-                        text = messageStatus.text.asString(),
-                        style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.error)
-                    )
-                    Spacer(Modifier.width(dimensions().spacing4x))
-                    Text(
-                        modifier = Modifier.fillMaxWidth(),
-                        style = LocalTextStyle.current.copy(
-                            color = MaterialTheme.wireColorScheme.onTertiaryButtonSelected,
-                            textDecoration = TextDecoration.Underline
-                        ),
-                        text = stringResource(R.string.label_try_again),
-                    )
-                }
-            }
-            MessageStatus.Untouched -> {}
+            MessageStatus.SendFailure, MessageStatus.Untouched -> {}
         }
+    }
+}
+
+@Composable
+private fun MessageSendFailureWarning() {
+    Row {
+        Text(
+            text = MessageStatus.SendFailure.text.asString(),
+            style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.error)
+        )
+        Spacer(Modifier.width(dimensions().spacing4x))
+        Text(
+            modifier = Modifier.fillMaxWidth(),
+            style = LocalTextStyle.current.copy(
+                color = MaterialTheme.wireColorScheme.onTertiaryButtonSelected,
+                textDecoration = TextDecoration.Underline
+            ),
+            text = stringResource(R.string.label_try_again),
+        )
     }
 }

@@ -3,9 +3,9 @@ package com.wire.android.ui.home.conversations
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.UserAvatarData
 import com.wire.kalium.logic.data.conversation.MemberDetails
-import com.wire.kalium.logic.data.conversation.UserType
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.data.user.type.UserType
 
 fun List<MemberDetails>.findUser(userId: UserId): MemberDetails? = firstOrNull { member ->
     when (member) {
@@ -49,6 +49,6 @@ val MemberDetails.avatar: UserAvatarData
 
 val MemberDetails.userType: UserType
     get() = when (this) {
-        is MemberDetails.Other -> this.userType
+        is MemberDetails.Other -> this.otherUser.userType
         is MemberDetails.Self -> UserType.INTERNAL
     }

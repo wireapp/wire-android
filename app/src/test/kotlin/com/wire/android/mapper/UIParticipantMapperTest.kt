@@ -7,12 +7,12 @@ import com.wire.android.ui.home.conversations.name
 import com.wire.android.ui.home.conversations.userId
 import com.wire.android.ui.home.conversations.userType
 import com.wire.kalium.logic.data.conversation.MemberDetails
-import com.wire.kalium.logic.data.conversation.UserType
 import com.wire.kalium.logic.data.publicuser.model.OtherUser
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.data.user.type.UserType
 import io.mockk.MockKAnnotations
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
@@ -25,10 +25,10 @@ class UIParticipantMapperTest {
         // Given
         val data = listOf(
             MemberDetails.Self(testSelfUser(0)),
-            MemberDetails.Other(testOtherUser(1), UserType.INTERNAL),
-            MemberDetails.Other(testOtherUser(2), UserType.EXTERNAL),
-            MemberDetails.Other(testOtherUser(3), UserType.FEDERATED),
-            MemberDetails.Other(testOtherUser(4), UserType.GUEST)
+            MemberDetails.Other(testOtherUser(1).copy(userType = UserType.INTERNAL)),
+            MemberDetails.Other(testOtherUser(2).copy(userType = UserType.EXTERNAL)),
+            MemberDetails.Other(testOtherUser(3).copy(userType = UserType.FEDERATED)),
+            MemberDetails.Other(testOtherUser(4).copy(userType = UserType.GUEST))
         )
         // When
         val results = data.map { mapper.toUIParticipant(it) }
@@ -66,7 +66,7 @@ fun testSelfUser(i: Int): SelfUser = SelfUser(
     email = "email$i",
     phone = "phone$i",
     accentId = i,
-    team = "team$i",
+    teamId = "team$i",
     connectionStatus = ConnectionState.NOT_CONNECTED,
     previewPicture = null,
     completePicture = null,
@@ -84,5 +84,6 @@ fun testOtherUser(i: Int): OtherUser = OtherUser(
     connectionStatus = ConnectionState.NOT_CONNECTED,
     previewPicture = null,
     completePicture = null,
-    availabilityStatus = UserAvailabilityStatus.NONE
+    availabilityStatus = UserAvailabilityStatus.NONE,
+    userType = UserType.INTERNAL
 )

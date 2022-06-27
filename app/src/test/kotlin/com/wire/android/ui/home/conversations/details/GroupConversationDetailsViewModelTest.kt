@@ -4,7 +4,7 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.mapper.testOtherUser
 import com.wire.android.ui.home.conversations.mockConversationDetailsGroup
 import com.wire.kalium.logic.data.conversation.MemberDetails
-import com.wire.kalium.logic.data.conversation.UserType
+import com.wire.kalium.logic.data.user.type.UserType
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
@@ -48,7 +48,7 @@ class GroupConversationDetailsViewModelTest {
         // Given
         val members = buildList {
             for (i in 1..(GroupConversationDetailsViewModel.MAX_NUMBER_OF_PARTICIPANTS + 1)) {
-                add(MemberDetails.Other(testOtherUser(i), UserType.INTERNAL))
+                add(MemberDetails.Other(testOtherUser(i).copy(userType = UserType.INTERNAL)))
             }
         }
         val (_, viewModel) = GroupConversationDetailsViewModelArrangement()

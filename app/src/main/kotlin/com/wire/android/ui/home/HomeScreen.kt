@@ -30,8 +30,6 @@ import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topappbar.search.AppTopBarWithSearchBar
 import com.wire.android.ui.home.sync.SyncStateViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
 
 @OptIn(
     ExperimentalAnimationApi::class,
@@ -45,6 +43,7 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel, syncViewModel: Sy
     val coroutineScope = rememberCoroutineScope()
     val homeState = viewModel.homeState
     val snackbarHostState = remember { SnackbarHostState() }
+
     handleSnackBarMessage(snackbarHostState, viewModel.snackbarMessageState, viewModel::clearSnackbarMessage)
 
     LaunchedEffect(viewModel.savedStateHandle) {
@@ -146,23 +145,23 @@ fun HomeContent(
                         )
                     },
                 )
-                    {
-                        Box(modifier = Modifier.padding(it)) {
-                            AppTopBarWithSearchBar(
-                                scrollPositionProvider = scrollPositionProvider,
-                                searchBarHint = stringResource(R.string.search_bar_hint, stringResource(id = title).lowercase()),
-                                // TODO: implement the search for home once we work on it, for now we do not care
-                                searchQuery = "",
-                                onSearchQueryChanged = {},
-                                onSearchClicked = { },
-                                onCloseSearchClicked = { },
-                                appTopBar = homeTopBar,
-                                content = {
-                                    homeNavigationGraph()
-                                }
+                {
+                    Box(modifier = Modifier.padding(it)) {
+                        AppTopBarWithSearchBar(
+                            scrollPositionProvider = scrollPositionProvider,
+                            searchBarHint = stringResource(R.string.search_bar_hint, stringResource(id = title).lowercase()),
+                            // TODO: implement the search for home once we work on it, for now we do not care
+                            searchQuery = "",
+                            onSearchQueryChanged = {},
+                            onSearchClicked = { },
+                            onCloseSearchClicked = { },
+                            appTopBar = homeTopBar,
+                            content = {
+                                homeNavigationGraph()
+                            }
 
-                            )
-                        }
+                        )
+                    }
                 }
             } else {
                 Scaffold(
@@ -198,17 +197,20 @@ fun HomeNavigationGraph(startScreen: String?, homeState: HomeUIState) {
 @Composable
 private fun handleSnackBarMessage(
     snackbarHostState: SnackbarHostState,
-    conversationListSnackBarState: HomeSnackbarState?,
+    conversationListSnackBarState: HomeSnackbarState,
     onMessageShown: () -> Unit
 ) {
-    conversationListSnackBarState?.let { messageType ->
+    conversationListSnackBarState.let { messageType ->
         val message = when (messageType) {
             is HomeSnackbarState.SuccessConnectionIgnoreRequest ->
                 stringResource(id = R.string.connection_request_ignored, messageType.userName)
+            HomeSnackbarState.None -> ""
         }
         LaunchedEffect(messageType) {
-            snackbarHostState.showSnackbar(message)
-            onMessageShown()
+            if (messageType != HomeSnackbarState.None) {
+                snackbarHostState.showSnackbar(message)
+                onMessageShown()
+            }
         }
     }
 }

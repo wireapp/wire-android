@@ -32,7 +32,7 @@ class HomeViewModel @Inject constructor(
     private val isFileSharingEnabled: IsFileSharingEnabledUseCase
 ) : SavedStateViewModel(savedStateHandle) {
 
-    var snackbarMessageState by mutableStateOf<HomeSnackbarState?>(null)
+    var snackbarMessageState by mutableStateOf<HomeSnackbarState>(HomeSnackbarState.None)
 
     var homeState by mutableStateOf(HomeState())
         private set
@@ -108,11 +108,11 @@ class HomeViewModel @Inject constructor(
         val connectionIgnoredUsername = savedStateHandle
             .getBackNavArg<String>(EXTRA_CONNECTION_IGNORED_USER_NAME)
         snackbarMessageState =
-            connectionIgnoredUsername?.let { HomeSnackbarState.SuccessConnectionIgnoreRequest(it) }
+            connectionIgnoredUsername?.let { HomeSnackbarState.SuccessConnectionIgnoreRequest(it) } ?: HomeSnackbarState.None
     }
 
     fun clearSnackbarMessage() {
-        snackbarMessageState = null
+        snackbarMessageState = HomeSnackbarState.None
     }
 
     private suspend fun loadUserAvatar() {
@@ -141,4 +141,5 @@ data class SelfUserData(
 
 sealed class HomeSnackbarState {
     class SuccessConnectionIgnoreRequest(val userName: String) : HomeSnackbarState()
+    object None : HomeSnackbarState()
 }

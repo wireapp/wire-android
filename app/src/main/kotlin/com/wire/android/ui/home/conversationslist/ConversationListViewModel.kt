@@ -8,11 +8,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.model.ImageAsset.UserAvatarAsset
-import com.wire.kalium.logic.data.user.UserAvailabilityStatus
+import com.wire.android.model.UserAvatarData
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
-import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversationslist.mock.mockAllMentionList
 import com.wire.android.ui.home.conversationslist.mock.mockCallHistory
 import com.wire.android.ui.home.conversationslist.mock.mockMissedCalls
@@ -26,27 +25,28 @@ import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.conversationslist.model.NewActivity
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.conversation.ConversationDetails
+import com.wire.kalium.logic.data.conversation.ConversationDetails.Connection
 import com.wire.kalium.logic.data.conversation.ConversationDetails.Group
 import com.wire.kalium.logic.data.conversation.ConversationDetails.OneOne
 import com.wire.kalium.logic.data.conversation.ConversationDetails.Self
 import com.wire.kalium.logic.data.conversation.LegalHoldStatus
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
-import com.wire.kalium.logic.data.conversation.UserType
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.ConnectionState
+import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.connection.ObserveConnectionListUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveConversationsAndConnectionsUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
 import com.wire.kalium.logic.util.toStringDate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import java.util.Date
 import javax.inject.Inject
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 @ExperimentalMaterial3Api
 @Suppress("MagicNumber", "TooManyFunctions")
@@ -57,6 +57,7 @@ class ConversationListViewModel @Inject constructor(
     private val updateConversationMutedStatus: UpdateConversationMutedStatusUseCase,
     private val markMessagesAsNotified: MarkMessagesAsNotifiedUseCase,
     private val observeConnectionList: ObserveConnectionListUseCase,
+    private val observeConversationsAndConnectionsUseCase: ObserveConversationsAndConnectionsUseCase,
     private val dispatchers: DispatcherProvider
 ) : ViewModel() {
 
@@ -66,38 +67,26 @@ class ConversationListViewModel @Inject constructor(
     var errorState by mutableStateOf<ConversationOperationErrorState?>(null)
 
     init {
-        viewModelScope.launch {
-            withContext(dispatchers.io()) {
-                combine(observeConversationDetailsList(), observeConnectionList(), ::Pair) // TODO AR-1736
-                    .collect { (conversations, connections) ->
-                        val detailedList = conversations.toConversationsFoldersMap()
-                        val newActivities = prepareActivities(
-                            connections.map { connection ->
-                                ConversationDetails.Connection(
-                                    conversationId = connection.qualifiedConversationId,
-                                    otherUser = connection.fromUser,
-                                    userType = UserType.GUEST, // TODO how to get user type
-                                    lastModifiedDate = connection.lastUpdate,
-                                    connection = connection,
-                                )
-                            }
-                        )
-                        val missedCalls = mockMissedCalls // TODO: needs to be implemented
-                        val unreadMentions = mockUnreadMentionList // TODO: needs to be implemented
+        viewModelScope.launch(dispatchers.io()) {
+            observeConversationsAndConnectionsUseCase() // TODO AR-1736
+                .collect { list ->
+                    val detailedList = list.toConversationsFoldersMap()
+                    val newActivities = emptyList<NewActivity>()
+                    val missedCalls = mockMissedCalls // TODO: needs to be implemented
+                    val unreadMentions = mockUnreadMentionList // TODO: needs to be implemented
 
-                        state = ConversationListState(
-                            newActivities = newActivities,
-                            conversations = detailedList,
-                            missedCalls = missedCalls,
-                            callHistory = mockCallHistory, // TODO: needs to be implemented
-                            unreadMentions = unreadMentions,
-                            allMentions = mockAllMentionList, // TODO: needs to be implemented
-                            unreadMentionsCount = unreadMentions.size,
-                            missedCallsCount = missedCalls.size,
-                            newActivityCount = newActivities.size
-                        )
-                    }
-            }
+                    state = ConversationListState(
+                        newActivities = newActivities,
+                        conversations = detailedList,
+                        missedCalls = missedCalls,
+                        callHistory = mockCallHistory, // TODO: needs to be implemented
+                        unreadMentions = unreadMentions,
+                        allMentions = mockAllMentionList, // TODO: needs to be implemented
+                        unreadMentionsCount = unreadMentions.size,
+                        missedCallsCount = missedCalls.size,
+                        newActivityCount = 0 // TODO: needs to be implemented
+                    )
+                }
         }
 
         viewModelScope.launch {
@@ -105,7 +94,7 @@ class ConversationListViewModel @Inject constructor(
         }
     }
 
-    private fun prepareActivities(connections: List<ConversationDetails.Connection>) =
+    private fun prepareActivities(connections: List<Connection>) =
         connections.map {
             NewActivity(
                 eventType = getEventTypeForConnectionState(it.connection.status),
@@ -193,7 +182,7 @@ class ConversationListViewModel @Inject constructor(
     }
 
     private fun List<ConversationDetails>.toConversationItemList(): List<ConversationItem> =
-        filter { it is Group || it is OneOne }
+        filter { it is Group || it is OneOne || it is Connection }
             .map { it.toType() }
 }
 
@@ -225,7 +214,7 @@ private fun ConversationDetails.toType(): ConversationItem = when (this) {
             lastEvent = ConversationLastEvent.None // TODO implement unread events
         )
     }
-    is ConversationDetails.Connection -> {
+    is Connection -> {
         ConversationItem.ConnectionConversation(
             userAvatarData = UserAvatarData(
                 otherUser?.previewPicture?.let { UserAvatarAsset(it) },

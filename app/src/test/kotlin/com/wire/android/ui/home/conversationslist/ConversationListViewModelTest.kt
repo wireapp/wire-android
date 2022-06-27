@@ -19,6 +19,7 @@ import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
+import com.wire.kalium.logic.feature.call.AnswerCallUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -52,6 +53,9 @@ class ConversationListViewModelTest {
     @MockK
     lateinit var markMessagesAsNotified: MarkMessagesAsNotifiedUseCase
 
+    @MockK
+    lateinit var joinCall: AnswerCallUseCase
+
     @BeforeEach
     fun setUp() {
         MockKAnnotations.init(this, relaxUnitFun = true)
@@ -64,6 +68,7 @@ class ConversationListViewModelTest {
                 updateConversationMutedStatus,
                 markMessagesAsNotified,
                 observeConnectionList,
+                joinCall,
                 TestDispatcherProvider()
             )
 
@@ -102,6 +107,26 @@ class ConversationListViewModelTest {
                 )
             }
         }
+
+    @Test
+    fun `given a conversation id, when joining an ongoing call, then verify that answer call usecase is called`() = runTest {
+        coEvery { joinCall(any()) } returns Unit
+
+        conversationListViewModel.joinOngoingCall(conversationId = conversationId)
+
+        coVerify(exactly = 1) { joinCall(conversationId = conversationId) }
+        coVerify(exactly = 1) {
+            navigationManager.navigate(
+                NavigationCommand(
+                    NavigationItem.OngoingCall.getRouteWithArgs(
+                        listOf(
+                            conversationId
+                        )
+                    )
+                )
+            )
+        }
+    }
 
     companion object {
         private val conversationId = ConversationId("some_id", "some_domain")

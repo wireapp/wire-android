@@ -99,6 +99,7 @@ class MessageContentMapper @Inject constructor(
             messageId = message.id,
             assetContent = content.value
         )
+        is MessageContent.RestrictedAsset -> toRestrictedAsset(content.mimeType)
         else -> toText(content)
     }
 
@@ -152,6 +153,12 @@ class MessageContentMapper @Inject constructor(
                 }
             }
         } else null
+    }
+
+    private fun toRestrictedAsset(
+        mimeType: String
+    ): UIMessageContent {
+        return UIMessageContent.RestrictedAsset(mimeType)
     }
 
     fun toSystemMessageMemberName(member: MemberDetails?, type: SelfNameType = SelfNameType.NameOrDeleted): UIText = when (member) {

@@ -211,7 +211,7 @@ class MediaGalleryViewModelTest {
                 mockedConversationTitle,
                 Conversation.Type.ONE_ON_ONE,
                 null,
-                protocolInfo = ProtocolInfo.Proteus,
+                protocol = ProtocolInfo.Proteus,
                 AllAllowed,
                 null, null
             ),

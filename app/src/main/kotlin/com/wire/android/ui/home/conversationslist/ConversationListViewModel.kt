@@ -37,29 +37,25 @@ import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.call.AnswerCallUseCase
-import com.wire.kalium.logic.feature.connection.ObserveConnectionListUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
-import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationsAndConnectionsUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
 import com.wire.kalium.logic.util.toStringDate
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.launch
 import java.util.Date
 import javax.inject.Inject
+import kotlinx.coroutines.launch
 
 @ExperimentalMaterial3Api
 @Suppress("MagicNumber", "TooManyFunctions", "LongParameterList")
 @HiltViewModel
 class ConversationListViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
-    private val observeConversationDetailsList: ObserveConversationListDetailsUseCase,
     private val updateConversationMutedStatus: UpdateConversationMutedStatusUseCase,
     private val markMessagesAsNotified: MarkMessagesAsNotifiedUseCase,
-    private val observeConnectionList: ObserveConnectionListUseCase,
     private val answerCall: AnswerCallUseCase,
-    private val observeConversationsAndConnectionsUseCase: ObserveConversationsAndConnectionsUseCase,
+    private val observeConversationsAndConnections: ObserveConversationsAndConnectionsUseCase,
     private val dispatchers: DispatcherProvider
 ) : ViewModel() {
 
@@ -70,7 +66,7 @@ class ConversationListViewModel @Inject constructor(
 
     init {
         viewModelScope.launch(dispatchers.io()) {
-            observeConversationsAndConnectionsUseCase() // TODO AR-1736
+            observeConversationsAndConnections() // TODO AR-1736
                 .collect { list ->
                     val detailedList = list.toConversationsFoldersMap()
                     val newActivities = emptyList<NewActivity>()

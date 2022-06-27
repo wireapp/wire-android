@@ -132,6 +132,7 @@ private fun IncomingCallContent(
             conversationName = callState.conversationName,
             isCameraOn = callState.isCameraOn,
             avatarAssetId = callState.avatarAssetId,
+            conversationType = callState.conversationType,
             onVideoPreviewCreated = { onVideoPreviewCreated(it) }
         )
     }

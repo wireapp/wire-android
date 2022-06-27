@@ -1,10 +1,10 @@
 package com.wire.android.ui.calling
 
-import android.util.Log
 import android.view.View
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -29,6 +29,7 @@ import com.wire.kalium.logic.feature.call.usecase.UpdateVideoStateUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.util.PlatformView
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -62,10 +63,13 @@ class SharedCallingViewModel @Inject constructor(
                 observeConversationDetails()
             }
             launch {
-                initializeCallingButtons()
+                observeCallState()
             }
             launch {
                 observeOnSpeaker()
+            }
+            launch {
+                observeOnMute()
             }
         }
     }
@@ -98,7 +102,17 @@ class SharedCallingViewModel @Inject constructor(
         }
     }
 
-    private suspend fun initializeCallingButtons() {
+    private suspend fun observeOnMute() {
+        snapshotFlow { callState.isMuted }.collectLatest {
+            if (it) {
+                muteCall(conversationId)
+            } else {
+                unMuteCall(conversationId)
+            }
+        }
+    }
+
+    private suspend fun observeCallState() {
         allCalls().collect { calls ->
             calls.find { call ->
                 call.conversationId == conversationId
@@ -121,7 +135,6 @@ class SharedCallingViewModel @Inject constructor(
     fun hangUpCall() {
         viewModelScope.launch {
             endCall(conversationId)
-            navigateBack()
             callRinger.stop()
         }
     }
@@ -141,10 +154,8 @@ class SharedCallingViewModel @Inject constructor(
     fun toggleMute() {
         viewModelScope.launch {
             callState = if (callState.isMuted) {
-                unMuteCall(conversationId)
                 callState.copy(isMuted = false)
             } else {
-                muteCall(conversationId)
                 callState.copy(isMuted = true)
             }
         }
@@ -192,5 +203,4 @@ class SharedCallingViewModel @Inject constructor(
             }
         }
     }
-
 }

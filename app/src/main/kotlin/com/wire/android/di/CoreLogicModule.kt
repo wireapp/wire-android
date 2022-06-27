@@ -12,13 +12,13 @@ import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.GetAllCallsWithSortedParticipantsUseCase
-import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveSpeakerUseCase
 import com.wire.kalium.logic.feature.call.usecase.SetVideoPreviewUseCase
-import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOnUseCase
-import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOffUseCase
 import com.wire.kalium.logic.feature.call.usecase.StartCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOffUseCase
+import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOnUseCase
 import com.wire.kalium.logic.feature.call.usecase.UnMuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.UpdateVideoStateUseCase
 import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
@@ -29,14 +29,15 @@ import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
 import com.wire.kalium.logic.feature.publicuser.GetKnownUserUseCase
 import com.wire.kalium.logic.feature.publicuser.SearchKnownUsersUseCase
-import com.wire.kalium.logic.feature.publicuser.SearchUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.SearchUserDirectoryUseCase
+import com.wire.kalium.logic.feature.publicuser.SearchUsersUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.RegisterTokenUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.UploadUserAvatarUseCase
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
+import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -138,6 +139,11 @@ class UseCaseModule {
     @Provides
     fun getLoginSessionUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, authServerConfigProvider: AuthServerConfigProvider) =
         coreLogic.getAuthenticationScope(authServerConfigProvider.authServer.value).ssoLoginScope.getLoginSessionGet
+
+    @ViewModelScoped
+    @Provides
+    fun observeSyncStateProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): ObserveSyncStateUseCase =
+        coreLogic.getSessionScope(currentAccount).observeSyncState
 
     @ViewModelScoped
     @Provides
@@ -272,13 +278,13 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun listenToEventsUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
-        coreLogic.getSessionScope(currentAccount)
+    fun getIncomingCallsUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).calls.getIncomingCalls
 
     @ViewModelScoped
     @Provides
-    fun getIncomingCallsUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
-        coreLogic.getSessionScope(currentAccount).calls.getIncomingCalls
+    fun observeOngoingCallsUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).calls.observeOngoingCalls
 
     @ViewModelScoped
     @Provides
@@ -510,6 +516,16 @@ class UseCaseModule {
     @Provides
     fun updateSelfAvailabilityStatusUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).users.updateSelfAvailabilityStatus
+
+    @ViewModelScoped
+    @Provides
+    fun getFileSharingStatusProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).getRemoteFeatureConfigsStatusAndPersist
+
+    @ViewModelScoped
+    @Provides
+    fun isFileSharingEnabledUserCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).isFileSharingEnabled
 
     @ViewModelScoped
     @Provides

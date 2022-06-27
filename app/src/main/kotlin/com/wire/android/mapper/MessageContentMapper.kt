@@ -5,7 +5,6 @@ import com.wire.android.R
 import com.wire.android.ui.home.conversations.findUser
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.name
-import com.wire.android.util.time.ISOFormatter
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.MemberDetails
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -25,7 +24,6 @@ import com.wire.android.ui.home.conversations.model.MessageContent as UIMessageC
 
 // TODO: splits mapping into more classes
 class MessageContentMapper @Inject constructor(
-    private val isoFormatter: ISOFormatter,
     private val getMessageAsset: GetMessageAssetUseCase,
     private val messageResourceProvider: MessageResourceProvider
 ) {
@@ -40,8 +38,8 @@ class MessageContentMapper @Inject constructor(
                     is Message.Regular -> mapRegularMessage(message)
                     is Message.System -> mapSystemMessage(message, members)
                 }
-            Message.Visibility.DELETED -> UIMessageContent.DeletedMessage
-            Message.Visibility.HIDDEN -> null // we don't want to show hidden messages in any way
+            Message.Visibility.DELETED, // for deleted, there is a state label displayed only
+            Message.Visibility.HIDDEN -> null // we don't want to show hidden nor deleted message content in any way
         }
     }
 
@@ -115,12 +113,12 @@ class MessageContentMapper @Inject constructor(
             messageId = message.id,
             assetContent = content.value
         )
-        else -> toText(content, message.editStatus)
+        is MessageContent.RestrictedAsset -> toRestrictedAsset(content.mimeType)
+        else -> toText(content)
     }
 
     fun toText(
-        content: MessageContent,
-        editStatus: Message.EditStatus
+        content: MessageContent
     ) = MessageBody(
         when (content) {
             is MessageContent.Text -> UIText.DynamicString(content.value)
@@ -129,19 +127,7 @@ class MessageContentMapper @Inject constructor(
             )
             else -> UIText.StringResource(messageResourceProvider.sentAMessageWithContent, "Unknown")
         }
-    ).let { messageBody ->
-        when (editStatus) {
-            is Message.EditStatus.Edited -> {
-                UIMessageContent.EditedMessage(
-                    messageBody = messageBody,
-                    editTimeStamp = isoFormatter.fromISO8601ToTimeFormat(utcISO = editStatus.lastTimeStamp)
-                )
-            }
-            Message.EditStatus.NotEdited -> {
-                UIMessageContent.TextMessage(messageBody = messageBody)
-            }
-        }
-    }
+    ).let { messageBody -> UIMessageContent.TextMessage(messageBody = messageBody) }
 
     suspend fun toAsset(
         conversationId: QualifiedID,
@@ -154,16 +140,19 @@ class MessageContentMapper @Inject constructor(
         }
         if (remoteData.assetId.isNotEmpty()) {
             when {
-                // If it's an image, we download it right away
-                isImage(mimeType) -> UIMessageContent.ImageMessage(
-                    assetId = AssetId(remoteData.assetId, remoteData.assetDomain.orEmpty()),
-                    rawImgData = getRawAssetData(
+                // If it's an image and has valid width and height, we download it right away
+                isImage(mimeType) && imgWidth > 0 && imgHeight > 0 -> {
+                    val rawData = getRawAssetData(
                         conversationId = conversationId,
                         messageId = messageId
-                    ),
-                    width = imgWidth,
-                    height = imgHeight
-                )
+                    )
+                    UIMessageContent.ImageMessage(
+                        assetId = AssetId(remoteData.assetId, remoteData.assetDomain.orEmpty()),
+                        rawImgData = rawData,
+                        width = imgWidth,
+                        height = imgHeight
+                    )
+                }
 
                 // It's a generic Asset Message so let's not download it yet
                 else -> {
@@ -178,6 +167,12 @@ class MessageContentMapper @Inject constructor(
                 }
             }
         } else null
+    }
+
+    private fun toRestrictedAsset(
+        mimeType: String
+    ): UIMessageContent {
+        return UIMessageContent.RestrictedAsset(mimeType)
     }
 
     fun toSystemMessageMemberName(member: MemberDetails?, type: SelfNameType = SelfNameType.NameOrDeleted): UIText = when (member) {

@@ -26,6 +26,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import com.wire.android.R
 import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.ShakeAnimation
+import com.wire.android.ui.common.WireDropDown
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.common.textfield.WireTextField
@@ -33,6 +34,8 @@ import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.kalium.logic.data.conversation.ConversationOptions
+
 @Composable
 fun NewGroupScreen(
     newGroupState: NewGroupState,
@@ -70,8 +73,12 @@ fun NewGroupScreenContent(
                 title = stringResource(id = R.string.new_group_title)
             )
         }) { internalPadding ->
-            ConstraintLayout(modifier = Modifier.fillMaxSize().padding(internalPadding)) {
-                val (textField, text, button) = createRefs()
+            ConstraintLayout(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(internalPadding)
+            ) {
+                val (textField, text, button, protocol) = createRefs()
                 val keyboardController = LocalSoftwareKeyboardController.current
                 Text(
                     text = stringResource(id = R.string.new_group_description),
@@ -87,8 +94,8 @@ fun NewGroupScreenContent(
                         }
                 )
                 Box(modifier = Modifier.constrainAs(textField) {
-                    top.linkTo(parent.top)
-                    bottom.linkTo(parent.bottom)
+                    top.linkTo(text.bottom)
+                    bottom.linkTo(protocol.top)
                 }) {
                     ShakeAnimation { animate ->
                         if (animatedGroupNameError) {
@@ -111,6 +118,19 @@ fun NewGroupScreenContent(
                             modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
                         )
                     }
+
+                }
+
+                WireDropDown(
+                    items =
+                    ConversationOptions.Protocol.values().map { it.name },
+                    defaultItemIndex = 0,
+                    stringResource(R.string.protocol),
+                    modifier = Modifier.constrainAs(protocol) {
+                        top.linkTo(textField.bottom)
+                    }.padding(MaterialTheme.wireDimensions.spacing16x)
+                ) { selectedIndex ->
+                    groupProtocol = ConversationOptions.Protocol.values()[selectedIndex]
                 }
                 WirePrimaryButton(
                     text = stringResource(R.string.label_continue),

@@ -21,7 +21,6 @@ import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
-import com.wire.kalium.logic.sync.ListenToEventsUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -214,8 +213,6 @@ class WireActivityViewModelTest {
 
             // Default empty values
             mockUri()
-            coEvery { listenToEventsUseCase() } returns Unit
-            coEvery { userSessionScope.listenToEvents } returns listenToEventsUseCase
             coEvery { coreLogic.getSessionScope(any()) } returns userSessionScope
             coEvery { currentSessionFlow() } returns flowOf()
             coEvery { getServerConfigUseCase(any()) } returns GetServerConfigResult.Success(newServerConfig(1))
@@ -223,9 +220,6 @@ class WireActivityViewModelTest {
             coEvery { notificationManager.observeMessageNotifications(any()) } returns Unit
             coEvery { navigationManager.navigate(any()) } returns Unit
         }
-
-        @MockK
-        lateinit var listenToEventsUseCase: ListenToEventsUseCase
 
         @MockK
         lateinit var userSessionScope: UserSessionScope

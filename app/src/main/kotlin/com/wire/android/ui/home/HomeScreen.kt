@@ -19,8 +19,12 @@ import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.navigation.HomeNavigationGraph
 import com.wire.android.navigation.HomeNavigationItem
+import com.wire.android.ui.common.WireDialog
+import com.wire.android.ui.common.WireDialogButtonProperties
+import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.topappbar.search.AppTopBarWithSearchBar
+import com.wire.android.ui.home.sync.SyncStateViewModel
 
 @OptIn(
     ExperimentalAnimationApi::class,
@@ -28,11 +32,13 @@ import com.wire.android.ui.common.topappbar.search.AppTopBarWithSearchBar
     ExperimentalMaterial3Api::class
 )
 @Composable
-fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
+fun HomeScreen(startScreen: String?, viewModel: HomeViewModel, syncViewModel: SyncStateViewModel) {
     viewModel.checkRequirements()
-    val homeState = rememberHomeState()
+    val homeUIState = rememberHomeUIState()
+    val coroutineScope = rememberCoroutineScope()
+    val homeState = viewModel.homeState
 
-    with(homeState) {
+    with(homeUIState) {
         ModalDrawer(
             drawerBackgroundColor = MaterialTheme.colorScheme.surface,
             drawerElevation = 0.dp,
@@ -51,25 +57,44 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel) {
             gesturesEnabled = drawerState.isOpen
         ) {
             HomeContent(
-                scrollPositionProvider = homeState.scrollPositionProvider,
-                homeBottomSheetContent = homeState.homeBottomSheetContent,
-                homeBottomSheetState = homeState.bottomSheetState,
+                scrollPositionProvider = homeUIState.scrollPositionProvider,
+                homeBottomSheetContent = homeUIState.homeBottomSheetContent,
+                homeBottomSheetState = homeUIState.bottomSheetState,
                 homeTopBar = {
                     HomeTopBar(
                         avatarAsset = viewModel.userAvatar.avatarAsset,
                         status = viewModel.userAvatar.status,
-                        currentNavigationItem = homeState.currentNavigationItem,
+                        currentNavigationItem = homeUIState.currentNavigationItem,
+                        syncState = syncViewModel.syncState,
                         onOpenDrawerClicked = ::openDrawer,
                         onNavigateToUserProfile = viewModel::navigateToUserProfile,
                     )
                 },
-                currentNavigationItem = homeState.currentNavigationItem,
+                currentNavigationItem = homeUIState.currentNavigationItem,
                 homeNavigationGraph = {
                     HomeNavigationGraph(
-                        homeState = homeState,
+                        homeState = homeUIState,
                         startScreen = startScreen
                     )
                 }
+            )
+        }
+        if (homeState.showFileSharingDialog) {
+            val text: String = if (homeState.isFileSharingEnabledState) {
+                stringResource(id = R.string.sharing_files_enabled)
+            } else {
+                stringResource(id = R.string.sharing_files_disabled)
+            }
+
+            WireDialog(
+                title = stringResource(id = R.string.there_has_been_a_change),
+                text = text,
+                onDismiss = { viewModel.hideDialogStatus() },
+                optionButton1Properties = WireDialogButtonProperties(
+                    onClick = { viewModel.hideDialogStatus() },
+                    text = stringResource(id = R.string.label_ok),
+                    type = WireDialogButtonType.Primary,
+                )
             )
         }
     }
@@ -124,11 +149,11 @@ fun HomeContent(
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
-fun HomeNavigationGraph(startScreen: String?, homeState: HomeState) {
+fun HomeNavigationGraph(startScreen: String?, homeState: HomeUIState) {
     val startDestination = HomeNavigationItem.all.firstOrNull { startScreen == it.route }?.route
 
     HomeNavigationGraph(
-        homeState = homeState,
+        homeUIState = homeState,
         navController = homeState.navController,
         startDestination = startDestination
     )

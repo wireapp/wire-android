@@ -4,10 +4,8 @@ import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.sizeIn
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -29,20 +27,19 @@ fun WireItemLabel(
     text: String,
     minHeight: Dp = dimensions().badgeSmallMinSize.height,
     minWidth: Dp = dimensions().badgeSmallMinSize.height,
+    contentPadding: PaddingValues = PaddingValues(horizontal = dimensions().spacing6x, vertical = dimensions().spacing2x),
     shape: Shape = RoundedCornerShape(dimensions().spacing6x),
     modifier: Modifier = Modifier
 ) = Box(
     modifier = modifier
-        .defaultMinSize(minHeight = minHeight, minWidth = minWidth)
         .border(width = 1.dp, color = MaterialTheme.wireColorScheme.divider, shape = shape)
-        .padding(PaddingValues(horizontal = dimensions().spacing6x))
-        .sizeIn(minHeight = minHeight, minWidth = minWidth)
-        .wrapContentWidth(),
+        .padding(contentPadding)
+        .wrapContentWidth()
+        .wrapContentHeight(),
 ) {
     Text(
         text = text,
-        style = MaterialTheme.wireTypography.body03,
-        modifier = Modifier.wrapContentHeight()
+        style = MaterialTheme.wireTypography.label02,
     )
 }
 

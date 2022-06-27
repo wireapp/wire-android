@@ -17,6 +17,7 @@ sealed class ConversationItem {
         override val mutedStatus: MutedConversationStatus,
         override val isLegalHold: Boolean = false,
         override val lastEvent: ConversationLastEvent,
+        val hasOnGoingCall: Boolean = false
     ) : ConversationItem()
 
     data class PrivateConversation(
@@ -25,7 +26,7 @@ sealed class ConversationItem {
         override val conversationId: ConversationId,
         override val mutedStatus: MutedConversationStatus,
         override val isLegalHold: Boolean = false,
-        override val lastEvent: ConversationLastEvent,
+        override val lastEvent: ConversationLastEvent
     ) : ConversationItem()
 
     data class ConnectionConversation(
@@ -34,7 +35,7 @@ sealed class ConversationItem {
         override val conversationId: ConversationId,
         override val mutedStatus: MutedConversationStatus,
         override val isLegalHold: Boolean = false,
-        override val lastEvent: ConversationLastEvent,
+        override val lastEvent: ConversationLastEvent
     ) : ConversationItem()
 }
 
@@ -47,12 +48,12 @@ fun ConversationItem.PrivateConversation.toUserInfoLabel() =
     UserInfoLabel(
         labelName = conversationInfo.name,
         isLegalHold = isLegalHold,
-        membership = conversationInfo.membership,
+        membership = conversationInfo.membership
     )
 
 fun ConversationItem.ConnectionConversation.toUserInfoLabel() =
     UserInfoLabel(
         labelName = conversationInfo.name,
         isLegalHold = isLegalHold,
-        membership = conversationInfo.membership,
+        membership = conversationInfo.membership
     )

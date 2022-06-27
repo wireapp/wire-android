@@ -25,7 +25,7 @@ class OngoingCallViewModelTest {
     private lateinit var navigationManager: NavigationManager
 
     @MockK
-    private lateinit var ongoingCall: ObserveEstablishedCallsUseCase
+    private lateinit var establishedCall: ObserveEstablishedCallsUseCase
 
     private lateinit var ongoingCallViewModel: OngoingCallViewModel
 
@@ -41,7 +41,7 @@ class OngoingCallViewModelTest {
         ongoingCallViewModel = OngoingCallViewModel(
             savedStateHandle = savedStateHandle,
             navigationManager = navigationManager,
-            ongoingCall = ongoingCall
+            establishedCall = establishedCall
         )
     }
 

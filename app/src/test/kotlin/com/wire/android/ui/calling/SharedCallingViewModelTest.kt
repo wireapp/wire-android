@@ -6,7 +6,7 @@ import com.wire.android.media.CallRinger
 import com.wire.android.navigation.NavigationManager
 import com.wire.kalium.logic.data.call.VideoState
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
-import com.wire.kalium.logic.feature.call.usecase.GetAllCallsUseCase
+import com.wire.kalium.logic.feature.call.usecase.GetAllCallsWithSortedParticipantsUseCase
 import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.SetVideoPreviewUseCase
 import com.wire.kalium.logic.feature.call.usecase.UnMuteCallUseCase
@@ -40,7 +40,7 @@ class SharedCallingViewModelTest {
     private lateinit var navigationManager: NavigationManager
 
     @MockK
-    private lateinit var allCalls: GetAllCallsUseCase
+    private lateinit var allCalls: GetAllCallsWithSortedParticipantsUseCase
 
     @MockK
     private lateinit var endCall: EndCallUseCase
@@ -111,7 +111,6 @@ class SharedCallingViewModelTest {
 
         runTest { sharedCallingViewModel.toggleMute() }
 
-        coVerify(exactly = 1) { muteCall(conversationId) }
         sharedCallingViewModel.callState.isMuted shouldBeEqualTo true
     }
 
@@ -122,9 +121,7 @@ class SharedCallingViewModelTest {
 
         runTest { sharedCallingViewModel.toggleMute() }
 
-        coVerify(exactly = 1) { unMuteCall(conversationId) }
         sharedCallingViewModel.callState.isMuted shouldBeEqualTo false
-
     }
 
     @Test
@@ -155,7 +152,6 @@ class SharedCallingViewModelTest {
 
     @Test
     fun `given an active call, when the user ends call, then invoke endCall useCase`() {
-        coEvery { navigationManager.navigateBack() } returns Unit
         coEvery { endCall(any()) } returns Unit
         every { callRinger.stop() } returns Unit
 
@@ -163,7 +159,6 @@ class SharedCallingViewModelTest {
 
         coVerify(exactly = 1) { endCall(any()) }
         coVerify(exactly = 1) { callRinger.stop() }
-        coVerify(exactly = 1) { navigationManager.navigateBack() }
     }
 
     @Test

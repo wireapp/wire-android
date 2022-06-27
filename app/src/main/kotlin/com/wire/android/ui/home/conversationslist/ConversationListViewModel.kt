@@ -31,10 +31,11 @@ import com.wire.kalium.logic.data.conversation.ConversationDetails.OneOne
 import com.wire.kalium.logic.data.conversation.ConversationDetails.Self
 import com.wire.kalium.logic.data.conversation.LegalHoldStatus
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
-import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.feature.call.AnswerCallUseCase
 import com.wire.kalium.logic.feature.connection.ObserveConnectionListUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
@@ -49,7 +50,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 @ExperimentalMaterial3Api
-@Suppress("MagicNumber", "TooManyFunctions")
+@Suppress("MagicNumber", "TooManyFunctions", "LongParameterList")
 @HiltViewModel
 class ConversationListViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
@@ -57,6 +58,7 @@ class ConversationListViewModel @Inject constructor(
     private val updateConversationMutedStatus: UpdateConversationMutedStatusUseCase,
     private val markMessagesAsNotified: MarkMessagesAsNotifiedUseCase,
     private val observeConnectionList: ObserveConnectionListUseCase,
+    private val answerCall: AnswerCallUseCase,
     private val dispatchers: DispatcherProvider
 ) : ViewModel() {
 
@@ -162,6 +164,17 @@ class ConversationListViewModel @Inject constructor(
         }
     }
 
+    fun joinOngoingCall(conversationId: ConversationId) {
+        viewModelScope.launch {
+            answerCall(conversationId = conversationId)
+            navigationManager.navigate(
+                command = NavigationCommand(
+                    destination = NavigationItem.OngoingCall.getRouteWithArgs(listOf(conversationId))
+                )
+            )
+        }
+    }
+
     // TODO: needs to be implemented
     @Suppress("EmptyFunctionBlock")
     fun addConversationToFavourites(id: String = "") {
@@ -206,7 +219,8 @@ private fun ConversationDetails.toType(): ConversationItem = when (this) {
             conversationId = conversation.id,
             mutedStatus = conversation.mutedStatus,
             isLegalHold = legalHoldStatus.showLegalHoldIndicator(),
-            lastEvent = ConversationLastEvent.None // TODO implement unread events
+            lastEvent = ConversationLastEvent.None, // TODO implement unread events
+            hasOnGoingCall = hasOngoingCall
         )
     }
     is OneOne -> {

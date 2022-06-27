@@ -52,8 +52,11 @@ data class WireColorScheme(
     val initiatingCallBackground: Color,
     val callingIncomingBackground: Color,
     val muteButtonColor: Color,
-    val groupAvatarColors: List<Color>
-
+    val groupAvatarColors: List<Color>,
+    val callingPagerIndicatorBackground : Color,
+    val callingActiveIndicator : Color,
+    val callingInActiveIndicator : Color,
+    val callingInActiveBorderIndicator : Color
     ) {
     fun toColorScheme(): ColorScheme = ColorScheme(
         primary = primary, onPrimary = onPrimary,
@@ -150,9 +153,12 @@ private val LightWireColorScheme = WireColorScheme(
         WireColorPalette.Gray30,
         WireColorPalette.Gray50,
         WireColorPalette.Gray70,
-    )
+    ),
+    callingPagerIndicatorBackground = WireColorPalette.Gray40,
+    callingActiveIndicator = WireColorPalette.LightBlue500,
+    callingInActiveIndicator = Color.White,
+    callingInActiveBorderIndicator = WireColorPalette.Gray60
 )
-
 
 // Dark WireColorScheme
 private val DarkWireColorScheme = WireColorScheme(
@@ -230,7 +236,11 @@ private val DarkWireColorScheme = WireColorScheme(
         WireColorPalette.Gray50,
         WireColorPalette.Gray70,
         WireColorPalette.Gray90,
-        )
+        ),
+    callingPagerIndicatorBackground = WireColorPalette.Gray40,
+    callingActiveIndicator = WireColorPalette.LightBlue500,
+    callingInActiveIndicator = Color.White,
+    callingInActiveBorderIndicator = WireColorPalette.Gray60
 )
 
 @PackagePrivate

@@ -4,7 +4,6 @@ import androidx.annotation.StringRes
 import com.wire.android.R
 import com.wire.android.ui.home.conversations.findUser
 import com.wire.android.ui.home.conversations.model.MessageBody
-import com.wire.android.ui.home.conversations.model.MessageContent as UIMessageContent
 import com.wire.android.ui.home.conversations.name
 import com.wire.android.util.time.ISOFormatter
 import com.wire.android.util.ui.UIText
@@ -17,12 +16,12 @@ import com.wire.kalium.logic.data.message.MessageContent.Asset
 import com.wire.kalium.logic.data.message.MessageContent.MemberChange
 import com.wire.kalium.logic.data.message.MessageContent.MemberChange.Added
 import com.wire.kalium.logic.data.message.MessageContent.MemberChange.Removed
-import com.wire.kalium.logic.data.message.MessageContent.System
 import com.wire.kalium.logic.data.user.AssetId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import javax.inject.Inject
+import com.wire.android.ui.home.conversations.model.MessageContent as UIMessageContent
 
 // TODO: splits mapping into more classes
 class MessageContentMapper @Inject constructor(
@@ -51,13 +50,27 @@ class MessageContentMapper @Inject constructor(
         members: List<MemberDetails>
     ) = when (val content = message.content) {
         is MemberChange -> mapMemberChangeMessage(content, message.senderUserId, members)
+        is MessageContent.MissedCall -> mapMissedCallMessage(message.senderUserId, members)
+    }
+
+    fun mapMissedCallMessage(
+        senderUserId: UserId,
+        members: List<MemberDetails>
+    ): UIMessageContent.SystemMessage {
+        val sender = members.findUser(userId = senderUserId)
+        val authorName = toSystemMessageMemberName(
+            member = sender,
+            type = SelfNameType.ResourceTitleCase
+        )
+
+        return UIMessageContent.SystemMessage.MissedCall(authorName)
     }
 
     fun mapMemberChangeMessage(
         content: MessageContent.MemberChange,
         senderUserId: UserId,
         members: List<MemberDetails>
-    ) : UIMessageContent.SystemMessage? {
+    ): UIMessageContent.SystemMessage? {
         val sender = members.findUser(userId = senderUserId)
         val isAuthorSelfAction = content.members.size == 1 && senderUserId == content.members.first().id
         val authorName = toSystemMessageMemberName(

@@ -82,6 +82,8 @@ sealed class MessageContent {
         data class MemberLeft(
             val author: UIText
         ) : SystemMessage(R.drawable.ic_minus, R.string.label_system_message_left_the_conversation)
+
+        data class MissedCall(val author: UIText): SystemMessage(R.drawable.ic_call_end, R.string.label_system_message_were_calling)
     }
 }
 

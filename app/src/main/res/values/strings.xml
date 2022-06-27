@@ -291,6 +291,7 @@
     <string name="label_system_message_added">%1$s added %2$s to the conversation</string>
     <string name="label_system_message_removed">%1$s removed %2$s from the conversation</string>
     <string name="label_system_message_left_the_conversation">%1$s left the conversation</string>
+    <string name="label_system_message_were_calling">%1$s were calling</string>
     <string name="label_system_message_and">%1$s and %2$s</string>
     <plurals name="label_system_message_x_more">
         <item quantity="other">%1$d more</item>
@@ -339,6 +340,7 @@
     <string name="notification_shared_picture">Shared a picture</string>
     <string name="notification_shared_file">Shared a file</string>
     <string name="notification_reacted">Added a reaction</string>
+    <string name="notification_missed_call">Missed call</string>
     <string name="notification_not_suppotred_notification">Something not supported in notifications</string>
     <string name="notification_action_call">Call</string>
     <string name="notification_action_reply">Reply</string>

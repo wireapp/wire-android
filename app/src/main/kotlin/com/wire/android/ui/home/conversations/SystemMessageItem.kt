@@ -23,6 +23,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -68,7 +69,8 @@ fun SystemMessageItem(message: SystemMessage) {
                             vertical = dimensions().spacing4x
                         )
                         .size(dimensions().systemMessageIconSize),
-                    contentScale = ContentScale.Crop
+                    contentScale = ContentScale.Crop,
+//                    colorFilter = ColorFilter.tint()
                 )
         }
         Spacer(Modifier.padding(start = dimensions().spacing16x))
@@ -157,6 +159,7 @@ private val SystemMessage.expandable
         is SystemMessage.MemberAdded -> this.memberNames.size > EXPANDABLE_THRESHOLD
         is SystemMessage.MemberRemoved -> this.memberNames.size > EXPANDABLE_THRESHOLD
         is SystemMessage.MemberLeft -> false
+        is SystemMessage.MissedCall -> false
     }
 
 private fun String.bold() = STYLE_SEPARATOR + this + STYLE_SEPARATOR
@@ -194,6 +197,7 @@ fun SystemMessage.getAnnotatedString(
             memberNames.limitUserNamesList(res, if (expanded) memberNames.size else EXPANDABLE_THRESHOLD).toUserNamesListString(res)
         )
         is SystemMessage.MemberLeft -> res.getString(stringResId, author.asString(res).bold())
+        is SystemMessage.MissedCall -> res.getString(stringResId, author.asString(res).bold())
     }
     return buildAnnotatedString {
         string.split(STYLE_SEPARATOR).forEachIndexed { index, text ->

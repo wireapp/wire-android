@@ -13,6 +13,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
 
@@ -30,8 +31,8 @@ fun MembershipQualifierLabel(
             .wrapContentWidth()
             .background(
                 color = MaterialTheme.colorScheme.primaryContainer,
-                shape = RoundedCornerShape(8.dp)
+                shape = RoundedCornerShape(MaterialTheme.wireDimensions.corner4x)
             )
-            .padding(horizontal = 4.dp, vertical = 2.dp)
+            .padding(horizontal = MaterialTheme.wireDimensions.spacing4x, vertical = MaterialTheme.wireDimensions.spacing2x)
     )
 }

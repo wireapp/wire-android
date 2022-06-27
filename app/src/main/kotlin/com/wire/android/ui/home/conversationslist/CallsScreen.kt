@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.ui.home.conversationslist.common.ConversationItemFactory
@@ -51,13 +52,14 @@ fun CallContent(
     onOpenUserProfile: (UserId) -> Unit,
     openConversationNotificationsSettings: (ConversationItem) -> Unit,
 ) {
+    val context = LocalContext.current
     LazyColumn(
         state = lazyListState,
         modifier = Modifier.fillMaxSize()
     ) {
         folderWithElements(
-            header = { stringResource(id = R.string.calls_label_missed_calls) },
-            items = missedCalls
+            header = context.getString(R.string.calls_label_missed_calls),
+            items = missedCalls.associateBy { it.conversationId.toString() }
         ) { missedCall ->
             ConversationItemFactory(
                 conversation = missedCall,
@@ -70,8 +72,8 @@ fun CallContent(
         }
 
         folderWithElements(
-            header = { stringResource(id = R.string.calls_label_calls_history) },
-            items = callHistory
+            header = context.getString(R.string.calls_label_calls_history),
+            items = callHistory.associateBy { it.conversationId.toString() }
         ) { callHistory ->
             ConversationItemFactory(
                 conversation = callHistory,

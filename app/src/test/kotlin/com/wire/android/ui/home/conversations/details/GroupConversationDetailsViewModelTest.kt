@@ -1,7 +1,10 @@
 package com.wire.android.ui.home.conversations.details
 
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.mapper.testOtherUser
 import com.wire.android.ui.home.conversations.mockConversationDetailsGroup
+import com.wire.kalium.logic.data.conversation.MemberDetails
+import com.wire.kalium.logic.data.conversation.UserType
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
@@ -38,5 +41,21 @@ class GroupConversationDetailsViewModelTest {
         // When - Then
         arrangement.withConversationDetailUpdate(details2)
         assertEquals(details2.conversation.name, viewModel.groupOptionsState.groupName)
+    }
+
+    @Test
+    fun `given a group members, when solving the participants list, then right sizes are passed`() = runTest {
+        // Given
+        val members = buildList {
+            for (i in 1..(GroupConversationDetailsViewModel.MAX_NUMBER_OF_PARTICIPANTS + 1)) {
+                add(MemberDetails.Other(testOtherUser(i), UserType.INTERNAL))
+            }
+        }
+        val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
+            .withConversationParticipantsUpdate(members)
+            .arrange()
+        // When - Then
+        assert(viewModel.groupParticipantsState.participants.size <= GroupConversationDetailsViewModel.MAX_NUMBER_OF_PARTICIPANTS)
+        assert(viewModel.groupParticipantsState.allParticipantsCount  == members.size)
     }
 }

@@ -48,12 +48,16 @@ data class WireColorScheme(
     val disabledUncheckedBoxColor: Color,
     val uncheckedCheckmarkColor: Color,
     val checkedCheckmarkColor: Color,
+    val messageErrorBackgroundColor: Color,
     val ongoingCallBackground: Color,
     val initiatingCallBackground: Color,
     val callingIncomingBackground: Color,
     val muteButtonColor: Color,
-    val groupAvatarColors: List<Color>
-
+    val groupAvatarColors: List<Color>,
+    val callingPagerIndicatorBackground : Color,
+    val callingActiveIndicator : Color,
+    val callingInActiveIndicator : Color,
+    val callingInActiveBorderIndicator : Color
     ) {
     fun toColorScheme(): ColorScheme = ColorScheme(
         primary = primary, onPrimary = onPrimary,
@@ -117,6 +121,7 @@ private val LightWireColorScheme = WireColorScheme(
     disabledUncheckedBoxColor = WireColorPalette.Gray80,
     uncheckedCheckmarkColor = WireColorPalette.Gray20,
     checkedCheckmarkColor = Color.White,
+    messageErrorBackgroundColor = WireColorPalette.DarkRed50,
     ongoingCallBackground = WireColorPalette.Gray90,
     initiatingCallBackground = WireColorPalette.Gray20,
     callingIncomingBackground = WireColorPalette.Gray20,
@@ -150,9 +155,12 @@ private val LightWireColorScheme = WireColorScheme(
         WireColorPalette.Gray30,
         WireColorPalette.Gray50,
         WireColorPalette.Gray70,
-    )
+    ),
+    callingPagerIndicatorBackground = WireColorPalette.Gray40,
+    callingActiveIndicator = WireColorPalette.LightBlue500,
+    callingInActiveIndicator = Color.White,
+    callingInActiveBorderIndicator = WireColorPalette.Gray60
 )
-
 
 // Dark WireColorScheme
 private val DarkWireColorScheme = WireColorScheme(
@@ -197,6 +205,7 @@ private val DarkWireColorScheme = WireColorScheme(
     disabledUncheckedBoxColor = WireColorPalette.Gray80,
     uncheckedCheckmarkColor = WireColorPalette.Gray20,
     checkedCheckmarkColor = Color.White,
+    messageErrorBackgroundColor = WireColorPalette.GrayRed900,
     ongoingCallBackground = WireColorPalette.Gray90,
     initiatingCallBackground = WireColorPalette.Gray20,
     callingIncomingBackground = WireColorPalette.Gray20,
@@ -230,7 +239,11 @@ private val DarkWireColorScheme = WireColorScheme(
         WireColorPalette.Gray50,
         WireColorPalette.Gray70,
         WireColorPalette.Gray90,
-        )
+        ),
+    callingPagerIndicatorBackground = WireColorPalette.Gray40,
+    callingActiveIndicator = WireColorPalette.LightBlue500,
+    callingInActiveIndicator = Color.White,
+    callingInActiveBorderIndicator = WireColorPalette.Gray60
 )
 
 @PackagePrivate

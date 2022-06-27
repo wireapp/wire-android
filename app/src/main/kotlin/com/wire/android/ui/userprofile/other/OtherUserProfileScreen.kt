@@ -57,7 +57,7 @@ fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltView
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OtherProfileScreenContent(
     state: OtherUserProfileState,
@@ -104,6 +104,7 @@ fun OtherProfileScreenContent(
                             fullName = fullName,
                             userName = userName,
                             teamName = teamName,
+                            membership = membership,
                             editableState = EditableState.NotEditable
                         )
                     }

@@ -2,6 +2,7 @@ package com.wire.android.ui.home.conversations
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -20,6 +21,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -41,6 +43,7 @@ import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageImage
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
+import com.wire.android.ui.home.conversations.model.RestrictedAssetMessage
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.wireColorScheme
@@ -57,6 +60,7 @@ fun MessageItem(
     with(message) {
         Row(
             Modifier
+                .customizeMessageBackground(message)
                 .padding(
                     end = dimensions().spacing16x,
                     bottom = dimensions().messageItemBottomPadding - dimensions().userAvatarClickablePadding
@@ -78,20 +82,47 @@ fun MessageItem(
             Column {
                 Spacer(modifier = Modifier.height(dimensions().userAvatarClickablePadding))
                 MessageHeader(messageHeader)
+
                 if (!isDeleted) {
-                    MessageContent(messageContent,
-                        onAssetClick = Clickable(enabled = !isDeleted) { onAssetMessageClicked(message.messageHeader.messageId) },
-                        onImageClick = Clickable(enabled = !isDeleted) {
+                    val currentOnAssetClicked =
+                    remember {
+                        Clickable(enabled = true) {
+                            onAssetMessageClicked(message.messageHeader.messageId)
+                        }
+                    }
+
+                    val currentOnImageClick =
+                    remember {
+                        Clickable(enabled = true) {
                             onImageMessageClicked(
                                 message.messageHeader.messageId,
                                 message.messageSource == MessageSource.Self
                             )
                         }
+                    }
+
+                    MessageContent(
+                        messageContent = messageContent,
+                        onAssetClick = currentOnAssetClicked,
+                        onImageClick = currentOnImageClick
                     )
+                }
+
+                if(message.sendingFailed){
+                    MessageSendFailureWarning()
                 }
             }
         }
     }
+}
+
+@Composable
+private fun Modifier.customizeMessageBackground(
+    message: UIMessage,
+) = run {
+    if (message.sendingFailed) {
+        background(MaterialTheme.wireColorScheme.messageErrorBackgroundColor)
+    } else this
 }
 
 @Composable
@@ -159,7 +190,25 @@ private fun MessageContent(
             assetDownloadStatus = messageContent.downloadStatus,
             onAssetClick = onAssetClick
         )
-        else -> {}
+        is MessageContent.SystemMessage.MemberAdded -> {}
+        is MessageContent.SystemMessage.MemberLeft -> {}
+        is MessageContent.SystemMessage.MemberRemoved -> {}
+        is MessageContent.RestrictedAsset -> {
+            when {
+                messageContent.mimeType.contains("image/") -> {
+                    RestrictedAssetMessage(R.drawable.ic_gallery, stringResource(id = R.string.prohibited_images_message))
+                }
+                messageContent.mimeType.contains("video/") -> {
+                    RestrictedAssetMessage(R.drawable.ic_video, stringResource(id = R.string.prohibited_videos_message))
+                }
+                messageContent.mimeType.contains("audio/") -> {
+                    RestrictedAssetMessage(R.drawable.ic_speaker_on, stringResource(id = R.string.prohibited_audio_message))
+                }
+                else -> {
+                    RestrictedAssetMessage(R.drawable.ic_file, stringResource(id = R.string.prohibited_file_message))
+                }
+            }
+        }
     }
 }
 
@@ -193,24 +242,30 @@ private fun MessageStatusLabel(messageStatus: MessageStatus) {
                     )
                 }
             }
-            MessageStatus.SendFailure -> {
-                Row {
-                    Text(
-                        text = messageStatus.text.asString(),
-                        style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.error)
-                    )
-                    Spacer(Modifier.width(dimensions().spacing4x))
-                    Text(
-                        modifier = Modifier.fillMaxWidth(),
-                        style = LocalTextStyle.current.copy(
-                            color = MaterialTheme.wireColorScheme.onTertiaryButtonSelected,
-                            textDecoration = TextDecoration.Underline
-                        ),
-                        text = stringResource(R.string.label_try_again),
-                    )
-                }
-            }
-            MessageStatus.Untouched -> {}
+            MessageStatus.SendFailure, MessageStatus.Untouched -> {}
+        }
+    }
+}
+
+@Composable
+private fun MessageSendFailureWarning() {
+    CompositionLocalProvider(
+        LocalTextStyle provides MaterialTheme.typography.labelSmall
+    ) {
+        Row {
+            Text(
+                text = MessageStatus.SendFailure.text.asString(),
+                style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.error)
+            )
+            Spacer(Modifier.width(dimensions().spacing4x))
+            Text(
+                modifier = Modifier.fillMaxWidth(),
+                style = LocalTextStyle.current.copy(
+                    color = MaterialTheme.wireColorScheme.onTertiaryButtonSelected,
+                    textDecoration = TextDecoration.Underline
+                ),
+                text = stringResource(R.string.label_try_again),
+            )
         }
     }
 }

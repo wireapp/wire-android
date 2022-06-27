@@ -74,7 +74,6 @@ object WireColorPalette {
     @Stable val LightYellow800 = Color(0xFF4C3D29)
     @Stable val LightYellow900 = Color(0xFF261E15)
 
-
     @Stable val DarkBlue50  = Color(0xFFEEF7FF)
     @Stable val DarkBlue100 = Color(0xFFDDEDFF)
     @Stable val DarkBlue200 = Color(0xFFBBDBFF)
@@ -140,7 +139,6 @@ object WireColorPalette {
     @Stable val DarkYellow700 = Color(0xFF997F17)
     @Stable val DarkYellow800 = Color(0xFF66550F)
     @Stable val DarkYellow900 = Color(0xFF4D400B)
-    
 
     @Stable val Gray10  = Color(0xFFFAFAFA)
     @Stable val Gray20 = Color(0xFFEDEFF0)
@@ -152,4 +150,6 @@ object WireColorPalette {
     @Stable val Gray80 = Color(0xFF54585F)
     @Stable val Gray90 = Color(0xFF34373D)
     @Stable val Gray100 = Color(0xFF17181A)
+
+    @Stable val GrayRed900  = Color(0xFF390000)
 }

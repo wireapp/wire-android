@@ -53,9 +53,9 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun ConversationScreen(conversationViewModel: ConversationViewModel) {
-    val audioPermissionCheck = AudioBluetoothPermissionCheckFlow(conversationViewModel)
+    val startCallAudioPermissionCheck = StartCallAudioBluetoothPermissionCheckFlow(conversationViewModel)
+    val joinCallAudioPermissionCheck = JoinCallAudioBluetoothPermissionCheckFlow(conversationViewModel)
     val uiState = conversationViewModel.conversationViewState
-
     LaunchedEffect(conversationViewModel.savedStateHandle) {
         conversationViewModel.checkPendingActions()
     }
@@ -69,10 +69,12 @@ fun ConversationScreen(conversationViewModel: ConversationViewModel) {
         onImageFullScreenMode = conversationViewModel::navigateToGallery,
         onBackButtonClick = conversationViewModel::navigateBack,
         onDeleteMessage = conversationViewModel::showDeleteMessageDialog,
-        onCallStart = audioPermissionCheck::launch,
+        onCallStart = startCallAudioPermissionCheck::launch,
+        onJoinCall = joinCallAudioPermissionCheck::launch,
         onSnackbarMessage = conversationViewModel::onSnackbarMessage,
         onDropDownClick = conversationViewModel::navigateToDetails
     )
+
     DeleteMessageDialog(conversationViewModel = conversationViewModel)
     DownloadedAssetDialog(
         downloadedAssetDialogState = conversationViewModel.conversationViewState.downloadedAssetDialogState,
@@ -83,9 +85,17 @@ fun ConversationScreen(conversationViewModel: ConversationViewModel) {
 }
 
 @Composable
-private fun AudioBluetoothPermissionCheckFlow(conversationViewModel: ConversationViewModel) =
+private fun StartCallAudioBluetoothPermissionCheckFlow(conversationViewModel: ConversationViewModel) =
     rememberCallingRecordAudioBluetoothRequestFlow(onAudioBluetoothPermissionGranted = {
         conversationViewModel.navigateToInitiatingCallScreen()
+    }) {
+        //TODO display an error dialog
+    }
+
+@Composable
+private fun JoinCallAudioBluetoothPermissionCheckFlow(conversationViewModel: ConversationViewModel) =
+    rememberCallingRecordAudioBluetoothRequestFlow(onAudioBluetoothPermissionGranted = {
+        conversationViewModel.joinOngoingCall()
     }) {
         //TODO display an error dialog
     }
@@ -103,6 +113,7 @@ private fun ConversationScreen(
     onBackButtonClick: () -> Unit,
     onDeleteMessage: (String, Boolean) -> Unit,
     onCallStart: () -> Unit,
+    onJoinCall: () -> Unit,
     onSnackbarMessage: (ConversationSnackbarMessages) -> Unit,
     onDropDownClick: () -> Unit
 ) {
@@ -142,7 +153,9 @@ private fun ConversationScreen(
                             onBackButtonClick = onBackButtonClick,
                             onDropDownClick = onDropDownClick,
                             onSearchButtonClick = { },
-                            onPhoneButtonClick = onCallStart
+                            onPhoneButtonClick = onCallStart,
+                            hasOngoingCall = hasOngoingCall,
+                            onJoinCallButtonClick = onJoinCall
                         )
                     },
                     snackbarHost = {
@@ -164,7 +177,8 @@ private fun ConversationScreen(
                                 onImageFullScreenMode = onImageFullScreenMode,
                                 conversationState = conversationViewState,
                                 onMessageComposerError = onSnackbarMessage,
-                                conversationScreenState = conversationScreenState
+                                conversationScreenState = conversationScreenState,
+                                isFileSharingEnabled = isFileSharingEnabled
                             )
                         }
                     }
@@ -187,7 +201,8 @@ private fun ConversationScreenContent(
     onImageFullScreenMode: (String, Boolean) -> Unit,
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
     conversationState: ConversationViewState,
-    conversationScreenState: ConversationScreenState
+    conversationScreenState: ConversationScreenState,
+    isFileSharingEnabled: Boolean
 ) {
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -232,7 +247,7 @@ private fun ConversationScreenContent(
             ) {
                 coroutineScope.launch { lazyListState.animateScrollToItem(messages.size) }
             }
-        }
+        }, isFileSharingEnabled = isFileSharingEnabled
     )
 }
 
@@ -295,6 +310,6 @@ fun ConversationScreenPreview() {
             conversationName = "Some test conversation",
             messages = getMockedMessages(),
         ),
-        {}, {}, {}, {}, { _, _ -> }, {}, { _, _ -> }, {}, {}, {}
+        {}, {}, {}, {}, { _, _ -> }, {}, { _, _ -> }, {}, {}, {}, {}
     )
 }

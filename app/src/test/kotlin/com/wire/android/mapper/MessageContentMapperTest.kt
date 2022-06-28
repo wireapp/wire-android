@@ -90,11 +90,16 @@ class MessageContentMapperTest {
         val member1 = TestUser.MEMBER_OTHER.copy(TestUser.OTHER_USER.copy(id = userId1))
         val member2 = TestUser.MEMBER_OTHER.copy(TestUser.OTHER_USER.copy(id = userId2))
         val member3 = TestUser.MEMBER_OTHER.copy(TestUser.OTHER_USER.copy(id = userId3))
+        val missedCallMessage = TestMessage.MISSED_CALL_MESSAGE
+        val selfCaller = MemberDetails.Self(TestUser.SELF_USER.copy(id = missedCallMessage.senderUserId))
+        val otherCaller = member1.copy(otherUser = member1.otherUser.copy(id = missedCallMessage.senderUserId))
         // When
         val resultContentLeft = mapper.mapMemberChangeMessage(contentLeft, userId1, listOf(member1))
         val resultContentRemoved = mapper.mapMemberChangeMessage(contentRemoved, userId1, listOf(member1, member2))
         val resultContentAdded = mapper.mapMemberChangeMessage(contentAdded, userId1, listOf(member1, member2, member3))
         val resultContentAddedSelf = mapper.mapMemberChangeMessage(contentAddedSelf, userId1, listOf(member1))
+        val resultMyMissedCall = mapper.fromMessage(missedCallMessage, listOf(selfCaller))
+        val resultOtherMissedCall = mapper.fromMessage(missedCallMessage, listOf(otherCaller))
         // Then
         assert(
             resultContentLeft is SystemMessage.MemberLeft &&
@@ -115,6 +120,14 @@ class MessageContentMapperTest {
                     resultContentAdded.memberNames[1].asString(arrangement.resources) == member3.otherUser.name
         )
         assert(resultContentAddedSelf == null)
+        assert(
+            resultOtherMissedCall is SystemMessage.MissedCall &&
+                    resultOtherMissedCall.author.asString(arrangement.resources) == TestUser.OTHER_USER.name
+        )
+        assert(
+            resultMyMissedCall is SystemMessage.MissedCall &&
+                    (resultMyMissedCall.author as UIText.StringResource).resId == arrangement.messageResourceProvider.memberNameYouTitlecase
+        )
     }
 
     @Test
@@ -214,23 +227,14 @@ class MessageContentMapperTest {
             visibility = Message.Visibility.HIDDEN,
             content = MessageContent.DeleteMessage("")
         )
-        val missedCallMessage = TestMessage.MISSED_CALL_MESSAGE
-        val selfUserForMissedCall = MemberDetails.Self(TestUser.SELF_USER.copy(id = missedCallMessage.senderUserId))
         // When
         val resultContentVisible = mapper.fromMessage(visibleMessage, listOf())
         val resultContentDeleted = mapper.fromMessage(deletedMessage, listOf())
         val resultContentHidden = mapper.fromMessage(hiddenMessage, listOf())
-        val resultMyMissedCall =
-            mapper.fromMessage(missedCallMessage, listOf(selfUserForMissedCall))
-        val resultOtherMissedCall = mapper.fromMessage(missedCallMessage, listOf())
         // Then
         assert(resultContentVisible != null)
         assert(resultContentDeleted == null)
         assert(resultContentHidden == null)
-        assert(resultMyMissedCall != null)
-        assert(resultMyMissedCall is SystemMessage.MissedCall)
-        assert(resultOtherMissedCall != null)
-        assert(resultOtherMissedCall is SystemMessage.MissedCall)
     }
 
     private class Arrangement {

@@ -51,7 +51,7 @@ class MessageContentMapper @Inject constructor(
         is MessageContent.MissedCall -> mapMissedCallMessage(message.senderUserId, members)
     }
 
-    fun mapMissedCallMessage(
+    private fun mapMissedCallMessage(
         senderUserId: UserId,
         members: List<MemberDetails>
     ): UIMessageContent.SystemMessage {

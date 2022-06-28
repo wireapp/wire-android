@@ -32,7 +32,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-@Suppress("TooManyFunctions")
+@Suppress("TooManyFunctions", "LongParameterList")
 @HiltViewModel
 class NewConversationViewModel
 @Inject constructor(

@@ -168,6 +168,7 @@ private fun List<UIText>.limitUserNamesList(res: Resources, threshold: Int): Lis
             .plus(res.getQuantityString(R.plurals.label_system_message_x_more, moreCount, moreCount))
     }
 
+@Suppress("LongParameterList", "SpreadOperator")
 fun SystemMessage.annotatedString(
     res: Resources,
     expanded: Boolean,

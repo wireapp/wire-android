@@ -3,6 +3,7 @@ package com.wire.android.ui.home.newconversation
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.UserAvatarData
+import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.home.newconversation.search.SearchResultState
 import com.wire.kalium.logic.data.user.ConnectionState
@@ -42,7 +43,8 @@ class NewConversationViewModelTest {
                                 availabilityStatus = UserAvailabilityStatus.NONE
                             ),
                             label = "knownHandle",
-                            connectionState = ConnectionState.NOT_CONNECTED
+                            connectionState = ConnectionState.NOT_CONNECTED,
+                            membership = Membership.Federated
                         )
                     )
                 )
@@ -60,7 +62,8 @@ class NewConversationViewModelTest {
                                 availabilityStatus = UserAvailabilityStatus.NONE
                             ),
                             label = "publicHandle",
-                            connectionState = ConnectionState.NOT_CONNECTED
+                            connectionState = ConnectionState.NOT_CONNECTED,
+                            membership = Membership.Federated
                         )
                     )
                 )

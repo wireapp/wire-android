@@ -1,10 +1,12 @@
 package com.wire.android.ui.home.newconversation
 
-import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.framework.TestUser
+import com.wire.android.mapper.ContactMapper
+import com.wire.android.model.ImageAsset
+import com.wire.android.model.UserAvatarData
 import com.wire.android.navigation.NavigationManager
-import com.wire.android.ui.home.conversations.ConversationsViewModelArrangement
-import com.wire.kalium.logic.CoreFailure
+import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
@@ -13,6 +15,7 @@ import com.wire.kalium.logic.data.publicuser.model.UserSearchResult
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
+import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
 import com.wire.kalium.logic.feature.publicuser.Result
@@ -32,6 +35,31 @@ internal class NewConversationViewModelArrangement {
         coEvery { searchKnownUsers(any()) } returns Result.Success(userSearchResult = UserSearchResult(listOf(KNOWN_USER)))
         coEvery { getAllContacts() } returns listOf()
         coEvery { createGroupConversation(any(), any(), any()) } returns Either.Right(CONVERSATION)
+        coEvery { contactMapper.fromOtherUser(PUBLIC_USER) } returns Contact(
+            id = "publicValue",
+            domain = "domain",
+            name = "publicUsername",
+            avatarData = UserAvatarData(
+                asset = ImageAsset.UserAvatarAsset(userAssetId = UserAssetId("value", "domain")),
+                availabilityStatus = UserAvailabilityStatus.NONE
+            ),
+            label = "publicHandle",
+            connectionState = ConnectionState.NOT_CONNECTED,
+            membership = Membership.Federated
+        )
+
+        coEvery { contactMapper.fromOtherUser(KNOWN_USER) } returns Contact(
+            id = "knownValue",
+            domain = "domain",
+            name = "knownUsername",
+            avatarData = UserAvatarData(
+                asset = ImageAsset.UserAvatarAsset(userAssetId = UserAssetId("value", "domain")),
+                availabilityStatus = UserAvailabilityStatus.NONE
+            ),
+            label = "knownHandle",
+            connectionState = ConnectionState.NOT_CONNECTED,
+            membership = Membership.Federated
+        )
     }
 
     @MockK
@@ -48,6 +76,9 @@ internal class NewConversationViewModelArrangement {
 
     @MockK
     lateinit var createGroupConversation: CreateGroupConversationUseCase
+
+    @MockK
+    lateinit var contactMapper: ContactMapper
 
     private companion object {
         val CONVERSATION_ID = ConversationId(value = "userId", domain = "domainId")
@@ -72,7 +103,8 @@ internal class NewConversationViewModelArrangement {
             connectionStatus = ConnectionState.ACCEPTED,
             previewPicture = UserAssetId("value", "domain"),
             completePicture = UserAssetId("value", "domain"),
-            availabilityStatus = UserAvailabilityStatus.AVAILABLE
+            availabilityStatus = UserAvailabilityStatus.AVAILABLE,
+            userType = UserType.FEDERATED,
         )
 
         val KNOWN_USER = OtherUser(
@@ -86,7 +118,8 @@ internal class NewConversationViewModelArrangement {
             connectionStatus = ConnectionState.ACCEPTED,
             previewPicture = UserAssetId("value", "domain"),
             completePicture = UserAssetId("value", "domain"),
-            availabilityStatus = UserAvailabilityStatus.AVAILABLE
+            availabilityStatus = UserAvailabilityStatus.AVAILABLE,
+            userType = UserType.FEDERATED,
         )
     }
 
@@ -97,6 +130,7 @@ internal class NewConversationViewModelArrangement {
             searchKnownUsers = searchKnownUsers,
             getAllContacts = getAllContacts,
             createGroupConversation = createGroupConversation,
+            contactMapper = contactMapper
         )
     }
 

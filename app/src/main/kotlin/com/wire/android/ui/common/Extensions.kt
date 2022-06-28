@@ -11,6 +11,8 @@ import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.State
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -60,16 +62,19 @@ internal fun WireColorScheme.conversationColor(id: ConversationId): Color {
     return  colors[(id.hashCode() % colors.size).absoluteValue]
 }
 
-@Composable
-fun LazyListState.appBarElevation(): Dp = MaterialTheme.wireDimensions.topBarShadowElevation.let {  maxElevation ->
+fun LazyListState.topBarElevation(maxElevation: Dp): Dp =
     if (firstVisibleItemIndex == 0) minOf(firstVisibleItemScrollOffset.toFloat().dp, maxElevation)
     else maxElevation
-}
+
+fun ScrollState.topBarElevation(maxElevation: Dp): Dp = minOf(value.dp, maxElevation)
 
 @Composable
-fun ScrollState.appBarElevation(): Dp = MaterialTheme.wireDimensions.topBarShadowElevation.let { maxElevation ->
-    minOf(value.dp, maxElevation)
-}
+fun LazyListState.rememberTopBarElevationState(maxElevation: Dp = MaterialTheme.wireDimensions.topBarShadowElevation): State<Dp> =
+    remember { derivedStateOf { topBarElevation(maxElevation) } }
+
+@Composable
+fun ScrollState.rememberTopBarElevationState(maxElevation: Dp = MaterialTheme.wireDimensions.topBarShadowElevation): State<Dp> =
+    remember { derivedStateOf { topBarElevation(maxElevation) } }
 
 @Composable
 fun Modifier.shimmerPlaceholder(

@@ -6,6 +6,7 @@ import androidx.compose.foundation.gestures.LocalOverScrollConfiguration
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -13,6 +14,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -28,24 +30,30 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
 import com.wire.android.R
+import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.MoreOptionIcon
 import com.wire.android.ui.common.TabItem
-import com.wire.android.ui.common.UnderConstructionScreen
 import com.wire.android.ui.common.WireTabRow
-import com.wire.android.ui.common.appBarElevation
+import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.calculateCurrentTab
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.home.conversations.details.options.GroupConversationOptions
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsState
+import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipants
+import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipantsState
+import com.wire.android.ui.home.conversations.model.UIParticipant
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
+import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.launch
 
 @Composable
 fun GroupConversationDetailsScreen(viewModel: GroupConversationDetailsViewModel) {
     GroupConversationDetailsContent(
         onBackPressed = viewModel::navigateBack,
-        groupOptionsState = viewModel.groupOptionsState
+        groupOptionsState = viewModel.groupOptionsState,
+        groupParticipantsState = viewModel.groupParticipantsState
     )
 }
 
@@ -53,16 +61,20 @@ fun GroupConversationDetailsScreen(viewModel: GroupConversationDetailsViewModel)
 @Composable
 private fun GroupConversationDetailsContent(
     onBackPressed: () -> Unit,
-    groupOptionsState: GroupConversationOptionsState
+    groupOptionsState: GroupConversationOptionsState,
+    groupParticipantsState: GroupConversationParticipantsState
 ) {
     val scope = rememberCoroutineScope()
-    val lazyListState = rememberLazyListState()
+    val lazyListStates: List<LazyListState> = GroupConversationDetailsTabItem.values().map { rememberLazyListState() }
     val initialPageIndex = GroupConversationDetailsTabItem.OPTIONS.ordinal
     val pagerState = rememberPagerState(initialPage = initialPageIndex)
+    val maxAppBarElevation = MaterialTheme.wireDimensions.topBarShadowElevation
+    val currentTabState by remember { derivedStateOf { pagerState.calculateCurrentTab() } }
+    val elevationState by remember { derivedStateOf { lazyListStates[currentTabState].topBarElevation(maxAppBarElevation) } }
     Scaffold(
         topBar = {
             WireCenterAlignedTopAppBar(
-                elevation = lazyListState.appBarElevation(),
+                elevation = elevationState,
                 title = stringResource(R.string.conversation_details_title),
                 navigationIconType = NavigationIconType.Close,
                 onNavigationPressed = onBackPressed,
@@ -72,13 +84,9 @@ private fun GroupConversationDetailsContent(
             ) {
                 WireTabRow(
                     tabs = GroupConversationDetailsTabItem.values().toList(),
-                    selectedTabIndex = pagerState.calculateCurrentTab(),
+                    selectedTabIndex = currentTabState,
                     onTabChange = { scope.launch { pagerState.animateScrollToPage(it) } },
-                    modifier = Modifier.padding(
-                        start = MaterialTheme.wireDimensions.spacing16x,
-                        end = MaterialTheme.wireDimensions.spacing16x,
-                        top = MaterialTheme.wireDimensions.spacing16x
-                    ),
+                    modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing16x),
                     divider = {} // no divider
                 )
             }
@@ -98,17 +106,18 @@ private fun GroupConversationDetailsContent(
             ) { pageIndex ->
                 when (GroupConversationDetailsTabItem.values()[pageIndex]) {
                     GroupConversationDetailsTabItem.OPTIONS ->
-                        GroupConversationOptions(groupOptionsState = groupOptionsState, lazyListState = lazyListState)
+                        GroupConversationOptions(groupOptionsState = groupOptionsState, lazyListStates[pageIndex])
                     GroupConversationDetailsTabItem.PARTICIPANTS ->
-                        UnderConstructionScreen(screenName = "Conversation Participants") // TODO: to be implemented
+                        GroupConversationParticipants(groupParticipantsState = groupParticipantsState, lazyListStates[pageIndex])
                 }
             }
-            if (!pagerState.isScrollInProgress && focusedTabIndex != pagerState.currentPage)
-                LaunchedEffect(Unit) {
+            LaunchedEffect(pagerState.isScrollInProgress, focusedTabIndex, pagerState.currentPage) {
+                if (!pagerState.isScrollInProgress && focusedTabIndex != pagerState.currentPage) {
                     keyboardController?.hide()
                     focusManager.clearFocus()
                     focusedTabIndex = pagerState.currentPage
                 }
+            }
         }
     }
 }
@@ -126,6 +135,10 @@ private fun GroupConversationDetailsPreview() {
             onBackPressed = { },
             GroupConversationOptionsState(
                 groupName = "Group name"
+            ),
+            GroupConversationParticipantsState(
+                admins = listOf(UIParticipant(UserId("0", ""), "name", "handle", false, UserAvatarData())),
+                participants = listOf(UIParticipant(UserId("1", ""), "name", "handle", false, UserAvatarData()))
             )
         )
     }

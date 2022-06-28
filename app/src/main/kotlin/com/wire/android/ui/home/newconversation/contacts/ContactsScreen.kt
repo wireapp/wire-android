@@ -16,6 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -55,13 +56,14 @@ fun ContactsScreen(
         if (false) {
             CenteredCircularProgressBarIndicator()
         } else {
+            val context = LocalContext.current
             LazyColumn(
                 state = lazyListState,
                 modifier = Modifier.weight(1f),
             ) {
                 folderWithElements(
-                    header = { stringResource(R.string.label_contacts) },
-                    items = allKnownContact
+                    header = context.getString(R.string.label_contacts),
+                    items = allKnownContact.associateBy { it.id.toString() }
                 ) { contact ->
                     with(contact) {
                         ContactItem(

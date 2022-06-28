@@ -23,14 +23,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
-import androidx.compose.ui.text.withStyle
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.ui.common.button.WireSecondaryButton
@@ -39,6 +38,7 @@ import com.wire.android.ui.home.conversations.model.MessageContent.SystemMessage
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.UIText
+import com.wire.android.util.ui.stringWithStyledArgs
 import com.wire.android.util.ui.toUIText
 
 @Composable
@@ -74,23 +74,17 @@ fun SystemMessageItem(message: SystemMessage) {
         Spacer(Modifier.padding(start = dimensions().spacing16x))
         Column {
             val context = LocalContext.current
-            val normalStyle = SpanStyle(
-                color = MaterialTheme.wireColorScheme.secondaryText,
-                fontWeight = MaterialTheme.wireTypography.body01.fontWeight,
-                fontSize = MaterialTheme.wireTypography.body01.fontSize,
-                fontFamily = MaterialTheme.wireTypography.body01.fontFamily,
-                fontStyle = MaterialTheme.wireTypography.body01.fontStyle
-            )
-            val boldStyle = SpanStyle(
-                color = MaterialTheme.wireColorScheme.onBackground,
-                fontWeight = MaterialTheme.wireTypography.body02.fontWeight,
-                fontSize = MaterialTheme.wireTypography.body02.fontSize,
-                fontFamily = MaterialTheme.wireTypography.body02.fontFamily,
-                fontStyle = MaterialTheme.wireTypography.body02.fontStyle
-            )
             var expanded: Boolean by remember { mutableStateOf(false) }
             Crossfade(targetState = expanded) {
-                Text(message.getAnnotatedString(context.resources, it, normalStyle, boldStyle))
+                Text(message.annotatedString(
+                    context.resources,
+                    it,
+                    MaterialTheme.wireTypography.body01,
+                    MaterialTheme.wireTypography.body02,
+                    MaterialTheme.wireColorScheme.secondaryText,
+                    MaterialTheme.wireColorScheme.onBackground,
+                    )
+                )
             }
             if (message.expandable) {
                 WireSecondaryButton(
@@ -159,12 +153,10 @@ private val SystemMessage.expandable
         is SystemMessage.MemberLeft -> false
     }
 
-private fun String.bold() = STYLE_SEPARATOR + this + STYLE_SEPARATOR
-
 private fun List<String>.toUserNamesListString(res: Resources) = when {
     this.isEmpty() -> ""
-    this.size == 1 -> this[0].bold()
-    else -> res.getString(R.string.label_system_message_and, this.dropLast(1).joinToString(", ").bold(), this.last().bold())
+    this.size == 1 -> this[0]
+    else -> res.getString(R.string.label_system_message_and, this.dropLast(1).joinToString(", "), this.last())
 }
 
 private fun List<UIText>.limitUserNamesList(res: Resources, threshold: Int): List<String> =
@@ -176,31 +168,29 @@ private fun List<UIText>.limitUserNamesList(res: Resources, threshold: Int): Lis
             .plus(res.getQuantityString(R.plurals.label_system_message_x_more, moreCount, moreCount))
     }
 
-fun SystemMessage.getAnnotatedString(
+@Suppress("LongParameterList", "SpreadOperator")
+fun SystemMessage.annotatedString(
     res: Resources,
     expanded: Boolean,
-    normalStyle: SpanStyle,
-    boldStyle: SpanStyle
-): AnnotatedString {
-    val string = when (this) {
-        is SystemMessage.MemberAdded -> res.getString(
-            stringResId,
-            author.asString(res).bold(),
-            memberNames.limitUserNamesList(res, if (expanded) memberNames.size else EXPANDABLE_THRESHOLD).toUserNamesListString(res)
-        )
-        is SystemMessage.MemberRemoved -> res.getString(
-            stringResId,
-            author.asString(res).bold(),
-            memberNames.limitUserNamesList(res, if (expanded) memberNames.size else EXPANDABLE_THRESHOLD).toUserNamesListString(res)
-        )
-        is SystemMessage.MemberLeft -> res.getString(stringResId, author.asString(res).bold())
+    normalStyle: TextStyle,
+    boldStyle: TextStyle,
+    normalColor: Color,
+    boldColor: Color
+    ): AnnotatedString {
+    val args =  when (this) {
+        is SystemMessage.MemberAdded ->
+            arrayOf(
+                author.asString(res),
+                memberNames.limitUserNamesList(res, if (expanded) memberNames.size else EXPANDABLE_THRESHOLD).toUserNamesListString(res)
+            )
+        is SystemMessage.MemberRemoved ->
+            arrayOf(
+                author.asString(res),
+                memberNames.limitUserNamesList(res, if (expanded) memberNames.size else EXPANDABLE_THRESHOLD).toUserNamesListString(res)
+            )
+        is SystemMessage.MemberLeft -> arrayOf(res.getString(stringResId, author.asString(res)))
     }
-    return buildAnnotatedString {
-        string.split(STYLE_SEPARATOR).forEachIndexed { index, text ->
-            withStyle(if (index % 2 == 0) normalStyle else boldStyle) { append(text) }
-        }
-    }
+    return res.stringWithStyledArgs(stringResId, normalStyle, boldStyle, normalColor, boldColor, *args)
 }
 
 private const val EXPANDABLE_THRESHOLD = 4
-private const val STYLE_SEPARATOR: String = "\u0000"

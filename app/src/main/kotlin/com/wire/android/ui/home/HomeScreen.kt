@@ -3,6 +3,7 @@ package com.wire.android.ui.home
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetState
@@ -10,7 +11,10 @@ import androidx.compose.material.ModalDrawer
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
@@ -23,6 +27,7 @@ import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
+import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topappbar.search.AppTopBarWithSearchBar
 import com.wire.android.ui.home.sync.SyncStateViewModel
 
@@ -37,6 +42,13 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel, syncViewModel: Sy
     val homeUIState = rememberHomeUIState()
     val coroutineScope = rememberCoroutineScope()
     val homeState = viewModel.homeState
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    handleSnackBarMessage(snackbarHostState, viewModel.snackbarMessageState, viewModel::clearSnackbarMessage)
+
+    LaunchedEffect(viewModel.savedStateHandle) {
+        viewModel.checkPendingActions()
+    }
 
     with(homeUIState) {
         ModalDrawer(
@@ -60,6 +72,7 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel, syncViewModel: Sy
                 scrollPositionProvider = homeUIState.scrollPositionProvider,
                 homeBottomSheetContent = homeUIState.homeBottomSheetContent,
                 homeBottomSheetState = homeUIState.bottomSheetState,
+                snackbarHostState = snackbarHostState,
                 homeTopBar = {
                     HomeTopBar(
                         avatarAsset = viewModel.userAvatar.avatarAsset,
@@ -105,6 +118,7 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel, syncViewModel: Sy
 fun HomeContent(
     scrollPositionProvider: (() -> Int)?,
     homeBottomSheetState: ModalBottomSheetState,
+    snackbarHostState: SnackbarHostState,
     homeBottomSheetContent: @Composable (ColumnScope.() -> Unit)?,
     currentNavigationItem: HomeNavigationItem,
     homeNavigationGraph: @Composable () -> Unit,
@@ -123,21 +137,42 @@ fun HomeContent(
         ) {
             // TODO(): Enable top search bar
             if (false) {
-                AppTopBarWithSearchBar(
-                    scrollPositionProvider = scrollPositionProvider,
-                    searchBarHint = stringResource(R.string.search_bar_hint, stringResource(id = title).lowercase()),
-                    // TODO: implement the search for home once we work on it, for now we do not care
-                    searchQuery = "",
-                    onSearchQueryChanged = {},
-                    onSearchClicked = { },
-                    onCloseSearchClicked = { },
-                    appTopBar = homeTopBar,
-                    content = {
-                        homeNavigationGraph()
-                    }
+                Scaffold(
+                    snackbarHost = {
+                        SwipeDismissSnackbarHost(
+                            hostState = snackbarHostState,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    },
                 )
+                {
+                    Box(modifier = Modifier.padding(it)) {
+                        AppTopBarWithSearchBar(
+                            scrollPositionProvider = scrollPositionProvider,
+                            searchBarHint = stringResource(R.string.search_bar_hint, stringResource(id = title).lowercase()),
+                            // TODO: implement the search for home once we work on it, for now we do not care
+                            searchQuery = "",
+                            onSearchQueryChanged = {},
+                            onSearchClicked = { },
+                            onCloseSearchClicked = { },
+                            appTopBar = homeTopBar,
+                            content = {
+                                homeNavigationGraph()
+                            }
+
+                        )
+                    }
+                }
             } else {
-                Scaffold(topBar = homeTopBar) {
+                Scaffold(
+                    topBar = homeTopBar,
+                    snackbarHost = {
+                        SwipeDismissSnackbarHost(
+                            hostState = snackbarHostState,
+                            modifier = Modifier.fillMaxWidth()
+                        )
+                    },
+                ) {
                     Box(modifier = Modifier.padding(it)) {
                         homeNavigationGraph()
                     }
@@ -157,4 +192,25 @@ fun HomeNavigationGraph(startScreen: String?, homeState: HomeUIState) {
         navController = homeState.navController,
         startDestination = startDestination
     )
+}
+
+@Composable
+private fun handleSnackBarMessage(
+    snackbarHostState: SnackbarHostState,
+    conversationListSnackBarState: HomeSnackbarState,
+    onMessageShown: () -> Unit
+) {
+    conversationListSnackBarState.let { messageType ->
+        val message = when (messageType) {
+            is HomeSnackbarState.SuccessConnectionIgnoreRequest ->
+                stringResource(id = R.string.connection_request_ignored, messageType.userName)
+            HomeSnackbarState.None -> ""
+        }
+        LaunchedEffect(messageType) {
+            if (messageType != HomeSnackbarState.None) {
+                snackbarHostState.showSnackbar(message)
+                onMessageShown()
+            }
+        }
+    }
 }

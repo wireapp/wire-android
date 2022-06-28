@@ -63,31 +63,32 @@ class ConversationListViewModel @Inject constructor(
     var errorState by mutableStateOf<ConversationOperationErrorState?>(null)
 
     init {
-        viewModelScope.launch(dispatchers.io()) {
-            observeConversationsAndConnections() // TODO AR-1736
-                .collect { list ->
-                    val detailedList = list.toConversationsFoldersMap()
-                    val newActivities = emptyList<NewActivity>()
-                    val missedCalls = mockMissedCalls // TODO: needs to be implemented
-                    val unreadMentions = mockUnreadMentionList // TODO: needs to be implemented
-
-                    state = ConversationListState(
-                        newActivities = newActivities,
-                        conversations = detailedList,
-                        missedCalls = missedCalls,
-                        callHistory = mockCallHistory, // TODO: needs to be implemented
-                        unreadMentions = unreadMentions,
-                        allMentions = mockAllMentionList, // TODO: needs to be implemented
-                        unreadMentionsCount = unreadMentions.size,
-                        missedCallsCount = missedCalls.size,
-                        newActivityCount = 0 // TODO: needs to be implemented
-                    )
-                }
-        }
-
+        startObservingConversationsAndConnections()
         viewModelScope.launch {
             markMessagesAsNotified(null, System.currentTimeMillis().toStringDate()) // TODO Failure is ignored
         }
+    }
+    
+    private fun startObservingConversationsAndConnections() = viewModelScope.launch(dispatchers.io()) {
+        observeConversationsAndConnections() // TODO AR-1736
+            .collect { list ->
+                val detailedList = list.toConversationsFoldersMap()
+                val newActivities = emptyList<NewActivity>()
+                val missedCalls = mockMissedCalls // TODO: needs to be implemented
+                val unreadMentions = mockUnreadMentionList // TODO: needs to be implemented
+
+                state = ConversationListState(
+                    newActivities = newActivities,
+                    conversations = detailedList,
+                    missedCalls = missedCalls,
+                    callHistory = mockCallHistory, // TODO: needs to be implemented
+                    unreadMentions = unreadMentions,
+                    allMentions = mockAllMentionList, // TODO: needs to be implemented
+                    unreadMentionsCount = unreadMentions.size,
+                    missedCallsCount = missedCalls.size,
+                    newActivityCount = 0 // TODO: needs to be implemented
+                )
+            }
     }
 
     private fun List<ConversationDetails>.toConversationsFoldersMap(): Map<ConversationFolder, List<ConversationItem>> =

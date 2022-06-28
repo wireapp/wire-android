@@ -1,11 +1,20 @@
 package com.wire.android.ui.home.conversations.details
 
 import androidx.lifecycle.SavedStateHandle
+import com.wire.android.mapper.UIParticipantMapper
+import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.home.conversations.model.UIParticipant
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
+import com.wire.kalium.logic.data.conversation.MemberDetails
+import com.wire.kalium.logic.data.publicuser.model.OtherUser
+import com.wire.kalium.logic.data.user.ConnectionState
+import com.wire.kalium.logic.data.user.UserAvailabilityStatus
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
@@ -26,10 +35,22 @@ internal class GroupConversationDetailsViewModelArrangement {
     @MockK
     lateinit var observeConversationDetails: ObserveConversationDetailsUseCase
 
+    @MockK
+    lateinit var observeConversationMembersUseCase: ObserveConversationMembersUseCase
+
+    val uIParticipantMapper: UIParticipantMapper = UIParticipantMapper(UserTypeMapper())
+
     private val conversationDetailsChannel = Channel<ConversationDetails>(capacity = Channel.UNLIMITED)
+    private val conversationMembersChannel = Channel<List<MemberDetails>>(capacity = Channel.UNLIMITED)
 
     private val viewModel by lazy {
-        GroupConversationDetailsViewModel(savedStateHandle, navigationManager, observeConversationDetails)
+        GroupConversationDetailsViewModel(
+            savedStateHandle,
+            navigationManager,
+            observeConversationDetails,
+            observeConversationMembersUseCase,
+            uIParticipantMapper
+        )
     }
 
     init {
@@ -39,12 +60,18 @@ internal class GroupConversationDetailsViewModelArrangement {
         every { savedStateHandle.get<String>(EXTRA_CONVERSATION_ID) } returns dummyConversationId
         // Default empty values
         coEvery { observeConversationDetails(any()) } returns flowOf()
+        coEvery { observeConversationMembersUseCase(any()) } returns flowOf()
     }
 
     suspend fun withConversationDetailUpdate(conversationDetails: ConversationDetails): GroupConversationDetailsViewModelArrangement {
         coEvery { observeConversationDetails(any()) } returns conversationDetailsChannel.consumeAsFlow()
         conversationDetailsChannel.send(conversationDetails)
+        return this
+    }
 
+    suspend fun withConversationParticipantsUpdate(members: List<MemberDetails>): GroupConversationDetailsViewModelArrangement {
+        coEvery { observeConversationMembersUseCase(any()) } returns conversationMembersChannel.consumeAsFlow()
+        conversationMembersChannel.send(members)
         return this
     }
 

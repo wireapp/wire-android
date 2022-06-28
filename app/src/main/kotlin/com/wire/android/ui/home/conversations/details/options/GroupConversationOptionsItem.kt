@@ -1,4 +1,4 @@
-package com.wire.android.ui.home.conversations.details
+package com.wire.android.ui.home.conversations.details.options
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

@@ -11,6 +11,7 @@ import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Test
@@ -28,7 +29,7 @@ class NewConversationViewModelTest {
 
             // When
             viewModel.search("search")
-            advanceTimeBy(501) // 500ms debounce
+            advanceUntilIdle() // 500ms debounce
 
             // Then
             assertEquals(
@@ -82,7 +83,7 @@ class NewConversationViewModelTest {
 
             // When
             viewModel.search("search")
-            advanceTimeBy(501) // 500ms debounce
+            advanceUntilIdle() // 500ms debounce
 
             // Then
             assertEquals(viewModel.state.localContactSearchResult.searchResultState is SearchResultState.Failure, true)

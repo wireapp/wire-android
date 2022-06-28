@@ -210,7 +210,6 @@ private fun ConnectionActionButton(
         )
 
     }
-
 }
 
 @Composable

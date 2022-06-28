@@ -16,7 +16,6 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.UserAvatarData
@@ -41,7 +40,7 @@ fun CallerDetails(
         val context = LocalContext.current
         IconButton(
             modifier = Modifier
-                .padding(top = 20.dp, start = 5.dp)
+                .padding(top = dimensions().spacing16x, start = dimensions().spacing6x)
                 .align(Alignment.Start)
                 .rotate(180f),
             onClick = {

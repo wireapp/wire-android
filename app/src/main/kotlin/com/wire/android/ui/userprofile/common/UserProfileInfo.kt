@@ -19,6 +19,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
@@ -48,7 +49,7 @@ fun UserProfileInfo(
     editableState: EditableState
 ) {
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
+        horizontalAlignment = CenterHorizontally,
         verticalArrangement = Arrangement.Center,
         modifier = Modifier
             .fillMaxWidth()
@@ -83,6 +84,7 @@ fun UserProfileInfo(
         val (userDescription, editButton, teamDescription) = createRefs()
 
         Column(
+            horizontalAlignment = CenterHorizontally,
             modifier = Modifier
                 .padding(horizontal = dimensions().spacing64x)
                 .wrapContentSize()
@@ -94,7 +96,6 @@ fun UserProfileInfo(
                 }
         ) {
             Text(
-                modifier = Modifier.align(Alignment.CenterHorizontally),
                 text = fullName,
                 overflow = TextOverflow.Ellipsis,
                 maxLines = 1,
@@ -102,7 +103,6 @@ fun UserProfileInfo(
                 color = MaterialTheme.colorScheme.onBackground,
             )
             Text(
-                modifier = Modifier.align(Alignment.CenterHorizontally),
                 text = "@$userName",
                 overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.wireTypography.body02,

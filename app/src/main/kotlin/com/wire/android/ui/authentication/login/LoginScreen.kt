@@ -34,13 +34,12 @@ import com.wire.android.ui.authentication.login.email.LoginEmailScreen
 import com.wire.android.ui.authentication.login.sso.LoginSSOScreen
 import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireTabRow
-import com.wire.android.ui.common.appBarElevation
 import com.wire.android.ui.common.calculateCurrentTab
+import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.deeplink.DeepLinkResult
-import com.wire.kalium.logic.configuration.server.ServerConfig
 import kotlinx.coroutines.launch
 
 @ExperimentalMaterialApi
@@ -66,7 +65,7 @@ private fun LoginContent(
     Scaffold(
         topBar = {
             WireCenterAlignedTopAppBar(
-                elevation = scrollState.appBarElevation(),
+                elevation = scrollState.rememberTopBarElevationState().value,
                 title = stringResource(R.string.login_title),
                 onNavigationPressed = onBackPressed
             ) {

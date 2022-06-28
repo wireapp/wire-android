@@ -9,6 +9,7 @@ import com.wire.android.ui.home.conversations.model.MessageContent.ImageMessage
 import com.wire.android.ui.home.conversations.model.MessageContent.SystemMessage
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.Member
+import com.wire.kalium.logic.data.conversation.MemberDetails
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.AssetContent.AssetMetadata
@@ -195,7 +196,7 @@ class MessageContentMapperTest {
         // Then
         assert(resultContentImage1 is AssetMessage)
         assert(resultContentImage2 is ImageMessage)
-        
+
         // Only the image with valid metadata is downloaded
         coVerify(exactly = 1) { arrangement.getMessageAssetUseCase.invoke(any(), any()) }
     }
@@ -213,14 +214,23 @@ class MessageContentMapperTest {
             visibility = Message.Visibility.HIDDEN,
             content = MessageContent.DeleteMessage("")
         )
+        val missedCallMessage = TestMessage.MISSED_CALL_MESSAGE
+        val selfUserForMissedCall = MemberDetails.Self(TestUser.SELF_USER.copy(id = missedCallMessage.senderUserId))
         // When
         val resultContentVisible = mapper.fromMessage(visibleMessage, listOf())
         val resultContentDeleted = mapper.fromMessage(deletedMessage, listOf())
         val resultContentHidden = mapper.fromMessage(hiddenMessage, listOf())
+        val resultMyMissedCall =
+            mapper.fromMessage(missedCallMessage, listOf(selfUserForMissedCall))
+        val resultOtherMissedCall = mapper.fromMessage(missedCallMessage, listOf())
         // Then
         assert(resultContentVisible != null)
         assert(resultContentDeleted == null)
         assert(resultContentHidden == null)
+        assert(resultMyMissedCall != null)
+        assert(resultMyMissedCall is SystemMessage.MissedCall)
+        assert(resultOtherMissedCall != null)
+        assert(resultOtherMissedCall is SystemMessage.MissedCall)
     }
 
     private class Arrangement {

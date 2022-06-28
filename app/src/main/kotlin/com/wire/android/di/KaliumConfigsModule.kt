@@ -1,5 +1,6 @@
 package com.wire.android.di
 
+import android.os.Build
 import com.wire.android.BuildConfig
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import dagger.Module
@@ -47,7 +48,8 @@ class KaliumConfigsModule {
             newPasswordMinimumLength = BuildConfig.NEW_PASSWORD_MINIMUM_LENGTH,
             passwordMaxAttempts = BuildConfig.PASSWORD_MAX_ATTEMPTS,
             appLockTimeout = BuildConfig.APP_LOCK_TIMEOUT,
-            shouldEncryptData = !BuildConfig.DEBUG
+            // we use upsert, available from SQL3.24, which is supported from Android API30, so for older APIs we have to use SQLCipher
+            shouldEncryptData = !BuildConfig.DEBUG || Build.VERSION.SDK_INT < Build.VERSION_CODES.R
         )
     }
 

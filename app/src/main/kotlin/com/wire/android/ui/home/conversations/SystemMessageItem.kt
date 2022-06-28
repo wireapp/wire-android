@@ -23,7 +23,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -60,18 +59,20 @@ fun SystemMessageItem(message: SystemMessage) {
                 .width(dimensions().userAvatarDefaultSize),
             contentAlignment = Alignment.TopEnd
         ) {
-            if (message.iconResId != null)
+            if (message.iconResId != null) {
+                val size =
+                    if (message.isSmallIcon) dimensions().systemMessageIconSize
+                    else dimensions().systemMessageIconLargeSize
+                val verticalPadding = dimensions().spacing4x
                 Image(
                     painter = painterResource(id = message.iconResId),
                     contentDescription = stringResource(R.string.content_description_system_message_icon),
                     modifier = Modifier
-                        .padding(
-                            vertical = dimensions().spacing4x
-                        )
-                        .size(dimensions().systemMessageIconSize),
-                    contentScale = ContentScale.Crop,
-//                    colorFilter = ColorFilter.tint()
+                        .padding(vertical = verticalPadding)
+                        .size(size),
+                    contentScale = ContentScale.Crop
                 )
+            }
         }
         Spacer(Modifier.padding(start = dimensions().spacing16x))
         Column {

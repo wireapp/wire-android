@@ -61,7 +61,11 @@ class MessageContentMapper @Inject constructor(
             type = SelfNameType.ResourceTitleCase
         )
 
-        return UIMessageContent.SystemMessage.MissedCall(authorName)
+        return if (sender is MemberDetails.Self) {
+            UIMessageContent.SystemMessage.MissedCall.youCalled(authorName)
+        } else {
+            UIMessageContent.SystemMessage.MissedCall.otherCalled(authorName)
+        }
     }
 
     fun mapMemberChangeMessage(

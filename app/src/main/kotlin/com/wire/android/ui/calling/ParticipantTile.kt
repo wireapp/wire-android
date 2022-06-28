@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Surface
 import androidx.compose.material.Text
@@ -19,6 +20,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
@@ -115,7 +117,8 @@ fun ParticipantTile(
                         bottom.linkTo(parent.bottom)
                         start.linkTo(parent.start)
                         end.linkTo((parent.end))
-                    },
+                    }
+                    .widthIn(max = dimensions().onGoingCallTileUsernameMaxWidth),
                 shape = RoundedCornerShape(dimensions().corner4x),
                 color = Color.Black
             ) {
@@ -127,7 +130,9 @@ fun ParticipantTile(
                         is ConversationName.Known -> conversationName.name
                         is ConversationName.Unknown -> stringResource(id = conversationName.resourceId)
                         else -> ""
-                    }
+                    },
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis
                 )
             }
         }
@@ -137,4 +142,5 @@ fun ParticipantTile(
 @Preview
 @Composable
 @Suppress("EmptyFunctionBlock")
-private fun ParticipantTilePreview() {}
+private fun ParticipantTilePreview() {
+}

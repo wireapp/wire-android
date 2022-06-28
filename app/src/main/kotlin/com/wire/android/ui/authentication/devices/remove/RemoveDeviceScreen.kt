@@ -34,16 +34,13 @@ import com.wire.android.ui.common.SurfaceBackgroundWrapper
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
-import com.wire.android.ui.common.appBarElevation
 import com.wire.android.ui.common.button.WireButtonState
+import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.dialogErrorStrings
 import com.wire.android.util.formatMediumDateTime
-import com.wire.kalium.logic.data.client.Client
-import com.wire.kalium.logic.data.client.ClientType
-import com.wire.kalium.logic.data.conversation.ClientId
 
 @Composable
 fun RemoveDeviceScreen() {
@@ -72,7 +69,7 @@ private fun RemoveDeviceContent(
     onErrorDialogDismiss: () -> Unit,
 ) {
     val lazyListState = rememberLazyListState()
-    Scaffold(topBar = { RemoveDeviceTopBar(elevation = lazyListState.appBarElevation()) }) { internalPadding ->
+    Scaffold(topBar = { RemoveDeviceTopBar(elevation = lazyListState.rememberTopBarElevationState().value) }) { internalPadding ->
         Box(modifier = Modifier.padding(internalPadding)) {
             when (state) {
                 is RemoveDeviceState.Success ->

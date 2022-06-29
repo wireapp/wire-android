@@ -49,7 +49,7 @@ fun CallerDetails(
         ) {
             Image(
                 painter = painterResource(id = R.drawable.ic_collapse),
-                contentDescription = stringResource(id = R.string.calling_turn_camera_on_off),
+                contentDescription = stringResource(id = R.string.calling_minimize_view),
             )
         }
         Text(

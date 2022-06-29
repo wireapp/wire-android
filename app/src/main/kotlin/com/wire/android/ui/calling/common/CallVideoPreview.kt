@@ -22,7 +22,9 @@ fun CallVideoPreview(
                     onVideoPreviewCreated(videoPreview)
                     videoPreview
                 }
-            )
+            ) {
+                it.alpha = 0.5F
+            }
         }
     }
 }

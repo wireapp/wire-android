@@ -94,11 +94,8 @@ fun Uri.getMimeType(context: Context): String? {
         ?: MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)
 }
 
-fun Uri.copyToTempPath(context: Context): Pair<Path, Long> {
-//    val size: Long = length(context.contentResolver)
-//    return path?.let { File(it).toOkioPath() to size } ?: throw IOException("The given Uri path is null or empty")
-    val file = File(context.cacheDir, "temp_file_asset")
-
+fun Uri.copyToTempPath(context: Context, tempCachePath: Path): Long {
+    val file = tempCachePath.toFile()
     var size: Long
     file.setWritable(true)
     context.contentResolver.openInputStream(this).use { inputStream ->
@@ -106,7 +103,7 @@ fun Uri.copyToTempPath(context: Context): Pair<Path, Long> {
             size = inputStream?.copyTo(it) ?: -1L
         }
     }
-    return file.toOkioPath() to size
+    return size
 }
 
 fun Uri.length(contentResolver: ContentResolver): Long {

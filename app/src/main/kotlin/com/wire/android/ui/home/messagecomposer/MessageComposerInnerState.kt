@@ -19,7 +19,9 @@ import com.wire.android.util.ImageUtil
 import com.wire.android.util.getFileName
 import com.wire.android.util.getMimeType
 import com.wire.android.util.orDefault
+import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.asset.isImage
+import okio.Path
 import java.io.IOException
 
 @Composable
@@ -115,13 +117,13 @@ class MessageComposerInnerState(
 class AttachmentInnerState(val context: Context) {
     var attachmentState by mutableStateOf<AttachmentState>(AttachmentState.NotPicked)
 
-    fun pickAttachment(attachmentUri: Uri) {
+    fun pickAttachment(attachmentUri: Uri, tempCachePath: Path) {
         attachmentState = try {
             val mimeType = attachmentUri.getMimeType(context).orDefault(DEFAULT_FILE_MIME_TYPE)
-            val (assetDataPath, assetSize) = attachmentUri.copyToTempPath(context)
+            val assetSize = attachmentUri.copyToTempPath(context, tempCachePath)
             val assetFileName = context.getFileName(attachmentUri) ?: "Untitled"
             val attachmentType = if (isImage(mimeType)) AttachmentType.IMAGE else AttachmentType.GENERIC_FILE
-            val attachment = AttachmentBundle(mimeType, assetDataPath, assetSize, assetFileName, attachmentType)
+            val attachment = AttachmentBundle(mimeType, tempCachePath, assetSize, assetFileName, attachmentType)
             AttachmentState.Picked(attachment)
         } catch (e: IOException) {
             appLogger.e("There was an error while obtaining the file from disk", e)

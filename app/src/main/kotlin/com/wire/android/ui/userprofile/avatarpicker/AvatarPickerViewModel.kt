@@ -16,6 +16,7 @@ import com.wire.android.util.AvatarImageManager
 import com.wire.android.util.copyToTempPath
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.NetworkFailure
+import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.id.parseIntoQualifiedID
 import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.asset.PublicAssetResult
@@ -35,7 +36,8 @@ class AvatarPickerViewModel @Inject constructor(
     private val getAvatarAsset: GetAvatarAssetUseCase,
     private val uploadUserAvatar: UploadUserAvatarUseCase,
     private val avatarImageManager: AvatarImageManager,
-    private val dispatchers: DispatcherProvider
+    private val dispatchers: DispatcherProvider,
+    private val kaliumFileSystem: KaliumFileSystem
 ) : ViewModel() {
 
     var pictureState by mutableStateOf<PictureState>(PictureState.Empty)
@@ -75,11 +77,12 @@ class AvatarPickerViewModel @Inject constructor(
         pictureState = PictureState.Uploading(imgUri)
         viewModelScope.launch {
             withContext(dispatchers.io()) {
-                val (imageDataPath, imageDataSize) = imgUri.copyToTempPath(context)
-                val result = uploadUserAvatar(imageDataPath, imageDataSize)
+                val tempAvatarPath = kaliumFileSystem.providePersistentAssetPath("temp_avatar.jpg")
+                val imageDataSize = imgUri.copyToTempPath(context, tempAvatarPath)
+                val result = uploadUserAvatar(tempAvatarPath, imageDataSize)
                 if (result is UploadAvatarResult.Success) {
                     dataStore.updateUserAvatarAssetId(result.userAssetId.toString())
-                    avatarImageManager.getWritableAvatarUri(imageDataPath)
+                    avatarImageManager.getWritableAvatarUri(tempAvatarPath)
                     navigateBack()
                 } else {
                     errorMessageCode = when ((result as UploadAvatarResult.Failure).coreFailure) {

@@ -28,7 +28,7 @@ fun GroupConversationOptions(
             GroupConversationOptionsItem(
                 label = stringResource(id = R.string.conversation_details_options_group_name),
                 title = groupOptionsState.groupName,
-                clickable = Clickable(enabled = false) { /* TODO */ }
+                clickable = Clickable(enabled = false, onClick = { /* TODO */ }, onLongClick = { /* not handled */ })
             )
             Divider(color = MaterialTheme.wireColorScheme.divider, thickness = Dp.Hairline)
         }

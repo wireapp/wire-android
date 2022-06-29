@@ -80,7 +80,7 @@ fun MessageItem(
             )
             Spacer(Modifier.padding(start = dimensions().spacing16x - dimensions().userAvatarClickablePadding))
             Column {
-                Spacer(modifier = Modifier.height(dimensions().userAvatarClickablePadding))
+                Spacer(modifier = Modifier.height(dimensions().spacing4x))
                 MessageHeader(messageHeader)
 
                 if (!isDeleted) {

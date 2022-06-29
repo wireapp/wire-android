@@ -59,30 +59,34 @@ fun SystemMessageItem(message: SystemMessage) {
                 .width(dimensions().userAvatarDefaultSize),
             contentAlignment = Alignment.TopEnd
         ) {
-            if (message.iconResId != null)
+            if (message.iconResId != null) {
+                val size =
+                    if (message.isSmallIcon) dimensions().systemMessageIconSize
+                    else dimensions().systemMessageIconLargeSize
+                val verticalPadding = dimensions().spacing4x
                 Image(
                     painter = painterResource(id = message.iconResId),
                     contentDescription = stringResource(R.string.content_description_system_message_icon),
                     modifier = Modifier
-                        .padding(
-                            vertical = dimensions().spacing4x
-                        )
-                        .size(dimensions().systemMessageIconSize),
+                        .padding(vertical = verticalPadding)
+                        .size(size),
                     contentScale = ContentScale.Crop
                 )
+            }
         }
         Spacer(Modifier.padding(start = dimensions().spacing16x))
         Column {
             val context = LocalContext.current
             var expanded: Boolean by remember { mutableStateOf(false) }
             Crossfade(targetState = expanded) {
-                Text(message.annotatedString(
-                    context.resources,
-                    it,
-                    MaterialTheme.wireTypography.body01,
-                    MaterialTheme.wireTypography.body02,
-                    MaterialTheme.wireColorScheme.secondaryText,
-                    MaterialTheme.wireColorScheme.onBackground,
+                Text(
+                    message.annotatedString(
+                        context.resources,
+                        it,
+                        MaterialTheme.wireTypography.body01,
+                        MaterialTheme.wireTypography.body02,
+                        MaterialTheme.wireColorScheme.secondaryText,
+                        MaterialTheme.wireColorScheme.onBackground,
                     )
                 )
             }
@@ -151,6 +155,7 @@ private val SystemMessage.expandable
         is SystemMessage.MemberAdded -> this.memberNames.size > EXPANDABLE_THRESHOLD
         is SystemMessage.MemberRemoved -> this.memberNames.size > EXPANDABLE_THRESHOLD
         is SystemMessage.MemberLeft -> false
+        is SystemMessage.MissedCall -> false
     }
 
 private fun List<String>.toUserNamesListString(res: Resources) = when {
@@ -176,8 +181,8 @@ fun SystemMessage.annotatedString(
     boldStyle: TextStyle,
     normalColor: Color,
     boldColor: Color
-    ): AnnotatedString {
-    val args =  when (this) {
+): AnnotatedString {
+    val args = when (this) {
         is SystemMessage.MemberAdded ->
             arrayOf(
                 author.asString(res),
@@ -189,6 +194,7 @@ fun SystemMessage.annotatedString(
                 memberNames.limitUserNamesList(res, if (expanded) memberNames.size else EXPANDABLE_THRESHOLD).toUserNamesListString(res)
             )
         is SystemMessage.MemberLeft -> arrayOf(res.getString(stringResId, author.asString(res)))
+        is SystemMessage.MissedCall -> arrayOf(res.getString(stringResId, author.asString(res)))
     }
     return res.stringWithStyledArgs(stringResId, normalStyle, boldStyle, normalColor, boldColor, *args)
 }

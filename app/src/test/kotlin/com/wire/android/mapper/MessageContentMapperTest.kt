@@ -9,6 +9,7 @@ import com.wire.android.ui.home.conversations.model.MessageContent.ImageMessage
 import com.wire.android.ui.home.conversations.model.MessageContent.SystemMessage
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.Member
+import com.wire.kalium.logic.data.conversation.MemberDetails
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.AssetContent.AssetMetadata
@@ -89,11 +90,16 @@ class MessageContentMapperTest {
         val member1 = TestUser.MEMBER_OTHER.copy(TestUser.OTHER_USER.copy(id = userId1))
         val member2 = TestUser.MEMBER_OTHER.copy(TestUser.OTHER_USER.copy(id = userId2))
         val member3 = TestUser.MEMBER_OTHER.copy(TestUser.OTHER_USER.copy(id = userId3))
+        val missedCallMessage = TestMessage.MISSED_CALL_MESSAGE
+        val selfCaller = MemberDetails.Self(TestUser.SELF_USER.copy(id = missedCallMessage.senderUserId))
+        val otherCaller = member1.copy(otherUser = member1.otherUser.copy(id = missedCallMessage.senderUserId))
         // When
         val resultContentLeft = mapper.mapMemberChangeMessage(contentLeft, userId1, listOf(member1))
         val resultContentRemoved = mapper.mapMemberChangeMessage(contentRemoved, userId1, listOf(member1, member2))
         val resultContentAdded = mapper.mapMemberChangeMessage(contentAdded, userId1, listOf(member1, member2, member3))
         val resultContentAddedSelf = mapper.mapMemberChangeMessage(contentAddedSelf, userId1, listOf(member1))
+        val resultMyMissedCall = mapper.fromMessage(missedCallMessage, listOf(selfCaller))
+        val resultOtherMissedCall = mapper.fromMessage(missedCallMessage, listOf(otherCaller))
         // Then
         assert(
             resultContentLeft is SystemMessage.MemberLeft &&
@@ -114,6 +120,14 @@ class MessageContentMapperTest {
                     resultContentAdded.memberNames[1].asString(arrangement.resources) == member3.otherUser.name
         )
         assert(resultContentAddedSelf == null)
+        assert(
+            resultOtherMissedCall is SystemMessage.MissedCall &&
+                    resultOtherMissedCall.author.asString(arrangement.resources) == TestUser.OTHER_USER.name
+        )
+        assert(
+            resultMyMissedCall is SystemMessage.MissedCall &&
+                    (resultMyMissedCall.author as UIText.StringResource).resId == arrangement.messageResourceProvider.memberNameYouTitlecase
+        )
     }
 
     @Test
@@ -195,7 +209,7 @@ class MessageContentMapperTest {
         // Then
         assert(resultContentImage1 is AssetMessage)
         assert(resultContentImage2 is ImageMessage)
-        
+
         // Only the image with valid metadata is downloaded
         coVerify(exactly = 1) { arrangement.getMessageAssetUseCase.invoke(any(), any()) }
     }

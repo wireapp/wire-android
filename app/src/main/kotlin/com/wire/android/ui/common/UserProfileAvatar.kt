@@ -38,7 +38,6 @@ fun UserProfileAvatar(
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null,
 ) {
-
     val painter = painter(avatarData.asset)
 
     Box(

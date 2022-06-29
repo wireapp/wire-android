@@ -222,7 +222,7 @@ enum class NavigationItem(
         primaryRoute = ONGOING_CALL,
         canonicalRoute = "$ONGOING_CALL/{$EXTRA_CONVERSATION_ID}",
         content = { OngoingCallScreen() },
-        screenMode = ScreenMode.KEEP_ON
+        screenMode = ScreenMode.WAKE_UP
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String = routeWithConversationIdArg(arguments)
     },

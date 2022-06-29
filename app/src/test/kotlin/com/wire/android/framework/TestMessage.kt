@@ -11,6 +11,7 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
+import com.wire.kalium.logic.data.message.MessageContent.MissedCall
 import com.wire.kalium.logic.data.message.MessageEncryptionAlgorithm
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
@@ -58,5 +59,14 @@ object TestMessage {
         messageSource = MessageSource.OtherUser,
         messageHeader = UI_MESSAGE_HEADER,
         messageContent = TextMessage(MessageBody(UIText.DynamicString("Some Text Message")))
+    )
+
+    val MISSED_CALL_MESSAGE = Message.System(
+        id = "messageID",
+        content = MessageContent.MissedCall,
+        conversationId = ConversationId("convo-id", "convo.domain"),
+        date = "some-date",
+        senderUserId = UserId("user-id", "domain"),
+        status = Message.Status.SENT
     )
 }

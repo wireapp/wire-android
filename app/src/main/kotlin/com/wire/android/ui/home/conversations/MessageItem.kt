@@ -2,6 +2,7 @@ package com.wire.android.ui.home.conversations
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
@@ -59,6 +60,7 @@ fun MessageItem(
     with(message) {
         Row(
             Modifier
+                .customizeMessageBackground(message)
                 .padding(
                     end = dimensions().spacing16x,
                     bottom = dimensions().messageItemBottomPadding - dimensions().userAvatarClickablePadding
@@ -78,26 +80,30 @@ fun MessageItem(
             )
             Spacer(Modifier.padding(start = dimensions().spacing16x - dimensions().userAvatarClickablePadding))
             Column {
-                Spacer(modifier = Modifier.height(dimensions().userAvatarClickablePadding))
+                Spacer(modifier = Modifier.height(dimensions().spacing4x))
                 MessageHeader(messageHeader)
 
                 if (!isDeleted) {
                     val currentOnAssetClicked =
-                    remember {
-                        Clickable(enabled = true) {
-                            onAssetMessageClicked(message.messageHeader.messageId)
+                        remember {
+                            Clickable(enabled = true, onClick = {
+                                onAssetMessageClicked(message.messageHeader.messageId)
+                            }, onLongClick = {
+                                onLongClicked(message)
+                            })
                         }
-                    }
 
                     val currentOnImageClick =
-                    remember {
-                        Clickable(enabled = true) {
-                            onImageMessageClicked(
-                                message.messageHeader.messageId,
-                                message.messageSource == MessageSource.Self
-                            )
+                        remember {
+                            Clickable(enabled = true, onClick = {
+                                onImageMessageClicked(
+                                    message.messageHeader.messageId,
+                                    message.messageSource == MessageSource.Self
+                                )
+                            }, onLongClick = {
+                                onLongClicked(message)
+                            })
                         }
-                    }
 
                     MessageContent(
                         messageContent = messageContent,
@@ -105,11 +111,23 @@ fun MessageItem(
                         onImageClick = currentOnImageClick
                     )
                 }
+
+                if (message.sendingFailed) {
+                    MessageSendFailureWarning()
+                }
             }
         }
     }
 }
 
+@Composable
+private fun Modifier.customizeMessageBackground(
+    message: UIMessage,
+) = run {
+    if (message.sendingFailed) {
+        background(MaterialTheme.wireColorScheme.messageErrorBackgroundColor)
+    } else this
+}
 
 @Composable
 private fun MessageHeader(messageHeader: MessageHeader) {
@@ -158,7 +176,7 @@ private fun Username(username: String, modifier: Modifier) {
 private fun MessageContent(
     messageContent: MessageContent?,
     onAssetClick: Clickable,
-    onImageClick: Clickable = Clickable {}
+    onImageClick: Clickable,
 ) {
     when (messageContent) {
         is MessageContent.ImageMessage -> MessageImage(
@@ -228,24 +246,30 @@ private fun MessageStatusLabel(messageStatus: MessageStatus) {
                     )
                 }
             }
-            MessageStatus.SendFailure -> {
-                Row {
-                    Text(
-                        text = messageStatus.text.asString(),
-                        style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.error)
-                    )
-                    Spacer(Modifier.width(dimensions().spacing4x))
-                    Text(
-                        modifier = Modifier.fillMaxWidth(),
-                        style = LocalTextStyle.current.copy(
-                            color = MaterialTheme.wireColorScheme.onTertiaryButtonSelected,
-                            textDecoration = TextDecoration.Underline
-                        ),
-                        text = stringResource(R.string.label_try_again),
-                    )
-                }
-            }
-            MessageStatus.Untouched -> {}
+            MessageStatus.SendFailure, MessageStatus.Untouched -> {}
+        }
+    }
+}
+
+@Composable
+private fun MessageSendFailureWarning() {
+    CompositionLocalProvider(
+        LocalTextStyle provides MaterialTheme.typography.labelSmall
+    ) {
+        Row {
+            Text(
+                text = MessageStatus.SendFailure.text.asString(),
+                style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.error)
+            )
+            Spacer(Modifier.width(dimensions().spacing4x))
+            Text(
+                modifier = Modifier.fillMaxWidth(),
+                style = LocalTextStyle.current.copy(
+                    color = MaterialTheme.wireColorScheme.onTertiaryButtonSelected,
+                    textDecoration = TextDecoration.Underline
+                ),
+                text = stringResource(R.string.label_try_again),
+            )
         }
     }
 }

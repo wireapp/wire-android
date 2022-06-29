@@ -51,6 +51,24 @@ class MessageContentMapper @Inject constructor(
         members: List<MemberDetails>
     ) = when (val content = message.content) {
         is MemberChange -> mapMemberChangeMessage(content, message.senderUserId, members)
+        is MessageContent.MissedCall -> mapMissedCallMessage(message.senderUserId, members)
+    }
+
+    private fun mapMissedCallMessage(
+        senderUserId: UserId,
+        members: List<MemberDetails>
+    ): UIMessageContent.SystemMessage {
+        val sender = members.findUser(userId = senderUserId)
+        val authorName = toSystemMessageMemberName(
+            member = sender,
+            type = SelfNameType.ResourceTitleCase
+        )
+
+        return if (sender is MemberDetails.Self) {
+            UIMessageContent.SystemMessage.MissedCall.youCalled(authorName)
+        } else {
+            UIMessageContent.SystemMessage.MissedCall.otherCalled(authorName)
+        }
     }
 
     fun mapMemberChangeMessage(

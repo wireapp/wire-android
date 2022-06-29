@@ -1,4 +1,4 @@
-package com.wire.android.ui.home.conversations.details
+package com.wire.android.ui.home.conversations.details.options
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -38,7 +38,7 @@ fun GroupConversationOptionsItem(
     enabled: Boolean? = null,
     titleStyle: TextStyle = MaterialTheme.wireTypography.body02,
     arrowType: ArrowType = ArrowType.CENTER_ALIGNED,
-    clickable: Clickable = Clickable(enabled = false) {}
+    clickable: Clickable = Clickable(enabled = false, onClick = { /* not handled */ }, onLongClick = { /* not handled */ })
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -105,7 +105,7 @@ fun GroupConversationOptionsWithLabelAndTitlePreview() {
 @Composable
 @Preview(name = "Item with title and switch clickable")
 fun GroupConversationOptionsWithTitleAndSwitchClickablePreview() {
-    GroupConversationOptionsItem(title = "Services", enabled = true, clickable = Clickable {})
+    GroupConversationOptionsItem(title = "Services", enabled = true, clickable = Clickable(onClick = {}, onLongClick = {}))
 }
 
 @Composable

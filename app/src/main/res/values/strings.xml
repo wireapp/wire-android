@@ -230,6 +230,10 @@
     <string name="conversation_details_options_tab">OPTIONS</string>
     <string name="conversation_details_participants_tab">PARTICIPANTS</string>
     <string name="conversation_details_options_group_name">GROUP NAME</string>
+    <string name="conversation_details_group_admins">GROUP ADMINS (%d)</string>
+    <string name="conversation_details_group_members">GROUP MEMBERS (%d)</string>
+    <string name="conversation_details_participants_info">This group has %s participants.\nUp to 500 people can join a group conversation.</string>
+    <string name="conversation_details_show_all_participants">Show all participants (%d)</string>
 
     <!-- Attachment options -->
     <string name="attachment_share_file">Attach File</string>
@@ -295,6 +299,8 @@
     <string name="label_system_message_added">%1$s added %2$s to the conversation</string>
     <string name="label_system_message_removed">%1$s removed %2$s from the conversation</string>
     <string name="label_system_message_left_the_conversation">%1$s left the conversation</string>
+    <string name="label_system_message_other_called">%1$s called</string>
+    <string name="label_system_message_you_called">%1$s called</string>
     <string name="label_system_message_and">%1$s and %2$s</string>
     <plurals name="label_system_message_x_more">
         <item quantity="other">%1$d more</item>
@@ -326,7 +332,7 @@
     <string name="error_conversation_sending_asset">There was an error trying to send that file. Please check your Internet connection and try again</string>
     <string name="error_conversation_downloading_asset">There was an error trying to download that file. Please try again</string>
     <string name="error_conversation_opening_asset_file">No app was found to open the selected file</string>
-    <string name="error_conversation_deleting_message">There was an error deleting the message. Please verify your connection and try again</string>
+    <string name="error_conversation_deleting_message">The message could not be deleted</string>
     <string name="error_conversation_max_image_size_limit">The image you chose is too large. Please choose an image smaller than 15MB</string>
     <string name="error_conversation_max_asset_size_limit">The file you chose is too large. Please choose a file smaller than %sMB</string>
     <string name="error_conversation_generic">There was an unknown error when trying to send the message</string>
@@ -343,6 +349,7 @@
     <string name="notification_shared_picture">Shared a picture</string>
     <string name="notification_shared_file">Shared a file</string>
     <string name="notification_reacted">Added a reaction</string>
+    <string name="notification_missed_call">Missed call</string>
     <string name="notification_not_suppotred_notification">Something not supported in notifications</string>
     <string name="notification_action_call">Call</string>
     <string name="notification_action_reply">Reply</string>
@@ -377,6 +384,7 @@
     <string name="calling_label_accept">Accept</string>
     <string name="calling_content_description_participant_muted">Participant muted</string>
     <string name="calling_label_join_call">Join</string>
+    <string name="calling_minimize_view">Minimize view</string>
 
     <!-- Connections -->
     <string name="connection_label_connect">Connect</string>

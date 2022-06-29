@@ -34,6 +34,7 @@ sealed class MessageStatus(val text: UIText) {
     object Deleted : MessageStatus(UIText.StringResource(R.string.deleted_message_text))
     data class Edited(val formattedEditTimeStamp: String) :
         MessageStatus(UIText.StringResource(R.string.label_message_status_edited_with_date, formattedEditTimeStamp))
+
     object SendFailure : MessageStatus(UIText.StringResource(R.string.label_message_sent_failure))
     object ReceiveFailure : MessageStatus(UIText.StringResource(R.string.label_message_receive_failure))
 }
@@ -68,7 +69,12 @@ sealed class MessageContent {
         }
     }
 
-    sealed class SystemMessage(@DrawableRes val iconResId: Int?, @StringRes val stringResId: Int) : MessageContent() {
+    sealed class SystemMessage(
+        @DrawableRes val iconResId: Int?,
+        @StringRes val stringResId: Int,
+        val isSmallIcon: Boolean = true
+    ) : MessageContent() {
+
         data class MemberAdded(
             val author: UIText,
             val memberNames: List<UIText>
@@ -82,6 +88,13 @@ sealed class MessageContent {
         data class MemberLeft(
             val author: UIText
         ) : SystemMessage(R.drawable.ic_minus, R.string.label_system_message_left_the_conversation)
+
+        data class MissedCall(val author: UIText, @StringRes val stringId: Int) : SystemMessage(R.drawable.ic_call_end, stringId, false) {
+            companion object {
+                fun youCalled(author: UIText) = MissedCall(author, R.string.label_system_message_you_called)
+                fun otherCalled(author: UIText) = MissedCall(author, R.string.label_system_message_other_called)
+            }
+        }
     }
 }
 

@@ -12,7 +12,7 @@ import com.wire.kalium.logic.feature.asset.SendImageMessageUseCase
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
-import com.wire.kalium.logic.feature.call.usecase.GetAllCallsUseCase
+import com.wire.kalium.logic.feature.call.usecase.GetAllCallsWithSortedParticipantsUseCase
 import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveSpeakerUseCase
@@ -46,9 +46,9 @@ import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.scopes.ViewModelScoped
 import dagger.hilt.components.SingletonComponent
-import kotlinx.coroutines.runBlocking
 import javax.inject.Qualifier
 import javax.inject.Singleton
+import kotlinx.coroutines.runBlocking
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
@@ -195,6 +195,11 @@ class UseCaseModule {
     @Provides
     fun provideObserveConnectionListUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).conversations.observeConnectionList
+
+    @ViewModelScoped
+    @Provides
+    fun provideObserveConversationsAndConnectionsUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).conversations.observeConversationsAndConnectionListUseCase
 
     @ViewModelScoped
     @Provides
@@ -401,7 +406,7 @@ class UseCaseModule {
     fun providesObserveCallByConversationIdUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ): GetAllCallsUseCase = coreLogic.getSessionScope(currentAccount).calls.allCalls
+    ): GetAllCallsWithSortedParticipantsUseCase = coreLogic.getSessionScope(currentAccount).calls.allCallsWithSortedParticipants
 
     @ViewModelScoped
     @Provides

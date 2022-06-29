@@ -210,7 +210,6 @@ private fun ConnectionActionButton(
         )
 
     }
-
 }
 
 @Composable
@@ -301,10 +300,6 @@ private fun handleOperationMessages(
             is ConnectionOperationState.LoadUserInformationError -> stringResource(id = R.string.error_unknown_message)
             is ConnectionOperationState.SuccessConnectionAcceptRequest -> stringResource(id = R.string.connection_request_accepted)
             is ConnectionOperationState.SuccessConnectionCancelRequest -> stringResource(id = R.string.connection_request_canceled)
-            is ConnectionOperationState.SuccessConnectionIgnoreRequest -> stringResource(
-                id = R.string.connection_request_ignored,
-                errorType.userName
-            )
         }
         LaunchedEffect(errorType) {
             snackbarHostState.showSnackbar(message)

@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.model.ImageAsset
+import com.wire.android.navigation.EXTRA_CONNECTION_IGNORED_USER_NAME
 import com.wire.android.navigation.EXTRA_USER_DOMAIN
 import com.wire.android.navigation.EXTRA_USER_ID
 import com.wire.android.navigation.NavigationCommand
@@ -153,8 +154,11 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                 }
                 is IgnoreConnectionRequestUseCaseResult.Success -> {
                     state = state.copy(connectionStatus = ConnectionStatus.NotConnected)
-                    connectionOperationState = ConnectionOperationState.SuccessConnectionIgnoreRequest(state.userName)
-                    navigationManager.navigateBack(mapOf())
+                    navigationManager.navigateBack(
+                        mapOf(
+                            EXTRA_CONNECTION_IGNORED_USER_NAME to state.userName,
+                        )
+                    )
                 }
             }
         }
@@ -169,7 +173,6 @@ class OtherUserProfileScreenViewModel @Inject constructor(
 sealed class ConnectionOperationState(private val randomEventIdentifier: UUID) {
     class SuccessConnectionSentRequest : ConnectionOperationState(UUID.randomUUID())
     class SuccessConnectionAcceptRequest : ConnectionOperationState(UUID.randomUUID())
-    class SuccessConnectionIgnoreRequest(val userName: String) : ConnectionOperationState(UUID.randomUUID())
     class SuccessConnectionCancelRequest : ConnectionOperationState(UUID.randomUUID())
     class ConnectionRequestError : ConnectionOperationState(UUID.randomUUID())
     class LoadUserInformationError : ConnectionOperationState(UUID.randomUUID())

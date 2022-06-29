@@ -15,13 +15,12 @@ import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.util.DEFAULT_FILE_MIME_TYPE
 import com.wire.android.util.copyToTempPath
-import com.wire.android.util.ImageUtil
 import com.wire.android.util.getFileName
 import com.wire.android.util.getMimeType
 import com.wire.android.util.orDefault
-import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.asset.isImage
 import okio.Path
+import okio.Path.Companion.toPath
 import java.io.IOException
 
 @Composable
@@ -119,11 +118,12 @@ class AttachmentInnerState(val context: Context) {
 
     fun pickAttachment(attachmentUri: Uri, tempCachePath: Path) {
         attachmentState = try {
+            val fullTempAssetPath = "$tempCachePath/temp_attachment".toPath()
             val mimeType = attachmentUri.getMimeType(context).orDefault(DEFAULT_FILE_MIME_TYPE)
-            val assetSize = attachmentUri.copyToTempPath(context, tempCachePath)
             val assetFileName = context.getFileName(attachmentUri) ?: "Untitled"
+            val assetSize = attachmentUri.copyToTempPath(context, fullTempAssetPath)
             val attachmentType = if (isImage(mimeType)) AttachmentType.IMAGE else AttachmentType.GENERIC_FILE
-            val attachment = AttachmentBundle(mimeType, tempCachePath, assetSize, assetFileName, attachmentType)
+            val attachment = AttachmentBundle(mimeType, fullTempAssetPath, assetSize, assetFileName, attachmentType)
             AttachmentState.Picked(attachment)
         } catch (e: IOException) {
             appLogger.e("There was an error while obtaining the file from disk", e)

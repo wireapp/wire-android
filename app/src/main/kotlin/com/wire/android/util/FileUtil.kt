@@ -17,10 +17,11 @@ import androidx.annotation.AnyRes
 import androidx.annotation.NonNull
 import androidx.core.content.FileProvider
 import com.wire.android.appLogger
+import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okio.Path
-import okio.Path.Companion.toOkioPath
+import okio.Path.Companion.toPath
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.InputStream
@@ -50,11 +51,18 @@ suspend fun Uri.toByteArray(context: Context): ByteArray {
     }
 }
 
-fun Context.getTempWritableImageUri() = getTempWritableAttachmentUri(this, TEMP_IMG_ATTACHMENT_FILENAME)
-fun Context.getTempWritableVideoUri() = getTempWritableAttachmentUri(this, TEMP_VIDEO_ATTACHMENT_FILENAME)
+fun Context.getTempWritableImageUri(tempCachePath: Path): Uri {
+    val tempImagePath = "$tempCachePath/$TEMP_IMG_ATTACHMENT_FILENAME".toPath()
+    return getTempWritableAttachmentUri(this, tempImagePath)
+}
 
-private fun getTempWritableAttachmentUri(context: Context, fileName: String): Uri {
-    val file = File(context.cacheDir, fileName)
+fun Context.getTempWritableVideoUri(tempCachePath: Path): Uri {
+    val tempVideoPath = "$tempCachePath/$TEMP_VIDEO_ATTACHMENT_FILENAME".toPath()
+    return getTempWritableAttachmentUri(this, tempVideoPath)
+}
+
+private fun getTempWritableAttachmentUri(context: Context, attachmentPath: Path): Uri {
+    val file = attachmentPath.toFile()
     file.setWritable(true)
     return FileProvider.getUriForFile(context, context.getProviderAuthority(), file)
 }

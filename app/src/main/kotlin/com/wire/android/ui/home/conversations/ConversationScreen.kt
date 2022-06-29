@@ -50,6 +50,8 @@ import com.wire.android.ui.home.messagecomposer.MessageComposeInputState
 import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
 import kotlinx.coroutines.launch
+import okio.Path
+import okio.Path.Companion.toPath
 
 @Composable
 fun ConversationScreen(conversationViewModel: ConversationViewModel) {
@@ -74,7 +76,8 @@ fun ConversationScreen(conversationViewModel: ConversationViewModel) {
         onJoinCall = joinCallAudioPermissionCheck::launch,
         onSnackbarMessage = conversationViewModel::onSnackbarMessage,
         onSnackbarMessageShown = conversationViewModel::clearSnackbarMessage,
-        onDropDownClick = conversationViewModel::navigateToDetails
+        onDropDownClick = conversationViewModel::navigateToDetails,
+        tempCachePath = conversationViewModel.provideTempCachePath()
     )
 
     DeleteMessageDialog(conversationViewModel = conversationViewModel)
@@ -118,7 +121,8 @@ private fun ConversationScreen(
     onJoinCall: () -> Unit,
     onSnackbarMessage: (ConversationSnackbarMessages) -> Unit,
     onSnackbarMessageShown: () -> Unit,
-    onDropDownClick: () -> Unit
+    onDropDownClick: () -> Unit,
+    tempCachePath: Path
 ) {
     val conversationScreenState = rememberConversationScreenState()
     val scope = rememberCoroutineScope()
@@ -182,7 +186,8 @@ private fun ConversationScreen(
                                 onMessageComposerError = onSnackbarMessage,
                                 onSnackbarMessageShown = onSnackbarMessageShown,
                                 conversationScreenState = conversationScreenState,
-                                isFileSharingEnabled = isFileSharingEnabled
+                                isFileSharingEnabled = isFileSharingEnabled,
+                                tempCachePath = tempCachePath
                             )
                         }
                     }
@@ -207,7 +212,8 @@ private fun ConversationScreenContent(
     conversationState: ConversationViewState,
     onSnackbarMessageShown: () -> Unit,
     conversationScreenState: ConversationScreenState,
-    isFileSharingEnabled: Boolean
+    isFileSharingEnabled: Boolean,
+    tempCachePath: Path
 ) {
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -254,7 +260,9 @@ private fun ConversationScreenContent(
             ) {
                 coroutineScope.launch { lazyListState.animateScrollToItem(messages.size) }
             }
-        }, isFileSharingEnabled = isFileSharingEnabled
+        },
+        isFileSharingEnabled = isFileSharingEnabled,
+        tempCachePath = tempCachePath
     )
 }
 
@@ -317,6 +325,6 @@ fun ConversationScreenPreview() {
             conversationName = "Some test conversation",
             messages = getMockedMessages(),
         ),
-        {}, {}, {}, {}, { _, _ -> }, {}, { _, _ -> }, {}, {}, {}, {}, {}
+        {}, {}, {}, {}, { _, _ -> }, {}, { _, _ -> }, {}, {}, {}, {}, {}, "".toPath()
     )
 }

@@ -524,11 +524,6 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun setFileSharingStatus(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
-        coreLogic.getSessionScope(currentAccount).setFileSharingStatus
-
-    @ViewModelScoped
-    @Provides
     fun registerTokenUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): RegisterTokenUseCase =
         coreLogic.getSessionScope(currentAccount).client.registerPushToken
 }

@@ -13,8 +13,8 @@ fun CallVideoPreview(
     isCameraOn: Boolean,
     onVideoPreviewCreated: (view: View) -> Unit
 ) {
-    Box {
-        if (isCameraOn) {
+    if (isCameraOn) {
+        Box {
             AndroidView(
                 modifier = Modifier.fillMaxSize(),
                 factory = {

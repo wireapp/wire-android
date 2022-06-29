@@ -2,7 +2,7 @@ package com.wire.android.mapper
 
 import com.wire.android.ui.home.conversations.avatar
 import com.wire.android.ui.home.conversations.handle
-import com.wire.android.ui.home.conversations.model.UIParticipant
+import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.home.conversations.name
 import com.wire.android.ui.home.conversations.userId
 import com.wire.android.ui.home.conversations.userType
@@ -86,4 +86,11 @@ fun testOtherUser(i: Int): OtherUser = OtherUser(
     completePicture = null,
     availabilityStatus = UserAvailabilityStatus.NONE,
     userType = UserType.INTERNAL
+)
+
+fun testUIParticipant(i: Int): UIParticipant = UIParticipant(
+    id = UserId(value = "value$i", domain = "domain$i"),
+    name = "name$i",
+    handle = "handle$i",
+    isSelf = false
 )

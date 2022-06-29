@@ -1,11 +1,21 @@
 package com.wire.android.ui.home.conversations.details
 
+import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.mapper.testOtherUser
+import com.wire.android.navigation.EXTRA_CONVERSATION_ID
+import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.android.ui.home.conversations.mockConversationDetailsGroup
-import com.wire.kalium.logic.data.conversation.MemberDetails
-import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.data.conversation.ConversationDetails
+import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
+import io.mockk.MockKAnnotations
+import io.mockk.coEvery
+import io.mockk.every
+import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.flow.consumeAsFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Test
@@ -42,20 +52,43 @@ class GroupConversationDetailsViewModelTest {
         arrangement.withConversationDetailUpdate(details2)
         assertEquals(details2.conversation.name, viewModel.groupOptionsState.groupName)
     }
+}
 
-    @Test
-    fun `given a group members, when solving the participants list, then right sizes are passed`() = runTest {
-        // Given
-        val members = buildList {
-            for (i in 1..(GroupConversationDetailsViewModel.MAX_NUMBER_OF_PARTICIPANTS + 1)) {
-                add(MemberDetails.Other(testOtherUser(i).copy(userType = UserType.INTERNAL)))
-            }
-        }
-        val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
-            .withConversationParticipantsUpdate(members)
-            .arrange()
-        // When - Then
-        assert(viewModel.groupParticipantsState.participants.size <= GroupConversationDetailsViewModel.MAX_NUMBER_OF_PARTICIPANTS)
-        assert(viewModel.groupParticipantsState.allParticipantsCount  == members.size)
+internal class GroupConversationDetailsViewModelArrangement {
+
+    @MockK
+    private lateinit var savedStateHandle: SavedStateHandle
+    @MockK
+    lateinit var navigationManager: NavigationManager
+    @MockK
+    lateinit var observeConversationDetails: ObserveConversationDetailsUseCase
+    @MockK
+    lateinit var observeParticipantsForConversationUseCase: ObserveParticipantsForConversationUseCase
+    private val conversationDetailsChannel = Channel<ConversationDetails>(capacity = Channel.UNLIMITED)
+    private val viewModel by lazy {
+        GroupConversationDetailsViewModel(
+            savedStateHandle,
+            navigationManager,
+            observeConversationDetails,
+            observeParticipantsForConversationUseCase
+        )
     }
+
+    init {
+        // Tests setup
+        val dummyConversationId = "some-dummy-value@some.dummy.domain"
+        MockKAnnotations.init(this, relaxUnitFun = true)
+        every { savedStateHandle.get<String>(EXTRA_CONVERSATION_ID) } returns dummyConversationId
+        // Default empty values
+        coEvery { observeConversationDetails(any()) } returns flowOf()
+        coEvery { observeParticipantsForConversationUseCase(any(), any()) } returns flowOf()
+    }
+
+    suspend fun withConversationDetailUpdate(conversationDetails: ConversationDetails): GroupConversationDetailsViewModelArrangement {
+        coEvery { observeConversationDetails(any()) } returns conversationDetailsChannel.consumeAsFlow()
+        conversationDetailsChannel.send(conversationDetails)
+        return this
+    }
+
+    fun arrange() = this to viewModel
 }

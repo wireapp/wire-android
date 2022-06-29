@@ -68,6 +68,13 @@ fun LazyListState.topBarElevation(maxElevation: Dp): Dp =
 
 fun ScrollState.topBarElevation(maxElevation: Dp): Dp = minOf(value.dp, maxElevation)
 
+fun LazyListState.bottomBarElevation(maxElevation: Dp): Dp = layoutInfo.visibleItemsInfo.lastOrNull()?.let {
+    if (it.index == layoutInfo.totalItemsCount - 1) minOf((it.offset + it.size - layoutInfo.viewportEndOffset).dp, maxElevation)
+    else maxElevation
+} ?: maxElevation
+
+fun ScrollState.bottomBarElevation(maxElevation: Dp): Dp = minOf((maxValue - value).dp, maxElevation)
+
 @Composable
 fun LazyListState.rememberTopBarElevationState(maxElevation: Dp = MaterialTheme.wireDimensions.topBarShadowElevation): State<Dp> =
     remember { derivedStateOf { topBarElevation(maxElevation) } }
@@ -75,6 +82,14 @@ fun LazyListState.rememberTopBarElevationState(maxElevation: Dp = MaterialTheme.
 @Composable
 fun ScrollState.rememberTopBarElevationState(maxElevation: Dp = MaterialTheme.wireDimensions.topBarShadowElevation): State<Dp> =
     remember { derivedStateOf { topBarElevation(maxElevation) } }
+
+@Composable
+fun LazyListState.rememberBottomBarElevationState(maxElevation: Dp = MaterialTheme.wireDimensions.topBarShadowElevation): State<Dp> =
+    remember { derivedStateOf { bottomBarElevation(maxElevation) } }
+
+@Composable
+fun ScrollState.rememberBottomBarElevationState(maxElevation: Dp = MaterialTheme.wireDimensions.topBarShadowElevation): State<Dp> =
+    remember { derivedStateOf { bottomBarElevation(maxElevation) } }
 
 @Composable
 fun Modifier.shimmerPlaceholder(

@@ -1,5 +1,6 @@
 package com.wire.android.ui.home.newconversation
 
+import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.framework.TestUser
 import com.wire.android.mapper.ContactMapper
 import com.wire.android.model.ImageAsset
@@ -130,7 +131,8 @@ internal class NewConversationViewModelArrangement {
             searchKnownUsers = searchKnownUsers,
             getAllContacts = getAllContacts,
             createGroupConversation = createGroupConversation,
-            contactMapper = contactMapper
+            contactMapper = contactMapper,
+            dispatchers = TestDispatcherProvider()
         )
     }
 

@@ -37,8 +37,13 @@ fun OneOnOneCallView(
                 participantAvatar = ImageAsset.UserAvatarAsset(participant.avatarAssetId!!),
                 isMuted = participant.isMuted,
                 isCameraOn = isCameraOn,
-                onSelfUserVideoPreviewCreated = { onSelfVideoPreviewCreated(it) },
-                onClearSelfUserVideoPreview = onSelfClearVideoPreview
+                onSelfUserVideoPreviewCreated = {
+                    if (participants.first() == participant) onSelfVideoPreviewCreated(it)
+                },
+                onClearSelfUserVideoPreview = {
+                    if (participants.first() == participant)
+                        onSelfClearVideoPreview()
+                }
             )
         }
     }

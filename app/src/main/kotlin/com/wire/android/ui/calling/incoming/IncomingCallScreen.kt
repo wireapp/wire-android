@@ -10,7 +10,6 @@ import androidx.compose.material.BottomSheetScaffold
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Text
 import androidx.compose.material.rememberBottomSheetScaffoldState
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -21,15 +20,14 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.appLogger
-import com.wire.android.ui.calling.CallPreview
 import com.wire.android.ui.calling.CallState
 import com.wire.android.ui.calling.SharedCallingViewModel
+import com.wire.android.ui.calling.common.CallVideoPreview
+import com.wire.android.ui.calling.common.CallerDetails
 import com.wire.android.ui.calling.controlButtons.AcceptButton
 import com.wire.android.ui.calling.controlButtons.CallOptionsControls
 import com.wire.android.ui.calling.controlButtons.DeclineButton
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.topappbar.NavigationIconType
-import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
@@ -72,7 +70,6 @@ private fun IncomingCallContent(
     val scaffoldState = rememberBottomSheetScaffoldState()
 
     BottomSheetScaffold(
-        topBar = { IncomingCallTopBar { } },
         sheetShape = RoundedCornerShape(dimensions().corner16x, dimensions().corner16x, 0.dp, 0.dp),
         backgroundColor = MaterialTheme.wireColorScheme.callingIncomingBackground,
         sheetGesturesEnabled = false,
@@ -128,29 +125,19 @@ private fun IncomingCallContent(
             }
         },
     ) {
-        CallPreview(
-            conversationName = callState.conversationName,
-            isCameraOn = callState.isCameraOn,
-            avatarAssetId = callState.avatarAssetId,
-            conversationType = callState.conversationType,
-            onVideoPreviewCreated = { onVideoPreviewCreated(it) }
-        )
+        Box {
+            CallVideoPreview(
+                isCameraOn = callState.isCameraOn,
+                onVideoPreviewCreated = { onVideoPreviewCreated(it) }
+            )
+            CallerDetails(
+                conversationName = callState.conversationName,
+                isCameraOn = callState.isCameraOn,
+                avatarAssetId = callState.avatarAssetId,
+                conversationType = callState.conversationType,
+            )
+        }
     }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-private fun IncomingCallTopBar(
-    onCollapse: () -> Unit
-) {
-    WireCenterAlignedTopAppBar(
-        onNavigationPressed = onCollapse,
-        title = stringResource(id = R.string.calling_label_constant_bit_rate),
-        titleStyle = MaterialTheme.wireTypography.title03,
-        navigationIconType = NavigationIconType.Collapse,
-        elevation = 0.dp,
-        actions = {}
-    )
 }
 
 @Composable

@@ -2,9 +2,11 @@ package com.wire.android.ui.home.conversations.model
 
 import android.graphics.Bitmap
 import android.text.util.Linkify
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -67,16 +69,21 @@ internal fun MessageBody(messageBody: MessageBody) {
     )
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MessageImage(
     rawImgData: ByteArray?,
     imgParams: ImageMessageParams,
-    onImageClick: Clickable
+    onImageClick: Clickable,
 ) {
     Box(
         Modifier
             .clip(shape = RoundedCornerShape(dimensions().messageAssetBorderRadius))
-            .clickable(onImageClick)
+            .combinedClickable(
+                enabled = onImageClick.enabled,
+                onClick = onImageClick.onClick,
+                onLongClick = onImageClick.onLongClick,
+            )
     ) {
         val imageData: Bitmap? =
             if (rawImgData != null && rawImgData.size < ConversationViewModel.IMAGE_SIZE_LIMIT_BYTES) rawImgData.toBitmap() else null
@@ -96,7 +103,8 @@ fun MessageImage(
 @Composable
 fun RestrictedAssetMessage(assetTypeIcon: Int, restrictedAssetMessage: String) {
     Box(
-        Modifier.background(MaterialTheme.wireColorScheme.primaryButtonDisabled)
+        Modifier
+            .background(MaterialTheme.wireColorScheme.primaryButtonDisabled)
             .clip(shape = RoundedCornerShape(dimensions().messageAssetBorderRadius))
     ) {
         Column(

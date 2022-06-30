@@ -59,7 +59,10 @@ class UIParticipantMapperTest {
         lateinit var wireSessionImageLoader: WireSessionImageLoader
 
         val userTypeMapper: UserTypeMapper = UserTypeMapper()
-        private val mapper: UIParticipantMapper = UIParticipantMapper(userTypeMapper, wireSessionImageLoader)
+
+        private val mapper: UIParticipantMapper by lazy {
+            UIParticipantMapper(userTypeMapper, wireSessionImageLoader)
+        }
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)

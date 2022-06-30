@@ -30,7 +30,7 @@ class KaliumFileWriter : LogWriter() {
     private var flushCompleted = MutableStateFlow<Long>(0)
 
     val logTimeFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
-    private val LOG_FILE_TIME_FORMAT = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.US)
+    private val logFileTimeFormat = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.US)
 
     private val logBuffer = MutableStateFlow(LogElement("", Severity.Verbose, ""))
     private lateinit var filePath: String
@@ -129,12 +129,13 @@ class KaliumFileWriter : LogWriter() {
             }?.map { it.delete() }
     }
 
+    @Suppress("NestedBlockDepth", "MagicNumber")
     private fun compress(file: File): Boolean {
         try {
             val compressed =
                 File(
                     file.parentFile.absolutePath,
-                    "${file.name.substringBeforeLast(".")}_${LOG_FILE_TIME_FORMAT.format(Date())}_${file.parentFile.listFiles().size}.gz"
+                    "${file.name.substringBeforeLast(".")}_${logFileTimeFormat.format(Date())}_${file.parentFile.listFiles().size}.gz"
                 )
             FileInputStream(file).use { fis ->
                 FileOutputStream(compressed).use { fos ->

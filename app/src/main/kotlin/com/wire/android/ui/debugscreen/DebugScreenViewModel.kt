@@ -50,6 +50,10 @@ class DebugScreenViewModel
         }
     }
 
+    fun deleteAllLogs(absolutePath: String) {
+        kaliumFileWriter.deleteAllLogs(File(logFilePath(absolutePath)))
+    }
+
     fun setLoggingEnabledState(isEnabled: Boolean, absolutePath: String) {
         enableLoggingUseCase.invoke(isEnabled)
         isLoggingEnabled = isEnabled
@@ -60,7 +64,6 @@ class DebugScreenViewModel
             )
         } else {
             kaliumFileWriter.clearFileContent(File(logFilePath(absolutePath)))
-            kaliumFileWriter.deleteAllLogs(File(logFilePath(absolutePath)))
             CoreLogger.setLoggingLevel(
                 level = KaliumLogLevel.DISABLED, kaliumFileWriter
             )

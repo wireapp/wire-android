@@ -125,7 +125,7 @@ class KaliumFileWriter : LogWriter() {
     fun deleteAllLogs(file: File) {
         file.parentFile.listFiles()
             ?.filter {
-                it.extension.toLowerCase(Locale.ROOT) == "gz"
+                it.extension.lowercase(Locale.ROOT) == "gz"
             }?.map { it.delete() }
     }
 

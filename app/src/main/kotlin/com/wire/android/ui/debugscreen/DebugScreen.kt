@@ -30,7 +30,7 @@ import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.startFileShareIntent
+import com.wire.android.util.startMultipleFileSharingIntent
 
 @Composable
 fun DebugScreen() {
@@ -68,12 +68,16 @@ fun ListWithHeader(
 
 @Composable
 fun TextRowItem(text: String, @DrawableRes trailingIcon: Int? = null, onIconClick: () -> Unit = {}) {
-    Row(modifier = Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface)) {
+    Row(modifier = Modifier
+        .fillMaxWidth()
+        .background(MaterialTheme.colorScheme.surface)) {
         Text(
             text = text,
             fontWeight = FontWeight.Normal,
             color = MaterialTheme.wireColorScheme.onSecondaryButtonEnabled,
-            modifier = Modifier.padding(10.dp).weight(1f),
+            modifier = Modifier
+                .padding(10.dp)
+                .weight(1f),
             textAlign = TextAlign.Left,
             fontSize = 14.sp
         )
@@ -82,7 +86,9 @@ fun TextRowItem(text: String, @DrawableRes trailingIcon: Int? = null, onIconClic
                 painter = painterResource(id = trailingIcon),
                 contentDescription = "",
                 tint = MaterialTheme.wireColorScheme.onSecondaryButtonEnabled,
-                modifier = Modifier.defaultMinSize(80.dp).clickable { onIconClick() }
+                modifier = Modifier
+                    .defaultMinSize(80.dp)
+                    .clickable { onIconClick() }
             )
         }
 
@@ -101,19 +107,29 @@ fun LoggingSection(debugScreenViewModel: DebugScreenViewModel) {
     TextRowItem(
         "Share Logs",
         trailingIcon = android.R.drawable.ic_menu_share
-    ) { context.startFileShareIntent(debugScreenViewModel.logFilePath(absolutePath)) }
+    ) { context.startMultipleFileSharingIntent(debugScreenViewModel.logFilePath(absolutePath)) }
+
+    TextRowItem(
+        "Delete All Logs",
+        trailingIcon = android.R.drawable.ic_delete
+    ) { debugScreenViewModel.deleteAllLogs(absolutePath) }
+
 }
 
 @Composable
 fun SwitchRowItem(
     text: String, checked: Boolean = false, onCheckedChange: ((Boolean) -> Unit)?
 ) {
-    Row(modifier = Modifier.fillMaxWidth().background(MaterialTheme.colorScheme.surface)) {
+    Row(modifier = Modifier
+        .fillMaxWidth()
+        .background(MaterialTheme.colorScheme.surface)) {
         Text(
             text = text,
             fontWeight = FontWeight.Normal,
             color = MaterialTheme.wireColorScheme.onSecondaryButtonEnabled,
-            modifier = Modifier.padding(10.dp).weight(1f),
+            modifier = Modifier
+                .padding(10.dp)
+                .weight(1f),
             textAlign = TextAlign.Left,
             fontSize = 14.sp
         )

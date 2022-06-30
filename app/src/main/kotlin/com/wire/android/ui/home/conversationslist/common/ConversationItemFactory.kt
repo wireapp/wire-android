@@ -15,6 +15,7 @@ import com.wire.android.ui.home.conversationslist.model.EventType
 import com.wire.android.ui.home.conversationslist.model.toUserInfoLabel
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
 
 @Composable
@@ -114,11 +115,14 @@ private fun GeneralConversationItem(
                     leadingIcon = { ConversationUserAvatar(userAvatarData) },
                     title = { UserLabel(userInfoLabel = toUserInfoLabel()) },
                     subTitle = subTitle,
-                    eventType = eventType,
+                    eventType = parseConnectionEventType(connectionState),
                     onRowItemClicked = onConversationItemClick,
-                    onRowItemLongClicked = onConversationItemLongClick,
+                    onRowItemLongClicked = onConversationItemLongClick
                 )
             }
         }
     }
 }
+
+private fun parseConnectionEventType(connectionState: ConnectionState) =
+    if (connectionState == ConnectionState.SENT) EventType.SentConnectRequest else EventType.ReceivedConnectionRequest

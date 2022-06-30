@@ -184,14 +184,14 @@ fun saveFileToDownloadsFolder(assetName: String, assetDataPath: Path, assetDataS
     context.saveFileDataToDownloadsFolder(assetName, assetDataPath, assetDataSize)
 }
 
-fun openAssetFileWithExternalApp(assetDataPath: Path, context: Context, onError: () -> Unit) {
+fun openAssetFileWithExternalApp(assetDataPath: Path, context: Context, assetExtension: String, onError: () -> Unit) {
     try {
         val assetUri = context.pathToUri(assetDataPath)
 
         // Set intent and launch
         val intent = Intent()
         intent.setActionViewIntentFlags()
-        intent.setDataAndType(assetUri, assetUri.getMimeType(context))
+        intent.setDataAndType(assetUri, MimeTypeMap.getSingleton().getMimeTypeFromExtension(assetExtension))
 
         context.startActivity(intent)
     } catch (e: java.lang.IllegalArgumentException) {

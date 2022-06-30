@@ -410,10 +410,10 @@ class ConversationViewModel @Inject constructor(
         }
     }
 
-    fun onOpenFileWithExternalApp(assetDataPath: Path) {
+    fun onOpenFileWithExternalApp(assetDataPath: Path, assetExtension: String) {
         viewModelScope.launch {
             withContext(dispatchers.io()) {
-                fileManager.openWithExternalApp(assetDataPath) { onOpenFileError() }
+                fileManager.openWithExternalApp(assetDataPath, assetExtension) { onOpenFileError() }
                 hideOnAssetDownloadedDialog()
             }
         }

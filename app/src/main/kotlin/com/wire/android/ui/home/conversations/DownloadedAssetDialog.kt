@@ -10,13 +10,14 @@ import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.util.permission.WriteToExternalStorageRequestFlow
+import com.wire.kalium.logic.util.fileExtension
 import okio.Path
 
 @Composable
 fun DownloadedAssetDialog(
     downloadedAssetDialogState: DownloadedAssetDialogVisibilityState,
     onSaveFileToExternalStorage: (String, Path, Long, String) -> Unit,
-    onOpenFileWithExternalApp: (Path) -> Unit,
+    onOpenFileWithExternalApp: (Path, String) -> Unit,
     hideOnAssetDownloadedDialog: () -> Unit
 ) {
     val context = LocalContext.current
@@ -48,7 +49,7 @@ fun DownloadedAssetDialog(
             optionButton2Properties = WireDialogButtonProperties(
                 text = stringResource(R.string.asset_download_dialog_open_text),
                 type = WireDialogButtonType.Primary,
-                onClick = { onOpenFileWithExternalApp(assetDataPath) }
+                onClick = { onOpenFileWithExternalApp(assetDataPath, assetName.fileExtension()) }
             ),
             optionButton1Properties = WireDialogButtonProperties(
                 text = stringResource(R.string.asset_download_dialog_save_text),

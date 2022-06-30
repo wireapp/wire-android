@@ -22,11 +22,12 @@ import com.wire.kalium.logic.data.call.Participant
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.tooling.preview.Preview
+import com.wire.android.ui.calling.model.UICallParticipant
 
 @OptIn(ExperimentalPagerApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun VerticalCallingPager(
-    participants: List<Participant>,
+    participants: List<UICallParticipant>,
     isSelfUserCameraOn: Boolean,
     onSelfVideoPreviewCreated: (view: View) -> Unit,
     onSelfClearVideoPreview: () -> Unit

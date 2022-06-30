@@ -12,6 +12,7 @@ import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.ConversationLastEvent
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.call.AnswerCallUseCase
@@ -52,6 +53,9 @@ class ConversationListViewModelTest {
     @MockK
     lateinit var joinCall: AnswerCallUseCase
 
+    @MockK
+    private lateinit var wireSessionImageLoader: WireSessionImageLoader
+
     @BeforeEach
     fun setUp() {
         MockKAnnotations.init(this, relaxUnitFun = true)
@@ -64,7 +68,8 @@ class ConversationListViewModelTest {
                 markMessagesAsNotified,
                 joinCall,
                 observeConversationsAndConnections,
-                TestDispatcherProvider()
+                TestDispatcherProvider(),
+                wireSessionImageLoader
             )
 
         coEvery { observeConversationsAndConnections() } returns flowOf(listOf())

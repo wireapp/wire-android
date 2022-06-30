@@ -6,6 +6,7 @@ import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.model.UIParticipant
+import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.MemberDetails
@@ -38,7 +39,10 @@ internal class GroupConversationDetailsViewModelArrangement {
     @MockK
     lateinit var observeConversationMembersUseCase: ObserveConversationMembersUseCase
 
-    val uIParticipantMapper: UIParticipantMapper = UIParticipantMapper(UserTypeMapper())
+    @MockK
+    private lateinit var wireSessionImageLoader: WireSessionImageLoader
+
+    val uIParticipantMapper: UIParticipantMapper = UIParticipantMapper(UserTypeMapper(), wireSessionImageLoader)
 
     private val conversationDetailsChannel = Channel<ConversationDetails>(capacity = Channel.UNLIMITED)
     private val conversationMembersChannel = Channel<List<MemberDetails>>(capacity = Channel.UNLIMITED)

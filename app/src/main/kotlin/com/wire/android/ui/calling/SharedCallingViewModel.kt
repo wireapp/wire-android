@@ -8,10 +8,12 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.mapper.UICallParticipantMapper
 import com.wire.android.media.CallRinger
 import com.wire.android.model.ImageAsset
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.call.ConversationType
 import com.wire.kalium.logic.data.call.VideoState
 import com.wire.kalium.logic.data.conversation.ConversationDetails
@@ -48,7 +50,9 @@ class SharedCallingViewModel @Inject constructor(
     private val turnLoudSpeakerOff: TurnLoudSpeakerOffUseCase,
     private val turnLoudSpeakerOn: TurnLoudSpeakerOnUseCase,
     private val observeSpeaker: ObserveSpeakerUseCase,
-    private val callRinger: CallRinger
+    private val callRinger: CallRinger,
+    private val uiCallParticipantMapper: UICallParticipantMapper,
+    private val wireSessionImageLoader: WireSessionImageLoader
 ) : ViewModel() {
 
     var callState by mutableStateOf(CallState())
@@ -87,7 +91,9 @@ class SharedCallingViewModel @Inject constructor(
                     is ConversationDetails.OneOne -> {
                         callState.copy(
                             conversationName = getConversationName(details.otherUser.name),
-                            avatarAssetId = details.otherUser.completePicture?.let { assetId -> ImageAsset.UserAvatarAsset(assetId) },
+                            avatarAssetId = details.otherUser.completePicture?.let { assetId ->
+                                ImageAsset.UserAvatarAsset(wireSessionImageLoader, assetId)
+                            },
                             conversationType = ConversationType.OneOnOne
                         )
                     }
@@ -120,7 +126,7 @@ class SharedCallingViewModel @Inject constructor(
                 callState = callState.copy(
                     isMuted = it.isMuted,
                     isCameraOn = it.isCameraOn,
-                    participants = it.participants
+                    participants = it.participants.map { uiCallParticipantMapper.toUICallParticipant(it) }
                 )
             }
         }

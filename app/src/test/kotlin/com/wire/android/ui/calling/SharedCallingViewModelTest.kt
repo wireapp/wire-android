@@ -2,8 +2,10 @@ package com.wire.android.ui.calling
 
 import android.view.View
 import androidx.lifecycle.SavedStateHandle
+import com.wire.android.mapper.UICallParticipantMapper
 import com.wire.android.media.CallRinger
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.call.VideoState
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.GetAllCallsWithSortedParticipantsUseCase
@@ -29,6 +31,7 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.call.usecase.ObserveSpeakerUseCase
 import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOffUseCase
 import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOnUseCase
+import io.mockk.mockk
 import io.mockk.verify
 
 class SharedCallingViewModelTest {
@@ -75,6 +78,11 @@ class SharedCallingViewModelTest {
     @MockK
     private lateinit var view: View
 
+    @MockK
+    private lateinit var wireSessionImageLoader: WireSessionImageLoader
+
+    private val uiCallParticipantMapper: UICallParticipantMapper = UICallParticipantMapper(wireSessionImageLoader)
+
     private lateinit var sharedCallingViewModel: SharedCallingViewModel
 
 
@@ -100,7 +108,9 @@ class SharedCallingViewModelTest {
             turnLoudSpeakerOff = turnLoudSpeakerOff,
             turnLoudSpeakerOn = turnLoudSpeakerOn,
             observeSpeaker = observeSpeaker,
-            callRinger = callRinger
+            callRinger = callRinger,
+            uiCallParticipantMapper = uiCallParticipantMapper,
+            wireSessionImageLoader = wireSessionImageLoader
         )
     }
 

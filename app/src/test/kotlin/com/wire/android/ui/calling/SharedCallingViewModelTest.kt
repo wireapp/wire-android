@@ -81,7 +81,7 @@ class SharedCallingViewModelTest {
     @MockK
     private lateinit var wireSessionImageLoader: WireSessionImageLoader
 
-    private val uiCallParticipantMapper: UICallParticipantMapper = UICallParticipantMapper(wireSessionImageLoader)
+    private val uiCallParticipantMapper: UICallParticipantMapper by lazy { UICallParticipantMapper(wireSessionImageLoader) }
 
     private lateinit var sharedCallingViewModel: SharedCallingViewModel
 
@@ -176,7 +176,7 @@ class SharedCallingViewModelTest {
         coEvery { setVideoPreview(any(), any()) } returns Unit
         coEvery { updateVideoState(any(), any()) } returns Unit
 
-        runTest {sharedCallingViewModel.setVideoPreview(view) }
+        runTest { sharedCallingViewModel.setVideoPreview(view) }
 
         coVerify(exactly = 2) { setVideoPreview(any(), any()) }
         coVerify(exactly = 1) { updateVideoState(any(), VideoState.STARTED) }
@@ -187,7 +187,7 @@ class SharedCallingViewModelTest {
         coEvery { setVideoPreview(any(), any()) } returns Unit
         coEvery { updateVideoState(any(), any()) } returns Unit
 
-        runTest {sharedCallingViewModel.clearVideoPreview() }
+        runTest { sharedCallingViewModel.clearVideoPreview() }
 
         coVerify(exactly = 1) { setVideoPreview(any(), any()) }
         coVerify(exactly = 1) { updateVideoState(any(), VideoState.STOPPED) }
@@ -199,7 +199,7 @@ class SharedCallingViewModelTest {
         coEvery { setVideoPreview(any(), any()) } returns Unit
         coEvery { updateVideoState(any(), any()) } returns Unit
 
-        runTest {sharedCallingViewModel.pauseVideo() }
+        runTest { sharedCallingViewModel.pauseVideo() }
 
         coVerify(exactly = 1) { setVideoPreview(any(), any()) }
         coVerify(exactly = 1) { updateVideoState(any(), VideoState.PAUSED) }
@@ -212,7 +212,7 @@ class SharedCallingViewModelTest {
         coEvery { setVideoPreview(any(), any()) } returns Unit
         coEvery { updateVideoState(any(), any()) } returns Unit
 
-        runTest {sharedCallingViewModel.pauseVideo() }
+        runTest { sharedCallingViewModel.pauseVideo() }
 
         coVerify(exactly = 0) { setVideoPreview(any(), any()) }
         coVerify(exactly = 0) { updateVideoState(any(), VideoState.PAUSED) }

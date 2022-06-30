@@ -59,9 +59,8 @@ class DebugScreenViewModel
                 level = KaliumLogLevel.DEBUG, kaliumFileWriter
             )
         } else {
-            kaliumFileWriter.clearFileContent(
-                File(logFilePath(absolutePath))
-            )
+            kaliumFileWriter.clearFileContent(File(logFilePath(absolutePath)))
+            kaliumFileWriter.deleteAllLogs(File(logFilePath(absolutePath)))
             CoreLogger.setLoggingLevel(
                 level = KaliumLogLevel.DISABLED, kaliumFileWriter
             )

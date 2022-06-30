@@ -8,7 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.ui.home.HomeState
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.data.sync.SyncState
-import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
+import com.wire.kalium.logic.feature.user.FileSharingStatusFlowUseCase
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -17,7 +17,7 @@ import javax.inject.Inject
 @HiltViewModel
 class SyncStateViewModel @Inject constructor(
     private val observeSyncState: ObserveSyncStateUseCase,
-    private val isFileSharingEnabled: IsFileSharingEnabledUseCase
+    private val fileSharingStatusFlowUseCase: FileSharingStatusFlowUseCase
 ) : ViewModel() {
 
     var syncState by mutableStateOf(SyncViewState.WAITING)
@@ -42,8 +42,7 @@ class SyncStateViewModel @Inject constructor(
                 }
                 SyncState.GatheringPendingEvents -> SyncViewState.GATHERING_EVENTS
                 SyncState.Live -> {
-                    setFileSharingState()
-                    SyncViewState.LIVE
+                    SyncViewState.LIVE.also { setFileSharingState() }
                 }
 
                 SyncState.SlowSync -> SyncViewState.SLOW_SYNC
@@ -53,16 +52,19 @@ class SyncStateViewModel @Inject constructor(
     }
 
     private fun setFileSharingState() {
-        if (isFileSharingEnabled().isFileSharingEnabled != null) {
-            homeState = homeState.copy(isFileSharingEnabledState = isFileSharingEnabled().isFileSharingEnabled!!)
-        }
-        if (isFileSharingEnabled().isStatusChanged != null && isFileSharingEnabled().isStatusChanged!!) {
-            homeState = homeState.copy(showFileSharingDialog = isFileSharingEnabled().isStatusChanged!!)
+        viewModelScope.launch {
+            fileSharingStatusFlowUseCase().collect {
+                if (it.isFileSharingEnabled != null) {
+                    homeState = homeState.copy(isFileSharingEnabledState = it.isFileSharingEnabled!!)
+                }
+                if (it.isStatusChanged != null && it.isStatusChanged!!) {
+                    homeState = homeState.copy(showFileSharingDialog = it.isStatusChanged!!)
+                }
+            }
         }
     }
 
     fun hideDialogStatus() {
         homeState = homeState.copy(showFileSharingDialog = false)
     }
-
 }

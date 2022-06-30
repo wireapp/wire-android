@@ -519,8 +519,13 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun isFileSharingEnabledUserCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+    fun isFileSharingEnabledUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).isFileSharingEnabled
+
+    @ViewModelScoped
+    @Provides
+    fun fileSharingStatusFlowUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).isFileSharingEnabledFlow
 
     @ViewModelScoped
     @Provides

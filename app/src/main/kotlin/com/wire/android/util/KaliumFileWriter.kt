@@ -23,6 +23,7 @@ typealias LogElement = Triple<String, Severity, String?>
 
 const val LOG_FILE_NAME = "wire_logs.txt"
 private const val LOG_FILE_MAX_SIZE_THRESHOLD = 5 * 1024 * 1024
+private const val BYTE_ARRAY_SIZE = 1024
 
 @Suppress("TooGenericExceptionCaught", "BlockingMethodInNonBlockingContext")
 class KaliumFileWriter : LogWriter() {
@@ -129,7 +130,7 @@ class KaliumFileWriter : LogWriter() {
             }?.map { it.delete() }
     }
 
-    @Suppress("NestedBlockDepth", "MagicNumber")
+    @Suppress("NestedBlockDepth")
     private fun compress(file: File): Boolean {
         try {
             val compressed =
@@ -141,7 +142,7 @@ class KaliumFileWriter : LogWriter() {
                 FileOutputStream(compressed).use { fos ->
                     GZIPOutputStream(fos).use { gzos ->
 
-                        val buffer = ByteArray(1024)
+                        val buffer = ByteArray(BYTE_ARRAY_SIZE)
                         var length = fis.read(buffer)
 
                         while (length > 0) {

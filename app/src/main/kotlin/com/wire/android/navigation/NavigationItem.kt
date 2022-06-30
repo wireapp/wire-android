@@ -135,7 +135,8 @@ enum class NavigationItem(
 
     Home(
         primaryRoute = HOME,
-        content = { HomeScreen(it.navBackStackEntry.arguments?.getString(EXTRA_HOME_TAB_ITEM), hiltViewModel(), hiltViewModel()) },
+        content = { HomeScreen(it.navBackStackEntry.arguments?.getString(EXTRA_HOME_TAB_ITEM),
+            hiltSavedStateViewModel(it.navBackStackEntry), hiltViewModel()) },
         animationConfig = NavigationAnimationConfig.DelegatedAnimation
     ),
 
@@ -188,13 +189,7 @@ enum class NavigationItem(
     Conversation(
         primaryRoute = CONVERSATION,
         canonicalRoute = "$CONVERSATION/{$EXTRA_CONVERSATION_ID}",
-        content = {
-            ConversationScreen(hiltViewModel<ConversationViewModel>().apply {
-                it.navBackStackEntry.savedStateHandle.keys().forEach { key ->
-                    savedStateHandle[key] = it.navBackStackEntry.savedStateHandle.get<Any?>(key)
-                }
-            })
-        },
+        content = { ConversationScreen(hiltSavedStateViewModel(it.navBackStackEntry)) },
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
             val conversationId: ConversationId? = arguments.filterIsInstance<ConversationId>().firstOrNull()
@@ -227,7 +222,7 @@ enum class NavigationItem(
         primaryRoute = ONGOING_CALL,
         canonicalRoute = "$ONGOING_CALL/{$EXTRA_CONVERSATION_ID}",
         content = { OngoingCallScreen() },
-        screenMode = ScreenMode.KEEP_ON
+        screenMode = ScreenMode.WAKE_UP
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
             val conversationId: ConversationId? = arguments.filterIsInstance<ConversationId>().firstOrNull()
@@ -326,6 +321,10 @@ const val EXTRA_CREATE_ACCOUNT_FLOW_TYPE = "extra_create_account_flow_type"
 const val EXTRA_IMAGE_DATA = "extra_image_data"
 const val EXTRA_MESSAGE_TO_DELETE_ID = "extra_message_to_delete"
 const val EXTRA_MESSAGE_TO_DELETE_IS_SELF = "extra_message_to_delete_is_self"
+
+const val EXTRA_CONNECTION_IGNORED_USER_NAME = "extra_connection_ignored_user_name"
+
+const val EXTRA_BACK_NAVIGATION_ARGUMENTS = "extra_back_navigation_arguments"
 
 fun NavigationItem.isExternalRoute() = this.getRouteWithArgs().startsWith("http")
 

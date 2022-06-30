@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.ui.home.conversationslist.common.ConversationItemFactory
@@ -53,13 +54,14 @@ private fun MentionContent(
     openConversationNotificationsSettings: (ConversationItem) -> Unit,
     onJoinCall: (ConversationId) -> Unit
 ) {
+    val context = LocalContext.current
     LazyColumn(
         state = lazyListState,
         modifier = Modifier.fillMaxSize()
     ) {
         folderWithElements(
-            header = { stringResource(id = R.string.mention_label_unread_mentions) },
-            items = unreadMentions
+            header = context.getString(R.string.mention_label_unread_mentions),
+            items = unreadMentions.associateBy { it.conversationId.toString() }
         ) { unreadMention ->
             ConversationItemFactory(
                 conversation = unreadMention,
@@ -73,8 +75,8 @@ private fun MentionContent(
         }
 
         folderWithElements(
-            header = { stringResource(R.string.mention_label_all_mentions) },
-            items = allMentions
+            header = context.getString(R.string.mention_label_all_mentions),
+            items = allMentions.associateBy { it.conversationId.toString() }
         ) { mention ->
             ConversationItemFactory(
                 conversation = mention,

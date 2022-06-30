@@ -18,6 +18,7 @@ import com.wire.android.ui.home.newconversation.newgroup.NewGroupState
 import com.wire.android.ui.home.newconversation.search.ContactSearchResult
 import com.wire.android.ui.home.newconversation.search.SearchPeopleState
 import com.wire.android.ui.home.newconversation.search.SearchResultState
+import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.flow.SearchQueryStateFlow
 import com.wire.kalium.logic.data.conversation.ConversationOptions
 import com.wire.kalium.logic.feature.conversation.AddMemberToConversationUseCase
@@ -28,7 +29,6 @@ import com.wire.kalium.logic.feature.publicuser.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.SearchUsersUseCase
 import com.wire.kalium.logic.functional.Either
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -43,7 +43,8 @@ class NewConversationViewModel
     private val getAllContacts: GetAllContactsUseCase,
     private val createGroupConversation: CreateGroupConversationUseCase,
     private val addMemberToConversationUseCase: AddMemberToConversationUseCase,
-    private val contactMapper: ContactMapper
+    private val contactMapper: ContactMapper,
+    private val dispatchers: DispatcherProvider
 ) : ViewModel() {
 
     private companion object {
@@ -133,7 +134,7 @@ class NewConversationViewModel
     private suspend fun searchPublic(searchTerm: String) {
         publicContactsSearchResult = ContactSearchResult.ExternalContact(SearchResultState.InProgress)
 
-        val result = withContext(Dispatchers.IO) {
+        val result = withContext(dispatchers.io()) {
             searchUsers(
                 searchQuery = searchTerm
             )

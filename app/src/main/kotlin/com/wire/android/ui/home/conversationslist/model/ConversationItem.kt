@@ -4,6 +4,7 @@ import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversationslist.common.UserInfoLabel
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.user.ConnectionState
 
 sealed class ConversationItem {
     abstract val conversationId: ConversationId
@@ -32,6 +33,7 @@ sealed class ConversationItem {
     data class ConnectionConversation(
         val userAvatarData: UserAvatarData,
         val conversationInfo: ConversationInfo,
+        val connectionState: ConnectionState,
         override val conversationId: ConversationId,
         override val mutedStatus: MutedConversationStatus,
         override val isLegalHold: Boolean = false,

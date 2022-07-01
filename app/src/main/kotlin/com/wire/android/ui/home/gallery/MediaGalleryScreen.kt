@@ -80,7 +80,6 @@ fun MediaGalleryScreen(mediaGalleryViewModel: MediaGalleryViewModel = hiltViewMo
 
 @Composable
 fun MediaGalleryContent(viewModel: MediaGalleryViewModel, mediaGalleryScreenState: MediaGalleryScreenState) {
-    val imageLoader = hiltViewModel<MediaGalleryViewModel>().wireSessionImageLoader
     val context = LocalContext.current
     val uiState = viewModel.mediaGalleryViewState
 
@@ -110,8 +109,7 @@ fun MediaGalleryContent(viewModel: MediaGalleryViewModel, mediaGalleryScreenStat
     ) {
         ZoomableImage(
             imageAsset = viewModel.imageAssetId,
-            contentDescription = stringResource(R.string.content_description_image_message),
-            imageLoader = imageLoader
+            contentDescription = stringResource(R.string.content_description_image_message)
         )
     }
 }

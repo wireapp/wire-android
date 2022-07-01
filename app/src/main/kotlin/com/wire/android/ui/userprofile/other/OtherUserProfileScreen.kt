@@ -29,6 +29,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
+import com.wire.android.model.Clickable
 import com.wire.android.ui.common.CopyButton
 import com.wire.android.ui.common.MoreOptionIcon
 import com.wire.android.ui.common.RowItemTemplate
@@ -266,8 +267,7 @@ private fun UserDetailInformation(
             )
         },
         actions = { CopyButton(onCopyClicked = { onCopy("$value copied") }) },
-        onRowItemClicked = { },
-        onRowItemLongClicked = { }
+        clickable = Clickable(enabled = false) {}
     )
 }
 

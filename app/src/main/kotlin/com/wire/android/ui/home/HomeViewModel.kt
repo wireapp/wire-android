@@ -15,6 +15,7 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.navigation.getBackNavArg
+import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
 import com.wire.kalium.logic.feature.featureConfig.GetFeatureConfigStatusResult
@@ -35,7 +36,8 @@ class HomeViewModel @Inject constructor(
     private val getSelf: GetSelfUserUseCase,
     private val needsToRegisterClient: NeedsToRegisterClientUseCase,
     private val getRemoteFeatureConfigStatusAndPersist: GetRemoteFeatureConfigStatusAndPersistUseCase,
-    private val isFileSharingEnabled: IsFileSharingEnabledUseCase
+    private val isFileSharingEnabled: IsFileSharingEnabledUseCase,
+    private val wireSessionImageLoader: WireSessionImageLoader
 ) : SavedStateViewModel(savedStateHandle) {
 
     var snackbarMessageState by mutableStateOf<HomeSnackbarState>(HomeSnackbarState.None)
@@ -124,7 +126,10 @@ class HomeViewModel @Inject constructor(
     private suspend fun loadUserAvatar() {
         viewModelScope.launch {
             getSelf().collect { selfUser ->
-                userAvatar = SelfUserData(selfUser.previewPicture?.let { UserAvatarAsset(it) }, selfUser.availabilityStatus)
+                userAvatar = SelfUserData(
+                    selfUser.previewPicture?.let { UserAvatarAsset(wireSessionImageLoader, it) },
+                    selfUser.availabilityStatus
+                )
             }
         }
     }

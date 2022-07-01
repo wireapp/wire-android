@@ -12,6 +12,7 @@ import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.CoreFailure.Unknown
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
+import com.wire.kalium.logic.data.conversation.ProtocolInfo
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.publicuser.model.OtherUser
 import com.wire.kalium.logic.data.team.Team
@@ -251,6 +252,7 @@ class OtherUserProfileScreenViewModelTest {
             "some_name",
             Conversation.Type.ONE_ON_ONE,
             null,
+            protocol = ProtocolInfo.Proteus,
             MutedConversationStatus.AllAllowed,
             null,
             null

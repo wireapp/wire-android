@@ -11,6 +11,7 @@ import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
+import com.wire.kalium.logic.data.conversation.ProtocolInfo
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.publicuser.model.OtherUser
 import com.wire.kalium.logic.data.publicuser.model.UserSearchResult
@@ -18,6 +19,7 @@ import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.feature.conversation.AddMemberToConversationUseCase
 import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
 import com.wire.kalium.logic.feature.publicuser.Result
@@ -80,6 +82,9 @@ internal class NewConversationViewModelArrangement {
     lateinit var createGroupConversation: CreateGroupConversationUseCase
 
     @MockK
+    lateinit var addMemberToConversationUseCase: AddMemberToConversationUseCase
+
+    @MockK
     lateinit var contactMapper: ContactMapper
 
     @MockK
@@ -92,6 +97,7 @@ internal class NewConversationViewModelArrangement {
             name = null,
             type = Conversation.Type.ONE_ON_ONE,
             teamId = null,
+            protocol = ProtocolInfo.Proteus,
             MutedConversationStatus.AllAllowed,
             null,
             null
@@ -135,6 +141,7 @@ internal class NewConversationViewModelArrangement {
             searchKnownUsers = searchKnownUsers,
             getAllContacts = getAllContacts,
             createGroupConversation = createGroupConversation,
+            addMemberToConversationUseCase = addMemberToConversationUseCase,
             contactMapper = contactMapper,
             dispatchers = TestDispatcherProvider()
         )

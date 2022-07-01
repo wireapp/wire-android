@@ -58,10 +58,12 @@ class DebugScreenViewModel
         enableLoggingUseCase.invoke(isEnabled)
         isLoggingEnabled = isEnabled
         if (isEnabled) {
-            kaliumFileWriter.init(absolutePath)
-            CoreLogger.setLoggingLevel(
-                level = KaliumLogLevel.DEBUG, kaliumFileWriter
-            )
+            viewModelScope.launch {
+                kaliumFileWriter.init(absolutePath)
+                CoreLogger.setLoggingLevel(
+                    level = KaliumLogLevel.DEBUG, kaliumFileWriter
+                )
+            }
         } else {
             kaliumFileWriter.clearFileContent(File(logFilePath(absolutePath)))
             CoreLogger.setLoggingLevel(

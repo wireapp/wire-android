@@ -3,7 +3,8 @@ package com.wire.android.util
 import co.touchlab.kermit.LogWriter
 import co.touchlab.kermit.Severity
 import com.wire.android.appLogger
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.launch
@@ -36,8 +37,9 @@ class KaliumFileWriter : LogWriter() {
     private val logBuffer = MutableStateFlow(LogElement("", Severity.Verbose, ""))
     private lateinit var filePath: String
 
+    lateinit var fileWriterCoroutineScope: CoroutineScope
 
-    fun init(path: String) {
+    suspend fun init(path: String) {
         path.let {
             filePath = try {
                 getLogsDirectoryFromPath(it)
@@ -48,7 +50,8 @@ class KaliumFileWriter : LogWriter() {
         }
         val logFile = getFile(filePath)
 
-        GlobalScope.launch {
+        coroutineScope {
+            fileWriterCoroutineScope = this
             logBuffer.collect { logElement ->
 
                 try {
@@ -73,9 +76,8 @@ class KaliumFileWriter : LogWriter() {
     }
 
     override fun log(severity: Severity, message: String, tag: String, throwable: Throwable?) {
-        GlobalScope.launch {
+        fileWriterCoroutineScope.launch {
             logBuffer.emit(LogElement(logTimeFormat.format(Date()), severity, message))
-
         }
     }
 

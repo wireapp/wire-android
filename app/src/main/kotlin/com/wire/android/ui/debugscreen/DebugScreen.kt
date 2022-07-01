@@ -12,7 +12,6 @@ import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
@@ -24,6 +23,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.ui.common.WireSwitch
 import com.wire.android.ui.common.topappbar.WireTopAppBarTitle
 import com.wire.android.ui.common.topappbar.wireTopAppBarColors
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
@@ -35,10 +35,31 @@ import com.wire.android.util.startMultipleFileSharingIntent
 @Composable
 fun DebugScreen() {
     val debugScreenViewModel: DebugScreenViewModel = hiltViewModel()
+    DebugContent(
+        mlsData = debugScreenViewModel.mlsData,
+        isLoggingEnabled = debugScreenViewModel.isLoggingEnabled,
+        setLoggingEnabledState = debugScreenViewModel::setLoggingEnabledState,
+        logFilePath = debugScreenViewModel::logFilePath,
+        deleteAllLogs = debugScreenViewModel::deleteAllLogs
+    )
+}
+
+@Composable
+fun DebugContent(
+    mlsData: List<String>,
+    isLoggingEnabled: Boolean,
+    setLoggingEnabledState: (Boolean, String) -> Unit,
+    logFilePath: (String) -> String,
+    deleteAllLogs: (String) -> Unit
+) {
     Column {
         TopBar(title = "Debug")
-        ListWithHeader("MLS Data") { debugScreenViewModel.mlsData.map { TextRowItem(it) } }
-        ListWithHeader("Logs") { LoggingSection(debugScreenViewModel) }
+        ListWithHeader("MLS Data") {
+            mlsData.map { TextRowItem(it) }
+        }
+        ListWithHeader("Logs") {
+            LoggingSection(isLoggingEnabled, setLoggingEnabledState, logFilePath, deleteAllLogs)
+        }
     }
 }
 
@@ -68,9 +89,11 @@ fun ListWithHeader(
 
 @Composable
 fun TextRowItem(text: String, @DrawableRes trailingIcon: Int? = null, onIconClick: () -> Unit = {}) {
-    Row(modifier = Modifier
-        .fillMaxWidth()
-        .background(MaterialTheme.colorScheme.surface)) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.surface)
+    ) {
         Text(
             text = text,
             fontWeight = FontWeight.Normal,
@@ -96,23 +119,28 @@ fun TextRowItem(text: String, @DrawableRes trailingIcon: Int? = null, onIconClic
 }
 
 @Composable
-fun LoggingSection(debugScreenViewModel: DebugScreenViewModel) {
+fun LoggingSection(
+    isLoggingEnabled: Boolean,
+    setLoggingEnabledState: (Boolean, String) -> Unit,
+    logFilePath: (String) -> String,
+    deleteAllLogs: (String) -> Unit
+) {
     val context = LocalContext.current
-    val absolutePath = context.cacheDir.absolutePath
+    val absolutePath = context.cacheDir?.absolutePath ?: ""
     SwitchRowItem(
-        text = "Enable Logging", checked = debugScreenViewModel.isLoggingEnabled
+        text = "Enable Logging", checked = isLoggingEnabled
     ) { state: Boolean ->
-        debugScreenViewModel.setLoggingEnabledState(state, absolutePath)
+        setLoggingEnabledState(state, absolutePath)
     }
     TextRowItem(
         "Share Logs",
         trailingIcon = android.R.drawable.ic_menu_share
-    ) { context.startMultipleFileSharingIntent(debugScreenViewModel.logFilePath(absolutePath)) }
+    ) { context.startMultipleFileSharingIntent(logFilePath(absolutePath)) }
 
     TextRowItem(
         "Delete All Logs",
         trailingIcon = android.R.drawable.ic_delete
-    ) { debugScreenViewModel.deleteAllLogs(absolutePath) }
+    ) { deleteAllLogs(absolutePath) }
 
 }
 
@@ -120,9 +148,11 @@ fun LoggingSection(debugScreenViewModel: DebugScreenViewModel) {
 fun SwitchRowItem(
     text: String, checked: Boolean = false, onCheckedChange: ((Boolean) -> Unit)?
 ) {
-    Row(modifier = Modifier
-        .fillMaxWidth()
-        .background(MaterialTheme.colorScheme.surface)) {
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .background(MaterialTheme.colorScheme.surface)
+    ) {
         Text(
             text = text,
             fontWeight = FontWeight.Normal,
@@ -133,8 +163,8 @@ fun SwitchRowItem(
             textAlign = TextAlign.Left,
             fontSize = 14.sp
         )
-        Switch(
-            modifier = Modifier.defaultMinSize(80.dp),
+        WireSwitch(
+            modifier = Modifier.padding(end = 20.dp),
             checked = checked,
             onCheckedChange = onCheckedChange
         )
@@ -144,5 +174,5 @@ fun SwitchRowItem(
 @Preview(showBackground = false)
 @Composable
 fun debugScreenPreview() {
-    DebugScreen()
+    DebugContent(listOf(), true, { _: Boolean, _: String -> }, { "" }, {})
 }

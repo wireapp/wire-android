@@ -22,6 +22,7 @@ import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.ArrowRightIcon
+import com.wire.android.ui.common.WireSwitch
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.clickable
 import com.wire.android.ui.theme.wireColorScheme
@@ -35,7 +36,7 @@ fun GroupConversationOptionsItem(
     label: String? = null,
     titleTrailingItem: (@Composable () -> Unit)? = null,
     footer: (@Composable () -> Unit)? = null,
-    enabled: Boolean? = null,
+    switchState: SwitchState = SwitchState.None,
     titleStyle: TextStyle = MaterialTheme.wireTypography.body02,
     arrowType: ArrowType = ArrowType.CENTER_ALIGNED,
     clickable: Clickable = Clickable(enabled = false, onClick = { /* not handled */ }, onLongClick = { /* not handled */ })
@@ -64,13 +65,19 @@ fun GroupConversationOptionsItem(
                 )
                 if (titleTrailingItem != null)
                     Box(modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing8x)) { titleTrailingItem() }
-                if (enabled != null)
+                if (switchState is SwitchState.Visible) {
                     Text(
-                        text = stringResource(if (enabled) R.string.label_on else R.string.label_off),
+                        text = stringResource(if (switchState.value) R.string.label_on else R.string.label_off),
                         style = MaterialTheme.wireTypography.body01,
                         color = MaterialTheme.wireColorScheme.onBackground,
                         modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing8x)
                     )
+                    WireSwitch(
+                        checked = switchState.value,
+                        enabled = switchState is SwitchState.Enabled,
+                        onCheckedChange = (switchState as? SwitchState.Enabled)?.onCheckedChange
+                    )
+                }
                 if (arrowType == ArrowType.TITLE_ALIGNED) ArrowRight()
             }
             if (subtitle != null)
@@ -96,6 +103,13 @@ enum class ArrowType {
     CENTER_ALIGNED, TITLE_ALIGNED, NONE
 }
 
+sealed class SwitchState {
+    object None : SwitchState()
+    sealed class Visible(open val value: Boolean = false) : SwitchState()
+    data class Enabled(override val value: Boolean = false, val onCheckedChange: (Boolean) -> Unit) : Visible(value)
+    data class Disabled(override val value: Boolean = false) : Visible(value)
+}
+
 @Composable
 @Preview(name = "Item with label and title")
 fun GroupConversationOptionsWithLabelAndTitlePreview() {
@@ -105,7 +119,11 @@ fun GroupConversationOptionsWithLabelAndTitlePreview() {
 @Composable
 @Preview(name = "Item with title and switch clickable")
 fun GroupConversationOptionsWithTitleAndSwitchClickablePreview() {
-    GroupConversationOptionsItem(title = "Services", enabled = true, clickable = Clickable(onClick = {}, onLongClick = {}))
+    GroupConversationOptionsItem(
+        title = "Services",
+        switchState = SwitchState.Enabled(value = true, onCheckedChange = {}),
+        clickable = Clickable(onClick = {}, onLongClick = {})
+    )
 }
 
 @Composable
@@ -131,7 +149,7 @@ fun GroupConversationOptionsWithTitleAndSubtitleAndSwitchAndFooterButtonPreview(
     GroupConversationOptionsItem(
         title = "Guests",
         subtitle = "Turn this option ON to open this conversation to people outside your team, even if they don't have Wire.",
-        enabled = false,
+        switchState = SwitchState.Disabled(false),
         footer = { WireSecondaryButton(text = "Copy link", onClick = {}, modifier = Modifier.height(32.dp), fillMaxWidth = false) },
         arrowType = ArrowType.TITLE_ALIGNED
     )

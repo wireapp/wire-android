@@ -18,10 +18,11 @@ import com.wire.android.util.copyToTempPath
 import com.wire.android.util.getFileName
 import com.wire.android.util.getMimeType
 import com.wire.android.util.orDefault
-import com.wire.kalium.logic.data.asset.isImage
+import com.wire.kalium.logic.data.asset.isValidImage
 import okio.Path
 import okio.Path.Companion.toPath
 import java.io.IOException
+import java.util.UUID
 
 @Composable
 fun rememberMessageComposerInnerState(
@@ -118,11 +119,11 @@ class AttachmentInnerState(val context: Context) {
 
     fun pickAttachment(attachmentUri: Uri, tempCachePath: Path) {
         attachmentState = try {
-            val fullTempAssetPath = "$tempCachePath/temp_attachment".toPath()
+            val fullTempAssetPath = "$tempCachePath/${UUID.randomUUID()}".toPath()
             val mimeType = attachmentUri.getMimeType(context).orDefault(DEFAULT_FILE_MIME_TYPE)
-            val assetFileName = context.getFileName(attachmentUri) ?: "Untitled"
+            val assetFileName = context.getFileName(attachmentUri) ?: throw IOException("The selected asset has an invalid name")
             val assetSize = attachmentUri.copyToTempPath(context, fullTempAssetPath)
-            val attachmentType = if (isImage(mimeType)) AttachmentType.IMAGE else AttachmentType.GENERIC_FILE
+            val attachmentType = if (isValidImage(mimeType)) AttachmentType.IMAGE else AttachmentType.GENERIC_FILE
             val attachment = AttachmentBundle(mimeType, fullTempAssetPath, assetSize, assetFileName, attachmentType)
             AttachmentState.Picked(attachment)
         } catch (e: IOException) {

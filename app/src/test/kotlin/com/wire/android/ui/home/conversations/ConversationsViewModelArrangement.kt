@@ -27,7 +27,6 @@ import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.SendAssetMessageResult
 import com.wire.kalium.logic.feature.asset.SendAssetMessageUseCase
 import com.wire.kalium.logic.feature.asset.SendImageMessageResult
-import com.wire.kalium.logic.feature.asset.SendImageMessageUseCase
 import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
@@ -73,9 +72,6 @@ internal class ConversationsViewModelArrangement {
 
     @MockK
     lateinit var sendAssetMessage: SendAssetMessageUseCase
-
-    @MockK
-    lateinit var sendImageMessage: SendImageMessageUseCase
 
     @MockK
     lateinit var getMessageAsset: GetMessageAssetUseCase
@@ -127,7 +123,6 @@ internal class ConversationsViewModelArrangement {
             observeConversationDetails = observeConversationDetails,
             sendTextMessage = sendTextMessage,
             sendAssetMessage = sendAssetMessage,
-            sendImageMessage = sendImageMessage,
             getMessageAsset = getMessageAsset,
             deleteMessage = deleteMessage,
             dispatchers = TestDispatcherProvider(),
@@ -138,7 +133,7 @@ internal class ConversationsViewModelArrangement {
             getMessageForConversation = getMessagesForConversationUseCase,
             isFileSharingEnabled = isFileSharingEnabledUseCase,
             observeOngoingCalls = observeOngoingCallsUseCase,
-            answerCall = answerCallUseCase
+            answerCall = answerCallUseCase,
         )
     }
 
@@ -158,7 +153,6 @@ internal class ConversationsViewModelArrangement {
 
     fun withSuccessfulSendAttachmentMessage(): ConversationsViewModelArrangement {
         coEvery { sendAssetMessage(any(), any(), any(), any()) } returns SendAssetMessageResult.Success
-        coEvery { sendImageMessage(any(), any(), any(), any(), any()) } returns SendImageMessageResult.Success
         return this
     }
 

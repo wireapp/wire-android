@@ -41,8 +41,6 @@ import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import com.wire.kalium.logic.feature.asset.SendAssetMessageResult
 import com.wire.kalium.logic.feature.asset.SendAssetMessageUseCase
-import com.wire.kalium.logic.feature.asset.SendImageMessageResult
-import com.wire.kalium.logic.feature.asset.SendImageMessageUseCase
 import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCase
 import com.wire.kalium.logic.feature.call.AnswerCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
@@ -69,7 +67,6 @@ class ConversationViewModel @Inject constructor(
     override val savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
-    private val sendImageMessage: SendImageMessageUseCase,
     private val sendAssetMessage: SendAssetMessageUseCase,
     private val sendTextMessage: SendTextMessageUseCase,
     private val getMessageAsset: GetMessageAssetUseCase,
@@ -199,14 +196,16 @@ class ConversationViewModel @Inject constructor(
                                 val (imgWidth, imgHeight) = ImageUtil.extractImageWidthAndHeight(
                                     kaliumFileSystem.source(attachmentBundle.dataPath).buffer().inputStream()
                                 )
-                                val result = sendImageMessage(
+                                val result = sendAssetMessage(
                                     conversationId = conversationId,
-                                    imageDataPath = attachmentBundle.dataPath,
-                                    imageName = attachmentBundle.fileName,
-                                    imgWidth = imgWidth,
-                                    imgHeight = imgHeight
+                                    assetDataPath = dataPath,
+                                    assetName = fileName,
+                                    assetWidth = imgWidth,
+                                    assetHeight = imgHeight,
+                                    assetDataSize = dataSize,
+                                    assetMimeType = mimeType
                                 )
-                                if (result is SendImageMessageResult.Failure) {
+                                if (result is SendAssetMessageResult.Failure) {
                                     onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingImage)
                                 }
                             }
@@ -222,9 +221,12 @@ class ConversationViewModel @Inject constructor(
                                 try {
                                     val result = sendAssetMessage(
                                         conversationId = conversationId,
-                                        assetDataPath = attachmentBundle.dataPath,
-                                        assetName = attachmentBundle.fileName,
-                                        assetMimeType = attachmentBundle.mimeType
+                                        assetDataPath = dataPath,
+                                        assetName = fileName,
+                                        assetMimeType = mimeType,
+                                        assetDataSize = dataSize,
+                                        assetHeight = null,
+                                        assetWidth = null
                                     )
                                     if (result is SendAssetMessageResult.Failure) {
                                         onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingAsset)
@@ -296,11 +298,15 @@ class ConversationViewModel @Inject constructor(
     }
 
     fun onSnackbarMessage(msgCode: ConversationSnackbarMessages) {
-        conversationViewState = conversationViewState.copy(onSnackbarMessage = msgCode)
+        viewModelScope.launch(dispatchers.main()) {
+            conversationViewState = conversationViewState.copy(onSnackbarMessage = msgCode)
+        }
     }
 
     fun clearSnackbarMessage() {
-        conversationViewState = conversationViewState.copy(onSnackbarMessage = null)
+        viewModelScope.launch(dispatchers.main()) {
+            conversationViewState = conversationViewState.copy(onSnackbarMessage = null)
+        }
     }
 
     fun showDeleteMessageDialog(messageId: String, isMyMessage: Boolean) =

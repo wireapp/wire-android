@@ -7,7 +7,7 @@ import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.name
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
-import com.wire.kalium.logic.data.asset.isImage
+import com.wire.kalium.logic.data.asset.isValidImage
 import com.wire.kalium.logic.data.conversation.MemberDetails
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.AssetContent
@@ -21,6 +21,7 @@ import com.wire.kalium.logic.data.user.AssetId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
+import com.wire.kalium.logic.util.isGreaterThan
 import javax.inject.Inject
 import com.wire.android.ui.home.conversations.model.MessageContent as UIMessageContent
 
@@ -72,7 +73,7 @@ class MessageContentMapper @Inject constructor(
     }
 
     fun mapMemberChangeMessage(
-        content: MessageContent.MemberChange,
+        content: MemberChange,
         senderUserId: UserId,
         members: List<MemberDetails>
     ): UIMessageContent.SystemMessage? {
@@ -148,7 +149,7 @@ class MessageContentMapper @Inject constructor(
         if (remoteData.assetId.isNotEmpty()) {
             when {
                 // If it's an image, we download it right away
-                isImage(mimeType) && imgWidth > 0 && imgHeight > 0 -> UIMessageContent.ImageMessage(
+                isValidImage(mimeType) && imgWidth.isGreaterThan(0) && imgHeight.isGreaterThan(0) -> UIMessageContent.ImageMessage(
                     assetId = AssetId(remoteData.assetId, remoteData.assetDomain.orEmpty()),
                     imgData = imageRawData(conversationId, messageId),
                     width = imgWidth,

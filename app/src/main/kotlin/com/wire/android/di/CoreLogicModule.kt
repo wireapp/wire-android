@@ -8,7 +8,6 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.SendAssetMessageUseCase
-import com.wire.kalium.logic.feature.asset.SendImageMessageUseCase
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
@@ -318,13 +317,6 @@ class UseCaseModule {
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
     ): SendTextMessageUseCase = coreLogic.getSessionScope(currentAccount).messages.sendTextMessage
-
-    @ViewModelScoped
-    @Provides
-    fun providesSendImageMessageUseCase(
-        @KaliumCoreLogic coreLogic: CoreLogic,
-        @CurrentAccount currentAccount: UserId
-    ): SendImageMessageUseCase = coreLogic.getSessionScope(currentAccount).messages.sendImageMessage
 
     @ViewModelScoped
     @Provides

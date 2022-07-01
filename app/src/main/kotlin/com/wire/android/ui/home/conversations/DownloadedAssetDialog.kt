@@ -42,7 +42,7 @@ fun DownloadedAssetDialog(
             })
 
         WireDialog(
-            title = assetName ?: stringResource(R.string.asset_download_dialog_default_title),
+            title = assetName,
             text = stringResource(R.string.asset_download_dialog_text),
             buttonsHorizontalAlignment = false,
             onDismiss = { hideOnAssetDownloadedDialog() },

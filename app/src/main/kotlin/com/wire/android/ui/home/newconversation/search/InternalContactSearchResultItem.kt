@@ -10,15 +10,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.AddContactButton
 import com.wire.android.ui.common.ArrowRightIcon
-import com.wire.android.ui.common.RowItemTemplate
-import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.MembershipQualifierLabel
+import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.WireCheckbox
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.home.conversationslist.common.ConnectPendingRequestBadge
+import com.wire.android.ui.home.conversationslist.common.ConnectRequestBadge
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.ui.userprofile.other.ConnectionStatus
 
 @Composable
 fun InternalContactSearchResultItem(
@@ -82,9 +85,10 @@ fun ExternalContactSearchResultItem(
     label: String,
     membership: Membership,
     searchQuery: String,
-    isConnectedOrPending: Boolean,
+    connectionStatus: ConnectionStatus,
     onRowItemClicked: () -> Unit,
     onRowItemLongClicked: () -> Unit,
+    onAddContactClicked: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     RowItemTemplate(
@@ -110,11 +114,17 @@ fun ExternalContactSearchResultItem(
             )
         },
         actions = {
-            if (!isConnectedOrPending) AddContactButton({ })
+            when (connectionStatus) {
+                ConnectionStatus.NotConnected -> AddContactButton(onAddContactClicked)
+                ConnectionStatus.Pending -> Box(modifier = Modifier.padding(horizontal = 12.dp)) { ConnectPendingRequestBadge() }
+                ConnectionStatus.Sent -> Box(modifier = Modifier.padding(horizontal = 12.dp)) { ConnectRequestBadge() }
+                ConnectionStatus.Connected,
+                ConnectionStatus.Unknown -> {
+                }
+            }
         },
         onRowItemClicked = onRowItemClicked,
         onRowItemLongClicked = onRowItemLongClicked,
         modifier = modifier
     )
 }
-

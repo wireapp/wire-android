@@ -20,6 +20,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
@@ -27,10 +28,12 @@ import com.wire.android.ui.common.WireCircularProgressIndicator
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
+import com.wire.android.ui.home.conversationslist.folderWithElements
 import com.wire.android.ui.home.newconversation.common.GroupButton
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.ui.userprofile.other.toOtherUserProfileConnectionStatus
 
 private const val DEFAULT_SEARCH_RESULT_ITEM_SIZE = 4
 
@@ -47,7 +50,8 @@ fun SearchPeopleScreen(
     onAddToGroup: (Contact) -> Unit,
     onRemoveFromGroup: (Contact) -> Unit,
     onOpenUserProfile: (SearchOpenUserProfile) -> Unit,
-    onNewGroupClicked: () -> Unit
+    onNewGroupClicked: () -> Unit,
+    onAddContactClicked: (Contact) -> Unit,
 ) {
     if (searchQuery.isEmpty()) {
         EmptySearchQueryScreen()
@@ -65,7 +69,8 @@ fun SearchPeopleScreen(
                     onAddToGroup = onAddToGroup,
                     onRemoveContactFromGroup = onRemoveFromGroup,
                     onOpenUserProfile = onOpenUserProfile,
-                    onNewGroupClicked = onNewGroupClicked
+                    onNewGroupClicked = onNewGroupClicked,
+                    onAddContactClicked = onAddContactClicked
                 )
             }
         }
@@ -82,12 +87,14 @@ private fun SearchResult(
     onAddToGroup: (Contact) -> Unit,
     onRemoveContactFromGroup: (Contact) -> Unit,
     onOpenUserProfile: (SearchOpenUserProfile) -> Unit,
-    onNewGroupClicked: () -> Unit
+    onNewGroupClicked: () -> Unit,
+    onAddContactClicked: (Contact) -> Unit,
 ) {
     val searchPeopleScreenState = rememberSearchPeopleScreenState()
     val lazyListState = rememberLazyListState()
 
     scrollPositionProvider { lazyListState.firstVisibleItemIndex }
+    val context = LocalContext.current
 
     Column {
         LazyColumn(
@@ -107,12 +114,13 @@ private fun SearchResult(
                 onOpenUserProfile = { contact -> onOpenUserProfile(SearchOpenUserProfile(contact)) },
             )
             externalSearchResults(
-                searchTitle = { stringResource(R.string.label_public_wire) },
+                searchTitle = context.getString(R.string.label_public_wire),
                 searchQuery = searchQuery,
                 contactSearchResult = publicContactSearchResult,
                 showAllItems = searchPeopleScreenState.publicResultsCollapsed,
                 onShowAllButtonClicked = { searchPeopleScreenState.toggleShowAllPublicResult() },
-                onOpenUserProfile = { externalUser -> onOpenUserProfile(SearchOpenUserProfile(externalUser)) }
+                onOpenUserProfile = { externalUser -> onOpenUserProfile(SearchOpenUserProfile(externalUser)) },
+                onAddContactClicked = onAddContactClicked
             )
         }
         Divider()
@@ -162,12 +170,13 @@ private fun LazyListScope.internalSearchResults(
 
 @Suppress("LongParameterList")
 private fun LazyListScope.externalSearchResults(
-    searchTitle: @Composable () -> String,
+    searchTitle: String,
     searchQuery: String,
     contactSearchResult: ContactSearchResult,
     showAllItems: Boolean,
     onShowAllButtonClicked: () -> Unit,
-    onOpenUserProfile: (Contact) -> Unit
+    onOpenUserProfile: (Contact) -> Unit,
+    onAddContactClicked: (Contact) -> Unit
 ) {
     when (val searchResult = contactSearchResult.searchResultState) {
         SearchResultState.InProgress -> {
@@ -180,7 +189,8 @@ private fun LazyListScope.externalSearchResults(
                 searchResult = searchResult.result,
                 searchQuery = searchQuery,
                 onShowAllButtonClicked = onShowAllButtonClicked,
-                onOpenUserProfile = onOpenUserProfile
+                onOpenUserProfile = onOpenUserProfile,
+                onAddContactClicked = onAddContactClicked
             )
         }
         is SearchResultState.Failure -> {
@@ -248,46 +258,45 @@ private fun LazyListScope.internalSuccessItem(
 
 @Suppress("LongParameterList")
 private fun LazyListScope.externalSuccessItem(
-    searchTitle: @Composable () -> String,
+    searchTitle: String,
     showAllItems: Boolean,
     searchResult: List<Contact>,
     searchQuery: String,
     onShowAllButtonClicked: () -> Unit,
     onOpenUserProfile: (Contact) -> Unit,
+    onAddContactClicked: (Contact) -> Unit,
 ) {
-    if (searchResult.isNotEmpty()) {
-        item { FolderHeader(searchTitle()) }
-
-        items(if (showAllItems) searchResult else searchResult.take(DEFAULT_SEARCH_RESULT_ITEM_SIZE)) { contact ->
-            with(contact) {
-                ExternalContactSearchResultItem(
-                    avatarData = avatarData,
-                    name = name,
-                    label = label,
-                    membership = membership,
-                    isConnectedOrPending = contact.isConnectedOrPending,
-                    searchQuery = searchQuery,
-                    onRowItemClicked = { onOpenUserProfile(contact) },
-                    onRowItemLongClicked = { }
-                )
-            }
+    folderWithElements(header = searchTitle,
+        items = (if (showAllItems) searchResult else searchResult.take(DEFAULT_SEARCH_RESULT_ITEM_SIZE)).associateBy { it.id }) { contact ->
+        with(contact) {
+            ExternalContactSearchResultItem(
+                avatarData = avatarData,
+                name = name,
+                label = label,
+                membership = membership,
+                connectionStatus = contact.connectionState.toOtherUserProfileConnectionStatus(),
+                searchQuery = searchQuery,
+                onRowItemClicked = { onOpenUserProfile(contact) },
+                onRowItemLongClicked = { },
+                onAddContactClicked = { onAddContactClicked(contact) }
+            )
         }
+    }
 
-        if (searchResult.size > DEFAULT_SEARCH_RESULT_ITEM_SIZE) {
-            item {
-                Box(
-                    Modifier
-                        .fillMaxWidth()
-                        .wrapContentHeight()
-                ) {
-                    ShowButton(
-                        isShownAll = showAllItems,
-                        onShowButtonClicked = onShowAllButtonClicked,
-                        modifier = Modifier
-                            .align(Alignment.BottomEnd)
-                            .padding(end = dimensions().spacing8x)
-                    )
-                }
+    if (searchResult.size > DEFAULT_SEARCH_RESULT_ITEM_SIZE) {
+        item {
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+            ) {
+                ShowButton(
+                    isShownAll = showAllItems,
+                    onShowButtonClicked = onShowAllButtonClicked,
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(end = dimensions().spacing8x)
+                )
             }
         }
     }

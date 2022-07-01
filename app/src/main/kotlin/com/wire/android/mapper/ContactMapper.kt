@@ -16,7 +16,8 @@ class ContactMapper @Inject constructor(private val userTypeMapper: UserTypeMapp
                 name = name ?: "",
                 label = handle ?: "",
                 avatarData = UserAvatarData(completePicture?.let { ImageAsset.UserAvatarAsset(it) }),
-                membership = userTypeMapper.toMembership(userType)
+                membership = userTypeMapper.toMembership(userType),
+                connectionState = otherUser.connectionStatus
             )
         }
     }

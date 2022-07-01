@@ -4,6 +4,8 @@ import co.touchlab.kermit.LogWriter
 import co.touchlab.kermit.Severity
 import com.wire.android.appLogger
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.filter
@@ -23,7 +25,7 @@ import java.util.zip.GZIPOutputStream
 typealias LogElement = Triple<String, Severity, String?>
 
 const val LOG_FILE_NAME = "wire_logs.txt"
-private const val LOG_FILE_MAX_SIZE_THRESHOLD = 5 * 1024 * 1024
+private const val LOG_FILE_MAX_SIZE_THRESHOLD = 20 * 1024
 private const val BYTE_ARRAY_SIZE = 1024
 
 @Suppress("TooGenericExceptionCaught", "BlockingMethodInNonBlockingContext")
@@ -37,7 +39,7 @@ class KaliumFileWriter : LogWriter() {
     private val logBuffer = MutableStateFlow(LogElement("", Severity.Verbose, ""))
     private lateinit var filePath: String
 
-    lateinit var fileWriterCoroutineScope: CoroutineScope
+    private var fileWriterCoroutineScope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     suspend fun init(path: String) {
         path.let {

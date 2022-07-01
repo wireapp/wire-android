@@ -12,6 +12,11 @@ import com.wire.kalium.logic.CoreLogger
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.sync.WrapperWorkerFactory
 import dagger.hilt.android.HiltAndroidApp
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
+import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 private val flavor = BuildConfig.FLAVOR
@@ -32,9 +37,12 @@ class WireApplication : Application(), Configuration.Provider {
     @KaliumCoreLogic
     lateinit var coreLogic: CoreLogic
 
+
+    val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+
+
     override fun getWorkManagerConfiguration(): Configuration {
         val myWorkerFactory = WrapperWorkerFactory(coreLogic)
-
         return Configuration.Builder()
             .setWorkerFactory(myWorkerFactory)
             .build()
@@ -53,10 +61,17 @@ class WireApplication : Application(), Configuration.Provider {
     }
 
     private fun enableLoggingAndInitiateFileLogging() {
-        kaliumFileWriter.init(applicationContext.cacheDir.absolutePath)
-        CoreLogger.setLoggingLevel(
-            level = KaliumLogLevel.DEBUG, kaliumFileWriter
-        )
-        appLogger.i("logged enabled")
+        applicationScope.launch {
+            kaliumFileWriter.init(applicationContext.cacheDir.absolutePath)
+            CoreLogger.setLoggingLevel(
+                level = KaliumLogLevel.DEBUG, kaliumFileWriter
+            )
+            appLogger.i("logged enabled")
+        }
+    }
+
+    override fun onLowMemory() {
+        super.onLowMemory()
+        applicationScope.cancel()
     }
 }

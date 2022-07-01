@@ -23,6 +23,7 @@ import com.wire.android.ui.home.conversationslist.model.ConversationLastEvent
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.conversationslist.model.NewActivity
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.ConversationDetails.Connection
 import com.wire.kalium.logic.data.conversation.ConversationDetails.Group
@@ -54,7 +55,8 @@ class ConversationListViewModel @Inject constructor(
     private val markMessagesAsNotified: MarkMessagesAsNotifiedUseCase,
     private val answerCall: AnswerCallUseCase,
     private val observeConversationsAndConnections: ObserveConversationsAndConnectionsUseCase,
-    private val dispatchers: DispatcherProvider
+    private val dispatchers: DispatcherProvider,
+    private val wireSessionImageLoader: WireSessionImageLoader
 ) : ViewModel() {
 
     var state by mutableStateOf(ConversationListState())
@@ -180,12 +182,12 @@ class ConversationListViewModel @Inject constructor(
 
     private fun List<ConversationDetails>.toConversationItemList(): List<ConversationItem> =
         filter { it is Group || it is OneOne || it is Connection }
-            .map { it.toType() }
+            .map { it.toType(wireSessionImageLoader) }
 }
 
 private fun LegalHoldStatus.showLegalHoldIndicator() = this == LegalHoldStatus.ENABLED
 
-private fun ConversationDetails.toType(): ConversationItem = when (this) {
+private fun ConversationDetails.toType(wireSessionImageLoader: WireSessionImageLoader): ConversationItem = when (this) {
     is Group -> {
         ConversationItem.GroupConversation(
             groupName = conversation.name.orEmpty(),
@@ -199,7 +201,7 @@ private fun ConversationDetails.toType(): ConversationItem = when (this) {
     is OneOne -> {
         ConversationItem.PrivateConversation(
             userAvatarData = UserAvatarData(
-                otherUser.previewPicture?.let { UserAvatarAsset(it) },
+                otherUser.previewPicture?.let { UserAvatarAsset(wireSessionImageLoader, it) },
                 UserAvailabilityStatus.NONE // TODO Get actual status
             ),
             conversationInfo = ConversationInfo(
@@ -215,7 +217,7 @@ private fun ConversationDetails.toType(): ConversationItem = when (this) {
     is Connection -> {
         ConversationItem.ConnectionConversation(
             userAvatarData = UserAvatarData(
-                otherUser?.previewPicture?.let { UserAvatarAsset(it) },
+                otherUser?.previewPicture?.let { UserAvatarAsset(wireSessionImageLoader, it) },
                 UserAvailabilityStatus.NONE // TODO Get actual status
             ),
             conversationInfo = ConversationInfo(

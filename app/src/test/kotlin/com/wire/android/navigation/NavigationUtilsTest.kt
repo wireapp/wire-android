@@ -2,8 +2,12 @@ package com.wire.android.navigation
 
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.parseIntoPrivateImageAsset
+import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.parseIntoQualifiedID
+import io.mockk.MockKAnnotations
+import io.mockk.impl.annotations.MockK
+import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -35,7 +39,7 @@ internal class NavigationUtilsTest {
         val correctImagePrivateAssetString = "$mockConversationIdValue@$mockConversationIdDomain:$mockMessageId:$mockIsSelfAsset"
 
         // When
-        val privateImgAsset = correctImagePrivateAssetString.parseIntoPrivateImageAsset()
+        val privateImgAsset = correctImagePrivateAssetString.parseIntoPrivateImageAsset(mockk())
 
         // Then
         assertEquals(privateImgAsset.conversationId.value, mockConversationIdValue)
@@ -68,7 +72,7 @@ internal class NavigationUtilsTest {
         val mockWrongImagePrivateAssetString = "wrong-private-asset@image"
 
         // When, Then
-        assertThrows<Exception> { mockWrongImagePrivateAssetString.parseIntoPrivateImageAsset() }
+        assertThrows<Exception> { mockWrongImagePrivateAssetString.parseIntoPrivateImageAsset(mockk()) }
     }
 
     @Test
@@ -93,6 +97,7 @@ internal class NavigationUtilsTest {
         val mockQualifiedIdDomain = "mocked.domain"
         val mockMessageId = "mocked-message-id"
         val actualPrivateAssetImage = ImageAsset.PrivateAsset(
+            mockk(),
             QualifiedID(
                 value = mockQualifiedIdValue,
                 domain = mockQualifiedIdDomain

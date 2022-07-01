@@ -16,10 +16,10 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.EMPTY
+import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.publicuser.model.OtherUser
 import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCase
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCaseResult
 import com.wire.kalium.logic.feature.connection.CancelConnectionRequestUseCase
@@ -48,7 +48,8 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val cancelConnectionRequest: CancelConnectionRequestUseCase,
     private val acceptConnectionRequest: AcceptConnectionRequestUseCase,
     private val ignoreConnectionRequest: IgnoreConnectionRequestUseCase,
-    private val userTypeMapper: UserTypeMapper
+    private val userTypeMapper: UserTypeMapper,
+    private val wireSessionImageLoader: WireSessionImageLoader
 ) : ViewModel() {
 
     var state: OtherUserProfileState by mutableStateOf(OtherUserProfileState())
@@ -75,7 +76,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private fun loadViewState(otherUser: OtherUser, team: Team?) {
         state = state.copy(
             isDataLoading = false,
-            userAvatarAsset = otherUser.completePicture?.let { pic -> ImageAsset.UserAvatarAsset(pic) },
+            userAvatarAsset = otherUser.completePicture?.let { pic -> ImageAsset.UserAvatarAsset(wireSessionImageLoader, pic) },
             fullName = otherUser.name ?: String.EMPTY,
             userName = otherUser.handle ?: String.EMPTY,
             teamName = team?.name ?: String.EMPTY,

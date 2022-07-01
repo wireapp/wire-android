@@ -15,6 +15,7 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.userprofile.self.dialog.StatusDialogData
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
@@ -39,7 +40,8 @@ class SelfUserProfileViewModel @Inject constructor(
     private val getSelfTeam: GetSelfTeamUseCase,
     private val updateStatus: UpdateSelfAvailabilityStatusUseCase,
     private val logout: LogoutUseCase,
-    private val dispatchers: DispatcherProvider
+    private val dispatchers: DispatcherProvider,
+    private val wireSessionImageLoader: WireSessionImageLoader
 ) : ViewModel() {
 
     var userProfileState by mutableStateOf(SelfUserProfileState())
@@ -93,7 +95,7 @@ class SelfUserProfileViewModel @Inject constructor(
             withContext(dispatchers.io()) {
                 try {
                     userProfileState = userProfileState.copy(
-                        avatarAsset = UserAvatarAsset(avatarAssetId)
+                        avatarAsset = UserAvatarAsset(wireSessionImageLoader, avatarAssetId)
                     )
 
                     // Update avatar asset id on user data store

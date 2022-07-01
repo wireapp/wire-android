@@ -8,6 +8,7 @@ import com.wire.android.model.UserAvatarData
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.newconversation.model.Contact
+import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
@@ -41,7 +42,7 @@ internal class NewConversationViewModelArrangement {
             domain = "domain",
             name = "publicUsername",
             avatarData = UserAvatarData(
-                asset = ImageAsset.UserAvatarAsset(userAssetId = UserAssetId("value", "domain")),
+                asset = ImageAsset.UserAvatarAsset(wireSessionImageLoader, UserAssetId("value", "domain")),
                 availabilityStatus = UserAvailabilityStatus.NONE
             ),
             label = "publicHandle",
@@ -54,7 +55,7 @@ internal class NewConversationViewModelArrangement {
             domain = "domain",
             name = "knownUsername",
             avatarData = UserAvatarData(
-                asset = ImageAsset.UserAvatarAsset(userAssetId = UserAssetId("value", "domain")),
+                asset = ImageAsset.UserAvatarAsset(wireSessionImageLoader, UserAssetId("value", "domain")),
                 availabilityStatus = UserAvailabilityStatus.NONE
             ),
             label = "knownHandle",
@@ -80,6 +81,9 @@ internal class NewConversationViewModelArrangement {
 
     @MockK
     lateinit var contactMapper: ContactMapper
+
+    @MockK
+    lateinit var wireSessionImageLoader: WireSessionImageLoader
 
     private companion object {
         val CONVERSATION_ID = ConversationId(value = "userId", domain = "domainId")

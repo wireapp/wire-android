@@ -231,7 +231,8 @@ enum class NavigationItem(
         primaryRoute = INITIATING_CALL,
         canonicalRoute = "$INITIATING_CALL/{$EXTRA_CONVERSATION_ID}",
         content = { InitiatingCallScreen() },
-        screenMode = ScreenMode.KEEP_ON
+        screenMode = ScreenMode.KEEP_ON,
+        animationConfig = NavigationAnimationConfig.DelegatedAnimation
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String = routeWithConversationIdArg(arguments)
     },
@@ -245,7 +246,8 @@ enum class NavigationItem(
                     "{$EXTRA_CONVERSATION_ID}"
         }),
         content = { IncomingCallScreen() },
-        screenMode = ScreenMode.WAKE_UP
+        screenMode = ScreenMode.WAKE_UP,
+        animationConfig = NavigationAnimationConfig.DelegatedAnimation
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String = routeWithConversationIdArg(arguments)
     },

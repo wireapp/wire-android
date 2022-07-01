@@ -42,7 +42,8 @@ import com.wire.android.ui.home.conversations.details.options.GroupConversationO
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsState
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipants
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipantsState
-import com.wire.android.ui.home.conversations.model.UIParticipant
+import com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData
+import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.kalium.logic.data.user.UserId
@@ -52,6 +53,7 @@ import kotlinx.coroutines.launch
 fun GroupConversationDetailsScreen(viewModel: GroupConversationDetailsViewModel) {
     GroupConversationDetailsContent(
         onBackPressed = viewModel::navigateBack,
+        openFullListPressed = viewModel::navigateToFullParticipantsList,
         groupOptionsState = viewModel.groupOptionsState,
         groupParticipantsState = viewModel.groupParticipantsState
     )
@@ -61,6 +63,7 @@ fun GroupConversationDetailsScreen(viewModel: GroupConversationDetailsViewModel)
 @Composable
 private fun GroupConversationDetailsContent(
     onBackPressed: () -> Unit,
+    openFullListPressed: () -> Unit,
     groupOptionsState: GroupConversationOptionsState,
     groupParticipantsState: GroupConversationParticipantsState
 ) {
@@ -105,10 +108,15 @@ private fun GroupConversationDetailsContent(
                     .padding(internalPadding)
             ) { pageIndex ->
                 when (GroupConversationDetailsTabItem.values()[pageIndex]) {
-                    GroupConversationDetailsTabItem.OPTIONS ->
-                        GroupConversationOptions(groupOptionsState = groupOptionsState, lazyListStates[pageIndex])
-                    GroupConversationDetailsTabItem.PARTICIPANTS ->
-                        GroupConversationParticipants(groupParticipantsState = groupParticipantsState, lazyListStates[pageIndex])
+                    GroupConversationDetailsTabItem.OPTIONS -> GroupConversationOptions(
+                        groupOptionsState = groupOptionsState,
+                        lazyListState = lazyListStates[pageIndex]
+                    )
+                    GroupConversationDetailsTabItem.PARTICIPANTS -> GroupConversationParticipants(
+                        groupParticipantsState = groupParticipantsState,
+                        openFullListPressed = openFullListPressed,
+                        lazyListState = lazyListStates[pageIndex]
+                    )
                 }
             }
             LaunchedEffect(pagerState.isScrollInProgress, focusedTabIndex, pagerState.currentPage) {
@@ -132,14 +140,10 @@ enum class GroupConversationDetailsTabItem(@StringRes override val titleResId: I
 private fun GroupConversationDetailsPreview() {
     WireTheme(isPreview = true) {
         GroupConversationDetailsContent(
-            onBackPressed = { },
-            GroupConversationOptionsState(
-                groupName = "Group name"
-            ),
-            GroupConversationParticipantsState(
-                admins = listOf(UIParticipant(UserId("0", ""), "name", "handle", false, UserAvatarData())),
-                participants = listOf(UIParticipant(UserId("1", ""), "name", "handle", false, UserAvatarData()))
-            )
+            onBackPressed = {},
+            openFullListPressed = {},
+            groupOptionsState = GroupConversationOptionsState(groupName = "Group name"),
+            groupParticipantsState = GroupConversationParticipantsState.PREVIEW
         )
     }
 }

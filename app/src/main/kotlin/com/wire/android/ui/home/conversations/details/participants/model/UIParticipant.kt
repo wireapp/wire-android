@@ -1,4 +1,4 @@
-package com.wire.android.ui.home.conversations.model
+package com.wire.android.ui.home.conversations.details.participants.model
 
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversationslist.model.Membership

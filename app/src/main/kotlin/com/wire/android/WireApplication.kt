@@ -37,9 +37,7 @@ class WireApplication : Application(), Configuration.Provider {
     @KaliumCoreLogic
     lateinit var coreLogic: CoreLogic
 
-
-    val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
-
+    private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
     override fun getWorkManagerConfiguration(): Configuration {
         val myWorkerFactory = WrapperWorkerFactory(coreLogic)
@@ -53,7 +51,7 @@ class WireApplication : Application(), Configuration.Provider {
         if (this.isGoogleServicesAvailable()) {
             FirebaseApp.initializeApp(this)
         }
-        if (BuildConfig.DEBUG || coreLogic.getGlobalScope().isLoggingEnabled()) {
+        if (BuildConfig.FLAVOR in setOf("internal", "dev") || coreLogic.getGlobalScope().isLoggingEnabled()) {
             enableLoggingAndInitiateFileLogging()
         }
 

@@ -1,11 +1,11 @@
-package com.wire.android.ui.home.conversations.details
+package com.wire.android.ui.home.conversations.details.participants
 
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.mapper.testUIParticipant
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationManager
-import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipantsViewModel
+import com.wire.android.ui.home.conversations.details.GroupConversationDetailsViewModel
 import com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase

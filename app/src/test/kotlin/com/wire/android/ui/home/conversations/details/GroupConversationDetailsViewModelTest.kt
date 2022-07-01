@@ -2,10 +2,13 @@ package com.wire.android.ui.home.conversations.details
 
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.mapper.UIParticipantMapper
+import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.android.ui.home.conversations.mockConversationDetailsGroup
+import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import io.mockk.MockKAnnotations
@@ -64,13 +67,15 @@ internal class GroupConversationDetailsViewModelArrangement {
     lateinit var observeConversationDetails: ObserveConversationDetailsUseCase
     @MockK
     lateinit var observeParticipantsForConversationUseCase: ObserveParticipantsForConversationUseCase
+    @MockK
+    private lateinit var wireSessionImageLoader: WireSessionImageLoader
     private val conversationDetailsChannel = Channel<ConversationDetails>(capacity = Channel.UNLIMITED)
     private val viewModel by lazy {
         GroupConversationDetailsViewModel(
             savedStateHandle,
             navigationManager,
             observeConversationDetails,
-            observeParticipantsForConversationUseCase
+            observeParticipantsForConversationUseCase,
         )
     }
 

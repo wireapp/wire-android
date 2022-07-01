@@ -25,7 +25,7 @@ import java.util.zip.GZIPOutputStream
 typealias LogElement = Triple<String, Severity, String?>
 
 const val LOG_FILE_NAME = "wire_logs.txt"
-private const val LOG_FILE_MAX_SIZE_THRESHOLD = 20 * 1024
+private const val LOG_FILE_MAX_SIZE_THRESHOLD = 5 * 1024 * 1024
 private const val BYTE_ARRAY_SIZE = 1024
 
 @Suppress("TooGenericExceptionCaught", "BlockingMethodInNonBlockingContext")

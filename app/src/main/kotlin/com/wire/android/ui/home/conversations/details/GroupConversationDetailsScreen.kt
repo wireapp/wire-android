@@ -54,6 +54,7 @@ fun GroupConversationDetailsScreen(viewModel: GroupConversationDetailsViewModel)
     GroupConversationDetailsContent(
         onBackPressed = viewModel::navigateBack,
         openFullListPressed = viewModel::navigateToFullParticipantsList,
+        onProfilePressed = viewModel::openProfile,
         groupOptionsState = viewModel.groupOptionsState,
         groupParticipantsState = viewModel.groupParticipantsState
     )
@@ -64,6 +65,7 @@ fun GroupConversationDetailsScreen(viewModel: GroupConversationDetailsViewModel)
 private fun GroupConversationDetailsContent(
     onBackPressed: () -> Unit,
     openFullListPressed: () -> Unit,
+    onProfilePressed: (UIParticipant) -> Unit,
     groupOptionsState: GroupConversationOptionsState,
     groupParticipantsState: GroupConversationParticipantsState
 ) {
@@ -115,6 +117,7 @@ private fun GroupConversationDetailsContent(
                     GroupConversationDetailsTabItem.PARTICIPANTS -> GroupConversationParticipants(
                         groupParticipantsState = groupParticipantsState,
                         openFullListPressed = openFullListPressed,
+                        onProfilePressed = onProfilePressed,
                         lazyListState = lazyListStates[pageIndex]
                     )
                 }
@@ -142,8 +145,9 @@ private fun GroupConversationDetailsPreview() {
         GroupConversationDetailsContent(
             onBackPressed = {},
             openFullListPressed = {},
+            onProfilePressed = {},
             groupOptionsState = GroupConversationOptionsState(groupName = "Group name"),
-            groupParticipantsState = GroupConversationParticipantsState.PREVIEW
+            groupParticipantsState = GroupConversationParticipantsState.PREVIEW,
         )
     }
 }

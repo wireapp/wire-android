@@ -47,6 +47,10 @@ class WireApplication : Application(), Configuration.Provider {
 
     private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
+    companion object {
+        const val LONG_TASK_THRESH_HOLD_MS = 1000L
+    }
+
     override fun getWorkManagerConfiguration(): Configuration {
         val myWorkerFactory = WrapperWorkerFactory(coreLogic)
         return Configuration.Builder()
@@ -72,7 +76,7 @@ class WireApplication : Application(), Configuration.Provider {
             rumEnabled = true,
             crashReportsEnabled = true,
         ).trackInteractions()
-            .trackLongTasks(1000)
+            .trackLongTasks(LONG_TASK_THRESH_HOLD_MS)
             .useSite(DatadogSite.EU1)
             .build()
 

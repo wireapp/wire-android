@@ -7,10 +7,14 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.parseIntoQualifiedID
+import com.wire.kalium.logic.data.user.UserId
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -34,6 +38,17 @@ open class GroupConversationParticipantsViewModel @Inject constructor(
     open fun navigateBack() = viewModelScope.launch {
         navigationManager.navigateBack()
     }
+
+    fun openProfile(participant: UIParticipant) = viewModelScope.launch {
+        if (participant.isSelf) navigateToSelfProfile()
+        else navigateToOtherProfile(participant.id)
+    }
+
+    private suspend fun navigateToSelfProfile() =
+        navigationManager.navigate(NavigationCommand(NavigationItem.SelfUserProfile.getRouteWithArgs()))
+
+    private suspend fun navigateToOtherProfile(id: UserId) =
+        navigationManager.navigate(NavigationCommand(NavigationItem.OtherUserProfile.getRouteWithArgs(listOf(id.domain, id.value))))
 
     private fun observeConversationMembers() {
         viewModelScope.launch {

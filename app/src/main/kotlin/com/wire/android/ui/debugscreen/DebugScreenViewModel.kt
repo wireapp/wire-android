@@ -5,8 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.kaliumFileWriter
-import com.wire.android.util.LOG_FILE_NAME
+import com.wire.android.util.LogFileWriter
 import com.wire.kalium.logger.KaliumLogLevel
 import com.wire.kalium.logic.CoreLogger
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountResult
@@ -15,7 +14,6 @@ import com.wire.kalium.logic.feature.user.EnableLoggingUseCase
 import com.wire.kalium.logic.feature.user.IsLoggingEnabledUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import java.io.File
 import javax.inject.Inject
 
 @HiltViewModel
@@ -23,13 +21,14 @@ class DebugScreenViewModel
 @Inject constructor(
     private val mlsKeyPackageCountUseCase: MLSKeyPackageCountUseCase,
     private val enableLoggingUseCase: EnableLoggingUseCase,
+    private val logFileWriter: LogFileWriter,
     isLoggingEnabledUseCase: IsLoggingEnabledUseCase
 ) : ViewModel() {
     var isLoggingEnabled by mutableStateOf(isLoggingEnabledUseCase())
 
     var mlsData by mutableStateOf(listOf<String>())
 
-    fun logFilePath(absolutePath: String) = "$absolutePath/logs/$LOG_FILE_NAME"
+    fun logFilePath(): String = logFileWriter.activeLoggingFile.absolutePath
 
     init {
         viewModelScope.launch {
@@ -50,25 +49,19 @@ class DebugScreenViewModel
         }
     }
 
-    fun deleteAllLogs(absolutePath: String) {
-        kaliumFileWriter.deleteAllLogs(File(logFilePath(absolutePath)))
+    fun deleteAllLogs() {
+        logFileWriter.deleteAllLogFiles()
     }
 
-    fun setLoggingEnabledState(isEnabled: Boolean, absolutePath: String) {
+    fun setLoggingEnabledState(isEnabled: Boolean) {
         enableLoggingUseCase.invoke(isEnabled)
         isLoggingEnabled = isEnabled
         if (isEnabled) {
-            viewModelScope.launch {
-                kaliumFileWriter.init(absolutePath)
-                CoreLogger.setLoggingLevel(
-                    level = KaliumLogLevel.DEBUG, kaliumFileWriter
-                )
-            }
+            logFileWriter.start()
+            CoreLogger.setLoggingLevel(level = KaliumLogLevel.DEBUG)
         } else {
-            kaliumFileWriter.clearFileContent(File(logFilePath(absolutePath)))
-            CoreLogger.setLoggingLevel(
-                level = KaliumLogLevel.DISABLED, kaliumFileWriter
-            )
+            logFileWriter.stop()
+            CoreLogger.setLoggingLevel(level = KaliumLogLevel.DISABLED)
         }
     }
 }

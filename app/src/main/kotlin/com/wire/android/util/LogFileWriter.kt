@@ -130,25 +130,12 @@ class LogFileWriter(private val logsDirectory: File) {
             val logFilesCount = logsDirectory.listFiles()?.size
             val currentDate = logFileTimeFormat.format(Date())
             val compressed = File(logsDirectory, "${LOG_FILE_PREFIX}_${currentDate}_${logFilesCount}.gz")
-            FileInputStream(activeLoggingFile).use { fis ->
-                FileOutputStream(compressed).use { fos ->
-                    GZIPOutputStream(fos).use { gzos ->
-
-                        val buffer = ByteArray(BYTE_ARRAY_SIZE)
-                        var length = fis.read(buffer)
-
-                        while (length > 0) {
-                            gzos.write(buffer, 0, length)
-
-                            length = fis.read(buffer)
-                        }
-
-                        // Finish file compressing and close all streams.
-                        gzos.finish()
-                        clearActiveLoggingFileContent()
-                    }
-                }
-            }
+            val zippedOutputStream = GZIPOutputStream(compressed.outputStream())
+            val inputStream = activeLoggingFile.inputStream()
+            inputStream.copyTo(zippedOutputStream, BYTE_ARRAY_SIZE)
+            clearActiveLoggingFileContent()
+            inputStream.close()
+            zippedOutputStream.close()
         } catch (e: IOException) {
             appLogger.d("$e")
             return false

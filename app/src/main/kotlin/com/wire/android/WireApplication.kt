@@ -23,13 +23,14 @@ import com.wire.kalium.logic.sync.WrapperWorkerFactory
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
 
-private const val flavor = BuildConfig.FLAVOR
+/**
+ * Indicates whether the build is private (dev || internal) or public
+ */
+private val IS_PRIVATE_BUILD = BuildConfig.FLAVOR in setOf("dev", "internal")
 
 var appLogger = KaliumLogger(
     config = KaliumLogger.Config(
-        severity = if (
-            flavor.startsWith("Dev", true) || flavor.startsWith("Internal", true)
-        ) KaliumLogLevel.DEBUG else KaliumLogLevel.DISABLED,
+        severity = if (IS_PRIVATE_BUILD) KaliumLogLevel.DEBUG else KaliumLogLevel.DISABLED,
         tag = "WireAppLogger"
     ), logWriter = DataDogLogger()
 )
@@ -59,7 +60,7 @@ class WireApplication : Application(), Configuration.Provider {
 
         enableDatadog()
 
-        if (flavor in setOf("internal", "dev") || coreLogic.getGlobalScope().isLoggingEnabled()) {
+        if (IS_PRIVATE_BUILD || coreLogic.getGlobalScope().isLoggingEnabled()) {
             enableLoggingAndInitiateFileLogging()
         }
 

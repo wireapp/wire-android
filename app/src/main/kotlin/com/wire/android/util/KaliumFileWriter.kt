@@ -1,18 +1,21 @@
 package com.wire.android.util
 
-import co.touchlab.kermit.LogWriter
 import co.touchlab.kermit.Severity
 import com.wire.android.appLogger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.ensureActive
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.io.File
 import java.io.FileInputStream
-import java.io.FileNotFoundException
 import java.io.FileOutputStream
 import java.io.FileWriter
 import java.io.IOException
@@ -24,125 +27,114 @@ import java.util.zip.GZIPOutputStream
 
 typealias LogElement = Triple<String, Severity, String?>
 
-const val LOG_FILE_NAME = "wire_logs.txt"
-private const val LOG_FILE_MAX_SIZE_THRESHOLD = 5 * 1024 * 1024
-private const val BYTE_ARRAY_SIZE = 1024
+@Suppress("TooGenericExceptionCaught")
+class KaliumFileWriter(private val logsDirectory: File) {
 
-@Suppress("TooGenericExceptionCaught", "BlockingMethodInNonBlockingContext")
-class KaliumFileWriter : LogWriter() {
-
-    private var flushCompleted = MutableStateFlow<Long>(0)
-
-    val logTimeFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
+    private val logTimeFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
     private val logFileTimeFormat = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.US)
 
-    private val logBuffer = MutableStateFlow(LogElement("", Severity.Verbose, ""))
-    private lateinit var filePath: String
+    val activeLoggingFile = File(logsDirectory, ACTIVE_LOGGING_FILE_NAME)
 
-    private var fileWriterCoroutineScope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private val fileWriterCoroutineScope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    private var writingJob: Job? = null
 
-    suspend fun init(path: String) {
-        path.let {
-            filePath = try {
-                getLogsDirectoryFromPath(it)
-            } catch (e: FileNotFoundException) {
-                // Fallback to default path
-                it
-            }
+    fun start() {
+        appLogger.i("KaliumFileWritter.start called")
+        val isWriting = writingJob?.isActive ?: false
+        if (isWriting) {
+            appLogger.d("KaliumFileWriter.init called but job was already active. Ignoring call")
+            return
         }
-        val logFile = getFile(filePath)
+        ensureLogDirectoryAndFileExistence()
 
-        coroutineScope {
-            fileWriterCoroutineScope = this
-            logBuffer.collect { logElement ->
+        appLogger.i("KaliumFileWritter.start: Starting log collection.")
 
-                try {
-                    writeToFile(logElement, logFile)
-                } catch (e: Exception) {
-                    appLogger.e("Write to file failed :${e}")
-                }
-                launch {
-                    flushCompleted
-                        .filter { filesize -> filesize > LOG_FILE_MAX_SIZE_THRESHOLD }
-                        .collect {
-                            compress(logFile)
-                            clearFileContent(logFile)
-                            FileWriter(logFile, true).use { fw ->
-                                fw.flush()
-                            }
-                            writeToFile(logElement, logFile)
-                        }
-                }
+        writingJob = fileWriterCoroutineScope.launch {
+            observeLogCatWritingToLoggingFile().catch {
+                appLogger.e("Write to file failed :$it", it)
+            }.filter {
+                it > LOG_FILE_MAX_SIZE_THRESHOLD
+            }.collect {
+                ensureActive()
+                compress()
+                clearActiveLoggingFileContent()
             }
         }
     }
 
-    override fun log(severity: Severity, message: String, tag: String, throwable: Throwable?) {
-        fileWriterCoroutineScope.launch {
-            logBuffer.emit(LogElement(logTimeFormat.format(Date()), severity, message))
+    /**
+     * Observes logcat text, writing to the [activeLoggingFile] as it reads.
+     * @return A Flow that tells the current length, in bytes, of the log file.
+     */
+    private fun CoroutineScope.observeLogCatWritingToLoggingFile(): Flow<Long> = flow<Long> {
+        Runtime.getRuntime().exec("logcat -c")
+        val process = Runtime.getRuntime().exec("logcat")
+
+        val reader = process.inputStream.bufferedReader()
+
+        while (isActive) {
+            val text = reader.readLine()
+            if (!text.isNullOrBlank()) {
+                val fileSize = writeLineToFile(text)
+                emit(fileSize)
+            }
         }
+        reader.close()
+        process.destroy()
+    }.flowOn(Dispatchers.IO)
+
+    /**
+     * Stops processing logs and writing to files
+     */
+    fun stop() {
+        appLogger.i("KaliumFileWritter.stop called; Stopping log collection.")
+        writingJob?.cancel()
+        clearActiveLoggingFileContent()
     }
 
-    fun clearFileContent(file: File) {
-        val writer = PrintWriter(file)
+    private fun clearActiveLoggingFileContent() {
+        val writer = PrintWriter(activeLoggingFile)
         writer.print("")
         writer.close()
     }
 
-    private suspend fun writeToFile(logElement: LogElement, file: File) {
-        // Write to log
-        FileWriter(file, true).use { fw ->
-            // Write log lines to the file
-            fw.append("${logElement.first}\t${logElement.second.name}\t${logElement.third}\n")
-
+    /**
+     * Writes the new [text] and other log entries in logcat to the [activeLoggingFile].
+     * @return The length, in bytes, of the log file.
+     */
+    private fun writeLineToFile(text: String): Long {
+        FileWriter(activeLoggingFile, true).use { fw ->
+            fw.appendLine(text)
             fw.flush()
-            // Validate file size
-            flushCompleted.emit(file.length())
         }
-        Runtime.getRuntime().exec("logcat -c ")
-        Runtime.getRuntime().exec("logcat -f $file")
-        flushCompleted.emit(file.length())
-
-
+        return activeLoggingFile.length()
     }
 
-    fun getFile(path: String): File {
-        val file = File(path, LOG_FILE_NAME)
+    private fun ensureLogDirectoryAndFileExistence() {
+        if (!logsDirectory.exists() && !logsDirectory.mkdirs()) {
+            appLogger.e("Unable to create logs directory")
+        }
 
-        if (!file.exists() && !file.createNewFile()) {
-            throw IOException("Unable to load log file")
+        if (!activeLoggingFile.exists() && !activeLoggingFile.createNewFile()) {
+            appLogger.e("KaliumFileWriter: Failure to create new file for logging", IOException("Unable to load log file"))
         }
-        if (!file.canWrite()) {
-            throw IOException("Log file not writable")
+        if (!activeLoggingFile.canWrite()) {
+            appLogger.e("KaliumFileWriter: Logging file is not writable", IOException("Log file not writable"))
         }
-        return file
     }
 
-    private fun getLogsDirectoryFromPath(path: String): String {
-        val dir = File(path, "logs")
-
-        if (!dir.exists() && !dir.mkdirs()) {
-            throw FileNotFoundException("Unable to create logs file")
-        }
-        return dir.absolutePath
+    fun deleteAllLogFiles() {
+        logsDirectory.listFiles()?.filter {
+            it.extension.lowercase(Locale.ROOT) == "gz"
+        }?.forEach { it.delete() }
     }
 
-    fun deleteAllLogs(file: File) {
-        file.parentFile.listFiles()
-            ?.filter {
-                it.extension.lowercase(Locale.ROOT) == "gz"
-            }?.map { it.delete() }
-    }
-
-    @Suppress("NestedBlockDepth")
-    private fun compress(file: File): Boolean {
+    private fun compress(): Boolean {
         try {
-            val compressed =
-                File(
-                    file.parentFile.absolutePath,
-                    "${file.name.substringBeforeLast(".")}_${logFileTimeFormat.format(Date())}_${file.parentFile.listFiles().size}.gz"
-                )
-            FileInputStream(file).use { fis ->
+            val logFilesCount = logsDirectory.listFiles()?.size
+            val currentDate = logFileTimeFormat.format(Date())
+            val compressed = File(logsDirectory, "${LOG_FILE_PREFIX}_${currentDate}_${logFilesCount}.gz")
+            FileInputStream(activeLoggingFile).use { fis ->
                 FileOutputStream(compressed).use { fos ->
                     GZIPOutputStream(fos).use { gzos ->
 
@@ -157,7 +149,7 @@ class KaliumFileWriter : LogWriter() {
 
                         // Finish file compressing and close all streams.
                         gzos.finish()
-                        clearFileContent(file)
+                        clearActiveLoggingFileContent()
                     }
                 }
             }
@@ -167,5 +159,12 @@ class KaliumFileWriter : LogWriter() {
         }
 
         return true
+    }
+
+    companion object {
+        private const val LOG_FILE_PREFIX = "wire"
+        private const val ACTIVE_LOGGING_FILE_NAME = "${LOG_FILE_PREFIX}_logs.txt"
+        private const val LOG_FILE_MAX_SIZE_THRESHOLD = 5 * 1024 * 1024
+        private const val BYTE_ARRAY_SIZE = 1024
     }
 }

@@ -2,6 +2,8 @@ package com.wire.android
 
 import android.app.Application
 import androidx.work.Configuration
+import co.touchlab.kermit.LogWriter
+import co.touchlab.kermit.Severity
 import com.google.firebase.FirebaseApp
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.util.KaliumFileWriter
@@ -12,22 +14,17 @@ import com.wire.kalium.logic.CoreLogger
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.sync.WrapperWorkerFactory
 import dagger.hilt.android.HiltAndroidApp
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.cancel
-import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-private val flavor = BuildConfig.FLAVOR
-val kaliumFileWriter = KaliumFileWriter()
+private const val flavor = BuildConfig.FLAVOR
+
 var appLogger = KaliumLogger(
     config = KaliumLogger.Config(
         severity = if (
             flavor.startsWith("Dev", true) || flavor.startsWith("Internal", true)
         ) KaliumLogLevel.DEBUG else KaliumLogLevel.DISABLED,
         tag = "WireAppLogger"
-    ), kaliumFileWriter
+    )
 )
 
 @HiltAndroidApp
@@ -37,7 +34,8 @@ class WireApplication : Application(), Configuration.Provider {
     @KaliumCoreLogic
     lateinit var coreLogic: CoreLogic
 
-    private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
+    @Inject
+    lateinit var kaliumFileWriter: KaliumFileWriter
 
     override fun getWorkManagerConfiguration(): Configuration {
         val myWorkerFactory = WrapperWorkerFactory(coreLogic)
@@ -59,17 +57,14 @@ class WireApplication : Application(), Configuration.Provider {
     }
 
     private fun enableLoggingAndInitiateFileLogging() {
-        applicationScope.launch {
-            kaliumFileWriter.init(applicationContext.cacheDir.absolutePath)
-            CoreLogger.setLoggingLevel(
-                level = KaliumLogLevel.DEBUG, kaliumFileWriter
-            )
-            appLogger.i("logged enabled")
-        }
+        CoreLogger.setLoggingLevel(level = KaliumLogLevel.DEBUG)
+        kaliumFileWriter.start()
+        appLogger.i("logged enabled")
     }
 
     override fun onLowMemory() {
         super.onLowMemory()
-        applicationScope.cancel()
+        appLogger.w("onLowMemory called - Stopping logging, buckling the seatbelt and hoping for the best!")
+        kaliumFileWriter.stop()
     }
 }

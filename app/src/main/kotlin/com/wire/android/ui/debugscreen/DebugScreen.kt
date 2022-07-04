@@ -98,21 +98,20 @@ fun TextRowItem(text: String, @DrawableRes trailingIcon: Int? = null, onIconClic
 @Composable
 fun LoggingSection(debugScreenViewModel: DebugScreenViewModel) {
     val context = LocalContext.current
-    val absolutePath = context.cacheDir.absolutePath
     SwitchRowItem(
         text = "Enable Logging", checked = debugScreenViewModel.isLoggingEnabled
     ) { state: Boolean ->
-        debugScreenViewModel.setLoggingEnabledState(state, absolutePath)
+        debugScreenViewModel.setLoggingEnabledState(state)
     }
     TextRowItem(
         "Share Logs",
         trailingIcon = android.R.drawable.ic_menu_share
-    ) { context.startMultipleFileSharingIntent(debugScreenViewModel.logFilePath(absolutePath)) }
+    ) { context.startMultipleFileSharingIntent(debugScreenViewModel.logFilePath()) }
 
     TextRowItem(
         "Delete All Logs",
         trailingIcon = android.R.drawable.ic_delete
-    ) { debugScreenViewModel.deleteAllLogs(absolutePath) }
+    ) { debugScreenViewModel.deleteAllLogs() }
 
 }
 

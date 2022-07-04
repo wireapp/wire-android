@@ -188,5 +188,5 @@ fun SwitchRowItem(
 @Preview(showBackground = false)
 @Composable
 fun debugScreenPreview() {
-    DebugContent(listOf(), true, { _: Boolean, _: String -> }, { "" }, {})
+    DebugContent(listOf(), true, { _: Boolean, -> }, { "" }, {})
 }

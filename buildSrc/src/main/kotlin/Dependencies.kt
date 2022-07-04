@@ -79,6 +79,7 @@ object Libraries {
         const val coil = "2.0.0-rc02"
         const val exif = "1.3.3"
         const val firebaseBOM = "29.3.1"
+        const val dataDog = "1.13.0"
     }
 
     // AndroidX Dependencies
@@ -114,6 +115,7 @@ object Libraries {
     const val splashscreen              = "androidx.core:core-splashscreen:${Versions.splashscreen}"
     const val coil                      = "io.coil-kt:coil:${Versions.coil}"
     const val coilCompose               = "io.coil-kt:coil-compose:${Versions.coil}"
+    const val dataDog                   = "com.datadoghq:dd-sdk-android:${Versions.dataDog}"
 
     object Hilt {
         const val android = "com.google.dagger:hilt-android:${Versions.hilt}"

@@ -20,13 +20,15 @@ import com.wire.android.R
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.theme.WireTheme
 
 @Composable
 fun GroupConversationAllParticipantsScreen(viewModel: GroupConversationParticipantsViewModel) {
     GroupConversationAllParticipantsContent(
         onBackPressed = viewModel::navigateBack,
-        groupParticipantsState = viewModel.groupParticipantsState
+        groupParticipantsState = viewModel.groupParticipantsState,
+        onProfilePressed = viewModel::openProfile
     )
 }
 
@@ -34,6 +36,7 @@ fun GroupConversationAllParticipantsScreen(viewModel: GroupConversationParticipa
 @Composable
 private fun GroupConversationAllParticipantsContent(
     onBackPressed: () -> Unit,
+    onProfilePressed: (UIParticipant) -> Unit,
     groupParticipantsState: GroupConversationParticipantsState
 ) {
     val lazyListState: LazyListState = rememberLazyListState()
@@ -56,7 +59,7 @@ private fun GroupConversationAllParticipantsContent(
                 state = lazyListState,
                 modifier = Modifier.fillMaxWidth().padding(internalPadding)
             ) {
-                participantsFoldersWithElements(context, groupParticipantsState)
+                participantsFoldersWithElements(context, groupParticipantsState, onProfilePressed)
             }
         }
     }
@@ -66,6 +69,6 @@ private fun GroupConversationAllParticipantsContent(
 @Composable
 private fun GroupConversationAllParticipantsPreview() {
     WireTheme(isPreview = true) {
-        GroupConversationAllParticipantsContent({}, GroupConversationParticipantsState.PREVIEW)
+        GroupConversationAllParticipantsContent({}, {}, GroupConversationParticipantsState.PREVIEW)
     }
 }

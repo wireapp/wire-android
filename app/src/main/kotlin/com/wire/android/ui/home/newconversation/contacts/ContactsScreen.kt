@@ -14,6 +14,7 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -21,6 +22,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
+import com.wire.android.model.Clickable
 import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.model.UserAvatarData
@@ -94,6 +96,14 @@ private fun ContactItem(
     removeFromGroup: () -> Unit,
     openUserProfile: () -> Unit,
 ) {
+    val clickable = remember {
+        Clickable(
+            enabled = true,
+            onClick = openUserProfile,
+            onLongClick = {
+                // TODO: implement later on
+            })
+    }
     RowItemTemplate(
         leadingIcon = {
             Row {
@@ -124,9 +134,6 @@ private fun ContactItem(
                 ArrowRightIcon(Modifier.align(Alignment.TopEnd))
             }
         },
-        onRowItemClicked = openUserProfile,
-        onRowItemLongClicked = {
-            // TODO: implement later on
-        }
+        clickable = clickable
     )
 }

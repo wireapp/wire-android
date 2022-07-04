@@ -159,15 +159,9 @@ enum class NavigationItem(
 
     SelfUserProfile(
         primaryRoute = SELF_USER_PROFILE,
-        canonicalRoute = "$SELF_USER_PROFILE/{$EXTRA_USER_ID}",
         content = { SelfUserProfileScreen() },
         animationConfig = NavigationAnimationConfig.CustomAnimation(expandInToView(), shrinkOutFromView())
-    ) {
-        override fun getRouteWithArgs(arguments: List<Any>): String {
-            val userProfileId: String? = arguments.filterIsInstance<String>().firstOrNull()
-            return if (userProfileId != null) "$primaryRoute/$userProfileId" else primaryRoute
-        }
-    },
+    ),
 
     OtherUserProfile(
         primaryRoute = OTHER_USER_PROFILE,

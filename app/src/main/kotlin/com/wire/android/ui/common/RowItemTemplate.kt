@@ -7,6 +7,7 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.wire.android.model.Clickable
 import com.wire.android.ui.home.conversationslist.common.EventBadgeFactory
 import com.wire.android.ui.home.conversationslist.common.RowItem
 import com.wire.android.ui.home.conversationslist.model.EventType
@@ -18,13 +19,11 @@ fun RowItemTemplate(
     title: @Composable () -> Unit,
     subtitle: @Composable () -> Unit = {},
     actions: @Composable () -> Unit = {},
-    onRowItemClicked: () -> Unit,
-    onRowItemLongClicked: () -> Unit,
+    clickable: Clickable = Clickable(false) {},
     modifier: Modifier = Modifier
 ) {
     RowItem(
-        onRowItemClick = onRowItemClicked,
-        onRowItemLongClick = onRowItemLongClicked,
+        clickable = clickable,
         modifier = modifier
     ) {
         leadingIcon()
@@ -52,14 +51,12 @@ fun RowItemTemplate(
     title: @Composable () -> Unit,
     subTitle: @Composable () -> Unit = {},
     eventType: EventType? = null,
-    onRowItemClicked: () -> Unit,
-    onRowItemLongClicked: () -> Unit,
+    clickable: Clickable,
     trailingIcon: @Composable () -> Unit = { },
     modifier: Modifier = Modifier
 ) {
     RowItem(
-        onRowItemClick = onRowItemClicked,
-        onRowItemLongClick = onRowItemLongClicked,
+        clickable = clickable,
         modifier = modifier
     ) {
         leadingIcon()

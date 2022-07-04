@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.util.DataDogLogger
 import com.wire.android.util.LogFileWriter
 import com.wire.kalium.logger.KaliumLogLevel
 import com.wire.kalium.logic.CoreLogger
@@ -58,10 +59,10 @@ class DebugScreenViewModel
         isLoggingEnabled = isEnabled
         if (isEnabled) {
             logFileWriter.start()
-            CoreLogger.setLoggingLevel(level = KaliumLogLevel.DEBUG)
+            CoreLogger.setLoggingLevel(level = KaliumLogLevel.DEBUG, logWriter = DataDogLogger)
         } else {
             logFileWriter.stop()
-            CoreLogger.setLoggingLevel(level = KaliumLogLevel.DISABLED)
+            CoreLogger.setLoggingLevel(level = KaliumLogLevel.DISABLED, logWriter = DataDogLogger)
         }
     }
 }

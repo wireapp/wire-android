@@ -60,11 +60,32 @@ class WireApplication : Application(), Configuration.Provider {
             FirebaseApp.initializeApp(this)
         }
 
+        if (BuildConfig.FLAVOR in setOf("internal", "dev") || coreLogic.getGlobalScope().isLoggingEnabled()) {
+            enableDatadog()
+            enableLoggingAndInitiateFileLogging()
+        }
+
+        coreLogic.updateApiVersionsScheduler.schedulePeriodicApiVersionUpdate()
+    }
+
+    private fun enableLoggingAndInitiateFileLogging() {
+        applicationScope.launch {
+            CoreLogger.setLoggingLevel(
+                level = KaliumLogLevel.VERBOSE, kaliumFileWriter
+            )
+            kaliumFileWriter.init(applicationContext.cacheDir.absolutePath)
+            appLogger.i("logged enabled")
+        }
+    }
+
+    @Suppress("MagicNumber")
+    private fun enableDatadog() {
+
         val clientToken = "pub98ad02250435b6082337bb79f66cbc19"
         val applicationId = "619af3ef-2fa6-41e2-8bb1-b42041d50802"
 
         val environmentName = "internal"
-        val appVariantName = "com.wire.android.dev.debug"
+        val appVariantName = "com.wire.android.${BuildConfig.FLAVOR}"
 
         val configuration = com.datadog.android.core.configuration.Configuration.Builder(
             logsEnabled = true,
@@ -81,22 +102,6 @@ class WireApplication : Application(), Configuration.Provider {
         Datadog.setUserInfo(id = getDeviceId(this))
         GlobalRum.registerIfAbsent(RumMonitor.Builder().build())
         Datadog.setVerbosity(Log.VERBOSE)
-
-        if (BuildConfig.FLAVOR in setOf("internal", "dev") || coreLogic.getGlobalScope().isLoggingEnabled()) {
-            enableLoggingAndInitiateFileLogging()
-        }
-
-        coreLogic.updateApiVersionsScheduler.schedulePeriodicApiVersionUpdate()
-    }
-
-    private fun enableLoggingAndInitiateFileLogging() {
-        applicationScope.launch {
-            CoreLogger.setLoggingLevel(
-                level = KaliumLogLevel.VERBOSE, kaliumFileWriter
-            )
-            kaliumFileWriter.init(applicationContext.cacheDir.absolutePath)
-            appLogger.i("logged enabled")
-        }
     }
 
     override fun onLowMemory() {

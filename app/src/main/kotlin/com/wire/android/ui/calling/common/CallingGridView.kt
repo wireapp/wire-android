@@ -41,10 +41,11 @@ fun GroupCallGrid(
         items(participants) { participant ->
             // We need the number of tiles rows needed to calculate their height
             val numberOfTilesRows = tilesRowsCount(participants.size)
-            val isCameraOn = if (participants.first() == participant) isSelfUserCameraOn else false
-            val isMuted = if (pageIndex == 0 && participants.first() == participant)
-                isSelfUserMuted
-            else participant.isMuted
+            // For now we are handling only self user camera state
+            val isCameraOn = if (pageIndex == 0 && participants.first() == participant)
+                isSelfUserCameraOn else false
+            val isMuted = if (pageIndex == 0 && participants.first() == participant) isSelfUserMuted
+                else participant.isMuted
             ParticipantTile(
                 modifier = Modifier
                     .height(((config.screenHeightDp - TOP_APP_BAR_AND_BOTTOM_SHEET_HEIGHT) / numberOfTilesRows).dp)
@@ -54,10 +55,10 @@ fun GroupCallGrid(
                 isMuted = participant.isMuted,
                 isCameraOn = isCameraOn,
                 onSelfUserVideoPreviewCreated = {
-                    if (participants.first() == participant) onSelfVideoPreviewCreated(it)
+                    if (pageIndex == 0 && participants.first() == participant) onSelfVideoPreviewCreated(it)
                 },
                 onClearSelfUserVideoPreview = {
-                    if (participants.first() == participant)
+                    if (pageIndex == 0 && participants.first() == participant)
                         onSelfClearVideoPreview()
                 }
             )

@@ -1,11 +1,19 @@
 package com.wire.android
 
 import android.app.Application
+import android.util.Log
 import androidx.work.Configuration
+import com.datadog.android.Datadog
+import com.datadog.android.DatadogSite
+import com.datadog.android.core.configuration.Credentials
+import com.datadog.android.privacy.TrackingConsent
+import com.datadog.android.rum.GlobalRum
+import com.datadog.android.rum.RumMonitor
 import com.google.firebase.FirebaseApp
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.util.KaliumFileWriter
 import com.wire.android.util.extension.isGoogleServicesAvailable
+import com.wire.android.util.getDeviceId
 import com.wire.kalium.logger.KaliumLogLevel
 import com.wire.kalium.logger.KaliumLogger
 import com.wire.kalium.logic.CoreLogger
@@ -39,6 +47,10 @@ class WireApplication : Application(), Configuration.Provider {
 
     private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
+    companion object {
+        const val LONG_TASK_THRESH_HOLD_MS = 1000L
+    }
+
     override fun getWorkManagerConfiguration(): Configuration {
         val myWorkerFactory = WrapperWorkerFactory(coreLogic)
         return Configuration.Builder()
@@ -51,7 +63,9 @@ class WireApplication : Application(), Configuration.Provider {
         if (this.isGoogleServicesAvailable()) {
             FirebaseApp.initializeApp(this)
         }
-        if (BuildConfig.FLAVOR in setOf("internal", "dev") || coreLogic.getGlobalScope().isLoggingEnabled()) {
+
+        if (flavor in setOf("internal", "dev") || coreLogic.getGlobalScope().isLoggingEnabled()) {
+            enableDatadog()
             enableLoggingAndInitiateFileLogging()
         }
 
@@ -60,12 +74,38 @@ class WireApplication : Application(), Configuration.Provider {
 
     private fun enableLoggingAndInitiateFileLogging() {
         applicationScope.launch {
-            kaliumFileWriter.init(applicationContext.cacheDir.absolutePath)
             CoreLogger.setLoggingLevel(
-                level = KaliumLogLevel.DEBUG, kaliumFileWriter
+                level = KaliumLogLevel.VERBOSE, kaliumFileWriter
             )
+            kaliumFileWriter.init(applicationContext.cacheDir.absolutePath)
             appLogger.i("logged enabled")
         }
+    }
+
+    @Suppress("MagicNumber")
+    private fun enableDatadog() {
+
+        val clientToken = "pub98ad02250435b6082337bb79f66cbc19"
+        val applicationId = "619af3ef-2fa6-41e2-8bb1-b42041d50802"
+
+        val environmentName = "internal"
+        val appVariantName = "com.wire.android.${BuildConfig.FLAVOR}"
+
+        val configuration = com.datadog.android.core.configuration.Configuration.Builder(
+            logsEnabled = true,
+            tracesEnabled = true,
+            rumEnabled = true,
+            crashReportsEnabled = true,
+        ).trackInteractions()
+            .trackLongTasks(LONG_TASK_THRESH_HOLD_MS)
+            .useSite(DatadogSite.EU1)
+            .build()
+
+        val credentials = Credentials(clientToken, environmentName, appVariantName, applicationId)
+        Datadog.initialize(this, credentials, configuration, TrackingConsent.GRANTED)
+        Datadog.setUserInfo(id = getDeviceId(this))
+        GlobalRum.registerIfAbsent(RumMonitor.Builder().build())
+        Datadog.setVerbosity(Log.VERBOSE)
     }
 
     override fun onLowMemory() {

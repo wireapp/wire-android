@@ -42,8 +42,7 @@ fun VerticalCallingPager(
             VerticalPager(
                 count = pagesCount,
                 state = pagerState,
-                modifier = Modifier
-                    .fillMaxSize()
+                modifier = Modifier.fillMaxSize()
             ) { pageIndex ->
                 if (participants.isNotEmpty()) {
                     val participantsChunkedList = participants.chunked(MAX_TILES_PER_PAGE)

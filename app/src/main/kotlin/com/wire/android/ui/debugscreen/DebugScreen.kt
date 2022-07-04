@@ -53,9 +53,9 @@ fun DebugScreen() {
 fun DebugContent(
     mlsData: List<String>,
     isLoggingEnabled: Boolean,
-    setLoggingEnabledState: (Boolean, String) -> Unit,
-    logFilePath: (String) -> String,
-    deleteAllLogs: (String) -> Unit
+    setLoggingEnabledState: (Boolean) -> Unit,
+    logFilePath: () -> String,
+    deleteAllLogs: () -> Unit
 ) {
     Column {
         TopBar(title = "Debug")
@@ -125,9 +125,9 @@ fun TextRowItem(text: String, @DrawableRes trailingIcon: Int? = null, onIconClic
 @Composable
 fun LoggingSection(
     isLoggingEnabled: Boolean,
-    setLoggingEnabledState: (Boolean, String) -> Unit,
-    logFilePath: (String) -> String,
-    deleteAllLogs: (String) -> Unit
+    setLoggingEnabledState: (Boolean) -> Unit,
+    logFilePath: () -> String,
+    deleteAllLogs: () -> Unit
 ) {
     val context = LocalContext.current
     val clipboardManager = LocalClipboardManager.current
@@ -135,7 +135,7 @@ fun LoggingSection(
     SwitchRowItem(
         text = "Enable Logging", checked = isLoggingEnabled
     ) { state: Boolean ->
-        debugScreenViewModel.setLoggingEnabledState(state)
+        setLoggingEnabledState(state)
     }
     TextRowItem(
         "Share Logs",

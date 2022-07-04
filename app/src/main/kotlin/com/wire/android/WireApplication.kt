@@ -11,6 +11,7 @@ import com.datadog.android.rum.GlobalRum
 import com.datadog.android.rum.RumMonitor
 import com.google.firebase.FirebaseApp
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.util.DataDogLogger
 import com.wire.android.util.LogFileWriter
 import com.wire.android.util.extension.isGoogleServicesAvailable
 import com.wire.android.util.getDeviceId
@@ -30,7 +31,7 @@ var appLogger = KaliumLogger(
             flavor.startsWith("Dev", true) || flavor.startsWith("Internal", true)
         ) KaliumLogLevel.DEBUG else KaliumLogLevel.DISABLED,
         tag = "WireAppLogger"
-    )
+    ), logWriter = DataDogLogger()
 )
 
 @HiltAndroidApp

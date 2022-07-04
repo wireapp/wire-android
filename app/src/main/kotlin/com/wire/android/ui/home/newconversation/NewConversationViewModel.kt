@@ -34,167 +34,26 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-@Suppress("TooManyFunctions", "LongParameterList")
+@Suppress("LongParameterList")
 @HiltViewModel
 class NewConversationViewModel
 @Inject constructor(
-    private val navigationManager: NavigationManager,
-    private val searchUsers: SearchUsersUseCase,
-    private val searchKnownUsers: SearchKnownUsersUseCase,
-    private val getAllContacts: GetAllContactsUseCase,
     private val createGroupConversation: CreateGroupConversationUseCase,
-    private val addMemberToConversationUseCase: AddMemberToConversationUseCase,
-    private val contactMapper: ContactMapper,
-    private val dispatchers: DispatcherProvider
-) : ViewModel() {
-
+    navigationManager: NavigationManager,
+    searchUsers: SearchUsersUseCase,
+    searchKnownUsers: SearchKnownUsersUseCase,
+    getAllContacts: GetAllContactsUseCase,
+    contactMapper: ContactMapper,
+    dispatchers: DispatcherProvider
+) : CreateConversationViewModel() {
     private companion object {
         const val GROUP_NAME_MAX_COUNT = 64
     }
 
-    val state: SearchPeopleState by derivedStateOf {
-        val noneSearchSucceed: Boolean =
-            localContactSearchResult.searchResultState is SearchResultState.Failure &&
-                    publicContactsSearchResult.searchResultState is SearchResultState.Failure
-
-        val filteredPublicContactsSearchResult: ContactSearchResult =
-            publicContactsSearchResult.filterContacts(localContactSearchResult)
-
-        innerSearchPeopleState.copy(
-            noneSearchSucceed = noneSearchSucceed,
-            localContactSearchResult = localContactSearchResult,
-            publicContactsSearchResult = filteredPublicContactsSearchResult,
-        )
-    }
-
     var groupNameState: NewGroupState by mutableStateOf(NewGroupState())
 
-    private var innerSearchPeopleState: SearchPeopleState by mutableStateOf(SearchPeopleState())
-
-    private var localContactSearchResult by mutableStateOf(
-        ContactSearchResult.InternalContact(searchResultState = SearchResultState.Initial)
-    )
-
-    private var publicContactsSearchResult by mutableStateOf(
-        ContactSearchResult.ExternalContact(searchResultState = SearchResultState.Initial)
-    )
-
-    private val searchQueryStateFlow = SearchQueryStateFlow()
-
-    init {
-        viewModelScope.launch {
-            launch {
-                tryGetAllContacts()
-            }
-
-            searchQueryStateFlow.onSearchAction { searchTerm ->
-                launch { searchPublic(searchTerm) }
-                launch { searchKnown(searchTerm) }
-            }
-        }
-    }
-
-    private suspend fun tryGetAllContacts() {
-        innerSearchPeopleState = innerSearchPeopleState.copy(allKnownContacts = SearchResultState.InProgress)
-
-        withContext(dispatchers.io()) {
-            when (val result = getAllContacts()) {
-                is GetAllContactsResult.Failure -> {
-                    innerSearchPeopleState = innerSearchPeopleState.copy(
-                        allKnownContacts = SearchResultState.Failure(R.string.label_general_error)
-                    )
-                }
-                is GetAllContactsResult.Success -> {
-                    innerSearchPeopleState = innerSearchPeopleState.copy(
-                        allKnownContacts = SearchResultState.Success(result.allContacts.map(contactMapper::fromOtherUser))
-                    )
-                }
-            }
-        }
-    }
-
-    private fun ContactSearchResult.filterContacts(contactSearchResult: ContactSearchResult): ContactSearchResult {
-        return if (searchResultState is SearchResultState.Success &&
-            contactSearchResult.searchResultState is SearchResultState.Success
-        ) {
-            ContactSearchResult.ExternalContact(SearchResultState.Success(searchResultState.result.filterNot { contact ->
-                contactSearchResult.searchResultState.result.map { it.id }.contains(
-                    contact.id
-                )
-            }))
-        } else {
-            this
-        }
-    }
-
-    fun search(searchTerm: String) {
-        // we set the state with a searchQuery, immediately to update the UI first
-        innerSearchPeopleState = state.copy(searchQuery = searchTerm)
-
-        searchQueryStateFlow.search(searchTerm)
-    }
-
-    private suspend fun searchKnown(searchTerm: String) {
-        localContactSearchResult = ContactSearchResult.InternalContact(SearchResultState.InProgress)
-
-        val result = searchKnownUsers(searchTerm)
-
-        localContactSearchResult = when (result) {
-            is Result.Success -> ContactSearchResult.InternalContact(
-                SearchResultState.Success(result.userSearchResult.result.map { otherUser -> contactMapper.fromOtherUser(otherUser) })
-            )
-            else -> ContactSearchResult.InternalContact(SearchResultState.Failure(R.string.label_general_error))
-        }
-    }
-
-    private suspend fun searchPublic(searchTerm: String) {
-        publicContactsSearchResult = ContactSearchResult.ExternalContact(SearchResultState.InProgress)
-
-        val result = withContext(dispatchers.io()) {
-            searchUsers(
-                searchQuery = searchTerm
-            )
-        }
-
-        publicContactsSearchResult = when (result) {
-            is Result.Failure.Generic, Result.Failure.InvalidRequest -> {
-                ContactSearchResult.ExternalContact(SearchResultState.Failure(R.string.label_general_error))
-            }
-            is Result.Failure.InvalidQuery -> {
-                ContactSearchResult.ExternalContact(SearchResultState.Failure(R.string.label_no_results_found))
-            }
-            is Result.Success -> {
-                ContactSearchResult.ExternalContact(
-                    SearchResultState.Success(result.userSearchResult.result.map { otherUser -> contactMapper.fromOtherUser(otherUser) })
-                )
-            }
-        }
-    }
-
-    fun addContactToGroup(contact: Contact) {
-        innerSearchPeopleState = innerSearchPeopleState.copy(
-            contactsAddedToGroup = innerSearchPeopleState.contactsAddedToGroup + contact
-        )
-    }
-
-    fun removeContactFromGroup(contact: Contact) {
-        innerSearchPeopleState = innerSearchPeopleState.copy(
-            contactsAddedToGroup = innerSearchPeopleState.contactsAddedToGroup - contact
-        )
-    }
-
-    fun openUserProfile(contact: Contact) {
-        viewModelScope.launch {
-            navigationManager.navigate(
-                command = NavigationCommand(
-                    destination = NavigationItem.OtherUserProfile.getRouteWithArgs(
-                        listOf(
-                            contact.domain, contact.id, contact.connectionState
-                        )
-                    )
-                )
-            )
-        }
+    fun onGroupNameErrorAnimated() {
+        groupNameState = groupNameState.copy(animatedGroupNameError = false)
     }
 
     fun onGroupNameChange(newText: TextFieldValue) {
@@ -254,13 +113,19 @@ class NewConversationViewModel
         }
     }
 
-    fun onGroupNameErrorAnimated() {
-        groupNameState = groupNameState.copy(animatedGroupNameError = false)
-    }
-
-    fun close() {
-        viewModelScope.launch {
-            navigationManager.navigateBack()
-        }
-    }
 }
+
+
+class AddConversationMembersViewModel
+@Inject constructor(dispatchers: DispatcherProvider) : CreateConversationViewModel(dispatchers) {
+
+}
+
+
+
+
+
+
+
+
+

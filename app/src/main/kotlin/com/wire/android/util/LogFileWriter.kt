@@ -147,7 +147,7 @@ class LogFileWriter(private val logsDirectory: File) {
     companion object {
         private const val LOG_FILE_PREFIX = "wire"
         private const val ACTIVE_LOGGING_FILE_NAME = "${LOG_FILE_PREFIX}_logs.txt"
-        private const val LOG_FILE_MAX_SIZE_THRESHOLD = 5 * 1024 * 1024
+        private const val LOG_FILE_MAX_SIZE_THRESHOLD = 25 * 1024 * 1024
         private const val BYTE_ARRAY_SIZE = 1024
     }
 }

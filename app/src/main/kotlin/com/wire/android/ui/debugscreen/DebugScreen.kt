@@ -91,7 +91,6 @@ fun TextRowItem(text: String, @DrawableRes trailingIcon: Int? = null, onIconClic
                     .clickable { onIconClick() }
             )
         }
-
     }
 }
 

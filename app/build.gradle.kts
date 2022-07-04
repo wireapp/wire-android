@@ -1,5 +1,4 @@
 import com.android.build.api.dsl.AndroidSourceSet
-
 plugins {
     // Application Specific plugins
     id(BuildPlugins.androidApplication)
@@ -142,6 +141,7 @@ dependencies {
     implementation(Libraries.accompanistNavAnimation)
     implementation(Libraries.accompanistIndicator)
     implementation(Libraries.composeRuntimeLiveData)
+    implementation("com.datadoghq:dd-sdk-android:1.13.0")
 
     // Compose iterative code, layout inspector, etc.
     debugImplementation(Libraries.composeTooling)

@@ -2,6 +2,13 @@ package com.wire.android.util
 
 import co.touchlab.kermit.LogWriter
 import co.touchlab.kermit.Severity
+import com.datadog.android.Datadog
+import com.datadog.android.DatadogSite
+import com.datadog.android.core.configuration.Configuration
+import com.datadog.android.core.configuration.Credentials
+import com.datadog.android.log.Logger
+import com.datadog.android.rum.GlobalRum
+import com.datadog.android.rum.RumMonitor
 import com.wire.android.appLogger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -25,7 +32,7 @@ import java.util.zip.GZIPOutputStream
 typealias LogElement = Triple<String, Severity, String?>
 
 const val LOG_FILE_NAME = "wire_logs.txt"
-private const val LOG_FILE_MAX_SIZE_THRESHOLD = 5 * 1024 * 1024
+private const val LOG_FILE_MAX_SIZE_THRESHOLD = 100 * 1024 * 1024 // 100MB
 private const val BYTE_ARRAY_SIZE = 1024
 
 @Suppress("TooGenericExceptionCaught", "BlockingMethodInNonBlockingContext")
@@ -41,7 +48,16 @@ class KaliumFileWriter : LogWriter() {
 
     private var fileWriterCoroutineScope: CoroutineScope = CoroutineScope(SupervisorJob() + Dispatchers.IO)
 
+    val logger = Logger.Builder()
+        .setNetworkInfoEnabled(true)
+        .setLogcatLogsEnabled(true)
+        .setDatadogLogsEnabled(true)
+        .setBundleWithTraceEnabled(true)
+        .setLoggerName("DATADOG")
+        .build()
+
     suspend fun init(path: String) {
+
         path.let {
             filePath = try {
                 getLogsDirectoryFromPath(it)
@@ -51,6 +67,12 @@ class KaliumFileWriter : LogWriter() {
             }
         }
         val logFile = getFile(filePath)
+
+        /// Read some sort of unique iD per device and per user?
+
+        logger.addAttribute("device_id", "some-device-id")
+        logger.addAttribute("user_id", "some-user-id")
+
 
         coroutineScope {
             fileWriterCoroutineScope = this
@@ -79,6 +101,7 @@ class KaliumFileWriter : LogWriter() {
 
     override fun log(severity: Severity, message: String, tag: String, throwable: Throwable?) {
         fileWriterCoroutineScope.launch {
+            logger.log(severity.ordinal, message)
             logBuffer.emit(LogElement(logTimeFormat.format(Date()), severity, message))
         }
     }
@@ -99,6 +122,7 @@ class KaliumFileWriter : LogWriter() {
             // Validate file size
             flushCompleted.emit(file.length())
         }
+
         Runtime.getRuntime().exec("logcat -c ")
         Runtime.getRuntime().exec("logcat -f $file")
         flushCompleted.emit(file.length())
@@ -137,10 +161,11 @@ class KaliumFileWriter : LogWriter() {
     @Suppress("NestedBlockDepth")
     private fun compress(file: File): Boolean {
         try {
+            val childName = "${file.name.substringBeforeLast(".")}_${logFileTimeFormat.format(Date())}_${file.parentFile.listFiles().size}.gz"
             val compressed =
                 File(
                     file.parentFile.absolutePath,
-                    "${file.name.substringBeforeLast(".")}_${logFileTimeFormat.format(Date())}_${file.parentFile.listFiles().size}.gz"
+                    childName
                 )
             FileInputStream(file).use { fis ->
                 FileOutputStream(compressed).use { fos ->

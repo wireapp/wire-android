@@ -101,7 +101,7 @@ private fun pagesCount(size: Int): Int {
     } else pages
 }
 
-private const val MAX_TILES_PER_PAGE = 4
+private const val MAX_TILES_PER_PAGE = 8
 private const val MAX_ITEMS_FOR_ONE_ON_ONE_VIEW = 3
 
 @Composable

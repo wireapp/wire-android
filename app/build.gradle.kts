@@ -1,5 +1,4 @@
 import com.android.build.api.dsl.AndroidSourceSet
-
 plugins {
     // Application Specific plugins
     id(BuildPlugins.androidApplication)
@@ -194,4 +193,9 @@ dependencies {
 
     // Development dependencies
     debugImplementation(DevLibraries.leakCanary)
+
+    // Internal only tracking & logging
+
+    implementation(Libraries.dataDog)
+
 }

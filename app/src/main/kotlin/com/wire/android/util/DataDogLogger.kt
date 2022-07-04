@@ -4,7 +4,7 @@ import co.touchlab.kermit.LogWriter
 import co.touchlab.kermit.Severity
 import com.datadog.android.log.Logger
 
-class DataDogLogger: LogWriter() {
+object DataDogLogger: LogWriter() {
 
     private val logger = Logger.Builder()
         .setNetworkInfoEnabled(true)

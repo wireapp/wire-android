@@ -32,7 +32,7 @@ var appLogger = KaliumLogger(
     config = KaliumLogger.Config(
         severity = if (IS_PRIVATE_BUILD) KaliumLogLevel.DEBUG else KaliumLogLevel.DISABLED,
         tag = "WireAppLogger"
-    ), logWriter = DataDogLogger()
+    ), logWriter = DataDogLogger
 )
 
 @HiltAndroidApp
@@ -68,7 +68,7 @@ class WireApplication : Application(), Configuration.Provider {
     }
 
     private fun enableLoggingAndInitiateFileLogging() {
-        CoreLogger.setLoggingLevel(level = KaliumLogLevel.VERBOSE)
+        CoreLogger.setLoggingLevel(level = KaliumLogLevel.VERBOSE, logWriter = DataDogLogger)
         logFileWriter.start()
         appLogger.i("Logger enabled")
     }

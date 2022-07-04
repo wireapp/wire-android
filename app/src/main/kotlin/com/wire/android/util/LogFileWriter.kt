@@ -1,6 +1,5 @@
 package com.wire.android.util
 
-import co.touchlab.kermit.Severity
 import com.wire.android.appLogger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -25,12 +24,9 @@ import java.util.Date
 import java.util.Locale
 import java.util.zip.GZIPOutputStream
 
-typealias LogElement = Triple<String, Severity, String?>
-
 @Suppress("TooGenericExceptionCaught")
-class KaliumFileWriter(private val logsDirectory: File) {
+class LogFileWriter(private val logsDirectory: File) {
 
-    private val logTimeFormat = SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.US)
     private val logFileTimeFormat = SimpleDateFormat("yyyy-MM-dd_HH-mm-ss", Locale.US)
 
     val activeLoggingFile = File(logsDirectory, ACTIVE_LOGGING_FILE_NAME)

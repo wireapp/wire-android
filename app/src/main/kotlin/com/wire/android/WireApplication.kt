@@ -2,11 +2,9 @@ package com.wire.android
 
 import android.app.Application
 import androidx.work.Configuration
-import co.touchlab.kermit.LogWriter
-import co.touchlab.kermit.Severity
 import com.google.firebase.FirebaseApp
 import com.wire.android.di.KaliumCoreLogic
-import com.wire.android.util.KaliumFileWriter
+import com.wire.android.util.LogFileWriter
 import com.wire.android.util.extension.isGoogleServicesAvailable
 import com.wire.kalium.logger.KaliumLogLevel
 import com.wire.kalium.logger.KaliumLogger
@@ -35,7 +33,7 @@ class WireApplication : Application(), Configuration.Provider {
     lateinit var coreLogic: CoreLogic
 
     @Inject
-    lateinit var kaliumFileWriter: KaliumFileWriter
+    lateinit var logFileWriter: LogFileWriter
 
     override fun getWorkManagerConfiguration(): Configuration {
         val myWorkerFactory = WrapperWorkerFactory(coreLogic)
@@ -58,13 +56,13 @@ class WireApplication : Application(), Configuration.Provider {
 
     private fun enableLoggingAndInitiateFileLogging() {
         CoreLogger.setLoggingLevel(level = KaliumLogLevel.DEBUG)
-        kaliumFileWriter.start()
+        logFileWriter.start()
         appLogger.i("logged enabled")
     }
 
     override fun onLowMemory() {
         super.onLowMemory()
         appLogger.w("onLowMemory called - Stopping logging, buckling the seatbelt and hoping for the best!")
-        kaliumFileWriter.stop()
+        logFileWriter.stop()
     }
 }

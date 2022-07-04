@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.util.KaliumFileWriter
+import com.wire.android.util.LogFileWriter
 import com.wire.kalium.logger.KaliumLogLevel
 import com.wire.kalium.logic.CoreLogger
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountResult
@@ -21,14 +21,14 @@ class DebugScreenViewModel
 @Inject constructor(
     private val mlsKeyPackageCountUseCase: MLSKeyPackageCountUseCase,
     private val enableLoggingUseCase: EnableLoggingUseCase,
-    private val kaliumFileWriter: KaliumFileWriter,
+    private val logFileWriter: LogFileWriter,
     isLoggingEnabledUseCase: IsLoggingEnabledUseCase
 ) : ViewModel() {
     var isLoggingEnabled by mutableStateOf(isLoggingEnabledUseCase())
 
     var mlsData by mutableStateOf(listOf<String>())
 
-    fun logFilePath(): String = kaliumFileWriter.activeLoggingFile.absolutePath
+    fun logFilePath(): String = logFileWriter.activeLoggingFile.absolutePath
 
     init {
         viewModelScope.launch {
@@ -50,17 +50,17 @@ class DebugScreenViewModel
     }
 
     fun deleteAllLogs() {
-        kaliumFileWriter.deleteAllLogFiles()
+        logFileWriter.deleteAllLogFiles()
     }
 
     fun setLoggingEnabledState(isEnabled: Boolean) {
         enableLoggingUseCase.invoke(isEnabled)
         isLoggingEnabled = isEnabled
         if (isEnabled) {
-            kaliumFileWriter.start()
+            logFileWriter.start()
             CoreLogger.setLoggingLevel(level = KaliumLogLevel.DEBUG)
         } else {
-            kaliumFileWriter.stop()
+            logFileWriter.stop()
             CoreLogger.setLoggingLevel(level = KaliumLogLevel.DISABLED)
         }
     }

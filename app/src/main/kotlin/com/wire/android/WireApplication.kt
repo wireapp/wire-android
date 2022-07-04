@@ -64,8 +64,9 @@ class WireApplication : Application(), Configuration.Provider {
             FirebaseApp.initializeApp(this)
         }
 
+        enableDatadog()
+
         if (flavor in setOf("internal", "dev") || coreLogic.getGlobalScope().isLoggingEnabled()) {
-            enableDatadog()
             enableLoggingAndInitiateFileLogging()
         }
 
@@ -82,14 +83,13 @@ class WireApplication : Application(), Configuration.Provider {
         }
     }
 
-    @Suppress("MagicNumber")
     private fun enableDatadog() {
 
         val clientToken = "pub98ad02250435b6082337bb79f66cbc19"
         val applicationId = "619af3ef-2fa6-41e2-8bb1-b42041d50802"
 
         val environmentName = "internal"
-        val appVariantName = "com.wire.android.${BuildConfig.FLAVOR}"
+        val appVariantName = "com.wire.android.dev.debug"
 
         val configuration = com.datadog.android.core.configuration.Configuration.Builder(
             logsEnabled = true,

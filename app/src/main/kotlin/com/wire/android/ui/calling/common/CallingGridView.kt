@@ -13,17 +13,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
-import com.wire.android.model.ImageAsset
 import com.wire.android.ui.calling.ParticipantTile
 import com.wire.android.ui.calling.getConversationName
 import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.theme.wireDimensions
-import com.wire.kalium.logic.data.call.Participant
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun GroupCallGrid(
     participants: List<UICallParticipant>,
+    pageIndex: Int,
+    isSelfUserMuted: Boolean,
     isSelfUserCameraOn: Boolean,
     onSelfVideoPreviewCreated: (view: View) -> Unit,
     onSelfClearVideoPreview: () -> Unit
@@ -42,7 +42,9 @@ fun GroupCallGrid(
             // We need the number of tiles rows needed to calculate their height
             val numberOfTilesRows = tilesRowsCount(participants.size)
             val isCameraOn = if (participants.first() == participant) isSelfUserCameraOn else false
-
+            val isMuted = if (pageIndex == 0 && participants.first() == participant)
+                isSelfUserMuted
+            else participant.isMuted
             ParticipantTile(
                 modifier = Modifier
                     .height(((config.screenHeightDp - TOP_APP_BAR_AND_BOTTOM_SHEET_HEIGHT) / numberOfTilesRows).dp)

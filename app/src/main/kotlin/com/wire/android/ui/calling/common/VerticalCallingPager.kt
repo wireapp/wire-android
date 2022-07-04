@@ -28,6 +28,7 @@ import com.wire.android.ui.calling.model.UICallParticipant
 @Composable
 fun VerticalCallingPager(
     participants: List<UICallParticipant>,
+    isSelfUserMuted: Boolean,
     isSelfUserCameraOn: Boolean,
     onSelfVideoPreviewCreated: (view: View) -> Unit,
     onSelfClearVideoPreview: () -> Unit
@@ -49,6 +50,8 @@ fun VerticalCallingPager(
                     if (participantsChunkedList[pageIndex].size <= MAX_ITEMS_FOR_ONE_ON_ONE_VIEW) {
                         OneOnOneCallView(
                             participants = participantsChunkedList[pageIndex],
+                            pageIndex = pageIndex,
+                            isSelfUserMuted = isSelfUserMuted,
                             isSelfUserCameraOn = isSelfUserCameraOn,
                             onSelfVideoPreviewCreated = onSelfVideoPreviewCreated,
                             onSelfClearVideoPreview = onSelfClearVideoPreview
@@ -56,6 +59,8 @@ fun VerticalCallingPager(
                     } else {
                         GroupCallGrid(
                             participants = participantsChunkedList[pageIndex],
+                            pageIndex = pageIndex,
+                            isSelfUserMuted = isSelfUserMuted,
                             isSelfUserCameraOn = isSelfUserCameraOn,
                             onSelfVideoPreviewCreated = onSelfVideoPreviewCreated,
                             onSelfClearVideoPreview = onSelfClearVideoPreview
@@ -106,5 +111,11 @@ private const val MAX_ITEMS_FOR_ONE_ON_ONE_VIEW = 3
 @Composable
 @Preview
 fun SamplePreview() {
-    VerticalCallingPager(listOf(), false, {}, {})
+    VerticalCallingPager(
+        participants = listOf(),
+        isSelfUserMuted = false,
+        isSelfUserCameraOn = false,
+        onSelfVideoPreviewCreated = {},
+        onSelfClearVideoPreview = {}
+    )
 }

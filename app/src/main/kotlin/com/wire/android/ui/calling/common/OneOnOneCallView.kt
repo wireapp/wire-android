@@ -14,11 +14,12 @@ import com.wire.android.ui.calling.getConversationName
 import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireDimensions
-import com.wire.kalium.logic.data.call.Participant
 
 @Composable
 fun OneOnOneCallView(
     participants: List<UICallParticipant>,
+    pageIndex: Int,
+    isSelfUserMuted: Boolean,
     isSelfUserCameraOn: Boolean,
     onSelfVideoPreviewCreated: (view: View) -> Unit,
     onSelfClearVideoPreview: () -> Unit
@@ -30,13 +31,17 @@ fun OneOnOneCallView(
         participants.forEach { participant ->
             // For now we are handling only self user camera state
             val isCameraOn = if (participants.first() == participant) isSelfUserCameraOn else false
+            val isMuted = if (pageIndex == 0 && participants.first() == participant)
+                isSelfUserMuted
+            else participant.isMuted
+
             ParticipantTile(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f),
                 conversationName = getConversationName(participant.name),
                 participantAvatar = participant.avatar,
-                isMuted = participant.isMuted,
+                isMuted = isMuted,
                 isCameraOn = isCameraOn,
                 onSelfUserVideoPreviewCreated = {
                     if (participants.first() == participant) onSelfVideoPreviewCreated(it)

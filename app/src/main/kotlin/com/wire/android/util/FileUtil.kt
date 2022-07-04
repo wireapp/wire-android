@@ -129,6 +129,33 @@ fun Context.startFileShareIntent(path: String) {
     startActivity(shareIntent)
 }
 
+fun Context.startMultipleFileSharingIntent(path: String) {
+    val file = File(path)
+
+    val fileURI = FileProvider.getUriForFile(
+        this, getProviderAuthority(),
+        file
+    )
+
+    val intent = Intent()
+    intent.action = Intent.ACTION_SEND_MULTIPLE
+    intent.type = fileURI.getMimeType(context = this)
+
+    val files = ArrayList<Uri>()
+
+    file.parentFile.listFiles()?.map {
+        val uri = FileProvider.getUriForFile(
+            this, getProviderAuthority(),
+            it
+        )
+        files.add(uri)
+    }
+
+    intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, files)
+
+    startActivity(intent)
+}
+
 fun saveFileToDownloadsFolder(assetName: String, assetData: ByteArray, context: Context) {
     val file = File(context.getExternalFilesDir(DIRECTORY_DOWNLOADS), assetName)
     file.setWritable(true)

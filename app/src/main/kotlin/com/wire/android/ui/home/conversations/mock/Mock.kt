@@ -1,5 +1,13 @@
 package com.wire.android.ui.home.conversations.mock
 
+import coil.ComponentRegistry
+import coil.ImageLoader
+import coil.disk.DiskCache
+import coil.memory.MemoryCache
+import coil.request.DefaultRequestOptions
+import coil.request.Disposable
+import coil.request.ImageRequest
+import coil.request.ImageResult
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversations.model.MessageBody
@@ -10,6 +18,7 @@ import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.ui.UIText
+import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.id.parseIntoQualifiedID
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
@@ -37,8 +46,19 @@ val mockMessageWithText = UIMessage(
     messageSource = MessageSource.Self
 )
 
+val mockImageLoader = WireSessionImageLoader(object : ImageLoader {
+    override val components: ComponentRegistry get() = TODO("Not yet implemented")
+    override val defaults: DefaultRequestOptions get() = TODO("Not yet implemented")
+    override val diskCache: DiskCache get() = TODO("Not yet implemented")
+    override val memoryCache: MemoryCache get() = TODO("Not yet implemented")
+    override fun enqueue(request: ImageRequest): Disposable = TODO("Not yet implemented")
+    override suspend fun execute(request: ImageRequest): ImageResult = TODO("Not yet implemented")
+    override fun newBuilder(): ImageLoader.Builder = TODO("Not yet implemented")
+    override fun shutdown() = TODO("Not yet implemented")
+})
+
 val mockAssetMessage = UIMessage(
-    userAvatarData = UserAvatarData(UserAvatarAsset("a@domain".parseIntoQualifiedID()), UserAvailabilityStatus.AVAILABLE),
+    userAvatarData = UserAvatarData(UserAvatarAsset(mockImageLoader, "a@domain".parseIntoQualifiedID()), UserAvailabilityStatus.AVAILABLE),
     messageHeader = MessageHeader(
         username = UIText.DynamicString("John Doe"),
         membership = Membership.Guest,

@@ -51,32 +51,6 @@ fun ImageVector.Icon(modifier: Modifier = Modifier): @Composable (() -> Unit) =
     { androidx.compose.material3.Icon(imageVector = this, contentDescription = "", modifier = modifier) }
 
 @Composable
-internal fun dimensions() = MaterialTheme.wireDimensions
-
-@Composable
-internal fun colorsScheme() = MaterialTheme.wireColorScheme
-
-@Composable
-internal fun WireColorScheme.conversationColor(id: ConversationId): Color {
-    val colors = this.groupAvatarColors
-    return  colors[(id.hashCode() % colors.size).absoluteValue]
-}
-
-fun LazyListState.topBarElevation(maxElevation: Dp): Dp =
-    if (firstVisibleItemIndex == 0) minOf(firstVisibleItemScrollOffset.toFloat().dp, maxElevation)
-    else maxElevation
-
-fun ScrollState.topBarElevation(maxElevation: Dp): Dp = minOf(value.dp, maxElevation)
-
-@Composable
-fun LazyListState.rememberTopBarElevationState(maxElevation: Dp = MaterialTheme.wireDimensions.topBarShadowElevation): State<Dp> =
-    remember { derivedStateOf { topBarElevation(maxElevation) } }
-
-@Composable
-fun ScrollState.rememberTopBarElevationState(maxElevation: Dp = MaterialTheme.wireDimensions.topBarShadowElevation): State<Dp> =
-    remember { derivedStateOf { topBarElevation(maxElevation) } }
-
-@Composable
 fun Modifier.shimmerPlaceholder(
     visible: Boolean,
     color: Color = MaterialTheme.wireColorScheme.background,

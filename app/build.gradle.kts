@@ -170,6 +170,7 @@ dependencies {
     testImplementation(TestLibraries.mockk)
     testImplementation(TestLibraries.kluent)
     testImplementation(TestLibraries.junit5)
+    testImplementation(TestLibraries.turbine)
     testRuntimeOnly(TestLibraries.junit5Engine)
 
     // Acceptance/Functional tests dependencies

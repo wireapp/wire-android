@@ -157,6 +157,7 @@ object TestLibraries {
         const val testRules = "1.4.0"
         const val uiAutomator = "2.2.0"
         const val testCore = "2.1.0"
+        const val turbine = "0.7.0"
     }
 
     object Espresso {
@@ -183,6 +184,7 @@ object TestLibraries {
     const val kluent            = "org.amshove.kluent:kluent:${Versions.kluent}"
     const val kluentAndroid     = "org.amshove.kluent:kluent-android:${Versions.kluent}"
     const val workManager       = "androidx.work:work-testing:${Libraries.Versions.workManager}"
+    const val turbine           = "app.cash.turbine:turbine:${Versions.turbine}"
 
     // Test rules and transitive dependencies:
     const val composeJunit      = "androidx.compose.ui:ui-test-junit4:${Libraries.Versions.compose}"

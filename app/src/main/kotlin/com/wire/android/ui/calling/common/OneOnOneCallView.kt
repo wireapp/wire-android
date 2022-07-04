@@ -11,13 +11,14 @@ import androidx.compose.ui.Modifier
 import com.wire.android.model.ImageAsset
 import com.wire.android.ui.calling.ParticipantTile
 import com.wire.android.ui.calling.getConversationName
+import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.kalium.logic.data.call.Participant
 
 @Composable
 fun OneOnOneCallView(
-    participants: List<Participant>,
+    participants: List<UICallParticipant>,
     isSelfUserCameraOn: Boolean,
     onSelfVideoPreviewCreated: (view: View) -> Unit,
     onSelfClearVideoPreview: () -> Unit
@@ -34,7 +35,7 @@ fun OneOnOneCallView(
                     .fillMaxWidth()
                     .weight(1f),
                 conversationName = getConversationName(participant.name),
-                participantAvatar = ImageAsset.UserAvatarAsset(participant.avatarAssetId!!),
+                participantAvatar = participant.avatar,
                 isMuted = participant.isMuted,
                 isCameraOn = isCameraOn,
                 onSelfUserVideoPreviewCreated = {

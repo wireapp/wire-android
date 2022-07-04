@@ -21,6 +21,7 @@ import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOffUseCase
 import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOnUseCase
 import com.wire.kalium.logic.feature.call.usecase.UnMuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.UpdateVideoStateUseCase
+import com.wire.kalium.logic.feature.conversation.AddMemberToConversationUseCase
 import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
@@ -481,6 +482,14 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun providesAddMemberToConversationUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): AddMemberToConversationUseCase =
+        coreLogic.getSessionScope(currentAccount).conversations.addMemberToConversationUseCase
+
+    @ViewModelScoped
+    @Provides
     fun providesUpdateConversationMutedStatusUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
@@ -530,7 +539,7 @@ class UseCaseModule {
     @ViewModelScoped
     @Provides
     fun fileSharingStatusFlowUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
-        coreLogic.getSessionScope(currentAccount).isFileSharingEnabledFlow
+        coreLogic.getSessionScope(currentAccount).observeFileSharingStatus
 
     @ViewModelScoped
     @Provides

@@ -8,7 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.ui.home.HomeState
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.data.sync.SyncState
-import com.wire.kalium.logic.feature.user.FileSharingStatusFlowUseCase
+import com.wire.kalium.logic.feature.user.ObserveFileSharingStatusUseCase
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -17,7 +17,7 @@ import javax.inject.Inject
 @HiltViewModel
 class SyncStateViewModel @Inject constructor(
     private val observeSyncState: ObserveSyncStateUseCase,
-    private val fileSharingStatusFlowUseCase: FileSharingStatusFlowUseCase
+    private val observeFileSharingStatusUseCase: ObserveFileSharingStatusUseCase
 ) : ViewModel() {
 
     var syncState by mutableStateOf(SyncViewState.WAITING)
@@ -53,7 +53,7 @@ class SyncStateViewModel @Inject constructor(
 
     private fun setFileSharingState() {
         viewModelScope.launch {
-            fileSharingStatusFlowUseCase().collect {
+            observeFileSharingStatusUseCase().collect {
                 if (it.isFileSharingEnabled != null) {
                     homeState = homeState.copy(isFileSharingEnabledState = it.isFileSharingEnabled!!)
                 }

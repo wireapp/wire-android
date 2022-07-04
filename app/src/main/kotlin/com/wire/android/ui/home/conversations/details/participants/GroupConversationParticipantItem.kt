@@ -17,7 +17,7 @@ import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.MembershipQualifierLabel
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.UserProfileAvatar
-import com.wire.android.ui.home.conversations.model.UIParticipant
+import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.newconversation.search.HighlightName
 import com.wire.android.ui.home.newconversation.search.HighlightSubtitle

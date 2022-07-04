@@ -25,7 +25,7 @@ internal class AssetImageFetcherTest {
     fun givenAUserAvatarAssetData_WhenCallingFetch_ThenGetPublicAssetUseCaseGetsInvoked() = runTest {
         // Given
         val someUserAssetId = "value@domain"
-        val data = ImageAsset.UserAvatarAsset(someUserAssetId.parseIntoQualifiedID())
+        val data = ImageAsset.UserAvatarAsset(mockk(), someUserAssetId.parseIntoQualifiedID())
         val (arrangement, assetImageFetcher) = Arrangement().withSuccessfulImageData(data).arrange()
 
         // When
@@ -40,7 +40,7 @@ internal class AssetImageFetcherTest {
         // Given
         val someConversationId = ConversationId("some-value", "some-domain")
         val someMessageId = "some-message-id"
-        val data = ImageAsset.PrivateAsset(someConversationId, someMessageId, true)
+        val data = ImageAsset.PrivateAsset(mockk(), someConversationId, someMessageId, true)
         val (arrangement, assetImageFetcher) = Arrangement().withSuccessfulImageData(data).arrange()
 
         // When
@@ -55,7 +55,7 @@ internal class AssetImageFetcherTest {
     fun givenAUserAvatarAssetData_WhenCallingFetchUnsuccessfully_ThenFetchResultIsNotReturned() = runTest {
         // Given
         val someUserAssetId = "value@domain"
-        val data = ImageAsset.UserAvatarAsset(someUserAssetId.parseIntoQualifiedID())
+        val data = ImageAsset.UserAvatarAsset(mockk(), someUserAssetId.parseIntoQualifiedID())
         val (arrangement, assetImageFetcher) = Arrangement().withErrorResponse(data).arrange()
 
         // When
@@ -70,7 +70,7 @@ internal class AssetImageFetcherTest {
         // Given
         val someConversationId = ConversationId("some-value", "some-domain")
         val someMessageId = "some-message-id"
-        val data = ImageAsset.PrivateAsset(someConversationId, someMessageId, true)
+        val data = ImageAsset.PrivateAsset(mockk(), someConversationId, someMessageId, true)
         val (arrangement, assetImageFetcher) = Arrangement().withErrorResponse(data).arrange()
 
         // When

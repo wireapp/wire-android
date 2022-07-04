@@ -26,6 +26,7 @@ import com.wire.android.ui.home.conversations.DownloadedAssetDialogVisibilitySta
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.ui.home.conversations.model.MessageContent.AssetMessage
+import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
 import com.wire.android.util.FileManager
 import com.wire.android.util.ImageUtil
@@ -108,8 +109,14 @@ class ConversationViewModel @Inject constructor(
     }
 
     // region ------------------------------ Init Methods -------------------------------------
-    private fun fetchMessages() = viewModelScope.launch {
+    private fun fetchMessages() = viewModelScope.launch(dispatchers.io()) {
         getMessageForConversation(conversationId).collect { messages ->
+            updateMessagesList(messages)
+        }
+    }
+
+    private suspend fun updateMessagesList(messages: List<UIMessage>) {
+        withContext(dispatchers.main()) {
             conversationViewState = conversationViewState.copy(messages = messages)
         }
     }

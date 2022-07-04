@@ -4,12 +4,12 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.mapper.ContactMapper
+import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
@@ -20,16 +20,18 @@ import com.wire.android.ui.home.newconversation.search.SearchPeopleState
 import com.wire.android.ui.home.newconversation.search.SearchResultState
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.flow.SearchQueryStateFlow
-import com.wire.kalium.logic.feature.conversation.AddMemberToConversationUseCase
+import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.id.parseIntoQualifiedID
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
 import com.wire.kalium.logic.feature.publicuser.Result
 import com.wire.kalium.logic.feature.publicuser.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.SearchUsersUseCase
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
 
-class AllContactSearchUseCaseDelegation(
+class AllContactSearchUseCaseDelegation @Inject constructor(
     private val searchUsers: SearchUsersUseCase,
     private val searchKnownUsers: SearchKnownUsersUseCase,
     private val getAllContacts: GetAllContactsUseCase,
@@ -37,46 +39,51 @@ class AllContactSearchUseCaseDelegation(
 ) : ContactSearchUseCaseDelegation {
 
     override suspend fun getAllUsersUseCase(): SearchResultState {
-
+        return SearchResultState.InProgress
     }
 
     override suspend fun searchKnownUsersUseCase(searchTerm: String): SearchResultState {
-
+        return SearchResultState.InProgress
     }
 
-    override suspend fun searchPublicUsersUseCase(searchTerm: String): SearchResultState =
-        when (val result = searchUsers(searchTerm)) {
-            is Result.Failure.Generic, Result.Failure.InvalidRequest -> {
-                SearchResultState.Failure(R.string.label_general_error)
-            }
-            is Result.Failure.InvalidQuery -> {
-                SearchResultState.Failure(R.string.label_no_results_found)
-            }
-            is Result.Success -> {
-                SearchResultState.Success(result.userSearchResult.result.map { otherUser -> contactMapper.fromOtherUser(otherUser) })
-            }
-        }
+    override suspend fun searchPublicUsersUseCase(searchTerm: String): SearchResultState {
+        return SearchResultState.InProgress
+    }
+//        when (val result = searchUsers(searchTerm)) {
+//            is Result.Failure.Generic, Result.Failure.InvalidRequest -> {
+//                SearchResultState.Failure(R.string.label_general_error)
+//            }
+//            is Result.Failure.InvalidQuery -> {
+//                SearchResultState.Failure(R.string.label_no_results_found)
+//            }
+//            is Result.Success -> {
+//                SearchResultState.Success(result.userSearchResult.result.map { otherUser -> contactMapper.fromOtherUser(otherUser) })
+//            }
+//        }
 
 }
 
 class ContactNotInConversationSearchUseCaseDelegation(
-    private val savedStateHandle: SavedStateHandle,
     private val searchUsers: SearchUsersUseCase,
     private val searchKnownUsers: SearchKnownUsersUseCase,
     private val getAllContacts: GetAllContactsUseCase,
-    private val contactMapper: ContactMapper
+    savedStateHandle: SavedStateHandle,
 ) : ContactSearchUseCaseDelegation {
 
-    override suspend fun getAllUsersUseCase(): SearchResultState {
+    val conversationId: QualifiedID = savedStateHandle
+        .get<String>(EXTRA_CONVERSATION_ID)!!
+        .parseIntoQualifiedID()
 
+    override suspend fun getAllUsersUseCase(): SearchResultState {
+        return SearchResultState.InProgress
     }
 
     override suspend fun searchKnownUsersUseCase(searchTerm: String): SearchResultState {
-
+        return SearchResultState.InProgress
     }
 
     override suspend fun searchPublicUsersUseCase(searchTerm: String): SearchResultState {
-
+        return SearchResultState.InProgress
     }
 
 }
@@ -87,12 +94,10 @@ interface ContactSearchUseCaseDelegation {
     suspend fun searchPublicUsersUseCase(searchTerm: String): SearchResultState
 }
 
-abstract class CreateConversationViewModel(
+abstract class SearchConversationContactsViewModel(
     val navigationManager: NavigationManager,
-    private val contactMapper: ContactMapper,
-    private val addMemberToConversationUseCase: AddMemberToConversationUseCase,
-    private val dispatchers: DispatcherProvider,
-    contactSearchUseCaseDelegation: ContactSearchUseCaseDelegation
+    contactSearchUseCaseDelegation: ContactSearchUseCaseDelegation,
+    private val dispatchers: DispatcherProvider
 ) : ViewModel(), ContactSearchUseCaseDelegation by contactSearchUseCaseDelegation {
 
     private var innerSearchPeopleState: SearchPeopleState by mutableStateOf(SearchPeopleState())
@@ -180,23 +185,23 @@ abstract class CreateConversationViewModel(
 
         val result = searchKnownUsersUseCase(searchTerm)
 
-        localContactSearchResult = when (val result = searchKnownUsersUseCase(searchTerm)) {
-            is Result.Success -> ContactSearchResult.InternalContact(
-                SearchResultState.Success(result.userSearchResult.result.map { otherUser -> contactMapper.fromOtherUser(otherUser) })
-            )
-            else -> ContactSearchResult.InternalContact(SearchResultState.Failure(R.string.label_general_error))
-        }
+//        localContactSearchResult = when (val result = searchKnownUsersUseCase(searchTerm)) {
+//            is Result.Success -> ContactSearchResult.InternalContact(
+//                SearchResultState.Success(result.userSearchResult.result.map { otherUser -> contactMapper.fromOtherUser(otherUser) })
+//            )
+//            else -> ContactSearchResult.InternalContact(SearchResultState.Failure(R.string.label_general_error))
+//        }
     }
 
     private suspend fun searchPublic(searchTerm: String) {
         publicContactsSearchResult = ContactSearchResult.ExternalContact(SearchResultState.InProgress)
 
-        publicContactsSearchResult = when (val result = searchPublicUsersUseCase(searchTerm)) {
-            is SearchResultState.Failure -> TODO()
-            SearchResultState.InProgress -> TODO()
-            SearchResultState.Initial -> TODO()
-            is SearchResultState.Success -> TODO()
-        }
+//        publicContactsSearchResult = when (val result = searchPublicUsersUseCase(searchTerm)) {
+//            is SearchResultState.Failure -> TODO()
+//            SearchResultState.InProgress -> TODO()
+//            SearchResultState.Initial -> TODO()
+//            is SearchResultState.Success -> TODO()
+//        }
     }
 
     fun addContactToGroup(contact: Contact) {

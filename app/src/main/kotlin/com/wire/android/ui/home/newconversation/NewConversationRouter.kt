@@ -1,7 +1,5 @@
 package com.wire.android.ui.home.newconversation
 
-import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
@@ -12,7 +10,7 @@ import com.wire.android.ui.home.newconversation.newgroup.NewGroupScreen
 
 @Composable
 fun NewConversationRouter() {
-    val newConversationViewModel: NewConversationViewModel = hiltViewModel()
+    val newConversationViewModel: NewConversationContactsViewModel = hiltViewModel()
     val newConversationNavController = rememberNavController()
 
     NavHost(

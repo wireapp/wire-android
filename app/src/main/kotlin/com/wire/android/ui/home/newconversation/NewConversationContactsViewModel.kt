@@ -1,51 +1,38 @@
 package com.wire.android.ui.home.newconversation
 
 import android.util.Log
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.R
-import com.wire.android.mapper.ContactMapper
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
-import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.home.newconversation.newgroup.NewGroupState
-import com.wire.android.ui.home.newconversation.search.ContactSearchResult
-import com.wire.android.ui.home.newconversation.search.SearchPeopleState
-import com.wire.android.ui.home.newconversation.search.SearchResultState
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.android.util.flow.SearchQueryStateFlow
 import com.wire.kalium.logic.data.conversation.ConversationOptions
 import com.wire.kalium.logic.feature.conversation.AddMemberToConversationUseCase
 import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
-import com.wire.kalium.logic.feature.publicuser.GetAllContactsResult
-import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
-import com.wire.kalium.logic.feature.publicuser.Result
-import com.wire.kalium.logic.feature.publicuser.SearchKnownUsersUseCase
-import com.wire.kalium.logic.feature.publicuser.SearchUsersUseCase
 import com.wire.kalium.logic.functional.Either
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @Suppress("LongParameterList")
 @HiltViewModel
-class NewConversationViewModel
+class NewConversationContactsViewModel
 @Inject constructor(
     private val createGroupConversation: CreateGroupConversationUseCase,
+    private val addMemberToConversationUseCase: AddMemberToConversationUseCase,
     navigationManager: NavigationManager,
-    searchUsers: SearchUsersUseCase,
-    searchKnownUsers: SearchKnownUsersUseCase,
-    getAllContacts: GetAllContactsUseCase,
-    contactMapper: ContactMapper,
+    allContactSearchUseCaseDelegation: AllContactSearchUseCaseDelegation,
     dispatchers: DispatcherProvider
-) : CreateConversationViewModel() {
+) : SearchConversationContactsViewModel(
+    navigationManager,
+    allContactSearchUseCaseDelegation,
+    dispatchers
+) {
     private companion object {
         const val GROUP_NAME_MAX_COUNT = 64
     }
@@ -115,11 +102,18 @@ class NewConversationViewModel
 
 }
 
+class AddConversationMembersViewModelModel
+@Inject constructor(
+    navigationManager: NavigationManager,
+    contactNotInConversationSearchUseCaseDelegation: ContactNotInConversationSearchUseCaseDelegation,
+    dispatchers: DispatcherProvider
+) : SearchConversationContactsViewModel(
+    navigationManager,
+    contactNotInConversationSearchUseCaseDelegation,
+    dispatchers
+)
 
-class AddConversationMembersViewModel
-@Inject constructor(dispatchers: DispatcherProvider) : CreateConversationViewModel(dispatchers) {
 
-}
 
 
 

@@ -141,7 +141,6 @@ dependencies {
     implementation(Libraries.accompanistNavAnimation)
     implementation(Libraries.accompanistIndicator)
     implementation(Libraries.composeRuntimeLiveData)
-    implementation("com.datadoghq:dd-sdk-android:1.13.0")
 
     // Compose iterative code, layout inspector, etc.
     debugImplementation(Libraries.composeTooling)
@@ -194,4 +193,9 @@ dependencies {
 
     // Development dependencies
     debugImplementation(DevLibraries.leakCanary)
+
+    // Internal only tracking & logging
+
+    implementation(Libraries.dataDog)
+
 }

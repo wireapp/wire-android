@@ -2,13 +2,7 @@ package com.wire.android.util
 
 import co.touchlab.kermit.LogWriter
 import co.touchlab.kermit.Severity
-import com.datadog.android.Datadog
-import com.datadog.android.DatadogSite
-import com.datadog.android.core.configuration.Configuration
-import com.datadog.android.core.configuration.Credentials
 import com.datadog.android.log.Logger
-import com.datadog.android.rum.GlobalRum
-import com.datadog.android.rum.RumMonitor
 import com.wire.android.appLogger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
@@ -70,10 +64,6 @@ class KaliumFileWriter : LogWriter() {
 
         /// Read some sort of unique iD per device and per user?
 
-        logger.addAttribute("device_id", "some-device-id")
-        logger.addAttribute("user_id", "some-user-id")
-
-
         coroutineScope {
             fileWriterCoroutineScope = this
             logBuffer.collect { logElement ->
@@ -111,6 +101,7 @@ class KaliumFileWriter : LogWriter() {
         writer.print("")
         writer.close()
     }
+
 
     private suspend fun writeToFile(logElement: LogElement, file: File) {
         // Write to log
@@ -161,7 +152,8 @@ class KaliumFileWriter : LogWriter() {
     @Suppress("NestedBlockDepth")
     private fun compress(file: File): Boolean {
         try {
-            val childName = "${file.name.substringBeforeLast(".")}_${logFileTimeFormat.format(Date())}_${file.parentFile.listFiles().size}.gz"
+            val childName =
+                "${file.name.substringBeforeLast(".")}_${logFileTimeFormat.format(Date())}_${file.parentFile.listFiles().size}.gz"
             val compressed =
                 File(
                     file.parentFile.absolutePath,

@@ -13,6 +13,7 @@ import com.google.firebase.FirebaseApp
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.util.KaliumFileWriter
 import com.wire.android.util.extension.isGoogleServicesAvailable
+import com.wire.android.util.getDeviceId
 import com.wire.kalium.logger.KaliumLogLevel
 import com.wire.kalium.logger.KaliumLogger
 import com.wire.kalium.logic.CoreLogger
@@ -75,8 +76,9 @@ class WireApplication : Application(), Configuration.Provider {
             .useSite(DatadogSite.EU1)
             .build()
 
-        val credentials = Credentials(clientToken,environmentName,appVariantName,applicationId)
+        val credentials = Credentials(clientToken, environmentName, appVariantName, applicationId)
         Datadog.initialize(this, credentials, configuration, TrackingConsent.GRANTED)
+        Datadog.setUserInfo(id = getDeviceId(this))
         GlobalRum.registerIfAbsent(RumMonitor.Builder().build())
         Datadog.setVerbosity(Log.VERBOSE)
 

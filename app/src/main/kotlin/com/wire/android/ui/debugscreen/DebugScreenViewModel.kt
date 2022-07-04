@@ -59,7 +59,7 @@ class DebugScreenViewModel
         isLoggingEnabled = isEnabled
         if (isEnabled) {
             logFileWriter.start()
-            CoreLogger.setLoggingLevel(level = KaliumLogLevel.DEBUG, logWriter = DataDogLogger)
+            CoreLogger.setLoggingLevel(level = KaliumLogLevel.VERBOSE, logWriter = DataDogLogger)
         } else {
             logFileWriter.stop()
             CoreLogger.setLoggingLevel(level = KaliumLogLevel.DISABLED, logWriter = DataDogLogger)

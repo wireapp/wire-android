@@ -81,7 +81,7 @@ fun WirePasswordTextField(
         trailingIcon = {
             val image = if (passwordVisibility) Icons.Filled.Visibility else Icons.Filled.VisibilityOff
             IconButton(onClick = { passwordVisibility = !passwordVisibility }) {
-                Icon(imageVector = image, "", modifier = Modifier
+                Icon(imageVector = image, "Show or hide Password", modifier = Modifier
                     .size(20.dp)
                     .testTag("hidePassword"))
             }

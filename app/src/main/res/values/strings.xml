@@ -33,6 +33,7 @@
     <string name="label_off">OFF</string>
 
     <!-- Content descriptions -->
+    <string name="content_description_reveal_password">Show or hide password</string>
     <string name="content_description_search_back">Search back icon</string>
     <string name="content_description_clear_content">Clear content</string>
     <string name="content_description_user_avatar">User avatar</string>

@@ -21,6 +21,7 @@ import com.wire.android.ui.home.newconversation.search.SearchResultState
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.flow.SearchQueryStateFlow
 import com.wire.kalium.logic.data.conversation.ConversationOptions
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.AddMemberToConversationUseCase
 import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsResult
@@ -230,7 +231,8 @@ class NewConversationViewModel
 
             when (val result = createGroupConversation(
                 name = groupNameState.groupName.text,
-                members = state.contactsAddedToGroup.map { contact -> contact.toMember() },
+                // TODO: change the id in Contact to UserId instead of String
+                userIdList = state.contactsAddedToGroup.map { contact -> UserId(contact.id, contact.domain) },
                 options = ConversationOptions().copy(protocol = groupNameState.groupProtocol)
             )
             ) {

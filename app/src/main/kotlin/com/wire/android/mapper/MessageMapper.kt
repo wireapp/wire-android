@@ -32,7 +32,7 @@ class MessageMapper @Inject constructor(
     fun memberIdList(messages: List<Message>) = messages.flatMap { message ->
         listOf(message.senderUserId).plus(
             when (val content = message.content) {
-                is MessageContent.MemberChange -> content.members.map { it.id }
+                is MessageContent.MemberChange -> content.members.map { it }
                 else -> listOf()
             }
         )

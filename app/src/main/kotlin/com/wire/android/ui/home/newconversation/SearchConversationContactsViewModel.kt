@@ -14,7 +14,6 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.newconversation.model.Contact
-
 import com.wire.android.ui.home.newconversation.search.ContactSearchResult
 import com.wire.android.ui.home.newconversation.search.SearchPeopleState
 import com.wire.android.ui.home.newconversation.search.SearchResultState
@@ -23,7 +22,6 @@ import com.wire.android.util.flow.SearchQueryStateFlow
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.parseIntoQualifiedID
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
-import com.wire.kalium.logic.feature.publicuser.Result
 import com.wire.kalium.logic.feature.publicuser.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.SearchUsersUseCase
 import kotlinx.coroutines.launch
@@ -63,7 +61,7 @@ class AllContactSearchUseCaseDelegation @Inject constructor(
 
 }
 
-class ContactNotInConversationSearchUseCaseDelegation(
+class ContactNotInConversationSearchUseCaseDelegation @Inject constructor(
     private val searchUsers: SearchUsersUseCase,
     private val searchKnownUsers: SearchKnownUsersUseCase,
     private val getAllContacts: GetAllContactsUseCase,

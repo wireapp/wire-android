@@ -26,7 +26,7 @@ class NewConversationContactsViewModel
     private val createGroupConversation: CreateGroupConversationUseCase,
     private val addMemberToConversationUseCase: AddMemberToConversationUseCase,
     navigationManager: NavigationManager,
-    allContactSearchUseCaseDelegation: AllContactSearchUseCaseDelegation,
+    allContactSearchUseCaseDelegation: ContactNotInConversationSearchUseCaseDelegation,
     dispatchers: DispatcherProvider
 ) : SearchConversationContactsViewModel(
     navigationManager,

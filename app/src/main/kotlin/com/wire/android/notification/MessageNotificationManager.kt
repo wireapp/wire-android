@@ -71,10 +71,10 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
         newData: List<LocalNotificationConversation>,
         userId: String?
     ) {
-        if (oldData.size > 1 || newData.size <= 1) return
-
         if (newData.isEmpty()) notificationManager.cancel(SUMMARY_ID)
-        else notificationManager.notify(SUMMARY_ID, getSummaryNotification(userId))
+
+        if (oldData.size <= 1 && newData.size > 1)
+            notificationManager.notify(SUMMARY_ID, getSummaryNotification(userId))
     }
 
     private fun showConversationNotification(conversation: NotificationConversation, userId: String?) {

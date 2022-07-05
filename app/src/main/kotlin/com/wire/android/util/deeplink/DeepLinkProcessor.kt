@@ -14,6 +14,7 @@ sealed class DeepLinkResult {
     }
 
     data class IncomingCall(val conversationsId: ConversationId) : DeepLinkResult()
+    data class OpenConversation(val conversationsId: ConversationId) : DeepLinkResult()
 }
 
 class DeepLinkProcessor {
@@ -21,8 +22,15 @@ class DeepLinkProcessor {
         ACCESS_DEEPLINK_HOST -> getCustomServerConfigDeepLinkResult(uri)
         SSO_LOGIN_DEEPLINK_HOST -> getSSOLoginDeepLinkResult(uri)
         INCOMING_CALL_DEEPLINK_HOST -> getIncomingCallDeepLinkResult(uri)
+        CONVERSATION_DEEPLINK_HOST -> getOpenConversationDeepLinkResult(uri)
         else -> DeepLinkResult.Unknown
     }
+
+    private fun getOpenConversationDeepLinkResult(uri: Uri): DeepLinkResult =
+        uri.lastPathSegment?.toConversationId()?.let {
+            DeepLinkResult.OpenConversation(it)
+        } ?: DeepLinkResult.Unknown
+
     private fun getCustomServerConfigDeepLinkResult(uri: Uri) = uri.getQueryParameter(SERVER_CONFIG_PARAM)?.let {
         DeepLinkResult.CustomServerConfig(it)
     } ?: DeepLinkResult.Unknown
@@ -61,6 +69,7 @@ class DeepLinkProcessor {
         const val SSO_LOGIN_ERROR_PARAM = "error"
         const val SSO_LOGIN_SERVER_CONFIG_PARAM = "location"
         const val INCOMING_CALL_DEEPLINK_HOST = "incoming-call"
+        const val CONVERSATION_DEEPLINK_HOST = "conversation"
 
     }
 }

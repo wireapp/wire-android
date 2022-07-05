@@ -45,7 +45,6 @@ import com.wire.android.ui.calling.initiating.InitiatingCallScreen
 import com.wire.android.ui.debugscreen.DebugScreen
 import com.wire.android.ui.home.HomeScreen
 import com.wire.android.ui.home.conversations.ConversationScreen
-import com.wire.android.ui.home.conversations.ConversationViewModel
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsScreen
 import com.wire.android.ui.home.gallery.MediaGalleryScreen
 import com.wire.android.ui.home.newconversation.NewConversationRouter
@@ -135,8 +134,12 @@ enum class NavigationItem(
 
     Home(
         primaryRoute = HOME,
-        content = { HomeScreen(it.navBackStackEntry.arguments?.getString(EXTRA_HOME_TAB_ITEM),
-            hiltSavedStateViewModel(it.navBackStackEntry), hiltViewModel()) },
+        content = {
+            HomeScreen(
+                it.navBackStackEntry.arguments?.getString(EXTRA_HOME_TAB_ITEM),
+                hiltSavedStateViewModel(it.navBackStackEntry), hiltViewModel()
+            )
+        },
         animationConfig = NavigationAnimationConfig.DelegatedAnimation
     ),
 
@@ -188,14 +191,18 @@ enum class NavigationItem(
 
     Conversation(
         primaryRoute = CONVERSATION,
-        canonicalRoute = "$CONVERSATION/{$EXTRA_CONVERSATION_ID}",
+        canonicalRoute = "$CONVERSATION?$EXTRA_CONVERSATION_ID={$EXTRA_CONVERSATION_ID}",
+        deepLinks = listOf(navDeepLink {
+            uriPattern = "${DeepLinkProcessor.DEEP_LINK_SCHEME}://" +
+                    "${DeepLinkProcessor.CONVERSATION_DEEPLINK_HOST}/" +
+                    "{$EXTRA_CONVERSATION_ID}"
+        }),
         content = { ConversationScreen(hiltSavedStateViewModel(it.navBackStackEntry)) },
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
-            val conversationId: ConversationId? = arguments.filterIsInstance<ConversationId>().firstOrNull()
-            return conversationId?.let {
-                "$primaryRoute/$it"
-            } ?: primaryRoute
+            val conversationIdString: String = arguments.filterIsInstance<ConversationId>().firstOrNull()?.toString()
+                ?: "{$EXTRA_CONVERSATION_ID}"
+            return "$CONVERSATION?$EXTRA_CONVERSATION_ID=$conversationIdString"
         }
     },
 
@@ -282,9 +289,20 @@ enum class NavigationItem(
     open fun getRouteWithArgs(arguments: List<Any> = emptyList()): String = primaryRoute
 
     companion object {
-        private val map: Map<String, NavigationItem> = values().associateBy { it.canonicalRoute }
+        private val map: Map<String, NavigationItem> = values().associateBy { it.primaryRoute }
 
-        fun fromRoute(route: String?): NavigationItem? = map[route]
+        fun fromRoute(fullRoute: String): NavigationItem? {
+            val splitByQuestion = fullRoute.split("?")
+            val splitBySlash = fullRoute.split("/")
+
+            val primaryRoute = when {
+                splitByQuestion.size > 1 -> splitByQuestion[0]
+                splitBySlash.size > 1 -> splitBySlash[0]
+                else -> fullRoute
+            }
+
+            return map[primaryRoute]
+        }
     }
 }
 

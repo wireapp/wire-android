@@ -92,7 +92,7 @@ interface ContactSearchUseCaseDelegation {
     suspend fun searchPublicUsersUseCase(searchTerm: String): SearchResultState
 }
 
-abstract class SearchConversationContactsViewModel(
+open class SearchConversationContactsViewModel(
     val navigationManager: NavigationManager,
     contactSearchUseCaseDelegation: ContactSearchUseCaseDelegation,
     private val dispatchers: DispatcherProvider

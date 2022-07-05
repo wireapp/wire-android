@@ -92,10 +92,10 @@ interface ContactSearchUseCaseDelegation {
     suspend fun searchPublicUsersUseCase(searchTerm: String): SearchResultState
 }
 
-open class SearchConversationContactsViewModel(
+open class AddConversationMembersViewModel(
     val navigationManager: NavigationManager,
     contactSearchUseCaseDelegation: ContactSearchUseCaseDelegation,
-    private val dispatchers: DispatcherProvider
+    val dispatchers: DispatcherProvider
 ) : ViewModel(), ContactSearchUseCaseDelegation by contactSearchUseCaseDelegation {
 
     private var innerSearchPeopleState: SearchPeopleState by mutableStateOf(SearchPeopleState())

@@ -17,18 +17,18 @@ import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
 import com.wire.kalium.logic.functional.Either
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @Suppress("LongParameterList")
 @HiltViewModel
-class NewConversationContactsViewModel
+class NewConversationMembersViewModel
 @Inject constructor(
     private val createGroupConversation: CreateGroupConversationUseCase,
-    private val addMemberToConversationUseCase: AddMemberToConversationUseCase,
     navigationManager: NavigationManager,
-    allContactSearchUseCaseDelegation: ContactNotInConversationSearchUseCaseDelegation,
+    allContactSearchUseCaseDelegation: AllContactSearchUseCaseDelegation,
     dispatchers: DispatcherProvider
-) : SearchConversationContactsViewModel(
+) : AddConversationMembersViewModel(
     navigationManager,
     allContactSearchUseCaseDelegation,
     dispatchers
@@ -104,14 +104,23 @@ class NewConversationContactsViewModel
 
 class AddConversationMembersViewModelModel
 @Inject constructor(
+    private val addMemberToConversationUseCase: AddMemberToConversationUseCase,
     navigationManager: NavigationManager,
     contactNotInConversationSearchUseCaseDelegation: ContactNotInConversationSearchUseCaseDelegation,
     dispatchers: DispatcherProvider
-) : SearchConversationContactsViewModel(
+) : AddConversationMembersViewModel(
     navigationManager,
     contactNotInConversationSearchUseCaseDelegation,
     dispatchers
-)
+) {
+
+    suspend fun addContactsToGroup() {
+        withContext(dispatchers.io()) {
+            addMemberToConversationUseCase(conversationId,)
+        }
+    }
+
+}
 
 
 

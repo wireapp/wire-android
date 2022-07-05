@@ -10,6 +10,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.wire.android.appLogger
 import com.wire.android.model.Clickable
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.AddContactButton
@@ -113,11 +114,15 @@ fun ExternalContactSearchResultItem(
         },
         actions = {
             when (connectionStatus) {
-                ConnectionStatus.NotConnected -> AddContactButton(onAddContactClicked)
-                ConnectionStatus.Pending -> Box(modifier = Modifier.padding(horizontal = 12.dp)) { ConnectPendingRequestBadge() }
-                ConnectionStatus.Sent -> Box(modifier = Modifier.padding(horizontal = 12.dp)) { ConnectRequestBadge() }
+                ConnectionStatus.NotConnected ->
+                    AddContactButton(onAddContactClicked)
+                ConnectionStatus.Pending ->
+                    Box(modifier = Modifier.padding(horizontal = dimensions().spacing12x)) { ConnectPendingRequestBadge() }
+                ConnectionStatus.Sent ->
+                    Box(modifier = Modifier.padding(horizontal = dimensions().spacing12x)) { ConnectRequestBadge() }
                 ConnectionStatus.Connected,
                 ConnectionStatus.Unknown -> {
+                    appLogger.e("Unknown ConnectionStatus in InternalContactSearchResultItem")
                 }
             }
         },

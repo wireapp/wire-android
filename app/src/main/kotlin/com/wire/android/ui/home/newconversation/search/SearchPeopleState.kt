@@ -16,7 +16,7 @@ data class SearchPeopleState(
             searchResultState = SearchResultState.Initial
         ),
     val contactsAddedToGroup: List<Contact> = emptyList(),
-    val allKnownContacts: List<Contact> = emptyList(),
+    val allKnownContacts: SearchResultState = SearchResultState.Initial,
     val self: SelfUser? = null
 )
 

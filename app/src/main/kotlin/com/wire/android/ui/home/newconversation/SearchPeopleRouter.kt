@@ -71,7 +71,7 @@ fun SearchPeopleRouter(
                         content = {
                             ContactsScreen(
                                 scrollPositionProvider = { searchBarState.scrollPositionProvider = it },
-                                allKnownContact = allKnownContacts,
+                                allKnownContactResult = allKnownContacts,
                                 contactsAddedToGroup = contactsAddedToGroup,
                                 onAddToGroup = onAddContactToGroup,
                                 onRemoveFromGroup = onRemoveContactFromGroup,

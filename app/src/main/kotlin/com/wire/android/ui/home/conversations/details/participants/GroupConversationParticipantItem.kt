@@ -12,12 +12,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.wire.android.model.Clickable
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.MembershipQualifierLabel
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.UserProfileAvatar
-import com.wire.android.ui.home.conversations.model.UIParticipant
+import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.newconversation.search.HighlightName
 import com.wire.android.ui.home.newconversation.search.HighlightSubtitle
@@ -29,8 +30,7 @@ import com.wire.kalium.logic.data.user.UserId
 fun GroupConversationParticipantItem(
     uiParticipant: UIParticipant,
     searchQuery: String = String.EMPTY,
-    onRowItemClicked: () -> Unit = {},
-    onRowItemLongClicked: () -> Unit = {},
+    clickable: Clickable,
     modifier: Modifier = Modifier
 ) {
     RowItemTemplate(
@@ -59,8 +59,7 @@ fun GroupConversationParticipantItem(
                 ArrowRightIcon(Modifier.align(Alignment.TopEnd))
             }
         },
-        onRowItemClicked = onRowItemClicked,
-        onRowItemLongClicked = onRowItemLongClicked,
+        clickable = clickable,
         modifier = modifier
     )
 }
@@ -68,5 +67,8 @@ fun GroupConversationParticipantItem(
 @Preview
 @Composable
 fun GroupConversationParticipantItemPreview() {
-    GroupConversationParticipantItem(UIParticipant(UserId("0", ""), "name", "handle", false, UserAvatarData(), Membership.Guest))
+    GroupConversationParticipantItem(
+        UIParticipant(UserId("0", ""), "name", "handle", false, UserAvatarData(), Membership.Guest),
+        clickable = Clickable(enabled = true) {}
+    )
 }

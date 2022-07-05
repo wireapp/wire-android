@@ -80,26 +80,30 @@ fun MessageItem(
             )
             Spacer(Modifier.padding(start = dimensions().spacing16x - dimensions().userAvatarClickablePadding))
             Column {
-                Spacer(modifier = Modifier.height(dimensions().userAvatarClickablePadding))
+                Spacer(modifier = Modifier.height(dimensions().spacing4x))
                 MessageHeader(messageHeader)
 
                 if (!isDeleted) {
                     val currentOnAssetClicked =
-                    remember {
-                        Clickable(enabled = true) {
-                            onAssetMessageClicked(message.messageHeader.messageId)
+                        remember {
+                            Clickable(enabled = true, onClick = {
+                                onAssetMessageClicked(message.messageHeader.messageId)
+                            }, onLongClick = {
+                                onLongClicked(message)
+                            })
                         }
-                    }
 
                     val currentOnImageClick =
-                    remember {
-                        Clickable(enabled = true) {
-                            onImageMessageClicked(
-                                message.messageHeader.messageId,
-                                message.messageSource == MessageSource.Self
-                            )
+                        remember {
+                            Clickable(enabled = true, onClick = {
+                                onImageMessageClicked(
+                                    message.messageHeader.messageId,
+                                    message.messageSource == MessageSource.Self
+                                )
+                            }, onLongClick = {
+                                onLongClicked(message)
+                            })
                         }
-                    }
 
                     MessageContent(
                         messageContent = messageContent,
@@ -108,7 +112,7 @@ fun MessageItem(
                     )
                 }
 
-                if(message.sendingFailed){
+                if (message.sendingFailed) {
                     MessageSendFailureWarning()
                 }
             }
@@ -172,7 +176,7 @@ private fun Username(username: String, modifier: Modifier) {
 private fun MessageContent(
     messageContent: MessageContent?,
     onAssetClick: Clickable,
-    onImageClick: Clickable = Clickable {}
+    onImageClick: Clickable,
 ) {
     when (messageContent) {
         is MessageContent.ImageMessage -> MessageImage(

@@ -12,6 +12,7 @@ import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
 import com.wire.android.util.FileManager
 import com.wire.android.util.ui.UIText
+import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
@@ -29,6 +30,8 @@ import com.wire.kalium.logic.feature.asset.SendAssetMessageUseCase
 import com.wire.kalium.logic.feature.asset.SendImageMessageResult
 import com.wire.kalium.logic.feature.asset.SendImageMessageUseCase
 import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCase
+import com.wire.kalium.logic.feature.call.AnswerCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
@@ -36,8 +39,6 @@ import com.wire.kalium.logic.feature.message.Result
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
-import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
-import com.wire.kalium.logic.feature.call.AnswerCallUseCase
 import com.wire.kalium.logic.functional.Either
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -116,6 +117,9 @@ internal class ConversationsViewModelArrangement {
     @MockK
     lateinit var answerCallUseCase: AnswerCallUseCase
 
+    @MockK
+    private lateinit var wireSessionImageLoader: WireSessionImageLoader
+
     private val conversationDetailsChannel = Channel<ConversationDetails>(capacity = Channel.UNLIMITED)
 
     private val messagesChannel = Channel<List<UIMessage>>(capacity = Channel.UNLIMITED)
@@ -138,7 +142,8 @@ internal class ConversationsViewModelArrangement {
             getMessageForConversation = getMessagesForConversationUseCase,
             isFileSharingEnabled = isFileSharingEnabledUseCase,
             observeOngoingCalls = observeOngoingCallsUseCase,
-            answerCall = answerCallUseCase
+            answerCall = answerCallUseCase,
+            wireSessionImageLoader = wireSessionImageLoader
         )
     }
 

@@ -28,6 +28,7 @@ fun SearchPeopleRouter(
     onAddContactToGroup: (Contact) -> Unit,
     onRemoveContactFromGroup: (Contact) -> Unit,
     onOpenUserProfile: (SearchOpenUserProfile) -> Unit,
+    onAddContact: (Contact) -> Unit
 ) {
     val searchNavController = rememberNavController()
     val searchBarState = rememberSearchbarState()
@@ -71,7 +72,7 @@ fun SearchPeopleRouter(
                         content = {
                             ContactsScreen(
                                 scrollPositionProvider = { searchBarState.scrollPositionProvider = it },
-                                allKnownContact = allKnownContacts,
+                                allKnownContactResult = allKnownContacts,
                                 contactsAddedToGroup = contactsAddedToGroup,
                                 onAddToGroup = onAddContactToGroup,
                                 onRemoveFromGroup = onRemoveContactFromGroup,
@@ -95,7 +96,8 @@ fun SearchPeopleRouter(
                                 onOpenUserProfile = { searchContact ->
                                     onOpenUserProfile(SearchOpenUserProfile(searchContact.contact))
                                 },
-                                onNewGroupClicked = openNewGroup
+                                onNewGroupClicked = openNewGroup,
+                                onAddContactClicked = onAddContact
                             )
                         }
                     )

@@ -234,6 +234,7 @@
     <string name="conversation_details_group_members">GROUP MEMBERS (%d)</string>
     <string name="conversation_details_participants_info">This group has %s participants.\nUp to 500 people can join a group conversation.</string>
     <string name="conversation_details_show_all_participants">Show all participants (%d)</string>
+    <string name="conversation_details_group_participants_title">Group Participants</string>
 
     <!-- Attachment options -->
     <string name="attachment_share_file">Attach File</string>
@@ -384,6 +385,7 @@
     <string name="calling_label_accept">Accept</string>
     <string name="calling_content_description_participant_muted">Participant muted</string>
     <string name="calling_label_join_call">Join</string>
+    <string name="calling_minimize_view">Minimize view</string>
 
     <!-- Connections -->
     <string name="connection_label_connect">Connect</string>

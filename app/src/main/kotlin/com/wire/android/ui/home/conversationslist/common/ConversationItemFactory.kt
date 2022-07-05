@@ -1,6 +1,8 @@
 package com.wire.android.ui.home.conversationslist.common
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import com.wire.android.model.Clickable
 import com.wire.android.ui.calling.controlButtons.JoinButton
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.colorsScheme
@@ -15,6 +17,7 @@ import com.wire.android.ui.home.conversationslist.model.EventType
 import com.wire.android.ui.home.conversationslist.model.toUserInfoLabel
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
 
 @Composable
@@ -27,6 +30,23 @@ fun ConversationItemFactory(
     openNotificationsOptions: (ConversationItem) -> Unit,
     joinCall: (ConversationId) -> Unit,
 ) {
+    val onConversationItemClick = remember {
+        Clickable(
+            enabled = true,
+            onClick = {
+                when (val lastEvent = conversation.lastEvent) {
+                    is ConversationLastEvent.Connection -> openUserProfile(lastEvent.userId)
+                    else -> openConversation(conversation.conversationId)
+                }
+            },
+            onLongClick = {
+                when (conversation.lastEvent) {
+                    is ConversationLastEvent.Connection -> {}
+                    else -> openMenu(conversation)
+                }
+            }
+        )
+    }
     GeneralConversationItem(
         conversation = conversation,
         eventType = eventType,
@@ -39,19 +59,7 @@ fun ConversationItemFactory(
                 }
             }
         },
-        onConversationItemClick = {
-            when (val lastEvent = conversation.lastEvent) {
-                is ConversationLastEvent.Connection -> openUserProfile(lastEvent.userId)
-                else -> openConversation(conversation.conversationId)
-            }
-        },
-        onConversationItemLongClick = {
-            when (conversation.lastEvent) {
-                is ConversationLastEvent.Connection -> {
-                }
-                else -> openMenu(conversation)
-            }
-        },
+        onConversationItemClick = onConversationItemClick,
         onMutedIconClick = {
             openNotificationsOptions(conversation)
         },
@@ -66,8 +74,7 @@ private fun GeneralConversationItem(
     conversation: ConversationItem,
     eventType: EventType? = null,
     subTitle: @Composable () -> Unit = {},
-    onConversationItemClick: () -> Unit,
-    onConversationItemLongClick: () -> Unit,
+    onConversationItemClick: Clickable,
     onMutedIconClick: () -> Unit,
     onJoinCallClick: () -> Unit
 ) {
@@ -79,8 +86,7 @@ private fun GeneralConversationItem(
                     title = { ConversationTitle(name = groupName, isLegalHold = conversation.isLegalHold) },
                     subTitle = subTitle,
                     eventType = eventType,
-                    onRowItemClicked = onConversationItemClick,
-                    onRowItemLongClicked = onConversationItemLongClick,
+                    clickable = onConversationItemClick,
                     trailingIcon = {
                         if (hasOnGoingCall)
                             JoinButton(buttonClick = onJoinCallClick)
@@ -98,8 +104,7 @@ private fun GeneralConversationItem(
                     title = { UserLabel(userInfoLabel = toUserInfoLabel()) },
                     subTitle = subTitle,
                     eventType = eventType,
-                    onRowItemClicked = onConversationItemClick,
-                    onRowItemLongClicked = onConversationItemLongClick,
+                    clickable = onConversationItemClick,
                     trailingIcon = {
                         if (mutedStatus != MutedConversationStatus.AllAllowed) {
                             MutedConversationBadge(onMutedIconClick)
@@ -114,11 +119,13 @@ private fun GeneralConversationItem(
                     leadingIcon = { ConversationUserAvatar(userAvatarData) },
                     title = { UserLabel(userInfoLabel = toUserInfoLabel()) },
                     subTitle = subTitle,
-                    eventType = eventType,
-                    onRowItemClicked = onConversationItemClick,
-                    onRowItemLongClicked = onConversationItemLongClick,
+                    eventType = parseConnectionEventType(connectionState),
+                    clickable = onConversationItemClick
                 )
             }
         }
     }
 }
+
+private fun parseConnectionEventType(connectionState: ConnectionState) =
+    if (connectionState == ConnectionState.SENT) EventType.SentConnectRequest else EventType.ReceivedConnectionRequest

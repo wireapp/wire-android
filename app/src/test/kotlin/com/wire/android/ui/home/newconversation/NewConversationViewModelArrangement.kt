@@ -8,8 +8,10 @@ import com.wire.android.model.UserAvatarData
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.newconversation.model.Contact
+import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
+import com.wire.kalium.logic.data.conversation.ProtocolInfo
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.publicuser.model.OtherUser
 import com.wire.kalium.logic.data.publicuser.model.UserSearchResult
@@ -17,7 +19,9 @@ import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
 import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
+import com.wire.kalium.logic.feature.publicuser.GetAllContactsResult
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
 import com.wire.kalium.logic.feature.publicuser.Result
 import com.wire.kalium.logic.feature.publicuser.SearchKnownUsersUseCase
@@ -34,14 +38,14 @@ internal class NewConversationViewModelArrangement {
         // Default empty values
         coEvery { searchUsers(any()) } returns Result.Success(userSearchResult = UserSearchResult(listOf(PUBLIC_USER)))
         coEvery { searchKnownUsers(any()) } returns Result.Success(userSearchResult = UserSearchResult(listOf(KNOWN_USER)))
-        coEvery { getAllContacts() } returns listOf()
+        coEvery { getAllContacts() } returns GetAllContactsResult.Success(listOf())
         coEvery { createGroupConversation(any(), any(), any()) } returns Either.Right(CONVERSATION)
         coEvery { contactMapper.fromOtherUser(PUBLIC_USER) } returns Contact(
             id = "publicValue",
             domain = "domain",
             name = "publicUsername",
             avatarData = UserAvatarData(
-                asset = ImageAsset.UserAvatarAsset(userAssetId = UserAssetId("value", "domain")),
+                asset = ImageAsset.UserAvatarAsset(wireSessionImageLoader, UserAssetId("value", "domain")),
                 availabilityStatus = UserAvailabilityStatus.NONE
             ),
             label = "publicHandle",
@@ -54,7 +58,7 @@ internal class NewConversationViewModelArrangement {
             domain = "domain",
             name = "knownUsername",
             avatarData = UserAvatarData(
-                asset = ImageAsset.UserAvatarAsset(userAssetId = UserAssetId("value", "domain")),
+                asset = ImageAsset.UserAvatarAsset(wireSessionImageLoader, UserAssetId("value", "domain")),
                 availabilityStatus = UserAvailabilityStatus.NONE
             ),
             label = "knownHandle",
@@ -79,7 +83,13 @@ internal class NewConversationViewModelArrangement {
     lateinit var createGroupConversation: CreateGroupConversationUseCase
 
     @MockK
+    lateinit var sendConnectionRequestUseCase: SendConnectionRequestUseCase
+
+    @MockK
     lateinit var contactMapper: ContactMapper
+
+    @MockK
+    lateinit var wireSessionImageLoader: WireSessionImageLoader
 
     private companion object {
         val CONVERSATION_ID = ConversationId(value = "userId", domain = "domainId")
@@ -88,6 +98,7 @@ internal class NewConversationViewModelArrangement {
             name = null,
             type = Conversation.Type.ONE_ON_ONE,
             teamId = null,
+            protocol = ProtocolInfo.Proteus,
             MutedConversationStatus.AllAllowed,
             null,
             null
@@ -132,6 +143,7 @@ internal class NewConversationViewModelArrangement {
             getAllContacts = getAllContacts,
             createGroupConversation = createGroupConversation,
             contactMapper = contactMapper,
+            sendConnectionRequest = sendConnectionRequestUseCase,
             dispatchers = TestDispatcherProvider()
         )
     }

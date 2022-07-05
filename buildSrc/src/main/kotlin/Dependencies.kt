@@ -79,6 +79,7 @@ object Libraries {
         const val coil = "2.0.0-rc02"
         const val exif = "1.3.3"
         const val firebaseBOM = "29.3.1"
+        const val dataDog = "1.13.0"
     }
 
     // AndroidX Dependencies
@@ -114,6 +115,7 @@ object Libraries {
     const val splashscreen              = "androidx.core:core-splashscreen:${Versions.splashscreen}"
     const val coil                      = "io.coil-kt:coil:${Versions.coil}"
     const val coilCompose               = "io.coil-kt:coil-compose:${Versions.coil}"
+    const val dataDog                   = "com.datadoghq:dd-sdk-android:${Versions.dataDog}"
 
     object Hilt {
         const val android = "com.google.dagger:hilt-android:${Versions.hilt}"
@@ -157,6 +159,7 @@ object TestLibraries {
         const val testRules = "1.4.0"
         const val uiAutomator = "2.2.0"
         const val testCore = "2.1.0"
+        const val turbine = "0.7.0"
     }
 
     object Espresso {
@@ -183,6 +186,7 @@ object TestLibraries {
     const val kluent            = "org.amshove.kluent:kluent:${Versions.kluent}"
     const val kluentAndroid     = "org.amshove.kluent:kluent-android:${Versions.kluent}"
     const val workManager       = "androidx.work:work-testing:${Libraries.Versions.workManager}"
+    const val turbine           = "app.cash.turbine:turbine:${Versions.turbine}"
 
     // Test rules and transitive dependencies:
     const val composeJunit      = "androidx.compose.ui:ui-test-junit4:${Libraries.Versions.compose}"

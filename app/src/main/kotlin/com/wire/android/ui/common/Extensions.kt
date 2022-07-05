@@ -1,7 +1,9 @@
 package com.wire.android.ui.common
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.selection.selectable
@@ -51,32 +53,6 @@ fun ImageVector.Icon(modifier: Modifier = Modifier): @Composable (() -> Unit) =
     { androidx.compose.material3.Icon(imageVector = this, contentDescription = "", modifier = modifier) }
 
 @Composable
-internal fun dimensions() = MaterialTheme.wireDimensions
-
-@Composable
-internal fun colorsScheme() = MaterialTheme.wireColorScheme
-
-@Composable
-internal fun WireColorScheme.conversationColor(id: ConversationId): Color {
-    val colors = this.groupAvatarColors
-    return  colors[(id.hashCode() % colors.size).absoluteValue]
-}
-
-fun LazyListState.topBarElevation(maxElevation: Dp): Dp =
-    if (firstVisibleItemIndex == 0) minOf(firstVisibleItemScrollOffset.toFloat().dp, maxElevation)
-    else maxElevation
-
-fun ScrollState.topBarElevation(maxElevation: Dp): Dp = minOf(value.dp, maxElevation)
-
-@Composable
-fun LazyListState.rememberTopBarElevationState(maxElevation: Dp = MaterialTheme.wireDimensions.topBarShadowElevation): State<Dp> =
-    remember { derivedStateOf { topBarElevation(maxElevation) } }
-
-@Composable
-fun ScrollState.rememberTopBarElevationState(maxElevation: Dp = MaterialTheme.wireDimensions.topBarShadowElevation): State<Dp> =
-    remember { derivedStateOf { topBarElevation(maxElevation) } }
-
-@Composable
 fun Modifier.shimmerPlaceholder(
     visible: Boolean,
     color: Color = MaterialTheme.wireColorScheme.background,
@@ -89,8 +65,10 @@ fun Modifier.shimmerPlaceholder(
     shape = shape,
 )
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun Modifier.clickable(clickable: Clickable) = this.clickable(
+fun Modifier.clickable(clickable: Clickable) = this.combinedClickable(
     enabled = clickable.enabled,
-    onClick = clickable.onClick
+    onClick = clickable.onClick,
+    onLongClick = clickable.onLongClick
 )

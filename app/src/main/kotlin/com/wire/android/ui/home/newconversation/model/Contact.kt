@@ -17,6 +17,6 @@ data class Contact(
 ) {
 
     fun toMember(): Member {
-        return Member(UserId(id, domain))
+        return Member(UserId(id, domain), Member.Role.Member)
     }
 }

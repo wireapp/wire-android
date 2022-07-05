@@ -41,14 +41,14 @@ fun VerticalCallingPager(
             VerticalPager(
                 count = pagesCount,
                 state = pagerState,
-                modifier = Modifier
-                    .fillMaxSize()
+                modifier = Modifier.fillMaxSize()
             ) { pageIndex ->
                 if (participants.isNotEmpty()) {
                     val participantsChunkedList = participants.chunked(MAX_TILES_PER_PAGE)
                     if (participantsChunkedList[pageIndex].size <= MAX_ITEMS_FOR_ONE_ON_ONE_VIEW) {
                         OneOnOneCallView(
                             participants = participantsChunkedList[pageIndex],
+                            pageIndex = pageIndex,
                             isSelfUserCameraOn = isSelfUserCameraOn,
                             onSelfVideoPreviewCreated = onSelfVideoPreviewCreated,
                             onSelfClearVideoPreview = onSelfClearVideoPreview
@@ -56,6 +56,7 @@ fun VerticalCallingPager(
                     } else {
                         GroupCallGrid(
                             participants = participantsChunkedList[pageIndex],
+                            pageIndex = pageIndex,
                             isSelfUserCameraOn = isSelfUserCameraOn,
                             onSelfVideoPreviewCreated = onSelfVideoPreviewCreated,
                             onSelfClearVideoPreview = onSelfClearVideoPreview

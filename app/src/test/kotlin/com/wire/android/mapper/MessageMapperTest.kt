@@ -48,7 +48,7 @@ class MessageMapperTest {
             TestMessage.TEXT_MESSAGE.copy(senderUserId = clientMessageAuthor),
             TestMessage.MEMBER_REMOVED_MESSAGE.copy(
                 senderUserId = serverMessageAuthor,
-                content = MessageContent.MemberChange.Removed(listOf(Member(serverMessageAuthor)))
+                content = MessageContent.MemberChange.Removed(listOf(serverMessageAuthor))
             )
         )
         val expected = listOf(clientMessageAuthor, serverMessageAuthor)

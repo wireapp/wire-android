@@ -53,9 +53,9 @@ fun DebugScreen() {
 fun DebugContent(
     mlsData: List<String>,
     isLoggingEnabled: Boolean,
-    setLoggingEnabledState: (Boolean, String) -> Unit,
-    logFilePath: (String) -> String,
-    deleteAllLogs: (String) -> Unit
+    setLoggingEnabledState: (Boolean) -> Unit,
+    logFilePath: () -> String,
+    deleteAllLogs: () -> Unit
 ) {
     Column {
         TopBar(title = "Debug")
@@ -125,9 +125,9 @@ fun TextRowItem(text: String, @DrawableRes trailingIcon: Int? = null, onIconClic
 @Composable
 fun LoggingSection(
     isLoggingEnabled: Boolean,
-    setLoggingEnabledState: (Boolean, String) -> Unit,
-    logFilePath: (String) -> String,
-    deleteAllLogs: (String) -> Unit
+    setLoggingEnabledState: (Boolean) -> Unit,
+    logFilePath: () -> String,
+    deleteAllLogs: () -> Unit
 ) {
     val context = LocalContext.current
     val clipboardManager = LocalClipboardManager.current
@@ -135,17 +135,17 @@ fun LoggingSection(
     SwitchRowItem(
         text = "Enable Logging", checked = isLoggingEnabled
     ) { state: Boolean ->
-        setLoggingEnabledState(state, absolutePath)
+        setLoggingEnabledState(state)
     }
     TextRowItem(
         "Share Logs",
         trailingIcon = android.R.drawable.ic_menu_share
-    ) { context.startMultipleFileSharingIntent(logFilePath(absolutePath)) }
+    ) { context.startMultipleFileSharingIntent(logFilePath()) }
 
     TextRowItem(
         "Delete All Logs",
         trailingIcon = android.R.drawable.ic_delete
-    ) { deleteAllLogs(absolutePath) }
+    ) { deleteAllLogs() }
 
     TextRowItem(
         "Device id : ${getDeviceId(context)}",
@@ -188,5 +188,5 @@ fun SwitchRowItem(
 @Preview(showBackground = false)
 @Composable
 fun debugScreenPreview() {
-    DebugContent(listOf(), true, { _: Boolean, _: String -> }, { "" }, {})
+    DebugContent(listOf(), true, { _: Boolean, -> }, { "" }, {})
 }

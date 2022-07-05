@@ -14,8 +14,6 @@ import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Divider
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -31,8 +29,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.home.newconversation.common.GroupButton
 import com.wire.android.ui.home.newconversation.model.Contact
-import com.wire.android.ui.theme.wireColorScheme
-import com.wire.android.ui.theme.wireTypography
+import com.wire.android.ui.home.newconversation.search.widget.SearchFailureBox
 
 private const val DEFAULT_SEARCH_RESULT_ITEM_SIZE = 4
 
@@ -312,17 +309,7 @@ fun LazyListScope.inProgressItem() {
 
 fun LazyListScope.failureItem(@StringRes failureMessage: Int) {
     item {
-        Box(
-            Modifier
-                .fillMaxWidth()
-                .height(224.dp)
-        ) {
-            Text(
-                stringResource(id = failureMessage),
-                modifier = Modifier.align(Alignment.Center),
-                style = MaterialTheme.wireTypography.label04.copy(color = MaterialTheme.wireColorScheme.secondaryText)
-            )
-        }
+        SearchFailureBox(failureMessage)
     }
 }
 

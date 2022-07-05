@@ -10,11 +10,6 @@ data class Contact(
     val name: String,
     val avatarData: UserAvatarData = UserAvatarData(),
     val label: String = "",
-    val connectionState: ConnectionState = ConnectionState.NOT_CONNECTED,
+    val connectionState: ConnectionState,
     val membership: Membership
-) {
-    val isConnectedOrPending =
-        connectionState == ConnectionState.ACCEPTED ||
-            connectionState == ConnectionState.SENT ||
-            connectionState == ConnectionState.PENDING
-}
+)

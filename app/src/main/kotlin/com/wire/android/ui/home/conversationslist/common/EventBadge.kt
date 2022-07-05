@@ -79,7 +79,7 @@ private fun UnreadReplyBadge(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun ConnectRequestBadge(modifier: Modifier = Modifier) {
+fun ConnectRequestBadge(modifier: Modifier = Modifier) {
     NotificationBadgeContainer(
         notificationIcon = {
             Image(
@@ -93,7 +93,7 @@ private fun ConnectRequestBadge(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun ConnectPendingRequestBadge(modifier: Modifier = Modifier) {
+fun ConnectPendingRequestBadge(modifier: Modifier = Modifier) {
     WireItemLabel(
         text = stringResource(id = R.string.connection_pending_label),
         modifier = modifier

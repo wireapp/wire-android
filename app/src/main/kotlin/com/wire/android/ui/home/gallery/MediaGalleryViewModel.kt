@@ -33,7 +33,7 @@ import javax.inject.Inject
 @HiltViewModel
 class MediaGalleryViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    val wireSessionImageLoader: WireSessionImageLoader,
+    private val wireSessionImageLoader: WireSessionImageLoader,
     private val navigationManager: NavigationManager,
     private val getConversationDetails: ObserveConversationDetailsUseCase,
     private val dispatchers: DispatcherProvider,
@@ -45,7 +45,8 @@ class MediaGalleryViewModel @Inject constructor(
     var mediaGalleryViewState by mutableStateOf(MediaGalleryViewState())
         private set
 
-    val imageAssetId: ImageAsset.PrivateAsset = savedStateHandle.get<String>(EXTRA_IMAGE_DATA)!!.parseIntoPrivateImageAsset()
+    val imageAssetId: ImageAsset.PrivateAsset =
+        savedStateHandle.get<String>(EXTRA_IMAGE_DATA)!!.parseIntoPrivateImageAsset(wireSessionImageLoader)
 
     init {
         observeConversationDetails()

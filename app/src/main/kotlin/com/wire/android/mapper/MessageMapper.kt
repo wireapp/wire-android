@@ -13,6 +13,7 @@ import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.time.ISOFormatter
 import com.wire.android.util.ui.UIText
+import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.android.util.uiMessageDateTime
 import com.wire.kalium.logic.data.conversation.MemberDetails
 import com.wire.kalium.logic.data.message.Message
@@ -24,13 +25,14 @@ class MessageMapper @Inject constructor(
     private val dispatcherProvider: DispatcherProvider,
     private val userTypeMapper: UserTypeMapper,
     private val messageContentMapper: MessageContentMapper,
-    private val isoFormatter: ISOFormatter
+    private val isoFormatter: ISOFormatter,
+    private val wireSessionImageLoader: WireSessionImageLoader
 ) {
 
     fun memberIdList(messages: List<Message>) = messages.flatMap { message ->
         listOf(message.senderUserId).plus(
             when (val content = message.content) {
-                is MessageContent.MemberChange -> content.members.map { it.id }
+                is MessageContent.MemberChange -> content.members.map { it }
                 else -> listOf()
             }
         )
@@ -76,7 +78,7 @@ class MessageMapper @Inject constructor(
                         },
                         messageId = message.id
                     ),
-                    userAvatarData = UserAvatarData(asset = sender?.previewAsset)
+                    userAvatarData = UserAvatarData(asset = sender?.previewAsset(wireSessionImageLoader))
                 )
         }.filterNotNull()
     }

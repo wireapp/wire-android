@@ -1,5 +1,6 @@
 package com.wire.android.ui.home.messagecomposer
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateColorAsState
@@ -155,6 +156,11 @@ private fun MessageComposer(
             targetState = messageComposerState.messageComposeInputState,
             label = stringResource(R.string.animation_label_messagecomposeinput_state_transistion)
         )
+
+        BackHandler(enabled = messageComposerState.attachmentOptionsDisplayed) {
+            messageComposerState.toggleAttachmentOptionsVisibility()
+        }
+
 
         // ConstraintLayout wrapping the whole content to give us the possibility to constrain SendButton to top of AdditionalOptions, which
         // constrains to bottom of MessageComposerInput

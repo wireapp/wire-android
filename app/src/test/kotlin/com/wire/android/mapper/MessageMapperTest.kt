@@ -13,6 +13,7 @@ import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.time.ISOFormatter
 import com.wire.android.util.ui.UIText
+import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.android.util.uiMessageDateTime
 import com.wire.kalium.logic.data.conversation.Member
 import com.wire.kalium.logic.data.message.Message
@@ -47,7 +48,7 @@ class MessageMapperTest {
             TestMessage.TEXT_MESSAGE.copy(senderUserId = clientMessageAuthor),
             TestMessage.MEMBER_REMOVED_MESSAGE.copy(
                 senderUserId = serverMessageAuthor,
-                content = MessageContent.MemberChange.Removed(listOf(Member(serverMessageAuthor)))
+                content = MessageContent.MemberChange.Removed(listOf(serverMessageAuthor))
             )
         )
         val expected = listOf(clientMessageAuthor, serverMessageAuthor)
@@ -128,7 +129,12 @@ class MessageMapperTest {
         @MockK
         lateinit var resources: Resources
 
-        private val messageMapper by lazy { MessageMapper(TestDispatcherProvider(), userTypeMapper, messageContentMapper, isoFormatter) }
+        @MockK
+        private lateinit var wireSessionImageLoader: WireSessionImageLoader
+
+        private val messageMapper by lazy {
+            MessageMapper(TestDispatcherProvider(), userTypeMapper, messageContentMapper, isoFormatter, wireSessionImageLoader)
+        }
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)

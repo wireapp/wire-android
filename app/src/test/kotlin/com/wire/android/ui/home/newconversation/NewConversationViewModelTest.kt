@@ -9,6 +9,7 @@ import com.wire.android.ui.home.newconversation.search.SearchResultState
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
+import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceTimeBy
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -25,7 +26,7 @@ class NewConversationViewModelTest {
     fun `when search with search query, return results for known and public search`() {
         runTest {
             // Given
-            val (_, viewModel) = NewConversationViewModelArrangement().arrange()
+            val (arrangement, viewModel) = NewConversationViewModelArrangement().arrange()
 
             // When
             viewModel.search("search")
@@ -40,7 +41,10 @@ class NewConversationViewModelTest {
                             domain = "domain",
                             name = "knownUsername",
                             avatarData = UserAvatarData(
-                                asset = ImageAsset.UserAvatarAsset(userAssetId = UserAssetId("value", "domain")),
+                                asset = ImageAsset.UserAvatarAsset(
+                                    arrangement.wireSessionImageLoader,
+                                    UserAssetId("value", "domain")
+                                ),
                                 availabilityStatus = UserAvailabilityStatus.NONE
                             ),
                             label = "knownHandle",
@@ -59,7 +63,10 @@ class NewConversationViewModelTest {
                             domain = "domain",
                             name = "publicUsername",
                             avatarData = UserAvatarData(
-                                asset = ImageAsset.UserAvatarAsset(userAssetId = UserAssetId("value", "domain")),
+                                asset = ImageAsset.UserAvatarAsset(
+                                    arrangement.wireSessionImageLoader,
+                                    UserAssetId("value", "domain")
+                                ),
                                 availabilityStatus = UserAvailabilityStatus.NONE
                             ),
                             label = "publicHandle",

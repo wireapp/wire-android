@@ -2,7 +2,9 @@ package com.wire.android.ui.home.conversations
 
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.UserAvatarData
+import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.MemberDetails
+import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
@@ -32,20 +34,19 @@ val MemberDetails.userId
         is MemberDetails.Self -> this.selfUser.id
     }
 
-val MemberDetails.previewAsset: UserAvatarAsset?
-    get() = when (this) {
-        is MemberDetails.Other -> this.otherUser.previewPicture
-        is MemberDetails.Self -> this.selfUser.previewPicture
-    }?.let { UserAvatarAsset(it) }
-
 val MemberDetails.availabilityStatus: UserAvailabilityStatus
     get() = when (this) {
         is MemberDetails.Other -> this.otherUser.availabilityStatus
         is MemberDetails.Self -> this.selfUser.availabilityStatus
     }
 
-val MemberDetails.avatar: UserAvatarData
-    get() = UserAvatarData(asset = this.previewAsset, availabilityStatus = this.availabilityStatus)
+fun MemberDetails.previewAsset(wireSessionImageLoader: WireSessionImageLoader): UserAvatarAsset? = when (this) {
+    is MemberDetails.Other -> this.otherUser.previewPicture
+    is MemberDetails.Self -> this.selfUser.previewPicture
+}?.let { UserAvatarAsset(wireSessionImageLoader, it) }
+
+fun MemberDetails.avatar(wireSessionImageLoader: WireSessionImageLoader): UserAvatarData =
+    UserAvatarData(asset = this.previewAsset(wireSessionImageLoader), availabilityStatus = this.availabilityStatus)
 
 val MemberDetails.userType: UserType
     get() = when (this) {

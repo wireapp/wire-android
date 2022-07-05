@@ -12,12 +12,12 @@ import android.os.Build
 import android.os.Environment.DIRECTORY_DOWNLOADS
 import android.provider.MediaStore
 import android.provider.OpenableColumns
+import android.provider.Settings
 import android.webkit.MimeTypeMap
 import androidx.annotation.AnyRes
 import androidx.annotation.NonNull
 import androidx.core.content.FileProvider
 import com.wire.android.appLogger
-import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okio.Path
@@ -25,6 +25,7 @@ import okio.Path.Companion.toPath
 import java.io.File
 import java.io.FileNotFoundException
 import java.io.InputStream
+
 
 /**
  * Gets the uri of any drawable or given resource
@@ -184,6 +185,33 @@ fun saveFileToDownloadsFolder(assetName: String, assetDataPath: Path, assetDataS
     context.saveFileDataToDownloadsFolder(assetName, assetDataPath, assetDataSize)
 }
 
+fun Context.startMultipleFileSharingIntent(path: String) {
+    val file = File(path)
+
+    val fileURI = FileProvider.getUriForFile(
+        this, getProviderAuthority(),
+        file
+    )
+
+    val intent = Intent()
+    intent.action = Intent.ACTION_SEND_MULTIPLE
+    intent.type = fileURI.getMimeType(context = this)
+
+    val files = ArrayList<Uri>()
+
+    file.parentFile.listFiles()?.map {
+        val uri = FileProvider.getUriForFile(
+            this, getProviderAuthority(),
+            it
+        )
+        files.add(uri)
+    }
+
+    intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, files)
+
+    startActivity(intent)
+}
+
 fun openAssetFileWithExternalApp(assetDataPath: Path, context: Context, assetExtension: String, onError: () -> Unit) {
     try {
         val assetUri = context.pathToUri(assetDataPath)
@@ -211,6 +239,10 @@ private fun Intent.setActionViewIntentFlags() {
     } else {
         Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK
     }
+}
+
+fun getDeviceId(context: Context): String? {
+    return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID)
 }
 
 fun Context.getProviderAuthority() = "${packageName}.provider"

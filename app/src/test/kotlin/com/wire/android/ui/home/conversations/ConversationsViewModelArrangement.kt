@@ -12,7 +12,9 @@ import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
 import com.wire.android.util.FileManager
 import com.wire.android.util.ui.UIText
+import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.LegalHoldStatus
@@ -26,8 +28,9 @@ import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.SendAssetMessageResult
 import com.wire.kalium.logic.feature.asset.SendAssetMessageUseCase
-import com.wire.kalium.logic.feature.asset.SendImageMessageResult
 import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCase
+import com.wire.kalium.logic.feature.call.AnswerCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
@@ -35,8 +38,6 @@ import com.wire.kalium.logic.feature.message.Result
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
-import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
-import com.wire.kalium.logic.feature.call.AnswerCallUseCase
 import com.wire.kalium.logic.functional.Either
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -46,6 +47,7 @@ import io.mockk.mockk
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.flowOf
+import okio.Path
 
 internal class ConversationsViewModelArrangement {
     init {
@@ -60,6 +62,9 @@ internal class ConversationsViewModelArrangement {
         coEvery { markMessagesAsNotified(any(), any()) } returns Result.Success
         coEvery { getSelfUserTeam() } returns flowOf()
     }
+
+    @MockK
+    private lateinit var kaliumFileSystem: KaliumFileSystem
 
     @MockK
     private lateinit var savedStateHandle: SavedStateHandle
@@ -112,6 +117,9 @@ internal class ConversationsViewModelArrangement {
     @MockK
     lateinit var answerCallUseCase: AnswerCallUseCase
 
+    @MockK
+    private lateinit var wireSessionImageLoader: WireSessionImageLoader
+
     private val conversationDetailsChannel = Channel<ConversationDetails>(capacity = Channel.UNLIMITED)
 
     private val messagesChannel = Channel<List<UIMessage>>(capacity = Channel.UNLIMITED)
@@ -134,6 +142,8 @@ internal class ConversationsViewModelArrangement {
             isFileSharingEnabled = isFileSharingEnabledUseCase,
             observeOngoingCalls = observeOngoingCallsUseCase,
             answerCall = answerCallUseCase,
+            wireSessionImageLoader = wireSessionImageLoader,
+            kaliumFileSystem = kaliumFileSystem
         )
     }
 
@@ -152,7 +162,7 @@ internal class ConversationsViewModelArrangement {
     }
 
     fun withSuccessfulSendAttachmentMessage(): ConversationsViewModelArrangement {
-        coEvery { sendAssetMessage(any(), any(), any(), any()) } returns SendAssetMessageResult.Success
+        coEvery { sendAssetMessage(any(), any(), any(), any(), any(), any(), any()) } returns SendAssetMessageResult.Success
         return this
     }
 
@@ -161,16 +171,26 @@ internal class ConversationsViewModelArrangement {
         return this
     }
 
-    fun withSuccessfulSaveAssetMessage(assetName: String, assetData: ByteArray, messageId: String): ConversationsViewModelArrangement {
-        viewModel.showOnAssetDownloadedDialog(assetName, assetData, messageId)
-        coEvery { fileManager.saveToExternalStorage(any(), any(), any()) }.answers {
+    fun withSuccessfulSaveAssetMessage(
+        assetName: String,
+        assetDataPath: Path,
+        assetSize: Long,
+        messageId: String
+    ): ConversationsViewModelArrangement {
+        viewModel.showOnAssetDownloadedDialog(assetName, assetDataPath, assetSize, messageId)
+        coEvery { fileManager.saveToExternalStorage(any(), any(), any(), any()) }.answers {
             viewModel.hideOnAssetDownloadedDialog()
         }
         return this
     }
 
-    fun withSuccessfulOpenAssetMessage(assetName: String, assetData: ByteArray, messageId: String): ConversationsViewModelArrangement {
-        viewModel.showOnAssetDownloadedDialog(assetName, assetData, messageId)
+    fun withSuccessfulOpenAssetMessage(
+        assetName: String,
+        assetDataPath: Path,
+        assetSize: Long,
+        messageId: String
+    ): ConversationsViewModelArrangement {
+        viewModel.showOnAssetDownloadedDialog(assetName, assetDataPath, assetSize, messageId)
         every { fileManager.openWithExternalApp(any(), any(), any()) }.answers {
             viewModel.hideOnAssetDownloadedDialog()
         }

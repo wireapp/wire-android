@@ -32,6 +32,7 @@ import com.wire.android.util.FileManager
 import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
+import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.parseIntoQualifiedID
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.FAILED
@@ -81,6 +82,7 @@ class ConversationViewModel @Inject constructor(
     private val observeOngoingCalls: ObserveOngoingCallsUseCase,
     private val answerCall: AnswerCallUseCase,
     private val fileManager: FileManager,
+    private val wireSessionImageLoader: WireSessionImageLoader,
     private val kaliumFileSystem: KaliumFileSystem
 ) : SavedStateViewModel(savedStateHandle) {
 
@@ -129,7 +131,9 @@ class ConversationViewModel @Inject constructor(
             }
             val conversationAvatar = when (conversationDetails) {
                 is ConversationDetails.OneOne ->
-                    ConversationAvatar.OneOne(conversationDetails.otherUser.previewPicture?.let { UserAvatarAsset(it) })
+                    ConversationAvatar.OneOne(conversationDetails.otherUser.previewPicture?.let {
+                        UserAvatarAsset(wireSessionImageLoader, it)
+                    })
                 is ConversationDetails.Group ->
                     ConversationAvatar.Group(conversationDetails.conversation.id)
                 else -> ConversationAvatar.None
@@ -474,7 +478,11 @@ class ConversationViewModel @Inject constructor(
         viewModelScope.launch {
             navigationManager.navigate(
                 command = NavigationCommand(
-                    destination = NavigationItem.Gallery.getRouteWithArgs(listOf(PrivateAsset(conversationId, messageId, isSelfMessage)))
+                    destination = NavigationItem.Gallery.getRouteWithArgs(
+                        listOf(
+                            PrivateAsset(wireSessionImageLoader, conversationId, messageId, isSelfMessage)
+                        )
+                    )
                 )
             )
         }

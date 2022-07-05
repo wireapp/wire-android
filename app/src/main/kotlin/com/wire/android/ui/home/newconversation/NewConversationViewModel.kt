@@ -83,9 +83,7 @@ class NewConversationViewModel
 
     init {
         viewModelScope.launch {
-            launch {
-                tryGetAllContacts()
-            }
+            launch { allContacts() }
 
             searchQueryStateFlow.onSearchAction { searchTerm ->
                 launch { searchPublic(searchTerm) }
@@ -94,7 +92,7 @@ class NewConversationViewModel
         }
     }
 
-    private suspend fun tryGetAllContacts() {
+    private suspend fun allContacts() {
         innerSearchPeopleState = innerSearchPeopleState.copy(allKnownContacts = SearchResultState.InProgress)
 
         withContext(dispatchers.io()) {

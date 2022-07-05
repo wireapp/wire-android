@@ -84,8 +84,7 @@ class NewConversationViewModel
 
     init {
         viewModelScope.launch {
-            launch { allContacts() }
-
+            allContacts()
             searchQueryStateFlow.onSearchAction { searchTerm ->
                 launch { searchPublic(searchTerm) }
                 launch { searchKnown(searchTerm) }
@@ -96,18 +95,18 @@ class NewConversationViewModel
     private suspend fun allContacts() {
         innerSearchPeopleState = innerSearchPeopleState.copy(allKnownContacts = SearchResultState.InProgress)
 
-        withContext(dispatchers.io()) {
-            when (val result = getAllContacts()) {
-                is GetAllContactsResult.Failure -> {
-                    innerSearchPeopleState = innerSearchPeopleState.copy(
-                        allKnownContacts = SearchResultState.Failure(R.string.label_general_error)
-                    )
-                }
-                is GetAllContactsResult.Success -> {
-                    innerSearchPeopleState = innerSearchPeopleState.copy(
-                        allKnownContacts = SearchResultState.Success(result.allContacts.map(contactMapper::fromOtherUser))
-                    )
-                }
+        val result = withContext(dispatchers.io()) { getAllContacts() }
+
+        innerSearchPeopleState = when (result) {
+            is GetAllContactsResult.Failure -> {
+                innerSearchPeopleState.copy(
+                    allKnownContacts = SearchResultState.Failure(R.string.label_general_error)
+                )
+            }
+            is GetAllContactsResult.Success -> {
+                innerSearchPeopleState.copy(
+                    allKnownContacts = SearchResultState.Success(result.allContacts.map(contactMapper::fromOtherUser))
+                )
             }
         }
     }

@@ -1,6 +1,6 @@
 package com.wire.android.ui.common.topappbar.search
 
-import android.util.Log
+
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -26,8 +26,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
@@ -42,10 +40,6 @@ import com.wire.android.ui.common.SearchBarInput
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.effects.ScrollingDownEffect
 import com.wire.android.ui.theme.wireColorScheme
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.scan
-
 /**
  * AppTopBarWithSearchBarLayout is a "wrapper" around the [content] that should have a TopBar with a SearchBar
  * on the Top of the [content]. To collapse the searchbar when the user scrolls down on the list within the [content]

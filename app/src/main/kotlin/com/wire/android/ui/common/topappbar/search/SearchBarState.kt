@@ -8,8 +8,8 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 
 @Composable
-fun rememberSearchbarState(): SearchBarState {
-    val searchBarState = rememberSaveable(saver = SearchBarState.saver()) {
+fun rememberSearchbarState(scrollPositionProvider: (() -> Int) = { 0 }): SearchBarState {
+    val searchBarState = rememberSaveable(saver = SearchBarState.saver(scrollPositionProvider)) {
         SearchBarState()
     }
 
@@ -39,21 +39,16 @@ class SearchBarState(
     }
 
     companion object {
-        fun saver(): Saver<SearchBarState, *> = Saver(
+        fun saver(scrollPositionProvider: (() -> Int) = { 0 }): Saver<SearchBarState, *> = Saver(
             save = {
-                // scrollPositionProvider is a lambda wrapping a LazyListState.firstVisibleItemIndex
-                // which is not serializable, therefore we save the current scroll position instead
-                // which is just a Int
-                val currentScrollPosition = it.scrollPositionProvider()
-
-                listOf(it.isSearchActive, it.isSearchBarCollapsed, currentScrollPosition)
+                listOf(it.isSearchActive, it.isSearchBarCollapsed)
             },
             restore = {
                 SearchBarState(
                     isSearchActive = it[0] as Boolean,
                     isSearchBarCollapsed = it[1] as Boolean,
                     // here we are restoring the lambda, providing last scroll position
-                    scrollPositionProvider = { it[2] as Int }
+                    scrollPositionProvider = scrollPositionProvider
                 )
             }
         )

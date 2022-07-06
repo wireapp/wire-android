@@ -58,7 +58,6 @@ import kotlinx.coroutines.flow.scan
 @Composable
 fun AppTopBarWithSearchBar(
     searchBarState: SearchBarState = rememberSearchbarState(),
-    scrollPositionProvider: (() -> Int)? = null,
     searchBarHint: String,
     searchQuery: String,
     onSearchQueryChanged: (String) -> Unit,

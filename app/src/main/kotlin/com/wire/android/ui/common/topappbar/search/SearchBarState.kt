@@ -46,9 +46,8 @@ class SearchBarState(
             },
             restore = {
                 SearchBarState(
-                    isSearchActive = it[0] as Boolean,
-                    isSearchBarCollapsed = it[1] as Boolean,
-                    // here we are restoring the lambda, providing last scroll position
+                    isSearchActive = it[0],
+                    isSearchBarCollapsed = it[1],
                     scrollPositionProvider = scrollPositionProvider
                 )
             }

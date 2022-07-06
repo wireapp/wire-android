@@ -245,7 +245,7 @@ enum class NavigationItem(
 
     IncomingCall(
         primaryRoute = INCOMING_CALL,
-        canonicalRoute = "$INCOMING_CALL/{$EXTRA_CONVERSATION_ID}",
+        canonicalRoute = "$INCOMING_CALL?$EXTRA_CONVERSATION_ID={$EXTRA_CONVERSATION_ID}",
         deepLinks = listOf(navDeepLink {
             uriPattern = "${DeepLinkProcessor.DEEP_LINK_SCHEME}://" +
                     "${DeepLinkProcessor.INCOMING_CALL_DEEPLINK_HOST}/" +
@@ -255,7 +255,11 @@ enum class NavigationItem(
         screenMode = ScreenMode.WAKE_UP,
         animationConfig = NavigationAnimationConfig.DelegatedAnimation
     ) {
-        override fun getRouteWithArgs(arguments: List<Any>): String = routeWithConversationIdArg(arguments)
+        override fun getRouteWithArgs(arguments: List<Any>): String  {
+            val conversationIdString: String = arguments.filterIsInstance<ConversationId>().firstOrNull()?.toString()
+                ?: "{$EXTRA_CONVERSATION_ID}"
+            return "$INCOMING_CALL?$EXTRA_CONVERSATION_ID=$conversationIdString"
+        }
     },
 
     Gallery(

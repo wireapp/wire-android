@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import java.io.Serializable
 
 @Composable
 fun rememberSearchbarState(): SearchBarState {
@@ -13,17 +14,19 @@ fun rememberSearchbarState(): SearchBarState {
         SearchBarState(
             isSearchActive = false,
             isSearchBarCollapsed = false,
-            scrollPositionProvider = null
+            scrollPositionProvider = ScrollPositionProvider()
         )
     }
 
     return searchBarState
 }
 
+data class ScrollPositionProvider(val scrollPositionProvider: (() -> Int) = { 0 }) : Serializable
+
 class SearchBarState(
     isSearchActive: Boolean,
     isSearchBarCollapsed: Boolean,
-    scrollPositionProvider: (() -> Int)?
+    scrollPositionProvider: ScrollPositionProvider
 ) {
 
     var isSearchBarCollapsed by mutableStateOf(isSearchBarCollapsed)
@@ -31,7 +34,7 @@ class SearchBarState(
     var isSearchActive by mutableStateOf(isSearchActive)
         private set
 
-    var scrollPositionProvider: (() -> Int)? by mutableStateOf(null)
+    var scrollPositionProvider: ScrollPositionProvider by mutableStateOf(scrollPositionProvider)
 
     fun closeSearch() {
         isSearchActive = false
@@ -43,9 +46,13 @@ class SearchBarState(
 
     companion object {
         fun saver(): Saver<SearchBarState, *> = Saver(
-            save = { Triple(it.isSearchActive, it.isSearchBarCollapsed, it.scrollPositionProvider) },
-            restore = { (isSearchActive, isSearchBarCollapsed, scrollPositionProvider) ->
-                SearchBarState(isSearchActive, isSearchBarCollapsed, scrollPositionProvider)
+            save = { listOf(it.isSearchActive, it.isSearchBarCollapsed, it.scrollPositionProvider.scrollPositionProvider()) },
+            restore = {
+                SearchBarState(
+                    isSearchActive = it[0] as Boolean,
+                    isSearchBarCollapsed = it[1] as Boolean,
+                    scrollPositionProvider = ScrollPositionProvider { it[2] as Int }
+                )
             }
         )
     }

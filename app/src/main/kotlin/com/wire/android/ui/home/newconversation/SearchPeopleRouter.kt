@@ -1,5 +1,6 @@
 package com.wire.android.ui.home.newconversation
 
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
@@ -11,6 +12,7 @@ import com.wire.android.R
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.search.AppTopBarWithSearchBar
+import com.wire.android.ui.common.topappbar.search.ScrollPositionProvider
 import com.wire.android.ui.common.topappbar.search.rememberSearchbarState
 import com.wire.android.ui.home.newconversation.common.SearchListScreens
 import com.wire.android.ui.home.newconversation.contacts.ContactsScreen
@@ -33,10 +35,11 @@ fun SearchPeopleRouter(
     val searchNavController = rememberNavController()
     val searchBarState = rememberSearchbarState()
 
+
     with(searchPeopleState) {
         AppTopBarWithSearchBar(
             searchBarState = searchBarState,
-            scrollPositionProvider = searchBarState.scrollPositionProvider,
+//            scrollPositionProvider = searchBarState.scrollPositionProvider,
             searchBarHint = stringResource(R.string.label_search_people),
             searchQuery = searchQuery,
             onSearchQueryChanged = { searchTerm ->
@@ -71,7 +74,10 @@ fun SearchPeopleRouter(
                         route = SearchListScreens.KnownContactsScreen.route,
                         content = {
                             ContactsScreen(
-                                scrollPositionProvider = { searchBarState.scrollPositionProvider = it },
+                                scrollPositionProvider = {
+                                    searchBarState.scrollPositionProvider = ScrollPositionProvider(it)
+                                    Log.d("TEST", "new provider here from contact screen ${it.hashCode()}")
+                                },
                                 allKnownContactResult = allKnownContacts,
                                 contactsAddedToGroup = contactsAddedToGroup,
                                 onAddToGroup = onAddContactToGroup,
@@ -85,7 +91,10 @@ fun SearchPeopleRouter(
                         route = SearchListScreens.SearchPeopleScreen.route,
                         content = {
                             SearchPeopleScreen(
-                                scrollPositionProvider = { searchBarState.scrollPositionProvider = it },
+                                scrollPositionProvider = {
+                                    searchBarState.scrollPositionProvider = ScrollPositionProvider(it)
+                                    Log.d("TEST", "new provider here from serach people screen ${it.hashCode()}")
+                                },
                                 searchQuery = searchQuery,
                                 noneSearchSucceed = noneSearchSucceed,
                                 knownContactSearchResult = localContactSearchResult,

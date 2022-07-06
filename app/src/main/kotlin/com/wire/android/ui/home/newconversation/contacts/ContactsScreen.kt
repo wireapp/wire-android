@@ -1,5 +1,6 @@
 package com.wire.android.ui.home.newconversation.contacts
 
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -54,9 +55,13 @@ fun ContactsScreen(
             CenteredCircularProgressBarIndicator()
         }
         is SearchResultState.Success -> {
+            Log.d("TEST","i am recomposed contacts screen")
             val lazyListState = rememberLazyListState()
 
-            scrollPositionProvider { lazyListState.firstVisibleItemIndex }
+            scrollPositionProvider {
+                Log.d("TEST","i am providing new scroll position provider")
+                lazyListState.firstVisibleItemIndex
+            }
 
             val context = LocalContext.current
             Column(

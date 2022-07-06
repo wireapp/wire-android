@@ -1,5 +1,6 @@
 package com.wire.android.ui.common.topappbar.search
 
+import android.util.Log
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -26,6 +27,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
@@ -40,6 +42,9 @@ import com.wire.android.ui.common.SearchBarInput
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.effects.ScrollingDownEffect
 import com.wire.android.ui.theme.wireColorScheme
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.scan
 
 /**
  * AppTopBarWithSearchBarLayout is a "wrapper" around the [content] that should have a TopBar with a SearchBar
@@ -53,7 +58,7 @@ import com.wire.android.ui.theme.wireColorScheme
 @Composable
 fun AppTopBarWithSearchBar(
     searchBarState: SearchBarState = rememberSearchbarState(),
-    scrollPositionProvider: (() -> Int)?,
+    scrollPositionProvider: (() -> Int)? = null,
     searchBarHint: String,
     searchQuery: String,
     onSearchQueryChanged: (String) -> Unit,
@@ -101,7 +106,34 @@ fun AppTopBarWithSearchBar(
         }
     }
 
-    scrollPositionProvider?.let { ScrollingDownEffect(it()) { shouldCollapse -> searchBarState.isSearchBarCollapsed = shouldCollapse } }
+
+
+    LaunchedEffect(scrollPositionProvider){
+        Log.d("TEST","launched effect from apptopbar")
+    }
+
+    LaunchedEffect(scrollPositionProvider){
+        Log.d("TEST","launched effect from apptopbar")
+    }
+
+    searchBarState.scrollPositionProvider.let{
+        LaunchedEffect(searchBarState.scrollPositionProvider) {
+            snapshotFlow { it.scrollPositionProvider() }
+                .scan(0 to 0) { prevPair, newScrollIndex ->
+                    if (prevPair.second == newScrollIndex || newScrollIndex == prevPair.second + 1) prevPair
+                    else prevPair.second to newScrollIndex
+                }
+                .map { (prevScrollIndex, newScrollIndex) ->
+                    newScrollIndex > prevScrollIndex + 1
+                }
+                .distinctUntilChanged().collect { isScrollingDown ->
+                    searchBarState.isSearchBarCollapsed = isScrollingDown
+                }
+        }
+    }
+//    LaunchedEffect(scrollPositionProvider){
+//        scrollPositionProvider?.let { ScrollingDownEffect(it()) { shouldCollapse -> searchBarState.isSearchBarCollapsed = shouldCollapse } }
+//    }
 }
 
 @Composable

@@ -93,20 +93,20 @@ class WireActivityViewModel @Inject constructor(
                 is DeepLinkResult.SSOLogin ->
                     navigationArguments.put(SSO_DEEPLINK_ARG, result)
                 is DeepLinkResult.IncomingCall -> {
-                    if (!isLaunchedFromHistory(intent)) {
-                        navigationArguments.put(INCOMING_CALL_CONVERSATION_ID_ARG, result.conversationsId)
-                    } else {
+                    if (isLaunchedFromHistory(intent)) {
                         //We don't need to handle deepLink, if activity was launched from history.
                         //For example: user opened app by deepLink, then closed it by back button click,
                         //then open the app from the "Recent Apps"
                         appLogger.i("IncomingCall deepLink launched from the history")
+                    } else {
+                        navigationArguments.put(INCOMING_CALL_CONVERSATION_ID_ARG, result.conversationsId)
                     }
                 }
                 is DeepLinkResult.OpenConversation -> {
-                    if (!isLaunchedFromHistory(intent)) {
-                        navigationArguments.put(OPEN_CONVERSATION_ID_ARG, result.conversationsId)
-                    } else {
+                    if (isLaunchedFromHistory(intent)) {
                         appLogger.i("OpenConversation deepLink launched from the history")
+                    } else {
+                        navigationArguments.put(OPEN_CONVERSATION_ID_ARG, result.conversationsId)
                     }
                 }
                 DeepLinkResult.Unknown -> {

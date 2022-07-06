@@ -8,22 +8,20 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 
 @Composable
-fun rememberSearchbarState(): SearchBarState {
-    val searchBarState = rememberSaveable(saver = SearchBarState.saver()) {
-        SearchBarState(
-            isSearchActive = false,
-            isSearchBarCollapsed = false,
-            scrollPositionProvider = null
-        )
+fun rememberSearchbarState(scrollPositionProvider: (() -> Int) = { 0 }): SearchBarState {
+    val searchBarState = rememberSaveable(
+        saver = SearchBarState.saver(scrollPositionProvider)
+    ) {
+        SearchBarState()
     }
 
     return searchBarState
 }
 
 class SearchBarState(
-    isSearchActive: Boolean,
-    isSearchBarCollapsed: Boolean,
-    scrollPositionProvider: (() -> Int)?
+    isSearchActive: Boolean = false,
+    isSearchBarCollapsed: Boolean = false,
+    scrollPositionProvider: (() -> Int) = { 0 }
 ) {
 
     var isSearchBarCollapsed by mutableStateOf(isSearchBarCollapsed)
@@ -31,7 +29,7 @@ class SearchBarState(
     var isSearchActive by mutableStateOf(isSearchActive)
         private set
 
-    var scrollPositionProvider: (() -> Int)? by mutableStateOf(null)
+    var scrollPositionProvider: (() -> Int) by mutableStateOf(scrollPositionProvider)
 
     fun closeSearch() {
         isSearchActive = false
@@ -42,10 +40,16 @@ class SearchBarState(
     }
 
     companion object {
-        fun saver(): Saver<SearchBarState, *> = Saver(
-            save = { Triple(it.isSearchActive, it.isSearchBarCollapsed, it.scrollPositionProvider) },
-            restore = { (isSearchActive, isSearchBarCollapsed, scrollPositionProvider) ->
-                SearchBarState(isSearchActive, isSearchBarCollapsed, scrollPositionProvider)
+        fun saver(scrollPositionProvider: (() -> Int) = { 0 }): Saver<SearchBarState, *> = Saver(
+            save = {
+                listOf(it.isSearchActive, it.isSearchBarCollapsed)
+            },
+            restore = {
+                SearchBarState(
+                    isSearchActive = it[0],
+                    isSearchBarCollapsed = it[1],
+                    scrollPositionProvider = scrollPositionProvider
+                )
             }
         )
     }

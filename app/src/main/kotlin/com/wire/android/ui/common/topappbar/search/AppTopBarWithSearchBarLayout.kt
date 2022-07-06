@@ -1,5 +1,6 @@
 package com.wire.android.ui.common.topappbar.search
 
+
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -25,7 +26,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
@@ -53,7 +53,6 @@ import com.wire.android.ui.theme.wireColorScheme
 @Composable
 fun AppTopBarWithSearchBar(
     searchBarState: SearchBarState = rememberSearchbarState(),
-    scrollPositionProvider: (() -> Int)?,
     searchBarHint: String,
     searchQuery: String,
     onSearchQueryChanged: (String) -> Unit,
@@ -80,7 +79,6 @@ fun AppTopBarWithSearchBar(
         ) {
             content()
         }
-
         Box(
             Modifier
                 .wrapContentSize()
@@ -101,7 +99,10 @@ fun AppTopBarWithSearchBar(
         }
     }
 
-    scrollPositionProvider?.let { ScrollingDownEffect(it()) { shouldCollapse -> searchBarState.isSearchBarCollapsed = shouldCollapse } }
+    ScrollingDownEffect(
+        scrollPosition = searchBarState.scrollPositionProvider(),
+        onIsScrollingDown = { isScrollingDown -> searchBarState.isSearchBarCollapsed = isScrollingDown }
+    )
 }
 
 @Composable

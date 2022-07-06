@@ -75,7 +75,6 @@ fun SearchPeopleRouter(
                             ContactsScreen(
                                 scrollPositionProvider = {
                                     searchBarState.scrollPositionProvider = it
-                                    Log.d("TEST", "new provider here from contact screen ${it.hashCode()}")
                                 },
                                 allKnownContactResult = allKnownContacts,
                                 contactsAddedToGroup = contactsAddedToGroup,
@@ -92,7 +91,6 @@ fun SearchPeopleRouter(
                             SearchPeopleScreen(
                                 scrollPositionProvider = {
                                     searchBarState.scrollPositionProvider = it
-                                    Log.d("TEST", "new provider here from serach people screen ${it.hashCode()}")
                                 },
                                 searchQuery = searchQuery,
                                 noneSearchSucceed = noneSearchSucceed,

@@ -9,6 +9,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
+import com.wire.android.appLogger
 import com.wire.android.mapper.ContactMapper
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
@@ -22,7 +23,11 @@ import com.wire.android.ui.home.newconversation.search.SearchResultState
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.flow.SearchQueryStateFlow
 import com.wire.kalium.logic.data.conversation.ConversationOptions
+import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.connection.SendConnectionRequestResult
+import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
 import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
+import com.wire.kalium.logic.feature.publicuser.GetAllContactsResult
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
 import com.wire.kalium.logic.feature.publicuser.Result
 import com.wire.kalium.logic.feature.publicuser.SearchKnownUsersUseCase
@@ -43,7 +48,8 @@ class NewConversationViewModel
     private val getAllContacts: GetAllContactsUseCase,
     private val createGroupConversation: CreateGroupConversationUseCase,
     private val contactMapper: ContactMapper,
-    private val dispatchers: DispatcherProvider
+    private val dispatchers: DispatcherProvider,
+    private val sendConnectionRequest: SendConnectionRequestUseCase,
 ) : ViewModel() {
 
     private companion object {
@@ -81,17 +87,29 @@ class NewConversationViewModel
 
     init {
         viewModelScope.launch {
-            launch {
-                val allContacts = getAllContacts()
-
-                innerSearchPeopleState = innerSearchPeopleState.copy(
-                    allKnownContacts = allContacts.map { otherUser -> contactMapper.fromOtherUser(otherUser) }
-                )
-            }
-
+            allContacts()
             searchQueryStateFlow.onSearchAction { searchTerm ->
                 launch { searchPublic(searchTerm) }
                 launch { searchKnown(searchTerm) }
+            }
+        }
+    }
+
+    private suspend fun allContacts() {
+        innerSearchPeopleState = innerSearchPeopleState.copy(allKnownContacts = SearchResultState.InProgress)
+
+        val result = withContext(dispatchers.io()) { getAllContacts() }
+
+        innerSearchPeopleState = when (result) {
+            is GetAllContactsResult.Failure -> {
+                innerSearchPeopleState.copy(
+                    allKnownContacts = SearchResultState.Failure(R.string.label_general_error)
+                )
+            }
+            is GetAllContactsResult.Success -> {
+                innerSearchPeopleState.copy(
+                    allKnownContacts = SearchResultState.Success(result.allContacts.map(contactMapper::fromOtherUser))
+                )
             }
         }
     }
@@ -130,9 +148,10 @@ class NewConversationViewModel
         }
     }
 
-    private suspend fun searchPublic(searchTerm: String) {
-        publicContactsSearchResult = ContactSearchResult.ExternalContact(SearchResultState.InProgress)
-
+    private suspend fun searchPublic(searchTerm: String, showProgress: Boolean = true) {
+        if (showProgress) {
+            publicContactsSearchResult = ContactSearchResult.ExternalContact(SearchResultState.InProgress)
+        }
         val result = withContext(dispatchers.io()) {
             searchUsers(
                 searchQuery = searchTerm
@@ -158,6 +177,20 @@ class NewConversationViewModel
         innerSearchPeopleState = innerSearchPeopleState.copy(
             contactsAddedToGroup = innerSearchPeopleState.contactsAddedToGroup + contact
         )
+    }
+
+    fun addContact(contact: Contact) {
+        viewModelScope.launch {
+            val userId = UserId(contact.id, contact.domain)
+            when (sendConnectionRequest(userId)) {
+                is SendConnectionRequestResult.Failure -> {
+                    appLogger.d(("Couldn't send a connect request to user $userId"))
+                }
+                is SendConnectionRequestResult.Success -> {
+                    searchPublic(state.searchQuery, showProgress = false)
+                }
+            }
+        }
     }
 
     fun removeContactFromGroup(contact: Contact) {
@@ -215,7 +248,8 @@ class NewConversationViewModel
 
             when (val result = createGroupConversation(
                 name = groupNameState.groupName.text,
-                members = state.contactsAddedToGroup.map { contact -> contact.toMember() },
+                // TODO: change the id in Contact to UserId instead of String
+                userIdList = state.contactsAddedToGroup.map { contact -> UserId(contact.id, contact.domain) },
                 options = ConversationOptions().copy(protocol = groupNameState.groupProtocol)
             )
             ) {

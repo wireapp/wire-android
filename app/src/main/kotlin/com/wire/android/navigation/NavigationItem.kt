@@ -15,6 +15,7 @@ import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_ACCOU
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_PERSONAL_ACCOUNT
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_TEAM
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.DEBUG
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.GROUP_CONVERSATION_ALL_PARTICIPANTS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.GROUP_CONVERSATION_DETAILS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.HOME
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.IMAGE_PICKER
@@ -46,6 +47,7 @@ import com.wire.android.ui.debugscreen.DebugScreen
 import com.wire.android.ui.home.HomeScreen
 import com.wire.android.ui.home.conversations.ConversationScreen
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsScreen
+import com.wire.android.ui.home.conversations.details.participants.GroupConversationAllParticipantsScreen
 import com.wire.android.ui.home.gallery.MediaGalleryScreen
 import com.wire.android.ui.home.newconversation.NewConversationRouter
 import com.wire.android.ui.settings.SettingsScreen
@@ -160,15 +162,9 @@ enum class NavigationItem(
 
     SelfUserProfile(
         primaryRoute = SELF_USER_PROFILE,
-        canonicalRoute = "$SELF_USER_PROFILE/{$EXTRA_USER_ID}",
         content = { SelfUserProfileScreen() },
         animationConfig = NavigationAnimationConfig.CustomAnimation(expandInToView(), shrinkOutFromView())
-    ) {
-        override fun getRouteWithArgs(arguments: List<Any>): String {
-            val userProfileId: String? = arguments.filterIsInstance<String>().firstOrNull()
-            return if (userProfileId != null) "$primaryRoute/$userProfileId" else primaryRoute
-        }
-    },
+    ),
 
     OtherUserProfile(
         primaryRoute = OTHER_USER_PROFILE,
@@ -211,12 +207,15 @@ enum class NavigationItem(
         canonicalRoute = "$GROUP_CONVERSATION_DETAILS/{$EXTRA_CONVERSATION_ID}",
         content = { GroupConversationDetailsScreen(hiltViewModel()) },
     ) {
-        override fun getRouteWithArgs(arguments: List<Any>): String {
-            val conversationId: ConversationId? = arguments.filterIsInstance<ConversationId>().firstOrNull()
-            return conversationId?.let {
-                "$primaryRoute/$it"
-            } ?: primaryRoute
-        }
+        override fun getRouteWithArgs(arguments: List<Any>): String = routeWithConversationIdArg(arguments)
+    },
+
+    GroupConversationAllParticipants(
+        primaryRoute = GROUP_CONVERSATION_ALL_PARTICIPANTS,
+        canonicalRoute = "$GROUP_CONVERSATION_ALL_PARTICIPANTS/{$EXTRA_CONVERSATION_ID}",
+        content = { GroupConversationAllParticipantsScreen(hiltViewModel()) },
+    ) {
+        override fun getRouteWithArgs(arguments: List<Any>): String = routeWithConversationIdArg(arguments)
     },
 
     NewConversation(
@@ -229,42 +228,34 @@ enum class NavigationItem(
         primaryRoute = ONGOING_CALL,
         canonicalRoute = "$ONGOING_CALL/{$EXTRA_CONVERSATION_ID}",
         content = { OngoingCallScreen() },
-        screenMode = ScreenMode.KEEP_ON
+        screenMode = ScreenMode.WAKE_UP
     ) {
-        override fun getRouteWithArgs(arguments: List<Any>): String {
-            val conversationId: ConversationId? = arguments.filterIsInstance<ConversationId>().firstOrNull()
-            return conversationId?.run { "$primaryRoute/${toString()}" } ?: primaryRoute
-        }
+        override fun getRouteWithArgs(arguments: List<Any>): String = routeWithConversationIdArg(arguments)
     },
 
     InitiatingCall(
         primaryRoute = INITIATING_CALL,
         canonicalRoute = "$INITIATING_CALL/{$EXTRA_CONVERSATION_ID}",
         content = { InitiatingCallScreen() },
-        screenMode = ScreenMode.KEEP_ON
+        screenMode = ScreenMode.KEEP_ON,
+        animationConfig = NavigationAnimationConfig.DelegatedAnimation
     ) {
-        override fun getRouteWithArgs(arguments: List<Any>): String {
-            val conversationId: ConversationId? = arguments.filterIsInstance<ConversationId>().firstOrNull()
-            return conversationId?.run { "$primaryRoute/${toString()}" } ?: primaryRoute
-        }
+        override fun getRouteWithArgs(arguments: List<Any>): String = routeWithConversationIdArg(arguments)
     },
 
     IncomingCall(
         primaryRoute = INCOMING_CALL,
-        canonicalRoute = "$INCOMING_CALL?$EXTRA_CONVERSATION_ID={$EXTRA_CONVERSATION_ID}",
+        canonicalRoute = "$INCOMING_CALL/{$EXTRA_CONVERSATION_ID}",
         deepLinks = listOf(navDeepLink {
             uriPattern = "${DeepLinkProcessor.DEEP_LINK_SCHEME}://" +
                     "${DeepLinkProcessor.INCOMING_CALL_DEEPLINK_HOST}/" +
                     "{$EXTRA_CONVERSATION_ID}"
         }),
         content = { IncomingCallScreen() },
-        screenMode = ScreenMode.WAKE_UP
+        screenMode = ScreenMode.WAKE_UP,
+        animationConfig = NavigationAnimationConfig.DelegatedAnimation
     ) {
-        override fun getRouteWithArgs(arguments: List<Any>): String {
-            val conversationIdString: String = arguments.filterIsInstance<ConversationId>().firstOrNull()?.toString()
-                ?: "{$EXTRA_CONVERSATION_ID}"
-            return "$INCOMING_CALL?$EXTRA_CONVERSATION_ID=$conversationIdString"
-        }
+        override fun getRouteWithArgs(arguments: List<Any>): String = routeWithConversationIdArg(arguments)
     },
 
     Gallery(
@@ -287,6 +278,11 @@ enum class NavigationItem(
     fun getCanonicalRoute() = canonicalRoute
 
     open fun getRouteWithArgs(arguments: List<Any> = emptyList()): String = primaryRoute
+
+    internal fun routeWithConversationIdArg(arguments: List<Any> = emptyList()): String {
+        val conversationId: ConversationId? = arguments.filterIsInstance<ConversationId>().firstOrNull()
+        return conversationId?.let { "$primaryRoute/$it" } ?: primaryRoute
+    }
 
     companion object {
         private val map: Map<String, NavigationItem> = values().associateBy { it.primaryRoute }
@@ -318,6 +314,7 @@ object NavigationItemDestinationsRoutes {
     const val OTHER_USER_PROFILE = "other_user_profile_screen"
     const val CONVERSATION = "detailed_conversation_screen"
     const val GROUP_CONVERSATION_DETAILS = "group_conversation_details_screen"
+    const val GROUP_CONVERSATION_ALL_PARTICIPANTS = "group_conversation_all_participants_screen"
     const val SETTINGS = "settings_screen"
     const val DEBUG = "debug_screen"
     const val REMOVE_DEVICES = "remove_devices_screen"

@@ -12,7 +12,6 @@ import com.wire.android.R
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.search.AppTopBarWithSearchBar
-import com.wire.android.ui.common.topappbar.search.ScrollPositionProvider
 import com.wire.android.ui.common.topappbar.search.rememberSearchbarState
 import com.wire.android.ui.home.newconversation.common.SearchListScreens
 import com.wire.android.ui.home.newconversation.contacts.ContactsScreen
@@ -75,7 +74,7 @@ fun SearchPeopleRouter(
                         content = {
                             ContactsScreen(
                                 scrollPositionProvider = {
-                                    searchBarState.scrollPositionProvider = ScrollPositionProvider(it)
+                                    searchBarState.scrollPositionProvider = it
                                     Log.d("TEST", "new provider here from contact screen ${it.hashCode()}")
                                 },
                                 allKnownContactResult = allKnownContacts,
@@ -92,7 +91,7 @@ fun SearchPeopleRouter(
                         content = {
                             SearchPeopleScreen(
                                 scrollPositionProvider = {
-                                    searchBarState.scrollPositionProvider = ScrollPositionProvider(it)
+                                    searchBarState.scrollPositionProvider = it
                                     Log.d("TEST", "new provider here from serach people screen ${it.hashCode()}")
                                 },
                                 searchQuery = searchQuery,

@@ -6,27 +6,21 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import java.io.Serializable
 
 @Composable
 fun rememberSearchbarState(): SearchBarState {
     val searchBarState = rememberSaveable(saver = SearchBarState.saver()) {
-        SearchBarState(
-            isSearchActive = false,
-            isSearchBarCollapsed = false,
-            scrollPositionProvider = ScrollPositionProvider()
-        )
+        SearchBarState()
     }
 
     return searchBarState
 }
 
-data class ScrollPositionProvider(val scrollPositionProvider: (() -> Int) = { 0 }) : Serializable
 
 class SearchBarState(
-    isSearchActive: Boolean,
-    isSearchBarCollapsed: Boolean,
-    scrollPositionProvider: ScrollPositionProvider
+    isSearchActive: Boolean = false,
+    isSearchBarCollapsed: Boolean = false,
+    scrollPositionProvider: (() -> Int) = { 0 }
 ) {
 
     var isSearchBarCollapsed by mutableStateOf(isSearchBarCollapsed)
@@ -34,7 +28,7 @@ class SearchBarState(
     var isSearchActive by mutableStateOf(isSearchActive)
         private set
 
-    var scrollPositionProvider: ScrollPositionProvider by mutableStateOf(scrollPositionProvider)
+    var scrollPositionProvider: (() -> Int) by mutableStateOf(scrollPositionProvider)
 
     fun closeSearch() {
         isSearchActive = false
@@ -46,12 +40,20 @@ class SearchBarState(
 
     companion object {
         fun saver(): Saver<SearchBarState, *> = Saver(
-            save = { listOf(it.isSearchActive, it.isSearchBarCollapsed, it.scrollPositionProvider.scrollPositionProvider()) },
+            save = {
+                // scrollPositionProvider is a lambda wrapping a LazyListState.firstVisibleItemIndex
+                // which is not serializable, therefore we save the current scroll position instead
+                // which is just a Int
+                val currentScrollPosition = it.scrollPositionProvider()
+
+                listOf(it.isSearchActive, it.isSearchBarCollapsed, currentScrollPosition)
+            },
             restore = {
                 SearchBarState(
                     isSearchActive = it[0] as Boolean,
                     isSearchBarCollapsed = it[1] as Boolean,
-                    scrollPositionProvider = ScrollPositionProvider { it[2] as Int }
+                    // here we are restoring the lambda, providing last scroll position
+                    scrollPositionProvider = { it[2] as Int }
                 )
             }
         )

@@ -106,34 +106,19 @@ fun AppTopBarWithSearchBar(
         }
     }
 
-
-
-    LaunchedEffect(scrollPositionProvider){
-        Log.d("TEST","launched effect from apptopbar")
+    LaunchedEffect(searchBarState.scrollPositionProvider) {
+        snapshotFlow { searchBarState.scrollPositionProvider() }
+            .scan(0 to 0) { prevPair, newScrollIndex ->
+                if (prevPair.second == newScrollIndex || newScrollIndex == prevPair.second + 1) prevPair
+                else prevPair.second to newScrollIndex
+            }
+            .map { (prevScrollIndex, newScrollIndex) ->
+                newScrollIndex > prevScrollIndex + 1
+            }
+            .distinctUntilChanged().collect { isScrollingDown ->
+                searchBarState.isSearchBarCollapsed = isScrollingDown
+            }
     }
-
-    LaunchedEffect(scrollPositionProvider){
-        Log.d("TEST","launched effect from apptopbar")
-    }
-
-    searchBarState.scrollPositionProvider.let{
-        LaunchedEffect(searchBarState.scrollPositionProvider) {
-            snapshotFlow { it.scrollPositionProvider() }
-                .scan(0 to 0) { prevPair, newScrollIndex ->
-                    if (prevPair.second == newScrollIndex || newScrollIndex == prevPair.second + 1) prevPair
-                    else prevPair.second to newScrollIndex
-                }
-                .map { (prevScrollIndex, newScrollIndex) ->
-                    newScrollIndex > prevScrollIndex + 1
-                }
-                .distinctUntilChanged().collect { isScrollingDown ->
-                    searchBarState.isSearchBarCollapsed = isScrollingDown
-                }
-        }
-    }
-//    LaunchedEffect(scrollPositionProvider){
-//        scrollPositionProvider?.let { ScrollingDownEffect(it()) { shouldCollapse -> searchBarState.isSearchBarCollapsed = shouldCollapse } }
-//    }
 }
 
 @Composable

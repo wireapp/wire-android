@@ -40,6 +40,7 @@ import com.wire.android.ui.common.SearchBarInput
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.effects.ScrollingDownEffect
 import com.wire.android.ui.theme.wireColorScheme
+
 /**
  * AppTopBarWithSearchBarLayout is a "wrapper" around the [content] that should have a TopBar with a SearchBar
  * on the Top of the [content]. To collapse the searchbar when the user scrolls down on the list within the [content]
@@ -78,7 +79,6 @@ fun AppTopBarWithSearchBar(
         ) {
             content()
         }
-
         Box(
             Modifier
                 .wrapContentSize()

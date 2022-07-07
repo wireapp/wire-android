@@ -1,5 +1,6 @@
 package com.wire.android.ui.home.newconversation
 
+import androidx.annotation.StringRes
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -73,14 +74,14 @@ abstract class SearchConversationViewModel(
         val result = withContext(dispatchers.io()) { getAllUsersUseCase() }
 
         innerSearchPeopleState = when (result) {
-            is SearchResultState.Failure -> {
+            is SearchResult.Failure -> {
                 innerSearchPeopleState.copy(
-                    allKnownContacts = result
+                    allKnownContacts = SearchResultState.Failure(result.failureString)
                 )
             }
-            is SearchResultState.Success -> {
+            is SearchResult.Success -> {
                 innerSearchPeopleState.copy(
-                    allKnownContacts = result
+                    allKnownContacts = SearchResultState.Success(result.contacts)
                 )
             }
         }
@@ -111,8 +112,8 @@ abstract class SearchConversationViewModel(
         localContactSearchResult = ContactSearchResult.InternalContact(SearchResultState.InProgress)
 
         localContactSearchResult = when (val result = searchKnownUsersUseCase(searchTerm)) {
-            is SearchResultState.Success -> ContactSearchResult.InternalContact(
-                SearchResultState.Success(result.result)
+            is SearchResult.Success -> ContactSearchResult.InternalContact(
+                SearchResultState.Success(result.contacts)
             )
             else -> ContactSearchResult.InternalContact(SearchResultState.Failure(R.string.label_general_error))
         }
@@ -129,11 +130,11 @@ abstract class SearchConversationViewModel(
         }
 
         publicContactsSearchResult = when (result) {
-            is SearchResultState.Failure -> {
-                ContactSearchResult.ExternalContact(result)
+            is SearchResult.Failure -> {
+                ContactSearchResult.ExternalContact(SearchResultState.Failure(result.failureString))
             }
-            is SearchResultState.Success -> {
-                ContactSearchResult.ExternalContact(result)
+            is SearchResult.Success -> {
+                ContactSearchResult.ExternalContact(SearchResultState.Success(result.contacts))
             }
         }
     }
@@ -185,10 +186,16 @@ abstract class SearchConversationViewModel(
         }
     }
 
-    abstract suspend fun getAllUsersUseCase(): SearchResultState
+    abstract suspend fun getAllUsersUseCase(): SearchResult
 
-    abstract suspend fun searchKnownUsersUseCase(searchTerm: String): SearchResultState
+    abstract suspend fun searchKnownUsersUseCase(searchTerm: String): SearchResult
 
-    abstract suspend fun searchPublicUsersUseCase(searchTerm: String): SearchResultState
+    abstract suspend fun searchPublicUsersUseCase(searchTerm: String): SearchResult
 
+}
+
+
+sealed class SearchResult {
+    data class Success(val contacts: List<Contact>) : SearchResult()
+    data class Failure(@StringRes val failureString: Int) : SearchResult()
 }

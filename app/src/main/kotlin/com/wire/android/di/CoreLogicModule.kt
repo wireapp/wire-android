@@ -23,6 +23,7 @@ import com.wire.kalium.logic.feature.call.usecase.UnMuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.UpdateVideoStateUseCase
 import com.wire.kalium.logic.feature.conversation.AddMemberToConversationUseCase
 import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
+import com.wire.kalium.logic.feature.conversation.GetAllContactsNotInConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
@@ -545,4 +546,9 @@ class UseCaseModule {
     @Provides
     fun registerTokenUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): RegisterTokenUseCase =
         coreLogic.getSessionScope(currentAccount).client.registerPushToken
+
+    @ViewModelScoped
+    @Provides
+    fun getAllContactsNotInTheConversationUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): GetAllContactsNotInConversationUseCase =
+        coreLogic.getSessionScope(currentAccount).users.getAllContactsNotInConversation
 }

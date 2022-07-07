@@ -194,7 +194,6 @@ abstract class SearchConversationViewModel(
 
 }
 
-
 sealed class SearchResult {
     data class Success(val contacts: List<Contact>) : SearchResult()
     data class Failure(@StringRes val failureString: Int) : SearchResult()

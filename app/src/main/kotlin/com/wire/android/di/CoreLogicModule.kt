@@ -46,9 +46,9 @@ import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.scopes.ViewModelScoped
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.runBlocking
 import javax.inject.Qualifier
 import javax.inject.Singleton
-import kotlinx.coroutines.runBlocking
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
@@ -88,7 +88,7 @@ class SessionModule {
     fun currentSessionProvider(@KaliumCoreLogic coreLogic: CoreLogic): UserId {
         return runBlocking {
             return@runBlocking when (val result = coreLogic.getGlobalScope().session.currentSession.invoke()) {
-                is CurrentSessionResult.Success -> result.authSession.tokens.userId
+                is CurrentSessionResult.Success -> result.authSession.session.userId
                 else -> {
                     throw IllegalStateException("no current session was found")
                 }

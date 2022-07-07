@@ -52,7 +52,7 @@ class WireActivityViewModel @Inject constructor(
 
     private val observeUserId = currentSessionFlow()
         .map { result ->
-            if (result is CurrentSessionResult.Success) result.authSession.tokens.userId
+            if (result is CurrentSessionResult.Success) result.authSession.session.userId
             else {
                 //get the reason
                 navigationManager.navigate(

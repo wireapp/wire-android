@@ -19,8 +19,25 @@ import com.wire.android.ui.home.newconversation.search.SearchOpenUserProfile
 import com.wire.android.ui.home.newconversation.search.SearchPeopleScreen
 import com.wire.android.ui.home.newconversation.search.SearchPeopleState
 
+
 @Composable
 fun SearchPeopleRouter(
+    searchPeopleViewModel: SearchConversationViewModel
+) {
+    SearchPeopleContent(
+        searchPeopleState =,
+        openNewGroup = { /*TODO*/ },
+        onSearchContact =,
+        onClose = { /*TODO*/ },
+        onAddContactToGroup =,
+        onRemoveContactFromGroup =,
+        onOpenUserProfile =,
+        onAddContact =
+    )
+}
+
+@Composable
+fun SearchPeopleContent(
     searchPeopleState: SearchPeopleState,
     openNewGroup: () -> Unit,
     onSearchContact: (String) -> Unit,
@@ -33,11 +50,10 @@ fun SearchPeopleRouter(
     val searchNavController = rememberNavController()
     val searchBarState = rememberSearchbarState()
 
-
     with(searchPeopleState) {
         AppTopBarWithSearchBar(
             searchBarState = searchBarState,
-//            scrollPositionProvider = searchBarState.scrollPositionProvider,
+
             searchBarHint = stringResource(R.string.label_search_people),
             searchQuery = searchQuery,
             onSearchQueryChanged = { searchTerm ->

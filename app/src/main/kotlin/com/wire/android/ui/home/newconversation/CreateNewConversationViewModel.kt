@@ -11,10 +11,13 @@ import com.wire.android.mapper.ContactMapper
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
+import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.newconversation.newgroup.NewGroupState
 import com.wire.android.ui.home.newconversation.search.SearchResultState
+import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.conversation.ConversationOptions
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
 import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsResult
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
@@ -22,17 +25,22 @@ import com.wire.kalium.logic.feature.publicuser.Result
 import com.wire.kalium.logic.feature.publicuser.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.SearchUsersUseCase
 import com.wire.kalium.logic.functional.Either
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 
+@HiltViewModel
 class CreateNewConversationViewModel @Inject constructor(
     private val getAllKnownUsers: GetAllContactsUseCase,
     private val searchKnownUsers: SearchKnownUsersUseCase,
     private val searchPublicUsers: SearchUsersUseCase,
     private val createGroupConversation: CreateGroupConversationUseCase,
-    private val contactMapper: ContactMapper
-) : SearchConversationViewModel() {
+    private val contactMapper: ContactMapper,
+    sendConnectionRequest: SendConnectionRequestUseCase,
+    navigationManager: NavigationManager,
+    dispatchers: DispatcherProvider
+) : SearchConversationViewModel(navigationManager, sendConnectionRequest, dispatchers) {
     private companion object {
         const val GROUP_NAME_MAX_COUNT = 64
     }

@@ -16,9 +16,11 @@ import com.wire.kalium.logic.feature.conversation.GetAllContactsNotInConversatio
 import com.wire.kalium.logic.feature.publicuser.Result
 import com.wire.kalium.logic.feature.publicuser.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.SearchUsersUseCase
+import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import com.wire.kalium.logic.feature.conversation.Result as GetContactsResult
 
+@HiltViewModel
 class AddMembersToConversationViewModel @Inject constructor(
     private val getAllContactsNotInConversation: GetAllContactsNotInConversationUseCase,
     private val searchKnownUsers: SearchKnownUsersUseCase,

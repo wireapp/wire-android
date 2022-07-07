@@ -22,13 +22,13 @@ import javax.inject.Inject
 
 @Suppress("LongParameterList")
 @HiltViewModel
-class NewConversationMembersViewModel
+class NewConversationViewModel
 @Inject constructor(
     private val createGroupConversation: CreateGroupConversationUseCase,
     navigationManager: NavigationManager,
     allContactSearchUseCaseDelegation: AllContactSearchUseCaseDelegation,
     dispatchers: DispatcherProvider
-) : AddConversationMembersViewModel(
+) : SearchConversationViewModel(
     navigationManager,
     allContactSearchUseCaseDelegation,
     dispatchers
@@ -102,13 +102,13 @@ class NewConversationMembersViewModel
 
 }
 
-class AddConversationMembersViewModelModel
+class SearchConversationViewModelModel
 @Inject constructor(
     private val addMemberToConversationUseCase: AddMemberToConversationUseCase,
     navigationManager: NavigationManager,
     contactNotInConversationSearchUseCaseDelegation: ContactNotInConversationSearchUseCaseDelegation,
     dispatchers: DispatcherProvider
-) : AddConversationMembersViewModel(
+) : SearchConversationViewModel(
     navigationManager,
     contactNotInConversationSearchUseCaseDelegation,
     dispatchers

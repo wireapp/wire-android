@@ -10,7 +10,7 @@ import com.wire.android.ui.home.newconversation.newgroup.NewGroupScreen
 
 @Composable
 fun NewConversationRouter() {
-    val newConversationViewModel: NewConversationMembersViewModel = hiltViewModel()
+    val newConversationViewModel: NewConversationViewModel = hiltViewModel()
     val newConversationNavController = rememberNavController()
 
     NavHost(

@@ -136,7 +136,7 @@ internal class NewConversationViewModelArrangement {
     }
 
     private val viewModel by lazy {
-        NewConversationMembersViewModel(
+        NewConversationViewModel(
             navigationManager = navigationManager,
             searchUsers = searchUsers,
             searchKnownUsers = searchKnownUsers,

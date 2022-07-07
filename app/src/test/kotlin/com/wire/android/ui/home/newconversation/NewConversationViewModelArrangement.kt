@@ -19,8 +19,9 @@ import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.type.UserType
-import com.wire.kalium.logic.feature.conversation.AddMemberToConversationUseCase
+import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
 import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
+import com.wire.kalium.logic.feature.publicuser.GetAllContactsResult
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
 import com.wire.kalium.logic.feature.publicuser.Result
 import com.wire.kalium.logic.feature.publicuser.SearchKnownUsersUseCase
@@ -37,7 +38,7 @@ internal class NewConversationViewModelArrangement {
         // Default empty values
         coEvery { searchUsers(any()) } returns Result.Success(userSearchResult = UserSearchResult(listOf(PUBLIC_USER)))
         coEvery { searchKnownUsers(any()) } returns Result.Success(userSearchResult = UserSearchResult(listOf(KNOWN_USER)))
-        coEvery { getAllContacts() } returns listOf()
+        coEvery { getAllContacts() } returns GetAllContactsResult.Success(listOf())
         coEvery { createGroupConversation(any(), any(), any()) } returns Either.Right(CONVERSATION)
         coEvery { contactMapper.fromOtherUser(PUBLIC_USER) } returns Contact(
             id = "publicValue",
@@ -82,7 +83,7 @@ internal class NewConversationViewModelArrangement {
     lateinit var createGroupConversation: CreateGroupConversationUseCase
 
     @MockK
-    lateinit var addMemberToConversationUseCase: AddMemberToConversationUseCase
+    lateinit var sendConnectionRequestUseCase: SendConnectionRequestUseCase
 
     @MockK
     lateinit var contactMapper: ContactMapper
@@ -141,8 +142,8 @@ internal class NewConversationViewModelArrangement {
             searchKnownUsers = searchKnownUsers,
             getAllContacts = getAllContacts,
             createGroupConversation = createGroupConversation,
-            addMemberToConversationUseCase = addMemberToConversationUseCase,
             contactMapper = contactMapper,
+            sendConnectionRequest = sendConnectionRequestUseCase,
             dispatchers = TestDispatcherProvider()
         )
     }

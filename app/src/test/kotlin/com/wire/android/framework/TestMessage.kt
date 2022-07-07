@@ -40,7 +40,7 @@ object TestMessage {
     )
     val MEMBER_REMOVED_MESSAGE = Message.System(
         id = "messageID",
-        content = MessageContent.MemberChange.Removed(listOf(Member(UserId("user-id", "domain")))),
+        content = MessageContent.MemberChange.Removed(listOf(UserId("user-id", "domain"))),
         conversationId = ConversationId("convo-id", "convo.domain"),
         date = "some-date",
         senderUserId = UserId("user-id", "domain"),

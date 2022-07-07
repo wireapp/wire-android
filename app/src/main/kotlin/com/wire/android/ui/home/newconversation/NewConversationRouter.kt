@@ -28,6 +28,7 @@ fun NewConversationRouter() {
                     onAddContactToGroup = newConversationViewModel::addContactToGroup,
                     onRemoveContactFromGroup = newConversationViewModel::removeContactFromGroup,
                     onOpenUserProfile = { newConversationViewModel.openUserProfile(it.contact) },
+                    onAddContact = newConversationViewModel::addContact
                 )
             }
         )

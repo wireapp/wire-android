@@ -20,7 +20,8 @@ class ContactMapper @Inject constructor(
                 name = name ?: "",
                 label = handle ?: "",
                 avatarData = UserAvatarData(completePicture?.let { ImageAsset.UserAvatarAsset(wireSessionImageLoader, it) }),
-                membership = userTypeMapper.toMembership(userType)
+                membership = userTypeMapper.toMembership(userType),
+                connectionState = otherUser.connectionStatus
             )
         }
     }

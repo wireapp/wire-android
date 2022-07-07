@@ -28,14 +28,16 @@ fun SearchPeopleRouter(
     onAddContactToGroup: (Contact) -> Unit,
     onRemoveContactFromGroup: (Contact) -> Unit,
     onOpenUserProfile: (SearchOpenUserProfile) -> Unit,
+    onAddContact: (Contact) -> Unit
 ) {
     val searchNavController = rememberNavController()
     val searchBarState = rememberSearchbarState()
 
+
     with(searchPeopleState) {
         AppTopBarWithSearchBar(
             searchBarState = searchBarState,
-            scrollPositionProvider = searchBarState.scrollPositionProvider,
+//            scrollPositionProvider = searchBarState.scrollPositionProvider,
             searchBarHint = stringResource(R.string.label_search_people),
             searchQuery = searchQuery,
             onSearchQueryChanged = { searchTerm ->
@@ -70,7 +72,9 @@ fun SearchPeopleRouter(
                         route = SearchListScreens.KnownContactsScreen.route,
                         content = {
                             ContactsScreen(
-                                scrollPositionProvider = { searchBarState.scrollPositionProvider = it },
+                                scrollPositionProvider = {
+                                    searchBarState.scrollPositionProvider = it
+                                },
                                 allKnownContactResult = allKnownContacts,
                                 contactsAddedToGroup = contactsAddedToGroup,
                                 onAddToGroup = onAddContactToGroup,
@@ -84,7 +88,9 @@ fun SearchPeopleRouter(
                         route = SearchListScreens.SearchPeopleScreen.route,
                         content = {
                             SearchPeopleScreen(
-                                scrollPositionProvider = { searchBarState.scrollPositionProvider = it },
+                                scrollPositionProvider = {
+                                    searchBarState.scrollPositionProvider = it
+                                },
                                 searchQuery = searchQuery,
                                 noneSearchSucceed = noneSearchSucceed,
                                 knownContactSearchResult = localContactSearchResult,
@@ -95,7 +101,8 @@ fun SearchPeopleRouter(
                                 onOpenUserProfile = { searchContact ->
                                     onOpenUserProfile(SearchOpenUserProfile(searchContact.contact))
                                 },
-                                onNewGroupClicked = openNewGroup
+                                onNewGroupClicked = openNewGroup,
+                                onAddContactClicked = onAddContact
                             )
                         }
                     )

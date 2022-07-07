@@ -54,11 +54,32 @@ class WireActivityViewModel @Inject constructor(
     private val observeUserId = currentSessionFlow()
         .map { result ->
             if (result is CurrentSessionResult.Success) {
+                appLogger.i(result.authSession.toString())
                 when (result.authSession.session) {
                     is AuthSession.Session.LoggedIn -> result.authSession.session.userId
+                    is AuthSession.Session.RemovedClient -> {
+                        //todo: show removed account message and go to login screen and prefill the email? maybe!
+                        navigationManager.navigate(
+                            NavigationCommand(
+                                NavigationItem.Login.getRouteWithArgs(),
+                                BackStackMode.CLEAR_WHOLE
+                            )
+                        )
+                        null
+                    }
 
-                    else -> {
-                        appLogger.i(result.authSession.toString())
+                    is AuthSession.Session.SelfLogout -> {
+                        navigationManager.navigate(
+                            NavigationCommand(
+                                NavigationItem.Welcome.getRouteWithArgs(),
+                                BackStackMode.CLEAR_WHOLE
+                            )
+                        )
+                        null
+                    }
+
+                    is AuthSession.Session.UserDeleted -> {
+                        //todo: show delete message
                         navigationManager.navigate(
                             NavigationCommand(
                                 NavigationItem.Welcome.getRouteWithArgs(),

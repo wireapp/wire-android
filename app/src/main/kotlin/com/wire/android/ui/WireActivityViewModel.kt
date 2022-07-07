@@ -53,7 +53,16 @@ class WireActivityViewModel @Inject constructor(
     private val observeUserId = currentSessionFlow()
         .map { result ->
             if (result is CurrentSessionResult.Success) result.authSession.tokens.userId
-            else null
+            else {
+                //get the reason
+                navigationManager.navigate(
+                    NavigationCommand(
+                        NavigationItem.Welcome.getRouteWithArgs(),
+                        BackStackMode.CLEAR_WHOLE
+                    )
+                )
+                null
+            }
         }
         .distinctUntilChanged()
         .flowOn(dispatchers.io())
@@ -90,8 +99,10 @@ class WireActivityViewModel @Inject constructor(
                         authServerConfigProvider.updateAuthServer(serverLinks)
                         navigationArguments.put(SERVER_CONFIG_ARG, serverLinks)
                     }
+
                 is DeepLinkResult.SSOLogin ->
                     navigationArguments.put(SSO_DEEPLINK_ARG, result)
+
                 is DeepLinkResult.IncomingCall -> {
                     if (isLaunchedFromHistory(intent)) {
                         //We don't need to handle deepLink, if activity was launched from history.
@@ -109,6 +120,7 @@ class WireActivityViewModel @Inject constructor(
                         navigationArguments.put(OPEN_CONVERSATION_ID_ARG, result.conversationsId)
                     }
                 }
+
                 DeepLinkResult.Unknown -> {
                     appLogger.e("unknown deeplink result $result")
                 }
@@ -183,10 +195,12 @@ class WireActivityViewModel @Inject constructor(
                 appLogger.e("something went wrong during handling the scustom server deep link: ${result.genericFailure}")
                 null
             }
+
             GetServerConfigResult.Failure.TooNewVersion -> {
                 appLogger.e("server version is too new")
                 null
             }
+
             GetServerConfigResult.Failure.UnknownServerVersion -> {
                 appLogger.e("unknown server version")
                 null

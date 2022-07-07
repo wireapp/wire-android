@@ -9,7 +9,9 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
+import com.wire.android.appLogger
 import com.wire.android.mapper.ContactMapper
+import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
@@ -22,7 +24,8 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.flow.SearchQueryStateFlow
 import com.wire.kalium.logic.data.conversation.ConversationOptions
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.conversation.AddMemberToConversationUseCase
+import com.wire.kalium.logic.feature.connection.SendConnectionRequestResult
+import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
 import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsResult
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
@@ -44,9 +47,9 @@ class NewConversationViewModel
     private val searchKnownUsers: SearchKnownUsersUseCase,
     private val getAllContacts: GetAllContactsUseCase,
     private val createGroupConversation: CreateGroupConversationUseCase,
-    private val addMemberToConversationUseCase: AddMemberToConversationUseCase,
     private val contactMapper: ContactMapper,
-    private val dispatchers: DispatcherProvider
+    private val dispatchers: DispatcherProvider,
+    private val sendConnectionRequest: SendConnectionRequestUseCase,
 ) : ViewModel() {
 
     private companion object {
@@ -145,9 +148,10 @@ class NewConversationViewModel
         }
     }
 
-    private suspend fun searchPublic(searchTerm: String) {
-        publicContactsSearchResult = ContactSearchResult.ExternalContact(SearchResultState.InProgress)
-
+    private suspend fun searchPublic(searchTerm: String, showProgress: Boolean = true) {
+        if (showProgress) {
+            publicContactsSearchResult = ContactSearchResult.ExternalContact(SearchResultState.InProgress)
+        }
         val result = withContext(dispatchers.io()) {
             searchUsers(
                 searchQuery = searchTerm
@@ -173,6 +177,20 @@ class NewConversationViewModel
         innerSearchPeopleState = innerSearchPeopleState.copy(
             contactsAddedToGroup = innerSearchPeopleState.contactsAddedToGroup + contact
         )
+    }
+
+    fun addContact(contact: Contact) {
+        viewModelScope.launch {
+            val userId = UserId(contact.id, contact.domain)
+            when (sendConnectionRequest(userId)) {
+                is SendConnectionRequestResult.Failure -> {
+                    appLogger.d(("Couldn't send a connect request to user $userId"))
+                }
+                is SendConnectionRequestResult.Success -> {
+                    searchPublic(state.searchQuery, showProgress = false)
+                }
+            }
+        }
     }
 
     fun removeContactFromGroup(contact: Contact) {
@@ -241,11 +259,11 @@ class NewConversationViewModel
                     Log.d("TEST", "error while creating a group ${result.value}")
                 }
                 is Either.Right -> {
-                    close()
                     groupNameState = groupNameState.copy(isLoading = false)
                     navigationManager.navigate(
                         command = NavigationCommand(
-                            destination = NavigationItem.Conversation.getRouteWithArgs(listOf(result.value.id))
+                            destination = NavigationItem.Conversation.getRouteWithArgs(listOf(result.value.id)),
+                            backStackMode = BackStackMode.REMOVE_CURRENT
                         )
                     )
                 }

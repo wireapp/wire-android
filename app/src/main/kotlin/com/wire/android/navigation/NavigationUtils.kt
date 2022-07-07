@@ -1,10 +1,8 @@
 package com.wire.android.navigation
 
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
+import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
-import androidx.navigation.compose.currentBackStackEntryAsState
 import com.wire.android.appLogger
 
 @ExperimentalMaterial3Api
@@ -13,25 +11,32 @@ internal fun NavController.navigateToItem(command: NavigationCommand) {
     navigate(command.destination) {
         when (command.backStackMode) {
             BackStackMode.CLEAR_WHOLE, BackStackMode.CLEAR_TILL_START -> {
-                backQueue.firstOrNull { it.destination.route != null }?.let { entry ->
-                    val inclusive = command.backStackMode == BackStackMode.CLEAR_WHOLE
-                    val startId = entry.destination.id
-                    popBackStack(startId, inclusive)
-                }
+                val inclusive = command.backStackMode == BackStackMode.CLEAR_WHOLE
+                popBackStack(inclusive) { backQueue.firstOrNull { it.destination.route != null } }
             }
             BackStackMode.REMOVE_CURRENT -> {
-                run {
-                    backQueue.lastOrNull { it.destination.route != null }?.let { entry ->
-                        val inclusive = true
-                        val startId = entry.destination.id
-                        popBackStack(startId, inclusive)
-                    }
+                popBackStack(true) { backQueue.lastOrNull { it.destination.route != null } }
+            }
+            BackStackMode.UPDATE_EXISTED -> {
+                NavigationItem.fromRoute(command.destination)?.let { navItem ->
+                    popBackStack(true) { backQueue.firstOrNull { it.destination.route == navItem.getCanonicalRoute() } }
                 }
             }
-            BackStackMode.NONE -> {}
+            BackStackMode.NONE -> {
+            }
         }
         launchSingleTop = true
         restoreState = true
+    }
+}
+
+private fun NavController.popBackStack(
+    inclusive: Boolean,
+    getNavBackStackEntry: () -> NavBackStackEntry?,
+) {
+    getNavBackStackEntry()?.let { entry ->
+        val startId = entry.destination.id
+        popBackStack(startId, inclusive)
     }
 }
 
@@ -50,7 +55,7 @@ internal fun NavController.popWithArguments(arguments: Map<String, Any>?): Boole
     return popBackStack()
 }
 
-internal fun NavController.getCurrentNavigationItem(): NavigationItem? {
-    val currentRoute = this.currentDestination?.route
-    return NavigationItem.fromRoute(currentRoute)
-}
+internal fun NavController.getCurrentNavigationItem(): NavigationItem? =
+    this.currentDestination?.route?.let { currentRoute ->
+        NavigationItem.fromRoute(currentRoute)
+    }

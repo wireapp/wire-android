@@ -10,7 +10,7 @@ import com.wire.android.ui.home.newconversation.newgroup.NewGroupScreen
 
 @Composable
 fun NewConversationRouter() {
-    val newConversationViewModel: NewConversationViewModel = hiltViewModel()
+    val newConversationViewModel: CreateNewConversationViewModel = hiltViewModel()
     val newConversationNavController = rememberNavController()
 
     NavHost(
@@ -21,14 +21,8 @@ fun NewConversationRouter() {
             route = Screen.SearchListNavHostScreens.route,
             content = {
                 SearchPeopleRouter(
-                    searchPeopleState = newConversationViewModel.state,
+                    searchPeopleViewModel = newConversationViewModel,
                     openNewGroup = { newConversationNavController.navigate(Screen.NewGroupNameScreen.route) },
-                    onSearchContact = newConversationViewModel::search,
-                    onClose = newConversationViewModel::close,
-                    onAddContactToGroup = newConversationViewModel::addContactToGroup,
-                    onRemoveContactFromGroup = newConversationViewModel::removeContactFromGroup,
-                    onOpenUserProfile = { newConversationViewModel.openUserProfile(it.contact) },
-                    onAddContact = newConversationViewModel::addContact
                 )
             }
         )
@@ -36,7 +30,7 @@ fun NewConversationRouter() {
             route = Screen.NewGroupNameScreen.route,
             content = {
                 NewGroupScreen(
-                    onBackPressed =  newConversationNavController::popBackStack ,
+                    onBackPressed = newConversationNavController::popBackStack,
                     newGroupState = newConversationViewModel.groupNameState,
                     onGroupNameChange = newConversationViewModel::onGroupNameChange,
                     onCreateGroup = newConversationViewModel::createGroup,

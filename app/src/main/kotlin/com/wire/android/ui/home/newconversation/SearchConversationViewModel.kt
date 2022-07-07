@@ -21,7 +21,7 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestResult
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContextg
+import kotlinx.coroutines.withContext
 
 abstract class SearchConversationViewModel(
     val navigationManager: NavigationManager,
@@ -75,12 +75,12 @@ abstract class SearchConversationViewModel(
         innerSearchPeopleState = when (result) {
             is SearchResultState.Failure -> {
                 innerSearchPeopleState.copy(
-                    allKnownContacts = SearchResultState.Failure(R.string.label_general_error)
+                    allKnownContacts = result
                 )
             }
             is SearchResultState.Success -> {
                 innerSearchPeopleState.copy(
-                    allKnownContacts = SearchResultState.Success(result.result)
+                    allKnownContacts = result
                 )
             }
         }

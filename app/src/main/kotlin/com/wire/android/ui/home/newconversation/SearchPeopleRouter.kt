@@ -22,17 +22,18 @@ import com.wire.android.ui.home.newconversation.search.SearchPeopleState
 
 @Composable
 fun SearchPeopleRouter(
-    searchPeopleViewModel: SearchConversationViewModel
+    searchPeopleViewModel: SearchConversationViewModel,
+    openNewGroup: () -> Unit,
 ) {
     SearchPeopleContent(
-        searchPeopleState =,
-        openNewGroup = { /*TODO*/ },
-        onSearchContact =,
-        onClose = { /*TODO*/ },
-        onAddContactToGroup =,
-        onRemoveContactFromGroup =,
-        onOpenUserProfile =,
-        onAddContact =
+        searchPeopleState = searchPeopleViewModel.state,
+        openNewGroup = openNewGroup,
+        onSearchContact = searchPeopleViewModel::search,
+        onClose = searchPeopleViewModel::close,
+        onAddContactToGroup = searchPeopleViewModel::addContactToGroup,
+        onRemoveContactFromGroup = searchPeopleViewModel::removeContactFromGroup,
+        onOpenUserProfile = { searchPeopleViewModel.openUserProfile(it.contact) },
+        onAddContact = searchPeopleViewModel::addContact
     )
 }
 

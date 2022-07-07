@@ -17,6 +17,7 @@ import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.feature.auth.AuthSession
 import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
@@ -52,15 +53,22 @@ class WireActivityViewModel @Inject constructor(
 
     private val observeUserId = currentSessionFlow()
         .map { result ->
-            if (result is CurrentSessionResult.Success) result.authSession.session.userId
-            else {
-                //get the reason
-                navigationManager.navigate(
-                    NavigationCommand(
-                        NavigationItem.Welcome.getRouteWithArgs(),
-                        BackStackMode.CLEAR_WHOLE
-                    )
-                )
+            if (result is CurrentSessionResult.Success) {
+                when (result.authSession.session) {
+                    is AuthSession.Session.LoggedIn -> result.authSession.session.userId
+
+                    else -> {
+                        appLogger.i(result.authSession.toString())
+                        navigationManager.navigate(
+                            NavigationCommand(
+                                NavigationItem.Welcome.getRouteWithArgs(),
+                                BackStackMode.CLEAR_WHOLE
+                            )
+                        )
+                        null
+                    }
+                }
+            } else {
                 null
             }
         }
@@ -113,6 +121,7 @@ class WireActivityViewModel @Inject constructor(
                         navigationArguments.put(INCOMING_CALL_CONVERSATION_ID_ARG, result.conversationsId)
                     }
                 }
+
                 is DeepLinkResult.OpenConversation -> {
                     if (isLaunchedFromHistory(intent)) {
                         appLogger.i("OpenConversation deepLink launched from the history")
@@ -151,10 +160,12 @@ class WireActivityViewModel @Inject constructor(
                 openIncomingCall(navigationArguments[INCOMING_CALL_CONVERSATION_ID_ARG] as ConversationId)
                 false
             }
+
             shouldGoToConversation() -> {
                 openConversation(navigationArguments[OPEN_CONVERSATION_ID_ARG] as ConversationId)
                 false
             }
+
             intent == null -> false
             else -> true
         }

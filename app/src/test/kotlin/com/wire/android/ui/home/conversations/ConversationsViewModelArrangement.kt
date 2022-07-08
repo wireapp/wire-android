@@ -31,6 +31,8 @@ import com.wire.kalium.logic.feature.asset.SendImageMessageResult
 import com.wire.kalium.logic.feature.asset.SendImageMessageUseCase
 import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCase
 import com.wire.kalium.logic.feature.call.AnswerCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
@@ -120,6 +122,12 @@ internal class ConversationsViewModelArrangement {
     @MockK
     private lateinit var wireSessionImageLoader: WireSessionImageLoader
 
+    @MockK
+    private lateinit var observeEstablishedCallsUseCase: ObserveEstablishedCallsUseCase
+
+    @MockK
+    private lateinit var endCall: EndCallUseCase
+
     private val conversationDetailsChannel = Channel<ConversationDetails>(capacity = Channel.UNLIMITED)
 
     private val messagesChannel = Channel<List<UIMessage>>(capacity = Channel.UNLIMITED)
@@ -143,7 +151,9 @@ internal class ConversationsViewModelArrangement {
             isFileSharingEnabled = isFileSharingEnabledUseCase,
             observeOngoingCalls = observeOngoingCallsUseCase,
             answerCall = answerCallUseCase,
-            wireSessionImageLoader = wireSessionImageLoader
+            wireSessionImageLoader = wireSessionImageLoader,
+            observeEstablishedCallsUseCase = observeEstablishedCallsUseCase,
+            endCall = endCall
         )
     }
 

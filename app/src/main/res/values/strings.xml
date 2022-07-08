@@ -389,6 +389,11 @@
     <string name="calling_content_description_participant_muted">Participant muted</string>
     <string name="calling_label_join_call">Join</string>
     <string name="calling_minimize_view">Minimize view</string>
+    <string name="calling_ongoing_call_title_alert">Hang up current call ?</string>
+    <string name="calling_ongoing_call_start_message_alert">A call is active in another conversation.\nCalling here will hang up the other call.</string>
+    <string name="calling_ongoing_call_start_anyway">Call Anyways</string>
+    <string name="calling_ongoing_call_join_message_alert">A call is active in another conversation.\nJoining this call will hang up the other one.</string>
+    <string name="calling_ongoing_call_join_anyway">Join Anyways</string>
 
     <!-- Connections -->
     <string name="connection_label_connect">Connect</string>

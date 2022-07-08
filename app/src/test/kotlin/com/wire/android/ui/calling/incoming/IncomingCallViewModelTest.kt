@@ -5,8 +5,11 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.media.CallRinger
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.notification.CallNotificationManager
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.call.AnswerCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.GetIncomingCallsUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.RejectCallUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -42,6 +45,12 @@ class IncomingCallViewModelTest {
     private lateinit var callRinger: CallRinger
 
     @MockK
+    private lateinit var observeEstablishedCallsUseCase: ObserveEstablishedCallsUseCase
+
+    @MockK
+    private lateinit var endCall: EndCallUseCase
+
+    @MockK
     private lateinit var notificationManager: CallNotificationManager
 
     private lateinit var viewModel: IncomingCallViewModel
@@ -68,6 +77,8 @@ class IncomingCallViewModelTest {
             rejectCall = rejectCall,
             acceptCall = acceptCall,
             callRinger = callRinger,
+            observeEstablishedCallsUseCase = observeEstablishedCallsUseCase,
+            endCall = endCall,
             notificationManager = notificationManager
         )
     }
@@ -82,10 +93,28 @@ class IncomingCallViewModelTest {
 
     @Test
     fun `given an incoming call, when the user accepts the call, then the accept call use case is called`() {
+        coEvery { endCall(any()) } returns Unit
+        coEvery { navigationManager.navigate(command = any()) } returns Unit
+
         viewModel.acceptCall()
 
         coVerify(exactly = 1) { acceptCall(conversationId = any()) }
-        coVerify(exactly = 1) { navigationManager.navigate(command = any()) }
         verify(exactly = 1) { callRinger.stop() }
+        coVerify(inverse = true) { endCall(any()) }
+        coVerify(exactly = 1) { navigationManager.navigate(command = any()) }
+    }
+
+    @Test
+    fun `given an active call, when accepting a new incoming call, then end the current call and accept the newer one`() {
+        viewModel.establishedCallConversationId = ConversationId("value", "Domain")
+        coEvery { endCall(viewModel.establishedCallConversationId!!) } returns Unit
+//        coEvery { navigationManager.navigate(any()) } returns Unit
+
+        viewModel.acceptCall()
+
+        verify(exactly = 1) { callRinger.stop() }
+        coVerify(exactly = 1) { endCall(viewModel.establishedCallConversationId!!) }
+        coVerify(exactly = 1) { acceptCall(conversationId = any()) }
+        coVerify(exactly = 1) { navigationManager.navigate(command = any()) }
     }
 }

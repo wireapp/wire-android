@@ -4,7 +4,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.model.ImageAsset.PrivateAsset
@@ -46,6 +45,7 @@ import com.wire.kalium.logic.feature.asset.SendImageMessageResult
 import com.wire.kalium.logic.feature.asset.SendImageMessageUseCase
 import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCase
 import com.wire.kalium.logic.feature.call.AnswerCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
@@ -57,8 +57,6 @@ import com.wire.kalium.logic.functional.onFailure
 import com.wire.kalium.logic.util.toStringDate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -83,6 +81,7 @@ class ConversationViewModel @Inject constructor(
     private val getMessageForConversation: GetMessagesForConversationUseCase,
     private val isFileSharingEnabled: IsFileSharingEnabledUseCase,
     private val observeOngoingCalls: ObserveOngoingCallsUseCase,
+    private val observeEstablishedCallsUseCase: ObserveEstablishedCallsUseCase,
     private val answerCall: AnswerCallUseCase,
     private val fileManager: FileManager,
     private val wireSessionImageLoader: WireSessionImageLoader
@@ -110,6 +109,7 @@ class ConversationViewModel @Inject constructor(
         setMessagesAsNotified()
         setFileSharingStatus()
         listenOngoingCall()
+        observeEstablishedCall()
     }
 
     // region ------------------------------ Init Methods -------------------------------------
@@ -164,6 +164,13 @@ class ConversationViewModel @Inject constructor(
 
                 conversationViewState = conversationViewState.copy(hasOngoingCall = hasOngoingCall)
             }
+    }
+
+    private fun observeEstablishedCall() = viewModelScope.launch {
+        observeEstablishedCallsUseCase().collect {
+            val hasEstablishedCall = it.isNotEmpty()
+            conversationViewState = conversationViewState.copy(hasEstablishedCall = hasEstablishedCall)
+        }
     }
 
     internal fun checkPendingActions() {
@@ -287,7 +294,6 @@ class ConversationViewModel @Inject constructor(
             conversationViewState = conversationViewState.copy(isFileSharingEnabled = isFileSharingEnabled())
         }
     }
-
 
     private fun getAssetLimitInBytes(): Int {
         // Users with a team attached have larger asset sending limits than default users

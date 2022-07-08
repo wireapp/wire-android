@@ -14,10 +14,13 @@ import com.wire.android.notification.CallNotificationManager
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.parseIntoQualifiedID
 import com.wire.kalium.logic.feature.call.AnswerCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.GetIncomingCallsUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.RejectCallUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -30,11 +33,14 @@ class IncomingCallViewModel @Inject constructor(
     private val rejectCall: RejectCallUseCase,
     private val acceptCall: AnswerCallUseCase,
     private val callRinger: CallRinger,
+    private val observeEstablishedCallsUseCase: ObserveEstablishedCallsUseCase,
+    private val endCall: EndCallUseCase,
     notificationManager: CallNotificationManager
 ) : ViewModel() {
 
-    private val conversationId: ConversationId = savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!.parseIntoQualifiedID()
+    private val incomingCallConversationId: ConversationId = savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!.parseIntoQualifiedID()
     lateinit var observeIncomingCallJob: Job
+    var establishedCallConversationId: ConversationId? = null
 
     init {
         notificationManager.hideCallNotification()
@@ -44,14 +50,26 @@ class IncomingCallViewModel @Inject constructor(
             observeIncomingCallJob = launch {
                 observeIncomingCall()
             }
+            launch {
+                observeEstablishedCall()
+            }
+        }
+    }
+
+    private fun observeEstablishedCall() = viewModelScope.launch {
+        observeEstablishedCallsUseCase().collect {
+            if (it.isNotEmpty()) {
+                establishedCallConversationId = it.first().conversationId
+            }
         }
     }
 
     private suspend fun observeIncomingCall() {
         incomingCalls().collect { calls ->
-            calls.find { call -> call.conversationId == conversationId }.also {
-                if (it == null)
+            calls.find { call -> call.conversationId == incomingCallConversationId }.also {
+                if (it == null) {
                     onCallClosed()
+                }
             }
         }
     }
@@ -66,7 +84,7 @@ class IncomingCallViewModel @Inject constructor(
     fun declineCall() {
         viewModelScope.launch {
             observeIncomingCallJob.cancel()
-            rejectCall(conversationId = conversationId)
+            rejectCall(conversationId = incomingCallConversationId)
             navigationManager.navigateBack()
             callRinger.stop()
         }
@@ -75,12 +93,24 @@ class IncomingCallViewModel @Inject constructor(
     fun acceptCall() {
         callRinger.stop()
         viewModelScope.launch {
+            var backStackNode = BackStackMode.REMOVE_CURRENT
+            var delayTime = 0L
+            // if there is already an active call, then end it to accept the new incoming call
+            establishedCallConversationId?.let {
+                endCall(it)
+                backStackNode = BackStackMode.UPDATE_EXISTED
+                delayTime = 1000L
+            }
             observeIncomingCallJob.cancel()
-            acceptCall(conversationId = conversationId)
+
+            acceptCall(conversationId = incomingCallConversationId)
+            // We need to add some delay, for the case of joining a call while we are on an active one,
+            // to get all values return by avs callbacks
+            delay(delayTime)
             navigationManager.navigate(
                 command = NavigationCommand(
-                    destination = NavigationItem.OngoingCall.getRouteWithArgs(listOf(conversationId)),
-                    backStackMode = BackStackMode.REMOVE_CURRENT
+                    destination = NavigationItem.OngoingCall.getRouteWithArgs(listOf(incomingCallConversationId)),
+                    backStackMode = backStackNode
                 )
             )
         }

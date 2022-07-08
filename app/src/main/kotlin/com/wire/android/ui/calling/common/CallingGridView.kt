@@ -56,6 +56,7 @@ fun GroupCallGrid(
                     .height(((config.screenHeightDp - TOP_APP_BAR_AND_BOTTOM_SHEET_HEIGHT) / numberOfTilesRows).dp)
                     .animateItemPlacement(),
                 conversationName = getConversationName(participant.name),
+                onGoingCallTileUsernameMaxWidth = MaterialTheme.wireDimensions.onGoingCallTileUsernameMaxWidth,
                 participantAvatar = participant.avatar,
                 isMuted = isMuted,
                 isCameraOn = isCameraOn,

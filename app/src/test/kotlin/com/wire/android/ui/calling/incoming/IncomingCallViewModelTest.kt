@@ -21,6 +21,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import kotlinx.coroutines.test.runTest
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
@@ -101,20 +102,17 @@ class IncomingCallViewModelTest {
         coVerify(exactly = 1) { acceptCall(conversationId = any()) }
         verify(exactly = 1) { callRinger.stop() }
         coVerify(inverse = true) { endCall(any()) }
-        coVerify(exactly = 1) { navigationManager.navigate(command = any()) }
     }
 
     @Test
-    fun `given an active call, when accepting a new incoming call, then end the current call and accept the newer one`() {
+    fun `given an active call, when accepting a new incoming call, then end the current call and accept the newer one`() = runTest{
         viewModel.establishedCallConversationId = ConversationId("value", "Domain")
         coEvery { endCall(viewModel.establishedCallConversationId!!) } returns Unit
-//        coEvery { navigationManager.navigate(any()) } returns Unit
 
         viewModel.acceptCall()
 
         verify(exactly = 1) { callRinger.stop() }
         coVerify(exactly = 1) { endCall(viewModel.establishedCallConversationId!!) }
         coVerify(exactly = 1) { acceptCall(conversationId = any()) }
-        coVerify(exactly = 1) { navigationManager.navigate(command = any()) }
     }
 }

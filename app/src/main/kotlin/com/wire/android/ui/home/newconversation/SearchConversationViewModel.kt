@@ -1,5 +1,6 @@
 package com.wire.android.ui.home.newconversation
 
+import android.util.Log
 import androidx.annotation.StringRes
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -21,14 +22,14 @@ import com.wire.android.util.flow.SearchQueryStateFlow
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestResult
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 abstract class SearchConversationViewModel(
     val navigationManager: NavigationManager,
     private val sendConnectionRequest: SendConnectionRequestUseCase,
-) : ViewModel()  {
+    private val dispatcher: DispatcherProvider
+) : ViewModel() {
 
     private var innerSearchPeopleState: SearchPeopleState by mutableStateOf(SearchPeopleState())
 
@@ -57,14 +58,16 @@ abstract class SearchConversationViewModel(
 
     private val searchQueryStateFlow = SearchQueryStateFlow()
 
-    suspend fun initializeSearch() {
+   init {
+       Log.d("TEST","calling init")
         viewModelScope.launch {
-            launch { allContacts() }
+            val result = getAllUsersUseCase()
+//            allContacts()
 
-            searchQueryStateFlow.onSearchAction { searchTerm ->
-                launch { searchPublic(searchTerm) }
-                launch { searchKnown(searchTerm) }
-            }
+//            searchQueryStateFlow.onSearchAction { searchTerm ->
+//                launch { searchPublic(searchTerm) }
+//                launch { searchKnown(searchTerm) }
+//            }
         }
     }
 
@@ -111,7 +114,7 @@ abstract class SearchConversationViewModel(
     private suspend fun searchKnown(searchTerm: String) {
         localContactSearchResult = ContactSearchResult.InternalContact(SearchResultState.InProgress)
 
-        localContactSearchResult = when (val result = searchKnownUsersUseCase(searchTerm)) {
+        localContactSearchResult = when (val result = withContext(dispatcher.io()) { searchKnownUsersUseCase(searchTerm) }) {
             is SearchResult.Success -> ContactSearchResult.InternalContact(
                 SearchResultState.Success(result.contacts)
             )
@@ -124,7 +127,7 @@ abstract class SearchConversationViewModel(
             publicContactsSearchResult = ContactSearchResult.ExternalContact(SearchResultState.InProgress)
         }
 
-        val result = searchPublicUsersUseCase(searchTerm)
+        val result = withContext(dispatcher.io()) { searchPublicUsersUseCase(searchTerm) }
 
         publicContactsSearchResult = when (result) {
             is SearchResult.Failure -> {

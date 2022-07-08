@@ -32,7 +32,7 @@ class AddMembersToConversationViewModel @Inject constructor(
     sendConnectionRequest: SendConnectionRequestUseCase,
     savedStateHandle: SavedStateHandle,
     navigationManager: NavigationManager
-) : SearchConversationViewModel(navigationManager, sendConnectionRequest) {
+) : SearchConversationViewModel(navigationManager, sendConnectionRequest,dispatchers) {
 
     val conversationId: QualifiedID = savedStateHandle
         .get<String>(EXTRA_CONVERSATION_ID)!!

@@ -37,62 +37,55 @@ class CreateNewConversationViewModel @Inject constructor(
     private val searchPublicUsers: SearchUsersUseCase,
     private val createGroupConversation: CreateGroupConversationUseCase,
     private val contactMapper: ContactMapper,
-    private val dispatchers: DispatcherProvider,
+    dispatchers: DispatcherProvider,
     sendConnectionRequest: SendConnectionRequestUseCase,
     navigationManager: NavigationManager
-) : SearchConversationViewModel(navigationManager, sendConnectionRequest) {
+) : SearchConversationViewModel(navigationManager, sendConnectionRequest, dispatchers) {
     private companion object {
         const val GROUP_NAME_MAX_COUNT = 64
     }
 
     var groupNameState: NewGroupState by mutableStateOf(NewGroupState())
 
-    init {
-        viewModelScope.launch {
-            initializeSearch()
+    override suspend fun getAllUsersUseCase(): SearchResult {
+        Log.d("TEST", "get all usres use case ")
+        val result = getAllKnownUsers()
+
+        return when(result) {
+            is GetAllContactsResult.Failure -> SearchResult.Failure(R.string.label_general_error)
+            is GetAllContactsResult.Success -> SearchResult.Success(
+                result.allContacts.map { otherUser ->
+                    contactMapper.fromOtherUser(
+                        otherUser
+                    )
+                }
+            )
         }
     }
 
-    override suspend fun getAllUsersUseCase() =
-        withContext(dispatchers.io()) {
-            when (val result = getAllKnownUsers()) {
-                is GetAllContactsResult.Failure -> SearchResult.Failure(R.string.label_general_error)
-                is GetAllContactsResult.Success -> SearchResult.Success(
-                    result.allContacts.map { otherUser ->
-                        contactMapper.fromOtherUser(
-                            otherUser
-                        )
-                    })
-            }
-        }
-
     override suspend fun searchKnownUsersUseCase(searchTerm: String) =
-        withContext(dispatchers.io()) {
-            when (val result = searchKnownUsers(searchTerm)) {
-                is Result.Failure.Generic, Result.Failure.InvalidRequest -> {
-                    SearchResult.Failure(R.string.label_general_error)
-                }
-                is Result.Failure.InvalidQuery -> {
-                    SearchResult.Failure(R.string.label_no_results_found)
-                }
-                is Result.Success -> {
-                    SearchResult.Success(result.userSearchResult.result.map { otherUser -> contactMapper.fromOtherUser(otherUser) })
-                }
+        when (val result = searchKnownUsers(searchTerm)) {
+            is Result.Failure.Generic, Result.Failure.InvalidRequest -> {
+                SearchResult.Failure(R.string.label_general_error)
+            }
+            is Result.Failure.InvalidQuery -> {
+                SearchResult.Failure(R.string.label_no_results_found)
+            }
+            is Result.Success -> {
+                SearchResult.Success(result.userSearchResult.result.map { otherUser -> contactMapper.fromOtherUser(otherUser) })
             }
         }
 
     override suspend fun searchPublicUsersUseCase(searchTerm: String) =
-        withContext(dispatchers.io()) {
-            when (val result = searchPublicUsers(searchTerm)) {
-                is Result.Failure.Generic, Result.Failure.InvalidRequest -> {
-                    SearchResult.Failure(R.string.label_general_error)
-                }
-                is Result.Failure.InvalidQuery -> {
-                    SearchResult.Failure(R.string.label_no_results_found)
-                }
-                is Result.Success -> {
-                    SearchResult.Success(result.userSearchResult.result.map { otherUser -> contactMapper.fromOtherUser(otherUser) })
-                }
+        when (val result = searchPublicUsers(searchTerm)) {
+            is Result.Failure.Generic, Result.Failure.InvalidRequest -> {
+                SearchResult.Failure(R.string.label_general_error)
+            }
+            is Result.Failure.InvalidQuery -> {
+                SearchResult.Failure(R.string.label_no_results_found)
+            }
+            is Result.Success -> {
+                SearchResult.Success(result.userSearchResult.result.map { otherUser -> contactMapper.fromOtherUser(otherUser) })
             }
         }
 

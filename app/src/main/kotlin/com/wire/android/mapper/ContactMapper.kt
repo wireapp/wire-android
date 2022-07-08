@@ -7,10 +7,11 @@ import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.publicuser.model.OtherUser
 import javax.inject.Inject
 
-class ContactMapper @Inject constructor(
+class ContactMapper
+@Inject constructor(
     private val userTypeMapper: UserTypeMapper,
     private val wireSessionImageLoader: WireSessionImageLoader
-    ) {
+) {
 
     fun fromOtherUser(otherUser: OtherUser): Contact {
         with(otherUser) {

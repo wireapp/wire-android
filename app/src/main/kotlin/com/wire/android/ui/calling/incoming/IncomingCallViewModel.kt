@@ -99,13 +99,13 @@ class IncomingCallViewModel @Inject constructor(
             establishedCallConversationId?.let {
                 endCall(it)
                 backStackNode = BackStackMode.UPDATE_EXISTED
-                delayTime = 1000L
+                delayTime = DELAY_TIME_AFTER_ENDING_CALL
             }
             observeIncomingCallJob.cancel()
 
             acceptCall(conversationId = incomingCallConversationId)
-            // We need to add some delay, for the case of joining a call while we are on an active one,
-            // to get all values return by avs callbacks
+            // We need to add some delay, for the case of joining a call while there is an active one,
+            // to get all values returned by avs callbacks
             delay(delayTime)
             navigationManager.navigate(
                 command = NavigationCommand(
@@ -114,5 +114,8 @@ class IncomingCallViewModel @Inject constructor(
                 )
             )
         }
+    }
+    companion object {
+        private const val DELAY_TIME_AFTER_ENDING_CALL = 1000L
     }
 }

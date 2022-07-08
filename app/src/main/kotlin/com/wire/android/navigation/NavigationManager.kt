@@ -51,6 +51,11 @@ enum class BackStackMode {
     //  navigationManager.navigate(SomeWhere)
     REMOVE_CURRENT,
 
+    // if there is an instance of that screen in backStack,
+    // then app pops stack till that screen and replace it by the new screen.
+    // if no instance in backStack, then just add screen in top of stack.
+    UPDATE_EXISTED,
+
     // screen will be added to the existing backstack.
     NONE;
 }

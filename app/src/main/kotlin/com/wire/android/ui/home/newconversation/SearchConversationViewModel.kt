@@ -21,14 +21,14 @@ import com.wire.android.util.flow.SearchQueryStateFlow
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestResult
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 abstract class SearchConversationViewModel(
     val navigationManager: NavigationManager,
     private val sendConnectionRequest: SendConnectionRequestUseCase,
-    val dispatchers: DispatcherProvider
-) : ViewModel() {
+) : ViewModel()  {
 
     private var innerSearchPeopleState: SearchPeopleState by mutableStateOf(SearchPeopleState())
 
@@ -57,7 +57,7 @@ abstract class SearchConversationViewModel(
 
     private val searchQueryStateFlow = SearchQueryStateFlow()
 
-    init {
+    suspend fun initializeSearch() {
         viewModelScope.launch {
             launch { allContacts() }
 
@@ -71,7 +71,7 @@ abstract class SearchConversationViewModel(
     private suspend fun allContacts() {
         innerSearchPeopleState = innerSearchPeopleState.copy(allKnownContacts = SearchResultState.InProgress)
 
-        val result = withContext(dispatchers.io()) { getAllUsersUseCase() }
+        val result = getAllUsersUseCase()
 
         innerSearchPeopleState = when (result) {
             is SearchResult.Failure -> {
@@ -123,11 +123,8 @@ abstract class SearchConversationViewModel(
         if (showProgress) {
             publicContactsSearchResult = ContactSearchResult.ExternalContact(SearchResultState.InProgress)
         }
-        val result = withContext(dispatchers.io()) {
-            searchPublicUsersUseCase(
-                searchTerm
-            )
-        }
+
+        val result = searchPublicUsersUseCase(searchTerm)
 
         publicContactsSearchResult = when (result) {
             is SearchResult.Failure -> {

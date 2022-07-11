@@ -1,6 +1,5 @@
 package com.wire.android.ui.home.conversationslist
 
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -35,7 +34,10 @@ class ConversationState(
 }
 
 @Composable
-fun rememberConversationSheetState(conversationItem: ConversationItem): ConversationState {
+fun rememberConversationSheetState(
+    conversationItem: ConversationItem,
+    conversationOptionNavigation: ConversationOptionNavigation
+): ConversationState {
     val conversationSheetContent: ConversationSheetContent = when (conversationItem) {
         is ConversationItem.GroupConversation -> {
             with(conversationItem) {
@@ -66,5 +68,10 @@ fun rememberConversationSheetState(conversationItem: ConversationItem): Conversa
         }
     }
 
-    return remember { ConversationState(conversationSheetContent = conversationSheetContent) }
+    return remember {
+        ConversationState(
+            conversationSheetContent = conversationSheetContent,
+            conversationOptionNavigation = conversationOptionNavigation
+        )
+    }
 }

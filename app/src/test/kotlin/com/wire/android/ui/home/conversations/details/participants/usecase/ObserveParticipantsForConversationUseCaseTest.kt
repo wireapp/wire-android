@@ -6,6 +6,7 @@ import com.wire.android.mapper.UIParticipantMapper
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.mapper.testOtherUser
 import com.wire.android.util.ui.WireSessionImageLoader
+import com.wire.kalium.logic.data.conversation.Member
 import com.wire.kalium.logic.data.conversation.MemberDetails
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.type.UserType
@@ -13,12 +14,14 @@ import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseC
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 
+@OptIn(ExperimentalCoroutinesApi::class)
 class ObserveParticipantsForConversationUseCaseTest {
 
     @Test
@@ -27,7 +30,7 @@ class ObserveParticipantsForConversationUseCaseTest {
         val limit = 4
         val members = buildList {
             for (i in 1..(limit + 1)) {
-                add(MemberDetails.Other(testOtherUser(i).copy(userType = UserType.INTERNAL)))
+                add(MemberDetails(testOtherUser(i).copy(userType = UserType.INTERNAL), Member.Role.Member))
             }
         }
         val (_, useCase) = ObserveParticipantsForConversationUseCaseArrangement()
@@ -44,9 +47,9 @@ class ObserveParticipantsForConversationUseCaseTest {
     @Test
     fun `given a group members, when solving the participants list without limit, then all lists are passed`() = runTest {
         // Given
-        val members = buildList {
+        val members: List<MemberDetails> = buildList {
             for (i in 1..20) {
-                add(MemberDetails.Other(testOtherUser(i).copy(userType = UserType.INTERNAL)))
+                add(MemberDetails(testOtherUser(i).copy(userType = UserType.INTERNAL), Member.Role.Member))
             }
         }
         val (_, useCase) = ObserveParticipantsForConversationUseCaseArrangement()

@@ -18,7 +18,10 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavHostController
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
-import com.wire.android.navigation.*
+import com.wire.android.navigation.NavigationGraph
+import com.wire.android.navigation.NavigationManager
+import com.wire.android.navigation.navigateToItem
+import com.wire.android.navigation.popWithArguments
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.ui.updateScreenSettings

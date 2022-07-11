@@ -30,6 +30,7 @@ import com.wire.android.ui.common.WireBottomNavigationItemData
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.home.conversationslist.ConversationOperationErrorState.MutingOperationErrorState
+import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationOptionNavigation
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.navigation.ConversationsNavigationItem
@@ -49,11 +50,7 @@ fun ConversationRouterHomeBridge(
     onScrollPositionProviderChanged: (() -> Int) -> Unit
 ) {
     val viewModel: ConversationListViewModel = hiltViewModel()
-    val conversationState = remember {
-        ConversationState()
-    }
-
-
+    val conversationState = remember { ConversationState() }
     // we want to relaunch the onHomeBottomSheetContentChange lambda each time the content changes
     // to pass the new Composable
     LaunchedEffect(conversationState.conversationSheetContent) {
@@ -77,22 +74,31 @@ fun ConversationRouterHomeBridge(
         }
     }
 
+    fun navigateBottomSheet(
+        conversationItem: ConversationItem,
+        conversationOptionNavigation: ConversationOptionNavigation
+    ) {
+        conversationState.changeModalSheetContentState(conversationItem)
+        when (conversationOptionNavigation) {
+            ConversationOptionNavigation.Home -> conversationState.toHome()
+            ConversationOptionNavigation.MutingNotificationOption -> conversationState.toMutingNotificationOption()
+        }
+        onBottomSheetVisibilityChanged()
+    }
+
     ConversationRouter(
         uiState = viewModel.state,
         errorState = viewModel.errorState,
         openConversation = viewModel::openConversation,
         openNewConversation = viewModel::openNewConversation,
         onEditConversationItem = { conversationItem ->
-            conversationState.changeModalSheetContentState(conversationItem)
-            onBottomSheetVisibilityChanged()
+            navigateBottomSheet(conversationItem, ConversationOptionNavigation.Home)
         },
         onScrollPositionProviderChanged = onScrollPositionProviderChanged,
         onError = onBottomSheetVisibilityChanged,
         openProfile = viewModel::openUserProfile,
         onEditNotifications = { conversationItem ->
-            conversationState.changeModalSheetContentState(conversationItem)
-            conversationState.toMutingNotificationOption()
-            onBottomSheetVisibilityChanged()
+            navigateBottomSheet(conversationItem, ConversationOptionNavigation.MutingNotificationOption)
         },
         onJoinCall = viewModel::joinOngoingCall
     )

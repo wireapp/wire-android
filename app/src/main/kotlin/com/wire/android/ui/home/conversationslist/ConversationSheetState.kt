@@ -81,7 +81,7 @@ fun rememberConversationSheetState(
         }
     }
 
-    return remember(conversationItem) {
+    return remember(conversationItem, conversationOptionNavigation) {
         ConversationSheetState(
             conversationSheetContent = conversationSheetContent,
             conversationOptionNavigation = conversationOptionNavigation

@@ -13,6 +13,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
+// TODO: move to kalium (is there a reason for this usecase to be in AR)
 class GetMessagesForConversationUseCase
 @Inject constructor(
     private val getMessages: GetRecentMessagesUseCase,

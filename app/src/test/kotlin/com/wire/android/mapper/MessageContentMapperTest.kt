@@ -7,6 +7,7 @@ import com.wire.android.framework.TestUser
 import com.wire.android.ui.home.conversations.model.MessageContent.AssetMessage
 import com.wire.android.ui.home.conversations.model.MessageContent.ImageMessage
 import com.wire.android.ui.home.conversations.model.MessageContent.SystemMessage
+import com.wire.android.ui.home.conversations.name
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.Member
 import com.wire.kalium.logic.data.conversation.MemberDetails
@@ -15,6 +16,7 @@ import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.AssetContent.AssetMetadata
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
+import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
@@ -46,11 +48,11 @@ class MessageContentMapperTest {
         val deleted = mapper.toSystemMessageMemberName(deletedMemberDetails, MessageContentMapper.SelfNameType.NameOrDeleted)
         val otherName = mapper.toSystemMessageMemberName(otherMemberDetails, MessageContentMapper.SelfNameType.NameOrDeleted)
         // Then
-        assert(selfName is UIText.DynamicString && selfName.value == selfMemberDetails.selfUser.name)
+        assert(selfName is UIText.DynamicString && selfName.value == selfMemberDetails.name)
         assert(selfResLower is UIText.StringResource && selfResLower.resId == arrangement.messageResourceProvider.memberNameYouLowercase)
         assert(selfResTitle is UIText.StringResource && selfResTitle.resId == arrangement.messageResourceProvider.memberNameYouTitlecase)
         assert(deleted is UIText.StringResource && deleted.resId == arrangement.messageResourceProvider.memberNameDeleted)
-        assert(otherName is UIText.DynamicString && otherName.value == otherMemberDetails.otherUser.name)
+        assert(otherName is UIText.DynamicString && otherName.value == otherMemberDetails.name)
     }
 
     @Test
@@ -91,8 +93,9 @@ class MessageContentMapperTest {
         val member2 = TestUser.MEMBER_OTHER.copy(TestUser.OTHER_USER.copy(id = userId2))
         val member3 = TestUser.MEMBER_OTHER.copy(TestUser.OTHER_USER.copy(id = userId3))
         val missedCallMessage = TestMessage.MISSED_CALL_MESSAGE
-        val selfCaller = MemberDetails.Self(TestUser.SELF_USER.copy(id = missedCallMessage.senderUserId))
-        val otherCaller = member1.copy(otherUser = member1.otherUser.copy(id = missedCallMessage.senderUserId))
+        val selfCaller = MemberDetails(TestUser.SELF_USER.copy(id = missedCallMessage.senderUserId), Member.Role.Admin)
+        val otherCallerInfo = (member1.user as OtherUser).copy(id = missedCallMessage.senderUserId)
+        val otherCaller = member1.copy(user = otherCallerInfo)
         // When
         val resultContentLeft = mapper.mapMemberChangeMessage(contentLeft, userId1, listOf(member1))
         val resultContentRemoved = mapper.mapMemberChangeMessage(contentRemoved, userId1, listOf(member1, member2))
@@ -103,21 +106,21 @@ class MessageContentMapperTest {
         // Then
         assert(
             resultContentLeft is SystemMessage.MemberLeft &&
-                    resultContentLeft.author.asString(arrangement.resources) == member1.otherUser.name
+                    resultContentLeft.author.asString(arrangement.resources) == member1.name
         )
         assert(
             resultContentRemoved is SystemMessage.MemberRemoved &&
-                    resultContentRemoved.author.asString(arrangement.resources) == member1.otherUser.name &&
+                    resultContentRemoved.author.asString(arrangement.resources) == member1.name &&
                     resultContentRemoved.memberNames.size == 1 &&
-                    resultContentRemoved.memberNames[0].asString(arrangement.resources) == member2.otherUser.name
+                    resultContentRemoved.memberNames[0].asString(arrangement.resources) == member2.name
 
         )
         assert(
             resultContentAdded is SystemMessage.MemberAdded &&
-                    resultContentAdded.author.asString(arrangement.resources) == member1.otherUser.name &&
+                    resultContentAdded.author.asString(arrangement.resources) == member1.name &&
                     resultContentAdded.memberNames.size == 2 &&
-                    resultContentAdded.memberNames[0].asString(arrangement.resources) == member2.otherUser.name &&
-                    resultContentAdded.memberNames[1].asString(arrangement.resources) == member3.otherUser.name
+                    resultContentAdded.memberNames[0].asString(arrangement.resources) == member2.name &&
+                    resultContentAdded.memberNames[1].asString(arrangement.resources) == member3.name
         )
         assert(resultContentAddedSelf == null)
         assert(

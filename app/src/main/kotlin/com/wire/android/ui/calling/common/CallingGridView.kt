@@ -13,17 +13,17 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.unit.dp
-import com.wire.android.model.ImageAsset
 import com.wire.android.ui.calling.ParticipantTile
 import com.wire.android.ui.calling.getConversationName
 import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.theme.wireDimensions
-import com.wire.kalium.logic.data.call.Participant
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun GroupCallGrid(
     participants: List<UICallParticipant>,
+    pageIndex: Int,
+    isSelfUserMuted: Boolean,
     isSelfUserCameraOn: Boolean,
     onSelfVideoPreviewCreated: (view: View) -> Unit,
     onSelfClearVideoPreview: () -> Unit
@@ -41,21 +41,30 @@ fun GroupCallGrid(
         items(participants) { participant ->
             // We need the number of tiles rows needed to calculate their height
             val numberOfTilesRows = tilesRowsCount(participants.size)
-            val isCameraOn = if (participants.first() == participant) isSelfUserCameraOn else false
+            // For now we are handling only self user camera state
+            val isCameraOn = if (pageIndex == 0 && participants.first() == participant)
+                isSelfUserCameraOn else false
+            // for self user we don't need to get the muted value from participants list
+            // if we do, this will show visuals with some delay
+            // since we are getting participants by chunk of 8 items,
+            // we need to check that we are on first page for sel user
+            val isMuted = if (pageIndex == 0 && participants.first() == participant) isSelfUserMuted
+                else participant.isMuted
 
             ParticipantTile(
                 modifier = Modifier
                     .height(((config.screenHeightDp - TOP_APP_BAR_AND_BOTTOM_SHEET_HEIGHT) / numberOfTilesRows).dp)
                     .animateItemPlacement(),
                 conversationName = getConversationName(participant.name),
+                onGoingCallTileUsernameMaxWidth = MaterialTheme.wireDimensions.onGoingCallTileUsernameMaxWidth,
                 participantAvatar = participant.avatar,
-                isMuted = participant.isMuted,
+                isMuted = isMuted,
                 isCameraOn = isCameraOn,
                 onSelfUserVideoPreviewCreated = {
-                    if (participants.first() == participant) onSelfVideoPreviewCreated(it)
+                    if (pageIndex == 0 && participants.first() == participant) onSelfVideoPreviewCreated(it)
                 },
                 onClearSelfUserVideoPreview = {
-                    if (participants.first() == participant)
+                    if (pageIndex == 0 && participants.first() == participant)
                         onSelfClearVideoPreview()
                 }
             )

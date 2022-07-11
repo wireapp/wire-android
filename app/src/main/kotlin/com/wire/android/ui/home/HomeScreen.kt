@@ -148,7 +148,8 @@ fun HomeContent(
                 {
                     Box(modifier = Modifier.padding(it)) {
                         AppTopBarWithSearchBar(
-                            scrollPositionProvider = scrollPositionProvider,
+                            // Disable as for now
+//                            scrollPositionProvider = scrollPositionProvider,
                             searchBarHint = stringResource(R.string.search_bar_hint, stringResource(id = title).lowercase()),
                             // TODO: implement the search for home once we work on it, for now we do not care
                             searchQuery = "",

@@ -1,7 +1,9 @@
 package com.wire.android.ui.common
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.selection.selectable
@@ -63,8 +65,10 @@ fun Modifier.shimmerPlaceholder(
     shape = shape,
 )
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-fun Modifier.clickable(clickable: Clickable) = this.clickable(
+fun Modifier.clickable(clickable: Clickable) = this.combinedClickable(
     enabled = clickable.enabled,
-    onClick = clickable.onClick
+    onClick = clickable.onClick,
+    onLongClick = clickable.onLongClick
 )

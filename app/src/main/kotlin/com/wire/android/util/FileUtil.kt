@@ -12,6 +12,7 @@ import android.os.Build
 import android.os.Environment.DIRECTORY_DOWNLOADS
 import android.provider.MediaStore
 import android.provider.OpenableColumns
+import android.provider.Settings
 import android.webkit.MimeTypeMap
 import androidx.annotation.AnyRes
 import androidx.annotation.NonNull
@@ -22,6 +23,7 @@ import kotlinx.coroutines.withContext
 import java.io.BufferedInputStream
 import java.io.File
 import java.io.FileInputStream
+
 
 /**
  * Gets the uri of any drawable or given resource
@@ -187,6 +189,10 @@ private fun Intent.setActionViewIntentFlags() {
     } else {
         Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK
     }
+}
+
+fun getDeviceId(context: Context): String? {
+    return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID)
 }
 
 fun Context.getProviderAuthority() = "${packageName}.provider"

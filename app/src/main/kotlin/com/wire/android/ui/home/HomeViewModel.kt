@@ -92,15 +92,9 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    suspend fun navigateTo(item: NavigationItem, extraRouteId: String = "") {
-        navigationManager.navigate(NavigationCommand(destination = item.getRouteWithArgs(listOf(extraRouteId))))
-    }
+    suspend fun navigateTo(item: NavigationItem) { navigationManager.navigate(NavigationCommand(destination = item.getRouteWithArgs())) }
 
-    fun navigateToUserProfile() = viewModelScope.launch { navigateTo(NavigationItem.SelfUserProfile, MY_USER_PROFILE_SUBROUTE) }
-
-    companion object {
-        const val MY_USER_PROFILE_SUBROUTE = "myUserProfile"
-    }
+    fun navigateToUserProfile() = viewModelScope.launch { navigateTo(NavigationItem.SelfUserProfile) }
 }
 
 data class SelfUserData(

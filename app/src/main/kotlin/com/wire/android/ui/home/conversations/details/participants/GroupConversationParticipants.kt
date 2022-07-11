@@ -19,6 +19,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.rememberBottomBarElevationState
+import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -27,6 +28,7 @@ import com.wire.android.util.ui.stringWithStyledArgs
 @Composable
 fun GroupConversationParticipants(
     openFullListPressed: () -> Unit,
+    onProfilePressed: (UIParticipant) -> Unit,
     groupParticipantsState: GroupConversationParticipantsState,
     lazyListState: LazyListState = rememberLazyListState()
 ) {
@@ -52,7 +54,7 @@ fun GroupConversationParticipants(
                         .padding(MaterialTheme.wireDimensions.spacing16x)
                 )
             }
-            participantsFoldersWithElements(context, groupParticipantsState)
+            participantsFoldersWithElements(context, groupParticipantsState, onProfilePressed)
         }
         if (groupParticipantsState.showAllVisible)
             Surface(
@@ -72,5 +74,5 @@ fun GroupConversationParticipants(
 @Preview
 @Composable
 fun GroupConversationParticipantsPreview() {
-    GroupConversationParticipants({}, GroupConversationParticipantsState.PREVIEW)
+    GroupConversationParticipants({}, {}, GroupConversationParticipantsState.PREVIEW)
 }

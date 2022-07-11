@@ -12,7 +12,6 @@ import com.wire.android.notification.WireNotificationManager
 import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.newServerConfig
-import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.UserSessionScope
@@ -213,7 +212,6 @@ class WireActivityViewModelTest {
 
             // Default empty values
             mockUri()
-            coEvery { coreLogic.getSessionScope(any()) } returns userSessionScope
             coEvery { currentSessionFlow() } returns flowOf()
             coEvery { getServerConfigUseCase(any()) } returns GetServerConfigResult.Success(newServerConfig(1))
             coEvery { deepLinkProcessor(any()) } returns DeepLinkResult.Unknown
@@ -223,9 +221,6 @@ class WireActivityViewModelTest {
 
         @MockK
         lateinit var userSessionScope: UserSessionScope
-
-        @MockK
-        lateinit var coreLogic: CoreLogic
 
         @MockK
         lateinit var currentSessionFlow: CurrentSessionFlowUseCase
@@ -247,7 +242,6 @@ class WireActivityViewModelTest {
 
         private val viewModel by lazy {
             WireActivityViewModel(
-                coreLogic = coreLogic,
                 dispatchers = TestDispatcherProvider(),
                 currentSessionFlow = currentSessionFlow,
                 getServerConfigUseCase = getServerConfigUseCase,

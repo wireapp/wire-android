@@ -1,5 +1,6 @@
 package com.wire.android.ui.debugscreen
 
+import android.widget.Toast
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -15,14 +16,17 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.R
 import com.wire.android.ui.common.WireSwitch
 import com.wire.android.ui.common.topappbar.WireTopAppBarTitle
 import com.wire.android.ui.common.topappbar.wireTopAppBarColors
@@ -30,6 +34,7 @@ import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.getDeviceId
 import com.wire.android.util.startMultipleFileSharingIntent
 
 @Composable
@@ -48,9 +53,9 @@ fun DebugScreen() {
 fun DebugContent(
     mlsData: List<String>,
     isLoggingEnabled: Boolean,
-    setLoggingEnabledState: (Boolean, String) -> Unit,
-    logFilePath: (String) -> String,
-    deleteAllLogs: (String) -> Unit
+    setLoggingEnabledState: (Boolean) -> Unit,
+    logFilePath: () -> String,
+    deleteAllLogs: () -> Unit
 ) {
     Column {
         TopBar(title = "Debug")
@@ -114,34 +119,43 @@ fun TextRowItem(text: String, @DrawableRes trailingIcon: Int? = null, onIconClic
                     .clickable { onIconClick() }
             )
         }
-
     }
 }
 
 @Composable
 fun LoggingSection(
     isLoggingEnabled: Boolean,
-    setLoggingEnabledState: (Boolean, String) -> Unit,
-    logFilePath: (String) -> String,
-    deleteAllLogs: (String) -> Unit
+    setLoggingEnabledState: (Boolean) -> Unit,
+    logFilePath: () -> String,
+    deleteAllLogs: () -> Unit
 ) {
     val context = LocalContext.current
+    val clipboardManager = LocalClipboardManager.current
     val absolutePath = context.cacheDir?.absolutePath ?: ""
     SwitchRowItem(
         text = "Enable Logging", checked = isLoggingEnabled
     ) { state: Boolean ->
-        setLoggingEnabledState(state, absolutePath)
+        setLoggingEnabledState(state)
     }
     TextRowItem(
         "Share Logs",
         trailingIcon = android.R.drawable.ic_menu_share
-    ) { context.startMultipleFileSharingIntent(logFilePath(absolutePath)) }
+    ) { context.startMultipleFileSharingIntent(logFilePath()) }
 
     TextRowItem(
         "Delete All Logs",
         trailingIcon = android.R.drawable.ic_delete
-    ) { deleteAllLogs(absolutePath) }
+    ) { deleteAllLogs() }
 
+    TextRowItem(
+        "Device id : ${getDeviceId(context)}",
+        trailingIcon = R.drawable.ic_copy
+    ) {
+        getDeviceId(context)?.let { AnnotatedString(it) }?.let {
+            clipboardManager.setText(it)
+            Toast.makeText(context, "Text Copied to clipboard", Toast.LENGTH_SHORT).show()
+        }
+    }
 }
 
 @Composable
@@ -174,5 +188,5 @@ fun SwitchRowItem(
 @Preview(showBackground = false)
 @Composable
 fun debugScreenPreview() {
-    DebugContent(listOf(), true, { _: Boolean, _: String -> }, { "" }, {})
+    DebugContent(listOf(), true, { _: Boolean, -> }, { "" }, {})
 }

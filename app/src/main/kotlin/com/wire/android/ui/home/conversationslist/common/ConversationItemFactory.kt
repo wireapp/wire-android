@@ -1,6 +1,8 @@
 package com.wire.android.ui.home.conversationslist.common
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import com.wire.android.model.Clickable
 import com.wire.android.ui.calling.controlButtons.JoinButton
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.colorsScheme
@@ -28,6 +30,23 @@ fun ConversationItemFactory(
     openNotificationsOptions: (ConversationItem) -> Unit,
     joinCall: (ConversationId) -> Unit,
 ) {
+    val onConversationItemClick = remember {
+        Clickable(
+            enabled = true,
+            onClick = {
+                when (val lastEvent = conversation.lastEvent) {
+                    is ConversationLastEvent.Connection -> openUserProfile(lastEvent.userId)
+                    else -> openConversation(conversation.conversationId)
+                }
+            },
+            onLongClick = {
+                when (conversation.lastEvent) {
+                    is ConversationLastEvent.Connection -> {}
+                    else -> openMenu(conversation)
+                }
+            }
+        )
+    }
     GeneralConversationItem(
         conversation = conversation,
         eventType = eventType,
@@ -40,19 +59,7 @@ fun ConversationItemFactory(
                 }
             }
         },
-        onConversationItemClick = {
-            when (val lastEvent = conversation.lastEvent) {
-                is ConversationLastEvent.Connection -> openUserProfile(lastEvent.userId)
-                else -> openConversation(conversation.conversationId)
-            }
-        },
-        onConversationItemLongClick = {
-            when (conversation.lastEvent) {
-                is ConversationLastEvent.Connection -> {
-                }
-                else -> openMenu(conversation)
-            }
-        },
+        onConversationItemClick = onConversationItemClick,
         onMutedIconClick = {
             openNotificationsOptions(conversation)
         },
@@ -67,8 +74,7 @@ private fun GeneralConversationItem(
     conversation: ConversationItem,
     eventType: EventType? = null,
     subTitle: @Composable () -> Unit = {},
-    onConversationItemClick: () -> Unit,
-    onConversationItemLongClick: () -> Unit,
+    onConversationItemClick: Clickable,
     onMutedIconClick: () -> Unit,
     onJoinCallClick: () -> Unit
 ) {
@@ -80,8 +86,7 @@ private fun GeneralConversationItem(
                     title = { ConversationTitle(name = groupName, isLegalHold = conversation.isLegalHold) },
                     subTitle = subTitle,
                     eventType = eventType,
-                    onRowItemClicked = onConversationItemClick,
-                    onRowItemLongClicked = onConversationItemLongClick,
+                    clickable = onConversationItemClick,
                     trailingIcon = {
                         if (hasOnGoingCall)
                             JoinButton(buttonClick = onJoinCallClick)
@@ -99,8 +104,7 @@ private fun GeneralConversationItem(
                     title = { UserLabel(userInfoLabel = toUserInfoLabel()) },
                     subTitle = subTitle,
                     eventType = eventType,
-                    onRowItemClicked = onConversationItemClick,
-                    onRowItemLongClicked = onConversationItemLongClick,
+                    clickable = onConversationItemClick,
                     trailingIcon = {
                         if (mutedStatus != MutedConversationStatus.AllAllowed) {
                             MutedConversationBadge(onMutedIconClick)
@@ -116,8 +120,7 @@ private fun GeneralConversationItem(
                     title = { UserLabel(userInfoLabel = toUserInfoLabel()) },
                     subTitle = subTitle,
                     eventType = parseConnectionEventType(connectionState),
-                    onRowItemClicked = onConversationItemClick,
-                    onRowItemLongClicked = onConversationItemLongClick
+                    clickable = onConversationItemClick
                 )
             }
         }

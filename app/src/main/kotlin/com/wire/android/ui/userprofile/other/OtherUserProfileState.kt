@@ -31,5 +31,7 @@ fun ConnectionState.toOtherUserProfileConnectionStatus() = when (this) {
     ConnectionState.PENDING -> ConnectionStatus.Pending
     ConnectionState.SENT -> ConnectionStatus.Sent
     ConnectionState.ACCEPTED -> ConnectionStatus.Connected
-    else -> ConnectionStatus.Unknown // TODO: what about other states?
+    ConnectionState.BLOCKED,
+    ConnectionState.IGNORED,
+    ConnectionState.MISSING_LEGALHOLD_CONSENT -> ConnectionStatus.Unknown // TODO: implement rest states
 }

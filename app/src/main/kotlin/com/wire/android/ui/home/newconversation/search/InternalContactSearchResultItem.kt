@@ -10,15 +10,20 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
+import com.wire.android.appLogger
+import com.wire.android.model.Clickable
+import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.AddContactButton
 import com.wire.android.ui.common.ArrowRightIcon
-import com.wire.android.ui.common.RowItemTemplate
-import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.MembershipQualifierLabel
+import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.WireCheckbox
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.home.conversationslist.common.ConnectPendingRequestBadge
+import com.wire.android.ui.home.conversationslist.common.ConnectRequestBadge
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.ui.userprofile.other.ConnectionStatus
 
 @Composable
 fun InternalContactSearchResultItem(
@@ -30,8 +35,7 @@ fun InternalContactSearchResultItem(
     addToGroup: () -> Unit,
     removeFromGroup: () -> Unit,
     isAddedToGroup: Boolean,
-    onRowItemClicked: () -> Unit,
-    onRowItemLongClicked: () -> Unit,
+    clickable: Clickable,
     modifier: Modifier = Modifier
 ) {
     RowItemTemplate(
@@ -69,8 +73,7 @@ fun InternalContactSearchResultItem(
                 ArrowRightIcon(Modifier.align(Alignment.TopEnd))
             }
         },
-        onRowItemClicked = onRowItemClicked,
-        onRowItemLongClicked = onRowItemLongClicked,
+        clickable = clickable,
         modifier = modifier
     )
 }
@@ -82,9 +85,9 @@ fun ExternalContactSearchResultItem(
     label: String,
     membership: Membership,
     searchQuery: String,
-    isConnectedOrPending: Boolean,
-    onRowItemClicked: () -> Unit,
-    onRowItemLongClicked: () -> Unit,
+    connectionStatus: ConnectionStatus,
+    onAddContactClicked: () -> Unit,
+    clickable: Clickable,
     modifier: Modifier = Modifier
 ) {
     RowItemTemplate(
@@ -110,11 +113,20 @@ fun ExternalContactSearchResultItem(
             )
         },
         actions = {
-            if (!isConnectedOrPending) AddContactButton({ })
+            when (connectionStatus) {
+                ConnectionStatus.NotConnected ->
+                    AddContactButton(onAddContactClicked)
+                ConnectionStatus.Pending ->
+                    Box(modifier = Modifier.padding(horizontal = dimensions().spacing12x)) { ConnectPendingRequestBadge() }
+                ConnectionStatus.Sent ->
+                    Box(modifier = Modifier.padding(horizontal = dimensions().spacing12x)) { ConnectRequestBadge() }
+                ConnectionStatus.Connected,
+                ConnectionStatus.Unknown -> {
+                    appLogger.e("Unknown ConnectionStatus in InternalContactSearchResultItem")
+                }
+            }
         },
-        onRowItemClicked = onRowItemClicked,
-        onRowItemLongClicked = onRowItemLongClicked,
+        clickable = clickable,
         modifier = modifier
     )
 }
-

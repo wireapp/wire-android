@@ -519,7 +519,7 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun getUserInfoUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): GetUserInfoUseCase =
+    fun provideGetUserInfoUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): GetUserInfoUseCase =
         coreLogic.getSessionScope(currentAccount).users.getUserInfo
 
     @ViewModelScoped

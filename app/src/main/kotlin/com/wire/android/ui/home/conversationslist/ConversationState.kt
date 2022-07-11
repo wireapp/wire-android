@@ -4,6 +4,7 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationOptionNavigation
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationTypeDetail
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
@@ -11,6 +12,9 @@ import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 
 @ExperimentalMaterialApi
 class ConversationState {
+
+    var currentOptionNavigation: ConversationOptionNavigation by mutableStateOf(ConversationOptionNavigation.Home)
+
     var conversationSheetContent: ConversationSheetContent? by mutableStateOf(null)
 
     fun changeModalSheetContentState(conversationType: ConversationItem) {
@@ -43,5 +47,13 @@ class ConversationState {
 
     fun muteConversation(mutedConversationStatus: MutedConversationStatus) {
         conversationSheetContent = conversationSheetContent?.copy(mutingConversationState = mutedConversationStatus)
+    }
+
+    fun toMutingNotificationOption() {
+        currentOptionNavigation = ConversationOptionNavigation.MutingNotificationOption
+    }
+
+    fun toHome() {
+        currentOptionNavigation = ConversationOptionNavigation.Home
     }
 }

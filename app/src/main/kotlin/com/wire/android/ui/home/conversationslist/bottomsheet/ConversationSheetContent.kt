@@ -2,18 +2,20 @@ package com.wire.android.ui.home.conversationslist.bottomsheet
 
 import MutingOptionsSheetContent
 import androidx.activity.compose.BackHandler
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import com.wire.android.model.ImageAsset.UserAvatarAsset
+import com.wire.android.ui.home.conversationslist.ConversationState
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ConversationSheetContent(
-    conversationSheetContent: ConversationSheetContent,
-    conversationOptionSheetState: ConversationOptionSheetState,
+    conversationState : ConversationState,
     onMutingConversationStatusChange: (MutedConversationStatus) -> Unit,
     addConversationToFavourites: () -> Unit,
     moveConversationToFolder: () -> Unit,
@@ -22,51 +24,36 @@ fun ConversationSheetContent(
     blockUser: () -> Unit,
     leaveGroup: () -> Unit
 ) {
-
-    when (conversationOptionSheetState.currentNavigation) {
+    when (conversationState.currentOptionNavigation) {
         ConversationOptionNavigation.Home -> {
             HomeSheetContent(
-                conversationSheetContent = conversationSheetContent,
+                conversationSheetContent = conversationState.conversationSheetContent!!,
                 addConversationToFavourites = addConversationToFavourites,
                 moveConversationToFolder = moveConversationToFolder,
                 moveConversationToArchive = moveConversationToArchive,
                 clearConversationContent = clearConversationContent,
                 blockUser = blockUser,
                 leaveGroup = leaveGroup,
-                navigateToNotification = conversationOptionSheetState::toMutingNotificationOption
+                navigateToNotification = conversationState::toMutingNotificationOption
             )
         }
         ConversationOptionNavigation.MutingNotificationOption -> {
             MutingOptionsSheetContent(
-                mutingConversationState = conversationSheetContent.mutingConversationState,
+                mutingConversationState = conversationState.conversationSheetContent!!.mutingConversationState,
                 onMuteConversation = onMutingConversationStatusChange,
-                onBackClick = conversationOptionSheetState::toHome
+                onBackClick = conversationState::toHome
             )
         }
     }
 
-    BackHandler(conversationOptionSheetState.currentNavigation is ConversationOptionNavigation.MutingNotificationOption) {
-        conversationOptionSheetState.toHome()
+    BackHandler(conversationState.currentOptionNavigation is ConversationOptionNavigation.MutingNotificationOption) {
+        conversationState.toHome()
     }
 }
 
 sealed class ConversationOptionNavigation {
     object Home : ConversationOptionNavigation()
     object MutingNotificationOption : ConversationOptionNavigation()
-}
-
-class ConversationOptionSheetState(initialNavigation: ConversationOptionNavigation) {
-
-    var currentNavigation: ConversationOptionNavigation by mutableStateOf(initialNavigation)
-        private set
-
-    fun toMutingNotificationOption() {
-        currentNavigation = ConversationOptionNavigation.MutingNotificationOption
-    }
-
-    fun toHome() {
-        currentNavigation = ConversationOptionNavigation.Home
-    }
 }
 
 sealed class ConversationTypeDetail {

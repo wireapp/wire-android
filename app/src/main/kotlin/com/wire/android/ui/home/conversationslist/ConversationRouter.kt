@@ -30,8 +30,6 @@ import com.wire.android.ui.common.WireBottomNavigationItemData
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.home.conversationslist.ConversationOperationErrorState.MutingOperationErrorState
-import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationOptionNavigation
-import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationOptionSheetState
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.navigation.ConversationsNavigationItem
@@ -46,7 +44,7 @@ import com.wire.kalium.logic.data.user.UserId
 // also we expose the lambda which expands the bottomsheet from the homescreen
 @Composable
 fun ConversationRouterHomeBridge(
-    onHomeBottomSheetContentChanged : (@Composable ColumnScope.() -> Unit) -> Unit,
+    onHomeBottomSheetContentChanged: (@Composable ColumnScope.() -> Unit) -> Unit,
     onBottomSheetVisibilityChanged: () -> Unit,
     onScrollPositionProviderChanged: (() -> Int) -> Unit
 ) {
@@ -55,9 +53,6 @@ fun ConversationRouterHomeBridge(
         ConversationState()
     }
 
-    val conversationOptionSheetState = remember(conversationState.conversationSheetContent) {
-        ConversationOptionSheetState(initialNavigation = ConversationOptionNavigation.Home)
-    }
 
     // we want to relaunch the onHomeBottomSheetContentChange lambda each time the content changes
     // to pass the new Composable
@@ -65,8 +60,7 @@ fun ConversationRouterHomeBridge(
         conversationState.conversationSheetContent?.let { conversationSheetContent ->
             onHomeBottomSheetContentChanged {
                 ConversationSheetContent(
-                    conversationSheetContent = conversationSheetContent,
-                    conversationOptionSheetState = conversationOptionSheetState,
+                    conversationState = conversationState,
                     // FIXME: Compose - Find a way to not recreate this lambda
                     onMutingConversationStatusChange = { mutedStatus ->
                         conversationState.muteConversation(mutedStatus)
@@ -97,8 +91,8 @@ fun ConversationRouterHomeBridge(
         openProfile = viewModel::openUserProfile,
         onEditNotifications = { conversationItem ->
             conversationState.changeModalSheetContentState(conversationItem)
+            conversationState.toMutingNotificationOption()
             onBottomSheetVisibilityChanged()
-            conversationOptionSheetState.toMutingNotificationOption()
         },
         onJoinCall = viewModel::joinOngoingCall
     )

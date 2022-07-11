@@ -4,18 +4,20 @@ import MutingOptionsSheetContent
 import androidx.activity.compose.BackHandler
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.ui.home.conversationslist.ConversationState
+import com.wire.android.ui.home.conversationslist.rememberConversationSheetState
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun ConversationSheetContent(
-    conversationState : ConversationState,
+    conversationState: ConversationState,
     onMutingConversationStatusChange: (MutedConversationStatus) -> Unit,
     addConversationToFavourites: () -> Unit,
     moveConversationToFolder: () -> Unit,

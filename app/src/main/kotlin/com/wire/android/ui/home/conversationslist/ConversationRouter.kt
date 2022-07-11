@@ -30,7 +30,6 @@ import com.wire.android.ui.common.WireBottomNavigationItemData
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.home.conversationslist.ConversationOperationErrorState.MutingOperationErrorState
-import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationOptionNavigation
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.navigation.ConversationsNavigationItem
@@ -50,41 +49,62 @@ fun ConversationRouterHomeBridge(
     onScrollPositionProviderChanged: (() -> Int) -> Unit
 ) {
     val viewModel: ConversationListViewModel = hiltViewModel()
-    val conversationState = remember { ConversationState() }
+
     // we want to relaunch the onHomeBottomSheetContentChange lambda each time the content changes
     // to pass the new Composable
-    LaunchedEffect(conversationState.conversationSheetContent) {
-        conversationState.conversationSheetContent?.let { conversationSheetContent ->
-            onHomeBottomSheetContentChanged {
-                ConversationSheetContent(
-                    conversationState = conversationState,
-                    // FIXME: Compose - Find a way to not recreate this lambda
-                    onMutingConversationStatusChange = { mutedStatus ->
-                        conversationState.muteConversation(mutedStatus)
-                        viewModel.muteConversation(conversationId = conversationSheetContent.conversationId, mutedStatus)
-                    },
-                    addConversationToFavourites = viewModel::addConversationToFavourites,
-                    moveConversationToFolder = viewModel::moveConversationToFolder,
-                    moveConversationToArchive = viewModel::moveConversationToArchive,
-                    clearConversationContent = viewModel::clearConversationContent,
-                    blockUser = viewModel::blockUser,
-                    leaveGroup = viewModel::leaveGroup
-                )
-            }
-        }
-    }
-
-    fun navigateBottomSheet(
-        conversationItem: ConversationItem,
-        conversationOptionNavigation: ConversationOptionNavigation
-    ) {
-        conversationState.changeModalSheetContentState(conversationItem)
-        when (conversationOptionNavigation) {
-            ConversationOptionNavigation.Home -> conversationState.toHome()
-            ConversationOptionNavigation.MutingNotificationOption -> conversationState.toMutingNotificationOption()
+    fun test(conversationItem: ConversationItem) {
+        onHomeBottomSheetContentChanged {
+            ConversationSheetContent(
+                conversationState = rememberConversationSheetState(conversationItem = conversationItem),
+//                conversationState = conversationState,
+                // FIXME: Compose - Find a way to not recreate this lambda
+                onMutingConversationStatusChange = { mutedStatus ->
+//                    conversationState.muteConversation(mutedStatus)
+//                    viewModel.muteConversation(conversationId = conversationSheetContent.conversationId, mutedStatus)
+                },
+                addConversationToFavourites = viewModel::addConversationToFavourites,
+                moveConversationToFolder = viewModel::moveConversationToFolder,
+                moveConversationToArchive = viewModel::moveConversationToArchive,
+                clearConversationContent = viewModel::clearConversationContent,
+                blockUser = viewModel::blockUser,
+                leaveGroup = viewModel::leaveGroup
+            )
         }
         onBottomSheetVisibilityChanged()
     }
+//
+//    LaunchedEffect(conversationState.conversationSheetContent) {
+//        conversationState.conversationSheetContent?.let { conversationSheetContent ->
+//            onHomeBottomSheetContentChanged {
+//                ConversationSheetContent(
+//                    conversationState = conversationState,
+//                    // FIXME: Compose - Find a way to not recreate this lambda
+//                    onMutingConversationStatusChange = { mutedStatus ->
+//                        conversationState.muteConversation(mutedStatus)
+//                        viewModel.muteConversation(conversationId = conversationSheetContent.conversationId, mutedStatus)
+//                    },
+//                    addConversationToFavourites = viewModel::addConversationToFavourites,
+//                    moveConversationToFolder = viewModel::moveConversationToFolder,
+//                    moveConversationToArchive = viewModel::moveConversationToArchive,
+//                    clearConversationContent = viewModel::clearConversationContent,
+//                    blockUser = viewModel::blockUser,
+//                    leaveGroup = viewModel::leaveGroup
+//                )
+//            }
+//        }
+//    }
+//
+//    fun openBottomSheet(
+//        conversationItem: ConversationItem,
+//        conversationOptionNavigation: ConversationOptionNavigation
+//    ) {
+//        conversationState.changeModalSheetContentState(conversationItem)
+//        when (conversationOptionNavigation) {
+//            ConversationOptionNavigation.Home -> conversationState.toHome()
+//            ConversationOptionNavigation.MutingNotificationOption -> conversationState.toMutingNotificationOption()
+//        }
+//        onBottomSheetVisibilityChanged()
+//    }
 
     ConversationRouter(
         uiState = viewModel.state,
@@ -92,13 +112,15 @@ fun ConversationRouterHomeBridge(
         openConversation = viewModel::openConversation,
         openNewConversation = viewModel::openNewConversation,
         onEditConversationItem = { conversationItem ->
-            navigateBottomSheet(conversationItem, ConversationOptionNavigation.Home)
+            test(conversationItem)
+//            openBottomSheet(conversationItem, ConversationOptionNavigation.Home)
         },
         onScrollPositionProviderChanged = onScrollPositionProviderChanged,
         onError = onBottomSheetVisibilityChanged,
         openProfile = viewModel::openUserProfile,
         onEditNotifications = { conversationItem ->
-            navigateBottomSheet(conversationItem, ConversationOptionNavigation.MutingNotificationOption)
+            test(conversationItem)
+//            openBottomSheet(conversationItem, ConversationOptionNavigation.MutingNotificationOption)
         },
         onJoinCall = viewModel::joinOngoingCall
     )

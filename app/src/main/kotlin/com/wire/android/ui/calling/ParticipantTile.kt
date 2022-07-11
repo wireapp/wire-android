@@ -22,6 +22,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -40,6 +41,7 @@ fun ParticipantTile(
     modifier: Modifier,
     conversationName: ConversationName?,
     participantAvatar: ImageAsset.UserAvatarAsset?,
+    onGoingCallTileUsernameMaxWidth: Dp = 350.dp,
     isMuted: Boolean,
     isCameraOn: Boolean,
     isActiveSpeaker: Boolean = false,
@@ -118,7 +120,7 @@ fun ParticipantTile(
                         start.linkTo(parent.start)
                         end.linkTo((parent.end))
                     }
-                    .widthIn(max = dimensions().onGoingCallTileUsernameMaxWidth),
+                    .widthIn(max = onGoingCallTileUsernameMaxWidth),
                 shape = RoundedCornerShape(dimensions().corner4x),
                 color = Color.Black
             ) {

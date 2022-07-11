@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.model.ImageAsset
+import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.EXTRA_CONNECTION_IGNORED_USER_NAME
 import com.wire.android.navigation.EXTRA_USER_DOMAIN
 import com.wire.android.navigation.EXTRA_USER_ID
@@ -94,7 +95,8 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                 is CreateConversationResult.Success ->
                     navigationManager.navigate(
                         command = NavigationCommand(
-                            destination = NavigationItem.Conversation.getRouteWithArgs(listOf(result.conversation.id))
+                            destination = NavigationItem.Conversation.getRouteWithArgs(listOf(result.conversation.id)),
+                            backStackMode = BackStackMode.UPDATE_EXISTED
                         )
                     )
             }

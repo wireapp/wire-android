@@ -61,4 +61,3 @@ It might be that after cloning the Android Reloaded project, some build issues a
 - When you've already started working on the project adding some commits, it might occur that your local build breaks, if that is the case, make sure you've updated the `kalium` submodule reference by running: `git submodule update --remote --merge`
 
 ## Happy coding!!!
-

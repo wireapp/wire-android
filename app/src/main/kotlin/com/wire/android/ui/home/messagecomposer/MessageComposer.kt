@@ -416,7 +416,7 @@ private fun ScheduleMessageButton() {
     IconButton(onClick = { }) {
         Icon(
             painter = painterResource(id = R.drawable.ic_timer),
-            contentDescription = stringResource(R.string.content_description_back_button),
+            contentDescription = stringResource(R.string.content_description_timed_message_button),
         )
     }
 }
@@ -479,7 +479,7 @@ private fun SendButton(
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_send),
-                contentDescription = stringResource(R.string.content_description_back_button),
+                contentDescription = stringResource(R.string.content_description_send_button),
                 tint = MaterialTheme.wireColorScheme.surface
             )
         }

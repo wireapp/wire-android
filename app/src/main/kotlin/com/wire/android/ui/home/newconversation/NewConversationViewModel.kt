@@ -11,6 +11,7 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.mapper.ContactMapper
+import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
@@ -28,9 +29,9 @@ import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
 import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsResult
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
-import com.wire.kalium.logic.feature.publicuser.Result
-import com.wire.kalium.logic.feature.publicuser.SearchKnownUsersUseCase
-import com.wire.kalium.logic.feature.publicuser.SearchUsersUseCase
+import com.wire.kalium.logic.feature.publicuser.search.SearchKnownUsersUseCase
+import com.wire.kalium.logic.feature.publicuser.search.SearchUsersUseCase
+import com.wire.kalium.logic.feature.publicuser.search.Result
 import com.wire.kalium.logic.functional.Either
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -258,11 +259,11 @@ class NewConversationViewModel
                     Log.d("TEST", "error while creating a group ${result.value}")
                 }
                 is Either.Right -> {
-                    close()
                     groupNameState = groupNameState.copy(isLoading = false)
                     navigationManager.navigate(
                         command = NavigationCommand(
-                            destination = NavigationItem.Conversation.getRouteWithArgs(listOf(result.value.id))
+                            destination = NavigationItem.Conversation.getRouteWithArgs(listOf(result.value.id)),
+                            backStackMode = BackStackMode.REMOVE_CURRENT
                         )
                     )
                 }

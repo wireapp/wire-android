@@ -6,7 +6,7 @@
     <string name="label_logging_in">Anmelden...</string>
     <string name="label_membership_guest">Gast</string>
     <string name="label_membership_external">External</string>
-    <string name="app_logo_description">App-Logo</string>
+    <string name="content_description_app_logo">App-Logo</string>
     <!-- Content descriptions -->
     <string name="content_description_search_back">Suche-Icon zurück</string>
     <string name="content_description_clear_content">Inhalt löschen</string>

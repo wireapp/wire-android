@@ -100,6 +100,7 @@ private fun OngoingCallContent(
                 VerticalCallingPager(
                     participants = callState.participants,
                     isSelfUserCameraOn = callState.isCameraOn,
+                    isSelfUserMuted = callState.isMuted,
                     onSelfVideoPreviewCreated = sharedCallingViewModel::setVideoPreview,
                     onSelfClearVideoPreview = sharedCallingViewModel::clearVideoPreview
                 )

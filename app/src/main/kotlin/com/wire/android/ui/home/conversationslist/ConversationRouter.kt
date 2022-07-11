@@ -60,20 +60,21 @@ fun ConversationRouterHomeBridge(
                 conversationItem = conversationItem,
                 conversationOptionNavigation = conversationOptionNavigation
             )
-            // if we reopen the bottomsheet of the previous conversation for example:
-            // - when  the user swipes down the bottomsheet manually when having mute option open
+            // if we reopen the BottomSheet of the previous conversation for example:
+            // - when  the user swipes down the BottomSheet manually when having mute option open
             // we want to reopen it in the "home" section
-            conversationState.conversationSheetContent?.conversationId?.let { conversationId ->
+            conversationState.conversationId?.let { conversationId ->
                 if (conversationId == conversationItem.conversationId) {
                     conversationState.toHome()
                 }
             }
+
             ConversationSheetContent(
-                conversationState = conversationState,
+                conversationSheetState = conversationState,
                 // FIXME: Compose - Find a way to not recreate this lambda
                 onMutingConversationStatusChange = { mutedStatus ->
-//                    conversationState.muteConversation(mutedStatus)
-//                    viewModel.muteConversation(conversationId = conversationSheetContent.conversationId, mutedStatus)
+                    conversationState.muteConversation(mutedStatus)
+                    viewModel.muteConversation(conversationId = conversationState.conversationId, mutedStatus)
                 },
                 addConversationToFavourites = viewModel::addConversationToFavourites,
                 moveConversationToFolder = viewModel::moveConversationToFolder,
@@ -85,39 +86,6 @@ fun ConversationRouterHomeBridge(
         }
         onBottomSheetVisibilityChanged()
     }
-//
-//    LaunchedEffect(conversationState.conversationSheetContent) {
-//        conversationState.conversationSheetContent?.let { conversationSheetContent ->
-//            onHomeBottomSheetContentChanged {
-//                ConversationSheetContent(
-//                    conversationState = conversationState,
-//                    // FIXME: Compose - Find a way to not recreate this lambda
-//                    onMutingConversationStatusChange = { mutedStatus ->
-//                        conversationState.muteConversation(mutedStatus)
-//                        viewModel.muteConversation(conversationId = conversationSheetContent.conversationId, mutedStatus)
-//                    },
-//                    addConversationToFavourites = viewModel::addConversationToFavourites,
-//                    moveConversationToFolder = viewModel::moveConversationToFolder,
-//                    moveConversationToArchive = viewModel::moveConversationToArchive,
-//                    clearConversationContent = viewModel::clearConversationContent,
-//                    blockUser = viewModel::blockUser,
-//                    leaveGroup = viewModel::leaveGroup
-//                )
-//            }
-//        }
-//    }
-//
-//    fun openBottomSheet(
-//        conversationItem: ConversationItem,
-//        conversationOptionNavigation: ConversationOptionNavigation
-//    ) {
-//        conversationState.changeModalSheetContentState(conversationItem)
-//        when (conversationOptionNavigation) {
-//            ConversationOptionNavigation.Home -> conversationState.toHome()
-//            ConversationOptionNavigation.MutingNotificationOption -> conversationState.toMutingNotificationOption()
-//        }
-//        onBottomSheetVisibilityChanged()
-//    }
 
     ConversationRouter(
         uiState = viewModel.state,
@@ -132,7 +100,6 @@ fun ConversationRouterHomeBridge(
         openProfile = viewModel::openUserProfile,
         onEditNotifications = { conversationItem ->
             openConversationBottomSheet(conversationItem, ConversationOptionNavigation.MutingNotificationOption)
-//            openBottomSheet(conversationItem, ConversationOptionNavigation.MutingNotificationOption)
         },
         onJoinCall = viewModel::joinOngoingCall
     )

@@ -10,8 +10,9 @@ import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetC
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationTypeDetail
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
+import com.wire.kalium.logic.data.id.ConversationId
 
-class ConversationState(
+class ConversationSheetState(
     conversationSheetContent: ConversationSheetContent? = null,
     conversationOptionNavigation: ConversationOptionNavigation = ConversationOptionNavigation.Home
 ) {
@@ -19,6 +20,9 @@ class ConversationState(
     var conversationSheetContent: ConversationSheetContent? by mutableStateOf(conversationSheetContent)
 
     var currentOptionNavigation: ConversationOptionNavigation by mutableStateOf(conversationOptionNavigation)
+
+    val conversationId: ConversationId?
+        get() = conversationSheetContent?.conversationId
 
     fun muteConversation(mutedConversationStatus: MutedConversationStatus) {
         conversationSheetContent = conversationSheetContent?.copy(mutingConversationState = mutedConversationStatus)
@@ -37,7 +41,7 @@ class ConversationState(
 fun rememberConversationSheetState(
     conversationItem: ConversationItem,
     conversationOptionNavigation: ConversationOptionNavigation
-): ConversationState {
+): ConversationSheetState {
     val conversationSheetContent: ConversationSheetContent = when (conversationItem) {
         is ConversationItem.GroupConversation -> {
             with(conversationItem) {
@@ -64,12 +68,21 @@ fun rememberConversationSheetState(
             }
         }
         is ConversationItem.ConnectionConversation -> {
-            throw IllegalStateException()
+            with(conversationItem) {
+                ConversationSheetContent(
+                    conversationId = conversationId,
+                    title = conversationInfo.name,
+                    mutingConversationState = mutedStatus,
+                    conversationTypeDetail = ConversationTypeDetail.Private(
+                        userAvatarData.asset
+                    )
+                )
+            }
         }
     }
 
-    return remember {
-        ConversationState(
+    return remember(conversationItem) {
+        ConversationSheetState(
             conversationSheetContent = conversationSheetContent,
             conversationOptionNavigation = conversationOptionNavigation
         )

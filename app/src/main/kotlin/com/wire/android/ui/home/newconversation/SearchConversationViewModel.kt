@@ -58,23 +58,21 @@ abstract class SearchConversationViewModel(
 
     private val searchQueryStateFlow = SearchQueryStateFlow()
 
-   init {
-       Log.d("TEST","calling init")
+    init {
         viewModelScope.launch {
-            val result = getAllUsersUseCase()
-//            allContacts()
+            allContacts()
 
-//            searchQueryStateFlow.onSearchAction { searchTerm ->
-//                launch { searchPublic(searchTerm) }
-//                launch { searchKnown(searchTerm) }
-//            }
+            searchQueryStateFlow.onSearchAction { searchTerm ->
+                launch { searchPublic(searchTerm) }
+                launch { searchKnown(searchTerm) }
+            }
         }
     }
 
     private suspend fun allContacts() {
         innerSearchPeopleState = innerSearchPeopleState.copy(allKnownContacts = SearchResultState.InProgress)
 
-        val result = getAllUsersUseCase()
+        val result = withContext(dispatcher.io()) { getAllUsersUseCase() }
 
         innerSearchPeopleState = when (result) {
             is SearchResult.Failure -> {
@@ -114,7 +112,9 @@ abstract class SearchConversationViewModel(
     private suspend fun searchKnown(searchTerm: String) {
         localContactSearchResult = ContactSearchResult.InternalContact(SearchResultState.InProgress)
 
-        localContactSearchResult = when (val result = withContext(dispatcher.io()) { searchKnownUsersUseCase(searchTerm) }) {
+        val result = withContext(dispatcher.io()) { searchKnownUsersUseCase(searchTerm) }
+
+        localContactSearchResult = when (result) {
             is SearchResult.Success -> ContactSearchResult.InternalContact(
                 SearchResultState.Success(result.contacts)
             )

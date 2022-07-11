@@ -48,10 +48,7 @@ class CreateNewConversationViewModel @Inject constructor(
     var groupNameState: NewGroupState by mutableStateOf(NewGroupState())
 
     override suspend fun getAllUsersUseCase(): SearchResult {
-        Log.d("TEST", "get all usres use case ")
-        val result = getAllKnownUsers()
-
-        return when(result) {
+        return when (val result = getAllKnownUsers()) {
             is GetAllContactsResult.Failure -> SearchResult.Failure(R.string.label_general_error)
             is GetAllContactsResult.Success -> SearchResult.Success(
                 result.allContacts.map { otherUser ->

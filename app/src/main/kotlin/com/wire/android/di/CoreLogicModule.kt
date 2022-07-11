@@ -29,9 +29,9 @@ import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
 import com.wire.kalium.logic.feature.publicuser.GetKnownUserUseCase
-import com.wire.kalium.logic.feature.publicuser.SearchKnownUsersUseCase
-import com.wire.kalium.logic.feature.publicuser.SearchUserDirectoryUseCase
-import com.wire.kalium.logic.feature.publicuser.SearchUsersUseCase
+import com.wire.kalium.logic.feature.publicuser.search.SearchKnownUsersUseCase
+import com.wire.kalium.logic.feature.publicuser.search.SearchUserDirectoryUseCase
+import com.wire.kalium.logic.feature.publicuser.search.SearchUsersUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.RegisterTokenUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
@@ -46,9 +46,9 @@ import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.scopes.ViewModelScoped
 import dagger.hilt.components.SingletonComponent
+import kotlinx.coroutines.runBlocking
 import javax.inject.Qualifier
 import javax.inject.Singleton
-import kotlinx.coroutines.runBlocking
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)

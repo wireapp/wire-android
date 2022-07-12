@@ -12,13 +12,13 @@ import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.ClientId
+import com.wire.kalium.logic.data.conversation.Member
 import com.wire.kalium.logic.data.conversation.MemberDetails
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
-import com.wire.kalium.logic.feature.conversation.ObserveMemberDetailsByIdsUseCase
 import com.wire.kalium.logic.feature.message.GetRecentMessagesUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -41,15 +41,15 @@ import org.junit.jupiter.api.Test
 class GetMessageForConversationsUseCaseTest {
 
     @MockK
-    lateinit var getMessages: GetRecentMessagesUseCase
+    private lateinit var getMessages: GetRecentMessagesUseCase
 
     @MockK
-    lateinit var observeMemberDetails: ObserveMemberDetailsByIdsUseCase
+    private lateinit var observeConversationMembers: ObserveConversationMembersUseCase
 
     @MockK
-    lateinit var messageMapper: MessageMapper
+    private lateinit var messageMapper: MessageMapper
 
-    lateinit var getMessagesForConversationUseCase: GetMessagesForConversationUseCase
+    private lateinit var getMessagesForConversationUseCase: GetMessagesForConversationUseCase
 
     @BeforeEach
     fun setup() {
@@ -61,7 +61,7 @@ class GetMessageForConversationsUseCaseTest {
 
         getMessagesForConversationUseCase = GetMessagesForConversationUseCase(
             getMessages,
-            observeMemberDetails,
+            observeConversationMembers,
             messageMapper,
             TestDispatcherProvider(dispatcher)
         )
@@ -77,15 +77,15 @@ class GetMessageForConversationsUseCaseTest {
             val mockTextMessage = mockedTextMessage(expectedMessageBody)
             val mockSelfUserDetails = mockSelfUserDetails(expectedUserName)
 
-            coEvery { getMessages(any()) } returns flowOf(listOf(mockTextMessage))
-            coEvery { observeMemberDetails(any()) } returns flowOf(listOf(mockSelfUserDetails))
+            coEvery { getMessages.invoke(any()) } returns flowOf(listOf(mockTextMessage))
+            coEvery { observeConversationMembers.invoke(any()) } returns flowOf(listOf(mockSelfUserDetails))
             coEvery { messageMapper.toUIMessages(any(), any()) } returns listOf(
                 mockUITextMessage(
                     userName = mockSelfUserDetails.name!!,
                     messageBody = (mockTextMessage.content as com.wire.kalium.logic.data.message.MessageContent.Text).value
                 )
             )
-            every { messageMapper.memberIdList(any()) } returns listOf(mockSelfUserDetails.selfUser.id)
+            every { messageMapper.memberIdList(any()) } returns listOf(mockSelfUserDetails.user.id)
 
             // When
             getMessagesForConversationUseCase(ConversationId("someValue", "someId")).collect { messages ->
@@ -119,8 +119,8 @@ class GetMessageForConversationsUseCaseTest {
     private fun mockSelfUserDetails(
         name: String,
         id: UserId = UserId("self", "user")
-    ): MemberDetails.Self = mockk<MemberDetails.Self>().also {
-        every { it.selfUser } returns mockk<SelfUser>().also { user ->
+    ): MemberDetails = mockk<MemberDetails>().also {
+        every { it.user } returns mockk<SelfUser>().also { user ->
             every { user.id } returns id
             every { user.name } returns name
             every { user.previewPicture } returns null

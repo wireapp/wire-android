@@ -16,6 +16,8 @@ import com.wire.kalium.logic.data.message.MessageContent.MemberChange
 import com.wire.kalium.logic.data.message.MessageContent.MemberChange.Added
 import com.wire.kalium.logic.data.message.MessageContent.MemberChange.Removed
 import com.wire.kalium.logic.data.user.AssetId
+import com.wire.kalium.logic.data.user.OtherUser
+import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
@@ -60,7 +62,6 @@ class MessageContentMapper @Inject constructor(
             member = sender,
             type = SelfNameType.ResourceTitleCase
         )
-
         return UIMessageContent.SystemMessage.MissedCall(authorName)
     }
 
@@ -175,10 +176,9 @@ class MessageContentMapper @Inject constructor(
         return UIMessageContent.RestrictedAsset(mimeType)
     }
 
-    fun toSystemMessageMemberName(member: MemberDetails?, type: SelfNameType = SelfNameType.NameOrDeleted): UIText = when (member) {
-        is MemberDetails.Other -> member.name?.let { UIText.DynamicString(it) }
-            ?: UIText.StringResource(messageResourceProvider.memberNameDeleted)
-        is MemberDetails.Self -> when (type) {
+    fun toSystemMessageMemberName(member: MemberDetails?, type: SelfNameType = SelfNameType.NameOrDeleted): UIText = when (member?.user) {
+        is OtherUser -> member.name?.let { UIText.DynamicString(it) } ?: UIText.StringResource(messageResourceProvider.memberNameDeleted)
+        is SelfUser -> when (type) {
             SelfNameType.ResourceLowercase -> UIText.StringResource(messageResourceProvider.memberNameYouLowercase)
             SelfNameType.ResourceTitleCase -> UIText.StringResource(messageResourceProvider.memberNameYouTitlecase)
             SelfNameType.NameOrDeleted -> member.name?.let { UIText.DynamicString(it) }

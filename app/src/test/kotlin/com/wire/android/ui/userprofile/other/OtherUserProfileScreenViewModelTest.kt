@@ -14,9 +14,10 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.conversation.ProtocolInfo
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.publicuser.model.OtherUser
+import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.data.user.ConnectionState
+import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
@@ -80,7 +81,7 @@ class OtherUserProfileScreenViewModelTest {
     private lateinit var wireSessionImageLoader: WireSessionImageLoader
 
     @MockK
-    private lateinit var userTypeMapper : UserTypeMapper
+    private lateinit var userTypeMapper: UserTypeMapper
 
     @BeforeEach
     fun setUp() {
@@ -239,12 +240,12 @@ class OtherUserProfileScreenViewModelTest {
             "some_email",
             "some_phone",
             1,
-            "some_team",
+            TeamId("some_team"),
             ConnectionState.NOT_CONNECTED,
             null,
             null,
-            UserAvailabilityStatus.AVAILABLE,
-            UserType.INTERNAL
+            UserType.INTERNAL,
+            UserAvailabilityStatus.AVAILABLE
         )
         val TEAM = Team("some_id", null)
         val CONVERSATION = Conversation(

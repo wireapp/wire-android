@@ -4,6 +4,7 @@ import com.wire.android.mapper.UIParticipantMapper
 import com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData
 import com.wire.android.ui.home.conversations.name
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.kalium.logic.data.conversation.Member
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
 import kotlinx.coroutines.flow.Flow
@@ -18,10 +19,10 @@ class ObserveParticipantsForConversationUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(conversationId: ConversationId, limit: Int = -1): Flow<ConversationParticipantsData> =
         observeConversationMembers(conversationId)
-            .map { it.sortedBy { it.name } }
-            .map {
-                val allAdmins = it.filter { false } // TODO count { it is Admin }
-                val allParticipants = it.filter { true } // TODO count { it !is Admin }
+            .map { memberDetailList -> memberDetailList.sortedBy { it.name } }
+            .map { sortedMemberList ->
+                val allAdmins = sortedMemberList.filter { it.role == Member.Role.Admin }
+                val allParticipants = sortedMemberList.filter { it.role != Member.Role.Admin }
 
                 ConversationParticipantsData(
                     admins = allAdmins.limit(limit).map { uiParticipantMapper.toUIParticipant(it) },

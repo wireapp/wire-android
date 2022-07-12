@@ -1,6 +1,5 @@
 package com.wire.android.mapper
 
-import android.content.res.Resources
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.framework.TestMessage
@@ -15,7 +14,6 @@ import com.wire.android.util.time.ISOFormatter
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.android.util.uiMessageDateTime
-import com.wire.kalium.logic.data.conversation.Member
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.user.UserId
@@ -79,7 +77,7 @@ class MessageMapperTest {
         val messages = listOf(message1, message2, message3, message4)
         val member1 = TestUser.MEMBER_SELF.copy(TestUser.SELF_USER.copy(id = userId1))
         val member2 = TestUser.MEMBER_OTHER.copy(TestUser.OTHER_USER.copy(id = userId2))
-        val members = listOf(member1, member2)
+        val members = listOf(member1.user, member2.user)
         // When
         val result = mapper.toUIMessages(members, messages)
         // Then
@@ -125,9 +123,6 @@ class MessageMapperTest {
 
         @MockK
         lateinit var isoFormatter: ISOFormatter
-
-        @MockK
-        lateinit var resources: Resources
 
         @MockK
         private lateinit var wireSessionImageLoader: WireSessionImageLoader

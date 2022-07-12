@@ -42,11 +42,11 @@ class MessageContentMapperTest {
         val deletedMemberDetails = TestUser.MEMBER_OTHER.copy(TestUser.OTHER_USER.copy(name = null))
         val otherMemberDetails = TestUser.MEMBER_OTHER
         // When
-        val selfName = mapper.toSystemMessageMemberName(selfMemberDetails, MessageContentMapper.SelfNameType.NameOrDeleted)
-        val selfResLower = mapper.toSystemMessageMemberName(selfMemberDetails, MessageContentMapper.SelfNameType.ResourceLowercase)
-        val selfResTitle = mapper.toSystemMessageMemberName(selfMemberDetails, MessageContentMapper.SelfNameType.ResourceTitleCase)
-        val deleted = mapper.toSystemMessageMemberName(deletedMemberDetails, MessageContentMapper.SelfNameType.NameOrDeleted)
-        val otherName = mapper.toSystemMessageMemberName(otherMemberDetails, MessageContentMapper.SelfNameType.NameOrDeleted)
+        val selfName = mapper.toSystemMessageMemberName(selfMemberDetails.user, MessageContentMapper.SelfNameType.NameOrDeleted)
+        val selfResLower = mapper.toSystemMessageMemberName(selfMemberDetails.user, MessageContentMapper.SelfNameType.ResourceLowercase)
+        val selfResTitle = mapper.toSystemMessageMemberName(selfMemberDetails.user, MessageContentMapper.SelfNameType.ResourceTitleCase)
+        val deleted = mapper.toSystemMessageMemberName(deletedMemberDetails.user, MessageContentMapper.SelfNameType.NameOrDeleted)
+        val otherName = mapper.toSystemMessageMemberName(otherMemberDetails.user, MessageContentMapper.SelfNameType.NameOrDeleted)
         // Then
         assert(selfName is UIText.DynamicString && selfName.value == selfMemberDetails.name)
         assert(selfResLower is UIText.StringResource && selfResLower.resId == arrangement.messageResourceProvider.memberNameYouLowercase)
@@ -97,12 +97,12 @@ class MessageContentMapperTest {
         val otherCallerInfo = (member1.user as OtherUser).copy(id = missedCallMessage.senderUserId)
         val otherCaller = member1.copy(user = otherCallerInfo)
         // When
-        val resultContentLeft = mapper.mapMemberChangeMessage(contentLeft, userId1, listOf(member1))
-        val resultContentRemoved = mapper.mapMemberChangeMessage(contentRemoved, userId1, listOf(member1, member2))
-        val resultContentAdded = mapper.mapMemberChangeMessage(contentAdded, userId1, listOf(member1, member2, member3))
-        val resultContentAddedSelf = mapper.mapMemberChangeMessage(contentAddedSelf, userId1, listOf(member1))
-        val resultMyMissedCall = mapper.fromMessage(missedCallMessage, listOf(selfCaller))
-        val resultOtherMissedCall = mapper.fromMessage(missedCallMessage, listOf(otherCaller))
+        val resultContentLeft = mapper.mapMemberChangeMessage(contentLeft, userId1, listOf(member1.user))
+        val resultContentRemoved = mapper.mapMemberChangeMessage(contentRemoved, userId1, listOf(member1.user, member2.user))
+        val resultContentAdded = mapper.mapMemberChangeMessage(contentAdded, userId1, listOf(member1.user, member2.user, member3.user))
+        val resultContentAddedSelf = mapper.mapMemberChangeMessage(contentAddedSelf, userId1, listOf(member1.user))
+        val resultMyMissedCall = mapper.fromMessage(missedCallMessage, listOf(selfCaller.user))
+        val resultOtherMissedCall = mapper.fromMessage(missedCallMessage, listOf(otherCaller.user))
         // Then
         assert(
             resultContentLeft is SystemMessage.MemberLeft &&

@@ -17,7 +17,7 @@ class LogWriterModule {
 
     @Singleton
     @Provides
-    fun kaliumFileWriterProvider(@ApplicationContext context: Context): LogFileWriter {
+    fun provideKaliumFileWriter(@ApplicationContext context: Context): LogFileWriter {
         val logsDirectory = File(context.cacheDir, "logs")
         return LogFileWriter(logsDirectory)
     }

@@ -43,7 +43,7 @@ class GetMessageForConversationsUseCaseTest {
     private lateinit var getMessages: GetRecentMessagesUseCase
 
     @MockK
-    private lateinit var observeMemberDetailsByIdsUseCase: ObserveUserListByIdUseCase
+    private lateinit var observeUserListByIdUseCase: ObserveUserListByIdUseCase
 
     @MockK
     private lateinit var messageMapper: MessageMapper
@@ -60,7 +60,7 @@ class GetMessageForConversationsUseCaseTest {
 
         getMessagesForConversationUseCase = GetMessagesForConversationUseCase(
             getMessages,
-            observeMemberDetailsByIdsUseCase,
+            observeUserListByIdUseCase,
             messageMapper,
             TestDispatcherProvider(dispatcher)
         )
@@ -76,8 +76,8 @@ class GetMessageForConversationsUseCaseTest {
             val mockTextMessage = mockedTextMessage(expectedMessageBody)
             val mockSelfUserDetails = mockSelfUserDetails(expectedUserName).user
 
-            coEvery { getMessages.invoke(any()) } returns flowOf(listOf(mockTextMessage))
-            coEvery { observeMemberDetailsByIdsUseCase.invoke(any()) } returns flowOf(listOf(mockSelfUserDetails))
+            coEvery { getMessages(any()) } returns flowOf(listOf(mockTextMessage))
+            coEvery { observeUserListByIdUseCase(any()) } returns flowOf(listOf(mockSelfUserDetails))
             coEvery { messageMapper.toUIMessages(any(), any()) } returns listOf(
                 mockUITextMessage(
                     userName = mockSelfUserDetails.name!!,

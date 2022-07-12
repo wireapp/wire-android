@@ -195,14 +195,6 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun provideObserveObserveUserListByIdUseCase(
-        @KaliumCoreLogic coreLogic: CoreLogic,
-        @CurrentAccount currentAccount: UserId
-    ): ObserveUserListByIdUseCase =
-        coreLogic.getSessionScope(currentAccount).conversations.observeUserListById
-
-    @ViewModelScoped
-    @Provides
     fun provideObserveConnectionListUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).conversations.observeConnectionList
 
@@ -266,6 +258,14 @@ class UseCaseModule {
     @Provides
     fun observeConversationMembersUseCaseProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).conversations.observeConversationMembers
+
+    @ViewModelScoped
+    @Provides
+    fun provideObserveMemberDetailsByIdsUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): ObserveUserListByIdUseCase =
+        coreLogic.getSessionScope(currentAccount).conversations.observeUserListById
 
     @ViewModelScoped
     @Provides

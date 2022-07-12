@@ -108,7 +108,8 @@ fun MessageItem(
                     MessageContent(
                         messageContent = messageContent,
                         onAssetClick = currentOnAssetClicked,
-                        onImageClick = currentOnImageClick
+                        onImageClick = currentOnImageClick,
+                        onLongClick = { onLongClicked(message)}
                     )
                 }
 
@@ -177,6 +178,7 @@ private fun MessageContent(
     messageContent: MessageContent?,
     onAssetClick: Clickable,
     onImageClick: Clickable,
+    onLongClick: (() -> Unit)? = null
 ) {
     when (messageContent) {
         is MessageContent.ImageMessage -> MessageImage(
@@ -185,7 +187,8 @@ private fun MessageContent(
             onImageClick = onImageClick
         )
         is MessageContent.TextMessage -> MessageBody(
-            messageBody = messageContent.messageBody
+            messageBody = messageContent.messageBody,
+            onLongClick = onLongClick
         )
         is MessageContent.AssetMessage -> MessageAsset(
             assetName = messageContent.assetName.split(".").dropLast(1).joinToString("."),

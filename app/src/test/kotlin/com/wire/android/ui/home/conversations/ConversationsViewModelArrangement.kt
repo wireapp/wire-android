@@ -34,8 +34,6 @@ import com.wire.kalium.logic.feature.call.AnswerCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
-import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
-import com.wire.kalium.logic.feature.message.Result
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
@@ -59,7 +57,6 @@ internal class ConversationsViewModelArrangement {
 
         // Default empty values
         coEvery { observeConversationDetails(any()) } returns flowOf()
-        coEvery { markMessagesAsNotified(any(), any()) } returns Result.Success
         coEvery { getSelfUserTeam() } returns flowOf()
     }
 
@@ -86,9 +83,6 @@ internal class ConversationsViewModelArrangement {
 
     @MockK
     lateinit var observeConversationDetails: ObserveConversationDetailsUseCase
-
-    @MockK
-    lateinit var markMessagesAsNotified: MarkMessagesAsNotifiedUseCase
 
     @MockK
     lateinit var updateAssetMessageDownloadStatus: UpdateAssetMessageDownloadStatusUseCase
@@ -135,7 +129,6 @@ internal class ConversationsViewModelArrangement {
             getMessageAsset = getMessageAsset,
             deleteMessage = deleteMessage,
             dispatchers = TestDispatcherProvider(),
-            markMessagesAsNotified = markMessagesAsNotified,
             updateAssetMessageDownloadStatus = updateAssetMessageDownloadStatus,
             getSelfUserTeam = getSelfUserTeam,
             fileManager = fileManager,

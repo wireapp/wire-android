@@ -66,8 +66,8 @@ fun ConversationRouterHomeBridge(
             // by holding the conversation item, not when the notification icon is pressed, therefore when
             // conversationOptionNavigation is equal to ConversationOptionNavigation.MutingNotificationOption
             conversationState.conversationId?.let { conversationId ->
-                if (conversationId == conversationItem.conversationId
-                    && conversationOptionNavigation != ConversationOptionNavigation.MutingNotificationOption
+                if (conversationId == conversationItem.conversationId &&
+                    conversationOptionNavigation != ConversationOptionNavigation.MutingNotificationOption
                 ) {
                     conversationState.toHome()
                 }

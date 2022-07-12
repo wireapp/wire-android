@@ -1,8 +1,6 @@
 package com.wire.android.ui
 
 import android.content.Intent
-import androidx.lifecycle.DefaultLifecycleObserver
-import androidx.lifecycle.LifecycleOwner
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
@@ -23,7 +21,6 @@ import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
@@ -45,9 +42,8 @@ class WireActivityViewModel @Inject constructor(
     private val notificationManager: WireNotificationManager,
     private val navigationManager: NavigationManager,
     private val authServerConfigProvider: AuthServerConfigProvider
-) : ViewModel(), DefaultLifecycleObserver {
+) : ViewModel() {
 
-    private val isAppVisibleFlow = MutableStateFlow(true)
     private val navigationArguments = mutableMapOf<String, Any>(SERVER_CONFIG_ARG to ServerConfig.DEFAULT)
 
     private val observeUserId = currentSessionFlow()
@@ -61,13 +57,7 @@ class WireActivityViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            launch { notificationManager.observeMessageNotifications(observeUserId) }
-            launch {
-                notificationManager.observeIncomingCalls(
-                    isAppVisibleFlow,
-                    observeUserId
-                ) { openIncomingCall(it.conversationId) }
-            }
+            notificationManager.observeNotificationsAndCalls(observeUserId, viewModelScope) { openIncomingCall(it.conversationId) }
         }
     }
 
@@ -146,16 +136,6 @@ class WireActivityViewModel @Inject constructor(
             intent == null -> false
             else -> true
         }
-    }
-
-    override fun onResume(owner: LifecycleOwner) {
-        super.onResume(owner)
-        isAppVisibleFlow.value = true
-    }
-
-    override fun onPause(owner: LifecycleOwner) {
-        super.onPause(owner)
-        isAppVisibleFlow.value = false
     }
 
     private fun openIncomingCall(conversationId: ConversationId) {

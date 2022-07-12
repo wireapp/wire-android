@@ -17,7 +17,7 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.conversation.ObserveMemberDetailsByIdsUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveUserListByIdUseCase
 import com.wire.kalium.logic.feature.message.GetRecentMessagesUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -43,7 +43,7 @@ class GetMessageForConversationsUseCaseTest {
     private lateinit var getMessages: GetRecentMessagesUseCase
 
     @MockK
-    private lateinit var observeMemberDetailsByIdsUseCase: ObserveMemberDetailsByIdsUseCase
+    private lateinit var observeMemberDetailsByIdsUseCase: ObserveUserListByIdUseCase
 
     @MockK
     private lateinit var messageMapper: MessageMapper

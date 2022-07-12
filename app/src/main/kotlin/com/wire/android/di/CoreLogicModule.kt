@@ -195,7 +195,7 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun observeObserveUserListByIdUseCaseProvide(
+    fun provideObserveObserveUserListByIdUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
     ): ObserveUserListByIdUseCase =

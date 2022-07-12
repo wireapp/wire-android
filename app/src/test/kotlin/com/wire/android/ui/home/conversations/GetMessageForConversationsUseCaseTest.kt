@@ -74,17 +74,17 @@ class GetMessageForConversationsUseCaseTest {
             val expectedMessageBody = "some body"
 
             val mockTextMessage = mockedTextMessage(expectedMessageBody)
-            val mockSelfUserDetails = mockSelfUserDetails(expectedUserName)
+            val mockSelfUserDetails = mockSelfUserDetails(expectedUserName).user
 
             coEvery { getMessages.invoke(any()) } returns flowOf(listOf(mockTextMessage))
-            coEvery { observeMemberDetailsByIdsUseCase.invoke(any()) } returns flowOf(listOf(mockSelfUserDetails.user))
+            coEvery { observeMemberDetailsByIdsUseCase.invoke(any()) } returns flowOf(listOf(mockSelfUserDetails))
             coEvery { messageMapper.toUIMessages(any(), any()) } returns listOf(
                 mockUITextMessage(
                     userName = mockSelfUserDetails.name!!,
                     messageBody = (mockTextMessage.content as com.wire.kalium.logic.data.message.MessageContent.Text).value
                 )
             )
-            every { messageMapper.memberIdList(any()) } returns listOf(mockSelfUserDetails.user.id)
+            every { messageMapper.memberIdList(any()) } returns listOf(mockSelfUserDetails.id)
 
             // When
             getMessagesForConversationUseCase(ConversationId("someValue", "someId")).collect { messages ->
@@ -101,7 +101,7 @@ class GetMessageForConversationsUseCaseTest {
                 }
             }
 
-            coVerify { messageMapper.toUIMessages(listOf(mockSelfUserDetails.user), listOf(mockTextMessage)) }
+            coVerify(exactly = 1) { messageMapper.toUIMessages(listOf(mockSelfUserDetails), listOf(mockTextMessage)) }
         }
 
     private fun mockedTextMessage(content: String = "Some Text Message") = Message.Regular(

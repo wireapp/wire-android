@@ -27,7 +27,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.modifier.modifierLocalOf
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.res.painterResource
@@ -44,6 +43,9 @@ import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.rememberPagerState
 import com.wire.android.R
+import com.wire.android.ui.common.WireDialog
+import com.wire.android.ui.common.WireDialogButtonProperties
+import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.theme.WireTheme
@@ -62,10 +64,27 @@ fun WelcomeScreen(viewModel: WelcomeViewModel = hiltViewModel()) {
     WelcomeContent(viewModel)
 }
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun WelcomeContent(viewModel: WelcomeViewModel) {
     Scaffold(modifier = Modifier.padding(vertical = MaterialTheme.wireDimensions.welcomeVerticalPadding)) { internalPadding ->
+        viewModel.observer()
+        if (viewModel.state.showLogoutDialog)
+            WireDialog(
+                title = viewModel.title,
+                text = viewModel.body,
+                onDismiss = { },
+                optionButton1Properties = WireDialogButtonProperties(
+                    onClick = {
+                        viewModel.currentSessionFlow.deleteSession(viewModel.userId!!)
+                        viewModel.state = viewModel.state.copy(showLogoutDialog = false)
+                    },
+                    text = stringResource(id = R.string.label_ok),
+                    type = WireDialogButtonType.Primary,
+                )
+            )
+
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween,
@@ -150,8 +169,10 @@ private suspend fun autoScrollCarousel(
         when {
             shouldJumpToStart(previousPage, currentPage, circularItemsList.lastIndex, initialPage) ->
                 flow { emit(CarouselScrollData(scrollToPage = initialPage, animate = false)) }
+
             shouldJumpToEnd(previousPage, currentPage, circularItemsList.lastIndex) ->
                 flow { emit(CarouselScrollData(scrollToPage = circularItemsList.lastIndex - 1, animate = false)) }
+
             else ->
                 flow { emit(CarouselScrollData(scrollToPage = pageState.currentPage + 1, animate = true)) }
                     .onEach { delay(delay) }

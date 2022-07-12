@@ -40,28 +40,29 @@ import javax.inject.Inject
 @HiltViewModel
 class WireActivityViewModel @Inject constructor(
     dispatchers: DispatcherProvider,
-    currentSessionFlow: CurrentSessionFlowUseCase,
+    val currentSessionFlow: CurrentSessionFlowUseCase,
     private val getServerConfigUseCase: GetServerConfigUseCase,
     private val deepLinkProcessor: DeepLinkProcessor,
     private val notificationManager: WireNotificationManager,
     private val navigationManager: NavigationManager,
-    private val authServerConfigProvider: AuthServerConfigProvider
+    private val authServerConfigProvider: AuthServerConfigProvider,
 ) : ViewModel(), DefaultLifecycleObserver {
 
     private val isAppVisibleFlow = MutableStateFlow(true)
     private val navigationArguments = mutableMapOf<String, Any>(SERVER_CONFIG_ARG to ServerConfig.DEFAULT)
-
+    var authSession: AuthSession? = null
     private val observeUserId = currentSessionFlow()
         .map { result ->
             if (result is CurrentSessionResult.Success) {
                 appLogger.i(result.authSession.toString())
+                authSession = result.authSession
                 when (result.authSession.session) {
                     is AuthSession.Session.LoggedIn -> result.authSession.session.userId
                     is AuthSession.Session.RemovedClient -> {
                         //todo: show removed account message and go to login screen and prefill the email? maybe!
                         navigationManager.navigate(
                             NavigationCommand(
-                                NavigationItem.Login.getRouteWithArgs(),
+                                NavigationItem.Welcome.getRouteWithArgs(),
                                 BackStackMode.CLEAR_WHOLE
                             )
                         )

@@ -15,6 +15,7 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.userprofile.self.dialog.StatusDialogData
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
+import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
@@ -114,7 +115,7 @@ class SelfUserProfileViewModel @Inject constructor(
 
     fun onLogoutClick() {
         viewModelScope.launch {
-            logout()
+            logout(LogoutReason.SELF_LOGOUT)
             dataStore.clear() // TODO this should be moved to some service that will clear all the data in the app
         }
     }

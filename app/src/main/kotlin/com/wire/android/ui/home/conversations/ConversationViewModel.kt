@@ -279,7 +279,8 @@ class ConversationViewModel @Inject constructor(
                     }
                 } catch (e: OutOfMemoryError) {
                     appLogger.e("There was an OutOfMemory error while downloading the asset")
-                    onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingAsset)
+                    onSnackbarMessage(ConversationSnackbarMessages.ErrorDownloadingAsset)
+                    updateAssetMessageDownloadStatus(FAILED, conversationId, messageId)
                 }
             }
         }

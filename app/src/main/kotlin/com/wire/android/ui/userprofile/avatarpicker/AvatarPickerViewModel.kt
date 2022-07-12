@@ -53,7 +53,7 @@ class AvatarPickerViewModel @Inject constructor(
         try {
             dataStore.avatarAssetId.first()?.apply {
                 val qualifiedAsset = this.parseIntoQualifiedID()
-                val avatarRawPath = (getAvatarAsset(assetKey = qualifiedAsset) as PublicAssetResult.Success).asset
+                val avatarRawPath = (getAvatarAsset(assetKey = qualifiedAsset) as PublicAssetResult.Success).assetPath
                 val currentAvatarUri = avatarImageManager.getWritableAvatarUri(avatarRawPath)
                 pictureState = PictureState.Initial(currentAvatarUri)
             }

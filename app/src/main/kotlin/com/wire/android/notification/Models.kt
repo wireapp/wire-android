@@ -32,7 +32,7 @@ enum class CommentResId(@StringRes val value: Int) {
     FILE(R.string.notification_shared_file),
     REACTION(R.string.notification_reacted),
     MISSED_CALL(R.string.notification_missed_call),
-    NOT_SUPPORTED(R.string.notification_not_suppotred_notification)
+    NOT_SUPPORTED(R.string.notification_not_supported_issue)
 }
 
 fun LocalNotificationConversation.intoNotificationConversation() : NotificationConversation{

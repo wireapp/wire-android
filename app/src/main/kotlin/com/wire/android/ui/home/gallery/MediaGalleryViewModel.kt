@@ -18,7 +18,6 @@ import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.getCurrentParsedDateTime
 import com.wire.android.util.ui.WireSessionImageLoader
-import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult.Success
@@ -38,7 +37,6 @@ class MediaGalleryViewModel @Inject constructor(
     private val getConversationDetails: ObserveConversationDetailsUseCase,
     private val dispatchers: DispatcherProvider,
     private val getImageData: GetMessageAssetUseCase,
-    private val kaliumFileSystem: KaliumFileSystem,
     private val fileManager: FileManager,
 ) : ViewModel() {
 

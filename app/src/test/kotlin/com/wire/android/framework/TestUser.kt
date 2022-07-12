@@ -1,8 +1,10 @@
 package com.wire.android.framework
 
+import com.wire.kalium.logic.data.conversation.Member
 import com.wire.kalium.logic.data.conversation.MemberDetails
-import com.wire.kalium.logic.data.publicuser.model.OtherUser
+import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.data.user.ConnectionState
+import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
@@ -18,7 +20,7 @@ object TestUser {
         email = "email",
         phone = "phone",
         accentId = 0,
-        teamId = "teamId",
+        teamId = TeamId("teamId"),
         connectionStatus = ConnectionState.ACCEPTED,
         previewPicture = UserAssetId("value", "domain"),
         completePicture = UserAssetId("value", "domain"),
@@ -31,13 +33,13 @@ object TestUser {
         email = "otherEmail",
         phone = "otherPhone",
         accentId = 0,
-        team = "otherTeamId",
+        teamId = TeamId("otherTeamId"),
         connectionStatus = ConnectionState.ACCEPTED,
         previewPicture = UserAssetId("value", "domain"),
         completePicture = UserAssetId("value", "domain"),
         availabilityStatus = UserAvailabilityStatus.AVAILABLE,
         userType = UserType.INTERNAL
     )
-    val MEMBER_SELF = MemberDetails.Self(SELF_USER)
-    val MEMBER_OTHER = MemberDetails.Other(OTHER_USER)
+    val MEMBER_SELF = MemberDetails(SELF_USER, Member.Role.Admin)
+    val MEMBER_OTHER = MemberDetails(OTHER_USER, Member.Role.Member)
 }

@@ -144,7 +144,7 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun provideObserveSyncStateUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): ObserveSyncStateUseCase =
+    fun provideObserveSyncStateUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId)=
         coreLogic.getSessionScope(currentAccount).observeSyncState
 
     @ViewModelScoped
@@ -245,7 +245,7 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun provideuUploadUserAvatarUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): UploadUserAvatarUseCase =
+    fun provideUploadUserAvatarUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).users.uploadUserAvatar
 
     @ViewModelScoped

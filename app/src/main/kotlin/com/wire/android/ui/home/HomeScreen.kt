@@ -41,7 +41,7 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel, syncViewModel: Sy
     viewModel.checkRequirements()
     val homeUIState = rememberHomeUIState()
     val coroutineScope = rememberCoroutineScope()
-    val homeState = viewModel.homeState
+    val homeState = syncViewModel.homeState
     val snackbarHostState = remember { SnackbarHostState() }
 
     handleSnackBarMessage(snackbarHostState, viewModel.snackbarMessageState, viewModel::clearSnackbarMessage)
@@ -102,9 +102,9 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel, syncViewModel: Sy
             WireDialog(
                 title = stringResource(id = R.string.there_has_been_a_change),
                 text = text,
-                onDismiss = { viewModel.hideDialogStatus() },
+                onDismiss = { syncViewModel.hideDialogStatus() },
                 optionButton1Properties = WireDialogButtonProperties(
-                    onClick = { viewModel.hideDialogStatus() },
+                    onClick = { syncViewModel.hideDialogStatus() },
                     text = stringResource(id = R.string.label_ok),
                     type = WireDialogButtonType.Primary,
                 )

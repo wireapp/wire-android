@@ -12,10 +12,11 @@ data class GroupConversationParticipantsState(
     companion object {
         val PREVIEW = GroupConversationParticipantsState(
             data = ConversationParticipantsData(
-                admins = listOf(UIParticipant(UserId("0", ""), "name", "handle", false)),
+                admins = listOf(UIParticipant(UserId("0", ""), "name", "handle", true)),
                 participants = listOf(UIParticipant(UserId("1", ""), "name", "handle", false)),
                 allAdminsCount = 1,
-                allParticipantsCount = 1
+                allParticipantsCount = 1,
+                isSelfAnAdmin = true
             )
         )
     }

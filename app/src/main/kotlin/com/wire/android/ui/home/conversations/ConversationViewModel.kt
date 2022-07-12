@@ -273,7 +273,9 @@ class ConversationViewModel @Inject constructor(
 
     private fun setFileSharingStatus() {
         viewModelScope.launch {
-            conversationViewState = conversationViewState.copy(isFileSharingEnabled = isFileSharingEnabled())
+            if (isFileSharingEnabled().isFileSharingEnabled != null) {
+                conversationViewState = conversationViewState.copy(isFileSharingEnabled = isFileSharingEnabled().isFileSharingEnabled!!)
+            }
         }
     }
 

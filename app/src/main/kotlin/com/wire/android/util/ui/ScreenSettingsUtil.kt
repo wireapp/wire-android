@@ -1,14 +1,9 @@
 package com.wire.android.util.ui
 
 import android.app.Activity
-import android.app.KeyguardManager
-import android.content.Context
 import android.os.Build
-import android.os.PowerManager
 import android.view.WindowManager
-import androidx.appcompat.app.AppCompatActivity
 import androidx.navigation.NavController
-import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.ScreenMode
 import com.wire.android.navigation.getCurrentNavigationItem
 

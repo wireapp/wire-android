@@ -1,5 +1,8 @@
 package com.wire.android.notification
 
+import com.wire.android.common.runTestWithCancellation
+import com.wire.android.util.CurrentScreen
+import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.newServerConfig
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.GlobalKaliumScope
@@ -17,7 +20,9 @@ import com.wire.kalium.logic.feature.call.CallStatus
 import com.wire.kalium.logic.feature.call.CallsScope
 import com.wire.kalium.logic.feature.call.usecase.GetIncomingCallsUseCase
 import com.wire.kalium.logic.feature.message.GetNotificationsUseCase
+import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
 import com.wire.kalium.logic.feature.message.MessageScope
+import com.wire.kalium.logic.feature.message.Result
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import com.wire.kalium.logic.sync.SyncManager
@@ -29,6 +34,7 @@ import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 
@@ -65,81 +71,138 @@ class WireNotificationManagerTest {
     }
 
     @Test
-    fun givenNotAuthenticatedUser_whenObserveIncomingCallsCalled_thenNothingHappenAndCallNotificationHides() = runTest {
+    fun givenNotAuthenticatedUser_whenObserveCalled_thenNothingHappenAndCallNotificationHides() = runTestWithCancellation {
         val (arrangement, manager) = Arrangement()
+            .withCurrentScreen(CurrentScreen.SomeOther)
             .arrange()
 
-        manager.observeIncomingCalls(appVisibleFlow(), flowOf(null)) {}
+        manager.observeNotificationsAndCalls(flowOf(null), this) {}
+        runCurrent()
 
         verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
         verify(exactly = 1) { arrangement.callNotificationManager.hideCallNotification() }
     }
 
     @Test
-    fun givenNoIncomingCalls_whenObserveIncomingCallsCalled_thenCallNotificationHides() = runTest {
+    fun givenNoIncomingCalls_whenObserveCalled_thenCallNotificationHides() = runTestWithCancellation {
         val (arrangement, manager) = Arrangement()
             .withIncomingCalls(listOf())
+            .withMessageNotifications(listOf())
+            .withCurrentScreen(CurrentScreen.SomeOther)
             .arrange()
 
-        manager.observeIncomingCalls(appVisibleFlow(), flowOf(provideUserId())) {}
+        manager.observeNotificationsAndCalls(flowOf(provideUserId()), this) {}
+        runCurrent()
 
-        verify(exactly = 1) { arrangement.coreLogic.getSessionScope(any()) }
         verify(exactly = 1) { arrangement.callNotificationManager.hideCallNotification() }
     }
 
     @Test
-    fun givenSomeIncomingCalls_whenAppIsNotVisible_thenCallNotificationHidden() = runTest {
+    fun givenSomeIncomingCalls_whenAppIsNotVisible_thenCallNotificationHidden() = runTestWithCancellation {
         val (arrangement, manager) = Arrangement()
             .withIncomingCalls(listOf(provideCall()))
+            .withMessageNotifications(listOf())
+            .withCurrentScreen(CurrentScreen.InBackground)
             .arrange()
 
-        manager.observeIncomingCalls(appInvisibleFlow(), flowOf(provideUserId())) {}
+        manager.observeNotificationsAndCalls(flowOf(provideUserId()), this) {}
+        runCurrent()
 
-        verify(exactly = 1) { arrangement.coreLogic.getSessionScope(any()) }
         verify(exactly = 0) { arrangement.callNotificationManager.hideCallNotification() }
         verify(exactly = 1) { arrangement.callNotificationManager.handleNotifications(any(), any()) }
     }
 
     @Test
-    fun givenSomeIncomingCalls_whenAppIsVisible_thenCallNotificationShowed() = runTest {
+    fun givenSomeIncomingCalls_whenAppIsVisible_thenCallNotificationShowed() = runTestWithCancellation {
         val (arrangement, manager) = Arrangement()
             .withIncomingCalls(listOf(provideCall()))
+            .withCurrentScreen(CurrentScreen.SomeOther)
+            .withMessageNotifications(listOf())
             .arrange()
 
-        manager.observeIncomingCalls(appVisibleFlow(), flowOf(UserId("value", "domain"))) {}
+        manager.observeNotificationsAndCalls(flowOf(provideUserId()), this) {}
+        runCurrent()
 
-        verify(exactly = 1) { arrangement.coreLogic.getSessionScope(any()) }
         verify(exactly = 1) { arrangement.callNotificationManager.hideCallNotification() }
         verify(exactly = 0) { arrangement.callNotificationManager.handleNotifications(any(), any()) }
     }
 
     @Test
-    fun givenSomeNotifications_whenNoUserLoggedIn_thenMessageNotificationNotShowed() = runTest {
+    fun givenSomeNotifications_whenNoUserLoggedIn_thenMessageNotificationNotShowed() = runTestWithCancellation {
         val (arrangement, manager) = Arrangement()
             .withIncomingCalls(listOf(provideCall()))
+            .withMessageNotifications(listOf(provideLocalNotificationConversation(messages = listOf(provideLocalNotificationMessage()))))
+            .withCurrentScreen(CurrentScreen.SomeOther)
             .arrange()
 
-        manager.observeMessageNotifications(flowOf(null))
+        manager.observeNotificationsAndCalls(flowOf(null), this) {}
+        runCurrent()
 
         verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
         verify(exactly = 1) { arrangement.messageNotificationManager.handleNotification(listOf(), any()) }
+        verify(exactly = 1) { arrangement.callNotificationManager.hideCallNotification() }
     }
 
     @Test
-    fun givenSomeNotifications_whenObserveMessageNotificationsCalled_thenCallNotificationShowed() = runTest {
+    fun givenSomeNotifications_whenObserveCalled_thenCallNotificationShowed() = runTestWithCancellation {
         val (arrangement, manager) = Arrangement()
             .withMessageNotifications(listOf(provideLocalNotificationConversation(messages = listOf(provideLocalNotificationMessage()))))
+            .withIncomingCalls(listOf())
+            .withCurrentScreen(CurrentScreen.SomeOther)
             .arrange()
 
-        manager.observeMessageNotifications(flowOf(UserId("value", "domain")))
+        manager.observeNotificationsAndCalls(flowOf(provideUserId()), this) {}
+        runCurrent()
 
-        verify(exactly = 1) { arrangement.coreLogic.getSessionScope(any()) }
         verify(exactly = 1) { arrangement.messageNotificationManager.handleNotification(any(), any()) }
     }
+
+    @Test
+    fun givenSomeNotificationsAndCurrentScreenIsConversation_whenObserveCalled_thenCallNotificationShowed() =
+        runTestWithCancellation {
+            val conversationId = ConversationId("conversation_value", "conversation_domain")
+            val (arrangement, manager) = Arrangement()
+                .withMessageNotifications(
+                    listOf(
+                        provideLocalNotificationConversation(
+                            id = conversationId,
+                            messages = listOf(provideLocalNotificationMessage())
+                        )
+                    )
+                )
+                .withIncomingCalls(listOf())
+                .withCurrentScreen(CurrentScreen.Conversation(conversationId))
+                .arrange()
+
+            manager.observeNotificationsAndCalls(flowOf(provideUserId()), this) {}
+            runCurrent()
+
+            verify(exactly = 1) { arrangement.messageNotificationManager.handleNotification(listOf(), any()) }
+            coVerify(atLeast = 2) { arrangement.markMessagesAsNotified(conversationId, any()) }
+        }
+
+    @Test
+    fun givenCurrentScreenIsConversation_whenObserveCalled_thenConversationNotificationDateUpdated() =
+        runTestWithCancellation {
+            val conversationId = ConversationId("conversation_value", "conversation_domain")
+            val (arrangement, manager) = Arrangement()
+                .withMessageNotifications(listOf())
+                .withIncomingCalls(listOf())
+                .withCurrentScreen(CurrentScreen.Conversation(conversationId))
+                .arrange()
+
+            manager.observeNotificationsAndCalls(flowOf(provideUserId()), this) {}
+            runCurrent()
+
+            coVerify(atLeast = 1) { arrangement.markMessagesAsNotified(conversationId, any()) }
+        }
 
     private class Arrangement {
         @MockK
         lateinit var coreLogic: CoreLogic
+
+        @MockK
+        lateinit var currentScreenManager: CurrentScreenManager
 
         @MockK
         lateinit var globalKaliumScope: GlobalKaliumScope
@@ -166,6 +229,9 @@ class WireNotificationManagerTest {
         lateinit var getNotificationsUseCase: GetNotificationsUseCase
 
         @MockK
+        lateinit var markMessagesAsNotified: MarkMessagesAsNotifiedUseCase
+
+        @MockK
         lateinit var getIncomingCallsUseCase: GetIncomingCallsUseCase
 
         @MockK
@@ -174,6 +240,7 @@ class WireNotificationManagerTest {
         val wireNotificationManager by lazy {
             WireNotificationManager(
                 coreLogic,
+                currentScreenManager,
                 messageNotificationManager,
                 callNotificationManager
             )
@@ -194,6 +261,8 @@ class WireNotificationManagerTest {
             coEvery { callNotificationManager.handleNotifications(any(), any()) } returns Unit
             coEvery { callNotificationManager.hideCallNotification() } returns Unit
             coEvery { messageScope.getNotifications } returns getNotificationsUseCase
+            coEvery { messageScope.markMessagesAsNotified } returns markMessagesAsNotified
+            coEvery { markMessagesAsNotified(any(), any()) } returns Result.Success
         }
 
         fun withSession(session: GetAllSessionsResult): Arrangement {
@@ -208,6 +277,11 @@ class WireNotificationManagerTest {
 
         fun withIncomingCalls(calls: List<Call>): Arrangement {
             coEvery { getIncomingCallsUseCase() } returns flowOf(calls)
+            return this
+        }
+
+        fun withCurrentScreen(screen: CurrentScreen): Arrangement {
+            coEvery { currentScreenManager.observeCurrentScreen(any()) } returns MutableStateFlow(screen)
             return this
         }
 

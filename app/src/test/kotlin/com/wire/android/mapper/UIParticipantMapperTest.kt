@@ -51,8 +51,7 @@ class UIParticipantMapperTest {
         memberDetails.userId == uiParticipant.id
                 && memberDetails.name == uiParticipant.name
                 && memberDetails.handle == uiParticipant.handle
-                && TODO()
-                // && memberDetails.avatar(wireSessionImageLoader) == uiParticipant.avatarData
+                && memberDetails.user.avatar(wireSessionImageLoader) == uiParticipant.avatarData
                 && userTypeMapper.toMembership(memberDetails.userType) == uiParticipant.membership
                 && memberDetails.user is SelfUser == uiParticipant.isSelf
 

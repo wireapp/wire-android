@@ -4,9 +4,7 @@ import androidx.annotation.StringRes
 import com.wire.android.R
 import com.wire.android.ui.home.conversations.findUser
 import com.wire.android.ui.home.conversations.model.MessageBody
-import com.wire.android.ui.home.conversations.name
 import com.wire.android.util.ui.UIText
-import com.wire.kalium.logic.data.conversation.MemberDetails
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.Message
@@ -63,11 +61,10 @@ class MessageContentMapper @Inject constructor(
             user = sender,
             type = SelfNameType.ResourceTitleCase
         )
-
         return if (sender is SelfUser) {
-            UIMessageContent.SystemMessage.MissedCall.youCalled(authorName)
+            UIMessageContent.SystemMessage.MissedCall.YouCalled(authorName)
         } else {
-            UIMessageContent.SystemMessage.MissedCall.otherCalled(authorName)
+            UIMessageContent.SystemMessage.MissedCall.OtherCalled(authorName)
         }
     }
 

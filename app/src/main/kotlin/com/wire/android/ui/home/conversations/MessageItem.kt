@@ -45,7 +45,7 @@ import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.RestrictedAssetMessage
 import com.wire.android.ui.home.conversations.model.UIMessage
-import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.ui.home.conversationslist.model.hasLabel
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 
@@ -136,7 +136,7 @@ private fun MessageHeader(messageHeader: MessageHeader) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
                 Username(username.asString(), modifier = Modifier.weight(weight = 1F))
 
-                if (membership != Membership.None) {
+                if (membership.hasLabel()) {
                     Spacer(modifier = Modifier.width(dimensions().spacing6x))
                     MembershipQualifierLabel(membership)
                 }

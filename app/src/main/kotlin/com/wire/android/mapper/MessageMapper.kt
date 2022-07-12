@@ -9,7 +9,6 @@ import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.name
 import com.wire.android.ui.home.conversations.previewAsset
-import com.wire.android.ui.home.conversations.userId
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.time.ISOFormatter

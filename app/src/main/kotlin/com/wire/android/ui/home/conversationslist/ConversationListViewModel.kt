@@ -246,9 +246,7 @@ private fun UserType.toMembership(): Membership {
         UserType.GUEST -> Membership.Guest
         UserType.FEDERATED -> Membership.Federated
         UserType.EXTERNAL -> Membership.External
-        UserType.INTERNAL -> Membership.None
-        else -> {
-            throw IllegalStateException("Unknown UserType")
-        }
+        UserType.INTERNAL -> Membership.Internal
+        UserType.NONE -> Membership.None
     }
 }

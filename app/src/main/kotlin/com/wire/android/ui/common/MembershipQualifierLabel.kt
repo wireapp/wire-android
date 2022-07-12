@@ -12,6 +12,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.ui.home.conversationslist.model.hasLabel
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
@@ -20,7 +21,7 @@ import com.wire.android.ui.theme.wireTypography
 fun MembershipQualifierLabel(
     membership: Membership,
 ) {
-    if (membership != Membership.None) {
+    if (membership.hasLabel()) {
         Text(
             text = stringResource(id = membership.stringResourceId),
             color = MaterialTheme.colorScheme.primary,

@@ -26,8 +26,8 @@ class ObserveParticipantsForConversationUseCase @Inject constructor(
                 val allParticipants = sortedMemberList.filter { it.role != Member.Role.Admin }
 
                 ConversationParticipantsData(
-                    admins = allAdmins.limit(limit).map { uiParticipantMapper.toUIParticipant(it) },
-                    participants = allParticipants.limit(limit).map { uiParticipantMapper.toUIParticipant(it) },
+                    admins = allAdmins.limit(limit).map { uiParticipantMapper.toUIParticipant(it.user) },
+                    participants = allParticipants.limit(limit).map { uiParticipantMapper.toUIParticipant(it.user) },
                     allAdminsCount = allAdmins.size,
                     allParticipantsCount = allParticipants.size,
                     isSelfAnAdmin = allAdmins.any { it.user is SelfUser }

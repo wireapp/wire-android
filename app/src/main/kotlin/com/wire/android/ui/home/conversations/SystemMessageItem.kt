@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -43,35 +44,40 @@ import com.wire.android.util.ui.toUIText
 
 @Composable
 fun SystemMessageItem(message: SystemMessage) {
+    val fullAvatarOuterPadding = dimensions().userAvatarClickablePadding + dimensions().userAvatarStatusBorderSize
     Row(
         Modifier
             .padding(
                 end = dimensions().spacing16x,
                 start = dimensions().spacing8x,
-                top = dimensions().messageItemBottomPadding / 2,
-                bottom = dimensions().messageItemBottomPadding / 2
+                top = fullAvatarOuterPadding,
+                bottom = dimensions().messageItemBottomPadding - fullAvatarOuterPadding
             )
             .fillMaxWidth()
     ) {
         Box(
             modifier = Modifier
-                .padding(horizontal = dimensions().userAvatarStatusBorderSize)
                 .width(dimensions().userAvatarDefaultSize),
             contentAlignment = Alignment.TopEnd
         ) {
             if (message.iconResId != null) {
-                val size =
-                    if (message.isSmallIcon) dimensions().systemMessageIconSize
-                    else dimensions().systemMessageIconLargeSize
-                val verticalPadding = dimensions().spacing4x
-                Image(
-                    painter = painterResource(id = message.iconResId),
-                    contentDescription = stringResource(R.string.content_description_system_message_icon),
-                    modifier = Modifier
-                        .padding(vertical = verticalPadding)
-                        .size(size),
-                    contentScale = ContentScale.Crop
-                )
+                Box(
+                    modifier = Modifier.size(
+                        width = dimensions().systemMessageIconLargeSize,
+                        height =  dimensions().spacing20x
+                    ),
+                    contentAlignment = Alignment.Center
+                ) {
+                    val size =
+                        if (message.isSmallIcon) dimensions().systemMessageIconSize
+                        else dimensions().systemMessageIconLargeSize
+                    Image(
+                        painter = painterResource(id = message.iconResId),
+                        contentDescription = stringResource(R.string.content_description_system_message_icon),
+                        modifier = Modifier.size(size),
+                        contentScale = ContentScale.Crop
+                    )
+                }
             }
         }
         Spacer(Modifier.padding(start = dimensions().spacing16x))
@@ -80,7 +86,10 @@ fun SystemMessageItem(message: SystemMessage) {
             var expanded: Boolean by remember { mutableStateOf(false) }
             Crossfade(targetState = expanded) {
                 Text(
-                    message.annotatedString(
+                    modifier = Modifier.defaultMinSize(minHeight = dimensions().spacing20x),
+                    style = MaterialTheme.wireTypography.body01,
+                    lineHeight = MaterialTheme.wireTypography.body02.lineHeight,
+                    text = message.annotatedString(
                         context.resources,
                         it,
                         MaterialTheme.wireTypography.body01,
@@ -150,6 +159,12 @@ fun SystemMessageLeftPreview() {
     SystemMessageItem(message = SystemMessage.MemberLeft(UIText.DynamicString("Barbara Cotolina")))
 }
 
+@Preview
+@Composable
+fun SystemMessageMisedCallPreview() {
+    SystemMessageItem(message = SystemMessage.MissedCall(UIText.DynamicString("Barbara Cotolina")))
+}
+
 private val SystemMessage.expandable
     get() = when (this) {
         is SystemMessage.MemberAdded -> this.memberNames.size > EXPANDABLE_THRESHOLD
@@ -193,8 +208,8 @@ fun SystemMessage.annotatedString(
                 author.asString(res),
                 memberNames.limitUserNamesList(res, if (expanded) memberNames.size else EXPANDABLE_THRESHOLD).toUserNamesListString(res)
             )
-        is SystemMessage.MemberLeft -> arrayOf(res.getString(stringResId, author.asString(res)))
-        is SystemMessage.MissedCall -> arrayOf(res.getString(stringResId, author.asString(res)))
+        is SystemMessage.MemberLeft -> arrayOf(author.asString(res))
+        is SystemMessage.MissedCall -> arrayOf(author.asString(res))
     }
     return res.stringWithStyledArgs(stringResId, normalStyle, boldStyle, normalColor, boldColor, *args)
 }

@@ -22,19 +22,19 @@ object AppModule {
     @ExperimentalMaterial3Api
     @Singleton
     @Provides
-    fun providesNavigationManager() = NavigationManager()
+    fun provideNavigationManager() = NavigationManager()
 
     @Singleton
     @Provides
-    fun providesFileManager(@ApplicationContext appContext: Context): FileManager = FileManager(appContext)
+    fun provideFileManager(@ApplicationContext appContext: Context): FileManager = FileManager(appContext)
 
     @Singleton
     @Provides
-    fun providesApplicationContext(@ApplicationContext appContext: Context) = appContext
+    fun provideApplicationContext(@ApplicationContext appContext: Context) = appContext
 
     @Singleton
     @Provides
-    fun providesDefaultDispatchers(): DispatcherProvider = DefaultDispatcherProvider()
+    fun provideDefaultDispatchers(): DispatcherProvider = DefaultDispatcherProvider()
 
     @Provides
     fun provideDeepLinkProcessor(): DeepLinkProcessor = DeepLinkProcessor()

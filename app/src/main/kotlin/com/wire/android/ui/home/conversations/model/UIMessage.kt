@@ -71,7 +71,7 @@ sealed class MessageContent {
 
     sealed class SystemMessage(
         @DrawableRes val iconResId: Int?,
-        @StringRes val stringResId: Int,
+        @StringRes open val stringResId: Int,
         val isSmallIcon: Boolean = true
     ) : MessageContent() {
 
@@ -89,9 +89,14 @@ sealed class MessageContent {
             val author: UIText
         ) : SystemMessage(R.drawable.ic_minus, R.string.label_system_message_left_the_conversation)
 
-        data class MissedCall(
-            val author: UIText
-        ) : SystemMessage(R.drawable.ic_call_end, R.string.label_system_message_missed_call, false)
+        sealed class MissedCall(
+            open val author: UIText,
+            @StringRes override val stringResId: Int
+        ): SystemMessage(R.drawable.ic_call_end, stringResId, false) {
+
+            data class YouCalled(override val author: UIText) : MissedCall(author, R.string.label_system_message_you_called)
+            data class OtherCalled(override val author: UIText) : MissedCall(author, R.string.label_system_message_other_called)
+        }
     }
 }
 

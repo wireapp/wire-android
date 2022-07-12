@@ -34,7 +34,7 @@ fun PreviewAssetMessage() {
 fun PreviewMessageWithSystemMessage() {
     Column {
         MessageItem(mockMessageWithText, {}, {}, { _, _ -> })
-        SystemMessageItem(MessageContent.SystemMessage.MissedCall(UIText.DynamicString("You")))
+        SystemMessageItem(MessageContent.SystemMessage.MissedCall.YouCalled(UIText.DynamicString("You")))
         SystemMessageItem(
             MessageContent.SystemMessage.MemberAdded(
                 UIText.DynamicString("You"),

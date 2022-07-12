@@ -161,8 +161,8 @@ fun SystemMessageLeftPreview() {
 
 @Preview
 @Composable
-fun SystemMessageMisedCallPreview() {
-    SystemMessageItem(message = SystemMessage.MissedCall(UIText.DynamicString("Barbara Cotolina")))
+fun SystemMessageMissedCallPreview() {
+    SystemMessageItem(message = SystemMessage.MissedCall.OtherCalled(UIText.DynamicString("Barbara Cotolina")))
 }
 
 private val SystemMessage.expandable

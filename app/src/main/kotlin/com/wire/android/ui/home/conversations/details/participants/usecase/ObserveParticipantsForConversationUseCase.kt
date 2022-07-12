@@ -6,6 +6,7 @@ import com.wire.android.ui.home.conversations.name
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.conversation.Member
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flowOn
@@ -28,7 +29,8 @@ class ObserveParticipantsForConversationUseCase @Inject constructor(
                     admins = allAdmins.limit(limit).map { uiParticipantMapper.toUIParticipant(it) },
                     participants = allParticipants.limit(limit).map { uiParticipantMapper.toUIParticipant(it) },
                     allAdminsCount = allAdmins.size,
-                    allParticipantsCount = allParticipants.size
+                    allParticipantsCount = allParticipants.size,
+                    isSelfAnAdmin = allAdmins.any { it.user is SelfUser }
                 )
             }
             .flowOn(dispatchers.io())

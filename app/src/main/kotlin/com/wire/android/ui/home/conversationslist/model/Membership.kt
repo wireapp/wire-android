@@ -7,8 +7,8 @@ enum class Membership(@StringRes val stringResourceId: Int) {
     Guest(R.string.label_membership_guest),
     Federated(R.string.label_federated_membership),
     External(R.string.label_membership_external),
-    // Kalium provides a INTERNAL UserType,
-    // on designs this UserType displays no MembershipQualifierLabel
-    // that would map UserType.INTERNAL to Membership.None
+    Internal(-1),
     None(-1)
 }
+
+fun Membership.hasLabel(): Boolean = stringResourceId != -1;

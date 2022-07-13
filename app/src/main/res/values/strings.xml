@@ -400,6 +400,8 @@
     <string name="connection_label_connect">Connect</string>
     <string name="connection_label_cancel_request">Cancel Request</string>
     <string name="connection_label_member_not_belongs_to_team">This user does not belong to your team. If they accept your connection request, they are available as a contact</string>
+    <string name="connection_label_member_not_conneted">When your connection request is accepted, you can communicate directly with this contact.</string>
+
     <string name="connection_request_sent">Connection request sent</string>
     <string name="connection_request_canceled">Connection request canceled</string>
     <string name="connection_request_ignored">You ignored %1$s\'s request</string>

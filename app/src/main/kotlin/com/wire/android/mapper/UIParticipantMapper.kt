@@ -8,6 +8,7 @@ import com.wire.android.ui.home.conversations.userId
 import com.wire.android.ui.home.conversations.userType
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.MemberDetails
+import com.wire.kalium.logic.data.user.SelfUser
 import javax.inject.Inject
 
 class UIParticipantMapper @Inject constructor(
@@ -19,7 +20,7 @@ class UIParticipantMapper @Inject constructor(
         name = memberDetails.name.orEmpty(),
         handle = memberDetails.handle.orEmpty(),
         avatarData = memberDetails.avatar(wireSessionImageLoader),
-        isSelf = memberDetails is MemberDetails.Self,
+        isSelf = memberDetails.user is SelfUser,
         membership = userTypeMapper.toMembership(memberDetails.userType)
     )
 }

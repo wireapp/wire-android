@@ -4,7 +4,7 @@ import com.wire.android.model.ImageAsset
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.ui.WireSessionImageLoader
-import com.wire.kalium.logic.data.publicuser.model.OtherUser
+import com.wire.kalium.logic.data.user.OtherUser
 import javax.inject.Inject
 
 class ContactMapper
@@ -26,5 +26,4 @@ class ContactMapper
             )
         }
     }
-
 }

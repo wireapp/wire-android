@@ -23,6 +23,7 @@ import javax.inject.Inject
 import com.wire.kalium.logic.feature.conversation.Result as GetContactsResult
 import com.wire.kalium.logic.feature.publicuser.search.Result
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @HiltViewModel
 class AddMembersToConversationViewModel @Inject constructor(
@@ -31,7 +32,7 @@ class AddMembersToConversationViewModel @Inject constructor(
     private val searchPublicUsers: SearchUsersUseCase,
     private val contactMapper: ContactMapper,
     private val addMemberToConversation: AddMemberToConversationUseCase,
-    dispatchers: DispatcherProvider,
+    private val dispatchers: DispatcherProvider,
     sendConnectionRequest: SendConnectionRequestUseCase,
     savedStateHandle: SavedStateHandle,
     navigationManager: NavigationManager
@@ -79,12 +80,14 @@ class AddMembersToConversationViewModel @Inject constructor(
             }
         }
 
-     fun addMembersToConversation() {
+    fun addMembersToConversation() {
         viewModelScope.launch {
-            addMemberToConversation(
-                conversationId = conversationId,
-                userIdList = state.contactsAddedToGroup.map { UserId(it.id, it.domain) }
-            )
+            withContext(dispatchers.io()) {
+                addMemberToConversation(
+                    conversationId = conversationId,
+                    userIdList = state.contactsAddedToGroup.map { UserId(it.id, it.domain) }
+                )
+            }
         }
     }
 

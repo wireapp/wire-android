@@ -51,7 +51,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
     fun navigateToAddParticants() = viewModelScope.launch {
         navigationManager.navigate(
             command = NavigationCommand(
-                destination = NavigationItem.AddConversationParticipants.getRouteWithArgs()
+                destination = NavigationItem.AddConversationParticipants.getRouteWithArgs(listOf(conversationId))
             )
         )
     }

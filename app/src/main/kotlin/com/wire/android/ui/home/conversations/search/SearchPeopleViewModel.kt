@@ -196,6 +196,8 @@ abstract class SearchPeopleViewModel(
 
 }
 
+// Different use cases could return different type for the search, we are making sure here
+// that the type is mapped to a SearchResult that can further used in this class
 sealed class SearchResult {
     data class Success(val contacts: List<Contact>) : SearchResult()
     data class Failure(@StringRes val failureString: Int) : SearchResult()

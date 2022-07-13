@@ -58,6 +58,7 @@ import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.kalium.logic.data.id.ConversationId
 import io.github.esentsov.PackagePrivate
+import com.wire.android.ui.home.newconversation.AddMembersToConversationViewModel
 
 @OptIn(
     ExperimentalMaterial3Api::class,
@@ -208,6 +209,16 @@ enum class NavigationItem(
         content = { GroupConversationDetailsScreen(hiltViewModel()) },
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String = routeWithConversationIdArg(arguments)
+    },
+
+    AddGroupParticipants(
+      primaryRoute = "TEST",
+        canonicalRoute = "TEST",
+        content = { com.wire.android.ui.home.newconversation.SearchPeopleRouter(searchPeopleViewModel =  hiltViewModel<AddMembersToConversationViewModel>()) {
+
+        }}
+    ){
+
     },
 
     GroupConversationAllParticipants(

@@ -6,6 +6,7 @@ import com.wire.android.mapper.ContactMapper
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.parseIntoQualifiedID
 import com.wire.kalium.logic.data.user.UserId
@@ -26,19 +27,19 @@ class AddMembersToConversationViewModel @Inject constructor(
     private val searchKnownUsers: SearchKnownUsersUseCase,
     private val searchPublicUsers: SearchUsersUseCase,
     private val contactMapper: ContactMapper,
-    private val addMemberToConversation: AddMemberToConversationUseCase,
-    private val dispatchers: DispatcherProvider,
+//    private val addMemberToConversation: AddMemberToConversationUseCase,
+    dispatchers: DispatcherProvider,
     sendConnectionRequest: SendConnectionRequestUseCase,
     savedStateHandle: SavedStateHandle,
     navigationManager: NavigationManager
 ) : SearchConversationViewModel(navigationManager, sendConnectionRequest, dispatchers) {
 
-    val conversationId: QualifiedID = savedStateHandle
-        .get<String>(EXTRA_CONVERSATION_ID)!!
-        .parseIntoQualifiedID()
+//    val conversationId: QualifiedID = savedStateHandle
+//        .get<String>(EXTRA_CONVERSATION_ID)!!
+//        .parseIntoQualifiedID()
 
     override suspend fun getAllUsersUseCase() =
-        when (val result = getAllContactsNotInConversation(conversationId)) {
+        when (val result = getAllContactsNotInConversation(ConversationId("002ba4da-c645-4599-a4ca-2f0a9ad3eaa9","@wire.com"))) {
             is GetContactsResult.Failure -> SearchResult.Failure(R.string.label_general_error)
             is GetContactsResult.Success -> SearchResult.Success(
                 result.contactsNotInConversation.map { otherUser ->
@@ -62,7 +63,6 @@ class AddMembersToConversationViewModel @Inject constructor(
             }
         }
 
-
     override suspend fun searchPublicUsersUseCase(searchTerm: String) =
         when (val result = searchPublicUsers(searchTerm)) {
             is Result.Failure.Generic, Result.Failure.InvalidRequest -> {
@@ -76,11 +76,10 @@ class AddMembersToConversationViewModel @Inject constructor(
             }
         }
 
-
-    suspend fun addSelectedMembers() {
-        withContext(dispatchers.io()) {
-            addMemberToConversation(conversationId, state.contactsAddedToGroup.map { UserId(it.id, it.domain) })
-        }
-    }
+//    suspend fun addSelectedMembers() {
+//        withContext(dispatchers.io()) {
+//            addMemberToConversation(conversationId, state.contactsAddedToGroup.map { UserId(it.id, it.domain) })
+//        }
+//    }
 
 }

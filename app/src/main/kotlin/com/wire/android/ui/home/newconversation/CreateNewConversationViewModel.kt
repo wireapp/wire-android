@@ -44,6 +44,10 @@ class CreateNewConversationViewModel @Inject constructor(
         const val GROUP_NAME_MAX_COUNT = 64
     }
 
+    init{
+        Log.d("TEST","TEST")
+    }
+
     var groupNameState: NewGroupState by mutableStateOf(NewGroupState())
 
     override suspend fun getAllUsersUseCase(): SearchResult {

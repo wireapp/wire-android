@@ -50,6 +50,14 @@ class GroupConversationDetailsViewModel @Inject constructor(
         )
     }
 
+    fun navigateToAddParticants() = viewModelScope.launch {
+        navigationManager.navigate(
+            command = NavigationCommand(
+                destination = NavigationItem.AddGroupParticipants.getRouteWithArgs()
+            )
+        )
+    }
+
     private fun observeConversationDetails() {
         viewModelScope.launch {
             observeConversationDetails(conversationId).collect { conversationDetails ->

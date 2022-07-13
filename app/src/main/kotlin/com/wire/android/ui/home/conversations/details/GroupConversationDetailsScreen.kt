@@ -55,6 +55,7 @@ fun GroupConversationDetailsScreen(viewModel: GroupConversationDetailsViewModel)
         onBackPressed = viewModel::navigateBack,
         openFullListPressed = viewModel::navigateToFullParticipantsList,
         onProfilePressed = viewModel::openProfile,
+        onAddParticipantsPressed = viewModel::navigateToAddParticants,
         groupOptionsState = viewModel.groupOptionsState,
         groupParticipantsState = viewModel.groupParticipantsState
     )
@@ -66,6 +67,7 @@ private fun GroupConversationDetailsContent(
     onBackPressed: () -> Unit,
     openFullListPressed: () -> Unit,
     onProfilePressed: (UIParticipant) -> Unit,
+    onAddParticipantsPressed : () -> Unit,
     groupOptionsState: GroupConversationOptionsState,
     groupParticipantsState: GroupConversationParticipantsState
 ) {
@@ -76,6 +78,7 @@ private fun GroupConversationDetailsContent(
     val maxAppBarElevation = MaterialTheme.wireDimensions.topBarShadowElevation
     val currentTabState by remember { derivedStateOf { pagerState.calculateCurrentTab() } }
     val elevationState by remember { derivedStateOf { lazyListStates[currentTabState].topBarElevation(maxAppBarElevation) } }
+
     Scaffold(
         topBar = {
             WireCenterAlignedTopAppBar(
@@ -101,6 +104,7 @@ private fun GroupConversationDetailsContent(
         var focusedTabIndex: Int by remember { mutableStateOf(initialPageIndex) }
         val keyboardController = LocalSoftwareKeyboardController.current
         val focusManager = LocalFocusManager.current
+
         CompositionLocalProvider(LocalOverScrollConfiguration provides null) {
             HorizontalPager(
                 state = pagerState,
@@ -117,11 +121,13 @@ private fun GroupConversationDetailsContent(
                     GroupConversationDetailsTabItem.PARTICIPANTS -> GroupConversationParticipants(
                         groupParticipantsState = groupParticipantsState,
                         openFullListPressed = openFullListPressed,
+                        onAddParticipantsPressed = onAddParticipantsPressed,
                         onProfilePressed = onProfilePressed,
                         lazyListState = lazyListStates[pageIndex]
                     )
                 }
             }
+
             LaunchedEffect(pagerState.isScrollInProgress, focusedTabIndex, pagerState.currentPage) {
                 if (!pagerState.isScrollInProgress && focusedTabIndex != pagerState.currentPage) {
                     keyboardController?.hide()
@@ -146,6 +152,7 @@ private fun GroupConversationDetailsPreview() {
             onBackPressed = {},
             openFullListPressed = {},
             onProfilePressed = {},
+            onAddParticipantsPressed = {},
             groupOptionsState = GroupConversationOptionsState(groupName = "Group name"),
             groupParticipantsState = GroupConversationParticipantsState.PREVIEW,
         )

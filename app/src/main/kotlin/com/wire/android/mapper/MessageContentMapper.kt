@@ -4,9 +4,7 @@ import androidx.annotation.StringRes
 import com.wire.android.R
 import com.wire.android.ui.home.conversations.findUser
 import com.wire.android.ui.home.conversations.model.MessageBody
-import com.wire.android.ui.home.conversations.name
 import com.wire.android.util.ui.UIText
-import com.wire.kalium.logic.data.conversation.MemberDetails
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.Message
@@ -16,6 +14,9 @@ import com.wire.kalium.logic.data.message.MessageContent.MemberChange
 import com.wire.kalium.logic.data.message.MessageContent.MemberChange.Added
 import com.wire.kalium.logic.data.message.MessageContent.MemberChange.Removed
 import com.wire.kalium.logic.data.user.AssetId
+import com.wire.kalium.logic.data.user.OtherUser
+import com.wire.kalium.logic.data.user.SelfUser
+import com.wire.kalium.logic.data.user.User
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
@@ -30,13 +31,13 @@ class MessageContentMapper @Inject constructor(
 
     suspend fun fromMessage(
         message: Message,
-        members: List<MemberDetails>
+        userList: List<User>
     ): UIMessageContent? {
         return when (message.visibility) {
             Message.Visibility.VISIBLE ->
                 return when (message) {
                     is Message.Regular -> mapRegularMessage(message)
-                    is Message.System -> mapSystemMessage(message, members)
+                    is Message.System -> mapSystemMessage(message, userList)
                 }
             Message.Visibility.DELETED, // for deleted, there is a state label displayed only
             Message.Visibility.HIDDEN -> null // we don't want to show hidden nor deleted message content in any way
@@ -45,7 +46,7 @@ class MessageContentMapper @Inject constructor(
 
     private fun mapSystemMessage(
         message: Message.System,
-        members: List<MemberDetails>
+        members: List<User>
     ) = when (val content = message.content) {
         is MemberChange -> mapMemberChangeMessage(content, message.senderUserId, members)
         is MessageContent.MissedCall -> mapMissedCallMessage(message.senderUserId, members)
@@ -53,35 +54,34 @@ class MessageContentMapper @Inject constructor(
 
     private fun mapMissedCallMessage(
         senderUserId: UserId,
-        members: List<MemberDetails>
+        userList: List<User>
     ): UIMessageContent.SystemMessage {
-        val sender = members.findUser(userId = senderUserId)
+        val sender = userList.findUser(userId = senderUserId)
         val authorName = toSystemMessageMemberName(
-            member = sender,
+            user = sender,
             type = SelfNameType.ResourceTitleCase
         )
-
-        return if (sender is MemberDetails.Self) {
-            UIMessageContent.SystemMessage.MissedCall.youCalled(authorName)
+        return if (sender is SelfUser) {
+            UIMessageContent.SystemMessage.MissedCall.YouCalled(authorName)
         } else {
-            UIMessageContent.SystemMessage.MissedCall.otherCalled(authorName)
+            UIMessageContent.SystemMessage.MissedCall.OtherCalled(authorName)
         }
     }
 
     fun mapMemberChangeMessage(
         content: MessageContent.MemberChange,
         senderUserId: UserId,
-        members: List<MemberDetails>
+        userList: List<User>
     ): UIMessageContent.SystemMessage? {
-        val sender = members.findUser(userId = senderUserId)
+        val sender = userList.findUser(userId = senderUserId)
         val isAuthorSelfAction = content.members.size == 1 && senderUserId == content.members.first()
         val authorName = toSystemMessageMemberName(
-            member = sender,
+            user = sender,
             type = SelfNameType.ResourceTitleCase
         )
         val memberNameList = content.members.map {
             toSystemMessageMemberName(
-                member = members.findUser(userId = it),
+                user = userList.findUser(userId = it),
                 type = SelfNameType.ResourceLowercase
             )
         }
@@ -179,13 +179,12 @@ class MessageContentMapper @Inject constructor(
         return UIMessageContent.RestrictedAsset(mimeType)
     }
 
-    fun toSystemMessageMemberName(member: MemberDetails?, type: SelfNameType = SelfNameType.NameOrDeleted): UIText = when (member) {
-        is MemberDetails.Other -> member.name?.let { UIText.DynamicString(it) }
-            ?: UIText.StringResource(messageResourceProvider.memberNameDeleted)
-        is MemberDetails.Self -> when (type) {
+    fun toSystemMessageMemberName(user: User?, type: SelfNameType = SelfNameType.NameOrDeleted): UIText = when (user) {
+        is OtherUser -> user.name?.let { UIText.DynamicString(it) } ?: UIText.StringResource(messageResourceProvider.memberNameDeleted)
+        is SelfUser -> when (type) {
             SelfNameType.ResourceLowercase -> UIText.StringResource(messageResourceProvider.memberNameYouLowercase)
             SelfNameType.ResourceTitleCase -> UIText.StringResource(messageResourceProvider.memberNameYouTitlecase)
-            SelfNameType.NameOrDeleted -> member.name?.let { UIText.DynamicString(it) }
+            SelfNameType.NameOrDeleted -> user.name?.let { UIText.DynamicString(it) }
                 ?: UIText.StringResource(messageResourceProvider.memberNameDeleted)
         }
         else -> UIText.StringResource(messageResourceProvider.memberNameDeleted)

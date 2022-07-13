@@ -18,9 +18,9 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.LegalHoldStatus
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.publicuser.model.OtherUser
 import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.data.user.ConnectionState
+import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
@@ -36,8 +36,6 @@ import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
-import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
-import com.wire.kalium.logic.feature.message.Result
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
@@ -61,7 +59,6 @@ internal class ConversationsViewModelArrangement {
 
         // Default empty values
         coEvery { observeConversationDetails(any()) } returns flowOf()
-        coEvery { markMessagesAsNotified(any(), any()) } returns Result.Success
         coEvery { getSelfUserTeam() } returns flowOf()
     }
 
@@ -88,9 +85,6 @@ internal class ConversationsViewModelArrangement {
 
     @MockK
     lateinit var observeConversationDetails: ObserveConversationDetailsUseCase
-
-    @MockK
-    lateinit var markMessagesAsNotified: MarkMessagesAsNotifiedUseCase
 
     @MockK
     lateinit var updateAssetMessageDownloadStatus: UpdateAssetMessageDownloadStatusUseCase
@@ -123,7 +117,7 @@ internal class ConversationsViewModelArrangement {
     private lateinit var wireSessionImageLoader: WireSessionImageLoader
 
     @MockK
-    private lateinit var observeEstablishedCallsUseCase: ObserveEstablishedCallsUseCase
+    private lateinit var observeEstablishedCalls: ObserveEstablishedCallsUseCase
 
     @MockK
     private lateinit var endCall: EndCallUseCase
@@ -143,7 +137,6 @@ internal class ConversationsViewModelArrangement {
             getMessageAsset = getMessageAsset,
             deleteMessage = deleteMessage,
             dispatchers = TestDispatcherProvider(),
-            markMessagesAsNotified = markMessagesAsNotified,
             updateAssetMessageDownloadStatus = updateAssetMessageDownloadStatus,
             getSelfUserTeam = getSelfUserTeam,
             fileManager = fileManager,
@@ -152,7 +145,7 @@ internal class ConversationsViewModelArrangement {
             observeOngoingCalls = observeOngoingCallsUseCase,
             answerCall = answerCallUseCase,
             wireSessionImageLoader = wireSessionImageLoader,
-            observeEstablishedCallsUseCase = observeEstablishedCallsUseCase,
+            observeEstablishedCalls = observeEstablishedCalls,
             endCall = endCall
         )
     }

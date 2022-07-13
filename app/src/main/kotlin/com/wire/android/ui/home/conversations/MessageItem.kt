@@ -45,7 +45,7 @@ import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.RestrictedAssetMessage
 import com.wire.android.ui.home.conversations.model.UIMessage
-import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.ui.home.conversationslist.model.hasLabel
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 
@@ -58,12 +58,13 @@ fun MessageItem(
     onImageMessageClicked: (String, Boolean) -> Unit
 ) {
     with(message) {
+        val fullAvatarOuterPadding = dimensions().userAvatarClickablePadding + dimensions().userAvatarStatusBorderSize
         Row(
             Modifier
                 .customizeMessageBackground(message)
                 .padding(
                     end = dimensions().spacing16x,
-                    bottom = dimensions().messageItemBottomPadding - dimensions().userAvatarClickablePadding
+                    bottom = dimensions().messageItemBottomPadding - fullAvatarOuterPadding
                 )
                 .fillMaxWidth()
                 .let {
@@ -74,13 +75,13 @@ fun MessageItem(
                     ) else it
                 }
         ) {
-            Spacer(Modifier.padding(start = dimensions().spacing8x - dimensions().userAvatarClickablePadding))
+            Spacer(Modifier.padding(start = dimensions().spacing8x - fullAvatarOuterPadding))
             UserProfileAvatar(
                 avatarData = UserAvatarData(message.userAvatarData.asset, message.userAvatarData.availabilityStatus)
             )
-            Spacer(Modifier.padding(start = dimensions().spacing16x - dimensions().userAvatarClickablePadding))
+            Spacer(Modifier.padding(start = dimensions().spacing16x - fullAvatarOuterPadding))
             Column {
-                Spacer(modifier = Modifier.height(dimensions().spacing4x))
+                Spacer(modifier = Modifier.height(fullAvatarOuterPadding))
                 MessageHeader(messageHeader)
 
                 if (!isDeleted) {
@@ -136,7 +137,7 @@ private fun MessageHeader(messageHeader: MessageHeader) {
             Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
                 Username(username.asString(), modifier = Modifier.weight(weight = 1F))
 
-                if (membership != Membership.None) {
+                if (membership.hasLabel()) {
                     Spacer(modifier = Modifier.width(dimensions().spacing6x))
                     MembershipQualifierLabel(membership)
                 }

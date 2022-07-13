@@ -48,9 +48,6 @@ class ConversationListViewModelTest {
     lateinit var observeConversationsAndConnections: ObserveConversationsAndConnectionsUseCase
 
     @MockK
-    lateinit var markMessagesAsNotified: MarkMessagesAsNotifiedUseCase
-
-    @MockK
     lateinit var joinCall: AnswerCallUseCase
 
     @MockK
@@ -65,7 +62,6 @@ class ConversationListViewModelTest {
             ConversationListViewModel(
                 navigationManager,
                 updateConversationMutedStatus,
-                markMessagesAsNotified,
                 joinCall,
                 observeConversationsAndConnections,
                 TestDispatcherProvider(),

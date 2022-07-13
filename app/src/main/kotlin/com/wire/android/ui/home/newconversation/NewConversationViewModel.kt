@@ -85,7 +85,7 @@ class NewConversationViewModel @Inject constructor(
             }
         }
 
-    override fun pickMembers() {
+    fun createGroupConversation() {
         viewModelScope.launch {
             groupNameState = groupNameState.copy(isLoading = true)
 

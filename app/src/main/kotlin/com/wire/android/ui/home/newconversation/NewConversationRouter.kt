@@ -24,9 +24,9 @@ fun NewConversationRouter() {
             route = Screen.SearchListNavHostScreens.route,
             content = {
                 SearchPeopleRouter(
-                    topBarTitle = stringResource(id = R.string.label_new_conversation),
+                    searchBarTitle = stringResource(id = R.string.label_new_conversation),
                     searchPeopleViewModel = newConversationViewModel,
-                    onNewGroupClicked = { newConversationNavController.navigate(Screen.NewGroupNameScreen.route) },
+                    onPeoplePicked = { newConversationNavController.navigate(Screen.NewGroupNameScreen.route) },
                 )
             }
         )

@@ -188,8 +188,6 @@ abstract class SearchPeopleViewModel(
 
     abstract suspend fun searchPublicUsersUseCase(searchTerm: String): SearchResult
 
-    abstract fun pickMembers()
-
 }
 
 sealed class SearchResult {

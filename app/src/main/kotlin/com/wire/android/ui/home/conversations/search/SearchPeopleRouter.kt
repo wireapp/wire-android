@@ -18,13 +18,14 @@ import com.wire.android.ui.home.newconversation.model.Contact
 
 @Composable
 fun SearchPeopleRouter(
+    searchBarTitle: String,
+    onPeoplePicked: () -> Unit,
     searchPeopleViewModel: SearchPeopleViewModel,
-    topBarTitle: String,
 ) {
     SearchPeopleContent(
         searchPeopleState = searchPeopleViewModel.state,
-        topBarTitle = topBarTitle,
-        openNewGroup = searchPeopleViewModel::pickMembers,
+        topBarTitle = searchBarTitle,
+        onPeoplePicked = onPeoplePicked,
         onSearchContact = searchPeopleViewModel::search,
         onClose = searchPeopleViewModel::close,
         onAddContactToGroup = searchPeopleViewModel::addContactToGroup,
@@ -38,7 +39,7 @@ fun SearchPeopleRouter(
 fun SearchPeopleContent(
     searchPeopleState: SearchPeopleState,
     topBarTitle: String,
-    openNewGroup: () -> Unit,
+    onPeoplePicked: () -> Unit,
     onSearchContact: (String) -> Unit,
     onClose: () -> Unit,
     onAddContactToGroup: (Contact) -> Unit,
@@ -52,7 +53,6 @@ fun SearchPeopleContent(
     with(searchPeopleState) {
         AppTopBarWithSearchBar(
             searchBarState = searchBarState,
-
             searchBarHint = stringResource(R.string.label_search_people),
             searchQuery = searchQuery,
             onSearchQueryChanged = { searchTerm ->
@@ -95,7 +95,7 @@ fun SearchPeopleContent(
                                 onAddToGroup = onAddContactToGroup,
                                 onRemoveFromGroup = onRemoveContactFromGroup,
                                 onOpenUserProfile = { onOpenUserProfile(SearchOpenUserProfile(it)) },
-                                onNewGroupClicked = openNewGroup
+                                onNewGroupClicked = onPeoplePicked
                             )
                         }
                     )
@@ -116,7 +116,7 @@ fun SearchPeopleContent(
                                 onOpenUserProfile = { searchContact ->
                                     onOpenUserProfile(SearchOpenUserProfile(searchContact.contact))
                                 },
-                                onNewGroupClicked = openNewGroup,
+                                onNewGroupClicked = onPeoplePicked,
                                 onAddContactClicked = onAddContact
                             )
                         }

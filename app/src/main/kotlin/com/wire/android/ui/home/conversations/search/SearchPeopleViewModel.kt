@@ -21,6 +21,12 @@ import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+
+// SearchPeopleViewModel is used for SearchPeopleRouter
+// some UI elements are having different source for the search
+// therefore we are delegating the search to a specific use cases
+// by overriding getAllUsersUseCase(), searchKnownUsersUseCase()
+// and searchPublicUsersUseCase()
 abstract class SearchPeopleViewModel(
     val navigationManager: NavigationManager,
     private val sendConnectionRequest: SendConnectionRequestUseCase,

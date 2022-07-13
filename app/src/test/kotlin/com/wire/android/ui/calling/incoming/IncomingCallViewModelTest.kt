@@ -46,7 +46,7 @@ class IncomingCallViewModelTest {
     private lateinit var callRinger: CallRinger
 
     @MockK
-    private lateinit var observeEstablishedCallsUseCase: ObserveEstablishedCallsUseCase
+    private lateinit var observeEstablishedCalls: ObserveEstablishedCallsUseCase
 
     @MockK
     private lateinit var endCall: EndCallUseCase
@@ -78,7 +78,7 @@ class IncomingCallViewModelTest {
             rejectCall = rejectCall,
             acceptCall = acceptCall,
             callRinger = callRinger,
-            observeEstablishedCallsUseCase = observeEstablishedCallsUseCase,
+            observeEstablishedCalls = observeEstablishedCalls,
             endCall = endCall,
             notificationManager = notificationManager
         )

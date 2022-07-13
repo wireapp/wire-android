@@ -116,7 +116,7 @@ internal class ConversationsViewModelArrangement {
     private lateinit var wireSessionImageLoader: WireSessionImageLoader
 
    @MockK
-    private lateinit var observeEstablishedCallsUseCase: ObserveEstablishedCallsUseCase
+    private lateinit var observeEstablishedCalls: ObserveEstablishedCallsUseCase
 
     private val conversationDetailsChannel = Channel<ConversationDetails>(capacity = Channel.UNLIMITED)
 
@@ -136,7 +136,7 @@ internal class ConversationsViewModelArrangement {
             updateAssetMessageDownloadStatus = updateAssetMessageDownloadStatus,
             getSelfUserTeam = getSelfUserTeam,
             fileManager = fileManager,
-            observeEstablishedCallsUseCase = observeEstablishedCallsUseCase,
+            observeEstablishedCalls = observeEstablishedCalls,
             getMessageForConversation = getMessagesForConversationUseCase,
             isFileSharingEnabled = isFileSharingEnabledUseCase,
             observeOngoingCalls = observeOngoingCallsUseCase,

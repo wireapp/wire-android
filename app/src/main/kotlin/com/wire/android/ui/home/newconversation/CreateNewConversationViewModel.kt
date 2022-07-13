@@ -20,14 +20,13 @@ import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
 import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsResult
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
-import com.wire.kalium.logic.feature.publicuser.Result
-import com.wire.kalium.logic.feature.publicuser.SearchKnownUsersUseCase
-import com.wire.kalium.logic.feature.publicuser.SearchUsersUseCase
+import com.wire.kalium.logic.feature.publicuser.search.SearchKnownUsersUseCase
+import com.wire.kalium.logic.feature.publicuser.search.SearchUsersUseCase
 import com.wire.kalium.logic.functional.Either
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
+import com.wire.kalium.logic.feature.publicuser.search.Result
 
 
 @HiltViewModel
@@ -124,8 +123,7 @@ class CreateNewConversationViewModel @Inject constructor(
                 // TODO: change the id in Contact to UserId instead of String
                 userIdList = state.contactsAddedToGroup.map { contact -> UserId(contact.id, contact.domain) },
                 options = ConversationOptions().copy(protocol = groupNameState.groupProtocol)
-            )
-            ) {
+            )) {
                 // TODO: handle the error state
                 is Either.Left -> {
                     groupNameState = groupNameState.copy(isLoading = false)

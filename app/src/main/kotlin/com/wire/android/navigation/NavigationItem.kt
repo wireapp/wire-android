@@ -213,13 +213,19 @@ enum class NavigationItem(
     },
 
     AddConversationParticipants(
-      primaryRoute = "TEST",
-        canonicalRoute = "TEST",
+        primaryRoute = ADD_CONVERSATION_PARTICIPANTS,
+        canonicalRoute = "$ADD_CONVERSATION_PARTICIPANTS/{$EXTRA_CONVERSATION_ID}",
         content = {
             val viewModel = hiltViewModel<AddMembersToConversationViewModel>()
-            SearchPeopleRouter(searchPeopleViewModel = viewModel, "Add Participants") { viewModel.addSelectedMembers() }
+            SearchPeopleRouter(
+                searchPeopleViewModel = viewModel,
+                searchBarTitle = "Add Participants",
+                onPeoplePicked = { viewModel.addMembersToConversation() }
+            )
         }
-    ),
+    ) {
+        override fun getRouteWithArgs(arguments: List<Any>): String = routeWithConversationIdArg(arguments)
+    },
 
     GroupConversationAllParticipants(
         primaryRoute = GROUP_CONVERSATION_ALL_PARTICIPANTS,
@@ -266,7 +272,7 @@ enum class NavigationItem(
         screenMode = ScreenMode.WAKE_UP,
         animationConfig = NavigationAnimationConfig.DelegatedAnimation
     ) {
-        override fun getRouteWithArgs(arguments: List<Any>): String  {
+        override fun getRouteWithArgs(arguments: List<Any>): String {
             val conversationIdString: String = arguments.filterIsInstance<ConversationId>().firstOrNull()?.toString()
                 ?: "{$EXTRA_CONVERSATION_ID}"
             return "$INCOMING_CALL?$EXTRA_CONVERSATION_ID=$conversationIdString"
@@ -330,6 +336,7 @@ object NavigationItemDestinationsRoutes {
     const val CONVERSATION = "detailed_conversation_screen"
     const val GROUP_CONVERSATION_DETAILS = "group_conversation_details_screen"
     const val GROUP_CONVERSATION_ALL_PARTICIPANTS = "group_conversation_all_participants_screen"
+    const val ADD_CONVERSATION_PARTICIPANTS = "add_conversation_participants"
     const val SETTINGS = "settings_screen"
     const val DEBUG = "debug_screen"
     const val REMOVE_DEVICES = "remove_devices_screen"

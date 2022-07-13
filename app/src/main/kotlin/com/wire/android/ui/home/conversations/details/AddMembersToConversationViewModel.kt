@@ -4,11 +4,14 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.mapper.ContactMapper
+import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.search.SearchPeopleViewModel
 import com.wire.android.ui.home.conversations.search.SearchResult
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.id.parseIntoQualifiedID
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
 import com.wire.kalium.logic.feature.conversation.AddMemberToConversationUseCase
@@ -34,12 +37,12 @@ class AddMembersToConversationViewModel @Inject constructor(
     navigationManager: NavigationManager
 ) : SearchPeopleViewModel(navigationManager, sendConnectionRequest, dispatchers) {
 
-//    val conversationId: QualifiedID = savedStateHandle
-//        .get<String>(EXTRA_CONVERSATION_ID)!!
-//        .parseIntoQualifiedID()
+    val conversationId: QualifiedID = savedStateHandle
+        .get<String>(EXTRA_CONVERSATION_ID)!!
+        .parseIntoQualifiedID()
 
     override suspend fun getAllUsersUseCase() =
-        when (val result = getAllContactsNotInConversation(ConversationId("002ba4da-c645-4599-a4ca-2f0a9ad3eaa9", "@wire.com"))) {
+        when (val result = getAllContactsNotInConversation(conversationId)) {
             is GetContactsResult.Failure -> SearchResult.Failure(R.string.label_general_error)
             is GetContactsResult.Success -> SearchResult.Success(
                 result.contactsNotInConversation.map { otherUser ->
@@ -76,10 +79,10 @@ class AddMembersToConversationViewModel @Inject constructor(
             }
         }
 
-    override fun pickMembers() {
+     fun addMembersToConversation() {
         viewModelScope.launch {
             addMemberToConversation(
-                conversationId = ConversationId("002ba4da-c645-4599-a4ca-2f0a9ad3eaa9", "@wire.com"),
+                conversationId = conversationId,
                 userIdList = state.contactsAddedToGroup.map { UserId(it.id, it.domain) }
             )
         }

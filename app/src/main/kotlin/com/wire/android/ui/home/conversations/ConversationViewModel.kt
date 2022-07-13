@@ -46,6 +46,7 @@ import com.wire.kalium.logic.feature.asset.SendImageMessageUseCase
 import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCase
 import com.wire.kalium.logic.feature.call.AnswerCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
@@ -77,6 +78,7 @@ class ConversationViewModel @Inject constructor(
     private val getMessageForConversation: GetMessagesForConversationUseCase,
     private val isFileSharingEnabled: IsFileSharingEnabledUseCase,
     private val observeOngoingCalls: ObserveOngoingCallsUseCase,
+    private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val answerCall: AnswerCallUseCase,
     private val fileManager: FileManager,
     private val wireSessionImageLoader: WireSessionImageLoader
@@ -103,6 +105,7 @@ class ConversationViewModel @Inject constructor(
         fetchSelfUserTeam()
         setFileSharingStatus()
         listenOngoingCall()
+        observeEstablishedCall()
     }
 
     // region ------------------------------ Init Methods -------------------------------------
@@ -153,6 +156,13 @@ class ConversationViewModel @Inject constructor(
 
                 conversationViewState = conversationViewState.copy(hasOngoingCall = hasOngoingCall)
             }
+    }
+
+    private fun observeEstablishedCall() = viewModelScope.launch {
+        observeEstablishedCalls().collect {
+            val hasEstablishedCall = it.isNotEmpty()
+            conversationViewState = conversationViewState.copy(hasEstablishedCall = hasEstablishedCall)
+        }
     }
 
     internal fun checkPendingActions() {
@@ -278,7 +288,6 @@ class ConversationViewModel @Inject constructor(
             }
         }
     }
-
 
     private fun getAssetLimitInBytes(): Int {
         // Users with a team attached have larger asset sending limits than default users

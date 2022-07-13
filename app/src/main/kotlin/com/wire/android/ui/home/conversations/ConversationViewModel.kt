@@ -78,7 +78,7 @@ class ConversationViewModel @Inject constructor(
     private val getMessageForConversation: GetMessagesForConversationUseCase,
     private val isFileSharingEnabled: IsFileSharingEnabledUseCase,
     private val observeOngoingCalls: ObserveOngoingCallsUseCase,
-    private val observeEstablishedCallsUseCase: ObserveEstablishedCallsUseCase,
+    private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val answerCall: AnswerCallUseCase,
     private val fileManager: FileManager,
     private val wireSessionImageLoader: WireSessionImageLoader
@@ -159,7 +159,7 @@ class ConversationViewModel @Inject constructor(
     }
 
     private fun observeEstablishedCall() = viewModelScope.launch {
-        observeEstablishedCallsUseCase().collect {
+        observeEstablishedCalls().collect {
             val hasEstablishedCall = it.isNotEmpty()
             conversationViewState = conversationViewState.copy(hasEstablishedCall = hasEstablishedCall)
         }

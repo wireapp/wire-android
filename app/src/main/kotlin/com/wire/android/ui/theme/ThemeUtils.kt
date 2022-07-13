@@ -10,7 +10,7 @@ data class ThemeDependent<T>(
     val dark: T
 ) {
     val currentTheme: T
-        @Composable get() = if (isSystemInDarkTheme()) dark else light
+        @Composable get() = light // TODO if (isSystemInDarkTheme()) dark else light
 }
 
 data class OrientationDependent<T>(

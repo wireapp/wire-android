@@ -1,4 +1,4 @@
-package com.wire.android.ui.home.newconversation
+package com.wire.android.ui.home.newconversation.search
 
 import androidx.annotation.StringRes
 import androidx.compose.runtime.derivedStateOf
@@ -13,9 +13,6 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.newconversation.model.Contact
-import com.wire.android.ui.home.newconversation.search.ContactSearchResult
-import com.wire.android.ui.home.newconversation.search.SearchPeopleState
-import com.wire.android.ui.home.newconversation.search.SearchResultState
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.flow.SearchQueryStateFlow
 import com.wire.kalium.logic.data.user.UserId
@@ -24,7 +21,7 @@ import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-abstract class SearchConversationViewModel(
+abstract class SearchPeopleViewModel(
     val navigationManager: NavigationManager,
     private val sendConnectionRequest: SendConnectionRequestUseCase,
     private val dispatcher: DispatcherProvider

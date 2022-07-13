@@ -13,6 +13,8 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.newconversation.newgroup.NewGroupState
+import com.wire.android.ui.home.newconversation.search.SearchPeopleViewModel
+import com.wire.android.ui.home.newconversation.search.SearchResult
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.conversation.ConversationOptions
 import com.wire.kalium.logic.data.user.UserId
@@ -30,7 +32,7 @@ import com.wire.kalium.logic.feature.publicuser.search.Result
 
 
 @HiltViewModel
-class CreateNewConversationViewModel @Inject constructor(
+class CreateNewPeopleViewModel @Inject constructor(
     private val getAllKnownUsers: GetAllContactsUseCase,
     private val searchKnownUsers: SearchKnownUsersUseCase,
     private val searchPublicUsers: SearchUsersUseCase,
@@ -39,7 +41,7 @@ class CreateNewConversationViewModel @Inject constructor(
     dispatchers: DispatcherProvider,
     sendConnectionRequest: SendConnectionRequestUseCase,
     navigationManager: NavigationManager
-) : SearchConversationViewModel(navigationManager, sendConnectionRequest, dispatchers) {
+) : SearchPeopleViewModel(navigationManager, sendConnectionRequest, dispatchers) {
     private companion object {
         const val GROUP_NAME_MAX_COUNT = 64
     }

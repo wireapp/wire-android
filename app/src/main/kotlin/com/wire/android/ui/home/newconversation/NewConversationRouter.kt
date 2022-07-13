@@ -1,16 +1,19 @@
 package com.wire.android.ui.home.newconversation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.wire.android.R
 import com.wire.android.ui.home.newconversation.common.Screen
 import com.wire.android.ui.home.newconversation.newgroup.NewGroupScreen
+import com.wire.android.ui.home.newconversation.search.SearchPeopleRouter
 
 @Composable
 fun NewConversationRouter() {
-    val newConversationViewModel: CreateNewConversationViewModel = hiltViewModel()
+    val newConversationViewModel: CreateNewPeopleViewModel = hiltViewModel()
     val newConversationNavController = rememberNavController()
 
     NavHost(
@@ -21,6 +24,7 @@ fun NewConversationRouter() {
             route = Screen.SearchListNavHostScreens.route,
             content = {
                 SearchPeopleRouter(
+                    topBarTitle = stringResource(id = R.string.label_new_conversation),
                     searchPeopleViewModel = newConversationViewModel,
                     openNewGroup = { newConversationNavController.navigate(Screen.NewGroupNameScreen.route) },
                 )

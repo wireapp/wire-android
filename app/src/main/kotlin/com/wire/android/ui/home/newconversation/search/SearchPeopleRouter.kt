@@ -1,4 +1,4 @@
-package com.wire.android.ui.home.newconversation
+package com.wire.android.ui.home.newconversation.search
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
@@ -15,18 +15,16 @@ import com.wire.android.ui.common.topappbar.search.rememberSearchbarState
 import com.wire.android.ui.home.newconversation.common.SearchListScreens
 import com.wire.android.ui.home.newconversation.contacts.ContactsScreen
 import com.wire.android.ui.home.newconversation.model.Contact
-import com.wire.android.ui.home.newconversation.search.SearchOpenUserProfile
-import com.wire.android.ui.home.newconversation.search.SearchPeopleScreen
-import com.wire.android.ui.home.newconversation.search.SearchPeopleState
-
 
 @Composable
 fun SearchPeopleRouter(
-    searchPeopleViewModel: SearchConversationViewModel,
+    searchPeopleViewModel: SearchPeopleViewModel,
+    topBarTitle: String,
     openNewGroup: () -> Unit,
 ) {
     SearchPeopleContent(
         searchPeopleState = searchPeopleViewModel.state,
+        topBarTitle = topBarTitle,
         openNewGroup = openNewGroup,
         onSearchContact = searchPeopleViewModel::search,
         onClose = searchPeopleViewModel::close,
@@ -40,6 +38,7 @@ fun SearchPeopleRouter(
 @Composable
 fun SearchPeopleContent(
     searchPeopleState: SearchPeopleState,
+    topBarTitle: String,
     openNewGroup: () -> Unit,
     onSearchContact: (String) -> Unit,
     onClose: () -> Unit,
@@ -75,7 +74,7 @@ fun SearchPeopleContent(
             appTopBar = {
                 WireCenterAlignedTopAppBar(
                     elevation = 0.dp,
-                    title = stringResource(R.string.label_new_conversation),
+                    title = topBarTitle,
                     navigationIconType = NavigationIconType.Close,
                     onNavigationPressed = onClose
                 )

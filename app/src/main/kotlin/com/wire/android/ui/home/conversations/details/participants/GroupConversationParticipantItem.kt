@@ -20,6 +20,7 @@ import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.ui.home.conversationslist.model.hasLabel
 import com.wire.android.ui.home.newconversation.search.HighlightName
 import com.wire.android.ui.home.newconversation.search.HighlightSubtitle
 import com.wire.android.ui.theme.wireDimensions
@@ -42,7 +43,7 @@ fun GroupConversationParticipantItem(
                     searchQuery = searchQuery,
                     modifier = Modifier.weight(weight = 1f, fill = false)
                 )
-                if (uiParticipant.membership != Membership.None) {
+                if (uiParticipant.membership.hasLabel()) {
                     Spacer(modifier = Modifier.width(6.dp))
                     MembershipQualifierLabel(uiParticipant.membership)
                 }

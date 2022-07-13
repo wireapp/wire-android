@@ -60,11 +60,12 @@ import kotlin.math.roundToInt
 // TODO: Here we actually need to implement some logic that will distinguish MentionLabel with Body of the message,
 // waiting for the backend to implement mapping logic for the MessageBody
 @Composable
-internal fun MessageBody(messageBody: MessageBody) {
+internal fun MessageBody(messageBody: MessageBody, onLongClick: (() -> Unit)? = null) {
     LinkifyText(
         text = messageBody.message.asString(),
         mask = Linkify.WEB_URLS or Linkify.EMAIL_ADDRESSES,
-        color = MaterialTheme.colorScheme.onBackground
+        color = MaterialTheme.colorScheme.onBackground,
+        onLongClick = onLongClick
     )
 }
 

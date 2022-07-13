@@ -18,7 +18,8 @@ data class ConversationViewState(
     val downloadedAssetDialogState: DownloadedAssetDialogVisibilityState = DownloadedAssetDialogVisibilityState.Hidden,
     val userTeam: Team? = null,
     val isFileSharingEnabled: Boolean = true,
-    val hasOngoingCall: Boolean = false
+    val hasOngoingCall: Boolean = false,
+    val hasEstablishedCall: Boolean = false
 )
 
 sealed class ConversationAvatar {

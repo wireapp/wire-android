@@ -71,7 +71,8 @@ fun LinkifyText(
     onTextLayout: (TextLayoutResult) -> Unit = {},
     style: TextStyle = LocalTextStyle.current,
     clickable: Boolean = true,
-    onClickLink: ((linkText: String) -> Unit)? = null
+    onClickLink: ((linkText: String) -> Unit)? = null,
+    onLongClick: (() -> Unit)? = null
 ) {
     val uriHandler = LocalUriHandler.current
     val linkInfos = if (linkEntire) listOf(LinkInfo(text, 0, text.length)) else SpannableStr.getLinkInfos(text, mask)
@@ -124,7 +125,8 @@ fun LinkifyText(
                         onClickLink?.invoke(annotatedString.substring(result.start, result.end))
                     }
                 }
-            }
+            },
+            onLongClick = onLongClick
         )
     } else {
         Text(
@@ -166,15 +168,19 @@ private fun ClickableText(
     maxLines: Int = Int.MAX_VALUE,
     onTextLayout: (TextLayoutResult) -> Unit = {},
     style: TextStyle = LocalTextStyle.current,
-    onClick: (Int) -> Unit
+    onClick: (Int) -> Unit,
+    onLongClick: (() -> Unit)? = null,
 ) {
     val layoutResult = remember { mutableStateOf<TextLayoutResult?>(null) }
-    val pressIndicator = Modifier.pointerInput(onClick) {
-        detectTapGestures { pos ->
-            layoutResult.value?.let { layoutResult ->
-                onClick(layoutResult.getOffsetForPosition(pos))
-            }
-        }
+    val pressIndicator = Modifier.pointerInput(Unit) {
+        detectTapGestures(
+            onTap = { pos ->
+                layoutResult.value?.let { layoutResult ->
+                    onClick(layoutResult.getOffsetForPosition(pos))
+                }
+            },
+            onLongPress = { onLongClick?.invoke() }
+        )
     }
     Text(
         text = text,
@@ -205,23 +211,25 @@ private data class LinkInfo(
     val end: Int
 )
 
-private class SpannableStr(source: CharSequence): SpannableString(source) {
+private class SpannableStr(source: CharSequence) : SpannableString(source) {
     companion object {
         fun getLinkInfos(text: String, mask: Int = Linkify.ALL): List<LinkInfo> {
             val spannableStr = SpannableStr(text)
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                Linkify.addLinks(spannableStr, mask) { str: String -> URLSpan(str)  }
+                Linkify.addLinks(spannableStr, mask) { str: String -> URLSpan(str) }
             } else {
                 Linkify.addLinks(spannableStr, mask)
             }
             return spannableStr.linkInfos
         }
     }
+
     private inner class Data(
         val what: Any?,
         val start: Int,
         val end: Int
     )
+
     private val spanList = mutableListOf<Data>()
 
     private val linkInfos: List<LinkInfo>

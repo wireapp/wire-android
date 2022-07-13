@@ -21,7 +21,7 @@ object AppModule {
     @ExperimentalMaterial3Api
     @Singleton
     @Provides
-    fun providesNavigationManager() = NavigationManager()
+    fun provideNavigationManager() = NavigationManager()
 
     @Singleton
     @Provides
@@ -29,7 +29,7 @@ object AppModule {
 
     @Singleton
     @Provides
-    fun providesDefaultDispatchers(): DispatcherProvider = DefaultDispatcherProvider()
+    fun provideDefaultDispatchers(): DispatcherProvider = DefaultDispatcherProvider()
 
     @Provides
     fun provideDeepLinkProcessor(): DeepLinkProcessor = DeepLinkProcessor()

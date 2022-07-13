@@ -17,6 +17,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -25,6 +27,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.UserProfileAvatar
+import com.wire.android.ui.common.WireDialog
+import com.wire.android.ui.common.WireDialogButtonProperties
+import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.conversationColor
@@ -55,12 +60,37 @@ import okio.Path.Companion.toPath
 
 @Composable
 fun ConversationScreen(conversationViewModel: ConversationViewModel) {
-    val startCallAudioPermissionCheck = StartCallAudioBluetoothPermissionCheckFlow(conversationViewModel)
+    val showDialog = remember { mutableStateOf(false) }
+
+    val startCallAudioPermissionCheck = StartCallAudioBluetoothPermissionCheckFlow {
+        conversationViewModel.navigateToInitiatingCallScreen()
+    }
     val joinCallAudioPermissionCheck = JoinCallAudioBluetoothPermissionCheckFlow(conversationViewModel)
     val uiState = conversationViewModel.conversationViewState
 
     LaunchedEffect(conversationViewModel.savedStateHandle) {
         conversationViewModel.checkPendingActions()
+    }
+
+    if (showDialog.value) {
+        WireDialog(
+            title = stringResource(id = R.string.calling_ongoing_call_title_alert),
+            text = stringResource(id = R.string.calling_ongoing_call_start_message_alert),
+            onDismiss = { showDialog.value = false },
+            optionButton1Properties = WireDialogButtonProperties(
+                onClick = { showDialog.value = false },
+                text = stringResource(id = R.string.label_cancel),
+                type = WireDialogButtonType.Secondary
+            ),
+            optionButton2Properties = WireDialogButtonProperties(
+                onClick = {
+                    conversationViewModel.navigateToInitiatingCallScreen()
+                    showDialog.value = false
+                },
+                text = stringResource(id = R.string.calling_ongoing_call_start_anyway),
+                type = WireDialogButtonType.Primary
+            )
+        )
     }
 
     ConversationScreen(
@@ -72,7 +102,13 @@ fun ConversationScreen(conversationViewModel: ConversationViewModel) {
         onImageFullScreenMode = conversationViewModel::navigateToGallery,
         onBackButtonClick = conversationViewModel::navigateBack,
         onDeleteMessage = conversationViewModel::showDeleteMessageDialog,
-        onCallStart = startCallAudioPermissionCheck::launch,
+        onStartCall = {
+            conversationViewModel.establishedCallConversationId?.let {
+                showDialog.value = true
+            } ?: run {
+                startCallAudioPermissionCheck.launch()
+            }
+        },
         onJoinCall = joinCallAudioPermissionCheck::launch,
         onSnackbarMessage = conversationViewModel::onSnackbarMessage,
         onSnackbarMessageShown = conversationViewModel::clearSnackbarMessage,
@@ -90,12 +126,13 @@ fun ConversationScreen(conversationViewModel: ConversationViewModel) {
 }
 
 @Composable
-private fun StartCallAudioBluetoothPermissionCheckFlow(conversationViewModel: ConversationViewModel) =
-    rememberCallingRecordAudioBluetoothRequestFlow(onAudioBluetoothPermissionGranted = {
-        conversationViewModel.navigateToInitiatingCallScreen()
-    }) {
-        //TODO display an error dialog
-    }
+private fun StartCallAudioBluetoothPermissionCheckFlow(
+    onStartCall: () -> Unit
+) = rememberCallingRecordAudioBluetoothRequestFlow(onAudioBluetoothPermissionGranted = {
+    onStartCall()
+}) {
+    //TODO display an error dialog
+}
 
 @Composable
 private fun JoinCallAudioBluetoothPermissionCheckFlow(conversationViewModel: ConversationViewModel) =
@@ -117,7 +154,7 @@ private fun ConversationScreen(
     onImageFullScreenMode: (String, Boolean) -> Unit,
     onBackButtonClick: () -> Unit,
     onDeleteMessage: (String, Boolean) -> Unit,
-    onCallStart: () -> Unit,
+    onStartCall: () -> Unit,
     onJoinCall: () -> Unit,
     onSnackbarMessage: (ConversationSnackbarMessages) -> Unit,
     onSnackbarMessageShown: () -> Unit,
@@ -160,7 +197,7 @@ private fun ConversationScreen(
                             onBackButtonClick = onBackButtonClick,
                             onDropDownClick = onDropDownClick,
                             onSearchButtonClick = { },
-                            onPhoneButtonClick = onCallStart,
+                            onPhoneButtonClick = onStartCall,
                             hasOngoingCall = hasOngoingCall,
                             onJoinCallButtonClick = onJoinCall
                         )
@@ -255,8 +292,8 @@ private fun ConversationScreenContent(
         onSendAttachment = onSendAttachment,
         onMessageComposerError = onMessageComposerError,
         onMessageComposerInputStateChange = { messageComposerState ->
-            if (messageComposerState.to == MessageComposeInputState.Active
-                && messageComposerState.from == MessageComposeInputState.Enabled
+            if (messageComposerState.to == MessageComposeInputState.Active &&
+                messageComposerState.from == MessageComposeInputState.Enabled
             ) {
                 coroutineScope.launch { lazyListState.animateScrollToItem(messages.size) }
             }
@@ -304,15 +341,16 @@ fun MessageList(
         items(messages, key = {
             it.messageHeader.messageId
         }) { message ->
-            if (message.messageContent is MessageContent.SystemMessage)
+            if (message.messageContent is MessageContent.SystemMessage) {
                 SystemMessageItem(message = message.messageContent)
-            else
+            } else {
                 MessageItem(
                     message = message,
                     onLongClicked = onShowContextMenu,
                     onAssetMessageClicked = onDownloadAsset,
                     onImageMessageClicked = onImageFullScreenMode
                 )
+            }
         }
     }
 }

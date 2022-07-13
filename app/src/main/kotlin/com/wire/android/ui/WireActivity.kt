@@ -23,9 +23,11 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.navigateToItem
 import com.wire.android.navigation.popWithArguments
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.ui.updateScreenSettings
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
@@ -35,6 +37,7 @@ import javax.inject.Inject
     ExperimentalAnimationApi::class,
     ExperimentalComposeUiApi::class,
     ExperimentalMaterialApi::class,
+    ExperimentalCoroutinesApi::class
 )
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @AndroidEntryPoint
@@ -43,12 +46,15 @@ class WireActivity : AppCompatActivity() {
     @Inject
     lateinit var navigationManager: NavigationManager
 
+    @Inject
+    lateinit var currentScreenManager: CurrentScreenManager
+
     val viewModel: WireActivityViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
-        lifecycle.addObserver(viewModel)
+        lifecycle.addObserver(currentScreenManager)
         viewModel.handleDeepLink(intent)
         setComposableContent()
     }
@@ -100,6 +106,8 @@ class WireActivity : AppCompatActivity() {
                 keyboardController?.hide()
                 updateScreenSettings(controller)
             }
+
+            navController.addOnDestinationChangedListener(currentScreenManager)
         }
     }
 }

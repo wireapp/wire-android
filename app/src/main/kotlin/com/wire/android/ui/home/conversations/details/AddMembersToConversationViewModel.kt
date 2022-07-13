@@ -83,11 +83,13 @@ class AddMembersToConversationViewModel @Inject constructor(
     fun addMembersToConversation() {
         viewModelScope.launch {
             withContext(dispatchers.io()) {
+                //TODO: addMembersToConversationUseCase does not handle failure
                 addMemberToConversation(
                     conversationId = conversationId,
                     userIdList = state.contactsAddedToGroup.map { UserId(it.id, it.domain) }
                 )
             }
+            navigationManager.navigateBack()
         }
     }
 

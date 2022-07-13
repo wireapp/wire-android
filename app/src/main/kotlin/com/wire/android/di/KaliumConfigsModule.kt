@@ -13,7 +13,7 @@ import dagger.hilt.components.SingletonComponent
 class KaliumConfigsModule {
 
     @Provides
-    fun kaliumConfigsProvider(): KaliumConfigs {
+    fun provideKaliumConfigs(): KaliumConfigs {
         return KaliumConfigs(
             isAccountCreationEnabled = BuildConfig.ALLOW_ACCOUNT_CREATION,
             isChangeEmailEnabled = BuildConfig.ALLOW_CHANGE_OF_EMAIL,

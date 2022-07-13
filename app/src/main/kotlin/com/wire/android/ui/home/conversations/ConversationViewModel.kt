@@ -4,7 +4,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.model.ImageAsset.PrivateAsset
@@ -46,19 +45,15 @@ import com.wire.kalium.logic.feature.asset.SendImageMessageResult
 import com.wire.kalium.logic.feature.asset.SendImageMessageUseCase
 import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCase
 import com.wire.kalium.logic.feature.call.AnswerCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
-import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
-import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
 import com.wire.kalium.logic.functional.onFailure
-import com.wire.kalium.logic.util.toStringDate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -77,7 +72,6 @@ class ConversationViewModel @Inject constructor(
     private val getMessageAsset: GetMessageAssetUseCase,
     private val deleteMessage: DeleteMessageUseCase,
     private val dispatchers: DispatcherProvider,
-    private val markMessagesAsNotified: MarkMessagesAsNotifiedUseCase,
     private val updateAssetMessageDownloadStatus: UpdateAssetMessageDownloadStatusUseCase,
     private val getSelfUserTeam: GetSelfTeamUseCase,
     private val getMessageForConversation: GetMessagesForConversationUseCase,
@@ -107,7 +101,6 @@ class ConversationViewModel @Inject constructor(
         fetchMessages()
         listenConversationDetails()
         fetchSelfUserTeam()
-        setMessagesAsNotified()
         setFileSharingStatus()
         listenOngoingCall()
     }
@@ -151,10 +144,6 @@ class ConversationViewModel @Inject constructor(
         getSelfUserTeam().collect {
             conversationViewState = conversationViewState.copy(userTeam = it)
         }
-    }
-
-    private fun setMessagesAsNotified() = viewModelScope.launch {
-        markMessagesAsNotified(conversationId, System.currentTimeMillis().toStringDate()) //TODO Failure is ignored
     }
 
     private fun listenOngoingCall() = viewModelScope.launch {
@@ -284,7 +273,9 @@ class ConversationViewModel @Inject constructor(
 
     private fun setFileSharingStatus() {
         viewModelScope.launch {
-            conversationViewState = conversationViewState.copy(isFileSharingEnabled = isFileSharingEnabled())
+            if (isFileSharingEnabled().isFileSharingEnabled != null) {
+                conversationViewState = conversationViewState.copy(isFileSharingEnabled = isFileSharingEnabled().isFileSharingEnabled!!)
+            }
         }
     }
 

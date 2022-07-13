@@ -13,8 +13,8 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.newconversation.newgroup.NewGroupState
-import com.wire.android.ui.home.newconversation.search.SearchPeopleViewModel
-import com.wire.android.ui.home.newconversation.search.SearchResult
+import com.wire.android.ui.home.conversations.search.SearchPeopleViewModel
+import com.wire.android.ui.home.conversations.search.SearchResult
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.conversation.ConversationOptions
 import com.wire.kalium.logic.data.user.UserId
@@ -30,9 +30,8 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 import com.wire.kalium.logic.feature.publicuser.search.Result
 
-
 @HiltViewModel
-class CreateNewPeopleViewModel @Inject constructor(
+class NewConversationViewModel @Inject constructor(
     private val getAllKnownUsers: GetAllContactsUseCase,
     private val searchKnownUsers: SearchKnownUsersUseCase,
     private val searchPublicUsers: SearchUsersUseCase,
@@ -46,14 +45,10 @@ class CreateNewPeopleViewModel @Inject constructor(
         const val GROUP_NAME_MAX_COUNT = 64
     }
 
-    init{
-        Log.d("TEST","TEST")
-    }
-
     var groupNameState: NewGroupState by mutableStateOf(NewGroupState())
 
-    override suspend fun getAllUsersUseCase(): SearchResult {
-        return when (val result = getAllKnownUsers()) {
+    override suspend fun getAllUsersUseCase() =
+        when (val result = getAllKnownUsers()) {
             is GetAllContactsResult.Failure -> SearchResult.Failure(R.string.label_general_error)
             is GetAllContactsResult.Success -> SearchResult.Success(
                 result.allContacts.map { otherUser ->
@@ -63,7 +58,6 @@ class CreateNewPeopleViewModel @Inject constructor(
                 }
             )
         }
-    }
 
     override suspend fun searchKnownUsersUseCase(searchTerm: String) =
         when (val result = searchKnownUsers(searchTerm)) {
@@ -91,6 +85,34 @@ class CreateNewPeopleViewModel @Inject constructor(
             }
         }
 
+    override fun pickMembers() {
+        viewModelScope.launch {
+            groupNameState = groupNameState.copy(isLoading = true)
+
+            when (val result = createGroupConversation(
+                name = groupNameState.groupName.text,
+                // TODO: change the id in Contact to UserId instead of String
+                userIdList = state.contactsAddedToGroup.map { contact -> UserId(contact.id, contact.domain) },
+                options = ConversationOptions().copy(protocol = groupNameState.groupProtocol)
+            )) {
+                // TODO: handle the error state
+                is Either.Left -> {
+                    groupNameState = groupNameState.copy(isLoading = false)
+                    Log.d("TEST", "error while creating a group ${result.value}")
+                }
+                is Either.Right -> {
+                    groupNameState = groupNameState.copy(isLoading = false)
+                    navigationManager.navigate(
+                        command = NavigationCommand(
+                            destination = NavigationItem.Conversation.getRouteWithArgs(listOf(result.value.id)),
+                            backStackMode = BackStackMode.REMOVE_CURRENT
+                        )
+                    )
+                }
+            }
+        }
+    }
+
     fun onGroupNameChange(newText: TextFieldValue) {
         when {
             newText.text.trim().isEmpty() -> {
@@ -116,34 +138,6 @@ class CreateNewPeopleViewModel @Inject constructor(
                     continueEnabled = true,
                     error = NewGroupState.GroupNameError.None
                 )
-            }
-        }
-    }
-
-    fun createGroup() {
-        viewModelScope.launch {
-            groupNameState = groupNameState.copy(isLoading = true)
-
-            when (val result = createGroupConversation(
-                name = groupNameState.groupName.text,
-                // TODO: change the id in Contact to UserId instead of String
-                userIdList = state.contactsAddedToGroup.map { contact -> UserId(contact.id, contact.domain) },
-                options = ConversationOptions().copy(protocol = groupNameState.groupProtocol)
-            )) {
-                // TODO: handle the error state
-                is Either.Left -> {
-                    groupNameState = groupNameState.copy(isLoading = false)
-                    Log.d("TEST", "error while creating a group ${result.value}")
-                }
-                is Either.Right -> {
-                    groupNameState = groupNameState.copy(isLoading = false)
-                    navigationManager.navigate(
-                        command = NavigationCommand(
-                            destination = NavigationItem.Conversation.getRouteWithArgs(listOf(result.value.id)),
-                            backStackMode = BackStackMode.REMOVE_CURRENT
-                        )
-                    )
-                }
             }
         }
     }

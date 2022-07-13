@@ -1,14 +1,17 @@
 package com.wire.android.ui.home.conversations.details
 
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.mapper.ContactMapper
 import com.wire.android.navigation.NavigationManager
-import com.wire.android.ui.home.newconversation.search.SearchPeopleViewModel
-import com.wire.android.ui.home.newconversation.search.SearchResult
+import com.wire.android.ui.home.conversations.search.SearchPeopleViewModel
+import com.wire.android.ui.home.conversations.search.SearchResult
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
+import com.wire.kalium.logic.feature.conversation.AddMemberToConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetAllContactsNotInConversationUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchUsersUseCase
@@ -16,14 +19,15 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import com.wire.kalium.logic.feature.conversation.Result as GetContactsResult
 import com.wire.kalium.logic.feature.publicuser.search.Result
+import kotlinx.coroutines.launch
 
 @HiltViewModel
-class AddMembersToPeopleViewModel @Inject constructor(
+class AddMembersToConversationViewModel @Inject constructor(
     private val getAllContactsNotInConversation: GetAllContactsNotInConversationUseCase,
     private val searchKnownUsers: SearchKnownUsersUseCase,
     private val searchPublicUsers: SearchUsersUseCase,
     private val contactMapper: ContactMapper,
-//    private val addMemberToConversation: AddMemberToConversationUseCase,
+    private val addMemberToConversation: AddMemberToConversationUseCase,
     dispatchers: DispatcherProvider,
     sendConnectionRequest: SendConnectionRequestUseCase,
     savedStateHandle: SavedStateHandle,
@@ -35,7 +39,7 @@ class AddMembersToPeopleViewModel @Inject constructor(
 //        .parseIntoQualifiedID()
 
     override suspend fun getAllUsersUseCase() =
-        when (val result = getAllContactsNotInConversation(ConversationId("002ba4da-c645-4599-a4ca-2f0a9ad3eaa9","@wire.com"))) {
+        when (val result = getAllContactsNotInConversation(ConversationId("002ba4da-c645-4599-a4ca-2f0a9ad3eaa9", "@wire.com"))) {
             is GetContactsResult.Failure -> SearchResult.Failure(R.string.label_general_error)
             is GetContactsResult.Success -> SearchResult.Success(
                 result.contactsNotInConversation.map { otherUser ->
@@ -71,11 +75,14 @@ class AddMembersToPeopleViewModel @Inject constructor(
                 SearchResult.Success(result.userSearchResult.result.map { otherUser -> contactMapper.fromOtherUser(otherUser) })
             }
         }
-//
-//    suspend fun addSelectedMembers() {
-//        withContext(dispatchers.io()) {
-//            addMemberToConversation(conversationId, state.contactsAddedToGroup.map { UserId(it.id, it.domain) })
-//        }
-//    }
+
+    override fun pickMembers() {
+        viewModelScope.launch {
+            addMemberToConversation(
+                conversationId = ConversationId("002ba4da-c645-4599-a4ca-2f0a9ad3eaa9", "@wire.com"),
+                userIdList = state.contactsAddedToGroup.map { UserId(it.id, it.domain) }
+            )
+        }
+    }
 
 }

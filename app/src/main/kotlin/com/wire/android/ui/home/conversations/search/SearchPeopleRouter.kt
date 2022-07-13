@@ -1,4 +1,4 @@
-package com.wire.android.ui.home.newconversation.search
+package com.wire.android.ui.home.conversations.search
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
@@ -20,12 +20,11 @@ import com.wire.android.ui.home.newconversation.model.Contact
 fun SearchPeopleRouter(
     searchPeopleViewModel: SearchPeopleViewModel,
     topBarTitle: String,
-    openNewGroup: () -> Unit,
 ) {
     SearchPeopleContent(
         searchPeopleState = searchPeopleViewModel.state,
         topBarTitle = topBarTitle,
-        openNewGroup = openNewGroup,
+        openNewGroup = searchPeopleViewModel::pickMembers,
         onSearchContact = searchPeopleViewModel::search,
         onClose = searchPeopleViewModel::close,
         onAddContactToGroup = searchPeopleViewModel::addContactToGroup,

@@ -1,4 +1,4 @@
-package com.wire.android.ui.home.newconversation.search
+package com.wire.android.ui.home.conversations.search
 
 import androidx.annotation.StringRes
 import androidx.compose.runtime.derivedStateOf
@@ -187,6 +187,8 @@ abstract class SearchPeopleViewModel(
     abstract suspend fun searchKnownUsersUseCase(searchTerm: String): SearchResult
 
     abstract suspend fun searchPublicUsersUseCase(searchTerm: String): SearchResult
+
+    abstract fun pickMembers()
 
 }
 

@@ -9,11 +9,11 @@ import androidx.navigation.compose.rememberNavController
 import com.wire.android.R
 import com.wire.android.ui.home.newconversation.common.Screen
 import com.wire.android.ui.home.newconversation.newgroup.NewGroupScreen
-import com.wire.android.ui.home.newconversation.search.SearchPeopleRouter
+import com.wire.android.ui.home.conversations.search.SearchPeopleRouter
 
 @Composable
 fun NewConversationRouter() {
-    val newConversationViewModel: CreateNewPeopleViewModel = hiltViewModel()
+    val newConversationViewModel: NewConversationViewModel = hiltViewModel()
     val newConversationNavController = rememberNavController()
 
     NavHost(
@@ -26,7 +26,7 @@ fun NewConversationRouter() {
                 SearchPeopleRouter(
                     topBarTitle = stringResource(id = R.string.label_new_conversation),
                     searchPeopleViewModel = newConversationViewModel,
-                    openNewGroup = { newConversationNavController.navigate(Screen.NewGroupNameScreen.route) },
+                    onNewGroupClicked = { newConversationNavController.navigate(Screen.NewGroupNameScreen.route) },
                 )
             }
         )
@@ -37,7 +37,7 @@ fun NewConversationRouter() {
                     onBackPressed = newConversationNavController::popBackStack,
                     newGroupState = newConversationViewModel.groupNameState,
                     onGroupNameChange = newConversationViewModel::onGroupNameChange,
-                    onCreateGroup = newConversationViewModel::createGroup,
+                    onCreateGroup = newConversationViewModel::createGroupConversation,
                     onGroupNameErrorAnimated = newConversationViewModel::onGroupNameErrorAnimated
                 )
             }

@@ -11,12 +11,10 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsState
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipantsViewModel
-import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.parseIntoQualifiedID
-import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -24,10 +22,10 @@ import javax.inject.Inject
 
 @HiltViewModel
 class GroupConversationDetailsViewModel @Inject constructor(
-    private val savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
-    private val observeConversationMembers: ObserveParticipantsForConversationUseCase
+    savedStateHandle: SavedStateHandle,
+    observeConversationMembers: ObserveParticipantsForConversationUseCase
 ) : GroupConversationParticipantsViewModel(savedStateHandle, navigationManager, observeConversationMembers) {
 
     override val maxNumberOfItems: Int get() = MAX_NUMBER_OF_PARTICIPANTS
@@ -53,7 +51,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
     fun navigateToAddParticants() = viewModelScope.launch {
         navigationManager.navigate(
             command = NavigationCommand(
-                destination = NavigationItem.AddGroupParticipants.getRouteWithArgs()
+                destination = NavigationItem.AddConversationParticipants.getRouteWithArgs()
             )
         )
     }

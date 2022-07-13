@@ -30,7 +30,6 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.utils.EMAIL
 import com.wire.android.utils.WorkManagerTestRule
 import com.wire.android.utils.waitForExecution
-import com.wire.kalium.logic.configuration.ServerConfig
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import org.hamcrest.core.AllOf.allOf
@@ -74,7 +73,7 @@ class CreatePersonalAccountScreenTest {
         scenario.onActivity { activity ->
             activity.setContent {
                 WireTheme {
-                    CreatePersonalAccountScreen(serverConfig = ServerConfig.STAGING)
+                    CreatePersonalAccountScreen()
                 }
             }
         }

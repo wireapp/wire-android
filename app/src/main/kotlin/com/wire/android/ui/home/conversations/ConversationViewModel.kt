@@ -45,6 +45,7 @@ import com.wire.kalium.logic.feature.asset.SendImageMessageResult
 import com.wire.kalium.logic.feature.asset.SendImageMessageUseCase
 import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCase
 import com.wire.kalium.logic.feature.call.AnswerCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
@@ -80,6 +81,7 @@ class ConversationViewModel @Inject constructor(
     private val observeOngoingCalls: ObserveOngoingCallsUseCase,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val answerCall: AnswerCallUseCase,
+    private val endCall: EndCallUseCase,
     private val fileManager: FileManager,
     private val wireSessionImageLoader: WireSessionImageLoader
 ) : SavedStateViewModel(savedStateHandle) {
@@ -98,6 +100,8 @@ class ConversationViewModel @Inject constructor(
     val conversationId: ConversationId = savedStateHandle
         .get<String>(EXTRA_CONVERSATION_ID)!!
         .parseIntoQualifiedID()
+
+    var establishedCallConversationId: ConversationId? = null
 
     init {
         fetchMessages()
@@ -161,6 +165,9 @@ class ConversationViewModel @Inject constructor(
     private fun observeEstablishedCall() = viewModelScope.launch {
         observeEstablishedCalls().collect {
             val hasEstablishedCall = it.isNotEmpty()
+            establishedCallConversationId = if (it.isNotEmpty()) {
+                it.first().conversationId
+            } else null
             conversationViewState = conversationViewState.copy(hasEstablishedCall = hasEstablishedCall)
         }
     }
@@ -260,7 +267,11 @@ class ConversationViewModel @Inject constructor(
                         updateAssetMessageDownloadStatus(IN_PROGRESS, conversationId, messageId)
 
                     val resultData = getRawAssetData(conversationId, messageId)
-                    updateAssetMessageDownloadStatus(if (resultData != null) SAVED_INTERNALLY else FAILED, conversationId, messageId)
+                    updateAssetMessageDownloadStatus(
+                        if (resultData != null) SAVED_INTERNALLY else FAILED,
+                        conversationId,
+                        messageId
+                    )
 
                     if (resultData != null) {
                         showOnAssetDownloadedDialog(assetName, resultData, messageId)
@@ -309,11 +320,21 @@ class ConversationViewModel @Inject constructor(
     fun showDeleteMessageDialog(messageId: String, isMyMessage: Boolean) =
         if (isMyMessage) {
             updateDeleteDialogState {
-                it.copy(forEveryone = DeleteMessageDialogActiveState.Visible(messageId = messageId, conversationId = conversationId))
+                it.copy(
+                    forEveryone = DeleteMessageDialogActiveState.Visible(
+                        messageId = messageId,
+                        conversationId = conversationId
+                    )
+                )
             }
         } else {
             updateDeleteDialogState {
-                it.copy(forYourself = DeleteMessageDialogActiveState.Visible(messageId = messageId, conversationId = conversationId))
+                it.copy(
+                    forYourself = DeleteMessageDialogActiveState.Visible(
+                        messageId = messageId,
+                        conversationId = conversationId
+                    )
+                )
             }
         }
 
@@ -452,6 +473,9 @@ class ConversationViewModel @Inject constructor(
 
     fun navigateToInitiatingCallScreen() {
         viewModelScope.launch {
+            establishedCallConversationId?.let {
+                endCall(it)
+            }
             navigationManager.navigate(
                 command = NavigationCommand(
                     destination = NavigationItem.InitiatingCall.getRouteWithArgs(listOf(conversationId))

@@ -1,6 +1,5 @@
 package com.wire.android.ui.home.newconversation
 
-import android.util.Log
 import androidx.annotation.StringRes
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
@@ -22,14 +21,6 @@ import com.wire.android.util.flow.SearchQueryStateFlow
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestResult
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
-import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
-import com.wire.kalium.logic.feature.publicuser.GetAllContactsResult
-import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
-import com.wire.kalium.logic.feature.publicuser.search.SearchKnownUsersUseCase
-import com.wire.kalium.logic.feature.publicuser.search.SearchUsersUseCase
-import com.wire.kalium.logic.feature.publicuser.search.Result
-import com.wire.kalium.logic.functional.Either
-import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 

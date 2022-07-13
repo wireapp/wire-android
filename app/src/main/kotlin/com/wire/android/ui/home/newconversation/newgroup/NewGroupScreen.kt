@@ -40,14 +40,14 @@ import com.wire.kalium.logic.data.conversation.ConversationOptions
 fun NewGroupScreen(
     newGroupState: NewGroupState,
     onGroupNameChange: (TextFieldValue) -> Unit,
-    onCreateGroup: () -> Unit,
+    onContinuePressed: () -> Unit,
     onGroupNameErrorAnimated: () -> Unit,
     onBackPressed: () -> Unit
 ) {
     NewGroupScreenContent(
         newGroupState = newGroupState,
         onGroupNameChange = onGroupNameChange,
-        onContinuePressed = onCreateGroup,
+        onContinuePressed = onContinuePressed,
         onGroupNameErrorAnimated = onGroupNameErrorAnimated,
         onBackPressed = onBackPressed
     )

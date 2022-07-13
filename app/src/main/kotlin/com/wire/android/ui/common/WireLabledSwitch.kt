@@ -18,7 +18,7 @@ import com.wire.android.ui.theme.wireColorScheme
 @Composable
 fun WireLabeledSwitch(
     switchState: Boolean,
-    onCheckedChange: ((Boolean) -> Unit)?,
+    onCheckedChange: ((Boolean) -> Unit),
     text: String,
     modifier: Modifier = Modifier
         .fillMaxWidth()

@@ -31,11 +31,17 @@ import com.wire.android.ui.theme.wireDimensions
 @Composable
 fun GroupOptionScreen(
     groupOptionState: GroupOptionState,
+    onAllowGuestChanged: ((Boolean) -> Unit),
+    onAllowServicesChanged: ((Boolean) -> Unit),
+    onReadReceiptChanged: ((Boolean) -> Unit),
     onCreateGroup: () -> Unit,
     onBackPressed: () -> Unit
 ) {
     GroupOptionScreenContent(
         groupOptionState = groupOptionState,
+        onAllowGuestChanged = onAllowGuestChanged,
+        onAllowServicesChanged = onAllowServicesChanged,
+        onReadReceiptChanged = onReadReceiptChanged,
         onContinuePressed = onCreateGroup,
         onBackPressed = onBackPressed
     )
@@ -47,6 +53,9 @@ fun GroupOptionScreen(
 @Composable
 fun GroupOptionScreenContent(
     groupOptionState: GroupOptionState,
+    onAllowGuestChanged: ((Boolean) -> Unit),
+    onAllowServicesChanged: ((Boolean) -> Unit),
+    onReadReceiptChanged: ((Boolean) -> Unit),
     onContinuePressed: () -> Unit,
     onBackPressed: () -> Unit,
 ) {
@@ -70,7 +79,7 @@ fun GroupOptionScreenContent(
                     allowServices, allowServicesDescription,
                     readReceipt, readReceiptDescription) = createRefs()
                 WireLabeledSwitch(
-                    isAllowGuestEnabled, {}, stringResource(R.string.allow_guests),
+                    isAllowGuestEnabled, { onAllowGuestChanged.invoke(it) }, stringResource(R.string.allow_guests),
                     Modifier
                         .fillMaxWidth()
                         .background(MaterialTheme.colorScheme.surface)
@@ -93,7 +102,7 @@ fun GroupOptionScreenContent(
                 )
 
                 WireLabeledSwitch(
-                    isAllowServicesEnabled, {}, stringResource(R.string.allow_services),
+                    isAllowServicesEnabled, { onAllowServicesChanged.invoke(it) }, stringResource(R.string.allow_services),
                     Modifier
                         .fillMaxWidth()
                         .background(MaterialTheme.colorScheme.surface)
@@ -116,7 +125,7 @@ fun GroupOptionScreenContent(
                 )
 
                 WireLabeledSwitch(
-                    isReadReceiptEnabled, {}, stringResource(R.string.read_receipts),
+                    isReadReceiptEnabled, { onReadReceiptChanged.invoke(it) }, stringResource(R.string.read_receipts),
                     Modifier
                         .fillMaxWidth()
                         .background(MaterialTheme.colorScheme.surface)
@@ -165,6 +174,6 @@ private fun GroupOptionScreenPreview() {
     GroupOptionScreenContent(
         GroupOptionState(),
         {},
-        {},
+        {}, {}, {}, {}
     )
 }

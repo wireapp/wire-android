@@ -15,6 +15,7 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.home.newconversation.groupOptions.GroupOptionState
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.home.newconversation.newgroup.NewGroupState
 import com.wire.android.ui.home.newconversation.search.ContactSearchResult
@@ -29,9 +30,9 @@ import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
 import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsResult
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
+import com.wire.kalium.logic.feature.publicuser.search.Result
 import com.wire.kalium.logic.feature.publicuser.search.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchUsersUseCase
-import com.wire.kalium.logic.feature.publicuser.search.Result
 import com.wire.kalium.logic.functional.Either
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -72,6 +73,7 @@ class NewConversationViewModel
     }
 
     var groupNameState: NewGroupState by mutableStateOf(NewGroupState())
+    var groupOptionsState: GroupOptionState by mutableStateOf(GroupOptionState())
 
     private var innerSearchPeopleState: SearchPeopleState by mutableStateOf(SearchPeopleState())
 
@@ -240,6 +242,20 @@ class NewConversationViewModel
                 )
             }
         }
+    }
+
+    fun onAllowGuestStatusChanged(status: Boolean) {
+        groupOptionsState = groupOptionsState.copy(isAllowGuestEnabled = status)
+    }
+
+    fun onAllowServicesStatusChanged(status: Boolean) {
+        groupOptionsState = groupOptionsState.copy(isAllowServicesEnabled = status)
+
+    }
+
+    fun onReadReceiptStatusChanged(status: Boolean) {
+        groupOptionsState = groupOptionsState.copy(isReadReceiptEnabled = status)
+
     }
 
     fun createGroup() {

@@ -1,13 +1,12 @@
 package com.wire.android.ui.home.newconversation
 
-import androidx.activity.compose.BackHandler
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.wire.android.ui.home.newconversation.common.Screen
+import com.wire.android.ui.home.newconversation.groupOptions.GroupOptionScreen
 import com.wire.android.ui.home.newconversation.newgroup.NewGroupScreen
 
 @Composable
@@ -38,11 +37,25 @@ fun NewConversationRouter() {
             route = Screen.NewGroupNameScreen.route,
             content = {
                 NewGroupScreen(
-                    onBackPressed =  newConversationNavController::popBackStack ,
+                    onBackPressed = newConversationNavController::popBackStack,
                     newGroupState = newConversationViewModel.groupNameState,
                     onGroupNameChange = newConversationViewModel::onGroupNameChange,
-                    onCreateGroup = newConversationViewModel::createGroup,
+                    onContinuePressed = { newConversationNavController.navigate(Screen.GroupOptionsScreen.route) },
                     onGroupNameErrorAnimated = newConversationViewModel::onGroupNameErrorAnimated
+                )
+            }
+        )
+
+        composable(
+            route = Screen.GroupOptionsScreen.route,
+            content = {
+                GroupOptionScreen(
+                    onBackPressed = newConversationNavController::popBackStack,
+                    onCreateGroup = newConversationViewModel::createGroup,
+                    groupOptionState = newConversationViewModel.groupOptionsState,
+                    onAllowGuestChanged = newConversationViewModel::onAllowGuestStatusChanged,
+                    onAllowServicesChanged = newConversationViewModel::onAllowServicesStatusChanged,
+                    onReadReceiptChanged = newConversationViewModel::onReadReceiptStatusChanged
                 )
             }
         )

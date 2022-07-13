@@ -4,6 +4,7 @@ package com.wire.android.ui.home.newconversation.common
 sealed class Screen(val route: String) {
     object NewGroupNameScreen : Screen("new_group_name")
     object SearchListNavHostScreens : Screen("search_list_nav_host")
+    object GroupOptionsScreen : Screen("group_options_screen")
 }
 
 sealed class SearchListScreens(val route: String) {

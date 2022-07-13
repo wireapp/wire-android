@@ -7,6 +7,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.wire.android.ui.common.MembershipQualifierLabel
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.ui.home.conversationslist.model.hasLabel
 
 @Composable
 fun UserLabel(userInfoLabel: UserInfoLabel, modifier: Modifier = Modifier) {
@@ -16,7 +17,7 @@ fun UserLabel(userInfoLabel: UserInfoLabel, modifier: Modifier = Modifier) {
             isLegalHold = isLegalHold,
             modifier = modifier,
             badges = {
-                if (membership != Membership.None) {
+                if (membership.hasLabel()) {
                     Spacer(modifier = Modifier.width(6.dp))
                     MembershipQualifierLabel(membership)
                 }
@@ -28,5 +29,5 @@ fun UserLabel(userInfoLabel: UserInfoLabel, modifier: Modifier = Modifier) {
 data class UserInfoLabel(
     val labelName: String,
     val isLegalHold: Boolean,
-    val membership: Membership,
+    val membership: Membership
 )

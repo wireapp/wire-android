@@ -1,11 +1,8 @@
 package com.wire.android.ui.home.newconversation.model
 
-import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.UserAvatarData
-import com.wire.kalium.logic.data.conversation.Member
-import com.wire.kalium.logic.data.publicuser.model.OtherUser
+import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.kalium.logic.data.user.ConnectionState
-import com.wire.kalium.logic.data.user.UserId
 
 data class Contact(
     val id: String,
@@ -13,24 +10,6 @@ data class Contact(
     val name: String,
     val avatarData: UserAvatarData = UserAvatarData(),
     val label: String = "",
-    val connectionState: ConnectionState = ConnectionState.NOT_CONNECTED
-) {
-
-    fun toMember(): Member {
-        return Member(UserId(id, domain))
-    }
-
-    val isConnectedOrPending =
-        connectionState == ConnectionState.ACCEPTED ||
-            connectionState == ConnectionState.SENT ||
-            connectionState == ConnectionState.PENDING
-}
-
-fun OtherUser.toContact() =
-    Contact(
-        id = id.value,
-        domain = id.domain,
-        name = name ?: "",
-        label = handle ?: "",
-        avatarData = UserAvatarData(completePicture?.let { UserAvatarAsset(it) }),
-    )
+    val connectionState: ConnectionState,
+    val membership: Membership
+)

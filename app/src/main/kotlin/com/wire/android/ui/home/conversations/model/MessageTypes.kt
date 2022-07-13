@@ -2,10 +2,12 @@ package com.wire.android.ui.home.conversations.model
 
 import android.graphics.Bitmap
 import android.text.util.Linkify
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.combinedClickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,6 +22,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -32,25 +35,21 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import coil.compose.rememberAsyncImagePainter
 import com.wire.android.R
+import com.wire.android.model.Clickable
 import com.wire.android.ui.common.LinkifyText
 import com.wire.android.ui.common.WireCircularProgressIndicator
+import com.wire.android.ui.common.clickable
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.ConversationViewModel
-import com.wire.android.ui.home.conversations.MessageItem
-import com.wire.android.ui.home.conversations.SystemMessageItem
-import com.wire.android.ui.home.conversations.mock.mockAssetMessage
-import com.wire.android.ui.home.conversations.mock.mockMessageWithText
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.getUriFromDrawable
 import com.wire.android.util.toBitmap
-import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.FAILED
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.IN_PROGRESS
@@ -62,29 +61,7 @@ import kotlin.math.roundToInt
 // TODO: Here we actually need to implement some logic that will distinguish MentionLabel with Body of the message,
 // waiting for the backend to implement mapping logic for the MessageBody
 @Composable
-internal fun MessageBody(messageBody: MessageBody, editTime: String? = null) {
-    Column {
-        if (editTime != null)
-            Box(
-                modifier = Modifier
-                    .border(
-                        width = 1.dp,
-                        color = MaterialTheme.wireColorScheme.divider,
-                        shape = RoundedCornerShape(dimensions().corner4x)
-                    )
-            ) {
-                Text(
-                    text = stringResource(R.string.label_message_status_edited_with_date, editTime),
-                    color = MaterialTheme.wireColorScheme.labelText,
-                    style = MaterialTheme.wireTypography.label03,
-                    modifier = Modifier
-                        .padding(
-                            horizontal = dimensions().spacing4x,
-                            vertical = dimensions().spacing2x
-                        )
-                )
-            }
-    }
+internal fun MessageBody(messageBody: MessageBody) {
     LinkifyText(
         text = messageBody.message.asString(),
         mask = Linkify.WEB_URLS or Linkify.EMAIL_ADDRESSES,
@@ -92,39 +69,25 @@ internal fun MessageBody(messageBody: MessageBody, editTime: String? = null) {
     )
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
-internal fun DeletedMessage() {
-    Box(
-        modifier = Modifier
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.wireColorScheme.divider,
-                shape = RoundedCornerShape(dimensions().corner4x)
-            )
-    ) {
-        Text(
-            text = stringResource(R.string.deleted_message_text),
-            color = MaterialTheme.wireColorScheme.labelText,
-            style = MaterialTheme.wireTypography.label03,
-            modifier = Modifier
-                .padding(
-                    horizontal = dimensions().spacing4x,
-                    vertical = dimensions().spacing2x
-                )
-        )
-    }
-
-}
-
-@Composable
-fun MessageImage(rawImgData: ByteArray?, imgParams: ImageMessageParams, onImageClick: () -> Unit) {
+fun MessageImage(
+    rawImgData: ByteArray?,
+    imgParams: ImageMessageParams,
+    onImageClick: Clickable,
+) {
     Box(
         Modifier
             .clip(shape = RoundedCornerShape(dimensions().messageAssetBorderRadius))
-            .clickable { onImageClick() }
+            .combinedClickable(
+                enabled = onImageClick.enabled,
+                onClick = onImageClick.onClick,
+                onLongClick = onImageClick.onLongClick,
+            )
     ) {
         val imageData: Bitmap? =
             if (rawImgData != null && rawImgData.size < ConversationViewModel.IMAGE_SIZE_LIMIT_BYTES) rawImgData.toBitmap() else null
+
         Image(
             painter = rememberAsyncImagePainter(imageData ?: getUriFromDrawable(LocalContext.current, R.drawable.ic_gallery)),
             alignment = Alignment.CenterStart,
@@ -138,11 +101,44 @@ fun MessageImage(rawImgData: ByteArray?, imgParams: ImageMessageParams, onImageC
 }
 
 @Composable
+fun RestrictedAssetMessage(assetTypeIcon: Int, restrictedAssetMessage: String) {
+    Box(
+        Modifier
+            .background(MaterialTheme.wireColorScheme.primaryButtonDisabled)
+            .clip(shape = RoundedCornerShape(dimensions().messageAssetBorderRadius))
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(200.dp),
+            verticalArrangement = Arrangement.Center,
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Image(
+                modifier = Modifier.padding(bottom = dimensions().spacing4x),
+                painter = painterResource(
+                    id = assetTypeIcon
+                ),
+                alignment = Alignment.Center,
+                contentDescription = stringResource(R.string.content_description_image_message),
+            )
+
+            Text(
+                text = restrictedAssetMessage,
+                style = MaterialTheme.wireTypography.body02.copy(color = MaterialTheme.wireColorScheme.secondaryText),
+
+                overflow = TextOverflow.Ellipsis,
+            )
+        }
+    }
+}
+
+@Composable
 internal fun MessageAsset(
     assetName: String,
     assetExtension: String,
     assetSizeInBytes: Long,
-    onAssetClick: () -> Unit,
+    onAssetClick: Clickable,
     assetDownloadStatus: Message.DownloadStatus
 ) {
     val assetDescription = provideAssetDescription(assetExtension, assetSizeInBytes)
@@ -158,7 +154,7 @@ internal fun MessageAsset(
                 color = MaterialTheme.wireColorScheme.secondaryButtonDisabledOutline,
                 shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
             )
-            .clickable { onAssetClick() }
+            .clickable(onAssetClick)
             .padding(dimensions().spacing8x)
     ) {
         Column {
@@ -282,7 +278,7 @@ private fun AnnotatedString.Builder.appendBody(messageBody: MessageBody) {
     append(messageBody.message.asString())
 }
 
-class ImageMessageParams(private val realImgWidth: Int, private val realImgHeight: Int) {
+data class ImageMessageParams(private val realImgWidth: Int, private val realImgHeight: Int) {
     // Image size normalizations to keep the ratio of the inline message image
     val normalizedWidth: Dp
         @Composable
@@ -291,35 +287,4 @@ class ImageMessageParams(private val realImgWidth: Int, private val realImgHeigh
     val normalizedHeight: Dp
         @Composable
         get() = Dp(normalizedWidth.value * realImgHeight.toFloat() / realImgWidth)
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewMessage() {
-    MessageItem(mockMessageWithText, {}, {}, { _, _ -> })
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewDeletedMessage() {
-    DeletedMessage()
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewAssetMessage() {
-    MessageItem(mockAssetMessage, {}, {}, { _, _ -> })
-}
-
-@Preview(showBackground = true)
-@Composable
-fun PreviewMessageWithSystemMessage() {
-    Column {
-        MessageItem(mockMessageWithText, {}, {}, { _, _ -> })
-        SystemMessageItem(MessageContent.SystemMessage.MemberAdded(
-            UIText.DynamicString("You"),
-            listOf(UIText.DynamicString("Adam Smmith"))
-        ))
-    }
-
 }

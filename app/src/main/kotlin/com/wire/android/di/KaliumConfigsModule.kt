@@ -1,5 +1,6 @@
 package com.wire.android.di
 
+import android.os.Build
 import com.wire.android.BuildConfig
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import dagger.Module
@@ -12,7 +13,7 @@ import dagger.hilt.components.SingletonComponent
 class KaliumConfigsModule {
 
     @Provides
-    fun kaliumConfigsProvider(): KaliumConfigs {
+    fun provideKaliumConfigs(): KaliumConfigs {
         return KaliumConfigs(
             isAccountCreationEnabled = BuildConfig.ALLOW_ACCOUNT_CREATION,
             isChangeEmailEnabled = BuildConfig.ALLOW_CHANGE_OF_EMAIL,
@@ -46,7 +47,9 @@ class KaliumConfigsModule {
             newPasswordMaximumLength = BuildConfig.NEW_PASSWORD_MAXIMUM_LENGTH,
             newPasswordMinimumLength = BuildConfig.NEW_PASSWORD_MINIMUM_LENGTH,
             passwordMaxAttempts = BuildConfig.PASSWORD_MAX_ATTEMPTS,
-            appLockTimeout = BuildConfig.APP_LOCK_TIMEOUT
+            appLockTimeout = BuildConfig.APP_LOCK_TIMEOUT,
+            // we use upsert, available from SQL3.24, which is supported from Android API30, so for older APIs we have to use SQLCipher
+            shouldEncryptData = !BuildConfig.DEBUG || Build.VERSION.SDK_INT < Build.VERSION_CODES.R
         )
     }
 

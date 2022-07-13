@@ -12,27 +12,34 @@ import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
 import com.wire.android.util.FileManager
 import com.wire.android.util.ui.UIText
+import com.wire.android.util.ui.WireSessionImageLoader
+import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.LegalHoldStatus
-import com.wire.kalium.logic.data.conversation.UserType
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.publicuser.model.OtherUser
 import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.data.user.ConnectionState
+import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserAssetId
+import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.SendAssetMessageResult
 import com.wire.kalium.logic.feature.asset.SendAssetMessageUseCase
 import com.wire.kalium.logic.feature.asset.SendImageMessageResult
 import com.wire.kalium.logic.feature.asset.SendImageMessageUseCase
 import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCase
+import com.wire.kalium.logic.feature.call.AnswerCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
-import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
-import com.wire.kalium.logic.feature.message.Result
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
+import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
+import com.wire.kalium.logic.functional.Either
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
@@ -52,7 +59,6 @@ internal class ConversationsViewModelArrangement {
 
         // Default empty values
         coEvery { observeConversationDetails(any()) } returns flowOf()
-        coEvery { markMessagesAsNotified(any(), any()) } returns Result.Success
         coEvery { getSelfUserTeam() } returns flowOf()
     }
 
@@ -81,9 +87,6 @@ internal class ConversationsViewModelArrangement {
     lateinit var observeConversationDetails: ObserveConversationDetailsUseCase
 
     @MockK
-    lateinit var markMessagesAsNotified: MarkMessagesAsNotifiedUseCase
-
-    @MockK
     lateinit var updateAssetMessageDownloadStatus: UpdateAssetMessageDownloadStatusUseCase
 
     @MockK
@@ -96,10 +99,28 @@ internal class ConversationsViewModelArrangement {
     lateinit var getMessagesForConversationUseCase: GetMessagesForConversationUseCase
 
     @MockK
+    lateinit var isFileSharingEnabledUseCase: IsFileSharingEnabledUseCase
+
+    @MockK
     lateinit var resources: Resources
 
     @MockK
     lateinit var uiText: UIText
+
+    @MockK
+    lateinit var observeOngoingCallsUseCase: ObserveOngoingCallsUseCase
+
+    @MockK
+    lateinit var answerCallUseCase: AnswerCallUseCase
+
+    @MockK
+    private lateinit var wireSessionImageLoader: WireSessionImageLoader
+
+    @MockK
+    private lateinit var observeEstablishedCalls: ObserveEstablishedCallsUseCase
+
+    @MockK
+    private lateinit var endCall: EndCallUseCase
 
     private val conversationDetailsChannel = Channel<ConversationDetails>(capacity = Channel.UNLIMITED)
 
@@ -116,11 +137,16 @@ internal class ConversationsViewModelArrangement {
             getMessageAsset = getMessageAsset,
             deleteMessage = deleteMessage,
             dispatchers = TestDispatcherProvider(),
-            markMessagesAsNotified = markMessagesAsNotified,
             updateAssetMessageDownloadStatus = updateAssetMessageDownloadStatus,
             getSelfUserTeam = getSelfUserTeam,
             fileManager = fileManager,
-            getMessageForConversation = getMessagesForConversationUseCase
+            getMessageForConversation = getMessagesForConversationUseCase,
+            isFileSharingEnabled = isFileSharingEnabledUseCase,
+            observeOngoingCalls = observeOngoingCallsUseCase,
+            answerCall = answerCallUseCase,
+            wireSessionImageLoader = wireSessionImageLoader,
+            observeEstablishedCalls = observeEstablishedCalls,
+            endCall = endCall
         )
     }
 
@@ -138,10 +164,14 @@ internal class ConversationsViewModelArrangement {
         return this
     }
 
-
     fun withSuccessfulSendAttachmentMessage(): ConversationsViewModelArrangement {
         coEvery { sendAssetMessage(any(), any(), any(), any()) } returns SendAssetMessageResult.Success
         coEvery { sendImageMessage(any(), any(), any(), any(), any()) } returns SendImageMessageResult.Success
+        return this
+    }
+
+    fun withFailureOnDeletingMessages(): ConversationsViewModelArrangement {
+        coEvery { deleteMessage(any(), any(), any()) } returns Either.Left(CoreFailure.Unknown(null))
         return this
     }
 
@@ -170,9 +200,14 @@ internal class ConversationsViewModelArrangement {
 
 }
 
-internal fun withMockConversationDetailsOneOnOne(senderName: String, senderAvatar: UserAssetId? = null) = ConversationDetails.OneOne(
+internal fun withMockConversationDetailsOneOnOne(
+    senderName: String,
+    senderAvatar: UserAssetId? = null,
+    senderId: UserId = UserId("user-id", "user-domain")
+) = ConversationDetails.OneOne(
     mockk(),
     mockk<OtherUser>().apply {
+        every { id } returns senderId
         every { name } returns senderName
         every { previewPicture } returns senderAvatar
     },

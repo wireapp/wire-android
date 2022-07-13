@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.di.AuthServerConfigProvider
+import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
@@ -12,10 +13,10 @@ import com.wire.android.notification.WireNotificationManager
 import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.kalium.logic.feature.server.GetServerConfigResult
-import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.feature.server.GetServerConfigResult
+import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -30,7 +31,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "TooManyFunctions")
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class WireActivityViewModel @Inject constructor(
@@ -45,7 +46,7 @@ class WireActivityViewModel @Inject constructor(
 
     private val navigationArguments = mutableMapOf<String, Any>(SERVER_CONFIG_ARG to ServerConfig.DEFAULT)
 
-    private val userIdFlow = currentSessionFlow()
+    private val observeUserId = currentSessionFlow()
         .map { result ->
             if (result is CurrentSessionResult.Success) result.authSession.tokens.userId
             else null
@@ -56,7 +57,7 @@ class WireActivityViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            launch { notificationManager.observeMessageNotifications(userIdFlow) }
+            notificationManager.observeNotificationsAndCalls(observeUserId, viewModelScope) { openIncomingCall(it.conversationId) }
         }
     }
 
@@ -67,6 +68,7 @@ class WireActivityViewModel @Inject constructor(
             shouldGoToLogin() -> NavigationItem.Login.getRouteWithArgs()
             shouldGoToWelcome() -> NavigationItem.Welcome.getRouteWithArgs()
             shouldGoToIncomingCall() -> NavigationItem.IncomingCall.getRouteWithArgs()
+            shouldGoToConversation() -> NavigationItem.Conversation.getRouteWithArgs()
             else -> NavigationItem.Home.getRouteWithArgs()
         }
 
@@ -80,8 +82,23 @@ class WireActivityViewModel @Inject constructor(
                     }
                 is DeepLinkResult.SSOLogin ->
                     navigationArguments.put(SSO_DEEPLINK_ARG, result)
-                is DeepLinkResult.IncomingCall ->
-                    navigationArguments.put(INCOMING_CALL_CONVERSATION_ID_ARG, result.conversationsId)
+                is DeepLinkResult.IncomingCall -> {
+                    if (isLaunchedFromHistory(intent)) {
+                        //We don't need to handle deepLink, if activity was launched from history.
+                        //For example: user opened app by deepLink, then closed it by back button click,
+                        //then open the app from the "Recent Apps"
+                        appLogger.i("IncomingCall deepLink launched from the history")
+                    } else {
+                        navigationArguments.put(INCOMING_CALL_CONVERSATION_ID_ARG, result.conversationsId)
+                    }
+                }
+                is DeepLinkResult.OpenConversation -> {
+                    if (isLaunchedFromHistory(intent)) {
+                        appLogger.i("OpenConversation deepLink launched from the history")
+                    } else {
+                        navigationArguments.put(OPEN_CONVERSATION_ID_ARG, result.conversationsId)
+                    }
+                }
                 DeepLinkResult.Unknown -> {
                     appLogger.e("unknown deeplink result $result")
                 }
@@ -100,6 +117,7 @@ class WireActivityViewModel @Inject constructor(
         //removing arguments that could be there from prev deeplink handling
         navigationArguments.apply {
             remove(INCOMING_CALL_CONVERSATION_ID_ARG)
+            remove(OPEN_CONVERSATION_ID_ARG)
             remove(SSO_DEEPLINK_ARG)
         }
 
@@ -111,6 +129,10 @@ class WireActivityViewModel @Inject constructor(
                 openIncomingCall(navigationArguments[INCOMING_CALL_CONVERSATION_ID_ARG] as ConversationId)
                 false
             }
+            shouldGoToConversation() -> {
+                openConversation(navigationArguments[OPEN_CONVERSATION_ID_ARG] as ConversationId)
+                false
+            }
             intent == null -> false
             else -> true
         }
@@ -119,6 +141,13 @@ class WireActivityViewModel @Inject constructor(
     private fun openIncomingCall(conversationId: ConversationId) {
         navigateTo(NavigationCommand(NavigationItem.IncomingCall.getRouteWithArgs(listOf(conversationId))))
     }
+
+    private fun openConversation(conversationId: ConversationId) {
+        navigateTo(NavigationCommand(NavigationItem.Conversation.getRouteWithArgs(listOf(conversationId)), BackStackMode.UPDATE_EXISTED))
+    }
+
+    private fun isLaunchedFromHistory(intent: Intent?) =
+        intent?.flags != null && intent.flags and Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY != 0
 
     private fun navigateTo(command: NavigationCommand) {
         viewModelScope.launch {
@@ -152,11 +181,15 @@ class WireActivityViewModel @Inject constructor(
     private fun shouldGoToIncomingCall(): Boolean =
         (navigationArguments[INCOMING_CALL_CONVERSATION_ID_ARG] as? ConversationId) != null
 
-    private fun shouldGoToWelcome(): Boolean = runBlocking { userIdFlow.first() } == null
+    private fun shouldGoToConversation(): Boolean =
+        (navigationArguments[OPEN_CONVERSATION_ID_ARG] as? ConversationId) != null
+
+    private fun shouldGoToWelcome(): Boolean = runBlocking { observeUserId.first() } == null
 
     companion object {
         private const val SERVER_CONFIG_ARG = "server_config"
         private const val SSO_DEEPLINK_ARG = "sso_deeplink"
         private const val INCOMING_CALL_CONVERSATION_ID_ARG = "incoming_call_conversation_id"
+        private const val OPEN_CONVERSATION_ID_ARG = "open_conversation_id"
     }
 }

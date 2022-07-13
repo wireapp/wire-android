@@ -1,6 +1,5 @@
 package com.wire.android.ui.userprofile.other
 
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -29,6 +28,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
+import com.wire.android.model.Clickable
 import com.wire.android.ui.common.CopyButton
 import com.wire.android.ui.common.MoreOptionIcon
 import com.wire.android.ui.common.RowItemTemplate
@@ -38,6 +38,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.ui.userprofile.common.EditableState
@@ -57,7 +58,7 @@ fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltView
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OtherProfileScreenContent(
     state: OtherUserProfileState,
@@ -104,6 +105,7 @@ fun OtherProfileScreenContent(
                             fullName = fullName,
                             userName = userName,
                             teamName = teamName,
+                            membership = membership,
                             editableState = EditableState.NotEditable
                         )
                     }
@@ -130,7 +132,7 @@ fun OtherProfileScreenContent(
                         }
                     } else {
                         item {
-                            ConnectionStatusInformation(state.connectionStatus)
+                            ConnectionStatusInformation(state.connectionStatus, state.membership)
                         }
                     }
                 }
@@ -209,11 +211,10 @@ private fun ConnectionActionButton(
         )
 
     }
-
 }
 
 @Composable
-private fun ConnectionStatusInformation(connectionStatus: ConnectionStatus) {
+private fun ConnectionStatusInformation(connectionStatus: ConnectionStatus, membership: Membership) {
     Box(
         Modifier
             .fillMaxWidth()
@@ -232,7 +233,9 @@ private fun ConnectionStatusInformation(connectionStatus: ConnectionStatus) {
             val descriptionResource = when (connectionStatus) {
                 ConnectionStatus.Pending -> R.string.connection_label_accepting_request_description
                 ConnectionStatus.Connected -> throw IllegalStateException("Unhandled Connected ConnectionStatus")
-                else -> R.string.connection_label_member_not_belongs_to_team
+                else -> if (membership == Membership.None)
+                    R.string.connection_label_member_not_conneted
+                else R.string.connection_label_member_not_belongs_to_team
             }
             Text(
                 text = stringResource(descriptionResource),
@@ -266,8 +269,7 @@ private fun UserDetailInformation(
             )
         },
         actions = { CopyButton(onCopyClicked = { onCopy("$value copied") }) },
-        onRowItemClicked = { },
-        onRowItemLongClicked = { }
+        clickable = Clickable(enabled = false) {}
     )
 }
 
@@ -300,7 +302,6 @@ private fun handleOperationMessages(
             is ConnectionOperationState.LoadUserInformationError -> stringResource(id = R.string.error_unknown_message)
             is ConnectionOperationState.SuccessConnectionAcceptRequest -> stringResource(id = R.string.connection_request_accepted)
             is ConnectionOperationState.SuccessConnectionCancelRequest -> stringResource(id = R.string.connection_request_canceled)
-            is ConnectionOperationState.SuccessConnectionIgnoreRequest -> stringResource(id = R.string.connection_request_ignored)
         }
         LaunchedEffect(errorType) {
             snackbarHostState.showSnackbar(message)

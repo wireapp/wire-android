@@ -38,7 +38,6 @@ fun UserProfileAvatar(
     modifier: Modifier = Modifier,
     onClick: (() -> Unit)? = null,
 ) {
-
     val painter = painter(avatarData.asset)
 
     Box(
@@ -74,16 +73,11 @@ fun UserProfileAvatar(
  */
 @Composable
 private fun painter(userAvatarAsset: UserAvatarAsset?): Painter =
-    if (LocalInspectionMode.current) {
-        painterResource(id = R.drawable.ic_wire_logo)
-    } else {
-        hiltViewModel<CurrentSessionViewModel>().wireSessionImageLoader.paint(
-            userAvatarAsset, getUriFromDrawable(
-                LocalContext.current,
-                R.drawable.ic_default_user_avatar
-            )
-        )
-    }
+    if (LocalInspectionMode.current || userAvatarAsset == null)
+        painterResource(id = R.drawable.ic_default_user_avatar)
+     else
+         userAvatarAsset.paint(getUriFromDrawable(LocalContext.current, R.drawable.ic_default_user_avatar))
+
 
 @Preview
 @Composable

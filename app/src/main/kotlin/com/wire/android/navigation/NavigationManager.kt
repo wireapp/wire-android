@@ -39,9 +39,23 @@ data class NavigationCommand(
 )
 
 enum class BackStackMode {
-    CLEAR_TILL_START, // clear the whole backstack excluding "start screen"
-    CLEAR_WHOLE, // clear the whole backstack including "start screen" (use when you navigate to a new "start screen" )
-    NONE; // screen will be added to the existing backstack.
+    // clear the whole backstack excluding "start screen"
+    CLEAR_TILL_START,
 
-    fun shouldClear(): Boolean = this == CLEAR_WHOLE || this == CLEAR_TILL_START
+    // clear the whole backstack including "start screen" (use when you navigate to a new "start screen" )
+    CLEAR_WHOLE,
+
+    // remove the current item from backstack before adding the new one.
+    // use it instead of:
+    //  navigationManager.navigateBack()
+    //  navigationManager.navigate(SomeWhere)
+    REMOVE_CURRENT,
+
+    // if there is an instance of that screen in backStack,
+    // then app pops stack till that screen and replace it by the new screen.
+    // if no instance in backStack, then just add screen in top of stack.
+    UPDATE_EXISTED,
+
+    // screen will be added to the existing backstack.
+    NONE;
 }

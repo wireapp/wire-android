@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.media.CallRinger
+import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
@@ -14,7 +15,8 @@ import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.parseIntoQualifiedID
 import com.wire.kalium.logic.feature.call.CallStatus
-import com.wire.kalium.logic.feature.call.usecase.GetAllCallsUseCase
+import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.GetAllCallsWithSortedParticipantsUseCase
 import com.wire.kalium.logic.feature.call.usecase.StartCallUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -29,8 +31,9 @@ class InitiatingCallViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
     private val conversationDetails: ObserveConversationDetailsUseCase,
-    private val allCalls: GetAllCallsUseCase,
+    private val allCalls: GetAllCallsWithSortedParticipantsUseCase,
     private val startCall: StartCallUseCase,
+    private val endCall: EndCallUseCase,
     private val callRinger: CallRinger
 ) : ViewModel() {
 
@@ -62,7 +65,6 @@ class InitiatingCallViewModel @Inject constructor(
         }
     }
 
-
     private suspend fun observeStartedCall() {
         allCalls().collect { calls ->
             calls.find { call -> call.conversationId == conversationId }.also {
@@ -84,10 +86,10 @@ class InitiatingCallViewModel @Inject constructor(
 
     private suspend fun onCallEstablished() {
         callRinger.ring(R.raw.ready_to_talk, isLooping = false)
-        navigateBack()
         navigationManager.navigate(
             command = NavigationCommand(
-                destination = NavigationItem.OngoingCall.getRouteWithArgs(listOf(conversationId))
+                destination = NavigationItem.OngoingCall.getRouteWithArgs(listOf(conversationId)),
+                backStackMode = BackStackMode.REMOVE_CURRENT
             )
         )
     }
@@ -103,4 +105,11 @@ class InitiatingCallViewModel @Inject constructor(
 
     fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }
 
+    fun hangUpCall() {
+        viewModelScope.launch {
+            endCall(conversationId)
+            navigateBack()
+            callRinger.stop()
+        }
+    }
 }

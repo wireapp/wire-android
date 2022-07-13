@@ -1,5 +1,6 @@
 package com.wire.android.ui.home.messagecomposer
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateColorAsState
@@ -28,7 +29,6 @@ import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.Divider
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Surface
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -80,6 +80,7 @@ fun MessageComposer(
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
     onMessageComposerInputStateChange: (MessageComposerStateTransition) -> Unit,
+    isFileSharingEnabled: Boolean
 ) {
     BoxWithConstraints {
         val messageComposerState = rememberMessageComposerInnerState(
@@ -109,7 +110,8 @@ fun MessageComposer(
                 onSendAttachment(it)
                 messageComposerState.toggleAttachmentOptionsVisibility()
             },
-            onMessageComposerError = onMessageComposerError
+            onMessageComposerError = onMessageComposerError,
+            isFileSharingEnabled = isFileSharingEnabled
         )
     }
 }
@@ -120,7 +122,7 @@ fun MessageComposer(
 * exposes a [onMessageChanged] lambda, giving us the option to control its Message Text from outside the Widget.
 * it also exposes [onSendButtonClicked] lambda's giving us the option to handle the different message actions
 * */
-@OptIn(ExperimentalMaterialApi::class, ExperimentalAnimationApi::class)
+@OptIn(ExperimentalAnimationApi::class)
 @Composable
 private fun MessageComposer(
     content: @Composable () -> Unit,
@@ -130,7 +132,8 @@ private fun MessageComposer(
     onMessageChanged: (TextFieldValue) -> Unit,
     onSendButtonClicked: () -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
-    onMessageComposerError: (ConversationSnackbarMessages) -> Unit
+    onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
+    isFileSharingEnabled: Boolean
 ) {
     val focusManager = LocalFocusManager.current
     // when MessageComposer is composed for the first time we do not know the height
@@ -149,6 +152,11 @@ private fun MessageComposer(
             targetState = messageComposerState.messageComposeInputState,
             label = stringResource(R.string.animation_label_messagecomposeinput_state_transistion)
         )
+
+        BackHandler(enabled = messageComposerState.attachmentOptionsDisplayed) {
+            messageComposerState.toggleAttachmentOptionsVisibility()
+        }
+
 
         // ConstraintLayout wrapping the whole content to give us the possibility to constrain SendButton to top of AdditionalOptions, which
         // constrains to bottom of MessageComposerInput
@@ -372,6 +380,7 @@ private fun MessageComposer(
                         messageComposerState.attachmentInnerState,
                         onSendAttachment,
                         onMessageComposerError,
+                        isFileSharingEnabled,
                         Modifier.align(Alignment.Center)
                     )
                 }
@@ -402,7 +411,7 @@ private fun ScheduleMessageButton() {
     IconButton(onClick = { }) {
         Icon(
             painter = painterResource(id = R.drawable.ic_timer),
-            contentDescription = stringResource(R.string.content_description_back_button),
+            contentDescription = stringResource(R.string.content_description_timed_message_button),
         )
     }
 }
@@ -465,7 +474,7 @@ private fun SendButton(
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_send),
-                contentDescription = stringResource(R.string.content_description_back_button),
+                contentDescription = stringResource(R.string.content_description_send_button),
                 tint = MaterialTheme.wireColorScheme.surface
             )
         }

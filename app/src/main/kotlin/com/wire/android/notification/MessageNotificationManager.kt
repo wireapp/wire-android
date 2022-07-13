@@ -5,10 +5,6 @@ import android.graphics.Typeface
 import android.os.Build
 import android.text.Spannable
 import android.text.style.StyleSpan
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -24,12 +20,6 @@ import com.wire.kalium.logic.data.notification.LocalNotificationConversation
 import javax.inject.Inject
 import javax.inject.Singleton
 
-@OptIn(
-    ExperimentalAnimationApi::class,
-    ExperimentalMaterial3Api::class,
-    ExperimentalMaterialApi::class,
-    ExperimentalComposeUiApi::class
-)
 @Suppress("TooManyFunctions")
 @Singleton
 class MessageNotificationManager @Inject constructor(private val context: Context) {
@@ -81,10 +71,10 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
         newData: List<LocalNotificationConversation>,
         userId: String?
     ) {
-        if (oldData.size > 1 || newData.size <= 1) return
-
         if (newData.isEmpty()) notificationManager.cancel(SUMMARY_ID)
-        else notificationManager.notify(SUMMARY_ID, getSummaryNotification(userId))
+
+        if (oldData.size <= 1 && newData.size > 1)
+            notificationManager.notify(SUMMARY_ID, getSummaryNotification(userId))
     }
 
     private fun showConversationNotification(conversation: NotificationConversation, userId: String?) {

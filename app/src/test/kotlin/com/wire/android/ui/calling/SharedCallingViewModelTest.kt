@@ -2,11 +2,13 @@ package com.wire.android.ui.calling
 
 import android.view.View
 import androidx.lifecycle.SavedStateHandle
+import com.wire.android.mapper.UICallParticipantMapper
 import com.wire.android.media.CallRinger
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.call.VideoState
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
-import com.wire.kalium.logic.feature.call.usecase.GetAllCallsUseCase
+import com.wire.kalium.logic.feature.call.usecase.GetAllCallsWithSortedParticipantsUseCase
 import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.SetVideoPreviewUseCase
 import com.wire.kalium.logic.feature.call.usecase.UnMuteCallUseCase
@@ -26,6 +28,11 @@ import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.feature.call.usecase.ObserveSpeakerUseCase
+import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOffUseCase
+import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOnUseCase
+import io.mockk.mockk
+import io.mockk.verify
 
 class SharedCallingViewModelTest {
 
@@ -36,7 +43,7 @@ class SharedCallingViewModelTest {
     private lateinit var navigationManager: NavigationManager
 
     @MockK
-    private lateinit var allCalls: GetAllCallsUseCase
+    private lateinit var allCalls: GetAllCallsWithSortedParticipantsUseCase
 
     @MockK
     private lateinit var endCall: EndCallUseCase
@@ -57,10 +64,24 @@ class SharedCallingViewModelTest {
     private lateinit var updateVideoState: UpdateVideoStateUseCase
 
     @MockK
+    private lateinit var turnLoudSpeakerOff: TurnLoudSpeakerOffUseCase
+
+    @MockK
+    private lateinit var turnLoudSpeakerOn: TurnLoudSpeakerOnUseCase
+
+    @MockK
+    private lateinit var observeSpeaker: ObserveSpeakerUseCase
+
+    @MockK
     private lateinit var callRinger: CallRinger
 
     @MockK
     private lateinit var view: View
+
+    @MockK
+    private lateinit var wireSessionImageLoader: WireSessionImageLoader
+
+    private val uiCallParticipantMapper: UICallParticipantMapper by lazy { UICallParticipantMapper(wireSessionImageLoader) }
 
     private lateinit var sharedCallingViewModel: SharedCallingViewModel
 
@@ -84,7 +105,12 @@ class SharedCallingViewModelTest {
             unMuteCall = unMuteCall,
             setVideoPreview = setVideoPreview,
             updateVideoState = updateVideoState,
-            callRinger = callRinger
+            turnLoudSpeakerOff = turnLoudSpeakerOff,
+            turnLoudSpeakerOn = turnLoudSpeakerOn,
+            observeSpeaker = observeSpeaker,
+            callRinger = callRinger,
+            uiCallParticipantMapper = uiCallParticipantMapper,
+            wireSessionImageLoader = wireSessionImageLoader
         )
     }
 
@@ -95,7 +121,6 @@ class SharedCallingViewModelTest {
 
         runTest { sharedCallingViewModel.toggleMute() }
 
-        coVerify(exactly = 1) { muteCall(conversationId) }
         sharedCallingViewModel.callState.isMuted shouldBeEqualTo true
     }
 
@@ -106,34 +131,37 @@ class SharedCallingViewModelTest {
 
         runTest { sharedCallingViewModel.toggleMute() }
 
-        coVerify(exactly = 1) { unMuteCall(conversationId) }
         sharedCallingViewModel.callState.isMuted shouldBeEqualTo false
-
     }
 
     @Test
-    fun `given camera is turned on, when toggling video, then turn off video`() {
+    fun `given camera is turned on, when toggling video, then turn off video and speaker`() {
         sharedCallingViewModel.callState = sharedCallingViewModel.callState.copy(isCameraOn = true)
         coEvery { updateVideoState(any(), any()) } returns Unit
+        every { turnLoudSpeakerOff() } returns Unit
 
         runTest { sharedCallingViewModel.toggleVideo() }
 
+        verify(exactly = 1) { turnLoudSpeakerOff() }
         sharedCallingViewModel.callState.isCameraOn shouldBeEqualTo false
+        sharedCallingViewModel.callState.isSpeakerOn shouldBeEqualTo false
     }
 
     @Test
-    fun `given camera is turned off, when toggling video, then turn on video`() {
+    fun `given camera is turned off, when toggling video, then turn on video and speaker`() {
         sharedCallingViewModel.callState = sharedCallingViewModel.callState.copy(isCameraOn = false)
         coEvery { updateVideoState(any(), any()) } returns Unit
+        every { turnLoudSpeakerOn() } returns Unit
 
         runTest { sharedCallingViewModel.toggleVideo() }
 
+        verify(exactly = 1) { turnLoudSpeakerOn() }
         sharedCallingViewModel.callState.isCameraOn shouldBeEqualTo true
+        sharedCallingViewModel.callState.isSpeakerOn shouldBeEqualTo true
     }
 
     @Test
     fun `given an active call, when the user ends call, then invoke endCall useCase`() {
-        coEvery { navigationManager.navigateBack() } returns Unit
         coEvery { endCall(any()) } returns Unit
         every { callRinger.stop() } returns Unit
 
@@ -141,7 +169,6 @@ class SharedCallingViewModelTest {
 
         coVerify(exactly = 1) { endCall(any()) }
         coVerify(exactly = 1) { callRinger.stop() }
-        coVerify(exactly = 1) { navigationManager.navigateBack() }
     }
 
     @Test
@@ -149,7 +176,7 @@ class SharedCallingViewModelTest {
         coEvery { setVideoPreview(any(), any()) } returns Unit
         coEvery { updateVideoState(any(), any()) } returns Unit
 
-        runTest {sharedCallingViewModel.setVideoPreview(view) }
+        runTest { sharedCallingViewModel.setVideoPreview(view) }
 
         coVerify(exactly = 2) { setVideoPreview(any(), any()) }
         coVerify(exactly = 1) { updateVideoState(any(), VideoState.STARTED) }
@@ -160,7 +187,7 @@ class SharedCallingViewModelTest {
         coEvery { setVideoPreview(any(), any()) } returns Unit
         coEvery { updateVideoState(any(), any()) } returns Unit
 
-        runTest {sharedCallingViewModel.clearVideoPreview() }
+        runTest { sharedCallingViewModel.clearVideoPreview() }
 
         coVerify(exactly = 1) { setVideoPreview(any(), any()) }
         coVerify(exactly = 1) { updateVideoState(any(), VideoState.STOPPED) }
@@ -172,7 +199,7 @@ class SharedCallingViewModelTest {
         coEvery { setVideoPreview(any(), any()) } returns Unit
         coEvery { updateVideoState(any(), any()) } returns Unit
 
-        runTest {sharedCallingViewModel.pauseVideo() }
+        runTest { sharedCallingViewModel.pauseVideo() }
 
         coVerify(exactly = 1) { setVideoPreview(any(), any()) }
         coVerify(exactly = 1) { updateVideoState(any(), VideoState.PAUSED) }
@@ -185,7 +212,7 @@ class SharedCallingViewModelTest {
         coEvery { setVideoPreview(any(), any()) } returns Unit
         coEvery { updateVideoState(any(), any()) } returns Unit
 
-        runTest {sharedCallingViewModel.pauseVideo() }
+        runTest { sharedCallingViewModel.pauseVideo() }
 
         coVerify(exactly = 0) { setVideoPreview(any(), any()) }
         coVerify(exactly = 0) { updateVideoState(any(), VideoState.PAUSED) }

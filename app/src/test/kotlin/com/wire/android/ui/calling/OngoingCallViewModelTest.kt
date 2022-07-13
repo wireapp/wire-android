@@ -2,7 +2,7 @@ package com.wire.android.ui.calling
 
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.navigation.NavigationManager
-import com.wire.kalium.logic.feature.call.usecase.GetOngoingCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -25,7 +25,7 @@ class OngoingCallViewModelTest {
     private lateinit var navigationManager: NavigationManager
 
     @MockK
-    private lateinit var ongoingCall: GetOngoingCallUseCase
+    private lateinit var establishedCall: ObserveEstablishedCallsUseCase
 
     private lateinit var ongoingCallViewModel: OngoingCallViewModel
 
@@ -41,7 +41,7 @@ class OngoingCallViewModelTest {
         ongoingCallViewModel = OngoingCallViewModel(
             savedStateHandle = savedStateHandle,
             navigationManager = navigationManager,
-            ongoingCall = ongoingCall
+            establishedCall = establishedCall
         )
     }
 

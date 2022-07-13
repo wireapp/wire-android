@@ -7,15 +7,19 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
+import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.model.ImageAsset
+import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.EXTRA_CONNECTION_IGNORED_USER_NAME
 import com.wire.android.navigation.EXTRA_USER_DOMAIN
 import com.wire.android.navigation.EXTRA_USER_ID
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.EMPTY
-import com.wire.kalium.logic.data.publicuser.model.OtherUser
+import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.team.Team
+import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCase
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCaseResult
@@ -45,6 +49,8 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val cancelConnectionRequest: CancelConnectionRequestUseCase,
     private val acceptConnectionRequest: AcceptConnectionRequestUseCase,
     private val ignoreConnectionRequest: IgnoreConnectionRequestUseCase,
+    private val userTypeMapper: UserTypeMapper,
+    private val wireSessionImageLoader: WireSessionImageLoader
 ) : ViewModel() {
 
     var state: OtherUserProfileState by mutableStateOf(OtherUserProfileState())
@@ -71,13 +77,14 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private fun loadViewState(otherUser: OtherUser, team: Team?) {
         state = state.copy(
             isDataLoading = false,
-            userAvatarAsset = otherUser.completePicture?.let { pic -> ImageAsset.UserAvatarAsset(pic) },
+            userAvatarAsset = otherUser.completePicture?.let { pic -> ImageAsset.UserAvatarAsset(wireSessionImageLoader, pic) },
             fullName = otherUser.name ?: String.EMPTY,
             userName = otherUser.handle ?: String.EMPTY,
             teamName = team?.name ?: String.EMPTY,
             email = otherUser.email ?: String.EMPTY,
             phone = otherUser.phone ?: String.EMPTY,
-            connectionStatus = otherUser.connectionStatus.toOtherUserProfileConnectionStatus()
+            connectionStatus = otherUser.connectionStatus.toOtherUserProfileConnectionStatus(),
+            membership = userTypeMapper.toMembership(otherUser.userType)
         )
     }
 
@@ -88,7 +95,8 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                 is CreateConversationResult.Success ->
                     navigationManager.navigate(
                         command = NavigationCommand(
-                            destination = NavigationItem.Conversation.getRouteWithArgs(listOf(result.conversation.id))
+                            destination = NavigationItem.Conversation.getRouteWithArgs(listOf(result.conversation.id)),
+                            backStackMode = BackStackMode.UPDATE_EXISTED
                         )
                     )
             }
@@ -149,7 +157,11 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                 }
                 is IgnoreConnectionRequestUseCaseResult.Success -> {
                     state = state.copy(connectionStatus = ConnectionStatus.NotConnected)
-                    connectionOperationState = ConnectionOperationState.SuccessConnectionIgnoreRequest()
+                    navigationManager.navigateBack(
+                        mapOf(
+                            EXTRA_CONNECTION_IGNORED_USER_NAME to state.userName,
+                        )
+                    )
                 }
             }
         }
@@ -164,7 +176,6 @@ class OtherUserProfileScreenViewModel @Inject constructor(
 sealed class ConnectionOperationState(private val randomEventIdentifier: UUID) {
     class SuccessConnectionSentRequest : ConnectionOperationState(UUID.randomUUID())
     class SuccessConnectionAcceptRequest : ConnectionOperationState(UUID.randomUUID())
-    class SuccessConnectionIgnoreRequest : ConnectionOperationState(UUID.randomUUID())
     class SuccessConnectionCancelRequest : ConnectionOperationState(UUID.randomUUID())
     class ConnectionRequestError : ConnectionOperationState(UUID.randomUUID())
     class LoadUserInformationError : ConnectionOperationState(UUID.randomUUID())

@@ -9,57 +9,65 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
+import com.wire.android.appLogger
+import com.wire.android.mapper.ContactMapper
+import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.newconversation.model.Contact
-import com.wire.android.ui.home.newconversation.model.toContact
 import com.wire.android.ui.home.newconversation.newgroup.NewGroupState
 import com.wire.android.ui.home.newconversation.search.ContactSearchResult
 import com.wire.android.ui.home.newconversation.search.SearchPeopleState
 import com.wire.android.ui.home.newconversation.search.SearchResultState
+import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.flow.SearchQueryStateFlow
 import com.wire.kalium.logic.data.conversation.ConversationOptions
+import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.connection.SendConnectionRequestResult
+import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
 import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
+import com.wire.kalium.logic.feature.publicuser.GetAllContactsResult
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
-import com.wire.kalium.logic.feature.publicuser.Result
-import com.wire.kalium.logic.feature.publicuser.SearchKnownUsersUseCase
-import com.wire.kalium.logic.feature.publicuser.SearchUserDirectoryUseCase
+import com.wire.kalium.logic.feature.publicuser.search.SearchKnownUsersUseCase
+import com.wire.kalium.logic.feature.publicuser.search.SearchUsersUseCase
+import com.wire.kalium.logic.feature.publicuser.search.Result
 import com.wire.kalium.logic.functional.Either
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-@Suppress("TooManyFunctions")
+@Suppress("TooManyFunctions", "LongParameterList")
 @HiltViewModel
 class NewConversationViewModel
 @Inject constructor(
     private val navigationManager: NavigationManager,
+    private val searchUsers: SearchUsersUseCase,
     private val searchKnownUsers: SearchKnownUsersUseCase,
-    private val searchPublicUsers: SearchUserDirectoryUseCase,
     private val getAllContacts: GetAllContactsUseCase,
-    private val createGroupConversation: CreateGroupConversationUseCase
+    private val createGroupConversation: CreateGroupConversationUseCase,
+    private val contactMapper: ContactMapper,
+    private val dispatchers: DispatcherProvider,
+    private val sendConnectionRequest: SendConnectionRequestUseCase,
 ) : ViewModel() {
 
-    // TODO: map this value out with the given back-end configuration later on
     private companion object {
-        const val HARDCODED_TEST_DOMAIN = "wire.com"
         const val GROUP_NAME_MAX_COUNT = 64
     }
 
     val state: SearchPeopleState by derivedStateOf {
         val noneSearchSucceed: Boolean =
             localContactSearchResult.searchResultState is SearchResultState.Failure &&
-                    publicContactsSearchResult.searchResultState is SearchResultState.Failure &&
-                    federatedContactSearchResult.searchResultState is SearchResultState.Failure
+                    publicContactsSearchResult.searchResultState is SearchResultState.Failure
+
+        val filteredPublicContactsSearchResult: ContactSearchResult =
+            publicContactsSearchResult.filterContacts(localContactSearchResult)
 
         innerSearchPeopleState.copy(
             noneSearchSucceed = noneSearchSucceed,
             localContactSearchResult = localContactSearchResult,
-            publicContactsSearchResult = publicContactsSearchResult,
-            federatedContactSearchResult = federatedContactSearchResult
+            publicContactsSearchResult = filteredPublicContactsSearchResult,
         )
     }
 
@@ -75,30 +83,48 @@ class NewConversationViewModel
         ContactSearchResult.ExternalContact(searchResultState = SearchResultState.Initial)
     )
 
-    private var federatedContactSearchResult by mutableStateOf(
-        ContactSearchResult.ExternalContact(searchResultState = SearchResultState.Initial)
-    )
-
     private val searchQueryStateFlow = SearchQueryStateFlow()
-
-    fun updateScrollPosition(newScrollPosition: Int) {
-        innerSearchPeopleState = state.copy(scrollPosition = newScrollPosition)
-    }
 
     init {
         viewModelScope.launch {
-            launch {
-                val allContacts = getAllContacts()
-
-                innerSearchPeopleState = innerSearchPeopleState.copy(
-                    allKnownContacts = allContacts.map { otherUser -> otherUser.toContact() }
-                )
-            }
-
+            allContacts()
             searchQueryStateFlow.onSearchAction { searchTerm ->
                 launch { searchPublic(searchTerm) }
                 launch { searchKnown(searchTerm) }
             }
+        }
+    }
+
+    private suspend fun allContacts() {
+        innerSearchPeopleState = innerSearchPeopleState.copy(allKnownContacts = SearchResultState.InProgress)
+
+        val result = withContext(dispatchers.io()) { getAllContacts() }
+
+        innerSearchPeopleState = when (result) {
+            is GetAllContactsResult.Failure -> {
+                innerSearchPeopleState.copy(
+                    allKnownContacts = SearchResultState.Failure(R.string.label_general_error)
+                )
+            }
+            is GetAllContactsResult.Success -> {
+                innerSearchPeopleState.copy(
+                    allKnownContacts = SearchResultState.Success(result.allContacts.map(contactMapper::fromOtherUser))
+                )
+            }
+        }
+    }
+
+    private fun ContactSearchResult.filterContacts(contactSearchResult: ContactSearchResult): ContactSearchResult {
+        return if (searchResultState is SearchResultState.Success &&
+            contactSearchResult.searchResultState is SearchResultState.Success
+        ) {
+            ContactSearchResult.ExternalContact(SearchResultState.Success(searchResultState.result.filterNot { contact ->
+                contactSearchResult.searchResultState.result.map { it.id }.contains(
+                    contact.id
+                )
+            }))
+        } else {
+            this
         }
     }
 
@@ -109,30 +135,26 @@ class NewConversationViewModel
         searchQueryStateFlow.search(searchTerm)
     }
 
-    //TODO: suppress for now,
-    // we should  map the result to a custom Result class containing Error on Kalium side for this use case
-    @Suppress("TooGenericExceptionCaught")
     private suspend fun searchKnown(searchTerm: String) {
         localContactSearchResult = ContactSearchResult.InternalContact(SearchResultState.InProgress)
 
-        localContactSearchResult = try {
-            val searchResult = searchKnownUsers(searchTerm)
+        val result = searchKnownUsers(searchTerm)
 
-            ContactSearchResult.InternalContact(
-                SearchResultState.Success(searchResult.result.map { otherUser -> otherUser.toContact() })
+        localContactSearchResult = when (result) {
+            is Result.Success -> ContactSearchResult.InternalContact(
+                SearchResultState.Success(result.userSearchResult.result.map { otherUser -> contactMapper.fromOtherUser(otherUser) })
             )
-        } catch (exception: Exception) {
-            ContactSearchResult.InternalContact(SearchResultState.Failure(R.string.label_general_error))
+            else -> ContactSearchResult.InternalContact(SearchResultState.Failure(R.string.label_general_error))
         }
     }
 
-    private suspend fun searchPublic(searchTerm: String) {
-        publicContactsSearchResult = ContactSearchResult.ExternalContact(SearchResultState.InProgress)
-
-        val result = withContext(Dispatchers.IO) {
-            searchPublicUsers(
-                searchQuery = searchTerm,
-                domain = HARDCODED_TEST_DOMAIN
+    private suspend fun searchPublic(searchTerm: String, showProgress: Boolean = true) {
+        if (showProgress) {
+            publicContactsSearchResult = ContactSearchResult.ExternalContact(SearchResultState.InProgress)
+        }
+        val result = withContext(dispatchers.io()) {
+            searchUsers(
+                searchQuery = searchTerm
             )
         }
 
@@ -145,7 +167,7 @@ class NewConversationViewModel
             }
             is Result.Success -> {
                 ContactSearchResult.ExternalContact(
-                    SearchResultState.Success(result.userSearchResult.result.map { it.toContact() })
+                    SearchResultState.Success(result.userSearchResult.result.map { otherUser -> contactMapper.fromOtherUser(otherUser) })
                 )
             }
         }
@@ -155,6 +177,20 @@ class NewConversationViewModel
         innerSearchPeopleState = innerSearchPeopleState.copy(
             contactsAddedToGroup = innerSearchPeopleState.contactsAddedToGroup + contact
         )
+    }
+
+    fun addContact(contact: Contact) {
+        viewModelScope.launch {
+            val userId = UserId(contact.id, contact.domain)
+            when (sendConnectionRequest(userId)) {
+                is SendConnectionRequestResult.Failure -> {
+                    appLogger.d(("Couldn't send a connect request to user $userId"))
+                }
+                is SendConnectionRequestResult.Success -> {
+                    searchPublic(state.searchQuery, showProgress = false)
+                }
+            }
+        }
     }
 
     fun removeContactFromGroup(contact: Contact) {
@@ -211,10 +247,11 @@ class NewConversationViewModel
             groupNameState = groupNameState.copy(isLoading = true)
 
             when (val result = createGroupConversation(
-                    name = groupNameState.groupName.text,
-                    members = state.contactsAddedToGroup.map { contact -> contact.toMember() },
-                    options = ConversationOptions()
-                )
+                name = groupNameState.groupName.text,
+                // TODO: change the id in Contact to UserId instead of String
+                userIdList = state.contactsAddedToGroup.map { contact -> UserId(contact.id, contact.domain) },
+                options = ConversationOptions().copy(protocol = groupNameState.groupProtocol)
+            )
             ) {
                 // TODO: handle the error state
                 is Either.Left -> {
@@ -222,11 +259,11 @@ class NewConversationViewModel
                     Log.d("TEST", "error while creating a group ${result.value}")
                 }
                 is Either.Right -> {
-                    close()
                     groupNameState = groupNameState.copy(isLoading = false)
                     navigationManager.navigate(
                         command = NavigationCommand(
-                            destination = NavigationItem.Conversation.getRouteWithArgs(listOf(result.value.id))
+                            destination = NavigationItem.Conversation.getRouteWithArgs(listOf(result.value.id)),
+                            backStackMode = BackStackMode.REMOVE_CURRENT
                         )
                     )
                 }

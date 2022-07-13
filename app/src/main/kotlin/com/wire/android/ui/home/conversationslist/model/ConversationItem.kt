@@ -4,6 +4,7 @@ import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversationslist.common.UserInfoLabel
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.user.ConnectionState
 
 sealed class ConversationItem {
     abstract val conversationId: ConversationId
@@ -17,6 +18,7 @@ sealed class ConversationItem {
         override val mutedStatus: MutedConversationStatus,
         override val isLegalHold: Boolean = false,
         override val lastEvent: ConversationLastEvent,
+        val hasOnGoingCall: Boolean = false
     ) : ConversationItem()
 
     data class PrivateConversation(
@@ -25,16 +27,17 @@ sealed class ConversationItem {
         override val conversationId: ConversationId,
         override val mutedStatus: MutedConversationStatus,
         override val isLegalHold: Boolean = false,
-        override val lastEvent: ConversationLastEvent,
+        override val lastEvent: ConversationLastEvent
     ) : ConversationItem()
 
     data class ConnectionConversation(
         val userAvatarData: UserAvatarData,
         val conversationInfo: ConversationInfo,
+        val connectionState: ConnectionState,
         override val conversationId: ConversationId,
         override val mutedStatus: MutedConversationStatus,
         override val isLegalHold: Boolean = false,
-        override val lastEvent: ConversationLastEvent,
+        override val lastEvent: ConversationLastEvent
     ) : ConversationItem()
 }
 
@@ -47,12 +50,12 @@ fun ConversationItem.PrivateConversation.toUserInfoLabel() =
     UserInfoLabel(
         labelName = conversationInfo.name,
         isLegalHold = isLegalHold,
-        membership = conversationInfo.membership,
+        membership = conversationInfo.membership
     )
 
 fun ConversationItem.ConnectionConversation.toUserInfoLabel() =
     UserInfoLabel(
         labelName = conversationInfo.name,
         isLegalHold = isLegalHold,
-        membership = conversationInfo.membership,
+        membership = conversationInfo.membership
     )

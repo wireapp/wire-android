@@ -1,5 +1,4 @@
 import com.android.build.api.dsl.AndroidSourceSet
-
 plugins {
     // Application Specific plugins
     id(BuildPlugins.androidApplication)
@@ -140,6 +139,7 @@ dependencies {
     implementation(Libraries.accompanistSystemUI)
     implementation(Libraries.accompanistPlaceholder)
     implementation(Libraries.accompanistNavAnimation)
+    implementation(Libraries.accompanistIndicator)
     implementation(Libraries.composeRuntimeLiveData)
 
     // Compose iterative code, layout inspector, etc.
@@ -169,6 +169,7 @@ dependencies {
     testImplementation(TestLibraries.mockk)
     testImplementation(TestLibraries.kluent)
     testImplementation(TestLibraries.junit5)
+    testImplementation(TestLibraries.turbine)
     testRuntimeOnly(TestLibraries.junit5Engine)
 
     // Acceptance/Functional tests dependencies
@@ -192,4 +193,9 @@ dependencies {
 
     // Development dependencies
     debugImplementation(DevLibraries.leakCanary)
+
+    // Internal only tracking & logging
+
+    implementation(Libraries.dataDog)
+
 }

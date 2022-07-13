@@ -9,8 +9,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.buildAnnotatedString
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
@@ -22,6 +24,7 @@ import kotlinx.coroutines.launch
 fun HighlightName(
     name: String,
     searchQuery: String,
+    modifier: Modifier = Modifier
 ) {
     val scope = rememberCoroutineScope()
 
@@ -37,7 +40,6 @@ fun HighlightName(
             )
         }
     }
-
     if (highlightIndexes.isNotEmpty()) {
         Text(
             buildAnnotatedString {
@@ -60,12 +62,18 @@ fun HighlightName(
                             end = highLightIndexes.endIndex
                         )
                     }
-            }
+            },
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = modifier
         )
     } else {
         Text(
             text = name,
-            style = MaterialTheme.wireTypography.title02
+            style = MaterialTheme.wireTypography.title02,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis,
+            modifier = modifier
         )
     }
 }

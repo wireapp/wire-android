@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
@@ -25,6 +26,7 @@ fun AllConversationScreen(
     onOpenUserProfile: (UserId) -> Unit,
     onScrollPositionProviderChanged: (() -> Int) -> Unit = { 0 },
     onOpenConversationNotificationsSettings: (ConversationItem) -> Unit,
+    onJoinCall: (ConversationId) -> Unit
 ) {
     val lazyListState = rememberLazyListState()
 
@@ -38,6 +40,7 @@ fun AllConversationScreen(
         onEditConversation = onEditConversation,
         onOpenUserProfile = onOpenUserProfile,
         onOpenConversationNotificationsSettings = onOpenConversationNotificationsSettings,
+        onJoinCall = onJoinCall
     )
 }
 
@@ -50,14 +53,16 @@ private fun AllConversationContent(
     onEditConversation: (ConversationItem) -> Unit,
     onOpenUserProfile: (UserId) -> Unit,
     onOpenConversationNotificationsSettings: (ConversationItem) -> Unit,
+    onJoinCall: (ConversationId) -> Unit
 ) {
+    val context = LocalContext.current
     LazyColumn(
         state = lazyListState,
         modifier = Modifier.fillMaxSize()
     ) {
         folderWithElements(
-            header = { stringResource(id = R.string.conversation_label_new_activity) },
-            items = newActivities
+            header = context.getString(R.string.conversation_label_new_activity),
+            items = newActivities.mapIndexed { index, newActivity -> index to newActivity }.toMap() // TODO can we find unique key?
         ) { newActivity ->
             with(newActivity) {
                 ConversationItemFactory(
@@ -67,19 +72,18 @@ private fun AllConversationContent(
                     openMenu = onEditConversation,
                     openUserProfile = onOpenUserProfile,
                     openNotificationsOptions = onOpenConversationNotificationsSettings,
+                    joinCall = onJoinCall
                 )
             }
         }
 
         conversations.forEach { (conversationFolder, conversationList) ->
             folderWithElements(
-                header = {
-                    when (conversationFolder) {
-                        is ConversationFolder.Predefined -> stringResource(id = conversationFolder.folderNameResId)
-                        is ConversationFolder.Custom -> conversationFolder.folderName
-                    }
+                header = when (conversationFolder) {
+                    is ConversationFolder.Predefined -> context.getString(conversationFolder.folderNameResId)
+                    is ConversationFolder.Custom -> conversationFolder.folderName
                 },
-                items = conversationList
+                items = conversationList.associateBy { it.conversationId.toString() }
             ) { generalConversation ->
                 ConversationItemFactory(
                     conversation = generalConversation,
@@ -87,6 +91,7 @@ private fun AllConversationContent(
                     openMenu = onEditConversation,
                     openUserProfile = onOpenUserProfile,
                     openNotificationsOptions = onOpenConversationNotificationsSettings,
+                    joinCall = onJoinCall
                 )
             }
         }
@@ -96,5 +101,5 @@ private fun AllConversationContent(
 @Preview
 @Composable
 fun ComposablePreview() {
-    AllConversationScreen(listOf(), mapOf(), {}, {}, {}, {}, {})
+    AllConversationScreen(listOf(), mapOf(), {}, {}, {}, {}, {}, {})
 }

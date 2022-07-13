@@ -32,6 +32,9 @@ data class WireColorScheme(
     val tertiaryButtonSelected: Color, val onTertiaryButtonSelected: Color,
     val tertiaryButtonSelectedOutline: Color,
     val tertiaryButtonRipple: Color,
+    val switchEnabledThumb: Color, val switchDisabledThumb: Color,
+    val switchEnabledChecked: Color, val switchDisabledChecked: Color,
+    val switchEnabledUnchecked: Color, val switchDisabledUnchecked: Color,
     val divider: Color,
     val secondaryText: Color,
     val labelText: Color,
@@ -48,11 +51,16 @@ data class WireColorScheme(
     val disabledUncheckedBoxColor: Color,
     val uncheckedCheckmarkColor: Color,
     val checkedCheckmarkColor: Color,
+    val messageErrorBackgroundColor: Color,
     val ongoingCallBackground: Color,
     val initiatingCallBackground: Color,
     val callingIncomingBackground: Color,
-    val groupAvatarColors: List<Color>
-
+    val muteButtonColor: Color,
+    val groupAvatarColors: List<Color>,
+    val callingPagerIndicatorBackground : Color,
+    val callingActiveIndicator : Color,
+    val callingInActiveIndicator : Color,
+    val callingInActiveBorderIndicator : Color
     ) {
     fun toColorScheme(): ColorScheme = ColorScheme(
         primary = primary, onPrimary = onPrimary,
@@ -100,6 +108,9 @@ private val LightWireColorScheme = WireColorScheme(
     tertiaryButtonSelected = WireColorPalette.LightBlue50,         onTertiaryButtonSelected = WireColorPalette.LightBlue500,
     tertiaryButtonSelectedOutline = WireColorPalette.LightBlue300,
     tertiaryButtonRipple = Color.Black,
+    switchEnabledThumb = Color.White,                               switchDisabledThumb = WireColorPalette.Gray20,
+    switchEnabledChecked = WireColorPalette.LightGreen500,          switchDisabledChecked = WireColorPalette.LightGreen200,
+    switchEnabledUnchecked = WireColorPalette.Gray70,               switchDisabledUnchecked = WireColorPalette.Gray50,
     divider = WireColorPalette.Gray40,
     secondaryText = WireColorPalette.Gray70,
     labelText = WireColorPalette.Gray80,
@@ -116,9 +127,11 @@ private val LightWireColorScheme = WireColorScheme(
     disabledUncheckedBoxColor = WireColorPalette.Gray80,
     uncheckedCheckmarkColor = WireColorPalette.Gray20,
     checkedCheckmarkColor = Color.White,
+    messageErrorBackgroundColor = WireColorPalette.DarkRed50,
     ongoingCallBackground = WireColorPalette.Gray90,
     initiatingCallBackground = WireColorPalette.Gray20,
     callingIncomingBackground = WireColorPalette.Gray20,
+    muteButtonColor = WireColorPalette.DarkRed500,
     groupAvatarColors = listOf(
         // Red
         WireColorPalette.LightRed300,
@@ -148,9 +161,12 @@ private val LightWireColorScheme = WireColorScheme(
         WireColorPalette.Gray30,
         WireColorPalette.Gray50,
         WireColorPalette.Gray70,
-    )
+    ),
+    callingPagerIndicatorBackground = WireColorPalette.Gray40,
+    callingActiveIndicator = WireColorPalette.LightBlue500,
+    callingInActiveIndicator = Color.White,
+    callingInActiveBorderIndicator = WireColorPalette.Gray60
 )
-
 
 // Dark WireColorScheme
 private val DarkWireColorScheme = WireColorScheme(
@@ -179,6 +195,9 @@ private val DarkWireColorScheme = WireColorScheme(
     tertiaryButtonSelected = WireColorPalette.DarkBlue50,          onTertiaryButtonSelected = WireColorPalette.DarkBlue500,
     tertiaryButtonSelectedOutline = WireColorPalette.DarkBlue300,
     tertiaryButtonRipple = Color.White,
+    switchEnabledThumb = Color.Black,                               switchDisabledThumb = WireColorPalette.Gray90,
+    switchEnabledChecked = WireColorPalette.DarkGreen500,          switchDisabledChecked = WireColorPalette.DarkGreen200,
+    switchEnabledUnchecked = WireColorPalette.Gray40,               switchDisabledUnchecked = WireColorPalette.Gray60,
     divider = WireColorPalette.Gray70,
     secondaryText = WireColorPalette.Gray40,
     labelText = WireColorPalette.Gray30,
@@ -195,9 +214,11 @@ private val DarkWireColorScheme = WireColorScheme(
     disabledUncheckedBoxColor = WireColorPalette.Gray80,
     uncheckedCheckmarkColor = WireColorPalette.Gray20,
     checkedCheckmarkColor = Color.White,
+    messageErrorBackgroundColor = WireColorPalette.GrayRed900,
     ongoingCallBackground = WireColorPalette.Gray90,
     initiatingCallBackground = WireColorPalette.Gray20,
     callingIncomingBackground = WireColorPalette.Gray20,
+    muteButtonColor = WireColorPalette.DarkRed500,
     groupAvatarColors = listOf(
         // Red
         WireColorPalette.DarkRed300,
@@ -227,7 +248,11 @@ private val DarkWireColorScheme = WireColorScheme(
         WireColorPalette.Gray50,
         WireColorPalette.Gray70,
         WireColorPalette.Gray90,
-        )
+        ),
+    callingPagerIndicatorBackground = WireColorPalette.Gray40,
+    callingActiveIndicator = WireColorPalette.LightBlue500,
+    callingInActiveIndicator = Color.White,
+    callingInActiveBorderIndicator = WireColorPalette.Gray60
 )
 
 @PackagePrivate

@@ -1,6 +1,7 @@
 package com.wire.android.ui.userprofile.other
 
 import com.wire.android.model.ImageAsset.UserAvatarAsset
+import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.kalium.logic.data.user.ConnectionState
 
 data class OtherUserProfileState(
@@ -13,6 +14,7 @@ data class OtherUserProfileState(
     val email: String = "",
     val phone: String = "",
     val connectionStatus: ConnectionStatus = ConnectionStatus.Unknown,
+    val membership : Membership = Membership.None
 )
 
 sealed class ConnectionStatus {
@@ -29,5 +31,7 @@ fun ConnectionState.toOtherUserProfileConnectionStatus() = when (this) {
     ConnectionState.PENDING -> ConnectionStatus.Pending
     ConnectionState.SENT -> ConnectionStatus.Sent
     ConnectionState.ACCEPTED -> ConnectionStatus.Connected
-    else -> ConnectionStatus.Unknown // TODO: what about other states?
+    ConnectionState.BLOCKED,
+    ConnectionState.IGNORED,
+    ConnectionState.MISSING_LEGALHOLD_CONSENT -> ConnectionStatus.Unknown // TODO: implement rest states
 }

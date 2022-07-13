@@ -4,19 +4,21 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
@@ -25,14 +27,15 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.ui.common.Icon
 import com.wire.android.model.UserAvatarData
+import com.wire.android.ui.common.MembershipQualifierLabel
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.WireCircularProgressIndicator
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserProfileInfo(
     isLoading: Boolean,
@@ -40,11 +43,12 @@ fun UserProfileInfo(
     fullName: String,
     userName: String,
     teamName: String?,
+    membership: Membership = Membership.None,
     onUserProfileClick: (() -> Unit)? = null,
     editableState: EditableState
 ) {
     Column(
-        horizontalAlignment = Alignment.CenterHorizontally,
+        horizontalAlignment = CenterHorizontally,
         verticalArrangement = Arrangement.Center,
         modifier = Modifier
             .fillMaxWidth()
@@ -79,6 +83,7 @@ fun UserProfileInfo(
         val (userDescription, editButton, teamDescription) = createRefs()
 
         Column(
+            horizontalAlignment = CenterHorizontally,
             modifier = Modifier
                 .padding(horizontal = dimensions().spacing64x)
                 .wrapContentSize()
@@ -90,7 +95,6 @@ fun UserProfileInfo(
                 }
         ) {
             Text(
-                modifier = Modifier.align(Alignment.CenterHorizontally),
                 text = fullName,
                 overflow = TextOverflow.Ellipsis,
                 maxLines = 1,
@@ -98,13 +102,16 @@ fun UserProfileInfo(
                 color = MaterialTheme.colorScheme.onBackground,
             )
             Text(
-                modifier = Modifier.align(Alignment.CenterHorizontally),
                 text = "@$userName",
                 overflow = TextOverflow.Ellipsis,
                 style = MaterialTheme.wireTypography.body02,
                 maxLines = 1,
                 color = MaterialTheme.wireColorScheme.labelText,
             )
+            if (membership != Membership.None) {
+                Spacer(Modifier.height(dimensions().spacing8x))
+                MembershipQualifierLabel(membership)
+            }
         }
 
         if (editableState is EditableState.IsEditable) {

@@ -4,19 +4,20 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
+import com.wire.android.model.UserAvatarData
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
-import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.ConversationLastEvent
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.feature.connection.ObserveConnectionListUseCase
+import com.wire.kalium.logic.feature.call.AnswerCallUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
-import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveConversationsAndConnectionsUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
 import io.mockk.MockKAnnotations
@@ -32,7 +33,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class, ExperimentalMaterial3Api::class)
 @ExtendWith(CoroutineTestExtension::class)
-//TODO write more tests
+// TODO write more tests
 class ConversationListViewModelTest {
 
     private lateinit var conversationListViewModel: ConversationListViewModel
@@ -41,16 +42,16 @@ class ConversationListViewModelTest {
     lateinit var navigationManager: NavigationManager
 
     @MockK
-    lateinit var observeConversationDetailsList: ObserveConversationListDetailsUseCase
-
-    @MockK
     lateinit var updateConversationMutedStatus: UpdateConversationMutedStatusUseCase
 
     @MockK
-    lateinit var observeConnectionList: ObserveConnectionListUseCase
+    lateinit var observeConversationsAndConnections: ObserveConversationsAndConnectionsUseCase
 
     @MockK
-    lateinit var markMessagesAsNotified: MarkMessagesAsNotifiedUseCase
+    lateinit var joinCall: AnswerCallUseCase
+
+    @MockK
+    private lateinit var wireSessionImageLoader: WireSessionImageLoader
 
     @BeforeEach
     fun setUp() {
@@ -60,14 +61,14 @@ class ConversationListViewModelTest {
         conversationListViewModel =
             ConversationListViewModel(
                 navigationManager,
-                observeConversationDetailsList,
                 updateConversationMutedStatus,
-                markMessagesAsNotified,
-                observeConnectionList,
-                TestDispatcherProvider()
+                joinCall,
+                observeConversationsAndConnections,
+                TestDispatcherProvider(),
+                wireSessionImageLoader
             )
 
-        coEvery { observeConversationDetailsList.invoke() } returns flowOf(listOf())
+        coEvery { observeConversationsAndConnections() } returns flowOf(listOf())
     }
 
     @Test
@@ -102,6 +103,26 @@ class ConversationListViewModelTest {
                 )
             }
         }
+
+    @Test
+    fun `given a conversation id, when joining an ongoing call, then verify that answer call usecase is called`() = runTest {
+        coEvery { joinCall(any()) } returns Unit
+
+        conversationListViewModel.joinOngoingCall(conversationId = conversationId)
+
+        coVerify(exactly = 1) { joinCall(conversationId = conversationId) }
+        coVerify(exactly = 1) {
+            navigationManager.navigate(
+                NavigationCommand(
+                    NavigationItem.OngoingCall.getRouteWithArgs(
+                        listOf(
+                            conversationId
+                        )
+                    )
+                )
+            )
+        }
+    }
 
     companion object {
         private val conversationId = ConversationId("some_id", "some_domain")

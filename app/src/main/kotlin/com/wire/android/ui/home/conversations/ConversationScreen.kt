@@ -17,6 +17,8 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -25,15 +27,20 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.UserProfileAvatar
+import com.wire.android.ui.common.WireDialog
+import com.wire.android.ui.common.WireDialogButtonProperties
+import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.conversationColor
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
+import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorDeletingMessage
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorDownloadingAsset
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorMaxAssetSize
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorMaxImageSize
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorOpeningAssetFile
+import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorPickingAttachment
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorSendingAsset
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorSendingImage
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnFileDownloaded
@@ -51,11 +58,36 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun ConversationScreen(conversationViewModel: ConversationViewModel) {
-    val audioPermissionCheck = AudioBluetoothPermissionCheckFlow(conversationViewModel)
-    val uiState = conversationViewModel.conversationViewState
+    val showDialog = remember { mutableStateOf(false) }
 
+    val startCallAudioPermissionCheck = StartCallAudioBluetoothPermissionCheckFlow {
+        conversationViewModel.navigateToInitiatingCallScreen()
+    }
+    val joinCallAudioPermissionCheck = JoinCallAudioBluetoothPermissionCheckFlow(conversationViewModel)
+    val uiState = conversationViewModel.conversationViewState
     LaunchedEffect(conversationViewModel.savedStateHandle) {
         conversationViewModel.checkPendingActions()
+    }
+
+    if (showDialog.value) {
+        WireDialog(
+            title = stringResource(id = R.string.calling_ongoing_call_title_alert),
+            text = stringResource(id = R.string.calling_ongoing_call_start_message_alert),
+            onDismiss = { showDialog.value = false },
+            optionButton1Properties = WireDialogButtonProperties(
+                onClick = { showDialog.value = false },
+                text = stringResource(id = R.string.label_cancel),
+                type = WireDialogButtonType.Secondary
+            ),
+            optionButton2Properties = WireDialogButtonProperties(
+                onClick = {
+                    conversationViewModel.navigateToInitiatingCallScreen()
+                    showDialog.value = false
+                },
+                text = stringResource(id = R.string.calling_ongoing_call_start_anyway),
+                type = WireDialogButtonType.Primary
+            )
+        )
     }
 
     ConversationScreen(
@@ -67,9 +99,18 @@ fun ConversationScreen(conversationViewModel: ConversationViewModel) {
         onImageFullScreenMode = conversationViewModel::navigateToGallery,
         onBackButtonClick = conversationViewModel::navigateBack,
         onDeleteMessage = conversationViewModel::showDeleteMessageDialog,
-        onCallStart = audioPermissionCheck::launch,
-        onSnackbarMessage = conversationViewModel::onSnackbarMessage
+        onStartCall = {
+            conversationViewModel.establishedCallConversationId?.let {
+                showDialog.value = true
+            } ?: run {
+                startCallAudioPermissionCheck.launch()
+            }
+        },
+        onJoinCall = joinCallAudioPermissionCheck::launch,
+        onSnackbarMessage = conversationViewModel::onSnackbarMessage,
+        onDropDownClick = conversationViewModel::navigateToDetails
     )
+
     DeleteMessageDialog(conversationViewModel = conversationViewModel)
     DownloadedAssetDialog(
         downloadedAssetDialogState = conversationViewModel.conversationViewState.downloadedAssetDialogState,
@@ -80,14 +121,24 @@ fun ConversationScreen(conversationViewModel: ConversationViewModel) {
 }
 
 @Composable
-private fun AudioBluetoothPermissionCheckFlow(conversationViewModel: ConversationViewModel) =
+private fun StartCallAudioBluetoothPermissionCheckFlow(
+    onStartCall: () -> Unit
+) = rememberCallingRecordAudioBluetoothRequestFlow(onAudioBluetoothPermissionGranted = {
+    onStartCall()
+}) {
+    //TODO display an error dialog
+}
+
+@Composable
+private fun JoinCallAudioBluetoothPermissionCheckFlow(conversationViewModel: ConversationViewModel) =
     rememberCallingRecordAudioBluetoothRequestFlow(onAudioBluetoothPermissionGranted = {
-        conversationViewModel.navigateToInitiatingCallScreen()
+        conversationViewModel.joinOngoingCall()
     }) {
         //TODO display an error dialog
     }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
+@Suppress("LongParameterList")
 @Composable
 private fun ConversationScreen(
     conversationViewState: ConversationViewState,
@@ -98,8 +149,10 @@ private fun ConversationScreen(
     onImageFullScreenMode: (String, Boolean) -> Unit,
     onBackButtonClick: () -> Unit,
     onDeleteMessage: (String, Boolean) -> Unit,
-    onCallStart: () -> Unit,
-    onSnackbarMessage: (ConversationSnackbarMessages) -> Unit
+    onStartCall: () -> Unit,
+    onJoinCall: () -> Unit,
+    onSnackbarMessage: (ConversationSnackbarMessages) -> Unit,
+    onDropDownClick: () -> Unit
 ) {
     val conversationScreenState = rememberConversationScreenState()
     val scope = rememberCoroutineScope()
@@ -135,9 +188,11 @@ private fun ConversationScreen(
                                 }
                             },
                             onBackButtonClick = onBackButtonClick,
-                            onDropDownClick = { },
+                            onDropDownClick = onDropDownClick,
                             onSearchButtonClick = { },
-                            onPhoneButtonClick = { onCallStart() }
+                            onPhoneButtonClick = onStartCall,
+                            hasOngoingCall = hasOngoingCall,
+                            onJoinCallButtonClick = onJoinCall
                         )
                     },
                     snackbarHost = {
@@ -159,7 +214,8 @@ private fun ConversationScreen(
                                 onImageFullScreenMode = onImageFullScreenMode,
                                 conversationState = conversationViewState,
                                 onMessageComposerError = onSnackbarMessage,
-                                conversationScreenState = conversationScreenState
+                                conversationScreenState = conversationScreenState,
+                                isFileSharingEnabled = isFileSharingEnabled
                             )
                         }
                     }
@@ -169,6 +225,7 @@ private fun ConversationScreen(
     }
 }
 
+@Suppress("LongParameterList")
 @Composable
 private fun ConversationScreenContent(
     messages: List<UIMessage>,
@@ -181,7 +238,8 @@ private fun ConversationScreenContent(
     onImageFullScreenMode: (String, Boolean) -> Unit,
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
     conversationState: ConversationViewState,
-    conversationScreenState: ConversationScreenState
+    conversationScreenState: ConversationScreenState,
+    isFileSharingEnabled: Boolean
 ) {
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -221,12 +279,12 @@ private fun ConversationScreenContent(
         onSendAttachment = onSendAttachment,
         onMessageComposerError = onMessageComposerError,
         onMessageComposerInputStateChange = { messageComposerState ->
-            if (messageComposerState.to == MessageComposeInputState.Active
-                && messageComposerState.from == MessageComposeInputState.Enabled
+            if (messageComposerState.to == MessageComposeInputState.Active &&
+                messageComposerState.from == MessageComposeInputState.Enabled
             ) {
                 coroutineScope.launch { lazyListState.animateScrollToItem(messages.size) }
             }
-        }
+        }, isFileSharingEnabled = isFileSharingEnabled
     )
 }
 
@@ -240,7 +298,8 @@ private fun getSnackbarMessage(messageCode: ConversationSnackbarMessages): Pair<
         ErrorSendingAsset -> stringResource(R.string.error_conversation_sending_asset)
         ErrorDownloadingAsset -> stringResource(R.string.error_conversation_downloading_asset)
         ErrorOpeningAssetFile -> stringResource(R.string.error_conversation_opening_asset_file)
-        ConversationSnackbarMessages.ErrorPickingAttachment -> stringResource(R.string.error_conversation_generic)
+        ErrorDeletingMessage -> stringResource(R.string.error_conversation_deleting_message)
+        ErrorPickingAttachment -> stringResource(R.string.error_conversation_generic)
     }
     val actionLabel = when (messageCode) {
         is OnFileDownloaded -> stringResource(R.string.label_show)
@@ -267,15 +326,16 @@ fun MessageList(
         items(messages, key = {
             it.messageHeader.messageId
         }) { message ->
-            if (message.messageContent is MessageContent.SystemMessage)
+            if (message.messageContent is MessageContent.SystemMessage) {
                 SystemMessageItem(message = message.messageContent)
-            else
+            } else {
                 MessageItem(
                     message = message,
                     onLongClicked = onShowContextMenu,
                     onAssetMessageClicked = onDownloadAsset,
                     onImageMessageClicked = onImageFullScreenMode
                 )
+            }
         }
     }
 }
@@ -288,6 +348,6 @@ fun ConversationScreenPreview() {
             conversationName = "Some test conversation",
             messages = getMockedMessages(),
         ),
-        {}, {}, {}, {}, { _, _ -> }, {}, { _, _ -> }, {}, {}
+        {}, {}, {}, {}, { _, _ -> }, {}, { _, _ -> }, {}, {}, {}, {}
     )
 }

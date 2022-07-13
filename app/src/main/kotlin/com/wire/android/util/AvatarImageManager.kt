@@ -1,13 +1,10 @@
 package com.wire.android.util
 
 import android.content.Context
-import android.graphics.Bitmap
-import android.graphics.Matrix
 import android.net.Uri
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
 import androidx.exifinterface.media.ExifInterface
-import com.wire.android.BuildConfig
 import java.io.File
 import javax.inject.Inject
 
@@ -23,50 +20,20 @@ class AvatarImageManager @Inject constructor(val context: Context) {
      * @param context
      */
     @Suppress("TooGenericExceptionCaught")
-    fun postProcessCapturedAvatar(uri: Uri) {
+    suspend fun postProcessAvatar(uri: Uri): Uri? {
         try {
-            val avatarBitmap = uri.toBitmap(context)
-
-            // Rotate if needed
-            val exifInterface = context.contentResolver.openInputStream(uri).use { stream -> stream?.let { ExifInterface(it) } }
-            val normalizedAvatar = avatarBitmap?.rotateImageToNormalOrientation(exifInterface)
+            val avatarByteArray = uri.toByteArray(context)
 
             // Compress image
-            val rawCompressedImage = normalizedAvatar?.let { ImageUtil.compressImage(it) }
+            val resampledByteArray = avatarByteArray?.let { ImageUtil.resample(it, ImageUtil.ImageSizeClass.Small) }
 
             // Save to fixed path
-            rawCompressedImage?.let { getWritableTempAvatarUri(it) }
+            return resampledByteArray?.let { getWritableTempAvatarUri(it) }
         } catch (exception: Exception) {
             // NOOP: None post process op performed
         }
-    }
 
-    /**
-     * Rotates the image to its [ExifInterface.ORIENTATION_NORMAL] in case it's rotated with a different orientation than
-     * landscape or portrait See more about exif interface at:
-     * https://developer.android.com/reference/androidx/exifinterface/media/ExifInterface
-     *
-     * @param exif Exif interface for of the image to rotate
-     * @return Bitmap the rotated bitmap or the same in case there is no rotation performed
-     */
-    @Suppress("MagicNumber", "TooGenericExceptionCaught")
-    private fun Bitmap.rotateImageToNormalOrientation(exif: ExifInterface?): Bitmap {
-        val orientation = exif?.getAttributeInt(ExifInterface.TAG_ORIENTATION, ExifInterface.ORIENTATION_NORMAL)
-        val matrix = Matrix()
-        when (orientation) {
-            ExifInterface.ORIENTATION_ROTATE_180 -> matrix.postRotate(180f)
-            ExifInterface.ORIENTATION_ROTATE_90 -> matrix.postRotate(90f)
-            ExifInterface.ORIENTATION_ROTATE_270 -> matrix.postRotate(270f)
-            else -> return this
-        }
-
-        return try {
-            val rotated = Bitmap.createBitmap(this, 0, 0, this.width, this.height, matrix, true)
-            this.recycle()
-            rotated
-        } catch (exception: Exception) {
-            this
-        }
+        return null
     }
 
     private fun getWritableTempAvatarUri(imageData: ByteArray): Uri {
@@ -85,8 +52,12 @@ class AvatarImageManager @Inject constructor(val context: Context) {
         return uri.toByteArray(context)
     }
 
-    fun getShareableTempAvatarUri(): Uri {
-        return Companion.getShareableTempAvatarUri(context)
+    fun getSharableTempAvatarUri(): Uri {
+        return Companion.getSharableTempAvatarUri(context)
+    }
+
+    fun getSharableAvatarUri(): Uri {
+        return Companion.getSharableAvatarUri(context)
     }
 
     companion object {
@@ -105,11 +76,11 @@ class AvatarImageManager @Inject constructor(val context: Context) {
             return file
         }
 
-        fun getShareableAvatarUri(context: Context): Uri {
+        fun getSharableAvatarUri(context: Context): Uri {
             return FileProvider.getUriForFile(context, context.getProviderAuthority(), getAvatarFile(context))
         }
 
-        fun getShareableTempAvatarUri(context: Context): Uri {
+        fun getSharableTempAvatarUri(context: Context): Uri {
             return FileProvider.getUriForFile(context, context.getProviderAuthority(), getTempAvatarFile(context))
         }
     }

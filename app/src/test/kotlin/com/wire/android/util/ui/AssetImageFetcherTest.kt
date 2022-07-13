@@ -77,7 +77,7 @@ internal class AssetImageFetcherTest {
         assetImageFetcher.fetch()
 
         // Then
-        coVerify(inverse = true) { arrangement.drawableResultWrapper.toFetchResult(decodedAssetPath = any()) }
+        coVerify(inverse = true) { arrangement.drawableResultWrapper.toFetchResult(decodedAssetSource = any()) }
     }
 
     private class Arrangement {

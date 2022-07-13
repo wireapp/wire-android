@@ -73,7 +73,7 @@ class LoginEmailScreenTest {
         scenario.onActivity { activity ->
             activity.setContent {
                 WireTheme {
-                    LoginEmailScreen(serverConfig = ServerConfig.STAGING)
+                    LoginEmailScreen()
                 }
             }
         }

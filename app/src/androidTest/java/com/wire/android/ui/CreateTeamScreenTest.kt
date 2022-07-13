@@ -7,6 +7,8 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
@@ -71,7 +73,7 @@ class CreateTeamScreenTest {
         scenario.onActivity { activity ->
             activity.setContent {
                 WireTheme {
-                    CreateTeamScreen(serverConfig = ServerConfig.STAGING)
+                    CreateTeamScreen()
                 }
             }
         }

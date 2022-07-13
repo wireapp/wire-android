@@ -33,7 +33,7 @@ class IncomingCallViewModel @Inject constructor(
     private val rejectCall: RejectCallUseCase,
     private val acceptCall: AnswerCallUseCase,
     private val callRinger: CallRinger,
-    private val observeEstablishedCallsUseCase: ObserveEstablishedCallsUseCase,
+    private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val endCall: EndCallUseCase,
     notificationManager: CallNotificationManager
 ) : ViewModel() {
@@ -57,7 +57,7 @@ class IncomingCallViewModel @Inject constructor(
     }
 
     private fun observeEstablishedCall() = viewModelScope.launch {
-        observeEstablishedCallsUseCase().collect {
+        observeEstablishedCalls().collect {
             if (it.isNotEmpty()) {
                 establishedCallConversationId = it.first().conversationId
             }
@@ -93,8 +93,8 @@ class IncomingCallViewModel @Inject constructor(
     fun acceptCall() {
         callRinger.stop()
         viewModelScope.launch {
-            var backStackNode = BackStackMode.REMOVE_CURRENT
-            var delayTime = 0L
+            var backStackNode = ACCEPT_CALL_DEFAULT_BACKSTACK_NODE
+            var delayTime = ACCEPT_CALL_DEFAULT_DELAY_TIME
             // if there is already an active call, then end it to accept the new incoming call
             establishedCallConversationId?.let {
                 endCall(it)
@@ -117,5 +117,7 @@ class IncomingCallViewModel @Inject constructor(
     }
     companion object {
         private const val DELAY_TIME_AFTER_ENDING_CALL = 1000L
+        private val ACCEPT_CALL_DEFAULT_BACKSTACK_NODE = BackStackMode.REMOVE_CURRENT
+        private const val ACCEPT_CALL_DEFAULT_DELAY_TIME = 0L
     }
 }

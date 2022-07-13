@@ -45,7 +45,9 @@ import com.wire.kalium.logic.feature.asset.SendImageMessageResult
 import com.wire.kalium.logic.feature.asset.SendImageMessageUseCase
 import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCase
 import com.wire.kalium.logic.feature.call.AnswerCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
@@ -77,7 +79,9 @@ class ConversationViewModel @Inject constructor(
     private val getMessageForConversation: GetMessagesForConversationUseCase,
     private val isFileSharingEnabled: IsFileSharingEnabledUseCase,
     private val observeOngoingCalls: ObserveOngoingCallsUseCase,
+    private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val answerCall: AnswerCallUseCase,
+    private val endCall: EndCallUseCase,
     private val fileManager: FileManager,
     private val wireSessionImageLoader: WireSessionImageLoader
 ) : SavedStateViewModel(savedStateHandle) {
@@ -97,12 +101,15 @@ class ConversationViewModel @Inject constructor(
         .get<String>(EXTRA_CONVERSATION_ID)!!
         .parseIntoQualifiedID()
 
+    var establishedCallConversationId: ConversationId? = null
+
     init {
         fetchMessages()
         listenConversationDetails()
         fetchSelfUserTeam()
         setFileSharingStatus()
         listenOngoingCall()
+        observeEstablishedCall()
     }
 
     // region ------------------------------ Init Methods -------------------------------------
@@ -153,6 +160,16 @@ class ConversationViewModel @Inject constructor(
 
                 conversationViewState = conversationViewState.copy(hasOngoingCall = hasOngoingCall)
             }
+    }
+
+    private fun observeEstablishedCall() = viewModelScope.launch {
+        observeEstablishedCalls().collect {
+            val hasEstablishedCall = it.isNotEmpty()
+            establishedCallConversationId = if (it.isNotEmpty()) {
+                it.first().conversationId
+            } else null
+            conversationViewState = conversationViewState.copy(hasEstablishedCall = hasEstablishedCall)
+        }
     }
 
     internal fun checkPendingActions() {
@@ -250,7 +267,11 @@ class ConversationViewModel @Inject constructor(
                         updateAssetMessageDownloadStatus(IN_PROGRESS, conversationId, messageId)
 
                     val resultData = getRawAssetData(conversationId, messageId)
-                    updateAssetMessageDownloadStatus(if (resultData != null) SAVED_INTERNALLY else FAILED, conversationId, messageId)
+                    updateAssetMessageDownloadStatus(
+                        if (resultData != null) SAVED_INTERNALLY else FAILED,
+                        conversationId,
+                        messageId
+                    )
 
                     if (resultData != null) {
                         showOnAssetDownloadedDialog(assetName, resultData, messageId)
@@ -279,7 +300,6 @@ class ConversationViewModel @Inject constructor(
         }
     }
 
-
     private fun getAssetLimitInBytes(): Int {
         // Users with a team attached have larger asset sending limits than default users
         return conversationViewState.userTeam?.run {
@@ -300,11 +320,21 @@ class ConversationViewModel @Inject constructor(
     fun showDeleteMessageDialog(messageId: String, isMyMessage: Boolean) =
         if (isMyMessage) {
             updateDeleteDialogState {
-                it.copy(forEveryone = DeleteMessageDialogActiveState.Visible(messageId = messageId, conversationId = conversationId))
+                it.copy(
+                    forEveryone = DeleteMessageDialogActiveState.Visible(
+                        messageId = messageId,
+                        conversationId = conversationId
+                    )
+                )
             }
         } else {
             updateDeleteDialogState {
-                it.copy(forYourself = DeleteMessageDialogActiveState.Visible(messageId = messageId, conversationId = conversationId))
+                it.copy(
+                    forYourself = DeleteMessageDialogActiveState.Visible(
+                        messageId = messageId,
+                        conversationId = conversationId
+                    )
+                )
             }
         }
 
@@ -443,6 +473,9 @@ class ConversationViewModel @Inject constructor(
 
     fun navigateToInitiatingCallScreen() {
         viewModelScope.launch {
+            establishedCallConversationId?.let {
+                endCall(it)
+            }
             navigationManager.navigate(
                 command = NavigationCommand(
                     destination = NavigationItem.InitiatingCall.getRouteWithArgs(listOf(conversationId))

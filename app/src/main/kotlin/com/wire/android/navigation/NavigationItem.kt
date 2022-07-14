@@ -59,10 +59,7 @@ import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.kalium.logic.data.id.ConversationId
 import io.github.esentsov.PackagePrivate
 
-@OptIn(
-    ExperimentalMaterial3Api::class,
-    ExperimentalMaterialApi::class
-)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 /**
  * The class encapsulating the app main navigational items.
  */
@@ -255,7 +252,7 @@ enum class NavigationItem(
         screenMode = ScreenMode.WAKE_UP,
         animationConfig = NavigationAnimationConfig.DelegatedAnimation
     ) {
-        override fun getRouteWithArgs(arguments: List<Any>): String  {
+        override fun getRouteWithArgs(arguments: List<Any>): String {
             val conversationIdString: String = arguments.filterIsInstance<ConversationId>().firstOrNull()?.toString()
                 ?: "{$EXTRA_CONVERSATION_ID}"
             return "$INCOMING_CALL?$EXTRA_CONVERSATION_ID=$conversationIdString"

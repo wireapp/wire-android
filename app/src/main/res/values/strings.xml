@@ -240,6 +240,10 @@
     <string name="conversation_details_group_participants_title">Group Participants</string>
     <string name="conversation_details_group_participants_add">Add participants</string>
 
+    <string name="convrsation_options_guest_discriptions">Turn this option ON to open this conversation to people outside your team, even if they don\'t have Wire.</string>
+    <string name="conversation_Option_services_lable">Services</string>
+    <string name="convrsation_options_services_discriptions">Turn this option ON to open this conversation to services.</string>
+
     <!-- Attachment options -->
     <string name="attachment_share_file">Attach File</string>
     <string name="attachment_share_image">Attach Image</string>

@@ -11,13 +11,31 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.model.Clickable
+import com.wire.android.ui.home.conversations.details.GroupConversationOptionsViewModel
+import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.theme.wireColorScheme
 
 @Composable
+fun GroupConversationOptionsScreen(
+    viewModel: GroupConversationOptionsViewModel = hiltViewModel(),
+    lazyListState: LazyListState
+) {
+    GroupConversationOptions(
+        state = viewModel.groupOptionsState,
+        onGuestSwitchClicked = { TODO() },
+        onServiceSwitchClicked = { TODO() },
+        lazyListState = lazyListState
+    )
+}
+
+@Composable
 fun GroupConversationOptions(
-    groupOptionsState: GroupConversationOptionsState,
+    state: GroupConversationOptionsState,
+    onGuestSwitchClicked: (Boolean) -> Unit,
+    onServiceSwitchClicked: (Boolean) -> Unit,
     lazyListState: LazyListState = rememberLazyListState()
 ) {
     LazyColumn(
@@ -25,18 +43,87 @@ fun GroupConversationOptions(
         modifier = Modifier.fillMaxSize()
     ) {
         item {
-            GroupConversationOptionsItem(
-                label = stringResource(id = R.string.conversation_details_options_group_name),
-                title = groupOptionsState.groupName,
-                clickable = Clickable(enabled = false, onClick = { /* TODO */ }, onLongClick = { /* not handled */ })
-            )
-            Divider(color = MaterialTheme.wireColorScheme.divider, thickness = Dp.Hairline)
+            GroupNameItem(state.groupName, state.isChangingAllowed)
+        }
+        if (state.isTeamGroup) {
+            item { FolderHeader(name = "Access") }
+
+            item {
+                GuestOption(
+                    canBeChanged = state.isChangingAllowed,
+                    switchState = state.isGuestAllowed,
+                    onCheckedChange = onGuestSwitchClicked
+                )
+            }
+
+            item {
+                ServicesOption(
+                    canBeChanged = state.isChangingAllowed,
+                    switchState = state.isServicesAllowed,
+                    onCheckedChange = onServiceSwitchClicked
+                )
+            }
         }
     }
 }
 
+@Composable
+private fun GroupNameItem(groupName: String, canBeChanged: Boolean) {
+    GroupConversationOptionsItem(
+        label = stringResource(id = R.string.conversation_details_options_group_name),
+        title = groupName,
+        clickable = Clickable(enabled = canBeChanged, onClick = { /* TODO */ }, onLongClick = { /* not handled */ })
+    )
+    Divider(color = MaterialTheme.wireColorScheme.divider, thickness = Dp.Hairline)
+}
+
+
+@Composable
+private fun GuestOption(canBeChanged: Boolean, switchState: Boolean, onCheckedChange: (Boolean) -> Unit) {
+    GroupConversationOptionsItem(
+        title = stringResource(id = R.string.label_membership_guest),
+        subtitle = stringResource(id = R.string.convrsation_options_guest_discriptions),
+        switchState = if (canBeChanged) SwitchState.Enabled(switchState, onCheckedChange) else SwitchState.Disabled(switchState),
+        arrowType = ArrowType.NONE
+    )
+    Divider(color = MaterialTheme.wireColorScheme.divider, thickness = Dp.Hairline)
+}
+
+@Composable
+private fun ServicesOption(canBeChanged: Boolean, switchState: Boolean, onCheckedChange: (Boolean) -> Unit) {
+    GroupConversationOptionsItem(
+        title = stringResource(id = R.string.conversation_Option_services_lable),
+        subtitle = stringResource(id = R.string.convrsation_options_services_discriptions),
+        switchState = if (canBeChanged) SwitchState.Enabled(switchState, onCheckedChange) else SwitchState.Disabled(switchState),
+        arrowType = ArrowType.NONE
+    )
+    Divider(color = MaterialTheme.wireColorScheme.divider, thickness = Dp.Hairline)
+}
+
+
 @Preview
 @Composable
-fun GroupConversationOptionsPreview() {
-    GroupConversationOptions(GroupConversationOptionsState(groupName = "Group name"))
+private fun TeamGroupConversationOptionsPreview() {
+    GroupConversationOptions(
+        GroupConversationOptionsState(
+            groupName = "Team Group Conversation",
+            isChangingAllowed = true,
+            isTeamGroup = true,
+            isGuestAllowed = true
+        ),
+        {}, {}
+    )
+}
+
+@Preview
+@Composable
+private fun NormalGroupConversationOptionsPreview() {
+    GroupConversationOptions(
+        GroupConversationOptionsState(
+            groupName = "Normal Group Conversation",
+            isChangingAllowed = true,
+            isTeamGroup = false
+        ), {}, {}
+
+    )
 }

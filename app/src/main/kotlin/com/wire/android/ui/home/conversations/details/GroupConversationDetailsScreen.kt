@@ -39,6 +39,7 @@ import com.wire.android.ui.common.calculateCurrentTab
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptions
+import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsScreen
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsState
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipants
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipantsState
@@ -110,8 +111,7 @@ private fun GroupConversationDetailsContent(
                     .padding(internalPadding)
             ) { pageIndex ->
                 when (GroupConversationDetailsTabItem.values()[pageIndex]) {
-                    GroupConversationDetailsTabItem.OPTIONS -> GroupConversationOptions(
-                        groupOptionsState = groupOptionsState,
+                    GroupConversationDetailsTabItem.OPTIONS -> GroupConversationOptionsScreen(
                         lazyListState = lazyListStates[pageIndex]
                     )
                     GroupConversationDetailsTabItem.PARTICIPANTS -> GroupConversationParticipants(

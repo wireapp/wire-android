@@ -33,6 +33,8 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.vectorResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
@@ -81,7 +83,7 @@ internal fun WireTextField(
             value = value,
             onValueChange = {
                 onValueChange(
-                    if(singleLine || maxLines == 1) it.copy(it.text.replace("\n", ""))
+                    if (singleLine || maxLines == 1) it.copy(it.text.replace("\n", ""))
                     else it
                 )
             },
@@ -98,7 +100,12 @@ internal fun WireTextField(
             modifier = Modifier
                 .fillMaxWidth()
                 .background(color = colors.backgroundColor(state).value, shape = shape)
-                .border(width = 1.dp, color = colors.borderColor(state, interactionSource).value, shape = shape),
+                .border(width = 1.dp, color = colors.borderColor(state, interactionSource).value, shape = shape)
+                .semantics {
+                    (labelText ?: placeholderText ?: descriptionText)?.let {
+                        contentDescription = it
+                    }
+                },
             decorationBox = { innerTextField ->
                 InnerText(innerTextField, value, leadingIcon, trailingIcon, placeholderText, state, placeholderTextStyle, inputMinHeight)
             },

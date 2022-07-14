@@ -7,7 +7,7 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AuthSession
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
-import com.wire.kalium.logic.feature.session.CurrentSessionResult
+import com.wire.kalium.logic.functional.Either
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.android.components.ViewModelComponent
@@ -35,16 +35,16 @@ class TestModule {
         return runBlocking {
             val result = restoreSession(coreLogic)
             if (result != null) {
-                result.userId
+                result.tokens.userId
             } else {
                 // execute manual login
-                val authResult = coreLogic.getAuthenticationScope()
-                    .login(EMAIL, PASSWORD, false, ServerConfig.STAGING)
+                val authResult = coreLogic.getAuthenticationScope(ServerConfig.STAGING)
+                    .login(EMAIL, PASSWORD, false)
 
                 if (authResult is AuthenticationResult.Success) {
                     // persist locally the session if successful
-                    coreLogic.getAuthenticationScope().addAuthenticatedAccount.invoke(authResult.userSession)
-                    authResult.userSession.userId
+                    coreLogic.sessionRepository.storeSession(authResult.userSession)
+                    authResult.userSession.tokens.userId
                 } else {
                     throw RuntimeException("Failed to setup testing custom injection")
                 }
@@ -53,10 +53,10 @@ class TestModule {
     }
 }
 
-private suspend fun restoreSession(coreLogic: CoreLogic): AuthSession? {
-    return coreLogic.authenticationScope {
-        when (val currentSessionResult = session.currentSession()) {
-            is CurrentSessionResult.Success -> currentSessionResult.authSession
+private fun restoreSession(coreLogic: CoreLogic): AuthSession? {
+    return coreLogic.authenticationScope(ServerConfig.STAGING) {
+        when (val currentSessionResult = coreLogic.sessionRepository.currentSession()) {
+            is Either.Right -> currentSessionResult.value
             else -> null
         }
     }

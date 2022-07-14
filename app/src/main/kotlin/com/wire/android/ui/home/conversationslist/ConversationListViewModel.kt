@@ -39,8 +39,6 @@ import com.wire.kalium.logic.feature.call.AnswerCallUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationsAndConnectionsUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
-import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
-import com.wire.kalium.logic.util.toStringDate
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.util.Date
@@ -52,7 +50,6 @@ import javax.inject.Inject
 class ConversationListViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val updateConversationMutedStatus: UpdateConversationMutedStatusUseCase,
-    private val markMessagesAsNotified: MarkMessagesAsNotifiedUseCase,
     private val answerCall: AnswerCallUseCase,
     private val observeConversationsAndConnections: ObserveConversationsAndConnectionsUseCase,
     private val dispatchers: DispatcherProvider,
@@ -66,9 +63,6 @@ class ConversationListViewModel @Inject constructor(
 
     init {
         startObservingConversationsAndConnections()
-        viewModelScope.launch {
-            markMessagesAsNotified(null, System.currentTimeMillis().toStringDate()) // TODO Failure is ignored
-        }
     }
 
     private fun startObservingConversationsAndConnections() = viewModelScope.launch(dispatchers.io()) {
@@ -246,9 +240,7 @@ private fun UserType.toMembership(): Membership {
         UserType.GUEST -> Membership.Guest
         UserType.FEDERATED -> Membership.Federated
         UserType.EXTERNAL -> Membership.External
-        UserType.INTERNAL -> Membership.None
-        else -> {
-            throw IllegalStateException("Unknown UserType")
-        }
+        UserType.INTERNAL -> Membership.Internal
+        UserType.NONE -> Membership.None
     }
 }

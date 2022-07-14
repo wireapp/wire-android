@@ -35,7 +35,7 @@ class UIParticipantMapperTest {
             MemberDetails(testOtherUser(4).copy(userType = UserType.GUEST), Member.Role.Member)
         )
         // When
-        val results = data.map { mapper.toUIParticipant(it) }
+        val results = data.map { mapper.toUIParticipant(it.user) }
         // Then
         results.forEachIndexed { index, result ->
             assert(compareResult(arrangement.wireSessionImageLoader, data[index], result, arrangement.userTypeMapper))
@@ -51,7 +51,7 @@ class UIParticipantMapperTest {
         memberDetails.userId == uiParticipant.id
                 && memberDetails.name == uiParticipant.name
                 && memberDetails.handle == uiParticipant.handle
-                && memberDetails.avatar(wireSessionImageLoader) == uiParticipant.avatarData
+                && memberDetails.user.avatar(wireSessionImageLoader) == uiParticipant.avatarData
                 && userTypeMapper.toMembership(memberDetails.userType) == uiParticipant.membership
                 && memberDetails.user is SelfUser == uiParticipant.isSelf
 

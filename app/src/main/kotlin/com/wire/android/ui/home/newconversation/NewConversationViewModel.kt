@@ -249,13 +249,6 @@ class NewConversationViewModel
     fun onAllowGuestStatusChanged(status: Boolean) {
         groupOptionsState = groupOptionsState.copy(isAllowGuestEnabled = status)
         if (!status) {
-            for (item in state.contactsAddedToGroup) {
-                if (item.membership != Membership.None) {
-                    groupOptionsState = groupOptionsState.copy(showAllowGuestsDialog = true)
-                    break
-                }
-            }
-
             groupOptionsState.accessRoleState.remove(Conversation.AccessRole.NON_TEAM_MEMBER)
             groupOptionsState.accessRoleState.remove(Conversation.AccessRole.GUEST)
         } else {
@@ -281,19 +274,49 @@ class NewConversationViewModel
         groupOptionsState = groupOptionsState.copy(showAllowGuestsDialog = false)
     }
 
-    fun removeGuestsIfNotAllowed() {
+    fun onAllowGuestsClicked() {
+        onAllowGuestsDialogDismissed()
+        onAllowGuestStatusChanged(true)
+        createGroup(false)
+    }
+
+    fun onNotAllowGuestClicked() {
+        onAllowGuestsDialogDismissed()
+        onAllowGuestStatusChanged(false)
+        removeGuestsIfNotAllowed()
+        createGroup(false)
+    }
+
+    private fun removeGuestsIfNotAllowed() {
         if (!groupOptionsState.isAllowGuestEnabled) {
             for (item in state.contactsAddedToGroup) {
-                if (item.membership != Membership.None) {
+                if (item.membership == Membership.Guest
+                    || item.membership == Membership.Federated
+                ) {
                     removeContactFromGroup(item)
                 }
             }
         }
     }
 
-    fun createGroup() {
+    private fun checkIfGuestAdded(): Boolean {
+        if (!groupOptionsState.isAllowGuestEnabled) {
+            for (item in state.contactsAddedToGroup) {
+                if (item.membership == Membership.Guest
+                    || item.membership == Membership.Federated
+                ) {
+                    groupOptionsState = groupOptionsState.copy(showAllowGuestsDialog = true)
+                    return true
+                }
+            }
+        }
+        return false
+    }
+
+    fun createGroup(shouldCheckGuests: Boolean = true) {
+        if (shouldCheckGuests && checkIfGuestAdded())
+            return
         viewModelScope.launch {
-            removeGuestsIfNotAllowed()
             groupNameState = groupNameState.copy(isLoading = true)
 
             when (val result = createGroupConversation(

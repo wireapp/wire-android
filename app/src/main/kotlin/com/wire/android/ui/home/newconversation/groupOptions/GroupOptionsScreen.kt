@@ -39,6 +39,8 @@ fun GroupOptionScreen(
     onReadReceiptChanged: ((Boolean) -> Unit),
     onCreateGroup: () -> Unit,
     onAllowGuestsDialogDismissed: () -> Unit,
+    onNotAllowGuestsClicked: () -> Unit,
+    onAllowGuestsClicked: () -> Unit,
     onBackPressed: () -> Unit
 ) {
     GroupOptionScreenContent(
@@ -48,7 +50,9 @@ fun GroupOptionScreen(
         onReadReceiptChanged = onReadReceiptChanged,
         onContinuePressed = onCreateGroup,
         onBackPressed = onBackPressed,
-        onAllowGuestsDialogDismissed = onAllowGuestsDialogDismissed
+        onAllowGuestsDialogDismissed = onAllowGuestsDialogDismissed,
+        onNotAllowGuestsClicked = onNotAllowGuestsClicked,
+        onAllowGuestsClicked = onAllowGuestsClicked
     )
 }
 
@@ -63,6 +67,8 @@ fun GroupOptionScreenContent(
     onReadReceiptChanged: ((Boolean) -> Unit),
     onContinuePressed: () -> Unit,
     onAllowGuestsDialogDismissed: () -> Unit,
+    onNotAllowGuestsClicked: () -> Unit,
+    onAllowGuestsClicked: () -> Unit,
     onBackPressed: () -> Unit,
 ) {
     with(groupOptionState) {
@@ -176,20 +182,18 @@ fun GroupOptionScreenContent(
                 title = stringResource(R.string.disable_guests_dialoug_title),
                 text = stringResource(R.string.disable_guests_dialoug_description),
                 onDismiss = onAllowGuestsDialogDismissed,
+                buttonsHorizontalAlignment = false,
                 optionButton1Properties = WireDialogButtonProperties(
-                    onClick = {
-                        onAllowGuestChanged.invoke(true)
-                        onAllowGuestsDialogDismissed.invoke()
-                    },
-                    text = stringResource(id = R.string.allow_guests),
-                    type = WireDialogButtonType.Secondary
-                ), optionButton2Properties = WireDialogButtonProperties(
-                    text = stringResource(R.string.disable_guests_dialoug_button),
-                    onClick = {
-                        onAllowGuestChanged.invoke(false)
-                        onAllowGuestsDialogDismissed.invoke()
-                    },
+                    onClick = onNotAllowGuestsClicked,
+                    text = stringResource(id = R.string.disable_guests_dialoug_button),
                     type = WireDialogButtonType.Primary
+                ), optionButton2Properties = WireDialogButtonProperties(
+                    text = stringResource(R.string.allow_guests),
+                    onClick = onAllowGuestsClicked,
+                    type = WireDialogButtonType.Primary
+                ), dismissButtonProperties = WireDialogButtonProperties(
+                    text = stringResource(R.string.label_cancel),
+                    onClick = onAllowGuestsDialogDismissed
                 )
             )
         }
@@ -201,7 +205,6 @@ fun GroupOptionScreenContent(
 private fun GroupOptionScreenPreview() {
     GroupOptionScreenContent(
         GroupOptionState(),
-        {},
-        {}, {}, {}, {}, {}
+        {}, {}, {}, {}, {}, {}, {}, {}
     )
 }

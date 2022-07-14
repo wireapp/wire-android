@@ -56,7 +56,9 @@ fun NewConversationRouter() {
                     onAllowGuestChanged = newConversationViewModel::onAllowGuestStatusChanged,
                     onAllowServicesChanged = newConversationViewModel::onAllowServicesStatusChanged,
                     onReadReceiptChanged = newConversationViewModel::onReadReceiptStatusChanged,
-                    onAllowGuestsDialogDismissed = newConversationViewModel::onAllowGuestsDialogDismissed
+                    onAllowGuestsDialogDismissed = newConversationViewModel::onAllowGuestsDialogDismissed,
+                    onAllowGuestsClicked = newConversationViewModel::onAllowGuestsClicked,
+                    onNotAllowGuestsClicked = newConversationViewModel::onNotAllowGuestClicked
                 )
             }
         )

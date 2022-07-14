@@ -31,11 +31,11 @@ import com.wire.kalium.logic.feature.asset.SendImageMessageResult
 import com.wire.kalium.logic.feature.asset.SendImageMessageUseCase
 import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCase
 import com.wire.kalium.logic.feature.call.AnswerCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
-import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
-import com.wire.kalium.logic.feature.message.Result
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
@@ -59,7 +59,6 @@ internal class ConversationsViewModelArrangement {
 
         // Default empty values
         coEvery { observeConversationDetails(any()) } returns flowOf()
-        coEvery { markMessagesAsNotified(any(), any()) } returns Result.Success
         coEvery { getSelfUserTeam() } returns flowOf()
     }
 
@@ -86,9 +85,6 @@ internal class ConversationsViewModelArrangement {
 
     @MockK
     lateinit var observeConversationDetails: ObserveConversationDetailsUseCase
-
-    @MockK
-    lateinit var markMessagesAsNotified: MarkMessagesAsNotifiedUseCase
 
     @MockK
     lateinit var updateAssetMessageDownloadStatus: UpdateAssetMessageDownloadStatusUseCase
@@ -120,6 +116,12 @@ internal class ConversationsViewModelArrangement {
     @MockK
     private lateinit var wireSessionImageLoader: WireSessionImageLoader
 
+    @MockK
+    private lateinit var observeEstablishedCalls: ObserveEstablishedCallsUseCase
+
+    @MockK
+    private lateinit var endCall: EndCallUseCase
+
     private val conversationDetailsChannel = Channel<ConversationDetails>(capacity = Channel.UNLIMITED)
 
     private val messagesChannel = Channel<List<UIMessage>>(capacity = Channel.UNLIMITED)
@@ -135,7 +137,6 @@ internal class ConversationsViewModelArrangement {
             getMessageAsset = getMessageAsset,
             deleteMessage = deleteMessage,
             dispatchers = TestDispatcherProvider(),
-            markMessagesAsNotified = markMessagesAsNotified,
             updateAssetMessageDownloadStatus = updateAssetMessageDownloadStatus,
             getSelfUserTeam = getSelfUserTeam,
             fileManager = fileManager,
@@ -143,7 +144,9 @@ internal class ConversationsViewModelArrangement {
             isFileSharingEnabled = isFileSharingEnabledUseCase,
             observeOngoingCalls = observeOngoingCallsUseCase,
             answerCall = answerCallUseCase,
-            wireSessionImageLoader = wireSessionImageLoader
+            wireSessionImageLoader = wireSessionImageLoader,
+            observeEstablishedCalls = observeEstablishedCalls,
+            endCall = endCall
         )
     }
 

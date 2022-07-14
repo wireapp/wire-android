@@ -19,6 +19,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.rememberBottomBarElevationState
+import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -39,20 +40,32 @@ fun GroupConversationParticipants(
             modifier = Modifier.weight(weight = 1f, fill = true)
         ) {
             item(key = "participants_list_header") {
-                Text(
-                    text = context.resources.stringWithStyledArgs(
-                        R.string.conversation_details_participants_info,
-                        MaterialTheme.wireTypography.body01,
-                        MaterialTheme.wireTypography.body02,
-                        MaterialTheme.wireColorScheme.onBackground,
-                        MaterialTheme.wireColorScheme.onBackground,
-                        groupParticipantsState.data.allCount.toString()
-                    ),
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
                         .background(MaterialTheme.wireColorScheme.surface)
                         .padding(MaterialTheme.wireDimensions.spacing16x)
-                )
+                ) {
+                    Text(
+                        text = context.resources.stringWithStyledArgs(
+                            R.string.conversation_details_participants_info,
+                            MaterialTheme.wireTypography.body01,
+                            MaterialTheme.wireTypography.body02,
+                            MaterialTheme.wireColorScheme.onBackground,
+                            MaterialTheme.wireColorScheme.onBackground,
+                            groupParticipantsState.data.allCount.toString()
+                        )
+                    )
+                    if (groupParticipantsState.data.isSelfAnAdmin)
+                        WirePrimaryButton(
+                            text = stringResource(R.string.conversation_details_group_participants_add),
+                            fillMaxWidth = true,
+                            onClick = { /*TODO*/ },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(top = MaterialTheme.wireDimensions.spacing16x),
+                        )
+                }
             }
             participantsFoldersWithElements(context, groupParticipantsState, onProfilePressed)
         }

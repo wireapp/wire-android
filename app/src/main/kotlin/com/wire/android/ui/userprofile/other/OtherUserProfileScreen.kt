@@ -1,6 +1,5 @@
 package com.wire.android.ui.userprofile.other
 
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -39,6 +38,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.ui.userprofile.common.EditableState
@@ -132,7 +132,7 @@ fun OtherProfileScreenContent(
                         }
                     } else {
                         item {
-                            ConnectionStatusInformation(state.connectionStatus)
+                            ConnectionStatusInformation(state.connectionStatus, state.membership)
                         }
                     }
                 }
@@ -214,7 +214,7 @@ private fun ConnectionActionButton(
 }
 
 @Composable
-private fun ConnectionStatusInformation(connectionStatus: ConnectionStatus) {
+private fun ConnectionStatusInformation(connectionStatus: ConnectionStatus, membership: Membership) {
     Box(
         Modifier
             .fillMaxWidth()
@@ -233,7 +233,9 @@ private fun ConnectionStatusInformation(connectionStatus: ConnectionStatus) {
             val descriptionResource = when (connectionStatus) {
                 ConnectionStatus.Pending -> R.string.connection_label_accepting_request_description
                 ConnectionStatus.Connected -> throw IllegalStateException("Unhandled Connected ConnectionStatus")
-                else -> R.string.connection_label_member_not_belongs_to_team
+                else -> if (membership == Membership.None)
+                    R.string.connection_label_member_not_conneted
+                else R.string.connection_label_member_not_belongs_to_team
             }
             Text(
                 text = stringResource(descriptionResource),

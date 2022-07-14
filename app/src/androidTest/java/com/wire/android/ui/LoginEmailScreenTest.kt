@@ -29,7 +29,6 @@ import com.wire.android.utils.PASSWORD
 import com.wire.android.utils.USER_NAME
 import com.wire.android.utils.WorkManagerTestRule
 import com.wire.android.utils.waitForExecution
-import com.wire.kalium.logic.configuration.server.ServerConfig
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
 import org.amshove.kluent.shouldNotBeEqualTo
@@ -73,7 +72,7 @@ class LoginEmailScreenTest {
         scenario.onActivity { activity ->
             activity.setContent {
                 WireTheme {
-                    LoginEmailScreen(serverConfig = ServerConfig.STAGING)
+                    LoginEmailScreen()
                 }
             }
         }

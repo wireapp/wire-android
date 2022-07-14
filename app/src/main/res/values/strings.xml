@@ -443,5 +443,8 @@
     <string name="allow_services_description">Open this conversation to services. You can always change it later.</string>
     <string name="read_receipts">Read receipts</string>
     <string name="read_receipts_description">When this is on, people can see when their messages in this conversation are read.</string>
+    <string name="disable_guests_dialoug_title">Not Allow Guests?</string>
+    <string name="disable_guests_dialoug_description">Any guest user selected in the previous step will not be added to the group if you do not allow guest access.</string>
+    <string name="disable_guests_dialoug_button">Not Allow Guests</string>
 
 </resources>

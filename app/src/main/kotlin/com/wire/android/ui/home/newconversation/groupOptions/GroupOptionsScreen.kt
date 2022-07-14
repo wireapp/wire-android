@@ -173,8 +173,8 @@ fun GroupOptionScreenContent(
 
         if (showAllowGuestsDialog) {
             WireDialog(
-                title = "Not Allow Guests?",
-                text = "Any guest user selected in the previous step will not be added to the group if you do not allow guest access.",
+                title = stringResource(R.string.disable_guests_dialoug_title),
+                text = stringResource(R.string.disable_guests_dialoug_description),
                 onDismiss = onAllowGuestsDialogDismissed,
                 optionButton1Properties = WireDialogButtonProperties(
                     onClick = {
@@ -184,7 +184,7 @@ fun GroupOptionScreenContent(
                     text = stringResource(id = R.string.allow_guests),
                     type = WireDialogButtonType.Secondary
                 ), optionButton2Properties = WireDialogButtonProperties(
-                    text = "Not Allow Guests",
+                    text = stringResource(R.string.disable_guests_dialoug_button),
                     onClick = {
                         onAllowGuestChanged.invoke(false)
                         onAllowGuestsDialogDismissed.invoke()

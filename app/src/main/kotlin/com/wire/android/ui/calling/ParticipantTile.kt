@@ -3,7 +3,6 @@ package com.wire.android.ui.calling
 import android.view.View
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -32,11 +31,8 @@ import com.waz.avs.VideoPreview
 import com.wire.android.R
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.UserAvatarData
-import com.wire.android.ui.common.MembershipQualifierLabel
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.home.conversationslist.model.Membership
-import com.wire.android.ui.home.conversationslist.model.hasLabel
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -45,7 +41,6 @@ import com.wire.android.ui.theme.wireTypography
 fun ParticipantTile(
     modifier: Modifier,
     conversationName: ConversationName?,
-    membership: Membership,
     participantAvatar: ImageAsset.UserAvatarAsset?,
     onGoingCallTileUsernameMaxWidth: Dp = 350.dp,
     isMuted: Boolean,
@@ -90,10 +85,6 @@ fun ParticipantTile(
                         size = dimensions().onGoingCallUserAvatarSize,
                         avatarData = UserAvatarData(participantAvatar)
                     )
-                    if (membership.hasLabel()) {
-                        Spacer(Modifier.height(dimensions().spacing8x))
-                        MembershipQualifierLabel(membership)
-                    }
                 }
             }
 
@@ -163,6 +154,5 @@ private fun ParticipantTilePreview() {
         onClearSelfUserVideoPreview = {},
         onSelfUserVideoPreviewCreated = {},
         participantAvatar = null,
-        membership = Membership.Guest
     )
 }

@@ -48,7 +48,6 @@ fun OneOnOneCallView(
                     if (pageIndex == 0 && participants.first() == participant)
                         onSelfClearVideoPreview()
                 },
-                membership = participant.membership
             )
         }
     }

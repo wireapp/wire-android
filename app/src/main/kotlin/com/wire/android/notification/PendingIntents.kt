@@ -28,6 +28,24 @@ fun messagePendingIntent(context: Context, conversationId: String): PendingInten
     )
 }
 
+fun otherUserProfilePendingIntent(context: Context, userId: String): PendingIntent {
+    val intent = Intent(context.applicationContext, WireActivity::class.java).apply {
+        data = Uri.Builder()
+            .scheme(DeepLinkProcessor.DEEP_LINK_SCHEME)
+            .authority(DeepLinkProcessor.OTHER_USER_PROFILE_DEEPLINK_HOST)
+            .appendPath(userId)
+            .build()
+    }
+    val requestCode = getRequestCode(userId, OPEN_OTHER_USER_PROFILE_CODE_PREFIX)
+
+    return PendingIntent.getActivity(
+        context.applicationContext,
+        requestCode,
+        intent,
+        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+    )
+}
+
 fun dismissMessagePendingIntent(context: Context, conversationId: String?, userId: String?): PendingIntent {
     val intent = MessageNotificationDismissReceiver.newIntent(context, conversationId, userId)
     val requestCode = conversationId?.let {
@@ -114,6 +132,7 @@ private const val OPEN_CALL_REQUEST_CODE = 3
 private const val FULL_SCREEN_REQUEST_CODE = 4
 private const val DISMISS_REQUEST_CODE_PREFIX = "dismiss_"
 private const val OPEN_MESSAGE_REQUEST_CODE_PREFIX = "open_message_"
+private const val OPEN_OTHER_USER_PROFILE_CODE_PREFIX = "open_other_user_profile_"
 private const val CALL_REQUEST_CODE_PREFIX = "call_"
 private const val REPLY_MESSAGE_REQUEST_CODE_PREFIX = "reply_"
 

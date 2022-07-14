@@ -1,10 +1,12 @@
 package com.wire.android.notification
 
+import android.app.PendingIntent
 import android.content.Context
 import android.graphics.Typeface
 import android.os.Build
 import android.text.Spannable
 import android.text.style.StyleSpan
+import androidx.annotation.StringRes
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -48,7 +50,7 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
         val userIdString = userId?.toString()
 
         createNotificationChannelIfNeeded()
-        showSummaryIfNeeded(oldData, newData, userIdString)
+        showSummaryIfNeeded(newData, userIdString)
         conversationIdsToRemove.forEach { hideNotification(it) }
         conversationsToAdd.forEach { showConversationNotification(it, userIdString) }
 
@@ -67,13 +69,12 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
     }
 
     private fun showSummaryIfNeeded(
-        oldData: List<LocalNotificationConversation>,
         newData: List<LocalNotificationConversation>,
         userId: String?
     ) {
         if (newData.isEmpty()) notificationManager.cancel(SUMMARY_ID)
 
-        if (oldData.size <= 1 && newData.size > 1)
+        if (newData.size > 1)
             notificationManager.notify(SUMMARY_ID, getSummaryNotification(userId))
     }
 
@@ -94,7 +95,7 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
         .build()
 
     private fun getConversationNotification(conversation: NotificationConversation, userId: String?) =
-        NotificationCompat.Builder(context.applicationContext, CHANNEL_ID).apply {
+        NotificationCompat.Builder(context, CHANNEL_ID).apply {
             setDefaults(NotificationCompat.DEFAULT_ALL)
 
             priority = NotificationCompat.PRIORITY_MAX
@@ -103,7 +104,7 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
             setGroup(GROUP_KEY)
             setAutoCancel(true)
 
-            setContentIntent(messagePendingIntent(context, conversation.id))
+            setContentIntent(getConversationPendingIntent(conversation))
             setDeleteIntent(dismissMessagePendingIntent(context, conversation.id, userId))
             addAction(getActionCall(conversation.id))
             addAction(getActionReply(conversation.id))
@@ -114,6 +115,13 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
 
             setStyle(getMessageStyle(conversation))
         }.build()
+
+    private fun getConversationPendingIntent(conversation: NotificationConversation): PendingIntent =
+        conversation.messages.filterIsInstance<NotificationMessage.ConnectionRequest>()
+            .firstOrNull()
+            ?.let {
+                otherUserProfilePendingIntent(context, it.authorId)
+            } ?: messagePendingIntent(context, conversation.id)
 
     private fun getMessageStyle(conversation: NotificationConversation): NotificationCompat.Style {
         val receiver = Person.Builder()
@@ -136,10 +144,8 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
 
             val message = when (messageData) {
                 is NotificationMessage.Text -> messageData.text
-                is NotificationMessage.Comment -> {
-                    context.getString(messageData.textResId.value).toSpannable()
-                        .apply { setSpan(StyleSpan(Typeface.ITALIC), 0, length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE) }
-                }
+                is NotificationMessage.Comment -> italicTextFromResId(messageData.textResId.value)
+                is NotificationMessage.ConnectionRequest -> italicTextFromResId(R.string.notification_connection_request)
             }
 
             val notificationMessage = NotificationCompat.MessagingStyle.Message(message, messageData.time, sender)
@@ -168,6 +174,10 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
 
     private fun getNotificationId(conversationId: ConversationId) = getNotificationId(conversationId.toString())
     private fun getNotificationId(conversationIdString: String) = conversationIdString.hashCode()
+
+    private fun italicTextFromResId(@StringRes stringResId: Int) =
+        context.getString(stringResId).toSpannable()
+            .apply { setSpan(StyleSpan(Typeface.ITALIC), 0, length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE) }
 
     companion object {
         private const val CHANNEL_ID = "com.wire.android.notification_channel"

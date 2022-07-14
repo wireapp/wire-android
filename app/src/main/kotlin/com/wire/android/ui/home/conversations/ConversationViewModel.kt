@@ -471,7 +471,7 @@ class ConversationViewModel @Inject constructor(
                 is ConversationDetailsData.OneOne -> navigationManager.navigate(
                     command = NavigationCommand(
                         destination = NavigationItem.OtherUserProfile.getRouteWithArgs(
-                            listOf(data.otherUserId.domain, data.otherUserId.value)
+                            listOf(data.otherUserId)
                         )
                     )
                 )

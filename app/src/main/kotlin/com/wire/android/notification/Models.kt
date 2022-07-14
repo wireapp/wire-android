@@ -23,6 +23,9 @@ sealed class NotificationMessage(open val author: NotificationMessageAuthor, ope
     //shared file, picture, reaction
     data class Comment(override val author: NotificationMessageAuthor, override val time: Long, val textResId: CommentResId) :
         NotificationMessage(author, time)
+
+    data class ConnectionRequest(override val author: NotificationMessageAuthor, override val time: Long, val authorId: String) :
+        NotificationMessage(author, time)
 }
 
 data class NotificationMessageAuthor(val name: String, val image: ByteArray?)
@@ -35,7 +38,7 @@ enum class CommentResId(@StringRes val value: Int) {
     NOT_SUPPORTED(R.string.notification_not_suppotred_notification)
 }
 
-fun LocalNotificationConversation.intoNotificationConversation() : NotificationConversation{
+fun LocalNotificationConversation.intoNotificationConversation(): NotificationConversation {
 
     val notificationMessages = this.messages.map { it.intoNotificationMessage() }.sortedBy { it.time }
     val lastMessageTime = this.messages.maxOfOrNull { it.time.toTimeInMillis() } ?: 0
@@ -62,6 +65,10 @@ fun LocalNotificationMessage.intoNotificationMessage(): NotificationMessage {
             notificationMessageTime,
             type.intoCommentResId()
         )
+        is LocalNotificationMessage.ConnectionRequest -> NotificationMessage.ConnectionRequest(
+            notificationMessageAuthor,
+            notificationMessageTime
+        )
     }
 }
 
@@ -71,5 +78,6 @@ fun LocalNotificationCommentType.intoCommentResId(): CommentResId =
         LocalNotificationCommentType.FILE -> CommentResId.FILE
         LocalNotificationCommentType.REACTION -> CommentResId.REACTION
         LocalNotificationCommentType.MISSED_CALL -> CommentResId.MISSED_CALL
+        LocalNotificationCommentType.CONNECTION_REQUEST -> CommentResId.CONNECTION_REQUEST
         LocalNotificationCommentType.NOT_SUPPORTED_YET -> CommentResId.NOT_SUPPORTED
     }

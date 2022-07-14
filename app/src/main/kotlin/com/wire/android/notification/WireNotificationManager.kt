@@ -11,6 +11,7 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.notification.LocalNotificationConversation
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.Call
+import com.wire.kalium.logic.feature.conversation.ObserveConversationsAndConnectionsUseCase
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.util.toStringDate
 import kotlinx.coroutines.CoroutineScope
@@ -126,6 +127,8 @@ class WireNotificationManager @Inject constructor(
         scope.launch { observeCurrentScreenAndUpdateNotifyDate(currentScreenState, userIdFlow) }
         scope.launch { observeIncomingCalls(currentScreenState, userIdFlow, doIfCallCameAndAppVisible) }
         scope.launch { observeMessageNotifications(userIdFlow, currentScreenState) }
+
+//        coreLogic.getSessionScope().conversations.observeConnectionList
     }
 
     /**

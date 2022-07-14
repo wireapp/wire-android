@@ -24,6 +24,7 @@ import com.wire.android.ui.home.newconversation.search.SearchPeopleState
 import com.wire.android.ui.home.newconversation.search.SearchResultState
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.flow.SearchQueryStateFlow
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationOptions
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestResult
@@ -255,20 +256,20 @@ class NewConversationViewModel
                 }
             }
 
-            groupOptionsState.accessRoleState.remove(ConversationOptions.AccessRole.NON_TEAM_MEMBER)
-            groupOptionsState.accessRoleState.remove(ConversationOptions.AccessRole.GUEST)
+            groupOptionsState.accessRoleState.remove(Conversation.AccessRole.NON_TEAM_MEMBER)
+            groupOptionsState.accessRoleState.remove(Conversation.AccessRole.GUEST)
         } else {
-            groupOptionsState.accessRoleState.add(ConversationOptions.AccessRole.NON_TEAM_MEMBER)
-            groupOptionsState.accessRoleState.add(ConversationOptions.AccessRole.GUEST)
+            groupOptionsState.accessRoleState.add(Conversation.AccessRole.NON_TEAM_MEMBER)
+            groupOptionsState.accessRoleState.add(Conversation.AccessRole.GUEST)
         }
     }
 
     fun onAllowServicesStatusChanged(status: Boolean) {
         groupOptionsState = groupOptionsState.copy(isAllowServicesEnabled = status)
         if (!status) {
-            groupOptionsState.accessRoleState.remove(ConversationOptions.AccessRole.SERVICE)
+            groupOptionsState.accessRoleState.remove(Conversation.AccessRole.SERVICE)
         } else {
-            groupOptionsState.accessRoleState.add(ConversationOptions.AccessRole.SERVICE)
+            groupOptionsState.accessRoleState.add(Conversation.AccessRole.SERVICE)
         }
     }
 

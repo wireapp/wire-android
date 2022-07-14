@@ -246,16 +246,26 @@ class NewConversationViewModel
 
     fun onAllowGuestStatusChanged(status: Boolean) {
         groupOptionsState = groupOptionsState.copy(isAllowGuestEnabled = status)
+        if (!status) {
+            groupOptionsState.accessRoleState.remove(ConversationOptions.AccessRole.NON_TEAM_MEMBER)
+            groupOptionsState.accessRoleState.remove(ConversationOptions.AccessRole.GUEST)
+        } else {
+            groupOptionsState.accessRoleState.add(ConversationOptions.AccessRole.NON_TEAM_MEMBER)
+            groupOptionsState.accessRoleState.add(ConversationOptions.AccessRole.GUEST)
+        }
     }
 
     fun onAllowServicesStatusChanged(status: Boolean) {
         groupOptionsState = groupOptionsState.copy(isAllowServicesEnabled = status)
-
+        if (!status) {
+            groupOptionsState.accessRoleState.remove(ConversationOptions.AccessRole.SERVICE)
+        } else {
+            groupOptionsState.accessRoleState.add(ConversationOptions.AccessRole.SERVICE)
+        }
     }
 
     fun onReadReceiptStatusChanged(status: Boolean) {
         groupOptionsState = groupOptionsState.copy(isReadReceiptEnabled = status)
-
     }
 
     fun createGroup() {
@@ -266,7 +276,11 @@ class NewConversationViewModel
                 name = groupNameState.groupName.text,
                 // TODO: change the id in Contact to UserId instead of String
                 userIdList = state.contactsAddedToGroup.map { contact -> UserId(contact.id, contact.domain) },
-                options = ConversationOptions().copy(protocol = groupNameState.groupProtocol)
+                options = ConversationOptions().copy(
+                    protocol = groupNameState.groupProtocol,
+                    readReceiptsEnabled = groupOptionsState.isReadReceiptEnabled,
+                    accessRole = groupOptionsState.accessRoleState
+                )
             )
             ) {
                 // TODO: handle the error state

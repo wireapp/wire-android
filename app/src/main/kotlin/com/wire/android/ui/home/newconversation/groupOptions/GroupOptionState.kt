@@ -12,5 +12,6 @@ data class GroupOptionState(
     val isAllowGuestEnabled: Boolean = true,
     val isAllowServicesEnabled: Boolean = true,
     val isReadReceiptEnabled: Boolean = true,
+    val showAllowGuestsDialog: Boolean = false,
     val accessRoleState: MutableSet<ConversationOptions.AccessRole> = mutableSetOf(TEAM_MEMBER, NON_TEAM_MEMBER, GUEST, SERVICE)
 )

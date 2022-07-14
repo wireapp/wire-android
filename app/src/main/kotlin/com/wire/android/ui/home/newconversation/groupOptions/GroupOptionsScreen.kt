@@ -21,6 +21,9 @@ import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.wire.android.R
 import com.wire.android.ui.common.Icon
+import com.wire.android.ui.common.WireDialog
+import com.wire.android.ui.common.WireDialogButtonProperties
+import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.WireLabeledSwitch
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.textfield.WirePrimaryButton
@@ -35,6 +38,7 @@ fun GroupOptionScreen(
     onAllowServicesChanged: ((Boolean) -> Unit),
     onReadReceiptChanged: ((Boolean) -> Unit),
     onCreateGroup: () -> Unit,
+    onAllowGuestsDialogDismissed: () -> Unit,
     onBackPressed: () -> Unit
 ) {
     GroupOptionScreenContent(
@@ -43,7 +47,8 @@ fun GroupOptionScreen(
         onAllowServicesChanged = onAllowServicesChanged,
         onReadReceiptChanged = onReadReceiptChanged,
         onContinuePressed = onCreateGroup,
-        onBackPressed = onBackPressed
+        onBackPressed = onBackPressed,
+        onAllowGuestsDialogDismissed = onAllowGuestsDialogDismissed
     )
 }
 
@@ -57,6 +62,7 @@ fun GroupOptionScreenContent(
     onAllowServicesChanged: ((Boolean) -> Unit),
     onReadReceiptChanged: ((Boolean) -> Unit),
     onContinuePressed: () -> Unit,
+    onAllowGuestsDialogDismissed: () -> Unit,
     onBackPressed: () -> Unit,
 ) {
     with(groupOptionState) {
@@ -148,7 +154,6 @@ fun GroupOptionScreenContent(
                 )
 
 
-
                 WirePrimaryButton(
                     text = stringResource(R.string.label_continue),
                     onClick = onContinuePressed,
@@ -165,6 +170,29 @@ fun GroupOptionScreenContent(
                 )
             }
         }
+
+        if (showAllowGuestsDialog) {
+            WireDialog(
+                title = "Not Allow Guests?",
+                text = "Any guest user selected in the previous step will not be added to the group if you do not allow guest access.",
+                onDismiss = onAllowGuestsDialogDismissed,
+                optionButton1Properties = WireDialogButtonProperties(
+                    onClick = {
+                        onAllowGuestChanged.invoke(true)
+                        onAllowGuestsDialogDismissed.invoke()
+                    },
+                    text = stringResource(id = R.string.allow_guests),
+                    type = WireDialogButtonType.Secondary
+                ), optionButton2Properties = WireDialogButtonProperties(
+                    text = "Not Allow Guests",
+                    onClick = {
+                        onAllowGuestChanged.invoke(false)
+                        onAllowGuestsDialogDismissed.invoke()
+                    },
+                    type = WireDialogButtonType.Primary
+                )
+            )
+        }
     }
 }
 
@@ -174,6 +202,6 @@ private fun GroupOptionScreenPreview() {
     GroupOptionScreenContent(
         GroupOptionState(),
         {},
-        {}, {}, {}, {}
+        {}, {}, {}, {}, {}
     )
 }

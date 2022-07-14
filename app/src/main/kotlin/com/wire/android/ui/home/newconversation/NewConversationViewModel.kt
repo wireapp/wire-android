@@ -15,6 +15,7 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.newconversation.groupOptions.GroupOptionState
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.home.newconversation.newgroup.NewGroupState
@@ -247,6 +248,13 @@ class NewConversationViewModel
     fun onAllowGuestStatusChanged(status: Boolean) {
         groupOptionsState = groupOptionsState.copy(isAllowGuestEnabled = status)
         if (!status) {
+            for (item in state.contactsAddedToGroup) {
+                if (item.membership != Membership.None) {
+                    groupOptionsState = groupOptionsState.copy(showAllowGuestsDialog = true)
+                    break
+                }
+            }
+
             groupOptionsState.accessRoleState.remove(ConversationOptions.AccessRole.NON_TEAM_MEMBER)
             groupOptionsState.accessRoleState.remove(ConversationOptions.AccessRole.GUEST)
         } else {
@@ -268,8 +276,23 @@ class NewConversationViewModel
         groupOptionsState = groupOptionsState.copy(isReadReceiptEnabled = status)
     }
 
+    fun onAllowGuestsDialogDismissed() {
+        groupOptionsState = groupOptionsState.copy(showAllowGuestsDialog = false)
+    }
+
+    fun removeGuestsIfNotAllowed() {
+        if (!groupOptionsState.isAllowGuestEnabled) {
+            for (item in state.contactsAddedToGroup) {
+                if (item.membership != Membership.None) {
+                    removeContactFromGroup(item)
+                }
+            }
+        }
+    }
+
     fun createGroup() {
         viewModelScope.launch {
+            removeGuestsIfNotAllowed()
             groupNameState = groupNameState.copy(isLoading = true)
 
             when (val result = createGroupConversation(

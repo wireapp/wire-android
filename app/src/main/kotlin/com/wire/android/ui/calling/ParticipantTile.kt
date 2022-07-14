@@ -144,7 +144,6 @@ fun ParticipantTile(
 
 @Preview
 @Composable
-@Suppress("ParticipantTilePreview")
 private fun ParticipantTilePreview() {
     ParticipantTile(
         modifier = Modifier.height(300.dp),

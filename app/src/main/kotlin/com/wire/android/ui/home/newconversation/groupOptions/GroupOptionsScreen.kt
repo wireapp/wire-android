@@ -20,14 +20,17 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.wire.android.R
+import com.wire.android.model.Clickable
 import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
-import com.wire.android.ui.common.WireLabeledSwitch
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.home.conversations.details.options.ArrowType
+import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsItem
+import com.wire.android.ui.home.conversations.details.options.SwitchState
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 
@@ -90,10 +93,15 @@ fun GroupOptionScreenContent(
                     allowGuests, allowGuestsDescription,
                     allowServices, allowServicesDescription,
                     readReceipt, readReceiptDescription) = createRefs()
-                WireLabeledSwitch(
-                    isAllowGuestEnabled, { onAllowGuestChanged.invoke(it) }, stringResource(R.string.allow_guests),
-                    Modifier
-                        .fillMaxWidth()
+
+                GroupConversationOptionsItem(
+                    title = stringResource(R.string.allow_guests),
+                    switchState = SwitchState.Enabled(value = isAllowGuestEnabled,
+                        isOnOffVisible = false,
+                        onCheckedChange = { onAllowGuestChanged.invoke(it) }),
+                    arrowType = ArrowType.NONE,
+                    clickable = Clickable(enabled = false, onClick = {}, onLongClick = {}),
+                    modifier = Modifier
                         .background(MaterialTheme.colorScheme.surface)
                         .constrainAs(allowGuests) {
                             top.linkTo(parent.top)
@@ -105,7 +113,7 @@ fun GroupOptionScreenContent(
                     fontWeight = FontWeight.Normal,
                     color = MaterialTheme.wireColorScheme.secondaryText,
                     modifier = Modifier
-                        .padding(16.dp)
+                        .padding(MaterialTheme.wireDimensions.spacing16x)
                         .constrainAs(allowGuestsDescription) {
                             top.linkTo(allowGuests.bottom)
                         },
@@ -113,9 +121,14 @@ fun GroupOptionScreenContent(
                     fontSize = 16.sp
                 )
 
-                WireLabeledSwitch(
-                    isAllowServicesEnabled, { onAllowServicesChanged.invoke(it) }, stringResource(R.string.allow_services),
-                    Modifier
+                GroupConversationOptionsItem(
+                    title = stringResource(R.string.allow_services),
+                    switchState = SwitchState.Enabled(value = isAllowServicesEnabled,
+                        isOnOffVisible = false,
+                        onCheckedChange = { onAllowServicesChanged.invoke(it) }),
+                    arrowType = ArrowType.NONE,
+                    clickable = Clickable(enabled = false, onClick = {}, onLongClick = {}),
+                    modifier = Modifier
                         .fillMaxWidth()
                         .background(MaterialTheme.colorScheme.surface)
                         .constrainAs(allowServices) {
@@ -128,7 +141,7 @@ fun GroupOptionScreenContent(
                     fontWeight = FontWeight.Normal,
                     color = MaterialTheme.wireColorScheme.secondaryText,
                     modifier = Modifier
-                        .padding(16.dp)
+                        .padding(MaterialTheme.wireDimensions.spacing16x)
                         .constrainAs(allowServicesDescription) {
                             top.linkTo(allowServices.bottom)
                         },
@@ -136,9 +149,14 @@ fun GroupOptionScreenContent(
                     fontSize = 16.sp
                 )
 
-                WireLabeledSwitch(
-                    isReadReceiptEnabled, { onReadReceiptChanged.invoke(it) }, stringResource(R.string.read_receipts),
-                    Modifier
+                GroupConversationOptionsItem(
+                    title = stringResource(R.string.read_receipts),
+                    switchState = SwitchState.Enabled(value = isReadReceiptEnabled,
+                        isOnOffVisible = false,
+                        onCheckedChange = { onReadReceiptChanged.invoke(it) }),
+                    arrowType = ArrowType.NONE,
+                    clickable = Clickable(enabled = false, onClick = {}, onLongClick = {}),
+                    modifier = Modifier
                         .fillMaxWidth()
                         .background(MaterialTheme.colorScheme.surface)
                         .constrainAs(readReceipt) {
@@ -151,7 +169,7 @@ fun GroupOptionScreenContent(
                     fontWeight = FontWeight.Normal,
                     color = MaterialTheme.wireColorScheme.secondaryText,
                     modifier = Modifier
-                        .padding(16.dp)
+                        .padding(MaterialTheme.wireDimensions.spacing16x)
                         .constrainAs(readReceiptDescription) {
                             top.linkTo(readReceipt.bottom)
                         },

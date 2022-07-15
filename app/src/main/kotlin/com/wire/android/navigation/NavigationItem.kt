@@ -169,7 +169,7 @@ enum class NavigationItem(
 
     OtherUserProfile(
         primaryRoute = OTHER_USER_PROFILE,
-        canonicalRoute = "$OTHER_USER_PROFILE?$EXTRA_USER_ID=${EXTRA_USER_ID}",
+        canonicalRoute = "$OTHER_USER_PROFILE?$EXTRA_USER_ID={$EXTRA_USER_ID}",
         deepLinks = listOf(navDeepLink {
             uriPattern = "${DeepLinkProcessor.DEEP_LINK_SCHEME}://" +
                     "${DeepLinkProcessor.OTHER_USER_PROFILE_DEEPLINK_HOST}/" +

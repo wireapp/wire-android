@@ -67,7 +67,8 @@ fun LocalNotificationMessage.intoNotificationMessage(): NotificationMessage {
         )
         is LocalNotificationMessage.ConnectionRequest -> NotificationMessage.ConnectionRequest(
             notificationMessageAuthor,
-            notificationMessageTime
+            notificationMessageTime,
+            this.authorId.toString()
         )
     }
 }
@@ -78,6 +79,5 @@ fun LocalNotificationCommentType.intoCommentResId(): CommentResId =
         LocalNotificationCommentType.FILE -> CommentResId.FILE
         LocalNotificationCommentType.REACTION -> CommentResId.REACTION
         LocalNotificationCommentType.MISSED_CALL -> CommentResId.MISSED_CALL
-        LocalNotificationCommentType.CONNECTION_REQUEST -> CommentResId.CONNECTION_REQUEST
         LocalNotificationCommentType.NOT_SUPPORTED_YET -> CommentResId.NOT_SUPPORTED
     }

@@ -1,6 +1,5 @@
 package com.wire.android.notification
 
-import android.app.PendingIntent
 import android.content.Context
 import android.graphics.Typeface
 import android.os.Build
@@ -50,9 +49,9 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
         val userIdString = userId?.toString()
 
         createNotificationChannelIfNeeded()
-        showSummaryIfNeeded(newData, userIdString)
-        conversationIdsToRemove.forEach { hideNotification(it) }
         conversationsToAdd.forEach { showConversationNotification(it, userIdString) }
+        conversationIdsToRemove.forEach { hideNotification(it) }
+        showSummaryIfNeeded(oldData, newData, userIdString)
 
         prevNotificationsData = newData
     }
@@ -69,12 +68,13 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
     }
 
     private fun showSummaryIfNeeded(
+        oldData: List<LocalNotificationConversation>,
         newData: List<LocalNotificationConversation>,
         userId: String?
     ) {
         if (newData.isEmpty()) notificationManager.cancel(SUMMARY_ID)
 
-        if (newData.size > 1)
+        if (oldData.size <= 1 && newData.size > 1)
             notificationManager.notify(SUMMARY_ID, getSummaryNotification(userId))
     }
 
@@ -91,7 +91,7 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
         .setDefaults(NotificationCompat.DEFAULT_ALL)
         .setPriority(NotificationCompat.PRIORITY_MAX)
         .setContentIntent(summaryMessagePendingIntent(context))
-        .setDeleteIntent(dismissMessagePendingIntent(context, null, userId))
+        .setDeleteIntent(dismissSummaryPendingIntent(context, userId))
         .build()
 
     private fun getConversationNotification(conversation: NotificationConversation, userId: String?) =
@@ -104,10 +104,22 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
             setGroup(GROUP_KEY)
             setAutoCancel(true)
 
-            setContentIntent(getConversationPendingIntent(conversation))
-            setDeleteIntent(dismissMessagePendingIntent(context, conversation.id, userId))
-            addAction(getActionCall(conversation.id))
-            addAction(getActionReply(conversation.id))
+            conversation.messages
+                .filterIsInstance<NotificationMessage.ConnectionRequest>()
+                .firstOrNull()
+                .let {
+                    if (it == null) {
+                        // It's regular Message Notification
+                        setContentIntent(messagePendingIntent(context, conversation.id))
+                        setDeleteIntent(dismissMessagePendingIntent(context, conversation.id, userId))
+                        addAction(getActionCall(conversation.id))
+                        addAction(getActionReply(conversation.id))
+                    } else {
+                        // It's ConnectionRequest Notification
+                        setContentIntent(otherUserProfilePendingIntent(context, it.authorId))
+                        setDeleteIntent(dismissConnectionRequestPendingIntent(context, it.authorId, userId))
+                    }
+                }
 
             setWhen(conversation.lastMessageTime)
 
@@ -115,13 +127,6 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
 
             setStyle(getMessageStyle(conversation))
         }.build()
-
-    private fun getConversationPendingIntent(conversation: NotificationConversation): PendingIntent =
-        conversation.messages.filterIsInstance<NotificationMessage.ConnectionRequest>()
-            .firstOrNull()
-            ?.let {
-                otherUserProfilePendingIntent(context, it.authorId)
-            } ?: messagePendingIntent(context, conversation.id)
 
     private fun getMessageStyle(conversation: NotificationConversation): NotificationCompat.Style {
         val receiver = Person.Builder()

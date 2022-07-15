@@ -3,6 +3,7 @@ package com.wire.android
 import android.app.Application
 import android.util.Log
 import androidx.work.Configuration
+import co.touchlab.kermit.platformLogWriter
 import com.datadog.android.Datadog
 import com.datadog.android.DatadogSite
 import com.datadog.android.core.configuration.Credentials
@@ -32,7 +33,8 @@ var appLogger = KaliumLogger(
     config = KaliumLogger.Config(
         severity = if (IS_PRIVATE_BUILD) KaliumLogLevel.DEBUG else KaliumLogLevel.DISABLED,
         tag = "WireAppLogger"
-    ), logWriter = DataDogLogger
+    ),
+    logWriterList = listOf(DataDogLogger, platformLogWriter())
 )
 
 @HiltAndroidApp
@@ -68,7 +70,10 @@ class WireApplication : Application(), Configuration.Provider {
     }
 
     private fun enableLoggingAndInitiateFileLogging() {
-        CoreLogger.setLoggingLevel(level = KaliumLogLevel.VERBOSE, logWriter = DataDogLogger)
+        CoreLogger.setLoggingLevel(
+            level = KaliumLogLevel.VERBOSE,
+            logWriterList = listOf(DataDogLogger, platformLogWriter())
+        )
         logFileWriter.start()
         appLogger.i("Logger enabled")
     }

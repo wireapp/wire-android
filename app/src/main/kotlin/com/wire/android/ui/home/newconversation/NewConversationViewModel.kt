@@ -73,6 +73,8 @@ class NewConversationViewModel
 
     var groupNameState: NewGroupState by mutableStateOf(NewGroupState())
 
+    var snackbarMessageState by mutableStateOf<NewConversationSnackbarState>(NewConversationSnackbarState.None)
+
     private var innerSearchPeopleState: SearchPeopleState by mutableStateOf(SearchPeopleState())
 
     private var localContactSearchResult by mutableStateOf(
@@ -188,6 +190,7 @@ class NewConversationViewModel
                 }
                 is SendConnectionRequestResult.Success -> {
                     searchPublic(state.searchQuery, showProgress = false)
+                    snackbarMessageState = NewConversationSnackbarState.SuccessSendConnectionRequest
                 }
             }
         }
@@ -275,9 +278,18 @@ class NewConversationViewModel
         groupNameState = groupNameState.copy(animatedGroupNameError = false)
     }
 
+    fun clearSnackbarMessage() {
+        snackbarMessageState = NewConversationSnackbarState.None
+    }
+
     fun close() {
         viewModelScope.launch {
             navigationManager.navigateBack()
         }
     }
+}
+
+sealed class NewConversationSnackbarState {
+    object SuccessSendConnectionRequest : NewConversationSnackbarState()
+    object None : NewConversationSnackbarState()
 }

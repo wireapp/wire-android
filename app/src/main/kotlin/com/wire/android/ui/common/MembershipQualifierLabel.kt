@@ -27,8 +27,8 @@ fun MembershipQualifierLabel(membership: Membership) {
     if (membership.hasLabel()) {
         Box(
             modifier = Modifier.border(
-                width = 1.dp,
-                shape = RoundedCornerShape(4.dp),
+                width = MaterialTheme.wireDimensions.spacing1x,
+                shape = RoundedCornerShape(MaterialTheme.wireDimensions.spacing4x),
                 color = MaterialTheme.wireColorScheme.secondaryButtonSelectedOutline
             )
         ) {

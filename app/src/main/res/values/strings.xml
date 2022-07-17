@@ -238,6 +238,7 @@
     <string name="conversation_details_participants_info">This group has %s participants.\nUp to 500 people can join a group conversation.</string>
     <string name="conversation_details_show_all_participants">Show all participants (%d)</string>
     <string name="conversation_details_group_participants_title">Group Participants</string>
+    <string name="conversation_details_group_participants_add">Add participants</string>
 
     <!-- Attachment options -->
     <string name="attachment_share_file">Attach File</string>
@@ -389,11 +390,18 @@
     <string name="calling_content_description_participant_muted">Participant muted</string>
     <string name="calling_label_join_call">Join</string>
     <string name="calling_minimize_view">Minimize view</string>
+    <string name="calling_ongoing_call_title_alert">Hang up current call ?</string>
+    <string name="calling_ongoing_call_start_message_alert">A call is active in another conversation.\nCalling here will hang up the other call.</string>
+    <string name="calling_ongoing_call_start_anyway">Call Anyways</string>
+    <string name="calling_ongoing_call_join_message_alert">A call is active in another conversation.\nJoining this call will hang up the other one.</string>
+    <string name="calling_ongoing_call_join_anyway">Join Anyways</string>
 
     <!-- Connections -->
     <string name="connection_label_connect">Connect</string>
     <string name="connection_label_cancel_request">Cancel Request</string>
     <string name="connection_label_member_not_belongs_to_team">This user does not belong to your team. If they accept your connection request, they are available as a contact</string>
+    <string name="connection_label_member_not_conneted">When your connection request is accepted, you can communicate directly with this contact.</string>
+
     <string name="connection_request_sent">Connection request sent</string>
     <string name="connection_request_canceled">Connection request canceled</string>
     <string name="connection_request_ignored">You ignored %1$s\'s request</string>
@@ -437,5 +445,14 @@
     <string name="wire_dropdown_default_indicator">" (default)"</string>
     <string name="wire_dropdown_placeholder">Select an Item</string>
     <string name="change">Change</string>
+    <string name="allow_guests">Allow guests</string>
+    <string name="allow_guest_switch_description">Open this conversation to people outside your team. You can always change it later.</string>
+    <string name="allow_services">Allow services</string>
+    <string name="allow_services_description">Open this conversation to services. You can always change it later.</string>
+    <string name="read_receipts">Read receipts</string>
+    <string name="read_receipts_description">When this is on, people can see when their messages in this conversation are read.</string>
+    <string name="disable_guests_dialoug_title">Not Allow Guests?</string>
+    <string name="disable_guests_dialoug_description">Any guest user selected in the previous step will not be added to the group if you do not allow guest access.</string>
+    <string name="disable_guests_dialoug_button">Not Allow Guests</string>
 
 </resources>

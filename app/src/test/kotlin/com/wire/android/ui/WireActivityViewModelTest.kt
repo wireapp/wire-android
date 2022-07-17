@@ -215,7 +215,7 @@ class WireActivityViewModelTest {
             coEvery { currentSessionFlow() } returns flowOf()
             coEvery { getServerConfigUseCase(any()) } returns GetServerConfigResult.Success(newServerConfig(1))
             coEvery { deepLinkProcessor(any()) } returns DeepLinkResult.Unknown
-            coEvery { notificationManager.observeMessageNotifications(any()) } returns Unit
+            coEvery { notificationManager.observeNotificationsAndCalls(any(), any(), any()) } returns Unit
             coEvery { navigationManager.navigate(any()) } returns Unit
         }
 

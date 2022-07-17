@@ -7,7 +7,6 @@ import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
-import com.wire.android.ui.home.conversations.name
 import com.wire.android.ui.home.conversations.previewAsset
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -15,9 +14,12 @@ import com.wire.android.util.time.ISOFormatter
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.android.util.uiMessageDateTime
-import com.wire.kalium.logic.data.conversation.MemberDetails
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
+import com.wire.kalium.logic.data.user.OtherUser
+import com.wire.kalium.logic.data.user.SelfUser
+import com.wire.kalium.logic.data.user.User
+import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
@@ -29,7 +31,7 @@ class MessageMapper @Inject constructor(
     private val wireSessionImageLoader: WireSessionImageLoader
 ) {
 
-    fun memberIdList(messages: List<Message>) = messages.flatMap { message ->
+    fun memberIdList(messages: List<Message>): List<UserId> = messages.flatMap { message ->
         listOf(message.senderUserId).plus(
             when (val content = message.content) {
                 is MessageContent.MemberChange -> content.members
@@ -39,29 +41,28 @@ class MessageMapper @Inject constructor(
     }.distinct()
 
     suspend fun toUIMessages(
-        members: List<MemberDetails>,
+        userList: List<User>,
         messages: List<Message>
     ): List<UIMessage> = withContext(dispatcherProvider.io()) {
         messages.map { message ->
-            val sender = members.findUser(message.senderUserId)
+            val sender = userList.findUser(message.senderUserId)
             val content = messageContentMapper.fromMessage(
                 message = message,
-                members = members
+                userList = userList
             )
             if (message is Message.System && content == null)
                 null // system messages doesn't have header so without the content there is nothing to be displayed
             else
                 UIMessage(
                     messageContent = content,
-                    messageSource = if (sender is MemberDetails.Self) MessageSource.Self else MessageSource.OtherUser,
+                    messageSource = if (sender is SelfUser) MessageSource.Self else MessageSource.OtherUser,
                     messageHeader = MessageHeader(
                         // TODO: Designs for deleted users?
                         username = sender?.name?.let { UIText.DynamicString(it) }
                             ?: UIText.StringResource(R.string.member_name_deleted_label),
-                        membership = if (sender is MemberDetails.Other) {
-                            userTypeMapper.toMembership(sender.otherUser.userType)
-                        } else {
-                            Membership.None
+                        membership = when (sender) {
+                            is OtherUser -> userTypeMapper.toMembership(sender.userType)
+                            is SelfUser, null -> Membership.None
                         },
                         isLegalHold = false,
                         time = message.date.uiMessageDateTime() ?: "",

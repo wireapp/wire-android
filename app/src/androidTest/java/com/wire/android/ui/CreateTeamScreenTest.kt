@@ -2,11 +2,9 @@ package com.wire.android.ui
 
 import android.content.Intent
 import androidx.activity.compose.setContent
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.test.assertIsDisplayed
+import androidx.compose.ui.test.assertIsEnabled
+import androidx.compose.ui.test.assertIsNotEnabled
 import androidx.compose.ui.test.assertTextEquals
 import androidx.compose.ui.test.hasTestTag
 import androidx.compose.ui.test.junit4.createEmptyComposeRule
@@ -24,7 +22,6 @@ import com.wire.android.ui.authentication.create.team.CreateTeamScreen
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.utils.EMAIL
 import com.wire.android.utils.WorkManagerTestRule
-import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.android.utils.waitForExecution
 import dagger.hilt.android.testing.HiltAndroidRule
 import dagger.hilt.android.testing.HiltAndroidTest
@@ -37,10 +34,6 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runners.MethodSorters
 
-@OptIn(
-    ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class,
-    ExperimentalComposeUiApi::class, ExperimentalMaterialApi::class
-)
 @HiltAndroidTest
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
 class CreateTeamScreenTest {
@@ -69,7 +62,7 @@ class CreateTeamScreenTest {
         scenario.onActivity { activity ->
             activity.setContent {
                 WireTheme {
-                    CreateTeamScreen(serverConfig = ServerConfig.STAGING)
+                    CreateTeamScreen()
                 }
             }
         }

@@ -13,9 +13,10 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.conversation.ProtocolInfo
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.publicuser.model.OtherUser
+import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.data.publicuser.model.UserSearchResult
 import com.wire.kalium.logic.data.user.ConnectionState
+import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.type.UserType
@@ -23,9 +24,9 @@ import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
 import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsResult
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
-import com.wire.kalium.logic.feature.publicuser.Result
-import com.wire.kalium.logic.feature.publicuser.SearchKnownUsersUseCase
-import com.wire.kalium.logic.feature.publicuser.SearchUsersUseCase
+import com.wire.kalium.logic.feature.publicuser.search.Result
+import com.wire.kalium.logic.feature.publicuser.search.SearchKnownUsersUseCase
+import com.wire.kalium.logic.feature.publicuser.search.SearchUsersUseCase
 import com.wire.kalium.logic.functional.Either
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -101,7 +102,9 @@ internal class NewConversationViewModelArrangement {
             protocol = ProtocolInfo.Proteus,
             MutedConversationStatus.AllAllowed,
             null,
-            null
+            null,
+            access = listOf(Conversation.Access.INVITE),
+            accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER)
         )
 
         val PUBLIC_USER = OtherUser(
@@ -111,7 +114,7 @@ internal class NewConversationViewModelArrangement {
             email = "publicEmail",
             phone = "publicPhone",
             accentId = 0,
-            team = "publicTeamId",
+            teamId = TeamId("publicTeamId"),
             connectionStatus = ConnectionState.ACCEPTED,
             previewPicture = UserAssetId("value", "domain"),
             completePicture = UserAssetId("value", "domain"),
@@ -126,7 +129,7 @@ internal class NewConversationViewModelArrangement {
             email = "knownEmail",
             phone = "knownPhone",
             accentId = 0,
-            team = "knownTeamId",
+            teamId = TeamId("knownTeamId"),
             connectionStatus = ConnectionState.ACCEPTED,
             previewPicture = UserAssetId("value", "domain"),
             completePicture = UserAssetId("value", "domain"),

@@ -5,6 +5,10 @@ import coil.ImageLoader
 import coil.fetch.FetchResult
 import com.wire.android.model.ImageAsset
 import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.logic.data.asset.DataStoragePaths
+import com.wire.kalium.logic.data.asset.FakeKaliumFileSystem
+import com.wire.kalium.logic.data.id.AssetsStorageFolder
+import com.wire.kalium.logic.data.id.CacheFolder
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.parseIntoQualifiedID
 import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
@@ -16,6 +20,8 @@ import io.mockk.coVerify
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
+import okio.Path
+import okio.Path.Companion.toPath
 import org.junit.jupiter.api.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -89,7 +95,31 @@ internal class AssetImageFetcherTest {
         val drawableResultWrapper = mockk<DrawableResultWrapper>()
         val mockFetchResult = mockk<FetchResult>()
         lateinit var imageData: ImageAsset
+        private fun getPersistentStoragePath(filePath: Path): Path = "${rootFileSystemPath.value}/$filePath".toPath()
+        private fun getTemporaryStoragePath(filePath: Path): Path = "${rootCachePath.value}/$filePath".toPath()
+        private var userHomePath = "/Users/me/testApp".toPath()
+        private val rootFileSystemPath = AssetsStorageFolder("$userHomePath/files")
+        private val rootCachePath = CacheFolder("$userHomePath/cache")
+        private val dataStoragePaths = DataStoragePaths(rootFileSystemPath, rootCachePath)
+        val fakeFileSystem = FakeFileSystem()
+            .also {
+                it.allowDeletingOpenFiles = true
+                it.createDirectories(rootFileSystemPath.value.toPath())
+                it.createDirectories(rootCachePath.value.toPath())
+            }
 
+        val kaliumFileSystem by lazy {
+            FakeKaliumFileSystem(dataStoragePaths, fakeFileSystem)
+                .also {
+                    if (!it.exists(dataStoragePaths.cachePath.value.toPath()))
+                        it.createDirectory(
+                            dir = dataStoragePaths.cachePath.value.toPath(),
+                            mustCreate = true
+                        )
+                    if (!it.exists(dataStoragePaths.assetStoragePath.value.toPath()))
+                        it.createDirectory(dataStoragePaths.assetStoragePath.value.toPath())
+                }
+        }
         fun withSuccessfulImageData(data: ImageAsset): Arrangement {
             imageData = data
             coEvery { getPublicAsset.invoke((any())) }.returns(PublicAssetResult.Success(mockDecodedAsset))
@@ -113,7 +143,8 @@ internal class AssetImageFetcherTest {
             getPrivateAsset = getPrivateAsset,
             resources = resources,
             drawableResultWrapper = drawableResultWrapper,
-            imageLoader = imageLoader
+            imageLoader = imageLoader,
+            kaliumFileSystem = kaliumFileSystem
         )
     }
 }

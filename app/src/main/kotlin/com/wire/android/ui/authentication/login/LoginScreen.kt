@@ -21,6 +21,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
@@ -42,28 +43,15 @@ import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
+import com.wire.android.util.DialogErrorStrings
 import com.wire.android.util.deeplink.DeepLinkResult
+import com.wire.android.util.dialogErrorStrings
 import kotlinx.coroutines.launch
 
 @ExperimentalMaterialApi
 @Composable
 fun LoginScreen(ssoLoginResult: DeepLinkResult.SSOLogin?) {
     val loginViewModel: LoginViewModel = hiltViewModel()
-    loginViewModel.observer()
-    if (viewModel.state.showLogoutDialog)
-        WireDialog(
-            title = viewModel.title,
-            text = viewModel.body,
-            onDismiss = { },
-            optionButton1Properties = WireDialogButtonProperties(
-                onClick = {
-                    viewModel.currentSessionFlow.deleteSession(viewModel.userId!!)
-                    viewModel.state = viewModel.state.copy(showLogoutDialog = false)
-                },
-                text = stringResource(id = R.string.label_ok),
-                type = WireDialogButtonType.Primary,
-            )
-        )
     LoginContent(
         onBackPressed = { loginViewModel.navigateBack() },
         ssoLoginResult = ssoLoginResult
@@ -126,6 +114,80 @@ private fun LoginContent(
                 }
         }
     }
+}
+
+@Composable
+fun LoginErrorDialog(error: LoginError, onDialogDismiss: () -> Unit, ssoLoginResult: DeepLinkResult.SSOLogin? = null) {
+    val (title, message) = when (error) {
+        is LoginError.DialogError.InvalidCredentialsError -> DialogErrorStrings(
+            stringResource(id = R.string.login_error_invalid_credentials_title),
+            stringResource(id = R.string.login_error_invalid_credentials_message)
+        )
+
+        is LoginError.DialogError.UserAlreadyExists -> DialogErrorStrings(
+            stringResource(id = R.string.login_error_user_already_logged_in_title),
+            stringResource(id = R.string.login_error_user_already_logged_in_message)
+        )
+
+        is LoginError.DialogError.InvalidSessionError ->
+            when (error) {
+                is LoginError.DialogError.InvalidSessionError.DeletedAccount ->
+                    DialogErrorStrings(
+                        stringResource(id = R.string.deleted_user_error_title),
+                        stringResource(id = R.string.deleted_user_error_message)
+                    )
+
+                is LoginError.DialogError.InvalidSessionError.RemovedClient ->
+                    DialogErrorStrings(
+                        stringResource(id = R.string.removed_client_error_title),
+                        stringResource(id = R.string.removed_client_error_message)
+                    )
+
+                is LoginError.DialogError.InvalidSessionError.SessionExpired ->
+                    DialogErrorStrings(
+                        stringResource(id = R.string.session_expired_error_title),
+                        stringResource(id = R.string.session_expired_error_message)
+                    )
+            }
+
+        is LoginError.DialogError.GenericError ->
+            error.coreFailure.dialogErrorStrings(LocalContext.current.resources)
+
+        is LoginError.DialogError.InvalidCodeError -> DialogErrorStrings(
+            title = stringResource(id = R.string.login_error_invalid_credentials_title),
+            message = stringResource(id = R.string.login_error_invalid_sso_code)
+        )
+
+        is LoginError.DialogError.InvalidSSOCookie -> DialogErrorStrings(
+            stringResource(id = R.string.login_sso_error_invalid_cookie_title),
+            stringResource(id = R.string.login_sso_error_invalid_cookie_message)
+        )
+
+        is LoginError.DialogError.SSOResultError -> {
+            with(ssoLoginResult as DeepLinkResult.SSOLogin.Failure) {
+                DialogErrorStrings(
+                    stringResource(R.string.sso_erro_dialog_title),
+                    stringResource(R.string.sso_erro_dialog_message, this.ssoError.errorCode)
+                )
+            }
+        }
+
+        LoginError.DialogError.PasswordNeededToRegisterClient -> TODO()
+        else -> DialogErrorStrings(
+            stringResource(R.string.error_unknown_title),
+            stringResource(R.string.error_unknown_message)
+        )
+    }
+    WireDialog(
+        title = title,
+        text = message,
+        onDismiss = onDialogDismiss,
+        optionButton1Properties = WireDialogButtonProperties(
+            onClick = onDialogDismiss,
+            text = stringResource(id = R.string.label_ok),
+            type = WireDialogButtonType.Primary,
+        )
+    )
 }
 
 enum class LoginTabItem(@StringRes override val titleResId: Int) : TabItem {

@@ -10,10 +10,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-data class WelcomeScreenState(
-    val showLogoutDialog: Boolean = false,
-)
-
 @HiltViewModel
 class WelcomeViewModel @Inject constructor(
     private val navigationManager: NavigationManager

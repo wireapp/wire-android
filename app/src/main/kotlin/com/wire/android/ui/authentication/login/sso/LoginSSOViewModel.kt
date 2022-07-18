@@ -23,6 +23,7 @@ import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginResult
 import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginUseCase
 import com.wire.kalium.logic.feature.auth.sso.SSOLoginSessionResult
 import com.wire.kalium.logic.feature.client.RegisterClientResult
+import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
@@ -38,8 +39,9 @@ class LoginSSOViewModel @Inject constructor(
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
     clientScopeProviderFactory: ClientScopeProvider.Factory,
     navigationManager: NavigationManager,
-    authServerConfigProvider: AuthServerConfigProvider
-) : LoginViewModel(navigationManager, clientScopeProviderFactory, authServerConfigProvider) {
+    authServerConfigProvider: AuthServerConfigProvider,
+    currentSessionUseCase: CurrentSessionUseCase
+) : LoginViewModel(navigationManager, clientScopeProviderFactory, authServerConfigProvider, currentSessionUseCase) {
 
     var loginState by mutableStateOf(
         LoginSSOState(ssoCode = TextFieldValue(savedStateHandle.get(SSO_CODE_SAVED_STATE_KEY) ?: String.EMPTY))

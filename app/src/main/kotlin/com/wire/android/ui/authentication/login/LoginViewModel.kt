@@ -12,11 +12,8 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
-import com.wire.android.ui.authentication.welcome.WelcomeScreenState
-import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.client.ClientCapability
 import com.wire.kalium.logic.data.conversation.ClientId
-import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
@@ -24,16 +21,10 @@ import com.wire.kalium.logic.feature.auth.AuthSession
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.client.RegisterClientUseCase
-import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
+import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.session.RegisterTokenResult
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.firstOrNull
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -42,70 +33,26 @@ import javax.inject.Inject
 open class LoginViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val clientScopeProviderFactory: ClientScopeProvider.Factory,
-    private val authServerConfigProvider: AuthServerConfigProvider,
-    val currentSessionFlow: CurrentSessionFlowUseCase,
-    dispatchers: DispatcherProvider
+    authServerConfigProvider: AuthServerConfigProvider,
+    currentSessionUseCase: CurrentSessionUseCase
 ) : ViewModel() {
-
-    val serverConfig = authServerConfigProvider.authServer.value
-
-
-    var state by mutableStateOf(WelcomeScreenState(false))
-
-    var title = ""
-    var body = ""
-    var userId: QualifiedID? = null
-
-    private val observeUserId = currentSessionFlow()
-        .map { result ->
+    init {
+        currentSessionUseCase().let { result ->
             if (result is CurrentSessionResult.Success) {
-                appLogger.d("############### ${result.authSession}")
-                userId = result.authSession.session.userId
                 when (result.authSession.session) {
                     is AuthSession.Session.Invalid -> {
                         when ((result.authSession.session as AuthSession.Session.Invalid).reason) {
-                            LogoutReason.SELF_LOGOUT -> {
-                                title = "Self logout"
-                                body = "Self Logout"
-                                state = state.copy(showLogoutDialog = true)
-                            }
-
-                            LogoutReason.REMOVED_CLIENT -> {
-                                title = "Removed Device"
-                                body = "You were signed out because your device was removed."
-                                state = state.copy(showLogoutDialog = true)
-                            }
-
-                            LogoutReason.DELETED_ACCOUNT -> {
-                                title = "Deleted User"
-                                body = "You were signed out because your account was deleted."
-                                state = state.copy(showLogoutDialog = true)
-                            }
+                            LogoutReason.REMOVED_CLIENT -> updateLoginError(LoginError.DialogError.InvalidSessionError.RemovedClient)
+                            LogoutReason.DELETED_ACCOUNT -> updateLoginError(LoginError.DialogError.InvalidSessionError.DeletedAccount)
+                            LogoutReason.SESSION_EXPIRED -> updateLoginError(LoginError.DialogError.InvalidSessionError.SessionExpired)
                         }
                     }
-
-                    else -> {
-                        currentSessionFlow.deleteSession(userId!!)
-                        state = state.copy(showLogoutDialog = false)
-                        title = ""
-                        body = ""
-                    }
                 }
-            } else {
-                if (state.showLogoutDialog)
-                    state = state.copy(showLogoutDialog = false)
-                null
             }
         }
-        .distinctUntilChanged()
-        .flowOn(dispatchers.io())
-        .shareIn(viewModelScope, SharingStarted.WhileSubscribed(), 1)
-
-    fun observer() {
-        viewModelScope.launch {
-            observeUserId.firstOrNull()
-        }
     }
+
+    val serverConfig = authServerConfigProvider.authServer.value
 
     open fun updateLoginError(error: LoginError) {}
 
@@ -142,6 +89,7 @@ open class LoginViewModel @Inject constructor(
             when (registerTokenResult) {
                 is RegisterTokenResult.Success ->
                     appLogger.i("PushToken Registered Successfully")
+
                 is RegisterTokenResult.Failure ->
                     //TODO: handle failure in settings to allow the user to retry tokenRegistration
                     appLogger.i("PushToken Registration Failed: $registerTokenResult")

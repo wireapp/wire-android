@@ -17,7 +17,9 @@ import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
 import com.wire.kalium.logic.feature.auth.LoginUseCase
+import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
+import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -30,8 +32,10 @@ class LoginEmailViewModel @Inject constructor(
     clientScopeProviderFactory: ClientScopeProvider.Factory,
     private val savedStateHandle: SavedStateHandle,
     navigationManager: NavigationManager,
-    authServerConfigProvider: AuthServerConfigProvider
-) : LoginViewModel(navigationManager, clientScopeProviderFactory, authServerConfigProvider) {
+    authServerConfigProvider: AuthServerConfigProvider,
+    currentSessionUseCase: CurrentSessionUseCase,
+    private val logoutUseCase: LogoutUseCase
+) : LoginViewModel(navigationManager, clientScopeProviderFactory, authServerConfigProvider, currentSessionUseCase) {
 
     var loginState by mutableStateOf(
         LoginEmailState(
@@ -92,14 +96,18 @@ class LoginEmailViewModel @Inject constructor(
     }
 
     override fun updateLoginError(error: LoginError) {
+        deleteInvalidSession()
         loginState = if (error is LoginError.None) {
             loginState.copy(loginEmailError = error)
         } else {
             loginState.copy(loading = false, loginEmailError = error).updateLoginEnabled()
         }
-
     }
 
+    private fun deleteInvalidSession() {
+        if (loginState.loginEmailError is LoginError.DialogError.InvalidSessionError)
+            logoutUseCase.deleteInvalidCurrentSession()
+    }
 
     private fun LoginEmailState.updateLoginEnabled() =
         copy(loginEnabled = userIdentifier.text.isNotEmpty() && password.text.isNotEmpty() && !loading)

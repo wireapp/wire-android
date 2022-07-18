@@ -15,7 +15,6 @@ import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.feature.auth.AuthSession
 import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
@@ -47,51 +46,13 @@ class WireActivityViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val navigationArguments = mutableMapOf<String, Any>(SERVER_CONFIG_ARG to ServerConfig.DEFAULT)
-    var authSession: AuthSession? = null
+
     private val observeUserId = currentSessionFlow()
         .map { result ->
             if (result is CurrentSessionResult.Success) {
-                appLogger.i(result.authSession.toString())
-                authSession = result.authSession
-                when (result.authSession.session) {
-                    is AuthSession.Session.Valid -> result.authSession.session.userId
-
-                    is AuthSession.Session.Invalid -> {
-                        when ((result.authSession.session as AuthSession.Session.Invalid).reason) {
-                            LogoutReason.SELF_LOGOUT -> {
-                                navigationManager.navigate(
-                                    NavigationCommand(
-                                        NavigationItem.Login.getRouteWithArgs(),
-                                        BackStackMode.CLEAR_WHOLE
-                                    )
-                                )
-                                null
-                            }
-
-                            LogoutReason.REMOVED_CLIENT -> {
-                                //todo: show removed account message and go to login screen and prefill the email? maybe!
-                                navigationManager.navigate(
-                                    NavigationCommand(
-                                        NavigationItem.Login.getRouteWithArgs(),
-                                        BackStackMode.CLEAR_WHOLE
-                                    )
-                                )
-                                null
-                            }
-
-                            LogoutReason.DELETED_ACCOUNT -> {
-                                navigationManager.navigate(
-                                    NavigationCommand(
-                                        NavigationItem.Login.getRouteWithArgs(),
-                                        BackStackMode.CLEAR_WHOLE
-                                    )
-                                )
-
-                                null
-                            }
-                        }
-                    }
-                }
+                if (result.authSession.session is AuthSession.Session.Invalid)
+                    navigateToLogin()
+                result.authSession.session.userId
             } else {
                 null
             }
@@ -104,6 +65,15 @@ class WireActivityViewModel @Inject constructor(
         viewModelScope.launch {
             notificationManager.observeNotificationsAndCalls(observeUserId, viewModelScope) { openIncomingCall(it.conversationId) }
         }
+    }
+
+    suspend fun navigateToLogin() {
+        navigationManager.navigate(
+            NavigationCommand(
+                NavigationItem.Login.getRouteWithArgs(),
+                BackStackMode.CLEAR_WHOLE
+            )
+        )
     }
 
     fun navigationArguments() = navigationArguments.values.toList()

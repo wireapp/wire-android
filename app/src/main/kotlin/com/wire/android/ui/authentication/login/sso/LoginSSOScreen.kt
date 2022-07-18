@@ -28,9 +28,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.ui.authentication.login.LoginError
-import com.wire.android.ui.common.WireDialog
-import com.wire.android.ui.common.WireDialogButtonProperties
-import com.wire.android.ui.common.WireDialogButtonType
+import com.wire.android.ui.authentication.login.LoginErrorDialog
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.common.textfield.WireTextField
@@ -38,10 +36,7 @@ import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.CustomTabsHelper
-import com.wire.android.util.DialogErrorStrings
 import com.wire.android.util.deeplink.DeepLinkResult
-import com.wire.android.util.dialogErrorStrings
-import com.wire.kalium.logic.configuration.server.ServerConfig
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -120,47 +115,7 @@ private fun LoginSSOContent(
         ) { scope.launch { onLoginButtonClick() } }
     }
     if (loginSSOState.loginSSOError is LoginError.DialogError) {
-        val (title, message) = when (loginSSOState.loginSSOError) {
-            is LoginError.DialogError.GenericError ->
-                loginSSOState.loginSSOError.coreFailure.dialogErrorStrings(LocalContext.current.resources)
-            is LoginError.DialogError.InvalidCodeError -> DialogErrorStrings(
-                title = stringResource(id = R.string.login_error_invalid_credentials_title),
-                message = stringResource(id = R.string.login_error_invalid_sso_code)
-            )
-            is LoginError.DialogError.InvalidCredentialsError -> DialogErrorStrings(
-                stringResource(id = R.string.login_error_invalid_credentials_title),
-                stringResource(id = R.string.login_error_invalid_credentials_message)
-            )
-            // TODO: sync with design about the error message
-            is LoginError.DialogError.UserAlreadyExists -> DialogErrorStrings(
-                stringResource(id = R.string.login_error_user_already_logged_in_title),
-                stringResource(id = R.string.login_error_user_already_logged_in_message)
-            )
-            // TODO: sync with design about the error message
-            is LoginError.DialogError.InvalidSSOCookie -> DialogErrorStrings(
-                stringResource(id = R.string.login_sso_error_invalid_cookie_title),
-                stringResource(id = R.string.login_sso_error_invalid_cookie_message)
-            )
-            is LoginError.DialogError.SSOResultError -> {
-                with(ssoLoginResult as DeepLinkResult.SSOLogin.Failure) {
-                    DialogErrorStrings(
-                        stringResource(R.string.sso_erro_dialog_title),
-                        stringResource(R.string.sso_erro_dialog_message, this.ssoError.errorCode)
-                    )
-                }
-            }
-            LoginError.DialogError.PasswordNeededToRegisterClient -> TODO()
-        }
-        WireDialog(
-            title = title,
-            text = message,
-            onDismiss = onDialogDismiss,
-            optionButton1Properties = WireDialogButtonProperties(
-                onClick = onDialogDismiss,
-                text = stringResource(id = R.string.label_ok),
-                type = WireDialogButtonType.Primary,
-            )
-        )
+        LoginErrorDialog(loginSSOState.loginSSOError, onDialogDismiss, ssoLoginResult)
     } else if (loginSSOState.loginSSOError is LoginError.TooManyDevicesError) {
         onRemoveDeviceOpen()
     }

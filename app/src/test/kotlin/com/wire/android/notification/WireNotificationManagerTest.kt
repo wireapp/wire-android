@@ -292,7 +292,7 @@ class WireNotificationManagerTest {
         private val TEST_SERVER_CONFIG: ServerConfig = newServerConfig(1)
         private val TEST_AUTH_SESSION =
             AuthSession(
-                AuthSession.Session(
+                AuthSession.Session.Valid(
                     userId = UserId("user_id", "domain.de"),
                     accessToken = "access_token",
                     refreshToken = "refresh_token",

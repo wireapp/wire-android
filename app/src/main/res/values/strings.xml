@@ -106,12 +106,20 @@
     <string name="login_user_identifier_placeholder">jane@example.com or jane.doe</string>
     <string name="login_user_identifier_label">EMAIL OR USERNAME</string>
     <string name="login_error_invalid_credentials_title">Invalid information</string>
-    <string name="login_error_invalid_credentials_message">These account credentials are incorrect. Please verify your details and try again.</string>
-    <string name="login_error_invalid_user_identifier">This email or username is invalid. Please verify and try again.</string>
+    <string name="login_error_invalid_credentials_message">These account credentials are incorrect.
+        Please verify your details and try again.
+    </string>
+    <string name="login_error_invalid_user_identifier">This email or username is invalid. Please
+        verify and try again.
+    </string>
     <string name="login_error_user_already_logged_in_title">User Already LoggedIn</string>
-    <string name="login_error_user_already_logged_in_message">These account already logged in in the app!</string>
+    <string name="login_error_user_already_logged_in_message">These account already logged in in the
+        app!
+    </string>
     <string name="login_sso_error_invalid_cookie_title">Invalid Cookie!</string>
-    <string name="login_sso_error_invalid_cookie_message">The session is invalid or expired! Please try to login again.</string>
+    <string name="login_sso_error_invalid_cookie_message">The session is invalid or expired! Please
+        try to login again.
+    </string>
     <string name="login_password_placeholder">Password</string>
     <string name="login_password_label">PASSWORD</string>
     <string name="login_tab_email">EMAIL</string>
@@ -120,10 +128,24 @@
     <string name="login_sso_code_label">SSO CODE</string>
     <string name="login_error_invalid_sso_code">Please enter a valid SSO code.</string>
     <string name="login_error_invalid_sso_code_format">Enter a valid SSO code</string>
+    <string name="deleted_user_error_title">Deleted User</string>
+    <string name="deleted_user_error_message">You were signed out because your account was
+        deleted.
+    </string>
+    <string name="removed_client_error_title">Removed Device</string>
+    <string name="removed_client_error_message">You were signed out because your device was
+        removed.
+    </string>
+    <string name="session_expired_error_title">Session expired</string>
+    <string name="session_expired_error_message">The application did not communicate with the server
+        for a long period of time, or your session has been remotely invalidated.
+    </string>
 
     <!-- Remove Device -->
     <string name="remove_device_title">Remove a Device</string>
-    <string name="remove_device_message">Remove one of your other devices to start using Wire on this one.</string>
+    <string name="remove_device_message">Remove one of your other devices to start using Wire on
+        this one.
+    </string>
     <string name="remove_device_label">YOUR DEVICES</string>
     <string name="remove_device_id_and_time_label">ID: %1$s\nAdded: %2$s</string>
     <string name="remove_device_dialog_title">Remove the following device?</string>

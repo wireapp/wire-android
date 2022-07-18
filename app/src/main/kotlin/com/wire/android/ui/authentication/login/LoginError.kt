@@ -10,16 +10,21 @@ sealed class LoginError {
     }
 
     sealed class DialogError : LoginError() {
-        data class GenericError(val coreFailure: CoreFailure) : LoginError.DialogError()
+        data class GenericError(val coreFailure: CoreFailure) : DialogError()
         object InvalidCredentialsError : DialogError()
         object InvalidSSOCookie : DialogError()
         object InvalidCodeError : DialogError()
         object UserAlreadyExists : DialogError()
         object PasswordNeededToRegisterClient : DialogError()
+        sealed class InvalidSessionError() : LoginError.DialogError() {
+            object DeletedAccount : InvalidSessionError()
+            object RemovedClient : InvalidSessionError()
+            object SessionExpired : InvalidSessionError()
+        }
+
         data class SSOResultError constructor(val result: SSOFailureCodes) :
-            LoginError.DialogError()
+            DialogError()
     }
 
     object TooManyDevicesError : LoginError()
-
 }

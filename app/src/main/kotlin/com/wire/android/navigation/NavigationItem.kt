@@ -168,15 +168,16 @@ enum class NavigationItem(
 
     OtherUserProfile(
         primaryRoute = OTHER_USER_PROFILE,
-        canonicalRoute = "$OTHER_USER_PROFILE/{$EXTRA_USER_DOMAIN}/{$EXTRA_USER_ID}",
+        canonicalRoute = "$OTHER_USER_PROFILE/{$EXTRA_USER_DOMAIN}/{$EXTRA_USER_ID}?$EXTRA_CONVERSATION_ID={$EXTRA_CONVERSATION_ID}",
         content = { OtherUserProfileScreen() },
         animationConfig = NavigationAnimationConfig.NoAnimation
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
             val userDomain: String = arguments.filterIsInstance<String>()[0]
             val userProfileId: String = arguments.filterIsInstance<String>()[1]
-
-            return "$primaryRoute/$userDomain/$userProfileId"
+            val conversationId: ConversationId? = arguments.filterIsInstance<ConversationId>().firstOrNull()
+            val baseRoute = "$primaryRoute/$userDomain/$userProfileId"
+            return conversationId?.let { "$baseRoute?$EXTRA_CONVERSATION_ID=$it" } ?: baseRoute
         }
     },
 

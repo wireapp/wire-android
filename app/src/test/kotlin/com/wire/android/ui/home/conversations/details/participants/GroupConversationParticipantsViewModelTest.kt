@@ -12,6 +12,7 @@ import com.wire.android.ui.home.conversations.details.GroupConversationDetailsVi
 import com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
+import com.wire.kalium.logic.data.id.parseIntoQualifiedID
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -62,7 +63,11 @@ class GroupConversationParticipantsViewModelTest {
         // Then
         coVerify {
             arrangement.navigationManager.navigate(
-                NavigationCommand(NavigationItem.OtherUserProfile.getRouteWithArgs(listOf(member.id.domain, member.id.value)))
+                NavigationCommand(
+                    NavigationItem.OtherUserProfile.getRouteWithArgs(
+                        listOf(member.id.domain, member.id.value, arrangement.conversationId.parseIntoQualifiedID())
+                    )
+                )
             )
         }
     }
@@ -85,21 +90,23 @@ internal class GroupConversationParticipantsViewModelArrangement {
 
     @MockK
     private lateinit var savedStateHandle: SavedStateHandle
+
     @MockK
     lateinit var navigationManager: NavigationManager
+
     @MockK
     lateinit var observeParticipantsForConversationUseCase: ObserveParticipantsForConversationUseCase
     private val conversationMembersChannel = Channel<ConversationParticipantsData>(capacity = Channel.UNLIMITED)
     private val viewModel by lazy {
         GroupConversationParticipantsViewModel(savedStateHandle, navigationManager, observeParticipantsForConversationUseCase)
     }
+    val conversationId = "some-dummy-value@some.dummy.domain"
 
     init {
         // Tests setup
-        val dummyConversationId = "some-dummy-value@some.dummy.domain"
         MockKAnnotations.init(this, relaxUnitFun = true)
         mockUri()
-        every { savedStateHandle.get<String>(EXTRA_CONVERSATION_ID) } returns dummyConversationId
+        every { savedStateHandle.get<String>(EXTRA_CONVERSATION_ID) } returns conversationId
         // Default empty values
         coEvery { observeParticipantsForConversationUseCase(any(), any()) } returns flowOf()
     }

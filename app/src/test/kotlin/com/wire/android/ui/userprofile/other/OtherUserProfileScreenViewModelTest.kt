@@ -4,9 +4,11 @@ import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.mockUri
 import com.wire.android.mapper.UserTypeMapper
+import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.EXTRA_USER_DOMAIN
 import com.wire.android.navigation.EXTRA_USER_ID
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.CoreFailure.Unknown
@@ -34,6 +36,7 @@ import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversatio
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
 import com.wire.kalium.logic.feature.user.GetUserInfoUseCase
 import io.mockk.Called
+import io.mockk.InternalPlatformDsl.toStr
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -81,6 +84,9 @@ class OtherUserProfileScreenViewModelTest {
     private lateinit var wireSessionImageLoader: WireSessionImageLoader
 
     @MockK
+    private lateinit var observeConversationRoleForUserUseCase: ObserveConversationRoleForUserUseCase
+
+    @MockK
     private lateinit var userTypeMapper: UserTypeMapper
 
     @BeforeEach
@@ -89,6 +95,7 @@ class OtherUserProfileScreenViewModelTest {
         mockUri()
         every { savedStateHandle.get<String>(eq(EXTRA_USER_ID)) } returns CONVERSATION_ID.value
         every { savedStateHandle.get<String>(eq(EXTRA_USER_DOMAIN)) } returns CONVERSATION_ID.domain
+        every { savedStateHandle.get<String>(eq(EXTRA_CONVERSATION_ID)) } returns CONVERSATION_ID.toString()
         coEvery { getUserInfo(any()) } returns GetUserInfoResult.Success(OTHER_USER, TEAM)
         every { userTypeMapper.toMembership(any()) } returns Membership.None
 
@@ -102,7 +109,8 @@ class OtherUserProfileScreenViewModelTest {
             acceptConnectionRequest,
             ignoreConnectionRequest,
             userTypeMapper,
-            wireSessionImageLoader
+            wireSessionImageLoader,
+            observeConversationRoleForUserUseCase
         )
     }
 

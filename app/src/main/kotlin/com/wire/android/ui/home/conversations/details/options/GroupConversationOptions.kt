@@ -14,19 +14,19 @@ import androidx.compose.ui.unit.Dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.model.Clickable
-import com.wire.android.ui.home.conversations.details.GroupConversationOptionsViewModel
+import com.wire.android.ui.home.conversations.details.GroupConversationDetailsViewModel
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.theme.wireColorScheme
 
 @Composable
 fun GroupConversationOptionsScreen(
-    viewModel: GroupConversationOptionsViewModel = hiltViewModel(),
+    viewModel: GroupConversationDetailsViewModel = hiltViewModel(),
     lazyListState: LazyListState
 ) {
     GroupConversationOptions(
         state = viewModel.groupOptionsState,
-        onGuestSwitchClicked = { TODO() },
-        onServiceSwitchClicked = { TODO() },
+        onGuestSwitchClicked = viewModel::onAccessUpdate,
+        onServiceSwitchClicked = viewModel::onServicesUpdate,
         lazyListState = lazyListState
     )
 }
@@ -43,14 +43,14 @@ fun GroupConversationOptions(
         modifier = Modifier.fillMaxSize()
     ) {
         item {
-            GroupNameItem(state.groupName, state.isChangingAllowed)
+            GroupNameItem(groupName = state.groupName, canBeChanged = state.isUpdatingAllowed)
         }
         if (state.isTeamGroup) {
             item { FolderHeader(name = "Access") }
 
             item {
                 GuestOption(
-                    canBeChanged = state.isChangingAllowed,
+                    canBeChanged = state.isUpdatingGuestAllowed,
                     switchState = state.isGuestAllowed,
                     onCheckedChange = onGuestSwitchClicked
                 )
@@ -58,7 +58,7 @@ fun GroupConversationOptions(
 
             item {
                 ServicesOption(
-                    canBeChanged = state.isChangingAllowed,
+                    canBeChanged = state.isUpdatingAllowed,
                     switchState = state.isServicesAllowed,
                     onCheckedChange = onServiceSwitchClicked
                 )
@@ -107,7 +107,7 @@ private fun TeamGroupConversationOptionsPreview() {
     GroupConversationOptions(
         GroupConversationOptionsState(
             groupName = "Team Group Conversation",
-            isChangingAllowed = true,
+            isUpdatingAllowed = true,
             isTeamGroup = true,
             isGuestAllowed = true
         ),
@@ -121,7 +121,7 @@ private fun NormalGroupConversationOptionsPreview() {
     GroupConversationOptions(
         GroupConversationOptionsState(
             groupName = "Normal Group Conversation",
-            isChangingAllowed = true,
+            isUpdatingAllowed = true,
             isTeamGroup = false
         ), {}, {}
 

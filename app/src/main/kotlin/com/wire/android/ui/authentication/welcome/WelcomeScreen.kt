@@ -43,9 +43,6 @@ import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.rememberPagerState
 import com.wire.android.R
-import com.wire.android.ui.common.WireDialog
-import com.wire.android.ui.common.WireDialogButtonProperties
-import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.theme.WireTheme
@@ -69,22 +66,6 @@ fun WelcomeScreen(viewModel: WelcomeViewModel = hiltViewModel()) {
 @Composable
 private fun WelcomeContent(viewModel: WelcomeViewModel) {
     Scaffold(modifier = Modifier.padding(vertical = MaterialTheme.wireDimensions.welcomeVerticalPadding)) { internalPadding ->
-        viewModel.observer()
-        if (viewModel.state.showLogoutDialog)
-            WireDialog(
-                title = viewModel.title,
-                text = viewModel.body,
-                onDismiss = { },
-                optionButton1Properties = WireDialogButtonProperties(
-                    onClick = {
-                        viewModel.currentSessionFlow.deleteSession(viewModel.userId!!)
-                        viewModel.state = viewModel.state.copy(showLogoutDialog = false)
-                    },
-                    text = stringResource(id = R.string.label_ok),
-                    type = WireDialogButtonType.Primary,
-                )
-            )
-
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween,

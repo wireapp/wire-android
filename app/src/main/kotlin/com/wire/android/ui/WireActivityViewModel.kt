@@ -15,6 +15,7 @@ import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.feature.auth.AuthSession
 import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
@@ -53,37 +54,42 @@ class WireActivityViewModel @Inject constructor(
                 appLogger.i(result.authSession.toString())
                 authSession = result.authSession
                 when (result.authSession.session) {
-                    is AuthSession.Session.LoggedIn -> result.authSession.session.userId
-                    is AuthSession.Session.RemovedClient -> {
-                        //todo: show removed account message and go to login screen and prefill the email? maybe!
-                        navigationManager.navigate(
-                            NavigationCommand(
-                                NavigationItem.Welcome.getRouteWithArgs(),
-                                BackStackMode.CLEAR_WHOLE
-                            )
-                        )
-                        null
-                    }
+                    is AuthSession.Session.Valid -> result.authSession.session.userId
 
-                    is AuthSession.Session.SelfLogout -> {
-                        navigationManager.navigate(
-                            NavigationCommand(
-                                NavigationItem.Welcome.getRouteWithArgs(),
-                                BackStackMode.CLEAR_WHOLE
-                            )
-                        )
-                        null
-                    }
+                    is AuthSession.Session.Invalid -> {
+                        when ((result.authSession.session as AuthSession.Session.Invalid).reason) {
+                            LogoutReason.SELF_LOGOUT -> {
+                                navigationManager.navigate(
+                                    NavigationCommand(
+                                        NavigationItem.Login.getRouteWithArgs(),
+                                        BackStackMode.CLEAR_WHOLE
+                                    )
+                                )
+                                null
+                            }
 
-                    is AuthSession.Session.UserDeleted -> {
-                        //todo: show delete message
-                        navigationManager.navigate(
-                            NavigationCommand(
-                                NavigationItem.Welcome.getRouteWithArgs(),
-                                BackStackMode.CLEAR_WHOLE
-                            )
-                        )
-                        null
+                            LogoutReason.REMOVED_CLIENT -> {
+                                //todo: show removed account message and go to login screen and prefill the email? maybe!
+                                navigationManager.navigate(
+                                    NavigationCommand(
+                                        NavigationItem.Login.getRouteWithArgs(),
+                                        BackStackMode.CLEAR_WHOLE
+                                    )
+                                )
+                                null
+                            }
+
+                            LogoutReason.DELETED_ACCOUNT -> {
+                                navigationManager.navigate(
+                                    NavigationCommand(
+                                        NavigationItem.Login.getRouteWithArgs(),
+                                        BackStackMode.CLEAR_WHOLE
+                                    )
+                                )
+
+                                null
+                            }
+                        }
                     }
                 }
             } else {

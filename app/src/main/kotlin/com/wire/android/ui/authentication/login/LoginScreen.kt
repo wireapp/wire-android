@@ -33,6 +33,9 @@ import com.wire.android.R
 import com.wire.android.ui.authentication.login.email.LoginEmailScreen
 import com.wire.android.ui.authentication.login.sso.LoginSSOScreen
 import com.wire.android.ui.common.TabItem
+import com.wire.android.ui.common.WireDialog
+import com.wire.android.ui.common.WireDialogButtonProperties
+import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.WireTabRow
 import com.wire.android.ui.common.calculateCurrentTab
 import com.wire.android.ui.common.rememberTopBarElevationState
@@ -46,6 +49,21 @@ import kotlinx.coroutines.launch
 @Composable
 fun LoginScreen(ssoLoginResult: DeepLinkResult.SSOLogin?) {
     val loginViewModel: LoginViewModel = hiltViewModel()
+    loginViewModel.observer()
+    if (viewModel.state.showLogoutDialog)
+        WireDialog(
+            title = viewModel.title,
+            text = viewModel.body,
+            onDismiss = { },
+            optionButton1Properties = WireDialogButtonProperties(
+                onClick = {
+                    viewModel.currentSessionFlow.deleteSession(viewModel.userId!!)
+                    viewModel.state = viewModel.state.copy(showLogoutDialog = false)
+                },
+                text = stringResource(id = R.string.label_ok),
+                type = WireDialogButtonType.Primary,
+            )
+        )
     LoginContent(
         onBackPressed = { loginViewModel.navigateBack() },
         ssoLoginResult = ssoLoginResult

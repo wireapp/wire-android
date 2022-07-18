@@ -103,7 +103,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             membership = userTypeMapper.toMembership(otherUser.userType),
             groupState = conversationRoleData?.userRole?.let { userRole ->
                 OtherUserProfileGroupState(
-                    groupName = conversationRoleData.conversationDetails.conversation.name ?: "",
+                    groupName = conversationRoleData.conversationName,
                     role = userRole,
                     isSelfAnAdmin = conversationRoleData.selfRole is Member.Role.Admin
                 )

@@ -25,11 +25,11 @@ class ObserveConversationRoleForUserUseCase  @Inject constructor(
             observeConversationMembers(conversationId)
         ) { selfUser: SelfUser, conversationDetails: ConversationDetails, memberDetailsList: List<MemberDetails> ->
             ConversationRoleData(
-                conversationDetails,
+                conversationDetails.conversation.name.orEmpty(),
                 memberDetailsList.firstOrNull { it.user.id == userId }?.role,
                 memberDetailsList.firstOrNull { it.user.id == selfUser.id }?.role
             )
         }
 }
 
-data class ConversationRoleData(val conversationDetails: ConversationDetails, val userRole: Member.Role?, val selfRole: Member.Role?)
+data class ConversationRoleData(val conversationName: String, val userRole: Member.Role?, val selfRole: Member.Role?)

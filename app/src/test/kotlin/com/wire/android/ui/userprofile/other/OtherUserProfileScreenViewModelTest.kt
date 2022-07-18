@@ -8,11 +8,14 @@ import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.EXTRA_USER_DOMAIN
 import com.wire.android.navigation.EXTRA_USER_ID
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.home.conversations.details.participants.usecase.ConversationRoleData
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.CoreFailure.Unknown
 import com.wire.kalium.logic.data.conversation.Conversation
+import com.wire.kalium.logic.data.conversation.ConversationDetails
+import com.wire.kalium.logic.data.conversation.Member
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.conversation.ProtocolInfo
 import com.wire.kalium.logic.data.id.ConversationId
@@ -43,6 +46,7 @@ import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
 import org.junit.Assert.assertNotNull
@@ -93,9 +97,8 @@ class OtherUserProfileScreenViewModelTest {
     fun setUp() {
         MockKAnnotations.init(this, relaxUnitFun = true)
         mockUri()
-        every { savedStateHandle.get<String>(eq(EXTRA_USER_ID)) } returns CONVERSATION_ID.value
-        every { savedStateHandle.get<String>(eq(EXTRA_USER_DOMAIN)) } returns CONVERSATION_ID.domain
-        every { savedStateHandle.get<String>(eq(EXTRA_CONVERSATION_ID)) } returns CONVERSATION_ID.toString()
+        every { savedStateHandle.get<String>(eq(EXTRA_USER_ID)) } returns USER_ID.value
+        every { savedStateHandle.get<String>(eq(EXTRA_USER_DOMAIN)) } returns USER_ID.domain
         coEvery { getUserInfo(any()) } returns GetUserInfoResult.Success(OTHER_USER, TEAM)
         every { userTypeMapper.toMembership(any()) } returns Membership.None
 
@@ -235,6 +238,24 @@ class OtherUserProfileScreenViewModelTest {
 
         coVerify(exactly = 1) { navigationManager.navigateBack() }
     }
+
+    @Test
+    fun `given a group conversationId, when loading the data, then check conversation role`() =
+        runTest {
+            // given
+            val conversationRoleData = ConversationRoleData("name", Member.Role.Member, Member.Role.Member)
+            val expected =  OtherUserProfileGroupState("name", Member.Role.Member, false)
+            coEvery { observeConversationRoleForUserUseCase.invoke(any(), any()) } returns flowOf(conversationRoleData)
+            every { savedStateHandle.get<String>(eq(EXTRA_CONVERSATION_ID)) } returns CONVERSATION_ID.toString()
+
+            // when - then
+            val groupState = otherUserProfileScreenViewModel.state.groupState
+            coVerify {
+                observeConversationRoleForUserUseCase(CONVERSATION_ID, USER_ID)
+                navigationManager wasNot Called
+            }
+            assertEquals(groupState, expected)
+        }
 
     // todo: add tests for cancel request
 

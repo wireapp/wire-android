@@ -213,7 +213,9 @@ class MediaGalleryViewModelTest {
                 null,
                 protocol = ProtocolInfo.Proteus,
                 AllAllowed,
-                null, null
+                null, null,
+                access = listOf(Conversation.Access.INVITE),
+                accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER)
             ),
             OtherUser(
                 QualifiedID("other-user-id", "domain-id"),
@@ -221,7 +223,7 @@ class MediaGalleryViewModelTest {
                 1, null, ConnectionState.ACCEPTED, null, null,
                 UserType.INTERNAL,
                 UserAvailabilityStatus.AVAILABLE
-                ),
+            ),
             ConnectionState.ACCEPTED,
             LegalHoldStatus.DISABLED,
             UserType.INTERNAL

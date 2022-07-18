@@ -1,10 +1,10 @@
 package com.wire.android.ui.home.conversations.details.options
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -39,16 +39,26 @@ fun GroupConversationOptionsItem(
     switchState: SwitchState = SwitchState.None,
     titleStyle: TextStyle = MaterialTheme.wireTypography.body02,
     arrowType: ArrowType = ArrowType.CENTER_ALIGNED,
-    clickable: Clickable = Clickable(enabled = false, onClick = { /* not handled */ }, onLongClick = { /* not handled */ })
+    clickable: Clickable = Clickable(enabled = false, onClick = { /* not handled */ }, onLongClick = { /* not handled */ }),
+    modifier: Modifier = Modifier
+        .fillMaxWidth()
+        .background(MaterialTheme.wireColorScheme.surface)
+        .clickable(clickable)
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
-            .background(MaterialTheme.wireColorScheme.surface)
-            .clickable(clickable)
-            .padding(MaterialTheme.wireDimensions.spacing16x)
+        modifier = modifier
     ) {
-        Column(modifier = Modifier.weight(1f)) {
+        Column(
+            modifier = Modifier
+                .weight(1f)
+                .padding(
+                    top = MaterialTheme.wireDimensions.spacing8x,
+                    bottom = MaterialTheme.wireDimensions.spacing8x,
+                    start = MaterialTheme.wireDimensions.spacing16x,
+                    end = MaterialTheme.wireDimensions.spacing16x
+                )
+        ) {
             if (label != null)
                 Text(
                     text = label,
@@ -66,12 +76,14 @@ fun GroupConversationOptionsItem(
                 if (titleTrailingItem != null)
                     Box(modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing8x)) { titleTrailingItem() }
                 if (switchState is SwitchState.Visible) {
-                    Text(
-                        text = stringResource(if (switchState.value) R.string.label_on else R.string.label_off),
-                        style = MaterialTheme.wireTypography.body01,
-                        color = MaterialTheme.wireColorScheme.onBackground,
-                        modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing8x)
-                    )
+                    if (switchState.isOnOffVisible) {
+                        Text(
+                            text = stringResource(if (switchState.value) R.string.label_on else R.string.label_off),
+                            style = MaterialTheme.wireTypography.body01,
+                            color = MaterialTheme.wireColorScheme.onBackground,
+                            modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing8x)
+                        )
+                    }
                     WireSwitch(
                         checked = switchState.value,
                         enabled = switchState is SwitchState.Enabled,
@@ -96,7 +108,12 @@ fun GroupConversationOptionsItem(
 
 @Composable
 private fun ArrowRight() {
-    Box(modifier = Modifier.padding(start = MaterialTheme.wireDimensions.spacing8x)) { ArrowRightIcon() }
+    Box(
+        modifier = Modifier.padding(
+            start = MaterialTheme.wireDimensions.spacing8x,
+            end = MaterialTheme.wireDimensions.spacing8x
+        )
+    ) { ArrowRightIcon() }
 }
 
 enum class ArrowType {
@@ -105,9 +122,17 @@ enum class ArrowType {
 
 sealed class SwitchState {
     object None : SwitchState()
-    sealed class Visible(open val value: Boolean = false) : SwitchState()
-    data class Enabled(override val value: Boolean = false, val onCheckedChange: (Boolean) -> Unit) : Visible(value)
-    data class Disabled(override val value: Boolean = false) : Visible(value)
+    sealed class Visible(open val value: Boolean = false, open val isOnOffVisible: Boolean = true) : SwitchState()
+    data class Enabled(
+        override val value: Boolean = false,
+        override val isOnOffVisible: Boolean = true,
+        val onCheckedChange: (Boolean) -> Unit
+    ) : Visible(value)
+
+    data class Disabled(
+        override val value: Boolean = false,
+        override val isOnOffVisible: Boolean = true
+    ) : Visible(value)
 }
 
 @Composable

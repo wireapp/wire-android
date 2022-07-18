@@ -49,7 +49,7 @@ open class GroupConversationParticipantsViewModel @Inject constructor(
 
     private suspend fun navigateToOtherProfile(id: UserId) =
         navigationManager.navigate(
-            NavigationCommand(NavigationItem.OtherUserProfile.getRouteWithArgs(listOf(id, conversationId)))
+            NavigationCommand(NavigationItem.OtherUserProfile.getRouteWithArgs(listOf(id.domain, id.value, conversationId)))
         )
 
     private fun observeConversationMembers() {

@@ -15,6 +15,7 @@ import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
@@ -56,7 +57,7 @@ class WireActivityViewModel @Inject constructor(
         .shareIn(viewModelScope, SharingStarted.WhileSubscribed(), 1)
 
     init {
-        viewModelScope.launch {
+        viewModelScope.launch(dispatchers.io()) {
             notificationManager.observeNotificationsAndCalls(observeUserId, viewModelScope) { openIncomingCall(it.conversationId) }
         }
     }
@@ -69,6 +70,7 @@ class WireActivityViewModel @Inject constructor(
             shouldGoToWelcome() -> NavigationItem.Welcome.getRouteWithArgs()
             shouldGoToIncomingCall() -> NavigationItem.IncomingCall.getRouteWithArgs()
             shouldGoToConversation() -> NavigationItem.Conversation.getRouteWithArgs()
+            shouldGoToOtherProfile() -> NavigationItem.OtherUserProfile.getRouteWithArgs()
             else -> NavigationItem.Home.getRouteWithArgs()
         }
 
@@ -99,6 +101,13 @@ class WireActivityViewModel @Inject constructor(
                         navigationArguments.put(OPEN_CONVERSATION_ID_ARG, result.conversationsId)
                     }
                 }
+                is DeepLinkResult.OpenOtherUserProfile -> {
+                    if (isLaunchedFromHistory(intent)) {
+                        appLogger.i("OpenOtherUserProfile deepLink launched from the history")
+                    } else {
+                        navigationArguments.put(OPEN_OTHER_USER_PROFILE_ARG, result.userId)
+                    }
+                }
                 DeepLinkResult.Unknown -> {
                     appLogger.e("unknown deeplink result $result")
                 }
@@ -118,6 +127,7 @@ class WireActivityViewModel @Inject constructor(
         navigationArguments.apply {
             remove(INCOMING_CALL_CONVERSATION_ID_ARG)
             remove(OPEN_CONVERSATION_ID_ARG)
+            remove(OPEN_OTHER_USER_PROFILE_ARG)
             remove(SSO_DEEPLINK_ARG)
         }
 
@@ -133,6 +143,10 @@ class WireActivityViewModel @Inject constructor(
                 openConversation(navigationArguments[OPEN_CONVERSATION_ID_ARG] as ConversationId)
                 false
             }
+            shouldGoToOtherProfile() -> {
+                openOtherUserProfile(navigationArguments[OPEN_OTHER_USER_PROFILE_ARG] as QualifiedID)
+                false
+            }
             intent == null -> false
             else -> true
         }
@@ -144,6 +158,10 @@ class WireActivityViewModel @Inject constructor(
 
     private fun openConversation(conversationId: ConversationId) {
         navigateTo(NavigationCommand(NavigationItem.Conversation.getRouteWithArgs(listOf(conversationId)), BackStackMode.UPDATE_EXISTED))
+    }
+
+    private fun openOtherUserProfile(userId: QualifiedID) {
+        navigateTo(NavigationCommand(NavigationItem.OtherUserProfile.getRouteWithArgs(listOf(userId)), BackStackMode.UPDATE_EXISTED))
     }
 
     private fun isLaunchedFromHistory(intent: Intent?) =
@@ -184,6 +202,9 @@ class WireActivityViewModel @Inject constructor(
     private fun shouldGoToConversation(): Boolean =
         (navigationArguments[OPEN_CONVERSATION_ID_ARG] as? ConversationId) != null
 
+    private fun shouldGoToOtherProfile(): Boolean =
+        (navigationArguments[OPEN_OTHER_USER_PROFILE_ARG] as? QualifiedID) != null
+
     private fun shouldGoToWelcome(): Boolean = runBlocking { observeUserId.first() } == null
 
     companion object {
@@ -191,5 +212,6 @@ class WireActivityViewModel @Inject constructor(
         private const val SSO_DEEPLINK_ARG = "sso_deeplink"
         private const val INCOMING_CALL_CONVERSATION_ID_ARG = "incoming_call_conversation_id"
         private const val OPEN_CONVERSATION_ID_ARG = "open_conversation_id"
+        private const val OPEN_OTHER_USER_PROFILE_ARG = "open_other_user_id"
     }
 }

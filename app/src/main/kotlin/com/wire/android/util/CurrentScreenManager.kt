@@ -6,9 +6,11 @@ import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
+import com.wire.android.navigation.EXTRA_USER_ID
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.getCurrentNavigationItem
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.parseIntoQualifiedID
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -54,6 +56,8 @@ sealed class CurrentScreen {
 
     // Some Conversation is opened
     data class Conversation(val id: ConversationId) : CurrentScreen()
+    // Another User Profile Screen is opened
+    data class OtherUserProfile(val id: QualifiedID) : CurrentScreen()
     // Some other screen is opened, kinda "do nothing screen"
     object SomeOther : CurrentScreen()
     // App is in background (screen is turned off, or covered by another app), non of the screens is visible
@@ -66,6 +70,12 @@ sealed class CurrentScreen {
                     arguments?.getString(EXTRA_CONVERSATION_ID)
                         ?.parseIntoQualifiedID()
                         ?.let { Conversation(it) }
+                        ?: SomeOther
+                }
+                NavigationItem.OtherUserProfile -> {
+                    arguments?.getString(EXTRA_USER_ID)
+                        ?.parseIntoQualifiedID()
+                        ?.let { OtherUserProfile(it) }
                         ?: SomeOther
                 }
                 else -> SomeOther

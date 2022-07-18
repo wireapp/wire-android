@@ -20,6 +20,7 @@ import com.wire.android.ui.home.newconversation.newgroup.NewGroupState
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationOptions
+import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
 import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
@@ -88,34 +89,6 @@ class NewConversationViewModel @Inject constructor(
                 SearchResult.Success(result.userSearchResult.result.map { otherUser -> contactMapper.fromOtherUser(otherUser) })
             }
         }
-
-    fun createGroupConversation() {
-        viewModelScope.launch {
-            groupNameState = groupNameState.copy(isLoading = true)
-
-            when (val result = createGroupConversation(
-                name = groupNameState.groupName.text,
-                // TODO: change the id in Contact to UserId instead of String
-                userIdList = state.contactsAddedToGroup.map { contact -> UserId(contact.id, contact.domain) },
-                options = ConversationOptions().copy(protocol = groupNameState.groupProtocol)
-            )) {
-                // TODO: handle the error state
-                is Either.Left -> {
-                    groupNameState = groupNameState.copy(isLoading = false)
-                    Log.d("TEST", "error while creating a group ${result.value}")
-                }
-                is Either.Right -> {
-                    groupNameState = groupNameState.copy(isLoading = false)
-                    navigationManager.navigate(
-                        command = NavigationCommand(
-                            destination = NavigationItem.Conversation.getRouteWithArgs(listOf(result.value.id)),
-                            backStackMode = BackStackMode.REMOVE_CURRENT
-                        )
-                    )
-                }
-            }
-        }
-    }
 
     fun onGroupNameChange(newText: TextFieldValue) {
         when {

@@ -11,16 +11,15 @@ import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.model.ImageAsset
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.EXTRA_CONNECTION_IGNORED_USER_NAME
-import com.wire.android.navigation.EXTRA_USER_DOMAIN
 import com.wire.android.navigation.EXTRA_USER_ID
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.EMPTY
 import com.wire.android.util.ui.WireSessionImageLoader
+import com.wire.kalium.logic.data.id.parseIntoQualifiedID
 import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.data.user.OtherUser
-import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCase
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCaseResult
 import com.wire.kalium.logic.feature.connection.CancelConnectionRequestUseCase
@@ -56,10 +55,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     var state: OtherUserProfileState by mutableStateOf(OtherUserProfileState())
     var connectionOperationState: ConnectionOperationState? by mutableStateOf(null)
 
-    private val userId = UserId(
-        value = savedStateHandle.get<String>(EXTRA_USER_ID)!!,
-        domain = savedStateHandle.get<String>(EXTRA_USER_DOMAIN)!!
-    )
+    private val userId = savedStateHandle.get<String>(EXTRA_USER_ID)!!.parseIntoQualifiedID()
 
     init {
         state = state.copy(isDataLoading = true)

@@ -14,6 +14,9 @@ import androidx.compose.ui.unit.Dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.model.Clickable
+import com.wire.android.ui.common.WireDialog
+import com.wire.android.ui.common.WireDialogButtonProperties
+import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsViewModel
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.theme.wireColorScheme
@@ -25,9 +28,14 @@ fun GroupConversationOptionsScreen(
 ) {
     GroupConversationOptions(
         state = viewModel.groupOptionsState,
-        onGuestSwitchClicked = viewModel::onAccessUpdate,
+        onGuestSwitchClicked = viewModel::onGuestUpdate,
         onServiceSwitchClicked = viewModel::onServicesUpdate,
         lazyListState = lazyListState
+    )
+    DisableGuestConformationDialog(
+        state = viewModel.groupOptionsState.isGuestUpdateDialogShown,
+        onConform = { viewModel.onGuestUpdate(false) },
+        onDialogDismiss = viewModel::onGuestDialogDismiss
     )
 }
 
@@ -46,7 +54,7 @@ fun GroupConversationOptions(
             GroupNameItem(groupName = state.groupName, canBeChanged = state.isUpdatingAllowed)
         }
         if (state.isTeamGroup) {
-            item { FolderHeader(name = "Access") }
+            item { FolderHeader(name = stringResource(R.string.folder_lable_access)) }
 
             item {
                 GuestOption(
@@ -83,7 +91,11 @@ private fun GuestOption(canBeChanged: Boolean, switchState: Boolean, onCheckedCh
     GroupConversationOptionsItem(
         title = stringResource(id = R.string.label_membership_guest),
         subtitle = stringResource(id = R.string.convrsation_options_guest_discriptions),
-        switchState = if (canBeChanged) SwitchState.Enabled(switchState, onCheckedChange) else SwitchState.Disabled(switchState),
+        switchState = if (canBeChanged) {
+            SwitchState.Enabled(switchState, onCheckedChange)
+        } else {
+            SwitchState.Disabled(switchState)
+        },
         arrowType = ArrowType.NONE
     )
     Divider(color = MaterialTheme.wireColorScheme.divider, thickness = Dp.Hairline)
@@ -100,6 +112,26 @@ private fun ServicesOption(canBeChanged: Boolean, switchState: Boolean, onChecke
     Divider(color = MaterialTheme.wireColorScheme.divider, thickness = Dp.Hairline)
 }
 
+@Composable
+private fun DisableGuestConformationDialog(state: Boolean, onConform: () -> Unit, onDialogDismiss: () -> Unit) {
+    if (state) {
+        WireDialog(
+            title = stringResource(id = R.string.disable_guest_dialog_title),
+            text = stringResource(id = R.string.disable_guest_dialog_text),
+            onDismiss = onDialogDismiss,
+            optionButton1Properties = WireDialogButtonProperties(
+                onClick = onConform,
+                text = stringResource(id = R.string.label_cancel),
+                type = WireDialogButtonType.Secondary,
+            ),
+            optionButton2Properties = WireDialogButtonProperties(
+                onClick = onDialogDismiss,
+                text = stringResource(id = R.string.label_disable),
+                type = WireDialogButtonType.Primary,
+            )
+        )
+    }
+}
 
 @Preview
 @Composable
@@ -127,3 +159,10 @@ private fun NormalGroupConversationOptionsPreview() {
 
     )
 }
+
+@Preview
+@Composable
+private fun DisableGuestConformationDialogPreview() {
+    DisableGuestConformationDialog(true, {}, {})
+}
+

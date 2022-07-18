@@ -52,7 +52,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
 
     private fun observeConversationDetails() {
         viewModelScope.launch {
-            // TODO(QOL): refaOne usecase that return group info and members
+            // TODO(QOL): refactor to one usecase that return group info and members
             observeConversationMembers(conversationId).map { it.isSelfAnAdmin }.distinctUntilChanged().also { isSelfAdminFlow ->
                 observeConversationDetails(conversationId).combine(isSelfAdminFlow) { conversationDetails, isSelfAdmin ->
                     Pair(conversationDetails, isSelfAdmin)
@@ -74,7 +74,28 @@ class GroupConversationDetailsViewModel @Inject constructor(
         }
     }
 
-    fun onAccessUpdate(enableGuestAndNonTeamMember: Boolean) {
+    fun onGuestUpdate(enableGuestAndNonTeamMember: Boolean) {
+        when (enableGuestAndNonTeamMember) {
+            true -> showGuestConformationDialog()
+            false -> updateGuestStatus(enableGuestAndNonTeamMember)
+        }
+    }
+
+    fun onServicesUpdate(enableServices: Boolean) {
+        updateServicesStatus(enableServices)
+    }
+
+    fun onGuestDialogDismiss() {
+        updateState(groupOptionsState.copy(isGuestUpdateDialogShown = false))
+    }
+
+    fun onGuestDialogConfirm(enableGuestAndNonTeamMember: Boolean) {
+        updateGuestStatus(enableGuestAndNonTeamMember)
+        updateState(groupOptionsState.copy(isGuestUpdateDialogShown = false))
+    }
+
+
+    private fun updateGuestStatus(enableGuestAndNonTeamMember: Boolean) {
         viewModelScope.launch {
             updateConversationAccess(enableGuestAndNonTeamMember, groupOptionsState.isServicesAllowed, conversationId).also {
                 when (it) {
@@ -85,7 +106,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
         }
     }
 
-    fun onServicesUpdate(enableServices: Boolean) {
+    private fun updateServicesStatus(enableServices: Boolean) {
         viewModelScope.launch {
             updateConversationAccess(groupOptionsState.isGuestAllowed, enableServices, conversationId).also {
                 when (it) {
@@ -107,13 +128,20 @@ class GroupConversationDetailsViewModel @Inject constructor(
         conversationId = conversationId
     )
 
-    private fun updateGuestErrorState(coreFailure: CoreFailure) = viewModelScope.launch(dispatcher.main()) {
-        groupOptionsState = groupOptionsState.copy(error = GroupConversationOptionsState.Error.UpdateGuestError(coreFailure))
+
+    private fun updateState(newState: GroupConversationOptionsState) {
+        viewModelScope.launch(dispatcher.main()) {
+            groupOptionsState = newState
+        }
     }
 
-    private fun updateServicesErrorState(coreFailure: CoreFailure) = viewModelScope.launch(dispatcher.main()) {
-        groupOptionsState = groupOptionsState.copy(error = GroupConversationOptionsState.Error.UpdateServicesError(coreFailure))
-    }
+    private fun showGuestConformationDialog() = updateState(groupOptionsState.copy(isGuestUpdateDialogShown = true))
+
+    private fun updateGuestErrorState(coreFailure: CoreFailure) =
+        updateState(groupOptionsState.copy(error = GroupConversationOptionsState.Error.UpdateGuestError(coreFailure)))
+
+    private fun updateServicesErrorState(coreFailure: CoreFailure) =
+        updateState(groupOptionsState.copy(error = GroupConversationOptionsState.Error.UpdateServicesError(coreFailure)))
 
     fun navigateToFullParticipantsList() = viewModelScope.launch {
         navigationManager.navigate(

@@ -179,9 +179,8 @@ enum class NavigationItem(
         animationConfig = NavigationAnimationConfig.NoAnimation
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
-            val userIdString: String = checkNotNull(
-                arguments.filterIsInstance<QualifiedID>().firstOrNull()?.toString()
-            ) { "Required UserId is null." }
+            val userIdString: String = arguments.filterIsInstance<QualifiedID>().firstOrNull()?.toString()
+                ?: "{$EXTRA_USER_ID}"
             return "$OTHER_USER_PROFILE?$EXTRA_USER_ID=$userIdString"
         }
     },
@@ -202,9 +201,8 @@ enum class NavigationItem(
         content = { ConversationScreen(hiltSavedStateViewModel(it.navBackStackEntry)) },
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
-            val conversationIdString: String = checkNotNull(
-                arguments.filterIsInstance<ConversationId>().firstOrNull()?.toString()
-            ) { "Required ConversationId is null." }
+            val conversationIdString: String = arguments.filterIsInstance<ConversationId>().firstOrNull()?.toString()
+                ?: "{$EXTRA_CONVERSATION_ID}"
             return "$CONVERSATION?$EXTRA_CONVERSATION_ID=$conversationIdString"
         }
     },
@@ -263,9 +261,8 @@ enum class NavigationItem(
         animationConfig = NavigationAnimationConfig.DelegatedAnimation
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
-            val conversationIdString: String = checkNotNull(
-                arguments.filterIsInstance<ConversationId>().firstOrNull()?.toString()
-            ) { "Required ConversationId is null." }
+            val conversationIdString: String = arguments.filterIsInstance<ConversationId>().firstOrNull()?.toString()
+                ?: "{$EXTRA_CONVERSATION_ID}"
             return "$INCOMING_CALL?$EXTRA_CONVERSATION_ID=$conversationIdString"
         }
     },

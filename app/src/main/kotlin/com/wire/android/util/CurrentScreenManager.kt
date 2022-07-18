@@ -56,7 +56,7 @@ sealed class CurrentScreen {
 
     // Some Conversation is opened
     data class Conversation(val id: ConversationId) : CurrentScreen()
-    // Some Conversation is opened
+    // Another User Profile Screen is opened
     data class OtherUserProfile(val id: QualifiedID) : CurrentScreen()
     // Some other screen is opened, kinda "do nothing screen"
     object SomeOther : CurrentScreen()

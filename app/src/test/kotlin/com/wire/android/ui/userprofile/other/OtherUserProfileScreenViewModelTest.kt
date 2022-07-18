@@ -285,7 +285,9 @@ class OtherUserProfileScreenViewModelTest {
             protocol = ProtocolInfo.Proteus,
             MutedConversationStatus.AllAllowed,
             null,
-            null
+            null,
+            access = listOf(Conversation.Access.INVITE),
+            accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER)
         )
     }
 }

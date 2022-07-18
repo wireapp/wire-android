@@ -351,5 +351,4 @@ class ConversationsViewModelTest {
             verify(exactly = 1) { arrangement.fileManager.openWithExternalApp(any(), any(), any()) }
             assert(viewModel.conversationViewState.downloadedAssetDialogState == DownloadedAssetDialogVisibilityState.Hidden)
         }
-
 }

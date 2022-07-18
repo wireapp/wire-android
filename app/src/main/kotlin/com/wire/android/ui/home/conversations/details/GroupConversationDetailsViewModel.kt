@@ -76,8 +76,8 @@ class GroupConversationDetailsViewModel @Inject constructor(
 
     fun onGuestUpdate(enableGuestAndNonTeamMember: Boolean) {
         when (enableGuestAndNonTeamMember) {
-            true -> showGuestConformationDialog()
-            false -> updateGuestStatus(enableGuestAndNonTeamMember)
+            true -> updateGuestStatus(enableGuestAndNonTeamMember)
+            false -> showGuestConformationDialog()
         }
     }
 
@@ -89,11 +89,10 @@ class GroupConversationDetailsViewModel @Inject constructor(
         updateState(groupOptionsState.copy(isGuestUpdateDialogShown = false))
     }
 
-    fun onGuestDialogConfirm(enableGuestAndNonTeamMember: Boolean) {
-        updateGuestStatus(enableGuestAndNonTeamMember)
+    fun onGuestDialogConfirm() {
+        updateGuestStatus(false)
         updateState(groupOptionsState.copy(isGuestUpdateDialogShown = false))
     }
-
 
     private fun updateGuestStatus(enableGuestAndNonTeamMember: Boolean) {
         viewModelScope.launch {

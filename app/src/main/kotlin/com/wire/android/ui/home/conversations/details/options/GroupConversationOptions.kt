@@ -34,7 +34,7 @@ fun GroupConversationOptionsScreen(
     )
     DisableGuestConformationDialog(
         state = viewModel.groupOptionsState.isGuestUpdateDialogShown,
-        onConform = { viewModel.onGuestUpdate(false) },
+        onConform = viewModel::onGuestDialogConfirm,
         onDialogDismiss = viewModel::onGuestDialogDismiss
     )
 }
@@ -92,7 +92,7 @@ private fun GuestOption(canBeChanged: Boolean, switchState: Boolean, onCheckedCh
         title = stringResource(id = R.string.label_membership_guest),
         subtitle = stringResource(id = R.string.convrsation_options_guest_discriptions),
         switchState = if (canBeChanged) {
-            SwitchState.Enabled(switchState, onCheckedChange)
+            SwitchState.Enabled(value = switchState, onCheckedChange = onCheckedChange)
         } else {
             SwitchState.Disabled(switchState)
         },
@@ -106,7 +106,7 @@ private fun ServicesOption(canBeChanged: Boolean, switchState: Boolean, onChecke
     GroupConversationOptionsItem(
         title = stringResource(id = R.string.conversation_Option_services_lable),
         subtitle = stringResource(id = R.string.convrsation_options_services_discriptions),
-        switchState = if (canBeChanged) SwitchState.Enabled(switchState, onCheckedChange) else SwitchState.Disabled(switchState),
+        switchState = if (canBeChanged) SwitchState.Enabled(value = switchState, onCheckedChange = onCheckedChange) else SwitchState.Disabled(switchState),
         arrowType = ArrowType.NONE
     )
     Divider(color = MaterialTheme.wireColorScheme.divider, thickness = Dp.Hairline)
@@ -120,12 +120,12 @@ private fun DisableGuestConformationDialog(state: Boolean, onConform: () -> Unit
             text = stringResource(id = R.string.disable_guest_dialog_text),
             onDismiss = onDialogDismiss,
             optionButton1Properties = WireDialogButtonProperties(
-                onClick = onConform,
+                onClick = onDialogDismiss,
                 text = stringResource(id = R.string.label_cancel),
                 type = WireDialogButtonType.Secondary,
             ),
             optionButton2Properties = WireDialogButtonProperties(
-                onClick = onDialogDismiss,
+                onClick = onConform,
                 text = stringResource(id = R.string.label_disable),
                 type = WireDialogButtonType.Primary,
             )

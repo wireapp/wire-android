@@ -143,7 +143,8 @@ class WireNotificationManager @Inject constructor(
                 when (currentScreen) {
                     is CurrentScreen.Conversation -> markMessagesAsNotified(userId, currentScreen.id)
                     is CurrentScreen.OtherUserProfile -> markConnectionAsNotified(userId, currentScreen.id)
-                    else -> { }
+                    else -> {
+                    }
                 }
             }
     }
@@ -245,12 +246,10 @@ class WireNotificationManager @Inject constructor(
         }
     }
 
-    private suspend fun markConnectionAsNotified(userId: QualifiedID?, connectionRequestUserId: QualifiedID) {
-        userId?.let {
-            coreLogic.getSessionScope(it)
-                .conversations
-                .markConnectionRequestAsNotified(connectionRequestUserId)
-        }
+    private suspend fun markConnectionAsNotified(userId: QualifiedID, connectionRequestUserId: QualifiedID) {
+        coreLogic.getSessionScope(userId)
+            .conversations
+            .markConnectionRequestAsNotified(connectionRequestUserId)
     }
 
     private data class MessagesNotificationsData(

@@ -99,6 +99,8 @@ class OtherUserProfileScreenViewModelTest {
         mockUri()
         every { savedStateHandle.get<String>(eq(EXTRA_USER_ID)) } returns USER_ID.value
         every { savedStateHandle.get<String>(eq(EXTRA_USER_DOMAIN)) } returns USER_ID.domain
+        every { savedStateHandle.get<String>(eq(EXTRA_CONVERSATION_ID)) } returns CONVERSATION_ID.toString()
+        coEvery { observeConversationRoleForUserUseCase.invoke(any(), any()) } returns flowOf(CONVERSATION_ROLE_DATA)
         coEvery { getUserInfo(any()) } returns GetUserInfoResult.Success(OTHER_USER, TEAM)
         every { userTypeMapper.toMembership(any()) } returns Membership.None
 
@@ -240,16 +242,13 @@ class OtherUserProfileScreenViewModelTest {
     }
 
     @Test
-    fun `given a group conversationId, when loading the data, then check conversation role`() =
+    fun `given a group conversationId, when loading the data, then return group state`() =
         runTest {
             // given
-            val conversationRoleData = ConversationRoleData("name", Member.Role.Member, Member.Role.Member)
-            val expected =  OtherUserProfileGroupState("name", Member.Role.Member, false)
-            coEvery { observeConversationRoleForUserUseCase.invoke(any(), any()) } returns flowOf(conversationRoleData)
-            every { savedStateHandle.get<String>(eq(EXTRA_CONVERSATION_ID)) } returns CONVERSATION_ID.toString()
-
-            // when - then
+            val expected =  OtherUserProfileGroupState("some_name", Member.Role.Member, false)
+            // when
             val groupState = otherUserProfileScreenViewModel.state.groupState
+            // then
             coVerify {
                 observeConversationRoleForUserUseCase(CONVERSATION_ID, USER_ID)
                 navigationManager wasNot Called
@@ -289,5 +288,6 @@ class OtherUserProfileScreenViewModelTest {
             access = listOf(Conversation.Access.INVITE),
             accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER)
         )
+        val CONVERSATION_ROLE_DATA = ConversationRoleData("some_name", Member.Role.Member, Member.Role.Member)
     }
 }

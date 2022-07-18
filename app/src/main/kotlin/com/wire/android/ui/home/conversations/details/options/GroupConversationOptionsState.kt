@@ -1,5 +1,7 @@
 package com.wire.android.ui.home.conversations.details.options
 
+import com.wire.kalium.logic.CoreFailure
+
 data class GroupConversationOptionsState (
     val groupName: String = "",
     val isTeamGroup: Boolean = false,

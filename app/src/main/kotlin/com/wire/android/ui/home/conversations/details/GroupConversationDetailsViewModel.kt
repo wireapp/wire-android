@@ -20,7 +20,7 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.parseIntoQualifiedID
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
-import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessUseCase
+import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -34,7 +34,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val observeConversationMembers: ObserveParticipantsForConversationUseCase,
-    private val updateConversationAccessUseCase: UpdateConversationAccessUseCase,
+    private val updateConversationAccessUseCase: UpdateConversationAccessRoleUseCase,
     private val dispatcher: DispatcherProvider
 ) : GroupConversationParticipantsViewModel(savedStateHandle, navigationManager, observeConversationMembers) {
 
@@ -99,8 +99,8 @@ class GroupConversationDetailsViewModel @Inject constructor(
         viewModelScope.launch {
             updateConversationAccess(enableGuestAndNonTeamMember, groupOptionsState.isServicesAllowed, conversationId).also {
                 when (it) {
-                    is UpdateConversationAccessUseCase.Result.Failure -> updateGuestErrorState(it.cause)
-                    UpdateConversationAccessUseCase.Result.Success -> Unit
+                    is UpdateConversationAccessRoleUseCase.Result.Failure -> updateGuestErrorState(it.cause)
+                    UpdateConversationAccessRoleUseCase.Result.Success -> Unit
                 }
             }
         }
@@ -110,8 +110,8 @@ class GroupConversationDetailsViewModel @Inject constructor(
         viewModelScope.launch {
             updateConversationAccess(groupOptionsState.isGuestAllowed, enableServices, conversationId).also {
                 when (it) {
-                    is UpdateConversationAccessUseCase.Result.Failure -> updateServicesErrorState(it.cause)
-                    UpdateConversationAccessUseCase.Result.Success -> Unit
+                    is UpdateConversationAccessRoleUseCase.Result.Failure -> updateServicesErrorState(it.cause)
+                    UpdateConversationAccessRoleUseCase.Result.Success -> Unit
                 }
             }
         }

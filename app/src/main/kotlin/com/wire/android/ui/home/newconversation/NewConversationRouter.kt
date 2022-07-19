@@ -8,6 +8,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.wire.android.R
 import com.wire.android.ui.home.newconversation.common.Screen
+import com.wire.android.ui.home.newconversation.groupOptions.GroupOptionScreen
 import com.wire.android.ui.home.newconversation.newgroup.NewGroupScreen
 import com.wire.android.ui.home.conversations.search.SearchPeopleRouter
 
@@ -37,8 +38,25 @@ fun NewConversationRouter() {
                     onBackPressed = newConversationNavController::popBackStack,
                     newGroupState = newConversationViewModel.groupNameState,
                     onGroupNameChange = newConversationViewModel::onGroupNameChange,
-                    onCreateGroup = newConversationViewModel::createGroupConversation,
+                    onContinuePressed = { newConversationNavController.navigate(Screen.GroupOptionsScreen.route) },
                     onGroupNameErrorAnimated = newConversationViewModel::onGroupNameErrorAnimated
+                )
+            }
+        )
+
+        composable(
+            route = Screen.GroupOptionsScreen.route,
+            content = {
+                GroupOptionScreen(
+                    onBackPressed = newConversationNavController::popBackStack,
+                    onCreateGroup = newConversationViewModel::createGroupConversation,
+                    groupOptionState = newConversationViewModel.groupOptionsState,
+                    onAllowGuestChanged = newConversationViewModel::onAllowGuestStatusChanged,
+                    onAllowServicesChanged = newConversationViewModel::onAllowServicesStatusChanged,
+                    onReadReceiptChanged = newConversationViewModel::onReadReceiptStatusChanged,
+                    onAllowGuestsDialogDismissed = newConversationViewModel::onAllowGuestsDialogDismissed,
+                    onAllowGuestsClicked = newConversationViewModel::onAllowGuestsClicked,
+                    onNotAllowGuestsClicked = newConversationViewModel::onNotAllowGuestClicked
                 )
             }
         )

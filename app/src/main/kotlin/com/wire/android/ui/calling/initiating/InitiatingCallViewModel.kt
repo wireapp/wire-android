@@ -71,7 +71,7 @@ class InitiatingCallViewModel @Inject constructor(
     }
 
     private suspend fun observeStartedCall() {
-        observeEstablishedCallsUseCase().collect { calls ->
+        observeEstablishedCalls().collect { calls ->
             calls
                 .find { call ->
                     call.conversationId == conversationId

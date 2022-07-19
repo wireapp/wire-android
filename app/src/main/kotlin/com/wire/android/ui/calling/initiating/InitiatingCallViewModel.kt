@@ -32,7 +32,7 @@ class InitiatingCallViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
     private val conversationDetails: ObserveConversationDetailsUseCase,
-    private val observeEstablishedCallsUseCase: ObserveEstablishedCallsUseCase,
+    private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val startCall: StartCallUseCase,
     private val endCall: EndCallUseCase,
     private val isLastCallClosed: IsLastCallClosedUseCase,

@@ -16,6 +16,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.wire.android.R
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
+import com.wire.android.ui.home.conversations.search.NewConversationSnackbarState
 import com.wire.android.ui.home.newconversation.common.Screen
 import com.wire.android.ui.home.newconversation.groupOptions.GroupOptionScreen
 import com.wire.android.ui.home.newconversation.newgroup.NewGroupScreen
@@ -74,7 +75,7 @@ fun NewConversationRouter() {
                 content = {
                     GroupOptionScreen(
                         onBackPressed = newConversationNavController::popBackStack,
-                        onCreateGroup = newConversationViewModel::createGroupConversation,
+                        onCreateGroup = newConversationViewModel::createGroup,
                         groupOptionState = newConversationViewModel.groupOptionsState,
                         onAllowGuestChanged = newConversationViewModel::onAllowGuestStatusChanged,
                         onAllowServicesChanged = newConversationViewModel::onAllowServicesStatusChanged,

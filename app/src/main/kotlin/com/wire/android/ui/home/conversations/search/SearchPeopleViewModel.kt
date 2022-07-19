@@ -12,6 +12,7 @@ import com.wire.android.appLogger
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.home.newconversation.NewConversationSnackbarState
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.flow.SearchQueryStateFlow
@@ -57,6 +58,8 @@ abstract class SearchPeopleViewModel(
             publicContactsSearchResult = filteredPublicContactsSearchResult,
         )
     }
+
+    var snackbarMessageState by mutableStateOf<NewConversationSnackbarState>(NewConversationSnackbarState.None)
 
     private val searchQueryStateFlow = SearchQueryStateFlow()
 
@@ -157,6 +160,7 @@ abstract class SearchPeopleViewModel(
                 }
                 is SendConnectionRequestResult.Success -> {
                     searchPublic(state.searchQuery, showProgress = false)
+                    snackbarMessageState = NewConversationSnackbarState.SuccessSendConnectionRequest
                 }
             }
         }
@@ -182,6 +186,10 @@ abstract class SearchPeopleViewModel(
         }
     }
 
+    fun clearSnackbarMessage() {
+        snackbarMessageState = NewConversationSnackbarState.None
+    }
+
     fun close() {
         viewModelScope.launch {
             navigationManager.navigateBack()
@@ -201,4 +209,9 @@ abstract class SearchPeopleViewModel(
 sealed class SearchResult {
     data class Success(val contacts: List<Contact>) : SearchResult()
     data class Failure(@StringRes val failureString: Int) : SearchResult()
+}
+
+sealed class NewConversationSnackbarState {
+    object SuccessSendConnectionRequest : NewConversationSnackbarState()
+    object None : NewConversationSnackbarState()
 }

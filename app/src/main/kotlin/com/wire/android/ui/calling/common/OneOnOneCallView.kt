@@ -47,7 +47,7 @@ fun OneOnOneCallView(
                 onClearSelfUserVideoPreview = {
                     if (pageIndex == 0 && participants.first() == participant)
                         onSelfClearVideoPreview()
-                }
+                },
             )
         }
     }

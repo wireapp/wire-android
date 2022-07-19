@@ -100,7 +100,7 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel, syncViewModel: Sy
             }
 
             WireDialog(
-                title = stringResource(id = R.string.there_has_been_a_change),
+                title = stringResource(id = R.string.team_settings_changed),
                 text = text,
                 onDismiss = { syncViewModel.hideDialogStatus() },
                 optionButton1Properties = WireDialogButtonProperties(

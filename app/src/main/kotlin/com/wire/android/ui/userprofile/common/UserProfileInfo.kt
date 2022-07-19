@@ -32,6 +32,7 @@ import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.WireCircularProgressIndicator
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.ui.home.conversationslist.model.hasLabel
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -108,7 +109,7 @@ fun UserProfileInfo(
                 maxLines = 1,
                 color = MaterialTheme.wireColorScheme.labelText,
             )
-            if (membership != Membership.None) {
+            if (membership.hasLabel()) {
                 Spacer(Modifier.height(dimensions().spacing8x))
                 MembershipQualifierLabel(membership)
             }

@@ -169,9 +169,10 @@ private fun ConversationRouter(
                 modifier = Modifier.fillMaxWidth()
             )
         },
-        bottomBar = {
-            WireBottomNavigationBar(ConversationNavigationItems(uiState), navHostController)
-        }
+        // TODO uncomment when CallsScreen and MentionScreen will be implemented
+//        bottomBar = {
+//            WireBottomNavigationBar(ConversationNavigationItems(uiState), navHostController)
+//        }
     ) { internalPadding ->
 
         with(uiState) {

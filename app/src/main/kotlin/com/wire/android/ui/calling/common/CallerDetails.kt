@@ -4,7 +4,9 @@ import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Text
 import androidx.compose.material3.IconButton
@@ -16,12 +18,16 @@ import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.calling.ConversationName
+import com.wire.android.ui.common.MembershipQualifierLabel
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.ui.home.conversationslist.model.hasLabel
 import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.data.call.ConversationType
 
@@ -31,6 +37,7 @@ fun CallerDetails(
     isCameraOn: Boolean,
     avatarAssetId: ImageAsset.UserAvatarAsset?,
     conversationType: ConversationType,
+    membership: Membership,
     isCallingLabel: String
 ) {
     Column(
@@ -67,6 +74,10 @@ fun CallerDetails(
             style = MaterialTheme.wireTypography.body01,
             modifier = Modifier.padding(top = dimensions().spacing8x)
         )
+        if (membership.hasLabel()) {
+            Spacer(Modifier.height(dimensions().spacing16x))
+            MembershipQualifierLabel(membership)
+        }
         if (!isCameraOn && conversationType == ConversationType.OneOnOne) {
             UserProfileAvatar(
                 avatarData = UserAvatarData(avatarAssetId),
@@ -75,4 +86,16 @@ fun CallerDetails(
             )
         }
     }
+}
+
+@Preview
+@Composable
+fun CallerDetailsPreview() {
+    CallerDetails(
+        conversationName = ConversationName.Known("User"),
+        isCameraOn = false,
+        avatarAssetId = null,
+        conversationType = ConversationType.OneOnOne,
+        membership = Membership.Guest
+    )
 }

@@ -9,6 +9,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.mapper.UICallParticipantMapper
+import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.media.CallRinger
 import com.wire.android.model.ImageAsset
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
@@ -52,7 +53,8 @@ class SharedCallingViewModel @Inject constructor(
     private val observeSpeaker: ObserveSpeakerUseCase,
     private val callRinger: CallRinger,
     private val uiCallParticipantMapper: UICallParticipantMapper,
-    private val wireSessionImageLoader: WireSessionImageLoader
+    private val wireSessionImageLoader: WireSessionImageLoader,
+    private val userTypeMapper: UserTypeMapper,
 ) : ViewModel() {
 
     var callState by mutableStateOf(CallState())
@@ -94,7 +96,8 @@ class SharedCallingViewModel @Inject constructor(
                             avatarAssetId = details.otherUser.completePicture?.let { assetId ->
                                 ImageAsset.UserAvatarAsset(wireSessionImageLoader, assetId)
                             },
-                            conversationType = ConversationType.OneOnOne
+                            conversationType = ConversationType.OneOnOne,
+                            membership = userTypeMapper.toMembership(details.otherUser.userType)
                         )
                     }
                     else -> throw IllegalStateException("Invalid conversation type")

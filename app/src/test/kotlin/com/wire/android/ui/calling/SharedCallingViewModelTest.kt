@@ -3,6 +3,7 @@ package com.wire.android.ui.calling
 import android.view.View
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.mapper.UICallParticipantMapper
+import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.media.CallRinger
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.ui.WireSessionImageLoader
@@ -81,7 +82,10 @@ class SharedCallingViewModelTest {
     @MockK
     private lateinit var wireSessionImageLoader: WireSessionImageLoader
 
-    private val uiCallParticipantMapper: UICallParticipantMapper by lazy { UICallParticipantMapper(wireSessionImageLoader) }
+    @MockK
+    private lateinit var userTypeMapper: UserTypeMapper
+
+    private val uiCallParticipantMapper: UICallParticipantMapper by lazy { UICallParticipantMapper(wireSessionImageLoader, userTypeMapper) }
 
     private lateinit var sharedCallingViewModel: SharedCallingViewModel
 
@@ -110,7 +114,8 @@ class SharedCallingViewModelTest {
             observeSpeaker = observeSpeaker,
             callRinger = callRinger,
             uiCallParticipantMapper = uiCallParticipantMapper,
-            wireSessionImageLoader = wireSessionImageLoader
+            wireSessionImageLoader = wireSessionImageLoader,
+            userTypeMapper = userTypeMapper
         )
     }
 

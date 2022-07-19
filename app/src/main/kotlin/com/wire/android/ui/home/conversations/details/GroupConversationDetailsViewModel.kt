@@ -58,13 +58,15 @@ class GroupConversationDetailsViewModel @Inject constructor(
                 }.collect { (conversationDetails, isSelfAdmin) ->
                     with(conversationDetails) {
                         if (this is ConversationDetails.Group) {
-                            groupOptionsState = groupOptionsState.copy(
-                                groupName = conversation.name.orEmpty(),
-                                isTeamGroup = conversation.isTeamGroup(),
-                                isGuestAllowed = (conversation.isGuestAllowed() || conversation.isNonTeamMemberAllowed()),
-                                isServicesAllowed = conversation.isServicesAllowed(),
-                                isUpdatingGuestAllowed = isSelfAdmin /* TODO: check if self belongs to the same team */,
-                                isUpdatingAllowed = isSelfAdmin
+                            updateState(
+                                groupOptionsState.copy(
+                                    groupName = conversation.name.orEmpty(),
+                                    isTeamGroup = conversation.isTeamGroup(),
+                                    isGuestAllowed = (conversation.isGuestAllowed() || conversation.isNonTeamMemberAllowed()),
+                                    isServicesAllowed = conversation.isServicesAllowed(),
+                                    isUpdatingGuestAllowed = isSelfAdmin /* TODO: check if self belongs to the same team */,
+                                    isUpdatingAllowed = isSelfAdmin
+                                )
                             )
                         }
                     }

@@ -104,6 +104,7 @@ private fun InitiatingCallContent(
                 isCameraOn = callState.isCameraOn,
                 avatarAssetId = callState.avatarAssetId,
                 conversationType = callState.conversationType,
+                membership = callState.membership
             )
         }
     }

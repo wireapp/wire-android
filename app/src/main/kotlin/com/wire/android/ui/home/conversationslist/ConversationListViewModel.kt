@@ -115,7 +115,7 @@ class ConversationListViewModel @Inject constructor(
             navigationManager.navigate(
                 command = NavigationCommand(
                     destination = NavigationItem.OtherUserProfile.getRouteWithArgs(
-                        listOf(profileId.domain, profileId.value)
+                        listOf(profileId)
                     )
                 )
             )

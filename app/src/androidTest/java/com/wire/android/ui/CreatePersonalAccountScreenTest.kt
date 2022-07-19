@@ -188,7 +188,7 @@ class CreatePersonalAccountScreenTest {
         confirmPassword.onChildren()[2].performTextInput("Abcd1234.")
         continueButton.performClick()
         composeTestRule.waitForExecution {
-            composeTestRule.onNodeWithText(passwordsNotMatch).assertIsDisplayed()
+            composeTestRule.onNodeWithText(invalidPassword).assertIsDisplayed()
         }
     }
 

@@ -57,6 +57,7 @@ import com.wire.android.ui.userprofile.self.SelfUserProfileScreen
 import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.QualifiedID
 import io.github.esentsov.PackagePrivate
 
 @OptIn(
@@ -168,16 +169,20 @@ enum class NavigationItem(
 
     OtherUserProfile(
         primaryRoute = OTHER_USER_PROFILE,
-        canonicalRoute = "$OTHER_USER_PROFILE/{$EXTRA_USER_DOMAIN}/{$EXTRA_USER_ID}?$EXTRA_CONVERSATION_ID={$EXTRA_CONVERSATION_ID}",
+        canonicalRoute = "$OTHER_USER_PROFILE?$EXTRA_USER_ID={$EXTRA_USER_ID}&$EXTRA_CONVERSATION_ID={$EXTRA_CONVERSATION_ID}",
+        deepLinks = listOf(navDeepLink {
+            uriPattern = "${DeepLinkProcessor.DEEP_LINK_SCHEME}://" +
+                    "${DeepLinkProcessor.OTHER_USER_PROFILE_DEEPLINK_HOST}/" +
+                    "{$EXTRA_USER_ID}"
+        }),
         content = { OtherUserProfileScreen() },
         animationConfig = NavigationAnimationConfig.NoAnimation
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
-            val userDomain: String = arguments.filterIsInstance<String>()[0]
-            val userProfileId: String = arguments.filterIsInstance<String>()[1]
-            val conversationId: ConversationId? = arguments.filterIsInstance<ConversationId>().firstOrNull()
-            val baseRoute = "$primaryRoute/$userDomain/$userProfileId"
-            return conversationId?.let { "$baseRoute?$EXTRA_CONVERSATION_ID=$it" } ?: baseRoute
+            val userId: QualifiedID = arguments.filterIsInstance<QualifiedID>()[0]
+            val conversationId: QualifiedID? = arguments.filterIsInstance<QualifiedID>().getOrNull(1)
+            val baseRoute = "$primaryRoute?$EXTRA_USER_ID=$userId"
+            return conversationId?.let { "$baseRoute&$EXTRA_CONVERSATION_ID=$it" } ?: baseRoute
         }
     },
 
@@ -256,7 +261,7 @@ enum class NavigationItem(
         screenMode = ScreenMode.WAKE_UP,
         animationConfig = NavigationAnimationConfig.DelegatedAnimation
     ) {
-        override fun getRouteWithArgs(arguments: List<Any>): String  {
+        override fun getRouteWithArgs(arguments: List<Any>): String {
             val conversationIdString: String = arguments.filterIsInstance<ConversationId>().firstOrNull()?.toString()
                 ?: "{$EXTRA_CONVERSATION_ID}"
             return "$INCOMING_CALL?$EXTRA_CONVERSATION_ID=$conversationIdString"

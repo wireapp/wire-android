@@ -65,7 +65,7 @@ class GroupConversationParticipantsViewModelTest {
             arrangement.navigationManager.navigate(
                 NavigationCommand(
                     NavigationItem.OtherUserProfile.getRouteWithArgs(
-                        listOf(member.id.domain, member.id.value, arrangement.conversationId.parseIntoQualifiedID())
+                        listOf(member.id, arrangement.conversationId.parseIntoQualifiedID())
                     )
                 )
             )

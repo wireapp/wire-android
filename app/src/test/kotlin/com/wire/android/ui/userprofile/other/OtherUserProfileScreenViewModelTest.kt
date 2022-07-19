@@ -97,8 +97,7 @@ class OtherUserProfileScreenViewModelTest {
     fun setUp() {
         MockKAnnotations.init(this, relaxUnitFun = true)
         mockUri()
-        every { savedStateHandle.get<String>(eq(EXTRA_USER_ID)) } returns USER_ID.value
-        every { savedStateHandle.get<String>(eq(EXTRA_USER_DOMAIN)) } returns USER_ID.domain
+        every { savedStateHandle.get<String>(eq(EXTRA_USER_ID)) } returns CONVERSATION_ID.toString()
         every { savedStateHandle.get<String>(eq(EXTRA_CONVERSATION_ID)) } returns CONVERSATION_ID.toString()
         coEvery { observeConversationRoleForUserUseCase.invoke(any(), any()) } returns flowOf(CONVERSATION_ROLE_DATA)
         coEvery { getUserInfo(any()) } returns GetUserInfoResult.Success(OTHER_USER, TEAM)

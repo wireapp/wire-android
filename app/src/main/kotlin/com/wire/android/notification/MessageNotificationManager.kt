@@ -14,6 +14,7 @@ import androidx.core.app.RemoteInput
 import androidx.core.graphics.drawable.IconCompat
 import androidx.core.text.toSpannable
 import com.wire.android.R
+import com.wire.android.appLogger
 import com.wire.android.util.toBitmap
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -28,6 +29,11 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
     private val notificationManager = NotificationManagerCompat.from(context)
 
     private var prevNotificationsData: List<LocalNotificationConversation> = listOf()
+    private var isGroupSummaryDisplayed = false
+
+    init {
+        appLogger.i("$TAG: initialized")
+    }
 
     fun handleNotification(
         newData: List<LocalNotificationConversation>,
@@ -44,15 +50,19 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
                 oldConversation == null || oldConversation != conversation
             }
             .map { it.intoNotificationConversation() }
-            .sortedBy { it.lastMessageTime }
 
         val userIdString = userId?.toString()
 
         createNotificationChannelIfNeeded()
         conversationsToAdd.forEach { showConversationNotification(it, userIdString) }
         conversationIdsToRemove.forEach { hideNotification(it) }
-        showSummaryIfNeeded(oldData, newData, userIdString)
+        showSummaryIfNeeded(newData, userIdString)
 
+        appLogger.i(
+            "$TAG: handled notifications: oldDataSize ${oldData.size}; newDataSize ${newData.size}; " +
+                    "${conversationsToAdd.size} notifications were added; ${conversationIdsToRemove.size} notifications were removed; " +
+                    "is summary displayed $isGroupSummaryDisplayed."
+        )
         prevNotificationsData = newData
     }
 
@@ -68,14 +78,18 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
     }
 
     private fun showSummaryIfNeeded(
-        oldData: List<LocalNotificationConversation>,
         newData: List<LocalNotificationConversation>,
         userId: String?
     ) {
-        if (newData.isEmpty()) notificationManager.cancel(SUMMARY_ID)
-
-        if (oldData.size <= 1 && newData.size > 1)
+        if (newData.isEmpty()) {
+            appLogger.i("$TAG removing groupSummary")
+            notificationManager.cancel(SUMMARY_ID)
+            isGroupSummaryDisplayed = false
+        } else if (!isGroupSummaryDisplayed) {
+            appLogger.i("$TAG adding groupSummary")
             notificationManager.notify(SUMMARY_ID, getSummaryNotification(userId))
+            isGroupSummaryDisplayed = true
+        }
     }
 
     private fun showConversationNotification(conversation: NotificationConversation, userId: String?) {
@@ -185,6 +199,7 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
             .apply { setSpan(StyleSpan(Typeface.ITALIC), 0, length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE) }
 
     companion object {
+        private const val TAG = "MessageNotificationManager"
         private const val CHANNEL_ID = "com.wire.android.notification_channel"
         private const val CHANNEL_NAME = "Messages Channel"
         private const val GROUP_KEY = "wire_reloaded_notification_group"

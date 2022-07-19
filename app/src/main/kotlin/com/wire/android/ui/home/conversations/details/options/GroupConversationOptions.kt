@@ -1,5 +1,7 @@
 package com.wire.android.ui.home.conversations.details.options
 
+import androidx.annotation.StringRes
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -11,6 +13,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.model.Clickable
@@ -19,6 +22,7 @@ import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsViewModel
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
+import com.wire.android.ui.theme.WireDimensions
 import com.wire.android.ui.theme.wireColorScheme
 
 @Composable
@@ -58,7 +62,7 @@ fun GroupConversationOptions(
 
             item {
                 GuestOption(
-                    canBeChanged = state.isUpdatingGuestAllowed,
+                    isClickable = state.isUpdatingGuestAllowed,
                     switchState = state.isGuestAllowed,
                     onCheckedChange = onGuestSwitchClicked
                 )
@@ -66,7 +70,7 @@ fun GroupConversationOptions(
 
             item {
                 ServicesOption(
-                    canBeChanged = state.isUpdatingAllowed,
+                    isClickable = state.isUpdatingAllowed,
                     switchState = state.isServicesAllowed,
                     onCheckedChange = onServiceSwitchClicked
                 )
@@ -87,26 +91,45 @@ private fun GroupNameItem(groupName: String, canBeChanged: Boolean) {
 
 
 @Composable
-private fun GuestOption(canBeChanged: Boolean, switchState: Boolean, onCheckedChange: (Boolean) -> Unit) {
-    GroupConversationOptionsItem(
-        title = stringResource(id = R.string.label_membership_guest),
-        subtitle = stringResource(id = R.string.convrsation_options_guest_discriptions),
-        switchState = if (canBeChanged) {
-            SwitchState.Enabled(value = switchState, onCheckedChange = onCheckedChange)
-        } else {
-            SwitchState.Disabled(switchState)
-        },
-        arrowType = ArrowType.NONE
+private fun GuestOption(isClickable: Boolean, switchState: Boolean, onCheckedChange: (Boolean) -> Unit) {
+    GroupOptionWithSwitch(
+        isClickable = isClickable,
+        switchState = switchState,
+        onClick = onCheckedChange,
+        title = R.string.label_membership_guest,
+        subTitle = R.string.convrsation_options_guest_discriptions
     )
-    Divider(color = MaterialTheme.wireColorScheme.divider, thickness = Dp.Hairline)
 }
 
 @Composable
-private fun ServicesOption(canBeChanged: Boolean, switchState: Boolean, onCheckedChange: (Boolean) -> Unit) {
+private fun ServicesOption(isClickable: Boolean, switchState: Boolean, onCheckedChange: (Boolean) -> Unit) {
+    GroupOptionWithSwitch(
+        isClickable = isClickable,
+        switchState = switchState,
+        onClick = onCheckedChange,
+        title = R.string.conversation_Option_services_lable,
+        subTitle = R.string.convrsation_options_services_discriptions
+    )
+}
+
+@Composable
+private fun GroupOptionWithSwitch(
+    isClickable: Boolean,
+    switchState: Boolean,
+    onClick: (Boolean) -> Unit,
+    @StringRes title: Int,
+    @StringRes subTitle: Int?
+) {
     GroupConversationOptionsItem(
-        title = stringResource(id = R.string.conversation_Option_services_lable),
-        subtitle = stringResource(id = R.string.convrsation_options_services_discriptions),
-        switchState = if (canBeChanged) SwitchState.Enabled(value = switchState, onCheckedChange = onCheckedChange) else SwitchState.Disabled(switchState),
+        title = stringResource(id = title),
+        subtitle = when (isClickable) {
+            true -> subTitle?.let { stringResource(id = it) }
+            false -> null
+        },
+        switchState = if (isClickable) SwitchState.Enabled(
+            value = switchState,
+            onCheckedChange = onClick
+        ) else SwitchState.TextOnly(switchState),
         arrowType = ArrowType.NONE
     )
     Divider(color = MaterialTheme.wireColorScheme.divider, thickness = Dp.Hairline)

@@ -108,7 +108,7 @@ fun MessageImage(
 fun RestrictedAssetMessage(assetTypeIcon: Int, restrictedAssetMessage: String) {
     Card(
         shape = RoundedCornerShape(dimensions().messageAssetBorderRadius),
-        border = BorderStroke(dimensions().spacing, MaterialTheme.wireColorScheme.divider)
+        border = BorderStroke(dimensions().spacing1x, MaterialTheme.wireColorScheme.divider)
     ) {
         Column(
             modifier = Modifier
@@ -136,7 +136,6 @@ fun RestrictedAssetMessage(assetTypeIcon: Int, restrictedAssetMessage: String) {
                 overflow = TextOverflow.Ellipsis,
             )
         }
-
     }
 }
 
@@ -145,7 +144,7 @@ fun RestrictedAssetMessage(assetTypeIcon: Int, restrictedAssetMessage: String) {
 fun RestrictedFileMessage(fileName: String, fileSize: Long) {
     Card(
         shape = RoundedCornerShape(dimensions().messageAssetBorderRadius),
-        border = BorderStroke(dimensions().spacing, MaterialTheme.wireColorScheme.divider)
+        border = BorderStroke(dimensions().spacing1x, MaterialTheme.wireColorScheme.divider)
     ) {
         val assetName = fileName.split(".").dropLast(1).joinToString(".")
         val assetDescription = provideAssetDescription(

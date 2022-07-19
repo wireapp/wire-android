@@ -4,7 +4,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationCommand
@@ -86,12 +85,12 @@ class GroupConversationDetailsViewModel @Inject constructor(
     }
 
     fun onGuestDialogDismiss() {
-        updateState(groupOptionsState.copy(isGuestUpdateDialogShown = false))
+        updateState(groupOptionsState.copy(isGuestUpdateDialogShown = false, isGuestAllowed = groupOptionsState.isGuestAllowed))
     }
 
     fun onGuestDialogConfirm() {
         updateGuestStatus(false)
-        updateState(groupOptionsState.copy(isGuestUpdateDialogShown = false))
+        onGuestDialogDismiss()
     }
 
     private fun updateGuestStatus(enableGuestAndNonTeamMember: Boolean) {

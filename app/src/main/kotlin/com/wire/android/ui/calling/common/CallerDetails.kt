@@ -29,6 +29,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.conversationslist.model.hasLabel
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.call.ConversationType
 
 @Composable
@@ -96,6 +97,7 @@ fun CallerDetailsPreview() {
         isCameraOn = false,
         avatarAssetId = null,
         conversationType = ConversationType.OneOnOne,
-        membership = Membership.Guest
+        membership = Membership.Guest,
+        isCallingLabel = String.EMPTY
     )
 }

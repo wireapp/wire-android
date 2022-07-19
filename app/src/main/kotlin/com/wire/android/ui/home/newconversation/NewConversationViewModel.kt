@@ -98,140 +98,140 @@ class NewConversationViewModel @Inject constructor(
                 SearchResult.Success(result.userSearchResult.result.map { otherUser -> contactMapper.fromOtherUser(otherUser) })
             }
         }
-        fun onGroupNameChange(newText: TextFieldValue) {
-            when {
-                newText.text.trim().isEmpty() -> {
-                    groupNameState = groupNameState.copy(
-                        animatedGroupNameError = true,
-                        groupName = newText,
-                        continueEnabled = false,
-                        error = NewGroupState.GroupNameError.TextFieldError.GroupNameEmptyError
-                    )
-                }
-                newText.text.trim().count() > GROUP_NAME_MAX_COUNT -> {
-                    groupNameState = groupNameState.copy(
-                        animatedGroupNameError = true,
-                        groupName = newText,
-                        continueEnabled = false,
-                        error = NewGroupState.GroupNameError.TextFieldError.GroupNameExceedLimitError
-                    )
-                }
-                else -> {
-                    groupNameState = groupNameState.copy(
-                        animatedGroupNameError = false,
-                        groupName = newText,
-                        continueEnabled = true,
-                        error = NewGroupState.GroupNameError.None
-                    )
-                }
-            }
-        }
 
-        fun onAllowGuestStatusChanged(status: Boolean) {
-            groupOptionsState = groupOptionsState.copy(isAllowGuestEnabled = status)
-            if (!status) {
-                groupOptionsState.accessRoleState.remove(Conversation.AccessRole.NON_TEAM_MEMBER)
-                groupOptionsState.accessRoleState.remove(Conversation.AccessRole.GUEST)
-            } else {
-                groupOptionsState.accessRoleState.add(Conversation.AccessRole.NON_TEAM_MEMBER)
-                groupOptionsState.accessRoleState.add(Conversation.AccessRole.GUEST)
-            }
-        }
-
-        fun onAllowServicesStatusChanged(status: Boolean) {
-            groupOptionsState = groupOptionsState.copy(isAllowServicesEnabled = status)
-            if (!status) {
-                groupOptionsState.accessRoleState.remove(Conversation.AccessRole.SERVICE)
-            } else {
-                groupOptionsState.accessRoleState.add(Conversation.AccessRole.SERVICE)
-            }
-        }
-
-        fun onReadReceiptStatusChanged(status: Boolean) {
-            groupOptionsState = groupOptionsState.copy(isReadReceiptEnabled = status)
-        }
-
-        fun onAllowGuestsDialogDismissed() {
-            groupOptionsState = groupOptionsState.copy(showAllowGuestsDialog = false)
-        }
-
-        fun onAllowGuestsClicked() {
-            onAllowGuestsDialogDismissed()
-            onAllowGuestStatusChanged(true)
-            createGroup(false)
-        }
-
-        fun onNotAllowGuestClicked() {
-            onAllowGuestsDialogDismissed()
-            onAllowGuestStatusChanged(false)
-            removeGuestsIfNotAllowed()
-            createGroup(false)
-        }
-
-        private fun removeGuestsIfNotAllowed() {
-            if (!groupOptionsState.isAllowGuestEnabled) {
-                for (item in state.contactsAddedToGroup) {
-                    if (item.membership == Membership.Guest
-                        || item.membership == Membership.Federated
-                    ) {
-                        removeContactFromGroup(item)
-                    }
-                }
-            }
-        }
-
-        private fun checkIfGuestAdded(): Boolean {
-            if (!groupOptionsState.isAllowGuestEnabled) {
-                for (item in state.contactsAddedToGroup) {
-                    if (item.membership == Membership.Guest
-                        || item.membership == Membership.Federated
-                    ) {
-                        groupOptionsState = groupOptionsState.copy(showAllowGuestsDialog = true)
-                        return true
-                    }
-                }
-            }
-            return false
-        }
-
-        fun createGroup(shouldCheckGuests: Boolean = true) {
-            if (shouldCheckGuests && checkIfGuestAdded())
-                return
-            viewModelScope.launch {
-                groupNameState = groupNameState.copy(isLoading = true)
-
-                when (val result = createGroupConversation(
-                    name = groupNameState.groupName.text,
-                    // TODO: change the id in Contact to UserId instead of String
-                    userIdList = state.contactsAddedToGroup.map { contact -> UserId(contact.id, contact.domain) },
-                    options = ConversationOptions().copy(
-                        protocol = groupNameState.groupProtocol,
-                        readReceiptsEnabled = groupOptionsState.isReadReceiptEnabled,
-                        accessRole = groupOptionsState.accessRoleState
-                    )
+    fun onGroupNameChange(newText: TextFieldValue) {
+        when {
+            newText.text.trim().isEmpty() -> {
+                groupNameState = groupNameState.copy(
+                    animatedGroupNameError = true,
+                    groupName = newText,
+                    continueEnabled = false,
+                    error = NewGroupState.GroupNameError.TextFieldError.GroupNameEmptyError
                 )
-                ) {
-                    // TODO: handle the error state
-                    is Either.Left -> {
-                        groupNameState = groupNameState.copy(isLoading = false)
-                        Log.d("TEST", "error while creating a group ${result.value}")
-                    }
-                    is Either.Right -> {
-                        groupNameState = groupNameState.copy(isLoading = false)
-                        navigationManager.navigate(
-                            command = NavigationCommand(
-                                destination = NavigationItem.Conversation.getRouteWithArgs(listOf(result.value.id)),
-                                backStackMode = BackStackMode.REMOVE_CURRENT
-                            )
-                        )
-                    }
-                }
+            }
+            newText.text.trim().count() > GROUP_NAME_MAX_COUNT -> {
+                groupNameState = groupNameState.copy(
+                    animatedGroupNameError = true,
+                    groupName = newText,
+                    continueEnabled = false,
+                    error = NewGroupState.GroupNameError.TextFieldError.GroupNameExceedLimitError
+                )
+            }
+            else -> {
+                groupNameState = groupNameState.copy(
+                    animatedGroupNameError = false,
+                    groupName = newText,
+                    continueEnabled = true,
+                    error = NewGroupState.GroupNameError.None
+                )
             }
         }
-
-        fun onGroupNameErrorAnimated() {
-            groupNameState = groupNameState.copy(animatedGroupNameError = false)
-        }
-
     }
 
+    fun onAllowGuestStatusChanged(status: Boolean) {
+        groupOptionsState = groupOptionsState.copy(isAllowGuestEnabled = status)
+        if (!status) {
+            groupOptionsState.accessRoleState.remove(Conversation.AccessRole.NON_TEAM_MEMBER)
+            groupOptionsState.accessRoleState.remove(Conversation.AccessRole.GUEST)
+        } else {
+            groupOptionsState.accessRoleState.add(Conversation.AccessRole.NON_TEAM_MEMBER)
+            groupOptionsState.accessRoleState.add(Conversation.AccessRole.GUEST)
+        }
+    }
+
+    fun onAllowServicesStatusChanged(status: Boolean) {
+        groupOptionsState = groupOptionsState.copy(isAllowServicesEnabled = status)
+        if (!status) {
+            groupOptionsState.accessRoleState.remove(Conversation.AccessRole.SERVICE)
+        } else {
+            groupOptionsState.accessRoleState.add(Conversation.AccessRole.SERVICE)
+        }
+    }
+
+    fun onReadReceiptStatusChanged(status: Boolean) {
+        groupOptionsState = groupOptionsState.copy(isReadReceiptEnabled = status)
+    }
+
+    fun onAllowGuestsDialogDismissed() {
+        groupOptionsState = groupOptionsState.copy(showAllowGuestsDialog = false)
+    }
+
+    fun onAllowGuestsClicked() {
+        onAllowGuestsDialogDismissed()
+        onAllowGuestStatusChanged(true)
+        createGroup(false)
+    }
+
+    fun onNotAllowGuestClicked() {
+        onAllowGuestsDialogDismissed()
+        onAllowGuestStatusChanged(false)
+        removeGuestsIfNotAllowed()
+        createGroup(false)
+    }
+
+    private fun removeGuestsIfNotAllowed() {
+        if (!groupOptionsState.isAllowGuestEnabled) {
+            for (item in state.contactsAddedToGroup) {
+                if (item.membership == Membership.Guest
+                    || item.membership == Membership.Federated
+                ) {
+                    removeContactFromGroup(item)
+                }
+            }
+        }
+    }
+
+    private fun checkIfGuestAdded(): Boolean {
+        if (!groupOptionsState.isAllowGuestEnabled) {
+            for (item in state.contactsAddedToGroup) {
+                if (item.membership == Membership.Guest
+                    || item.membership == Membership.Federated
+                ) {
+                    groupOptionsState = groupOptionsState.copy(showAllowGuestsDialog = true)
+                    return true
+                }
+            }
+        }
+        return false
+    }
+
+    fun createGroup(shouldCheckGuests: Boolean = true) {
+        if (shouldCheckGuests && checkIfGuestAdded())
+            return
+        viewModelScope.launch {
+            groupNameState = groupNameState.copy(isLoading = true)
+
+            when (val result = createGroupConversation(
+                name = groupNameState.groupName.text,
+                // TODO: change the id in Contact to UserId instead of String
+                userIdList = state.contactsAddedToGroup.map { contact -> UserId(contact.id, contact.domain) },
+                options = ConversationOptions().copy(
+                    protocol = groupNameState.groupProtocol,
+                    readReceiptsEnabled = groupOptionsState.isReadReceiptEnabled,
+                    accessRole = groupOptionsState.accessRoleState
+                )
+            )
+            ) {
+                // TODO: handle the error state
+                is Either.Left -> {
+                    groupNameState = groupNameState.copy(isLoading = false)
+                    Log.d("TEST", "error while creating a group ${result.value}")
+                }
+                is Either.Right -> {
+                    groupNameState = groupNameState.copy(isLoading = false)
+                    navigationManager.navigate(
+                        command = NavigationCommand(
+                            destination = NavigationItem.Conversation.getRouteWithArgs(listOf(result.value.id)),
+                            backStackMode = BackStackMode.REMOVE_CURRENT
+                        )
+                    )
+                }
+            }
+        }
+    }
+
+    fun onGroupNameErrorAnimated() {
+        groupNameState = groupNameState.copy(animatedGroupNameError = false)
+    }
+
+}

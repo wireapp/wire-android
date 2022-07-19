@@ -122,11 +122,12 @@ class SharedCallingViewModel @Inject constructor(
         allCalls().collect { calls ->
             calls.find { call ->
                 call.conversationId == conversationId
-            }?.let {
+            }?.let { call ->
                 callState = callState.copy(
-                    isMuted = it.isMuted,
-                    isCameraOn = it.isCameraOn,
-                    participants = it.participants.map { uiCallParticipantMapper.toUICallParticipant(it) }
+                    callerName = call.callerName,
+                    isMuted = call.isMuted,
+                    isCameraOn = call.isCameraOn,
+                    participants = call.participants.map { uiCallParticipantMapper.toUICallParticipant(it) }
                 )
             }
         }

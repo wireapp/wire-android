@@ -36,6 +36,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
+import com.wire.kalium.logic.data.call.ConversationType
 
 @Composable
 fun IncomingCallScreen(
@@ -164,11 +165,16 @@ private fun IncomingCallContent(
                 isCameraOn = callState.isCameraOn,
                 onVideoPreviewCreated = { onVideoPreviewCreated(it) }
             )
+            val isCallingString = if (callState.conversationType == ConversationType.Conference) {
+                stringResource(R.string.calling_label_incoming_call_someone_calling, callState.callerName!!)
+            } else stringResource(R.string.calling_label_incoming_call)
+
             CallerDetails(
                 conversationName = callState.conversationName,
                 isCameraOn = callState.isCameraOn,
                 avatarAssetId = callState.avatarAssetId,
                 conversationType = callState.conversationType,
+                isCallingLabel = isCallingString
             )
         }
     }

@@ -31,6 +31,7 @@ fun CallerDetails(
     isCameraOn: Boolean,
     avatarAssetId: ImageAsset.UserAvatarAsset?,
     conversationType: ConversationType,
+    isCallingLabel: String
 ) {
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -62,7 +63,7 @@ fun CallerDetails(
             modifier = Modifier.padding(top = dimensions().spacing24x)
         )
         Text(
-            text = stringResource(id = R.string.calling_label_ringing_call),
+            text = isCallingLabel,
             style = MaterialTheme.wireTypography.body01,
             modifier = Modifier.padding(top = dimensions().spacing8x)
         )

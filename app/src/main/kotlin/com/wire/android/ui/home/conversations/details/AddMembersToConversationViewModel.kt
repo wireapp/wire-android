@@ -12,6 +12,8 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.parseIntoQualifiedID
+import com.wire.kalium.logic.data.publicuser.ConversationMemberExcludedOptions
+import com.wire.kalium.logic.data.publicuser.SearchUsersOptions
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
 import com.wire.kalium.logic.feature.conversation.AddMemberToConversationUseCase
@@ -55,7 +57,12 @@ class AddMembersToConversationViewModel @Inject constructor(
         }
 
     override suspend fun searchKnownUsersUseCase(searchTerm: String) =
-        when (val result = searchKnownUsers(searchTerm)) {
+        when (val result = searchKnownUsers(
+            searchQuery = searchTerm,
+            searchUsersOptions = SearchUsersOptions(
+                conversationExcluded = ConversationMemberExcludedOptions.ConversationExcluded(conversationId)
+            )
+        )) {
             is Result.Failure.Generic, Result.Failure.InvalidRequest -> {
                 SearchResult.Failure(R.string.label_general_error)
             }
@@ -68,7 +75,9 @@ class AddMembersToConversationViewModel @Inject constructor(
         }
 
     override suspend fun searchPublicUsersUseCase(searchTerm: String) =
-        when (val result = searchPublicUsers(searchTerm)) {
+        when (val result = searchPublicUsers(
+            searchTerm,
+        )) {
             is Result.Failure.Generic, Result.Failure.InvalidRequest -> {
                 SearchResult.Failure(R.string.label_general_error)
             }

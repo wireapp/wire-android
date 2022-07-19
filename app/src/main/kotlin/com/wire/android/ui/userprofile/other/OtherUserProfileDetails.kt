@@ -53,15 +53,6 @@ fun OtherUserProfileDetails(
                     onCopy = { otherUserProfileScreenState.copy(it) }
                 )
             }
-        repeat(20) {
-            item(key = "user_details_email$it") {
-                UserDetailInformation(
-                    title = stringResource(R.string.email_label),
-                    value = state.email + it,
-                    onCopy = { otherUserProfileScreenState.copy(it) }
-                )
-            }
-        }
     }
 }
 

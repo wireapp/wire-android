@@ -14,15 +14,16 @@ import com.wire.kalium.logic.data.call.ConversationType
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.parseIntoQualifiedID
-import com.wire.kalium.logic.feature.call.CallStatus
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
-import com.wire.kalium.logic.feature.call.usecase.GetAllCallsWithSortedParticipantsUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.StartCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.IsLastCallClosedUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import java.util.Calendar
 import javax.inject.Inject
 
 @Suppress("LongParameterList")
@@ -31,9 +32,10 @@ class InitiatingCallViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
     private val conversationDetails: ObserveConversationDetailsUseCase,
-    private val allCalls: GetAllCallsWithSortedParticipantsUseCase,
+    private val observeEstablishedCallsUseCase: ObserveEstablishedCallsUseCase,
     private val startCall: StartCallUseCase,
     private val endCall: EndCallUseCase,
+    private val isLastCallClosed: IsLastCallClosedUseCase,
     private val callRinger: CallRinger
 ) : ViewModel() {
 
@@ -41,10 +43,13 @@ class InitiatingCallViewModel @Inject constructor(
         .get<String>(EXTRA_CONVERSATION_ID)!!
         .parseIntoQualifiedID()
 
+    private val callStartTime: Long = Calendar.getInstance().timeInMillis
+
     init {
         viewModelScope.launch {
-            initiateCall()
-            observeStartedCall()
+            launch { initiateCall() }
+            launch { observeStartedCall() }
+            launch { observeClosedCall() }
         }
     }
 
@@ -66,15 +71,23 @@ class InitiatingCallViewModel @Inject constructor(
     }
 
     private suspend fun observeStartedCall() {
-        allCalls().collect { calls ->
-            calls.find { call -> call.conversationId == conversationId }.also {
-                it?.let {
-                    if (it.status == CallStatus.ESTABLISHED) {
-                        onCallEstablished()
-                    }
-                } ?: run {
-                    onCallClosed()
+        observeEstablishedCallsUseCase().collect { calls ->
+            calls
+                .find { call ->
+                    call.conversationId == conversationId
+                }?.let {
+                    onCallEstablished()
                 }
+        }
+    }
+
+    private suspend fun observeClosedCall() {
+        isLastCallClosed(
+            conversationId = conversationId,
+            startedTime = callStartTime
+        ).collect { isCurrentCallClosed ->
+            if (isCurrentCallClosed) {
+                onCallClosed()
             }
         }
     }
@@ -107,9 +120,11 @@ class InitiatingCallViewModel @Inject constructor(
 
     fun hangUpCall() {
         viewModelScope.launch {
-            endCall(conversationId)
-            navigateBack()
-            callRinger.stop()
+            launch { endCall(conversationId) }
+            launch {
+                navigateBack()
+                callRinger.stop()
+            }
         }
     }
 }

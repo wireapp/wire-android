@@ -17,6 +17,7 @@ import androidx.navigation.compose.rememberNavController
 import com.wire.android.R
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.home.newconversation.common.Screen
+import com.wire.android.ui.home.newconversation.groupOptions.GroupOptionScreen
 import com.wire.android.ui.home.newconversation.newgroup.NewGroupScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -54,7 +55,7 @@ fun NewConversationRouter() {
                         onAddContactToGroup = newConversationViewModel::addContactToGroup,
                         onRemoveContactFromGroup = newConversationViewModel::removeContactFromGroup,
                         onOpenUserProfile = { newConversationViewModel.openUserProfile(it.contact) },
-                        onAddContact = newConversationViewModel::addContact,
+                        onAddContact = newConversationViewModel::addContact
                     )
                 }
             )
@@ -65,8 +66,25 @@ fun NewConversationRouter() {
                         onBackPressed = newConversationNavController::popBackStack,
                         newGroupState = newConversationViewModel.groupNameState,
                         onGroupNameChange = newConversationViewModel::onGroupNameChange,
-                        onCreateGroup = newConversationViewModel::createGroup,
+                        onContinuePressed = { newConversationNavController.navigate(Screen.GroupOptionsScreen.route) },
                         onGroupNameErrorAnimated = newConversationViewModel::onGroupNameErrorAnimated
+                    )
+                }
+            )
+
+            composable(
+                route = Screen.GroupOptionsScreen.route,
+                content = {
+                    GroupOptionScreen(
+                        onBackPressed = newConversationNavController::popBackStack,
+                        onCreateGroup = newConversationViewModel::createGroup,
+                        groupOptionState = newConversationViewModel.groupOptionsState,
+                        onAllowGuestChanged = newConversationViewModel::onAllowGuestStatusChanged,
+                        onAllowServicesChanged = newConversationViewModel::onAllowServicesStatusChanged,
+                        onReadReceiptChanged = newConversationViewModel::onReadReceiptStatusChanged,
+                        onAllowGuestsDialogDismissed = newConversationViewModel::onAllowGuestsDialogDismissed,
+                        onAllowGuestsClicked = newConversationViewModel::onAllowGuestsClicked,
+                        onNotAllowGuestsClicked = newConversationViewModel::onNotAllowGuestClicked
                     )
                 }
             )

@@ -15,6 +15,8 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.ui.home.newconversation.groupOptions.GroupOptionState
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.home.newconversation.newgroup.NewGroupState
 import com.wire.android.ui.home.newconversation.search.ContactSearchResult
@@ -22,16 +24,18 @@ import com.wire.android.ui.home.newconversation.search.SearchPeopleState
 import com.wire.android.ui.home.newconversation.search.SearchResultState
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.flow.SearchQueryStateFlow
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationOptions
+import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestResult
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
 import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsResult
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
+import com.wire.kalium.logic.feature.publicuser.search.Result
 import com.wire.kalium.logic.feature.publicuser.search.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchUsersUseCase
-import com.wire.kalium.logic.feature.publicuser.search.Result
 import com.wire.kalium.logic.functional.Either
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -72,6 +76,9 @@ class NewConversationViewModel
     }
 
     var groupNameState: NewGroupState by mutableStateOf(NewGroupState())
+    var groupOptionsState: GroupOptionState by mutableStateOf(GroupOptionState())
+
+    var snackbarMessageState by mutableStateOf<NewConversationSnackbarState>(NewConversationSnackbarState.None)
 
     private var innerSearchPeopleState: SearchPeopleState by mutableStateOf(SearchPeopleState())
 
@@ -188,6 +195,7 @@ class NewConversationViewModel
                 }
                 is SendConnectionRequestResult.Success -> {
                     searchPublic(state.searchQuery, showProgress = false)
+                    snackbarMessageState = NewConversationSnackbarState.SuccessSendConnectionRequest
                 }
             }
         }
@@ -205,7 +213,7 @@ class NewConversationViewModel
                 command = NavigationCommand(
                     destination = NavigationItem.OtherUserProfile.getRouteWithArgs(
                         listOf(
-                            contact.domain, contact.id, contact.connectionState
+                            QualifiedID(contact.id, contact.domain), contact.connectionState
                         )
                     )
                 )
@@ -242,7 +250,76 @@ class NewConversationViewModel
         }
     }
 
-    fun createGroup() {
+    fun onAllowGuestStatusChanged(status: Boolean) {
+        groupOptionsState = groupOptionsState.copy(isAllowGuestEnabled = status)
+        if (!status) {
+            groupOptionsState.accessRoleState.remove(Conversation.AccessRole.NON_TEAM_MEMBER)
+            groupOptionsState.accessRoleState.remove(Conversation.AccessRole.GUEST)
+        } else {
+            groupOptionsState.accessRoleState.add(Conversation.AccessRole.NON_TEAM_MEMBER)
+            groupOptionsState.accessRoleState.add(Conversation.AccessRole.GUEST)
+        }
+    }
+
+    fun onAllowServicesStatusChanged(status: Boolean) {
+        groupOptionsState = groupOptionsState.copy(isAllowServicesEnabled = status)
+        if (!status) {
+            groupOptionsState.accessRoleState.remove(Conversation.AccessRole.SERVICE)
+        } else {
+            groupOptionsState.accessRoleState.add(Conversation.AccessRole.SERVICE)
+        }
+    }
+
+    fun onReadReceiptStatusChanged(status: Boolean) {
+        groupOptionsState = groupOptionsState.copy(isReadReceiptEnabled = status)
+    }
+
+    fun onAllowGuestsDialogDismissed() {
+        groupOptionsState = groupOptionsState.copy(showAllowGuestsDialog = false)
+    }
+
+    fun onAllowGuestsClicked() {
+        onAllowGuestsDialogDismissed()
+        onAllowGuestStatusChanged(true)
+        createGroup(false)
+    }
+
+    fun onNotAllowGuestClicked() {
+        onAllowGuestsDialogDismissed()
+        onAllowGuestStatusChanged(false)
+        removeGuestsIfNotAllowed()
+        createGroup(false)
+    }
+
+    private fun removeGuestsIfNotAllowed() {
+        if (!groupOptionsState.isAllowGuestEnabled) {
+            for (item in state.contactsAddedToGroup) {
+                if (item.membership == Membership.Guest
+                    || item.membership == Membership.Federated
+                ) {
+                    removeContactFromGroup(item)
+                }
+            }
+        }
+    }
+
+    private fun checkIfGuestAdded(): Boolean {
+        if (!groupOptionsState.isAllowGuestEnabled) {
+            for (item in state.contactsAddedToGroup) {
+                if (item.membership == Membership.Guest
+                    || item.membership == Membership.Federated
+                ) {
+                    groupOptionsState = groupOptionsState.copy(showAllowGuestsDialog = true)
+                    return true
+                }
+            }
+        }
+        return false
+    }
+
+    fun createGroup(shouldCheckGuests: Boolean = true) {
+        if (shouldCheckGuests && checkIfGuestAdded())
+            return
         viewModelScope.launch {
             groupNameState = groupNameState.copy(isLoading = true)
 
@@ -250,7 +327,11 @@ class NewConversationViewModel
                 name = groupNameState.groupName.text,
                 // TODO: change the id in Contact to UserId instead of String
                 userIdList = state.contactsAddedToGroup.map { contact -> UserId(contact.id, contact.domain) },
-                options = ConversationOptions().copy(protocol = groupNameState.groupProtocol)
+                options = ConversationOptions().copy(
+                    protocol = groupNameState.groupProtocol,
+                    readReceiptsEnabled = groupOptionsState.isReadReceiptEnabled,
+                    accessRole = groupOptionsState.accessRoleState
+                )
             )
             ) {
                 // TODO: handle the error state
@@ -275,9 +356,18 @@ class NewConversationViewModel
         groupNameState = groupNameState.copy(animatedGroupNameError = false)
     }
 
+    fun clearSnackbarMessage() {
+        snackbarMessageState = NewConversationSnackbarState.None
+    }
+
     fun close() {
         viewModelScope.launch {
             navigationManager.navigateBack()
         }
     }
+}
+
+sealed class NewConversationSnackbarState {
+    object SuccessSendConnectionRequest : NewConversationSnackbarState()
+    object None : NewConversationSnackbarState()
 }

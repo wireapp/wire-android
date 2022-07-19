@@ -28,6 +28,8 @@ import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.WireSwitch
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.clickable
+import com.wire.android.ui.theme.WireDimensions
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -47,7 +49,7 @@ fun GroupConversationOptionsItem(
         .fillMaxWidth()
         .background(MaterialTheme.wireColorScheme.surface)
         .clickable(clickable)
-        .defaultMinSize(minHeight = 57.dp)
+        .defaultMinSize(minHeight = MaterialTheme.wireDimensions.conversationOptionsItemMinHeight)
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,

@@ -62,7 +62,7 @@ class GroupConversationParticipantsViewModelTest {
         // Then
         coVerify {
             arrangement.navigationManager.navigate(
-                NavigationCommand(NavigationItem.OtherUserProfile.getRouteWithArgs(listOf(member.id.domain, member.id.value)))
+                NavigationCommand(NavigationItem.OtherUserProfile.getRouteWithArgs(listOf(member.id)))
             )
         }
     }

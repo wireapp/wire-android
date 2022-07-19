@@ -29,7 +29,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @ExperimentalCoroutinesApi
-@Suppress( "TooManyFunctions")
+@Suppress("TooManyFunctions")
 @Singleton
 class WireNotificationManager @Inject constructor(
     @KaliumCoreLogic private val coreLogic: CoreLogic,
@@ -140,8 +140,11 @@ class WireNotificationManager @Inject constructor(
             .collect { (currentScreen, userId) ->
                 if (userId == null) return@collect
 
-                if (currentScreen is CurrentScreen.Conversation) {
-                    markMessagesAsNotified(userId, currentScreen.id)
+                when (currentScreen) {
+                    is CurrentScreen.Conversation -> markMessagesAsNotified(userId, currentScreen.id)
+                    is CurrentScreen.OtherUserProfile -> markConnectionAsNotified(userId, currentScreen.id)
+                    else -> {
+                    }
                 }
             }
     }
@@ -241,6 +244,12 @@ class WireNotificationManager @Inject constructor(
                 .messages
                 .markMessagesAsNotified(conversationId, System.currentTimeMillis().toStringDate())
         }
+    }
+
+    private suspend fun markConnectionAsNotified(userId: QualifiedID, connectionRequestUserId: QualifiedID) {
+        coreLogic.getSessionScope(userId)
+            .conversations
+            .markConnectionRequestAsNotified(connectionRequestUserId)
     }
 
     private data class MessagesNotificationsData(

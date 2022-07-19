@@ -554,6 +554,6 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun providegetAllContactsNotInTheConversationUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): GetAllContactsNotInConversationUseCase =
+    fun provideGetAllContactsNotInTheConversationUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): GetAllContactsNotInConversationUseCase =
         coreLogic.getSessionScope(currentAccount).users.getAllContactsNotInConversation
 }

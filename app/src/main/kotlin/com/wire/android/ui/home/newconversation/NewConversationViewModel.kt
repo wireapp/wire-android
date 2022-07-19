@@ -52,16 +52,44 @@ class NewConversationViewModel @Inject constructor(
     var groupNameState: NewGroupState by mutableStateOf(NewGroupState())
     var groupOptionsState: GroupOptionState by mutableStateOf(GroupOptionState())
 
-    override suspend fun getAllUsersUseCase() =
-        when (val result = getAllKnownUsers()) {
-            is GetAllContactsResult.Failure -> SearchResult.Failure(R.string.label_general_error)
-            is GetAllContactsResult.Success -> SearchResult.Success(
-                result.allContacts.map { otherUser ->
-                    contactMapper.fromOtherUser(
-                        otherUser
-                    )
-                }
-            )
+    private var innerSearchPeopleState: SearchPeopleState by mutableStateOf(SearchPeopleState())
+
+    private var localContactSearchResult by mutableStateOf(
+        ContactSearchResult.InternalContact(searchResultState = SearchResultState.Initial)
+    )
+
+    private var publicContactsSearchResult by mutableStateOf(
+        ContactSearchResult.ExternalContact(searchResultState = SearchResultState.Initial)
+    )
+
+    private val searchQueryStateFlow = SearchQueryStateFlow()
+
+    init {
+        viewModelScope.launch {
+            allContacts()
+            searchQueryStateFlow.onSearchAction { searchTerm ->
+                launch { searchPublic(searchTerm) }
+                launch { searchKnown(searchTerm) }
+            }
+        }
+    }
+
+    private suspend fun allContacts() {
+        innerSearchPeopleState = innerSearchPeopleState.copy(allKnownContacts = SearchResultState.InProgress)
+
+        val result = withContext(dispatchers.io()) { getAllContacts() }
+
+        innerSearchPeopleState = when (result) {
+            is GetAllContactsResult.Failure -> {
+                innerSearchPeopleState.copy(
+                    allKnownContacts = SearchResultState.Failure(R.string.label_general_error)
+                )
+            }
+            is GetAllContactsResult.Success -> {
+                innerSearchPeopleState.copy(
+                    allKnownContacts = SearchResultState.Success(result.allContacts.map(contactMapper::fromOtherUser))
+                )
+            }
         }
 
     override suspend fun searchKnownUsersUseCase(searchTerm: String) =
@@ -77,16 +105,22 @@ class NewConversationViewModel @Inject constructor(
             }
         }
 
-    override suspend fun searchPublicUsersUseCase(searchTerm: String) =
-        when (val result = searchPublicUsers(searchTerm)) {
-            is Result.Failure.Generic, Result.Failure.InvalidRequest -> {
-                SearchResult.Failure(R.string.label_general_error)
-            }
-            is Result.Failure.InvalidQuery -> {
-                SearchResult.Failure(R.string.label_no_results_found)
-            }
-            is Result.Success -> {
-                SearchResult.Success(result.userSearchResult.result.map { otherUser -> contactMapper.fromOtherUser(otherUser) })
+    fun addContactToGroup(contact: Contact) {
+        innerSearchPeopleState = innerSearchPeopleState.copy(
+            contactsAddedToGroup = innerSearchPeopleState.contactsAddedToGroup + contact
+        )
+    }
+
+    fun addContact(contact: Contact) {
+        viewModelScope.launch {
+            val userId = UserId(contact.id, contact.domain)
+            when (sendConnectionRequest(userId)) {
+                is SendConnectionRequestResult.Failure -> {
+                    appLogger.d(("Couldn't send a connect request to user $userId"))
+                }
+                is SendConnectionRequestResult.Success -> {
+                    searchPublic(state.searchQuery, showProgress = false)
+                }
             }
         }
 
@@ -225,4 +259,14 @@ class NewConversationViewModel @Inject constructor(
         groupNameState = groupNameState.copy(animatedGroupNameError = false)
     }
 
+    fun close() {
+        viewModelScope.launch {
+            navigationManager.navigateBack()
+        }
+    }
+}
+
+sealed class NewConversationSnackbarState {
+    object SuccessSendConnectionRequest : NewConversationSnackbarState()
+    object None : NewConversationSnackbarState()
 }

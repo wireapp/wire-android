@@ -117,9 +117,9 @@ fun ExternalContactSearchResultItem(
                 ConnectionStatus.NotConnected ->
                     AddContactButton(onAddContactClicked)
                 ConnectionStatus.Pending ->
-                    Box(modifier = Modifier.padding(horizontal = dimensions().spacing12x)) { ConnectPendingRequestBadge() }
-                ConnectionStatus.Sent ->
                     Box(modifier = Modifier.padding(horizontal = dimensions().spacing12x)) { ConnectRequestBadge() }
+                ConnectionStatus.Sent ->
+                    Box(modifier = Modifier.padding(horizontal = dimensions().spacing12x)) { ConnectPendingRequestBadge() }
                 ConnectionStatus.Connected,
                 ConnectionStatus.Unknown -> {
                     appLogger.e("Unknown ConnectionStatus in InternalContactSearchResultItem")

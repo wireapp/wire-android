@@ -3,12 +3,15 @@ package com.wire.android.navigation
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDeepLink
 import androidx.navigation.navDeepLink
 import com.wire.android.BuildConfig
+import com.wire.android.R
 import com.wire.android.model.ImageAsset
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.ADD_CONVERSATION_PARTICIPANTS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CONVERSATION
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_ACCOUNT_SUMMARY
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_ACCOUNT_USERNAME
@@ -46,8 +49,10 @@ import com.wire.android.ui.calling.initiating.InitiatingCallScreen
 import com.wire.android.ui.debugscreen.DebugScreen
 import com.wire.android.ui.home.HomeScreen
 import com.wire.android.ui.home.conversations.ConversationScreen
+import com.wire.android.ui.home.conversations.details.AddMembersToConversationViewModel
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsScreen
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationAllParticipantsScreen
+import com.wire.android.ui.home.conversations.search.SearchPeopleRouter
 import com.wire.android.ui.home.gallery.MediaGalleryScreen
 import com.wire.android.ui.home.newconversation.NewConversationRouter
 import com.wire.android.ui.settings.SettingsScreen
@@ -213,6 +218,23 @@ enum class NavigationItem(
         override fun getRouteWithArgs(arguments: List<Any>): String = routeWithConversationIdArg(arguments)
     },
 
+    AddConversationParticipants(
+        primaryRoute = ADD_CONVERSATION_PARTICIPANTS,
+        canonicalRoute = "$ADD_CONVERSATION_PARTICIPANTS/{$EXTRA_CONVERSATION_ID}",
+        content = {
+            val viewModel = hiltViewModel<AddMembersToConversationViewModel>()
+
+
+            SearchPeopleRouter(
+                searchPeopleViewModel = viewModel,
+                searchBarTitle = stringResource(id = R.string.label_add_participants),
+                onPeoplePicked = { viewModel.addMembersToConversation() }
+            )
+        }
+    ) {
+        override fun getRouteWithArgs(arguments: List<Any>): String = routeWithConversationIdArg(arguments)
+    },
+
     GroupConversationAllParticipants(
         primaryRoute = GROUP_CONVERSATION_ALL_PARTICIPANTS,
         canonicalRoute = "$GROUP_CONVERSATION_ALL_PARTICIPANTS/{$EXTRA_CONVERSATION_ID}",
@@ -322,6 +344,7 @@ object NavigationItemDestinationsRoutes {
     const val CONVERSATION = "detailed_conversation_screen"
     const val GROUP_CONVERSATION_DETAILS = "group_conversation_details_screen"
     const val GROUP_CONVERSATION_ALL_PARTICIPANTS = "group_conversation_all_participants_screen"
+    const val ADD_CONVERSATION_PARTICIPANTS = "add_conversation_participants"
     const val SETTINGS = "settings_screen"
     const val DEBUG = "debug_screen"
     const val REMOVE_DEVICES = "remove_devices_screen"

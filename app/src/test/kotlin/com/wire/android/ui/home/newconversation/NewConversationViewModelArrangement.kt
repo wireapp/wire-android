@@ -141,9 +141,9 @@ internal class NewConversationViewModelArrangement {
     private val viewModel by lazy {
         NewConversationViewModel(
             navigationManager = navigationManager,
-            searchUsers = searchUsers,
+            searchPublicUsers = searchUsers,
             searchKnownUsers = searchKnownUsers,
-            getAllContacts = getAllContacts,
+            getAllKnownUsers = getAllContacts,
             createGroupConversation = createGroupConversation,
             contactMapper = contactMapper,
             sendConnectionRequest = sendConnectionRequestUseCase,

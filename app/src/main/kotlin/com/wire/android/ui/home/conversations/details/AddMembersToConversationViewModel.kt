@@ -27,6 +27,7 @@ import com.wire.kalium.logic.feature.publicuser.search.Result
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
+@Suppress("LongParameterList")
 @HiltViewModel
 class AddMembersToConversationViewModel @Inject constructor(
     private val getAllContactsNotInConversation: GetAllContactsNotInConversationUseCase,

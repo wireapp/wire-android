@@ -33,6 +33,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@Suppress("LongParameterList","TooManyFunctions")
 @HiltViewModel
 class NewConversationViewModel @Inject constructor(
     private val getAllKnownUsers: GetAllContactsUseCase,

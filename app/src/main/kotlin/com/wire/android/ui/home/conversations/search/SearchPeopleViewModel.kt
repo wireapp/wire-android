@@ -27,6 +27,7 @@ import kotlinx.coroutines.withContext
 // therefore we are delegating the search to a specific use cases
 // by overriding getAllUsersUseCase(), searchKnownUsersUseCase()
 // and searchPublicUsersUseCase()
+@Suppress("TooManyFunctions")
 abstract class SearchPeopleViewModel(
     val navigationManager: NavigationManager,
     private val sendConnectionRequest: SendConnectionRequestUseCase,

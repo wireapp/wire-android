@@ -120,8 +120,7 @@ fun RestrictedAssetMessage(assetTypeIcon: Int, restrictedAssetMessage: String) {
             Image(
                 modifier = Modifier
                     .padding(bottom = dimensions().spacing4x)
-                    .height(dimensions().spacing24x)
-                    .width(dimensions().spacing24x),
+                    .size(height = dimensions().spacing24x, width = dimensions().spacing24x),
                 painter = painterResource(
                     id = assetTypeIcon
                 ),
@@ -134,6 +133,7 @@ fun RestrictedAssetMessage(assetTypeIcon: Int, restrictedAssetMessage: String) {
                 text = restrictedAssetMessage,
                 style = MaterialTheme.wireTypography.body01.copy(color = MaterialTheme.wireColorScheme.secondaryText),
                 overflow = TextOverflow.Ellipsis,
+                maxLines = 1
             )
         }
     }
@@ -162,6 +162,7 @@ fun RestrictedFileMessage(fileName: String, fileSize: Long) {
                 text = assetName,
                 style = MaterialTheme.wireTypography.body02,
                 overflow = TextOverflow.Ellipsis,
+                maxLines = 1,
                 modifier = Modifier
                     .padding(bottom = dimensions().spacing4x)
                     .constrainAs(name) {
@@ -201,6 +202,7 @@ fun RestrictedFileMessage(fileName: String, fileSize: Long) {
                 text = stringResource(id = R.string.prohibited_file_message),
                 style = MaterialTheme.wireTypography.body01.copy(color = MaterialTheme.wireColorScheme.secondaryText),
                 overflow = TextOverflow.Ellipsis,
+                maxLines = 1,
                 modifier = Modifier.constrainAs(message) {
                     end.linkTo(parent.end)
                     top.linkTo(name.bottom)

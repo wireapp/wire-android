@@ -179,7 +179,8 @@ class MessageContentMapper @Inject constructor(
         assetName: String
     ): UIMessageContent {
         return UIMessageContent.RestrictedAsset(
-            mimeType = mimeType, assetSizeInBytes = assetSize,
+            mimeType = mimeType,
+            assetSizeInBytes = assetSize,
             assetName = assetName
         )
     }

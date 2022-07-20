@@ -65,10 +65,7 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import io.github.esentsov.PackagePrivate
 
-@OptIn(
-    ExperimentalMaterial3Api::class,
-    ExperimentalMaterialApi::class
-)
+@OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 /**
  * The class encapsulating the app main navigational items.
  */

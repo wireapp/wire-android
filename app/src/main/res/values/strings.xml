@@ -32,6 +32,8 @@
     <string name="label_on">ON</string>
     <string name="label_off">OFF</string>
     <string name="label_value_copied">%s copied</string>
+    <string name="label_disable">Disable</string>
+    <string name="folder_lable_access">Access</string>
 
     <!-- Content descriptions -->
     <string name="content_description_reveal_password">Show or hide password</string>
@@ -242,6 +244,12 @@
     <string name="conversation_details_group_participants_title">Group Participants</string>
     <string name="conversation_details_group_participants_add">Add participants</string>
 
+    <string name="convrsation_options_guest_discriptions">Turn this option ON to open this conversation to people outside your team, even if they don\'t have Wire.</string>
+    <string name="conversation_Option_services_lable">Services</string>
+    <string name="convrsation_options_services_discriptions">Turn this option ON to open this conversation to services.</string>
+    <string name="disable_guest_dialog_title">Disable guest access?</string>
+    <string name="disable_guest_dialog_text">Current guests will be removed from the conversation. New guests will not be allowed.</string>
+
     <!-- Attachment options -->
     <string name="attachment_share_file">Attach File</string>
     <string name="attachment_share_image">Attach Image</string>
@@ -447,7 +455,7 @@
     <string name="prohibited_videos_message">Receiving Videos is Prohibited</string>
     <string name="prohibited_audio_message">Receiving Audio is Prohibited</string>
     <string name="prohibited_file_message">Receiving Files is Prohibited</string>
-    <string name="there_has_been_a_change">There has been a change in wire</string>
+    <string name="team_settings_changed">Team Settings Changed</string>
     <string name="sharing_files_enabled">Sharing and receiving files of any type is now enabled</string>
     <string name="sharing_files_disabled">Sharing and receiving files of any type is now disabled</string>
 

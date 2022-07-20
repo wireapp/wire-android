@@ -30,7 +30,6 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
 import com.wire.android.R
-import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.MoreOptionIcon
 import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireTabRow
@@ -42,11 +41,9 @@ import com.wire.android.ui.home.conversations.details.options.GroupConversationO
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsState
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipants
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipantsState
-import com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
-import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.launch
 
 @Composable
@@ -115,7 +112,6 @@ private fun GroupConversationDetailsContent(
             ) { pageIndex ->
                 when (GroupConversationDetailsTabItem.values()[pageIndex]) {
                     GroupConversationDetailsTabItem.OPTIONS -> GroupConversationOptions(
-                        groupOptionsState = groupOptionsState,
                         lazyListState = lazyListStates[pageIndex]
                     )
                     GroupConversationDetailsTabItem.PARTICIPANTS -> GroupConversationParticipants(

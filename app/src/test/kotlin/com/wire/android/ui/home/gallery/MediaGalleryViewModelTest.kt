@@ -2,6 +2,7 @@ package com.wire.android.ui.home.gallery
 
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.navigation.EXTRA_MESSAGE_TO_DELETE_ID
 import com.wire.android.navigation.EXTRA_MESSAGE_TO_DELETE_IS_SELF
 import com.wire.android.navigation.NavigationManager
@@ -31,6 +32,9 @@ import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
+import okio.Path
+import okio.Path.Companion.toPath
+import okio.buffer
 import org.amshove.kluent.internal.assertEquals
 import org.junit.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -62,9 +66,11 @@ class MediaGalleryViewModelTest {
         // Given
         val mockedConversation = mockedConversationDetails()
         val mockedImage = "mocked-image".toByteArray()
+        val dummyDataPath = "dummy-path".toPath()
         val (arrangement, viewModel) = Arrangement()
+            .withStoredData(mockedImage, dummyDataPath)
             .withConversationDetails(mockedConversation)
-            .withSuccessfulImageData(mockedImage)
+            .withSuccessfulImageData(dummyDataPath, mockedImage.size.toLong())
             .arrange()
 
         // When
@@ -73,9 +79,7 @@ class MediaGalleryViewModelTest {
         // Then
         coVerify(exactly = 1) {
             arrangement.getImageData.invoke(mockedConversation.conversation.id, viewModel.imageAssetId.messageId)
-        }
-        coVerify(exactly = 1) {
-            arrangement.fileManager.saveToExternalStorage(any(), mockedImage, any())
+            arrangement.fileManager.saveToExternalStorage(any(), dummyDataPath, mockedImage.size.toLong(), any())
         }
     }
 
@@ -102,9 +106,11 @@ class MediaGalleryViewModelTest {
         // Given
         val mockedConversation = mockedConversationDetails()
         val mockedImage = "mocked-image".toByteArray()
+        val dummyDataPath = fakeKaliumFileSystem.tempFilePath("dummy-path")
         val (arrangement, viewModel) = Arrangement()
+            .withStoredData(mockedImage, dummyDataPath)
             .withConversationDetails(mockedConversation)
-            .withSuccessfulImageData(mockedImage)
+            .withSuccessfulImageData(dummyDataPath, mockedImage.size.toLong())
             .arrange()
 
         // When
@@ -121,9 +127,11 @@ class MediaGalleryViewModelTest {
         // Given
         val mockedConversation = mockedConversationDetails()
         val mockedImage = "mocked-image".toByteArray()
+        val imagePath = fakeKaliumFileSystem.providePersistentAssetPath("dummy-path")
         val (arrangement, viewModel) = Arrangement()
+            .withStoredData(mockedImage, imagePath)
             .withConversationDetails(mockedConversation)
-            .withSuccessfulImageData(mockedImage)
+            .withSuccessfulImageData(imagePath, mockedImage.size.toLong())
             .arrange()
 
         // When
@@ -174,13 +182,21 @@ class MediaGalleryViewModelTest {
             coEvery { getConversationDetails(any()) } returns flowOf(conversationDetails)
         }
 
+        fun withStoredData(assetData: ByteArray, assetPath: Path): Arrangement {
+            fakeKaliumFileSystem.sink(assetPath).buffer().use {
+                assetData
+            }
+
+            return this
+        }
+
         fun withConversationDetails(mockedConversationDetails: ConversationDetails): Arrangement {
             conversationDetails = mockedConversationDetails
             return this
         }
 
-        fun withSuccessfulImageData(imageData: ByteArray): Arrangement {
-            coEvery { getImageData(any(), any()) } returns MessageAssetResult.Success(imageData)
+        fun withSuccessfulImageData(imageDataPath: Path, imageSize: Long): Arrangement {
+            coEvery { getImageData(any(), any()) } returns MessageAssetResult.Success(imageDataPath, imageSize)
             return this
         }
 
@@ -228,4 +244,8 @@ class MediaGalleryViewModelTest {
             LegalHoldStatus.DISABLED,
             UserType.INTERNAL
         )
+
+    companion object {
+        val fakeKaliumFileSystem = FakeKaliumFileSystem()
+    }
 }

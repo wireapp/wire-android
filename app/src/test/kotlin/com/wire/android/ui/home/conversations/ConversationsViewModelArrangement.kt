@@ -3,6 +3,7 @@ package com.wire.android.ui.home.conversations
 import android.content.res.Resources
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.TestDispatcherProvider
+import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.model.UserAvatarData
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.model.MessageHeader
@@ -14,7 +15,7 @@ import com.wire.android.util.FileManager
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.CoreFailure
-import com.wire.kalium.logic.data.asset.KaliumFileSystem
+import com.wire.kalium.logic.configuration.FileSharingStatus
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.LegalHoldStatus
@@ -46,8 +47,10 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.consumeAsFlow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import okio.Path
+import okio.buffer
 
 internal class ConversationsViewModelArrangement {
     init {
@@ -61,9 +64,6 @@ internal class ConversationsViewModelArrangement {
         coEvery { observeConversationDetails(any()) } returns flowOf()
         coEvery { getSelfUserTeam() } returns flowOf()
     }
-
-    @MockK
-    private lateinit var kaliumFileSystem: KaliumFileSystem
 
     @MockK
     private lateinit var savedStateHandle: SavedStateHandle
@@ -122,6 +122,8 @@ internal class ConversationsViewModelArrangement {
     @MockK
     private lateinit var endCall: EndCallUseCase
 
+    private val fakeKaliumFileSystem = FakeKaliumFileSystem()
+
     private val conversationDetailsChannel = Channel<ConversationDetails>(capacity = Channel.UNLIMITED)
 
     private val messagesChannel = Channel<List<UIMessage>>(capacity = Channel.UNLIMITED)
@@ -144,10 +146,25 @@ internal class ConversationsViewModelArrangement {
             observeOngoingCalls = observeOngoingCallsUseCase,
             answerCall = answerCallUseCase,
             wireSessionImageLoader = wireSessionImageLoader,
-            kaliumFileSystem = kaliumFileSystem,
+            kaliumFileSystem = fakeKaliumFileSystem,
             observeEstablishedCalls = observeEstablishedCalls,
             endCall = endCall
         )
+    }
+
+    suspend fun withSuccessfulViewModelInit(): ConversationsViewModelArrangement {
+        coEvery { isFileSharingEnabledUseCase() } returns FileSharingStatus(null, null)
+        coEvery { getMessagesForConversationUseCase(any()) } returns messagesChannel.consumeAsFlow()
+        coEvery { observeOngoingCallsUseCase() } returns emptyFlow()
+        coEvery { observeEstablishedCalls() } returns emptyFlow()
+        return this
+    }
+
+    fun withStoredAsset(dataPath: Path, dataContent: ByteArray): ConversationsViewModelArrangement {
+        fakeKaliumFileSystem.sink(dataPath).buffer().use {
+            it.write(dataContent)
+        }
+        return this
     }
 
     suspend fun withMessagesUpdate(messages: List<UIMessage>): ConversationsViewModelArrangement {

@@ -16,7 +16,7 @@ import com.wire.android.ui.theme.DEFAULT_WEIGHT
 @Composable
 fun RowItemTemplate(
     leadingIcon: @Composable () -> Unit = {},
-    title: @Composable () -> Unit,
+    title: @Composable () -> Unit = {},
     subtitle: @Composable () -> Unit = {},
     actions: @Composable () -> Unit = {},
     clickable: Clickable = Clickable(false) {},

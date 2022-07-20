@@ -28,9 +28,11 @@ fun WireCenterAlignedTopAppBar(
     elevation: Dp = MaterialTheme.wireDimensions.topBarShadowElevation,
     actions: @Composable RowScope.() -> Unit = {},
     colors: TopAppBarColors = wireTopAppBarColors(),
+    modifier: Modifier = Modifier,
     bottomContent: @Composable ColumnScope.() -> Unit = {}
 ) {
     Surface(
+        modifier = modifier,
         shadowElevation = elevation,
         color = colors.containerColor(scrollFraction = 0f).value
     ) {

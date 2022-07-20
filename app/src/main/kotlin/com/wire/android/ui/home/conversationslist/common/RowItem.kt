@@ -24,10 +24,10 @@ fun RowItem(
     modifier: Modifier = Modifier,
     content: @Composable (RowScope.() -> Unit),
 ) {
-    SurfaceBackgroundWrapper(modifier = modifier.padding(MaterialTheme.wireDimensions.conversationItemPadding)) {
+    SurfaceBackgroundWrapper(modifier = Modifier.padding(vertical = MaterialTheme.wireDimensions.conversationItemPadding)) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
-            modifier = Modifier
+            modifier = modifier
                 .height(MaterialTheme.wireDimensions.conversationItemRowHeight)
                 .fillMaxWidth()
                 .clickable(clickable)

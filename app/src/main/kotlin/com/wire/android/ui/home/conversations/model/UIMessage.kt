@@ -47,7 +47,12 @@ sealed class MessageContent {
 
     data class TextMessage(val messageBody: MessageBody) : ClientMessage()
 
-    data class RestrictedAsset(val mimeType: String) : ClientMessage()
+    data class RestrictedAsset(
+        val mimeType: String,
+        val assetSizeInBytes: Long,
+        val assetName: String
+    ) : ClientMessage()
+
     data class AssetMessage(
         val assetName: String,
         val assetExtension: String,
@@ -94,7 +99,7 @@ sealed class MessageContent {
         sealed class MissedCall(
             open val author: UIText,
             @StringRes override val stringResId: Int
-        ): SystemMessage(R.drawable.ic_call_end, stringResId, false) {
+        ) : SystemMessage(R.drawable.ic_call_end, stringResId, false) {
 
             data class YouCalled(override val author: UIText) : MissedCall(author, R.string.label_system_message_you_called)
             data class OtherCalled(override val author: UIText) : MissedCall(author, R.string.label_system_message_other_called)

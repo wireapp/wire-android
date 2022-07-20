@@ -23,8 +23,10 @@ import com.wire.kalium.logic.feature.call.usecase.UnMuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.UpdateVideoStateUseCase
 import com.wire.kalium.logic.feature.conversation.AddMemberToConversationUseCase
 import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
+import com.wire.kalium.logic.feature.conversation.GetAllContactsNotInConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveUserListByIdUseCase
+import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
@@ -38,9 +40,7 @@ import com.wire.kalium.logic.feature.session.RegisterTokenUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoUseCase
-import com.wire.kalium.logic.feature.user.UploadUserAvatarUseCase
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
-import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -145,7 +145,7 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun provideObserveSyncStateUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId)=
+    fun provideObserveSyncStateUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).observeSyncState
 
     @ViewModelScoped
@@ -555,4 +555,20 @@ class UseCaseModule {
     @Provides
     fun provideRegisterTokenUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): RegisterTokenUseCase =
         coreLogic.getSessionScope(currentAccount).client.registerPushToken
+
+    @ViewModelScoped
+    @Provides
+    fun provideGetAllContactsNotInTheConversationUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): GetAllContactsNotInConversationUseCase =
+        coreLogic.getSessionScope(currentAccount).users.getAllContactsNotInConversation
+
+    @ViewModelScoped
+    @Provides
+    fun provideUpdateConversationAccessUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): UpdateConversationAccessRoleUseCase =
+        coreLogic.getSessionScope(currentAccount).conversations.updateConversationAccess
 }

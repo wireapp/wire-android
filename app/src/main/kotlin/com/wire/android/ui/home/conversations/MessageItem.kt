@@ -44,6 +44,7 @@ import com.wire.android.ui.home.conversations.model.MessageImage
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.RestrictedAssetMessage
+import com.wire.android.ui.home.conversations.model.RestrictedFileMessage
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversationslist.model.hasLabel
 import com.wire.android.ui.theme.wireColorScheme
@@ -233,7 +234,7 @@ private fun MessageContent(
                     RestrictedAssetMessage(R.drawable.ic_speaker_on, stringResource(id = R.string.prohibited_audio_message))
                 }
                 else -> {
-                    RestrictedAssetMessage(R.drawable.ic_file, stringResource(id = R.string.prohibited_file_message))
+                    RestrictedFileMessage(messageContent.assetName, messageContent.assetSizeInBytes)
                 }
             }
         }

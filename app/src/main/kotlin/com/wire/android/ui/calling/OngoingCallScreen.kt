@@ -117,7 +117,6 @@ private fun OngoingCallTopBar(
         onNavigationPressed = onCollapse,
         titleStyle = MaterialTheme.wireTypography.title02,
         maxLines = 1,
-        titleStartPadding = dimensions().spacing6x,
         title = conversationName,
         navigationIconType = NavigationIconType.Collapse,
         elevation = 0.dp,

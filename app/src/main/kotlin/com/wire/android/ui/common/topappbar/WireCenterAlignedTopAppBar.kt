@@ -14,7 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
@@ -23,7 +23,6 @@ fun WireCenterAlignedTopAppBar(
     title: String,
     titleStyle: TextStyle = MaterialTheme.wireTypography.title01,
     maxLines: Int = 2,
-    titleStartPadding: Dp = 0.dp,
     onNavigationPressed: () -> Unit = {},
     navigationIconType: NavigationIconType? = NavigationIconType.Back,
     elevation: Dp = MaterialTheme.wireDimensions.topBarShadowElevation,
@@ -41,8 +40,7 @@ fun WireCenterAlignedTopAppBar(
                     WireTopAppBarTitle(
                         title = title,
                         style = titleStyle,
-                        maxLines = maxLines,
-                        titleStartPadding = titleStartPadding
+                        maxLines = maxLines
                     )
                 },
                 navigationIcon = { navigationIconType?.let { NavigationIconButton(iconType = it) { onNavigationPressed() } } },
@@ -58,11 +56,13 @@ fun WireCenterAlignedTopAppBar(
 fun WireTopAppBarTitle(
     title: String,
     style: TextStyle,
-    maxLines: Int = 2,
-    titleStartPadding: Dp = 0.dp
+    maxLines: Int = 2
 ) {
     Text(
-        modifier = Modifier.padding(start = titleStartPadding),
+        modifier = Modifier.padding(
+            start = dimensions().spacing6x,
+            end = dimensions().spacing6x
+        ),
         text = title,
         style = style,
         maxLines = maxLines,

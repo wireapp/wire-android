@@ -3,6 +3,7 @@ package com.wire.android.ui.home.conversations
 import android.content.res.Resources
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.TestDispatcherProvider
+import com.wire.android.config.mockUri
 import com.wire.android.model.UserAvatarData
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.model.MessageHeader
@@ -14,6 +15,7 @@ import com.wire.android.util.FileManager
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.logic.configuration.FileSharingStatus
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.LegalHoldStatus
@@ -50,16 +52,24 @@ import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.flowOf
 
 internal class ConversationsViewModelArrangement {
+
+    val conversationId: ConversationId = ConversationId("some-dummy-value", "some.dummy.domain")
+
     init {
         // Tests setup
-        val dummyConversationId = "some-dummy-value@some.dummy.domain"
         MockKAnnotations.init(this, relaxUnitFun = true)
-        every { savedStateHandle.get<String>(any()) } returns dummyConversationId
+        mockUri()
+        every { savedStateHandle.get<String>(any()) } returns conversationId.toString()
         every { savedStateHandle.set(any(), any<String>()) } returns Unit
 
         // Default empty values
         coEvery { observeConversationDetails(any()) } returns flowOf()
         coEvery { getSelfUserTeam() } returns flowOf()
+        coEvery { getMessagesForConversationUseCase(any()) } returns flowOf(listOf())
+        every { isFileSharingEnabledUseCase() } returns FileSharingStatus(null, null)
+        coEvery { observeOngoingCallsUseCase() } returns flowOf(listOf())
+        coEvery { observeEstablishedCallsUseCase() } returns flowOf(listOf())
+
     }
 
     @MockK
@@ -117,7 +127,7 @@ internal class ConversationsViewModelArrangement {
     private lateinit var wireSessionImageLoader: WireSessionImageLoader
 
     @MockK
-    private lateinit var observeEstablishedCalls: ObserveEstablishedCallsUseCase
+    private lateinit var observeEstablishedCallsUseCase: ObserveEstablishedCallsUseCase
 
     @MockK
     private lateinit var endCall: EndCallUseCase
@@ -145,7 +155,7 @@ internal class ConversationsViewModelArrangement {
             observeOngoingCalls = observeOngoingCallsUseCase,
             answerCall = answerCallUseCase,
             wireSessionImageLoader = wireSessionImageLoader,
-            observeEstablishedCalls = observeEstablishedCalls,
+            observeEstablishedCalls = observeEstablishedCallsUseCase,
             endCall = endCall
         )
     }

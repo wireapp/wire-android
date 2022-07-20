@@ -1,12 +1,17 @@
 package com.wire.android.ui.home.conversations
 
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.NavigationItem
 import com.wire.android.ui.home.conversations.ConversationViewModel.Companion.ASSET_SIZE_DEFAULT_LIMIT_BYTES
 import com.wire.android.ui.home.conversations.ConversationViewModel.Companion.IMAGE_SIZE_LIMIT_BYTES
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
+import com.wire.android.ui.home.conversations.model.MessageSource
+import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.parseIntoQualifiedID
 import com.wire.kalium.logic.data.team.Team
+import com.wire.kalium.logic.data.user.UserId
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.verify
@@ -350,5 +355,75 @@ class ConversationsViewModelTest {
             // Then
             verify(exactly = 1) { arrangement.fileManager.openWithExternalApp(any(), any(), any()) }
             assert(viewModel.conversationViewState.downloadedAssetDialogState == DownloadedAssetDialogVisibilityState.Hidden)
+        }
+
+    @Test
+    fun `given self user 1on1 message, when clicking on avatar, then open self profile`() = runTest {
+            // Given
+            val oneOneDetails = withMockConversationDetailsOneOnOne("Other User Name Goes Here")
+            val messageSource = MessageSource.Self
+            val userId = UserId("id", "domain")
+            val (arrangement, viewModel) = ConversationsViewModelArrangement()
+                .withConversationDetailUpdate(oneOneDetails)
+                .arrange()
+            // When
+            viewModel.navigateToProfile(messageSource, userId)
+            // Then
+            coVerify(exactly = 1) {
+                arrangement.navigationManager.navigate(NavigationCommand(NavigationItem.SelfUserProfile.getRouteWithArgs()))
+            }
+        }
+
+    @Test
+    fun `given self user group message, when clicking on avatar, then open self profile`() = runTest {
+            // Given
+            val groupDetails = mockConversationDetailsGroup("Conversation Name Goes Here")
+            val messageSource = MessageSource.Self
+            val userId = UserId("id", "domain")
+            val (arrangement, viewModel) = ConversationsViewModelArrangement()
+                .withConversationDetailUpdate(groupDetails)
+                .arrange()
+            // When
+            viewModel.navigateToProfile(messageSource, userId)
+            // Then
+            coVerify(exactly = 1) {
+                arrangement.navigationManager.navigate(NavigationCommand(NavigationItem.SelfUserProfile.getRouteWithArgs()))
+            }
+        }
+
+    @Test
+    fun `given other user 1on1 message, when clicking on avatar, then open other user profile without group data`() = runTest {
+            // Given
+            val oneOneDetails: ConversationDetails.OneOne = withMockConversationDetailsOneOnOne("Other User Name Goes Here")
+            val messageSource = MessageSource.OtherUser
+            val userId = UserId("id", "domain")
+            val (arrangement, viewModel) = ConversationsViewModelArrangement()
+                .withConversationDetailUpdate(oneOneDetails)
+                .arrange()
+            // When
+            viewModel.navigateToProfile(messageSource, userId)
+            // Then
+            coVerify(exactly = 1) {
+                arrangement.navigationManager.navigate(NavigationCommand(NavigationItem.OtherUserProfile.getRouteWithArgs(listOf(userId))))
+            }
+        }
+
+    @Test
+    fun `given other user group message, when clicking on avatar, then open other user profile with group data`() = runTest {
+            // Given
+            val groupDetails: ConversationDetails.Group = mockConversationDetailsGroup("Conversation Name Goes Here")
+            val messageSource = MessageSource.OtherUser
+            val userId = UserId("id", "domain")
+            val (arrangement, viewModel) = ConversationsViewModelArrangement()
+                .withConversationDetailUpdate(groupDetails)
+                .arrange()
+            // When
+            viewModel.navigateToProfile(messageSource, userId)
+            // Then
+            coVerify(exactly = 1) {
+                arrangement.navigationManager.navigate(
+                    NavigationCommand(NavigationItem.OtherUserProfile.getRouteWithArgs(listOf(userId, arrangement.conversationId)))
+                )
+            }
         }
 }

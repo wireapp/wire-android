@@ -26,6 +26,7 @@ import com.wire.android.ui.home.conversations.DownloadedAssetDialogVisibilitySta
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.ui.home.conversations.model.MessageContent.AssetMessage
+import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
 import com.wire.android.util.FileManager
 import com.wire.android.util.ImageUtil
@@ -37,6 +38,7 @@ import com.wire.kalium.logic.data.message.Message.DownloadStatus.FAILED
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.IN_PROGRESS
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.SAVED_EXTERNALLY
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.SAVED_INTERNALLY
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import com.wire.kalium.logic.feature.asset.SendAssetMessageResult
@@ -518,6 +520,24 @@ class ConversationViewModel @Inject constructor(
             }
         }
     }
+
+    fun navigateToProfile(messageSource: MessageSource, userId: UserId) {
+        viewModelScope.launch {
+            when (messageSource) {
+                MessageSource.Self -> navigateToSelfProfile()
+                MessageSource.OtherUser -> when(conversationViewState.conversationDetailsData) {
+                    is ConversationDetailsData.Group -> navigateToOtherProfile(userId, conversationId)
+                    else -> navigateToOtherProfile(userId)
+                }
+            }
+        }
+    }
+
+    private suspend fun navigateToSelfProfile() =
+        navigationManager.navigate(NavigationCommand(NavigationItem.SelfUserProfile.getRouteWithArgs()))
+
+    private suspend fun navigateToOtherProfile(id: UserId, conversationId: ConversationId? = null) =
+        navigationManager.navigate(NavigationCommand(NavigationItem.OtherUserProfile.getRouteWithArgs(listOfNotNull(id, conversationId))))
 
     companion object {
         const val IMAGE_SIZE_LIMIT_BYTES = 15 * 1024 * 1024 // 15 MB limit for images

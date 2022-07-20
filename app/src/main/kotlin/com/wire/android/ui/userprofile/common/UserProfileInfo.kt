@@ -17,6 +17,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
@@ -25,6 +26,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.ConstraintLayoutScope
+import com.wire.android.model.Clickable
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.ui.common.Icon
 import com.wire.android.model.UserAvatarData
@@ -58,10 +60,9 @@ fun UserProfileInfo(
             .padding(top = dimensions().spacing16x)
     ) {
         UserProfileAvatar(
-            onClick = onUserProfileClick,
-            isClickable = editableState is EditableState.IsEditable,
             size = dimensions().userAvatarDefaultBigSize,
-            avatarData = UserAvatarData(avatarAsset)
+            avatarData = UserAvatarData(avatarAsset),
+            clickable = remember { Clickable(enabled = editableState is EditableState.IsEditable) { onUserProfileClick?.invoke() } }
         )
         if (isLoading) {
             Box(

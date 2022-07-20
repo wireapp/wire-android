@@ -8,6 +8,7 @@ import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.user.AssetId
+import com.wire.kalium.logic.data.user.UserId
 
 data class UIMessage(
     val userAvatarData: UserAvatarData,
@@ -26,7 +27,8 @@ data class MessageHeader(
     val isLegalHold: Boolean,
     val time: String,
     val messageStatus: MessageStatus,
-    val messageId: String
+    val messageId: String,
+    val userId: UserId? = null
 )
 
 sealed class MessageStatus(val text: UIText) {

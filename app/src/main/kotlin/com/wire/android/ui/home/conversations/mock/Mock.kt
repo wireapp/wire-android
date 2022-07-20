@@ -90,7 +90,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             isLegalHold = true,
             time = "12.23pm",
             messageStatus = MessageStatus.Untouched,
-            messageId = ""
+            messageId = "1"
         ),
         messageContent = MessageContent.TextMessage(
             messageBody = MessageBody(
@@ -112,7 +112,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             isLegalHold = true,
             time = "12.23pm",
             messageStatus = MessageStatus.Deleted,
-            messageId = ""
+            messageId = "2"
         ),
         messageContent = mockedImg,
         messageSource = MessageSource.Self
@@ -125,7 +125,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             isLegalHold = false,
             time = "12.23pm",
             messageStatus = MessageStatus.Edited("May 31, 2022 12.24pm"),
-            messageId = ""
+            messageId = "3"
         ),
         messageContent = mockedImg,
         messageSource = MessageSource.Self
@@ -138,7 +138,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             isLegalHold = false,
             time = "12.23pm",
             messageStatus = MessageStatus.Edited("May 31, 2022 12.24pm"),
-            messageId = ""
+            messageId = "4"
         ),
         messageContent = mockedImg,
         messageSource = MessageSource.Self
@@ -151,7 +151,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             isLegalHold = false,
             time = "12.23pm",
             messageStatus = MessageStatus.Deleted,
-            messageId = ""
+            messageId = "5"
         ),
         messageContent = MessageContent.TextMessage(
             messageBody = MessageBody(
@@ -173,7 +173,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             isLegalHold = false,
             time = "12.23pm",
             messageStatus = MessageStatus.Edited("May 31, 2022 12.24pm"),
-            messageId = ""
+            messageId = "6"
         ),
         messageContent = mockedImg,
         messageSource = MessageSource.Self
@@ -186,7 +186,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             isLegalHold = false,
             time = "12.23pm",
             messageStatus = MessageStatus.Edited("May 31, 2022 12.24pm"),
-            messageId = ""
+            messageId = "7"
         ),
         messageContent = MessageContent.TextMessage(
             messageBody = MessageBody(

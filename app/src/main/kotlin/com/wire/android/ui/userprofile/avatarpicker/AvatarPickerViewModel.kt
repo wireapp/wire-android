@@ -30,6 +30,7 @@ import javax.inject.Inject
 
 @ExperimentalMaterial3Api
 @HiltViewModel
+@Suppress("LongParameterList")
 class AvatarPickerViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val dataStore: UserDataStore,

@@ -25,8 +25,14 @@ import com.wire.android.ui.home.messagecomposer.AttachmentInnerState
 import com.wire.android.ui.home.messagecomposer.AttachmentState
 import com.wire.android.util.getTempWritableImageUri
 import com.wire.android.util.getTempWritableVideoUri
-import com.wire.android.util.permission.*
-import com.wire.kalium.logic.data.asset.KaliumFileSystem
+import com.wire.android.util.permission.UseCameraRequestFlow
+import com.wire.android.util.permission.UseStorageRequestFlow
+import com.wire.android.util.permission.rememberCaptureVideoFlow
+import com.wire.android.util.permission.rememberCurrentLocationFlow
+import com.wire.android.util.permission.rememberOpenFileBrowserFlow
+import com.wire.android.util.permission.rememberOpenGalleryFlow
+import com.wire.android.util.permission.rememberRecordAudioRequestFlow
+import com.wire.android.util.permission.rememberTakePictureFlow
 import kotlinx.coroutines.launch
 import okio.Path
 import okio.Path.Companion.toPath

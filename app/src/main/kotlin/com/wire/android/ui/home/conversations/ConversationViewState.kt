@@ -30,7 +30,8 @@ sealed class ConversationAvatar {
 
 sealed class DownloadedAssetDialogVisibilityState {
     object Hidden : DownloadedAssetDialogVisibilityState()
-    class Displayed(val assetName: String, val assetDataPath: Path, val assetSize: Long, val messageId: String) : DownloadedAssetDialogVisibilityState()
+    class Displayed(val assetName: String, val assetDataPath: Path, val assetSize: Long, val messageId: String) :
+        DownloadedAssetDialogVisibilityState()
 }
 
 sealed class ConversationDetailsData {

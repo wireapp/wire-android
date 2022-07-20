@@ -18,8 +18,7 @@ internal class AssetImageFetcher(
     val getPrivateAsset: GetMessageAssetUseCase,
     val resources: Resources,
     val drawableResultWrapper: DrawableResultWrapper = DrawableResultWrapper(resources),
-    val kaliumFileSystem: KaliumFileSystem,
-    val imageLoader: ImageLoader
+    val kaliumFileSystem: KaliumFileSystem
 ) : Fetcher {
 
     override suspend fun fetch(): FetchResult? {
@@ -61,7 +60,6 @@ internal class AssetImageFetcher(
                 getPublicAsset = getPublicAssetUseCase,
                 getPrivateAsset = getPrivateAssetUseCase,
                 resources = resources,
-                imageLoader = imageLoader,
                 kaliumFileSystem = kaliumFileSystem
             )
     }

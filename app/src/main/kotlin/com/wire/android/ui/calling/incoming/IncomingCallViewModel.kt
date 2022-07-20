@@ -84,9 +84,11 @@ class IncomingCallViewModel @Inject constructor(
     fun declineCall() {
         viewModelScope.launch {
             observeIncomingCallJob.cancel()
-            rejectCall(conversationId = incomingCallConversationId)
-            navigationManager.navigateBack()
-            callRinger.stop()
+            launch { rejectCall(conversationId = incomingCallConversationId) }
+            launch {
+                navigationManager.navigateBack()
+                callRinger.stop()
+            }
         }
     }
 
@@ -115,6 +117,7 @@ class IncomingCallViewModel @Inject constructor(
             )
         }
     }
+
     companion object {
         private const val DELAY_TIME_AFTER_ENDING_CALL = 1000L
         private val ACCEPT_CALL_DEFAULT_BACKSTACK_NODE = BackStackMode.REMOVE_CURRENT

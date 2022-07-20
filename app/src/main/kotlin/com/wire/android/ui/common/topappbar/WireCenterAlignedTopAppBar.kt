@@ -9,6 +9,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarColors
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.Dp
 import com.wire.android.ui.theme.wireDimensions
@@ -23,9 +24,11 @@ fun WireCenterAlignedTopAppBar(
     elevation: Dp = MaterialTheme.wireDimensions.topBarShadowElevation,
     actions: @Composable RowScope.() -> Unit = {},
     colors: TopAppBarColors = wireTopAppBarColors(),
+    modifier: Modifier = Modifier,
     bottomContent: @Composable ColumnScope.() -> Unit = {}
 ) {
     Surface(
+        modifier = modifier,
         shadowElevation = elevation,
         color = colors.containerColor(scrollFraction = 0f).value
     ) {

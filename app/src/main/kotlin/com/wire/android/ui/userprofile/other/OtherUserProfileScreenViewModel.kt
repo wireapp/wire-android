@@ -11,12 +11,17 @@ import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.model.ImageAsset
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.EXTRA_CONNECTION_IGNORED_USER_NAME
+import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.EXTRA_USER_ID
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.home.conversations.details.participants.usecase.ConversationRoleData
+import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
 import com.wire.android.util.EMPTY
 import com.wire.android.util.ui.WireSessionImageLoader
+import com.wire.kalium.logic.data.conversation.Member
+import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.parseIntoQualifiedID
 import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.data.user.OtherUser
@@ -33,6 +38,7 @@ import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversatio
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
 import com.wire.kalium.logic.feature.user.GetUserInfoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import java.util.UUID
 import javax.inject.Inject
@@ -49,13 +55,16 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val acceptConnectionRequest: AcceptConnectionRequestUseCase,
     private val ignoreConnectionRequest: IgnoreConnectionRequestUseCase,
     private val userTypeMapper: UserTypeMapper,
-    private val wireSessionImageLoader: WireSessionImageLoader
+    private val wireSessionImageLoader: WireSessionImageLoader,
+    private val observeConversationRoleForUser: ObserveConversationRoleForUserUseCase
 ) : ViewModel() {
 
     var state: OtherUserProfileState by mutableStateOf(OtherUserProfileState())
     var connectionOperationState: ConnectionOperationState? by mutableStateOf(null)
 
     private val userId = savedStateHandle.get<String>(EXTRA_USER_ID)!!.parseIntoQualifiedID()
+
+    val conversationId: QualifiedID? = savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)?.parseIntoQualifiedID()
 
     init {
         state = state.copy(isDataLoading = true)
@@ -65,12 +74,14 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                     appLogger.d("Couldn't not find the user with provided id:$userId.id and domain:$userId.domain")
                     connectionOperationState = ConnectionOperationState.LoadUserInformationError()
                 }
-                is GetUserInfoResult.Success -> loadViewState(result.otherUser, result.team)
+                is GetUserInfoResult.Success -> conversationId
+                    .let { if (it != null) observeConversationRoleForUser(it, userId) else flowOf(it) }
+                    .collect { loadViewState(result.otherUser, result.team, it) }
             }
         }
     }
 
-    private fun loadViewState(otherUser: OtherUser, team: Team?) {
+    private fun loadViewState(otherUser: OtherUser, team: Team?, conversationRoleData: ConversationRoleData?) {
         state = state.copy(
             isDataLoading = false,
             userAvatarAsset = otherUser.completePicture?.let { pic -> ImageAsset.UserAvatarAsset(wireSessionImageLoader, pic) },
@@ -80,7 +91,14 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             email = otherUser.email ?: String.EMPTY,
             phone = otherUser.phone ?: String.EMPTY,
             connectionStatus = otherUser.connectionStatus.toOtherUserProfileConnectionStatus(),
-            membership = userTypeMapper.toMembership(otherUser.userType)
+            membership = userTypeMapper.toMembership(otherUser.userType),
+            groupState = conversationRoleData?.userRole?.let { userRole ->
+                OtherUserProfileGroupState(
+                    groupName = conversationRoleData.conversationName,
+                    role = userRole,
+                    isSelfAnAdmin = conversationRoleData.selfRole is Member.Role.Admin
+                )
+            }
         )
     }
 

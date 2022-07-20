@@ -24,6 +24,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.constraintlayout.compose.ConstraintLayout
+import androidx.constraintlayout.compose.ConstraintLayoutScope
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.ui.common.Icon
 import com.wire.android.model.UserAvatarData
@@ -75,80 +76,92 @@ fun UserProfileInfo(
                 )
             }
         }
-    }
-    ConstraintLayout(
-        Modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
-    ) {
-        val (userDescription, editButton, teamDescription) = createRefs()
-
-        Column(
-            horizontalAlignment = CenterHorizontally,
-            modifier = Modifier
-                .padding(horizontal = dimensions().spacing64x)
-                .wrapContentSize()
-                .constrainAs(userDescription) {
-                    top.linkTo(parent.top)
-                    bottom.linkTo(parent.bottom)
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                }
+        ConstraintLayout(
+            Modifier
+                .fillMaxWidth()
+                .wrapContentHeight()
         ) {
-            Text(
-                text = fullName,
-                overflow = TextOverflow.Ellipsis,
-                maxLines = 1,
-                style = MaterialTheme.wireTypography.title02,
-                color = MaterialTheme.colorScheme.onBackground,
-            )
-            Text(
-                text = "@$userName",
-                overflow = TextOverflow.Ellipsis,
-                style = MaterialTheme.wireTypography.body02,
-                maxLines = 1,
-                color = MaterialTheme.wireColorScheme.labelText,
-            )
-            if (membership.hasLabel()) {
-                Spacer(Modifier.height(dimensions().spacing8x))
-                MembershipQualifierLabel(membership)
-            }
-        }
+            val (userDescription, editButton, teamDescription) = createRefs()
 
-        if (editableState is EditableState.IsEditable) {
-            IconButton(
+            Column(
+                horizontalAlignment = CenterHorizontally,
                 modifier = Modifier
-                    .padding(start = dimensions().spacing16x)
-                    .constrainAs(editButton) {
-                        top.linkTo(userDescription.top)
-                        bottom.linkTo(userDescription.bottom)
-                        end.linkTo(userDescription.end)
-                    },
-                onClick = editableState.onEditClick,
-                content = Icons.Filled.Edit.Icon()
-            )
-        }
-
-        if (teamName != null) {
-            Text(
-                modifier = Modifier
-                    .padding(top = dimensions().spacing8x)
-                    .padding(horizontal = dimensions().spacing16x)
-                    .constrainAs(teamDescription) {
-                        top.linkTo(userDescription.bottom)
+                    .padding(horizontal = dimensions().spacing64x)
+                    .wrapContentSize()
+                    .constrainAs(userDescription) {
+                        top.linkTo(parent.top)
+                        bottom.linkTo(parent.bottom)
                         start.linkTo(parent.start)
                         end.linkTo(parent.end)
-                    },
-                text = teamName,
-                maxLines = 1,
-                overflow = TextOverflow.Ellipsis,
-                style = MaterialTheme.wireTypography.label01,
-                color = MaterialTheme.colorScheme.onBackground,
-            )
+                    }
+            ) {
+                Text(
+                    text = fullName,
+                    overflow = TextOverflow.Ellipsis,
+                    maxLines = 1,
+                    style = MaterialTheme.wireTypography.title02,
+                    color = MaterialTheme.colorScheme.onBackground,
+                )
+                Text(
+                    text = "@$userName",
+                    overflow = TextOverflow.Ellipsis,
+                    style = MaterialTheme.wireTypography.body02,
+                    maxLines = 1,
+                    color = MaterialTheme.wireColorScheme.labelText,
+                )
+                MembershipQualifierLabel(membership, Modifier.padding(top = dimensions().spacing8x))
+            }
+
+            if (editableState is EditableState.IsEditable) {
+                ManageMemberButton(
+                    modifier = Modifier
+                        .padding(start = dimensions().spacing16x)
+                        .constrainAs(editButton) {
+                            top.linkTo(userDescription.top)
+                            bottom.linkTo(userDescription.bottom)
+                            end.linkTo(userDescription.end)
+                        },
+                    onEditClick = editableState.onEditClick
+                )
+            }
+
+            if (teamName != null) {
+                TeamInformation(
+                    modifier = Modifier
+                        .padding(top = dimensions().spacing8x)
+                        .padding(horizontal = dimensions().spacing16x)
+                        .constrainAs(teamDescription) {
+                            top.linkTo(userDescription.bottom)
+                            start.linkTo(parent.start)
+                            end.linkTo(parent.end)
+                        },
+                    teamName = teamName
+                )
+            }
         }
     }
 }
 
+@Composable
+private fun ManageMemberButton(modifier: Modifier, onEditClick: () -> Unit) {
+    IconButton(
+        modifier = modifier,
+        onClick = onEditClick,
+        content = Icons.Filled.Edit.Icon()
+    )
+}
+
+@Composable
+private fun TeamInformation(modifier: Modifier, teamName: String) {
+    Text(
+        modifier = modifier,
+        text = teamName,
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis,
+        style = MaterialTheme.wireTypography.label01,
+        color = MaterialTheme.colorScheme.onBackground,
+    )
+}
 
 sealed class EditableState {
     object NotEditable : EditableState()
@@ -161,7 +174,7 @@ sealed class EditableState {
 private fun UserProfileInfoPreview() {
     UserProfileInfo(
         isLoading = false,
-        editableState = EditableState.NotEditable,
+        editableState = EditableState.IsEditable {},
         userName = "userName",
         avatarAsset = null,
         fullName = "fullName",

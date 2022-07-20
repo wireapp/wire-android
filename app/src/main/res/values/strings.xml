@@ -446,7 +446,7 @@
     <string name="prohibited_videos_message">Receiving Videos is Prohibited</string>
     <string name="prohibited_audio_message">Receiving Audio is Prohibited</string>
     <string name="prohibited_file_message">Receiving Files is Prohibited</string>
-    <string name="there_has_been_a_change">There has been a change in wire</string>
+    <string name="team_settings_changed">Team Settings Changed</string>
     <string name="sharing_files_enabled">Sharing and receiving files of any type is now enabled</string>
     <string name="sharing_files_disabled">Sharing and receiving files of any type is now disabled</string>
 

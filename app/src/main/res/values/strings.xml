@@ -34,13 +34,13 @@
     <string name="label_disable">Disable</string>
     <string name="folder_lable_access">Access</string>
 
-    <!-- Content descriptions -->
+    <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
     <string name="content_description_app_logo">App Logo</string>
     <string name="content_description_reveal_password">Show or hide password</string>
     <string name="content_description_search_back">Search back icon</string>
     <string name="content_description_clear_content">Clear content</string>
     <string name="content_description_user_avatar">User avatar</string>
-    <string name="content_description_mute">Mute</string>
+    <string name="content_description_muted_conversation">Muted conversation</string>
     <string name="content_description_check">Check mark</string>
     <string name="content_description_download_icon">Download icon</string>
     <string name="content_description_add_to_favourite">Add to favourite</string>
@@ -49,7 +49,6 @@
     <string name="content_description_block_the_user">Block the user</string>
     <string name="content_description_leave_the_group">Leave the group</string>
     <string name="content_description_conversation_phone_icon">Make audio call</string>
-    <string name="content_description_welcome_carousel_item">Welcome image</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
     <string name="content_description_conversation_search_icon">Conversation search icon</string>
     <string name="content_description_new_conversation">Start a new conversation</string>
@@ -78,6 +77,14 @@
     <string name="content_description_file_message">File message</string>
     <string name="content_description_ping_everyone">Ping everyone</string>
     <string name="content_description_system_message_icon">System message icon</string>
+    <string name="content_description_calling_mute_unmute_call">Mute/unmute call</string>
+    <string name="content_description_calling_hang_up_call">Hang up call</string>
+    <string name="content_description_calling_accept_call">Accept call</string>
+    <string name="content_description_calling_decline_call">Decline call</string>
+    <string name="content_description_calling_turn_camera_on_off">Turn camera on/off</string>
+    <string name="content_description_calling_flip_camera_on_off">Flip camera</string>
+    <string name="content_description_calling_turn_speaker_on_off">Turn speaker on/off</string>
+    <string name="content_description_calling_participant_muted">Participant muted</string>
 
     <!-- Navigation -->
     <string name="vault_screen_title">Vault</string>
@@ -385,25 +392,17 @@
     <string name="notification_call_default_group_name">Somewhere</string>
 
     <!-- Calling-->
-    <string name="calling_mute_call">Mute call</string>
-    <string name="calling_hang_up_call">Hang up call</string>
-    <string name="calling_accept_call">Accept call</string>
-    <string name="calling_decline_call">Decline call</string>
-    <string name="calling_turn_camera_on_off">Turn camera on/off</string>
-    <string name="calling_flip_camera_on_off">Flip camera</string>
-    <string name="calling_turn_speaker_on_off">Turn speaker on/off</string>
-    <string name="calling_label_microphone">Microphone</string>
-    <string name="calling_label_camera">Camera</string>
-    <string name="calling_label_speaker">Speaker</string>
-    <string name="calling_label_flip">Flip</string>
+    <string name="calling_button_label_microphone">Microphone</string>
+    <string name="calling_button_label_camera">Camera</string>
+    <string name="calling_button_label_speaker">Speaker</string>
+    <string name="calling_button_label_flip">Flip</string>
+    <string name="calling_button_label_decline">Decline</string>
+    <string name="calling_button_label_accept">Accept</string>
+    <string name="calling_button_label_join_call">Join</string>
     <string name="calling_label_ringing_call">Ringing...</string>
     <string name="calling_label_incoming_call">Calling..</string>
     <string name="calling_label_default_caller_name">Default</string>
     <string name="calling_label_constant_bit_rate">CONSTANT BIT RATE</string>
-    <string name="calling_label_decline">Decline</string>
-    <string name="calling_label_accept">Accept</string>
-    <string name="calling_content_description_participant_muted">Participant muted</string>
-    <string name="calling_label_join_call">Join</string>
     <string name="calling_minimize_view">Minimize view</string>
     <string name="calling_ongoing_call_title_alert">Hang up current call ?</string>
     <string name="calling_ongoing_call_start_message_alert">A call is active in another conversation.\nCalling here will hang up the other call.</string>

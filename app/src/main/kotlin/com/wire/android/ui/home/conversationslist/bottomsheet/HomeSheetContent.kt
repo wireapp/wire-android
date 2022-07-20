@@ -56,7 +56,7 @@ internal fun HomeSheetContent(
                     icon = {
                         MenuItemIcon(
                             id = R.drawable.ic_mute,
-                            contentDescription = stringResource(R.string.content_description_mute),
+                            contentDescription = stringResource(R.string.content_description_muted_conversation),
                         )
                     },
                     action = { NotificationsOptionsItemAction(conversationSheetContent.mutingConversationState) },

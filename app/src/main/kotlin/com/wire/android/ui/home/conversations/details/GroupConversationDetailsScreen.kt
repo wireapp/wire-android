@@ -30,7 +30,6 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
 import com.wire.android.R
-import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.MoreOptionIcon
 import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireTabRow
@@ -39,15 +38,12 @@ import com.wire.android.ui.common.calculateCurrentTab
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptions
-import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsScreen
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsState
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipants
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipantsState
-import com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
-import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.launch
 
 @Composable
@@ -111,7 +107,7 @@ private fun GroupConversationDetailsContent(
                     .padding(internalPadding)
             ) { pageIndex ->
                 when (GroupConversationDetailsTabItem.values()[pageIndex]) {
-                    GroupConversationDetailsTabItem.OPTIONS -> GroupConversationOptionsScreen(
+                    GroupConversationDetailsTabItem.OPTIONS -> GroupConversationOptions(
                         lazyListState = lazyListStates[pageIndex]
                     )
                     GroupConversationDetailsTabItem.PARTICIPANTS -> GroupConversationParticipants(

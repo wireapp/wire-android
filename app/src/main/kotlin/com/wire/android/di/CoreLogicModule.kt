@@ -23,6 +23,7 @@ import com.wire.kalium.logic.feature.call.usecase.UnMuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.UpdateVideoStateUseCase
 import com.wire.kalium.logic.feature.conversation.AddMemberToConversationUseCase
 import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
+import com.wire.kalium.logic.feature.conversation.GetAllContactsNotInConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveUserListByIdUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
@@ -552,6 +553,14 @@ class UseCaseModule {
     @Provides
     fun fileSystemProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): KaliumFileSystem =
         coreLogic.getSessionScope(currentAccount).kaliumFileSystem
+
+    @ViewModelScoped
+    @Provides
+    fun provideGetAllContactsNotInTheConversationUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): GetAllContactsNotInConversationUseCase =
+        coreLogic.getSessionScope(currentAccount).users.getAllContactsNotInConversation
 
     @ViewModelScoped
     @Provides

@@ -61,20 +61,22 @@ internal class GroupConversationDetailsViewModelArrangement {
 
     @MockK
     private lateinit var savedStateHandle: SavedStateHandle
+
     @MockK
     lateinit var navigationManager: NavigationManager
+
     @MockK
     lateinit var observeConversationDetails: ObserveConversationDetailsUseCase
+
     @MockK
     lateinit var observeParticipantsForConversationUseCase: ObserveParticipantsForConversationUseCase
-    @MockK
-    private lateinit var wireSessionImageLoader: WireSessionImageLoader
+
     private val conversationDetailsChannel = Channel<ConversationDetails>(capacity = Channel.UNLIMITED)
     private val viewModel by lazy {
         GroupConversationDetailsViewModel(
-            savedStateHandle,
             navigationManager,
             observeConversationDetails,
+            savedStateHandle,
             observeParticipantsForConversationUseCase,
         )
     }

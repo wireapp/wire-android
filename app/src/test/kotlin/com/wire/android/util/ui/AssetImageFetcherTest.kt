@@ -97,7 +97,6 @@ internal class AssetImageFetcherTest {
         val getPublicAsset = mockk<GetAvatarAssetUseCase>()
         val getPrivateAsset = mockk<GetMessageAssetUseCase>()
         val resources = mockk<Resources>()
-        val imageLoader = mockk<ImageLoader>()
         val drawableResultWrapper = mockk<DrawableResultWrapper>()
         val mockFetchResult = mockk<FetchResult>()
         lateinit var imageData: ImageAsset
@@ -133,7 +132,6 @@ internal class AssetImageFetcherTest {
             getPrivateAsset = getPrivateAsset,
             resources = resources,
             drawableResultWrapper = drawableResultWrapper,
-            imageLoader = imageLoader,
             kaliumFileSystem = fakeKaliumFileSystem
         )
     }

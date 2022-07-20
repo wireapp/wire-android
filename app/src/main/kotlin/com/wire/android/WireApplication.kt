@@ -34,7 +34,8 @@ var appLogger = KaliumLogger(
         severity = if (IS_PRIVATE_BUILD) KaliumLogLevel.DEBUG else KaliumLogLevel.DISABLED,
         tag = "WireAppLogger"
     ),
-    logWriters = arrayOf(DataDogLogger, platformLogWriter())
+    DataDogLogger,
+    platformLogWriter()
 )
 
 @HiltAndroidApp

@@ -2,6 +2,7 @@ package com.wire.android.ui.home.conversations.model
 
 import android.graphics.Bitmap
 import android.text.util.Linkify
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -18,6 +19,8 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.Card
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -100,36 +103,113 @@ fun MessageImage(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RestrictedAssetMessage(assetTypeIcon: Int, restrictedAssetMessage: String) {
-    Box(
-        Modifier
-            .background(MaterialTheme.wireColorScheme.primaryButtonDisabled)
-            .clip(shape = RoundedCornerShape(dimensions().messageAssetBorderRadius))
+    Card(
+        shape = RoundedCornerShape(dimensions().messageAssetBorderRadius),
+        border = BorderStroke(dimensions().spacing1x, MaterialTheme.wireColorScheme.divider)
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(200.dp),
+                .height(dimensions().messageImageMaxWidth),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Image(
-                modifier = Modifier.padding(bottom = dimensions().spacing4x),
+                modifier = Modifier
+                    .padding(bottom = dimensions().spacing4x)
+                    .size(height = dimensions().spacing24x, width = dimensions().spacing24x),
                 painter = painterResource(
                     id = assetTypeIcon
                 ),
                 alignment = Alignment.Center,
                 contentDescription = stringResource(R.string.content_description_image_message),
+                colorFilter = ColorFilter.tint(MaterialTheme.wireColorScheme.secondaryText)
             )
 
             Text(
                 text = restrictedAssetMessage,
-                style = MaterialTheme.wireTypography.body02.copy(color = MaterialTheme.wireColorScheme.secondaryText),
-
+                style = MaterialTheme.wireTypography.body01.copy(color = MaterialTheme.wireColorScheme.secondaryText),
                 overflow = TextOverflow.Ellipsis,
+                maxLines = 1
             )
         }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun RestrictedFileMessage(fileName: String, fileSize: Long) {
+    Card(
+        shape = RoundedCornerShape(dimensions().messageAssetBorderRadius),
+        border = BorderStroke(dimensions().spacing1x, MaterialTheme.wireColorScheme.divider)
+    ) {
+        val assetName = fileName.split(".").dropLast(1).joinToString(".")
+        val assetDescription = provideAssetDescription(
+            fileName.split(".").last(), fileSize
+        )
+
+        ConstraintLayout(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(dimensions().spacing8x),
+        ) {
+            val (
+                name, icon, size, message) = createRefs()
+            Text(
+                text = assetName,
+                style = MaterialTheme.wireTypography.body02,
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 1,
+                modifier = Modifier
+                    .padding(bottom = dimensions().spacing4x)
+                    .constrainAs(name) {
+                        top.linkTo(parent.top)
+                        start.linkTo(parent.start)
+                    }
+            )
+
+            Image(
+                modifier = Modifier
+                    .height(dimensions().spacing12x)
+                    .width(dimensions().spacing12x)
+                    .constrainAs(icon) {
+                        top.linkTo(name.bottom)
+                        bottom.linkTo(parent.bottom)
+                        start.linkTo(parent.start)
+
+                    },
+                painter = painterResource(
+                    id = R.drawable.ic_file
+                ),
+                alignment = Alignment.Center,
+                contentDescription = stringResource(R.string.content_description_image_message),
+                colorFilter = ColorFilter.tint(MaterialTheme.wireColorScheme.secondaryText),
+            )
+
+            Text(text = assetDescription,
+                style = MaterialTheme.wireTypography.body01,
+                modifier = Modifier
+                    .padding(start = dimensions().spacing4x)
+                    .constrainAs(size) {
+                        start.linkTo(icon.end)
+                        top.linkTo(name.bottom)
+                    })
+
+            Text(
+                text = stringResource(id = R.string.prohibited_file_message),
+                style = MaterialTheme.wireTypography.body01.copy(color = MaterialTheme.wireColorScheme.secondaryText),
+                overflow = TextOverflow.Ellipsis,
+                maxLines = 1,
+                modifier = Modifier.constrainAs(message) {
+                    end.linkTo(parent.end)
+                    top.linkTo(name.bottom)
+                }
+            )
+        }
+
     }
 }
 

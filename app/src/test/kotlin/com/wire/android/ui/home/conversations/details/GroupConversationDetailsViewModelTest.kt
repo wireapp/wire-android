@@ -2,17 +2,24 @@ package com.wire.android.ui.home.conversations.details
 
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.mapper.UIParticipantMapper
-import com.wire.android.mapper.UserTypeMapper
+import com.wire.android.config.TestDispatcherProvider
+import com.wire.android.mapper.testUIParticipant
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
-import com.wire.android.ui.home.conversations.mockConversationDetailsGroup
-import com.wire.android.util.ui.WireSessionImageLoader
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
+import com.wire.kalium.logic.data.conversation.LegalHoldStatus
+import com.wire.kalium.logic.data.conversation.MutedConversationStatus
+import com.wire.kalium.logic.data.conversation.ProtocolInfo
+import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
+import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
+import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -31,9 +38,20 @@ class GroupConversationDetailsViewModelTest {
     @Test
     fun `given a group conversation, when solving the conversation name, then the name of the conversation is used`() = runTest {
         // Given
-        val details = mockConversationDetailsGroup("Group name")
+        val members = buildList {
+            for (i in 1..5) {
+                add(testUIParticipant(i))
+            }
+        }
+        val conversationParticipantsData = ConversationParticipantsData(
+            participants = members.take(GroupConversationDetailsViewModel.MAX_NUMBER_OF_PARTICIPANTS),
+            allParticipantsCount = members.size
+        )
+
+        val details = testGroup.copy(conversation = testGroup.conversation.copy(name = "group name"))
         val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
             .withConversationDetailUpdate(details)
+            .withConversationMembersUpdate(conversationParticipantsData)
             .arrange()
 
         // When - Then
@@ -43,10 +61,21 @@ class GroupConversationDetailsViewModelTest {
     @Test
     fun `given the conversation name is updated, when solving the conversation name, then the state is updated accordingly`() = runTest {
         // Given
-        val details1 = mockConversationDetailsGroup("Group name 1")
-        val details2 = mockConversationDetailsGroup("Group name 2")
+        val members = buildList {
+            for (i in 1..5) {
+                add(testUIParticipant(i))
+            }
+        }
+        val conversationParticipantsData = ConversationParticipantsData(
+            participants = members.take(GroupConversationDetailsViewModel.MAX_NUMBER_OF_PARTICIPANTS),
+            allParticipantsCount = members.size
+        )
+
+        val details1 = testGroup.copy(conversation = testGroup.conversation.copy(name = "Group name 1"))
+        val details2 = testGroup.copy(conversation = testGroup.conversation.copy(name = "Group name 2"))
         val (arrangement, viewModel) = GroupConversationDetailsViewModelArrangement()
             .withConversationDetailUpdate(details1)
+            .withConversationMembersUpdate(conversationParticipantsData)
             .arrange()
 
         // When - Then
@@ -55,27 +84,261 @@ class GroupConversationDetailsViewModelTest {
         arrangement.withConversationDetailUpdate(details2)
         assertEquals(details2.conversation.name, viewModel.groupOptionsState.groupName)
     }
+
+    @Test
+    fun `given a group conversation, when solving the state, then the state is correct`() = runTest {
+        // Given
+        val members = buildList {
+            for (i in 1..5) {
+                add(testUIParticipant(i))
+            }
+        }
+        val conversationParticipantsData = ConversationParticipantsData(
+            participants = members.take(GroupConversationDetailsViewModel.MAX_NUMBER_OF_PARTICIPANTS),
+            allParticipantsCount = members.size,
+            isSelfAnAdmin = true
+        )
+
+        val details = testGroup.copy(
+            conversation = testGroup.conversation.copy(
+                name = "group name",
+                teamId = TeamId("team_id"),
+                accessRole = listOf(
+                    Conversation.AccessRole.GUEST,
+                    Conversation.AccessRole.TEAM_MEMBER,
+                    Conversation.AccessRole.NON_TEAM_MEMBER,
+                    Conversation.AccessRole.SERVICE
+                )
+            )
+        )
+        val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
+            .withConversationDetailUpdate(details)
+            .withConversationMembersUpdate(conversationParticipantsData)
+            .arrange()
+
+        // When - Then
+        assertEquals(details.conversation.name, viewModel.groupOptionsState.groupName)
+        assertEquals(conversationParticipantsData.isSelfAnAdmin, viewModel.groupOptionsState.isUpdatingAllowed)
+        assertEquals(details.conversation.name, viewModel.groupOptionsState.groupName)
+        assertEquals(details.conversation.isTeamGroup(), viewModel.groupOptionsState.isTeamGroup)
+        assertEquals(
+            (details.conversation.isGuestAllowed() || details.conversation.isNonTeamMemberAllowed()),
+            viewModel.groupOptionsState.isGuestAllowed
+        )
+        assertEquals(conversationParticipantsData.isSelfAnAdmin, viewModel.groupOptionsState.isUpdatingGuestAllowed)
+    }
+
+    @Test
+    fun `when enabling Guests, then use case is called with the correct values`() = runTest {
+        // Given
+        val members = buildList {
+            for (i in 1..5) {
+                add(testUIParticipant(i))
+            }
+        }
+        val conversationParticipantsData = ConversationParticipantsData(
+            participants = members.take(GroupConversationDetailsViewModel.MAX_NUMBER_OF_PARTICIPANTS),
+            allParticipantsCount = members.size
+        )
+
+        val details = testGroup
+
+        val (arrangement, viewModel) = GroupConversationDetailsViewModelArrangement()
+            .withSavedStateConversationId(details.conversation.id)
+            .withUpdateConversationAccessUseCaseReturns(
+                UpdateConversationAccessRoleUseCase.Result.Success
+            ).withConversationDetailUpdate(details)
+            .withConversationMembersUpdate(conversationParticipantsData)
+            .arrange()
+
+        viewModel.onGuestUpdate(true)
+        coVerify(exactly = 1) {
+            arrangement.updateConversationAccessRoleUseCase(
+                conversationId = details.conversation.id,
+                allowServices = any(),
+                allowGuest = true,
+                allowNonTeamMember = true
+            )
+        }
+    }
+
+    @Test
+    fun `when disabling Guests , then the dialog must state must be updated`() = runTest {
+        // Given
+        val members = buildList {
+            for (i in 1..5) {
+                add(testUIParticipant(i))
+            }
+        }
+        val conversationParticipantsData = ConversationParticipantsData(
+            participants = members.take(GroupConversationDetailsViewModel.MAX_NUMBER_OF_PARTICIPANTS),
+            allParticipantsCount = members.size
+        )
+
+        val details = testGroup
+
+        val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
+            .withSavedStateConversationId(details.conversation.id)
+            .withUpdateConversationAccessUseCaseReturns(
+                UpdateConversationAccessRoleUseCase.Result.Success
+            ).withConversationDetailUpdate(details)
+            .withConversationMembersUpdate(conversationParticipantsData)
+            .arrange()
+
+        viewModel.onGuestUpdate(false)
+        assertEquals(true, viewModel.groupOptionsState.isGuestUpdateDialogShown)
+    }
+
+    @Test
+    fun `when disable Guests guest dialog conferment, then use case is called with the correct values`() = runTest {
+        // Given
+        val members = buildList {
+            for (i in 1..5) {
+                add(testUIParticipant(i))
+            }
+        }
+        val conversationParticipantsData = ConversationParticipantsData(
+            participants = members.take(GroupConversationDetailsViewModel.MAX_NUMBER_OF_PARTICIPANTS),
+            allParticipantsCount = members.size
+        )
+
+        val details = testGroup
+
+        val (arrangement, viewModel) = GroupConversationDetailsViewModelArrangement()
+            .withSavedStateConversationId(details.conversation.id)
+            .withUpdateConversationAccessUseCaseReturns(
+                UpdateConversationAccessRoleUseCase.Result.Success
+            ).withConversationDetailUpdate(details)
+            .withConversationMembersUpdate(conversationParticipantsData)
+            .arrange()
+
+        viewModel.onGuestDialogConfirm()
+        assertEquals(false, viewModel.groupOptionsState.isGuestUpdateDialogShown)
+        coVerify(exactly = 1) {
+            arrangement.updateConversationAccessRoleUseCase(
+                conversationId = details.conversation.id,
+                allowServices = any(),
+                allowGuest = false,
+                allowNonTeamMember = false
+            )
+        }
+    }
+
+    @Test
+    fun `when enabling Services, use case is called with the correct values`() = runTest {
+        // Given
+        val members = buildList {
+            for (i in 1..5) {
+                add(testUIParticipant(i))
+            }
+        }
+        val conversationParticipantsData = ConversationParticipantsData(
+            participants = members.take(GroupConversationDetailsViewModel.MAX_NUMBER_OF_PARTICIPANTS),
+            allParticipantsCount = members.size
+        )
+
+        val details = testGroup
+
+        val (arrangement, viewModel) = GroupConversationDetailsViewModelArrangement()
+            .withSavedStateConversationId(details.conversation.id)
+            .withUpdateConversationAccessUseCaseReturns(
+                UpdateConversationAccessRoleUseCase.Result.Success
+            ).withConversationDetailUpdate(details)
+            .withConversationMembersUpdate(conversationParticipantsData)
+            .arrange()
+
+        viewModel.onServicesUpdate(true)
+        coVerify(exactly = 1) {
+            arrangement.updateConversationAccessRoleUseCase(
+                conversationId = details.conversation.id,
+                allowServices = true,
+                allowGuest = any(),
+                allowNonTeamMember = any()
+            )
+        }
+    }
+
+    @Test
+    fun `when disabling Services, use case is called with the correct values`() = runTest {
+        // Given
+        val members = buildList {
+            for (i in 1..5) {
+                add(testUIParticipant(i))
+            }
+        }
+        val conversationParticipantsData = ConversationParticipantsData(
+            participants = members.take(GroupConversationDetailsViewModel.MAX_NUMBER_OF_PARTICIPANTS),
+            allParticipantsCount = members.size
+        )
+
+        val details = testGroup.copy(testGroup.conversation.copy(id = ConversationId("some-dummy-value", "some.dummy.domain")))
+
+        val (arrangement, viewModel) = GroupConversationDetailsViewModelArrangement()
+            .withSavedStateConversationId(details.conversation.id)
+            .withUpdateConversationAccessUseCaseReturns(
+                UpdateConversationAccessRoleUseCase.Result.Success
+            ).withConversationDetailUpdate(details)
+            .withConversationMembersUpdate(conversationParticipantsData)
+            .arrange()
+
+        viewModel.onServicesUpdate(false)
+        coVerify(exactly = 1) {
+            arrangement.updateConversationAccessRoleUseCase(
+                conversationId = details.conversation.id,
+                allowServices = false,
+                allowGuest = any(),
+                allowNonTeamMember = any()
+            )
+        }
+    }
+
+    companion object {
+        val testGroup = ConversationDetails.Group(
+            Conversation(
+                ConversationId("conv_id", "domain"),
+                "Conv Name",
+                Conversation.Type.ONE_ON_ONE,
+                TeamId("team_id"),
+                ProtocolInfo.Proteus,
+                MutedConversationStatus.AllAllowed,
+                null,
+                null,
+                access = listOf(Conversation.Access.CODE, Conversation.Access.INVITE),
+                accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER, Conversation.AccessRole.GUEST)
+            ),
+            legalHoldStatus = LegalHoldStatus.DISABLED
+        )
+    }
 }
 
 internal class GroupConversationDetailsViewModelArrangement {
 
     @MockK
     private lateinit var savedStateHandle: SavedStateHandle
+
     @MockK
     lateinit var navigationManager: NavigationManager
+
     @MockK
     lateinit var observeConversationDetails: ObserveConversationDetailsUseCase
+
     @MockK
     lateinit var observeParticipantsForConversationUseCase: ObserveParticipantsForConversationUseCase
+
     @MockK
-    private lateinit var wireSessionImageLoader: WireSessionImageLoader
+    lateinit var updateConversationAccessRoleUseCase: UpdateConversationAccessRoleUseCase
+
     private val conversationDetailsChannel = Channel<ConversationDetails>(capacity = Channel.UNLIMITED)
+    private val observeParticipantsForConversationChannel = Channel<ConversationParticipantsData>(capacity = Channel.UNLIMITED)
+
     private val viewModel by lazy {
         GroupConversationDetailsViewModel(
             savedStateHandle,
             navigationManager,
             observeConversationDetails,
             observeParticipantsForConversationUseCase,
+            updateConversationAccessRoleUseCase,
+            dispatcher = TestDispatcherProvider()
         )
     }
 
@@ -89,10 +352,23 @@ internal class GroupConversationDetailsViewModelArrangement {
         coEvery { observeParticipantsForConversationUseCase(any(), any()) } returns flowOf()
     }
 
-    suspend fun withConversationDetailUpdate(conversationDetails: ConversationDetails): GroupConversationDetailsViewModelArrangement {
+    fun withSavedStateConversationId(conversationId: ConversationId) = apply {
+        every { savedStateHandle.get<String>(EXTRA_CONVERSATION_ID) } returns conversationId.toString()
+    }
+
+    suspend fun withConversationDetailUpdate(conversationDetails: ConversationDetails) = apply {
         coEvery { observeConversationDetails(any()) } returns conversationDetailsChannel.consumeAsFlow()
         conversationDetailsChannel.send(conversationDetails)
-        return this
+    }
+
+
+    suspend fun withConversationMembersUpdate(conversationParticipantsData: ConversationParticipantsData) = apply {
+        coEvery { observeParticipantsForConversationUseCase(any()) } returns observeParticipantsForConversationChannel.consumeAsFlow()
+        observeParticipantsForConversationChannel.send(conversationParticipantsData)
+    }
+
+    suspend fun withUpdateConversationAccessUseCaseReturns(result: UpdateConversationAccessRoleUseCase.Result) = apply {
+        coEvery { updateConversationAccessRoleUseCase(any(), any(), any(), any()) } returns result
     }
 
     fun arrange() = this to viewModel

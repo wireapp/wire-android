@@ -27,6 +27,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@Suppress("TooManyFunctions")
 @HiltViewModel
 class GroupConversationDetailsViewModel @Inject constructor(
     private val navigationManager: NavigationManager,

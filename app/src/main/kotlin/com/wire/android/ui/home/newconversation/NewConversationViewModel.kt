@@ -52,6 +52,10 @@ class NewConversationViewModel @Inject constructor(
 
     var groupOptionsState: GroupOptionState by mutableStateOf(GroupOptionState())
 
+    init {
+        viewModelScope.launch { allContacts() }
+    }
+
     override suspend fun getAllUsersUseCase() =
         when (val result = getAllKnownUsers()) {
             is GetAllContactsResult.Failure -> SearchResult.Failure(R.string.label_general_error)

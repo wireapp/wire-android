@@ -60,12 +60,10 @@ abstract class SearchPeopleViewModel(
 
     var snackbarMessageState by mutableStateOf<NewConversationSnackbarState>(NewConversationSnackbarState.None)
 
-    private val searchQueryStateFlow = SearchQueryStateFlow()
+    private val searchQueryStateFlow = SearchQueryStateFlow(dispatcher.io())
 
     init {
         viewModelScope.launch {
-            allContacts()
-
             searchQueryStateFlow.onSearchAction { searchTerm ->
                 launch { searchPublic(searchTerm) }
                 launch { searchKnown(searchTerm) }
@@ -73,7 +71,7 @@ abstract class SearchPeopleViewModel(
         }
     }
 
-    private suspend fun allContacts() {
+    suspend fun allContacts() {
         innerSearchPeopleState = innerSearchPeopleState.copy(allKnownContacts = SearchResultState.InProgress)
 
         val result = withContext(dispatcher.io()) { getAllUsersUseCase() }

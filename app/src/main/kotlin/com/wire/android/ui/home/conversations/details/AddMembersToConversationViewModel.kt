@@ -44,6 +44,10 @@ class AddMembersToConversationViewModel @Inject constructor(
         .get<String>(EXTRA_CONVERSATION_ID)!!
         .parseIntoQualifiedID()
 
+    init{
+        viewModelScope.launch { allContacts() }
+    }
+
     override suspend fun getAllUsersUseCase() =
         when (val result = getAllContactsNotInConversation(conversationId)) {
             is GetContactsResult.Failure -> SearchResult.Failure(R.string.label_general_error)

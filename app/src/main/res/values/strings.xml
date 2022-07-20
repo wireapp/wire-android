@@ -36,7 +36,8 @@
 
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
     <string name="content_description_app_logo">App Logo</string>
-    <string name="content_description_reveal_password">Show or hide password</string>
+    <string name="content_description_reveal_password">Show password</string>
+    <string name="content_description_hide_password">Hide password</string>
     <string name="content_description_search_back">Search back icon</string>
     <string name="content_description_clear_content">Clear content</string>
     <string name="content_description_user_avatar">User avatar</string>
@@ -56,10 +57,10 @@
     <string name="content_description_send_button">Send button</string>
     <string name="content_description_timed_message_button">Self deleting messages Button</string>
     <string name="content_description_close_button">Close button</string>
-    <string name="content_description_menu_button">Menu button</string>
+    <string name="content_description_menu_button">Hamburger menu</string>
     <string name="content_description_drop_down_icon">Drop down arrow</string>
-    <string name="content_description_remove_device_item_icon">Devices icon</string>
-    <string name="content_description_remove_device_remove_icon">Remove icon</string>
+    <string name="content_description_remove_devices_screen_device_item_icon">Device item</string>
+    <string name="content_description_remove_devices_screen_remove_icon">Remove device</string>
     <string name="content_description_avatar_preview">Image preview of the avatar image</string>
     <string name="content_description_choose_from_gallery">Choose from gallery</string>
     <string name="content_description_take_a_picture">Take a picture</string>
@@ -389,7 +390,7 @@
     <string name="notification_call_content">Calling...</string>
     <string name="notification_group_call_content">%s calling...</string>
     <string name="notification_call_default_caller_name">Someone</string>
-    <string name="notification_call_default_group_name">Somewhere</string>
+    <string name="notification_call_default_group_name">Default Group Name</string>
 
     <!-- Calling-->
     <string name="calling_button_label_microphone">Microphone</string>

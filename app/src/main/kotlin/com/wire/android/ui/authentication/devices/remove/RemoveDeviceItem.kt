@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -34,9 +33,6 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.formatMediumDateTime
-import com.wire.kalium.logic.data.client.Client
-import com.wire.kalium.logic.data.client.ClientType
-import com.wire.kalium.logic.data.conversation.ClientId
 
 @Composable
 fun RemoveDeviceItem(device: Device, placeholder: Boolean, onRemoveDeviceClick: (Device) -> Unit) {
@@ -54,7 +50,7 @@ private fun RemoveDeviceItemContent(device: Device, placeholder: Boolean, onRemo
             Icon(
                 modifier = Modifier.shimmerPlaceholder(visible = placeholder),
                 imageVector = ImageVector.vectorResource(id = R.drawable.ic_devices),
-                contentDescription = stringResource(R.string.content_description_remove_device_item_icon)
+                contentDescription = stringResource(R.string.content_description_remove_devices_screen_device_item_icon)
             )
             Column(
                 horizontalAlignment = Alignment.Start,
@@ -81,7 +77,7 @@ private fun RemoveDeviceItemContent(device: Device, placeholder: Boolean, onRemo
                 leadingIcon = {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_remove),
-                        contentDescription = stringResource(R.string.content_description_remove_device_remove_icon),
+                        contentDescription = stringResource(R.string.content_description_remove_devices_screen_remove_icon),
                     )
                 },
                 fillMaxWidth = false,
@@ -119,7 +115,7 @@ private fun RemoveDeviceItemTexts(device: Device, placeholder: Boolean) {
     )
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 private fun RemoveDeviceItemPreview() {
     Box(modifier = Modifier.fillMaxWidth()) {

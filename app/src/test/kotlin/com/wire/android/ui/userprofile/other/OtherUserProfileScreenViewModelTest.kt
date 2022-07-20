@@ -4,13 +4,18 @@ import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.mockUri
 import com.wire.android.mapper.UserTypeMapper
+import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.EXTRA_USER_DOMAIN
 import com.wire.android.navigation.EXTRA_USER_ID
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.home.conversations.details.participants.usecase.ConversationRoleData
+import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.CoreFailure.Unknown
 import com.wire.kalium.logic.data.conversation.Conversation
+import com.wire.kalium.logic.data.conversation.ConversationDetails
+import com.wire.kalium.logic.data.conversation.Member
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.conversation.ProtocolInfo
 import com.wire.kalium.logic.data.id.ConversationId
@@ -34,12 +39,14 @@ import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversatio
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
 import com.wire.kalium.logic.feature.user.GetUserInfoUseCase
 import io.mockk.Called
+import io.mockk.InternalPlatformDsl.toStr
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
 import org.junit.Assert.assertNotNull
@@ -81,6 +88,9 @@ class OtherUserProfileScreenViewModelTest {
     private lateinit var wireSessionImageLoader: WireSessionImageLoader
 
     @MockK
+    private lateinit var observeConversationRoleForUserUseCase: ObserveConversationRoleForUserUseCase
+
+    @MockK
     private lateinit var userTypeMapper: UserTypeMapper
 
     @BeforeEach
@@ -88,6 +98,8 @@ class OtherUserProfileScreenViewModelTest {
         MockKAnnotations.init(this, relaxUnitFun = true)
         mockUri()
         every { savedStateHandle.get<String>(eq(EXTRA_USER_ID)) } returns CONVERSATION_ID.toString()
+        every { savedStateHandle.get<String>(eq(EXTRA_CONVERSATION_ID)) } returns CONVERSATION_ID.toString()
+        coEvery { observeConversationRoleForUserUseCase.invoke(any(), any()) } returns flowOf(CONVERSATION_ROLE_DATA)
         coEvery { getUserInfo(any()) } returns GetUserInfoResult.Success(OTHER_USER, TEAM)
         every { userTypeMapper.toMembership(any()) } returns Membership.None
 
@@ -101,7 +113,8 @@ class OtherUserProfileScreenViewModelTest {
             acceptConnectionRequest,
             ignoreConnectionRequest,
             userTypeMapper,
-            wireSessionImageLoader
+            wireSessionImageLoader,
+            observeConversationRoleForUserUseCase
         )
     }
 
@@ -227,6 +240,21 @@ class OtherUserProfileScreenViewModelTest {
         coVerify(exactly = 1) { navigationManager.navigateBack() }
     }
 
+    @Test
+    fun `given a group conversationId, when loading the data, then return group state`() =
+        runTest {
+            // given
+            val expected =  OtherUserProfileGroupState("some_name", Member.Role.Member, false)
+            // when
+            val groupState = otherUserProfileScreenViewModel.state.groupState
+            // then
+            coVerify {
+                observeConversationRoleForUserUseCase(CONVERSATION_ID, USER_ID)
+                navigationManager wasNot Called
+            }
+            assertEquals(groupState, expected)
+        }
+
     // todo: add tests for cancel request
 
     companion object {
@@ -259,5 +287,6 @@ class OtherUserProfileScreenViewModelTest {
             access = listOf(Conversation.Access.INVITE),
             accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER)
         )
+        val CONVERSATION_ROLE_DATA = ConversationRoleData("some_name", Member.Role.Member, Member.Role.Member)
     }
 }

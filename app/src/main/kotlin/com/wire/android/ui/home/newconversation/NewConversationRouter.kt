@@ -16,9 +16,11 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.wire.android.R
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
+import com.wire.android.ui.home.conversations.search.NewConversationSnackbarState
 import com.wire.android.ui.home.newconversation.common.Screen
 import com.wire.android.ui.home.newconversation.groupOptions.GroupOptionScreen
 import com.wire.android.ui.home.newconversation.newgroup.NewGroupScreen
+import com.wire.android.ui.home.conversations.search.SearchPeopleRouter
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -48,14 +50,10 @@ fun NewConversationRouter() {
                 route = Screen.SearchListNavHostScreens.route,
                 content = {
                     SearchPeopleRouter(
-                        searchPeopleState = newConversationViewModel.state,
-                        openNewGroup = { newConversationNavController.navigate(Screen.NewGroupNameScreen.route) },
-                        onSearchContact = newConversationViewModel::search,
-                        onClose = newConversationViewModel::close,
-                        onAddContactToGroup = newConversationViewModel::addContactToGroup,
-                        onRemoveContactFromGroup = newConversationViewModel::removeContactFromGroup,
-                        onOpenUserProfile = { newConversationViewModel.openUserProfile(it.contact) },
-                        onAddContact = newConversationViewModel::addContact
+                        searchBarTitle = stringResource(id = R.string.label_new_conversation),
+                    searchPeopleViewModel = newConversationViewModel,
+                        onPeoplePicked = { newConversationNavController.navigate(Screen.NewGroupNameScreen.route) },
+
                     )
                 }
             )

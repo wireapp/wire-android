@@ -22,7 +22,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 open class GroupConversationParticipantsViewModel @Inject constructor(
-    private val savedStateHandle: SavedStateHandle,
+    savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
     private val observeConversationMembers: ObserveParticipantsForConversationUseCase
 ) : ViewModel() {
@@ -35,7 +35,20 @@ open class GroupConversationParticipantsViewModel @Inject constructor(
         .get<String>(EXTRA_CONVERSATION_ID)!!
         .parseIntoQualifiedID()
 
-    open fun navigateBack() = viewModelScope.launch {
+    init {
+        observeConversationMembers()
+    }
+
+    private fun observeConversationMembers() {
+        viewModelScope.launch {
+            observeConversationMembers(conversationId, maxNumberOfItems)
+                .collect {
+                    groupParticipantsState = groupParticipantsState.copy(data = it)
+                }
+        }
+    }
+
+    fun navigateBack() = viewModelScope.launch {
         navigationManager.navigateBack()
     }
 
@@ -50,16 +63,4 @@ open class GroupConversationParticipantsViewModel @Inject constructor(
     private suspend fun navigateToOtherProfile(id: UserId) =
         navigationManager.navigate(NavigationCommand(NavigationItem.OtherUserProfile.getRouteWithArgs(listOf(id, conversationId))))
 
-    private fun observeConversationMembers() {
-        viewModelScope.launch {
-            observeConversationMembers(conversationId, maxNumberOfItems)
-                .collect {
-                    groupParticipantsState = groupParticipantsState.copy(data = it)
-                }
-        }
-    }
-
-    init {
-        observeConversationMembers()
-    }
 }

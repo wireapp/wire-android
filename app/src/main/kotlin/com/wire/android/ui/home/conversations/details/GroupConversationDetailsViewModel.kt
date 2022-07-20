@@ -27,14 +27,15 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@Suppress("TooManyFunctions")
 @HiltViewModel
 class GroupConversationDetailsViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val observeConversationMembers: ObserveParticipantsForConversationUseCase,
     private val updateConversationAccessRoleUseCase: UpdateConversationAccessRoleUseCase,
-    private val dispatcher: DispatcherProvider
+    private val dispatcher: DispatcherProvider,
+    savedStateHandle: SavedStateHandle,
 ) : GroupConversationParticipantsViewModel(savedStateHandle, navigationManager, observeConversationMembers) {
 
     override val maxNumberOfItems: Int get() = MAX_NUMBER_OF_PARTICIPANTS
@@ -151,6 +152,14 @@ class GroupConversationDetailsViewModel @Inject constructor(
         navigationManager.navigate(
             command = NavigationCommand(
                 destination = NavigationItem.GroupConversationAllParticipants.getRouteWithArgs(listOf(conversationId))
+            )
+        )
+    }
+
+    fun navigateToAddParticants() = viewModelScope.launch {
+        navigationManager.navigate(
+            command = NavigationCommand(
+                destination = NavigationItem.AddConversationParticipants.getRouteWithArgs(listOf(conversationId))
             )
         )
     }

@@ -35,8 +35,8 @@ import com.wire.android.ui.home.conversationslist.folderWithElements
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.newconversation.common.GroupButton
 import com.wire.android.ui.home.newconversation.model.Contact
-import com.wire.android.ui.home.newconversation.search.SearchResultState
-import com.wire.android.ui.home.newconversation.search.widget.SearchFailureBox
+import com.wire.android.ui.home.conversations.search.SearchResultState
+import com.wire.android.ui.home.conversations.search.widget.SearchFailureBox
 import com.wire.android.ui.theme.wireTypography
 
 @Composable

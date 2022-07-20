@@ -21,8 +21,8 @@ import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.conversationslist.model.hasLabel
-import com.wire.android.ui.home.newconversation.search.HighlightName
-import com.wire.android.ui.home.newconversation.search.HighlightSubtitle
+import com.wire.android.ui.home.conversations.search.HighlightName
+import com.wire.android.ui.home.conversations.search.HighlightSubtitle
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.user.UserId

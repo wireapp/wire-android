@@ -329,16 +329,17 @@ internal class GroupConversationDetailsViewModelArrangement {
     lateinit var updateConversationAccessRoleUseCase: UpdateConversationAccessRoleUseCase
 
     private val conversationDetailsChannel = Channel<ConversationDetails>(capacity = Channel.UNLIMITED)
+
     private val observeParticipantsForConversationChannel = Channel<ConversationParticipantsData>(capacity = Channel.UNLIMITED)
 
     private val viewModel by lazy {
         GroupConversationDetailsViewModel(
-            savedStateHandle,
             navigationManager,
             observeConversationDetails,
             observeParticipantsForConversationUseCase,
             updateConversationAccessRoleUseCase,
-            dispatcher = TestDispatcherProvider()
+            dispatcher = TestDispatcherProvider(),
+            savedStateHandle,
         )
     }
 

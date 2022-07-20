@@ -1,4 +1,4 @@
-package com.wire.android.ui.home.newconversation.search
+package com.wire.android.ui.home.conversations.search
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text

@@ -33,7 +33,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val observeConversationMembers: ObserveParticipantsForConversationUseCase,
-    private val updateConversationAccessUseCase: UpdateConversationAccessRoleUseCase,
+    private val updateConversationAccessRoleUseCase: UpdateConversationAccessRoleUseCase,
     private val dispatcher: DispatcherProvider
 ) : GroupConversationParticipantsViewModel(savedStateHandle, navigationManager, observeConversationMembers) {
 
@@ -108,7 +108,11 @@ class GroupConversationDetailsViewModel @Inject constructor(
 
     private fun updateServicesStatus(enableServices: Boolean) {
         viewModelScope.launch {
-            updateConversationAccess(groupOptionsState.isGuestAllowed, enableServices, conversationId).also {
+            updateConversationAccess(
+                enableGuestAndNonTeamMember = groupOptionsState.isGuestAllowed,
+                enableServices = enableServices,
+                conversationId = conversationId
+            ).also {
                 when (it) {
                     is UpdateConversationAccessRoleUseCase.Result.Failure -> updateServicesErrorState(it.cause)
                     UpdateConversationAccessRoleUseCase.Result.Success -> Unit
@@ -121,7 +125,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
         enableGuestAndNonTeamMember: Boolean,
         enableServices: Boolean,
         conversationId: ConversationId
-    ) = updateConversationAccessUseCase(
+    ) = updateConversationAccessRoleUseCase(
         allowGuest = enableGuestAndNonTeamMember,
         allowNonTeamMember = enableGuestAndNonTeamMember,
         allowServices = enableServices,

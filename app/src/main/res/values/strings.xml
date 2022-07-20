@@ -32,6 +32,8 @@
     <string name="label_on">ON</string>
     <string name="label_off">OFF</string>
     <string name="label_value_copied">%s copied</string>
+    <string name="label_disable">Disable</string>
+    <string name="folder_lable_access">Access</string>
 
     <!-- Content descriptions -->
     <string name="content_description_reveal_password">Show or hide password</string>
@@ -229,6 +231,7 @@
     <string name="member_name_deleted_label">Deleted User</string>
     <string name="member_name_you_label_titlecase">You</string>
     <string name="member_name_you_label_lowercase">you</string>
+    <string name="label_add_participants"> Add Participants</string>
 
     <string name="conversation_details_title">Conversation Details</string>
     <string name="conversation_details_options_tab">OPTIONS</string>
@@ -240,6 +243,12 @@
     <string name="conversation_details_show_all_participants">Show all participants (%d)</string>
     <string name="conversation_details_group_participants_title">Group Participants</string>
     <string name="conversation_details_group_participants_add">Add participants</string>
+
+    <string name="convrsation_options_guest_discriptions">Turn this option ON to open this conversation to people outside your team, even if they don\'t have Wire.</string>
+    <string name="conversation_Option_services_lable">Services</string>
+    <string name="convrsation_options_services_discriptions">Turn this option ON to open this conversation to services.</string>
+    <string name="disable_guest_dialog_title">Disable guest access?</string>
+    <string name="disable_guest_dialog_text">Current guests will be removed from the conversation. New guests will not be allowed.</string>
 
     <!-- Attachment options -->
     <string name="attachment_share_file">Attach File</string>

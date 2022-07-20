@@ -1,4 +1,4 @@
-package com.wire.android.ui.home.newconversation.search.widget
+package com.wire.android.ui.home.conversations.search.widget
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Box

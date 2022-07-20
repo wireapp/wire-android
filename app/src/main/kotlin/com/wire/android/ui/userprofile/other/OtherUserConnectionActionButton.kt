@@ -10,7 +10,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
@@ -47,7 +46,7 @@ fun OtherUserConnectionActionButton(
                     )
                 }
             )
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(dimensions().spacing8x))
             WirePrimaryButton(
                 text = stringResource(R.string.connection_label_ignore),
                 state = WireButtonState.Error,
@@ -77,5 +76,11 @@ fun OtherUserConnectionActionButton(
 @Composable
 @Preview
 fun OtherUserConnectionActionButtonPreview() {
-    OtherUserConnectionActionButton(ConnectionStatus.Connected, {}, {}, {}, {}, {})
+    OtherUserConnectionActionButton(
+        connectionStatus = ConnectionStatus.Connected,
+        onSendConnectionRequest = {},
+        onOpenConversation = {},
+        onCancelConnectionRequest = {},
+        acceptConnectionRequest = {},
+        ignoreConnectionRequest = {})
 }

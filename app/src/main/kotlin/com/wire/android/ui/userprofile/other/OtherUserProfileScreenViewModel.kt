@@ -12,7 +12,6 @@ import com.wire.android.model.ImageAsset
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.EXTRA_CONNECTION_IGNORED_USER_NAME
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
-import com.wire.android.navigation.EXTRA_USER_DOMAIN
 import com.wire.android.navigation.EXTRA_USER_ID
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
@@ -36,13 +35,9 @@ import com.wire.kalium.logic.feature.connection.SendConnectionRequestResult
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
 import com.wire.kalium.logic.feature.conversation.CreateConversationResult
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
-import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
-import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
 import com.wire.kalium.logic.feature.user.GetUserInfoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import java.util.UUID
@@ -61,7 +56,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val ignoreConnectionRequest: IgnoreConnectionRequestUseCase,
     private val userTypeMapper: UserTypeMapper,
     private val wireSessionImageLoader: WireSessionImageLoader,
-    private val observeConversationRoleForUserUseCase: ObserveConversationRoleForUserUseCase
+    private val observeConversationRoleForUser: ObserveConversationRoleForUserUseCase
 ) : ViewModel() {
 
     var state: OtherUserProfileState by mutableStateOf(OtherUserProfileState())
@@ -80,7 +75,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                     connectionOperationState = ConnectionOperationState.LoadUserInformationError()
                 }
                 is GetUserInfoResult.Success -> conversationId
-                    .let { if (it != null) observeConversationRoleForUserUseCase(it, userId) else flowOf(it) }
+                    .let { if (it != null) observeConversationRoleForUser(it, userId) else flowOf(it) }
                     .collect { loadViewState(result.otherUser, result.team, it) }
             }
         }

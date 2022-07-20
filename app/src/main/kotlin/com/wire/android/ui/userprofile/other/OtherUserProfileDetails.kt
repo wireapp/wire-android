@@ -16,6 +16,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -63,6 +64,7 @@ private fun UserDetailInformation(
     value: String,
     onCopy: (String) -> Unit
 ) {
+    val context = LocalContext.current
     RowItemTemplate(
         modifier = Modifier.padding(horizontal = dimensions().spacing8x),
         title = {
@@ -79,7 +81,7 @@ private fun UserDetailInformation(
                 text = value
             )
         },
-        actions = { CopyButton(onCopyClicked = { onCopy("$value copied") }) },
+        actions = { CopyButton(onCopyClicked = { onCopy(context.getString(R.string.label_value_copied, value)) }) },
         clickable = Clickable(enabled = false) {}
     )
 }

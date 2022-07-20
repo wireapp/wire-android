@@ -23,10 +23,10 @@ import com.wire.android.ui.theme.wireTypography
 
 
 @Composable
-fun MembershipQualifierLabel(membership: Membership) {
+fun MembershipQualifierLabel(membership: Membership, modifier: Modifier = Modifier) {
     if (membership.hasLabel()) {
         Box(
-            modifier = Modifier.border(
+            modifier = modifier.border(
                 width = MaterialTheme.wireDimensions.spacing1x,
                 shape = RoundedCornerShape(MaterialTheme.wireDimensions.spacing4x),
                 color = MaterialTheme.wireColorScheme.secondaryButtonSelectedOutline

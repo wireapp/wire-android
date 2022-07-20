@@ -16,11 +16,11 @@ import javax.inject.Inject
 class ObserveConversationRoleForUserUseCase  @Inject constructor(
     private val observeConversationMembers: ObserveConversationMembersUseCase,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
-    private val getSelfUserUseCase: GetSelfUserUseCase
+    private val getSelfUser: GetSelfUserUseCase
 ) {
     suspend operator fun invoke(conversationId: ConversationId, userId: UserId): Flow<ConversationRoleData> =
         combine(
-            getSelfUserUseCase(),
+            getSelfUser(),
             observeConversationDetails(conversationId),
             observeConversationMembers(conversationId)
         ) { selfUser: SelfUser, conversationDetails: ConversationDetails, memberDetailsList: List<MemberDetails> ->
@@ -32,4 +32,8 @@ class ObserveConversationRoleForUserUseCase  @Inject constructor(
         }
 }
 
-data class ConversationRoleData(val conversationName: String, val userRole: Member.Role?, val selfRole: Member.Role?)
+data class ConversationRoleData(
+    val conversationName: String,
+    val userRole: Member.Role?,
+    val selfRole: Member.Role?
+    )

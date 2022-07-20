@@ -36,8 +36,7 @@ fun UserProfileAvatar(
     isClickable: Boolean = false,
     size: Dp = MaterialTheme.wireDimensions.userAvatarDefaultSize,
     modifier: Modifier = Modifier,
-    onClick: (() -> Unit)? = null,
-
+    onClick: (() -> Unit)? = null
 ) {
     val painter = painter(avatarData.asset)
 

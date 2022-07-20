@@ -117,4 +117,7 @@ fun CollapsingTopBarScaffold(
     )
 }
 
-private enum class State { EXPANDED, COLLAPSED }
+private enum class State {
+    EXPANDED,
+    COLLAPSED;
+}

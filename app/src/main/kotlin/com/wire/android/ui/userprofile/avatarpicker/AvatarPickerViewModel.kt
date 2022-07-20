@@ -68,13 +68,13 @@ class AvatarPickerViewModel @Inject constructor(
             withContext(dispatchers.io()) {
                 pictureState = avatarImageManager
                     .postProcessAvatar(imageUri)
-                    ?.let { PictureState.Picked(it) } ?: PictureState.Empty
+                    ?.let { PictureState.Picked(it) } ?: PictureState.Picked(imageUri)
             }
         }
     }
 
     fun uploadNewPickedAvatarAndBack(context: Context) {
-        val imgUri = pictureState.avatarPath
+        val imgUri = pictureState.avatarUri
         pictureState = PictureState.Uploading(imgUri)
         viewModelScope.launch {
             withContext(dispatchers.io()) {
@@ -112,10 +112,10 @@ class AvatarPickerViewModel @Inject constructor(
         object NoNetworkError : ErrorCodes()
     }
 
-    sealed class PictureState(open val avatarPath: Uri) {
-        data class Uploading(override val avatarPath: Uri) : PictureState(avatarPath)
-        data class Initial(override val avatarPath: Uri) : PictureState(avatarPath)
-        data class Picked(override val avatarPath: Uri) : PictureState(avatarPath)
+    sealed class PictureState(open val avatarUri: Uri) {
+        data class Uploading(override val avatarUri: Uri) : PictureState(avatarUri)
+        data class Initial(override val avatarUri: Uri) : PictureState(avatarUri)
+        data class Picked(override val avatarUri: Uri) : PictureState(avatarUri)
         object Empty : PictureState("".toUri())
     }
 }

@@ -130,7 +130,7 @@ private fun AvatarPickerContent(
                     Box(Modifier.weight(1f)) {
                         Box(Modifier.align(Alignment.Center)) {
                             BulletHoleImagePreview(
-                                imageUri = viewModel.pictureState.avatarPath,
+                                imageUri = viewModel.pictureState.avatarUri,
                                 contentDescription = stringResource(R.string.content_description_avatar_preview)
                             )
                         }

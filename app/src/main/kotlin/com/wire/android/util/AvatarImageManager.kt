@@ -30,7 +30,7 @@ class AvatarImageManager @Inject constructor(val context: Context) {
             val resampledByteArray = avatarByteArray.let { ImageUtil.resample(it, ImageUtil.ImageSizeClass.Small) }
 
             // Save to fixed path
-            return resampledByteArray.let { getWritableTempAvatarUri(it) }
+            return getWritableTempAvatarUri(resampledByteArray)
         } catch (exception: Exception) {
             // NOOP: None post process op performed
         }

@@ -293,6 +293,11 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun provideIsLastCallClosedUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).calls.isLastCallClosed
+
+    @ViewModelScoped
+    @Provides
     fun provideObserveOngoingCallsUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).calls.observeOngoingCalls
 

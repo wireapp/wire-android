@@ -4,8 +4,9 @@ import androidx.lifecycle.SavedStateHandle
 import com.wire.android.media.CallRinger
 import com.wire.android.navigation.NavigationManager
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
-import com.wire.kalium.logic.feature.call.usecase.GetAllCallsWithSortedParticipantsUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.StartCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.IsLastCallClosedUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -31,7 +32,10 @@ class InitiatingCallViewModelTest {
     private lateinit var navigationManager: NavigationManager
 
     @MockK
-    private lateinit var allCalls: GetAllCallsWithSortedParticipantsUseCase
+    private lateinit var establishedCalls: ObserveEstablishedCallsUseCase
+
+    @MockK
+    private lateinit var isLastCallClosed: IsLastCallClosedUseCase
 
     @MockK
     private lateinit var startCall: StartCallUseCase
@@ -61,9 +65,10 @@ class InitiatingCallViewModelTest {
             savedStateHandle = savedStateHandle,
             navigationManager = navigationManager,
             conversationDetails = observeConversationDetailsUseCase,
-            allCalls = allCalls,
+            observeEstablishedCalls = establishedCalls,
             startCall = startCall,
             endCall = endCall,
+            isLastCallClosed = isLastCallClosed,
             callRinger = callRinger
         )
     }

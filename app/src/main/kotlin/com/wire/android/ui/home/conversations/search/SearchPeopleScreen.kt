@@ -94,6 +94,7 @@ private fun SearchResult(
     val lazyListState = rememberLazyListState()
 
     scrollPositionProvider { lazyListState.firstVisibleItemIndex }
+
     val context = LocalContext.current
 
     Column {

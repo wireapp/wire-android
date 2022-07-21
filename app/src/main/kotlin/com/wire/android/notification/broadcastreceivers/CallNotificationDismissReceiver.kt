@@ -3,6 +3,7 @@ package com.wire.android.notification.broadcastreceivers
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import com.wire.android.appLogger
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.notification.CallNotificationManager
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -27,6 +28,7 @@ class CallNotificationDismissReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         val conversationId: String = intent.getStringExtra(EXTRA_CONVERSATION_ID) ?: return
+        appLogger.i("CallNotificationDismissReceiver: onReceive, conversationId: $conversationId")
 
         val userId: QualifiedID? =
             intent.getStringExtra(EXTRA_RECEIVER_USER_ID)?.toConversationId() //TODO bad naming, need to be toQualifiedID()

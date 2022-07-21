@@ -165,7 +165,7 @@ internal class ConversationsViewModelArrangement {
         coEvery { isFileSharingEnabledUseCase() } returns FileSharingStatus(null, null)
         coEvery { getMessagesForConversationUseCase(any()) } returns messagesChannel.consumeAsFlow()
         coEvery { observeOngoingCallsUseCase() } returns emptyFlow()
-        coEvery { observeEstablishedCalls() } returns emptyFlow()
+        coEvery { observeEstablishedCallsUseCase() } returns emptyFlow()
         return this
     }
 

@@ -104,9 +104,10 @@ class UserProfileScreenTest {
         title.assertIsDisplayed()
         availableButton.onSibling().performClick()
         val availableText = composeTestRule.onNodeWithText("Set yourself to Available")
-        availableText.assertDoesNotExist()
+        composeTestRule.waitForExecution {
+            availableText.assertIsDisplayed()
+        }
     }
-
     @Test
     fun userProfile_change_status_away() {
         title.assertIsDisplayed()

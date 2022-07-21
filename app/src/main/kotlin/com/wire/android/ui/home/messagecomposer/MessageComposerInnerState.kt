@@ -11,16 +11,18 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.Dp
 import com.wire.android.appLogger
-import com.wire.android.mapper.isImage
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.util.DEFAULT_FILE_MIME_TYPE
-import com.wire.android.util.ImageUtil
+import com.wire.android.util.copyToTempPath
 import com.wire.android.util.getFileName
 import com.wire.android.util.getMimeType
 import com.wire.android.util.orDefault
-import com.wire.android.util.toByteArray
+import com.wire.kalium.logic.data.asset.isValidImage
+import okio.Path
+import okio.Path.Companion.toPath
 import java.io.IOException
+import java.util.UUID
 
 @Composable
 fun rememberMessageComposerInnerState(
@@ -115,18 +117,14 @@ class MessageComposerInnerState(
 class AttachmentInnerState(val context: Context) {
     var attachmentState by mutableStateOf<AttachmentState>(AttachmentState.NotPicked)
 
-    suspend fun pickAttachment(attachmentUri: Uri) {
+    fun pickAttachment(attachmentUri: Uri, tempCachePath: Path) {
         attachmentState = try {
+            val fullTempAssetPath = "$tempCachePath/${UUID.randomUUID()}".toPath()
             val mimeType = attachmentUri.getMimeType(context).orDefault(DEFAULT_FILE_MIME_TYPE)
-            val assetFileName = context.getFileName(attachmentUri)
-            val attachmentType = if (isImage(mimeType)) AttachmentType.IMAGE else AttachmentType.GENERIC_FILE
-            val assetData = if (attachmentType == AttachmentType.IMAGE) {
-                val byteArray = attachmentUri.toByteArray(context)
-                ImageUtil.resample(byteArray, sizeClass = ImageUtil.ImageSizeClass.Medium)
-            } else {
-                attachmentUri.toByteArray(context)
-            }
-            val attachment = AttachmentBundle(mimeType, assetData, assetFileName, attachmentType)
+            val assetFileName = context.getFileName(attachmentUri) ?: throw IOException("The selected asset has an invalid name")
+            val assetSize = attachmentUri.copyToTempPath(context, fullTempAssetPath)
+            val attachmentType = if (isValidImage(mimeType)) AttachmentType.IMAGE else AttachmentType.GENERIC_FILE
+            val attachment = AttachmentBundle(mimeType, fullTempAssetPath, assetSize, assetFileName, attachmentType)
             AttachmentState.Picked(attachment)
         } catch (e: IOException) {
             appLogger.e("There was an error while obtaining the file from disk", e)

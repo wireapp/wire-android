@@ -1,4 +1,4 @@
-package com.wire.android.ui.home.newconversation.search
+package com.wire.android.ui.home.conversations.search
 
 import androidx.annotation.StringRes
 import com.wire.android.ui.home.newconversation.model.Contact

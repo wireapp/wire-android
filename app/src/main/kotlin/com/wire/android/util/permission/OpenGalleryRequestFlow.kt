@@ -21,7 +21,6 @@ fun rememberOpenGalleryFlow(
     onPermissionDenied: () -> Unit
 ): UseStorageRequestFlow {
     val context = LocalContext.current
-
     val openGalleryLauncher: ManagedActivityResultLauncher<String, Uri?> = rememberLauncherForActivityResult(
         ActivityResultContracts.GetContent()
     ) { onChosenPictureUri ->

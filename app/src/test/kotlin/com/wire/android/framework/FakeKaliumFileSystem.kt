@@ -42,6 +42,8 @@ class FakeKaliumFileSystem(
 
     override fun source(inputPath: Path): Source = fakeFileSystem.source(inputPath)
 
+    override fun createDirectories(dir: Path) = fakeFileSystem.createDirectories(dir)
+
     override fun createDirectory(dir: Path, mustCreate: Boolean) = fakeFileSystem.createDirectory(dir, mustCreate)
 
     override fun delete(path: Path, mustExist: Boolean) = fakeFileSystem.delete(path, mustExist)

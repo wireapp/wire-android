@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
+import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.UserAvatarData
 import com.wire.android.navigation.NavigationCommand
@@ -53,7 +54,8 @@ class ConversationListViewModel @Inject constructor(
     private val answerCall: AnswerCallUseCase,
     private val observeConversationsAndConnections: ObserveConversationsAndConnectionsUseCase,
     private val dispatchers: DispatcherProvider,
-    private val wireSessionImageLoader: WireSessionImageLoader
+    private val wireSessionImageLoader: WireSessionImageLoader,
+    private val userTypeMapper: UserTypeMapper,
 ) : ViewModel() {
 
     var state by mutableStateOf(ConversationListState())
@@ -176,12 +178,12 @@ class ConversationListViewModel @Inject constructor(
 
     private fun List<ConversationDetails>.toConversationItemList(): List<ConversationItem> =
         filter { it is Group || it is OneOne || it is Connection }
-            .map { it.toType(wireSessionImageLoader) }
+            .map { it.toType(wireSessionImageLoader, userTypeMapper) }
 }
 
 private fun LegalHoldStatus.showLegalHoldIndicator() = this == LegalHoldStatus.ENABLED
 
-private fun ConversationDetails.toType(wireSessionImageLoader: WireSessionImageLoader): ConversationItem = when (this) {
+private fun ConversationDetails.toType(wireSessionImageLoader: WireSessionImageLoader, userTypeMapper: UserTypeMapper): ConversationItem = when (this) {
     is Group -> {
         ConversationItem.GroupConversation(
             groupName = conversation.name.orEmpty(),
@@ -200,7 +202,7 @@ private fun ConversationDetails.toType(wireSessionImageLoader: WireSessionImageL
             ),
             conversationInfo = ConversationInfo(
                 name = otherUser.name.orEmpty(),
-                membership = userType.toMembership()
+                membership = userTypeMapper.toMembership(userType)
             ),
             conversationId = conversation.id,
             mutedStatus = conversation.mutedStatus,
@@ -216,7 +218,7 @@ private fun ConversationDetails.toType(wireSessionImageLoader: WireSessionImageL
             ),
             conversationInfo = ConversationInfo(
                 name = otherUser?.name.orEmpty(),
-                membership = userType.toMembership()
+                membership = userTypeMapper.toMembership(userType)
             ),
             lastEvent = ConversationLastEvent.Connection(
                 connection.status,
@@ -232,15 +234,5 @@ private fun ConversationDetails.toType(wireSessionImageLoader: WireSessionImageL
     }
     else -> {
         throw IllegalArgumentException("$this conversations should not be visible to the user.")
-    }
-}
-
-private fun UserType.toMembership(): Membership {
-    return when (this) {
-        UserType.GUEST -> Membership.Guest
-        UserType.FEDERATED -> Membership.Federated
-        UserType.EXTERNAL -> Membership.External
-        UserType.INTERNAL -> Membership.Internal
-        UserType.NONE -> Membership.None
     }
 }

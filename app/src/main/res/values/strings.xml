@@ -2,7 +2,6 @@
 <resources>
     <string name="app_version">App version: %s</string>
     <string name="app_name">Android Reloaded 2.0 FINAL</string>
-    <string name="app_logo_description">App Logo</string>
     <string name="label_new">New</string>
     <string name="label_login">Login</string>
     <string name="label_ok">OK</string>
@@ -36,6 +35,7 @@
     <string name="folder_lable_access">Access</string>
 
     <!-- Content descriptions -->
+    <string name="content_description_app_logo">App Logo</string>
     <string name="content_description_reveal_password">Show or hide password</string>
     <string name="content_description_search_back">Search back icon</string>
     <string name="content_description_clear_content">Clear content</string>
@@ -194,9 +194,6 @@
     <string name="create_account_username_text">Enter your username. It helps others to find you in Wire and connect with you.</string>
     <string name="create_account_username_taken_error">This username is already taken. Please choose another one.</string>
     <string name="create_account_username_description">At least 2 characters, a-z, 0-9 and _</string>
-
-    <!-- Home -->
-    <string name="home_open_drawer_description">Open drawer</string>
 
     <!-- Conversations -->
     <string name="calls_label_missed_calls">MISSED CALLS</string>
@@ -372,8 +369,8 @@
     <string name="notification_shared_file">Shared a file</string>
     <string name="notification_reacted">Added a reaction</string>
     <string name="notification_missed_call">Missed call</string>
+    <string name="notification_not_supported_issue">Something not supported in notifications</string>
     <string name="notification_connection_request">Wants to connect</string>
-    <string name="notification_not_suppotred_notification">Something not supported in notifications</string>
     <string name="notification_action_call">Call</string>
     <string name="notification_action_reply">Reply</string>
     <string name="notification_receiver_name">You</string>

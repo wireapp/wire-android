@@ -4,6 +4,7 @@ import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.team.Team
+import okio.Path
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.id.QualifiedID as ConversationId
 
@@ -29,11 +30,12 @@ sealed class ConversationAvatar {
 
 sealed class DownloadedAssetDialogVisibilityState {
     object Hidden : DownloadedAssetDialogVisibilityState()
-    class Displayed (val assetName: String, val assetData: ByteArray, val messageId: String) : DownloadedAssetDialogVisibilityState()
+    class Displayed(val assetName: String, val assetDataPath: Path, val assetSize: Long, val messageId: String) :
+        DownloadedAssetDialogVisibilityState()
 }
 
 sealed class ConversationDetailsData {
     object None : ConversationDetailsData()
     data class OneOne(val otherUserId: UserId) : ConversationDetailsData()
-    data class Group(val covnersationId: QualifiedID) : ConversationDetailsData()
+    data class Group(val conversationId: QualifiedID) : ConversationDetailsData()
 }

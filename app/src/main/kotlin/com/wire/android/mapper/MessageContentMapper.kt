@@ -5,6 +5,9 @@ import com.wire.android.R
 import com.wire.android.ui.home.conversations.findUser
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.asset.KaliumFileSystem
+import com.wire.kalium.logic.data.asset.isValidImage
+import com.wire.kalium.logic.data.conversation.MemberDetails
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.Message
@@ -20,13 +23,15 @@ import com.wire.kalium.logic.data.user.User
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
+import com.wire.kalium.logic.util.isGreaterThan
 import javax.inject.Inject
 import com.wire.android.ui.home.conversations.model.MessageContent as UIMessageContent
 
 // TODO: splits mapping into more classes
 class MessageContentMapper @Inject constructor(
     private val getMessageAsset: GetMessageAssetUseCase,
-    private val messageResourceProvider: MessageResourceProvider
+    private val messageResourceProvider: MessageResourceProvider,
+    private val kaliumFileSystem: KaliumFileSystem
 ) {
 
     suspend fun fromMessage(
@@ -69,7 +74,7 @@ class MessageContentMapper @Inject constructor(
     }
 
     fun mapMemberChangeMessage(
-        content: MessageContent.MemberChange,
+        content: MemberChange,
         senderUserId: UserId,
         userList: List<User>
     ): UIMessageContent.SystemMessage? {
@@ -144,19 +149,13 @@ class MessageContentMapper @Inject constructor(
         }
         if (remoteData.assetId.isNotEmpty()) {
             when {
-                // If it's an image and has valid width and height, we download it right away
-                isImage(mimeType) && imgWidth > 0 && imgHeight > 0 -> {
-                    val rawData = getRawAssetData(
-                        conversationId = conversationId,
-                        messageId = messageId
-                    )
-                    UIMessageContent.ImageMessage(
-                        assetId = AssetId(remoteData.assetId, remoteData.assetDomain.orEmpty()),
-                        rawImgData = rawData,
-                        width = imgWidth,
-                        height = imgHeight
-                    )
-                }
+                // If it's an image, we download it right away
+                isValidImage(mimeType) && imgWidth.isGreaterThan(0) && imgHeight.isGreaterThan(0) -> UIMessageContent.ImageMessage(
+                    assetId = AssetId(remoteData.assetId, remoteData.assetDomain.orEmpty()),
+                    imgData = imageRawData(conversationId, messageId),
+                    width = imgWidth,
+                    height = imgHeight
+                )
 
                 // It's a generic Asset Message so let's not download it yet
                 else -> {
@@ -172,6 +171,12 @@ class MessageContentMapper @Inject constructor(
             }
         } else null
     }
+
+    private suspend fun imageRawData(conversationId: QualifiedID, messageId: String): ByteArray? =
+        imageDataPath(
+            conversationId = conversationId,
+            messageId = messageId
+        )?.let { kaliumFileSystem.readByteArray(it) }
 
     private fun toRestrictedAsset(
         mimeType: String,
@@ -196,13 +201,13 @@ class MessageContentMapper @Inject constructor(
         else -> UIText.StringResource(messageResourceProvider.memberNameDeleted)
     }
 
-    private suspend fun getRawAssetData(conversationId: QualifiedID, messageId: String) =
+    private suspend fun imageDataPath(conversationId: QualifiedID, messageId: String) =
         getMessageAsset(
             conversationId = conversationId,
             messageId = messageId
         ).run {
             when (this) {
-                is MessageAssetResult.Success -> decodedAsset
+                is MessageAssetResult.Success -> decodedAssetPath
                 else -> null
             }
         }

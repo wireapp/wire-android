@@ -68,6 +68,7 @@ import com.wire.android.ui.home.messagecomposer.attachment.AttachmentOptionsComp
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import okio.Path
 
 private val DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET = 250.dp
 
@@ -80,7 +81,8 @@ fun MessageComposer(
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
     onMessageComposerInputStateChange: (MessageComposerStateTransition) -> Unit,
-    isFileSharingEnabled: Boolean
+    isFileSharingEnabled: Boolean,
+    tempCachePath: Path
 ) {
     BoxWithConstraints {
         val messageComposerState = rememberMessageComposerInnerState(
@@ -111,7 +113,8 @@ fun MessageComposer(
                 messageComposerState.toggleAttachmentOptionsVisibility()
             },
             onMessageComposerError = onMessageComposerError,
-            isFileSharingEnabled = isFileSharingEnabled
+            isFileSharingEnabled = isFileSharingEnabled,
+            tempCachePath = tempCachePath
         )
     }
 }
@@ -133,7 +136,8 @@ private fun MessageComposer(
     onSendButtonClicked: () -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
-    isFileSharingEnabled: Boolean
+    isFileSharingEnabled: Boolean,
+    tempCachePath: Path
 ) {
     val focusManager = LocalFocusManager.current
     // when MessageComposer is composed for the first time we do not know the height
@@ -381,6 +385,7 @@ private fun MessageComposer(
                         onSendAttachment,
                         onMessageComposerError,
                         isFileSharingEnabled,
+                        tempCachePath,
                         Modifier.align(Alignment.Center)
                     )
                 }

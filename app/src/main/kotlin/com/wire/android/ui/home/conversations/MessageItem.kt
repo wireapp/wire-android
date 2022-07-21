@@ -204,7 +204,7 @@ private fun MessageContent(
 ) {
     when (messageContent) {
         is MessageContent.ImageMessage -> MessageImage(
-            rawImgData = messageContent.rawImgData,
+            rawImgData = messageContent.imgData,
             imgParams = ImageMessageParams(messageContent.width, messageContent.height),
             onImageClick = onImageClick
         )
@@ -213,7 +213,7 @@ private fun MessageContent(
             onLongClick = onLongClick
         )
         is MessageContent.AssetMessage -> MessageAsset(
-            assetName = messageContent.assetName.split(".").dropLast(1).joinToString("."),
+            assetName = messageContent.assetName,
             assetExtension = messageContent.assetExtension,
             assetSizeInBytes = messageContent.assetSizeInBytes,
             assetDownloadStatus = messageContent.downloadStatus,

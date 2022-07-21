@@ -2,6 +2,7 @@ package com.wire.android.mapper
 
 import android.content.res.Resources
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.framework.TestMessage
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.home.conversations.model.MessageContent.AssetMessage
@@ -27,6 +28,9 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
+import okio.Path
+import okio.Path.Companion.toPath
+import okio.buffer
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -136,7 +140,10 @@ class MessageContentMapperTest {
     @Test
     fun givenAssetContent_whenMappingToUIMessageContent_thenCorrectValuesShouldBeReturned() = runTest {
         // Given
-        val (arrangement, mapper) = Arrangement().arrange()
+        val dummyPath = fakeKaliumFileSystem.providePersistentAssetPath("dummy-path")
+        val (arrangement, mapper) = Arrangement()
+            .withSuccessfulGetMessageAssetResult(dummyPath, 1)
+            .arrange()
         val unknownImageFormatMessage = AssetContent(
             0L,
             "name1",
@@ -187,7 +194,10 @@ class MessageContentMapperTest {
     @Test
     fun givenPNGImageAssetContentWith0Width_whenMappingToUIMessageContent_thenIsMappedToAssetMessage() = runTest {
         // Given
-        val (arrangement, mapper) = Arrangement().arrange()
+        val dummyPath = "some-dummy-path".toPath()
+        val (arrangement, mapper) = Arrangement()
+            .withSuccessfulGetMessageAssetResult(dummyPath, 1)
+            .arrange()
         val contentImage1 = AssetContent(
             0L,
             "name1",
@@ -252,18 +262,30 @@ class MessageContentMapperTest {
         lateinit var resources: Resources
 
         private val messageContentMapper by lazy {
-            MessageContentMapper(getMessageAssetUseCase, messageResourceProvider)
+            MessageContentMapper(getMessageAssetUseCase, messageResourceProvider, fakeKaliumFileSystem)
         }
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
-            coEvery { getMessageAssetUseCase.invoke(any(), any()) } returns MessageAssetResult.Success("mocked-image".toByteArray())
             every { messageResourceProvider.memberNameDeleted } returns 10584735
             every { messageResourceProvider.memberNameYouLowercase } returns 24153498
             every { messageResourceProvider.memberNameYouTitlecase } returns 38946214
             every { messageResourceProvider.sentAMessageWithContent } returns 45407124
         }
 
+        fun withSuccessfulGetMessageAssetResult(expectedAssetPath: Path, expectedAssetSize: Long): Arrangement {
+            val dummyData = "dummy-data".toByteArray()
+            fakeKaliumFileSystem.sink(expectedAssetPath).buffer().use {
+                it.write(dummyData)
+            }
+            coEvery { getMessageAssetUseCase.invoke(any(), any()) } returns MessageAssetResult.Success(expectedAssetPath, expectedAssetSize)
+            return this
+        }
+
         fun arrange() = this to messageContentMapper
+    }
+
+    companion object {
+        val fakeKaliumFileSystem = FakeKaliumFileSystem()
     }
 }

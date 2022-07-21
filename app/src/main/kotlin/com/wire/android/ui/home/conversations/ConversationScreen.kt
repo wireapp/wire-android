@@ -57,6 +57,8 @@ import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.launch
+import okio.Path
+import okio.Path.Companion.toPath
 
 @Composable
 fun ConversationScreen(conversationViewModel: ConversationViewModel) {
@@ -67,6 +69,7 @@ fun ConversationScreen(conversationViewModel: ConversationViewModel) {
     }
     val joinCallAudioPermissionCheck = JoinCallAudioBluetoothPermissionCheckFlow(conversationViewModel)
     val uiState = conversationViewModel.conversationViewState
+
     LaunchedEffect(conversationViewModel.savedStateHandle) {
         conversationViewModel.checkPendingActions()
     }
@@ -110,7 +113,9 @@ fun ConversationScreen(conversationViewModel: ConversationViewModel) {
         },
         onJoinCall = joinCallAudioPermissionCheck::launch,
         onSnackbarMessage = conversationViewModel::onSnackbarMessage,
+        onSnackbarMessageShown = conversationViewModel::clearSnackbarMessage,
         onDropDownClick = conversationViewModel::navigateToDetails,
+        tempCachePath = conversationViewModel::provideTempCachePath,
         onOpenProfile = conversationViewModel::navigateToProfile
     )
 
@@ -155,7 +160,9 @@ private fun ConversationScreen(
     onStartCall: () -> Unit,
     onJoinCall: () -> Unit,
     onSnackbarMessage: (ConversationSnackbarMessages) -> Unit,
+    onSnackbarMessageShown: () -> Unit,
     onDropDownClick: () -> Unit,
+    tempCachePath: Path,
     onOpenProfile: (MessageSource, UserId) -> Unit
 ) {
     val conversationScreenState = rememberConversationScreenState()
@@ -218,8 +225,10 @@ private fun ConversationScreen(
                                 onImageFullScreenMode = onImageFullScreenMode,
                                 conversationState = conversationViewState,
                                 onMessageComposerError = onSnackbarMessage,
+                                onSnackbarMessageShown = onSnackbarMessageShown,
                                 conversationScreenState = conversationScreenState,
                                 isFileSharingEnabled = isFileSharingEnabled,
+                                tempCachePath = tempCachePath,
                                 onOpenProfile = onOpenProfile
                             )
                         }
@@ -244,8 +253,10 @@ private fun ConversationScreenContent(
     onOpenProfile: (MessageSource, UserId) -> Unit,
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
     conversationState: ConversationViewState,
+    onSnackbarMessageShown: () -> Unit,
     conversationScreenState: ConversationScreenState,
-    isFileSharingEnabled: Boolean
+    isFileSharingEnabled: Boolean,
+    tempCachePath: Path
 ) {
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -258,7 +269,9 @@ private fun ConversationScreenContent(
                 // Show downloads folder when clicking on Snackbar cta button
                 messageCode is OnFileDownloaded && snackbarResult == SnackbarResult.ActionPerformed -> {
                     context.startActivity(Intent(DownloadManager.ACTION_VIEW_DOWNLOADS))
+                    onSnackbarMessageShown()
                 }
+                snackbarResult == SnackbarResult.Dismissed -> onSnackbarMessageShown()
             }
         }
     }
@@ -291,7 +304,9 @@ private fun ConversationScreenContent(
             ) {
                 coroutineScope.launch { lazyListState.animateScrollToItem(messages.size) }
             }
-        }, isFileSharingEnabled = isFileSharingEnabled
+        },
+        isFileSharingEnabled = isFileSharingEnabled,
+        tempCachePath = tempCachePath
     )
 }
 
@@ -367,7 +382,9 @@ fun ConversationScreenPreview() {
         onStartCall = {},
         onJoinCall = {},
         onSnackbarMessage = {},
+        onSnackbarMessageShown = {},
         onDropDownClick = {},
+        tempCachePath =  "".toPath(),
         onOpenProfile = {_, _ -> }
     )
 }

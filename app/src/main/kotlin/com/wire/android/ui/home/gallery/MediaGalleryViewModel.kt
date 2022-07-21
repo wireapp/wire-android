@@ -37,7 +37,7 @@ class MediaGalleryViewModel @Inject constructor(
     private val getConversationDetails: ObserveConversationDetailsUseCase,
     private val dispatchers: DispatcherProvider,
     private val getImageData: GetMessageAssetUseCase,
-    private val fileManager: FileManager
+    private val fileManager: FileManager,
 ) : ViewModel() {
 
     var mediaGalleryViewState by mutableStateOf(MediaGalleryViewState())
@@ -76,8 +76,8 @@ class MediaGalleryViewModel @Inject constructor(
                 val imageData = getImageData(imageAssetId.conversationId, imageAssetId.messageId)
                 if (imageData is Success) {
                     val defaultImageName = "Wire downloaded image ${getCurrentParsedDateTime()}.jpeg"
-                    fileManager.saveToExternalStorage(defaultImageName, imageData.decodedAsset) {
-                        onFileSavedToExternalStorage()
+                    fileManager.saveToExternalStorage(defaultImageName, imageData.decodedAssetPath, imageData.assetSize) {
+                        onImageSavedToExternalStorage()
                     }
                 } else {
                     onSaveError()
@@ -96,7 +96,7 @@ class MediaGalleryViewModel @Inject constructor(
         }
     }
 
-    private fun onFileSavedToExternalStorage() {
+    private fun onImageSavedToExternalStorage() {
         onSnackbarMessage(MediaGallerySnackbarMessages.OnImageDownloaded())
     }
 

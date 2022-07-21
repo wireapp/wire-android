@@ -34,6 +34,8 @@ import com.wire.android.util.permission.rememberOpenGalleryFlow
 import com.wire.android.util.permission.rememberRecordAudioRequestFlow
 import com.wire.android.util.permission.rememberTakePictureFlow
 import kotlinx.coroutines.launch
+import okio.Path
+import okio.Path.Companion.toPath
 
 @Composable
 fun AttachmentOptionsComponent(
@@ -41,11 +43,15 @@ fun AttachmentOptionsComponent(
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onError: (ConversationSnackbarMessages) -> Unit,
     isFileSharingEnabled: Boolean,
+    tempCachePath: Path,
     modifier: Modifier = Modifier
 ) {
     val scope = rememberCoroutineScope()
-    val attachmentOptions =
-        buildAttachmentOptionItems(isFileSharingEnabled) { pickedUri -> scope.launch { attachmentInnerState.pickAttachment(pickedUri) } }
+    val attachmentOptions = buildAttachmentOptionItems(tempCachePath, isFileSharingEnabled) { pickedUri ->
+        scope.launch {
+            attachmentInnerState.pickAttachment(pickedUri, tempCachePath)
+        }
+    }
     configureStateHandling(attachmentInnerState, onSendAttachment, onError)
 
     LazyVerticalGrid(
@@ -99,9 +105,9 @@ private fun GalleryFlow(onFilePicked: (Uri) -> Unit): UseStorageRequestFlow {
 }
 
 @Composable
-private fun TakePictureFlow(onPictureTaken: (Uri) -> Unit): UseCameraRequestFlow {
+private fun TakePictureFlow(tempCachePath: Path, onPictureTaken: (Uri) -> Unit): UseCameraRequestFlow {
     val context = LocalContext.current
-    val imageAttachmentUri = context.getTempWritableImageUri()
+    val imageAttachmentUri = context.getTempWritableImageUri(tempCachePath)
     return rememberTakePictureFlow(
         onPictureTaken = { hasTakenPicture ->
             if (hasTakenPicture)
@@ -113,9 +119,9 @@ private fun TakePictureFlow(onPictureTaken: (Uri) -> Unit): UseCameraRequestFlow
 }
 
 @Composable
-private fun CaptureVideoFlow(onVideoCaptured: (Uri) -> Unit): UseCameraRequestFlow {
+private fun CaptureVideoFlow(tempCachePath: Path, onVideoCaptured: (Uri) -> Unit): UseCameraRequestFlow {
     val context = LocalContext.current
-    val videoAttachmentUri = context.getTempWritableVideoUri()
+    val videoAttachmentUri = context.getTempWritableVideoUri(tempCachePath)
     return rememberCaptureVideoFlow(
         onVideoRecorded = { hasCapturedVideo ->
             if (hasCapturedVideo)
@@ -140,13 +146,14 @@ private fun RecordAudioFlow() =
 
 @Composable
 private fun buildAttachmentOptionItems(
+    tempCachePath: Path,
     isFileSharingEnabled: Boolean,
     onFilePicked: (Uri) -> Unit
 ): List<AttachmentOptionItem> {
     val fileFlow = FileBrowserFlow(onFilePicked)
     val galleryFlow = GalleryFlow(onFilePicked)
-    val cameraFlow = TakePictureFlow(onFilePicked)
-    val captureVideoFlow = CaptureVideoFlow(onFilePicked)
+    val cameraFlow = TakePictureFlow(tempCachePath, onFilePicked)
+    val captureVideoFlow = CaptureVideoFlow(tempCachePath, onFilePicked)
     val shareCurrentLocationFlow = ShareCurrentLocationFlow()
     val recordAudioFlow = RecordAudioFlow()
 
@@ -174,5 +181,5 @@ private data class AttachmentOptionItem(
 @Composable
 fun PreviewAttachmentComponents() {
     val context = LocalContext.current
-    AttachmentOptionsComponent(AttachmentInnerState(context), {}, {}, isFileSharingEnabled = true)
+    AttachmentOptionsComponent(AttachmentInnerState(context), {}, {}, isFileSharingEnabled = true, tempCachePath = "".toPath())
 }

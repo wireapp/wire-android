@@ -3,6 +3,7 @@ package com.wire.android.ui.home.conversations
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
+import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.ui.home.conversations.ConversationViewModel.Companion.ASSET_SIZE_DEFAULT_LIMIT_BYTES
 import com.wire.android.ui.home.conversations.ConversationViewModel.Companion.IMAGE_SIZE_LIMIT_BYTES
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
@@ -11,12 +12,14 @@ import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.parseIntoQualifiedID
 import com.wire.kalium.logic.data.team.Team
+import com.wire.kalium.logic.util.fileExtension
 import com.wire.kalium.logic.data.user.UserId
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
+import okio.Path.Companion.toPath
 import org.amshove.kluent.internal.assertEquals
 import org.amshove.kluent.internal.assertFalse
 import org.amshove.kluent.shouldBeEqualTo
@@ -28,9 +31,11 @@ import org.junit.jupiter.api.extension.ExtendWith
 class ConversationsViewModelTest {
 
     @Test
-    fun `validate deleteMessageDialogsState states when deleteMessageDialog is visible for my message`() {
+    fun `validate deleteMessageDialogsState states when deleteMessageDialog is visible for my message`() = runTest {
         // Given
-        val (_, viewModel) = ConversationsViewModelArrangement().arrange()
+        val (_, viewModel) = ConversationsViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .arrange()
 
         // When
         viewModel.showDeleteMessageDialog("", true)
@@ -43,9 +48,11 @@ class ConversationsViewModelTest {
     }
 
     @Test
-    fun `validate deleteMessageDialogsState states when deleteMessageDialog is visible for others message`() {
+    fun `validate deleteMessageDialogsState states when deleteMessageDialog is visible for others message`() = runTest {
         // Given
-        val (_, viewModel) = ConversationsViewModelArrangement().arrange()
+        val (_, viewModel) = ConversationsViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .arrange()
 
         // When
         viewModel.showDeleteMessageDialog("", false)
@@ -58,9 +65,11 @@ class ConversationsViewModelTest {
     }
 
     @Test
-    fun `validate deleteMessageDialogsState states when deleteMessageForYourselfDialog is visible`() {
+    fun `validate deleteMessageDialogsState states when deleteMessageForYourselfDialog is visible`() = runTest {
         // Given
-        val (_, viewModel) = ConversationsViewModelArrangement().arrange()
+        val (_, viewModel) = ConversationsViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .arrange()
 
         // When
         viewModel.showDeleteMessageForYourselfDialog("")
@@ -89,7 +98,9 @@ class ConversationsViewModelTest {
     @Test
     fun `given a failure, when deleting messages, then the error state is updated`() = runTest {
         // Given
-        val (_, viewModel) = ConversationsViewModelArrangement().withFailureOnDeletingMessages().arrange()
+        val (_, viewModel) = ConversationsViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .withFailureOnDeletingMessages().arrange()
 
         viewModel.conversationViewState
         // When
@@ -102,7 +113,10 @@ class ConversationsViewModelTest {
     @Test
     fun `given a failure, when deleting messages, then the delete dialog state is closed`() = runTest {
         // Given
-        val (_, viewModel) = ConversationsViewModelArrangement().withFailureOnDeletingMessages().arrange()
+        val (_, viewModel) = ConversationsViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .withFailureOnDeletingMessages()
+            .arrange()
 
         viewModel.conversationViewState
         // When
@@ -121,6 +135,7 @@ class ConversationsViewModelTest {
         // Given
         val oneToOneConversationDetails = withMockConversationDetailsOneOnOne("Other User Name Goes Here")
         val (_, viewModel) = ConversationsViewModelArrangement()
+            .withSuccessfulViewModelInit()
             .withConversationDetailUpdate(
                 conversationDetails = oneToOneConversationDetails
             )
@@ -135,6 +150,7 @@ class ConversationsViewModelTest {
         // Given
         val groupConversationDetails = mockConversationDetailsGroup("Conversation Name Goes Here")
         val (_, viewModel) = ConversationsViewModelArrangement()
+            .withSuccessfulViewModelInit()
             .withConversationDetailUpdate(conversationDetails = groupConversationDetails)
             .arrange()
 
@@ -148,6 +164,7 @@ class ConversationsViewModelTest {
         val firstConversationDetails = mockConversationDetailsGroup("Conversation Name Goes Here")
         val secondConversationDetails = mockConversationDetailsGroup("Conversation Name Was Updated")
         val (arrangement, viewModel) = ConversationsViewModelArrangement()
+            .withSuccessfulViewModelInit()
             .withConversationDetailUpdate(
                 conversationDetails = firstConversationDetails
             )
@@ -167,6 +184,7 @@ class ConversationsViewModelTest {
         val selfUserName = "self user"
         val messages = listOf(mockUITextMessage(selfUserName))
         val (arrangement, viewModel) = ConversationsViewModelArrangement()
+            .withSuccessfulViewModelInit()
             .withMessagesUpdate(messages)
             .arrange()
 
@@ -185,6 +203,7 @@ class ConversationsViewModelTest {
         val secondUserName = "User changed their name"
         val updatedMessages = listOf(mockUITextMessage(secondUserName))
         val (arrangement, viewModel) = ConversationsViewModelArrangement()
+            .withSuccessfulViewModelInit()
             .withMessagesUpdate(originalMessages)
             .arrange()
 
@@ -210,44 +229,57 @@ class ConversationsViewModelTest {
     @Test
     fun `given the user sends an asset message, when invoked, then sendAssetMessageUseCase gets called`() = runTest {
         // Given
-        val (arrangement, viewModel) = ConversationsViewModelArrangement().withSuccessfulSendAttachmentMessage().arrange()
+        val (arrangement, viewModel) = ConversationsViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .withSuccessfulSendAttachmentMessage()
+            .arrange()
         val mockedAttachment = AttachmentBundle(
-            "file/x-zip", "Mocked asset data".toByteArray(), "mocked_file.zip", AttachmentType.GENERIC_FILE
+            "file/x-zip", "Mocked-data-path".toPath(), 1L, "mocked_file.zip", AttachmentType.GENERIC_FILE
         )
 
         // When
         viewModel.sendAttachmentMessage(mockedAttachment)
 
         // Then
-        coVerify(exactly = 1) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any()) }
+        coVerify(exactly = 1) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any()) }
     }
 
     @Test
-    fun `given the user sends an image message, when invoked, then sendImageMessageUseCase gets called`() = runTest {
+    fun `given the user sends an image message, when invoked, then sendAssetMessageUseCase gets called`() = runTest {
         // Given
-        val (arrangement, viewModel) = ConversationsViewModelArrangement().withSuccessfulSendAttachmentMessage().arrange()
+        val assetPath = "mocked-asset-data-path".toPath()
+        val assetContent = "some-dummy-image".toByteArray()
+        val assetName = "mocked_image.jpeg"
+        val assetSize = assetContent.size.toLong()
+        val (arrangement, viewModel) = ConversationsViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .withStoredAsset(assetPath, assetContent)
+            .withSuccessfulSendAttachmentMessage()
+            .arrange()
         val mockedAttachment = AttachmentBundle(
-            "image/jpeg", "Mocked asset data".toByteArray(), "mocked_image.jpeg", AttachmentType.IMAGE
+            "image/jpeg", assetPath, assetSize, assetName, AttachmentType.IMAGE
         )
 
         // When
         viewModel.sendAttachmentMessage(mockedAttachment)
 
         // Then
-        coVerify(exactly = 1) { arrangement.sendImageMessage.invoke(any(), any(), any(), any(), any()) }
+        coVerify(exactly = 1) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any()) }
     }
 
     @Test
     fun `given the user picks a null attachment, when invoking sendAttachmentMessage, no use case gets called`() = runTest {
         // Given
-        val (arrangement, viewModel) = ConversationsViewModelArrangement().withSuccessfulSendAttachmentMessage().arrange()
+        val (arrangement, viewModel) = ConversationsViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .withSuccessfulSendAttachmentMessage()
+            .arrange()
         val mockedAttachment = null
 
         // When
         viewModel.sendAttachmentMessage(mockedAttachment)
 
-        coVerify(inverse = true) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any()) }
-        coVerify(inverse = true) { arrangement.sendImageMessage.invoke(any(), any(), any(), any(), any()) }
+        coVerify(inverse = true) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any()) }
     }
 
     @Test
@@ -256,6 +288,7 @@ class ConversationsViewModelTest {
         val conversationDetails = withMockConversationDetailsOneOnOne("", "userAssetId@domain".parseIntoQualifiedID())
         val otherUserAvatar = conversationDetails.otherUser.previewPicture
         val (_, viewModel) = ConversationsViewModelArrangement()
+            .withSuccessfulViewModelInit()
             .withConversationDetailUpdate(conversationDetails = conversationDetails)
             .arrange()
         val actualAvatar = viewModel.conversationViewState.conversationAvatar
@@ -265,18 +298,21 @@ class ConversationsViewModelTest {
     }
 
     @Test
-    fun `given a user sends an image message larger than 15MB, when invoked, then sendImageMessageUseCase isn't called`() = runTest {
+    fun `given a user sends an image message larger than 15MB, when invoked, then sendAssetMessageUseCase isn't called`() = runTest {
         // Given
-        val (arrangement, viewModel) = ConversationsViewModelArrangement().withSuccessfulSendAttachmentMessage().arrange()
+        val (arrangement, viewModel) = ConversationsViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .withSuccessfulSendAttachmentMessage()
+            .arrange()
         val mockedAttachment = AttachmentBundle(
-            "image/jpeg", ByteArray(IMAGE_SIZE_LIMIT_BYTES + 1), "mocked_image.jpeg", AttachmentType.IMAGE
+            "image/jpeg", "some-data-path".toPath(), IMAGE_SIZE_LIMIT_BYTES + 1L, "mocked_image.jpeg", AttachmentType.IMAGE
         )
 
         // When
         viewModel.sendAttachmentMessage(mockedAttachment)
 
         // Then
-        coVerify(inverse = true) { arrangement.sendImageMessage.invoke(any(), any(), any(), any(), any()) }
+        coVerify(inverse = true) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any()) }
         assert(viewModel.conversationViewState.onSnackbarMessage is ConversationSnackbarMessages.ErrorMaxImageSize)
     }
 
@@ -284,16 +320,23 @@ class ConversationsViewModelTest {
     fun `given that a free user sends an asset message larger than 25MB, when invoked, then sendAssetMessageUseCase isn't called`() =
         runTest {
             // Given
-            val (arrangement, viewModel) = ConversationsViewModelArrangement().withSuccessfulSendAttachmentMessage().arrange()
+            val (arrangement, viewModel) = ConversationsViewModelArrangement()
+                .withSuccessfulViewModelInit()
+                .withSuccessfulSendAttachmentMessage()
+                .arrange()
             val mockedAttachment = AttachmentBundle(
-                "file/x-zip", ByteArray(ASSET_SIZE_DEFAULT_LIMIT_BYTES + 1), "mocked_asset.jpeg", AttachmentType.GENERIC_FILE
+                "file/x-zip",
+                "some-data-path".toPath(),
+                ASSET_SIZE_DEFAULT_LIMIT_BYTES + 1L,
+                "mocked_asset.jpeg",
+                AttachmentType.GENERIC_FILE
             )
 
             // When
             viewModel.sendAttachmentMessage(mockedAttachment)
 
             // Then
-            coVerify(inverse = true) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any()) }
+            coVerify(inverse = true) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any()) }
             assert(viewModel.conversationViewState.onSnackbarMessage is ConversationSnackbarMessages.ErrorMaxAssetSize)
         }
 
@@ -302,18 +345,19 @@ class ConversationsViewModelTest {
         // Given
         val userTeam = Team("mocked-team-id", "mocked-team-name")
         val (arrangement, viewModel) = ConversationsViewModelArrangement()
+            .withSuccessfulViewModelInit()
             .withSuccessfulSendAttachmentMessage()
             .withTeamUser(userTeam)
             .arrange()
         val mockedAttachment = AttachmentBundle(
-            "file/x-zip", ByteArray(ASSET_SIZE_DEFAULT_LIMIT_BYTES + 1), "mocked_asset.jpeg", AttachmentType.GENERIC_FILE
+            "file/x-zip", "some-data-path".toPath(), ASSET_SIZE_DEFAULT_LIMIT_BYTES + 1L, "mocked_asset.jpeg", AttachmentType.GENERIC_FILE
         )
 
         // When
         viewModel.sendAttachmentMessage(mockedAttachment)
 
         // Then
-        coVerify(exactly = 1) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any()) }
+        coVerify(exactly = 1) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any()) }
         assertFalse(viewModel.conversationViewState.onSnackbarMessage != null)
     }
 
@@ -322,40 +366,40 @@ class ConversationsViewModelTest {
         runTest {
             // Given
             val messageId = "mocked-msg-id"
-            val assetName = "mocked-asset"
-            val assetData = assetName.toByteArray()
+            val assetName = "mocked-asset-name.zip"
+            val assetDataPath = "asset-data-path".toPath()
             val (arrangement, viewModel) = ConversationsViewModelArrangement()
-                .withSuccessfulSaveAssetMessage(assetName, assetData, messageId)
+                .withSuccessfulSaveAssetMessage(assetName, assetDataPath, 1L, messageId)
                 .arrange()
 
             // When
             assert(viewModel.conversationViewState.downloadedAssetDialogState is DownloadedAssetDialogVisibilityState.Displayed)
-            viewModel.onSaveFile(assetName, assetData, messageId)
+            viewModel.onSaveFile(assetName, assetDataPath, 1L, messageId)
 
             // Then
-            coVerify(exactly = 1) { arrangement.fileManager.saveToExternalStorage(any(), any(), any()) }
+            coVerify(exactly = 1) { arrangement.fileManager.saveToExternalStorage(any(), any(), any(), any()) }
             assert(viewModel.conversationViewState.downloadedAssetDialogState == DownloadedAssetDialogVisibilityState.Hidden)
         }
 
     @Test
-    fun `given an asset message, when opening it, then the file manager open function gets invoked and closes the dialog`() =
-        runTest {
-            // Given
-            val messageId = "mocked-msg-id"
-            val assetName = "mocked-asset"
-            val assetData = assetName.toByteArray()
-            val (arrangement, viewModel) = ConversationsViewModelArrangement()
-                .withSuccessfulOpenAssetMessage(assetName, assetData, messageId)
-                .arrange()
+    fun `given an asset message, when opening it, then the file manager open function gets invoked and closes the dialog`() = runTest {
+        // Given
+        val messageId = "mocked-msg-id"
+        val assetName = "mocked-asset-name.zip"
+        val assetDataPath = "asset-data-path".toPath()
+        val (arrangement, viewModel) = ConversationsViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .withSuccessfulOpenAssetMessage(assetName, assetDataPath, 1L, messageId)
+            .arrange()
 
-            // When
-            assert(viewModel.conversationViewState.downloadedAssetDialogState is DownloadedAssetDialogVisibilityState.Displayed)
-            viewModel.onOpenFileWithExternalApp(assetName, assetData)
+        // When
+        assert(viewModel.conversationViewState.downloadedAssetDialogState is DownloadedAssetDialogVisibilityState.Displayed)
+        viewModel.onOpenFileWithExternalApp(assetDataPath, assetName.fileExtension())
 
-            // Then
-            verify(exactly = 1) { arrangement.fileManager.openWithExternalApp(any(), any(), any()) }
-            assert(viewModel.conversationViewState.downloadedAssetDialogState == DownloadedAssetDialogVisibilityState.Hidden)
-        }
+        // Then
+        verify(exactly = 1) { arrangement.fileManager.openWithExternalApp(any(), any(), any()) }
+        assert(viewModel.conversationViewState.downloadedAssetDialogState == DownloadedAssetDialogVisibilityState.Hidden)
+    }
 
     @Test
     fun `given self user 1on1 message, when clicking on avatar, then open self profile`() = runTest {

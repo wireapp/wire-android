@@ -39,7 +39,7 @@ fun CallerDetails(
     avatarAssetId: ImageAsset.UserAvatarAsset?,
     conversationType: ConversationType,
     membership: Membership,
-    isCallingLabel: String
+    callingLabel: String
 ) {
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -71,7 +71,7 @@ fun CallerDetails(
             modifier = Modifier.padding(top = dimensions().spacing24x)
         )
         Text(
-            text = isCallingLabel,
+            text = callingLabel,
             style = MaterialTheme.wireTypography.body01,
             modifier = Modifier.padding(top = dimensions().spacing8x)
         )
@@ -98,6 +98,6 @@ fun CallerDetailsPreview() {
         avatarAssetId = null,
         conversationType = ConversationType.OneOnOne,
         membership = Membership.Guest,
-        isCallingLabel = String.EMPTY
+        callingLabel = String.EMPTY
     )
 }

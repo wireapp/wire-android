@@ -175,7 +175,7 @@ private fun IncomingCallContent(
                 avatarAssetId = callState.avatarAssetId,
                 conversationType = callState.conversationType,
                 membership = callState.membership,
-                isCallingLabel = isCallingString
+                callingLabel = isCallingString
             )
         }
     }

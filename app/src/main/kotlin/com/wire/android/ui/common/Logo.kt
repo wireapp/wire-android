@@ -17,7 +17,7 @@ import com.wire.android.ui.theme.wireDimensions
 fun Logo() {
     Image(
         painter = painterResource(id = R.drawable.ic_wire_logo),
-        contentDescription = stringResource(id = R.string.app_logo_description),
+        contentDescription = stringResource(id = R.string.content_description_app_logo),
         contentScale = ContentScale.Fit,
         modifier = Modifier
             .padding(

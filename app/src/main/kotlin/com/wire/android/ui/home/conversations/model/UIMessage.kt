@@ -59,18 +59,18 @@ sealed class MessageContent {
         val downloadStatus: Message.DownloadStatus
     ) : ClientMessage()
 
-    data class ImageMessage(val assetId: AssetId, val rawImgData: ByteArray?, val width: Int, val height: Int) : MessageContent() {
+    data class ImageMessage(val assetId: AssetId, val imgData: ByteArray?, val width: Int, val height: Int) : MessageContent() {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (javaClass != other?.javaClass) return false
             other as ImageMessage
             if (assetId != other.assetId) return false
-            if (!rawImgData.contentEquals(other.rawImgData)) return false
+            if (!imgData.contentEquals(other.imgData)) return false
             return true
         }
 
         override fun hashCode(): Int {
-            return rawImgData.contentHashCode()
+            return imgData.contentHashCode()
         }
     }
 

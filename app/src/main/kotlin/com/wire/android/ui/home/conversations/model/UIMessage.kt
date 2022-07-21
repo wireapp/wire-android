@@ -45,7 +45,12 @@ sealed class MessageContent {
 
     data class TextMessage(val messageBody: MessageBody) : ClientMessage()
 
-    data class RestrictedAsset(val mimeType: String) : ClientMessage()
+    data class RestrictedAsset(
+        val mimeType: String,
+        val assetSizeInBytes: Long,
+        val assetName: String
+    ) : ClientMessage()
+
     data class AssetMessage(
         val assetName: String,
         val assetExtension: String,
@@ -54,18 +59,18 @@ sealed class MessageContent {
         val downloadStatus: Message.DownloadStatus
     ) : ClientMessage()
 
-    data class ImageMessage(val assetId: AssetId, val rawImgData: ByteArray?, val width: Int, val height: Int) : MessageContent() {
+    data class ImageMessage(val assetId: AssetId, val imgData: ByteArray?, val width: Int, val height: Int) : MessageContent() {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (javaClass != other?.javaClass) return false
             other as ImageMessage
             if (assetId != other.assetId) return false
-            if (!rawImgData.contentEquals(other.rawImgData)) return false
+            if (!imgData.contentEquals(other.imgData)) return false
             return true
         }
 
         override fun hashCode(): Int {
-            return rawImgData.contentHashCode()
+            return imgData.contentHashCode()
         }
     }
 
@@ -92,7 +97,7 @@ sealed class MessageContent {
         sealed class MissedCall(
             open val author: UIText,
             @StringRes override val stringResId: Int
-        ): SystemMessage(R.drawable.ic_call_end, stringResId, false) {
+        ) : SystemMessage(R.drawable.ic_call_end, stringResId, false) {
 
             data class YouCalled(override val author: UIText) : MissedCall(author, R.string.label_system_message_you_called)
             data class OtherCalled(override val author: UIText) : MissedCall(author, R.string.label_system_message_other_called)

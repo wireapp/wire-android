@@ -30,6 +30,7 @@ import com.wire.android.util.ui.stringWithStyledArgs
 fun GroupConversationParticipants(
     openFullListPressed: () -> Unit,
     onProfilePressed: (UIParticipant) -> Unit,
+    onAddParticipantsPressed : () -> Unit,
     groupParticipantsState: GroupConversationParticipantsState,
     lazyListState: LazyListState = rememberLazyListState()
 ) {
@@ -60,7 +61,7 @@ fun GroupConversationParticipants(
                         WirePrimaryButton(
                             text = stringResource(R.string.conversation_details_group_participants_add),
                             fillMaxWidth = true,
-                            onClick = { /*TODO*/ },
+                            onClick = onAddParticipantsPressed ,
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(top = MaterialTheme.wireDimensions.spacing16x),
@@ -87,5 +88,5 @@ fun GroupConversationParticipants(
 @Preview
 @Composable
 fun GroupConversationParticipantsPreview() {
-    GroupConversationParticipants({}, {}, GroupConversationParticipantsState.PREVIEW)
+    GroupConversationParticipants({}, {}, {}, GroupConversationParticipantsState.PREVIEW)
 }

@@ -1,48 +1,52 @@
 package com.wire.android.ui.userprofile.other
 
-import androidx.compose.foundation.background
+import androidx.annotation.StringRes
+import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.gestures.LocalOverScrollConfiguration
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.wrapContentHeight
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.material3.Divider
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
+import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.google.accompanist.pager.ExperimentalPagerApi
+import com.google.accompanist.pager.HorizontalPager
+import com.google.accompanist.pager.rememberPagerState
 import com.wire.android.R
-import com.wire.android.model.Clickable
-import com.wire.android.ui.common.CopyButton
 import com.wire.android.ui.common.MoreOptionIcon
-import com.wire.android.ui.common.RowItemTemplate
-import com.wire.android.ui.common.button.WireButtonState
-import com.wire.android.ui.common.button.WireSecondaryButton
+import com.wire.android.ui.common.TabItem
+import com.wire.android.ui.common.WireTabRow
+import com.wire.android.ui.common.calculateCurrentTab
+import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.loading.CenteredCircularProgressBarIndicator
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
-import com.wire.android.ui.common.textfield.WirePrimaryButton
+import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
-import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
-import com.wire.android.ui.theme.wireTypography
+import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.userprofile.common.EditableState
 import com.wire.android.ui.userprofile.common.UserProfileInfo
+import kotlinx.coroutines.launch
 
 @Composable
 fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltViewModel()) {
@@ -58,7 +62,7 @@ fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltView
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalPagerApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun OtherProfileScreenContent(
     state: OtherUserProfileState,
@@ -72,222 +76,115 @@ fun OtherProfileScreenContent(
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val otherUserProfileScreenState = rememberOtherUserProfileScreenState(snackbarHostState)
+    val tabItems by remember(state) {
+        derivedStateOf { listOfNotNull(state.groupState?.let { OtherUserProfileTabItem.GROUP }, OtherUserProfileTabItem.DETAILS) }
+    }
+    val initialPage = 0
+    val pagerState = rememberPagerState(initialPage = initialPage)
+    val lazyListStates = OtherUserProfileTabItem.values().associateWith { rememberLazyListState() }
+    val currentTabState by remember(state, pagerState) {
+        derivedStateOf { if (state.isDataLoading) null else pagerState.calculateCurrentTab() }
+    }
+    val maxBarElevation = MaterialTheme.wireDimensions.topBarShadowElevation
+    val tabBarElevationState by remember(tabItems, lazyListStates, currentTabState) {
+        derivedStateOf { currentTabState?.let { tabItems[it] }?.let { lazyListStates[it] }?.topBarElevation(maxBarElevation) ?: 0.dp }
+    }
+    val scope = rememberCoroutineScope()
 
     handleOperationMessages(snackbarHostState, operationState)
 
-    Scaffold(
-        topBar = {
-            OtherUserProfileTopBar(
-                onNavigateBack = onNavigateBack,
-                connectionStatus = state.connectionStatus
-            )
-        },
+    CollapsingTopBarScaffold(
         snackbarHost = {
             SwipeDismissSnackbarHost(
                 hostState = otherUserProfileScreenState.snackbarHostState,
                 modifier = Modifier.fillMaxWidth()
             )
-        }
-    ) { internalPadding ->
-        with(state) {
-            Column(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight()
-                    .padding(internalPadding)
-                    .background(MaterialTheme.colorScheme.background)
-            ) {
-                LazyColumn(modifier = Modifier.weight(1f)) {
-                    item {
-                        UserProfileInfo(
-                            isLoading = state.isAvatarLoading,
-                            avatarAsset = state.userAvatarAsset,
-                            fullName = fullName,
-                            userName = userName,
-                            teamName = teamName,
-                            membership = membership,
-                            editableState = EditableState.NotEditable
+        },
+        topBarHeader = { elevation ->
+            WireCenterAlignedTopAppBar(
+                onNavigationPressed = onNavigateBack,
+                title = stringResource(id = R.string.user_profile_title),
+                elevation = elevation,
+                actions = {
+                    if (state.connectionStatus is ConnectionStatus.Connected) {
+                        MoreOptionIcon({ })
+                    }
+                }
+            )
+        },
+        topBarCollapsing = {
+            Column {
+                UserProfileInfo(
+                    isLoading = state.isAvatarLoading,
+                    avatarAsset = state.userAvatarAsset,
+                    fullName = state.fullName,
+                    userName = state.userName,
+                    teamName = state.teamName,
+                    membership = state.membership,
+                    editableState = EditableState.NotEditable
+                )
+                Spacer(modifier = Modifier.height(MaterialTheme.wireDimensions.spacing16x))
+            }
+        },
+        topBarFooter = {
+            if (!state.isDataLoading)
+                Surface(
+                    shadowElevation = tabBarElevationState,
+                    color = MaterialTheme.wireColorScheme.background
+                ) {
+                    WireTabRow(
+                        tabs = tabItems,
+                        selectedTabIndex = currentTabState!!,
+                        onTabChange = { scope.launch { pagerState.animateScrollToPage(it) } },
+                        divider = {} // no divider
+                    )
+                }
+        },
+        content = {
+            when {
+                state.isDataLoading -> CenteredCircularProgressBarIndicator()
+                state.connectionStatus is ConnectionStatus.Connected ->
+                    CompositionLocalProvider(LocalOverScrollConfiguration provides null) {
+                        HorizontalPager(
+                            modifier = Modifier.fillMaxSize(),
+                            state = pagerState,
+                            count = tabItems.size
+                        ) { pageIndex ->
+                            when (val tabItem = tabItems[pageIndex]) {
+                                OtherUserProfileTabItem.DETAILS ->
+                                    OtherUserProfileDetails(state, otherUserProfileScreenState, lazyListStates[tabItem]!!)
+                                OtherUserProfileTabItem.GROUP ->
+                                    OtherUserProfileGroup(state.groupState!!, lazyListStates[tabItem]!!)
+                            }
+                        }
+                    }
+                else -> OtherUserConnectionStatusInfo(state.connectionStatus, state.membership)
+            }
+        },
+        contentFooter = {
+            if (!state.isDataLoading)
+                Surface(
+                    shadowElevation = maxBarElevation,
+                    color = MaterialTheme.wireColorScheme.background
+                ) {
+                    Box(modifier = Modifier.padding(all = dimensions().spacing16x)) {
+                        OtherUserConnectionActionButton(
+                            state.connectionStatus,
+                            onSendConnectionRequest,
+                            onOpenConversation,
+                            onCancelConnectionRequest,
+                            acceptConnectionRequest,
+                            ignoreConnectionRequest
                         )
                     }
-
-                    if (connectionStatus is ConnectionStatus.Connected) {
-                        item {
-                            if (state.email.isNotEmpty()) {
-                                UserDetailInformation(
-                                    title = stringResource(R.string.email_label),
-                                    value = state.email,
-                                    onCopy = { otherUserProfileScreenState.copy(it) }
-                                )
-                            }
-                        }
-
-                        if (state.phone.isNotEmpty()) {
-                            item {
-                                UserDetailInformation(
-                                    title = stringResource(R.string.phone_label),
-                                    value = state.phone,
-                                    onCopy = { otherUserProfileScreenState.copy(it) }
-                                )
-                            }
-                        }
-                    } else {
-                        item {
-                            ConnectionStatusInformation(state.connectionStatus, state.membership)
-                        }
-                    }
                 }
-                Divider()
-                Box(
-                    modifier = Modifier
-                        .padding(all = dimensions().spacing16x)
-                ) {
-                    ConnectionActionButton(
-                        connectionStatus,
-                        onSendConnectionRequest,
-                        onOpenConversation,
-                        onCancelConnectionRequest,
-                        acceptConnectionRequest,
-                        ignoreConnectionRequest
-                    )
-                }
-            }
-        }
-    }
-}
-
-@Composable
-private fun ConnectionActionButton(
-    connectionStatus: ConnectionStatus,
-    onSendConnectionRequest: () -> Unit,
-    onOpenConversation: () -> Unit,
-    onCancelConnectionRequest: () -> Unit,
-    acceptConnectionRequest: () -> Unit,
-    ignoreConnectionRequest: () -> Unit,
-) {
-    when (connectionStatus) {
-        is ConnectionStatus.Sent -> WireSecondaryButton(
-            text = stringResource(R.string.connection_label_cancel_request),
-            onClick = onCancelConnectionRequest
-        )
-        is ConnectionStatus.Connected -> WirePrimaryButton(
-            text = stringResource(R.string.label_open_conversation),
-            onClick = onOpenConversation,
-        )
-        is ConnectionStatus.Pending -> Column {
-            WirePrimaryButton(
-                text = stringResource(R.string.connection_label_accept),
-                onClick = acceptConnectionRequest,
-                leadingIcon = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_check_tick),
-                        contentDescription = stringResource(R.string.content_description_right_arrow),
-                        modifier = Modifier.padding(dimensions().spacing8x)
-                    )
-                }
-            )
-            Spacer(modifier = Modifier.height(8.dp))
-            WirePrimaryButton(
-                text = stringResource(R.string.connection_label_ignore),
-                state = WireButtonState.Error,
-                onClick = ignoreConnectionRequest,
-                leadingIcon = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_close),
-                        contentDescription = stringResource(R.string.content_description_right_arrow),
-                    )
-                }
-            )
-        }
-        else -> WirePrimaryButton(
-            text = stringResource(R.string.connection_label_connect),
-            onClick = onSendConnectionRequest,
-            leadingIcon = {
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_add_contact),
-                    contentDescription = stringResource(R.string.content_description_right_arrow),
-                    modifier = Modifier.padding(dimensions().spacing8x)
-                )
-            }
-        )
-
-    }
-}
-
-@Composable
-private fun ConnectionStatusInformation(connectionStatus: ConnectionStatus, membership: Membership) {
-    Box(
-        Modifier
-            .fillMaxWidth()
-            .wrapContentHeight()
-            .padding(dimensions().spacing32x)
-    ) {
-        Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            if (connectionStatus is ConnectionStatus.Pending)
-                Text(
-                    text = stringResource(R.string.connection_label_user_wants_to_conect),
-                    textAlign = TextAlign.Center,
-                    color = MaterialTheme.wireColorScheme.onSurface,
-                    style = MaterialTheme.wireTypography.title02
-                )
-            Spacer(modifier = Modifier.height(24.dp))
-            val descriptionResource = when (connectionStatus) {
-                ConnectionStatus.Pending -> R.string.connection_label_accepting_request_description
-                ConnectionStatus.Connected -> throw IllegalStateException("Unhandled Connected ConnectionStatus")
-                else -> if (membership == Membership.None)
-                    R.string.connection_label_member_not_conneted
-                else R.string.connection_label_member_not_belongs_to_team
-            }
-            Text(
-                text = stringResource(descriptionResource),
-                textAlign = TextAlign.Center,
-                color = MaterialTheme.wireColorScheme.labelText,
-                style = MaterialTheme.wireTypography.body01
-            )
-        }
-    }
-}
-
-@Composable
-private fun UserDetailInformation(
-    title: String,
-    value: String,
-    onCopy: (String) -> Unit
-) {
-    RowItemTemplate(
-        title = {
-            Text(
-                style = MaterialTheme.wireTypography.subline01,
-                color = MaterialTheme.wireColorScheme.labelText,
-                text = title.uppercase()
-            )
-        },
-        subtitle = {
-            Text(
-                style = MaterialTheme.wireTypography.body01,
-                color = MaterialTheme.wireColorScheme.onBackground,
-                text = value
-            )
-        },
-        actions = { CopyButton(onCopyClicked = { onCopy("$value copied") }) },
-        clickable = Clickable(enabled = false) {}
-    )
-}
-
-@Composable
-fun OtherUserProfileTopBar(
-    onNavigateBack: () -> Unit,
-    connectionStatus: ConnectionStatus
-) {
-    WireCenterAlignedTopAppBar(
-        onNavigationPressed = onNavigateBack,
-        title = stringResource(id = R.string.user_profile_title),
-        elevation = 0.dp,
-        actions = {
-            if (connectionStatus is ConnectionStatus.Connected) {
-                MoreOptionIcon({ })
-            }
         }
     )
+}
+
+enum class OtherUserProfileTabItem(@StringRes override val titleResId: Int) : TabItem {
+    GROUP(R.string.user_profile_group_tab),
+    DETAILS(R.string.user_profile_details_tab);
 }
 
 @Composable
@@ -306,5 +203,25 @@ private fun handleOperationMessages(
         LaunchedEffect(errorType) {
             snackbarHostState.showSnackbar(message)
         }
+    }
+}
+
+@Composable
+@Preview(name = "Connected")
+fun OtherProfileScreenContentPreview() {
+    WireTheme(isPreview = true) {
+        OtherProfileScreenContent(
+            OtherUserProfileState.PREVIEW.copy(connectionStatus = ConnectionStatus.Connected), null, {}, {}, {}, {}, {}, {}
+        )
+    }
+}
+
+@Composable
+@Preview(name = "Not Connected")
+fun OtherProfileScreenContentNotConnectedPreview() {
+    WireTheme(isPreview = true) {
+        OtherProfileScreenContent(
+            OtherUserProfileState.PREVIEW.copy(connectionStatus = ConnectionStatus.NotConnected), null, {}, {}, {}, {}, {}, {}
+        )
     }
 }

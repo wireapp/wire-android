@@ -6,7 +6,7 @@
     <string name="label_logging_in">Logging in...</string>
     <string name="label_membership_guest">Guest</string>
     <string name="label_membership_external">External</string>
-    <string name="app_logo_description">App Logo</string>
+    <string name="content_description_app_logo">App Logo</string>
     <!-- Content descriptions -->
     <string name="content_description_search_back">Search back icon</string>
     <string name="content_description_clear_content">Clear content</string>
@@ -37,8 +37,6 @@
     <string name="login_user_identifier_label">EMAIL OR USERNAME</string>
     <string name="login_password_placeholder">Password</string>
     <string name="login_password_label">PASSWORD</string>
-    <!-- Home -->
-    <string name="home_open_drawer_description">Open drawer</string>
     <!-- Conversations -->
     <string name="calls_label_missed_calls">MISSED CALLS</string>
     <string name="calls_label_calls_history">CALLS HISTORY</string>

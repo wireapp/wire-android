@@ -31,6 +31,7 @@ fun WireTabRow(
     onTabChange: (Int) -> Unit,
     containerColor: Color = MaterialTheme.colorScheme.background,
     divider: @Composable () -> Unit = @Composable { TabRowDefaults.Divider() },
+    upperCaseTitles: Boolean = true,
     modifier: Modifier = Modifier
 ) {
     TabRow(
@@ -48,7 +49,7 @@ fun WireTabRow(
                 enabled = true,
                 text = {
                     Text(
-                        text = stringResource(id = tabItem.titleResId),
+                        text = stringResource(id = tabItem.titleResId).let { if(upperCaseTitles) it.uppercase() else it },
                         style = MaterialTheme.wireTypography.title03
                     )
                 },

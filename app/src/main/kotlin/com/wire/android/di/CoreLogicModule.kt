@@ -3,11 +3,11 @@ package com.wire.android.di
 import android.content.Context
 import com.wire.android.util.DeviceLabel
 import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.SendAssetMessageUseCase
-import com.wire.kalium.logic.feature.asset.SendImageMessageUseCase
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
@@ -336,14 +336,7 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun provideSendImageMessageUseCase(
-        @KaliumCoreLogic coreLogic: CoreLogic,
-        @CurrentAccount currentAccount: UserId
-    ): SendImageMessageUseCase = coreLogic.getSessionScope(currentAccount).messages.sendImageMessage
-
-    @ViewModelScoped
-    @Provides
-    fun provideSendAssetMessageUseCase(
+    fun providesSendAssetMessageUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
     ): SendAssetMessageUseCase = coreLogic.getSessionScope(currentAccount).messages.sendAssetMessage
@@ -560,6 +553,11 @@ class UseCaseModule {
     @Provides
     fun provideRegisterTokenUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): RegisterTokenUseCase =
         coreLogic.getSessionScope(currentAccount).client.registerPushToken
+
+    @ViewModelScoped
+    @Provides
+    fun fileSystemProvider(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): KaliumFileSystem =
+        coreLogic.getSessionScope(currentAccount).kaliumFileSystem
 
     @ViewModelScoped
     @Provides

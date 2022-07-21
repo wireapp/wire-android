@@ -6,6 +6,7 @@ import coil.fetch.FetchResult
 import coil.fetch.Fetcher
 import coil.request.Options
 import com.wire.android.model.ImageAsset
+import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
@@ -17,7 +18,7 @@ internal class AssetImageFetcher(
     val getPrivateAsset: GetMessageAssetUseCase,
     val resources: Resources,
     val drawableResultWrapper: DrawableResultWrapper = DrawableResultWrapper(resources),
-    val imageLoader: ImageLoader
+    val kaliumFileSystem: KaliumFileSystem
 ) : Fetcher {
 
     override suspend fun fetch(): FetchResult? {
@@ -28,7 +29,8 @@ internal class AssetImageFetcher(
                     is PublicAssetResult.Success -> {
                         // Does coil cache this in memory? We can add our own cache if needed
                         // imageLoader.memoryCache.set(MemoryCache.Key("assetKey"), MemoryCache.Value("result.asset.toBitmap()"))
-                        drawableResultWrapper.toFetchResult(result.asset)
+                        val imageSource = kaliumFileSystem.source(result.assetPath)
+                        drawableResultWrapper.toFetchResult(imageSource)
                     }
                 }
             }
@@ -38,7 +40,8 @@ internal class AssetImageFetcher(
                     is MessageAssetResult.Success -> {
                         // Does coil cache this in memory? We can add our own cache if needed
                         // imageLoader.memoryCache.set(MemoryCache.Key("assetKey"), MemoryCache.Value("result.asset.toBitmap()"))
-                        drawableResultWrapper.toFetchResult(result.decodedAsset)
+                        val imageSource = kaliumFileSystem.source(result.decodedAssetPath)
+                        drawableResultWrapper.toFetchResult(imageSource)
                     }
                 }
             }
@@ -48,7 +51,8 @@ internal class AssetImageFetcher(
     class Factory(
         private val getPublicAssetUseCase: GetAvatarAssetUseCase,
         private val getPrivateAssetUseCase: GetMessageAssetUseCase,
-        private val resources: Resources
+        private val resources: Resources,
+        private val kaliumFileSystem: KaliumFileSystem
     ) : Fetcher.Factory<ImageAsset> {
         override fun create(data: ImageAsset, options: Options, imageLoader: ImageLoader): Fetcher =
             AssetImageFetcher(
@@ -56,7 +60,7 @@ internal class AssetImageFetcher(
                 getPublicAsset = getPublicAssetUseCase,
                 getPrivateAsset = getPrivateAssetUseCase,
                 resources = resources,
-                imageLoader = imageLoader
+                kaliumFileSystem = kaliumFileSystem
             )
     }
 }

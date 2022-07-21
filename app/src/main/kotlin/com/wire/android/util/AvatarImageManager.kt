@@ -5,8 +5,10 @@ import android.net.Uri
 import androidx.core.content.FileProvider
 import androidx.core.net.toUri
 import androidx.exifinterface.media.ExifInterface
+import okio.Path
 import java.io.File
 import javax.inject.Inject
+import okio.Path.Companion.toOkioPath
 
 class AvatarImageManager @Inject constructor(val context: Context) {
 
@@ -25,10 +27,10 @@ class AvatarImageManager @Inject constructor(val context: Context) {
             val avatarByteArray = uri.toByteArray(context)
 
             // Compress image
-            val resampledByteArray = avatarByteArray?.let { ImageUtil.resample(it, ImageUtil.ImageSizeClass.Small) }
+            val resampledByteArray = avatarByteArray.let { ImageUtil.resample(it, ImageUtil.ImageSizeClass.Small) }
 
             // Save to fixed path
-            return resampledByteArray?.let { getWritableTempAvatarUri(it) }
+            return getWritableTempAvatarUri(resampledByteArray)
         } catch (exception: Exception) {
             // NOOP: None post process op performed
         }
@@ -42,22 +44,13 @@ class AvatarImageManager @Inject constructor(val context: Context) {
         return file.toUri()
     }
 
-    fun getWritableAvatarUri(imageData: ByteArray): Uri {
-        val file = getAvatarFile(context)
-        file.writeBytes(imageData)
+    fun getWritableAvatarUri(imageDataPath: Path): Uri {
+        val file = imageDataPath.toFile()
         return file.toUri()
     }
 
-    suspend fun uriToByteArray(uri: Uri): ByteArray {
-        return uri.toByteArray(context)
-    }
-
-    fun getSharableTempAvatarUri(): Uri {
-        return Companion.getSharableTempAvatarUri(context)
-    }
-
-    fun getSharableAvatarUri(): Uri {
-        return Companion.getSharableAvatarUri(context)
+    fun getShareableTempAvatarUri(): Uri {
+        return getShareableAvatarUri(context)
     }
 
     companion object {
@@ -76,7 +69,7 @@ class AvatarImageManager @Inject constructor(val context: Context) {
             return file
         }
 
-        fun getSharableAvatarUri(context: Context): Uri {
+        fun getShareableAvatarUri(context: Context): Uri {
             return FileProvider.getUriForFile(context, context.getProviderAuthority(), getAvatarFile(context))
         }
 

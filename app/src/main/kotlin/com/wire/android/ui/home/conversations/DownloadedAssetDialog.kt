@@ -10,43 +10,46 @@ import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.util.permission.WriteToExternalStorageRequestFlow
+import com.wire.kalium.logic.util.fileExtension
+import okio.Path
 
 @Composable
 fun DownloadedAssetDialog(
     downloadedAssetDialogState: DownloadedAssetDialogVisibilityState,
-    onSaveFileToExternalStorage: (String, ByteArray, String) -> Unit,
-    onOpenFileWithExternalApp: (String, ByteArray) -> Unit,
+    onSaveFileToExternalStorage: (String, Path, Long, String) -> Unit,
+    onOpenFileWithExternalApp: (Path, String) -> Unit,
     hideOnAssetDownloadedDialog: () -> Unit
 ) {
     val context = LocalContext.current
 
     if (downloadedAssetDialogState is DownloadedAssetDialogVisibilityState.Displayed) {
         val assetName = downloadedAssetDialogState.assetName
-        val assetData = downloadedAssetDialogState.assetData
+        val assetDataPath = downloadedAssetDialogState.assetDataPath
+        val assetSize = downloadedAssetDialogState.assetSize
         val messageId = downloadedAssetDialogState.messageId
 
         // Flow to get write to external storage permission
         val requestWriteToExternalStorageRequestFlow = WriteToExternalStorageRequestFlow(
             context = context,
-            onPermissionGranted = { onSaveFileToExternalStorage(assetName, assetData, messageId) },
+            onPermissionGranted = { onSaveFileToExternalStorage(assetName, assetDataPath, assetSize, messageId) },
             writeToExternalStoragePermissionLauncher =
             rememberLauncherForActivityResult(ActivityResultContracts.RequestPermission()) { isGranted ->
                 if (isGranted) {
-                    onSaveFileToExternalStorage(assetName, assetData, messageId)
+                    onSaveFileToExternalStorage(assetName, assetDataPath, assetSize, messageId)
                 } else {
                     // TODO: Implement denied permission rationale
                 }
             })
 
         WireDialog(
-            title = assetName ?: stringResource(R.string.asset_download_dialog_default_title),
+            title = assetName,
             text = stringResource(R.string.asset_download_dialog_text),
             buttonsHorizontalAlignment = false,
             onDismiss = { hideOnAssetDownloadedDialog() },
             optionButton2Properties = WireDialogButtonProperties(
                 text = stringResource(R.string.asset_download_dialog_open_text),
                 type = WireDialogButtonType.Primary,
-                onClick = { onOpenFileWithExternalApp(assetName, assetData) }
+                onClick = { onOpenFileWithExternalApp(assetDataPath, assetName.fileExtension()) }
             ),
             optionButton1Properties = WireDialogButtonProperties(
                 text = stringResource(R.string.asset_download_dialog_save_text),

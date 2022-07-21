@@ -330,7 +330,6 @@ fun getDownloadStatusText(assetDownloadStatus: Message.DownloadStatus): String =
         FAILED -> stringResource(R.string.asset_message_failed_download_text)
     }
 
-
 @Suppress("MagicNumber")
 private fun provideAssetDescription(assetExtension: String, assetSizeInBytes: Long): String {
     return when {

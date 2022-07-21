@@ -115,7 +115,7 @@ fun ConversationScreen(conversationViewModel: ConversationViewModel) {
         onSnackbarMessage = conversationViewModel::onSnackbarMessage,
         onSnackbarMessageShown = conversationViewModel::clearSnackbarMessage,
         onDropDownClick = conversationViewModel::navigateToDetails,
-        tempCachePath = conversationViewModel::provideTempCachePath,
+        tempCachePath = conversationViewModel.provideTempCachePath(),
         onOpenProfile = conversationViewModel::navigateToProfile
     )
 

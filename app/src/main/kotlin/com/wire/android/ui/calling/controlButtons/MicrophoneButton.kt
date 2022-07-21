@@ -32,7 +32,10 @@ fun MicrophoneButton(
                     R.drawable.ic_unmuted
                 }
             ),
-            contentDescription = stringResource(id = R.string.content_description_calling_hang_up_call)
+            contentDescription = stringResource(
+                id = if (isMuted) R.string.content_description_calling_unmute_call
+                else R.string.content_description_calling_mute_call
+            )
         )
     }
 }

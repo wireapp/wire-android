@@ -57,7 +57,7 @@ fun CameraButton(
                     R.drawable.ic_camera_off
                 }
             ),
-            contentDescription = stringResource(id = R.string.content_description_calling_turn_camera_on_off),
+            contentDescription = stringResource(id = if (isCameraOn) R.string.content_description_calling_turn_camera_off else R.string.content_description_calling_turn_camera_on),
         )
     }
 }

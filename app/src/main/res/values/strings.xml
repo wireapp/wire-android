@@ -10,7 +10,6 @@
     <string name="label_continue">Continue</string>
     <string name="label_get_started">Get Started</string>
     <string name="label_remove">Remove</string>
-    <string name="label_register">Register</string>
     <string name="label_add_device">Add Device</string>
     <string name="label_learn_more">Learn more</string>
     <string name="label_removing">Removing...</string>
@@ -78,14 +77,18 @@
     <string name="content_description_file_message">File message</string>
     <string name="content_description_ping_everyone">Ping everyone</string>
     <string name="content_description_system_message_icon">System message icon</string>
-    <string name="content_description_calling_mute_unmute_call">Mute/unmute call</string>
     <string name="content_description_calling_hang_up_call">Hang up call</string>
     <string name="content_description_calling_accept_call">Accept call</string>
     <string name="content_description_calling_decline_call">Decline call</string>
-    <string name="content_description_calling_turn_camera_on_off">Turn camera on/off</string>
-    <string name="content_description_calling_flip_camera_on_off">Flip camera</string>
-    <string name="content_description_calling_turn_speaker_on_off">Turn speaker on/off</string>
+    <string name="content_description_calling_flip_camera_on">Flip to internal camera</string>
+    <string name="content_description_calling_flip_camera_off">Flip to outer camera</string>
     <string name="content_description_calling_participant_muted">Participant muted</string>
+    <string name="content_description_calling_mute_call">Mute call</string>
+    <string name="content_description_calling_unmute_call">Unmute call</string>
+    <string name="content_description_calling_turn_camera_on">Turn camera on</string>
+    <string name="content_description_calling_turn_camera_off">Turn camera off</string>
+    <string name="content_description_calling_turn_speaker_on">Turn speaker on</string>
+    <string name="content_description_calling_turn_speaker_off">Turn speaker off</string>
 
     <!-- Navigation -->
     <string name="vault_screen_title">Vault</string>
@@ -400,6 +403,9 @@
     <string name="calling_button_label_decline">Decline</string>
     <string name="calling_button_label_accept">Accept</string>
     <string name="calling_button_label_join_call">Join</string>
+    <string name="calling_hang_up_call">Hang up call</string>
+    <string name="calling_accept_call">Accept call</string>
+    <string name="calling_decline_call">Decline call</string>
     <string name="calling_label_ringing_call">Ringing...</string>
     <string name="calling_label_incoming_call">Calling..</string>
     <string name="calling_label_default_caller_name">Default</string>

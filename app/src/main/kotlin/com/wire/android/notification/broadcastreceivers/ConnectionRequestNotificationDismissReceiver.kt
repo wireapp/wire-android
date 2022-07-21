@@ -3,11 +3,11 @@ package com.wire.android.notification.broadcastreceivers
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import com.wire.android.appLogger
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.parseIntoQualifiedID
 import com.wire.kalium.logic.data.id.parseIntoQualifiedID
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import dagger.hilt.android.AndroidEntryPoint
@@ -27,6 +27,7 @@ class ConnectionRequestNotificationDismissReceiver : BroadcastReceiver() {
 
     override fun onReceive(context: Context, intent: Intent) {
         val requesterUserId: String? = intent.getStringExtra(EXTRA_CONNECTION_REQUESTER_USER_ID)
+        appLogger.i("ConnectionRequestNotificationDismissReceiver: onReceive, requesterUserId: $requesterUserId")
         val userId: QualifiedID? =
             intent.getStringExtra(EXTRA_RECEIVER_USER_ID)?.parseIntoQualifiedID()
 

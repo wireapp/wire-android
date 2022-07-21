@@ -16,6 +16,7 @@ import androidx.compose.ui.unit.dp
 import com.wire.android.ui.calling.ParticipantTile
 import com.wire.android.ui.calling.getConversationName
 import com.wire.android.ui.calling.model.UICallParticipant
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireDimensions
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -33,8 +34,8 @@ fun GroupCallGrid(
     LazyVerticalGrid(
         userScrollEnabled = false,
         contentPadding = PaddingValues(MaterialTheme.wireDimensions.spacing6x),
-        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.wireDimensions.spacing6x),
-        verticalArrangement = Arrangement.spacedBy(MaterialTheme.wireDimensions.spacing6x),
+        horizontalArrangement = Arrangement.spacedBy(MaterialTheme.wireDimensions.spacing2x),
+        verticalArrangement = Arrangement.spacedBy(MaterialTheme.wireDimensions.spacing2x),
         columns = GridCells.Fixed(NUMBER_OF_GRID_CELLS)
     ) {
 
@@ -49,7 +50,11 @@ fun GroupCallGrid(
             // since we are getting participants by chunk of 8 items,
             // we need to check that we are on first page for sel user
             val isMuted = if (pageIndex == 0 && participants.first() == participant) isSelfUserMuted
-                else participant.isMuted
+            else participant.isMuted
+
+            // if we have more than 4 participants then we reduce avatar size
+            val userAvatarSize = if (participants.size > 4) dimensions().onGoingCallUserAvatarSize
+            else dimensions().onGoingCallUserAvatarMinimizedSize
 
             ParticipantTile(
                 modifier = Modifier
@@ -58,8 +63,10 @@ fun GroupCallGrid(
                 conversationName = getConversationName(participant.name),
                 onGoingCallTileUsernameMaxWidth = MaterialTheme.wireDimensions.onGoingCallTileUsernameMaxWidth,
                 participantAvatar = participant.avatar,
+                avatarSize = userAvatarSize,
                 isMuted = isMuted,
                 isCameraOn = isCameraOn,
+                isActiveSpeaker = participant.isSpeaking,
                 onSelfUserVideoPreviewCreated = {
                     if (pageIndex == 0 && participants.first() == participant) onSelfVideoPreviewCreated(it)
                 },

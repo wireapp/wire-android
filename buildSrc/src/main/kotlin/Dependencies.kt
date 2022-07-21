@@ -160,6 +160,7 @@ object TestLibraries {
         const val uiAutomator = "2.2.0"
         const val testCore = "2.1.0"
         const val turbine = "0.7.0"
+        const val okio = "3.2.0"
     }
 
     object Espresso {
@@ -187,6 +188,7 @@ object TestLibraries {
     const val kluentAndroid     = "org.amshove.kluent:kluent-android:${Versions.kluent}"
     const val workManager       = "androidx.work:work-testing:${Libraries.Versions.workManager}"
     const val turbine           = "app.cash.turbine:turbine:${Versions.turbine}"
+    const val okio              = "com.squareup.okio:okio-fakefilesystem:${Versions.okio}"
 
     // Test rules and transitive dependencies:
     const val composeJunit      = "androidx.compose.ui:ui-test-junit4:${Libraries.Versions.compose}"

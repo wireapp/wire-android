@@ -2,7 +2,6 @@
 <resources>
     <string name="app_version">App version: %s</string>
     <string name="app_name">Android Reloaded 2.0 FINAL</string>
-    <string name="app_logo_description">App Logo</string>
     <string name="label_new">New</string>
     <string name="label_login">Login</string>
     <string name="label_ok">OK</string>
@@ -32,8 +31,11 @@
     <string name="label_on">ON</string>
     <string name="label_off">OFF</string>
     <string name="label_value_copied">%s copied</string>
+    <string name="label_disable">Disable</string>
+    <string name="folder_lable_access">Access</string>
 
     <!-- Content descriptions -->
+    <string name="content_description_app_logo">App Logo</string>
     <string name="content_description_reveal_password">Show or hide password</string>
     <string name="content_description_search_back">Search back icon</string>
     <string name="content_description_clear_content">Clear content</string>
@@ -109,8 +111,8 @@
     <string name="login_error_invalid_credentials_title">Invalid information</string>
     <string name="login_error_invalid_credentials_message">These account credentials are incorrect. Please verify your details and try again.</string>
     <string name="login_error_invalid_user_identifier">This email or username is invalid. Please verify and try again.</string>
-    <string name="login_error_user_already_logged_in_title">User Already LoggedIn</string>
-    <string name="login_error_user_already_logged_in_message">These account already logged in in the app!</string>
+    <string name="login_error_user_already_logged_in_title">Account already logged in</string>
+    <string name="login_error_user_already_logged_in_message">You are already logged in on this device.</string>
     <string name="login_sso_error_invalid_cookie_title">Invalid Cookie!</string>
     <string name="login_sso_error_invalid_cookie_message">The session is invalid or expired! Please try to login again.</string>
     <string name="login_password_placeholder">Password</string>
@@ -193,9 +195,6 @@
     <string name="create_account_username_taken_error">This username is already taken. Please choose another one.</string>
     <string name="create_account_username_description">At least 2 characters, a-z, 0-9 and _</string>
 
-    <!-- Home -->
-    <string name="home_open_drawer_description">Open drawer</string>
-
     <!-- Conversations -->
     <string name="calls_label_missed_calls">MISSED CALLS</string>
     <string name="calls_label_calls_history">CALLS HISTORY</string>
@@ -229,6 +228,7 @@
     <string name="member_name_deleted_label">Deleted User</string>
     <string name="member_name_you_label_titlecase">You</string>
     <string name="member_name_you_label_lowercase">you</string>
+    <string name="label_add_participants"> Add Participants</string>
 
     <string name="conversation_details_title">Conversation Details</string>
     <string name="conversation_details_options_tab">OPTIONS</string>
@@ -240,6 +240,12 @@
     <string name="conversation_details_show_all_participants">Show all participants (%d)</string>
     <string name="conversation_details_group_participants_title">Group Participants</string>
     <string name="conversation_details_group_participants_add">Add participants</string>
+
+    <string name="convrsation_options_guest_discriptions">Turn this option ON to open this conversation to people outside your team, even if they don\'t have Wire.</string>
+    <string name="conversation_Option_services_lable">Services</string>
+    <string name="convrsation_options_services_discriptions">Turn this option ON to open this conversation to services.</string>
+    <string name="disable_guest_dialog_title">Disable guest access?</string>
+    <string name="disable_guest_dialog_text">Current guests will be removed from the conversation. New guests will not be allowed.</string>
 
     <!-- Attachment options -->
     <string name="attachment_share_file">Attach File</string>
@@ -363,8 +369,8 @@
     <string name="notification_shared_file">Shared a file</string>
     <string name="notification_reacted">Added a reaction</string>
     <string name="notification_missed_call">Missed call</string>
+    <string name="notification_not_supported_issue">Something not supported in notifications</string>
     <string name="notification_connection_request">Wants to connect</string>
-    <string name="notification_not_suppotred_notification">Something not supported in notifications</string>
     <string name="notification_action_call">Call</string>
     <string name="notification_action_reply">Reply</string>
     <string name="notification_receiver_name">You</string>
@@ -447,7 +453,7 @@
     <string name="prohibited_videos_message">Receiving Videos is Prohibited</string>
     <string name="prohibited_audio_message">Receiving Audio is Prohibited</string>
     <string name="prohibited_file_message">Receiving Files is Prohibited</string>
-    <string name="there_has_been_a_change">There has been a change in wire</string>
+    <string name="team_settings_changed">Team Settings Changed</string>
     <string name="sharing_files_enabled">Sharing and receiving files of any type is now enabled</string>
     <string name="sharing_files_disabled">Sharing and receiving files of any type is now disabled</string>
 

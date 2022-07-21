@@ -2,6 +2,10 @@ package com.wire.android.ui
 
 import android.content.Intent
 import androidx.activity.compose.setContent
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.test.assertIsDisplayed
 import androidx.compose.ui.test.assertIsEnabled
 import androidx.compose.ui.test.assertIsNotEnabled
@@ -13,13 +17,14 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onSiblings
 import androidx.compose.ui.test.performClick
 import androidx.compose.ui.test.performScrollTo
+import androidx.compose.ui.test.performScrollToNode
 import androidx.compose.ui.test.performTextInput
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
-import androidx.test.espresso.Espresso
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasAction
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasData
+import com.wire.android.ui.authentication.create.personalaccount.CreatePersonalAccountScreen
 import com.wire.android.ui.authentication.create.team.CreateTeamScreen
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.utils.EMAIL
@@ -36,9 +41,13 @@ import org.junit.Rule
 import org.junit.Test
 import org.junit.runners.MethodSorters
 
+@OptIn(
+    ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class,
+    ExperimentalComposeUiApi::class, ExperimentalMaterialApi::class
+)
 @HiltAndroidTest
 @FixMethodOrder(MethodSorters.NAME_ASCENDING)
-class CreateTeamScreenTest {
+class CreatePersonalAccountScreenTest {
 
     @get:Rule(order = 0)
     var hiltRule = HiltAndroidRule(this)
@@ -64,7 +73,7 @@ class CreateTeamScreenTest {
         scenario.onActivity { activity ->
             activity.setContent {
                 WireTheme {
-                    CreateTeamScreen()
+                    CreatePersonalAccountScreen()
                 }
             }
         }
@@ -75,7 +84,7 @@ class CreateTeamScreenTest {
         Intents.release()
     }
 
-    val title = composeTestRule.onNodeWithText("Create a Team")
+    val title = composeTestRule.onNodeWithText("Create a Personal Account")
     val continueButton = composeTestRule.onNodeWithText("Continue")
     val createTeamText = composeTestRule.onNode(hasTestTag("createTeamText"))
     val emailField = composeTestRule.onNode(hasTestTag("emailField"))
@@ -84,19 +93,18 @@ class CreateTeamScreenTest {
     val tcButton = composeTestRule.onNode(hasTestTag("viewTC"))
     val firstName = composeTestRule.onNode(hasTestTag("firstName"))
     val lastName = composeTestRule.onNode(hasTestTag("lastName"))
-    val teamName = composeTestRule.onNode(hasTestTag("teamName"))
     val password = composeTestRule.onNode(hasTestTag("password"))
     val confirmPassword = composeTestRule.onNode(hasTestTag("confirmPassword"))
 
     val invalidEmailError = "Please enter a valid format for your email."
-    val createATeamText = "Enter your email to create your team:"
+    val createATeamText = "Enter your email to start using the most secure collaboration platform."
     val invalidPassword = "Use at least 8 characters, with one lowercase letter, one capital letter, a number, and a special character."
     val passwordsNotMatch = "Passwords do not match"
     val validEmail = "a@wire.com"
 
     @Ignore
     @Test
-    fun create_team_success() {
+    fun create_account_success() {
         title.assertIsDisplayed()
         continueButton.performClick()
         createTeamText.assertTextEquals(createATeamText)
@@ -108,16 +116,18 @@ class CreateTeamScreenTest {
     }
 
     @Test
-    fun create_team_wrong_email() {
+    fun create_account_wrong_email() {
         title.assertIsDisplayed()
         continueButton.performClick()
         emailField.onChildren()[1].performTextInput("EMAIL")
         continueButton.performClick()
+        composeTestRule.waitForExecution {
         composeTestRule.onNodeWithText(invalidEmailError).assertIsDisplayed()
+        }
     }
 
     @Test
-    fun create_team_tc_cancel() {
+    fun create_account_tc_cancel() {
         title.assertIsDisplayed()
         continueButton.performClick()
         emailField.onChildren()[1].performTextInput(validEmail)
@@ -129,10 +139,10 @@ class CreateTeamScreenTest {
     }
 
     @Test
-    fun create_team_tc_view() {
+    fun create_account_tc_view() {
         title.assertIsDisplayed()
         continueButton.performClick()
-        emailField.onChildren()[1].performTextInput(validEmail)
+        emailField.onChildren()[1].performTextInput(EMAIL)
         continueButton.performClick()
         tcTitle.assertIsDisplayed()
         tcButton.performClick()
@@ -140,7 +150,7 @@ class CreateTeamScreenTest {
     }
 
     @Test
-    fun create_team_invalid_password() {
+    fun create_account_invalid_password() {
         title.assertIsDisplayed()
         continueButton.performClick()
         createTeamText.assertTextEquals(createATeamText)
@@ -152,8 +162,6 @@ class CreateTeamScreenTest {
             firstName.onChildren()[2].performTextInput("name")
         }
         lastName.onChildren()[2].performTextInput("surName")
-        teamName.onChildren()[2].performTextInput("teamName")
-        continueButton.performScrollTo()
         password.onChildren()[2].performTextInput("password")
         confirmPassword.onChildren()[2].performTextInput("password")
         continueButton.performClick()
@@ -163,7 +171,7 @@ class CreateTeamScreenTest {
     }
 
     @Test
-    fun create_team_mismatch_password() {
+    fun create_account_mismatch_password() {
         title.assertIsDisplayed()
         continueButton.performClick()
         createTeamText.assertTextEquals(createATeamText)
@@ -175,19 +183,17 @@ class CreateTeamScreenTest {
             firstName.onChildren()[2].performTextInput("name")
         }
         lastName.onChildren()[2].performTextInput("surName")
-        teamName.onChildren()[2].performTextInput("teamName")
         continueButton.performScrollTo()
         password.onChildren()[2].performTextInput("Abcd1234!")
         confirmPassword.onChildren()[2].performTextInput("Abcd1234.")
-        Espresso.pressBack()
         continueButton.performClick()
         composeTestRule.waitForExecution {
-            composeTestRule.onNodeWithText(passwordsNotMatch).assertIsDisplayed()
+            composeTestRule.onNodeWithText(invalidPassword).assertIsDisplayed()
         }
     }
 
     @Test
-    fun create_team_required_fields() {
+    fun create_account_required_fields() {
         title.assertIsDisplayed()
         continueButton.performClick()
         createTeamText.assertTextEquals(createATeamText)
@@ -201,9 +207,7 @@ class CreateTeamScreenTest {
         continueButton.assertIsNotEnabled()
         lastName.onChildren()[2].performTextInput("surName")
         continueButton.assertIsNotEnabled()
-        teamName.onChildren()[2].performTextInput("teamName")
         continueButton.performScrollTo()
-        continueButton.assertIsNotEnabled()
         password.onChildren()[2].performTextInput("Abcd1234!")
         continueButton.assertIsNotEnabled()
         confirmPassword.onChildren()[2].performTextInput("Abcd1234.")

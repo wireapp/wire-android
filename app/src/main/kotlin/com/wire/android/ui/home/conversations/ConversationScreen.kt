@@ -55,6 +55,8 @@ import com.wire.android.ui.home.messagecomposer.MessageComposeInputState
 import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
 import kotlinx.coroutines.launch
+import okio.Path
+import okio.Path.Companion.toPath
 
 @Composable
 fun ConversationScreen(conversationViewModel: ConversationViewModel) {
@@ -65,6 +67,7 @@ fun ConversationScreen(conversationViewModel: ConversationViewModel) {
     }
     val joinCallAudioPermissionCheck = JoinCallAudioBluetoothPermissionCheckFlow(conversationViewModel)
     val uiState = conversationViewModel.conversationViewState
+
     LaunchedEffect(conversationViewModel.savedStateHandle) {
         conversationViewModel.checkPendingActions()
     }
@@ -108,7 +111,9 @@ fun ConversationScreen(conversationViewModel: ConversationViewModel) {
         },
         onJoinCall = joinCallAudioPermissionCheck::launch,
         onSnackbarMessage = conversationViewModel::onSnackbarMessage,
-        onDropDownClick = conversationViewModel::navigateToDetails
+        onSnackbarMessageShown = conversationViewModel::clearSnackbarMessage,
+        onDropDownClick = conversationViewModel::navigateToDetails,
+        tempCachePath = conversationViewModel.provideTempCachePath()
     )
 
     DeleteMessageDialog(conversationViewModel = conversationViewModel)
@@ -152,7 +157,9 @@ private fun ConversationScreen(
     onStartCall: () -> Unit,
     onJoinCall: () -> Unit,
     onSnackbarMessage: (ConversationSnackbarMessages) -> Unit,
-    onDropDownClick: () -> Unit
+    onSnackbarMessageShown: () -> Unit,
+    onDropDownClick: () -> Unit,
+    tempCachePath: Path
 ) {
     val conversationScreenState = rememberConversationScreenState()
     val scope = rememberCoroutineScope()
@@ -214,8 +221,10 @@ private fun ConversationScreen(
                                 onImageFullScreenMode = onImageFullScreenMode,
                                 conversationState = conversationViewState,
                                 onMessageComposerError = onSnackbarMessage,
+                                onSnackbarMessageShown = onSnackbarMessageShown,
                                 conversationScreenState = conversationScreenState,
-                                isFileSharingEnabled = isFileSharingEnabled
+                                isFileSharingEnabled = isFileSharingEnabled,
+                                tempCachePath = tempCachePath
                             )
                         }
                     }
@@ -238,8 +247,10 @@ private fun ConversationScreenContent(
     onImageFullScreenMode: (String, Boolean) -> Unit,
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
     conversationState: ConversationViewState,
+    onSnackbarMessageShown: () -> Unit,
     conversationScreenState: ConversationScreenState,
-    isFileSharingEnabled: Boolean
+    isFileSharingEnabled: Boolean,
+    tempCachePath: Path
 ) {
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -252,7 +263,9 @@ private fun ConversationScreenContent(
                 // Show downloads folder when clicking on Snackbar cta button
                 messageCode is OnFileDownloaded && snackbarResult == SnackbarResult.ActionPerformed -> {
                     context.startActivity(Intent(DownloadManager.ACTION_VIEW_DOWNLOADS))
+                    onSnackbarMessageShown()
                 }
+                snackbarResult == SnackbarResult.Dismissed -> onSnackbarMessageShown()
             }
         }
     }
@@ -284,7 +297,9 @@ private fun ConversationScreenContent(
             ) {
                 coroutineScope.launch { lazyListState.animateScrollToItem(messages.size) }
             }
-        }, isFileSharingEnabled = isFileSharingEnabled
+        },
+        isFileSharingEnabled = isFileSharingEnabled,
+        tempCachePath = tempCachePath
     )
 }
 
@@ -348,6 +363,6 @@ fun ConversationScreenPreview() {
             conversationName = "Some test conversation",
             messages = getMockedMessages(),
         ),
-        {}, {}, {}, {}, { _, _ -> }, {}, { _, _ -> }, {}, {}, {}, {}
+        {}, {}, {}, {}, { _, _ -> }, {}, { _, _ -> }, {}, {}, {}, {}, {}, "".toPath()
     )
 }

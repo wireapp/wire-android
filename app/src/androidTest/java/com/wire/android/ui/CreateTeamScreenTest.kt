@@ -12,9 +12,11 @@ import androidx.compose.ui.test.onChildren
 import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.onSiblings
 import androidx.compose.ui.test.performClick
+import androidx.compose.ui.test.performScrollTo
 import androidx.compose.ui.test.performTextInput
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
+import androidx.test.espresso.Espresso
 import androidx.test.espresso.intent.Intents
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasAction
 import androidx.test.espresso.intent.matcher.IntentMatchers.hasData
@@ -88,7 +90,7 @@ class CreateTeamScreenTest {
 
     val invalidEmailError = "Please enter a valid format for your email."
     val createATeamText = "Enter your email to create your team:"
-    val invalidPassword = "Use at least 8 characters, with one lowercase letter, one capital letter, and a special character."
+    val invalidPassword = "Use at least 8 characters, with one lowercase letter, one capital letter, a number, and a special character."
     val passwordsNotMatch = "Passwords do not match"
     val validEmail = "a@wire.com"
 
@@ -111,7 +113,7 @@ class CreateTeamScreenTest {
         continueButton.performClick()
         emailField.onChildren()[1].performTextInput("EMAIL")
         continueButton.performClick()
-        composeTestRule.onNodeWithText(invalidEmailError)
+        composeTestRule.onNodeWithText(invalidEmailError).assertIsDisplayed()
     }
 
     @Test
@@ -151,16 +153,17 @@ class CreateTeamScreenTest {
         }
         lastName.onChildren()[2].performTextInput("surName")
         teamName.onChildren()[2].performTextInput("teamName")
+        continueButton.performScrollTo()
         password.onChildren()[2].performTextInput("password")
         confirmPassword.onChildren()[2].performTextInput("password")
         continueButton.performClick()
         composeTestRule.waitForExecution {
-            composeTestRule.onNodeWithText(invalidPassword).assertDoesNotExist()
+            composeTestRule.onNodeWithText(invalidPassword).assertIsDisplayed()
         }
     }
 
     @Test
-    fun create_team_missmatch_password() {
+    fun create_team_mismatch_password() {
         title.assertIsDisplayed()
         continueButton.performClick()
         createTeamText.assertTextEquals(createATeamText)
@@ -173,11 +176,13 @@ class CreateTeamScreenTest {
         }
         lastName.onChildren()[2].performTextInput("surName")
         teamName.onChildren()[2].performTextInput("teamName")
+        continueButton.performScrollTo()
         password.onChildren()[2].performTextInput("Abcd1234!")
         confirmPassword.onChildren()[2].performTextInput("Abcd1234.")
+        Espresso.pressBack()
         continueButton.performClick()
         composeTestRule.waitForExecution {
-            composeTestRule.onNodeWithText(passwordsNotMatch).assertDoesNotExist()
+            composeTestRule.onNodeWithText(passwordsNotMatch).assertIsDisplayed()
         }
     }
 
@@ -197,6 +202,7 @@ class CreateTeamScreenTest {
         lastName.onChildren()[2].performTextInput("surName")
         continueButton.assertIsNotEnabled()
         teamName.onChildren()[2].performTextInput("teamName")
+        continueButton.performScrollTo()
         continueButton.assertIsNotEnabled()
         password.onChildren()[2].performTextInput("Abcd1234!")
         continueButton.assertIsNotEnabled()

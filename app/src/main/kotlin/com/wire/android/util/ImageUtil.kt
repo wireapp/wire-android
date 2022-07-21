@@ -9,6 +9,7 @@ import android.graphics.Matrix
 import android.net.Uri
 import androidx.exifinterface.media.ExifInterface
 import java.io.ByteArrayOutputStream
+import java.io.InputStream
 import kotlin.math.ceil
 import kotlin.math.round
 import kotlin.math.sqrt
@@ -29,8 +30,8 @@ object ImageUtil {
     /**
      * Attempts to read the width and height of an image represented by the input parameter
      */
-    fun extractImageWidthAndHeight(imageRawData: ByteArray): Pair<Int, Int> {
-        val exifInterface = ExifInterface(imageRawData.inputStream())
+    fun extractImageWidthAndHeight(imageDataInputStream: InputStream): Pair<Int, Int> {
+        val exifInterface = ExifInterface(imageDataInputStream)
         val exifWidth: Int = exifInterface.getAttributeInt(ExifInterface.TAG_IMAGE_WIDTH, 0)
         val exifHeight: Int = exifInterface.getAttributeInt(ExifInterface.TAG_IMAGE_LENGTH, 0)
         return exifWidth to exifHeight
@@ -42,7 +43,7 @@ object ImageUtil {
      *
      * @param byteArray the ByteArray representing the image
      * @param sizeClass the indented size class use case
-     * @return ByteArray the resampled, downscaled and rotation normalized image
+     * @return ByteArray the resampled, downscaled and rotation normalized image or the original image if there was no need for downscaling
      */
     fun resample(byteArray: ByteArray, sizeClass: ImageSizeClass): ByteArray {
         val bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.size)

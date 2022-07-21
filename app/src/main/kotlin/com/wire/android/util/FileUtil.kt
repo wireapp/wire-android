@@ -20,9 +20,11 @@ import androidx.core.content.FileProvider
 import com.wire.android.appLogger
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
-import java.io.BufferedInputStream
+import okio.Path
+import okio.Path.Companion.toPath
 import java.io.File
-import java.io.FileInputStream
+import java.io.FileNotFoundException
+import java.io.InputStream
 
 
 /**
@@ -50,33 +52,40 @@ suspend fun Uri.toByteArray(context: Context): ByteArray {
     }
 }
 
-fun Context.getTempWritableImageUri() = getTempWritableAttachmentUri(this, TEMP_IMG_ATTACHMENT_FILENAME)
-fun Context.getTempWritableVideoUri() = getTempWritableAttachmentUri(this, TEMP_VIDEO_ATTACHMENT_FILENAME)
+fun Context.getTempWritableImageUri(tempCachePath: Path): Uri {
+    val tempImagePath = "$tempCachePath/$TEMP_IMG_ATTACHMENT_FILENAME".toPath()
+    return getTempWritableAttachmentUri(this, tempImagePath)
+}
 
-private fun getTempWritableAttachmentUri(context: Context, fileName: String): Uri {
-    val file = File(context.cacheDir, fileName)
+fun Context.getTempWritableVideoUri(tempCachePath: Path): Uri {
+    val tempVideoPath = "$tempCachePath/$TEMP_VIDEO_ATTACHMENT_FILENAME".toPath()
+    return getTempWritableAttachmentUri(this, tempVideoPath)
+}
+
+private fun getTempWritableAttachmentUri(context: Context, attachmentPath: Path): Uri {
+    val file = attachmentPath.toFile()
     file.setWritable(true)
     return FileProvider.getUriForFile(context, context.getProviderAuthority(), file)
 }
 
-private fun Context.saveFileDataToDownloadsFolder(downloadedFile: File, fileSize: Int): Uri? {
+private fun Context.saveFileDataToDownloadsFolder(assetName: String, downloadedDataPath: Path, fileSize: Long): Uri? {
     val resolver = contentResolver
     return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
         val contentValues = ContentValues().apply {
-            put(MediaStore.MediaColumns.DISPLAY_NAME, downloadedFile.name)
-            put(MediaStore.MediaColumns.MIME_TYPE, Uri.parse(downloadedFile.path).getMimeType(this@saveFileDataToDownloadsFolder))
+            put(MediaStore.MediaColumns.DISPLAY_NAME, assetName)
+            put(MediaStore.MediaColumns.MIME_TYPE, Uri.parse(downloadedDataPath.toString()).getMimeType(this@saveFileDataToDownloadsFolder))
             put(MediaStore.MediaColumns.SIZE, fileSize)
         }
         resolver.insert(MediaStore.Downloads.EXTERNAL_CONTENT_URI, contentValues)
     } else {
         val authority = getProviderAuthority()
-        val destinyFile = File(getExternalFilesDir(DIRECTORY_DOWNLOADS), downloadedFile.name)
-        FileProvider.getUriForFile(this, authority, destinyFile)
+        val destinationFile = File(getExternalFilesDir(DIRECTORY_DOWNLOADS), assetName)
+        FileProvider.getUriForFile(this, authority, destinationFile)
     }?.also { downloadedUri ->
         resolver.openOutputStream(downloadedUri).use { outputStream ->
             val brr = ByteArray(DATA_COPY_BUFFER_SIZE)
             var len: Int
-            val bufferedInputStream = BufferedInputStream(FileInputStream(downloadedFile.absoluteFile))
+            val bufferedInputStream: InputStream = File(downloadedDataPath.toString()).inputStream()
             while ((bufferedInputStream.read(brr, 0, brr.size).also { len = it }) != -1) {
                 outputStream?.write(brr, 0, len)
             }
@@ -86,17 +95,24 @@ private fun Context.saveFileDataToDownloadsFolder(downloadedFile: File, fileSize
     }
 }
 
-fun Context.copyDataToTempFile(assetName: String, assetData: ByteArray): Uri {
-    val file = File(cacheDir, assetName)
-    file.setWritable(true)
-    file.writeBytes(assetData)
-    return FileProvider.getUriForFile(this, getProviderAuthority(), file)
-}
+fun Context.pathToUri(assetDataPath: Path): Uri = FileProvider.getUriForFile(this, getProviderAuthority(), assetDataPath.toFile())
 
 fun Uri.getMimeType(context: Context): String? {
     val extension = MimeTypeMap.getFileExtensionFromUrl(path)
     return context.contentResolver.getType(this)
         ?: MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)
+}
+
+fun Uri.copyToTempPath(context: Context, tempCachePath: Path): Long {
+    val file = tempCachePath.toFile()
+    var size: Long
+    file.setWritable(true)
+    context.contentResolver.openInputStream(this).use { inputStream ->
+        file.outputStream().use {
+            size = inputStream?.copyTo(it) ?: -1L
+        }
+    }
+    return size
 }
 
 fun Context.getFileName(uri: Uri): String? = when (uri.scheme) {
@@ -131,6 +147,10 @@ fun Context.startFileShareIntent(path: String) {
     startActivity(shareIntent)
 }
 
+fun saveFileToDownloadsFolder(assetName: String, assetDataPath: Path, assetDataSize: Long, context: Context) {
+    context.saveFileDataToDownloadsFolder(assetName, assetDataPath, assetDataSize)
+}
+
 fun Context.startMultipleFileSharingIntent(path: String) {
     val file = File(path)
 
@@ -158,23 +178,19 @@ fun Context.startMultipleFileSharingIntent(path: String) {
     startActivity(intent)
 }
 
-fun saveFileToDownloadsFolder(assetName: String, assetData: ByteArray, context: Context) {
-    val file = File(context.getExternalFilesDir(DIRECTORY_DOWNLOADS), assetName)
-    file.setWritable(true)
-    file.writeBytes(assetData)
-    context.saveFileDataToDownloadsFolder(file, assetData.size)
-}
-
-fun openAssetFileWithExternalApp(assetName: String?, assetData: ByteArray, context: Context, onError: () -> Unit) {
-    val assetUri = context.copyDataToTempFile(assetName ?: System.currentTimeMillis().toString(), assetData)
-
-    // Set intent and launch
-    val intent = Intent()
-    intent.setActionViewIntentFlags()
-    intent.setDataAndType(assetUri, assetUri.getMimeType(context))
-
+fun openAssetFileWithExternalApp(assetDataPath: Path, context: Context, assetExtension: String, onError: () -> Unit) {
     try {
+        val assetUri = context.pathToUri(assetDataPath)
+
+        // Set intent and launch
+        val intent = Intent()
+        intent.setActionViewIntentFlags()
+        intent.setDataAndType(assetUri, MimeTypeMap.getSingleton().getMimeTypeFromExtension(assetExtension))
+
         context.startActivity(intent)
+    } catch (e: java.lang.IllegalArgumentException) {
+        appLogger.e("The file couldn't be found on the internal storage \n$e")
+        onError()
     } catch (noActivityFoundException: ActivityNotFoundException) {
         appLogger.e("Couldn't find a proper app to process the asset")
         onError()

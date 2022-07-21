@@ -30,7 +30,6 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
 import com.wire.android.R
-import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.MoreOptionIcon
 import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireTabRow
@@ -42,11 +41,9 @@ import com.wire.android.ui.home.conversations.details.options.GroupConversationO
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsState
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipants
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipantsState
-import com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
-import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.launch
 
 @Composable
@@ -55,6 +52,7 @@ fun GroupConversationDetailsScreen(viewModel: GroupConversationDetailsViewModel)
         onBackPressed = viewModel::navigateBack,
         openFullListPressed = viewModel::navigateToFullParticipantsList,
         onProfilePressed = viewModel::openProfile,
+        onAddParticipantsPressed = viewModel::navigateToAddParticants,
         groupOptionsState = viewModel.groupOptionsState,
         groupParticipantsState = viewModel.groupParticipantsState
     )
@@ -66,6 +64,7 @@ private fun GroupConversationDetailsContent(
     onBackPressed: () -> Unit,
     openFullListPressed: () -> Unit,
     onProfilePressed: (UIParticipant) -> Unit,
+    onAddParticipantsPressed : () -> Unit,
     groupOptionsState: GroupConversationOptionsState,
     groupParticipantsState: GroupConversationParticipantsState
 ) {
@@ -76,6 +75,7 @@ private fun GroupConversationDetailsContent(
     val maxAppBarElevation = MaterialTheme.wireDimensions.topBarShadowElevation
     val currentTabState by remember { derivedStateOf { pagerState.calculateCurrentTab() } }
     val elevationState by remember { derivedStateOf { lazyListStates[currentTabState].topBarElevation(maxAppBarElevation) } }
+
     Scaffold(
         topBar = {
             WireCenterAlignedTopAppBar(
@@ -101,6 +101,7 @@ private fun GroupConversationDetailsContent(
         var focusedTabIndex: Int by remember { mutableStateOf(initialPageIndex) }
         val keyboardController = LocalSoftwareKeyboardController.current
         val focusManager = LocalFocusManager.current
+
         CompositionLocalProvider(LocalOverScrollConfiguration provides null) {
             HorizontalPager(
                 state = pagerState,
@@ -111,17 +112,18 @@ private fun GroupConversationDetailsContent(
             ) { pageIndex ->
                 when (GroupConversationDetailsTabItem.values()[pageIndex]) {
                     GroupConversationDetailsTabItem.OPTIONS -> GroupConversationOptions(
-                        groupOptionsState = groupOptionsState,
                         lazyListState = lazyListStates[pageIndex]
                     )
                     GroupConversationDetailsTabItem.PARTICIPANTS -> GroupConversationParticipants(
                         groupParticipantsState = groupParticipantsState,
                         openFullListPressed = openFullListPressed,
+                        onAddParticipantsPressed = onAddParticipantsPressed,
                         onProfilePressed = onProfilePressed,
                         lazyListState = lazyListStates[pageIndex]
                     )
                 }
             }
+
             LaunchedEffect(pagerState.isScrollInProgress, focusedTabIndex, pagerState.currentPage) {
                 if (!pagerState.isScrollInProgress && focusedTabIndex != pagerState.currentPage) {
                     keyboardController?.hide()
@@ -146,6 +148,7 @@ private fun GroupConversationDetailsPreview() {
             onBackPressed = {},
             openFullListPressed = {},
             onProfilePressed = {},
+            onAddParticipantsPressed = {},
             groupOptionsState = GroupConversationOptionsState(groupName = "Group name"),
             groupParticipantsState = GroupConversationParticipantsState.PREVIEW,
         )

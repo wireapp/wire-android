@@ -7,6 +7,7 @@ import coil.Coil
 import coil.ImageLoader
 import coil.compose.rememberAsyncImagePainter
 import com.wire.android.model.ImageAsset
+import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 
@@ -31,6 +32,7 @@ class WireSessionImageLoader(private val coilImageLoader: ImageLoader) {
         context: Context,
         private val getAvatarAsset: GetAvatarAssetUseCase,
         private val getPrivateAsset: GetMessageAssetUseCase,
+        private val kaliumFileSystem: KaliumFileSystem
     ) {
         private val defaultImageLoader = Coil.imageLoader(context)
         private val resources = context.resources
@@ -38,7 +40,7 @@ class WireSessionImageLoader(private val coilImageLoader: ImageLoader) {
         fun newImageLoader(): WireSessionImageLoader = WireSessionImageLoader(
             defaultImageLoader.newBuilder()
                 .components {
-                    add(AssetImageFetcher.Factory(getAvatarAsset, getPrivateAsset, resources))
+                    add(AssetImageFetcher.Factory(getAvatarAsset, getPrivateAsset, resources, kaliumFileSystem))
                 }.build()
         )
     }

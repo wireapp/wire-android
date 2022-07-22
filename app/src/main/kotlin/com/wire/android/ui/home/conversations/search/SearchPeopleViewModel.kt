@@ -15,6 +15,7 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.flow.SearchQueryStateFlow
+import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestResult
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
@@ -176,7 +177,7 @@ abstract class SearchPeopleViewModel(
                 command = NavigationCommand(
                     destination = NavigationItem.OtherUserProfile.getRouteWithArgs(
                         listOf(
-                            contact.domain, contact.id, contact.connectionState
+                            QualifiedID(contact.id, contact.domain), contact.connectionState
                         )
                     )
                 )

@@ -34,7 +34,6 @@ class HomeViewModel @Inject constructor(
     private val getSelf: GetSelfUserUseCase,
     private val needsToRegisterClient: NeedsToRegisterClientUseCase,
     private val wireSessionImageLoader: WireSessionImageLoader,
-    private val setConnectionPolicy: SetConnectionPolicyUseCase
 ) : SavedStateViewModel(savedStateHandle) {
 
     var snackbarMessageState by mutableStateOf<HomeSnackbarState>(HomeSnackbarState.None)
@@ -43,10 +42,7 @@ class HomeViewModel @Inject constructor(
         private set
 
     init {
-        viewModelScope.launch {
-            setConnectionPolicy(ConnectionPolicy.KEEP_ALIVE)
-            launch { loadUserAvatar() }
-        }
+        viewModelScope.launch { loadUserAvatar() }
     }
 
     fun checkRequirements() {

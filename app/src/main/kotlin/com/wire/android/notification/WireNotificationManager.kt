@@ -49,10 +49,7 @@ class WireNotificationManager @Inject constructor(
             //      All of this could be handled inside Kalium,
             //      and Reloaded shouldn't need to call `waitUntilLive`.
             //      Kalium could be smarter
-            coreLogic.sessionScope(userId){
-                syncManager.waitUntilLive()
-                setConnectionPolicy(ConnectionPolicy.DISCONNECT_AFTER_PENDING_EVENTS)
-            }
+            coreLogic.getSessionScope(userId).syncManager.waitUntilLive()
             fetchAndShowMessageNotificationsOnce(userId)
             fetchAndShowCallNotificationsOnce(userId)
         }

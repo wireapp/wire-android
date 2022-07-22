@@ -24,6 +24,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
+import com.wire.android.model.Clickable
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.theme.wireColorScheme
@@ -33,10 +34,9 @@ import com.wire.android.util.getUriFromDrawable
 @Composable
 fun UserProfileAvatar(
     avatarData: UserAvatarData = UserAvatarData(),
-    isClickable: Boolean = false,
     size: Dp = MaterialTheme.wireDimensions.userAvatarDefaultSize,
     modifier: Modifier = Modifier,
-    onClick: (() -> Unit)? = null
+    clickable: Clickable = Clickable(enabled = false) {}
 ) {
     val painter = painter(avatarData.asset)
 
@@ -45,8 +45,7 @@ fun UserProfileAvatar(
         modifier = modifier
             .wrapContentSize()
             .clip(CircleShape)
-            .then(if (onClick != null) Modifier.clickable(isClickable) { onClick() } else Modifier)
-            .wrapContentSize()
+            .clickable(clickable)
             .padding(MaterialTheme.wireDimensions.userAvatarClickablePadding)
     ) {
         Image(

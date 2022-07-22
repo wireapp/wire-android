@@ -77,7 +77,8 @@ class MessageMapper @Inject constructor(
                                 )
                             else -> MessageStatus.Untouched
                         },
-                        messageId = message.id
+                        messageId = message.id,
+                        userId = sender?.id
                     ),
                     userAvatarData = UserAvatarData(asset = sender?.previewAsset(wireSessionImageLoader))
                 )

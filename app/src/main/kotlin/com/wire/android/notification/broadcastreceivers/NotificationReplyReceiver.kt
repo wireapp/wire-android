@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.core.app.RemoteInput
 import com.wire.android.notification.MessageNotificationManager
+import com.wire.android.notification.NotificationConstants
 
 class NotificationReplyReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
@@ -12,7 +13,7 @@ class NotificationReplyReceiver : BroadcastReceiver() {
         val conversationId: String = intent.getStringExtra(EXTRA_CONVERSATION_ID)!!
 
         if (remoteInput != null) {
-            val replyText = remoteInput.getCharSequence(MessageNotificationManager.KEY_TEXT_REPLY).toString()
+            val replyText = remoteInput.getCharSequence(NotificationConstants.KEY_TEXT_REPLY).toString()
             MessageNotificationManager.cancelNotification(context, conversationId.hashCode())
         }
     }

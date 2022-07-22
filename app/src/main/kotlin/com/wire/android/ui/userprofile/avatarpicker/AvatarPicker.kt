@@ -45,8 +45,8 @@ fun AvatarPickerScreen(viewModel: AvatarPickerViewModel) {
     val context = LocalContext.current
     val targetAvatarUri = viewModel.getTemporaryAvatarUri()
     val state = rememberAvatarPickerState(
-        onImageSelected = { viewModel.processAvatar(it) },
-        onPictureTaken = { viewModel.processAvatar(targetAvatarUri) },
+        onImageSelected = { viewModel.updatePickedAvatarUri(it) },
+        onPictureTaken = { viewModel.updatePickedAvatarUri(targetAvatarUri) },
         targetPictureFileUri = targetAvatarUri
     )
 
@@ -150,7 +150,6 @@ private fun AvatarPickerContent(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AvatarPickerActionButtons(
     isUploadingImage: Boolean,

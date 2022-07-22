@@ -18,12 +18,13 @@ import androidx.annotation.AnyRes
 import androidx.annotation.NonNull
 import androidx.core.content.FileProvider
 import com.wire.android.appLogger
+import com.wire.android.util.ImageUtil.ImageSizeClass
+import com.wire.android.util.ImageUtil.ImageSizeClass.Medium
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okio.Path
 import okio.Path.Companion.toPath
 import java.io.File
-import java.io.FileNotFoundException
 import java.io.InputStream
 
 
@@ -101,6 +102,19 @@ fun Uri.getMimeType(context: Context): String? {
     val extension = MimeTypeMap.getFileExtensionFromUrl(path)
     return context.contentResolver.getType(this)
         ?: MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)
+}
+
+suspend fun Uri.resampleImageAndCopyToTempPath(context: Context, tempCachePath: Path, sizeClass: ImageSizeClass = Medium): Long {
+    var size: Long
+    val originalImage = toByteArray(context)
+    ImageUtil.resample(originalImage, sizeClass).let { processedImage ->
+        val file = tempCachePath.toFile()
+        size = processedImage.size.toLong()
+        file.setWritable(true)
+        file.outputStream().use { it.write(processedImage) }
+    }
+
+    return size
 }
 
 fun Uri.copyToTempPath(context: Context, tempCachePath: Path): Long {

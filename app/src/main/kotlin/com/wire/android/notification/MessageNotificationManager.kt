@@ -125,7 +125,7 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
                         setContentIntent(messagePendingIntent(context, conversation.id))
                         setDeleteIntent(dismissMessagePendingIntent(context, conversation.id, userId))
                         addAction(getActionCall(conversation.id))
-                        addAction(getActionReply(conversation.id))
+                        addAction(getActionReply(conversation.id, userId))
                     } else {
                         // It's ConnectionRequest Notification
                         setContentIntent(otherUserProfilePendingIntent(context, it.authorId))
@@ -174,8 +174,8 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
         return notificationStyle
     }
 
-    private fun getActionReply(conversationId: String): NotificationCompat.Action {
-        val resultPendingIntent = replyMessagePendingIntent(context, conversationId)
+    private fun getActionReply(conversationId: String, userId: String?): NotificationCompat.Action {
+        val resultPendingIntent = replyMessagePendingIntent(context, conversationId, userId)
 
         val remoteInput = RemoteInput.Builder(NotificationConstants.KEY_TEXT_REPLY).build()
 

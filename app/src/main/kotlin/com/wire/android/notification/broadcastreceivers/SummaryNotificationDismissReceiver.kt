@@ -3,7 +3,9 @@ package com.wire.android.notification.broadcastreceivers
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import com.wire.android.appLogger
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.notification.MessageNotificationManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -26,6 +28,7 @@ class SummaryNotificationDismissReceiver : BroadcastReceiver() {
     lateinit var dispatcherProvider: DispatcherProvider
 
     override fun onReceive(context: Context, intent: Intent) {
+        appLogger.i("SummaryNotificationDismissReceiver: onReceive")
         val userId: QualifiedID? =
             intent.getStringExtra(EXTRA_RECEIVER_USER_ID)?.parseIntoQualifiedID()
 

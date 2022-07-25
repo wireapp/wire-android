@@ -30,7 +30,6 @@ import okio.Path.Companion.toPath
 import java.io.File
 import java.io.InputStream
 
-
 /**
  * Gets the uri of any drawable or given resource
  * @param context - context

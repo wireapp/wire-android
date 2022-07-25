@@ -14,6 +14,7 @@ import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.theme.wireDimensions
+import com.wire.android.ui.theme.wireTypography
 
 @Composable
 fun JoinButton(
@@ -27,6 +28,7 @@ fun JoinButton(
         fillMaxWidth = false,
         shape = RoundedCornerShape(size = MaterialTheme.wireDimensions.corner12x),
         text = stringResource(R.string.calling_button_label_join_call),
+        textStyle = MaterialTheme.wireTypography.button03,
         state = WireButtonState.Positive,
         minHeight = minHeight,
         minWidth = minWidth,
@@ -37,8 +39,8 @@ fun JoinButton(
                 end = dimensions().spacing8x
             ),
         contentPadding = PaddingValues(
-            horizontal = dimensions().spacing12x,
-            vertical = dimensions().spacing8x
+            horizontal = dimensions().spacing8x,
+            vertical = dimensions().spacing4x
         )
     )
 }

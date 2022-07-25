@@ -124,7 +124,8 @@ class AttachmentInnerState(val context: Context) {
             val assetFileName = context.getFileName(attachmentUri) ?: throw IOException("The selected asset has an invalid name")
             val mimeType = attachmentUri.getMimeType(context).orDefault(DEFAULT_FILE_MIME_TYPE)
             val attachmentType = if (isValidImage(mimeType)) AttachmentType.IMAGE else AttachmentType.GENERIC_FILE
-            val assetSize = if (attachmentType == AttachmentType.IMAGE) attachmentUri.resampleImageAndCopyToTempPath(context, fullTempAssetPath)
+            val assetSize = if (attachmentType == AttachmentType.IMAGE)
+                attachmentUri.resampleImageAndCopyToTempPath(context, fullTempAssetPath)
             else attachmentUri.copyToTempPath(context, fullTempAssetPath)
             val attachment = AttachmentBundle(mimeType, fullTempAssetPath, assetSize, assetFileName, attachmentType)
             AttachmentState.Picked(attachment)

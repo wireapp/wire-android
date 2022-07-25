@@ -20,6 +20,9 @@ import androidx.core.content.FileProvider
 import com.wire.android.appLogger
 import com.wire.android.util.ImageUtil.ImageSizeClass
 import com.wire.android.util.ImageUtil.ImageSizeClass.Medium
+import com.wire.android.util.dispatchers.DefaultDispatcherProvider
+import com.wire.android.util.dispatchers.DispatcherProvider
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okio.Path
@@ -47,8 +50,8 @@ fun getUriFromDrawable(
 }
 
 @Suppress("MagicNumber")
-suspend fun Uri.toByteArray(context: Context): ByteArray {
-    return withContext(Dispatchers.IO) {
+suspend fun Uri.toByteArray(context: Context, dispatcher: DispatcherProvider = DefaultDispatcherProvider()): ByteArray {
+    return withContext(dispatcher.io()) {
         context.contentResolver.openInputStream(this@toByteArray)?.use { it.readBytes() } ?: ByteArray(16)
     }
 }
@@ -104,17 +107,24 @@ fun Uri.getMimeType(context: Context): String? {
         ?: MimeTypeMap.getSingleton().getMimeTypeFromExtension(extension)
 }
 
-suspend fun Uri.resampleImageAndCopyToTempPath(context: Context, tempCachePath: Path, sizeClass: ImageSizeClass = Medium): Long {
-    var size: Long
-    val originalImage = toByteArray(context)
-    ImageUtil.resample(originalImage, sizeClass).let { processedImage ->
-        val file = tempCachePath.toFile()
-        size = processedImage.size.toLong()
-        file.setWritable(true)
-        file.outputStream().use { it.write(processedImage) }
-    }
+suspend fun Uri.resampleImageAndCopyToTempPath(
+    context: Context,
+    tempCachePath: Path,
+    sizeClass: ImageSizeClass = Medium,
+    dispatcher: DispatcherProvider = DefaultDispatcherProvider()
+): Long {
+    return withContext(dispatcher.io()) {
+        var size: Long
+        val originalImage = toByteArray(context, dispatcher)
+        ImageUtil.resample(originalImage, sizeClass).let { processedImage ->
+            val file = tempCachePath.toFile()
+            size = processedImage.size.toLong()
+            file.setWritable(true)
+            file.outputStream().use { it.write(processedImage) }
+        }
 
-    return size
+        size
+    }
 }
 
 fun Uri.copyToTempPath(context: Context, tempCachePath: Path): Long {

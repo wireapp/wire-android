@@ -24,6 +24,7 @@ import com.wire.kalium.logic.feature.asset.PublicAssetResult
 import com.wire.kalium.logic.feature.user.UploadAvatarResult
 import com.wire.kalium.logic.feature.user.UploadUserAvatarUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -39,7 +40,8 @@ class AvatarPickerViewModel @Inject constructor(
     private val uploadUserAvatar: UploadUserAvatarUseCase,
     private val avatarImageManager: AvatarImageManager,
     private val dispatchers: DispatcherProvider,
-    private val kaliumFileSystem: KaliumFileSystem
+    private val kaliumFileSystem: KaliumFileSystem,
+    @ApplicationContext private val appContext: Context
 ) : ViewModel() {
 
     var pictureState by mutableStateOf<PictureState>(PictureState.Empty)
@@ -64,35 +66,32 @@ class AvatarPickerViewModel @Inject constructor(
         }
     }
 
-    fun updatePickedAvatarUri(updatedUri: Uri) {
+    fun updatePickedAvatarUri(updatedUri: Uri) = viewModelScope.launch(dispatchers.main()) {
         pictureState = PictureState.Picked(updatedUri)
     }
 
-    fun uploadNewPickedAvatarAndBack(context: Context) {
+    fun uploadNewPickedAvatarAndBack() {
         val imgUri = pictureState.avatarUri
         pictureState = PictureState.Uploading(imgUri)
         viewModelScope.launch {
-            withContext(dispatchers.io()) {
-                val avatarPath = kaliumFileSystem.selfUserAvatarPath()
-                val imageDataSize = imgUri.resampleImageAndCopyToTempPath(context, avatarPath, ImageUtil.ImageSizeClass.Small)
-                val result = uploadUserAvatar(avatarPath, imageDataSize)
-                if (result is UploadAvatarResult.Success) {
-                    dataStore.updateUserAvatarAssetId(result.userAssetId.toString())
-                    avatarImageManager.getWritableAvatarUri(avatarPath)
-                    navigateBack()
-                } else {
-                    errorMessageCode = when ((result as UploadAvatarResult.Failure).coreFailure) {
-                        is NetworkFailure.NoNetworkConnection -> ErrorCodes.NoNetworkError
-                        else -> ErrorCodes.UploadAvatarError
-                    }
-                    // reset picked state
-                    pictureState = PictureState.Picked(imgUri)
+            val avatarPath = kaliumFileSystem.selfUserAvatarPath()
+            val imageDataSize = imgUri.resampleImageAndCopyToTempPath(appContext, avatarPath, ImageUtil.ImageSizeClass.Small)
+            val result = uploadUserAvatar(avatarPath, imageDataSize)
+            if (result is UploadAvatarResult.Success) {
+                dataStore.updateUserAvatarAssetId(result.userAssetId.toString())
+                avatarImageManager.getWritableAvatarUri(avatarPath)
+                navigateBack()
+            } else {
+                errorMessageCode = when ((result as UploadAvatarResult.Failure).coreFailure) {
+                    is NetworkFailure.NoNetworkConnection -> ErrorCodes.NoNetworkError
+                    else -> ErrorCodes.UploadAvatarError
                 }
+                updatePickedAvatarUri(imgUri)
             }
         }
     }
 
-    fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }
+    fun navigateBack() = viewModelScope.launch(dispatchers.main()) { navigationManager.navigateBack() }
 
     fun clearErrorMessage() {
         errorMessageCode = null

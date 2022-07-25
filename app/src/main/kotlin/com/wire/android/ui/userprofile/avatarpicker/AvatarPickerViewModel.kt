@@ -75,7 +75,7 @@ class AvatarPickerViewModel @Inject constructor(
         pictureState = PictureState.Uploading(imgUri)
         viewModelScope.launch {
             val avatarPath = kaliumFileSystem.selfUserAvatarPath()
-            val imageDataSize = imgUri.resampleImageAndCopyToTempPath(appContext, avatarPath, ImageUtil.ImageSizeClass.Small)
+            val imageDataSize = imgUri.resampleImageAndCopyToTempPath(appContext, avatarPath, ImageUtil.ImageSizeClass.Small, dispatchers)
             val result = uploadUserAvatar(avatarPath, imageDataSize)
             if (result is UploadAvatarResult.Success) {
                 dataStore.updateUserAvatarAssetId(result.userAssetId.toString())

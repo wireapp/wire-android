@@ -349,7 +349,7 @@
     <string name="label_general_error">We are sorry, something went wrong</string>
 
     <!-- Snackbar messages -->
-    <string name="error_unknown_title">Unknown error</string>
+    <string name="error_unknown_title">Something went wrong</string>
     <string name="error_unknown_message">Please try again in a moment</string>
     <string name="error_server_miscommunication_title">Server error</string>
     <string name="error_server_miscommunication_message">Please try again in a moment</string>

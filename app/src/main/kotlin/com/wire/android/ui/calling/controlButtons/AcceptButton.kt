@@ -23,7 +23,7 @@ fun AcceptButton(buttonClicked: () -> Unit) {
             painter = painterResource(
                 id = R.drawable.ic_accept
             ),
-            contentDescription = stringResource(id = R.string.calling_accept_call)
+            contentDescription = stringResource(id = R.string.content_description_calling_accept_call)
         )
     }
 }

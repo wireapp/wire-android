@@ -40,7 +40,7 @@ fun CallOptionsControls(
         ) {
             MicrophoneButton(isMuted = isMuted, toggleMute)
             Text(
-                text = stringResource(id = R.string.calling_label_microphone).uppercase(),
+                text = stringResource(id = R.string.calling_button_label_microphone).uppercase(),
                 style = MaterialTheme.wireTypography.label01,
                 modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing8x)
             )
@@ -55,7 +55,7 @@ fun CallOptionsControls(
                 onCameraButtonClicked = toggleVideo
             )
             Text(
-                text = stringResource(id = R.string.calling_label_camera).uppercase(),
+                text = stringResource(id = R.string.calling_button_label_camera).uppercase(),
                 style = MaterialTheme.wireTypography.label01,
                 modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing8x)
             )
@@ -69,7 +69,7 @@ fun CallOptionsControls(
                     Toast.makeText(context, "Not implemented yet =)", Toast.LENGTH_SHORT).show()
                 }
                 Text(
-                    text = stringResource(id = R.string.calling_label_flip).uppercase(),
+                    text = stringResource(id = R.string.calling_button_label_flip).uppercase(),
                     style = MaterialTheme.wireTypography.label01,
                     modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing8x)
                 )
@@ -83,7 +83,7 @@ fun CallOptionsControls(
                     onSpeakerButtonClicked = toggleSpeaker
                 )
                 Text(
-                    text = stringResource(id = R.string.calling_label_speaker).uppercase(),
+                    text = stringResource(id = R.string.calling_button_label_speaker).uppercase(),
                     style = MaterialTheme.wireTypography.label01,
                     modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing8x)
                 )

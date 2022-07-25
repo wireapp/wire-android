@@ -107,7 +107,7 @@ fun ParticipantTile(
                             .padding(MaterialTheme.wireDimensions.spacing4x),
                         imageVector = ImageVector.vectorResource(id = R.drawable.ic_participant_muted),
                         tint = MaterialTheme.wireColorScheme.muteButtonColor,
-                        contentDescription = stringResource(R.string.calling_content_description_participant_muted)
+                        contentDescription = stringResource(R.string.content_description_calling_participant_muted)
                     )
                 }
 

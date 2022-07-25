@@ -13,8 +13,9 @@ import com.wire.android.appLogger
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.AvatarImageManager
-import com.wire.android.util.copyToTempPath
+import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.android.util.resampleImageAndCopyToTempPath
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.id.parseIntoQualifiedID
@@ -23,6 +24,7 @@ import com.wire.kalium.logic.feature.asset.PublicAssetResult
 import com.wire.kalium.logic.feature.user.UploadAvatarResult
 import com.wire.kalium.logic.feature.user.UploadUserAvatarUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -38,7 +40,8 @@ class AvatarPickerViewModel @Inject constructor(
     private val uploadUserAvatar: UploadUserAvatarUseCase,
     private val avatarImageManager: AvatarImageManager,
     private val dispatchers: DispatcherProvider,
-    private val kaliumFileSystem: KaliumFileSystem
+    private val kaliumFileSystem: KaliumFileSystem,
+    @ApplicationContext private val appContext: Context
 ) : ViewModel() {
 
     var pictureState by mutableStateOf<PictureState>(PictureState.Empty)
@@ -63,41 +66,32 @@ class AvatarPickerViewModel @Inject constructor(
         }
     }
 
-    fun processAvatar(imageUri: Uri) {
-        viewModelScope.launch {
-            withContext(dispatchers.io()) {
-                pictureState = avatarImageManager
-                    .postProcessAvatar(imageUri)
-                    ?.let { PictureState.Picked(it) } ?: PictureState.Picked(imageUri)
-            }
-        }
+    fun updatePickedAvatarUri(updatedUri: Uri) = viewModelScope.launch(dispatchers.main()) {
+        pictureState = PictureState.Picked(updatedUri)
     }
 
-    fun uploadNewPickedAvatarAndBack(context: Context) {
+    fun uploadNewPickedAvatarAndBack() {
         val imgUri = pictureState.avatarUri
         pictureState = PictureState.Uploading(imgUri)
         viewModelScope.launch {
-            withContext(dispatchers.io()) {
-                val tempAvatarPath = kaliumFileSystem.providePersistentAssetPath("temp_avatar.jpg")
-                val imageDataSize = imgUri.copyToTempPath(context, tempAvatarPath)
-                val result = uploadUserAvatar(tempAvatarPath, imageDataSize)
-                if (result is UploadAvatarResult.Success) {
-                    dataStore.updateUserAvatarAssetId(result.userAssetId.toString())
-                    avatarImageManager.getWritableAvatarUri(tempAvatarPath)
-                    navigateBack()
-                } else {
-                    errorMessageCode = when ((result as UploadAvatarResult.Failure).coreFailure) {
-                        is NetworkFailure.NoNetworkConnection -> ErrorCodes.NoNetworkError
-                        else -> ErrorCodes.UploadAvatarError
-                    }
-                    // reset picked state
-                    pictureState = PictureState.Picked(imgUri)
+            val avatarPath = kaliumFileSystem.selfUserAvatarPath()
+            val imageDataSize = imgUri.resampleImageAndCopyToTempPath(appContext, avatarPath, ImageUtil.ImageSizeClass.Small, dispatchers)
+            val result = uploadUserAvatar(avatarPath, imageDataSize)
+            if (result is UploadAvatarResult.Success) {
+                dataStore.updateUserAvatarAssetId(result.userAssetId.toString())
+                avatarImageManager.getWritableAvatarUri(avatarPath)
+                navigateBack()
+            } else {
+                errorMessageCode = when ((result as UploadAvatarResult.Failure).coreFailure) {
+                    is NetworkFailure.NoNetworkConnection -> ErrorCodes.NoNetworkError
+                    else -> ErrorCodes.UploadAvatarError
                 }
+                updatePickedAvatarUri(imgUri)
             }
         }
     }
 
-    fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }
+    fun navigateBack() = viewModelScope.launch(dispatchers.main()) { navigationManager.navigateBack() }
 
     fun clearErrorMessage() {
         errorMessageCode = null

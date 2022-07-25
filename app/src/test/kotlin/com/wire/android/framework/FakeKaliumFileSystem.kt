@@ -41,7 +41,7 @@ class FakeKaliumFileSystem(
     override fun sink(outputPath: Path, mustCreate: Boolean): Sink = fakeFileSystem.sink(outputPath, mustCreate)
 
     override fun source(inputPath: Path): Source = fakeFileSystem.source(inputPath)
-    
+
     override fun createDirectories(dir: Path) = fakeFileSystem.createDirectories(dir)
 
     override fun createDirectory(dir: Path, mustCreate: Boolean) = fakeFileSystem.createDirectory(dir, mustCreate)

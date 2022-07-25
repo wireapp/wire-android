@@ -15,11 +15,9 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.navigation.getBackNavArg
 import com.wire.android.util.ui.WireSessionImageLoader
-import com.wire.kalium.logic.data.sync.ConnectionPolicy
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
-import com.wire.kalium.logic.sync.SetConnectionPolicyUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -33,7 +31,7 @@ class HomeViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val getSelf: GetSelfUserUseCase,
     private val needsToRegisterClient: NeedsToRegisterClientUseCase,
-    private val wireSessionImageLoader: WireSessionImageLoader,
+    private val wireSessionImageLoader: WireSessionImageLoader
 ) : SavedStateViewModel(savedStateHandle) {
 
     var snackbarMessageState by mutableStateOf<HomeSnackbarState>(HomeSnackbarState.None)
@@ -42,7 +40,7 @@ class HomeViewModel @Inject constructor(
         private set
 
     init {
-        viewModelScope.launch { loadUserAvatar() }
+        loadUserAvatar()
     }
 
     fun checkRequirements() {
@@ -81,7 +79,7 @@ class HomeViewModel @Inject constructor(
         snackbarMessageState = HomeSnackbarState.None
     }
 
-    private suspend fun loadUserAvatar() {
+    private fun loadUserAvatar() {
         viewModelScope.launch {
             getSelf().collect { selfUser ->
                 userAvatar = SelfUserData(

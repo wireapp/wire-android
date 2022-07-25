@@ -150,11 +150,6 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun provideSetConnectionPolicyUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
-        coreLogic.getSessionScope(currentAccount).setConnectionPolicy
-
-    @ViewModelScoped
-    @Provides
     fun provideLogoutUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): LogoutUseCase =
         coreLogic.getSessionScope(currentAccount).logout
 

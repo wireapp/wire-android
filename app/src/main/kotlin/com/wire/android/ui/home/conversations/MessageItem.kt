@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.LocalTextStyle
@@ -24,6 +25,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
@@ -134,10 +136,11 @@ private fun Modifier.customizeMessageBackground(
 
 @Composable
 private fun MessageHeader(messageHeader: MessageHeader) {
+    val configuration = LocalConfiguration.current
     with(messageHeader) {
         Column {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
-                Username(username.asString(), modifier = Modifier.weight(weight = 1F))
+            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.Start) {
+                Username(username.asString(), modifier = Modifier.widthIn(0.dp, configuration.screenWidthDp.dp/2))
 
                 if (membership.hasLabel()) {
                     Spacer(modifier = Modifier.width(dimensions().spacing6x))
@@ -149,6 +152,8 @@ private fun MessageHeader(messageHeader: MessageHeader) {
                     LegalHoldIndicator()
                 }
 
+                Spacer(modifier = Modifier.weight(weight = 1F))
+                Spacer(modifier = Modifier.width(dimensions().spacing6x))
                 MessageTimeLabel(messageHeader.time)
             }
         }
@@ -161,6 +166,7 @@ private fun MessageTimeLabel(time: String) {
     Text(
         text = time,
         style = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.wireColorScheme.secondaryText),
+        maxLines = 1
     )
 }
 

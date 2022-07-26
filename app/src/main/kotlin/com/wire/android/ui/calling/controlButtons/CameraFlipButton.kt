@@ -36,7 +36,10 @@ fun CameraFlipButton(
                     R.drawable.ic_flip_camera_on
                 else R.drawable.ic_flip_camera_off
             ),
-            contentDescription = stringResource(id = R.string.calling_flip_camera_on_off),
+            contentDescription = stringResource(
+                id = if (isCameraFlipped) R.string.content_description_calling_flip_camera_on
+                else R.string.content_description_calling_flip_camera_off
+            ),
         )
     }
 }

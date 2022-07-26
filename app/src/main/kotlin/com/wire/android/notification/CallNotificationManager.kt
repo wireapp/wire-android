@@ -3,11 +3,11 @@ package com.wire.android.notification
 import android.app.Notification
 import android.app.PendingIntent
 import android.content.Context
-import android.os.Build
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.wire.android.R
+import com.wire.android.appLogger
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.feature.call.Call
@@ -19,28 +19,33 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
 
     private val notificationManager = NotificationManagerCompat.from(context)
 
+    init {
+        appLogger.i("${TAG}: initialized")
+    }
+
     fun handleNotifications(calls: List<Call>, userId: QualifiedID?) {
         if (calls.isEmpty() || userId == null) hideCallNotification()
         else showIncomingCallNotification(calls.first(), userId)
     }
 
-    fun hideCallNotification() = notificationManager.cancel(NOTIFICATION_ID)
-
-    private fun showIncomingCallNotification(call: Call, userId: QualifiedID) {
-        createNotificationChannelIfNeeded()
-
-        notificationManager.notify(NOTIFICATION_ID, getNotification(call, userId))
+    fun hideCallNotification() {
+        appLogger.i("$TAG: hiding a call")
+        notificationManager.cancel(NotificationConstants.CALL_NOTIFICATION_ID)
     }
 
-    private fun createNotificationChannelIfNeeded() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val notificationChannel = NotificationChannelCompat
-                .Builder(CHANNEL_ID, NotificationManagerCompat.IMPORTANCE_MAX)
-                .setName(CHANNEL_NAME)
-                .build()
+    private fun showIncomingCallNotification(call: Call, userId: QualifiedID) {
+        appLogger.i("$TAG: showing a call")
+        createNotificationChannel()
+        notificationManager.notify(NotificationConstants.CALL_NOTIFICATION_ID, getNotification(call, userId))
+    }
 
-            notificationManager.createNotificationChannel(notificationChannel)
-        }
+    private fun createNotificationChannel() {
+        val notificationChannel = NotificationChannelCompat
+            .Builder(NotificationConstants.CALL_CHANNEL_ID, NotificationManagerCompat.IMPORTANCE_MAX)
+            .setName(NotificationConstants.CALL_CHANNEL_NAME)
+            .build()
+
+        notificationManager.createNotificationChannel(notificationChannel)
     }
 
     private fun getNotification(call: Call, userId: QualifiedID): Notification {
@@ -49,7 +54,7 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
         val title = getNotificationTitle(call)
         val content = getNotificationBody(call)
 
-        return NotificationCompat.Builder(context, CHANNEL_ID)
+        return NotificationCompat.Builder(context, NotificationConstants.CALL_CHANNEL_ID)
             .setContentTitle(title)
             .setContentText(content)
             .addAction(getDeclineCallAction(conversationIdString, userIdString))
@@ -99,12 +104,10 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
         .build()
 
     companion object {
-        private const val CHANNEL_ID = "com.wire.android.notification_call_channel"
-        private const val CHANNEL_NAME = "Call Channel"
-        private const val NOTIFICATION_ID = 0
+        private const val TAG = "CallNotificationManager"
 
         fun cancelNotification(context: Context) {
-            NotificationManagerCompat.from(context).cancel(NOTIFICATION_ID)
+            NotificationManagerCompat.from(context).cancel(NotificationConstants.CALL_NOTIFICATION_ID)
         }
     }
 }

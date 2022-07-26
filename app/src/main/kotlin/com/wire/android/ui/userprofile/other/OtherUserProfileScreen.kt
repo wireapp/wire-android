@@ -1,16 +1,17 @@
 package com.wire.android.ui.userprofile.other
 
+import android.annotation.SuppressLint
 import androidx.annotation.StringRes
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.Crossfade
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.LocalOverScrollConfiguration
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
@@ -37,7 +38,6 @@ import com.wire.android.ui.common.WireTabRow
 import com.wire.android.ui.common.calculateCurrentTab
 import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.loading.CenteredCircularProgressBarIndicator
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
@@ -62,6 +62,7 @@ fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltView
     )
 }
 
+@SuppressLint("UnusedCrossfadeTargetStateParameter")
 @OptIn(ExperimentalPagerApi::class, ExperimentalFoundationApi::class)
 @Composable
 fun OtherProfileScreenContent(
@@ -83,11 +84,11 @@ fun OtherProfileScreenContent(
     val pagerState = rememberPagerState(initialPage = initialPage)
     val lazyListStates = OtherUserProfileTabItem.values().associateWith { rememberLazyListState() }
     val currentTabState by remember(state, pagerState) {
-        derivedStateOf { if (state.isDataLoading) null else pagerState.calculateCurrentTab() }
+        derivedStateOf { if (state.isDataLoading) 0 else pagerState.calculateCurrentTab() }
     }
     val maxBarElevation = MaterialTheme.wireDimensions.topBarShadowElevation
     val tabBarElevationState by remember(tabItems, lazyListStates, currentTabState) {
-        derivedStateOf { currentTabState?.let { tabItems[it] }?.let { lazyListStates[it] }?.topBarElevation(maxBarElevation) ?: 0.dp }
+        derivedStateOf { lazyListStates[tabItems[currentTabState]]?.topBarElevation(maxBarElevation) ?: 0.dp }
     }
     val scope = rememberCoroutineScope()
 
@@ -113,7 +114,7 @@ fun OtherProfileScreenContent(
             )
         },
         topBarCollapsing = {
-            Column {
+            Crossfade(targetState = state.isDataLoading) {
                 UserProfileInfo(
                     isLoading = state.isAvatarLoading,
                     avatarAsset = state.userAvatarAsset,
@@ -121,48 +122,59 @@ fun OtherProfileScreenContent(
                     userName = state.userName,
                     teamName = state.teamName,
                     membership = state.membership,
-                    editableState = EditableState.NotEditable
+                    editableState = EditableState.NotEditable,
+                    modifier = Modifier.padding(bottom = dimensions().spacing16x)
                 )
-                Spacer(modifier = Modifier.height(MaterialTheme.wireDimensions.spacing16x))
             }
         },
         topBarFooter = {
-            if (!state.isDataLoading)
+            AnimatedVisibility(
+                visible = !state.isDataLoading,
+                enter = fadeIn(),
+                exit = fadeOut(),
+            ) {
                 Surface(
                     shadowElevation = tabBarElevationState,
                     color = MaterialTheme.wireColorScheme.background
                 ) {
                     WireTabRow(
                         tabs = tabItems,
-                        selectedTabIndex = currentTabState!!,
+                        selectedTabIndex = currentTabState,
                         onTabChange = { scope.launch { pagerState.animateScrollToPage(it) } },
                         divider = {} // no divider
                     )
                 }
+            }
         },
         content = {
-            when {
-                state.isDataLoading -> CenteredCircularProgressBarIndicator()
-                state.connectionStatus is ConnectionStatus.Connected ->
-                    CompositionLocalProvider(LocalOverScrollConfiguration provides null) {
-                        HorizontalPager(
-                            modifier = Modifier.fillMaxSize(),
-                            state = pagerState,
-                            count = tabItems.size
-                        ) { pageIndex ->
-                            when (val tabItem = tabItems[pageIndex]) {
-                                OtherUserProfileTabItem.DETAILS ->
-                                    OtherUserProfileDetails(state, otherUserProfileScreenState, lazyListStates[tabItem]!!)
-                                OtherUserProfileTabItem.GROUP ->
-                                    OtherUserProfileGroup(state.groupState!!, lazyListStates[tabItem]!!)
+            Crossfade(targetState = state) { state ->
+                when {
+                    state.isDataLoading -> Box {} // no content visible while loading
+                    state.connectionStatus is ConnectionStatus.Connected ->
+                        CompositionLocalProvider(LocalOverScrollConfiguration provides null) {
+                            HorizontalPager(
+                                modifier = Modifier.fillMaxSize(),
+                                state = pagerState,
+                                count = tabItems.size
+                            ) { pageIndex ->
+                                when (val tabItem = tabItems[pageIndex]) {
+                                    OtherUserProfileTabItem.DETAILS ->
+                                        OtherUserProfileDetails(state, otherUserProfileScreenState, lazyListStates[tabItem]!!)
+                                    OtherUserProfileTabItem.GROUP ->
+                                        OtherUserProfileGroup(state.groupState!!, lazyListStates[tabItem]!!)
+                                }
                             }
                         }
-                    }
-                else -> OtherUserConnectionStatusInfo(state.connectionStatus, state.membership)
+                    else -> OtherUserConnectionStatusInfo(state.connectionStatus, state.membership)
+                }
             }
         },
         contentFooter = {
-            if (!state.isDataLoading)
+            AnimatedVisibility(
+                visible = !state.isDataLoading,
+                enter = fadeIn(),
+                exit = fadeOut(),
+            ) {
                 Surface(
                     shadowElevation = maxBarElevation,
                     color = MaterialTheme.wireColorScheme.background
@@ -178,6 +190,7 @@ fun OtherProfileScreenContent(
                         )
                     }
                 }
+            }
         }
     )
 }

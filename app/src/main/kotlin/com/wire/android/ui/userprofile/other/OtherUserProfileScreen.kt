@@ -32,11 +32,11 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
 import com.wire.android.R
+import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.MoreOptionIcon
 import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireTabRow
 import com.wire.android.ui.common.calculateCurrentTab
-import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topBarElevation
@@ -165,7 +165,18 @@ fun OtherProfileScreenContent(
                                 }
                             }
                         }
-                    else -> OtherUserConnectionStatusInfo(state.connectionStatus, state.membership)
+                    else -> {
+                        CompositionLocalProvider(LocalOverScrollConfiguration provides null) {
+                            HorizontalPager(
+                                modifier = Modifier.fillMaxWidth(),
+                                state = pagerState,
+                                count = tabItems.size
+                            ) {}
+                            OtherUserConnectionStatusInfo(state.connectionStatus, state.membership)
+
+
+                        }
+                    }
                 }
             }
         },

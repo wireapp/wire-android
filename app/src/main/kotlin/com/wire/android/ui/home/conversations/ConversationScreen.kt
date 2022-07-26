@@ -49,12 +49,16 @@ import com.wire.android.ui.home.conversations.edit.EditMessageMenuItems
 import com.wire.android.ui.home.conversations.mock.getMockedMessages
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.MessageContent
+import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
 import com.wire.android.ui.home.messagecomposer.MessageComposeInputState
 import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
+import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.launch
+import okio.Path
+import okio.Path.Companion.toPath
 
 @Composable
 fun ConversationScreen(conversationViewModel: ConversationViewModel) {
@@ -65,6 +69,7 @@ fun ConversationScreen(conversationViewModel: ConversationViewModel) {
     }
     val joinCallAudioPermissionCheck = JoinCallAudioBluetoothPermissionCheckFlow(conversationViewModel)
     val uiState = conversationViewModel.conversationViewState
+
     LaunchedEffect(conversationViewModel.savedStateHandle) {
         conversationViewModel.checkPendingActions()
     }
@@ -108,7 +113,10 @@ fun ConversationScreen(conversationViewModel: ConversationViewModel) {
         },
         onJoinCall = joinCallAudioPermissionCheck::launch,
         onSnackbarMessage = conversationViewModel::onSnackbarMessage,
-        onDropDownClick = conversationViewModel::navigateToDetails
+        onSnackbarMessageShown = conversationViewModel::clearSnackbarMessage,
+        onDropDownClick = conversationViewModel::navigateToDetails,
+        tempCachePath = conversationViewModel.provideTempCachePath(),
+        onOpenProfile = conversationViewModel::navigateToProfile
     )
 
     DeleteMessageDialog(conversationViewModel = conversationViewModel)
@@ -152,7 +160,10 @@ private fun ConversationScreen(
     onStartCall: () -> Unit,
     onJoinCall: () -> Unit,
     onSnackbarMessage: (ConversationSnackbarMessages) -> Unit,
-    onDropDownClick: () -> Unit
+    onSnackbarMessageShown: () -> Unit,
+    onDropDownClick: () -> Unit,
+    tempCachePath: Path,
+    onOpenProfile: (MessageSource, UserId) -> Unit
 ) {
     val conversationScreenState = rememberConversationScreenState()
     val scope = rememberCoroutineScope()
@@ -214,8 +225,11 @@ private fun ConversationScreen(
                                 onImageFullScreenMode = onImageFullScreenMode,
                                 conversationState = conversationViewState,
                                 onMessageComposerError = onSnackbarMessage,
+                                onSnackbarMessageShown = onSnackbarMessageShown,
                                 conversationScreenState = conversationScreenState,
-                                isFileSharingEnabled = isFileSharingEnabled
+                                isFileSharingEnabled = isFileSharingEnabled,
+                                tempCachePath = tempCachePath,
+                                onOpenProfile = onOpenProfile
                             )
                         }
                     }
@@ -236,10 +250,13 @@ private fun ConversationScreenContent(
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onDownloadAsset: (String) -> Unit,
     onImageFullScreenMode: (String, Boolean) -> Unit,
+    onOpenProfile: (MessageSource, UserId) -> Unit,
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
     conversationState: ConversationViewState,
+    onSnackbarMessageShown: () -> Unit,
     conversationScreenState: ConversationScreenState,
-    isFileSharingEnabled: Boolean
+    isFileSharingEnabled: Boolean,
+    tempCachePath: Path
 ) {
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -252,7 +269,9 @@ private fun ConversationScreenContent(
                 // Show downloads folder when clicking on Snackbar cta button
                 messageCode is OnFileDownloaded && snackbarResult == SnackbarResult.ActionPerformed -> {
                     context.startActivity(Intent(DownloadManager.ACTION_VIEW_DOWNLOADS))
+                    onSnackbarMessageShown()
                 }
+                snackbarResult == SnackbarResult.Dismissed -> onSnackbarMessageShown()
             }
         }
     }
@@ -270,7 +289,8 @@ private fun ConversationScreenContent(
                 lazyListState = lazyListState,
                 onShowContextMenu = onShowContextMenu,
                 onDownloadAsset = onDownloadAsset,
-                onImageFullScreenMode = onImageFullScreenMode
+                onImageFullScreenMode = onImageFullScreenMode,
+                onOpenProfile = onOpenProfile
             )
         },
         messageText = messageText,
@@ -284,7 +304,9 @@ private fun ConversationScreenContent(
             ) {
                 coroutineScope.launch { lazyListState.animateScrollToItem(messages.size) }
             }
-        }, isFileSharingEnabled = isFileSharingEnabled
+        },
+        isFileSharingEnabled = isFileSharingEnabled,
+        tempCachePath = tempCachePath
     )
 }
 
@@ -314,7 +336,8 @@ fun MessageList(
     lazyListState: LazyListState,
     onShowContextMenu: (UIMessage) -> Unit,
     onDownloadAsset: (String) -> Unit,
-    onImageFullScreenMode: (String, Boolean) -> Unit
+    onImageFullScreenMode: (String, Boolean) -> Unit,
+    onOpenProfile: (MessageSource, UserId) -> Unit
 ) {
     LazyColumn(
         state = lazyListState,
@@ -333,7 +356,8 @@ fun MessageList(
                     message = message,
                     onLongClicked = onShowContextMenu,
                     onAssetMessageClicked = onDownloadAsset,
-                    onImageMessageClicked = onImageFullScreenMode
+                    onImageMessageClicked = onImageFullScreenMode,
+                    onAvatarClicked = onOpenProfile
                 )
             }
         }
@@ -344,10 +368,23 @@ fun MessageList(
 @Composable
 fun ConversationScreenPreview() {
     ConversationScreen(
-        ConversationViewState(
+        conversationViewState = ConversationViewState(
             conversationName = "Some test conversation",
             messages = getMockedMessages(),
         ),
-        {}, {}, {}, {}, { _, _ -> }, {}, { _, _ -> }, {}, {}, {}, {}
+        onMessageChanged = {},
+        onSendButtonClicked = {},
+        onSendAttachment = {},
+        onDownloadAsset = {},
+        onImageFullScreenMode = { _, _ -> },
+        onBackButtonClick = {},
+        onDeleteMessage = { _, _ -> },
+        onStartCall = {},
+        onJoinCall = {},
+        onSnackbarMessage = {},
+        onSnackbarMessageShown = {},
+        onDropDownClick = {},
+        tempCachePath =  "".toPath(),
+        onOpenProfile = {_, _ -> }
     )
 }

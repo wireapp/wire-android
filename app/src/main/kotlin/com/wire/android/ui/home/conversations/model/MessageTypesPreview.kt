@@ -12,28 +12,58 @@ import com.wire.android.util.ui.UIText
 @Preview(showBackground = true)
 @Composable
 fun PreviewMessage() {
-    MessageItem(mockMessageWithText, {}, {}, { _, _ -> })
+    MessageItem(
+        message = mockMessageWithText.copy(
+            messageHeader = mockMessageWithText.messageHeader.copy(
+                username = UIText.DynamicString(
+                    "Pablo Diego José Francisco de Paula Juan Nepomuceno María de los Remedios Cipriano de la Santísima Trinidad " +
+                            "Ruiz y Picasso"
+                )
+            )
+        ),
+        onLongClicked = {},
+        onAssetMessageClicked = {},
+        onImageMessageClicked = { _, _ -> },
+        onAvatarClicked = { _, _ -> }
+    )
 }
 
 @Preview(showBackground = true)
 @Composable
 fun PreviewDeletedMessage() {
-    MessageItem(mockMessageWithText.let {
-        it.copy(messageHeader = it.messageHeader.copy(messageStatus = MessageStatus.Edited("")))
-    }, {}, {}, { _, _ -> })
+    MessageItem(
+        message = mockMessageWithText.let {
+            it.copy(messageHeader = it.messageHeader.copy(messageStatus = MessageStatus.Edited("")))
+        },
+        onLongClicked = {},
+        onAssetMessageClicked = {},
+        onImageMessageClicked = { _, _ -> },
+        onAvatarClicked = { _, _ -> }
+    )
 }
 
 @Preview(showBackground = true)
 @Composable
 fun PreviewAssetMessage() {
-    MessageItem(mockAssetMessage, {}, {}, { _, _ -> })
+    MessageItem(
+        message = mockAssetMessage,
+        onLongClicked = {},
+        onAssetMessageClicked = {},
+        onImageMessageClicked = { _, _ -> },
+        onAvatarClicked = { _, _ -> }
+    )
 }
 
 @Preview(showBackground = true)
 @Composable
 fun PreviewMessageWithSystemMessage() {
     Column {
-        MessageItem(mockMessageWithText, {}, {}, { _, _ -> })
+        MessageItem(
+            message = mockMessageWithText,
+            onLongClicked = {},
+            onAssetMessageClicked = {},
+            onImageMessageClicked = { _, _ -> },
+            onAvatarClicked = { _, _ -> })
         SystemMessageItem(MessageContent.SystemMessage.MissedCall.YouCalled(UIText.DynamicString("You")))
         SystemMessageItem(
             MessageContent.SystemMessage.MemberAdded(

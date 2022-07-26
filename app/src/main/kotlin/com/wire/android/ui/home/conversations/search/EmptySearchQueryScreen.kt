@@ -1,4 +1,4 @@
-package com.wire.android.ui.home.newconversation.search
+package com.wire.android.ui.home.conversations.search
 
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement

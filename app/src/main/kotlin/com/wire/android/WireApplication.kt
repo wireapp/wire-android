@@ -16,6 +16,7 @@ import com.wire.android.util.DataDogLogger
 import com.wire.android.util.LogFileWriter
 import com.wire.android.util.extension.isGoogleServicesAvailable
 import com.wire.android.util.getDeviceId
+import com.wire.android.util.lifecycle.ConnectionPolicyManager
 import com.wire.kalium.logger.KaliumLogLevel
 import com.wire.kalium.logger.KaliumLogger
 import com.wire.kalium.logic.CoreLogger
@@ -34,7 +35,8 @@ var appLogger = KaliumLogger(
         severity = if (IS_PRIVATE_BUILD) KaliumLogLevel.DEBUG else KaliumLogLevel.DISABLED,
         tag = "WireAppLogger"
     ),
-    logWriters = arrayOf(DataDogLogger, platformLogWriter())
+    DataDogLogger,
+    platformLogWriter()
 )
 
 @HiltAndroidApp
@@ -46,6 +48,9 @@ class WireApplication : Application(), Configuration.Provider {
 
     @Inject
     lateinit var logFileWriter: LogFileWriter
+
+    @Inject
+    lateinit var connectionPolicyManager: ConnectionPolicyManager
 
     override fun getWorkManagerConfiguration(): Configuration {
         val myWorkerFactory = WrapperWorkerFactory(coreLogic)
@@ -66,7 +71,10 @@ class WireApplication : Application(), Configuration.Provider {
             enableLoggingAndInitiateFileLogging()
         }
 
+        // TODO: Can be handled in one of Sync steps
         coreLogic.updateApiVersionsScheduler.schedulePeriodicApiVersionUpdate()
+
+        connectionPolicyManager.startObservingAppLifecycle()
     }
 
     private fun enableLoggingAndInitiateFileLogging() {

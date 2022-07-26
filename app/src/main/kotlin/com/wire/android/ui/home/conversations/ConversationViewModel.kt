@@ -26,28 +26,30 @@ import com.wire.android.ui.home.conversations.DownloadedAssetDialogVisibilitySta
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.ui.home.conversations.model.MessageContent.AssetMessage
+import com.wire.android.ui.home.conversations.model.UIMessage
+import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
 import com.wire.android.util.FileManager
 import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
+import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.parseIntoQualifiedID
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.FAILED
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.IN_PROGRESS
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.SAVED_EXTERNALLY
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.SAVED_INTERNALLY
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import com.wire.kalium.logic.feature.asset.SendAssetMessageResult
 import com.wire.kalium.logic.feature.asset.SendAssetMessageUseCase
-import com.wire.kalium.logic.feature.asset.SendImageMessageResult
-import com.wire.kalium.logic.feature.asset.SendImageMessageUseCase
 import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCase
 import com.wire.kalium.logic.feature.call.AnswerCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
-import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
@@ -55,9 +57,10 @@ import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
 import com.wire.kalium.logic.functional.onFailure
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import okio.Path
+import okio.buffer
 import javax.inject.Inject
 import kotlin.time.Duration.Companion.seconds
 import com.wire.kalium.logic.data.id.QualifiedID as ConversationId
@@ -68,7 +71,6 @@ class ConversationViewModel @Inject constructor(
     override val savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
-    private val sendImageMessage: SendImageMessageUseCase,
     private val sendAssetMessage: SendAssetMessageUseCase,
     private val sendTextMessage: SendTextMessageUseCase,
     private val getMessageAsset: GetMessageAssetUseCase,
@@ -83,7 +85,8 @@ class ConversationViewModel @Inject constructor(
     private val answerCall: AnswerCallUseCase,
     private val endCall: EndCallUseCase,
     private val fileManager: FileManager,
-    private val wireSessionImageLoader: WireSessionImageLoader
+    private val wireSessionImageLoader: WireSessionImageLoader,
+    private val kaliumFileSystem: KaliumFileSystem
 ) : SavedStateViewModel(savedStateHandle) {
 
     var conversationViewState by mutableStateOf(ConversationViewState())
@@ -113,8 +116,14 @@ class ConversationViewModel @Inject constructor(
     }
 
     // region ------------------------------ Init Methods -------------------------------------
-    private fun fetchMessages() = viewModelScope.launch {
+    private fun fetchMessages() = viewModelScope.launch(dispatchers.io()) {
         getMessageForConversation(conversationId).collect { messages ->
+            updateMessagesList(messages)
+        }
+    }
+
+    private suspend fun updateMessagesList(messages: List<UIMessage>) {
+        withContext(dispatchers.main()) {
             conversationViewState = conversationViewState.copy(messages = messages)
         }
     }
@@ -204,17 +213,21 @@ class ConversationViewModel @Inject constructor(
                 attachmentBundle?.run {
                     when (attachmentType) {
                         AttachmentType.IMAGE -> {
-                            if (rawContent.size > IMAGE_SIZE_LIMIT_BYTES) onSnackbarMessage(ErrorMaxImageSize)
+                            if (dataSize > IMAGE_SIZE_LIMIT_BYTES) onSnackbarMessage(ErrorMaxImageSize)
                             else {
-                                val (imgWidth, imgHeight) = ImageUtil.extractImageWidthAndHeight(attachmentBundle.rawContent)
-                                val result = sendImageMessage(
-                                    conversationId = conversationId,
-                                    imageRawData = attachmentBundle.rawContent,
-                                    imageName = attachmentBundle.fileName,
-                                    imgWidth = imgWidth,
-                                    imgHeight = imgHeight
+                                val (imgWidth, imgHeight) = ImageUtil.extractImageWidthAndHeight(
+                                    kaliumFileSystem.source(attachmentBundle.dataPath).buffer().inputStream()
                                 )
-                                if (result is SendImageMessageResult.Failure) {
+                                val result = sendAssetMessage(
+                                    conversationId = conversationId,
+                                    assetDataPath = dataPath,
+                                    assetName = fileName,
+                                    assetWidth = imgWidth,
+                                    assetHeight = imgHeight,
+                                    assetDataSize = dataSize,
+                                    assetMimeType = mimeType
+                                )
+                                if (result is SendAssetMessageResult.Failure) {
                                     onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingImage)
                                 }
                             }
@@ -224,15 +237,18 @@ class ConversationViewModel @Inject constructor(
                             // users that belong to a team
                             val assetLimitInBytes = getAssetLimitInBytes()
                             val sizeOf1MB = 1024 * 1024
-                            if (rawContent.size > assetLimitInBytes) {
+                            if (dataSize > assetLimitInBytes) {
                                 onSnackbarMessage(ErrorMaxAssetSize(assetLimitInBytes.div(sizeOf1MB)))
                             } else {
                                 try {
                                     val result = sendAssetMessage(
                                         conversationId = conversationId,
-                                        assetRawData = attachmentBundle.rawContent,
-                                        assetName = attachmentBundle.fileName,
-                                        assetMimeType = attachmentBundle.mimeType
+                                        assetDataPath = dataPath,
+                                        assetName = fileName,
+                                        assetMimeType = mimeType,
+                                        assetDataSize = dataSize,
+                                        assetHeight = null,
+                                        assetWidth = null
                                     )
                                     if (result is SendAssetMessageResult.Failure) {
                                         onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingAsset)
@@ -259,33 +275,31 @@ class ConversationViewModel @Inject constructor(
                         it.messageHeader.messageId == messageId && it.messageContent is AssetMessage
                     }
 
-                    val (isAssetDownloadedInternally, assetName) = (assetMessage?.messageContent as AssetMessage).run {
-                        (downloadStatus == SAVED_INTERNALLY || downloadStatus == IN_PROGRESS) to assetName
+                    val (isAssetDownloadedInternally, assetName, assetSize) = (assetMessage?.messageContent as AssetMessage).run {
+                        Triple((downloadStatus == SAVED_INTERNALLY || downloadStatus == IN_PROGRESS), assetName, assetSizeInBytes)
                     }
 
                     if (!isAssetDownloadedInternally)
                         updateAssetMessageDownloadStatus(IN_PROGRESS, conversationId, messageId)
 
-                    val resultData = getRawAssetData(conversationId, messageId)
-                    updateAssetMessageDownloadStatus(
-                        if (resultData != null) SAVED_INTERNALLY else FAILED,
-                        conversationId,
-                        messageId
-                    )
+                    val resultData = assetDataPath(conversationId, messageId)
+                    updateAssetMessageDownloadStatus(if (resultData != null) SAVED_INTERNALLY else FAILED, conversationId, messageId)
 
                     if (resultData != null) {
-                        showOnAssetDownloadedDialog(assetName, resultData, messageId)
+                        showOnAssetDownloadedDialog(assetName, resultData, assetSize, messageId)
                     }
                 } catch (e: OutOfMemoryError) {
                     appLogger.e("There was an OutOfMemory error while downloading the asset")
-                    onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingAsset)
+                    onSnackbarMessage(ConversationSnackbarMessages.ErrorDownloadingAsset)
+                    updateAssetMessageDownloadStatus(FAILED, conversationId, messageId)
                 }
             }
         }
     }
 
-    fun showOnAssetDownloadedDialog(assetName: String, assetData: ByteArray, messageId: String) {
-        conversationViewState = conversationViewState.copy(downloadedAssetDialogState = Displayed(assetName, assetData, messageId))
+    fun showOnAssetDownloadedDialog(assetName: String, assetDataPath: Path, assetSize: Long, messageId: String) {
+        conversationViewState =
+            conversationViewState.copy(downloadedAssetDialogState = Displayed(assetName, assetDataPath, assetSize, messageId))
     }
 
     fun hideOnAssetDownloadedDialog() {
@@ -308,11 +322,13 @@ class ConversationViewModel @Inject constructor(
     }
 
     fun onSnackbarMessage(msgCode: ConversationSnackbarMessages) {
-        viewModelScope.launch {
-            // We need to reset the onSnackbarMessage state so that it doesn't show up again when going -> background -> resume back
-            // The delay added, is to ensure the snackbar message will have enough time to be shown before it is reset to null
+        viewModelScope.launch(dispatchers.main()) {
             conversationViewState = conversationViewState.copy(onSnackbarMessage = msgCode)
-            delay(SNACKBAR_MESSAGE_DELAY)
+        }
+    }
+
+    fun clearSnackbarMessage() {
+        viewModelScope.launch(dispatchers.main()) {
             conversationViewState = conversationViewState.copy(onSnackbarMessage = null)
         }
     }
@@ -422,31 +438,31 @@ class ConversationViewModel @Inject constructor(
         onSnackbarMessage(ErrorDeletingMessage)
     }
 
-    private suspend fun getRawAssetData(conversationId: ConversationId, messageId: String): ByteArray? {
+    private suspend fun assetDataPath(conversationId: ConversationId, messageId: String): Path? {
         getMessageAsset(
             conversationId = conversationId,
             messageId = messageId
         ).run {
             return when (this) {
-                is MessageAssetResult.Success -> decodedAsset
+                is MessageAssetResult.Success -> decodedAssetPath
                 else -> null
             }
         }
     }
 
-    fun onOpenFileWithExternalApp(assetName: String, assetData: ByteArray) {
+    fun onOpenFileWithExternalApp(assetDataPath: Path, assetExtension: String) {
         viewModelScope.launch {
             withContext(dispatchers.io()) {
-                fileManager.openWithExternalApp(assetName, assetData) { onOpenFileError() }
+                fileManager.openWithExternalApp(assetDataPath, assetExtension) { onOpenFileError() }
                 hideOnAssetDownloadedDialog()
             }
         }
     }
 
-    fun onSaveFile(assetName: String, assetData: ByteArray, messageId: String) {
+    fun onSaveFile(assetName: String, assetDataPath: Path, assetSize: Long, messageId: String) {
         viewModelScope.launch {
             withContext(dispatchers.io()) {
-                fileManager.saveToExternalStorage(assetName, assetData) {
+                fileManager.saveToExternalStorage(assetName, assetDataPath, assetSize) {
                     updateAssetMessageDownloadStatus(SAVED_EXTERNALLY, conversationId, messageId)
                     onFileSavedToExternalStorage(assetName)
                     hideOnAssetDownloadedDialog()
@@ -510,7 +526,7 @@ class ConversationViewModel @Inject constructor(
                 )
                 is ConversationDetailsData.Group -> navigationManager.navigate(
                     command = NavigationCommand(
-                        destination = NavigationItem.GroupConversationDetails.getRouteWithArgs(listOf(data.covnersationId))
+                        destination = NavigationItem.GroupConversationDetails.getRouteWithArgs(listOf(data.conversationId))
                     )
                 )
                 ConversationDetailsData.None -> { /* do nothing */
@@ -518,6 +534,26 @@ class ConversationViewModel @Inject constructor(
             }
         }
     }
+
+    fun navigateToProfile(messageSource: MessageSource, userId: UserId) {
+        viewModelScope.launch {
+            when (messageSource) {
+                MessageSource.Self -> navigateToSelfProfile()
+                MessageSource.OtherUser -> when(conversationViewState.conversationDetailsData) {
+                    is ConversationDetailsData.Group -> navigateToOtherProfile(userId, conversationId)
+                    else -> navigateToOtherProfile(userId)
+                }
+            }
+        }
+    }
+
+    private suspend fun navigateToSelfProfile() =
+        navigationManager.navigate(NavigationCommand(NavigationItem.SelfUserProfile.getRouteWithArgs()))
+
+    private suspend fun navigateToOtherProfile(id: UserId, conversationId: ConversationId? = null) =
+        navigationManager.navigate(NavigationCommand(NavigationItem.OtherUserProfile.getRouteWithArgs(listOfNotNull(id, conversationId))))
+
+    fun provideTempCachePath(): Path = kaliumFileSystem.rootCachePath
 
     companion object {
         const val IMAGE_SIZE_LIMIT_BYTES = 15 * 1024 * 1024 // 15 MB limit for images

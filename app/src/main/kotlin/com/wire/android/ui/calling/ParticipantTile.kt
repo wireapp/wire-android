@@ -4,6 +4,7 @@ import android.view.View
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -106,7 +107,7 @@ fun ParticipantTile(
                             .padding(MaterialTheme.wireDimensions.spacing4x),
                         imageVector = ImageVector.vectorResource(id = R.drawable.ic_participant_muted),
                         tint = MaterialTheme.wireColorScheme.muteButtonColor,
-                        contentDescription = stringResource(R.string.calling_content_description_participant_muted)
+                        contentDescription = stringResource(R.string.content_description_calling_participant_muted)
                     )
                 }
 
@@ -143,6 +144,14 @@ fun ParticipantTile(
 
 @Preview
 @Composable
-@Suppress("EmptyFunctionBlock")
 private fun ParticipantTilePreview() {
+    ParticipantTile(
+        modifier = Modifier.height(300.dp),
+        isMuted = false,
+        isCameraOn = false,
+        conversationName = ConversationName.Known("Known Conversation"),
+        onClearSelfUserVideoPreview = {},
+        onSelfUserVideoPreviewCreated = {},
+        participantAvatar = null,
+    )
 }

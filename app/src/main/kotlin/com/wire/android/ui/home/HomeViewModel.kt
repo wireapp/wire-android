@@ -40,9 +40,7 @@ class HomeViewModel @Inject constructor(
         private set
 
     init {
-        viewModelScope.launch {
-            launch { loadUserAvatar() }
-        }
+        loadUserAvatar()
     }
 
     fun checkRequirements() {
@@ -81,7 +79,7 @@ class HomeViewModel @Inject constructor(
         snackbarMessageState = HomeSnackbarState.None
     }
 
-    private suspend fun loadUserAvatar() {
+    private fun loadUserAvatar() {
         viewModelScope.launch {
             getSelf().collect { selfUser ->
                 userAvatar = SelfUserData(

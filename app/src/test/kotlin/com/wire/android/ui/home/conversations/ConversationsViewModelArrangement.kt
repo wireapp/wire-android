@@ -3,6 +3,8 @@ package com.wire.android.ui.home.conversations
 import android.content.res.Resources
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.TestDispatcherProvider
+import com.wire.android.config.mockUri
+import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.model.UserAvatarData
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.model.MessageHeader
@@ -14,6 +16,7 @@ import com.wire.android.util.FileManager
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.logic.configuration.FileSharingStatus
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.LegalHoldStatus
@@ -27,8 +30,6 @@ import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.SendAssetMessageResult
 import com.wire.kalium.logic.feature.asset.SendAssetMessageUseCase
-import com.wire.kalium.logic.feature.asset.SendImageMessageResult
-import com.wire.kalium.logic.feature.asset.SendImageMessageUseCase
 import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCase
 import com.wire.kalium.logic.feature.call.AnswerCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
@@ -47,19 +48,30 @@ import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.consumeAsFlow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
+import okio.Path
+import okio.buffer
 
 internal class ConversationsViewModelArrangement {
+
+    val conversationId: ConversationId = ConversationId("some-dummy-value", "some.dummy.domain")
+
     init {
         // Tests setup
-        val dummyConversationId = "some-dummy-value@some.dummy.domain"
         MockKAnnotations.init(this, relaxUnitFun = true)
-        every { savedStateHandle.get<String>(any()) } returns dummyConversationId
+        mockUri()
+        every { savedStateHandle.get<String>(any()) } returns conversationId.toString()
         every { savedStateHandle.set(any(), any<String>()) } returns Unit
 
         // Default empty values
         coEvery { observeConversationDetails(any()) } returns flowOf()
         coEvery { getSelfUserTeam() } returns flowOf()
+        coEvery { getMessagesForConversationUseCase(any()) } returns flowOf(listOf())
+        every { isFileSharingEnabledUseCase() } returns FileSharingStatus(null, null)
+        coEvery { observeOngoingCallsUseCase() } returns flowOf(listOf())
+        coEvery { observeEstablishedCallsUseCase() } returns flowOf(listOf())
+
     }
 
     @MockK
@@ -73,9 +85,6 @@ internal class ConversationsViewModelArrangement {
 
     @MockK
     lateinit var sendAssetMessage: SendAssetMessageUseCase
-
-    @MockK
-    lateinit var sendImageMessage: SendImageMessageUseCase
 
     @MockK
     lateinit var getMessageAsset: GetMessageAssetUseCase
@@ -117,10 +126,12 @@ internal class ConversationsViewModelArrangement {
     private lateinit var wireSessionImageLoader: WireSessionImageLoader
 
     @MockK
-    private lateinit var observeEstablishedCalls: ObserveEstablishedCallsUseCase
+    private lateinit var observeEstablishedCallsUseCase: ObserveEstablishedCallsUseCase
 
     @MockK
     private lateinit var endCall: EndCallUseCase
+
+    private val fakeKaliumFileSystem = FakeKaliumFileSystem()
 
     private val conversationDetailsChannel = Channel<ConversationDetails>(capacity = Channel.UNLIMITED)
 
@@ -133,7 +144,6 @@ internal class ConversationsViewModelArrangement {
             observeConversationDetails = observeConversationDetails,
             sendTextMessage = sendTextMessage,
             sendAssetMessage = sendAssetMessage,
-            sendImageMessage = sendImageMessage,
             getMessageAsset = getMessageAsset,
             deleteMessage = deleteMessage,
             dispatchers = TestDispatcherProvider(),
@@ -145,9 +155,25 @@ internal class ConversationsViewModelArrangement {
             observeOngoingCalls = observeOngoingCallsUseCase,
             answerCall = answerCallUseCase,
             wireSessionImageLoader = wireSessionImageLoader,
-            observeEstablishedCalls = observeEstablishedCalls,
+            kaliumFileSystem = fakeKaliumFileSystem,
+            observeEstablishedCalls = observeEstablishedCallsUseCase,
             endCall = endCall
         )
+    }
+
+    suspend fun withSuccessfulViewModelInit(): ConversationsViewModelArrangement {
+        coEvery { isFileSharingEnabledUseCase() } returns FileSharingStatus(null, null)
+        coEvery { getMessagesForConversationUseCase(any()) } returns messagesChannel.consumeAsFlow()
+        coEvery { observeOngoingCallsUseCase() } returns emptyFlow()
+        coEvery { observeEstablishedCallsUseCase() } returns emptyFlow()
+        return this
+    }
+
+    fun withStoredAsset(dataPath: Path, dataContent: ByteArray): ConversationsViewModelArrangement {
+        fakeKaliumFileSystem.sink(dataPath).buffer().use {
+            it.write(dataContent)
+        }
+        return this
     }
 
     suspend fun withMessagesUpdate(messages: List<UIMessage>): ConversationsViewModelArrangement {
@@ -165,8 +191,7 @@ internal class ConversationsViewModelArrangement {
     }
 
     fun withSuccessfulSendAttachmentMessage(): ConversationsViewModelArrangement {
-        coEvery { sendAssetMessage(any(), any(), any(), any()) } returns SendAssetMessageResult.Success
-        coEvery { sendImageMessage(any(), any(), any(), any(), any()) } returns SendImageMessageResult.Success
+        coEvery { sendAssetMessage(any(), any(), any(), any(), any(), any(), any()) } returns SendAssetMessageResult.Success
         return this
     }
 
@@ -175,16 +200,26 @@ internal class ConversationsViewModelArrangement {
         return this
     }
 
-    fun withSuccessfulSaveAssetMessage(assetName: String, assetData: ByteArray, messageId: String): ConversationsViewModelArrangement {
-        viewModel.showOnAssetDownloadedDialog(assetName, assetData, messageId)
-        coEvery { fileManager.saveToExternalStorage(any(), any(), any()) }.answers {
+    fun withSuccessfulSaveAssetMessage(
+        assetName: String,
+        assetDataPath: Path,
+        assetSize: Long,
+        messageId: String
+    ): ConversationsViewModelArrangement {
+        viewModel.showOnAssetDownloadedDialog(assetName, assetDataPath, assetSize, messageId)
+        coEvery { fileManager.saveToExternalStorage(any(), any(), any(), any()) }.answers {
             viewModel.hideOnAssetDownloadedDialog()
         }
         return this
     }
 
-    fun withSuccessfulOpenAssetMessage(assetName: String, assetData: ByteArray, messageId: String): ConversationsViewModelArrangement {
-        viewModel.showOnAssetDownloadedDialog(assetName, assetData, messageId)
+    fun withSuccessfulOpenAssetMessage(
+        assetName: String,
+        assetDataPath: Path,
+        assetSize: Long,
+        messageId: String
+    ): ConversationsViewModelArrangement {
+        viewModel.showOnAssetDownloadedDialog(assetName, assetDataPath, assetSize, messageId)
         every { fileManager.openWithExternalApp(any(), any(), any()) }.answers {
             viewModel.hideOnAssetDownloadedDialog()
         }

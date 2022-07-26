@@ -133,7 +133,7 @@ private fun IncomingCallContent(
                 ) {
                     DeclineButton { declineCall() }
                     Text(
-                        text = stringResource(id = R.string.calling_label_decline),
+                        text = stringResource(id = R.string.calling_button_label_decline),
                         style = MaterialTheme.wireTypography.body03,
                         modifier = Modifier.padding(
                             top = dimensions().spacing8x,
@@ -148,7 +148,7 @@ private fun IncomingCallContent(
                 ) {
                     AcceptButton { acceptCall() }
                     Text(
-                        text = stringResource(id = R.string.calling_label_accept),
+                        text = stringResource(id = R.string.calling_button_label_accept),
                         style = MaterialTheme.wireTypography.body03,
                         modifier = Modifier.padding(
                             top = dimensions().spacing8x,
@@ -169,6 +169,7 @@ private fun IncomingCallContent(
                 isCameraOn = callState.isCameraOn,
                 avatarAssetId = callState.avatarAssetId,
                 conversationType = callState.conversationType,
+                membership = callState.membership
             )
         }
     }

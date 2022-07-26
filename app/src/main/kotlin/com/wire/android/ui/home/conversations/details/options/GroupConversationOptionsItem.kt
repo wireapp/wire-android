@@ -4,6 +4,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -44,6 +45,7 @@ fun GroupConversationOptionsItem(
         .fillMaxWidth()
         .background(MaterialTheme.wireColorScheme.surface)
         .clickable(clickable)
+        .defaultMinSize(minHeight = MaterialTheme.wireDimensions.conversationOptionsItemMinHeight)
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
@@ -84,11 +86,13 @@ fun GroupConversationOptionsItem(
                             modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing8x)
                         )
                     }
-                    WireSwitch(
-                        checked = switchState.value,
-                        enabled = switchState is SwitchState.Enabled,
-                        onCheckedChange = (switchState as? SwitchState.Enabled)?.onCheckedChange
-                    )
+                    if (switchState.isSwitchVisible) {
+                        WireSwitch(
+                            checked = switchState.value,
+                            enabled = switchState is SwitchState.Enabled,
+                            onCheckedChange = (switchState as? SwitchState.Enabled)?.onCheckedChange
+                        )
+                    }
                 }
                 if (arrowType == ArrowType.TITLE_ALIGNED) ArrowRight()
             }
@@ -122,28 +126,37 @@ enum class ArrowType {
 
 sealed class SwitchState {
     object None : SwitchState()
-    sealed class Visible(open val value: Boolean = false, open val isOnOffVisible: Boolean = true) : SwitchState()
+    sealed class Visible(
+        open val value: Boolean = false,
+        open val isOnOffVisible: Boolean = true,
+        open val isSwitchVisible: Boolean = true
+    ) : SwitchState()
+
     data class Enabled(
         override val value: Boolean = false,
         override val isOnOffVisible: Boolean = true,
         val onCheckedChange: (Boolean) -> Unit
-    ) : Visible(value)
+    ) : Visible(value = value, isSwitchVisible = true)
 
     data class Disabled(
         override val value: Boolean = false,
         override val isOnOffVisible: Boolean = true
-    ) : Visible(value)
+    ) : Visible(value, isSwitchVisible = true)
+
+    data class TextOnly(
+        override val value: Boolean = false,
+    ) : Visible(value = value, isOnOffVisible = true, isSwitchVisible = false)
 }
 
 @Composable
 @Preview(name = "Item with label and title")
-fun GroupConversationOptionsWithLabelAndTitlePreview() {
+private fun GroupConversationOptionsWithLabelAndTitlePreview() {
     GroupConversationOptionsItem(title = "Conversation group title", label = "GROUP NAME")
 }
 
 @Composable
 @Preview(name = "Item with title and switch clickable")
-fun GroupConversationOptionsWithTitleAndSwitchClickablePreview() {
+private fun GroupConversationOptionsWithTitleAndSwitchClickablePreview() {
     GroupConversationOptionsItem(
         title = "Services",
         switchState = SwitchState.Enabled(value = true, onCheckedChange = {}),
@@ -152,8 +165,18 @@ fun GroupConversationOptionsWithTitleAndSwitchClickablePreview() {
 }
 
 @Composable
+@Preview(name = "Item with title and text only switch")
+private fun GroupConversationOptionsWithTitleAndTextOnlySwitchPreview() {
+    GroupConversationOptionsItem(
+        title = "Services",
+        switchState = SwitchState.TextOnly(value = true),
+        arrowType = ArrowType.NONE
+    )
+}
+
+@Composable
 @Preview(name = "Item with title, subtitle and icon")
-fun GroupConversationOptionsWithTitleAndSubtitleAndIconPreview() {
+private fun GroupConversationOptionsWithTitleAndSubtitleAndIconPreview() {
     GroupConversationOptionsItem(
         title = "Group Color",
         subtitle = "Red",
@@ -170,7 +193,7 @@ fun GroupConversationOptionsWithTitleAndSubtitleAndIconPreview() {
 
 @Composable
 @Preview(name = "Item with title, subtitle, switch and footer button")
-fun GroupConversationOptionsWithTitleAndSubtitleAndSwitchAndFooterButtonPreview() {
+private fun GroupConversationOptionsWithTitleAndSubtitleAndSwitchAndFooterButtonPreview() {
     GroupConversationOptionsItem(
         title = "Guests",
         subtitle = "Turn this option ON to open this conversation to people outside your team, even if they don't have Wire.",
@@ -182,7 +205,7 @@ fun GroupConversationOptionsWithTitleAndSubtitleAndSwitchAndFooterButtonPreview(
 
 @Composable
 @Preview(name = "Item with title and subtitle without arrow")
-fun GroupConversationOptionsWithTitleAndSubtitleWithoutArrowPreview() {
+private fun GroupConversationOptionsWithTitleAndSubtitleWithoutArrowPreview() {
     GroupConversationOptionsItem(
         label = "Cipher Suite",
         title = "MLS_128_DHKEMX25519_AES128GCM_SHA256_Ed25519(0x0001)",
@@ -190,3 +213,5 @@ fun GroupConversationOptionsWithTitleAndSubtitleWithoutArrowPreview() {
         arrowType = ArrowType.NONE
     )
 }
+
+

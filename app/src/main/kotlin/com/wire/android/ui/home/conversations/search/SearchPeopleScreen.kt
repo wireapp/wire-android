@@ -1,4 +1,4 @@
-package com.wire.android.ui.home.newconversation.search
+package com.wire.android.ui.home.conversations.search
 
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedContent
@@ -31,8 +31,9 @@ import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.home.conversationslist.folderWithElements
 import com.wire.android.ui.home.newconversation.common.GroupButton
 import com.wire.android.ui.home.newconversation.model.Contact
+import com.wire.android.ui.home.conversations.search.widget.SearchFailureBox
 import com.wire.android.ui.userprofile.other.toOtherUserProfileConnectionStatus
-import com.wire.android.ui.home.newconversation.search.widget.SearchFailureBox
+import com.wire.android.ui.home.conversations.search.widget.SearchFailureBox
 
 private const val DEFAULT_SEARCH_RESULT_ITEM_SIZE = 4
 
@@ -93,6 +94,7 @@ private fun SearchResult(
     val lazyListState = rememberLazyListState()
 
     scrollPositionProvider { lazyListState.firstVisibleItemIndex }
+
     val context = LocalContext.current
 
     Column {

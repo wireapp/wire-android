@@ -21,6 +21,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
@@ -43,8 +44,8 @@ import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerViewModel.ErrorC
 fun AvatarPickerScreen(viewModel: AvatarPickerViewModel) {
     val targetAvatarUri = viewModel.getTemporaryAvatarUri()
     val state = rememberAvatarPickerState(
-        onImageSelected = { viewModel.processAvatar(it) },
-        onPictureTaken = { viewModel.processAvatar(targetAvatarUri) },
+        onImageSelected = { viewModel.updatePickedAvatarUri(it) },
+        onPictureTaken = { viewModel.updatePickedAvatarUri(targetAvatarUri) },
         targetPictureFileUri = targetAvatarUri
     )
 
@@ -148,7 +149,6 @@ private fun AvatarPickerContent(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AvatarPickerActionButtons(
     isUploadingImage: Boolean,

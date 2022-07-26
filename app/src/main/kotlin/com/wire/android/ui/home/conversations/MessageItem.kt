@@ -44,10 +44,12 @@ import com.wire.android.ui.home.conversations.model.MessageImage
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.RestrictedAssetMessage
+import com.wire.android.ui.home.conversations.model.RestrictedFileMessage
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversationslist.model.hasLabel
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.kalium.logic.data.user.UserId
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -55,7 +57,8 @@ fun MessageItem(
     message: UIMessage,
     onLongClicked: (UIMessage) -> Unit,
     onAssetMessageClicked: (String) -> Unit,
-    onImageMessageClicked: (String, Boolean) -> Unit
+    onImageMessageClicked: (String, Boolean) -> Unit,
+    onAvatarClicked: (MessageSource, UserId) -> Unit
 ) {
     with(message) {
         val fullAvatarOuterPadding = dimensions().userAvatarClickablePadding + dimensions().userAvatarStatusBorderSize
@@ -76,8 +79,14 @@ fun MessageItem(
                 }
         ) {
             Spacer(Modifier.padding(start = dimensions().spacing8x - fullAvatarOuterPadding))
+            val avatarClickable = remember {
+                Clickable(enabled = message.messageHeader.userId != null) {
+                    onAvatarClicked(message.messageSource, message.messageHeader.userId!!)
+                }
+            }
             UserProfileAvatar(
-                avatarData = UserAvatarData(message.userAvatarData.asset, message.userAvatarData.availabilityStatus)
+                avatarData = UserAvatarData(message.userAvatarData.asset, message.userAvatarData.availabilityStatus),
+                clickable = avatarClickable
             )
             Spacer(Modifier.padding(start = dimensions().spacing16x - fullAvatarOuterPadding))
             Column {
@@ -105,12 +114,12 @@ fun MessageItem(
                                 onLongClicked(message)
                             })
                         }
-
+                    val onLongClick = remember { { onLongClicked(message) } }
                     MessageContent(
                         messageContent = messageContent,
                         onAssetClick = currentOnAssetClicked,
                         onImageClick = currentOnImageClick,
-                        onLongClick = { onLongClicked(message)}
+                        onLongClick = onLongClick
                     )
                 }
 
@@ -135,36 +144,48 @@ private fun Modifier.customizeMessageBackground(
 private fun MessageHeader(messageHeader: MessageHeader) {
     with(messageHeader) {
         Column {
-            Row(verticalAlignment = Alignment.CenterVertically, horizontalArrangement = Arrangement.SpaceBetween) {
-                Username(username.asString(), modifier = Modifier.weight(weight = 1F))
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Row(
+                    modifier = Modifier.weight(weight = 1f, fill = true),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Username(username.asString(), modifier = Modifier.weight(weight = 1f, fill = false))
 
-                if (membership.hasLabel()) {
-                    Spacer(modifier = Modifier.width(dimensions().spacing6x))
-                    MembershipQualifierLabel(membership)
+                    if (membership.hasLabel()) {
+                        MembershipQualifierLabel(
+                            membership = membership,
+                            modifier = Modifier.padding(start = dimensions().spacing6x)
+                        )
+                    }
+
+                    if (isLegalHold) {
+                        LegalHoldIndicator(modifier = Modifier.padding(start = dimensions().spacing6x))
+                    }
                 }
-
-                if (isLegalHold) {
-                    Spacer(modifier = Modifier.width(dimensions().spacing6x))
-                    LegalHoldIndicator()
-                }
-
-                MessageTimeLabel(messageHeader.time)
+                MessageTimeLabel(
+                    time = messageHeader.time,
+                    modifier = Modifier.padding(start = dimensions().spacing6x)
+                    )
             }
+            MessageStatusLabel(messageStatus = messageStatus)
         }
-        MessageStatusLabel(messageStatus = messageStatus)
     }
 }
 
 @Composable
-private fun MessageTimeLabel(time: String) {
+private fun MessageTimeLabel(
+    time: String,
+    modifier: Modifier = Modifier
+    ) {
     Text(
         text = time,
         style = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.wireColorScheme.secondaryText),
+        modifier = modifier
     )
 }
 
 @Composable
-private fun Username(username: String, modifier: Modifier) {
+private fun Username(username: String, modifier: Modifier = Modifier) {
     Text(
         text = username,
         style = MaterialTheme.wireTypography.body02,
@@ -183,7 +204,7 @@ private fun MessageContent(
 ) {
     when (messageContent) {
         is MessageContent.ImageMessage -> MessageImage(
-            rawImgData = messageContent.rawImgData,
+            rawImgData = messageContent.imgData,
             imgParams = ImageMessageParams(messageContent.width, messageContent.height),
             onImageClick = onImageClick
         )
@@ -192,7 +213,7 @@ private fun MessageContent(
             onLongClick = onLongClick
         )
         is MessageContent.AssetMessage -> MessageAsset(
-            assetName = messageContent.assetName.split(".").dropLast(1).joinToString("."),
+            assetName = messageContent.assetName,
             assetExtension = messageContent.assetExtension,
             assetSizeInBytes = messageContent.assetSizeInBytes,
             assetDownloadStatus = messageContent.downloadStatus,
@@ -213,7 +234,7 @@ private fun MessageContent(
                     RestrictedAssetMessage(R.drawable.ic_speaker_on, stringResource(id = R.string.prohibited_audio_message))
                 }
                 else -> {
-                    RestrictedAssetMessage(R.drawable.ic_file, stringResource(id = R.string.prohibited_file_message))
+                    RestrictedFileMessage(messageContent.assetName, messageContent.assetSizeInBytes)
                 }
             }
         }

@@ -1,15 +1,21 @@
 package com.wire.android.ui.userprofile.image
 
+import android.content.Context
 import android.net.Uri
 import androidx.compose.material3.ExperimentalMaterial3Api
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.datastore.UserDataStore
+import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerViewModel
 import com.wire.android.util.AvatarImageManager
+import com.wire.android.util.ImageUtil
+import com.wire.android.util.copyToTempPath
+import com.wire.android.util.resampleImageAndCopyToTempPath
 import com.wire.kalium.logic.CoreFailure.Unknown
 import com.wire.kalium.logic.data.id.parseIntoQualifiedID
+import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.asset.PublicAssetResult
 import com.wire.kalium.logic.feature.user.UploadAvatarResult
@@ -19,15 +25,14 @@ import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
-import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.test.runTest
+import okio.buffer
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Assertions.assertNotNull
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -35,96 +40,187 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(CoroutineTestExtension::class)
 class AvatarPickerViewModelTest {
 
-    private lateinit var avatarPickerViewModel: AvatarPickerViewModel
+    @Test
+    fun `given a navigation case, when going back requested, then should delegate call to manager navigateBack`() = runTest {
+        // Given
+        val (arrangement, avatarPickerViewModel) = Arrangement()
+            .withSuccessfulInitialAvatarLoad()
+            .arrange()
 
-    @MockK
-    lateinit var navigationManager: NavigationManager
+        // When
+        avatarPickerViewModel.navigateBack()
 
-    @MockK
-    lateinit var userDataStore: UserDataStore
+        // Then
+        coVerify(exactly = 1) { arrangement.navigationManager.navigateBack() }
+    }
 
-    @MockK
-    lateinit var getAvatarAsset: GetAvatarAssetUseCase
+    @Test
+    fun `given a valid image, when uploading the asset succeeds, then the useCase should be called and navigate back on success`() =
+        runTest {
+            // Given
+            val uploadedAssetId = "some-dummy-value@some-dummy-domain".parseIntoQualifiedID()
 
-    @MockK
-    lateinit var uploadUserAvatarUseCase: UploadUserAvatarUseCase
+            val (arrangement, avatarPickerViewModel) = Arrangement()
+                .withSuccessfulInitialAvatarLoad()
+                .withSuccessfulAvatarUpload(uploadedAssetId)
+                .arrange()
 
-    @MockK
-    lateinit var avatarImageManager: AvatarImageManager
+            // When
+            avatarPickerViewModel.uploadNewPickedAvatarAndBack()
 
-    private val mockUri = mockk<Uri>()
+            // Then
+            coVerify {
+                with(arrangement) {
+                    uploadUserAvatarUseCase(any(), any())
+                    userDataStore.updateUserAvatarAssetId(uploadedAssetId.toString())
+                    avatarPickerViewModel.navigateBack()
+                }
+                assertEquals(null, avatarPickerViewModel.errorMessageCode)
+            }
+        }
 
-    @BeforeEach
-    fun setUp() {
-        MockKAnnotations.init(this, relaxUnitFun = true)
+    @Test
+    fun `given a valid picked image, before uploading it, it gets resampled correctly`() = runTest {
+        // Given
+        val uploadedAssetId = "some-dummy-value@some-dummy-domain".parseIntoQualifiedID()
+        val pickedUri = mockk<Uri>()
 
-        // setup mocks for view model
-        mockkStatic(Uri::class)
-        every { Uri.parse(any()) } returns mockUri
-        every { userDataStore.avatarAssetId } returns flow { emit("value@domain") }
-        coEvery { userDataStore.updateUserAvatarAssetId(any()) } returns Unit
-        coEvery { getAvatarAsset(any()) } returns PublicAssetResult.Success("some-asset-data".toByteArray())
-        coEvery { avatarImageManager.getWritableAvatarUri(any()) } returns mockUri
+        val (arrangement, avatarPickerViewModel) = Arrangement()
+            .withSuccessfulInitialAvatarLoad()
+            .withSuccessfulAvatarUpload(uploadedAssetId)
+            .withPickedUri(pickedUri)
+            .arrange()
 
-        avatarPickerViewModel =
+        // When
+        avatarPickerViewModel.uploadNewPickedAvatarAndBack()
+
+        // Then
+        with(arrangement) {
+            coVerify {
+                avatarImageManager.getWritableAvatarUri(match { it == fakeKaliumFileSystem.selfUserAvatarPath() })
+                pickedUri.resampleImageAndCopyToTempPath(
+                    context,
+                    fakeKaliumFileSystem.selfUserAvatarPath(),
+                    ImageUtil.ImageSizeClass.Small,
+                    dispatcherProvider
+                )
+            }
+            assertEquals(pickedUri, avatarPickerViewModel.pictureState.avatarUri)
+        }
+    }
+
+    @Test
+    fun `given a valid image, when uploading the asset fails, then should emit an error`() = runTest {
+        // Given
+        val (arrangement, avatarPickerViewModel) = Arrangement()
+            .withSuccessfulInitialAvatarLoad()
+            .withErrorUploadResponse()
+            .arrange()
+
+        // When
+        avatarPickerViewModel.uploadNewPickedAvatarAndBack()
+
+        // Then
+        with(arrangement) {
+            coVerify {
+                uploadUserAvatarUseCase(any(), any())
+                avatarImageManager.getWritableAvatarUri(any()) wasNot Called
+            }
+            assertNotNull(avatarPickerViewModel.errorMessageCode)
+        }
+    }
+
+    @Test
+    fun `given there is an error, when calling clear messages, then should clean the error messages codes`() = runTest {
+        // Given
+        val (_, avatarPickerViewModel) = Arrangement()
+            .withSuccessfulInitialAvatarLoad()
+            .withErrorUploadResponse()
+            .arrange()
+
+        // When
+        avatarPickerViewModel.uploadNewPickedAvatarAndBack()
+        avatarPickerViewModel.clearErrorMessage()
+
+        // Then
+        assertEquals(null, avatarPickerViewModel.errorMessageCode)
+    }
+
+    private class Arrangement {
+
+        val navigationManager = mockk<NavigationManager>()
+
+        val userDataStore = mockk<UserDataStore>()
+
+        val getAvatarAsset = mockk<GetAvatarAssetUseCase>()
+
+        val uploadUserAvatarUseCase = mockk<UploadUserAvatarUseCase>()
+
+        val avatarImageManager = mockk<AvatarImageManager>()
+
+        val context = mockk<Context>()
+
+        val dispatcherProvider = TestDispatcherProvider()
+
+        val viewModel by lazy {
             AvatarPickerViewModel(
                 navigationManager,
                 userDataStore,
                 getAvatarAsset,
                 uploadUserAvatarUseCase,
                 avatarImageManager,
-                TestDispatcherProvider()
+                dispatcherProvider,
+                fakeKaliumFileSystem,
+                context
             )
-    }
-
-    @Test
-    fun `given a navigation case, when going back requested, then should delegate call to manager navigateBack`() = runTest {
-        avatarPickerViewModel.navigateBack()
-
-        coVerify(exactly = 1) { navigationManager.navigateBack() }
-    }
-
-    @Test
-    fun `given a valid image, when uploading the asset succeed, then should call the usecase and navigate back on success`() = runTest {
-        val uploadedAssetId = "value@domain"
-        val rawImage = uploadedAssetId.toByteArray()
-        coEvery { uploadUserAvatarUseCase(any()) } returns UploadAvatarResult.Success(uploadedAssetId.parseIntoQualifiedID())
-        coEvery { avatarImageManager.uriToByteArray(any()) } returns rawImage
-
-        avatarPickerViewModel.uploadNewPickedAvatarAndBack()
-
-        coVerify {
-            avatarImageManager.uriToByteArray(mockUri)
-            uploadUserAvatarUseCase(rawImage)
-            userDataStore.updateUserAvatarAssetId(uploadedAssetId)
-            avatarImageManager.getWritableAvatarUri(rawImage)
         }
-        assertEquals(null, avatarPickerViewModel.errorMessageCode)
+
+        private val mockUri = mockk<Uri>()
+
+        fun withSuccessfulInitialAvatarLoad(): Arrangement {
+            MockKAnnotations.init(this, relaxUnitFun = true)
+            mockkStatic(Uri::class)
+            mockkStatic(Uri::resampleImageAndCopyToTempPath)
+            every { Uri.parse(any()) } returns mockUri
+            val fakeAvatarData = "some-dummy-avatar".toByteArray()
+            val avatarPath = fakeKaliumFileSystem.selfUserAvatarPath()
+            fakeKaliumFileSystem.sink(avatarPath).buffer().use {
+                it.write(fakeAvatarData)
+            }
+            coEvery { getAvatarAsset(any()) } returns PublicAssetResult.Success(avatarPath)
+            coEvery { avatarImageManager.getWritableAvatarUri(any()) } returns mockUri
+            coEvery { navigationManager.navigateBack() } returns Unit
+            coEvery { any<Uri>().resampleImageAndCopyToTempPath(any(), any(), any(), any()) } returns 1L
+            every { userDataStore.avatarAssetId } returns flow { emit("avatar-value@avatar-domain") }
+            every { mockUri.copyToTempPath(any(), any()) } returns 1L
+
+            return this
+        }
+
+        fun withSuccessfulAvatarUpload(expectedUserAssetId: UserAssetId): Arrangement {
+            coEvery { userDataStore.updateUserAvatarAssetId(any()) } returns Unit
+            coEvery { uploadUserAvatarUseCase(any(), any()) } returns UploadAvatarResult.Success(expectedUserAssetId)
+
+            return this
+        }
+
+        fun withPickedUri(pickedUri: Uri): Arrangement {
+            viewModel.updatePickedAvatarUri(pickedUri)
+
+            return this
+        }
+
+        fun withErrorUploadResponse(): Arrangement {
+            coEvery { uploadUserAvatarUseCase(any(), any()) } returns UploadAvatarResult.Failure(Unknown(RuntimeException("some error")))
+
+            return this
+        }
+
+        fun arrange() =
+            this to viewModel
     }
 
-    @Test
-    fun `given a valid image, when uploading the asset fails, then should emit an error`() = runTest {
-        val uploadedAssetId = "some-asset-id"
-        val rawImage = uploadedAssetId.toByteArray()
-        coEvery { avatarImageManager.uriToByteArray(any()) } returns rawImage
-        coEvery { uploadUserAvatarUseCase(any()) } returns UploadAvatarResult.Failure(Unknown(RuntimeException("some error")))
-
-        avatarPickerViewModel.uploadNewPickedAvatarAndBack()
-
-        coVerify {
-            avatarImageManager.uriToByteArray(mockUri)
-            uploadUserAvatarUseCase(rawImage)
-        }
-        coVerify {
-            avatarImageManager.getWritableAvatarUri(rawImage) wasNot Called
-        }
-        assertNotNull(avatarPickerViewModel.errorMessageCode)
-    }
-
-    @Test
-    fun `given there is an error, when calling clear messages, then should clean the error messages codes`() = runTest {
-        avatarPickerViewModel.clearErrorMessage()
-
-        assertEquals(null, avatarPickerViewModel.errorMessageCode)
+    companion object {
+        val fakeKaliumFileSystem: FakeKaliumFileSystem = FakeKaliumFileSystem()
     }
 }

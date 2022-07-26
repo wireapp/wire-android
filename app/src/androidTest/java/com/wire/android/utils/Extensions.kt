@@ -34,6 +34,9 @@ fun ComposeTestRule.waitForExecution(timeoutMillis: Long = WAIT_TIMEOUT, block: 
 }
 
 const val WAIT_TIMEOUT = 9000L
+const val EMAIL = "mustafa+1@wire.com"
 const val PASSWORD = "Mustafastaging1!"
-const val EMAIL = "mustafa+7@wire.com"
-const val USER_NAME = "doga7"
+const val USER_NAME = "Mustafastaging1"
+const val EMAIL_2 = "mustafa+7@wire.com"
+const val PASSWORD_2 = "mustafa+7@wire.com"
+const val USER_NAME_2 = "doga7"

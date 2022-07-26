@@ -30,7 +30,10 @@ fun SpeakerButton(
                     R.drawable.ic_speaker_on
                 else R.drawable.ic_speaker_off
             ),
-            contentDescription = stringResource(id = R.string.calling_turn_speaker_on_off)
+            contentDescription = stringResource(
+                id = if (isSpeakerOn) R.string.content_description_calling_turn_speaker_off
+                else R.string.content_description_calling_turn_speaker_on
+            )
         )
     }
 }

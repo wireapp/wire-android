@@ -104,10 +104,10 @@ fun summaryMessagePendingIntent(context: Context): PendingIntent {
     )
 }
 
-fun replyMessagePendingIntent(context: Context, conversationId: String): PendingIntent = PendingIntent.getBroadcast(
+fun replyMessagePendingIntent(context: Context, conversationId: String, userId: String?): PendingIntent = PendingIntent.getBroadcast(
     context,
     getRequestCode(conversationId, REPLY_MESSAGE_REQUEST_CODE_PREFIX),
-    NotificationReplyReceiver.newIntent(context, conversationId),
+    NotificationReplyReceiver.newIntent(context, conversationId, userId),
     PendingIntent.FLAG_MUTABLE
 )
 

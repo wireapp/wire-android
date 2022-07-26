@@ -13,8 +13,11 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 @Composable
-fun LegalHoldIndicator() {
-    Box(contentAlignment = Alignment.Center) {
+fun LegalHoldIndicator(modifier: Modifier = Modifier) {
+    Box(
+        modifier = modifier,
+        contentAlignment = Alignment.Center
+    ) {
         Box(
             modifier = Modifier
                 .size(12.dp)

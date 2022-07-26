@@ -1,7 +1,9 @@
 package com.wire.android.di
 
 import com.wire.android.utils.EMAIL
+import com.wire.android.utils.EMAIL_2
 import com.wire.android.utils.PASSWORD
+import com.wire.android.utils.PASSWORD_2
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.user.UserId
@@ -46,7 +48,14 @@ class TestModule {
                     coreLogic.sessionRepository.storeSession(authResult.userSession)
                     authResult.userSession.tokens.userId
                 } else {
-                    throw RuntimeException("Failed to setup testing custom injection")
+                    val authResultRetry = coreLogic.getAuthenticationScope(ServerConfig.STAGING)
+                        .login(EMAIL_2, PASSWORD_2, false)
+                    if (authResultRetry is AuthenticationResult.Success) {
+                        coreLogic.sessionRepository.storeSession(authResultRetry.userSession)
+                        authResultRetry.userSession.tokens.userId
+                    } else {
+                        throw RuntimeException("Failed to setup testing custom injection")
+                    }
                 }
             }
         }

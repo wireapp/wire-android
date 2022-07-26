@@ -42,11 +42,10 @@ import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerViewModel.ErrorC
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
 fun AvatarPickerScreen(viewModel: AvatarPickerViewModel) {
-    val context = LocalContext.current
     val targetAvatarUri = viewModel.getTemporaryAvatarUri()
     val state = rememberAvatarPickerState(
-        onImageSelected = { viewModel.processAvatar(it) },
-        onPictureTaken = { viewModel.processAvatar(targetAvatarUri) },
+        onImageSelected = { viewModel.updatePickedAvatarUri(it) },
+        onPictureTaken = { viewModel.updatePickedAvatarUri(targetAvatarUri) },
         targetPictureFileUri = targetAvatarUri
     )
 
@@ -57,7 +56,7 @@ fun AvatarPickerScreen(viewModel: AvatarPickerViewModel) {
             viewModel.navigateBack()
         },
         onSaveClick = {
-            viewModel.uploadNewPickedAvatarAndBack(context)
+            viewModel.uploadNewPickedAvatarAndBack()
         }
     )
 }
@@ -150,7 +149,6 @@ private fun AvatarPickerContent(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun AvatarPickerActionButtons(
     isUploadingImage: Boolean,

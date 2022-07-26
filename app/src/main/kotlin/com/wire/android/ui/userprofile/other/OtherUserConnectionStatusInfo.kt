@@ -28,7 +28,7 @@ fun OtherUserConnectionStatusInfo(connectionStatus: ConnectionStatus, membership
         Modifier
             .fillMaxWidth()
             .wrapContentHeight()
-            .padding(dimensions().spacing32x)
+            .padding(start = dimensions().spacing32x, end = dimensions().spacing32x)
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             if (connectionStatus is ConnectionStatus.Pending)

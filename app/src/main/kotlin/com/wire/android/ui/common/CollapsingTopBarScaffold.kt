@@ -37,7 +37,8 @@ fun CollapsingTopBarScaffold(
     topBarFooter: @Composable () -> Unit = {},
     snackbarHost: @Composable () -> Unit = {},
     content: @Composable () -> Unit,
-    contentFooter: @Composable () -> Unit = {}
+    contentFooter: @Composable () -> Unit = {},
+    isSwipeable: Boolean = true
 ) {
     val maxBarElevationPx = with(LocalDensity.current) { maxBarElevation.toPx() }
     val swipeableState = rememberSwipeableState(initialValue = State.EXPANDED)
@@ -78,17 +79,23 @@ fun CollapsingTopBarScaffold(
         snackbarHost = snackbarHost,
         content = { internalPadding ->
             Layout(
-                modifier = Modifier
-                    .padding(internalPadding)
-                    .swipeable(
-                        state = swipeableState,
-                        orientation = Orientation.Vertical,
-                        anchors = mapOf(0f to State.EXPANDED).let {
-                            if (collapsingHeight > 0) it.plus(-collapsingHeight.toFloat() to State.COLLAPSED)
-                            else it
-                        }
-                    )
-                    .nestedScroll(nestedScrollConnection),
+                modifier = if (isSwipeable) {
+                    Modifier
+                        .padding(internalPadding)
+                        .swipeable(
+                            state = swipeableState,
+                            orientation = Orientation.Vertical,
+                            anchors = mapOf(0f to State.EXPANDED).let {
+                                if (collapsingHeight > 0) it.plus(-collapsingHeight.toFloat() to State.COLLAPSED)
+                                else it
+                            }
+                        )
+                        .nestedScroll(nestedScrollConnection)
+                } else {
+                    Modifier
+                        .padding(internalPadding)
+                        .nestedScroll(nestedScrollConnection)
+                },
                 content = {
                     Box(modifier = Modifier.layoutId("topBarCollapsing")) { topBarCollapsing() }
                     Box(modifier = Modifier.layoutId("topBarFooter")) { topBarFooter() }
@@ -100,8 +107,10 @@ fun CollapsingTopBarScaffold(
                     val collapsingPlaceable = measurables.first { it.layoutId == "topBarCollapsing" }.measure(measureConstraints)
                     val footerPlaceable = measurables.first { it.layoutId == "topBarFooter" }.measure(measureConstraints)
                     val contentFooterPlaceable = measurables.first { it.layoutId == "contentFooter" }.measure(measureConstraints)
-                    val contentPlaceable = measurables.first { it.layoutId == "content" }.measure(measureConstraints.copy(
-                        maxHeight = constraints.maxHeight - footerPlaceable.height - contentFooterPlaceable.height)
+                    val contentPlaceable = measurables.first { it.layoutId == "content" }.measure(
+                        measureConstraints.copy(
+                            maxHeight = constraints.maxHeight - footerPlaceable.height - contentFooterPlaceable.height
+                        )
                     )
                     collapsingHeight = collapsingPlaceable.height
                     layout(constraints.maxWidth, constraints.maxHeight) {

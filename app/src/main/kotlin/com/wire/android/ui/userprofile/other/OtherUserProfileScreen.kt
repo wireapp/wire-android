@@ -128,21 +128,23 @@ fun OtherProfileScreenContent(
             }
         },
         topBarFooter = {
-            AnimatedVisibility(
-                visible = !state.isDataLoading,
-                enter = fadeIn(),
-                exit = fadeOut(),
-            ) {
-                Surface(
-                    shadowElevation = tabBarElevationState,
-                    color = MaterialTheme.wireColorScheme.background
+            if (state.connectionStatus == ConnectionStatus.Connected) {
+                AnimatedVisibility(
+                    visible = !state.isDataLoading,
+                    enter = fadeIn(),
+                    exit = fadeOut(),
                 ) {
-                    WireTabRow(
-                        tabs = tabItems,
-                        selectedTabIndex = currentTabState,
-                        onTabChange = { scope.launch { pagerState.animateScrollToPage(it) } },
-                        divider = {} // no divider
-                    )
+                    Surface(
+                        shadowElevation = tabBarElevationState,
+                        color = MaterialTheme.wireColorScheme.background
+                    ) {
+                        WireTabRow(
+                            tabs = tabItems,
+                            selectedTabIndex = currentTabState,
+                            onTabChange = { scope.launch { pagerState.animateScrollToPage(it) } },
+                            divider = {} // no divider
+                        )
+                    }
                 }
             }
         },
@@ -166,12 +168,7 @@ fun OtherProfileScreenContent(
                             }
                         }
                     else -> {
-                        CompositionLocalProvider(LocalOverScrollConfiguration provides null) {
-                            HorizontalPager(
-                                modifier = Modifier.fillMaxWidth(), state = pagerState, count = tabItems.size
-                            ) {}
-                            OtherUserConnectionStatusInfo(state.connectionStatus, state.membership)
-                        }
+                        OtherUserConnectionStatusInfo(state.connectionStatus, state.membership)
                     }
                 }
             }
@@ -198,7 +195,7 @@ fun OtherProfileScreenContent(
                     }
                 }
             }
-        }
+        }, isSwipeable = state.connectionStatus == ConnectionStatus.Connected
     )
 }
 

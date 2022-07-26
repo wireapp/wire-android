@@ -168,13 +168,9 @@ fun OtherProfileScreenContent(
                     else -> {
                         CompositionLocalProvider(LocalOverScrollConfiguration provides null) {
                             HorizontalPager(
-                                modifier = Modifier.fillMaxWidth(),
-                                state = pagerState,
-                                count = tabItems.size
+                                modifier = Modifier.fillMaxWidth(), state = pagerState, count = tabItems.size
                             ) {}
                             OtherUserConnectionStatusInfo(state.connectionStatus, state.membership)
-
-
                         }
                     }
                 }

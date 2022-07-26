@@ -19,6 +19,7 @@
     <string name="label_membership_external">Extern</string>
     <string name="label_message_sent_failure">Nachricht konnte nicht gesendet werden.</string>
     <string name="label_message_receive_failure">Download Error</string>
+    <string name="label_message_decryption_failure_message">Nachricht konnte nicht entschlüsselt werden. [Mehr erfahren](https://support.wire.com/hc/de/articles/207948115-Warum-wurde-ich-dar%C3%BCber-benachrichtigt-dass-eine-Nachricht-nicht-empfangen-wurde-)</string>
     <string name="label_try_again">Erneut versuchen</string>
     <string name="label_federated_membership">Föderiert</string>
     <string name="label_update">Update</string>

@@ -49,6 +49,7 @@ import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversationslist.model.hasLabel
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.user.UserId
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -94,29 +95,31 @@ fun MessageItem(
                 MessageHeader(messageHeader)
 
                 if (!isDeleted) {
-                    val currentOnAssetClicked =
-                        remember {
-                            Clickable(enabled = true, onClick = {
-                                onAssetMessageClicked(message.messageHeader.messageId)
-                            }, onLongClick = {
-                                onLongClicked(message)
-                            })
-                        }
+                    val currentOnAssetClicked = remember {
+                        Clickable(enabled = true, onClick = {
+                            onAssetMessageClicked(message.messageHeader.messageId)
+                        }, onLongClick = {
+                            onLongClicked(message)
+                        })
+                    }
 
-                    val currentOnImageClick =
-                        remember {
-                            Clickable(enabled = true, onClick = {
-                                onImageMessageClicked(
-                                    message.messageHeader.messageId,
-                                    message.messageSource == MessageSource.Self
-                                )
-                            }, onLongClick = {
-                                onLongClicked(message)
-                            })
-                        }
+                    val currentOnImageClick = remember {
+                        Clickable(enabled = true, onClick = {
+                            onImageMessageClicked(
+                                message.messageHeader.messageId,
+                                message.messageSource == MessageSource.Self
+                            )
+                        }, onLongClick = {
+                            onLongClicked(message)
+                        })
+                    }
                     val onLongClick = remember { { onLongClicked(message) } }
+                    val messageContentBody = if (decryptionFailed)
+                        MessageContent.TextMessage(MessageBody(UIText.StringResource(R.string.label_message_decryption_failure_message)))
+                    else messageContent
+
                     MessageContent(
-                        messageContent = messageContent,
+                        messageContent = messageContentBody,
                         onAssetClick = currentOnAssetClicked,
                         onImageClick = currentOnImageClick,
                         onLongClick = onLongClick
@@ -135,7 +138,7 @@ fun MessageItem(
 private fun Modifier.customizeMessageBackground(
     message: UIMessage,
 ) = run {
-    if (message.sendingFailed) {
+    if (message.sendingFailed || message.receivingFailed) {
         background(MaterialTheme.wireColorScheme.messageErrorBackgroundColor)
     } else this
 }
@@ -165,7 +168,7 @@ private fun MessageHeader(messageHeader: MessageHeader) {
                 MessageTimeLabel(
                     time = messageHeader.time,
                     modifier = Modifier.padding(start = dimensions().spacing6x)
-                    )
+                )
             }
             MessageStatusLabel(messageStatus = messageStatus)
         }
@@ -176,7 +179,7 @@ private fun MessageHeader(messageHeader: MessageHeader) {
 private fun MessageTimeLabel(
     time: String,
     modifier: Modifier = Modifier
-    ) {
+) {
     Text(
         text = time,
         style = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.wireColorScheme.secondaryText),
@@ -271,7 +274,7 @@ private fun MessageStatusLabel(messageStatus: MessageStatus) {
                     )
                 }
             }
-            MessageStatus.SendFailure, MessageStatus.Untouched -> {}
+            MessageStatus.SendFailure, MessageStatus.Untouched, MessageStatus.DecryptionFailure -> {}
         }
     }
 }

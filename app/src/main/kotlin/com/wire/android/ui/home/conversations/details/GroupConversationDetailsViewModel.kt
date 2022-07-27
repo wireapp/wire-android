@@ -17,7 +17,7 @@ import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.parseIntoQualifiedID
+import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -36,13 +36,14 @@ class GroupConversationDetailsViewModel @Inject constructor(
     private val updateConversationAccessRoleUseCase: UpdateConversationAccessRoleUseCase,
     private val dispatcher: DispatcherProvider,
     savedStateHandle: SavedStateHandle,
-) : GroupConversationParticipantsViewModel(savedStateHandle, navigationManager, observeConversationMembers) {
+    qualifiedIdMapper: QualifiedIdMapper
+) : GroupConversationParticipantsViewModel(savedStateHandle, navigationManager, observeConversationMembers, qualifiedIdMapper) {
 
     override val maxNumberOfItems: Int get() = MAX_NUMBER_OF_PARTICIPANTS
 
-    val conversationId: QualifiedID = savedStateHandle
-        .get<String>(EXTRA_CONVERSATION_ID)!!
-        .parseIntoQualifiedID()
+    private val conversationId: QualifiedID = qualifiedIdMapper.fromStringToQualifiedID(
+        savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!
+    )
 
     var groupOptionsState: GroupConversationOptionsState by mutableStateOf(GroupConversationOptionsState())
 

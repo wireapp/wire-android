@@ -14,6 +14,8 @@ import com.wire.kalium.logic.data.conversation.LegalHoldStatus
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.conversation.ProtocolInfo
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
@@ -328,6 +330,9 @@ internal class GroupConversationDetailsViewModelArrangement {
     @MockK
     lateinit var updateConversationAccessRoleUseCase: UpdateConversationAccessRoleUseCase
 
+    @MockK
+    private lateinit var qualifiedIdMapper: QualifiedIdMapper
+
     private val conversationDetailsChannel = Channel<ConversationDetails>(capacity = Channel.UNLIMITED)
 
     private val observeParticipantsForConversationChannel = Channel<ConversationParticipantsData>(capacity = Channel.UNLIMITED)
@@ -340,6 +345,7 @@ internal class GroupConversationDetailsViewModelArrangement {
             updateConversationAccessRoleUseCase,
             dispatcher = TestDispatcherProvider(),
             savedStateHandle,
+            qualifiedIdMapper = qualifiedIdMapper
         )
     }
 
@@ -351,6 +357,12 @@ internal class GroupConversationDetailsViewModelArrangement {
         // Default empty values
         coEvery { observeConversationDetails(any()) } returns flowOf()
         coEvery { observeParticipantsForConversationUseCase(any(), any()) } returns flowOf()
+        coEvery {
+            qualifiedIdMapper.fromStringToQualifiedID("some-dummy-value@some.dummy.domain")
+        } returns QualifiedID("some-dummy-value", "some.dummy.domain")
+        coEvery {
+            qualifiedIdMapper.fromStringToQualifiedID("conv_id@domain")
+        } returns QualifiedID("conv_id", "domain")
     }
 
     fun withSavedStateConversationId(conversationId: ConversationId) = apply {

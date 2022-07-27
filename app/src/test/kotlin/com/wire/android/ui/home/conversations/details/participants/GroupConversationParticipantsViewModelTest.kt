@@ -12,13 +12,14 @@ import com.wire.android.ui.home.conversations.details.GroupConversationDetailsVi
 import com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
-import com.wire.kalium.logic.data.id.parseIntoQualifiedID
+import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.consumeAsFlow
@@ -65,7 +66,7 @@ class GroupConversationParticipantsViewModelTest {
             arrangement.navigationManager.navigate(
                 NavigationCommand(
                     NavigationItem.OtherUserProfile.getRouteWithArgs(
-                        listOf(member.id, arrangement.conversationId.parseIntoQualifiedID())
+                        listOf(member.id, arrangement.qualifiedId)
                     )
                 )
             )
@@ -95,17 +96,24 @@ internal class GroupConversationParticipantsViewModelArrangement {
     lateinit var navigationManager: NavigationManager
 
     @MockK
+    private lateinit var qualifiedIdMapper: QualifiedIdMapper
+
+    @MockK
     lateinit var observeParticipantsForConversationUseCase: ObserveParticipantsForConversationUseCase
     private val conversationMembersChannel = Channel<ConversationParticipantsData>(capacity = Channel.UNLIMITED)
     private val viewModel by lazy {
-        GroupConversationParticipantsViewModel(savedStateHandle, navigationManager, observeParticipantsForConversationUseCase)
+        GroupConversationParticipantsViewModel(savedStateHandle, navigationManager, observeParticipantsForConversationUseCase, qualifiedIdMapper)
     }
     val conversationId = "some-dummy-value@some.dummy.domain"
+    val qualifiedId = ConversationId("some-dummy-value", "some.dummy.domain")
 
     init {
         // Tests setup
         MockKAnnotations.init(this, relaxUnitFun = true)
         mockUri()
+        every {
+            qualifiedIdMapper.fromStringToQualifiedID("some-dummy-value@some.dummy.domain")
+        } returns QualifiedID("some-dummy-value", "some.dummy.domain")
         every { savedStateHandle.get<String>(EXTRA_CONVERSATION_ID) } returns conversationId
         // Default empty values
         coEvery { observeParticipantsForConversationUseCase(any(), any()) } returns flowOf()

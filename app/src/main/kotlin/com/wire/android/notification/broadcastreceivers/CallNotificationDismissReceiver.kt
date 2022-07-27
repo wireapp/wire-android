@@ -9,7 +9,7 @@ import com.wire.android.notification.CallNotificationManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.toConversationId
+import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.GlobalScope
@@ -17,7 +17,9 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class CallNotificationDismissReceiver : BroadcastReceiver() {
+class CallNotificationDismissReceiver(
+    private val qualifiedIdMapper: QualifiedIdMapper
+) : BroadcastReceiver() {
 
     @Inject
     @KaliumCoreLogic
@@ -30,8 +32,9 @@ class CallNotificationDismissReceiver : BroadcastReceiver() {
         val conversationId: String = intent.getStringExtra(EXTRA_CONVERSATION_ID) ?: return
         appLogger.i("CallNotificationDismissReceiver: onReceive, conversationId: $conversationId")
 
-        val userId: QualifiedID? =
-            intent.getStringExtra(EXTRA_RECEIVER_USER_ID)?.toConversationId() //TODO bad naming, need to be toQualifiedID()
+        val userId: QualifiedID? = intent.getStringExtra(EXTRA_RECEIVER_USER_ID)?.let {
+            qualifiedIdMapper.fromStringToQualifiedID(it)
+        } ?: run { null }
 
         GlobalScope.launch(dispatcherProvider.io()) {
             val sessionScope =
@@ -47,7 +50,7 @@ class CallNotificationDismissReceiver : BroadcastReceiver() {
                 }
 
             sessionScope?.let {
-                it.calls.rejectCall(conversationId.toConversationId())
+                it.calls.rejectCall(qualifiedIdMapper.fromStringToQualifiedID(conversationId))
             }
             CallNotificationManager.cancelNotification(context)
         }

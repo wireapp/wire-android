@@ -5,7 +5,6 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.mockUri
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
-import com.wire.android.navigation.EXTRA_USER_DOMAIN
 import com.wire.android.navigation.EXTRA_USER_ID
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.details.participants.usecase.ConversationRoleData
@@ -14,11 +13,12 @@ import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.CoreFailure.Unknown
 import com.wire.kalium.logic.data.conversation.Conversation
-import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.Member
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.conversation.ProtocolInfo
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.data.user.ConnectionState
@@ -39,7 +39,6 @@ import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversatio
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
 import com.wire.kalium.logic.feature.user.GetUserInfoUseCase
 import io.mockk.Called
-import io.mockk.InternalPlatformDsl.toStr
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -93,6 +92,9 @@ class OtherUserProfileScreenViewModelTest {
     @MockK
     private lateinit var userTypeMapper: UserTypeMapper
 
+    @MockK
+    private lateinit var qualifiedIdMapper: QualifiedIdMapper
+
     @BeforeEach
     fun setUp() {
         MockKAnnotations.init(this, relaxUnitFun = true)
@@ -102,6 +104,9 @@ class OtherUserProfileScreenViewModelTest {
         coEvery { observeConversationRoleForUserUseCase.invoke(any(), any()) } returns flowOf(CONVERSATION_ROLE_DATA)
         coEvery { getUserInfo(any()) } returns GetUserInfoResult.Success(OTHER_USER, TEAM)
         every { userTypeMapper.toMembership(any()) } returns Membership.None
+        coEvery {
+            qualifiedIdMapper.fromStringToQualifiedID("some_value@some_domain")
+        } returns QualifiedID("some_value", "some_domain")
 
         otherUserProfileScreenViewModel = OtherUserProfileScreenViewModel(
             savedStateHandle,
@@ -114,7 +119,8 @@ class OtherUserProfileScreenViewModelTest {
             ignoreConnectionRequest,
             userTypeMapper,
             wireSessionImageLoader,
-            observeConversationRoleForUserUseCase
+            observeConversationRoleForUserUseCase,
+            qualifiedIdMapper
         )
     }
 

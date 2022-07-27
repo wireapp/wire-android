@@ -21,6 +21,8 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.LegalHoldStatus
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.OtherUser
@@ -71,7 +73,9 @@ internal class ConversationsViewModelArrangement {
         every { isFileSharingEnabledUseCase() } returns FileSharingStatus(null, null)
         coEvery { observeOngoingCallsUseCase() } returns flowOf(listOf())
         coEvery { observeEstablishedCallsUseCase() } returns flowOf(listOf())
-
+        every {
+            qualifiedIdMapper.fromStringToQualifiedID("some-dummy-value@some.dummy.domain")
+        } returns QualifiedID("some-dummy-value", "some.dummy.domain")
     }
 
     @MockK
@@ -79,6 +83,9 @@ internal class ConversationsViewModelArrangement {
 
     @MockK
     lateinit var navigationManager: NavigationManager
+
+    @MockK
+    lateinit var qualifiedIdMapper: QualifiedIdMapper
 
     @MockK
     lateinit var sendTextMessage: SendTextMessageUseCase
@@ -141,6 +148,7 @@ internal class ConversationsViewModelArrangement {
         ConversationViewModel(
             savedStateHandle = savedStateHandle,
             navigationManager = navigationManager,
+            qualifiedIdMapper = qualifiedIdMapper,
             observeConversationDetails = observeConversationDetails,
             sendTextMessage = sendTextMessage,
             sendAssetMessage = sendAssetMessage,
@@ -186,7 +194,9 @@ internal class ConversationsViewModelArrangement {
     suspend fun withConversationDetailUpdate(conversationDetails: ConversationDetails): ConversationsViewModelArrangement {
         coEvery { observeConversationDetails(any()) } returns conversationDetailsChannel.consumeAsFlow()
         conversationDetailsChannel.send(conversationDetails)
-
+        coEvery {
+            qualifiedIdMapper.fromStringToQualifiedID("id@domain")
+        } returns QualifiedID("id", "domain")
         return this
     }
 

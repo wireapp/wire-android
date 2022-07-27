@@ -8,10 +8,16 @@ import com.wire.android.media.CallRinger
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.call.VideoState
+import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.GetAllCallsWithSortedParticipantsUseCase
 import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveSpeakerUseCase
 import com.wire.kalium.logic.feature.call.usecase.SetVideoPreviewUseCase
+import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOffUseCase
+import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOnUseCase
 import com.wire.kalium.logic.feature.call.usecase.UnMuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.UpdateVideoStateUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
@@ -20,6 +26,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestCoroutineScheduler
@@ -28,12 +35,6 @@ import kotlinx.coroutines.test.setMain
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.feature.call.usecase.ObserveSpeakerUseCase
-import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOffUseCase
-import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOnUseCase
-import io.mockk.mockk
-import io.mockk.verify
 
 class SharedCallingViewModelTest {
 
@@ -74,6 +75,9 @@ class SharedCallingViewModelTest {
     private lateinit var observeSpeaker: ObserveSpeakerUseCase
 
     @MockK
+    private lateinit var qualifiedIdMapper: QualifiedIdMapper
+
+    @MockK
     private lateinit var callRinger: CallRinger
 
     @MockK
@@ -98,6 +102,9 @@ class SharedCallingViewModelTest {
         MockKAnnotations.init(this)
         every { savedStateHandle.get<String>(any()) } returns dummyConversationId
         every { savedStateHandle.set(any(), any<String>()) } returns Unit
+        coEvery {
+            qualifiedIdMapper.fromStringToQualifiedID("some-dummy-value@some.dummy.domain")
+        } returns QualifiedID("some-dummy-value", "some.dummy.domain")
 
         sharedCallingViewModel = SharedCallingViewModel(
             savedStateHandle = savedStateHandle,
@@ -115,7 +122,8 @@ class SharedCallingViewModelTest {
             callRinger = callRinger,
             uiCallParticipantMapper = uiCallParticipantMapper,
             wireSessionImageLoader = wireSessionImageLoader,
-            userTypeMapper = userTypeMapper
+            userTypeMapper = userTypeMapper,
+            qualifiedIdMapper = qualifiedIdMapper
         )
     }
 

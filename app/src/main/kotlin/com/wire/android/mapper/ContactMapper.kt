@@ -3,6 +3,7 @@ package com.wire.android.mapper
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.newconversation.model.Contact
+import com.wire.android.ui.userprofile.common.UsernameMapper.mapUserLabel
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.user.OtherUser
 import javax.inject.Inject
@@ -18,8 +19,8 @@ class ContactMapper
             return Contact(
                 id = id.value,
                 domain = id.domain,
-                name = name ?: "",
-                label = handle ?: "",
+                name = name.orEmpty(),
+                label = mapUserLabel(otherUser),
                 avatarData = UserAvatarData(completePicture?.let { ImageAsset.UserAvatarAsset(wireSessionImageLoader, it) }),
                 membership = userTypeMapper.toMembership(userType),
                 connectionState = otherUser.connectionStatus

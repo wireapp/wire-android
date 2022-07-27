@@ -25,6 +25,7 @@ import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserAssetId
+import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
@@ -245,6 +246,7 @@ internal fun withMockConversationDetailsOneOnOne(
         every { id } returns senderId
         every { name } returns senderName
         every { previewPicture } returns senderAvatar
+        every { availabilityStatus } returns UserAvailabilityStatus.NONE
     },
     ConnectionState.PENDING,
     LegalHoldStatus.DISABLED,

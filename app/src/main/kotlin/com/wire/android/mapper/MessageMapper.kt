@@ -67,25 +67,29 @@ class MessageMapper @Inject constructor(
                         },
                         isLegalHold = false,
                         time = message.date.uiMessageDateTime() ?: "",
-                        messageStatus = when {
-                            message.status == Message.Status.FAILED -> MessageStatus.SendFailure
-                            message.visibility == Message.Visibility.DELETED -> MessageStatus.Deleted
-                            message is Message.Regular && message.editStatus is Message.EditStatus.Edited ->
-                                MessageStatus.Edited(
-                                    isoFormatter.fromISO8601ToTimeFormat(
-                                        utcISO = (message.editStatus as Message.EditStatus.Edited).lastTimeStamp
-                                    )
-                                )
-                            else -> MessageStatus.Untouched
-                        },
+                        messageStatus = getMessageStatus(message),
                         messageId = message.id,
                         userId = sender?.id
                     ),
-                    userAvatarData = UserAvatarData(
-                        asset = sender?.previewAsset(wireSessionImageLoader),
-                        availabilityStatus = sender?.availabilityStatus ?: UserAvailabilityStatus.NONE
-                    )
+                    userAvatarData = getUserAvatarData(sender)
                 )
         }.filterNotNull()
     }
+
+    private fun getMessageStatus(message: Message) = when {
+        message.status == Message.Status.FAILED -> MessageStatus.SendFailure
+        message.visibility == Message.Visibility.DELETED -> MessageStatus.Deleted
+        message is Message.Regular && message.editStatus is Message.EditStatus.Edited ->
+            MessageStatus.Edited(
+                isoFormatter.fromISO8601ToTimeFormat(
+                    utcISO = (message.editStatus as Message.EditStatus.Edited).lastTimeStamp
+                )
+            )
+        else -> MessageStatus.Untouched
+    }
+
+    private fun getUserAvatarData(sender: User?) = UserAvatarData(
+        asset = sender?.previewAsset(wireSessionImageLoader),
+        availabilityStatus = sender?.availabilityStatus ?: UserAvailabilityStatus.NONE
+    )
 }

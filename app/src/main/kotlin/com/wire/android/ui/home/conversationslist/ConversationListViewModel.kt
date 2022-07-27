@@ -127,7 +127,8 @@ class ConversationListViewModel @Inject constructor(
             viewModelScope.launch {
                 when (updateConversationMutedStatus(conversationId, mutedConversationStatus, Date().time)) {
                     ConversationUpdateStatusResult.Failure -> errorState = ConversationOperationErrorState.MutingOperationErrorState()
-                    ConversationUpdateStatusResult.Success -> appLogger.d("MutedStatus changed for conversation: $conversationId")
+                    ConversationUpdateStatusResult.Success ->
+                        appLogger.d("MutedStatus changed for conversation: $conversationId to $mutedConversationStatus")
                 }
             }
         }

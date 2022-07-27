@@ -196,7 +196,7 @@ private fun ConversationDetails.toType(wireSessionImageLoader: WireSessionImageL
         ConversationItem.PrivateConversation(
             userAvatarData = UserAvatarData(
                 otherUser.previewPicture?.let { UserAvatarAsset(wireSessionImageLoader, it) },
-                UserAvailabilityStatus.NONE // TODO Get actual status
+                otherUser.availabilityStatus
             ),
             conversationInfo = ConversationInfo(
                 name = otherUser.name.orEmpty(),
@@ -212,7 +212,7 @@ private fun ConversationDetails.toType(wireSessionImageLoader: WireSessionImageL
         ConversationItem.ConnectionConversation(
             userAvatarData = UserAvatarData(
                 otherUser?.previewPicture?.let { UserAvatarAsset(wireSessionImageLoader, it) },
-                UserAvailabilityStatus.NONE // TODO Get actual status
+                otherUser?.availabilityStatus ?: UserAvailabilityStatus.NONE
             ),
             conversationInfo = ConversationInfo(
                 name = otherUser?.name.orEmpty(),

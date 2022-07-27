@@ -19,6 +19,7 @@ import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.User
+import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -80,7 +81,10 @@ class MessageMapper @Inject constructor(
                         messageId = message.id,
                         userId = sender?.id
                     ),
-                    userAvatarData = UserAvatarData(asset = sender?.previewAsset(wireSessionImageLoader))
+                    userAvatarData = UserAvatarData(
+                        asset = sender?.previewAsset(wireSessionImageLoader),
+                        availabilityStatus = sender?.availabilityStatus ?: UserAvailabilityStatus.NONE
+                    )
                 )
         }.filterNotNull()
     }

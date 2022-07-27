@@ -26,8 +26,8 @@ import com.wire.android.ui.home.conversations.DownloadedAssetDialogVisibilitySta
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.ui.home.conversations.model.MessageContent.AssetMessage
-import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.MessageSource
+import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
 import com.wire.android.util.FileManager
 import com.wire.android.util.ImageUtil
@@ -136,9 +136,12 @@ class ConversationViewModel @Inject constructor(
             }
             val conversationAvatar = when (conversationDetails) {
                 is ConversationDetails.OneOne ->
-                    ConversationAvatar.OneOne(conversationDetails.otherUser.previewPicture?.let {
-                        UserAvatarAsset(wireSessionImageLoader, it)
-                    })
+                    ConversationAvatar.OneOne(
+                        conversationDetails.otherUser.previewPicture?.let {
+                            UserAvatarAsset(wireSessionImageLoader, it)
+                        },
+                        conversationDetails.otherUser.availabilityStatus
+                    )
                 is ConversationDetails.Group ->
                     ConversationAvatar.Group(conversationDetails.conversation.id)
                 else -> ConversationAvatar.None
@@ -539,7 +542,7 @@ class ConversationViewModel @Inject constructor(
         viewModelScope.launch {
             when (messageSource) {
                 MessageSource.Self -> navigateToSelfProfile()
-                MessageSource.OtherUser -> when(conversationViewState.conversationDetailsData) {
+                MessageSource.OtherUser -> when (conversationViewState.conversationDetailsData) {
                     is ConversationDetailsData.Group -> navigateToOtherProfile(userId, conversationId)
                     else -> navigateToOtherProfile(userId)
                 }

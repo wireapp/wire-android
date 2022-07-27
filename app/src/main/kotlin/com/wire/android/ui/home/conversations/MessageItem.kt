@@ -85,7 +85,7 @@ fun MessageItem(
                 }
             }
             UserProfileAvatar(
-                avatarData = UserAvatarData(message.userAvatarData.asset, message.userAvatarData.availabilityStatus),
+                avatarData = message.userAvatarData,
                 clickable = avatarClickable
             )
             Spacer(Modifier.padding(start = dimensions().spacing16x - fullAvatarOuterPadding))

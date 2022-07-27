@@ -5,6 +5,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.stringResource
+import com.wire.android.R
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationOptionNavigation
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationTypeDetail
@@ -47,7 +49,7 @@ fun rememberConversationSheetState(
             with(conversationItem) {
                 ConversationSheetContent(
                     conversationId = conversationId,
-                    title = groupName,
+                    title = groupName.ifEmpty { stringResource(id = R.string.default_deleted_username) },
                     mutingConversationState = mutedStatus,
                     conversationTypeDetail = ConversationTypeDetail.Group(
                         conversationId = conversationId

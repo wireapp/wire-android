@@ -187,7 +187,7 @@ private fun ConversationScreen(
                 Scaffold(
                     topBar = {
                         ConversationScreenTopAppBar(
-                            title = conversationName,
+                            title = conversationName.ifEmpty { stringResource(id = R.string.default_deleted_username) },
                             avatar = {
                                 when (conversationAvatar) {
                                     is ConversationAvatar.Group ->

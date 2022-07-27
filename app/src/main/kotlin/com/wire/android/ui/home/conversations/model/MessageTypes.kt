@@ -75,6 +75,7 @@ internal fun MessageBody(messageBody: MessageBody, onLongClick: (() -> Unit)? = 
     )
 }
 
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MessageImage(

@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -68,7 +69,9 @@ internal fun MessageBody(messageBody: MessageBody, onLongClick: (() -> Unit)? = 
         text = messageBody.message.asString(),
         mask = Linkify.WEB_URLS or Linkify.EMAIL_ADDRESSES,
         color = MaterialTheme.colorScheme.onBackground,
-        onLongClick = onLongClick
+        onLongClick = onLongClick,
+        modifier = Modifier.defaultMinSize(minHeight = dimensions().spacing20x),
+        style = MaterialTheme.wireTypography.body01
     )
 }
 

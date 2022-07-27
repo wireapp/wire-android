@@ -32,11 +32,11 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
 import com.wire.android.R
+import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.MoreOptionIcon
 import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireTabRow
 import com.wire.android.ui.common.calculateCurrentTab
-import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topBarElevation
@@ -128,21 +128,23 @@ fun OtherProfileScreenContent(
             }
         },
         topBarFooter = {
-            AnimatedVisibility(
-                visible = !state.isDataLoading,
-                enter = fadeIn(),
-                exit = fadeOut(),
-            ) {
-                Surface(
-                    shadowElevation = tabBarElevationState,
-                    color = MaterialTheme.wireColorScheme.background
+            if (state.connectionStatus == ConnectionStatus.Connected) {
+                AnimatedVisibility(
+                    visible = !state.isDataLoading,
+                    enter = fadeIn(),
+                    exit = fadeOut(),
                 ) {
-                    WireTabRow(
-                        tabs = tabItems,
-                        selectedTabIndex = currentTabState,
-                        onTabChange = { scope.launch { pagerState.animateScrollToPage(it) } },
-                        divider = {} // no divider
-                    )
+                    Surface(
+                        shadowElevation = tabBarElevationState,
+                        color = MaterialTheme.wireColorScheme.background
+                    ) {
+                        WireTabRow(
+                            tabs = tabItems,
+                            selectedTabIndex = currentTabState,
+                            onTabChange = { scope.launch { pagerState.animateScrollToPage(it) } },
+                            divider = {} // no divider
+                        )
+                    }
                 }
             }
         },
@@ -165,7 +167,9 @@ fun OtherProfileScreenContent(
                                 }
                             }
                         }
-                    else -> OtherUserConnectionStatusInfo(state.connectionStatus, state.membership)
+                    else -> {
+                        OtherUserConnectionStatusInfo(state.connectionStatus, state.membership)
+                    }
                 }
             }
         },
@@ -191,7 +195,7 @@ fun OtherProfileScreenContent(
                     }
                 }
             }
-        }
+        }, isSwipeable = state.connectionStatus == ConnectionStatus.Connected
     )
 }
 

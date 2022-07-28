@@ -30,7 +30,7 @@ fun ConversationItemFactory(
     openNotificationsOptions: (ConversationItem) -> Unit,
     joinCall: (ConversationId) -> Unit,
 ) {
-    val onConversationItemClick = remember {
+    val onConversationItemClick = remember(conversation) {
         Clickable(
             enabled = true,
             onClick = {

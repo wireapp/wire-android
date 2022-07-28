@@ -19,6 +19,7 @@ import com.wire.android.navigation.VoyagerNavigationItem
 import com.wire.android.navigation.nav
 import com.wire.android.ui.home.conversations.details.participants.usecase.ConversationRoleData
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
+import com.wire.android.ui.userprofile.common.UsernameMapper.mapUserLabel
 import com.wire.android.util.EMPTY
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.Member
@@ -75,9 +76,10 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                     appLogger.d("Couldn't not find the user with provided id:${userId.value} and domain:${userId.domain}")
                     connectionOperationState = ConnectionOperationState.LoadUserInformationError()
                 }
-                is GetUserInfoResult.Success -> conversationId
-                    .let { if (it != null) observeConversationRoleForUser(it, userId) else flowOf(it) }
-                    .collect { loadViewState(result.otherUser, result.team, it) }
+                is GetUserInfoResult.Success ->
+                    conversationId
+                        .let { if (it != null) observeConversationRoleForUser(it, userId) else flowOf(it) }
+                        .collect { loadViewState(result.otherUser, result.team, it) }
             }
         }
     }
@@ -87,7 +89,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             isDataLoading = false,
             userAvatarAsset = otherUser.completePicture?.let { pic -> ImageAsset.UserAvatarAsset(wireSessionImageLoader, pic) },
             fullName = otherUser.name ?: String.EMPTY,
-            userName = otherUser.handle ?: String.EMPTY,
+            userName = mapUserLabel(otherUser),
             teamName = team?.name ?: String.EMPTY,
             email = otherUser.email ?: String.EMPTY,
             phone = otherUser.phone ?: String.EMPTY,

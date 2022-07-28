@@ -22,6 +22,7 @@ class CurrentScreenManager @Inject constructor() : DefaultLifecycleObserver {
 
     private val currentScreenState = MutableStateFlow<CurrentScreen>(CurrentScreen.SomeOther)
     private val isAppVisibleFlow = MutableStateFlow(true)
+    private val wasAppEverVisibleFlow = MutableStateFlow(false)
 
     suspend fun observeCurrentScreen(scope: CoroutineScope): StateFlow<CurrentScreen> = isAppVisibleFlow
         .flatMapLatest { isAppVisible ->
@@ -30,9 +31,15 @@ class CurrentScreenManager @Inject constructor() : DefaultLifecycleObserver {
         }
         .stateIn(scope)
 
+    /**
+     * Informs if the UI was visible at least once since the app started
+     */
+    fun appWasVisibleAtLeastOnceFlow(): StateFlow<Boolean> = wasAppEverVisibleFlow
+
     override fun onResume(owner: LifecycleOwner) {
         super.onResume(owner)
         isAppVisibleFlow.value = true
+        wasAppEverVisibleFlow.value = true
     }
 
     override fun onPause(owner: LifecycleOwner) {

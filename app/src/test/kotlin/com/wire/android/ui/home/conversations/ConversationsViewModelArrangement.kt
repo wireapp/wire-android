@@ -3,6 +3,7 @@ package com.wire.android.ui.home.conversations
 import android.content.res.Resources
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.TestDispatcherProvider
+import com.wire.android.config.mockUri
 import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.model.UserAvatarData
 import com.wire.android.navigation.NavigationManager
@@ -53,16 +54,24 @@ import okio.Path
 import okio.buffer
 
 internal class ConversationsViewModelArrangement {
+
+    val conversationId: ConversationId = ConversationId("some-dummy-value", "some.dummy.domain")
+
     init {
         // Tests setup
-        val dummyConversationId = "some-dummy-value@some.dummy.domain"
         MockKAnnotations.init(this, relaxUnitFun = true)
-        every { savedStateHandle.get<String>(any()) } returns dummyConversationId
+        mockUri()
+        every { savedStateHandle.get<String>(any()) } returns conversationId.toString()
         every { savedStateHandle.set(any(), any<String>()) } returns Unit
 
         // Default empty values
         coEvery { observeConversationDetails(any()) } returns flowOf()
         coEvery { getSelfUserTeam() } returns flowOf()
+        coEvery { getMessagesForConversationUseCase(any()) } returns flowOf(listOf())
+        every { isFileSharingEnabledUseCase() } returns FileSharingStatus(null, null)
+        coEvery { observeOngoingCallsUseCase() } returns flowOf(listOf())
+        coEvery { observeEstablishedCallsUseCase() } returns flowOf(listOf())
+
     }
 
     @MockK
@@ -117,7 +126,7 @@ internal class ConversationsViewModelArrangement {
     private lateinit var wireSessionImageLoader: WireSessionImageLoader
 
     @MockK
-    private lateinit var observeEstablishedCalls: ObserveEstablishedCallsUseCase
+    private lateinit var observeEstablishedCallsUseCase: ObserveEstablishedCallsUseCase
 
     @MockK
     private lateinit var endCall: EndCallUseCase
@@ -147,7 +156,7 @@ internal class ConversationsViewModelArrangement {
             answerCall = answerCallUseCase,
             wireSessionImageLoader = wireSessionImageLoader,
             kaliumFileSystem = fakeKaliumFileSystem,
-            observeEstablishedCalls = observeEstablishedCalls,
+            observeEstablishedCalls = observeEstablishedCallsUseCase,
             endCall = endCall
         )
     }
@@ -156,7 +165,7 @@ internal class ConversationsViewModelArrangement {
         coEvery { isFileSharingEnabledUseCase() } returns FileSharingStatus(null, null)
         coEvery { getMessagesForConversationUseCase(any()) } returns messagesChannel.consumeAsFlow()
         coEvery { observeOngoingCallsUseCase() } returns emptyFlow()
-        coEvery { observeEstablishedCalls() } returns emptyFlow()
+        coEvery { observeEstablishedCallsUseCase() } returns emptyFlow()
         return this
     }
 

@@ -5,11 +5,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.wire.android.model.Clickable
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.UserProfileAvatar
@@ -37,10 +39,8 @@ fun HomeTopBar(
         actions = {
             UserProfileAvatar(
                 avatarData = UserAvatarData(avatarAsset, status),
-                isClickable = true
-            ) {
-                onNavigateToUserProfile()
-            }
+                clickable = remember { Clickable(enabled = true) { onNavigateToUserProfile() } }
+            )
         },
         elevation = if (currentNavigationItem.isSearchable) 0.dp else dimensions().topBarElevationHeight,
     ) {

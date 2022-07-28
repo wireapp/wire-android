@@ -52,7 +52,7 @@ fun ConversationRouterHomeBridge(
 
     fun openConversationBottomSheet(
         conversationItem: ConversationItem,
-        conversationOptionNavigation: ConversationOptionNavigation
+        conversationOptionNavigation: ConversationOptionNavigation = ConversationOptionNavigation.Home
     ) {
         onHomeBottomSheetContentChanged {
             val conversationState = rememberConversationSheetState(
@@ -98,8 +98,7 @@ fun ConversationRouterHomeBridge(
         openNewConversation = viewModel::openNewConversation,
         onEditConversationItem = { conversationItem ->
             openConversationBottomSheet(
-                conversationItem = conversationItem,
-                conversationOptionNavigation = ConversationOptionNavigation.Home
+                conversationItem = conversationItem
             )
         },
         onScrollPositionProviderChanged = onScrollPositionProviderChanged,

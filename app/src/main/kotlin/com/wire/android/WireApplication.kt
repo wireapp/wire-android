@@ -1,7 +1,6 @@
 package com.wire.android
 
 import android.app.Application
-import android.util.Log
 import androidx.work.Configuration
 import co.touchlab.kermit.platformLogWriter
 import com.datadog.android.Datadog
@@ -16,6 +15,7 @@ import com.wire.android.util.DataDogLogger
 import com.wire.android.util.LogFileWriter
 import com.wire.android.util.extension.isGoogleServicesAvailable
 import com.wire.android.util.getDeviceId
+import com.wire.android.util.lifecycle.ConnectionPolicyManager
 import com.wire.kalium.logger.KaliumLogLevel
 import com.wire.kalium.logger.KaliumLogger
 import com.wire.kalium.logic.CoreLogger
@@ -48,6 +48,9 @@ class WireApplication : Application(), Configuration.Provider {
     @Inject
     lateinit var logFileWriter: LogFileWriter
 
+    @Inject
+    lateinit var connectionPolicyManager: ConnectionPolicyManager
+
     override fun getWorkManagerConfiguration(): Configuration {
         val myWorkerFactory = WrapperWorkerFactory(coreLogic)
         return Configuration.Builder()
@@ -67,7 +70,10 @@ class WireApplication : Application(), Configuration.Provider {
             enableLoggingAndInitiateFileLogging()
         }
 
+        // TODO: Can be handled in one of Sync steps
         coreLogic.updateApiVersionsScheduler.schedulePeriodicApiVersionUpdate()
+
+        connectionPolicyManager.startObservingAppLifecycle()
     }
 
     private fun enableLoggingAndInitiateFileLogging() {
@@ -101,7 +107,6 @@ class WireApplication : Application(), Configuration.Provider {
         Datadog.initialize(this, credentials, configuration, TrackingConsent.GRANTED)
         Datadog.setUserInfo(id = getDeviceId(this))
         GlobalRum.registerIfAbsent(RumMonitor.Builder().build())
-        Datadog.setVerbosity(Log.VERBOSE)
     }
 
     override fun onLowMemory() {

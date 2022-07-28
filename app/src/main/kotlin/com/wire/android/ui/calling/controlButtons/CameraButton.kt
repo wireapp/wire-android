@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -58,7 +57,10 @@ fun CameraButton(
                     R.drawable.ic_camera_off
                 }
             ),
-            contentDescription = stringResource(id = R.string.calling_turn_camera_on_off),
+            contentDescription = stringResource(
+                id = if (isCameraOn) R.string.content_description_calling_turn_camera_off
+                else R.string.content_description_calling_turn_camera_on
+            ),
         )
     }
 }

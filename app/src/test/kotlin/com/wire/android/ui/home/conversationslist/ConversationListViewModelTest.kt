@@ -4,6 +4,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
+import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.model.UserAvatarData
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationManager
@@ -71,6 +72,7 @@ class ConversationListViewModelTest {
                 observeConversationsAndConnections,
                 TestDispatcherProvider(),
                 wireSessionImageLoader,
+                UserTypeMapper(),
                 homeSnackbarManager
             )
 

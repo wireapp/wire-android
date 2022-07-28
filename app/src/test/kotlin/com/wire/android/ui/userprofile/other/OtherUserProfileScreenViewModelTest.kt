@@ -5,7 +5,6 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.mockUri
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
-import com.wire.android.navigation.EXTRA_USER_DOMAIN
 import com.wire.android.navigation.EXTRA_USER_ID
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.details.participants.usecase.ConversationRoleData
@@ -14,7 +13,6 @@ import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.CoreFailure.Unknown
 import com.wire.kalium.logic.data.conversation.Conversation
-import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.Member
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.conversation.ProtocolInfo
@@ -39,7 +37,6 @@ import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversatio
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
 import com.wire.kalium.logic.feature.user.GetUserInfoUseCase
 import io.mockk.Called
-import io.mockk.InternalPlatformDsl.toStr
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify

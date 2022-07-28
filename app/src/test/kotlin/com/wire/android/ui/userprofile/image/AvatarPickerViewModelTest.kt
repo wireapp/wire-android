@@ -5,13 +5,14 @@ import android.net.Uri
 import androidx.compose.material3.ExperimentalMaterial3Api
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
-import com.wire.android.config.mockUri
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerViewModel
 import com.wire.android.util.AvatarImageManager
+import com.wire.android.util.ImageUtil
 import com.wire.android.util.copyToTempPath
+import com.wire.android.util.resampleImageAndCopyToTempPath
 import com.wire.kalium.logic.CoreFailure.Unknown
 import com.wire.kalium.logic.data.id.parseIntoQualifiedID
 import com.wire.kalium.logic.data.user.UserAssetId
@@ -58,7 +59,6 @@ class AvatarPickerViewModelTest {
         runTest {
             // Given
             val uploadedAssetId = "some-dummy-value@some-dummy-domain".parseIntoQualifiedID()
-            val mockedContext = mockk<Context>()
 
             val (arrangement, avatarPickerViewModel) = Arrangement()
                 .withSuccessfulInitialAvatarLoad()
@@ -66,11 +66,11 @@ class AvatarPickerViewModelTest {
                 .arrange()
 
             // When
-            avatarPickerViewModel.uploadNewPickedAvatarAndBack(mockedContext)
+            avatarPickerViewModel.uploadNewPickedAvatarAndBack()
 
             // Then
-            with(arrangement) {
-                coVerify {
+            coVerify {
+                with(arrangement) {
                     uploadUserAvatarUseCase(any(), any())
                     userDataStore.updateUserAvatarAssetId(uploadedAssetId.toString())
                     avatarPickerViewModel.navigateBack()
@@ -82,60 +82,43 @@ class AvatarPickerViewModelTest {
     @Test
     fun `given a valid picked image, before uploading it, it gets resampled correctly`() = runTest {
         // Given
-        val newAvatarUri = mockk<Uri>()
-        val processedAvatarUri = mockk<Uri>()
+        val uploadedAssetId = "some-dummy-value@some-dummy-domain".parseIntoQualifiedID()
+        val pickedUri = mockk<Uri>()
 
         val (arrangement, avatarPickerViewModel) = Arrangement()
             .withSuccessfulInitialAvatarLoad()
-            .withSuccessfulProcessedAvatar(newAvatarUri, processedAvatarUri)
+            .withSuccessfulAvatarUpload(uploadedAssetId)
+            .withPickedUri(pickedUri)
             .arrange()
 
         // When
-        avatarPickerViewModel.processAvatar(newAvatarUri)
+        avatarPickerViewModel.uploadNewPickedAvatarAndBack()
 
         // Then
         with(arrangement) {
             coVerify {
-                avatarImageManager.postProcessAvatar(newAvatarUri)
+                avatarImageManager.getWritableAvatarUri(match { it == fakeKaliumFileSystem.selfUserAvatarPath() })
+                pickedUri.resampleImageAndCopyToTempPath(
+                    context,
+                    fakeKaliumFileSystem.selfUserAvatarPath(),
+                    ImageUtil.ImageSizeClass.Small,
+                    dispatcherProvider
+                )
             }
-            assertEquals(processedAvatarUri, avatarPickerViewModel.pictureState.avatarUri)
-        }
-    }
-
-    @Test
-    fun `given a valid picked image, when resample fails then the avatar gets reset to the original picked Uri`() = runTest {
-        // Given
-        val newAvatarUri = mockk<Uri>()
-
-        val (arrangement, avatarPickerViewModel) = Arrangement()
-            .withSuccessfulInitialAvatarLoad()
-            .withErrorProcessedAvatar(newAvatarUri)
-            .arrange()
-
-        // When
-        avatarPickerViewModel.processAvatar(newAvatarUri)
-
-        // Then
-        with(arrangement) {
-            coVerify {
-                avatarImageManager.postProcessAvatar(newAvatarUri)
-            }
-            assertEquals(newAvatarUri, avatarPickerViewModel.pictureState.avatarUri)
+            assertEquals(pickedUri, avatarPickerViewModel.pictureState.avatarUri)
         }
     }
 
     @Test
     fun `given a valid image, when uploading the asset fails, then should emit an error`() = runTest {
         // Given
-        val mockedContext = mockk<Context>()
-
         val (arrangement, avatarPickerViewModel) = Arrangement()
             .withSuccessfulInitialAvatarLoad()
             .withErrorUploadResponse()
             .arrange()
 
         // When
-        avatarPickerViewModel.uploadNewPickedAvatarAndBack(mockedContext)
+        avatarPickerViewModel.uploadNewPickedAvatarAndBack()
 
         // Then
         with(arrangement) {
@@ -150,14 +133,13 @@ class AvatarPickerViewModelTest {
     @Test
     fun `given there is an error, when calling clear messages, then should clean the error messages codes`() = runTest {
         // Given
-        val mockedContext = mockk<Context>()
         val (_, avatarPickerViewModel) = Arrangement()
             .withSuccessfulInitialAvatarLoad()
             .withErrorUploadResponse()
             .arrange()
 
         // When
-        avatarPickerViewModel.uploadNewPickedAvatarAndBack(mockedContext)
+        avatarPickerViewModel.uploadNewPickedAvatarAndBack()
         avatarPickerViewModel.clearErrorMessage()
 
         // Then
@@ -176,38 +158,54 @@ class AvatarPickerViewModelTest {
 
         val avatarImageManager = mockk<AvatarImageManager>()
 
+        val context = mockk<Context>()
+
+        val dispatcherProvider = TestDispatcherProvider()
+
+        val viewModel by lazy {
+            AvatarPickerViewModel(
+                navigationManager,
+                userDataStore,
+                getAvatarAsset,
+                uploadUserAvatarUseCase,
+                avatarImageManager,
+                dispatcherProvider,
+                fakeKaliumFileSystem,
+                context
+            )
+        }
+
         private val mockUri = mockk<Uri>()
 
         fun withSuccessfulInitialAvatarLoad(): Arrangement {
             MockKAnnotations.init(this, relaxUnitFun = true)
-            mockUri()
-            mockkStatic(Uri::copyToTempPath)
+            mockkStatic(Uri::class)
+            mockkStatic(Uri::resampleImageAndCopyToTempPath)
+            every { Uri.parse(any()) } returns mockUri
             val fakeAvatarData = "some-dummy-avatar".toByteArray()
             val avatarPath = fakeKaliumFileSystem.selfUserAvatarPath()
             fakeKaliumFileSystem.sink(avatarPath).buffer().use {
                 it.write(fakeAvatarData)
             }
             coEvery { getAvatarAsset(any()) } returns PublicAssetResult.Success(avatarPath)
-            every { userDataStore.avatarAssetId } returns flow { emit("avatar-value@avatar-domain") }
             coEvery { avatarImageManager.getWritableAvatarUri(any()) } returns mockUri
+            coEvery { navigationManager.navigateBack() } returns Unit
+            coEvery { any<Uri>().resampleImageAndCopyToTempPath(any(), any(), any(), any()) } returns 1L
+            every { userDataStore.avatarAssetId } returns flow { emit("avatar-value@avatar-domain") }
             every { mockUri.copyToTempPath(any(), any()) } returns 1L
 
-            return this
-        }
-
-        fun withSuccessfulProcessedAvatar(pickedUri: Uri, processedUri: Uri): Arrangement {
-            coEvery { avatarImageManager.postProcessAvatar(pickedUri) } returns processedUri
-            return this
-        }
-
-        fun withErrorProcessedAvatar(pickedUri: Uri): Arrangement {
-            coEvery { avatarImageManager.postProcessAvatar(pickedUri) } returns null
             return this
         }
 
         fun withSuccessfulAvatarUpload(expectedUserAssetId: UserAssetId): Arrangement {
             coEvery { userDataStore.updateUserAvatarAssetId(any()) } returns Unit
             coEvery { uploadUserAvatarUseCase(any(), any()) } returns UploadAvatarResult.Success(expectedUserAssetId)
+
+            return this
+        }
+
+        fun withPickedUri(pickedUri: Uri): Arrangement {
+            viewModel.updatePickedAvatarUri(pickedUri)
 
             return this
         }
@@ -219,15 +217,7 @@ class AvatarPickerViewModelTest {
         }
 
         fun arrange() =
-            this to AvatarPickerViewModel(
-                navigationManager,
-                userDataStore,
-                getAvatarAsset,
-                uploadUserAvatarUseCase,
-                avatarImageManager,
-                TestDispatcherProvider(),
-                fakeKaliumFileSystem
-            )
+            this to viewModel
     }
 
     companion object {

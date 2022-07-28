@@ -1,7 +1,6 @@
 package com.wire.android
 
 import android.app.Application
-import android.util.Log
 import androidx.work.Configuration
 import co.touchlab.kermit.platformLogWriter
 import com.datadog.android.Datadog
@@ -108,7 +107,6 @@ class WireApplication : Application(), Configuration.Provider {
         Datadog.initialize(this, credentials, configuration, TrackingConsent.GRANTED)
         Datadog.setUserInfo(id = getDeviceId(this))
         GlobalRum.registerIfAbsent(RumMonitor.Builder().build())
-        Datadog.setVerbosity(Log.VERBOSE)
     }
 
     override fun onLowMemory() {

@@ -3,8 +3,8 @@ package com.wire.android.ui.authentication.welcome
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.mockUri
 import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.navigation.VoyagerNavigationItem
 import io.mockk.MockKAnnotations
 import io.mockk.coVerify
 import io.mockk.impl.annotations.MockK
@@ -34,7 +34,7 @@ class WelcomeViewModelTest {
     fun `given a navigation, when it's go to login, then should emit NavigationCommand login`() = runTest {
         welcomeViewModel.goToLogin()
 
-        coVerify(exactly = 1) { navigationManager.navigate(NavigationCommand(NavigationItem.Login.getRouteWithArgs())) }
+        coVerify(exactly = 1) { navigationManager.navigate(NavigationCommand(VoyagerNavigationItem.Login())) }
     }
 
     @Test
@@ -42,14 +42,14 @@ class WelcomeViewModelTest {
         runTest {
             welcomeViewModel.goToCreatePrivateAccount()
 
-            coVerify(exactly = 1) { navigationManager.navigate(NavigationCommand(NavigationItem.CreatePersonalAccount.getRouteWithArgs())) }
+            coVerify(exactly = 1) { navigationManager.navigate(NavigationCommand(VoyagerNavigationItem.CreatePersonalAccount)) }
         }
 
     @Test
     fun `given a navigation, when it's go to create enterprise account, then should emit NavigationCommand create team`() = runTest {
         welcomeViewModel.goToCreateEnterpriseAccount()
 
-        coVerify(exactly = 1) { navigationManager.navigate(NavigationCommand(NavigationItem.CreateTeam.getRouteWithArgs())) }
+        coVerify(exactly = 1) { navigationManager.navigate(NavigationCommand(VoyagerNavigationItem.CreateTeam)) }
     }
 
     @Test

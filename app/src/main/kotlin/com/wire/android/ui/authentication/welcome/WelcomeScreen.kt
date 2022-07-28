@@ -58,13 +58,21 @@ import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.scan
 
 @Composable
-fun WelcomeScreen(viewModel: WelcomeViewModel = hiltViewModel()) {
-    WelcomeContent(viewModel)
+fun WelcomeScreen(viewModel: WelcomeViewModel) {
+    WelcomeContent(
+        viewModel::goToLogin,
+        viewModel::goToCreateEnterpriseAccount,
+        viewModel::goToCreatePrivateAccount
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun WelcomeContent(viewModel: WelcomeViewModel) {
+private fun WelcomeContent(
+    goToLogin: () -> Unit,
+    goToCreateEnterpriseAccount: () -> Unit,
+    goToCreatePrivateAccount: () -> Unit
+) {
     Scaffold(modifier = Modifier.padding(vertical = MaterialTheme.wireDimensions.welcomeVerticalPadding)) { internalPadding ->
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -90,19 +98,14 @@ private fun WelcomeContent(viewModel: WelcomeViewModel) {
                     horizontal = MaterialTheme.wireDimensions.welcomeButtonHorizontalPadding
                 )
             ) {
-                LoginButton {
-                    viewModel.goToLogin()
-                }
-                CreateEnterpriseAccountButton {
-                    viewModel.goToCreateEnterpriseAccount()
-                }
+                LoginButton(goToLogin)
+                CreateEnterpriseAccountButton(goToCreateEnterpriseAccount)
             }
 
-            WelcomeFooter(modifier = Modifier
-                .padding(horizontal = MaterialTheme.wireDimensions.welcomeTextHorizontalPadding),
-                onPrivateAccountClick = {
-                    viewModel.goToCreatePrivateAccount()
-                })
+            WelcomeFooter(
+                modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.welcomeTextHorizontalPadding),
+                onPrivateAccountClick = goToCreatePrivateAccount
+            )
         }
     }
 }
@@ -258,7 +261,7 @@ private fun shouldJumpToEnd(previousPage: Int, currentPage: Int, lastPage: Int):
 @Composable
 private fun WelcomeScreenPreview() {
     WireTheme(isPreview = true) {
-        WelcomeContent(hiltViewModel())
+        WelcomeContent({}, {}, {})
     }
 }
 

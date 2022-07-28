@@ -3,10 +3,10 @@ package com.wire.android.ui.calling
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.navigation.EXTRA_CONVERSATION_ID
+import com.wire.android.di.AssistedViewModel
+import com.wire.android.navigation.NavQualifiedId
 import com.wire.android.navigation.NavigationManager
-import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.parseIntoQualifiedID
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -17,14 +17,12 @@ import javax.inject.Inject
 @Suppress("LongParameterList")
 @HiltViewModel
 class OngoingCallViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
+    override val savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
     private val establishedCall: ObserveEstablishedCallsUseCase
-) : ViewModel() {
+) : ViewModel(), AssistedViewModel<NavQualifiedId> {
 
-    val conversationId: QualifiedID = savedStateHandle
-        .get<String>(EXTRA_CONVERSATION_ID)!!
-        .parseIntoQualifiedID()
+    val conversationId: ConversationId = param.qualifiedId
 
     init {
         viewModelScope.launch {

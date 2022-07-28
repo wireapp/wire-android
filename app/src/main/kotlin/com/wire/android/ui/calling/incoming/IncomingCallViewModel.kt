@@ -4,15 +4,16 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
+import com.wire.android.di.AssistedViewModel
 import com.wire.android.media.CallRinger
 import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.EXTRA_CONVERSATION_ID
+import com.wire.android.navigation.NavQualifiedId
 import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.navigation.VoyagerNavigationItem
+import com.wire.android.navigation.nav
 import com.wire.android.notification.CallNotificationManager
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.id.parseIntoQualifiedID
 import com.wire.kalium.logic.feature.call.AnswerCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.GetIncomingCallsUseCase
@@ -27,7 +28,7 @@ import javax.inject.Inject
 @Suppress("LongParameterList")
 @HiltViewModel
 class IncomingCallViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
+    override val savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
     private val incomingCalls: GetIncomingCallsUseCase,
     private val rejectCall: RejectCallUseCase,
@@ -36,9 +37,10 @@ class IncomingCallViewModel @Inject constructor(
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val endCall: EndCallUseCase,
     notificationManager: CallNotificationManager
-) : ViewModel() {
+) : ViewModel(), AssistedViewModel<NavQualifiedId> {
 
-    private val incomingCallConversationId: ConversationId = savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!.parseIntoQualifiedID()
+    val conversationId: ConversationId = param.qualifiedId
+
     lateinit var observeIncomingCallJob: Job
     var establishedCallConversationId: ConversationId? = null
 
@@ -66,7 +68,7 @@ class IncomingCallViewModel @Inject constructor(
 
     private suspend fun observeIncomingCall() {
         incomingCalls().collect { calls ->
-            calls.find { call -> call.conversationId == incomingCallConversationId }.also {
+            calls.find { call -> call.conversationId == conversationId }.also {
                 if (it == null) {
                     onCallClosed()
                 }
@@ -84,7 +86,7 @@ class IncomingCallViewModel @Inject constructor(
     fun declineCall() {
         viewModelScope.launch {
             observeIncomingCallJob.cancel()
-            launch { rejectCall(conversationId = incomingCallConversationId) }
+            launch { rejectCall(conversationId = conversationId) }
             launch {
                 navigationManager.navigateBack()
                 callRinger.stop()
@@ -105,13 +107,13 @@ class IncomingCallViewModel @Inject constructor(
             }
             observeIncomingCallJob.cancel()
 
-            acceptCall(conversationId = incomingCallConversationId)
+            acceptCall(conversationId = conversationId)
             // We need to add some delay, for the case of joining a call while there is an active one,
             // to get all values returned by avs callbacks
             delay(delayTime)
             navigationManager.navigate(
                 command = NavigationCommand(
-                    destination = NavigationItem.OngoingCall.getRouteWithArgs(listOf(incomingCallConversationId)),
+                    destination = VoyagerNavigationItem.OngoingCall(conversationId.nav()),
                     backStackMode = backStackNode
                 )
             )

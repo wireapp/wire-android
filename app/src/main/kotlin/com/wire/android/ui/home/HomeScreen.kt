@@ -1,5 +1,6 @@
 package com.wire.android.ui.home
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ColumnScope
@@ -18,17 +19,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.RectangleShape
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
-import com.wire.android.navigation.HomeNavigationGraph
-import com.wire.android.navigation.HomeNavigationItem
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topappbar.search.AppTopBarWithSearchBar
+import com.wire.android.ui.home.conversationslist.ConversationRouterHomeBridge
 import com.wire.android.ui.home.sync.SyncStateViewModel
 
 @OptIn(
@@ -37,17 +38,18 @@ import com.wire.android.ui.home.sync.SyncStateViewModel
     ExperimentalMaterial3Api::class
 )
 @Composable
-fun HomeScreen(startScreen: String?, viewModel: HomeViewModel, syncViewModel: SyncStateViewModel) {
+fun HomeScreen(viewModel: HomeViewModel, syncViewModel: SyncStateViewModel, homeTabsViewModels: HomeTabsViewModels) {
     viewModel.checkRequirements()
     val homeUIState = rememberHomeUIState()
     val coroutineScope = rememberCoroutineScope()
     val homeState = syncViewModel.homeState
     val snackbarHostState = remember { SnackbarHostState() }
 
-    handleSnackBarMessage(snackbarHostState, viewModel.snackbarMessageState, viewModel::clearSnackbarMessage)
-
-    LaunchedEffect(viewModel.savedStateHandle) {
-        viewModel.checkPendingActions()
+    val context = LocalContext.current
+    LaunchedEffect(viewModel) {
+        viewModel.snackbarMessageFlow.collect {
+            snackbarHostState.showSnackbar(it.asString(context.resources))
+        }
     }
 
     with(homeUIState) {
@@ -59,11 +61,11 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel, syncViewModel: Sy
             drawerContent = {
                 HomeDrawer(
                     drawerState = drawerState,
-                    currentRoute = currentNavigationItem.route,
-                    homeNavController = navController,
-                    topItems = HomeNavigationItem.all,
+                    topItems = HomeItem.all,
                     scope = coroutineScope,
-                    viewModel = viewModel
+                    currentItem = homeUIState.currentNavigationItem,
+                    navigateTo = viewModel::navigateTo,
+                    openHomeItem = { homeUIState.currentNavigationItem = it }
                 )
             },
             gesturesEnabled = drawerState.isOpen
@@ -85,10 +87,7 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel, syncViewModel: Sy
                 },
                 currentNavigationItem = homeUIState.currentNavigationItem,
                 homeNavigationGraph = {
-                    HomeNavigationGraph(
-                        homeState = homeUIState,
-                        startScreen = startScreen
-                    )
+                    HomeContent(homeState = homeUIState, homeTabsViewModels = homeTabsViewModels)
                 }
             )
         }
@@ -120,7 +119,7 @@ fun HomeContent(
     homeBottomSheetState: ModalBottomSheetState,
     snackbarHostState: SnackbarHostState,
     homeBottomSheetContent: @Composable (ColumnScope.() -> Unit)?,
-    currentNavigationItem: HomeNavigationItem,
+    currentNavigationItem: HomeItem,
     homeNavigationGraph: @Composable () -> Unit,
     homeTopBar: @Composable () -> Unit
 ) {
@@ -185,33 +184,8 @@ fun HomeContent(
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
-fun HomeNavigationGraph(startScreen: String?, homeState: HomeUIState) {
-    val startDestination = HomeNavigationItem.all.firstOrNull { startScreen == it.route }?.route
-
-    HomeNavigationGraph(
-        homeUIState = homeState,
-        navController = homeState.navController,
-        startDestination = startDestination
-    )
-}
-
-@Composable
-private fun handleSnackBarMessage(
-    snackbarHostState: SnackbarHostState,
-    conversationListSnackBarState: HomeSnackbarState,
-    onMessageShown: () -> Unit
-) {
-    conversationListSnackBarState.let { messageType ->
-        val message = when (messageType) {
-            is HomeSnackbarState.SuccessConnectionIgnoreRequest ->
-                stringResource(id = R.string.connection_request_ignored, messageType.userName)
-            HomeSnackbarState.None -> ""
-        }
-        LaunchedEffect(messageType) {
-            if (messageType != HomeSnackbarState.None) {
-                snackbarHostState.showSnackbar(message)
-                onMessageShown()
-            }
-        }
+fun HomeContent(homeState: HomeUIState, homeTabsViewModels: HomeTabsViewModels) {
+    Crossfade(targetState = homeState.currentNavigationItem) { currentNavigationItem ->
+        currentNavigationItem.content(homeState, homeTabsViewModels)
     }
 }

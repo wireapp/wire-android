@@ -5,9 +5,8 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.mockUri
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
-import com.wire.android.navigation.NavigationItemDestinationsRoutes
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.navigation.VoyagerNavigationItem
 import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.data.client.Client
@@ -119,7 +118,7 @@ class RegisterDeviceViewModelTest {
         }
         coVerify(exactly = 1) { registerTokenUseCase(any(), CLIENT.id) }
         coVerify(exactly = 1) {
-            navigationManager.navigate(NavigationCommand(NavigationItemDestinationsRoutes.HOME, BackStackMode.CLEAR_WHOLE))
+            navigationManager.navigate(NavigationCommand(VoyagerNavigationItem.Home, BackStackMode.CLEAR_WHOLE))
         }
     }
 
@@ -142,7 +141,7 @@ class RegisterDeviceViewModelTest {
             registerClientUseCase(any())
         }
         coVerify(exactly = 1) {
-            navigationManager.navigate(NavigationCommand(NavigationItem.RemoveDevices.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
+            navigationManager.navigate(NavigationCommand(VoyagerNavigationItem.RemoveDevices, BackStackMode.CLEAR_WHOLE))
         }
     }
 

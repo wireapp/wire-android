@@ -53,6 +53,10 @@ fun GroupConversationDetailsScreen(viewModel: GroupConversationDetailsViewModel)
         openFullListPressed = viewModel::navigateToFullParticipantsList,
         onProfilePressed = viewModel::openProfile,
         onAddParticipantsPressed = viewModel::navigateToAddParticants,
+        onGuestUpdate = viewModel::onGuestUpdate,
+        onServicesUpdate = viewModel::onServicesUpdate,
+        onGuestDialogConfirm = viewModel::onGuestDialogConfirm,
+        onGuestDialogDismiss = viewModel::onGuestDialogDismiss,
         groupOptionsState = viewModel.groupOptionsState,
         groupParticipantsState = viewModel.groupParticipantsState
     )
@@ -64,7 +68,11 @@ private fun GroupConversationDetailsContent(
     onBackPressed: () -> Unit,
     openFullListPressed: () -> Unit,
     onProfilePressed: (UIParticipant) -> Unit,
-    onAddParticipantsPressed : () -> Unit,
+    onAddParticipantsPressed: () -> Unit,
+    onGuestUpdate: (Boolean) -> Unit,
+    onServicesUpdate: (Boolean) -> Unit,
+    onGuestDialogConfirm: () -> Unit,
+    onGuestDialogDismiss: () -> Unit,
     groupOptionsState: GroupConversationOptionsState,
     groupParticipantsState: GroupConversationParticipantsState
 ) {
@@ -112,6 +120,11 @@ private fun GroupConversationDetailsContent(
             ) { pageIndex ->
                 when (GroupConversationDetailsTabItem.values()[pageIndex]) {
                     GroupConversationDetailsTabItem.OPTIONS -> GroupConversationOptions(
+                        groupOptionsState = groupOptionsState,
+                        onGuestUpdate = onGuestUpdate,
+                        onServicesUpdate = onServicesUpdate,
+                        onGuestDialogConfirm = onGuestDialogConfirm,
+                        onGuestDialogDismiss = onGuestDialogDismiss,
                         lazyListState = lazyListStates[pageIndex]
                     )
                     GroupConversationDetailsTabItem.PARTICIPANTS -> GroupConversationParticipants(
@@ -149,6 +162,10 @@ private fun GroupConversationDetailsPreview() {
             openFullListPressed = {},
             onProfilePressed = {},
             onAddParticipantsPressed = {},
+            onGuestUpdate = {},
+            onServicesUpdate = {},
+            onGuestDialogConfirm = {},
+            onGuestDialogDismiss = {},
             groupOptionsState = GroupConversationOptionsState(groupName = "Group name"),
             groupParticipantsState = GroupConversationParticipantsState.PREVIEW,
         )

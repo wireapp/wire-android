@@ -37,8 +37,6 @@ import com.wire.android.ui.home.conversations.search.widget.SearchFailureBox
 
 private const val DEFAULT_SEARCH_RESULT_ITEM_SIZE = 4
 
-data class SearchOpenUserProfile(val contact: Contact)
-
 @Composable
 fun SearchPeopleScreen(
     scrollPositionProvider: (() -> Int) -> Unit,
@@ -49,7 +47,7 @@ fun SearchPeopleScreen(
     contactsAddedToGroup: List<Contact>,
     onAddToGroup: (Contact) -> Unit,
     onRemoveFromGroup: (Contact) -> Unit,
-    onOpenUserProfile: (SearchOpenUserProfile) -> Unit,
+    onOpenUserProfile: (Contact) -> Unit,
     onNewGroupClicked: () -> Unit,
     onAddContactClicked: (Contact) -> Unit,
 ) {
@@ -86,7 +84,7 @@ private fun SearchResult(
     contactsAddedToGroup: List<Contact>,
     onAddToGroup: (Contact) -> Unit,
     onRemoveContactFromGroup: (Contact) -> Unit,
-    onOpenUserProfile: (SearchOpenUserProfile) -> Unit,
+    onOpenUserProfile: (Contact) -> Unit,
     onNewGroupClicked: () -> Unit,
     onAddContactClicked: (Contact) -> Unit,
 ) {
@@ -111,7 +109,7 @@ private fun SearchResult(
                 contactSearchResult = knownContactSearchResult,
                 showAllItems = searchPeopleScreenState.contactsAllResultsCollapsed,
                 onShowAllButtonClicked = { searchPeopleScreenState.toggleShowAllContactsResult() },
-                onOpenUserProfile = { contact -> onOpenUserProfile(SearchOpenUserProfile(contact)) },
+                onOpenUserProfile = { contact -> onOpenUserProfile(contact) },
             )
             externalSearchResults(
                 searchTitle = context.getString(R.string.label_public_wire),
@@ -119,7 +117,7 @@ private fun SearchResult(
                 contactSearchResult = publicContactSearchResult,
                 showAllItems = searchPeopleScreenState.publicResultsCollapsed,
                 onShowAllButtonClicked = { searchPeopleScreenState.toggleShowAllPublicResult() },
-                onOpenUserProfile = { externalUser -> onOpenUserProfile(SearchOpenUserProfile(externalUser)) },
+                onOpenUserProfile = { externalUser -> onOpenUserProfile(externalUser) },
                 onAddContactClicked = onAddContactClicked
             )
         }

@@ -23,6 +23,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.ui.calling.CallState
+import com.wire.android.ui.calling.ConversationName
 import com.wire.android.ui.calling.SharedCallingViewModel
 import com.wire.android.ui.calling.common.CallVideoPreview
 import com.wire.android.ui.calling.common.CallerDetails
@@ -39,8 +40,8 @@ import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothReque
 
 @Composable
 fun IncomingCallScreen(
-    sharedCallingViewModel: SharedCallingViewModel = hiltViewModel(),
-    incomingCallViewModel: IncomingCallViewModel = hiltViewModel()
+    sharedCallingViewModel: SharedCallingViewModel,
+    incomingCallViewModel: IncomingCallViewModel
 ) {
     val showDialog = remember { mutableStateOf(false) }
 
@@ -190,5 +191,5 @@ private fun AudioBluetoothPermissionCheckFlow(
 @Preview
 @Composable
 fun ComposablePreview() {
-    IncomingCallScreen()
+    IncomingCallContent(CallState(conversationName = ConversationName.Known("name")), {}, {}, {}, {}, {}, {})
 }

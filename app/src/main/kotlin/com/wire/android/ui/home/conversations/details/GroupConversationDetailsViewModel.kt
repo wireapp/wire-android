@@ -5,11 +5,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.navigation.VoyagerNavigationItem
+import com.wire.android.navigation.nav
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsState
+import com.wire.android.ui.home.conversations.details.participants.BaseGroupConversationParticipantsViewModel
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipantsViewModel
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -17,7 +18,6 @@ import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.parseIntoQualifiedID
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -30,19 +30,15 @@ import javax.inject.Inject
 @Suppress("TooManyFunctions")
 @HiltViewModel
 class GroupConversationDetailsViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val observeConversationMembers: ObserveParticipantsForConversationUseCase,
     private val updateConversationAccessRoleUseCase: UpdateConversationAccessRoleUseCase,
-    private val dispatcher: DispatcherProvider,
-    savedStateHandle: SavedStateHandle,
-) : GroupConversationParticipantsViewModel(savedStateHandle, navigationManager, observeConversationMembers) {
+    private val dispatcher: DispatcherProvider
+) : BaseGroupConversationParticipantsViewModel(savedStateHandle, navigationManager, observeConversationMembers) {
 
     override val maxNumberOfItems: Int get() = MAX_NUMBER_OF_PARTICIPANTS
-
-    val conversationId: QualifiedID = savedStateHandle
-        .get<String>(EXTRA_CONVERSATION_ID)!!
-        .parseIntoQualifiedID()
 
     var groupOptionsState: GroupConversationOptionsState by mutableStateOf(GroupConversationOptionsState())
 
@@ -151,7 +147,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
     fun navigateToFullParticipantsList() = viewModelScope.launch {
         navigationManager.navigate(
             command = NavigationCommand(
-                destination = NavigationItem.GroupConversationAllParticipants.getRouteWithArgs(listOf(conversationId))
+                destination = VoyagerNavigationItem.GroupConversationAllParticipants(conversationId.nav())
             )
         )
     }
@@ -159,7 +155,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
     fun navigateToAddParticants() = viewModelScope.launch {
         navigationManager.navigate(
             command = NavigationCommand(
-                destination = NavigationItem.AddConversationParticipants.getRouteWithArgs(listOf(conversationId))
+                destination = VoyagerNavigationItem.AddConversationParticipants(conversationId.nav())
             )
         )
     }

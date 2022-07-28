@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.wire.android.di.AssistedViewModel
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.navigation.NavigationManager
@@ -25,17 +26,17 @@ import javax.inject.Inject
 @ExperimentalMaterialApi
 @HiltViewModel
 class LoginEmailViewModel @Inject constructor(
+    override val savedStateHandle: SavedStateHandle,
     private val loginUseCase: LoginUseCase,
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
     clientScopeProviderFactory: ClientScopeProvider.Factory,
-    private val savedStateHandle: SavedStateHandle,
     navigationManager: NavigationManager,
     authServerConfigProvider: AuthServerConfigProvider
-) : LoginViewModel(navigationManager, clientScopeProviderFactory, authServerConfigProvider) {
+) : LoginViewModel(navigationManager, clientScopeProviderFactory, authServerConfigProvider), AssistedViewModel<String> {
 
     var loginState by mutableStateOf(
         LoginEmailState(
-            userIdentifier = TextFieldValue(savedStateHandle[USER_IDENTIFIER_SAVED_STATE_KEY] ?: String.EMPTY),
+            userIdentifier = TextFieldValue(param),
             password = TextFieldValue(String.EMPTY)
         )
     )
@@ -84,7 +85,6 @@ class LoginEmailViewModel @Inject constructor(
             clearLoginError()
         }
         loginState = loginState.copy(userIdentifier = newText).updateLoginEnabled()
-        savedStateHandle.set(USER_IDENTIFIER_SAVED_STATE_KEY, newText.text)
     }
 
     fun onPasswordChange(newText: TextFieldValue) {
@@ -104,7 +104,4 @@ class LoginEmailViewModel @Inject constructor(
     private fun LoginEmailState.updateLoginEnabled() =
         copy(loginEnabled = userIdentifier.text.isNotEmpty() && password.text.isNotEmpty() && !loading)
 
-    private companion object {
-        const val USER_IDENTIFIER_SAVED_STATE_KEY = "user_identifier"
-    }
 }

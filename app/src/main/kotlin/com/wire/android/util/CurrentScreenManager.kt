@@ -1,17 +1,11 @@
 package com.wire.android.util
 
-import android.os.Bundle
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
-import androidx.navigation.NavController
-import androidx.navigation.NavDestination
-import com.wire.android.navigation.EXTRA_CONVERSATION_ID
-import com.wire.android.navigation.EXTRA_USER_ID
-import com.wire.android.navigation.NavigationItem
-import com.wire.android.navigation.getCurrentNavigationItem
+import cafe.adriel.voyager.core.screen.Screen
+import com.wire.android.navigation.VoyagerNavigationItem
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.parseIntoQualifiedID
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,7 +18,7 @@ import javax.inject.Singleton
 
 @ExperimentalCoroutinesApi
 @Singleton
-class CurrentScreenManager @Inject constructor() : DefaultLifecycleObserver, NavController.OnDestinationChangedListener {
+class CurrentScreenManager @Inject constructor() : DefaultLifecycleObserver {
 
     private val currentScreenState = MutableStateFlow<CurrentScreen>(CurrentScreen.SomeOther)
     private val isAppVisibleFlow = MutableStateFlow(true)
@@ -46,9 +40,8 @@ class CurrentScreenManager @Inject constructor() : DefaultLifecycleObserver, Nav
         isAppVisibleFlow.value = false
     }
 
-    override fun onDestinationChanged(controller: NavController, destination: NavDestination, arguments: Bundle?) {
-        val currentItem = controller.getCurrentNavigationItem()
-        currentScreenState.value = CurrentScreen.fromNavigationItem(currentItem, arguments)
+    fun onDestinationChanged(destination: Screen) {
+        currentScreenState.value = CurrentScreen.fromNavigationItem(destination as? VoyagerNavigationItem)
     }
 }
 
@@ -64,20 +57,11 @@ sealed class CurrentScreen {
     object InBackground : CurrentScreen()
 
     companion object {
-        fun fromNavigationItem(currentItem: NavigationItem?, arguments: Bundle?): CurrentScreen =
+
+        fun fromNavigationItem(currentItem: VoyagerNavigationItem?): CurrentScreen =
             when (currentItem) {
-                NavigationItem.Conversation -> {
-                    arguments?.getString(EXTRA_CONVERSATION_ID)
-                        ?.parseIntoQualifiedID()
-                        ?.let { Conversation(it) }
-                        ?: SomeOther
-                }
-                NavigationItem.OtherUserProfile -> {
-                    arguments?.getString(EXTRA_USER_ID)
-                        ?.parseIntoQualifiedID()
-                        ?.let { OtherUserProfile(it) }
-                        ?: SomeOther
-                }
+                is VoyagerNavigationItem.Conversation -> Conversation(currentItem.conversationId.qualifiedId)
+                is VoyagerNavigationItem.OtherUserProfile -> OtherUserProfile(currentItem.userId.qualifiedId)
                 else -> SomeOther
             }
     }

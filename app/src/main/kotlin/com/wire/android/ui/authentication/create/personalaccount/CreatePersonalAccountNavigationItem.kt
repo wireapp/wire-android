@@ -1,22 +1,37 @@
 package com.wire.android.ui.authentication.create.personalaccount
 
 import androidx.compose.runtime.Composable
-import androidx.navigation.NavController
+import cafe.adriel.voyager.androidx.AndroidScreen
+import cafe.adriel.voyager.core.screen.Screen
 import com.wire.android.ui.authentication.create.code.CreateAccountCodeScreen
 import com.wire.android.ui.authentication.create.details.CreateAccountDetailsScreen
 import com.wire.android.ui.authentication.create.email.CreateAccountEmailScreen
 import com.wire.android.ui.authentication.create.overview.CreateAccountOverviewScreen
-import com.wire.kalium.logic.configuration.server.ServerConfig
 
-enum class CreatePersonalAccountNavigationItem(val route: String, val content: @Composable (ContentParams) -> Unit) {
-    Overview("create_personal_account_overview_screen", { CreateAccountOverviewScreen(it.viewModel) }),
-    Email("create_personal_account_email_screen", { CreateAccountEmailScreen(it.viewModel) }),
-    Details("create_personal_account_details_screen", { CreateAccountDetailsScreen(it.viewModel) }),
-    Code("create_personal_account_code_screen", { CreateAccountCodeScreen(it.viewModel) })
-}
+// TODO maybe we can somehow avoid passing ViewModel to each one
+sealed class CreatePersonalAccountNavigationItem : AndroidScreen() {
 
-data class ContentParams(val viewModel: CreatePersonalAccountViewModel)
+    data class Overview(val viewModel: CreatePersonalAccountViewModel) : CreatePersonalAccountNavigationItem() {
 
-internal fun navigateToItemInCreatePersonalAccount(navController: NavController, item: CreatePersonalAccountNavigationItem) {
-    navController.navigate(item.route)
+        @Composable
+        override fun Content() { CreateAccountOverviewScreen(viewModel) }
+    }
+
+    data class Email(val viewModel: CreatePersonalAccountViewModel) : CreatePersonalAccountNavigationItem() {
+
+        @Composable
+        override fun Content() { CreateAccountEmailScreen(viewModel) }
+    }
+
+    data class Details(val viewModel: CreatePersonalAccountViewModel) : CreatePersonalAccountNavigationItem() {
+
+        @Composable
+        override fun Content() { CreateAccountDetailsScreen(viewModel) }
+    }
+
+    data class Code(val viewModel: CreatePersonalAccountViewModel) : CreatePersonalAccountNavigationItem() {
+
+        @Composable
+        override fun Content() { CreateAccountCodeScreen(viewModel) }
+    }
 }

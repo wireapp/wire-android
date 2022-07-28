@@ -18,21 +18,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.currentBackStackEntryAsState
-import com.google.accompanist.navigation.animation.rememberAnimatedNavController
-import com.wire.android.navigation.HomeNavigationItem
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 class HomeUIState(
     val coroutineScope: CoroutineScope,
-    val navController: NavHostController,
     val drawerState: DrawerState,
-    val bottomSheetState: ModalBottomSheetState,
-    val currentNavigationItem: HomeNavigationItem
+    val bottomSheetState: ModalBottomSheetState
 ) {
+    var currentNavigationItem: HomeItem by mutableStateOf(HomeItem.all.first())
 
     var scrollPositionProvider: (() -> Int)? by mutableStateOf(null)
 
@@ -61,34 +56,10 @@ class HomeUIState(
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun rememberHomeUIState(
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
-    navController: NavHostController = rememberAnimatedNavController(),
     drawerState: DrawerState = rememberDrawerState(DrawerValue.Closed),
     bottomSheetState: ModalBottomSheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden),
-): HomeUIState {
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-
-    val navigationItem = when (navBackStackEntry?.destination?.route) {
-        // TODO: Re-enable when we have Vault & Archive
-//        HomeNavigationItem.Archive.route -> HomeNavigationItem.Archive
-//        HomeNavigationItem.Vault.route -> HomeNavigationItem.Vault
-        else -> HomeNavigationItem.Conversations
-    }
-
-    val homeState = remember(
-        navigationItem
-    ) {
-        HomeUIState(
-            coroutineScope,
-            navController,
-            drawerState,
-            bottomSheetState,
-            navigationItem
-        )
-    }
-
-    return homeState
-}
+): HomeUIState = remember { HomeUIState(coroutineScope, drawerState, bottomSheetState) }

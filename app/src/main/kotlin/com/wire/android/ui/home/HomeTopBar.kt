@@ -12,7 +12,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.UserAvatarData
-import com.wire.android.navigation.HomeNavigationItem
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.WireLinearProgressIndicator
 import com.wire.android.ui.common.dimensions
@@ -26,7 +25,7 @@ import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 fun HomeTopBar(
     avatarAsset: UserAvatarAsset?,
     status: UserAvailabilityStatus,
-    currentNavigationItem: HomeNavigationItem,
+    currentNavigationItem: HomeItem,
     syncState: SyncViewState,
     onOpenDrawerClicked: () -> Unit,
     onNavigateToUserProfile: () -> Unit
@@ -70,7 +69,7 @@ private val SyncViewState.color: Color
 @Composable
 fun topBar() {
     HomeTopBar(
-        null, UserAvailabilityStatus.AVAILABLE, HomeNavigationItem.Conversations, SyncViewState.SLOW_SYNC, {}, {}
+        null, UserAvailabilityStatus.AVAILABLE, HomeItem.Conversations, SyncViewState.SLOW_SYNC, {}, {}
     )
     // TODO: Re-enable and recheck when we have Archive
 //    HomeTopBar(

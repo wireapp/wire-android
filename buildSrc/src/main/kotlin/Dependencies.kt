@@ -80,6 +80,7 @@ object Libraries {
         const val exif = "1.3.3"
         const val firebaseBOM = "29.3.1"
         const val dataDog = "1.13.0"
+        const val voyager = "1.0.0-rc02"
     }
 
     // AndroidX Dependencies
@@ -101,6 +102,11 @@ object Libraries {
     const val composeRuntimeLiveData    = "androidx.compose.runtime:runtime-livedata:${Versions.compose}"
     const val dataStore                 = "androidx.datastore:datastore-preferences:${Versions.dataStore}"
     const val exifInterface             = "androidx.exifinterface:exifinterface:${Versions.exif}"
+    const val voyagerNavigator          = "cafe.adriel.voyager:voyager-navigator:${Versions.voyager}"
+    const val voyagerViewModel          = "cafe.adriel.voyager:voyager-androidx:${Versions.voyager}"
+    const val voyagerHilt               = "cafe.adriel.voyager:voyager-hilt:${Versions.voyager}"
+    const val voyagerTransitions        = "cafe.adriel.voyager:voyager-transitions:${Versions.voyager}"
+    const val voyagerTab                = "cafe.adriel.voyager:voyager-tab-navigator:${Versions.voyager}"
 
     // Other dependencies
     const val desugaring                = "com.android.tools:desugar_jdk_libs:${Versions.desugaring}"

@@ -6,12 +6,15 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.UserAvatarData
 import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.navigation.VoyagerNavigationItem
+import com.wire.android.navigation.nav
+import com.wire.android.ui.home.HomeSnackbarManager
 import com.wire.android.ui.home.conversationslist.mock.mockAllMentionList
 import com.wire.android.ui.home.conversationslist.mock.mockCallHistory
 import com.wire.android.ui.home.conversationslist.mock.mockMissedCalls
@@ -23,6 +26,7 @@ import com.wire.android.ui.home.conversationslist.model.ConversationLastEvent
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.conversationslist.model.NewActivity
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.ConversationDetails.Connection
@@ -41,6 +45,7 @@ import com.wire.kalium.logic.feature.conversation.ObserveConversationsAndConnect
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Date
 import javax.inject.Inject
 
@@ -53,7 +58,8 @@ class ConversationListViewModel @Inject constructor(
     private val answerCall: AnswerCallUseCase,
     private val observeConversationsAndConnections: ObserveConversationsAndConnectionsUseCase,
     private val dispatchers: DispatcherProvider,
-    private val wireSessionImageLoader: WireSessionImageLoader
+    private val wireSessionImageLoader: WireSessionImageLoader,
+    private val homeSnackbarManager: HomeSnackbarManager
 ) : ViewModel() {
 
     var state by mutableStateOf(ConversationListState())
@@ -73,17 +79,19 @@ class ConversationListViewModel @Inject constructor(
                 val missedCalls = mockMissedCalls // TODO: needs to be implemented
                 val unreadMentions = mockUnreadMentionList // TODO: needs to be implemented
 
-                state = ConversationListState(
-                    newActivities = newActivities,
-                    conversations = detailedList,
-                    missedCalls = missedCalls,
-                    callHistory = mockCallHistory, // TODO: needs to be implemented
-                    unreadMentions = unreadMentions,
-                    allMentions = mockAllMentionList, // TODO: needs to be implemented
-                    unreadMentionsCount = unreadMentions.size,
-                    missedCallsCount = missedCalls.size,
-                    newActivityCount = 0 // TODO: needs to be implemented
-                )
+                withContext(dispatchers.main()) {
+                    state = ConversationListState(
+                        newActivities = newActivities,
+                        conversations = detailedList,
+                        missedCalls = missedCalls,
+                        callHistory = mockCallHistory, // TODO: needs to be implemented
+                        unreadMentions = unreadMentions,
+                        allMentions = mockAllMentionList, // TODO: needs to be implemented
+                        unreadMentionsCount = unreadMentions.size,
+                        missedCallsCount = missedCalls.size,
+                        newActivityCount = 0 // TODO: needs to be implemented
+                    )
+                }
             }
     }
 
@@ -94,7 +102,7 @@ class ConversationListViewModel @Inject constructor(
         viewModelScope.launch {
             navigationManager.navigate(
                 command = NavigationCommand(
-                    destination = NavigationItem.Conversation.getRouteWithArgs(listOf(conversationId))
+                    destination = VoyagerNavigationItem.Conversation(conversationId.nav())
                 )
             )
         }
@@ -104,7 +112,7 @@ class ConversationListViewModel @Inject constructor(
         viewModelScope.launch {
             navigationManager.navigate(
                 command = NavigationCommand(
-                    destination = NavigationItem.NewConversation.getRouteWithArgs()
+                    destination = VoyagerNavigationItem.NewConversation
                 )
             )
         }
@@ -114,9 +122,11 @@ class ConversationListViewModel @Inject constructor(
         viewModelScope.launch {
             navigationManager.navigate(
                 command = NavigationCommand(
-                    destination = NavigationItem.OtherUserProfile.getRouteWithArgs(
-                        listOf(profileId)
-                    )
+                    destination = VoyagerNavigationItem.OtherUserProfile(userId = profileId.nav()) {
+                        viewModelScope.launch {
+                            homeSnackbarManager.showSnackbarMessage(UIText.StringResource(R.string.connection_request_ignored, it))
+                        }
+                    }
                 )
             )
         }
@@ -138,7 +148,7 @@ class ConversationListViewModel @Inject constructor(
             answerCall(conversationId = conversationId)
             navigationManager.navigate(
                 command = NavigationCommand(
-                    destination = NavigationItem.OngoingCall.getRouteWithArgs(listOf(conversationId))
+                    destination = VoyagerNavigationItem.OngoingCall(conversationId.nav())
                 )
             )
         }

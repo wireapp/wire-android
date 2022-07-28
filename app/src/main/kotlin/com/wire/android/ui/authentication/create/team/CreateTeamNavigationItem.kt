@@ -1,22 +1,37 @@
 package com.wire.android.ui.authentication.create.team
 
 import androidx.compose.runtime.Composable
-import androidx.navigation.NavController
+import cafe.adriel.voyager.androidx.AndroidScreen
+import cafe.adriel.voyager.core.screen.Screen
 import com.wire.android.ui.authentication.create.code.CreateAccountCodeScreen
 import com.wire.android.ui.authentication.create.details.CreateAccountDetailsScreen
 import com.wire.android.ui.authentication.create.email.CreateAccountEmailScreen
 import com.wire.android.ui.authentication.create.overview.CreateAccountOverviewScreen
-import com.wire.kalium.logic.configuration.server.ServerConfig
 
-enum class CreateTeamNavigationItem(val route: String, val content: @Composable (ContentParams) -> Unit) {
-    Overview("create_team_overview_screen", { CreateAccountOverviewScreen(it.viewModel) }),
-    Email("create_team_email_screen", { CreateAccountEmailScreen(it.viewModel) }),
-    Details("create_team_details_screen", { CreateAccountDetailsScreen(it.viewModel) }),
-    Code("create_team_code_screen", { CreateAccountCodeScreen(it.viewModel) })
-}
+// TODO maybe we can somehow avoid passing ViewModel to each one
+sealed class CreateTeamNavigationItem : AndroidScreen() {
 
-data class ContentParams(val viewModel: CreateTeamViewModel)
+    data class Overview(val viewModel: CreateTeamViewModel) : CreateTeamNavigationItem() {
 
-internal fun navigateToItemInCreateTeam(navController: NavController, item: CreateTeamNavigationItem) {
-    navController.navigate(item.route)
+        @Composable
+        override fun Content() { CreateAccountOverviewScreen(viewModel) }
+    }
+
+    data class Email(val viewModel: CreateTeamViewModel) : CreateTeamNavigationItem() {
+
+        @Composable
+        override fun Content() { CreateAccountEmailScreen(viewModel) }
+    }
+
+    data class Details(val viewModel: CreateTeamViewModel) : CreateTeamNavigationItem() {
+
+        @Composable
+        override fun Content() { CreateAccountDetailsScreen(viewModel) }
+    }
+
+    data class Code(val viewModel: CreateTeamViewModel) : CreateTeamNavigationItem() {
+
+        @Composable
+        override fun Content() { CreateAccountCodeScreen(viewModel) }
+    }
 }

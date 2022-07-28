@@ -10,11 +10,10 @@ import com.wire.android.BuildConfig
 import com.wire.android.appLogger
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.navigation.VoyagerNavigationItem
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.util.WillNeverOccurError
-import com.wire.kalium.logic.data.client.Client
 import com.wire.kalium.logic.data.client.DeleteClientParam
 import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
@@ -201,5 +200,5 @@ class RemoveDeviceViewModel @Inject constructor(
         }
 
     private suspend fun navigateToConvScreen() =
-        navigationManager.navigate(NavigationCommand(NavigationItem.Home.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
+        navigationManager.navigate(NavigationCommand(VoyagerNavigationItem.Home, BackStackMode.CLEAR_WHOLE))
 }

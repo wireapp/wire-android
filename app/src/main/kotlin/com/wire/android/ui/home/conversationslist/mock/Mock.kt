@@ -64,6 +64,7 @@ val mockConversations1 = listOf(
 )
 
 fun mockCallConversation(
+    conversationId: ConversationId = ConversationId("someId", "someDomain"),
     lastEvent: ConversationLastEvent = ConversationLastEvent.Call(
         CallTime("Today", "5:34 PM"),
         CallEvent.NoAnswerCall
@@ -74,20 +75,21 @@ fun mockCallConversation(
         name = "some test value",
         membership = Membership.None
     ),
-    conversationId = ConversationId("someId", "someDomain"),
+    conversationId = conversationId,
     mutedStatus = MutedConversationStatus.AllAllowed,
     isLegalHold = true,
     lastEvent = lastEvent,
 )
 
 fun mockCallGroupConversation(
+    conversationId: ConversationId = ConversationId("someId", "someDomain"),
     lastEvent: ConversationLastEvent = ConversationLastEvent.Call(
         CallTime("Today", "5:34 PM"),
         CallEvent.NoAnswerCall
     )
 ): ConversationItem.GroupConversation = ConversationItem.GroupConversation(
     groupName = "Some group name",
-    conversationId = ConversationId("someId", "someDomain"),
+    conversationId = conversationId,
     mutedStatus = MutedConversationStatus.AllAllowed,
     isLegalHold = true,
     lastEvent = lastEvent,
@@ -194,29 +196,29 @@ val mockMentionGroupLongConversation = ConversationItem.GroupConversation(
 )
 
 val mockUnreadMentionList = listOf(
-    mockMentionPrivateConversation,
-    mockGroupConversation,
+    mockMentionPrivateConversation.copy(conversationId = ConversationId("unreadMentionId0", "domain")),
+    mockGroupConversation.copy(conversationId = ConversationId("unreadMentionId1", "domain")),
 )
 
 val mockAllMentionList = listOf(
-    mockMentionGroupLongConversation,
-    mockMentionShortGroupConversation,
-    mockMentionPrivateConversation,
-    mockMentionGroupLongConversation,
-    mockMentionShortGroupConversation,
-    mockMentionPrivateConversation,
-    mockMentionGroupLongConversation,
-    mockMentionShortGroupConversation,
-    mockMentionPrivateConversation,
-    mockMentionGroupLongConversation,
-    mockMentionShortGroupConversation,
-    mockMentionPrivateConversation,
-    mockMentionGroupLongConversation,
-    mockMentionShortGroupConversation,
-    mockMentionPrivateConversation,
-    mockMentionGroupLongConversation,
-    mockMentionShortGroupConversation,
-    mockMentionPrivateConversation,
+    mockMentionGroupLongConversation.copy(conversationId = ConversationId("mentionId0", "domain")),
+    mockMentionShortGroupConversation.copy(conversationId = ConversationId("mentionId1", "domain")),
+    mockMentionPrivateConversation.copy(conversationId = ConversationId("mentionId2", "domain")),
+    mockMentionGroupLongConversation.copy(conversationId = ConversationId("mentionId3", "domain")),
+    mockMentionShortGroupConversation.copy(conversationId = ConversationId("mentionId4", "domain")),
+    mockMentionPrivateConversation.copy(conversationId = ConversationId("mentionId5", "domain")),
+    mockMentionGroupLongConversation.copy(conversationId = ConversationId("mentionId6", "domain")),
+    mockMentionShortGroupConversation.copy(conversationId = ConversationId("mentionId7", "domain")),
+    mockMentionPrivateConversation.copy(conversationId = ConversationId("mentionId8", "domain")),
+    mockMentionGroupLongConversation.copy(conversationId = ConversationId("mentionId9", "domain")),
+    mockMentionShortGroupConversation.copy(conversationId = ConversationId("mentionId10", "domain")),
+    mockMentionPrivateConversation.copy(conversationId = ConversationId("mentionId11", "domain")),
+    mockMentionGroupLongConversation.copy(conversationId = ConversationId("mentionId12", "domain")),
+    mockMentionShortGroupConversation.copy(conversationId = ConversationId("mentionId13", "domain")),
+    mockMentionPrivateConversation.copy(conversationId = ConversationId("mentionId14", "domain")),
+    mockMentionGroupLongConversation.copy(conversationId = ConversationId("mentionId15", "domain")),
+    mockMentionShortGroupConversation.copy(conversationId = ConversationId("mentionId16", "domain")),
+    mockMentionPrivateConversation.copy(conversationId = ConversationId("mentionId17", "domain")),
 )
 
 val mockCallInfo1 = ConversationLastEvent.Call(CallTime("Today", "5:34 PM"), CallEvent.NoAnswerCall)
@@ -226,20 +228,20 @@ val mockCallInfo4 = ConversationLastEvent.Call(CallTime("Today", "5:34 PM"), Cal
 val mockCallInfo5 = ConversationLastEvent.Call(CallTime("Today", "6:59 PM"), CallEvent.NoAnswerCall)
 
 val mockMissedCalls = listOf(
-    mockCallConversation(),
-    mockCallConversation(),
-    mockCallConversation(),
+    mockCallConversation(ConversationId("missedId0", "domain"), mockCallInfo1),
+    mockCallConversation(ConversationId("missedId1", "domain"), mockCallInfo2),
+    mockCallConversation(ConversationId("missedId2", "domain"), mockCallInfo3),
 )
 
 val mockCallHistory = listOf(
-    mockCallConversation(mockCallInfo1),
-    mockCallGroupConversation(mockCallInfo1),
-    mockCallConversation(mockCallInfo2),
-    mockCallGroupConversation(mockCallInfo2),
-    mockCallConversation(mockCallInfo3),
-    mockCallGroupConversation(mockCallInfo3),
-    mockCallConversation(mockCallInfo4),
-    mockCallGroupConversation(mockCallInfo4),
-    mockCallConversation(mockCallInfo5),
-    mockCallGroupConversation(mockCallInfo5),
+    mockCallConversation(ConversationId("historyId0", "domain"), mockCallInfo1),
+    mockCallGroupConversation(ConversationId("historyId1", "domain"), mockCallInfo1),
+    mockCallConversation(ConversationId("historyId2", "domain"), mockCallInfo2),
+    mockCallGroupConversation(ConversationId("historyId3", "domain"), mockCallInfo2),
+    mockCallConversation(ConversationId("historyId4", "domain"), mockCallInfo3),
+    mockCallGroupConversation(ConversationId("historyId5", "domain"), mockCallInfo3),
+    mockCallConversation(ConversationId("historyId6", "domain"), mockCallInfo4),
+    mockCallGroupConversation(ConversationId("historyId7", "domain"), mockCallInfo4),
+    mockCallConversation(ConversationId("historyId8", "domain"), mockCallInfo5),
+    mockCallGroupConversation(ConversationId("historyId9", "domain"), mockCallInfo5),
 )

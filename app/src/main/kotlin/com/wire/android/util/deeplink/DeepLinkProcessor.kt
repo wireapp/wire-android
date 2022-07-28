@@ -1,17 +1,21 @@
 package com.wire.android.util.deeplink
 
 import android.net.Uri
+import android.os.Parcelable
 import androidx.annotation.VisibleForTesting
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.toConversationId
 import com.wire.kalium.logic.data.id.parseIntoQualifiedID
+import kotlinx.parcelize.Parcelize
 
 sealed class DeepLinkResult {
     object Unknown : DeepLinkResult()
     data class CustomServerConfig(val url: String) : DeepLinkResult()
-    sealed class SSOLogin : DeepLinkResult() {
+    sealed class SSOLogin : DeepLinkResult(), Parcelable {
+        @Parcelize
         data class Success(val cookie: String, val serverConfigId: String) : SSOLogin()
+        @Parcelize
         data class Failure(val ssoError: SSOFailureCodes) : SSOLogin()
     }
 

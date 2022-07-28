@@ -4,18 +4,17 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
+import com.wire.android.di.AssistedViewModel
 import com.wire.android.model.ImageAsset.PrivateAsset
 import com.wire.android.model.ImageAsset.UserAvatarAsset
-import com.wire.android.navigation.EXTRA_CONVERSATION_ID
-import com.wire.android.navigation.EXTRA_MESSAGE_TO_DELETE_ID
-import com.wire.android.navigation.EXTRA_MESSAGE_TO_DELETE_IS_SELF
+import com.wire.android.navigation.NavQualifiedId
 import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
-import com.wire.android.navigation.SavedStateViewModel
-import com.wire.android.navigation.getBackNavArg
+import com.wire.android.navigation.VoyagerNavigationItem
+import com.wire.android.navigation.nav
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorDeletingMessage
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorMaxAssetSize
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorMaxImageSize
@@ -34,7 +33,6 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.conversation.ConversationDetails
-import com.wire.kalium.logic.data.id.parseIntoQualifiedID
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.FAILED
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.IN_PROGRESS
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.SAVED_EXTERNALLY
@@ -85,7 +83,9 @@ class ConversationViewModel @Inject constructor(
     private val fileManager: FileManager,
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val kaliumFileSystem: KaliumFileSystem
-) : SavedStateViewModel(savedStateHandle) {
+) : ViewModel(), AssistedViewModel<NavQualifiedId> {
+
+    val conversationId: ConversationId get() = param.qualifiedId
 
     var conversationViewState by mutableStateOf(ConversationViewState())
         private set
@@ -97,10 +97,6 @@ class ConversationViewModel @Inject constructor(
         )
     )
         private set
-
-    val conversationId: ConversationId = savedStateHandle
-        .get<String>(EXTRA_CONVERSATION_ID)!!
-        .parseIntoQualifiedID()
 
     var establishedCallConversationId: ConversationId? = null
 
@@ -176,18 +172,6 @@ class ConversationViewModel @Inject constructor(
                 it.first().conversationId
             } else null
             conversationViewState = conversationViewState.copy(hasEstablishedCall = hasEstablishedCall)
-        }
-    }
-
-    internal fun checkPendingActions() {
-        // Check if there are messages to delete
-        val messageToDeleteId = savedStateHandle
-            .getBackNavArg<String>(EXTRA_MESSAGE_TO_DELETE_ID)
-        val messageToDeleteIsSelf = savedStateHandle
-            .getBackNavArg<Boolean>(EXTRA_MESSAGE_TO_DELETE_IS_SELF)
-
-        if (messageToDeleteId != null && messageToDeleteIsSelf != null) {
-            showDeleteMessageDialog(messageToDeleteId, messageToDeleteIsSelf)
         }
     }
     // endregion
@@ -382,7 +366,7 @@ class ConversationViewModel @Inject constructor(
             answerCall(conversationId = conversationId)
             navigationManager.navigate(
                 command = NavigationCommand(
-                    destination = NavigationItem.OngoingCall.getRouteWithArgs(listOf(conversationId))
+                    destination = VoyagerNavigationItem.OngoingCall(conversationId.nav())
                 )
             )
         }
@@ -492,7 +476,7 @@ class ConversationViewModel @Inject constructor(
             }
             navigationManager.navigate(
                 command = NavigationCommand(
-                    destination = NavigationItem.InitiatingCall.getRouteWithArgs(listOf(conversationId))
+                    destination = VoyagerNavigationItem.InitiatingCall(conversationId.nav())
                 )
             )
         }
@@ -502,11 +486,9 @@ class ConversationViewModel @Inject constructor(
         viewModelScope.launch {
             navigationManager.navigate(
                 command = NavigationCommand(
-                    destination = NavigationItem.Gallery.getRouteWithArgs(
-                        listOf(
-                            PrivateAsset(wireSessionImageLoader, conversationId, messageId, isSelfMessage)
-                        )
-                    )
+                    destination = VoyagerNavigationItem.Gallery(conversationId.nav(), messageId, isSelfMessage) { messageId, isSelfAsset ->
+                        showDeleteMessageDialog(messageId, isSelfAsset)
+                    }
                 )
             )
         }
@@ -517,14 +499,12 @@ class ConversationViewModel @Inject constructor(
             when (val data = conversationViewState.conversationDetailsData) {
                 is ConversationDetailsData.OneOne -> navigationManager.navigate(
                     command = NavigationCommand(
-                        destination = NavigationItem.OtherUserProfile.getRouteWithArgs(
-                            listOf(data.otherUserId)
-                        )
+                        destination = VoyagerNavigationItem.OtherUserProfile(data.otherUserId.nav())
                     )
                 )
                 is ConversationDetailsData.Group -> navigationManager.navigate(
                     command = NavigationCommand(
-                        destination = NavigationItem.GroupConversationDetails.getRouteWithArgs(listOf(data.conversationId))
+                        destination = VoyagerNavigationItem.GroupConversationDetails(data.conversationId.nav())
                     )
                 )
                 ConversationDetailsData.None -> { /* do nothing */

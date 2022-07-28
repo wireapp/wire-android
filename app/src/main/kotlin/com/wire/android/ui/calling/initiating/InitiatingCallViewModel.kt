@@ -4,20 +4,21 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
+import com.wire.android.di.AssistedViewModel
 import com.wire.android.media.CallRinger
 import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.EXTRA_CONVERSATION_ID
+import com.wire.android.navigation.NavQualifiedId
 import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.navigation.VoyagerNavigationItem
+import com.wire.android.navigation.nav
 import com.wire.kalium.logic.data.call.ConversationType
 import com.wire.kalium.logic.data.conversation.ConversationDetails
-import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.parseIntoQualifiedID
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.IsLastCallClosedUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.StartCallUseCase
-import com.wire.kalium.logic.feature.call.usecase.IsLastCallClosedUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
@@ -29,7 +30,7 @@ import javax.inject.Inject
 @Suppress("LongParameterList")
 @HiltViewModel
 class InitiatingCallViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
+    override val savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
     private val conversationDetails: ObserveConversationDetailsUseCase,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
@@ -37,11 +38,9 @@ class InitiatingCallViewModel @Inject constructor(
     private val endCall: EndCallUseCase,
     private val isLastCallClosed: IsLastCallClosedUseCase,
     private val callRinger: CallRinger
-) : ViewModel() {
+) : ViewModel(), AssistedViewModel<NavQualifiedId> {
 
-    val conversationId: QualifiedID = savedStateHandle
-        .get<String>(EXTRA_CONVERSATION_ID)!!
-        .parseIntoQualifiedID()
+    val conversationId: ConversationId = param.qualifiedId
 
     private val callStartTime: Long = Calendar.getInstance().timeInMillis
 
@@ -101,7 +100,7 @@ class InitiatingCallViewModel @Inject constructor(
         callRinger.ring(R.raw.ready_to_talk, isLooping = false)
         navigationManager.navigate(
             command = NavigationCommand(
-                destination = NavigationItem.OngoingCall.getRouteWithArgs(listOf(conversationId)),
+                destination = VoyagerNavigationItem.OngoingCall(conversationId.nav()),
                 backStackMode = BackStackMode.REMOVE_CURRENT
             )
         )

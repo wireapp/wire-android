@@ -141,6 +141,11 @@ dependencies {
     implementation(Libraries.accompanistNavAnimation)
     implementation(Libraries.accompanistIndicator)
     implementation(Libraries.composeRuntimeLiveData)
+    implementation(Libraries.voyagerNavigator)
+    implementation(Libraries.voyagerViewModel)
+    implementation(Libraries.voyagerHilt)
+    implementation(Libraries.voyagerTransitions)
+    implementation(Libraries.voyagerTab)
 
     // Compose iterative code, layout inspector, etc.
     debugImplementation(Libraries.composeTooling)

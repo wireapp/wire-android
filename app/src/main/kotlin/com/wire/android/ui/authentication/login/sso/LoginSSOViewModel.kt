@@ -7,14 +7,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.wire.android.di.AssistedViewModel
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.login.LoginError
 import com.wire.android.ui.authentication.login.LoginViewModel
 import com.wire.android.ui.authentication.login.toLoginError
-import com.wire.android.util.EMPTY
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
@@ -32,17 +34,17 @@ import javax.inject.Inject
 @ExperimentalMaterialApi
 @HiltViewModel
 class LoginSSOViewModel @Inject constructor(
-    private val savedStateHandle: SavedStateHandle,
+    override val savedStateHandle: SavedStateHandle,
     private val ssoInitiateLoginUseCase: SSOInitiateLoginUseCase,
     private val getSSOLoginSessionUseCase: GetSSOLoginSessionUseCase,
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
     clientScopeProviderFactory: ClientScopeProvider.Factory,
     navigationManager: NavigationManager,
     authServerConfigProvider: AuthServerConfigProvider
-) : LoginViewModel(navigationManager, clientScopeProviderFactory, authServerConfigProvider) {
+) : LoginViewModel(navigationManager, clientScopeProviderFactory, authServerConfigProvider), AssistedViewModel<String> {
 
     var loginState by mutableStateOf(
-        LoginSSOState(ssoCode = TextFieldValue(savedStateHandle.get(SSO_CODE_SAVED_STATE_KEY) ?: String.EMPTY))
+        LoginSSOState(ssoCode = TextFieldValue(param))
     )
         private set
 
@@ -104,7 +106,6 @@ class LoginSSOViewModel @Inject constructor(
             clearLoginError()
         }
         loginState = loginState.copy(ssoCode = newText).updateLoginEnabled()
-        savedStateHandle.set(SSO_CODE_SAVED_STATE_KEY, newText.text)
     }
 
     override fun updateLoginError(error: LoginError) {
@@ -133,9 +134,6 @@ class LoginSSOViewModel @Inject constructor(
     private fun LoginSSOState.updateLoginEnabled() =
         copy(loginEnabled = ssoCode.text.isNotEmpty() && !loading)
 
-    private companion object {
-        const val SSO_CODE_SAVED_STATE_KEY = "sso_code"
-    }
 }
 
 private fun SSOInitiateLoginResult.Failure.toLoginSSOError() = when (this) {

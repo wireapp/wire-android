@@ -31,7 +31,9 @@ import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
 import com.wire.android.R
 import com.wire.android.ui.authentication.login.email.LoginEmailScreen
+import com.wire.android.ui.authentication.login.email.LoginEmailViewModel
 import com.wire.android.ui.authentication.login.sso.LoginSSOScreen
+import com.wire.android.ui.authentication.login.sso.LoginSSOViewModel
 import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireTabRow
 import com.wire.android.ui.common.calculateCurrentTab
@@ -44,19 +46,32 @@ import kotlinx.coroutines.launch
 
 @ExperimentalMaterialApi
 @Composable
-fun LoginScreen(ssoLoginResult: DeepLinkResult.SSOLogin?) {
-    val loginViewModel: LoginViewModel = hiltViewModel()
+fun LoginScreen(
+    ssoLoginResult: DeepLinkResult.SSOLogin?,
+    viewModel: LoginViewModel,
+    ssoViewModel: LoginSSOViewModel,
+    emailViewModel: LoginEmailViewModel
+) {
     LoginContent(
-        onBackPressed = { loginViewModel.navigateBack() },
-        ssoLoginResult = ssoLoginResult
+        onBackPressed = { viewModel.navigateBack() },
+        ssoLoginResult = ssoLoginResult,
+        ssoViewModel = ssoViewModel,
+        emailViewModel = emailViewModel
     )
 }
 
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class, ExperimentalPagerApi::class, ExperimentalFoundationApi::class)
+@OptIn(
+    ExperimentalComposeUiApi::class,
+    ExperimentalMaterialApi::class,
+    ExperimentalMaterial3Api::class,
+    ExperimentalPagerApi::class,
+    ExperimentalFoundationApi::class)
 @Composable
 private fun LoginContent(
     onBackPressed: () -> Unit,
-    ssoLoginResult: DeepLinkResult.SSOLogin?
+    ssoLoginResult: DeepLinkResult.SSOLogin?,
+    ssoViewModel: LoginSSOViewModel,
+    emailViewModel: LoginEmailViewModel
 ) {
     val scope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
@@ -96,8 +111,8 @@ private fun LoginContent(
                     .padding(internalPadding)
             ) { pageIndex ->
                 when (LoginTabItem.values()[pageIndex]) {
-                    LoginTabItem.EMAIL -> LoginEmailScreen(scrollState)
-                    LoginTabItem.SSO -> LoginSSOScreen(ssoLoginResult)
+                    LoginTabItem.EMAIL -> LoginEmailScreen(emailViewModel, scrollState)
+                    LoginTabItem.SSO -> LoginSSOScreen(ssoViewModel, ssoLoginResult)
                 }
             }
             if (!pagerState.isScrollInProgress && focusedTabIndex != pagerState.currentPage)
@@ -115,11 +130,11 @@ enum class LoginTabItem(@StringRes override val titleResId: Int) : TabItem {
     SSO(R.string.login_tab_sso);
 }
 
-@Preview
-@Composable
-private fun LoginScreenPreview() {
-    WireTheme(isPreview = true) {
-        LoginContent(onBackPressed = { }, ssoLoginResult = null)
-    }
-}
+//@Preview
+//@Composable
+//private fun LoginScreenPreview() {
+//    WireTheme(isPreview = true) {
+//        LoginContent(onBackPressed = { }, ssoLoginResult = null)
+//    }
+//}
 

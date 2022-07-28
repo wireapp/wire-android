@@ -42,9 +42,9 @@ import com.wire.android.ui.theme.wireTypography
 
 @Composable
 fun OngoingCallScreen(
-    lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
-    ongoingCallViewModel: OngoingCallViewModel = hiltViewModel(),
-    sharedCallingViewModel: SharedCallingViewModel = hiltViewModel()
+    ongoingCallViewModel: OngoingCallViewModel,
+    sharedCallingViewModel: SharedCallingViewModel,
+    lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current
 ) {
     OngoingCallContent(sharedCallingViewModel)
     observeScreenLifecycleChanges(

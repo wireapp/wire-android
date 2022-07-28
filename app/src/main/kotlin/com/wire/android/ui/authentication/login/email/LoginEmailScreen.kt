@@ -58,10 +58,10 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun LoginEmailScreen(
+    loginEmailViewModel: LoginEmailViewModel,
     scrollState: ScrollState = rememberScrollState()
 ) {
     val scope = rememberCoroutineScope()
-    val loginEmailViewModel: LoginEmailViewModel = hiltViewModel()
     val loginEmailState: LoginEmailState = loginEmailViewModel.loginState
     LoginEmailContent(
         scrollState = scrollState,

@@ -38,8 +38,7 @@ import com.wire.android.util.getDeviceId
 import com.wire.android.util.startMultipleFileSharingIntent
 
 @Composable
-fun DebugScreen() {
-    val debugScreenViewModel: DebugScreenViewModel = hiltViewModel()
+fun DebugScreen(debugScreenViewModel : DebugScreenViewModel) {
     DebugContent(
         mlsData = debugScreenViewModel.mlsData,
         isLoggingEnabled = debugScreenViewModel.isLoggingEnabled,

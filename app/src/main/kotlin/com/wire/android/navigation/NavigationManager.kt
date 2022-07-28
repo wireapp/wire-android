@@ -5,14 +5,14 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 class NavigationManager {
 
     var navigateState = MutableSharedFlow<NavigationCommand?>()
-    var navigateBack = MutableSharedFlow<Map<String, Any>>()
+    var navigateBack = MutableSharedFlow<Unit>()
 
     suspend fun navigate(command: NavigationCommand) {
         navigateState.emit(command)
     }
 
-    suspend fun navigateBack(previousBackStackPassedArgs: Map<String, Any> = mapOf()) {
-        navigateBack.emit(previousBackStackPassedArgs)
+    suspend fun navigateBack() {
+        navigateBack.emit(Unit)
     }
 }
 
@@ -23,24 +23,22 @@ data class NavigationCommand(
     /**
      * The destination route of the component we want to navigate to.
      */
-    val destination: String,
+    val destinations: List<VoyagerNavigationItem>,
 
     /**
      * Whether we want to clear the previously added screens on the backstack, only until the current one, or none of them.
      */
     val backStackMode: BackStackMode = BackStackMode.NONE,
+) {
+    init {
+        require(destinations.isNotEmpty()) { "NavigationCommand should contain at least one destination" }
+    }
 
-    /**
-     * A list of arguments to be stored in the savedStateHandle in case we want to pass information to the previous screen
-     */
-    val previousBackStackPassedArgs: List<Pair<String, Any>>? = null
-
-    //TODO add in/out animations here
-)
+    constructor(destination: VoyagerNavigationItem, backStackMode: BackStackMode = BackStackMode.NONE)
+            : this(listOf(destination), backStackMode)
+}
 
 enum class BackStackMode {
-    // clear the whole backstack excluding "start screen"
-    CLEAR_TILL_START,
 
     // clear the whole backstack including "start screen" (use when you navigate to a new "start screen" )
     CLEAR_WHOLE,

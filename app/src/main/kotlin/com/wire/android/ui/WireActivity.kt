@@ -16,12 +16,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
-import androidx.navigation.NavHostController
-import com.google.accompanist.navigation.animation.rememberAnimatedNavController
-import com.wire.android.navigation.NavigationGraph
+import cafe.adriel.voyager.navigator.CurrentScreen
+import cafe.adriel.voyager.navigator.LocalNavigator
+import cafe.adriel.voyager.navigator.Navigator
+import cafe.adriel.voyager.navigator.currentOrThrow
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.navigation.VoyagerNavigationGraph
 import com.wire.android.navigation.navigateToItem
-import com.wire.android.navigation.popWithArguments
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.ui.updateScreenSettings
@@ -34,9 +35,7 @@ import javax.inject.Inject
 
 @OptIn(
     ExperimentalMaterial3Api::class,
-    ExperimentalAnimationApi::class,
     ExperimentalComposeUiApi::class,
-    ExperimentalMaterialApi::class,
     ExperimentalCoroutinesApi::class
 )
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -60,9 +59,7 @@ class WireActivity : AppCompatActivity() {
     }
 
     override fun onNewIntent(intent: Intent?) {
-        if (viewModel.handleDeepLinkOnNewIntent(intent)) {
-            recreate()
-        }
+        viewModel.handleDeepLinkOnNewIntent(intent)
         super.onNewIntent(intent)
     }
 
@@ -70,19 +67,21 @@ class WireActivity : AppCompatActivity() {
         setContent {
             WireTheme {
                 val scope = rememberCoroutineScope()
-                val navController = rememberAnimatedNavController()
-                val startDestination = viewModel.startNavigationRoute()
                 Scaffold {
-                    NavigationGraph(navController = navController, startDestination, viewModel.navigationArguments())
+                    VoyagerNavigationGraph(
+                        startScreens = viewModel.startVoyagerNavigationScreen()
+                    ) {
+                        CurrentScreen()
+                        setUpVoyagerNavigation(navigator = it, scope = scope)
+                    }
                 }
-                setUpNavigation(navController, scope)
             }
         }
     }
 
     @Composable
-    private fun setUpNavigation(
-        navController: NavHostController,
+    private fun setUpVoyagerNavigation(
+        navigator: Navigator,
         scope: CoroutineScope
     ) {
         val keyboardController = LocalSoftwareKeyboardController.current
@@ -92,22 +91,21 @@ class WireActivity : AppCompatActivity() {
                 .onEach { command ->
                     if (command == null) return@onEach
                     keyboardController?.hide()
-                    navController.navigateToItem(command)
+                    navigator.navigateToItem(command)
                 }
                 .launchIn(scope)
 
             navigationManager.navigateBack
                 .onEach {
-                    if (!navController.popWithArguments(it)) finish()
+                    if (!navigator.pop()) finish()
                 }
                 .launchIn(scope)
+        }
 
-            navController.addOnDestinationChangedListener { controller, _, _ ->
-                keyboardController?.hide()
-                updateScreenSettings(controller)
-            }
-
-            navController.addOnDestinationChangedListener(currentScreenManager)
+        LaunchedEffect(navigator.lastItem) {
+            currentScreenManager.onDestinationChanged(navigator.lastItem)
+            keyboardController?.hide()
+            updateScreenSettings(navigator)
         }
     }
 }

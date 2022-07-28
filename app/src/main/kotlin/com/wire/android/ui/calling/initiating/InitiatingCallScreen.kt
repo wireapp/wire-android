@@ -21,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.ui.calling.common.CallVideoPreview
 import com.wire.android.ui.calling.CallState
+import com.wire.android.ui.calling.ConversationName
 import com.wire.android.ui.calling.SharedCallingViewModel
 import com.wire.android.ui.calling.common.CallerDetails
 import com.wire.android.ui.calling.controlButtons.CallOptionsControls
@@ -31,8 +32,8 @@ import com.wire.android.ui.theme.wireDimensions
 
 @Composable
 fun InitiatingCallScreen(
-    sharedCallingViewModel: SharedCallingViewModel = hiltViewModel(),
-    initiatingCallViewModel: InitiatingCallViewModel = hiltViewModel()
+    sharedCallingViewModel: SharedCallingViewModel,
+    initiatingCallViewModel: InitiatingCallViewModel
 ) {
     with(sharedCallingViewModel) {
         InitiatingCallContent(
@@ -113,5 +114,5 @@ private fun InitiatingCallContent(
 @Preview
 @Composable
 fun ComposablePreview() {
-    InitiatingCallScreen()
+    InitiatingCallContent(CallState(conversationName = ConversationName.Known("name")), {}, {}, {}, {}, {}, {})
 }

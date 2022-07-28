@@ -11,8 +11,8 @@ import com.wire.android.BuildConfig
 import com.wire.android.appLogger
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.navigation.VoyagerNavigationItem
 import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
@@ -84,8 +84,8 @@ class RegisterDeviceViewModel @Inject constructor(
     }
 
     private suspend fun navigateToRemoveDevicesScreen() =
-        navigationManager.navigate(NavigationCommand(NavigationItem.RemoveDevices.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
+        navigationManager.navigate(NavigationCommand(VoyagerNavigationItem.RemoveDevices, BackStackMode.CLEAR_WHOLE))
 
     private suspend fun navigateToHomeScreen() =
-        navigationManager.navigate(NavigationCommand(NavigationItem.Home.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
+        navigationManager.navigate(NavigationCommand(VoyagerNavigationItem.Home, BackStackMode.CLEAR_WHOLE))
 }

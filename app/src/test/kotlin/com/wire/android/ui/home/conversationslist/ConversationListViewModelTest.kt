@@ -6,8 +6,10 @@ import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.model.UserAvatarData
 import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.navigation.VoyagerNavigationItem
+import com.wire.android.navigation.nav
+import com.wire.android.ui.home.HomeSnackbarManager
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.ConversationLastEvent
@@ -53,6 +55,9 @@ class ConversationListViewModelTest {
     @MockK
     private lateinit var wireSessionImageLoader: WireSessionImageLoader
 
+    @MockK
+    private lateinit var homeSnackbarManager: HomeSnackbarManager
+
     @BeforeEach
     fun setUp() {
         MockKAnnotations.init(this, relaxUnitFun = true)
@@ -65,7 +70,8 @@ class ConversationListViewModelTest {
                 joinCall,
                 observeConversationsAndConnections,
                 TestDispatcherProvider(),
-                wireSessionImageLoader
+                wireSessionImageLoader,
+                homeSnackbarManager
             )
 
         coEvery { observeConversationsAndConnections() } returns flowOf(listOf())
@@ -83,7 +89,7 @@ class ConversationListViewModelTest {
     fun `given a conversations list, when opening a new conversation, then should delegate call to manager to NewConversation`() = runTest {
         conversationListViewModel.openNewConversation()
 
-        coVerify(exactly = 1) { navigationManager.navigate(NavigationCommand(NavigationItem.NewConversation.getRouteWithArgs())) }
+        coVerify(exactly = 1) { navigationManager.navigate(NavigationCommand(VoyagerNavigationItem.NewConversation)) }
     }
 
     @Test
@@ -92,15 +98,7 @@ class ConversationListViewModelTest {
             conversationListViewModel.openConversation(conversationItem.conversationId)
 
             coVerify(exactly = 1) {
-                navigationManager.navigate(
-                    NavigationCommand(
-                        NavigationItem.Conversation.getRouteWithArgs(
-                            listOf(
-                                conversationId
-                            )
-                        )
-                    )
-                )
+                navigationManager.navigate(NavigationCommand(VoyagerNavigationItem.Conversation(conversationId.nav())))
             }
         }
 
@@ -112,15 +110,7 @@ class ConversationListViewModelTest {
 
         coVerify(exactly = 1) { joinCall(conversationId = conversationId) }
         coVerify(exactly = 1) {
-            navigationManager.navigate(
-                NavigationCommand(
-                    NavigationItem.OngoingCall.getRouteWithArgs(
-                        listOf(
-                            conversationId
-                        )
-                    )
-                )
-            )
+            navigationManager.navigate(NavigationCommand(VoyagerNavigationItem.OngoingCall(conversationId.nav())))
         }
     }
 

@@ -5,9 +5,9 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.di.AuthServerConfigProvider
-import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.navigation.VoyagerNavigationItem
+import com.wire.android.navigation.nav
 import com.wire.android.notification.WireNotificationManager
 import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
@@ -22,7 +22,6 @@ import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
-import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
@@ -44,8 +43,8 @@ class WireActivityViewModelTest {
 
         viewModel.handleDeepLink(null)
 
-        val startDestination = viewModel.startNavigationRoute()
-        assertEquals(NavigationItem.Home.getRouteWithArgs(), startDestination)
+        val startDestination = viewModel.startVoyagerNavigationScreen()
+        assertEquals(VoyagerNavigationItem.Home, startDestination)
     }
 
     @Test
@@ -56,21 +55,21 @@ class WireActivityViewModelTest {
 
         viewModel.handleDeepLink(null)
 
-        val startDestination = viewModel.startNavigationRoute()
-        assertEquals(NavigationItem.Welcome.getRouteWithArgs(), startDestination)
+        val startDestination = viewModel.startVoyagerNavigationScreen()
+        assertEquals(VoyagerNavigationItem.Welcome, startDestination)
     }
 
     @Test
     fun `given Intent with SSOLogin, when currentSession is present, then startNavigation is Login and navArguments contains SSOLogin`() {
+        val ssoLogin = DeepLinkResult.SSOLogin.Success("cookie", "config")
         val (_, viewModel) = Arrangement()
             .withSomeCurrentSession()
-            .withDeepLinkResult(DeepLinkResult.SSOLogin.Success("cookie", "config"))
+            .withDeepLinkResult(ssoLogin)
             .arrange()
 
         viewModel.handleDeepLink(mockedIntent())
 
-        assertEquals(NavigationItem.Login.getRouteWithArgs(), viewModel.startNavigationRoute())
-        assert(viewModel.navigationArguments().filterIsInstance<DeepLinkResult.SSOLogin>().isNotEmpty())
+        assertEquals(VoyagerNavigationItem.Login(ssoLogin), viewModel.startVoyagerNavigationScreen())
     }
 
     @Test
@@ -82,8 +81,9 @@ class WireActivityViewModelTest {
 
         viewModel.handleDeepLink(mockedIntent())
 
-        assertEquals(NavigationItem.Login.getRouteWithArgs(), viewModel.startNavigationRoute())
-        assert(viewModel.navigationArguments().filterIsInstance<DeepLinkResult.SSOLogin>().isEmpty())
+        assertEquals(VoyagerNavigationItem.Login(), viewModel.startVoyagerNavigationScreen())
+        val deepLinkDestination = viewModel.deepLinkDestination
+        assert(deepLinkDestination is WireActivityViewModel.DeepLinkDestination.Login && deepLinkDestination.ssoLogin == null)
     }
 
     @Test
@@ -95,21 +95,27 @@ class WireActivityViewModelTest {
 
         viewModel.handleDeepLink(mockedIntent())
 
-        assertEquals(NavigationItem.Login.getRouteWithArgs(), viewModel.startNavigationRoute())
-        assert(viewModel.navigationArguments().filterIsInstance<DeepLinkResult.SSOLogin>().isEmpty())
+        assertEquals(VoyagerNavigationItem.Login(), viewModel.startVoyagerNavigationScreen())
+        val deepLinkDestination = viewModel.deepLinkDestination
+        assert(deepLinkDestination is WireActivityViewModel.DeepLinkDestination.Login && deepLinkDestination.ssoLogin == null)
     }
 
     @Test
     fun `given Intent with IncomingCall, when currentSession is present, then startNavigation is IncomingCall`() {
+        val callConversationId = ConversationId("val", "dom")
         val (_, viewModel) = Arrangement()
             .withSomeCurrentSession()
-            .withDeepLinkResult(DeepLinkResult.IncomingCall(ConversationId("val", "dom")))
+            .withDeepLinkResult(DeepLinkResult.IncomingCall(callConversationId))
             .arrange()
 
         viewModel.handleDeepLink(mockedIntent())
 
-        assertEquals(NavigationItem.IncomingCall.getRouteWithArgs(), viewModel.startNavigationRoute())
-        assert(viewModel.navigationArguments().filterIsInstance<ConversationId>().isNotEmpty())
+        assertEquals(VoyagerNavigationItem.IncomingCall(callConversationId.nav()), viewModel.startVoyagerNavigationScreen())
+        val deepLinkDestination = viewModel.deepLinkDestination
+        assert(
+            deepLinkDestination is WireActivityViewModel.DeepLinkDestination.IncomingCall
+                    && deepLinkDestination.conversationId == callConversationId
+        )
     }
 
     @Test
@@ -121,7 +127,7 @@ class WireActivityViewModelTest {
 
         viewModel.handleDeepLink(mockedIntent())
 
-        assertEquals(NavigationItem.Welcome.getRouteWithArgs(), viewModel.startNavigationRoute())
+        assertEquals(VoyagerNavigationItem.Welcome, viewModel.startVoyagerNavigationScreen())
     }
 
     @Test
@@ -133,76 +139,7 @@ class WireActivityViewModelTest {
 
         viewModel.handleDeepLink(mockedIntent(true))
 
-        assertEquals(NavigationItem.Home.getRouteWithArgs(), viewModel.startNavigationRoute())
-    }
-
-    @Test
-    fun `given newIntent with IncomingCall, when currentSession is present, then no recreation and navigate to IncomingCall is called`() {
-        val conversationId = ConversationId("val", "dom")
-        val (arrangement, viewModel) = Arrangement()
-            .withSomeCurrentSession()
-            .withDeepLinkResult(DeepLinkResult.IncomingCall(conversationId))
-            .arrange()
-
-        val shouldReCreate = viewModel.handleDeepLinkOnNewIntent(mockedIntent())
-
-        assert(!shouldReCreate)
-        coVerify(exactly = 1) {
-            arrangement.navigationManager.navigate(
-                NavigationCommand(NavigationItem.IncomingCall.getRouteWithArgs(listOf(conversationId)))
-            )
-        }
-    }
-
-    @Test
-    fun `given newIntent with IncomingCall, when currentSession is absent, then should recreate and navigate no any navigation`() {
-        val conversationId = ConversationId("val", "dom")
-        val (arrangement, viewModel) = Arrangement()
-            .withNoCurrentSession()
-            .withDeepLinkResult(DeepLinkResult.IncomingCall(conversationId))
-            .arrange()
-
-        val shouldReCreate = viewModel.handleDeepLinkOnNewIntent(mockedIntent())
-
-        assert(shouldReCreate)
-        coVerify(exactly = 0) { arrangement.navigationManager.navigate(any()) }
-    }
-
-    @Test
-    fun `given newIntent with SSOLogin, when currentSession is present, then should recreate and no any navigation`() {
-        val (arrangement, viewModel) = Arrangement()
-            .withSomeCurrentSession()
-            .withDeepLinkResult(DeepLinkResult.SSOLogin.Success("cookie", "config"))
-            .arrange()
-
-        val shouldReCreate = viewModel.handleDeepLinkOnNewIntent(mockedIntent())
-
-        assert(shouldReCreate)
-        coVerify(exactly = 0) { arrangement.navigationManager.navigate(any()) }
-    }
-
-    @Test
-    fun `given newIntent with null, when currentSession is present, then should not recreate and no any navigation`() {
-        val (arrangement, viewModel) = Arrangement()
-            .withSomeCurrentSession()
-            .arrange()
-
-        val shouldReCreate = viewModel.handleDeepLinkOnNewIntent(null)
-
-        assert(!shouldReCreate)
-        coVerify(exactly = 0) { arrangement.navigationManager.navigate(any()) }
-    }
-
-    @Test
-    fun `given newIntent with null, when currentSession is absent, then should recreate and no any navigation`() {
-        val (arrangement, viewModel) = Arrangement()
-            .withNoCurrentSession()
-            .arrange()
-
-        val shouldReCreate = viewModel.handleDeepLinkOnNewIntent(null)
-
-        assert(shouldReCreate)
-        coVerify(exactly = 0) { arrangement.navigationManager.navigate(any()) }
+        assertEquals(VoyagerNavigationItem.Home, viewModel.startVoyagerNavigationScreen())
     }
 
     private class Arrangement {

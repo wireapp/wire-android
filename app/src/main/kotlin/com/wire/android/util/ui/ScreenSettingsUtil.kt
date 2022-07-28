@@ -3,12 +3,12 @@ package com.wire.android.util.ui
 import android.app.Activity
 import android.os.Build
 import android.view.WindowManager
-import androidx.navigation.NavController
+import cafe.adriel.voyager.navigator.Navigator
 import com.wire.android.navigation.ScreenMode
-import com.wire.android.navigation.getCurrentNavigationItem
+import com.wire.android.navigation.VoyagerNavigationItem
 
-fun Activity.updateScreenSettings(navController: NavController) {
-    val screenMode = navController.getCurrentNavigationItem()?.screenMode
+fun Activity.updateScreenSettings(navigator: Navigator) {
+    val screenMode = (navigator.lastItem as VoyagerNavigationItem).screenMode
     updateScreenSettings(screenMode)
 }
 

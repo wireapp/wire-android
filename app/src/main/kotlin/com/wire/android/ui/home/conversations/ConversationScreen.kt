@@ -68,10 +68,6 @@ fun ConversationScreen(conversationViewModel: ConversationViewModel) {
     val joinCallAudioPermissionCheck = JoinCallAudioBluetoothPermissionCheckFlow(conversationViewModel)
     val uiState = conversationViewModel.conversationViewState
 
-    LaunchedEffect(conversationViewModel.savedStateHandle) {
-        conversationViewModel.checkPendingActions()
-    }
-
     if (showDialog.value) {
         WireDialog(
             title = stringResource(id = R.string.calling_ongoing_call_title_alert),

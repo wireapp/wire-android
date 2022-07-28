@@ -10,8 +10,9 @@ import com.wire.android.R
 import com.wire.android.mapper.ContactMapper
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.navigation.VoyagerNavigationItem
+import com.wire.android.navigation.nav
 import com.wire.android.ui.home.conversations.search.SearchPeopleViewModel
 import com.wire.android.ui.home.conversations.search.SearchResult
 import com.wire.android.ui.home.conversationslist.model.Membership
@@ -217,7 +218,7 @@ class NewConversationViewModel @Inject constructor(
                     groupNameState = groupNameState.copy(isLoading = false)
                     navigationManager.navigate(
                         command = NavigationCommand(
-                            destination = NavigationItem.Conversation.getRouteWithArgs(listOf(result.value.id)),
+                            destination = VoyagerNavigationItem.Conversation(result.value.id.nav()),
                             backStackMode = BackStackMode.REMOVE_CURRENT
                         )
                     )

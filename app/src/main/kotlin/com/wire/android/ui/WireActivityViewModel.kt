@@ -1,14 +1,18 @@
 package com.wire.android.ui
 
 import android.content.Intent
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.navigation.VoyagerNavigationItem
+import com.wire.android.navigation.nav
 import com.wire.android.notification.WireNotificationManager
 import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
@@ -24,7 +28,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
@@ -45,7 +48,8 @@ class WireActivityViewModel @Inject constructor(
     private val authServerConfigProvider: AuthServerConfigProvider
 ) : ViewModel() {
 
-    private val navigationArguments = mutableMapOf<String, Any>(SERVER_CONFIG_ARG to ServerConfig.DEFAULT)
+    var deepLinkDestination: DeepLinkDestination by mutableStateOf(DeepLinkDestination.None)
+        private set
 
     private val observeUserId = currentSessionFlow()
         .map { result ->
@@ -62,16 +66,27 @@ class WireActivityViewModel @Inject constructor(
         }
     }
 
-    fun navigationArguments() = navigationArguments.values.toList()
-
-    fun startNavigationRoute(): String =
-        when {
-            shouldGoToLogin() -> NavigationItem.Login.getRouteWithArgs()
-            shouldGoToWelcome() -> NavigationItem.Welcome.getRouteWithArgs()
-            shouldGoToIncomingCall() -> NavigationItem.IncomingCall.getRouteWithArgs()
-            shouldGoToConversation() -> NavigationItem.Conversation.getRouteWithArgs()
-            shouldGoToOtherProfile() -> NavigationItem.OtherUserProfile.getRouteWithArgs()
-            else -> NavigationItem.Home.getRouteWithArgs()
+    fun startVoyagerNavigationScreen(): List<VoyagerNavigationItem> =
+        when (val destination = deepLinkDestination) {
+            DeepLinkDestination.Welcome -> listOf(VoyagerNavigationItem.Welcome)
+            DeepLinkDestination.None -> listOf(VoyagerNavigationItem.Home)
+            is DeepLinkDestination.Login ->
+                listOf(
+                    VoyagerNavigationItem.Welcome,
+                    VoyagerNavigationItem.Login(destination.ssoLogin)
+                )
+            is DeepLinkDestination.Conversation -> listOf(
+                VoyagerNavigationItem.Home,
+                VoyagerNavigationItem.Conversation(destination.conversationId.nav())
+            )
+            is DeepLinkDestination.IncomingCall -> listOf(
+                VoyagerNavigationItem.Home,
+                VoyagerNavigationItem.IncomingCall(destination.conversationId.nav())
+            )
+            is DeepLinkDestination.OtherUserProfile -> listOf(
+                VoyagerNavigationItem.Home,
+                VoyagerNavigationItem.OtherUserProfile(destination.userId.nav())
+            )
         }
 
     fun handleDeepLink(intent: Intent?) {
@@ -80,10 +95,10 @@ class WireActivityViewModel @Inject constructor(
                 is DeepLinkResult.CustomServerConfig ->
                     loadServerConfig(result.url)?.let { serverLinks ->
                         authServerConfigProvider.updateAuthServer(serverLinks)
-                        navigationArguments.put(SERVER_CONFIG_ARG, serverLinks)
+                        deepLinkDestination = DeepLinkDestination.Login(null)
                     }
                 is DeepLinkResult.SSOLogin ->
-                    navigationArguments.put(SSO_DEEPLINK_ARG, result)
+                    deepLinkDestination = DeepLinkDestination.Login(result)
                 is DeepLinkResult.IncomingCall -> {
                     if (isLaunchedFromHistory(intent)) {
                         //We don't need to handle deepLink, if activity was launched from history.
@@ -91,77 +106,71 @@ class WireActivityViewModel @Inject constructor(
                         //then open the app from the "Recent Apps"
                         appLogger.i("IncomingCall deepLink launched from the history")
                     } else {
-                        navigationArguments.put(INCOMING_CALL_CONVERSATION_ID_ARG, result.conversationsId)
+                        deepLinkDestination = DeepLinkDestination.IncomingCall(result.conversationsId)
                     }
                 }
                 is DeepLinkResult.OpenConversation -> {
                     if (isLaunchedFromHistory(intent)) {
                         appLogger.i("OpenConversation deepLink launched from the history")
                     } else {
-                        navigationArguments.put(OPEN_CONVERSATION_ID_ARG, result.conversationsId)
+                        deepLinkDestination = DeepLinkDestination.Conversation(result.conversationsId)
                     }
                 }
                 is DeepLinkResult.OpenOtherUserProfile -> {
                     if (isLaunchedFromHistory(intent)) {
                         appLogger.i("OpenOtherUserProfile deepLink launched from the history")
                     } else {
-                        navigationArguments.put(OPEN_OTHER_USER_PROFILE_ARG, result.userId)
+                        deepLinkDestination = DeepLinkDestination.OtherUserProfile(result.userId)
                     }
                 }
                 DeepLinkResult.Unknown -> {
                     appLogger.e("unknown deeplink result $result")
+                    deepLinkDestination = DeepLinkDestination.None
                 }
             }
-        }
+        } ?: run { deepLinkDestination = DeepLinkDestination.None }
     }
 
-    /**
-     * Some of the deepLinks require to recreate Activity (Login, Welcome, etc.)
-     * Others need to just open some screen, without recreating (Conversation, IncomingCall, etc.)
-     *
-     * @return true if Activity needs to be recreated, false - otherwise
-     */
-    fun handleDeepLinkOnNewIntent(intent: Intent?): Boolean {
+    fun handleDeepLinkOnNewIntent(intent: Intent?) {
 
         //removing arguments that could be there from prev deeplink handling
-        navigationArguments.apply {
-            remove(INCOMING_CALL_CONVERSATION_ID_ARG)
-            remove(OPEN_CONVERSATION_ID_ARG)
-            remove(OPEN_OTHER_USER_PROFILE_ARG)
-            remove(SSO_DEEPLINK_ARG)
-        }
+        deepLinkDestination = DeepLinkDestination.None
 
         handleDeepLink(intent)
 
-        return when {
-            shouldGoToLogin() || shouldGoToWelcome() -> true
-            shouldGoToIncomingCall() -> {
-                openIncomingCall(navigationArguments[INCOMING_CALL_CONVERSATION_ID_ARG] as ConversationId)
-                false
-            }
-            shouldGoToConversation() -> {
-                openConversation(navigationArguments[OPEN_CONVERSATION_ID_ARG] as ConversationId)
-                false
-            }
-            shouldGoToOtherProfile() -> {
-                openOtherUserProfile(navigationArguments[OPEN_OTHER_USER_PROFILE_ARG] as QualifiedID)
-                false
-            }
-            intent == null -> false
-            else -> true
+        when (val destination = deepLinkDestination) {
+            DeepLinkDestination.None -> {}
+            DeepLinkDestination.Welcome -> openWelcome()
+            is DeepLinkDestination.Login -> openLogin(destination.ssoLogin)
+            is DeepLinkDestination.Conversation -> openConversation(destination.conversationId)
+            is DeepLinkDestination.IncomingCall -> openIncomingCall(destination.conversationId)
+            is DeepLinkDestination.OtherUserProfile -> openOtherUserProfile(destination.userId)
         }
     }
 
+    private fun openWelcome() {
+        navigateTo(NavigationCommand(VoyagerNavigationItem.Welcome, BackStackMode.CLEAR_WHOLE))
+    }
+
+    private fun openLogin(ssoLogin: DeepLinkResult.SSOLogin?) {
+        navigateTo(
+            NavigationCommand(
+                listOf(VoyagerNavigationItem.Welcome, VoyagerNavigationItem.Login(ssoLogin)),
+                BackStackMode.CLEAR_WHOLE
+            )
+        )
+    }
+
     private fun openIncomingCall(conversationId: ConversationId) {
-        navigateTo(NavigationCommand(NavigationItem.IncomingCall.getRouteWithArgs(listOf(conversationId))))
+        navigateTo(NavigationCommand(VoyagerNavigationItem.IncomingCall(conversationId.nav())))
     }
 
     private fun openConversation(conversationId: ConversationId) {
-        navigateTo(NavigationCommand(NavigationItem.Conversation.getRouteWithArgs(listOf(conversationId)), BackStackMode.UPDATE_EXISTED))
+        navigateTo(NavigationCommand(VoyagerNavigationItem.Conversation(conversationId.nav()), BackStackMode.UPDATE_EXISTED))
     }
 
     private fun openOtherUserProfile(userId: QualifiedID) {
-        navigateTo(NavigationCommand(NavigationItem.OtherUserProfile.getRouteWithArgs(listOf(userId)), BackStackMode.UPDATE_EXISTED))
+        navigateTo(NavigationCommand(VoyagerNavigationItem.OtherUserProfile(userId.nav()), BackStackMode.UPDATE_EXISTED))
     }
 
     private fun isLaunchedFromHistory(intent: Intent?) =
@@ -192,26 +201,12 @@ class WireActivityViewModel @Inject constructor(
         }
     }
 
-    private fun shouldGoToLogin(): Boolean =
-        (navigationArguments[SERVER_CONFIG_ARG] as ServerConfig.Links) != ServerConfig.DEFAULT ||
-                navigationArguments[SSO_DEEPLINK_ARG] != null
-
-    private fun shouldGoToIncomingCall(): Boolean =
-        (navigationArguments[INCOMING_CALL_CONVERSATION_ID_ARG] as? ConversationId) != null
-
-    private fun shouldGoToConversation(): Boolean =
-        (navigationArguments[OPEN_CONVERSATION_ID_ARG] as? ConversationId) != null
-
-    private fun shouldGoToOtherProfile(): Boolean =
-        (navigationArguments[OPEN_OTHER_USER_PROFILE_ARG] as? QualifiedID) != null
-
-    private fun shouldGoToWelcome(): Boolean = runBlocking { observeUserId.first() } == null
-
-    companion object {
-        private const val SERVER_CONFIG_ARG = "server_config"
-        private const val SSO_DEEPLINK_ARG = "sso_deeplink"
-        private const val INCOMING_CALL_CONVERSATION_ID_ARG = "incoming_call_conversation_id"
-        private const val OPEN_CONVERSATION_ID_ARG = "open_conversation_id"
-        private const val OPEN_OTHER_USER_PROFILE_ARG = "open_other_user_id"
+    sealed class DeepLinkDestination {
+        object None : DeepLinkDestination()
+        object Welcome : DeepLinkDestination()
+        data class Login(val ssoLogin: DeepLinkResult.SSOLogin?) : DeepLinkDestination()
+        data class IncomingCall(val conversationId: ConversationId) : DeepLinkDestination()
+        data class Conversation(val conversationId: ConversationId) : DeepLinkDestination()
+        data class OtherUserProfile(val userId: QualifiedID) : DeepLinkDestination()
     }
 }

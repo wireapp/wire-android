@@ -9,14 +9,16 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import cafe.adriel.voyager.core.model.ScreenModel
+import cafe.adriel.voyager.core.model.coroutineScope
 import com.wire.android.BuildConfig
 import com.wire.android.appLogger
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.navigation.VoyagerNavigationItem
 import com.wire.android.ui.authentication.create.code.CreateAccountCodeViewModel
 import com.wire.android.ui.authentication.create.code.CreateAccountCodeViewState
 import com.wire.android.ui.authentication.create.details.CreateAccountDetailsViewModel
@@ -135,8 +137,8 @@ abstract class CreateAccountBaseViewModel(
         viewModelScope.launch {
             navigationManager.navigate(
                 NavigationCommand(
-                    NavigationItem.Login.getRouteWithArgs(),
-                    BackStackMode.CLEAR_TILL_START
+                    VoyagerNavigationItem.Login(),
+                    BackStackMode.REMOVE_CURRENT
                 )
             )
         }
@@ -297,7 +299,7 @@ abstract class CreateAccountBaseViewModel(
             error = CreateAccountCodeViewState.CodeError.None
         )
         viewModelScope.launch {
-            navigationManager.navigate(NavigationCommand(NavigationItem.RemoveDevices.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
+            navigationManager.navigate(NavigationCommand(VoyagerNavigationItem.RemoveDevices, BackStackMode.CLEAR_WHOLE))
         }
     }
 }

@@ -20,7 +20,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -29,20 +28,16 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import androidx.navigation.compose.currentBackStackEntryAsState
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
 @Composable
-fun WireBottomNavigationBar(
-    items: List<WireBottomNavigationItemData>,
-    navController: NavController
+fun WireBottomTabBar(
+    items: List<WireBottomTabItemData>,
+    currentItemIndex: Int,
+    openItem: (Int) -> Unit
 ) {
-    val navBackStackEntry by navController.currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry?.destination?.route
     Surface(
         modifier = Modifier
             .fillMaxWidth()
@@ -65,19 +60,12 @@ fun WireBottomNavigationBar(
                         else MaterialTheme.wireDimensions.bottomNavigationBetweenItemsPadding
                     )
 
-                WireBottomNavigationItem(
+                WireBottomTabItem(
                     data = item,
-                    selected = currentRoute == item.route,
+                    selected = currentItemIndex == index,
                     modifier = modifier
                 ) {
-                    navController.navigate(item.route) {
-                        popUpTo(0) {
-                            saveState = true
-                            inclusive = true
-                        }
-                        launchSingleTop = true
-                        restoreState = true
-                    }
+                    openItem(index)
                 }
             }
         }
@@ -85,11 +73,11 @@ fun WireBottomNavigationBar(
 }
 
 @Composable
-fun RowScope.WireBottomNavigationItem(
-    data: WireBottomNavigationItemData,
+fun RowScope.WireBottomTabItem(
+    data: WireBottomTabItemData,
     selected: Boolean,
     modifier: Modifier = Modifier,
-    onItemClick: (WireBottomNavigationItemData) -> Unit
+    onItemClick: (WireBottomTabItemData) -> Unit
 ) {
     val backgroundColor = if (selected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent
     val contentColor = if (selected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onBackground
@@ -146,9 +134,8 @@ fun RowScope.WireBottomNavigationItem(
     }
 }
 
-data class WireBottomNavigationItemData(
+data class WireBottomTabItemData(
     @DrawableRes val icon: Int,
     @StringRes val title: Int,
-    val notificationAmount: Int,
-    val route: String,
+    val notificationAmount: Int
 )

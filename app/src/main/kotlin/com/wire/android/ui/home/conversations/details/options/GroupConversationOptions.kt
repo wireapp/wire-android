@@ -21,22 +21,27 @@ import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsViewModel
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.theme.wireColorScheme
+import com.wire.kalium.logic.data.id.ConversationId
 
 @Composable
 fun GroupConversationOptions(
-    viewModel: GroupConversationDetailsViewModel = hiltViewModel(),
+    groupOptionsState: GroupConversationOptionsState,
+    onGuestUpdate: (Boolean) -> Unit,
+    onServicesUpdate: (Boolean) -> Unit,
+    onGuestDialogConfirm: () -> Unit,
+    onGuestDialogDismiss: () -> Unit,
     lazyListState: LazyListState
 ) {
     GroupConversationSettings(
-        state = viewModel.groupOptionsState,
-        onGuestSwitchClicked = viewModel::onGuestUpdate,
-        onServiceSwitchClicked = viewModel::onServicesUpdate,
+        state = groupOptionsState,
+        onGuestSwitchClicked = onGuestUpdate,
+        onServiceSwitchClicked = onServicesUpdate,
         lazyListState = lazyListState
     )
     DisableGuestConformationDialog(
-        state = viewModel.groupOptionsState.isGuestUpdateDialogShown,
-        onConform = viewModel::onGuestDialogConfirm,
-        onDialogDismiss = viewModel::onGuestDialogDismiss
+        state = groupOptionsState.isGuestUpdateDialogShown,
+        onConform = onGuestDialogConfirm,
+        onDialogDismiss = onGuestDialogDismiss
     )
 }
 

@@ -57,7 +57,7 @@ import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun SelfUserProfileScreen(viewModelSelf: SelfUserProfileViewModel = hiltViewModel()) {
+fun SelfUserProfileScreen(viewModelSelf: SelfUserProfileViewModel) {
     SelfUserProfileContent(
         state = viewModelSelf.userProfileState,
         onCloseClick = { viewModelSelf.navigateBack() },

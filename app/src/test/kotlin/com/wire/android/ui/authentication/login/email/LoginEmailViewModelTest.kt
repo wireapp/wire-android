@@ -9,14 +9,12 @@ import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
-import com.wire.android.navigation.NavigationItemDestinationsRoutes
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.navigation.VoyagerNavigationItem
 import com.wire.android.ui.authentication.login.LoginError
 import com.wire.android.util.EMPTY
 import com.wire.android.util.newServerConfig
 import com.wire.kalium.logic.NetworkFailure
-import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.client.Client
 import com.wire.kalium.logic.data.client.ClientType
 import com.wire.kalium.logic.data.conversation.ClientId
@@ -103,10 +101,10 @@ class LoginEmailViewModelTest {
         every { authSession.tokens.userId } returns userId
         every { authServerConfigProvider.authServer.value } returns newServerConfig(1).links
         loginViewModel = LoginEmailViewModel(
+            savedStateHandle,
             loginUseCase,
             addAuthenticatedUserUseCase,
             clientScopeProviderFactory,
-            savedStateHandle,
             navigationManager,
             authServerConfigProvider
         )
@@ -167,7 +165,7 @@ class LoginEmailViewModelTest {
         coVerify(exactly = 1) {
             navigationManager.navigate(
                 NavigationCommand(
-                    NavigationItemDestinationsRoutes.HOME,
+                    VoyagerNavigationItem.Home,
                     BackStackMode.CLEAR_WHOLE
                 )
             )

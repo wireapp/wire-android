@@ -3,59 +3,31 @@ package com.wire.android.navigation
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
+import cafe.adriel.voyager.navigator.Navigator
 import com.wire.android.appLogger
 
 @ExperimentalMaterial3Api
-internal fun NavController.navigateToItem(command: NavigationCommand) {
-    currentBackStackEntry?.savedStateHandle?.remove<Map<String, Any>>(EXTRA_BACK_NAVIGATION_ARGUMENTS)
-    navigate(command.destination) {
-        when (command.backStackMode) {
-            BackStackMode.CLEAR_WHOLE, BackStackMode.CLEAR_TILL_START -> {
-                val inclusive = command.backStackMode == BackStackMode.CLEAR_WHOLE
-                popBackStack(inclusive) { backQueue.firstOrNull { it.destination.route != null } }
-            }
-            BackStackMode.REMOVE_CURRENT -> {
-                popBackStack(true) { backQueue.lastOrNull { it.destination.route != null } }
-            }
-            BackStackMode.UPDATE_EXISTED -> {
-                NavigationItem.fromRoute(command.destination)?.let { navItem ->
-                    popBackStack(true) { backQueue.firstOrNull { it.destination.route == navItem.getCanonicalRoute() } }
-                }
-            }
-            BackStackMode.NONE -> {
-            }
+internal fun Navigator.navigateToItem(command: NavigationCommand) {
+    when (command.backStackMode) {
+        BackStackMode.CLEAR_WHOLE -> {
+            replaceAll(command.destinations[0])
+            if (command.destinations.size > 1) push(command.destinations.drop(1))
         }
-        launchSingleTop = true
-        restoreState = true
-    }
-}
-
-private fun NavController.popBackStack(
-    inclusive: Boolean,
-    getNavBackStackEntry: () -> NavBackStackEntry?,
-) {
-    getNavBackStackEntry()?.let { entry ->
-        val startId = entry.destination.id
-        popBackStack(startId, inclusive)
-    }
-}
-
-/**
- * @return true if the stack was popped at least once and the user has been navigated to another destination,
- * false otherwise
- */
-internal fun NavController.popWithArguments(arguments: Map<String, Any>?): Boolean {
-    previousBackStackEntry?.let {
-        it.savedStateHandle.remove<Map<String, Any>>(EXTRA_BACK_NAVIGATION_ARGUMENTS)
-        arguments?.let { arguments ->
-            appLogger.d("Destination is ${it.destination}")
-            it.savedStateHandle[EXTRA_BACK_NAVIGATION_ARGUMENTS] = arguments
+        BackStackMode.REMOVE_CURRENT -> {
+            replace(command.destinations[0])
+            if (command.destinations.size > 1) push(command.destinations.drop(1))
         }
+        BackStackMode.UPDATE_EXISTED ->
+            if (items.any { it.key == command.destinations[0].key }) {
+                popUntil { it.key == command.destinations[0].key }
+                replace(command.destinations[0])
+                if (command.destinations.size > 1) push(command.destinations.drop(1))
+            } else {
+                push(command.destinations)
+            }
+        BackStackMode.NONE -> push(command.destinations)
     }
-    return popBackStack()
 }
 
-internal fun NavController.getCurrentNavigationItem(): NavigationItem? =
-    this.currentDestination?.route?.let { currentRoute ->
-        NavigationItem.fromRoute(currentRoute)
-    }
+internal fun Navigator.getCurrentNavigationItem(): VoyagerNavigationItem? =
+    this.lastItemOrNull?.let { it as? VoyagerNavigationItem }

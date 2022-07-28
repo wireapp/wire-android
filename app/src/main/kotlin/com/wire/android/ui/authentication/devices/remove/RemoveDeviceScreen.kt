@@ -43,8 +43,7 @@ import com.wire.android.util.dialogErrorStrings
 import com.wire.android.util.formatMediumDateTime
 
 @Composable
-fun RemoveDeviceScreen() {
-    val viewModel: RemoveDeviceViewModel = hiltViewModel()
+fun RemoveDeviceScreen(viewModel: RemoveDeviceViewModel) {
     val state: RemoveDeviceState = viewModel.state
     RemoveDeviceContent(
         state = state,

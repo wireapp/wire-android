@@ -33,7 +33,7 @@ import com.wire.android.ui.home.conversations.MediaGallerySnackbarMessages
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
-fun MediaGalleryScreen(mediaGalleryViewModel: MediaGalleryViewModel = hiltViewModel()) {
+fun MediaGalleryScreen(mediaGalleryViewModel: MediaGalleryViewModel) {
     val uiState = mediaGalleryViewModel.mediaGalleryViewState
     val mediaGalleryScreenState = rememberMediaGalleryScreenState()
     val scope = rememberCoroutineScope()

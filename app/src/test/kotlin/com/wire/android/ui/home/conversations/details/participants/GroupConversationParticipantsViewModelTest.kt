@@ -3,22 +3,24 @@ package com.wire.android.ui.home.conversations.details.participants
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.mockUri
+import com.wire.android.di.KEY_PARAM
 import com.wire.android.mapper.testUIParticipant
-import com.wire.android.navigation.EXTRA_CONVERSATION_ID
+import com.wire.android.navigation.NavQualifiedId
 import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.navigation.VoyagerNavigationItem
+import com.wire.android.navigation.nav
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsViewModel
 import com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
+import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.parseIntoQualifiedID
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.consumeAsFlow
@@ -64,9 +66,7 @@ class GroupConversationParticipantsViewModelTest {
         coVerify {
             arrangement.navigationManager.navigate(
                 NavigationCommand(
-                    NavigationItem.OtherUserProfile.getRouteWithArgs(
-                        listOf(member.id, arrangement.conversationId.parseIntoQualifiedID())
-                    )
+                    VoyagerNavigationItem.OtherUserProfile(member.id.nav(), arrangement.conversationId.nav())
                 )
             )
         }
@@ -81,7 +81,7 @@ class GroupConversationParticipantsViewModelTest {
         viewModel.openProfile(member)
         // Then
         coVerify {
-            arrangement.navigationManager.navigate(NavigationCommand(NavigationItem.SelfUserProfile.getRouteWithArgs()))
+            arrangement.navigationManager.navigate(NavigationCommand(VoyagerNavigationItem.SelfUserProfile))
         }
     }
 }
@@ -100,13 +100,13 @@ internal class GroupConversationParticipantsViewModelArrangement {
     private val viewModel by lazy {
         GroupConversationParticipantsViewModel(savedStateHandle, navigationManager, observeParticipantsForConversationUseCase)
     }
-    val conversationId = "some-dummy-value@some.dummy.domain"
+    val conversationId = QualifiedID("some-dummy-value", "some.dummy.domain")
 
     init {
         // Tests setup
         MockKAnnotations.init(this, relaxUnitFun = true)
         mockUri()
-        every { savedStateHandle.get<String>(EXTRA_CONVERSATION_ID) } returns conversationId
+        every { savedStateHandle.get<NavQualifiedId>(KEY_PARAM) } returns conversationId.nav()
         // Default empty values
         coEvery { observeParticipantsForConversationUseCase(any(), any()) } returns flowOf()
     }

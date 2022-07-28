@@ -1,16 +1,15 @@
 package com.wire.android.ui.home.gallery
 
+import android.os.Parcelable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.di.AssistedViewModel
 import com.wire.android.model.ImageAsset
-import com.wire.android.model.parseIntoPrivateImageAsset
-import com.wire.android.navigation.EXTRA_IMAGE_DATA
-import com.wire.android.navigation.EXTRA_MESSAGE_TO_DELETE_ID
-import com.wire.android.navigation.EXTRA_MESSAGE_TO_DELETE_IS_SELF
+import com.wire.android.navigation.NavQualifiedId
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.ConversationViewModel
 import com.wire.android.ui.home.conversations.MediaGallerySnackbarMessages
@@ -19,6 +18,7 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.getCurrentParsedDateTime
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.ConversationDetails
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult.Success
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
@@ -26,25 +26,27 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.parcelize.Parcelize
 import javax.inject.Inject
 
 @Suppress("LongParameterList")
 @HiltViewModel
 class MediaGalleryViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
+    override val savedStateHandle: SavedStateHandle,
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val navigationManager: NavigationManager,
     private val getConversationDetails: ObserveConversationDetailsUseCase,
     private val dispatchers: DispatcherProvider,
     private val getImageData: GetMessageAssetUseCase,
     private val fileManager: FileManager,
-) : ViewModel() {
+) : ViewModel(), AssistedViewModel<MediaGalleryViewModel.Params> {
 
     var mediaGalleryViewState by mutableStateOf(MediaGalleryViewState())
         private set
 
-    val imageAssetId: ImageAsset.PrivateAsset =
-        savedStateHandle.get<String>(EXTRA_IMAGE_DATA)!!.parseIntoPrivateImageAsset(wireSessionImageLoader)
+    val conversationId: ConversationId = param.conversationId.qualifiedId
+    val imageAssetId: ImageAsset.PrivateAsset
+        get() = ImageAsset.PrivateAsset(wireSessionImageLoader, conversationId, param.messageId, param.isSelfAsset)
 
     init {
         observeConversationDetails()
@@ -52,7 +54,7 @@ class MediaGalleryViewModel @Inject constructor(
 
     private fun observeConversationDetails() {
         viewModelScope.launch {
-            getConversationDetails(imageAssetId.conversationId).collect {
+            getConversationDetails(conversationId).collect {
                 updateMediaGalleryTitle(getScreenTitle(it))
             }
         }
@@ -73,7 +75,7 @@ class MediaGalleryViewModel @Inject constructor(
     fun saveImageToExternalStorage() {
         viewModelScope.launch {
             withContext(dispatchers.io()) {
-                val imageData = getImageData(imageAssetId.conversationId, imageAssetId.messageId)
+                val imageData = getImageData(conversationId, param.messageId)
                 if (imageData is Success) {
                     val defaultImageName = "Wire downloaded image ${getCurrentParsedDateTime()}.jpeg"
                     fileManager.saveToExternalStorage(defaultImageName, imageData.decodedAssetPath, imageData.assetSize) {
@@ -112,12 +114,16 @@ class MediaGalleryViewModel @Inject constructor(
 
     fun deleteCurrentImageMessage() {
         viewModelScope.launch {
-            navigationManager.navigateBack(
-                mapOf(
-                    EXTRA_MESSAGE_TO_DELETE_ID to imageAssetId.messageId,
-                    EXTRA_MESSAGE_TO_DELETE_IS_SELF to imageAssetId.isSelfAsset
-                )
-            )
+            param.onResult(param.messageId, param.isSelfAsset)
+            navigationManager.navigateBack()
         }
     }
+
+    @Parcelize
+    data class Params(
+        val conversationId: NavQualifiedId,
+        val messageId: String,
+        val isSelfAsset: Boolean,
+        val onResult: (String, Boolean) -> Unit
+    ): Parcelable
 }

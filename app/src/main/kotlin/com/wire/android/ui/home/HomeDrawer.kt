@@ -25,21 +25,19 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import com.wire.android.BuildConfig
 import com.wire.android.R
-import com.wire.android.navigation.HomeNavigationItem
-import com.wire.android.navigation.HomeNavigationItem.Conversations
-import com.wire.android.navigation.NavigationItem.Debug
-import com.wire.android.navigation.NavigationItem.Settings
-import com.wire.android.navigation.NavigationItem.Support
-import com.wire.android.navigation.isExternalRoute
-import com.wire.android.navigation.navigateToItemInHome
+import com.wire.android.navigation.VoyagerNavigationItem
+import com.wire.android.navigation.VoyagerNavigationItem.Debug
+import com.wire.android.navigation.VoyagerNavigationItem.Settings
+import com.wire.android.navigation.VoyagerNavigationItem.Support
 import com.wire.android.ui.common.Logo
 import com.wire.android.ui.common.selectableBackground
+import com.wire.android.ui.home.HomeItem.Conversations
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
@@ -51,12 +49,12 @@ import kotlinx.coroutines.launch
 @Composable
 fun HomeDrawer(
     drawerState: DrawerState,
-    currentRoute: String?,
-    homeNavController: NavController,
-    topItems: List<HomeNavigationItem>,
+    currentItem: HomeItem,
+    topItems: List<HomeItem>,
     scope: CoroutineScope,
-    viewModel: HomeViewModel
-) {
+    navigateTo: (VoyagerNavigationItem) -> Unit,
+    openHomeItem: (HomeItem) -> Unit
+    ) {
     BackHandler(enabled = drawerState.isOpen) {
         scope.launch {
             drawerState.close()
@@ -72,14 +70,15 @@ fun HomeDrawer(
             )
 
     ) {
+        val context = LocalContext.current
         Logo()
 
         topItems.forEach { item ->
             DrawerItem(
                 data = item.getDrawerData(),
-                selected = currentRoute == item.route,
+                selected = item == currentItem,
                 onItemClick = {
-                    navigateToItemInHome(homeNavController, item)
+                    openHomeItem(item)
                     scope.launch { drawerState.close() }
                 }
             )
@@ -91,15 +90,13 @@ fun HomeDrawer(
         bottomItems.forEach { item ->
             DrawerItem(
                 data = item.getDrawerData(),
-                selected = currentRoute == item.getRouteWithArgs(),
+                selected = false,
                 onItemClick = {
-                    scope.launch {
-                        when (item.isExternalRoute()) {
-                            true -> CustomTabsHelper.launchUrl(homeNavController.context, item.getRouteWithArgs())
-                            false -> viewModel.navigateTo(item)
-                        }
-                        drawerState.close()
+                    when(item is VoyagerNavigationItem.UrlNavigationItem) {
+                        true -> CustomTabsHelper.launchUrl(context, item.url)
+                        false -> navigateTo(item)
                     }
+                    scope.launch { drawerState.close() }
                 }
             )
         }

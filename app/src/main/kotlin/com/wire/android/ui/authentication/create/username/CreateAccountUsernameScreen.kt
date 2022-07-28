@@ -37,8 +37,7 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
 @Composable
-fun CreateAccountUsernameScreen() {
-    val viewModel: CreateAccountUsernameViewModel = hiltViewModel()
+fun CreateAccountUsernameScreen(viewModel: CreateAccountUsernameViewModel) {
     UsernameContent(
         state = viewModel.state,
         onUsernameChange = viewModel::onUsernameChange,

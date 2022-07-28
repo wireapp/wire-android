@@ -3,33 +3,35 @@ package com.wire.android.ui.home.conversations.details
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
+import com.wire.android.di.AssistedViewModel
 import com.wire.android.mapper.ContactMapper
-import com.wire.android.navigation.EXTRA_CONVERSATION_ID
+import com.wire.android.navigation.NavQualifiedId
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.search.SearchPeopleViewModel
 import com.wire.android.ui.home.conversations.search.SearchResult
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.parseIntoQualifiedID
 import com.wire.kalium.logic.data.publicuser.ConversationMemberExcludedOptions
 import com.wire.kalium.logic.data.publicuser.SearchUsersOptions
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
 import com.wire.kalium.logic.feature.conversation.AddMemberToConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetAllContactsNotInConversationUseCase
+import com.wire.kalium.logic.feature.publicuser.search.Result
 import com.wire.kalium.logic.feature.publicuser.search.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchUsersUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
-import com.wire.kalium.logic.feature.conversation.Result as GetContactsResult
-import com.wire.kalium.logic.feature.publicuser.search.Result
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
+import kotlin.String
+import kotlin.Suppress
+import com.wire.kalium.logic.feature.conversation.Result as GetContactsResult
 
 @Suppress("LongParameterList")
 @HiltViewModel
 class AddMembersToConversationViewModel @Inject constructor(
+    override val savedStateHandle: SavedStateHandle,
     private val getAllContactsNotInConversation: GetAllContactsNotInConversationUseCase,
     private val searchKnownUsers: SearchKnownUsersUseCase,
     private val searchPublicUsers: SearchUsersUseCase,
@@ -37,13 +39,10 @@ class AddMembersToConversationViewModel @Inject constructor(
     private val addMemberToConversation: AddMemberToConversationUseCase,
     private val dispatchers: DispatcherProvider,
     sendConnectionRequest: SendConnectionRequestUseCase,
-    savedStateHandle: SavedStateHandle,
     navigationManager: NavigationManager
-) : SearchPeopleViewModel(navigationManager, sendConnectionRequest, dispatchers) {
+) : SearchPeopleViewModel(navigationManager, sendConnectionRequest, dispatchers), AssistedViewModel<NavQualifiedId> {
 
-    val conversationId: QualifiedID = savedStateHandle
-        .get<String>(EXTRA_CONVERSATION_ID)!!
-        .parseIntoQualifiedID()
+    val conversationId: ConversationId = param.qualifiedId
 
     init{
         viewModelScope.launch { allContacts() }

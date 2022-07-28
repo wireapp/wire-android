@@ -3,8 +3,8 @@ package com.wire.android.ui.authentication.welcome
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.navigation.VoyagerNavigationItem
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -21,15 +21,15 @@ class WelcomeViewModel @Inject constructor(
     }
 
     fun goToLogin() {
-        navigate(NavigationCommand(NavigationItem.Login.getRouteWithArgs()))
+        navigate(NavigationCommand(VoyagerNavigationItem.Login()))
     }
 
     fun goToCreateEnterpriseAccount() {
-        navigate(NavigationCommand(NavigationItem.CreateTeam.getRouteWithArgs()))
+        navigate(NavigationCommand(VoyagerNavigationItem.CreateTeam))
     }
 
     fun goToCreatePrivateAccount() {
-        navigate(NavigationCommand(NavigationItem.CreatePersonalAccount.getRouteWithArgs()))
+        navigate(NavigationCommand(VoyagerNavigationItem.CreatePersonalAccount))
     }
     private fun navigate(navigationCommand: NavigationCommand) {
         viewModelScope.launch {

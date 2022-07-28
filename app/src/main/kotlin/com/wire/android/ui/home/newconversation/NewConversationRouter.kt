@@ -1,5 +1,6 @@
 package com.wire.android.ui.home.newconversation
 
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -10,23 +11,16 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
+import cafe.adriel.voyager.navigator.CurrentScreen
+import cafe.adriel.voyager.navigator.Navigator
 import com.wire.android.R
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.home.conversations.search.NewConversationSnackbarState
-import com.wire.android.ui.home.newconversation.common.Screen
-import com.wire.android.ui.home.newconversation.groupOptions.GroupOptionScreen
-import com.wire.android.ui.home.newconversation.newgroup.NewGroupScreen
-import com.wire.android.ui.home.conversations.search.SearchPeopleRouter
+import com.wire.android.ui.home.newconversation.common.NewConversationScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun NewConversationRouter() {
-    val newConversationViewModel: NewConversationViewModel = hiltViewModel()
-    val newConversationNavController = rememberNavController()
+fun NewConversationRouter(newConversationViewModel: NewConversationViewModel) {
     val snackbarHostState = remember { SnackbarHostState() }
 
     handleSnackBarMessage(
@@ -34,58 +28,22 @@ fun NewConversationRouter() {
         newConversationViewModel.snackbarMessageState
     ) { newConversationViewModel.clearSnackbarMessage() }
 
-    Scaffold(
-        snackbarHost = {
-            SwipeDismissSnackbarHost(
-                hostState = snackbarHostState,
-                modifier = Modifier.fillMaxWidth()
-            )
-        }) { internalPadding ->
-        NavHost(
-            navController = newConversationNavController,
-            startDestination = Screen.SearchListNavHostScreens.route,
-            modifier = Modifier.padding(internalPadding)
-        ) {
-            composable(
-                route = Screen.SearchListNavHostScreens.route,
-                content = {
-                    SearchPeopleRouter(
-                        searchBarTitle = stringResource(id = R.string.label_new_conversation),
-                    searchPeopleViewModel = newConversationViewModel,
-                        onPeoplePicked = { newConversationNavController.navigate(Screen.NewGroupNameScreen.route) },
-
-                    )
-                }
-            )
-            composable(
-                route = Screen.NewGroupNameScreen.route,
-                content = {
-                    NewGroupScreen(
-                        onBackPressed = newConversationNavController::popBackStack,
-                        newGroupState = newConversationViewModel.groupNameState,
-                        onGroupNameChange = newConversationViewModel::onGroupNameChange,
-                        onContinuePressed = { newConversationNavController.navigate(Screen.GroupOptionsScreen.route) },
-                        onGroupNameErrorAnimated = newConversationViewModel::onGroupNameErrorAnimated
-                    )
-                }
-            )
-
-            composable(
-                route = Screen.GroupOptionsScreen.route,
-                content = {
-                    GroupOptionScreen(
-                        onBackPressed = newConversationNavController::popBackStack,
-                        onCreateGroup = newConversationViewModel::createGroup,
-                        groupOptionState = newConversationViewModel.groupOptionsState,
-                        onAllowGuestChanged = newConversationViewModel::onAllowGuestStatusChanged,
-                        onAllowServicesChanged = newConversationViewModel::onAllowServicesStatusChanged,
-                        onReadReceiptChanged = newConversationViewModel::onReadReceiptStatusChanged,
-                        onAllowGuestsDialogDismissed = newConversationViewModel::onAllowGuestsDialogDismissed,
-                        onAllowGuestsClicked = newConversationViewModel::onAllowGuestsClicked,
-                        onNotAllowGuestsClicked = newConversationViewModel::onNotAllowGuestClicked
-                    )
-                }
-            )
+    Navigator(
+        screen = NewConversationScreen.SearchList(
+            searchBarTitle = stringResource(id = R.string.label_new_conversation),
+            newConversationViewModel = newConversationViewModel
+        )
+    ) {
+        Scaffold(
+            snackbarHost = {
+                SwipeDismissSnackbarHost(
+                    hostState = snackbarHostState,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }) { internalPadding ->
+            Column(modifier = Modifier.padding(internalPadding)) {
+                CurrentScreen()
+            }
         }
     }
 }

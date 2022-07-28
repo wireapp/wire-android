@@ -38,8 +38,7 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
 @Composable
-fun RegisterDeviceScreen() {
-    val viewModel: RegisterDeviceViewModel = hiltViewModel()
+fun RegisterDeviceScreen(viewModel: RegisterDeviceViewModel) {
     RegisterDeviceContent(
         state = viewModel.state,
         onPasswordChange = viewModel::onPasswordChange,

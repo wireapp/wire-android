@@ -1,7 +1,9 @@
 package com.wire.android.ui.home.conversationslist
 
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -13,27 +15,24 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import com.wire.android.R
 import com.wire.android.ui.common.FloatingActionButton
-import com.wire.android.ui.common.WireBottomNavigationBar
-import com.wire.android.ui.common.WireBottomNavigationItemData
+import com.wire.android.ui.common.WireBottomTabItemData
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.home.conversationslist.ConversationOperationErrorState.MutingOperationErrorState
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationOptionNavigation
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
-import com.wire.android.ui.home.conversationslist.navigation.ConversationsNavigationItem
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 
@@ -45,11 +44,11 @@ import com.wire.kalium.logic.data.user.UserId
 // also we expose the lambda which expands the BottomSheet from the HomeScreen
 @Composable
 fun ConversationRouterHomeBridge(
+    viewModel: ConversationListViewModel,
     onHomeBottomSheetContentChanged: (@Composable ColumnScope.() -> Unit) -> Unit,
     onBottomSheetVisibilityChanged: () -> Unit,
     onScrollPositionProviderChanged: (() -> Int) -> Unit
 ) {
-    val viewModel: ConversationListViewModel = hiltViewModel()
 
     fun openConversationBottomSheet(
         conversationItem: ConversationItem,
@@ -133,7 +132,8 @@ private fun ConversationRouter(
     openProfile: (UserId) -> Unit,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
-    val navHostController = rememberNavController()
+    val items = ConversationsItem.values().toList()
+    var currentItemIndex: Int by remember { mutableStateOf(0) }
 
     errorState?.let { errorType ->
         val message = when (errorType) {
@@ -169,78 +169,64 @@ private fun ConversationRouter(
                 modifier = Modifier.fillMaxWidth()
             )
         },
-        // TODO uncomment when CallsScreen and MentionScreen will be implemented
-//        bottomBar = {
-//            WireBottomNavigationBar(ConversationNavigationItems(uiState), navHostController)
-//        }
+        bottomBar = {
+            // TODO uncomment when CallsScreen and MentionScreen will be implemented
+//            WireBottomTabBar(bottomBarItems(items, uiState), currentItemIndex) { currentItemIndex = it }
+        }
     ) { internalPadding ->
-
-        with(uiState) {
-            // Change to a AnimatedNavHost and composable from accompanist lib to add transitions animations
-            NavHost(
-                navHostController,
-                startDestination = ConversationsNavigationItem.All.route,
-                modifier = Modifier.padding(internalPadding)
-            ) {
-                composable(
-                    route = ConversationsNavigationItem.All.route,
-                    content = {
-                        AllConversationScreen(
-                            newActivities = newActivities,
-                            conversations = conversations,
-                            onOpenConversation = openConversation,
-                            onEditConversation = onEditConversationItem,
-                            onScrollPositionProviderChanged = onScrollPositionProviderChanged,
-                            onOpenUserProfile = openProfile,
-                            onOpenConversationNotificationsSettings = onEditNotifications,
-                            onJoinCall = onJoinCall
-                        )
+        Column(modifier = Modifier.padding(internalPadding)) {
+            Crossfade(targetState = currentItemIndex) {
+                with(uiState) {
+                    when (items[it]) {
+                        ConversationsItem.All ->
+                            AllConversationScreen(
+                                newActivities = newActivities,
+                                conversations = conversations,
+                                onOpenConversation = openConversation,
+                                onEditConversation = onEditConversationItem,
+                                onScrollPositionProviderChanged = onScrollPositionProviderChanged,
+                                onOpenUserProfile = openProfile,
+                                onOpenConversationNotificationsSettings = onEditNotifications,
+                                onJoinCall = onJoinCall
+                            )
+                        ConversationsItem.Calls ->
+                            CallsScreen(
+                                missedCalls = missedCalls,
+                                callHistory = callHistory,
+                                onCallItemClick = openConversation,
+                                onEditConversationItem = onEditConversationItem,
+                                onScrollPositionProviderChanged = onScrollPositionProviderChanged,
+                                onOpenUserProfile = openProfile,
+                                openConversationNotificationsSettings = onEditNotifications,
+                                onJoinCall = onJoinCall
+                            )
+                        ConversationsItem.Mentions ->
+                            MentionScreen(
+                                unreadMentions = unreadMentions,
+                                allMentions = allMentions,
+                                onMentionItemClick = openConversation,
+                                onEditConversationItem = onEditConversationItem,
+                                onScrollPositionProviderChanged = onScrollPositionProviderChanged,
+                                onOpenUserProfile = openProfile,
+                                openConversationNotificationsSettings = onEditNotifications,
+                                onJoinCall = onJoinCall
+                            )
                     }
-                )
-                composable(
-                    route = ConversationsNavigationItem.Calls.route,
-                    content = {
-                        CallsScreen(
-                            missedCalls = missedCalls,
-                            callHistory = callHistory,
-                            onCallItemClick = openConversation,
-                            onEditConversationItem = onEditConversationItem,
-                            onScrollPositionProviderChanged = onScrollPositionProviderChanged,
-                            onOpenUserProfile = openProfile,
-                            openConversationNotificationsSettings = onEditNotifications,
-                            onJoinCall = onJoinCall
-                        )
-                    }
-                )
-                composable(
-                    route = ConversationsNavigationItem.Mentions.route,
-                    content = {
-                        MentionScreen(
-                            unreadMentions = unreadMentions,
-                            allMentions = allMentions,
-                            onMentionItemClick = openConversation,
-                            onEditConversationItem = onEditConversationItem,
-                            onScrollPositionProviderChanged = onScrollPositionProviderChanged,
-                            onOpenUserProfile = openProfile,
-                            openConversationNotificationsSettings = onEditNotifications,
-                            onJoinCall = onJoinCall
-                        )
-                    }
-                )
+                }
             }
         }
     }
 }
 
-@Composable
-private fun ConversationNavigationItems(
+private fun bottomBarItems(
+    items: List<ConversationsItem>,
     uiListState: ConversationListState
-): List<WireBottomNavigationItemData> {
-    return ConversationsNavigationItem.values().map { conversationsNavigationItem ->
+): List<WireBottomTabItemData> {
+    return items.map { conversationsNavigationItem ->
         when (conversationsNavigationItem) {
-            ConversationsNavigationItem.All -> conversationsNavigationItem.toBottomNavigationItemData(uiListState.conversations.size)
-            ConversationsNavigationItem.Calls -> conversationsNavigationItem.toBottomNavigationItemData(uiListState.missedCallsCount)
-            ConversationsNavigationItem.Mentions -> conversationsNavigationItem.toBottomNavigationItemData(uiListState.unreadMentionsCount)
+            ConversationsItem.All -> conversationsNavigationItem.toBottomNavigationItemData(uiListState.conversations.size)
+            ConversationsItem.Calls -> conversationsNavigationItem.toBottomNavigationItemData(uiListState.missedCallsCount)
+            ConversationsItem.Mentions -> conversationsNavigationItem.toBottomNavigationItemData(uiListState.unreadMentionsCount)
         }
     }
 }

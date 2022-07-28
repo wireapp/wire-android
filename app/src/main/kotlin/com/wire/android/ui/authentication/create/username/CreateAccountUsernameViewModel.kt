@@ -1,17 +1,16 @@
 package com.wire.android.ui.authentication.create.username
 
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.kalium.logic.feature.auth.ValidateUserHandleResult
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.navigation.VoyagerNavigationItem
+import com.wire.kalium.logic.feature.auth.ValidateUserHandleResult
 import com.wire.kalium.logic.feature.auth.ValidateUserHandleUseCase
 import com.wire.kalium.logic.feature.user.SetUserHandleResult
 import com.wire.kalium.logic.feature.user.SetUserHandleUseCase
@@ -80,7 +79,7 @@ class CreateAccountUsernameViewModel @Inject constructor(
             }
             state = state.copy(loading = false, continueEnabled = true, error = usernameError)
             if (usernameError is CreateAccountUsernameViewState.UsernameError.None)
-                navigationManager.navigate(NavigationCommand(NavigationItem.Home.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
+                navigationManager.navigate(NavigationCommand(VoyagerNavigationItem.Home, BackStackMode.CLEAR_WHOLE))
         }
     }
 

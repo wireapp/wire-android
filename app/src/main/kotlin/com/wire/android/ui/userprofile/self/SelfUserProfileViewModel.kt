@@ -11,8 +11,8 @@ import com.wire.android.datastore.UserDataStore
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.navigation.VoyagerNavigationItem
 import com.wire.android.ui.userprofile.self.dialog.StatusDialogData
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
@@ -119,7 +119,7 @@ class SelfUserProfileViewModel @Inject constructor(
             dataStore.clear() // TODO this should be moved to some service that will clear all the data in the app
             navigationManager.navigate(
                 NavigationCommand(
-                    NavigationItem.Welcome.getRouteWithArgs(),
+                    VoyagerNavigationItem.Welcome,
                     BackStackMode.CLEAR_WHOLE
                 )
             )
@@ -128,13 +128,13 @@ class SelfUserProfileViewModel @Inject constructor(
 
     fun addAccount() {
         viewModelScope.launch {
-            navigationManager.navigate(NavigationCommand(NavigationItem.CreatePersonalAccount.getRouteWithArgs()))
+            navigationManager.navigate(NavigationCommand(VoyagerNavigationItem.CreatePersonalAccount))
         }
     }
 
     fun editProfile() {
         viewModelScope.launch {
-            navigationManager.navigate(NavigationCommand(NavigationItem.Settings.getRouteWithArgs()))
+            navigationManager.navigate(NavigationCommand(VoyagerNavigationItem.Settings))
         }
     }
 
@@ -190,7 +190,7 @@ class SelfUserProfileViewModel @Inject constructor(
 
     fun onChangeProfilePictureClicked() {
         viewModelScope.launch {
-            navigationManager.navigate(NavigationCommand(NavigationItem.ProfileImagePicker.getRouteWithArgs()))
+            navigationManager.navigate(NavigationCommand(VoyagerNavigationItem.ProfileImagePicker))
         }
     }
 

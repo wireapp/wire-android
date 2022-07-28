@@ -11,7 +11,7 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.getCurrentNavigationItem
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.QualifiedIdMapper
+import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -72,7 +72,7 @@ sealed class CurrentScreen {
     object InBackground : CurrentScreen()
 
     companion object {
-        val qualifiedIdMapper = QualifiedIdMapper(null)
+        val qualifiedIdMapper = QualifiedIdMapperImpl(null)
 
         fun fromNavigationItem(currentItem: NavigationItem?, arguments: Bundle?): CurrentScreen =
             when (currentItem) {

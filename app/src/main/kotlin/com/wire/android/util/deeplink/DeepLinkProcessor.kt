@@ -4,7 +4,7 @@ import android.net.Uri
 import androidx.annotation.VisibleForTesting
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.QualifiedIdMapper
+import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
 
 sealed class DeepLinkResult {
     object Unknown : DeepLinkResult()
@@ -20,7 +20,7 @@ sealed class DeepLinkResult {
 }
 
 class DeepLinkProcessor {
-    private val qualifiedIdMapper = QualifiedIdMapper(null)
+    private val qualifiedIdMapper = QualifiedIdMapperImpl(null)
 
     operator fun invoke(uri: Uri): DeepLinkResult = when (uri.host) {
         ACCESS_DEEPLINK_HOST -> getCustomServerConfigDeepLinkResult(uri)

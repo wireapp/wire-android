@@ -102,7 +102,12 @@ internal class GroupConversationParticipantsViewModelArrangement {
     lateinit var observeParticipantsForConversationUseCase: ObserveParticipantsForConversationUseCase
     private val conversationMembersChannel = Channel<ConversationParticipantsData>(capacity = Channel.UNLIMITED)
     private val viewModel by lazy {
-        GroupConversationParticipantsViewModel(savedStateHandle, navigationManager, observeParticipantsForConversationUseCase, qualifiedIdMapper)
+        GroupConversationParticipantsViewModel(
+            savedStateHandle,
+            navigationManager,
+            observeParticipantsForConversationUseCase,
+            qualifiedIdMapper
+        )
     }
     val conversationId = "some-dummy-value@some.dummy.domain"
     val qualifiedId = ConversationId("some-dummy-value", "some.dummy.domain")

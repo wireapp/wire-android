@@ -67,7 +67,8 @@ class AddMembersToConversationViewModel @Inject constructor(
         when (val result = searchKnownUsers(
             searchQuery = searchTerm,
             searchUsersOptions = SearchUsersOptions(
-                conversationExcluded = ConversationMemberExcludedOptions.ConversationExcluded(conversationId)
+                conversationExcluded = ConversationMemberExcludedOptions.ConversationExcluded(conversationId),
+                selfUserIncluded = false
             )
         )) {
             is Result.Failure.Generic, Result.Failure.InvalidRequest -> {

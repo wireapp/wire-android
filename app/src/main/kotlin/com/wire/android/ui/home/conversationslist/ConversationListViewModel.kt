@@ -184,7 +184,10 @@ class ConversationListViewModel @Inject constructor(
 
 private fun LegalHoldStatus.showLegalHoldIndicator() = this == LegalHoldStatus.ENABLED
 
-private fun ConversationDetails.toType(wireSessionImageLoader: WireSessionImageLoader, userTypeMapper: UserTypeMapper): ConversationItem = when (this) {
+private fun ConversationDetails.toType(
+    wireSessionImageLoader: WireSessionImageLoader,
+    userTypeMapper: UserTypeMapper
+): ConversationItem = when (this) {
     is Group -> {
         ConversationItem.GroupConversation(
             groupName = conversation.name.orEmpty(),

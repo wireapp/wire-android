@@ -22,7 +22,7 @@ jobs:
             git diff kalium |
             awk '/^i/{c=NR}NR>c+2&&/^[-+]/' |
             awk '{split($0,words," "); print words[3];}' |
-            xargs git -C kalium merge-base --is-ancestor 
+            xargs echo 
           )"
       
       - name: Leave a comment

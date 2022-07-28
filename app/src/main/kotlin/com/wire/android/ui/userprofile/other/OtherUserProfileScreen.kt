@@ -39,8 +39,10 @@ import com.wire.android.ui.common.WireTabRow
 import com.wire.android.ui.common.calculateCurrentTab
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
+import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -122,6 +124,7 @@ fun OtherProfileScreenContent(
                     userName = state.userName,
                     teamName = state.teamName,
                     membership = state.membership,
+                    service = state.botService,
                     editableState = EditableState.NotEditable,
                     modifier = Modifier.padding(bottom = dimensions().spacing16x)
                 )
@@ -151,7 +154,7 @@ fun OtherProfileScreenContent(
         content = {
             Crossfade(targetState = state) { state ->
                 when {
-                    state.isDataLoading -> Box {} // no content visible while loading
+                    state.isDataLoading || state.botService != null -> Box {} // no content visible while loading
                     state.connectionStatus is ConnectionStatus.Connected ->
                         CompositionLocalProvider(LocalOverScrollConfiguration provides null) {
                             HorizontalPager(
@@ -184,14 +187,21 @@ fun OtherProfileScreenContent(
                     color = MaterialTheme.wireColorScheme.background
                 ) {
                     Box(modifier = Modifier.padding(all = dimensions().spacing16x)) {
-                        OtherUserConnectionActionButton(
-                            state.connectionStatus,
-                            onSendConnectionRequest,
-                            onOpenConversation,
-                            onCancelConnectionRequest,
-                            acceptConnectionRequest,
-                            ignoreConnectionRequest
-                        )
+                        if (state.membership == Membership.Service) {
+                            WirePrimaryButton(
+                                text = stringResource(R.string.label_open_conversation),
+                                onClick = onOpenConversation,
+                            )
+                        } else {
+                            OtherUserConnectionActionButton(
+                                state.connectionStatus,
+                                onSendConnectionRequest,
+                                onOpenConversation,
+                                onCancelConnectionRequest,
+                                acceptConnectionRequest,
+                                ignoreConnectionRequest
+                            )
+                        }
                     }
                 }
             }

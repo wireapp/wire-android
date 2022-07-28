@@ -100,7 +100,8 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                     role = userRole,
                     isSelfAnAdmin = conversationRoleData.selfRole is Member.Role.Admin
                 )
-            }
+            },
+            botService = otherUser.botService
         )
     }
 

@@ -20,6 +20,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -36,6 +37,7 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ifNotEmpty
+import com.wire.kalium.logic.data.user.BotService
 
 @Composable
 fun UserProfileInfo(
@@ -45,6 +47,7 @@ fun UserProfileInfo(
     userName: String,
     teamName: String?,
     membership: Membership = Membership.None,
+    service: BotService? = null,
     onUserProfileClick: (() -> Unit)? = null,
     editableState: EditableState,
     modifier: Modifier = Modifier
@@ -110,7 +113,14 @@ fun UserProfileInfo(
                     maxLines = 1,
                     color = MaterialTheme.wireColorScheme.labelText,
                 )
-                MembershipQualifierLabel(membership, Modifier.padding(top = dimensions().spacing8x))
+                MembershipQualifierLabel(membership, Modifier.padding(vertical = dimensions().spacing8x))
+                service?.let {
+                    Text(
+                        text = "Powered by ${it.provider}",
+                        textAlign = TextAlign.Center,
+                        modifier = Modifier.padding(vertical = dimensions().spacing8x)
+                    )
+                }
             }
 
             if (editableState is EditableState.IsEditable) {

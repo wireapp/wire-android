@@ -528,10 +528,10 @@ class ConversationViewModel @Inject constructor(
     }
 
     private suspend fun navigateToSelfProfile() =
-        navigationManager.navigate(NavigationCommand(NavigationItem.SelfUserProfile.getRouteWithArgs()))
+        navigationManager.navigate(NavigationCommand(VoyagerNavigationItem.SelfUserProfile))
 
     private suspend fun navigateToOtherProfile(id: UserId, conversationId: ConversationId? = null) =
-        navigationManager.navigate(NavigationCommand(NavigationItem.OtherUserProfile.getRouteWithArgs(listOfNotNull(id, conversationId))))
+        navigationManager.navigate(NavigationCommand(VoyagerNavigationItem.OtherUserProfile(id.nav(), conversationId?.nav())))
 
     fun provideTempCachePath(): Path = kaliumFileSystem.rootCachePath
 

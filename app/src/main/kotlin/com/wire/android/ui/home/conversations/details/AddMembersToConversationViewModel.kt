@@ -61,11 +61,12 @@ class AddMembersToConversationViewModel @Inject constructor(
             )
         }
 
-    override suspend fun searchKnownUsersUseCase(searchTerm: String) =
+    override suspend fun searchKnownUsersUseCase(searchTerm: String, selfUserIncluded: Boolean) =
         when (val result = searchKnownUsers(
             searchQuery = searchTerm,
             searchUsersOptions = SearchUsersOptions(
-                conversationExcluded = ConversationMemberExcludedOptions.ConversationExcluded(conversationId)
+                conversationExcluded = ConversationMemberExcludedOptions.ConversationExcluded(conversationId),
+                selfUserIncluded = selfUserIncluded
             )
         )) {
             is Result.Failure.Generic, Result.Failure.InvalidRequest -> {

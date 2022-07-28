@@ -5,7 +5,7 @@ on:
     types: [ opened, synchronize ] # Don't rerun on `edited` to save time
 
 jobs:
-  unit-tests:
+  validate-kalium-ref:
     runs-on: ubuntu-20.04
 
     steps:
@@ -15,7 +15,7 @@ jobs:
           submodules: recursive # Needed in order to fetch Kalium sources for building
           fetch-depth: 0
 
-      - name: Validate Kalium refs
+      - name: Run git merge-base
         id: validate_kalium
         run: |
           echo "::set-output name=is_kalium_rollback::$(

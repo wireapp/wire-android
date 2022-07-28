@@ -69,7 +69,7 @@ class NewConversationViewModel @Inject constructor(
             )
         }
 
-    override suspend fun searchKnownUsersUseCase(searchTerm: String) =
+    override suspend fun searchKnownUsersUseCase(searchTerm: String, selfUserIncluded: Boolean) =
         when (val result = searchKnownUsers(searchTerm)) {
             is Result.Failure.Generic, Result.Failure.InvalidRequest -> {
                 SearchResult.Failure(R.string.label_general_error)

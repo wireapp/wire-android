@@ -87,7 +87,7 @@ private fun GeneralConversationItem(
                     leadingIcon = { GroupConversationAvatar(colorsScheme().conversationColor(id = conversationId)) },
                     title = {
                         ConversationTitle(
-                            name = groupName.ifEmpty { stringResource(id = R.string.default_deleted_username) },
+                            name = groupName.ifEmpty { stringResource(id = R.string.member_name_deleted_label) },
                             isLegalHold = conversation.isLegalHold
                         )
                     },

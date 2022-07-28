@@ -15,8 +15,6 @@ import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.ConversationDetails.OneOne
 import com.wire.kalium.logic.data.conversation.LegalHoldStatus
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus.AllAllowed
-import com.wire.kalium.logic.data.conversation.ProtocolInfo
-import com.wire.kalium.logic.data.id.FederatedIdMapper
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.ConnectionState
@@ -233,7 +231,7 @@ class MediaGalleryViewModelTest {
                 mockedConversationTitle,
                 Conversation.Type.ONE_ON_ONE,
                 null,
-                protocol = ProtocolInfo.Proteus,
+                protocol = Conversation.ProtocolInfo.Proteus,
                 AllAllowed,
                 null, null,
                 access = listOf(Conversation.Access.INVITE),

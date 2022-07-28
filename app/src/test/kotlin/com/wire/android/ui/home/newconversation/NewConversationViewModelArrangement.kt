@@ -11,7 +11,6 @@ import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
-import com.wire.kalium.logic.data.conversation.ProtocolInfo
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.data.publicuser.model.UserSearchResult
@@ -99,7 +98,7 @@ internal class NewConversationViewModelArrangement {
             name = null,
             type = Conversation.Type.ONE_ON_ONE,
             teamId = null,
-            protocol = ProtocolInfo.Proteus,
+            protocol = Conversation.ProtocolInfo.Proteus,
             MutedConversationStatus.AllAllowed,
             null,
             null,

@@ -15,7 +15,6 @@ import com.wire.kalium.logic.CoreFailure.Unknown
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.Member
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
-import com.wire.kalium.logic.data.conversation.ProtocolInfo
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.data.team.Team
@@ -277,7 +276,7 @@ class OtherUserProfileScreenViewModelTest {
             "some_name",
             Conversation.Type.ONE_ON_ONE,
             null,
-            protocol = ProtocolInfo.Proteus,
+            protocol = Conversation.ProtocolInfo.Proteus,
             MutedConversationStatus.AllAllowed,
             null,
             null,

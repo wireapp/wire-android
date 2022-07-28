@@ -29,6 +29,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.conversationslist.model.hasLabel
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.call.ConversationType
 
 @Composable
@@ -38,6 +39,7 @@ fun CallerDetails(
     avatarAssetId: ImageAsset.UserAvatarAsset?,
     conversationType: ConversationType,
     membership: Membership,
+    callingLabel: String
 ) {
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -69,7 +71,7 @@ fun CallerDetails(
             modifier = Modifier.padding(top = dimensions().spacing24x)
         )
         Text(
-            text = stringResource(id = R.string.calling_label_ringing_call),
+            text = callingLabel,
             style = MaterialTheme.wireTypography.body01,
             modifier = Modifier.padding(top = dimensions().spacing8x)
         )
@@ -95,6 +97,7 @@ fun CallerDetailsPreview() {
         isCameraOn = false,
         avatarAssetId = null,
         conversationType = ConversationType.OneOnOne,
-        membership = Membership.Guest
+        membership = Membership.Guest,
+        callingLabel = String.EMPTY
     )
 }

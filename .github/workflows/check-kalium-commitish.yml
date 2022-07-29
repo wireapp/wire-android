@@ -20,7 +20,8 @@ jobs:
       - name: Run git merge-base
         id: validate_kalium
         run: |
-          echo "Hello world" 
+          echo "Hello world"
+          pwd 
           git diff kalium
       
       - name: Leave a comment

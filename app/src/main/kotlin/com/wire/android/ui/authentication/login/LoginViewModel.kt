@@ -2,28 +2,36 @@ package com.wire.android.ui.authentication.login
 
 import androidx.annotation.VisibleForTesting
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.input.TextFieldValue
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig
 import com.wire.android.appLogger
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
+import com.wire.android.di.UserSessionsUseCaseProvider
 import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.EXTRA_USER_ID
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.client.ClientCapability
 import com.wire.kalium.logic.data.conversation.ClientId
-import com.wire.kalium.logic.data.logout.LogoutReason
+import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.id.parseIntoQualifiedID
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthSession
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.client.RegisterClientUseCase
-import com.wire.kalium.logic.feature.session.CurrentSessionResult
-import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.session.RegisterTokenResult
+import com.wire.kalium.logic.functional.map
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -31,32 +39,55 @@ import javax.inject.Inject
 @ExperimentalMaterialApi
 @HiltViewModel
 open class LoginViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
     private val clientScopeProviderFactory: ClientScopeProvider.Factory,
-    authServerConfigProvider: AuthServerConfigProvider,
-    currentSessionUseCase: CurrentSessionUseCase
+    private val userSessionsUseCaseFactory: UserSessionsUseCaseProvider.Factory,
+    authServerConfigProvider: AuthServerConfigProvider
 ) : ViewModel() {
-    init {
-        currentSessionUseCase().let { result ->
-            if (result is CurrentSessionResult.Success) {
-                when (result.authSession.session) {
-                    is AuthSession.Session.Invalid -> {
-                        when ((result.authSession.session as AuthSession.Session.Invalid).reason) {
-                            LogoutReason.REMOVED_CLIENT -> updateLoginError(LoginError.DialogError.InvalidSessionError.RemovedClient)
-                            LogoutReason.DELETED_ACCOUNT -> updateLoginError(LoginError.DialogError.InvalidSessionError.DeletedAccount)
-                            LogoutReason.SESSION_EXPIRED -> updateLoginError(LoginError.DialogError.InvalidSessionError.SessionExpired)
-                        }
-                    }
-                }
-            }
-        }
-    }
+    var loginState by mutableStateOf(
+        LoginState(
+            ssoCode = TextFieldValue(savedStateHandle.get(SSO_CODE_SAVED_STATE_KEY) ?: String.EMPTY),
+            userIdentifier = TextFieldValue(savedStateHandle[USER_IDENTIFIER_SAVED_STATE_KEY] ?: String.EMPTY),
+            password = TextFieldValue(String.EMPTY)
+        )
+    )
+        protected set
+
+    private val userId: QualifiedID? = savedStateHandle.get<String>(EXTRA_USER_ID)?.parseIntoQualifiedID()
 
     val serverConfig = authServerConfigProvider.authServer.value
 
-    open fun updateLoginError(error: LoginError) {}
+    init {
+        viewModelScope.launch {
+            if (userId != null)
+                userSessionsUseCaseFactory.create().sessionsUseCase.getUserSession(userId).map {
+                    if (it.session is AuthSession.Session.Invalid)
+                        loginState = loginState.copy(loginError = LoginError.DialogError.InvalidSessionError(it))
+                }
+        }
+    }
+
+    open fun updateLoginError(error: LoginError) {
+        loginState = if (error is LoginError.None) {
+            loginState.copy(loginError = error)
+        } else {
+            loginState.copy(loading = false, loginError = error).updateLoginEnabled()
+        }
+    }
+
+    private fun deleteInvalidSession() {
+        if (loginState.loginError is LoginError.DialogError.InvalidSessionError) {
+            with((loginState.loginError as LoginError.DialogError.InvalidSessionError).session) {
+                userSessionsUseCaseFactory.create().sessionsUseCase
+                    .deleteInvalidSession(this.session.userId)
+            }
+        }
+
+    }
 
     fun onDialogDismiss() {
+        deleteInvalidSession()
         clearLoginError()
     }
 
@@ -108,6 +139,11 @@ open class LoginViewModel @Inject constructor(
 
     private fun navigateToRemoveDevicesScreen() = viewModelScope.launch {
         navigationManager.navigate(NavigationCommand(NavigationItem.RemoveDevices.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
+    }
+
+    companion object {
+        const val SSO_CODE_SAVED_STATE_KEY = "sso_code"
+        const val USER_IDENTIFIER_SAVED_STATE_KEY = "user_identifier"
     }
 }
 

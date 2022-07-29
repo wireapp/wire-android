@@ -39,6 +39,7 @@ import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.ui.authentication.login.LoginError
 import com.wire.android.ui.authentication.login.LoginErrorDialog
+import com.wire.android.ui.authentication.login.LoginState
 
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.textfield.WirePasswordTextField
@@ -59,14 +60,14 @@ fun LoginEmailScreen(
 ) {
     val scope = rememberCoroutineScope()
     val loginEmailViewModel: LoginEmailViewModel = hiltViewModel()
-    val loginEmailState: LoginEmailState = loginEmailViewModel.loginState
+    val loginEmailState: LoginState = loginEmailViewModel.loginState
     LoginEmailContent(
         scrollState = scrollState,
-        loginEmailState = loginEmailState,
+        loginState = loginEmailState,
         onUserIdentifierChange = { loginEmailViewModel.onUserIdentifierChange(it) },
         onPasswordChange = { loginEmailViewModel.onPasswordChange(it) },
-        onDialogDismiss = { loginEmailViewModel.onDialogDismiss() },
-        onRemoveDeviceOpen = { loginEmailViewModel.onTooManyDevicesError() },
+        onDialogDismiss = loginEmailViewModel::onDialogDismiss,
+        onRemoveDeviceOpen = loginEmailViewModel::onTooManyDevicesError,
         onLoginButtonClick = suspend { loginEmailViewModel.login() },
         forgotPasswordUrl = loginEmailViewModel.serverConfig.forgotPassword,
         scope = scope,
@@ -77,7 +78,7 @@ fun LoginEmailScreen(
 @Composable
 private fun LoginEmailContent(
     scrollState: ScrollState,
-    loginEmailState: LoginEmailState,
+    loginState: LoginState,
     onUserIdentifierChange: (TextFieldValue) -> Unit,
     onPasswordChange: (TextFieldValue) -> Unit,
     onDialogDismiss: () -> Unit,
@@ -99,9 +100,9 @@ private fun LoginEmailContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = MaterialTheme.wireDimensions.spacing16x),
-            userIdentifier = loginEmailState.userIdentifier,
+            userIdentifier = loginState.userIdentifier,
             onUserIdentifierChange = onUserIdentifierChange,
-            error = when (loginEmailState.loginEmailError) {
+            error = when (loginState.loginError) {
                 LoginError.TextFieldError.InvalidValue -> stringResource(R.string.login_error_invalid_user_identifier)
                 else -> null
             },
@@ -111,7 +112,7 @@ private fun LoginEmailContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = MaterialTheme.wireDimensions.spacing16x),
-            password = loginEmailState.password,
+            password = loginState.password,
             onPasswordChange = onPasswordChange
         )
         ForgotPasswordLabel(
@@ -124,8 +125,8 @@ private fun LoginEmailContent(
 
         LoginButton(
             modifier = Modifier.fillMaxWidth(),
-            loading = loginEmailState.loading,
-            enabled = loginEmailState.loginEnabled
+            loading = loginState.loading,
+            enabled = loginState.loginEnabled
         ) {
             scope.launch {
                 onLoginButtonClick()
@@ -133,10 +134,12 @@ private fun LoginEmailContent(
         }
     }
 
-    if (loginEmailState.loginEmailError is LoginError.DialogError) {
-        LoginErrorDialog(loginEmailState.loginEmailError, onDialogDismiss)
-    } else if (loginEmailState.loginEmailError is LoginError.TooManyDevicesError) {
-        onRemoveDeviceOpen()
+    if (loginState.loginError !is LoginError.DialogError || loginState.loginError is LoginError.DialogError.InvalidSessionError) {
+        if (loginState.loginError is LoginError.TooManyDevicesError) {
+            onRemoveDeviceOpen()
+        }
+    } else {
+        LoginErrorDialog(loginState.loginError, onDialogDismiss)
     }
 }
 
@@ -227,7 +230,7 @@ private fun LoginEmailScreenPreview() {
     WireTheme(isPreview = true) {
         LoginEmailContent(
             scrollState = rememberScrollState(),
-            loginEmailState = LoginEmailState(),
+            loginState = LoginState(),
             onUserIdentifierChange = { },
             onPasswordChange = { },
             onDialogDismiss = { },

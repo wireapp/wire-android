@@ -24,6 +24,8 @@ import com.wire.kalium.logic.feature.asset.MessageAssetResult.Success
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -52,9 +54,12 @@ class MediaGalleryViewModel @Inject constructor(
 
     private fun observeConversationDetails() {
         viewModelScope.launch {
-            getConversationDetails(imageAssetId.conversationId).collect {
-                updateMediaGalleryTitle(getScreenTitle(it))
-            }
+            getConversationDetails(imageAssetId.conversationId)
+                .filterIsInstance<ObserveConversationDetailsUseCase.Result.Success>() // TODO handle StorageFailure
+                .map { it.conversationDetails }
+                .collect {
+                    updateMediaGalleryTitle(getScreenTitle(it))
+                }
         }
     }
 

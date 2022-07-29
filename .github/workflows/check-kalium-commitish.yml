@@ -3,6 +3,8 @@ name: "Validate Kalium References"
 on:
   pull_request:
     types: [ opened, synchronize ] # Don't rerun on `edited` to save time
+    paths:
+      - 'kalium'
 
 jobs:
   validate-kalium-ref:

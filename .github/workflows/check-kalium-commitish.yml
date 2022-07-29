@@ -24,12 +24,13 @@ jobs:
           echo "branch -a"
           git branch -a
           git fetch origin ${{github.base_ref}}:refs/remotes/origin/${{github.base_ref}}
+          git fetch origin develop
           echo "after fetch"
           git branch -a
-          git diff --merge-base ${{github.base_ref}} kalium | echo
-          git diff --merge-base ${{github.base_ref}} kalium | awk '/^i/{c=NR}NR>c+2&&/^[-+]/' | awk '{split($0,words," "); print words[3];}' | xargs git -c kalium merge-base 
+          git diff --merge-base origin/${{github.base_ref}} kalium | echo
+          git diff --merge-base origin/${{github.base_ref}} kalium | awk '/^i/{c=NR}NR>c+2&&/^[-+]/' | awk '{split($0,words," "); print words[3];}' | xargs git -c kalium merge-base 
           echo "::set-output name=is_kalium_rollback::$(
-            git diff --merge-base ${{github.base_ref}} kalium |
+            git diff --merge-base origin/${{github.base_ref}} kalium |
             awk '/^i/{c=NR}NR>c+2&&/^[-+]/' |
             awk '{split($0,words," "); print words[3];}' |
             xargs git -c kalium merge-base 

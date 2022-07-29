@@ -33,7 +33,7 @@ jobs:
             awk '{split($0,words," "); print words[3];}' |
             tr '\n' '-' |
             rev |
-            cut -c 1-1
+            cut -c 2-
             rev
           )"
           # git diff --merge-base ${{github.base_ref}} kalium | awk '/^i/{c=NR}NR>c+2&&/^[-+]/' | awk '{split($0,words," "); print words[3];}' | xargs git -C kalium merge-base --is-ancestor

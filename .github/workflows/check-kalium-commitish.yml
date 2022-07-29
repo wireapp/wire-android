@@ -44,7 +44,7 @@ jobs:
       
       - name: Leave a comment
         env: 
-          HEAD: ${{github.head_ref}}
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           echo ${{steps.validate_kalium.is_kalium_rollback}}
-          gh pr comment "${HEAD}" --body "@${{github.event.pull_request.user.login}} looks like you are rolling back kalium to a previous commitish. Is this intentional?"
+          gh pr comment "${{github.head_ref}}" --body "@${{github.event.pull_request.user.login}} looks like you are rolling back kalium to a previous commitish. Is this intentional?"

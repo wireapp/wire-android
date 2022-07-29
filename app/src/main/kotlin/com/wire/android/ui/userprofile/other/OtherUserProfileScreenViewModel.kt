@@ -18,6 +18,7 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.details.participants.usecase.ConversationRoleData
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
+import com.wire.android.ui.userprofile.common.UsernameMapper.mapUserLabel
 import com.wire.android.util.EMPTY
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.Member
@@ -38,10 +39,10 @@ import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversatio
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
 import com.wire.kalium.logic.feature.user.GetUserInfoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.launch
 import java.util.UUID
 import javax.inject.Inject
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.launch
 
 @Suppress("LongParameterList")
 @HiltViewModel
@@ -74,9 +75,10 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                     appLogger.d("Couldn't not find the user with provided id:$userId.id and domain:$userId.domain")
                     connectionOperationState = ConnectionOperationState.LoadUserInformationError()
                 }
-                is GetUserInfoResult.Success -> conversationId
-                    .let { if (it != null) observeConversationRoleForUser(it, userId) else flowOf(it) }
-                    .collect { loadViewState(result.otherUser, result.team, it) }
+                is GetUserInfoResult.Success ->
+                    conversationId
+                        .let { if (it != null) observeConversationRoleForUser(it, userId) else flowOf(it) }
+                        .collect { loadViewState(result.otherUser, result.team, it) }
             }
         }
     }
@@ -86,7 +88,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             isDataLoading = false,
             userAvatarAsset = otherUser.completePicture?.let { pic -> ImageAsset.UserAvatarAsset(wireSessionImageLoader, pic) },
             fullName = otherUser.name ?: String.EMPTY,
-            userName = otherUser.handle ?: String.EMPTY,
+            userName = mapUserLabel(otherUser),
             teamName = team?.name ?: String.EMPTY,
             email = otherUser.email ?: String.EMPTY,
             phone = otherUser.phone ?: String.EMPTY,

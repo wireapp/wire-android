@@ -197,7 +197,7 @@ abstract class SearchPeopleViewModel(
 
     abstract suspend fun getAllUsersUseCase(): SearchResult
 
-    abstract suspend fun searchKnownUsersUseCase(searchTerm: String): SearchResult
+    abstract suspend fun searchKnownUsersUseCase(searchTerm: String, selfUserIncluded: Boolean = false): SearchResult
 
     abstract suspend fun searchPublicUsersUseCase(searchTerm: String): SearchResult
 

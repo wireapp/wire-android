@@ -9,6 +9,7 @@ import com.wire.android.model.UserAvatarData
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.home.conversationslist.model.BlockingState
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.ConversationLastEvent
@@ -16,11 +17,14 @@ import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.AnswerCallUseCase
+import com.wire.kalium.logic.feature.connection.BlockUserUseCase
+import com.wire.kalium.logic.feature.connection.BlockUserResult
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationsAndConnectionsUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
-import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
+import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -52,6 +56,12 @@ class ConversationListViewModelTest {
     lateinit var joinCall: AnswerCallUseCase
 
     @MockK
+    lateinit var getSelf: GetSelfUserUseCase
+
+    @MockK
+    lateinit var blockUser: BlockUserUseCase
+
+    @MockK
     private lateinit var wireSessionImageLoader: WireSessionImageLoader
 
     @BeforeEach
@@ -66,6 +76,8 @@ class ConversationListViewModelTest {
                 joinCall,
                 observeConversationsAndConnections,
                 TestDispatcherProvider(),
+                getSelf,
+                blockUser,
                 wireSessionImageLoader,
                 UserTypeMapper()
             )
@@ -126,8 +138,17 @@ class ConversationListViewModelTest {
         }
     }
 
+    @Test
+    fun `given a valid conversation muting state, when calling block user, then should call BlockUserUseCase`() = runTest {
+        coEvery { blockUser(any()) } returns BlockUserResult.Success
+        conversationListViewModel.blockUser(userId, "someName")
+
+        coVerify(exactly = 1) { blockUser(userId) }
+    }
+
     companion object {
         private val conversationId = ConversationId("some_id", "some_domain")
+        private val userId: UserId = UserId("someUser", "some_domain")
 
         private val conversationItem = ConversationItem.PrivateConversation(
             userAvatarData = UserAvatarData(),
@@ -139,6 +160,8 @@ class ConversationListViewModelTest {
             mutedStatus = MutedConversationStatus.AllAllowed,
             isLegalHold = false,
             lastEvent = ConversationLastEvent.None,
+            userId = userId,
+            blockingState = BlockingState.CAN_NOT_BE_BLOCKED
         )
     }
 }

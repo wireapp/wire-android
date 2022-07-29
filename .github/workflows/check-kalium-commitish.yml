@@ -36,8 +36,8 @@ jobs:
             cut -c 2- |
             rev
           )"
-          is_ancestor=git diff --merge-base ${{github.base_ref}} kalium | awk '/^i/{c=NR}NR>c+2&&/^[-+]/' | awk '{split($0,words," "); print words[3];}' | xargs git -C kalium merge-base --is-ancestor
-          echo $is_ancestor
+          is_ancestor=$(git diff --merge-base ${{github.base_ref}} kalium | awk '/^i/{c=NR}NR>c+2&&/^[-+]/' | awk '{split($0,words," "); print words[3];}' | xargs git -C kalium merge-base --is-ancestor
+          echo $is_ancestor)
           echo "::set-output name=is_kalium_rollback::$($is_ancestor)"
 
       - name: Leave a comment

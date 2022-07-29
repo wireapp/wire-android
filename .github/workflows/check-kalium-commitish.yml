@@ -20,9 +20,14 @@ jobs:
       - name: Run git merge-base
         id: validate_kalium
         run: |
-          echo "Hello world"
-          pwd 
-          git diff kalium
+          git diff --merge-base ${{github.base_ref}} kalium | echo
+          git diff --merge-base ${{github.base_ref}} kalium | awk '/^i/{c=NR}NR>c+2&&/^[-+]/' | awk '{split($0,words," "); print words[3];}' | xargs git -c kalium merge-base 
+          echo "::set-output name=is_kalium_rollback::$(
+            git diff --merge-base ${{github.base_ref}} kalium |
+            awk '/^i/{c=NR}NR>c+2&&/^[-+]/' |
+            awk '{split($0,words," "); print words[3];}' |
+            xargs git -c kalium merge-base 
+          )"
       
       - name: Leave a comment
         env: 

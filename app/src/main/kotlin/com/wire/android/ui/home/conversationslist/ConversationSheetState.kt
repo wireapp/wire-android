@@ -8,6 +8,7 @@ import androidx.compose.runtime.setValue
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationOptionNavigation
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationTypeDetail
+import com.wire.android.ui.home.conversationslist.model.BlockingState
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
@@ -62,7 +63,9 @@ fun rememberConversationSheetState(
                     title = conversationInfo.name,
                     mutingConversationState = mutedStatus,
                     conversationTypeDetail = ConversationTypeDetail.Private(
-                        userAvatarData.asset
+                        userAvatarData.asset,
+                        userId,
+                        blockingState == BlockingState.NOT_BLOCKED
                     )
                 )
             }
@@ -73,7 +76,7 @@ fun rememberConversationSheetState(
                     conversationId = conversationId,
                     title = conversationInfo.name,
                     mutingConversationState = mutedStatus,
-                    conversationTypeDetail = ConversationTypeDetail.Private(
+                    conversationTypeDetail = ConversationTypeDetail.Connection(
                         userAvatarData.asset
                     )
                 )

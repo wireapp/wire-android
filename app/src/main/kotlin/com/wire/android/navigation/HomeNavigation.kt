@@ -12,9 +12,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.wire.android.R
 import com.wire.android.ui.home.HomeUIState
-import com.wire.android.ui.home.archive.ArchiveScreen
 import com.wire.android.ui.home.conversationslist.ConversationRouterHomeBridge
-import com.wire.android.ui.home.vault.VaultScreen
 
 @OptIn(
     ExperimentalAnimationApi::class,
@@ -74,7 +72,8 @@ enum class HomeNavigationItem(
             {
                 ConversationRouterHomeBridge(
                     onHomeBottomSheetContentChanged = homeState::changeBottomSheetContent,
-                    onBottomSheetVisibilityChanged = homeState::toggleBottomSheetVisibility,
+                    openBottomSheet = homeState::openBottomSheet,
+                    setSnackBarState = homeState::setSnackBarState,
                     onScrollPositionProviderChanged = homeState::updateScrollPositionProvider
                 )
             }

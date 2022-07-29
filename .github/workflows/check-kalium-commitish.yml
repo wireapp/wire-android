@@ -25,8 +25,11 @@ jobs:
           git fetch
           echo "checking out ${{github.base_ref}}"
           git checkout ${{github.base_ref}}
+          git pull
+          git submodule update
           echo "checking out ${GITHUB_REF#refs\/*}"
           git checkout ${GITHUB_REF#refs\/*}
+          git submodule update
           git branch -a
           echo "running git diff --merge-base origin/${{github.base_ref}}"
           git diff --merge-base ${{github.base_ref}} kalium | echo

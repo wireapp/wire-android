@@ -23,9 +23,11 @@ jobs:
           git branch
           echo "branch -a"
           git branch -a
-          git fetch origin ${{github.base_ref}}:refs/remotes/origin/${{github.base_ref}}
           git fetch origin develop
-          echo "after fetch"
+          echo "checking out origin ${{github.base_ref}}"
+          git checkout origin ${{github.base_ref}}
+          echo "checking out origin ${GITHUB_REF##*/}"
+          git checkout ${GITHUB_REF##*/}
           git branch -a
           echo "running git diff --merge-base origin/${{github.base_ref}}"
           git diff --merge-base origin/${{github.base_ref}} kalium | echo

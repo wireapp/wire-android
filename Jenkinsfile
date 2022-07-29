@@ -337,6 +337,11 @@ pipeline {
               sh "ls -la app/build/outputs/apk/${flavor.toLowerCase()}/${buildType.toLowerCase()}/"
               echo 'Uploading file to S3 Bucket'
               s3Upload(acl:'Private', workingDir: "app/build/outputs/apk/${flavor.toLowerCase()}/${buildType.toLowerCase()}/", includePathPattern:'com.wire.android-*.apk', bucket: 'z-lohika', path: "megazord/android/reloaded/${flavor.toLowerCase()}/${buildType.toLowerCase()}/")
+              script {
+                if (env.BRANCH_NAME.startsWith("PR-") || env.BRANCH_NAME == "develop") {
+                  s3Upload(acl:'Private', workingDir: "app/build/outputs/apk/${flavor.toLowerCase()}/${buildType.toLowerCase()}/", includePathPattern:'com.wire.android-*.apk', bucket: 'z-lohika', path: "megazord/android/reloaded/by-branch/${env.BRANCH_NAME}/")
+                }
+              }
             }
           }
           stage('Playstore') {

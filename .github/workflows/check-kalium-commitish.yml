@@ -22,7 +22,7 @@ jobs:
         run: |
           git branch -a
           git symbolic-ref refs/remotes/origin/${{github.base_ref}} remotes/origin/${{github.base_ref}}
-          echo "after symbolic ref"
+          echo "after symbolic ref  "
           git branch -a
           git diff --merge-base remotes/origin/${{github.base_ref}} kalium | echo
           git diff --merge-base ${{github.base_ref}} kalium | awk '/^i/{c=NR}NR>c+2&&/^[-+]/' | awk '{split($0,words," "); print words[3];}' | xargs git -c kalium merge-base 

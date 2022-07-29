@@ -11,6 +11,8 @@ import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseC
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
 class ObserveConversationRoleForUserUseCase  @Inject constructor(
@@ -21,7 +23,10 @@ class ObserveConversationRoleForUserUseCase  @Inject constructor(
     suspend operator fun invoke(conversationId: ConversationId, userId: UserId): Flow<ConversationRoleData> =
         combine(
             getSelfUser(),
-            observeConversationDetails(conversationId),
+            observeConversationDetails(conversationId)
+                .filterIsInstance<ObserveConversationDetailsUseCase.Result.Success>() // TODO handle StorageFailure
+                .map { it.conversationDetails }
+            ,
             observeConversationMembers(conversationId)
         ) { selfUser: SelfUser, conversationDetails: ConversationDetails, memberDetailsList: List<MemberDetails> ->
             ConversationRoleData(

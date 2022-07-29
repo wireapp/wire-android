@@ -47,7 +47,7 @@ jobs:
       - name: Leave a comment
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        if: ${{ steps.validate_kalium.outputs.is_kalium_rollback != 0 }}
+        # if: ${{ steps.validate_kalium.outputs.is_kalium_rollback != 0 }}
         run: |
           echo "is_kalium_rollback: ${{ steps.validate_kalium.outputs.is_kalium_rollback }}"
           gh pr comment "${{github.head_ref}}" --body "@${{github.event.pull_request.user.login}} looks like you are rolling back kalium to a previous commitish.

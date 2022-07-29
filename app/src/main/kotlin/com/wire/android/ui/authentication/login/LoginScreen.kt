@@ -54,14 +54,21 @@ fun LoginScreen(ssoLoginResult: DeepLinkResult.SSOLogin?) {
     val loginViewModel: LoginViewModel = hiltViewModel()
     LoginContent(
         onBackPressed = { loginViewModel.navigateBack() },
+        loginViewModel,
+        loginViewModel.loginState,
         ssoLoginResult = ssoLoginResult
     )
 }
 
-@OptIn(ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class, ExperimentalPagerApi::class, ExperimentalFoundationApi::class)
+@OptIn(
+    ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class, ExperimentalPagerApi::class, ExperimentalFoundationApi::class,
+    ExperimentalMaterialApi::class
+)
 @Composable
 private fun LoginContent(
     onBackPressed: () -> Unit,
+    viewModel: LoginViewModel,
+    loginState: LoginState,
     ssoLoginResult: DeepLinkResult.SSOLogin?
 ) {
     val scope = rememberCoroutineScope()
@@ -93,6 +100,9 @@ private fun LoginContent(
         var focusedTabIndex: Int by remember { mutableStateOf(initialPageIndex) }
         val keyboardController = LocalSoftwareKeyboardController.current
         val focusManager = LocalFocusManager.current
+        if (loginState.loginError is LoginError.DialogError.InvalidSession) {
+            LoginErrorDialog(loginState.loginError, viewModel::onDialogDismiss)
+        }
         CompositionLocalProvider(LocalOverScrollConfiguration provides null) {
             HorizontalPager(
                 state = pagerState,
@@ -117,7 +127,11 @@ private fun LoginContent(
 }
 
 @Composable
-fun LoginErrorDialog(error: LoginError, onDialogDismiss: () -> Unit, ssoLoginResult: DeepLinkResult.SSOLogin? = null) {
+fun LoginErrorDialog(
+    error: LoginError,
+    onDialogDismiss: () -> Unit,
+    ssoLoginResult: DeepLinkResult.SSOLogin? = null
+) {
     val (title, message) = when (error) {
         is LoginError.DialogError.InvalidCredentialsError -> DialogErrorStrings(
             stringResource(id = R.string.login_error_invalid_credentials_title),
@@ -129,26 +143,21 @@ fun LoginErrorDialog(error: LoginError, onDialogDismiss: () -> Unit, ssoLoginRes
             stringResource(id = R.string.login_error_user_already_logged_in_message)
         )
 
-        is LoginError.DialogError.InvalidSessionError ->
-            when (error) {
-                is LoginError.DialogError.InvalidSessionError.DeletedAccount ->
-                    DialogErrorStrings(
-                        stringResource(id = R.string.deleted_user_error_title),
-                        stringResource(id = R.string.deleted_user_error_message)
-                    )
+        is LoginError.DialogError.InvalidSession.SessionExpired -> DialogErrorStrings(
+            stringResource(id = R.string.session_expired_error_title),
+            stringResource(id = R.string.session_expired_error_message)
+        )
 
-                is LoginError.DialogError.InvalidSessionError.RemovedClient ->
-                    DialogErrorStrings(
-                        stringResource(id = R.string.removed_client_error_title),
-                        stringResource(id = R.string.removed_client_error_message)
-                    )
+        is LoginError.DialogError.InvalidSession.DeletedAccount -> DialogErrorStrings(
+            stringResource(id = R.string.deleted_user_error_title),
+            stringResource(id = R.string.deleted_user_error_message)
+        )
 
-                is LoginError.DialogError.InvalidSessionError.SessionExpired ->
-                    DialogErrorStrings(
-                        stringResource(id = R.string.session_expired_error_title),
-                        stringResource(id = R.string.session_expired_error_message)
-                    )
-            }
+        is LoginError.DialogError.InvalidSession.RemovedClient -> DialogErrorStrings(
+            stringResource(id = R.string.removed_client_error_title),
+            stringResource(id = R.string.removed_client_error_message)
+        )
+
 
         is LoginError.DialogError.GenericError ->
             error.coreFailure.dialogErrorStrings(LocalContext.current.resources)
@@ -195,11 +204,11 @@ enum class LoginTabItem(@StringRes override val titleResId: Int) : TabItem {
     SSO(R.string.login_tab_sso);
 }
 
+@OptIn(ExperimentalMaterialApi::class)
 @Preview
 @Composable
 private fun LoginScreenPreview() {
     WireTheme(isPreview = true) {
-        LoginContent(onBackPressed = { }, ssoLoginResult = null)
+        LoginContent(onBackPressed = { }, hiltViewModel(), LoginState(), ssoLoginResult = null)
     }
 }
-

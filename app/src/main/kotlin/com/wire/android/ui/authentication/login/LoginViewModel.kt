@@ -24,6 +24,7 @@ import com.wire.kalium.logic.data.client.ClientCapability
 import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.parseIntoQualifiedID
+import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthSession
@@ -62,8 +63,18 @@ open class LoginViewModel @Inject constructor(
         viewModelScope.launch {
             if (userId != null)
                 userSessionsUseCaseFactory.create().sessionsUseCase.getUserSession(userId).map {
-                    if (it.session is AuthSession.Session.Invalid)
-                        loginState = loginState.copy(loginError = LoginError.DialogError.InvalidSessionError(it))
+                    if (it.session is AuthSession.Session.Invalid) {
+                        with(it.session as AuthSession.Session.Invalid) {
+                            val loginError = when (this.reason) {
+                                LogoutReason.SELF_LOGOUT -> LoginError.None
+                                LogoutReason.REMOVED_CLIENT -> LoginError.DialogError.InvalidSession.RemovedClient
+                                LogoutReason.DELETED_ACCOUNT -> LoginError.DialogError.InvalidSession.DeletedAccount
+                                LogoutReason.SESSION_EXPIRED -> LoginError.DialogError.InvalidSession.SessionExpired
+                            }
+                            loginState = loginState.copy(loginError = loginError)
+                        }
+
+                    }
                 }
         }
     }
@@ -77,13 +88,10 @@ open class LoginViewModel @Inject constructor(
     }
 
     private fun deleteInvalidSession() {
-        if (loginState.loginError is LoginError.DialogError.InvalidSessionError) {
-            with((loginState.loginError as LoginError.DialogError.InvalidSessionError).session) {
-                userSessionsUseCaseFactory.create().sessionsUseCase
-                    .deleteInvalidSession(this.session.userId)
-            }
+        if (loginState.loginError is LoginError.DialogError.InvalidSession && userId != null) {
+            userSessionsUseCaseFactory.create().sessionsUseCase
+                .deleteInvalidSession(userId)
         }
-
     }
 
     fun onDialogDismiss() {

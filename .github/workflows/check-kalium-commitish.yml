@@ -33,8 +33,8 @@ jobs:
             awk '{split($0,words," "); print words[3];}' |
             tr '\n' '-'
           )"
-          git diff --merge-base ${{github.base_ref}} kalium | awk '/^i/{c=NR}NR>c+2&&/^[-+]/' | awk '{split($0,words," "); print words[3];}' | xargs git -C kalium merge-base --is-ancestor
-          echo "::set-output name=is_kalium_rollback::$($?)"
+          # git diff --merge-base ${{github.base_ref}} kalium | awk '/^i/{c=NR}NR>c+2&&/^[-+]/' | awk '{split($0,words," "); print words[3];}' | xargs git -C kalium merge-base --is-ancestor
+          # echo "::set-output name=is_kalium_rollback::$($?)"
 
       - name: Leave a comment
         env:

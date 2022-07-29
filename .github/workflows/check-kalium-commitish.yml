@@ -1,0 +1,29 @@
+name: "Validate Kalium References"
+
+on:
+  pull_request:
+    types: [ opened, synchronize ] # Don't rerun on `edited` to save time
+    paths:
+      - 'kalium'
+
+jobs:
+  validate-kalium-ref:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive # Needed in order to fetch Kalium sources for building
+          fetch-depth: 0
+
+      - name: Run git merge-base
+        id: validate_kalium
+        run: git diff kalium | awk '/^i/{c=NR}NR>c+2&&/^[-+]/' | awk '{split($0,words," "); print words[3];}' | xargs echo 
+      
+      - name: Leave a comment
+        env: 
+          HEAD: ${{github.head_ref}}
+        if: steps.validate_kalium.is_kalium_rollback != 0
+        run: |
+          gh pr comment "${HEAD}" --body "@${{github.event.pull_request.user.login}} looks like you are rolling back kalium to a previous commitish. Is this intentional?"

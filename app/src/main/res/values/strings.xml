@@ -408,7 +408,8 @@
     <string name="calling_accept_call">Accept call</string>
     <string name="calling_decline_call">Decline call</string>
     <string name="calling_label_ringing_call">Ringing...</string>
-    <string name="calling_label_incoming_call">Calling..</string>
+    <string name="calling_label_incoming_call">Calling…</string>
+    <string name="calling_label_incoming_call_someone_calling">%s is calling…</string>
     <string name="calling_label_default_caller_name">Default</string>
     <string name="calling_label_constant_bit_rate">CONSTANT BIT RATE</string>
     <string name="calling_minimize_view">Minimize view</string>

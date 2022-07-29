@@ -1,6 +1,7 @@
 package com.wire.android.ui.calling
 
 import android.view.View
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -34,7 +35,6 @@ import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireColorScheme
-import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
 @Composable
@@ -45,15 +45,25 @@ fun ParticipantTile(
     onGoingCallTileUsernameMaxWidth: Dp = 350.dp,
     isMuted: Boolean,
     isCameraOn: Boolean,
-    isActiveSpeaker: Boolean = false,
+    isActiveSpeaker: Boolean,
+    avatarSize: Dp = dimensions().onGoingCallUserAvatarSize,
     onSelfUserVideoPreviewCreated: (view: View) -> Unit,
     onClearSelfUserVideoPreview: () -> Unit
 ) {
-
+    var updatedModifier = modifier
+    if (isActiveSpeaker) {
+        updatedModifier = modifier
+            .border(
+                width = dimensions().spacing4x,
+                color = MaterialTheme.wireColorScheme.primary,
+                shape = RoundedCornerShape(dimensions().corner8x)
+            )
+            .padding(dimensions().spacing6x)
+    }
     Surface(
-        modifier = modifier.padding(top = 0.dp),
+        modifier = updatedModifier.padding(top = 0.dp),
         color = MaterialTheme.wireColorScheme.ongoingCallBackground,
-        shape = RoundedCornerShape(MaterialTheme.wireDimensions.corner8x)
+        shape = RoundedCornerShape(dimensions().corner6x)
     ) {
 
         ConstraintLayout {
@@ -75,14 +85,13 @@ fun ParticipantTile(
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .constrainAs(avatar) {
-                        },
+                        .constrainAs(avatar) { },
                     verticalArrangement = Arrangement.Center,
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
                     UserProfileAvatar(
                         modifier = Modifier.padding(top = dimensions().spacing16x),
-                        size = dimensions().onGoingCallUserAvatarSize,
+                        size = avatarSize,
                         avatarData = UserAvatarData(participantAvatar)
                     )
                 }
@@ -92,30 +101,29 @@ fun ParticipantTile(
                 Surface(
                     modifier = Modifier
                         .padding(
-                            start = MaterialTheme.wireDimensions.spacing8x,
-                            bottom = MaterialTheme.wireDimensions.spacing8x
+                            start = dimensions().spacing8x,
+                            bottom = dimensions().spacing8x
                         )
                         .constrainAs(muteIcon) {
                             bottom.linkTo(parent.bottom)
                             start.linkTo(parent.start)
                         },
                     color = Color.Black,
-                    shape = RoundedCornerShape(MaterialTheme.wireDimensions.corner6x)
+                    shape = RoundedCornerShape(dimensions().corner6x)
                 ) {
                     Icon(
                         modifier = Modifier
-                            .padding(MaterialTheme.wireDimensions.spacing4x),
+                            .padding(dimensions().spacing4x),
                         imageVector = ImageVector.vectorResource(id = R.drawable.ic_participant_muted),
                         tint = MaterialTheme.wireColorScheme.muteButtonColor,
                         contentDescription = stringResource(R.string.content_description_calling_participant_muted)
                     )
                 }
-
             }
 
             Surface(
                 modifier = Modifier
-                    .padding(bottom = MaterialTheme.wireDimensions.spacing8x)
+                    .padding(bottom = dimensions().spacing6x)
                     .constrainAs(userName) {
                         bottom.linkTo(parent.bottom)
                         start.linkTo(parent.start)
@@ -123,7 +131,7 @@ fun ParticipantTile(
                     }
                     .widthIn(max = onGoingCallTileUsernameMaxWidth),
                 shape = RoundedCornerShape(dimensions().corner4x),
-                color = Color.Black
+                color = if (isActiveSpeaker) MaterialTheme.wireColorScheme.primary else Color.Black
             ) {
                 Text(
                     color = Color.White,
@@ -153,5 +161,6 @@ private fun ParticipantTilePreview() {
         onClearSelfUserVideoPreview = {},
         onSelfUserVideoPreviewCreated = {},
         participantAvatar = null,
+        isActiveSpeaker = false
     )
 }

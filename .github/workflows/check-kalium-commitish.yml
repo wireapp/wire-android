@@ -23,7 +23,7 @@ jobs:
           git branch
           echo "branch -a "
           git branch -a
-          git fetch orign ${{github.base_ref}}
+          git fetch origin ${{github.base_ref}}
           echo "after fetc "
           git branch
           git diff --merge-base ${{github.base_ref}} kalium | echo

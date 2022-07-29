@@ -8,6 +8,7 @@ import com.wire.kalium.logic.data.call.Participant
 
 data class CallState(
     val conversationName: ConversationName? = null,
+    val callerName: String? = null,
     val avatarAssetId: UserAvatarAsset? = null,
     val participants: List<UICallParticipant> = listOf(),
     val isMuted: Boolean = false,

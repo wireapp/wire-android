@@ -12,7 +12,6 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.LegalHoldStatus
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
-import com.wire.kalium.logic.data.conversation.ProtocolInfo
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
@@ -299,7 +298,7 @@ class GroupConversationDetailsViewModelTest {
                 "Conv Name",
                 Conversation.Type.ONE_ON_ONE,
                 TeamId("team_id"),
-                ProtocolInfo.Proteus,
+                Conversation.ProtocolInfo.Proteus,
                 MutedConversationStatus.AllAllowed,
                 null,
                 null,

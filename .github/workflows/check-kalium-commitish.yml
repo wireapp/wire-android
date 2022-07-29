@@ -36,13 +36,12 @@ jobs:
             cut -c 2- |
             rev
           )"
-          git diff --merge-base ${{github.base_ref}} kalium | awk '/^i/{c=NR}NR>c+2&&/^[-+]/' | awk '{split($0,words," "); print words[3];}' | xargs git -C kalium merge-base --is-ancestor
-          echo "bello $?"
           echo "::set-output name=kalium_from_to::$(
             git diff --merge-base ${{github.base_ref}} kalium |
             awk '/^i/{c=NR}NR>c+2&&/^[-+]/' |
             awk '{split($0,words," "); print words[3];}' |
             xargs git -C kalium merge-base --is-ancestor
+            echo $?
           )"
 
       - name: Leave a comment

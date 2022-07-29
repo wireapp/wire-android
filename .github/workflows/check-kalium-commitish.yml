@@ -26,7 +26,7 @@ jobs:
           git submodule update
           git checkout ${GITHUB_REF#refs\/*}
           git submodule update
-          git diff --merge-base ${{github.base_ref}} kalium | awk '/^i/{c=NR}NR>c+2&&/^[-+]/' | awk '{split($0,words," "); print words[3];}' | tr '\n' '-'
+          # git diff --merge-base ${{github.base_ref}} kalium | awk '/^i/{c=NR}NR>c+2&&/^[-+]/' | awk '{split($0,words," "); print words[3];}' | tr '\n' '-'
           echo "::set-output name=kalium_from_to::$(
             git diff --merge-base ${{github.base_ref}} kalium |
             awk '/^i/{c=NR}NR>c+2&&/^[-+]/' |

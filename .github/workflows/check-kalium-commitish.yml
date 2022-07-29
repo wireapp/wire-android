@@ -19,6 +19,7 @@ jobs:
 
       - name: Run git merge-base
         id: validate_kalium
+        continue-on-error: true
         run: |
           git fetch
           git checkout ${{github.base_ref}}
@@ -26,22 +27,26 @@ jobs:
           git submodule update
           git checkout ${GITHUB_REF#refs\/*}
           git submodule update
-          # git diff --merge-base ${{github.base_ref}} kalium | awk '/^i/{c=NR}NR>c+2&&/^[-+]/' | awk '{split($0,words," "); print words[3];}' | tr '\n' '-'
-          # echo "::set-output name=kalium_from_to::$(
-          #   git diff --merge-base ${{github.base_ref}} kalium |
-          #   awk '/^i/{c=NR}NR>c+2&&/^[-+]/' |
-          #   awk '{split($0,words," "); print words[3];}' |
-          #   tr '\n' '-' |
-          #   rev |
-          #   cut -c 2- |
-          #   rev
-          # )"
-          git diff --merge-base ${{github.base_ref}} kalium | awk '/^i/{c=NR}NR>c+2&&/^[-+]/' | awk '{split($0,words," "); print words[3];}' | xargs git -C kalium merge-base --is-ancestor
+          echo "::set-output name=kalium_from_to::$(
+            git diff --merge-base ${{github.base_ref}} kalium |
+            awk '/^i/{c=NR}NR>c+2&&/^[-+]/' |
+            awk '{split($0,words," "); print words[3];}' |
+            tr '\n' '-' |
+            rev |
+            cut -c 2- |
+            rev
+          )"
+          echo "::set-output name=kalium_from_to::$(
+            git diff --merge-base ${{github.base_ref}} kalium |
+            awk '/^i/{c=NR}NR>c+2&&/^[-+]/' |
+            awk '{split($0,words," "); print words[3];}' |
+            xargs git -C kalium merge-base --is-ancestor
+          )"
 
       - name: Leave a comment
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        # if: ${{ steps.validate_kalium.outputs.is_kalium_rollback != 0 }}
+        if: ${{ steps.validate_kalium.outputs.is_kalium_rollback != 0 }}
         run: |
           echo "is_kalium_rollback: ${{ steps.validate_kalium.outputs.is_kalium_rollback }}"
           gh pr comment "${{github.head_ref}}" --body "@${{github.event.pull_request.user.login}} looks like you are rolling back kalium to a previous commitish.

@@ -91,13 +91,3 @@ internal class AssistedViewModelFactory @Inject internal constructor(
 internal interface AssistedViewModelFactoryEntryPoint {
     fun assistedViewModelFactory(): AssistedViewModelFactory
 }
-
-@Parcelize
-private class NavQualifiedId private constructor(private val qualifiedIdString: String) : Parcelable {
-    constructor(qualifiedId: QualifiedID) : this(qualifiedId.toString())
-    private val qualifiedId: QualifiedID get() = qualifiedIdString.parseIntoQualifiedID()
-    @IgnoredOnParcel
-    val value: String get() = qualifiedId.value
-    @IgnoredOnParcel
-    val domain: String get() = qualifiedId.domain
-}

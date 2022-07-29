@@ -152,6 +152,7 @@ sealed class VoyagerNavigationItem(
     }
 
     sealed class UrlNavigationItem(val url: String) : VoyagerNavigationItem() {
+        @Suppress("EmptyFunctionBlock")
         @Composable
         override fun Content() {
         }

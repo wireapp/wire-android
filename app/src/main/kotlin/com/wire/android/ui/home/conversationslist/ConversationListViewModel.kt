@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
+import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.UserAvatarData
 import com.wire.android.navigation.NavigationCommand
@@ -22,7 +23,6 @@ import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.ConversationLastEvent
-import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.conversationslist.model.NewActivity
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
@@ -39,10 +39,9 @@ import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.call.AnswerCallUseCase
 import com.wire.kalium.logic.feature.connection.BlockUserUseCase
-import com.wire.kalium.logic.feature.connection.BlockUserUseCaseUseCaseResult
+import com.wire.kalium.logic.feature.connection.BlockUserResult
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationsAndConnectionsUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
@@ -65,7 +64,8 @@ class ConversationListViewModel @Inject constructor(
     private val dispatchers: DispatcherProvider,
     private val getSelf: GetSelfUserUseCase,
     private val blockUserUseCase: BlockUserUseCase,
-    private val wireSessionImageLoader: WireSessionImageLoader
+    private val wireSessionImageLoader: WireSessionImageLoader,
+    private val userTypeMapper: UserTypeMapper,
 ) : ViewModel() {
 
     var state by mutableStateOf(ConversationListState())
@@ -181,11 +181,11 @@ class ConversationListViewModel @Inject constructor(
     fun blockUser(id: UserId, userName: String) {
         viewModelScope.launch(dispatchers.io()) {
             val state = when (val result = blockUserUseCase(id)) {
-                BlockUserUseCaseUseCaseResult.Success -> {
+                BlockUserResult.Success -> {
                     appLogger.d("User $id was blocked")
                     HomeSnackbarState.BlockingUserOperationSuccess(userName)
                 }
-                is BlockUserUseCaseUseCaseResult.Failure -> {
+                is BlockUserResult.Failure -> {
                     appLogger.d("Error while blocking user $id ; Error ${result.coreFailure}")
                     HomeSnackbarState.BlockingUserOperationError
                 }
@@ -210,12 +210,14 @@ class ConversationListViewModel @Inject constructor(
 
     private fun List<ConversationDetails>.toConversationItemList(teamId: TeamId?): List<ConversationItem> =
         filter { it is Group || it is OneOne || it is Connection }
-            .map { it.toType(wireSessionImageLoader, teamId) }
+            .map { it.toType(wireSessionImageLoader, teamId, userTypeMapper) }
 }
 
 private fun LegalHoldStatus.showLegalHoldIndicator() = this == LegalHoldStatus.ENABLED
 
-private fun ConversationDetails.toType(wireSessionImageLoader: WireSessionImageLoader, selfTeamId: TeamId?): ConversationItem =
+private fun ConversationDetails.toType(wireSessionImageLoader: WireSessionImageLoader,
+                                       selfTeamId: TeamId?,
+                                       userTypeMapper: UserTypeMapper): ConversationItem =
     when (this) {
         is Group -> {
             ConversationItem.GroupConversation(
@@ -235,7 +237,7 @@ private fun ConversationDetails.toType(wireSessionImageLoader: WireSessionImageL
                 ),
                 conversationInfo = ConversationInfo(
                     name = otherUser.name.orEmpty(),
-                    membership = userType.toMembership()
+                    membership = userTypeMapper.toMembership(userType)
                 ),
                 conversationId = conversation.id,
                 mutedStatus = conversation.mutedStatus,
@@ -253,7 +255,7 @@ private fun ConversationDetails.toType(wireSessionImageLoader: WireSessionImageL
                 ),
                 conversationInfo = ConversationInfo(
                     name = otherUser?.name.orEmpty(),
-                    membership = userType.toMembership()
+                    membership = userTypeMapper.toMembership(userType)
                 ),
                 lastEvent = ConversationLastEvent.Connection(
                     connection.status,
@@ -278,13 +280,3 @@ private fun OtherUser.getBlockingState(selfTeamId: TeamId?): BlockingState =
         teamId == selfTeamId -> BlockingState.CAN_NOT_BE_BLOCKED
         else -> BlockingState.NOT_BLOCKED
     }
-
-private fun UserType.toMembership(): Membership {
-    return when (this) {
-        UserType.GUEST -> Membership.Guest
-        UserType.FEDERATED -> Membership.Federated
-        UserType.EXTERNAL -> Membership.External
-        UserType.INTERNAL -> Membership.Internal
-        UserType.NONE -> Membership.None
-    }
-}

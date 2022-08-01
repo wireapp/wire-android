@@ -25,6 +25,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Test
@@ -357,7 +358,8 @@ internal class GroupConversationDetailsViewModelArrangement {
     }
 
     suspend fun withConversationDetailUpdate(conversationDetails: ConversationDetails) = apply {
-        coEvery { observeConversationDetails(any()) } returns conversationDetailsChannel.consumeAsFlow()
+        coEvery { observeConversationDetails(any()) }returns conversationDetailsChannel.consumeAsFlow()
+            .map { ObserveConversationDetailsUseCase.Result.Success(it) }
         conversationDetailsChannel.send(conversationDetails)
     }
 

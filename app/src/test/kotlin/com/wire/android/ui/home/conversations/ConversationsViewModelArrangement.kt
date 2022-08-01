@@ -50,6 +50,7 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import okio.Path
 import okio.buffer
 
@@ -184,7 +185,9 @@ internal class ConversationsViewModelArrangement {
     }
 
     suspend fun withConversationDetailUpdate(conversationDetails: ConversationDetails): ConversationsViewModelArrangement {
-        coEvery { observeConversationDetails(any()) } returns conversationDetailsChannel.consumeAsFlow()
+        coEvery { observeConversationDetails(any()) } returns conversationDetailsChannel.consumeAsFlow().map {
+            ObserveConversationDetailsUseCase.Result.Success(it)
+        }
         conversationDetailsChannel.send(conversationDetails)
 
         return this

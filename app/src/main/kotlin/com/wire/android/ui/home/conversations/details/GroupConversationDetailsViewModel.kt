@@ -23,6 +23,7 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUs
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -54,26 +55,31 @@ class GroupConversationDetailsViewModel @Inject constructor(
     private fun observeConversationDetails() {
         viewModelScope.launch {
             // TODO(QOL): refactor to one usecase that return group info and members
-            observeConversationMembers(conversationId).map { it.isSelfAnAdmin }.distinctUntilChanged().also { isSelfAdminFlow ->
-                observeConversationDetails(conversationId).combine(isSelfAdminFlow) { conversationDetails, isSelfAdmin ->
-                    Pair(conversationDetails, isSelfAdmin)
-                }.collect { (conversationDetails, isSelfAdmin) ->
-                    with(conversationDetails) {
-                        if (this is ConversationDetails.Group) {
-                            updateState(
-                                groupOptionsState.copy(
-                                    groupName = conversation.name.orEmpty(),
-                                    isTeamGroup = conversation.isTeamGroup(),
-                                    isGuestAllowed = (conversation.isGuestAllowed() || conversation.isNonTeamMemberAllowed()),
-                                    isServicesAllowed = conversation.isServicesAllowed(),
-                                    isUpdatingGuestAllowed = isSelfAdmin /* TODO: check if self belongs to the same team */,
-                                    isUpdatingAllowed = isSelfAdmin
-                                )
-                            )
+            observeConversationMembers(conversationId)
+                .map { it.isSelfAnAdmin }
+                .distinctUntilChanged()
+                .also { isSelfAdminFlow ->
+                    observeConversationDetails(conversationId)
+                        .filterIsInstance<ObserveConversationDetailsUseCase.Result.Success>() // TODO handle StorageFailure
+                        .map { it.conversationDetails }
+                        .combine(isSelfAdminFlow) { conversationDetails, isSelfAdmin -> Pair(conversationDetails, isSelfAdmin) }
+                        .collect { (conversationDetails, isSelfAdmin) ->
+                            with(conversationDetails) {
+                                if (this is ConversationDetails.Group) {
+                                    updateState(
+                                        groupOptionsState.copy(
+                                            groupName = conversation.name.orEmpty(),
+                                            isTeamGroup = conversation.isTeamGroup(),
+                                            isGuestAllowed = (conversation.isGuestAllowed() || conversation.isNonTeamMemberAllowed()),
+                                            isServicesAllowed = conversation.isServicesAllowed(),
+                                            isUpdatingGuestAllowed = isSelfAdmin /* TODO: check if self belongs to the same team */,
+                                            isUpdatingAllowed = isSelfAdmin
+                                        )
+                                    )
+                                }
+                            }
                         }
-                    }
                 }
-            }
         }
     }
 

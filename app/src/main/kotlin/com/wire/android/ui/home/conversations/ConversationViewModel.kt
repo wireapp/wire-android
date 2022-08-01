@@ -57,6 +57,8 @@ import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
 import com.wire.kalium.logic.functional.onFailure
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okio.Path
@@ -130,31 +132,34 @@ class ConversationViewModel @Inject constructor(
     }
 
     private fun listenConversationDetails() = viewModelScope.launch {
-        observeConversationDetails(conversationId).collect { conversationDetails ->
-            val conversationName = when (conversationDetails) {
-                is ConversationDetails.OneOne -> conversationDetails.otherUser.name.orEmpty()
-                else -> conversationDetails.conversation.name.orEmpty()
+        observeConversationDetails(conversationId)
+            .filterIsInstance<ObserveConversationDetailsUseCase.Result.Success>() // TODO handle StorageFailure
+            .map { it.conversationDetails }
+            .collect { conversationDetails ->
+                val conversationName = when (conversationDetails) {
+                    is ConversationDetails.OneOne -> conversationDetails.otherUser.name.orEmpty()
+                    else -> conversationDetails.conversation.name.orEmpty()
+                }
+                val conversationAvatar = when (conversationDetails) {
+                    is ConversationDetails.OneOne ->
+                        ConversationAvatar.OneOne(conversationDetails.otherUser.previewPicture?.let {
+                            UserAvatarAsset(wireSessionImageLoader, it)
+                        })
+                    is ConversationDetails.Group ->
+                        ConversationAvatar.Group(conversationDetails.conversation.id)
+                    else -> ConversationAvatar.None
+                }
+                val conversationDetailsData = when (conversationDetails) {
+                    is ConversationDetails.Group -> ConversationDetailsData.Group(conversationDetails.conversation.id)
+                    is ConversationDetails.OneOne -> ConversationDetailsData.OneOne(conversationDetails.otherUser.id)
+                    else -> ConversationDetailsData.None
+                }
+                conversationViewState = conversationViewState.copy(
+                    conversationName = conversationName,
+                    conversationAvatar = conversationAvatar,
+                    conversationDetailsData = conversationDetailsData
+                )
             }
-            val conversationAvatar = when (conversationDetails) {
-                is ConversationDetails.OneOne ->
-                    ConversationAvatar.OneOne(conversationDetails.otherUser.previewPicture?.let {
-                        UserAvatarAsset(wireSessionImageLoader, it)
-                    })
-                is ConversationDetails.Group ->
-                    ConversationAvatar.Group(conversationDetails.conversation.id)
-                else -> ConversationAvatar.None
-            }
-            val conversationDetailsData = when (conversationDetails) {
-                is ConversationDetails.Group -> ConversationDetailsData.Group(conversationDetails.conversation.id)
-                is ConversationDetails.OneOne -> ConversationDetailsData.OneOne(conversationDetails.otherUser.id)
-                else -> ConversationDetailsData.None
-            }
-            conversationViewState = conversationViewState.copy(
-                conversationName = conversationName,
-                conversationAvatar = conversationAvatar,
-                conversationDetailsData = conversationDetailsData
-            )
-        }
     }
 
     private fun fetchSelfUserTeam() = viewModelScope.launch {

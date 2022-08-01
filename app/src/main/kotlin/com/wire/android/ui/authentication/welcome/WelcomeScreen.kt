@@ -27,7 +27,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.modifier.modifierLocalOf
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.integerResource
 import androidx.compose.ui.res.painterResource
@@ -61,6 +60,7 @@ import kotlinx.coroutines.flow.scan
 fun WelcomeScreen(viewModel: WelcomeViewModel = hiltViewModel()) {
     WelcomeContent(viewModel)
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -150,8 +150,10 @@ private suspend fun autoScrollCarousel(
         when {
             shouldJumpToStart(previousPage, currentPage, circularItemsList.lastIndex, initialPage) ->
                 flow { emit(CarouselScrollData(scrollToPage = initialPage, animate = false)) }
+
             shouldJumpToEnd(previousPage, currentPage, circularItemsList.lastIndex) ->
                 flow { emit(CarouselScrollData(scrollToPage = circularItemsList.lastIndex - 1, animate = false)) }
+
             else ->
                 flow { emit(CarouselScrollData(scrollToPage = pageState.currentPage + 1, animate = true)) }
                     .onEach { delay(delay) }

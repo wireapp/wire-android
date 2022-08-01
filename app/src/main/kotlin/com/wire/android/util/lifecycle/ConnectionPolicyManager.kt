@@ -60,10 +60,10 @@ class ConnectionPolicyManager @Inject constructor(
     }
 
     private fun getAllSessionsAndCurrentSession() = coreLogic.sessionRepository.currentSession().flatMap { authSession ->
-        coreLogic.sessionRepository.allSessions().map { sessions ->
+        coreLogic.sessionRepository.allValidSessions().map { sessions ->
             sessions.map {
-                it.tokens.userId
-            } to authSession.tokens.userId
+                it.session.userId
+            } to authSession.session.userId
         }
     }
 }

@@ -86,7 +86,7 @@ private fun LoginEmailContent(
     onLoginButtonClick: suspend () -> Unit,
     forgotPasswordUrl: String,
     scope: CoroutineScope,
-    //todo: temporary to show to pointing server
+    // todo: temporary to show to pointing server
     serverTitle: String
 ) {
     Column(
@@ -134,12 +134,10 @@ private fun LoginEmailContent(
         }
     }
 
-    if (loginState.loginError !is LoginError.DialogError || loginState.loginError is LoginError.DialogError.InvalidSession) {
-        if (loginState.loginError is LoginError.TooManyDevicesError) {
-            onRemoveDeviceOpen()
-        }
-    } else {
+    if (loginState.loginError is LoginError.DialogError && loginState.loginError !is LoginError.DialogError.InvalidSession) {
         LoginErrorDialog(loginState.loginError, onDialogDismiss)
+    } else if (loginState.loginError is LoginError.TooManyDevicesError) {
+        onRemoveDeviceOpen()
     }
 }
 
@@ -149,7 +147,7 @@ private fun UserIdentifierInput(
     userIdentifier: TextFieldValue,
     error: String?,
     onUserIdentifierChange: (TextFieldValue) -> Unit,
-    //todo: temporary to show to pointing server
+    // todo: temporary to show to pointing server
     serverTitle: String
 ) {
     WireTextField(

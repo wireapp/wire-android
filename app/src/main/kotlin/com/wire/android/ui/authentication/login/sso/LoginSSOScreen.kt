@@ -105,7 +105,7 @@ private fun LoginSSOContent(
             modifier = Modifier.fillMaxWidth(), loading = loginState.loading, enabled = loginState.loginEnabled
         ) { scope.launch { onLoginButtonClick() } }
     }
-    if (loginState.loginError !is LoginError.DialogError || loginState.loginError is LoginError.DialogError.InvalidSession) {
+    if (loginState.loginError is LoginError.DialogError && loginState.loginError !is LoginError.DialogError.InvalidSession) {
         LoginErrorDialog(loginState.loginError, onDialogDismiss, ssoLoginResult)
     } else if (loginState.loginError is LoginError.TooManyDevicesError) {
         onRemoveDeviceOpen()

@@ -118,15 +118,15 @@ class LoginSSOViewModelTest {
     @Test
     fun `given empty string, when entering code, then button is disabled`() {
         loginViewModel.onSSOCodeChange(TextFieldValue(String.EMPTY))
-        loginViewModel.loginState.loginEnabled shouldBeEqualTo false
-        loginViewModel.loginState.loading shouldBeEqualTo false
+        loginViewModel.loginState.ssoLoginEnabled shouldBeEqualTo false
+        loginViewModel.loginState.ssoLoginLoading shouldBeEqualTo false
     }
 
     @Test
     fun `given non-empty string, when entering code, then button is enabled`() {
         loginViewModel.onSSOCodeChange(TextFieldValue("abc"))
-        loginViewModel.loginState.loginEnabled shouldBeEqualTo true
-        loginViewModel.loginState.loading shouldBeEqualTo false
+        loginViewModel.loginState.ssoLoginEnabled shouldBeEqualTo true
+        loginViewModel.loginState.ssoLoginLoading shouldBeEqualTo false
     }
 
     @Test
@@ -136,14 +136,14 @@ class LoginSSOViewModelTest {
         coEvery { ssoInitiateLoginUseCase(any()) } returns SSOInitiateLoginResult.Success("")
 
         loginViewModel.onSSOCodeChange(TextFieldValue("abc"))
-        loginViewModel.loginState.loginEnabled shouldBeEqualTo true
-        loginViewModel.loginState.loading shouldBeEqualTo false
+        loginViewModel.loginState.ssoLoginEnabled shouldBeEqualTo true
+        loginViewModel.loginState.ssoLoginLoading shouldBeEqualTo false
         loginViewModel.login()
-        loginViewModel.loginState.loginEnabled shouldBeEqualTo false
-        loginViewModel.loginState.loading shouldBeEqualTo true
+        loginViewModel.loginState.ssoLoginEnabled shouldBeEqualTo false
+        loginViewModel.loginState.ssoLoginLoading shouldBeEqualTo true
         scheduler.advanceUntilIdle()
-        loginViewModel.loginState.loginEnabled shouldBeEqualTo true
-        loginViewModel.loginState.loading shouldBeEqualTo false
+        loginViewModel.loginState.ssoLoginEnabled shouldBeEqualTo true
+        loginViewModel.loginState.ssoLoginLoading shouldBeEqualTo false
     }
 
     @Test

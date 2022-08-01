@@ -73,17 +73,24 @@ open class LoginViewModel @Inject constructor(
                             }
                             loginState = loginState.copy(loginError = loginError)
                         }
-
                     }
                 }
         }
     }
 
-    open fun updateLoginError(error: LoginError) {
+    open fun updateSSOLoginError(error: LoginError) {
         loginState = if (error is LoginError.None) {
             loginState.copy(loginError = error)
         } else {
-            loginState.copy(loading = false, loginError = error).updateLoginEnabled()
+            loginState.copy(ssoLoginLoading = false, loginError = error).updateSSOLoginEnabled()
+        }
+    }
+
+    open fun updateEmailLoginError(error: LoginError) {
+        loginState = if (error is LoginError.None) {
+            loginState.copy(loginError = error)
+        } else {
+            loginState.copy(emailLoginLoading = false, loginError = error).updateEmailLoginEnabled()
         }
     }
 
@@ -96,15 +103,24 @@ open class LoginViewModel @Inject constructor(
 
     fun onDialogDismiss() {
         deleteInvalidSession()
-        clearLoginError()
+        clearLoginErrors()
     }
 
-    fun clearLoginError() {
-        updateLoginError(LoginError.None)
+    private fun clearLoginErrors() {
+        clearSSOLoginError()
+        clearEmailLoginError()
+    }
+
+    fun clearSSOLoginError() {
+        updateSSOLoginError(LoginError.None)
+    }
+
+    fun clearEmailLoginError() {
+        updateEmailLoginError(LoginError.None)
     }
 
     fun onTooManyDevicesError() {
-        clearLoginError()
+        clearLoginErrors()
         navigateToRemoveDevicesScreen()
     }
 

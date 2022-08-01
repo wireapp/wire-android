@@ -6,11 +6,16 @@ data class LoginState(
     val userIdentifier: TextFieldValue = TextFieldValue(""),
     val password: TextFieldValue = TextFieldValue(""),
     val ssoCode: TextFieldValue = TextFieldValue(""),
-    val loading: Boolean = false,
-    val loginEnabled: Boolean = false,
+    val ssoLoginLoading: Boolean = false,
+    val emailLoginLoading: Boolean = false,
+    val ssoLoginEnabled: Boolean = false,
+    val emailLoginEnabled: Boolean = false,
     val loginError: LoginError = LoginError.None
 )
 
-fun LoginState.updateLoginEnabled() =
-    copy(loginEnabled = userIdentifier.text.isNotEmpty() && password.text.isNotEmpty() && !loading)
+fun LoginState.updateEmailLoginEnabled() =
+    copy(emailLoginEnabled = userIdentifier.text.isNotEmpty() && password.text.isNotEmpty() && !emailLoginLoading)
+
+fun LoginState.updateSSOLoginEnabled() =
+    copy(ssoLoginEnabled = ssoCode.text.isNotEmpty() && !ssoLoginLoading)
 

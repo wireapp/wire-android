@@ -125,8 +125,8 @@ private fun LoginEmailContent(
 
         LoginButton(
             modifier = Modifier.fillMaxWidth(),
-            loading = loginState.loading,
-            enabled = loginState.loginEnabled
+            loading = loginState.emailLoginLoading,
+            enabled = loginState.emailLoginEnabled
         ) {
             scope.launch {
                 onLoginButtonClick()

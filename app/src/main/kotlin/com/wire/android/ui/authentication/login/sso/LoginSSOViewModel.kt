@@ -12,7 +12,7 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.login.LoginError
 import com.wire.android.ui.authentication.login.LoginViewModel
 import com.wire.android.ui.authentication.login.toLoginError
-import com.wire.android.ui.authentication.login.updateLoginEnabled
+import com.wire.android.ui.authentication.login.updateSSOLoginEnabled
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
@@ -43,11 +43,11 @@ class LoginSSOViewModel @Inject constructor(
     var openWebUrl = MutableSharedFlow<String>()
 
     fun login() {
-        loginState = loginState.copy(loading = true, loginError = LoginError.None).updateLoginEnabled()
+        loginState = loginState.copy(ssoLoginLoading = true, loginError = LoginError.None).updateSSOLoginEnabled()
         viewModelScope.launch {
             ssoInitiateLoginUseCase(SSOInitiateLoginUseCase.Param.WithRedirect(loginState.ssoCode.text)).let { result ->
                 when (result) {
-                    is SSOInitiateLoginResult.Failure -> updateLoginError(result.toLoginSSOError())
+                    is SSOInitiateLoginResult.Failure -> updateSSOLoginError(result.toLoginSSOError())
                     is SSOInitiateLoginResult.Success -> openWebUrl(result.requestUrl)
                 }
             }
@@ -56,12 +56,12 @@ class LoginSSOViewModel @Inject constructor(
 
     @VisibleForTesting
     fun establishSSOSession(cookie: String) {
-        loginState = loginState.copy(loading = true, loginError = LoginError.None).updateLoginEnabled()
+        loginState = loginState.copy(ssoLoginLoading = true, loginError = LoginError.None).updateSSOLoginEnabled()
         viewModelScope.launch {
             val authSession = getSSOLoginSessionUseCase(cookie).let {
                 when (it) {
                     is SSOLoginSessionResult.Failure -> {
-                        updateLoginError(it.toLoginError())
+                        updateSSOLoginError(it.toLoginError())
                         return@launch
                     }
                     is SSOLoginSessionResult.Success -> it.userSession
@@ -70,7 +70,7 @@ class LoginSSOViewModel @Inject constructor(
             val storedUserId = addAuthenticatedUser(authSession, false).let {
                 when (it) {
                     is AddAuthenticatedUserUseCase.Result.Failure -> {
-                        updateLoginError(it.toLoginError())
+                        updateSSOLoginError(it.toLoginError())
                         return@launch
                     }
                     is AddAuthenticatedUserUseCase.Result.Success -> it.userId
@@ -84,7 +84,7 @@ class LoginSSOViewModel @Inject constructor(
                         navigateToConvScreen()
                     }
                     is RegisterClientResult.Failure -> {
-                        updateLoginError(it.toLoginError())
+                        updateSSOLoginError(it.toLoginError())
                         return@launch
                     }
                 }
@@ -95,9 +95,9 @@ class LoginSSOViewModel @Inject constructor(
     fun onSSOCodeChange(newText: TextFieldValue) {
         // in case an error is showing e.g. inline error is should be cleared
         if (loginState.loginError is LoginError.TextFieldError && newText != loginState.ssoCode) {
-            clearLoginError()
+            clearSSOLoginError()
         }
-        loginState = loginState.copy(ssoCode = newText).updateLoginEnabled()
+        loginState = loginState.copy(ssoCode = newText).updateSSOLoginEnabled()
         savedStateHandle.set(SSO_CODE_SAVED_STATE_KEY, newText.text)
     }
 
@@ -105,13 +105,14 @@ class LoginSSOViewModel @Inject constructor(
         is DeepLinkResult.SSOLogin.Success -> {
             establishSSOSession(ssoLoginResult.cookie)
         }
-        is DeepLinkResult.SSOLogin.Failure -> updateLoginError(LoginError.DialogError.SSOResultError(ssoLoginResult.ssoError))
+
+        is DeepLinkResult.SSOLogin.Failure -> updateSSOLoginError(LoginError.DialogError.SSOResultError(ssoLoginResult.ssoError))
         null -> {}
     }
 
     private fun openWebUrl(url: String) {
         viewModelScope.launch {
-            loginState = loginState.copy(loading = false, loginError = LoginError.None).updateLoginEnabled()
+            loginState = loginState.copy(ssoLoginLoading = false, loginError = LoginError.None).updateSSOLoginEnabled()
             openWebUrl.emit(url)
         }
     }

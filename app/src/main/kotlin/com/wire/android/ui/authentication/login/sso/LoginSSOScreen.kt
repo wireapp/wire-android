@@ -102,7 +102,7 @@ private fun LoginSSOContent(
         )
         Spacer(modifier = Modifier.weight(1f))
         LoginButton(
-            modifier = Modifier.fillMaxWidth(), loading = loginState.loading, enabled = loginState.loginEnabled
+            modifier = Modifier.fillMaxWidth(), loading = loginState.ssoLoginLoading, enabled = loginState.ssoLoginEnabled
         ) { scope.launch { onLoginButtonClick() } }
     }
     if (loginState.loginError is LoginError.DialogError && loginState.loginError !is LoginError.DialogError.InvalidSession) {

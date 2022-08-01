@@ -119,16 +119,16 @@ class LoginEmailViewModelTest {
     fun `given empty strings, when entering credentials, then button is disabled`() {
         loginViewModel.onPasswordChange(TextFieldValue(String.EMPTY))
         loginViewModel.onUserIdentifierChange(TextFieldValue(String.EMPTY))
-        loginViewModel.loginState.loginEnabled shouldBeEqualTo false
-        loginViewModel.loginState.loading shouldBeEqualTo false
+        loginViewModel.loginState.emailLoginEnabled shouldBeEqualTo false
+        loginViewModel.loginState.emailLoginLoading shouldBeEqualTo false
     }
 
     @Test
     fun `given non-empty strings, when entering credentials, then button is enabled`() {
         loginViewModel.onPasswordChange(TextFieldValue("abc"))
         loginViewModel.onUserIdentifierChange(TextFieldValue("abc"))
-        loginViewModel.loginState.loginEnabled shouldBeEqualTo true
-        loginViewModel.loginState.loading shouldBeEqualTo false
+        loginViewModel.loginState.emailLoginEnabled shouldBeEqualTo true
+        loginViewModel.loginState.emailLoginLoading shouldBeEqualTo false
     }
 
     @Test
@@ -140,14 +140,14 @@ class LoginEmailViewModelTest {
 
         loginViewModel.onPasswordChange(TextFieldValue("abc"))
         loginViewModel.onUserIdentifierChange(TextFieldValue("abc"))
-        loginViewModel.loginState.loginEnabled shouldBeEqualTo true
-        loginViewModel.loginState.loading shouldBeEqualTo false
+        loginViewModel.loginState.emailLoginEnabled shouldBeEqualTo true
+        loginViewModel.loginState.emailLoginLoading shouldBeEqualTo false
         loginViewModel.login()
-        loginViewModel.loginState.loginEnabled shouldBeEqualTo false
-        loginViewModel.loginState.loading shouldBeEqualTo true
+        loginViewModel.loginState.emailLoginEnabled shouldBeEqualTo false
+        loginViewModel.loginState.emailLoginLoading shouldBeEqualTo true
         scheduler.advanceUntilIdle()
-        loginViewModel.loginState.loginEnabled shouldBeEqualTo true
-        loginViewModel.loginState.loading shouldBeEqualTo false
+        loginViewModel.loginState.emailLoginEnabled shouldBeEqualTo true
+        loginViewModel.loginState.emailLoginLoading shouldBeEqualTo false
     }
 
     @Test

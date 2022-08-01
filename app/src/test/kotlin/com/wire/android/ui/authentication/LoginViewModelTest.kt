@@ -43,6 +43,7 @@ class LoginViewModelTest {
     @BeforeEach
     fun setup() {
         MockKAnnotations.init(this)
+        every { savedStateHandle.get<String>(any()) } returns ""
         every { authServerConfigProvider.authServer.value } returns newServerConfig(1).links
         loginViewModel = LoginViewModel(
             savedStateHandle,

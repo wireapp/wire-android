@@ -7,6 +7,7 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.mockUri
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
+import com.wire.android.di.UserSessionsUseCaseProvider
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.login.LoginError
 import com.wire.android.util.EMPTY
@@ -15,7 +16,6 @@ import com.wire.android.util.deeplink.SSOFailureCodes
 import com.wire.android.util.newServerConfig
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.NetworkFailure
-import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.client.Client
 import com.wire.kalium.logic.data.client.ClientType
 import com.wire.kalium.logic.data.conversation.ClientId
@@ -67,6 +67,9 @@ class LoginSSOViewModelTest {
     private lateinit var clientScopeProviderFactory: ClientScopeProvider.Factory
 
     @MockK
+    private lateinit var userSessionsUseCaseProviderFactory: UserSessionsUseCaseProvider.Factory
+
+    @MockK
     private lateinit var clientScope: ClientScope
 
     @MockK
@@ -106,6 +109,7 @@ class LoginSSOViewModelTest {
             getSSOLoginSessionUseCase,
             addAuthenticatedUserUseCase,
             clientScopeProviderFactory,
+            userSessionsUseCaseProviderFactory,
             navigationManager,
             authServerConfigProvider
         )
@@ -166,7 +170,7 @@ class LoginSSOViewModelTest {
 
         runTest { loginViewModel.login() }
 
-        loginViewModel.loginState.loginSSOError shouldBeInstanceOf LoginError.TextFieldError.InvalidValue::class
+        loginViewModel.loginState.loginError shouldBeInstanceOf LoginError.TextFieldError.InvalidValue::class
     }
 
     @Test
@@ -175,7 +179,7 @@ class LoginSSOViewModelTest {
 
         runTest { loginViewModel.login() }
 
-        loginViewModel.loginState.loginSSOError shouldBeInstanceOf LoginError.DialogError.InvalidCodeError::class
+        loginViewModel.loginState.loginError shouldBeInstanceOf LoginError.DialogError.InvalidCodeError::class
     }
 
     @Test
@@ -184,8 +188,8 @@ class LoginSSOViewModelTest {
 
         runTest { loginViewModel.login() }
 
-        loginViewModel.loginState.loginSSOError shouldBeInstanceOf LoginError.DialogError.GenericError::class
-        with(loginViewModel.loginState.loginSSOError as LoginError.DialogError.GenericError) {
+        loginViewModel.loginState.loginError shouldBeInstanceOf LoginError.DialogError.GenericError::class
+        with(loginViewModel.loginState.loginError as LoginError.DialogError.GenericError) {
             coreFailure shouldBeInstanceOf CoreFailure.Unknown::class
             with(coreFailure as CoreFailure.Unknown) {
                 this.rootCause shouldBeInstanceOf IllegalArgumentException::class
@@ -200,8 +204,8 @@ class LoginSSOViewModelTest {
 
         runTest { loginViewModel.login() }
 
-        loginViewModel.loginState.loginSSOError shouldBeInstanceOf LoginError.DialogError.GenericError::class
-        (loginViewModel.loginState.loginSSOError as LoginError.DialogError.GenericError).coreFailure shouldBe networkFailure
+        loginViewModel.loginState.loginError shouldBeInstanceOf LoginError.DialogError.GenericError::class
+        (loginViewModel.loginState.loginError as LoginError.DialogError.GenericError).coreFailure shouldBe networkFailure
     }
 
     @Test
@@ -233,7 +237,7 @@ class LoginSSOViewModelTest {
         coEvery { registerClientUseCase(any()) } returns RegisterClientResult.Success(CLIENT)
 
         runTest { loginViewModel.establishSSOSession("") }
-        loginViewModel.loginState.loginSSOError shouldBeInstanceOf LoginError.DialogError.InvalidSSOCookie::class
+        loginViewModel.loginState.loginError shouldBeInstanceOf LoginError.DialogError.InvalidSSOCookie::class
         coVerify(exactly = 1) { getSSOLoginSessionUseCase(any()) }
         coVerify(exactly = 0) { loginViewModel.registerClient(any(), null) }
         coVerify(exactly = 0) { addAuthenticatedUserUseCase(any(), any()) }
@@ -244,13 +248,13 @@ class LoginSSOViewModelTest {
     @Test
     fun `given HandleSSOResult is called, when ssoResult is null, then loginSSOError state should be none`() {
         runTest { loginViewModel.handleSSOResult(null) }
-        loginViewModel.loginState.loginSSOError shouldBeEqualTo LoginError.None
+        loginViewModel.loginState.loginError shouldBeEqualTo LoginError.None
     }
 
     @Test
     fun `given HandleSSOResult is called, when ssoResult is failure, then loginSSOError state should be dialog error`() {
         runTest { loginViewModel.handleSSOResult(DeepLinkResult.SSOLogin.Failure(SSOFailureCodes.Unknown)) }
-        loginViewModel.loginState.loginSSOError shouldBeEqualTo LoginError.DialogError.SSOResultError(SSOFailureCodes.Unknown)
+        loginViewModel.loginState.loginError shouldBeEqualTo LoginError.DialogError.SSOResultError(SSOFailureCodes.Unknown)
     }
 
     @Test
@@ -264,7 +268,6 @@ class LoginSSOViewModelTest {
         coVerify(exactly = 1) { loginViewModel.navigateToConvScreen() }
     }
 
-
     @Test
     fun `given establishSSOSession called, when addAuthenticatedUser returns UserAlreadyExists error, then UserAlreadyExists is passed`() {
         coEvery { getSSOLoginSessionUseCase(any()) } returns SSOLoginSessionResult.Success(authSession)
@@ -272,7 +275,7 @@ class LoginSSOViewModelTest {
 
         runTest { loginViewModel.establishSSOSession("") }
 
-        loginViewModel.loginState.loginSSOError shouldBeInstanceOf LoginError.DialogError.UserAlreadyExists::class
+        loginViewModel.loginState.loginError shouldBeInstanceOf LoginError.DialogError.UserAlreadyExists::class
         coVerify(exactly = 1) { getSSOLoginSessionUseCase(any()) }
         coVerify(exactly = 0) { loginViewModel.registerClient(any(), null) }
         coVerify(exactly = 1) { addAuthenticatedUserUseCase(any(), any()) }
@@ -290,7 +293,7 @@ class LoginSSOViewModelTest {
 
         runTest { loginViewModel.establishSSOSession("") }
 
-        loginViewModel.loginState.loginSSOError shouldBeInstanceOf LoginError.TooManyDevicesError::class
+        loginViewModel.loginState.loginError shouldBeInstanceOf LoginError.TooManyDevicesError::class
 
         coVerify(exactly = 1) { registerClientUseCase(any()) }
         coVerify(exactly = 1) { getSSOLoginSessionUseCase(any()) }
@@ -311,7 +314,7 @@ class LoginSSOViewModelTest {
 
         runTest { loginViewModel.establishSSOSession("") }
 
-        loginViewModel.loginState.loginSSOError shouldBeInstanceOf LoginError.None::class
+        loginViewModel.loginState.loginError shouldBeInstanceOf LoginError.None::class
 
         coVerify(exactly = 1) { navigationManager.navigate(any()) }
         coVerify(exactly = 1) { getSSOLoginSessionUseCase(any()) }
@@ -330,4 +333,3 @@ class LoginSSOViewModelTest {
         )
     }
 }
-

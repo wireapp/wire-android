@@ -21,7 +21,9 @@ import com.wire.kalium.logic.feature.call.usecase.IsLastCallClosedUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.util.Calendar
 import javax.inject.Inject
@@ -55,7 +57,10 @@ class InitiatingCallViewModel @Inject constructor(
 
     private fun retrieveConversationTypeAsync() = viewModelScope.async {
 
-        val conversationDetails = conversationDetails(conversationId = conversationId).first { details ->
+        val conversationDetails = conversationDetails(conversationId = conversationId)
+            .filterIsInstance<ObserveConversationDetailsUseCase.Result.Success>() // TODO handle StorageFailure
+            .map { it.conversationDetails }
+            .first { details ->
             details.conversation.id == conversationId
         }
 

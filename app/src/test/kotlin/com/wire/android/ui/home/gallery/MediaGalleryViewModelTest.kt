@@ -178,7 +178,7 @@ class MediaGalleryViewModelTest {
             every { savedStateHandle.get<String>(any()) } returns dummyPrivateAsset
 
             // Default empty values
-            coEvery { getConversationDetails(any()) } returns flowOf(conversationDetails)
+            coEvery { getConversationDetails(any()) } returns flowOf(ObserveConversationDetailsUseCase.Result.Success(conversationDetails))
         }
 
         fun withStoredData(assetData: ByteArray, assetPath: Path): Arrangement {

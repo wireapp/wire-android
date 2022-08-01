@@ -6,12 +6,17 @@ import com.wire.android.mapper.UICallParticipantMapper
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.media.CallRinger
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.call.VideoState
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.GetAllCallsWithSortedParticipantsUseCase
 import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveSpeakerUseCase
 import com.wire.kalium.logic.feature.call.usecase.SetVideoPreviewUseCase
+import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOffUseCase
+import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOnUseCase
 import com.wire.kalium.logic.feature.call.usecase.UnMuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.UpdateVideoStateUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
@@ -20,6 +25,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestCoroutineScheduler
@@ -28,12 +34,6 @@ import kotlinx.coroutines.test.setMain
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.feature.call.usecase.ObserveSpeakerUseCase
-import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOffUseCase
-import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOnUseCase
-import io.mockk.mockk
-import io.mockk.verify
 
 class SharedCallingViewModelTest {
 
@@ -85,6 +85,9 @@ class SharedCallingViewModelTest {
     @MockK
     private lateinit var userTypeMapper: UserTypeMapper
 
+    @MockK
+    private lateinit var currentScreenManager: CurrentScreenManager
+
     private val uiCallParticipantMapper: UICallParticipantMapper by lazy { UICallParticipantMapper(wireSessionImageLoader, userTypeMapper) }
 
     private lateinit var sharedCallingViewModel: SharedCallingViewModel
@@ -115,7 +118,8 @@ class SharedCallingViewModelTest {
             callRinger = callRinger,
             uiCallParticipantMapper = uiCallParticipantMapper,
             wireSessionImageLoader = wireSessionImageLoader,
-            userTypeMapper = userTypeMapper
+            userTypeMapper = userTypeMapper,
+            currentScreenManager = currentScreenManager
         )
     }
 
@@ -208,7 +212,6 @@ class SharedCallingViewModelTest {
 
         coVerify(exactly = 1) { setVideoPreview(any(), any()) }
         coVerify(exactly = 1) { updateVideoState(any(), VideoState.PAUSED) }
-        sharedCallingViewModel.callState.isCameraOn shouldBeEqualTo false
     }
 
     @Test
@@ -221,7 +224,6 @@ class SharedCallingViewModelTest {
 
         coVerify(exactly = 0) { setVideoPreview(any(), any()) }
         coVerify(exactly = 0) { updateVideoState(any(), VideoState.PAUSED) }
-        sharedCallingViewModel.callState.isCameraOn shouldBeEqualTo false
     }
 
     companion object {

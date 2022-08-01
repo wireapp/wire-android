@@ -122,18 +122,17 @@ class MessageContentMapper @Inject constructor(
             messageId = message.id,
             assetContent = content.value
         )
-        is MessageContent.RestrictedAsset -> toRestrictedAsset(content.mimeType, content.sizeInBytes, content.name ?: "")
+        is MessageContent.RestrictedAsset -> toRestrictedAsset(content.mimeType, content.sizeInBytes, content.name)
         else -> toText(content)
     }
 
-    fun toText(
-        content: MessageContent
-    ) = MessageBody(
+    fun toText(content: MessageContent) = MessageBody(
         when (content) {
             is MessageContent.Text -> UIText.DynamicString(content.value)
             is MessageContent.Unknown -> UIText.StringResource(
                 messageResourceProvider.sentAMessageWithContent, content.typeName ?: "Unknown"
             )
+            is MessageContent.FailedDecryption -> UIText.StringResource(R.string.label_message_decryption_failure_message)
             else -> UIText.StringResource(messageResourceProvider.sentAMessageWithContent, "Unknown")
         }
     ).let { messageBody -> UIMessageContent.TextMessage(messageBody = messageBody) }

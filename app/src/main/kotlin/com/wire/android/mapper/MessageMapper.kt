@@ -56,33 +56,36 @@ class MessageMapper @Inject constructor(
                 UIMessage(
                     messageContent = content,
                     messageSource = if (sender is SelfUser) MessageSource.Self else MessageSource.OtherUser,
-                    messageHeader = MessageHeader(
-                        // TODO: Designs for deleted users?
-                        username = sender?.name?.let { UIText.DynamicString(it) }
-                            ?: UIText.StringResource(R.string.member_name_deleted_label),
-                        membership = when (sender) {
-                            is OtherUser -> userTypeMapper.toMembership(sender.userType)
-                            is SelfUser, null -> Membership.None
-                        },
-                        isLegalHold = false,
-                        time = message.date.uiMessageDateTime() ?: "",
-                        messageStatus = when {
-                            message.status == Message.Status.FAILED -> MessageStatus.SendFailure
-                            message.visibility == Message.Visibility.DELETED -> MessageStatus.Deleted
-                            message is Message.Regular && message.editStatus is Message.EditStatus.Edited ->
-                                MessageStatus.Edited(
-                                    isoFormatter.fromISO8601ToTimeFormat(
-                                        utcISO = (message.editStatus as Message.EditStatus.Edited).lastTimeStamp
-                                    )
-                                )
-                            message.content is MessageContent.FailedDecryption -> MessageStatus.DecryptionFailure
-                            else -> MessageStatus.Untouched
-                        },
-                        messageId = message.id,
-                        userId = sender?.id
-                    ),
+                    messageHeader = provideMessageHeader(sender, message),
                     userAvatarData = UserAvatarData(asset = sender?.previewAsset(wireSessionImageLoader))
                 )
         }.filterNotNull()
     }
+
+    private fun provideMessageHeader(sender: User?, message: Message): MessageHeader = MessageHeader(
+        // TODO: Designs for deleted users?
+        username = sender?.name?.let { UIText.DynamicString(it) }
+            ?: UIText.StringResource(R.string.member_name_deleted_label),
+        membership = when (sender) {
+            is OtherUser -> userTypeMapper.toMembership(sender.userType)
+            is SelfUser, null -> Membership.None
+        },
+        isLegalHold = false,
+        time = message.date.uiMessageDateTime() ?: "",
+        messageStatus = when {
+            message.status == Message.Status.FAILED -> MessageStatus.SendFailure
+            message.visibility == Message.Visibility.DELETED -> MessageStatus.Deleted
+            message is Message.Regular && message.editStatus is Message.EditStatus.Edited ->
+                MessageStatus.Edited(
+                    isoFormatter.fromISO8601ToTimeFormat(
+                        utcISO = (message.editStatus as Message.EditStatus.Edited).lastTimeStamp
+                    )
+                )
+            message.content is MessageContent.FailedDecryption -> MessageStatus.DecryptionFailure
+            else -> MessageStatus.Untouched
+        },
+        messageId = message.id,
+        userId = sender?.id
+    )
+
 }

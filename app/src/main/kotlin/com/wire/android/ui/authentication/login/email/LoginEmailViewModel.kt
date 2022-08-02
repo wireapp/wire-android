@@ -6,6 +6,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
+import com.wire.android.di.NoSession
 import com.wire.android.di.UserSessionsUseCaseProvider
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.login.LoginError
@@ -27,7 +28,7 @@ import javax.inject.Inject
 class LoginEmailViewModel @Inject constructor(
     private val loginUseCase: LoginUseCase,
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
-    qualifiedIdMapper: QualifiedIdMapper,
+    @NoSession qualifiedIdMapper: QualifiedIdMapper,
     clientScopeProviderFactory: ClientScopeProvider.Factory,
     userSessionsUseCaseFactory: UserSessionsUseCaseProvider.Factory,
     private val savedStateHandle: SavedStateHandle,

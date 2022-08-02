@@ -15,7 +15,6 @@ import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.ConversationDetails.OneOne
 import com.wire.kalium.logic.data.conversation.LegalHoldStatus
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus.AllAllowed
-import com.wire.kalium.logic.data.conversation.ProtocolInfo
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.OtherUser
@@ -179,7 +178,7 @@ class MediaGalleryViewModelTest {
             every { savedStateHandle.get<String>(any()) } returns dummyPrivateAsset
 
             // Default empty values
-            coEvery { getConversationDetails(any()) } returns flowOf(conversationDetails)
+            coEvery { getConversationDetails(any()) } returns flowOf(ObserveConversationDetailsUseCase.Result.Success(conversationDetails))
         }
 
         fun withStoredData(assetData: ByteArray, assetPath: Path): Arrangement {
@@ -227,7 +226,7 @@ class MediaGalleryViewModelTest {
                 mockedConversationTitle,
                 Conversation.Type.ONE_ON_ONE,
                 null,
-                protocol = ProtocolInfo.Proteus,
+                protocol = Conversation.ProtocolInfo.Proteus,
                 AllAllowed,
                 null, null,
                 access = listOf(Conversation.Access.INVITE),

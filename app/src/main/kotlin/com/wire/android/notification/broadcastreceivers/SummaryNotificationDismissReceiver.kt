@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.Intent
 import com.wire.android.appLogger
 import com.wire.android.di.KaliumCoreLogic
-import com.wire.android.notification.MessageNotificationManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -39,7 +38,7 @@ class SummaryNotificationDismissReceiver : BroadcastReceiver() {
                 } else {
                     val currentSession = coreLogic.globalScope { session.currentSession() }
                     if (currentSession is CurrentSessionResult.Success) {
-                        coreLogic.getSessionScope(currentSession.authSession.tokens.userId)
+                        coreLogic.getSessionScope(currentSession.authSession.session.userId)
                     } else {
                         null
                     }

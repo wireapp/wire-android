@@ -33,6 +33,9 @@ import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseC
 import com.wire.kalium.logic.util.PlatformView
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -82,6 +85,8 @@ class SharedCallingViewModel @Inject constructor(
 
     private suspend fun observeConversationDetails() {
         conversationDetails(conversationId = conversationId)
+            .filterIsInstance<ObserveConversationDetailsUseCase.Result.Success>() // TODO handle StorageFailure
+            .map { it.conversationDetails }
             .collect { details ->
                 callState = when (details) {
                     is ConversationDetails.Group -> {
@@ -125,11 +130,12 @@ class SharedCallingViewModel @Inject constructor(
         allCalls().collect { calls ->
             calls.find { call ->
                 call.conversationId == conversationId
-            }?.let {
+            }?.let { call ->
                 callState = callState.copy(
-                    isMuted = it.isMuted,
-                    isCameraOn = it.isCameraOn,
-                    participants = it.participants.map { uiCallParticipantMapper.toUICallParticipant(it) }
+                    callerName = call.callerName,
+                    isMuted = call.isMuted,
+                    isCameraOn = call.isCameraOn,
+                    participants = call.participants.map { uiCallParticipantMapper.toUICallParticipant(it) }
                 )
             }
         }

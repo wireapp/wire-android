@@ -26,7 +26,7 @@ import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.Member
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.parseIntoQualifiedID
+import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCase
@@ -65,6 +65,8 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val userTypeMapper: UserTypeMapper,
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val observeConversationRoleForUser: ObserveConversationRoleForUserUseCase,
+    qualifiedIdMapper: QualifiedIdMapper
+    private val observeConversationRoleForUser: ObserveConversationRoleForUserUseCase,
     private val updateMemberRole: UpdateConversationMemberRoleUseCase
 ) : ViewModel() {
 
@@ -73,9 +75,13 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val _infoMessage = MutableSharedFlow<UIText>()
     val infoMessage = _infoMessage.asSharedFlow()
 
-    private val userId = savedStateHandle.get<String>(EXTRA_USER_ID)!!.parseIntoQualifiedID()
+    private val userId: QualifiedID = qualifiedIdMapper.fromStringToQualifiedID(
+        savedStateHandle.get<String>(EXTRA_USER_ID)!!
+    )
 
-    val conversationId: QualifiedID? = savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)?.parseIntoQualifiedID()
+    private val conversationId: QualifiedID = qualifiedIdMapper.fromStringToQualifiedID(
+        savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!
+    )
 
     init {
         state = state.copy(isDataLoading = true)

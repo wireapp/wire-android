@@ -275,7 +275,7 @@ class WireActivityViewModelTest {
     companion object {
         val TEST_AUTH_SESSION =
             AuthSession(
-                AuthSession.Tokens(
+                AuthSession.Session.Valid(
                     userId = UserId("user_id", "domain.de"),
                     accessToken = "access_token",
                     refreshToken = "refresh_token",

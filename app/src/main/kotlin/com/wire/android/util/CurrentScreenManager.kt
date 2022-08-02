@@ -11,7 +11,7 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.getCurrentNavigationItem
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.parseIntoQualifiedID
+import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -61,6 +61,7 @@ class CurrentScreenManager @Inject constructor() : DefaultLifecycleObserver, Nav
 
 sealed class CurrentScreen {
 
+
     // Some Conversation is opened
     data class Conversation(val id: ConversationId) : CurrentScreen()
     // Another User Profile Screen is opened
@@ -71,17 +72,19 @@ sealed class CurrentScreen {
     object InBackground : CurrentScreen()
 
     companion object {
+        val qualifiedIdMapper = QualifiedIdMapperImpl(null)
+
         fun fromNavigationItem(currentItem: NavigationItem?, arguments: Bundle?): CurrentScreen =
             when (currentItem) {
                 NavigationItem.Conversation -> {
                     arguments?.getString(EXTRA_CONVERSATION_ID)
-                        ?.parseIntoQualifiedID()
+                        ?.run{ qualifiedIdMapper.fromStringToQualifiedID(this) }
                         ?.let { Conversation(it) }
                         ?: SomeOther
                 }
                 NavigationItem.OtherUserProfile -> {
                     arguments?.getString(EXTRA_USER_ID)
-                        ?.parseIntoQualifiedID()
+                        ?.run{ qualifiedIdMapper.fromStringToQualifiedID(this) }
                         ?.let { OtherUserProfile(it) }
                         ?: SomeOther
                 }

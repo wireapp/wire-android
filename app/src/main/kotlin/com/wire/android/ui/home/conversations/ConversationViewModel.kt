@@ -37,7 +37,6 @@ import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.StorageFailure
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.conversation.ConversationDetails
-import com.wire.kalium.logic.data.id.QualifiedID as ConversationId
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.FAILED
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.IN_PROGRESS
@@ -62,12 +61,13 @@ import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
 import com.wire.kalium.logic.functional.onFailure
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
-import kotlin.time.Duration.Companion.seconds
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okio.Path
 import okio.buffer
+import javax.inject.Inject
+import kotlin.time.Duration.Companion.seconds
+import com.wire.kalium.logic.data.id.QualifiedID as ConversationId
 
 @Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel
@@ -143,6 +143,10 @@ class ConversationViewModel @Inject constructor(
             }
     }
 
+    /**
+     * TODO: This right now handles only the case when a conversation details doesn't exists.
+     * Later we'll have to expand the error cases to different behaviors
+     */
     private suspend fun handleConversationDetailsFailure(failure: StorageFailure) {
         when (failure) {
             is StorageFailure.DataNotFound -> navigateToHome()

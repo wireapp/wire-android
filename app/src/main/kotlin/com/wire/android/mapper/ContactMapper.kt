@@ -21,7 +21,10 @@ class ContactMapper
                 domain = id.domain,
                 name = name.orEmpty(),
                 label = mapUserLabel(otherUser),
-                avatarData = UserAvatarData(completePicture?.let { ImageAsset.UserAvatarAsset(wireSessionImageLoader, it) }),
+                avatarData = UserAvatarData(
+                    asset = completePicture?.let { ImageAsset.UserAvatarAsset(wireSessionImageLoader, it) },
+                    connectionState = connectionStatus
+                ),
                 membership = userTypeMapper.toMembership(userType),
                 connectionState = otherUser.connectionStatus
             )

@@ -21,6 +21,7 @@ import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.id.parseIntoQualifiedID
 import com.wire.kalium.logic.data.message.Message
+import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 
 val mockMessageWithText = UIMessage(
@@ -31,7 +32,8 @@ val mockMessageWithText = UIMessage(
         isLegalHold = true,
         time = "12.23pm",
         messageStatus = MessageStatus.Untouched,
-        messageId = ""
+        messageId = "",
+        connectionState = ConnectionState.ACCEPTED
     ),
     messageContent = MessageContent.TextMessage(
         messageBody = MessageBody(
@@ -65,7 +67,8 @@ val mockAssetMessage = UIMessage(
         isLegalHold = true,
         time = "12.23pm",
         messageStatus = MessageStatus.Untouched,
-        messageId = ""
+        messageId = "",
+        connectionState = ConnectionState.ACCEPTED
     ),
     messageContent = MessageContent.AssetMessage(
         assetName = "This is some test asset message",
@@ -90,7 +93,8 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             isLegalHold = true,
             time = "12.23pm",
             messageStatus = MessageStatus.Untouched,
-            messageId = "1"
+            messageId = "1",
+            connectionState = ConnectionState.ACCEPTED
         ),
         messageContent = MessageContent.TextMessage(
             messageBody = MessageBody(
@@ -112,7 +116,8 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             isLegalHold = true,
             time = "12.23pm",
             messageStatus = MessageStatus.Deleted,
-            messageId = "2"
+            messageId = "2",
+            connectionState = ConnectionState.ACCEPTED
         ),
         messageContent = mockedImg,
         messageSource = MessageSource.Self
@@ -125,7 +130,8 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             isLegalHold = false,
             time = "12.23pm",
             messageStatus = MessageStatus.Edited("May 31, 2022 12.24pm"),
-            messageId = "3"
+            messageId = "3",
+            connectionState = ConnectionState.ACCEPTED
         ),
         messageContent = mockedImg,
         messageSource = MessageSource.Self
@@ -138,7 +144,8 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             isLegalHold = false,
             time = "12.23pm",
             messageStatus = MessageStatus.Edited("May 31, 2022 12.24pm"),
-            messageId = "4"
+            messageId = "4",
+            connectionState = ConnectionState.ACCEPTED
         ),
         messageContent = mockedImg,
         messageSource = MessageSource.Self
@@ -151,7 +158,8 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             isLegalHold = false,
             time = "12.23pm",
             messageStatus = MessageStatus.Deleted,
-            messageId = "5"
+            messageId = "5",
+            connectionState = ConnectionState.ACCEPTED
         ),
         messageContent = MessageContent.TextMessage(
             messageBody = MessageBody(
@@ -173,7 +181,8 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             isLegalHold = false,
             time = "12.23pm",
             messageStatus = MessageStatus.Edited("May 31, 2022 12.24pm"),
-            messageId = "6"
+            messageId = "6",
+            connectionState = ConnectionState.ACCEPTED
         ),
         messageContent = mockedImg,
         messageSource = MessageSource.Self
@@ -186,7 +195,8 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             isLegalHold = false,
             time = "12.23pm",
             messageStatus = MessageStatus.Edited("May 31, 2022 12.24pm"),
-            messageId = "7"
+            messageId = "7",
+            connectionState = ConnectionState.ACCEPTED
         ),
         messageContent = MessageContent.TextMessage(
             messageBody = MessageBody(

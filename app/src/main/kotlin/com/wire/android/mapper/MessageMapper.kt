@@ -64,6 +64,10 @@ class MessageMapper @Inject constructor(
                             is OtherUser -> userTypeMapper.toMembership(sender.userType)
                             is SelfUser, null -> Membership.None
                         },
+                        connectionState = when (sender) {
+                            is OtherUser -> sender.connectionStatus
+                            is SelfUser, null -> null
+                        },
                         isLegalHold = false,
                         time = message.date.uiMessageDateTime() ?: "",
                         messageStatus = when {

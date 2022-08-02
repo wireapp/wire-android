@@ -127,7 +127,7 @@ class OtherUserProfileScreenViewModelTest {
             coVerify {
                 sendConnectionRequest(eq(USER_ID))
             }
-            assertEquals(ConnectionStatus.Sent, otherUserProfileScreenViewModel.state.connectionStatus)
+            assertEquals(ConnectionState.SENT, otherUserProfileScreenViewModel.state.connectionStatus)
         }
 
     @Test
@@ -160,7 +160,7 @@ class OtherUserProfileScreenViewModelTest {
             coVerify {
                 ignoreConnectionRequest(eq(USER_ID))
             }
-            assertEquals(ConnectionStatus.NotConnected, otherUserProfileScreenViewModel.state.connectionStatus)
+            assertEquals(ConnectionState.NOT_CONNECTED, otherUserProfileScreenViewModel.state.connectionStatus)
         }
 
     @Test
@@ -176,7 +176,7 @@ class OtherUserProfileScreenViewModelTest {
             coVerify {
                 cancelConnectionRequest(eq(USER_ID))
             }
-            assertEquals(ConnectionStatus.NotConnected, otherUserProfileScreenViewModel.state.connectionStatus)
+            assertEquals(ConnectionState.NOT_CONNECTED, otherUserProfileScreenViewModel.state.connectionStatus)
         }
 
     @Test
@@ -192,7 +192,7 @@ class OtherUserProfileScreenViewModelTest {
             coVerify {
                 acceptConnectionRequest(eq(USER_ID))
             }
-            assertEquals(ConnectionStatus.Connected, otherUserProfileScreenViewModel.state.connectionStatus)
+            assertEquals(ConnectionState.ACCEPTED, otherUserProfileScreenViewModel.state.connectionStatus)
         }
 
     @Test

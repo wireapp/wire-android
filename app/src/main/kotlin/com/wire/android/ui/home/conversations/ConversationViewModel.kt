@@ -26,8 +26,8 @@ import com.wire.android.ui.home.conversations.DownloadedAssetDialogVisibilitySta
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.ui.home.conversations.model.MessageContent.AssetMessage
-import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.MessageSource
+import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
 import com.wire.android.util.FileManager
 import com.wire.android.util.ImageUtil
@@ -150,7 +150,10 @@ class ConversationViewModel @Inject constructor(
                 }
                 val conversationDetailsData = when (conversationDetails) {
                     is ConversationDetails.Group -> ConversationDetailsData.Group(conversationDetails.conversation.id)
-                    is ConversationDetails.OneOne -> ConversationDetailsData.OneOne(conversationDetails.otherUser.id)
+                    is ConversationDetails.OneOne -> ConversationDetailsData.OneOne(
+                        conversationDetails.otherUser.id,
+                        conversationDetails.otherUser.connectionStatus
+                    )
                     else -> ConversationDetailsData.None
                 }
                 conversationViewState = conversationViewState.copy(

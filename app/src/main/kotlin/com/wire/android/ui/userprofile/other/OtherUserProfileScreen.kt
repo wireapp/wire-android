@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -13,6 +14,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ModalBottomSheetValue
+import androidx.compose.material.rememberModalBottomSheetState
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
@@ -36,6 +41,7 @@ import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.MoreOptionIcon
 import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireTabRow
+import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.calculateCurrentTab
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
@@ -46,8 +52,16 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.userprofile.common.EditableState
 import com.wire.android.ui.userprofile.common.UserProfileInfo
+import com.wire.kalium.logic.data.user.ConnectionState
 import kotlinx.coroutines.launch
 
+@OptIn(
+    ExperimentalMaterialApi::class,
+    ExperimentalMaterial3Api::class,
+    ExperimentalAnimationApi::class,
+    ExperimentalPagerApi::class,
+    ExperimentalFoundationApi::class
+)
 @Composable
 fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltViewModel()) {
     OtherProfileScreenContent(
@@ -63,7 +77,13 @@ fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltView
 }
 
 @SuppressLint("UnusedCrossfadeTargetStateParameter")
-@OptIn(ExperimentalPagerApi::class, ExperimentalFoundationApi::class)
+@OptIn(
+    ExperimentalMaterialApi::class,
+    ExperimentalMaterial3Api::class,
+    ExperimentalAnimationApi::class,
+    ExperimentalPagerApi::class,
+    ExperimentalFoundationApi::class
+)
 @Composable
 fun OtherProfileScreenContent(
     state: OtherUserProfileState,
@@ -94,109 +114,122 @@ fun OtherProfileScreenContent(
 
     handleOperationMessages(snackbarHostState, operationState)
 
-    CollapsingTopBarScaffold(
-        snackbarHost = {
-            SwipeDismissSnackbarHost(
-                hostState = otherUserProfileScreenState.snackbarHostState,
-                modifier = Modifier.fillMaxWidth()
-            )
-        },
-        topBarHeader = { elevation ->
-            WireCenterAlignedTopAppBar(
-                onNavigationPressed = onNavigateBack,
-                title = stringResource(id = R.string.user_profile_title),
-                elevation = elevation,
-                actions = {
-                    if (state.connectionStatus is ConnectionStatus.Connected) {
-                        MoreOptionIcon({ })
+    val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
+
+    WireModalSheetLayout(
+        sheetState = sheetState,
+        coroutineScope = rememberCoroutineScope(),
+        sheetContent = {
+            // TODO
+        }
+    ) {
+        CollapsingTopBarScaffold(
+            snackbarHost = {
+                SwipeDismissSnackbarHost(
+                    hostState = otherUserProfileScreenState.snackbarHostState,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            },
+            topBarHeader = { elevation ->
+                WireCenterAlignedTopAppBar(
+                    onNavigationPressed = onNavigateBack,
+                    title = stringResource(id = R.string.user_profile_title),
+                    elevation = elevation,
+                    actions = {
+                        if (state.connectionStatus in listOf(ConnectionState.ACCEPTED, ConnectionState.BLOCKED)) {
+                            MoreOptionIcon({ scope.launch { sheetState.show() } })
+                        }
+                    }
+                )
+            },
+            topBarCollapsing = {
+                Crossfade(targetState = state.isDataLoading) {
+                    UserProfileInfo(
+                        connection = state.connectionStatus,
+                        isLoading = state.isAvatarLoading,
+                        avatarAsset = state.userAvatarAsset,
+                        fullName = state.fullName,
+                        userName = state.userName,
+                        teamName = state.teamName,
+                        membership = state.membership,
+                        editableState = EditableState.NotEditable,
+                        modifier = Modifier.padding(bottom = dimensions().spacing16x)
+                    )
+                }
+            },
+            topBarFooter = {
+                if (state.connectionStatus == ConnectionState.ACCEPTED) {
+                    AnimatedVisibility(
+                        visible = !state.isDataLoading,
+                        enter = fadeIn(),
+                        exit = fadeOut(),
+                    ) {
+                        Surface(
+                            shadowElevation = tabBarElevationState,
+                            color = MaterialTheme.wireColorScheme.background
+                        ) {
+                            WireTabRow(
+                                tabs = tabItems,
+                                selectedTabIndex = currentTabState,
+                                onTabChange = { scope.launch { pagerState.animateScrollToPage(it) } },
+                                divider = {} // no divider
+                            )
+                        }
                     }
                 }
-            )
-        },
-        topBarCollapsing = {
-            Crossfade(targetState = state.isDataLoading) {
-                UserProfileInfo(
-                    isLoading = state.isAvatarLoading,
-                    avatarAsset = state.userAvatarAsset,
-                    fullName = state.fullName,
-                    userName = state.userName,
-                    teamName = state.teamName,
-                    membership = state.membership,
-                    editableState = EditableState.NotEditable,
-                    modifier = Modifier.padding(bottom = dimensions().spacing16x)
-                )
-            }
-        },
-        topBarFooter = {
-            if (state.connectionStatus == ConnectionStatus.Connected) {
+            },
+            content = {
+                Crossfade(targetState = state) { state ->
+                    when {
+                        state.isDataLoading -> Box {} // no content visible while loading
+                        state.connectionStatus == ConnectionState.ACCEPTED ->
+                            CompositionLocalProvider(LocalOverScrollConfiguration provides null) {
+                                HorizontalPager(
+                                    modifier = Modifier.fillMaxSize(),
+                                    state = pagerState,
+                                    count = tabItems.size
+                                ) { pageIndex ->
+                                    when (val tabItem = tabItems[pageIndex]) {
+                                        OtherUserProfileTabItem.DETAILS ->
+                                            OtherUserProfileDetails(state, otherUserProfileScreenState, lazyListStates[tabItem]!!)
+                                        OtherUserProfileTabItem.GROUP ->
+                                            OtherUserProfileGroup(state.groupState!!, lazyListStates[tabItem]!!)
+                                    }
+                                }
+                            }
+                        state.connectionStatus == ConnectionState.BLOCKED -> {
+                        }
+                        else -> {
+                            OtherUserConnectionStatusInfo(state.connectionStatus, state.membership)
+                        }
+                    }
+                }
+            },
+            contentFooter = {
                 AnimatedVisibility(
                     visible = !state.isDataLoading,
                     enter = fadeIn(),
                     exit = fadeOut(),
                 ) {
                     Surface(
-                        shadowElevation = tabBarElevationState,
+                        shadowElevation = maxBarElevation,
                         color = MaterialTheme.wireColorScheme.background
                     ) {
-                        WireTabRow(
-                            tabs = tabItems,
-                            selectedTabIndex = currentTabState,
-                            onTabChange = { scope.launch { pagerState.animateScrollToPage(it) } },
-                            divider = {} // no divider
-                        )
-                    }
-                }
-            }
-        },
-        content = {
-            Crossfade(targetState = state) { state ->
-                when {
-                    state.isDataLoading -> Box {} // no content visible while loading
-                    state.connectionStatus is ConnectionStatus.Connected ->
-                        CompositionLocalProvider(LocalOverScrollConfiguration provides null) {
-                            HorizontalPager(
-                                modifier = Modifier.fillMaxSize(),
-                                state = pagerState,
-                                count = tabItems.size
-                            ) { pageIndex ->
-                                when (val tabItem = tabItems[pageIndex]) {
-                                    OtherUserProfileTabItem.DETAILS ->
-                                        OtherUserProfileDetails(state, otherUserProfileScreenState, lazyListStates[tabItem]!!)
-                                    OtherUserProfileTabItem.GROUP ->
-                                        OtherUserProfileGroup(state.groupState!!, lazyListStates[tabItem]!!)
-                                }
-                            }
+                        Box(modifier = Modifier.padding(all = dimensions().spacing16x)) {
+                            OtherUserConnectionActionButton(
+                                state.connectionStatus,
+                                onSendConnectionRequest,
+                                onOpenConversation,
+                                onCancelConnectionRequest,
+                                acceptConnectionRequest,
+                                ignoreConnectionRequest
+                            )
                         }
-                    else -> {
-                        OtherUserConnectionStatusInfo(state.connectionStatus, state.membership)
                     }
                 }
-            }
-        },
-        contentFooter = {
-            AnimatedVisibility(
-                visible = !state.isDataLoading,
-                enter = fadeIn(),
-                exit = fadeOut(),
-            ) {
-                Surface(
-                    shadowElevation = maxBarElevation,
-                    color = MaterialTheme.wireColorScheme.background
-                ) {
-                    Box(modifier = Modifier.padding(all = dimensions().spacing16x)) {
-                        OtherUserConnectionActionButton(
-                            state.connectionStatus,
-                            onSendConnectionRequest,
-                            onOpenConversation,
-                            onCancelConnectionRequest,
-                            acceptConnectionRequest,
-                            ignoreConnectionRequest
-                        )
-                    }
-                }
-            }
-        }, isSwipeable = state.connectionStatus == ConnectionStatus.Connected
-    )
+            }, isSwipeable = state.connectionStatus == ConnectionState.ACCEPTED
+        )
+    }
 }
 
 enum class OtherUserProfileTabItem(@StringRes override val titleResId: Int) : TabItem {
@@ -223,22 +256,36 @@ private fun handleOperationMessages(
     }
 }
 
+@OptIn(
+    ExperimentalMaterialApi::class,
+    ExperimentalMaterial3Api::class,
+    ExperimentalAnimationApi::class,
+    ExperimentalPagerApi::class,
+    ExperimentalFoundationApi::class
+)
 @Composable
 @Preview(name = "Connected")
 fun OtherProfileScreenContentPreview() {
     WireTheme(isPreview = true) {
         OtherProfileScreenContent(
-            OtherUserProfileState.PREVIEW.copy(connectionStatus = ConnectionStatus.Connected), null, {}, {}, {}, {}, {}, {}
+            OtherUserProfileState.PREVIEW.copy(connectionStatus = ConnectionState.ACCEPTED), null, {}, {}, {}, {}, {}, {}
         )
     }
 }
 
+@OptIn(
+    ExperimentalMaterialApi::class,
+    ExperimentalMaterial3Api::class,
+    ExperimentalAnimationApi::class,
+    ExperimentalPagerApi::class,
+    ExperimentalFoundationApi::class
+)
 @Composable
 @Preview(name = "Not Connected")
 fun OtherProfileScreenContentNotConnectedPreview() {
     WireTheme(isPreview = true) {
         OtherProfileScreenContent(
-            OtherUserProfileState.PREVIEW.copy(connectionStatus = ConnectionStatus.NotConnected), null, {}, {}, {}, {}, {}, {}
+            OtherUserProfileState.PREVIEW.copy(connectionStatus = ConnectionState.CANCELLED), null, {}, {}, {}, {}, {}, {}
         )
     }
 }

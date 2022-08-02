@@ -27,13 +27,11 @@ import com.wire.android.model.Clickable
 import com.wire.android.ui.common.WireCircularProgressIndicator
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.home.conversations.search.widget.SearchFailureBox
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.home.conversationslist.folderWithElements
 import com.wire.android.ui.home.newconversation.common.GroupButton
 import com.wire.android.ui.home.newconversation.model.Contact
-import com.wire.android.ui.home.conversations.search.widget.SearchFailureBox
-import com.wire.android.ui.userprofile.other.toOtherUserProfileConnectionStatus
-import com.wire.android.ui.home.conversations.search.widget.SearchFailureBox
 
 private const val DEFAULT_SEARCH_RESULT_ITEM_SIZE = 4
 
@@ -228,6 +226,7 @@ private fun LazyListScope.internalSuccessItem(
                     label = label,
                     membership = membership,
                     searchQuery = searchQuery,
+                    connectionState = connectionState,
                     isAddedToGroup = contactsAddedToGroup.contains(contact),
                     addToGroup = { onAddToGroup(contact) },
                     removeFromGroup = { removeFromGroup(contact) },
@@ -274,7 +273,7 @@ private fun LazyListScope.externalSuccessItem(
                 name = name,
                 label = label,
                 membership = membership,
-                connectionStatus = contact.connectionState.toOtherUserProfileConnectionStatus(),
+                connectionState = contact.connectionState,
                 searchQuery = searchQuery,
                 clickable = remember { Clickable(enabled = true) { onOpenUserProfile(contact) } },
                 onAddContactClicked = { onAddContactClicked(contact) }

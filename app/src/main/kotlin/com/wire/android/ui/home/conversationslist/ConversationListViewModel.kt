@@ -40,8 +40,8 @@ import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.AnswerCallUseCase
-import com.wire.kalium.logic.feature.connection.BlockUserUseCase
 import com.wire.kalium.logic.feature.connection.BlockUserResult
+import com.wire.kalium.logic.feature.connection.BlockUserUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationsAndConnectionsUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
@@ -215,9 +215,11 @@ class ConversationListViewModel @Inject constructor(
 
 private fun LegalHoldStatus.showLegalHoldIndicator() = this == LegalHoldStatus.ENABLED
 
-private fun ConversationDetails.toType(wireSessionImageLoader: WireSessionImageLoader,
-                                       selfTeamId: TeamId?,
-                                       userTypeMapper: UserTypeMapper): ConversationItem =
+private fun ConversationDetails.toType(
+    wireSessionImageLoader: WireSessionImageLoader,
+    selfTeamId: TeamId?,
+    userTypeMapper: UserTypeMapper
+): ConversationItem =
     when (this) {
         is Group -> {
             ConversationItem.GroupConversation(
@@ -233,7 +235,8 @@ private fun ConversationDetails.toType(wireSessionImageLoader: WireSessionImageL
             ConversationItem.PrivateConversation(
                 userAvatarData = UserAvatarData(
                     otherUser.previewPicture?.let { UserAvatarAsset(wireSessionImageLoader, it) },
-                    UserAvailabilityStatus.NONE // TODO Get actual status
+                    UserAvailabilityStatus.NONE, // TODO Get actual status
+                    otherUser.connectionStatus
                 ),
                 conversationInfo = ConversationInfo(
                     name = otherUser.name.orEmpty(),
@@ -244,7 +247,8 @@ private fun ConversationDetails.toType(wireSessionImageLoader: WireSessionImageL
                 isLegalHold = legalHoldStatus.showLegalHoldIndicator(),
                 lastEvent = ConversationLastEvent.None, // TODO implement unread events
                 userId = otherUser.id,
-                blockingState = otherUser.getBlockingState(selfTeamId)
+                blockingState = otherUser.getBlockingState(selfTeamId),
+                connectionState = otherUser.connectionStatus
             )
         }
         is Connection -> {

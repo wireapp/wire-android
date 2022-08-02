@@ -31,7 +31,7 @@ import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.LegalHoldIndicator
-import com.wire.android.ui.common.MembershipQualifierLabel
+import com.wire.android.ui.common.UserBadge
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.model.ImageMessageParams
@@ -45,7 +45,6 @@ import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.RestrictedAssetMessage
 import com.wire.android.ui.home.conversations.model.RestrictedFileMessage
 import com.wire.android.ui.home.conversations.model.UIMessage
-import com.wire.android.ui.home.conversationslist.model.hasLabel
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.data.user.UserId
@@ -84,7 +83,11 @@ fun MessageItem(
                 }
             }
             UserProfileAvatar(
-                avatarData = UserAvatarData(message.userAvatarData.asset, message.userAvatarData.availabilityStatus),
+                avatarData = UserAvatarData(
+                    message.userAvatarData.asset,
+                    message.userAvatarData.availabilityStatus,
+                    message.messageHeader.connectionState
+                ),
                 clickable = avatarClickable
             )
             Spacer(Modifier.padding(start = dimensions().spacing16x - fullAvatarOuterPadding))
@@ -150,12 +153,11 @@ private fun MessageHeader(messageHeader: MessageHeader) {
                 ) {
                     Username(username.asString(), modifier = Modifier.weight(weight = 1f, fill = false))
 
-                    if (membership.hasLabel()) {
-                        MembershipQualifierLabel(
-                            membership = membership,
-                            modifier = Modifier.padding(start = dimensions().spacing6x)
-                        )
-                    }
+                    UserBadge(
+                        membership = membership,
+                        connectionState = connectionState,
+                        startPadding = dimensions().spacing6x
+                    )
 
                     if (isLegalHold) {
                         LegalHoldIndicator(modifier = Modifier.padding(start = dimensions().spacing6x))
@@ -164,7 +166,7 @@ private fun MessageHeader(messageHeader: MessageHeader) {
                 MessageTimeLabel(
                     time = messageHeader.time,
                     modifier = Modifier.padding(start = dimensions().spacing6x)
-                    )
+                )
             }
             MessageStatusLabel(messageStatus = messageStatus)
         }
@@ -175,7 +177,7 @@ private fun MessageHeader(messageHeader: MessageHeader) {
 private fun MessageTimeLabel(
     time: String,
     modifier: Modifier = Modifier
-    ) {
+) {
     Text(
         text = time,
         style = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.wireColorScheme.secondaryText),
@@ -219,9 +221,12 @@ private fun MessageContent(
             assetDownloadStatus = messageContent.downloadStatus,
             onAssetClick = onAssetClick
         )
-        is MessageContent.SystemMessage.MemberAdded -> {}
-        is MessageContent.SystemMessage.MemberLeft -> {}
-        is MessageContent.SystemMessage.MemberRemoved -> {}
+        is MessageContent.SystemMessage.MemberAdded -> {
+        }
+        is MessageContent.SystemMessage.MemberLeft -> {
+        }
+        is MessageContent.SystemMessage.MemberRemoved -> {
+        }
         is MessageContent.RestrictedAsset -> {
             when {
                 messageContent.mimeType.contains("image/") -> {
@@ -271,7 +276,8 @@ private fun MessageStatusLabel(messageStatus: MessageStatus) {
                     )
                 }
             }
-            MessageStatus.SendFailure, MessageStatus.Untouched -> {}
+            MessageStatus.SendFailure, MessageStatus.Untouched -> {
+            }
         }
     }
 }

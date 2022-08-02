@@ -137,7 +137,7 @@ private fun SelfUserProfileContent(
                             userName = userName,
                             teamName = teamName,
                             onUserProfileClick = onChangeUserProfilePicture,
-                            editableState = EditableState.IsEditable(onEditClick)
+                            editableState = EditableState.IsEditable(onEditClick),
                         )
                     }
                     stickyHeader {

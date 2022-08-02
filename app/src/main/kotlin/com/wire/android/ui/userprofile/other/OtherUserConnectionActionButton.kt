@@ -15,10 +15,11 @@ import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.textfield.WirePrimaryButton
+import com.wire.kalium.logic.data.user.ConnectionState
 
 @Composable
 fun OtherUserConnectionActionButton(
-    connectionStatus: ConnectionStatus,
+    connectionStatus: ConnectionState,
     onSendConnectionRequest: () -> Unit,
     onOpenConversation: () -> Unit,
     onCancelConnectionRequest: () -> Unit,
@@ -26,15 +27,15 @@ fun OtherUserConnectionActionButton(
     ignoreConnectionRequest: () -> Unit,
 ) {
     when (connectionStatus) {
-        is ConnectionStatus.Sent -> WireSecondaryButton(
+        ConnectionState.SENT -> WireSecondaryButton(
             text = stringResource(R.string.connection_label_cancel_request),
             onClick = onCancelConnectionRequest
         )
-        is ConnectionStatus.Connected -> WirePrimaryButton(
+        ConnectionState.ACCEPTED -> WirePrimaryButton(
             text = stringResource(R.string.label_open_conversation),
             onClick = onOpenConversation,
         )
-        is ConnectionStatus.Pending -> Column {
+        ConnectionState.PENDING -> Column {
             WirePrimaryButton(
                 text = stringResource(R.string.connection_label_accept),
                 onClick = acceptConnectionRequest,
@@ -59,6 +60,12 @@ fun OtherUserConnectionActionButton(
                 }
             )
         }
+        ConnectionState.BLOCKED -> {
+            WireSecondaryButton(
+                text = stringResource(R.string.user_profile_unblock_user),
+                onClick = { } //TODO
+            )
+        }
         else -> WirePrimaryButton(
             text = stringResource(R.string.connection_label_connect),
             onClick = onSendConnectionRequest,
@@ -77,7 +84,7 @@ fun OtherUserConnectionActionButton(
 @Preview
 fun OtherUserConnectionActionButtonPreview() {
     OtherUserConnectionActionButton(
-        connectionStatus = ConnectionStatus.Connected,
+        connectionStatus = ConnectionState.ACCEPTED,
         onSendConnectionRequest = {},
         onOpenConversation = {},
         onCancelConnectionRequest = {},

@@ -55,6 +55,7 @@ import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
 import com.wire.android.ui.home.messagecomposer.MessageComposeInputState
 import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
+import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.launch
 import okio.Path
@@ -169,6 +170,9 @@ private fun ConversationScreen(
     val scope = rememberCoroutineScope()
 
     with(conversationViewState) {
+
+        val connectionStateOrNull = (conversationDetailsData as? ConversationDetailsData.OneOne)?.connectionState
+
         MenuModalSheetLayout(
             sheetState = conversationScreenState.modalBottomSheetState,
             coroutineScope = scope,
@@ -194,7 +198,12 @@ private fun ConversationScreen(
                                         GroupConversationAvatar(
                                             color = colorsScheme().conversationColor(id = conversationAvatar.conversationId)
                                         )
-                                    is ConversationAvatar.OneOne -> UserProfileAvatar(UserAvatarData(conversationAvatar.avatarAsset))
+                                    is ConversationAvatar.OneOne -> UserProfileAvatar(
+                                        UserAvatarData(
+                                            asset = conversationAvatar.avatarAsset,
+                                            connectionState = connectionStateOrNull
+                                        )
+                                    )
                                     ConversationAvatar.None -> Box(modifier = Modifier.size(dimensions().userAvatarDefaultSize))
                                 }
                             },
@@ -203,7 +212,8 @@ private fun ConversationScreen(
                             onSearchButtonClick = { },
                             onPhoneButtonClick = onStartCall,
                             hasOngoingCall = hasOngoingCall,
-                            onJoinCallButtonClick = onJoinCall
+                            onJoinCallButtonClick = onJoinCall,
+                            isUserBlocked = connectionStateOrNull == ConnectionState.BLOCKED
                         )
                     },
                     snackbarHost = {
@@ -229,6 +239,7 @@ private fun ConversationScreen(
                                 conversationScreenState = conversationScreenState,
                                 isFileSharingEnabled = isFileSharingEnabled,
                                 tempCachePath = tempCachePath,
+                                isUserBlocked = connectionStateOrNull == ConnectionState.BLOCKED,
                                 onOpenProfile = onOpenProfile
                             )
                         }
@@ -256,6 +267,7 @@ private fun ConversationScreenContent(
     onSnackbarMessageShown: () -> Unit,
     conversationScreenState: ConversationScreenState,
     isFileSharingEnabled: Boolean,
+    isUserBlocked: Boolean,
     tempCachePath: Path
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -306,7 +318,8 @@ private fun ConversationScreenContent(
             }
         },
         isFileSharingEnabled = isFileSharingEnabled,
-        tempCachePath = tempCachePath
+        tempCachePath = tempCachePath,
+        isUserBlocked = isUserBlocked
     )
 }
 
@@ -384,7 +397,7 @@ fun ConversationScreenPreview() {
         onSnackbarMessage = {},
         onSnackbarMessageShown = {},
         onDropDownClick = {},
-        tempCachePath =  "".toPath(),
-        onOpenProfile = {_, _ -> }
+        tempCachePath = "".toPath(),
+        onOpenProfile = { _, _ -> }
     )
 }

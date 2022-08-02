@@ -25,9 +25,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.wire.android.model.Clickable
 import com.wire.android.model.ImageAsset.UserAvatarAsset
-import com.wire.android.ui.common.Icon
 import com.wire.android.model.UserAvatarData
-import com.wire.android.ui.common.MembershipQualifierLabel
+import com.wire.android.ui.common.Icon
+import com.wire.android.ui.common.UserBadge
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.WireCircularProgressIndicator
 import com.wire.android.ui.common.dimensions
@@ -36,6 +36,7 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ifNotEmpty
+import com.wire.kalium.logic.data.user.ConnectionState
 
 @Composable
 fun UserProfileInfo(
@@ -47,7 +48,8 @@ fun UserProfileInfo(
     membership: Membership = Membership.None,
     onUserProfileClick: (() -> Unit)? = null,
     editableState: EditableState,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    connection: ConnectionState = ConnectionState.ACCEPTED
 ) {
     Column(
         horizontalAlignment = CenterHorizontally,
@@ -60,7 +62,7 @@ fun UserProfileInfo(
         Box(contentAlignment = Alignment.Center) {
             UserProfileAvatar(
                 size = dimensions().userAvatarDefaultBigSize,
-                avatarData = UserAvatarData(avatarAsset),
+                avatarData = UserAvatarData(asset = avatarAsset, connectionState = connection),
                 clickable = remember { Clickable(enabled = editableState is EditableState.IsEditable) { onUserProfileClick?.invoke() } }
             )
             if (isLoading) {
@@ -110,7 +112,7 @@ fun UserProfileInfo(
                     maxLines = 1,
                     color = MaterialTheme.wireColorScheme.labelText,
                 )
-                MembershipQualifierLabel(membership, Modifier.padding(top = dimensions().spacing8x))
+                UserBadge(membership, connection)
             }
 
             if (editableState is EditableState.IsEditable) {
@@ -181,5 +183,6 @@ private fun UserProfileInfoPreview() {
         fullName = "fullName",
         onUserProfileClick = {},
         teamName = "Wire",
+        connection = ConnectionState.ACCEPTED
     )
 }

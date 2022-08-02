@@ -19,8 +19,8 @@ import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
-import com.wire.kalium.logic.data.id.parseIntoQualifiedID
 import com.wire.kalium.logic.data.message.Message
+import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 
 val mockMessageWithText = UIMessage(
@@ -37,9 +37,9 @@ val mockMessageWithText = UIMessage(
         messageBody = MessageBody(
             UIText.DynamicString(
                 "This is some test message that is very very" +
-                    "very very very very" +
-                    " very very very" +
-                    "very very very very very long"
+                        "very very very very" +
+                        " very very very" +
+                        "very very very very very long"
             )
         )
     ),
@@ -58,7 +58,10 @@ val mockImageLoader = WireSessionImageLoader(object : ImageLoader {
 })
 
 val mockAssetMessage = UIMessage(
-    userAvatarData = UserAvatarData(UserAvatarAsset(mockImageLoader, "a@domain".parseIntoQualifiedID()), UserAvailabilityStatus.AVAILABLE),
+    userAvatarData = UserAvatarData(
+        UserAvatarAsset(mockImageLoader, UserAssetId("a", "domain")),
+        UserAvailabilityStatus.AVAILABLE
+    ),
     messageHeader = MessageHeader(
         username = UIText.DynamicString("John Doe"),
         membership = Membership.Guest,
@@ -70,7 +73,7 @@ val mockAssetMessage = UIMessage(
     messageContent = MessageContent.AssetMessage(
         assetName = "This is some test asset message",
         assetExtension = "ZIP",
-        assetId = "asset-id@domain".parseIntoQualifiedID(),
+        assetId = UserAssetId("asset", "domain"),
         assetSizeInBytes = 21957335,
         downloadStatus = Message.DownloadStatus.NOT_DOWNLOADED
     ),
@@ -78,7 +81,7 @@ val mockAssetMessage = UIMessage(
 )
 
 @Suppress("MagicNumber")
-val mockedImg = MessageContent.ImageMessage("a@domain".parseIntoQualifiedID(), ByteArray(16), 0, 0)
+val mockedImg = MessageContent.ImageMessage(UserAssetId("a", "domain"), ByteArray(16), 0, 0)
 
 @Suppress("LongMethod", "MagicNumber")
 fun getMockedMessages(): List<UIMessage> = listOf(
@@ -96,9 +99,9 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             messageBody = MessageBody(
                 UIText.DynamicString(
                     "This is some test message that is very very" +
-                        "very very very very" +
-                        " very very very" +
-                        "very very very very very long"
+                            "very very very very" +
+                            " very very very" +
+                            "very very very very very long"
                 )
             )
         ),
@@ -157,9 +160,9 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             messageBody = MessageBody(
                 UIText.DynamicString(
                     "This is some test message that is very very" +
-                        "very very very very" +
-                        " very very very" +
-                        "very very very very very long"
+                            "very very very very" +
+                            " very very very" +
+                            "very very very very very long"
                 )
             )
         ),
@@ -192,25 +195,25 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             messageBody = MessageBody(
                 UIText.DynamicString(
                     "This is some test message that is very very" +
-                        "very very very very" +
-                        " very very very" +
-                        "very very very very very long" +
-                        "This is some test message that is very very" +
-                        "very very very very" +
-                        " very very very" +
-                        "very very very very very long" +
-                        "This is some test message that is very very" +
-                        "very very very very" +
-                        " very very very" +
-                        "very very very very very long" +
-                        "This is some test message that is very very" +
-                        "very very very very" +
-                        " very very very" +
-                        "very very very very very long" +
-                        "This is some test message that is very very" +
-                        "very very very very" +
-                        " very very very" +
-                        "very very very very very long"
+                            "very very very very" +
+                            " very very very" +
+                            "very very very very very long" +
+                            "This is some test message that is very very" +
+                            "very very very very" +
+                            " very very very" +
+                            "very very very very very long" +
+                            "This is some test message that is very very" +
+                            "very very very very" +
+                            " very very very" +
+                            "very very very very very long" +
+                            "This is some test message that is very very" +
+                            "very very very very" +
+                            " very very very" +
+                            "very very very very very long" +
+                            "This is some test message that is very very" +
+                            "very very very very" +
+                            " very very very" +
+                            "very very very very very long"
                 )
             )
         ),

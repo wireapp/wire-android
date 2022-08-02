@@ -3,7 +3,7 @@ package com.wire.android.model
 import androidx.compose.runtime.Composable
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.id.parseIntoQualifiedID
+import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.UserAssetId
 
 sealed class ImageAsset(private val imageLoader: WireSessionImageLoader) {
@@ -26,8 +26,11 @@ sealed class ImageAsset(private val imageLoader: WireSessionImageLoader) {
     fun paint(fallbackData: Any? = null) = imageLoader.paint(asset = this, fallbackData)
 }
 
-fun String.parseIntoPrivateImageAsset(imageLoader: WireSessionImageLoader): ImageAsset.PrivateAsset {
+fun String.parseIntoPrivateImageAsset(
+    imageLoader: WireSessionImageLoader,
+    qualifiedIdMapper: QualifiedIdMapper,
+): ImageAsset.PrivateAsset {
     val (conversationIdString, messageId, isSelfAsset) = split(":")
-    val conversationIdParam = conversationIdString.parseIntoQualifiedID()
+    val conversationIdParam = qualifiedIdMapper.fromStringToQualifiedID(conversationIdString)
     return ImageAsset.PrivateAsset(imageLoader, conversationIdParam, messageId, isSelfAsset.toBoolean())
 }

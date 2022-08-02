@@ -4,6 +4,8 @@ import android.content.Context
 import com.wire.android.util.DeviceLabel
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
+import com.wire.kalium.logic.data.id.FederatedIdMapper
+import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
@@ -91,7 +93,7 @@ class SessionModule {
     fun provideCurrentSession(@KaliumCoreLogic coreLogic: CoreLogic): UserId {
         return runBlocking {
             return@runBlocking when (val result = coreLogic.getGlobalScope().session.currentSession.invoke()) {
-                is CurrentSessionResult.Success -> result.authSession.tokens.userId
+                is CurrentSessionResult.Success -> result.authSession.session.userId
                 else -> {
                     throw IllegalStateException("no current session was found")
                 }
@@ -570,6 +572,22 @@ class UseCaseModule {
         @CurrentAccount currentAccount: UserId
     ): UpdateConversationAccessRoleUseCase =
         coreLogic.getSessionScope(currentAccount).conversations.updateConversationAccess
+
+    @ViewModelScoped
+    @Provides
+    fun provideFederatedIdMapper(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): FederatedIdMapper =
+        coreLogic.getSessionScope(currentAccount).federatedIdMapper
+
+    @ViewModelScoped
+    @Provides
+    fun provideQualifiedIdMapper(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): QualifiedIdMapper =
+        coreLogic.getSessionScope(currentAccount).qualifiedIdMapper
 
     @ViewModelScoped
     @Provides

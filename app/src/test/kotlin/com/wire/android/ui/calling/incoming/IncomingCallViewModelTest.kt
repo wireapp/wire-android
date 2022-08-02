@@ -6,6 +6,8 @@ import com.wire.android.media.CallRinger
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.notification.CallNotificationManager
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.call.AnswerCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.GetIncomingCallsUseCase
@@ -18,10 +20,10 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-import kotlinx.coroutines.test.runTest
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
@@ -54,6 +56,9 @@ class IncomingCallViewModelTest {
     @MockK
     private lateinit var notificationManager: CallNotificationManager
 
+    @MockK
+    private lateinit var qualifiedIdMapper: QualifiedIdMapper
+
     private lateinit var viewModel: IncomingCallViewModel
 
     @BeforeEach
@@ -61,6 +66,9 @@ class IncomingCallViewModelTest {
         MockKAnnotations.init(this)
         val dummyConversationId = "some-dummy-value@some.dummy.domain"
         every { savedStateHandle.get<String>(any()) } returns dummyConversationId
+        coEvery {
+            qualifiedIdMapper.fromStringToQualifiedID("some-dummy-value@some.dummy.domain")
+        } returns QualifiedID("some-dummy-value", "some.dummy.domain")
 
         // Default empty values
         coEvery { navigationManager.navigateBack() } returns Unit
@@ -80,7 +88,8 @@ class IncomingCallViewModelTest {
             callRinger = callRinger,
             observeEstablishedCalls = observeEstablishedCalls,
             endCall = endCall,
-            notificationManager = notificationManager
+            notificationManager = notificationManager,
+            qualifiedIdMapper = qualifiedIdMapper
         )
     }
 

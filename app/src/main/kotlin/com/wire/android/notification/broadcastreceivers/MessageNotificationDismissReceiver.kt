@@ -8,7 +8,7 @@ import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.toConversationId
+import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.util.toStringDate
 import dagger.hilt.android.AndroidEntryPoint
@@ -17,7 +17,9 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class MessageNotificationDismissReceiver : BroadcastReceiver() {
+class MessageNotificationDismissReceiver(
+    private val qualifiedIdMapper: QualifiedIdMapper
+) : BroadcastReceiver() {
 
     @Inject
     @KaliumCoreLogic
@@ -29,8 +31,11 @@ class MessageNotificationDismissReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val conversationId: String? = intent.getStringExtra(EXTRA_CONVERSATION_ID)
         appLogger.i("MessageNotificationDismissReceiver: onReceive, conversationId: $conversationId")
-        val userId: QualifiedID? =
-            intent.getStringExtra(EXTRA_RECEIVER_USER_ID)?.toConversationId() //TODO bad naming, need to be toQualifiedID()
+
+        val userId: QualifiedID? = intent.getStringExtra(EXTRA_RECEIVER_USER_ID)?.let {
+            qualifiedIdMapper.fromStringToQualifiedID(it)
+        } ?: run { null }
+
 
         GlobalScope.launch(dispatcherProvider.io()) {
             val sessionScope =
@@ -39,16 +44,20 @@ class MessageNotificationDismissReceiver : BroadcastReceiver() {
                 } else {
                     val currentSession = coreLogic.globalScope { session.currentSession() }
                     if (currentSession is CurrentSessionResult.Success) {
-                        coreLogic.getSessionScope(currentSession.authSession.tokens.userId)
+                        coreLogic.getSessionScope(currentSession.authSession.session.userId)
                     } else {
                         null
                     }
                 }
 
             sessionScope?.let {
-                it.messages
-                    //TODO change date //TODO Failure is ignored
-                    .markMessagesAsNotified(conversationId?.toConversationId(), System.currentTimeMillis().toStringDate())
+                conversationId?.let { id ->
+                    val conversationIdWithDomain = qualifiedIdMapper.fromStringToQualifiedID(id)
+                    it.messages
+                        //TODO change date //TODO Failure is ignored
+                        .markMessagesAsNotified(conversationIdWithDomain, System.currentTimeMillis().toStringDate())
+                }
+
             }
         }
     }

@@ -9,23 +9,24 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.search.SearchPeopleViewModel
 import com.wire.android.ui.home.conversations.search.SearchResult
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.parseIntoQualifiedID
+import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.publicuser.ConversationMemberExcludedOptions
 import com.wire.kalium.logic.data.publicuser.SearchUsersOptions
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
 import com.wire.kalium.logic.feature.conversation.AddMemberToConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetAllContactsNotInConversationUseCase
+import com.wire.kalium.logic.feature.publicuser.search.Result
 import com.wire.kalium.logic.feature.publicuser.search.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchUsersUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
-import com.wire.kalium.logic.feature.conversation.Result as GetContactsResult
-import com.wire.kalium.logic.feature.publicuser.search.Result
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
+import kotlin.String
+import kotlin.Suppress
+import com.wire.kalium.logic.feature.conversation.Result as GetContactsResult
 
 @Suppress("LongParameterList")
 @HiltViewModel
@@ -38,14 +39,15 @@ class AddMembersToConversationViewModel @Inject constructor(
     private val dispatchers: DispatcherProvider,
     sendConnectionRequest: SendConnectionRequestUseCase,
     savedStateHandle: SavedStateHandle,
-    navigationManager: NavigationManager
+    navigationManager: NavigationManager,
+    qualifiedIdMapper: QualifiedIdMapper
 ) : SearchPeopleViewModel(navigationManager, sendConnectionRequest, dispatchers) {
 
-    val conversationId: QualifiedID = savedStateHandle
-        .get<String>(EXTRA_CONVERSATION_ID)!!
-        .parseIntoQualifiedID()
+    private val conversationId: QualifiedID = qualifiedIdMapper.fromStringToQualifiedID(
+        savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!
+    )
 
-    init{
+    init {
         viewModelScope.launch { allContacts() }
     }
 

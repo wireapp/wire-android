@@ -8,7 +8,7 @@ import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.parseIntoQualifiedID
+import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.GlobalScope
@@ -16,7 +16,9 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class ConnectionRequestNotificationDismissReceiver : BroadcastReceiver() {
+class ConnectionRequestNotificationDismissReceiver(
+    private val qualifiedIdMapper: QualifiedIdMapper
+) : BroadcastReceiver() {
 
     @Inject
     @KaliumCoreLogic
@@ -28,8 +30,10 @@ class ConnectionRequestNotificationDismissReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context, intent: Intent) {
         val requesterUserId: String? = intent.getStringExtra(EXTRA_CONNECTION_REQUESTER_USER_ID)
         appLogger.i("ConnectionRequestNotificationDismissReceiver: onReceive, requesterUserId: $requesterUserId")
-        val userId: QualifiedID? =
-            intent.getStringExtra(EXTRA_RECEIVER_USER_ID)?.parseIntoQualifiedID()
+
+        val userId: QualifiedID? = intent.getStringExtra(EXTRA_RECEIVER_USER_ID)?.let {
+            qualifiedIdMapper.fromStringToQualifiedID(it)
+        } ?: run { null }
 
         GlobalScope.launch(dispatcherProvider.io()) {
             val sessionScope =
@@ -38,14 +42,21 @@ class ConnectionRequestNotificationDismissReceiver : BroadcastReceiver() {
                 } else {
                     val currentSession = coreLogic.globalScope { session.currentSession() }
                     if (currentSession is CurrentSessionResult.Success) {
-                        coreLogic.getSessionScope(currentSession.authSession.tokens.userId)
+                        coreLogic.getSessionScope(currentSession.authSession.session.userId)
                     } else {
                         null
                     }
                 }
 
             sessionScope?.let { scope ->
-                requesterUserId?.parseIntoQualifiedID()?.let {
+                requesterUserId?.let { userId ->
+                    qualifiedIdMapper.fromStringToQualifiedID(userId).let {
+                        scope.conversations.markConnectionRequestAsNotified(it)
+                    }
+                }
+                requesterUserId?.run {
+                    qualifiedIdMapper.fromStringToQualifiedID(this)
+                }?.let {
                     scope.conversations.markConnectionRequestAsNotified(it)
                 }
             }

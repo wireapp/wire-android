@@ -13,11 +13,11 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.kalium.logic.data.call.ConversationType
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.parseIntoQualifiedID
+import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.IsLastCallClosedUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.StartCallUseCase
-import com.wire.kalium.logic.feature.call.usecase.IsLastCallClosedUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
@@ -33,6 +33,7 @@ import javax.inject.Inject
 class InitiatingCallViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
+    qualifiedIdMapper: QualifiedIdMapper,
     private val conversationDetails: ObserveConversationDetailsUseCase,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val startCall: StartCallUseCase,
@@ -41,9 +42,9 @@ class InitiatingCallViewModel @Inject constructor(
     private val callRinger: CallRinger
 ) : ViewModel() {
 
-    val conversationId: QualifiedID = savedStateHandle
-        .get<String>(EXTRA_CONVERSATION_ID)!!
-        .parseIntoQualifiedID()
+    val conversationId: QualifiedID = qualifiedIdMapper.fromStringToQualifiedID(
+        savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!
+    )
 
     private val callStartTime: Long = Calendar.getInstance().timeInMillis
 

@@ -16,18 +16,13 @@ import androidx.compose.material.rememberBottomSheetScaffoldState
 import androidx.compose.material.rememberBottomSheetState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.LifecycleOwner
 import com.wire.android.ui.calling.common.VerticalCallingPager
 import com.wire.android.ui.calling.controlButtons.CameraButton
 import com.wire.android.ui.calling.controlButtons.CameraFlipButton
@@ -42,15 +37,10 @@ import com.wire.android.ui.theme.wireTypography
 
 @Composable
 fun OngoingCallScreen(
-    lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
     ongoingCallViewModel: OngoingCallViewModel = hiltViewModel(),
     sharedCallingViewModel: SharedCallingViewModel = hiltViewModel()
 ) {
     OngoingCallContent(sharedCallingViewModel)
-    observeScreenLifecycleChanges(
-        lifecycleOwner = lifecycleOwner,
-        onPauseVideo = sharedCallingViewModel::pauseVideo
-    )
 }
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -166,29 +156,6 @@ private fun CallingControls(
                 .height(MaterialTheme.wireDimensions.defaultCallingHangUpButtonSize),
             onHangUpButtonClicked = onHangUpCall
         )
-    }
-}
-
-@Composable
-private fun observeScreenLifecycleChanges(
-    lifecycleOwner: LifecycleOwner,
-    onPauseVideo: () -> Unit
-) {
-    // If `lifecycleOwner` changes, dispose and reset the effect
-    DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_STOP) {
-                onPauseVideo()
-            }
-        }
-
-        // Add the observer to the lifecycle
-        lifecycleOwner.lifecycle.addObserver(observer)
-
-        // When the effect leaves the Composition, remove the observer
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observer)
-        }
     }
 }
 

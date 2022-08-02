@@ -131,13 +131,15 @@ class ConversationViewModel @Inject constructor(
     }
 
     private fun listenConversationDetails() = viewModelScope.launch {
-        observeConversationDetails(conversationId)
-            .collect { result ->
-                when (result) {
-                    is Failure -> navigateToHome()
-                    is Success -> emitConversationDetails(result.conversationDetails)
+        withContext(dispatchers.io()) {
+            observeConversationDetails(conversationId)
+                .collect { result ->
+                    when (result) {
+                        is Failure -> navigateToHome()
+                        is Success -> emitConversationDetails(result.conversationDetails)
+                    }
                 }
-            }
+        }
     }
 
     private fun emitConversationDetails(conversationDetails: ConversationDetails) {

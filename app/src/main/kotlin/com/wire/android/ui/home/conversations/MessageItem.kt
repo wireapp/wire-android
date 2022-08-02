@@ -1,6 +1,5 @@
 package com.wire.android.ui.home.conversations
 
-import android.text.util.Linkify
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -34,7 +33,6 @@ import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.LegalHoldIndicator
-import com.wire.android.ui.common.LinkifyText
 import com.wire.android.ui.common.MembershipQualifierLabel
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.dimensions
@@ -53,7 +51,6 @@ import com.wire.android.ui.home.conversationslist.model.hasLabel
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
-import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.user.UserId
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -128,7 +125,7 @@ fun MessageItem(
                         )
                     } else {
                         // Decryption failed for this message
-                        MessageDecryptionFailureMessage()
+                        MessageDecryptionFailure()
                     }
                 }
 
@@ -310,7 +307,7 @@ private fun MessageSendFailureWarning() {
 }
 
 @Composable
-private fun MessageDecryptionFailureMessage() {
+private fun MessageDecryptionFailure() {
     val context = LocalContext.current
     val learnMoreUrl = stringResource(R.string.url_decryption_failure_learn_more)
     CompositionLocalProvider(

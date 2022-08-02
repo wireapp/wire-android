@@ -12,7 +12,6 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.LegalHoldStatus
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
-import com.wire.kalium.logic.data.conversation.ProtocolInfo
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
@@ -26,6 +25,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Test
@@ -299,7 +299,7 @@ class GroupConversationDetailsViewModelTest {
                 "Conv Name",
                 Conversation.Type.ONE_ON_ONE,
                 TeamId("team_id"),
-                ProtocolInfo.Proteus,
+                Conversation.ProtocolInfo.Proteus,
                 MutedConversationStatus.AllAllowed,
                 null,
                 null,
@@ -358,7 +358,8 @@ internal class GroupConversationDetailsViewModelArrangement {
     }
 
     suspend fun withConversationDetailUpdate(conversationDetails: ConversationDetails) = apply {
-        coEvery { observeConversationDetails(any()) } returns conversationDetailsChannel.consumeAsFlow()
+        coEvery { observeConversationDetails(any()) }returns conversationDetailsChannel.consumeAsFlow()
+            .map { ObserveConversationDetailsUseCase.Result.Success(it) }
         conversationDetailsChannel.send(conversationDetails)
     }
 

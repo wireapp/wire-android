@@ -7,16 +7,15 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.mockUri
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
+import com.wire.android.di.UserSessionsUseCaseProvider
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
-import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationItemDestinationsRoutes
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.login.LoginError
 import com.wire.android.util.EMPTY
 import com.wire.android.util.newServerConfig
 import com.wire.kalium.logic.NetworkFailure
-import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.client.Client
 import com.wire.kalium.logic.data.client.ClientType
 import com.wire.kalium.logic.data.conversation.ClientId
@@ -63,6 +62,9 @@ class LoginEmailViewModelTest {
     private lateinit var clientScopeProviderFactory: ClientScopeProvider.Factory
 
     @MockK
+    private lateinit var userSessionsUseCaseProviderFactory: UserSessionsUseCaseProvider.Factory
+
+    @MockK
     private lateinit var clientScope: ClientScope
 
     @MockK
@@ -100,12 +102,13 @@ class LoginEmailViewModelTest {
         every { clientScopeProviderFactory.create(any()).clientScope } returns clientScope
         every { clientScope.register } returns registerClientUseCase
         every { clientScope.registerPushToken } returns registerTokenUseCase
-        every { authSession.tokens.userId } returns userId
+        every { authSession.session.userId } returns userId
         every { authServerConfigProvider.authServer.value } returns newServerConfig(1).links
         loginViewModel = LoginEmailViewModel(
             loginUseCase,
             addAuthenticatedUserUseCase,
             clientScopeProviderFactory,
+            userSessionsUseCaseProviderFactory,
             savedStateHandle,
             navigationManager,
             authServerConfigProvider
@@ -116,16 +119,16 @@ class LoginEmailViewModelTest {
     fun `given empty strings, when entering credentials, then button is disabled`() {
         loginViewModel.onPasswordChange(TextFieldValue(String.EMPTY))
         loginViewModel.onUserIdentifierChange(TextFieldValue(String.EMPTY))
-        loginViewModel.loginState.loginEnabled shouldBeEqualTo false
-        loginViewModel.loginState.loading shouldBeEqualTo false
+        loginViewModel.loginState.emailLoginEnabled shouldBeEqualTo false
+        loginViewModel.loginState.emailLoginLoading shouldBeEqualTo false
     }
 
     @Test
     fun `given non-empty strings, when entering credentials, then button is enabled`() {
         loginViewModel.onPasswordChange(TextFieldValue("abc"))
         loginViewModel.onUserIdentifierChange(TextFieldValue("abc"))
-        loginViewModel.loginState.loginEnabled shouldBeEqualTo true
-        loginViewModel.loginState.loading shouldBeEqualTo false
+        loginViewModel.loginState.emailLoginEnabled shouldBeEqualTo true
+        loginViewModel.loginState.emailLoginLoading shouldBeEqualTo false
     }
 
     @Test
@@ -137,14 +140,14 @@ class LoginEmailViewModelTest {
 
         loginViewModel.onPasswordChange(TextFieldValue("abc"))
         loginViewModel.onUserIdentifierChange(TextFieldValue("abc"))
-        loginViewModel.loginState.loginEnabled shouldBeEqualTo true
-        loginViewModel.loginState.loading shouldBeEqualTo false
+        loginViewModel.loginState.emailLoginEnabled shouldBeEqualTo true
+        loginViewModel.loginState.emailLoginLoading shouldBeEqualTo false
         loginViewModel.login()
-        loginViewModel.loginState.loginEnabled shouldBeEqualTo false
-        loginViewModel.loginState.loading shouldBeEqualTo true
+        loginViewModel.loginState.emailLoginEnabled shouldBeEqualTo false
+        loginViewModel.loginState.emailLoginLoading shouldBeEqualTo true
         scheduler.advanceUntilIdle()
-        loginViewModel.loginState.loginEnabled shouldBeEqualTo true
-        loginViewModel.loginState.loading shouldBeEqualTo false
+        loginViewModel.loginState.emailLoginEnabled shouldBeEqualTo true
+        loginViewModel.loginState.emailLoginLoading shouldBeEqualTo false
     }
 
     @Test
@@ -180,7 +183,7 @@ class LoginEmailViewModelTest {
 
         runTest { loginViewModel.login() }
 
-        loginViewModel.loginState.loginEmailError shouldBeInstanceOf LoginError.TextFieldError.InvalidValue::class
+        loginViewModel.loginState.loginError shouldBeInstanceOf LoginError.TextFieldError.InvalidValue::class
     }
 
     @Test
@@ -189,7 +192,7 @@ class LoginEmailViewModelTest {
 
         runTest { loginViewModel.login() }
 
-        loginViewModel.loginState.loginEmailError shouldBeInstanceOf LoginError.DialogError.InvalidCredentialsError::class
+        loginViewModel.loginState.loginError shouldBeInstanceOf LoginError.DialogError.InvalidCredentialsError::class
     }
 
     @Test
@@ -200,8 +203,8 @@ class LoginEmailViewModelTest {
 
         runTest { loginViewModel.login() }
 
-        loginViewModel.loginState.loginEmailError shouldBeInstanceOf LoginError.DialogError.GenericError::class
-        (loginViewModel.loginState.loginEmailError as LoginError.DialogError.GenericError).coreFailure shouldBe networkFailure
+        loginViewModel.loginState.loginError shouldBeInstanceOf LoginError.DialogError.GenericError::class
+        (loginViewModel.loginState.loginError as LoginError.DialogError.GenericError).coreFailure shouldBe networkFailure
     }
 
     @Test
@@ -210,9 +213,9 @@ class LoginEmailViewModelTest {
 
         runTest { loginViewModel.login() }
 
-        loginViewModel.loginState.loginEmailError shouldBeInstanceOf LoginError.DialogError.InvalidCredentialsError::class
+        loginViewModel.loginState.loginError shouldBeInstanceOf LoginError.DialogError.InvalidCredentialsError::class
         loginViewModel.onDialogDismiss()
-        loginViewModel.loginState.loginEmailError shouldBe LoginError.None
+        loginViewModel.loginState.loginError shouldBe LoginError.None
     }
 
     @Test
@@ -222,7 +225,7 @@ class LoginEmailViewModelTest {
 
         runTest { loginViewModel.login() }
 
-        loginViewModel.loginState.loginEmailError shouldBeInstanceOf LoginError.DialogError.UserAlreadyExists::class
+        loginViewModel.loginState.loginError shouldBeInstanceOf LoginError.DialogError.UserAlreadyExists::class
     }
 
     companion object {

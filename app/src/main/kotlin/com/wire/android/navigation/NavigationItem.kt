@@ -86,12 +86,18 @@ enum class NavigationItem(
 
     Login(
         primaryRoute = LOGIN,
+        canonicalRoute = "$LOGIN?$EXTRA_USER_ID={$EXTRA_USER_ID}",
         content = { contentParams ->
             val ssoLoginResult = contentParams.arguments.filterIsInstance<DeepLinkResult.SSOLogin>().firstOrNull()
             LoginScreen(ssoLoginResult)
         },
         animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
-    ),
+    ) {
+        override fun getRouteWithArgs(arguments: List<Any>): String {
+            val userId: QualifiedID? = arguments.filterIsInstance<QualifiedID>().firstOrNull()
+            return if (userId == null) primaryRoute else "$primaryRoute?$EXTRA_USER_ID=$userId"
+        }
+    },
 
     CreateTeam(
         primaryRoute = CREATE_TEAM,
@@ -172,11 +178,13 @@ enum class NavigationItem(
     OtherUserProfile(
         primaryRoute = OTHER_USER_PROFILE,
         canonicalRoute = "$OTHER_USER_PROFILE?$EXTRA_USER_ID={$EXTRA_USER_ID}&$EXTRA_CONVERSATION_ID={$EXTRA_CONVERSATION_ID}",
-        deepLinks = listOf(navDeepLink {
-            uriPattern = "${DeepLinkProcessor.DEEP_LINK_SCHEME}://" +
-                    "${DeepLinkProcessor.OTHER_USER_PROFILE_DEEPLINK_HOST}/" +
-                    "{$EXTRA_USER_ID}"
-        }),
+        deepLinks = listOf(
+            navDeepLink {
+                uriPattern = "${DeepLinkProcessor.DEEP_LINK_SCHEME}://" +
+                        "${DeepLinkProcessor.OTHER_USER_PROFILE_DEEPLINK_HOST}/" +
+                        "{$EXTRA_USER_ID}"
+            }
+        ),
         content = { OtherUserProfileScreen() },
         animationConfig = NavigationAnimationConfig.NoAnimation
     ) {
@@ -196,11 +204,13 @@ enum class NavigationItem(
     Conversation(
         primaryRoute = CONVERSATION,
         canonicalRoute = "$CONVERSATION?$EXTRA_CONVERSATION_ID={$EXTRA_CONVERSATION_ID}",
-        deepLinks = listOf(navDeepLink {
-            uriPattern = "${DeepLinkProcessor.DEEP_LINK_SCHEME}://" +
-                    "${DeepLinkProcessor.CONVERSATION_DEEPLINK_HOST}/" +
-                    "{$EXTRA_CONVERSATION_ID}"
-        }),
+        deepLinks = listOf(
+            navDeepLink {
+                uriPattern = "${DeepLinkProcessor.DEEP_LINK_SCHEME}://" +
+                        "${DeepLinkProcessor.CONVERSATION_DEEPLINK_HOST}/" +
+                        "{$EXTRA_CONVERSATION_ID}"
+            }
+        ),
         content = { ConversationScreen(hiltSavedStateViewModel(it.navBackStackEntry)) },
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
@@ -223,7 +233,6 @@ enum class NavigationItem(
         canonicalRoute = "$ADD_CONVERSATION_PARTICIPANTS/{$EXTRA_CONVERSATION_ID}",
         content = {
             val viewModel = hiltViewModel<AddMembersToConversationViewModel>()
-
 
             SearchPeopleRouter(
                 searchPeopleViewModel = viewModel,
@@ -271,11 +280,13 @@ enum class NavigationItem(
     IncomingCall(
         primaryRoute = INCOMING_CALL,
         canonicalRoute = "$INCOMING_CALL?$EXTRA_CONVERSATION_ID={$EXTRA_CONVERSATION_ID}",
-        deepLinks = listOf(navDeepLink {
-            uriPattern = "${DeepLinkProcessor.DEEP_LINK_SCHEME}://" +
-                    "${DeepLinkProcessor.INCOMING_CALL_DEEPLINK_HOST}/" +
-                    "{$EXTRA_CONVERSATION_ID}"
-        }),
+        deepLinks = listOf(
+            navDeepLink {
+                uriPattern = "${DeepLinkProcessor.DEEP_LINK_SCHEME}://" +
+                        "${DeepLinkProcessor.INCOMING_CALL_DEEPLINK_HOST}/" +
+                        "{$EXTRA_CONVERSATION_ID}"
+            }
+        ),
         content = { IncomingCallScreen() },
         screenMode = ScreenMode.WAKE_UP,
         animationConfig = NavigationAnimationConfig.DelegatedAnimation
@@ -379,7 +390,7 @@ data class ContentParams(
 )
 
 enum class ScreenMode {
-    KEEP_ON,  // keep screen on while that NavigationItem is visible (i.e CallScreen)
-    WAKE_UP,  // wake up the device on navigating to that NavigationItem (i.e IncomingCall)
-    NONE      // do not wake up and allow device to sleep
+    KEEP_ON, // keep screen on while that NavigationItem is visible (i.e CallScreen)
+    WAKE_UP, // wake up the device on navigating to that NavigationItem (i.e IncomingCall)
+    NONE // do not wake up and allow device to sleep
 }

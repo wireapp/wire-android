@@ -102,6 +102,7 @@ class LoginEmailViewModelTest {
         MockKAnnotations.init(this)
         mockUri()
         every { savedStateHandle.get<String>(any()) } returns ""
+        every { qualifiedIdMapper.fromStringToQualifiedID(any()) } returns userId
         every { savedStateHandle.set(any(), any<String>()) } returns Unit
         every { clientScopeProviderFactory.create(any()).clientScope } returns clientScope
         every { clientScope.register } returns registerClientUseCase

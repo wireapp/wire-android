@@ -9,6 +9,7 @@ import com.wire.android.di.UserSessionsUseCaseProvider
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.login.LoginViewModel
 import com.wire.android.util.newServerConfig
+import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -48,6 +49,7 @@ class LoginViewModelTest {
     fun setup() {
         MockKAnnotations.init(this)
         every { savedStateHandle.get<String>(any()) } returns ""
+        every { qualifiedIdMapper.fromStringToQualifiedID(any()) } returns QualifiedID("", "")
         every { authServerConfigProvider.authServer.value } returns newServerConfig(1).links
         loginViewModel = LoginViewModel(
             savedStateHandle,

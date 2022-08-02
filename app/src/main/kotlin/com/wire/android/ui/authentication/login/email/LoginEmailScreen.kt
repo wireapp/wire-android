@@ -38,9 +38,9 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.ui.authentication.login.LoginError
-import com.wire.android.ui.common.WireDialog
-import com.wire.android.ui.common.WireDialogButtonProperties
-import com.wire.android.ui.common.WireDialogButtonType
+import com.wire.android.ui.authentication.login.LoginErrorDialog
+import com.wire.android.ui.authentication.login.LoginState
+
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WirePrimaryButton
@@ -50,8 +50,6 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
-import com.wire.android.util.DialogErrorStrings
-import com.wire.android.util.dialogErrorStrings
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -62,14 +60,14 @@ fun LoginEmailScreen(
 ) {
     val scope = rememberCoroutineScope()
     val loginEmailViewModel: LoginEmailViewModel = hiltViewModel()
-    val loginEmailState: LoginEmailState = loginEmailViewModel.loginState
+    val loginEmailState: LoginState = loginEmailViewModel.loginState
     LoginEmailContent(
         scrollState = scrollState,
-        loginEmailState = loginEmailState,
+        loginState = loginEmailState,
         onUserIdentifierChange = { loginEmailViewModel.onUserIdentifierChange(it) },
         onPasswordChange = { loginEmailViewModel.onPasswordChange(it) },
-        onDialogDismiss = { loginEmailViewModel.onDialogDismiss() },
-        onRemoveDeviceOpen = { loginEmailViewModel.onTooManyDevicesError() },
+        onDialogDismiss = loginEmailViewModel::onDialogDismiss,
+        onRemoveDeviceOpen = loginEmailViewModel::onTooManyDevicesError,
         onLoginButtonClick = suspend { loginEmailViewModel.login() },
         forgotPasswordUrl = loginEmailViewModel.serverConfig.forgotPassword,
         scope = scope,
@@ -80,7 +78,7 @@ fun LoginEmailScreen(
 @Composable
 private fun LoginEmailContent(
     scrollState: ScrollState,
-    loginEmailState: LoginEmailState,
+    loginState: LoginState,
     onUserIdentifierChange: (TextFieldValue) -> Unit,
     onPasswordChange: (TextFieldValue) -> Unit,
     onDialogDismiss: () -> Unit,
@@ -88,7 +86,7 @@ private fun LoginEmailContent(
     onLoginButtonClick: suspend () -> Unit,
     forgotPasswordUrl: String,
     scope: CoroutineScope,
-    //todo: temporary to show to pointing server
+    // todo: temporary to show to pointing server
     serverTitle: String
 ) {
     Column(
@@ -102,9 +100,9 @@ private fun LoginEmailContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = MaterialTheme.wireDimensions.spacing16x),
-            userIdentifier = loginEmailState.userIdentifier,
+            userIdentifier = loginState.userIdentifier,
             onUserIdentifierChange = onUserIdentifierChange,
-            error = when (loginEmailState.loginEmailError) {
+            error = when (loginState.loginError) {
                 LoginError.TextFieldError.InvalidValue -> stringResource(R.string.login_error_invalid_user_identifier)
                 else -> null
             },
@@ -114,7 +112,7 @@ private fun LoginEmailContent(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = MaterialTheme.wireDimensions.spacing16x),
-            password = loginEmailState.password,
+            password = loginState.password,
             onPasswordChange = onPasswordChange
         )
         ForgotPasswordLabel(
@@ -127,8 +125,8 @@ private fun LoginEmailContent(
 
         LoginButton(
             modifier = Modifier.fillMaxWidth(),
-            loading = loginEmailState.loading,
-            enabled = loginEmailState.loginEnabled
+            loading = loginState.emailLoginLoading,
+            enabled = loginState.emailLoginEnabled
         ) {
             scope.launch {
                 onLoginButtonClick()
@@ -136,36 +134,9 @@ private fun LoginEmailContent(
         }
     }
 
-    if (loginEmailState.loginEmailError is LoginError.DialogError) {
-        val (title, message) = when (loginEmailState.loginEmailError) {
-            is LoginError.DialogError.InvalidCredentialsError -> DialogErrorStrings(
-                stringResource(id = R.string.login_error_invalid_credentials_title),
-                stringResource(id = R.string.login_error_invalid_credentials_message)
-            )
-            // TODO: sync with design about the error message
-            is LoginError.DialogError.UserAlreadyExists -> DialogErrorStrings(
-                stringResource(id = R.string.login_error_user_already_logged_in_title),
-                stringResource(id = R.string.login_error_user_already_logged_in_message)
-            )
-            is LoginError.DialogError.GenericError -> {
-                loginEmailState.loginEmailError.coreFailure.dialogErrorStrings(LocalContext.current.resources)
-            }
-            else -> DialogErrorStrings(
-                stringResource(R.string.error_unknown_title),
-                stringResource(R.string.error_unknown_message)
-            )
-        }
-        WireDialog(
-            title = title,
-            text = message,
-            onDismiss = onDialogDismiss,
-            optionButton1Properties = WireDialogButtonProperties(
-                onClick = onDialogDismiss,
-                text = stringResource(id = R.string.label_ok),
-                type = WireDialogButtonType.Primary,
-            )
-        )
-    } else if (loginEmailState.loginEmailError is LoginError.TooManyDevicesError) {
+    if (loginState.loginError is LoginError.DialogError && loginState.loginError !is LoginError.DialogError.InvalidSession) {
+        LoginErrorDialog(loginState.loginError, onDialogDismiss)
+    } else if (loginState.loginError is LoginError.TooManyDevicesError) {
         onRemoveDeviceOpen()
     }
 }
@@ -176,7 +147,7 @@ private fun UserIdentifierInput(
     userIdentifier: TextFieldValue,
     error: String?,
     onUserIdentifierChange: (TextFieldValue) -> Unit,
-    //todo: temporary to show to pointing server
+    // todo: temporary to show to pointing server
     serverTitle: String
 ) {
     WireTextField(
@@ -257,7 +228,7 @@ private fun LoginEmailScreenPreview() {
     WireTheme(isPreview = true) {
         LoginEmailContent(
             scrollState = rememberScrollState(),
-            loginEmailState = LoginEmailState(),
+            loginState = LoginState(),
             onUserIdentifierChange = { },
             onPasswordChange = { },
             onDialogDismiss = { },

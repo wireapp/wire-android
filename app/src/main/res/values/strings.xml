@@ -19,6 +19,7 @@
     <string name="label_membership_service">Service</string>
     <string name="label_message_sent_failure">Message could not be sent.</string>
     <string name="label_message_receive_failure">Download Error</string>
+    <string name="label_message_decryption_failure_message">Message could not be decrypted.</string>
     <string name="label_try_again">Try again</string>
     <string name="label_federated_membership">Federated</string>
     <string name="label_update">Update</string>
@@ -92,6 +93,9 @@
     <string name="content_description_calling_turn_speaker_on">Turn speaker on</string>
     <string name="content_description_calling_turn_speaker_off">Turn speaker off</string>
 
+    <!-- Non translatable strings-->
+    <string name="url_decryption_failure_learn_more" translatable="false">https://support.wire.com/hc/en-us/articles/207948115-Why-was-I-notified-that-a-message-from-a-contact-was-not-received-</string>
+
     <!-- Navigation -->
     <string name="vault_screen_title">Vault</string>
     <string name="archive_screen_title">Archive</string>
@@ -122,12 +126,19 @@
     <string name="login_user_identifier_placeholder">jane@example.com or jane.doe</string>
     <string name="login_user_identifier_label">EMAIL OR USERNAME</string>
     <string name="login_error_invalid_credentials_title">Invalid information</string>
-    <string name="login_error_invalid_credentials_message">These account credentials are incorrect. Please verify your details and try again.</string>
-    <string name="login_error_invalid_user_identifier">This email or username is invalid. Please verify and try again.</string>
+    <string name="login_error_invalid_credentials_message">These account credentials are incorrect.
+        Please verify your details and try again.
+    </string>
+    <string name="login_error_invalid_user_identifier">This email or username is invalid. Please
+        verify and try again.
+    </string>
     <string name="login_error_user_already_logged_in_title">Account already logged in</string>
-    <string name="login_error_user_already_logged_in_message">You are already logged in on this device.</string>
+    <string name="login_error_user_already_logged_in_message">You are already logged in on this device.
+    </string>
     <string name="login_sso_error_invalid_cookie_title">Invalid Cookie!</string>
-    <string name="login_sso_error_invalid_cookie_message">The session is invalid or expired! Please try to login again.</string>
+    <string name="login_sso_error_invalid_cookie_message">The session is invalid or expired! Please
+        try to login again.
+    </string>
     <string name="login_password_placeholder">Password</string>
     <string name="login_password_label">PASSWORD</string>
     <string name="login_tab_email">EMAIL</string>
@@ -136,10 +147,24 @@
     <string name="login_sso_code_label">SSO CODE</string>
     <string name="login_error_invalid_sso_code">Please enter a valid SSO code.</string>
     <string name="login_error_invalid_sso_code_format">Enter a valid SSO code</string>
+    <string name="deleted_user_error_title">Deleted User</string>
+    <string name="deleted_user_error_message">You were signed out because your account was
+        deleted.
+    </string>
+    <string name="removed_client_error_title">Removed Device</string>
+    <string name="removed_client_error_message">You were signed out because your device was
+        removed.
+    </string>
+    <string name="session_expired_error_title">Session expired</string>
+    <string name="session_expired_error_message">The application did not communicate with the server
+        for a long period of time, or your session has been remotely invalidated.
+    </string>
 
     <!-- Remove Device -->
     <string name="remove_device_title">Remove a Device</string>
-    <string name="remove_device_message">Remove one of your other devices to start using Wire on this one.</string>
+    <string name="remove_device_message">Remove one of your other devices to start using Wire on
+        this one.
+    </string>
     <string name="remove_device_label">YOUR DEVICES</string>
     <string name="remove_device_id_and_time_label">ID: %1$s\nAdded: %2$s</string>
     <string name="remove_device_dialog_title">Remove the following device?</string>
@@ -218,7 +243,6 @@
     <string name="mention_label_all_mentions">ALL MENTIONS</string>
     <string name="label_message_status_deleted">Deleted</string>
     <string name="label_message_status_edited">Edited</string>
-    <string name="conetnt_description_conversation_search_icon">Conversation search icon</string>
     <string name="conversations_screen_title">Conversations</string>
     <string name="conversations_all_tab_title">All</string>
     <string name="conversations_calls_tab_title">Calls</string>
@@ -343,7 +367,6 @@
     <!--Search Contact-->
     <string name="label_contacts">CONTACTS</string>
     <string name="label_new_group">New Group</string>
-    <string name="label_new_guestroom">New Guestroom</string>
     <string name="label_new_conversation">New Conversation</string>
     <string name="label_search_people">Search people</string>
     <string name="label_public_wire">PUBLIC WIRE</string>

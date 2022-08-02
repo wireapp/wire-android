@@ -66,11 +66,10 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun checkPendingActions(): HomeSnackbarState? {
-        val connectionIgnoredUsername = savedStateHandle
+    fun checkPendingSnackbarState(): HomeSnackbarState? =
+        savedStateHandle
             .getBackNavArg<String>(EXTRA_CONNECTION_IGNORED_USER_NAME)
-        return connectionIgnoredUsername?.let { HomeSnackbarState.SuccessConnectionIgnoreRequest(it) }
-    }
+            ?.let { HomeSnackbarState.SuccessConnectionIgnoreRequest(it) }
 
     private fun loadUserAvatar() {
         viewModelScope.launch {
@@ -83,7 +82,9 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    suspend fun navigateTo(item: NavigationItem) { navigationManager.navigate(NavigationCommand(destination = item.getRouteWithArgs())) }
+    suspend fun navigateTo(item: NavigationItem) {
+        navigationManager.navigate(NavigationCommand(destination = item.getRouteWithArgs()))
+    }
 
     fun navigateToUserProfile() = viewModelScope.launch { navigateTo(NavigationItem.SelfUserProfile) }
 }

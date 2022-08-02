@@ -47,7 +47,7 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel, syncViewModel: Sy
     handleSnackBarMessage(snackbarHostState, homeUIState.snackbarState, homeUIState::clearSnackbarMessage)
 
     LaunchedEffect(viewModel.savedStateHandle) {
-        viewModel.checkPendingActions()?.let(homeUIState::setSnackBarState)
+        viewModel.checkPendingSnackbarState()?.let(homeUIState::setSnackBarState)
     }
 
     with(homeUIState) {

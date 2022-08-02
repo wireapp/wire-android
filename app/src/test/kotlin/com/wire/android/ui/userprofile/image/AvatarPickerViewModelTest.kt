@@ -14,7 +14,9 @@ import com.wire.android.util.ImageUtil
 import com.wire.android.util.copyToTempPath
 import com.wire.android.util.resampleImageAndCopyToTempPath
 import com.wire.kalium.logic.CoreFailure.Unknown
-import com.wire.kalium.logic.data.id.parseIntoQualifiedID
+import com.wire.kalium.logic.data.id.FederatedIdMapper
+import com.wire.kalium.logic.data.id.QualifiedIdMapper
+import com.wire.kalium.logic.data.user.AssetId
 import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.asset.PublicAssetResult
@@ -25,6 +27,7 @@ import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
+import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import io.mockk.mockkStatic
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -58,7 +61,7 @@ class AvatarPickerViewModelTest {
     fun `given a valid image, when uploading the asset succeeds, then the useCase should be called and navigate back on success`() =
         runTest {
             // Given
-            val uploadedAssetId = "some-dummy-value@some-dummy-domain".parseIntoQualifiedID()
+            val uploadedAssetId = AssetId("some-dummy-value", "some-dummy-domain")
 
             val (arrangement, avatarPickerViewModel) = Arrangement()
                 .withSuccessfulInitialAvatarLoad()
@@ -82,7 +85,7 @@ class AvatarPickerViewModelTest {
     @Test
     fun `given a valid picked image, before uploading it, it gets resampled correctly`() = runTest {
         // Given
-        val uploadedAssetId = "some-dummy-value@some-dummy-domain".parseIntoQualifiedID()
+        val uploadedAssetId = AssetId("some-dummy-value", "some-dummy-domain")
         val pickedUri = mockk<Uri>()
 
         val (arrangement, avatarPickerViewModel) = Arrangement()
@@ -160,6 +163,9 @@ class AvatarPickerViewModelTest {
 
         val context = mockk<Context>()
 
+        @MockK
+        private lateinit var qualifiedIdMapper: QualifiedIdMapper
+
         val dispatcherProvider = TestDispatcherProvider()
 
         val viewModel by lazy {
@@ -171,6 +177,7 @@ class AvatarPickerViewModelTest {
                 avatarImageManager,
                 dispatcherProvider,
                 fakeKaliumFileSystem,
+                qualifiedIdMapper,
                 context
             )
         }

@@ -2,6 +2,7 @@ package com.wire.android.ui.calling
 
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.navigation.NavigationManager
+import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.every
@@ -27,6 +28,9 @@ class OngoingCallViewModelTest {
     @MockK
     private lateinit var establishedCall: ObserveEstablishedCallsUseCase
 
+    @MockK
+    private lateinit var qualifiedIdMapper: QualifiedIdMapper
+
     private lateinit var ongoingCallViewModel: OngoingCallViewModel
 
     @BeforeEach
@@ -40,6 +44,7 @@ class OngoingCallViewModelTest {
 
         ongoingCallViewModel = OngoingCallViewModel(
             savedStateHandle = savedStateHandle,
+            qualifiedIdMapper = qualifiedIdMapper,
             navigationManager = navigationManager,
             establishedCall = establishedCall
         )

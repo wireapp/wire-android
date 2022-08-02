@@ -37,7 +37,6 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ifNotEmpty
-import com.wire.kalium.logic.data.user.BotService
 
 @Composable
 fun UserProfileInfo(
@@ -47,7 +46,6 @@ fun UserProfileInfo(
     userName: String,
     teamName: String?,
     membership: Membership = Membership.None,
-    service: BotService? = null,
     onUserProfileClick: (() -> Unit)? = null,
     editableState: EditableState,
     modifier: Modifier = Modifier
@@ -114,13 +112,6 @@ fun UserProfileInfo(
                     color = MaterialTheme.wireColorScheme.labelText,
                 )
                 MembershipQualifierLabel(membership, Modifier.padding(vertical = dimensions().spacing8x))
-                service?.let {
-                    Text(
-                        text = "Powered by ${it.provider}",
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.padding(vertical = dimensions().spacing8x)
-                    )
-                }
             }
 
             if (editableState is EditableState.IsEditable) {

@@ -65,8 +65,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val userTypeMapper: UserTypeMapper,
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val observeConversationRoleForUser: ObserveConversationRoleForUserUseCase,
-    qualifiedIdMapper: QualifiedIdMapper
-    private val observeConversationRoleForUser: ObserveConversationRoleForUserUseCase,
+    qualifiedIdMapper: QualifiedIdMapper,
     private val updateMemberRole: UpdateConversationMemberRoleUseCase
 ) : ViewModel() {
 

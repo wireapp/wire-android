@@ -15,6 +15,7 @@ import com.wire.android.ui.authentication.login.toLoginError
 import com.wire.android.ui.authentication.login.updateSSOLoginEnabled
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.sso.GetSSOLoginSessionUseCase
 import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginResult
@@ -31,6 +32,7 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginSSOViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
+    qualifiedIdMapper: QualifiedIdMapper,
     private val ssoInitiateLoginUseCase: SSOInitiateLoginUseCase,
     private val getSSOLoginSessionUseCase: GetSSOLoginSessionUseCase,
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
@@ -38,7 +40,14 @@ class LoginSSOViewModel @Inject constructor(
     userSessionsUseCaseFactory: UserSessionsUseCaseProvider.Factory,
     navigationManager: NavigationManager,
     authServerConfigProvider: AuthServerConfigProvider,
-) : LoginViewModel(savedStateHandle, navigationManager, clientScopeProviderFactory, userSessionsUseCaseFactory, authServerConfigProvider) {
+) : LoginViewModel(
+    savedStateHandle,
+    navigationManager,
+    qualifiedIdMapper,
+    clientScopeProviderFactory,
+    userSessionsUseCaseFactory,
+    authServerConfigProvider
+) {
 
     var openWebUrl = MutableSharedFlow<String>()
 

@@ -4,8 +4,7 @@ import android.net.Uri
 import androidx.annotation.VisibleForTesting
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.toConversationId
-import com.wire.kalium.logic.data.id.parseIntoQualifiedID
+import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
 
 sealed class DeepLinkResult {
     object Unknown : DeepLinkResult()
@@ -21,6 +20,8 @@ sealed class DeepLinkResult {
 }
 
 class DeepLinkProcessor {
+    private val qualifiedIdMapper = QualifiedIdMapperImpl(null)
+
     operator fun invoke(uri: Uri): DeepLinkResult = when (uri.host) {
         ACCESS_DEEPLINK_HOST -> getCustomServerConfigDeepLinkResult(uri)
         SSO_LOGIN_DEEPLINK_HOST -> getSSOLoginDeepLinkResult(uri)
@@ -31,12 +32,12 @@ class DeepLinkProcessor {
     }
 
     private fun getOpenConversationDeepLinkResult(uri: Uri): DeepLinkResult =
-        uri.lastPathSegment?.toConversationId()?.let {
+        uri.lastPathSegment?.run { qualifiedIdMapper.fromStringToQualifiedID(this) }?.let {
             DeepLinkResult.OpenConversation(it)
         } ?: DeepLinkResult.Unknown
 
     private fun getOpenOtherUserProfileDeepLinkResult(uri: Uri): DeepLinkResult =
-        uri.lastPathSegment?.parseIntoQualifiedID()?.let {
+        uri.lastPathSegment?.run { qualifiedIdMapper.fromStringToQualifiedID(this) }?.let {
             DeepLinkResult.OpenOtherUserProfile(it)
         } ?: DeepLinkResult.Unknown
 
@@ -45,7 +46,7 @@ class DeepLinkProcessor {
     } ?: DeepLinkResult.Unknown
 
     private fun getIncomingCallDeepLinkResult(uri: Uri) =
-        uri.lastPathSegment?.toConversationId()?.let {
+        uri.lastPathSegment?.run { qualifiedIdMapper.fromStringToQualifiedID(this) }?.let {
             DeepLinkResult.IncomingCall(it)
         } ?: DeepLinkResult.Unknown
 

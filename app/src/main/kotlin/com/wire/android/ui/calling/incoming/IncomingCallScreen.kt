@@ -166,7 +166,7 @@ private fun IncomingCallContent(
                 onVideoPreviewCreated = { onVideoPreviewCreated(it) }
             )
             val isCallingString = if (callState.conversationType == ConversationType.Conference) {
-                stringResource(R.string.calling_label_incoming_call_someone_calling, callState.callerName!!)
+                stringResource(R.string.calling_label_incoming_call_someone_calling, callState.callerName ?: "")
             } else stringResource(R.string.calling_label_incoming_call)
 
             CallerDetails(

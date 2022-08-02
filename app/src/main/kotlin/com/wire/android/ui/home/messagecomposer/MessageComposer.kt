@@ -1,3 +1,4 @@
+@file:Suppress("TooManyFunctions")
 package com.wire.android.ui.home.messagecomposer
 
 import androidx.activity.compose.BackHandler
@@ -243,9 +244,10 @@ private fun MessageComposer(
                             Divider()
                             CollapseIconButtonBox(transition, messageComposerState)
                             // Row wrapping the AdditionalOptionButton() when we are in Enabled state and MessageComposerInput()
-                            // when we are in the Fullscreen state, we want to align the TextField to Top of the Row, when other we center it
-                            // vertically. Once we go to Fullscreen, we set the weight to 1f so that it fills the whole Row which is =
-                            // = height of the whole screen - height of TopBar - height of container with additional options
+                            // when we are in the Fullscreen state, we want to align the TextField to Top of the Row,
+                            // when other we center it vertically. Once we go to Fullscreen, we set the weight to 1f
+                            // so that it fills the whole Row which is = height of the whole screen - height of TopBar -
+                            // - height of container with additional options
                             MessageComposerInputRow(messageComposerState, transition, messageText, onMessageChanged)
                         }
                     }

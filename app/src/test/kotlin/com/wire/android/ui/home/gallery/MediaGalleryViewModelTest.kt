@@ -16,6 +16,7 @@ import com.wire.kalium.logic.data.conversation.ConversationDetails.OneOne
 import com.wire.kalium.logic.data.conversation.LegalHoldStatus
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus.AllAllowed
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
@@ -169,6 +170,9 @@ class MediaGalleryViewModelTest {
         @MockK
         lateinit var fileManager: FileManager
 
+        @MockK
+        private lateinit var qualifiedIdMapper: QualifiedIdMapper
+
         lateinit var conversationDetails: ConversationDetails
 
         init {
@@ -207,6 +211,7 @@ class MediaGalleryViewModelTest {
         fun arrange() = this to MediaGalleryViewModel(
             savedStateHandle,
             wireSessionImageLoader,
+            qualifiedIdMapper,
             navigationManager,
             getConversationDetails,
             dispatchers,

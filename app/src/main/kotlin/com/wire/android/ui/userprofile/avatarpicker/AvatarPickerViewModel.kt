@@ -18,7 +18,7 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.resampleImageAndCopyToTempPath
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
-import com.wire.kalium.logic.data.id.parseIntoQualifiedID
+import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.asset.PublicAssetResult
 import com.wire.kalium.logic.feature.user.UploadAvatarResult
@@ -27,7 +27,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @ExperimentalMaterial3Api
@@ -41,6 +40,7 @@ class AvatarPickerViewModel @Inject constructor(
     private val avatarImageManager: AvatarImageManager,
     private val dispatchers: DispatcherProvider,
     private val kaliumFileSystem: KaliumFileSystem,
+    private val qualifiedIdMapper: QualifiedIdMapper,
     @ApplicationContext private val appContext: Context
 ) : ViewModel() {
 
@@ -56,7 +56,7 @@ class AvatarPickerViewModel @Inject constructor(
     fun loadInitialAvatarState() = viewModelScope.launch {
         try {
             dataStore.avatarAssetId.first()?.apply {
-                val qualifiedAsset = this.parseIntoQualifiedID()
+                val qualifiedAsset = qualifiedIdMapper.fromStringToQualifiedID(this)
                 val avatarRawPath = (getAvatarAsset(assetKey = qualifiedAsset) as PublicAssetResult.Success).assetPath
                 val currentAvatarUri = avatarImageManager.getWritableAvatarUri(avatarRawPath)
                 pictureState = PictureState.Initial(currentAvatarUri)

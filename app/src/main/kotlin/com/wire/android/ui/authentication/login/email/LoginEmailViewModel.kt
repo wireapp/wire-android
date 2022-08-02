@@ -12,6 +12,7 @@ import com.wire.android.ui.authentication.login.LoginError
 import com.wire.android.ui.authentication.login.LoginViewModel
 import com.wire.android.ui.authentication.login.toLoginError
 import com.wire.android.ui.authentication.login.updateEmailLoginEnabled
+import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
 import com.wire.kalium.logic.feature.auth.LoginUseCase
@@ -26,12 +27,20 @@ import javax.inject.Inject
 class LoginEmailViewModel @Inject constructor(
     private val loginUseCase: LoginUseCase,
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
+    qualifiedIdMapper: QualifiedIdMapper,
     clientScopeProviderFactory: ClientScopeProvider.Factory,
     userSessionsUseCaseFactory: UserSessionsUseCaseProvider.Factory,
     private val savedStateHandle: SavedStateHandle,
     navigationManager: NavigationManager,
     authServerConfigProvider: AuthServerConfigProvider,
-) : LoginViewModel(savedStateHandle, navigationManager, clientScopeProviderFactory, userSessionsUseCaseFactory, authServerConfigProvider) {
+) : LoginViewModel(
+    savedStateHandle,
+    navigationManager,
+    qualifiedIdMapper,
+    clientScopeProviderFactory,
+    userSessionsUseCaseFactory,
+    authServerConfigProvider
+) {
 
     fun login() {
         loginState = loginState.copy(emailLoginLoading = true, loginError = LoginError.None).updateEmailLoginEnabled()

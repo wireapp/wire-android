@@ -20,6 +20,7 @@ import com.wire.kalium.logic.data.client.Client
 import com.wire.kalium.logic.data.client.ClientType
 import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthSession
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
@@ -86,6 +87,9 @@ class LoginEmailViewModelTest {
     private lateinit var client: Client
 
     @MockK
+    private lateinit var qualifiedIdMapper: QualifiedIdMapper
+
+    @MockK
     private lateinit var authServerConfigProvider: AuthServerConfigProvider
 
     private lateinit var loginViewModel: LoginEmailViewModel
@@ -98,6 +102,7 @@ class LoginEmailViewModelTest {
         MockKAnnotations.init(this)
         mockUri()
         every { savedStateHandle.get<String>(any()) } returns ""
+        every { qualifiedIdMapper.fromStringToQualifiedID(any()) } returns userId
         every { savedStateHandle.set(any(), any<String>()) } returns Unit
         every { clientScopeProviderFactory.create(any()).clientScope } returns clientScope
         every { clientScope.register } returns registerClientUseCase
@@ -107,6 +112,7 @@ class LoginEmailViewModelTest {
         loginViewModel = LoginEmailViewModel(
             loginUseCase,
             addAuthenticatedUserUseCase,
+            qualifiedIdMapper,
             clientScopeProviderFactory,
             userSessionsUseCaseProviderFactory,
             savedStateHandle,

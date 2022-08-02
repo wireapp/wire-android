@@ -26,8 +26,8 @@ import com.wire.android.ui.home.conversations.DownloadedAssetDialogVisibilitySta
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.ui.home.conversations.model.MessageContent.AssetMessage
-import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.MessageSource
+import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
 import com.wire.android.util.FileManager
 import com.wire.android.util.ImageUtil
@@ -35,7 +35,7 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.conversation.ConversationDetails
-import com.wire.kalium.logic.data.id.parseIntoQualifiedID
+import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.FAILED
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.IN_PROGRESS
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.SAVED_EXTERNALLY
@@ -72,6 +72,7 @@ import com.wire.kalium.logic.data.id.QualifiedID as ConversationId
 class ConversationViewModel @Inject constructor(
     override val savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
+    qualifiedIdMapper: QualifiedIdMapper,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val sendAssetMessage: SendAssetMessageUseCase,
     private val sendTextMessage: SendTextMessageUseCase,
@@ -102,9 +103,9 @@ class ConversationViewModel @Inject constructor(
     )
         private set
 
-    val conversationId: ConversationId = savedStateHandle
-        .get<String>(EXTRA_CONVERSATION_ID)!!
-        .parseIntoQualifiedID()
+    val conversationId: ConversationId = qualifiedIdMapper.fromStringToQualifiedID(
+        savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!
+    )
 
     var establishedCallConversationId: ConversationId? = null
 

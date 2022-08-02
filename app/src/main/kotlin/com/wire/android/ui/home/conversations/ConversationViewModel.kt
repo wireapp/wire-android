@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.model.ImageAsset.PrivateAsset
 import com.wire.android.model.ImageAsset.UserAvatarAsset
+import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.EXTRA_MESSAGE_TO_DELETE_ID
 import com.wire.android.navigation.EXTRA_MESSAGE_TO_DELETE_IS_SELF
@@ -33,6 +34,7 @@ import com.wire.android.util.FileManager
 import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
+import com.wire.kalium.logic.StorageFailure
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
@@ -136,14 +138,21 @@ class ConversationViewModel @Inject constructor(
             observeConversationDetails(conversationId)
                 .collect { result ->
                     when (result) {
-                        is Failure -> navigateToHome()
-                        is Success -> emitConversationDetails(result.conversationDetails)
+                        is Failure -> handleConversationDetailsFailure(result.storageFailure)
+                        is Success -> handleConversationDetails(result.conversationDetails)
                     }
                 }
         }
     }
 
-    private fun emitConversationDetails(conversationDetails: ConversationDetails) {
+    private suspend fun handleConversationDetailsFailure(failure: StorageFailure) {
+        when (failure) {
+            is StorageFailure.DataNotFound -> navigateToHome()
+            is StorageFailure.Generic -> appLogger.e("An error occurred when fetching details of the conversation", failure.rootCause)
+        }
+    }
+
+    private fun handleConversationDetails(conversationDetails: ConversationDetails) {
         val conversationName = when (conversationDetails) {
             is ConversationDetails.OneOne -> conversationDetails.otherUser.name.orEmpty()
             else -> conversationDetails.conversation.name.orEmpty()
@@ -562,7 +571,8 @@ class ConversationViewModel @Inject constructor(
         }
     }
 
-    private suspend fun navigateToHome() = navigationManager.navigate(NavigationCommand(NavigationItem.Home.getRouteWithArgs()))
+    private suspend fun navigateToHome() =
+        navigationManager.navigate(NavigationCommand(NavigationItem.Home.getRouteWithArgs(), BackStackMode.UPDATE_EXISTED))
 
     private suspend fun navigateToSelfProfile() =
         navigationManager.navigate(NavigationCommand(NavigationItem.SelfUserProfile.getRouteWithArgs()))

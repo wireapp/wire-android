@@ -29,8 +29,7 @@ internal class AssetImageFetcher(
                     is PublicAssetResult.Success -> {
                         // Does coil cache this in memory? We can add our own cache if needed
                         // imageLoader.memoryCache.set(MemoryCache.Key("assetKey"), MemoryCache.Value("result.asset.toBitmap()"))
-                        val imageSource = kaliumFileSystem.source(result.assetPath)
-                        drawableResultWrapper.toFetchResult(imageSource)
+                        drawableResultWrapper.toFetchResult(result.assetPath)
                     }
                 }
             }
@@ -40,8 +39,7 @@ internal class AssetImageFetcher(
                     is MessageAssetResult.Success -> {
                         // Does coil cache this in memory? We can add our own cache if needed
                         // imageLoader.memoryCache.set(MemoryCache.Key("assetKey"), MemoryCache.Value("result.asset.toBitmap()"))
-                        val imageSource = kaliumFileSystem.source(result.decodedAssetPath)
-                        drawableResultWrapper.toFetchResult(imageSource)
+                        drawableResultWrapper.toFetchResult(result.decodedAssetPath)
                     }
                 }
             }

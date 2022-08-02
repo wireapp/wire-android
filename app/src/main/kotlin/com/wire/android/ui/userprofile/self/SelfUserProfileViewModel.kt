@@ -9,7 +9,6 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.model.ImageAsset.UserAvatarAsset
-import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
@@ -117,12 +116,6 @@ class SelfUserProfileViewModel @Inject constructor(
         viewModelScope.launch {
             logout()
             dataStore.clear() // TODO this should be moved to some service that will clear all the data in the app
-            navigationManager.navigate(
-                NavigationCommand(
-                    NavigationItem.Welcome.getRouteWithArgs(),
-                    BackStackMode.CLEAR_WHOLE
-                )
-            )
         }
     }
 

@@ -42,7 +42,7 @@ class SummaryNotificationDismissReceiver(
                 } else {
                     val currentSession = coreLogic.globalScope { session.currentSession() }
                     if (currentSession is CurrentSessionResult.Success) {
-                        coreLogic.getSessionScope(currentSession.authSession.tokens.userId)
+                        coreLogic.getSessionScope(currentSession.authSession.session.userId)
                     } else {
                         null
                     }

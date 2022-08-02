@@ -14,12 +14,15 @@ import com.wire.android.media.CallRinger
 import com.wire.android.model.ImageAsset
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.util.CurrentScreen
+import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.call.ConversationType
 import com.wire.kalium.logic.data.call.VideoState
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
+import com.wire.kalium.logic.feature.call.CallStatus
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.GetAllCallsWithSortedParticipantsUseCase
 import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
@@ -32,8 +35,8 @@ import com.wire.kalium.logic.feature.call.usecase.UpdateVideoStateUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.util.PlatformView
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
-import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -59,6 +62,7 @@ class SharedCallingViewModel @Inject constructor(
     private val uiCallParticipantMapper: UICallParticipantMapper,
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val userTypeMapper: UserTypeMapper,
+    private val currentScreenManager: CurrentScreenManager
 ) : ViewModel() {
 
     var callState by mutableStateOf(CallState())
@@ -80,6 +84,18 @@ class SharedCallingViewModel @Inject constructor(
             }
             launch {
                 observeOnMute()
+            }
+            launch {
+                observeScreenState()
+            }
+        }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private suspend fun observeScreenState() {
+        currentScreenManager.observeCurrentScreen(viewModelScope).collect {
+            if (it == CurrentScreen.InBackground) {
+                pauseVideo()
             }
         }
     }
@@ -130,7 +146,7 @@ class SharedCallingViewModel @Inject constructor(
     private suspend fun observeCallState() {
         allCalls().collect { calls ->
             calls.find { call ->
-                call.conversationId == conversationId
+                call.conversationId == conversationId && call.status == CallStatus.ESTABLISHED
             }?.let { call ->
                 callState = callState.copy(
                     callerName = call.callerName,
@@ -215,7 +231,6 @@ class SharedCallingViewModel @Inject constructor(
             if (callState.isCameraOn) {
                 updateVideoState(conversationId, VideoState.PAUSED)
                 setVideoPreview(conversationId, PlatformView(null))
-                callState = callState.copy(isCameraOn = false)
             }
         }
     }

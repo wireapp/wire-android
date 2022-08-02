@@ -1,5 +1,6 @@
 package com.wire.android.ui.authentication.welcome
 
+
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.navigation.NavigationCommand
@@ -11,7 +12,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class WelcomeViewModel @Inject constructor(
-    private val navigationManager: NavigationManager,
+    private val navigationManager: NavigationManager
 ) : ViewModel() {
 
     fun navigateBack() {
@@ -31,6 +32,7 @@ class WelcomeViewModel @Inject constructor(
     fun goToCreatePrivateAccount() {
         navigate(NavigationCommand(NavigationItem.CreatePersonalAccount.getRouteWithArgs()))
     }
+
     private fun navigate(navigationCommand: NavigationCommand) {
         viewModelScope.launch {
             navigationManager.navigate(navigationCommand)

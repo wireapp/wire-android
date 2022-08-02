@@ -28,9 +28,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.ui.authentication.login.LoginError
-import com.wire.android.ui.common.WireDialog
-import com.wire.android.ui.common.WireDialogButtonProperties
-import com.wire.android.ui.common.WireDialogButtonType
+import com.wire.android.ui.authentication.login.LoginErrorDialog
+import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.common.textfield.WireTextField
@@ -38,10 +37,7 @@ import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.CustomTabsHelper
-import com.wire.android.util.DialogErrorStrings
 import com.wire.android.util.deeplink.DeepLinkResult
-import com.wire.android.util.dialogErrorStrings
-import com.wire.kalium.logic.configuration.server.ServerConfig
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
@@ -56,17 +52,16 @@ fun LoginSSOScreen(
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val loginSSOViewModel: LoginSSOViewModel = hiltViewModel()
-    val loginSSOState: LoginSSOState = loginSSOViewModel.loginState
     LaunchedEffect(ssoLoginResult) {
         loginSSOViewModel.handleSSOResult(ssoLoginResult)
     }
     LoginSSOContent(
         scrollState = scrollState,
-        loginSSOState = loginSSOState,
+        loginState = loginSSOViewModel.loginState,
         onCodeChange = loginSSOViewModel::onSSOCodeChange,
         onDialogDismiss = loginSSOViewModel::onDialogDismiss,
         onRemoveDeviceOpen = loginSSOViewModel::onTooManyDevicesError,
-        //TODO: replace with retrieved ServerConfig from sso login
+        // TODO: replace with retrieved ServerConfig from sso login
         onLoginButtonClick = suspend { loginSSOViewModel.login() },
         scope = scope,
         ssoLoginResult,
@@ -74,39 +69,32 @@ fun LoginSSOScreen(
     )
 
     LaunchedEffect(loginSSOViewModel) {
-        loginSSOViewModel.openWebUrl
-            .onEach { CustomTabsHelper.launchUrl(context, it) }
-            .launchIn(scope)
+        loginSSOViewModel.openWebUrl.onEach { CustomTabsHelper.launchUrl(context, it) }.launchIn(scope)
     }
 }
 
 @Composable
 private fun LoginSSOContent(
     scrollState: ScrollState,
-    loginSSOState: LoginSSOState,
+    loginState: LoginState,
     onCodeChange: (TextFieldValue) -> Unit,
     onDialogDismiss: () -> Unit,
     onRemoveDeviceOpen: () -> Unit,
     onLoginButtonClick: suspend () -> Unit,
     scope: CoroutineScope,
     ssoLoginResult: DeepLinkResult.SSOLogin?,
-    //todo: temporary to show to pointing server
+    // todo: temporary to show to pointing server
     serverTitle: String
 ) {
     Column(
-        modifier = Modifier
-            .fillMaxHeight()
-            .verticalScroll(scrollState)
-            .padding(MaterialTheme.wireDimensions.spacing16x)
+        modifier = Modifier.fillMaxHeight().verticalScroll(scrollState).padding(MaterialTheme.wireDimensions.spacing16x)
     ) {
         Spacer(modifier = Modifier.height(MaterialTheme.wireDimensions.spacing32x))
         SSOCodeInput(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = MaterialTheme.wireDimensions.spacing16x),
-            ssoCode = loginSSOState.ssoCode,
+            modifier = Modifier.fillMaxWidth().padding(bottom = MaterialTheme.wireDimensions.spacing16x),
+            ssoCode = loginState.ssoCode,
             onCodeChange = onCodeChange,
-            error = when (loginSSOState.loginSSOError) {
+            error = when (loginState.loginError) {
                 LoginError.TextFieldError.InvalidValue -> stringResource(R.string.login_error_invalid_sso_code_format)
                 else -> null
             },
@@ -114,54 +102,12 @@ private fun LoginSSOContent(
         )
         Spacer(modifier = Modifier.weight(1f))
         LoginButton(
-            modifier = Modifier.fillMaxWidth(),
-            loading = loginSSOState.loading,
-            enabled = loginSSOState.loginEnabled
+            modifier = Modifier.fillMaxWidth(), loading = loginState.ssoLoginLoading, enabled = loginState.ssoLoginEnabled
         ) { scope.launch { onLoginButtonClick() } }
     }
-    if (loginSSOState.loginSSOError is LoginError.DialogError) {
-        val (title, message) = when (loginSSOState.loginSSOError) {
-            is LoginError.DialogError.GenericError ->
-                loginSSOState.loginSSOError.coreFailure.dialogErrorStrings(LocalContext.current.resources)
-            is LoginError.DialogError.InvalidCodeError -> DialogErrorStrings(
-                title = stringResource(id = R.string.login_error_invalid_credentials_title),
-                message = stringResource(id = R.string.login_error_invalid_sso_code)
-            )
-            is LoginError.DialogError.InvalidCredentialsError -> DialogErrorStrings(
-                stringResource(id = R.string.login_error_invalid_credentials_title),
-                stringResource(id = R.string.login_error_invalid_credentials_message)
-            )
-            // TODO: sync with design about the error message
-            is LoginError.DialogError.UserAlreadyExists -> DialogErrorStrings(
-                stringResource(id = R.string.login_error_user_already_logged_in_title),
-                stringResource(id = R.string.login_error_user_already_logged_in_message)
-            )
-            // TODO: sync with design about the error message
-            is LoginError.DialogError.InvalidSSOCookie -> DialogErrorStrings(
-                stringResource(id = R.string.login_sso_error_invalid_cookie_title),
-                stringResource(id = R.string.login_sso_error_invalid_cookie_message)
-            )
-            is LoginError.DialogError.SSOResultError -> {
-                with(ssoLoginResult as DeepLinkResult.SSOLogin.Failure) {
-                    DialogErrorStrings(
-                        stringResource(R.string.sso_erro_dialog_title),
-                        stringResource(R.string.sso_erro_dialog_message, this.ssoError.errorCode)
-                    )
-                }
-            }
-            LoginError.DialogError.PasswordNeededToRegisterClient -> TODO()
-        }
-        WireDialog(
-            title = title,
-            text = message,
-            onDismiss = onDialogDismiss,
-            optionButton1Properties = WireDialogButtonProperties(
-                onClick = onDialogDismiss,
-                text = stringResource(id = R.string.label_ok),
-                type = WireDialogButtonType.Primary,
-            )
-        )
-    } else if (loginSSOState.loginSSOError is LoginError.TooManyDevicesError) {
+    if (loginState.loginError is LoginError.DialogError && loginState.loginError !is LoginError.DialogError.InvalidSession) {
+        LoginErrorDialog(loginState.loginError, onDialogDismiss, ssoLoginResult)
+    } else if (loginState.loginError is LoginError.TooManyDevicesError) {
         onRemoveDeviceOpen()
     }
 }
@@ -197,9 +143,7 @@ private fun LoginButton(modifier: Modifier, loading: Boolean, enabled: Boolean, 
             state = if (enabled) WireButtonState.Default else WireButtonState.Disabled,
             loading = loading,
             interactionSource = interactionSource,
-            modifier = Modifier
-                .fillMaxWidth()
-                .testTag("ssoLoginButton")
+            modifier = Modifier.fillMaxWidth().testTag("ssoLoginButton")
         )
     }
 }
@@ -208,7 +152,6 @@ private fun LoginButton(modifier: Modifier, loading: Boolean, enabled: Boolean, 
 @Composable
 private fun LoginSSOScreenPreview() {
     WireTheme(isPreview = true) {
-        LoginSSOContent(rememberScrollState(), LoginSSOState(), {}, {}, {}, suspend {}, rememberCoroutineScope(), null, "Test Server")
+        LoginSSOContent(rememberScrollState(), LoginState(), {}, {}, {}, suspend {}, rememberCoroutineScope(), null, "Test Server")
     }
 }
-

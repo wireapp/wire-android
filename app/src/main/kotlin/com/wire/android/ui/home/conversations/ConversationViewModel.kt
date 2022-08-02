@@ -26,8 +26,8 @@ import com.wire.android.ui.home.conversations.DownloadedAssetDialogVisibilitySta
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.ui.home.conversations.model.MessageContent.AssetMessage
-import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.MessageSource
+import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
 import com.wire.android.util.FileManager
 import com.wire.android.util.ImageUtil
@@ -51,14 +51,14 @@ import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase.Result.Failure
+import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase.Result.Success
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
 import com.wire.kalium.logic.functional.onFailure
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.filterIsInstance
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import okio.Path
@@ -132,33 +132,40 @@ class ConversationViewModel @Inject constructor(
 
     private fun listenConversationDetails() = viewModelScope.launch {
         observeConversationDetails(conversationId)
-            .filterIsInstance<ObserveConversationDetailsUseCase.Result.Success>() // TODO handle StorageFailure
-            .map { it.conversationDetails }
-            .collect { conversationDetails ->
-                val conversationName = when (conversationDetails) {
-                    is ConversationDetails.OneOne -> conversationDetails.otherUser.name.orEmpty()
-                    else -> conversationDetails.conversation.name.orEmpty()
+            .collect { result ->
+                when (result) {
+                    is Failure -> navigateToHome()
+                    is Success -> emitConversationDetails(result.conversationDetails)
                 }
-                val conversationAvatar = when (conversationDetails) {
-                    is ConversationDetails.OneOne ->
-                        ConversationAvatar.OneOne(conversationDetails.otherUser.previewPicture?.let {
-                            UserAvatarAsset(wireSessionImageLoader, it)
-                        })
-                    is ConversationDetails.Group ->
-                        ConversationAvatar.Group(conversationDetails.conversation.id)
-                    else -> ConversationAvatar.None
-                }
-                val conversationDetailsData = when (conversationDetails) {
-                    is ConversationDetails.Group -> ConversationDetailsData.Group(conversationDetails.conversation.id)
-                    is ConversationDetails.OneOne -> ConversationDetailsData.OneOne(conversationDetails.otherUser.id)
-                    else -> ConversationDetailsData.None
-                }
-                conversationViewState = conversationViewState.copy(
-                    conversationName = conversationName,
-                    conversationAvatar = conversationAvatar,
-                    conversationDetailsData = conversationDetailsData
-                )
             }
+    }
+
+    private fun emitConversationDetails(conversationDetails: ConversationDetails) {
+        val conversationName = when (conversationDetails) {
+            is ConversationDetails.OneOne -> conversationDetails.otherUser.name.orEmpty()
+            else -> conversationDetails.conversation.name.orEmpty()
+        }
+        val conversationAvatar = when (conversationDetails) {
+            is ConversationDetails.OneOne ->
+                ConversationAvatar.OneOne(
+                    conversationDetails.otherUser.previewPicture?.let {
+                        UserAvatarAsset(wireSessionImageLoader, it)
+                    }
+                )
+            is ConversationDetails.Group ->
+                ConversationAvatar.Group(conversationDetails.conversation.id)
+            else -> ConversationAvatar.None
+        }
+        val conversationDetailsData = when (conversationDetails) {
+            is ConversationDetails.Group -> ConversationDetailsData.Group(conversationDetails.conversation.id)
+            is ConversationDetails.OneOne -> ConversationDetailsData.OneOne(conversationDetails.otherUser.id)
+            else -> ConversationDetailsData.None
+        }
+        conversationViewState = conversationViewState.copy(
+            conversationName = conversationName,
+            conversationAvatar = conversationAvatar,
+            conversationDetailsData = conversationDetailsData
+        )
     }
 
     private fun fetchSelfUserTeam() = viewModelScope.launch {
@@ -551,6 +558,8 @@ class ConversationViewModel @Inject constructor(
             }
         }
     }
+
+    private suspend fun navigateToHome() = navigationManager.navigate(NavigationCommand(NavigationItem.Home.getRouteWithArgs()))
 
     private suspend fun navigateToSelfProfile() =
         navigationManager.navigate(NavigationCommand(NavigationItem.SelfUserProfile.getRouteWithArgs()))

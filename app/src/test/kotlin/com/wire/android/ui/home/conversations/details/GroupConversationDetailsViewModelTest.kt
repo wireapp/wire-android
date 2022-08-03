@@ -297,18 +297,21 @@ class GroupConversationDetailsViewModelTest {
     companion object {
         val testGroup = ConversationDetails.Group(
             Conversation(
-                ConversationId("conv_id", "domain"),
-                "Conv Name",
-                Conversation.Type.ONE_ON_ONE,
-                TeamId("team_id"),
-                Conversation.ProtocolInfo.Proteus,
-                MutedConversationStatus.AllAllowed,
-                null,
-                null,
+                id = ConversationId("conv_id", "domain"),
+                name = "Conv Name",
+                type = Conversation.Type.ONE_ON_ONE,
+                teamId = TeamId("team_id"),
+                protocol = Conversation.ProtocolInfo.Proteus,
+                mutedStatus = MutedConversationStatus.AllAllowed,
+                lastNotificationDate = null,
+                lastModifiedDate = null,
                 access = listOf(Conversation.Access.CODE, Conversation.Access.INVITE),
-                accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER, Conversation.AccessRole.GUEST)
+                accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER, Conversation.AccessRole.GUEST),
+                lastReadDate = null
             ),
-            legalHoldStatus = LegalHoldStatus.DISABLED
+            legalHoldStatus = LegalHoldStatus.DISABLED,
+            hasOngoingCall = false,
+            unreadMessagesCount = 0L
         )
     }
 }

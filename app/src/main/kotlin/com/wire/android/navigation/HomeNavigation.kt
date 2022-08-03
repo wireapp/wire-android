@@ -72,8 +72,8 @@ enum class HomeNavigationItem(
             {
                 ConversationRouterHomeBridge(
                     onHomeBottomSheetContentChanged = homeState::changeBottomSheetContent,
-                    openBottomSheet = homeState::openBottomSheet,
-                    setSnackBarState = homeState::setSnackBarState,
+                    onOpenBottomSheet = homeState::openBottomSheet,
+                    onSnackBarStateChanged = homeState::setSnackBarState,
                     onScrollPositionProviderChanged = homeState::updateScrollPositionProvider
                 )
             }

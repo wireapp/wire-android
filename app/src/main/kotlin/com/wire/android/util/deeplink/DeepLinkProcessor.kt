@@ -5,6 +5,7 @@ import androidx.annotation.VisibleForTesting
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
+import com.wire.kalium.logic.data.id.toQualifiedID
 
 sealed class DeepLinkResult {
     object Unknown : DeepLinkResult()
@@ -32,12 +33,12 @@ class DeepLinkProcessor {
     }
 
     private fun getOpenConversationDeepLinkResult(uri: Uri): DeepLinkResult =
-        uri.lastPathSegment?.run { qualifiedIdMapper.fromStringToQualifiedID(this) }?.let {
+        uri.lastPathSegment?.toQualifiedID(qualifiedIdMapper)?.let {
             DeepLinkResult.OpenConversation(it)
         } ?: DeepLinkResult.Unknown
 
     private fun getOpenOtherUserProfileDeepLinkResult(uri: Uri): DeepLinkResult =
-        uri.lastPathSegment?.run { qualifiedIdMapper.fromStringToQualifiedID(this) }?.let {
+        uri.lastPathSegment?.toQualifiedID(qualifiedIdMapper)?.let {
             DeepLinkResult.OpenOtherUserProfile(it)
         } ?: DeepLinkResult.Unknown
 
@@ -46,7 +47,7 @@ class DeepLinkProcessor {
     } ?: DeepLinkResult.Unknown
 
     private fun getIncomingCallDeepLinkResult(uri: Uri) =
-        uri.lastPathSegment?.run { qualifiedIdMapper.fromStringToQualifiedID(this) }?.let {
+        uri.lastPathSegment?.toQualifiedID(qualifiedIdMapper)?.let {
             DeepLinkResult.IncomingCall(it)
         } ?: DeepLinkResult.Unknown
 

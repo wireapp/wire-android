@@ -99,9 +99,10 @@ internal class NewConversationViewModelArrangement {
             type = Conversation.Type.ONE_ON_ONE,
             teamId = null,
             protocol = Conversation.ProtocolInfo.Proteus,
-            MutedConversationStatus.AllAllowed,
-            null,
-            null,
+            mutedStatus = MutedConversationStatus.AllAllowed,
+            lastNotificationDate = null,
+            lastModifiedDate = null,
+            lastReadDate = null,
             access = listOf(Conversation.Access.INVITE),
             accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER)
         )

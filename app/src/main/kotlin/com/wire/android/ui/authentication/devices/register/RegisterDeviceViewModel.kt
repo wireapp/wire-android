@@ -14,7 +14,6 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.kalium.logic.data.conversation.ClientId
-import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.client.RegisterClientUseCase
 import com.wire.kalium.logic.feature.session.RegisterTokenResult
@@ -26,7 +25,6 @@ import javax.inject.Inject
 @HiltViewModel
 class RegisterDeviceViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
-    private val validatePasswordUseCase: ValidatePasswordUseCase,
     private val registerClientUseCase: RegisterClientUseCase,
     private val pushTokenUseCase: RegisterTokenUseCase
 ) : ViewModel() {
@@ -46,21 +44,21 @@ class RegisterDeviceViewModel @Inject constructor(
     fun onContinue() {
         state = state.copy(loading = true, continueEnabled = false)
         viewModelScope.launch {
-            if (!validatePasswordUseCase(state.password.text))
-                state = state.copy(loading = false, continueEnabled = true, error = RegisterDeviceError.InvalidCredentialsError)
-            else when (val registerDeviceResult = registerClientUseCase(
+            when (val registerDeviceResult = registerClientUseCase(
                 RegisterClientUseCase.RegisterClientParam(
                     password = state.password.text,
                     capabilities = null,
-                ))) {
+                )
+            )) {
                 is RegisterClientResult.Failure.TooManyClients -> navigateToRemoveDevicesScreen()
                 is RegisterClientResult.Success -> {
                     registerPushToken(registerDeviceResult.client.id)
-                    navigateToHomeScreen()}
+                    navigateToHomeScreen()
+                }
                 is RegisterClientResult.Failure.Generic -> state = state.copy(
-                        loading = false,
-                        continueEnabled = true,
-                        error = RegisterDeviceError.GenericError(registerDeviceResult.genericFailure)
+                    loading = false,
+                    continueEnabled = true,
+                    error = RegisterDeviceError.GenericError(registerDeviceResult.genericFailure)
                 )
                 RegisterClientResult.Failure.InvalidCredentials -> state = state.copy(
                     loading = false,

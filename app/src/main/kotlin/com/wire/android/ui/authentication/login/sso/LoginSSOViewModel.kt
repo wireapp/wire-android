@@ -7,6 +7,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
+import com.wire.android.di.NoSession
 import com.wire.android.di.UserSessionsUseCaseProvider
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.login.LoginError
@@ -32,7 +33,7 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginSSOViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
-    qualifiedIdMapper: QualifiedIdMapper,
+    @NoSession qualifiedIdMapper: QualifiedIdMapper,
     private val ssoInitiateLoginUseCase: SSOInitiateLoginUseCase,
     private val getSSOLoginSessionUseCase: GetSSOLoginSessionUseCase,
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,

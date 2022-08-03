@@ -6,6 +6,7 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.id.FederatedIdMapper
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
+import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
@@ -62,6 +63,10 @@ annotation class KaliumCoreLogic
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
 annotation class CurrentAccount
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class NoSession
 
 @Module
 @InstallIn(SingletonComponent::class)
@@ -580,6 +585,11 @@ class UseCaseModule {
         @CurrentAccount currentAccount: UserId
     ): FederatedIdMapper =
         coreLogic.getSessionScope(currentAccount).federatedIdMapper
+
+    @NoSession
+    @ViewModelScoped
+    @Provides
+    fun provideNoSessionQualifiedIdMapper(): QualifiedIdMapper = QualifiedIdMapperImpl(null)
 
     @ViewModelScoped
     @Provides

@@ -42,14 +42,14 @@ import com.wire.kalium.logic.data.user.UserId
 @Composable
 fun ConversationRouterHomeBridge(
     onHomeBottomSheetContentChanged: (@Composable ColumnScope.() -> Unit) -> Unit,
-    openBottomSheet: () -> Unit,
-    setSnackBarState: (HomeSnackbarState) -> Unit,
+    onOpenBottomSheet: () -> Unit,
+    onSnackBarStateChanged: (HomeSnackbarState) -> Unit,
     onScrollPositionProviderChanged: (() -> Int) -> Unit
 ) {
     val viewModel: ConversationListViewModel = hiltViewModel()
 
     LaunchedEffect(Unit) {
-        viewModel.snackBarState.collect { setSnackBarState(it) }
+        viewModel.snackBarState.collect { onSnackBarStateChanged(it) }
     }
 
     fun openConversationBottomSheet(
@@ -90,7 +90,7 @@ fun ConversationRouterHomeBridge(
             )
         }
 
-        openBottomSheet()
+        onOpenBottomSheet()
     }
 
     ConversationRouter(

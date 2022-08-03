@@ -13,7 +13,6 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
-import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.client.RegisterClientUseCase
@@ -22,7 +21,7 @@ import com.wire.kalium.logic.feature.session.RegisterTokenUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import okhttp3.internal.wait
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @HiltViewModel
@@ -31,14 +30,13 @@ class RegisterDeviceViewModel @Inject constructor(
     private val registerClientUseCase: RegisterClientUseCase,
     private val pushTokenUseCase: RegisterTokenUseCase,
     private val isPasswordRequired: IsPasswordRequiredUseCase,
-    private val dispatcher: DispatcherProvider
 ) : ViewModel() {
 
     var state: RegisterDeviceState by mutableStateOf(RegisterDeviceState())
         private set
 
     init {
-        viewModelScope.launch(dispatcher.io()) {
+        runBlocking {
             updateState(state.copy(loading = true))
             isPasswordRequired().let {
                 updateState(state.copy(loading = false))
@@ -51,14 +49,11 @@ class RegisterDeviceViewModel @Inject constructor(
                     }
                 }
             }
-        }.wait()
-
-        viewModelScope.launch {
             when (state.isPasswordRequired) {
                 true -> {}
                 false -> registerClient(null)
             }
-        }.wait()
+        }
     }
 
     fun onPasswordChange(newText: TextFieldValue) {
@@ -107,9 +102,7 @@ class RegisterDeviceViewModel @Inject constructor(
     }
 
     fun updateState(newState: RegisterDeviceState) {
-        viewModelScope.launch(dispatcher.main()) {
-            state = newState
-        }
+        state = newState
     }
 
     private suspend fun registerPushToken(clientId: ClientId) {

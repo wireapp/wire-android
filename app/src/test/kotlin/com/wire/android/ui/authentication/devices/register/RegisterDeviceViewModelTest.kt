@@ -2,7 +2,6 @@ package com.wire.android.ui.authentication.devices.register
 
 import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
@@ -65,8 +64,7 @@ class RegisterDeviceViewModelTest {
                 navigationManager,
                 registerClientUseCase,
                 registerTokenUseCase,
-                isPasswordRequiredUseCase,
-                TestDispatcherProvider()
+                isPasswordRequiredUseCase
             )
     }
 

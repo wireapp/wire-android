@@ -40,6 +40,9 @@ data class NavigationCommand(
 
 enum class BackStackMode {
 
+    // clear the whole backstack excluding "start screen"
+    CLEAR_TILL_START,
+
     // clear the whole backstack including "start screen" (use when you navigate to a new "start screen" )
     CLEAR_WHOLE,
 

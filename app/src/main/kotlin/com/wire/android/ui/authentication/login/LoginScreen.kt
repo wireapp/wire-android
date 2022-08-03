@@ -130,11 +130,3 @@ enum class LoginTabItem(@StringRes override val titleResId: Int) : TabItem {
     SSO(R.string.login_tab_sso);
 }
 
-//@Preview
-//@Composable
-//private fun LoginScreenPreview() {
-//    WireTheme(isPreview = true) {
-//        LoginContent(onBackPressed = { }, ssoLoginResult = null)
-//    }
-//}
-

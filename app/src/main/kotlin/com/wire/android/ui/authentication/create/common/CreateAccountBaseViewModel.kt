@@ -138,7 +138,7 @@ abstract class CreateAccountBaseViewModel(
             navigationManager.navigate(
                 NavigationCommand(
                     VoyagerNavigationItem.Login(),
-                    BackStackMode.REMOVE_CURRENT
+                    BackStackMode.CLEAR_TILL_START
                 )
             )
         }

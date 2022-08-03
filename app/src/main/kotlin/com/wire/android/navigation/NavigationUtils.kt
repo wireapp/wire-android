@@ -9,6 +9,10 @@ import com.wire.android.appLogger
 @ExperimentalMaterial3Api
 internal fun Navigator.navigateToItem(command: NavigationCommand) {
     when (command.backStackMode) {
+        BackStackMode.CLEAR_TILL_START -> {
+            popUntil { this.items[0] == it }
+            push(command.destinations)
+        }
         BackStackMode.CLEAR_WHOLE -> {
             replaceAll(command.destinations[0])
             if (command.destinations.size > 1) push(command.destinations.drop(1))

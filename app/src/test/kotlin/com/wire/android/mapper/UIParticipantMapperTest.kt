@@ -1,8 +1,8 @@
 package com.wire.android.mapper
 
 import com.wire.android.ui.home.conversations.avatar
-import com.wire.android.ui.home.conversations.handle
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
+import com.wire.android.ui.home.conversations.handle
 import com.wire.android.ui.home.conversations.name
 import com.wire.android.ui.home.conversations.userId
 import com.wire.android.ui.home.conversations.userType
@@ -47,13 +47,15 @@ class UIParticipantMapperTest {
         memberDetails: MemberDetails,
         uiParticipant: UIParticipant,
         userTypeMapper: UserTypeMapper
-    ) =
-        memberDetails.userId == uiParticipant.id
+    ): Boolean {
+        val connectionState = if (uiParticipant.isSelf) null else ConnectionState.NOT_CONNECTED
+        return (memberDetails.userId == uiParticipant.id
                 && memberDetails.name == uiParticipant.name
                 && memberDetails.handle == uiParticipant.handle
-                && memberDetails.user.avatar(wireSessionImageLoader) == uiParticipant.avatarData
+                && memberDetails.user.avatar(wireSessionImageLoader, connectionState) == uiParticipant.avatarData
                 && userTypeMapper.toMembership(memberDetails.userType) == uiParticipant.membership
-                && memberDetails.user is SelfUser == uiParticipant.isSelf
+                && memberDetails.user is SelfUser == uiParticipant.isSelf)
+    }
 
     private class Arrangement {
 

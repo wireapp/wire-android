@@ -251,13 +251,15 @@ internal class ConversationsViewModelArrangement {
 internal fun withMockConversationDetailsOneOnOne(
     senderName: String,
     senderAvatar: UserAssetId? = null,
-    senderId: UserId = UserId("user-id", "user-domain")
+    senderId: UserId = UserId("user-id", "user-domain"),
+    connectionState: ConnectionState = ConnectionState.ACCEPTED
 ) = ConversationDetails.OneOne(
     mockk(),
     mockk<OtherUser>().apply {
         every { id } returns senderId
         every { name } returns senderName
         every { previewPicture } returns senderAvatar
+        every { connectionStatus } returns connectionState
     },
     ConnectionState.PENDING,
     LegalHoldStatus.DISABLED,

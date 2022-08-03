@@ -17,6 +17,7 @@ import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.AnswerCallUseCase
 import com.wire.kalium.logic.feature.connection.BlockUserUseCase
@@ -161,7 +162,8 @@ class ConversationListViewModelTest {
             isLegalHold = false,
             lastEvent = ConversationLastEvent.None,
             userId = userId,
-            blockingState = BlockingState.CAN_NOT_BE_BLOCKED
+            blockingState = BlockingState.CAN_NOT_BE_BLOCKED,
+            connectionState = ConnectionState.ACCEPTED
         )
     }
 }

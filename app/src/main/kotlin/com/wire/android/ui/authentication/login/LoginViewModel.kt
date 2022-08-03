@@ -13,6 +13,7 @@ import com.wire.android.BuildConfig
 import com.wire.android.appLogger
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
+import com.wire.android.di.NoSession
 import com.wire.android.di.UserSessionsUseCaseProvider
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.EXTRA_USER_ID
@@ -42,7 +43,7 @@ import javax.inject.Inject
 open class LoginViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
-    qualifiedIdMapper: QualifiedIdMapper,
+    @NoSession qualifiedIdMapper: QualifiedIdMapper,
     private val clientScopeProviderFactory: ClientScopeProvider.Factory,
     private val userSessionsUseCaseFactory: UserSessionsUseCaseProvider.Factory,
     authServerConfigProvider: AuthServerConfigProvider
@@ -56,9 +57,9 @@ open class LoginViewModel @Inject constructor(
     )
         protected set
 
-    val userId: QualifiedID = qualifiedIdMapper.fromStringToQualifiedID(
-        savedStateHandle.get<String>(EXTRA_USER_ID)!!
-    )
+    val userId: QualifiedID? = savedStateHandle.get<String>(EXTRA_USER_ID)?.let {
+        qualifiedIdMapper.fromStringToQualifiedID(it)
+    }
 
     val serverConfig = authServerConfigProvider.authServer.value
 

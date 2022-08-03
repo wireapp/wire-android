@@ -8,13 +8,13 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
@@ -29,7 +29,6 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -84,8 +83,10 @@ fun WireBottomNavigationBar(
     }
 }
 
+
+// This a temporary Composable that will be removed once Call and Mentions are supported
 @Composable
-fun RowScope.WireBottomNavigationItem(
+fun SingleWireBottomNavigationItem(
     data: WireBottomNavigationItemData,
     selected: Boolean,
     modifier: Modifier = Modifier,
@@ -99,10 +100,12 @@ fun RowScope.WireBottomNavigationItem(
             .selectableBackground(selected) { onItemClick(data) }
             .background(backgroundColor)
             .padding(MaterialTheme.wireDimensions.bottomNavigationItemPadding)
+            .wrapContentSize()
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.align(Alignment.Center)
+
         ) {
             Image(
                 painter = painterResource(id = data.icon),
@@ -126,10 +129,71 @@ fun RowScope.WireBottomNavigationItem(
         if (data.notificationAmount > 0) {
             Box(
                 modifier = Modifier
-                    .padding(end = 20.dp)
+                    .padding(start = 20.dp)
                     .align(Alignment.TopEnd)
             ) {
+                Text(
+                    text = data.notificationAmount.toString(),
+                    color = MaterialTheme.colorScheme.onError,
+                    style = MaterialTheme.wireTypography.badge01,
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(10.dp))
+                        .background(MaterialTheme.colorScheme.error)
+                        .align(Alignment.Center)
+                        .padding(top = 2.dp, bottom = 2.dp, start = 4.dp, end = 4.dp)
+                        .defaultMinSize(minWidth = 12.dp)
+                )
+            }
+        }
+    }
+}
+@Composable
+fun WireBottomNavigationItem(
+    data: WireBottomNavigationItemData,
+    selected: Boolean,
+    modifier: Modifier = Modifier,
+    onItemClick: (WireBottomNavigationItemData) -> Unit
+) {
+    val backgroundColor = if (selected) MaterialTheme.colorScheme.primaryContainer else Color.Transparent
+    val contentColor = if (selected) MaterialTheme.colorScheme.onPrimaryContainer else MaterialTheme.colorScheme.onBackground
+    Box(
+        modifier
+            .clip(RoundedCornerShape(6.dp))
+            .selectableBackground(selected) { onItemClick(data) }
+            .background(backgroundColor)
+            .padding(MaterialTheme.wireDimensions.bottomNavigationItemPadding)
+            .wrapContentSize()
+    ) {
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            modifier = Modifier.align(Alignment.Center)
 
+        ) {
+            Image(
+                painter = painterResource(id = data.icon),
+                contentDescription = stringResource(data.title),
+                colorFilter = ColorFilter.tint(contentColor),
+                contentScale = ContentScale.FillBounds,
+                modifier = Modifier
+                    .width(18.dp)
+                    .height(18.dp)
+            )
+            Text(
+                text = stringResource(id = data.title),
+                style = MaterialTheme.wireTypography.button05,
+                color = contentColor,
+                modifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+                    .padding(top = 4.dp)
+            )
+        }
+
+        if (data.notificationAmount > 0) {
+            Box(
+                modifier = Modifier
+                    .padding(start = 20.dp, bottom = 4.dp)
+                    .align(Alignment.TopEnd)
+            ) {
                 Text(
                     text = data.notificationAmount.toString(),
                     color = MaterialTheme.colorScheme.onError,

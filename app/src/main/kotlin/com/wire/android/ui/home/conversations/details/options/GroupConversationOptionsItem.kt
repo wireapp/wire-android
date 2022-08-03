@@ -55,19 +55,22 @@ fun GroupConversationOptionsItem(
             modifier = Modifier
                 .weight(1f)
                 .padding(
-                    top = MaterialTheme.wireDimensions.spacing8x,
-                    bottom = MaterialTheme.wireDimensions.spacing8x,
+                    top = MaterialTheme.wireDimensions.spacing12x,
+                    bottom = MaterialTheme.wireDimensions.spacing12x,
                     start = MaterialTheme.wireDimensions.spacing16x,
-                    end = MaterialTheme.wireDimensions.spacing16x
+                    end = MaterialTheme.wireDimensions.spacing12x
                 )
         ) {
-            if (label != null)
+            // item label
+            label?.let { label ->
                 Text(
                     text = label,
                     style = MaterialTheme.wireTypography.label01,
                     color = MaterialTheme.wireColorScheme.secondaryText,
                     modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.spacing4x)
                 )
+            }
+
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = title,
@@ -75,8 +78,9 @@ fun GroupConversationOptionsItem(
                     color = MaterialTheme.wireColorScheme.onBackground,
                     modifier = Modifier.weight(weight = 1f, fill = true)
                 )
-                if (titleTrailingItem != null)
+                titleTrailingItem?.let {
                     Box(modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing8x)) { titleTrailingItem() }
+                }
                 if (switchState is SwitchState.Visible) {
                     if (switchState.isOnOffVisible) {
                         Text(
@@ -96,15 +100,19 @@ fun GroupConversationOptionsItem(
                 }
                 if (arrowType == ArrowType.TITLE_ALIGNED) ArrowRight()
             }
-            if (subtitle != null)
+
+            subtitle?.let { subtitle ->
                 Text(
                     text = subtitle,
                     style = MaterialTheme.wireTypography.body01,
                     color = MaterialTheme.wireColorScheme.secondaryText,
-                    modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing8x)
+                    modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing4x)
                 )
-            if (footer != null)
+            }
+
+            footer?.let {
                 Box(modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing8x)) { footer() }
+            }
         }
         if (arrowType == ArrowType.CENTER_ALIGNED) ArrowRight()
     }

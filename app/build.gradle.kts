@@ -191,6 +191,7 @@ dependencies {
     androidTestImplementation(TestLibraries.workManager)
     kaptAndroidTest(Libraries.Hilt.compiler)
     androidTestUtil(TestLibraries.testOrchestrator)
+    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
 
     // Development dependencies
     debugImplementation(DevLibraries.leakCanary)

@@ -168,10 +168,9 @@ private fun ConversationRouter(
                 modifier = Modifier.fillMaxWidth()
             )
         },
-        // TODO uncomment when CallsScreen and MentionScreen will be implemented
-//        bottomBar = {
-//            WireBottomNavigationBar(ConversationNavigationItems(uiState), navHostController)
-//        }
+        bottomBar = {
+            WireBottomNavigationBar(ConversationNavigationItems(uiState), navHostController)
+        }
     ) { internalPadding ->
 
         with(uiState) {
@@ -196,36 +195,37 @@ private fun ConversationRouter(
                         )
                     }
                 )
-                composable(
-                    route = ConversationsNavigationItem.Calls.route,
-                    content = {
-                        CallsScreen(
-                            missedCalls = missedCalls,
-                            callHistory = callHistory,
-                            onCallItemClick = openConversation,
-                            onEditConversationItem = onEditConversationItem,
-                            onScrollPositionProviderChanged = onScrollPositionProviderChanged,
-                            onOpenUserProfile = openProfile,
-                            openConversationNotificationsSettings = onEditNotifications,
-                            onJoinCall = onJoinCall
-                        )
-                    }
-                )
-                composable(
-                    route = ConversationsNavigationItem.Mentions.route,
-                    content = {
-                        MentionScreen(
-                            unreadMentions = unreadMentions,
-                            allMentions = allMentions,
-                            onMentionItemClick = openConversation,
-                            onEditConversationItem = onEditConversationItem,
-                            onScrollPositionProviderChanged = onScrollPositionProviderChanged,
-                            onOpenUserProfile = openProfile,
-                            openConversationNotificationsSettings = onEditNotifications,
-                            onJoinCall = onJoinCall
-                        )
-                    }
-                )
+                // Disable for now until it is supported
+//                composable(
+//                    route = ConversationsNavigationItem.Calls.route,
+//                    content = {
+//                        CallsScreen(
+//                            missedCalls = missedCalls,
+//                            callHistory = callHistory,
+//                            onCallItemClick = openConversation,
+//                            onEditConversationItem = onEditConversationItem,
+//                            onScrollPositionProviderChanged = onScrollPositionProviderChanged,
+//                            onOpenUserProfile = openProfile,
+//                            openConversationNotificationsSettings = onEditNotifications,
+//                            onJoinCall = onJoinCall
+//                        )
+//                    }
+//                )
+//                composable(
+//                    route = ConversationsNavigationItem.Mentions.route,
+//                    content = {
+//                        MentionScreen(
+//                            unreadMentions = unreadMentions,
+//                            allMentions = allMentions,
+//                            onMentionItemClick = openConversation,
+//                            onEditConversationItem = onEditConversationItem,
+//                            onScrollPositionProviderChanged = onScrollPositionProviderChanged,
+//                            onOpenUserProfile = openProfile,
+//                            openConversationNotificationsSettings = onEditNotifications,
+//                            onJoinCall = onJoinCall
+//                        )
+//                    }
+//                )
             }
         }
     }
@@ -237,9 +237,10 @@ private fun ConversationNavigationItems(
 ): List<WireBottomNavigationItemData> {
     return ConversationsNavigationItem.values().map { conversationsNavigationItem ->
         when (conversationsNavigationItem) {
-            ConversationsNavigationItem.All -> conversationsNavigationItem.toBottomNavigationItemData(uiListState.conversations.size)
-            ConversationsNavigationItem.Calls -> conversationsNavigationItem.toBottomNavigationItemData(uiListState.missedCallsCount)
-            ConversationsNavigationItem.Mentions -> conversationsNavigationItem.toBottomNavigationItemData(uiListState.unreadMentionsCount)
+            ConversationsNavigationItem.All -> conversationsNavigationItem.toBottomNavigationItemData(uiListState.newActivityCount)
+            // Disable for now until it is supported
+//            ConversationsNavigationItem.Calls -> conversationsNavigationItem.toBottomNavigationItemData(uiListState.missedCallsCount)
+//            ConversationsNavigationItem.Mentions -> conversationsNavigationItem.toBottomNavigationItemData(uiListState.unreadMentionsCount)
         }
     }
 }

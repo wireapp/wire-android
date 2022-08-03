@@ -18,6 +18,7 @@ sealed class ConversationItem {
         override val mutedStatus: MutedConversationStatus,
         override val isLegalHold: Boolean = false,
         override val lastEvent: ConversationLastEvent,
+        val unreadMessagesCount: Long = 0,
         val hasOnGoingCall: Boolean = false
     ) : ConversationItem()
 
@@ -27,7 +28,8 @@ sealed class ConversationItem {
         override val conversationId: ConversationId,
         override val mutedStatus: MutedConversationStatus,
         override val isLegalHold: Boolean = false,
-        override val lastEvent: ConversationLastEvent
+        override val lastEvent: ConversationLastEvent,
+        val unreadMessagesCount: Long = 0
     ) : ConversationItem()
 
     data class ConnectionConversation(

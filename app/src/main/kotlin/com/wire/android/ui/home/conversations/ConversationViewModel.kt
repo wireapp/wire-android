@@ -55,6 +55,7 @@ import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase.Result.Failure
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase.Result.Success
+import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
@@ -63,6 +64,7 @@ import com.wire.kalium.logic.functional.onFailure
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.datetime.Clock
 import okio.Path
 import okio.buffer
 import javax.inject.Inject
@@ -91,7 +93,8 @@ class ConversationViewModel @Inject constructor(
     private val endCall: EndCallUseCase,
     private val fileManager: FileManager,
     private val wireSessionImageLoader: WireSessionImageLoader,
-    private val kaliumFileSystem: KaliumFileSystem
+    private val kaliumFileSystem: KaliumFileSystem,
+    private val updateConversationReadDateUseCase: UpdateConversationReadDateUseCase
 ) : SavedStateViewModel(savedStateHandle) {
 
     var conversationViewState by mutableStateOf(ConversationViewState())
@@ -112,12 +115,19 @@ class ConversationViewModel @Inject constructor(
     var establishedCallConversationId: ConversationId? = null
 
     init {
+        markAsRead()
         fetchMessages()
         listenConversationDetails()
         fetchSelfUserTeam()
         setFileSharingStatus()
         listenOngoingCall()
         observeEstablishedCall()
+    }
+
+    private fun markAsRead() {
+        viewModelScope.launch(dispatchers.io()) {
+            updateConversationReadDateUseCase(conversationId, Clock.System.now())
+        }
     }
 
     // region ------------------------------ Init Methods -------------------------------------

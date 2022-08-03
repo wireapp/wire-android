@@ -149,6 +149,6 @@ fun RowScope.WireBottomNavigationItem(
 data class WireBottomNavigationItemData(
     @DrawableRes val icon: Int,
     @StringRes val title: Int,
-    val notificationAmount: Int,
+    val notificationAmount: Long,
     val route: String,
 )

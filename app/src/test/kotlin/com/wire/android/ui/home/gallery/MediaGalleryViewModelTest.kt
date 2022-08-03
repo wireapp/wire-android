@@ -226,27 +226,30 @@ class MediaGalleryViewModelTest {
         dummyConversationId: QualifiedID = QualifiedID("a-value", "a-domain")
     ): ConversationDetails =
         OneOne(
-            Conversation(
-                dummyConversationId,
-                mockedConversationTitle,
-                Conversation.Type.ONE_ON_ONE,
-                null,
+            conversation = Conversation(
+                id = dummyConversationId,
+                name = mockedConversationTitle,
+                type = Conversation.Type.ONE_ON_ONE,
+                teamId = null,
                 protocol = Conversation.ProtocolInfo.Proteus,
-                AllAllowed,
-                null, null,
+                mutedStatus = AllAllowed,
+                lastNotificationDate = null,
+                lastModifiedDate = null,
+                lastReadDate = null,
                 access = listOf(Conversation.Access.INVITE),
                 accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER)
             ),
-            OtherUser(
+            otherUser = OtherUser(
                 QualifiedID("other-user-id", "domain-id"),
                 null, null, null, null,
                 1, null, ConnectionState.ACCEPTED, null, null,
                 UserType.INTERNAL,
                 UserAvailabilityStatus.AVAILABLE
             ),
-            ConnectionState.ACCEPTED,
-            LegalHoldStatus.DISABLED,
-            UserType.INTERNAL
+            connectionState = ConnectionState.ACCEPTED,
+            legalHoldStatus = LegalHoldStatus.DISABLED,
+            userType = UserType.INTERNAL,
+            unreadMessagesCount = 0L
         )
 
     companion object {

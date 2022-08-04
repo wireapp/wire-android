@@ -167,8 +167,7 @@ class ConversationViewModel @Inject constructor(
                     },
                     conversationDetails.otherUser.availabilityStatus
                 )
-            is ConversationDetails.Group ->
-                ConversationAvatar.Group(conversationDetails.conversation.id)
+            is ConversationDetails.Group -> ConversationAvatar.Group(conversationDetails.conversation.id)
             else -> ConversationAvatar.None
         }
         val conversationDetailsData = when (conversationDetails) {

@@ -93,7 +93,6 @@ class ConversationListViewModel @Inject constructor(
                         newActivityCount = unreadConversationsCount,
                         unreadMentionsCount = mentionsCount, // TODO: needs to be implemented on Kalium side
                         missedCallsCount = missedCallsCount // TODO: needs to be implemented on Kalium side
-
                     )
                 }
             }

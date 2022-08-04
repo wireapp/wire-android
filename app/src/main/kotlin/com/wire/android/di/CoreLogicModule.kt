@@ -548,6 +548,11 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun provideIsMLSEnabledUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).isMLSEnabled
+
+    @ViewModelScoped
+    @Provides
     fun provideIsFileSharingEnabledUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).isFileSharingEnabled
 

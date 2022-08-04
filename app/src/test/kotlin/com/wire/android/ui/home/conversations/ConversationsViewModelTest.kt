@@ -3,14 +3,13 @@ package com.wire.android.ui.home.conversations
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
-import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.ui.home.conversations.ConversationViewModel.Companion.ASSET_SIZE_DEFAULT_LIMIT_BYTES
 import com.wire.android.ui.home.conversations.ConversationViewModel.Companion.IMAGE_SIZE_LIMIT_BYTES
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.kalium.logic.data.conversation.ConversationDetails
-import com.wire.kalium.logic.data.id.parseIntoQualifiedID
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.util.fileExtension
 import com.wire.kalium.logic.data.user.UserId
@@ -285,7 +284,7 @@ class ConversationsViewModelTest {
     @Test
     fun `given a 1 on 1 conversation, when solving the conversation avatar, then the avatar of the other user is used`() = runTest {
         // Given
-        val conversationDetails = withMockConversationDetailsOneOnOne("", "userAssetId@domain".parseIntoQualifiedID())
+        val conversationDetails = withMockConversationDetailsOneOnOne("",  ConversationId("userAssetId", "domain"))
         val otherUserAvatar = conversationDetails.otherUser.previewPicture
         val (_, viewModel) = ConversationsViewModelArrangement()
             .withSuccessfulViewModelInit()

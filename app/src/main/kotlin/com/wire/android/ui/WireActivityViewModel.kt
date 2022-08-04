@@ -16,6 +16,8 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.auth.AuthSession
 import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
@@ -37,20 +39,27 @@ import javax.inject.Inject
 @HiltViewModel
 class WireActivityViewModel @Inject constructor(
     dispatchers: DispatcherProvider,
-    currentSessionFlow: CurrentSessionFlowUseCase,
+    val currentSessionFlow: CurrentSessionFlowUseCase,
     private val getServerConfigUseCase: GetServerConfigUseCase,
     private val deepLinkProcessor: DeepLinkProcessor,
     private val notificationManager: WireNotificationManager,
     private val navigationManager: NavigationManager,
-    private val authServerConfigProvider: AuthServerConfigProvider
+    private val authServerConfigProvider: AuthServerConfigProvider,
 ) : ViewModel() {
 
     private val navigationArguments = mutableMapOf<String, Any>(SERVER_CONFIG_ARG to ServerConfig.DEFAULT)
 
     private val observeUserId = currentSessionFlow()
         .map { result ->
-            if (result is CurrentSessionResult.Success) result.authSession.tokens.userId
-            else null
+            if (result is CurrentSessionResult.Success) {
+                if (result.authSession.session is AuthSession.Session.Invalid) {
+                    navigateToLogin(result.authSession.session.userId)
+                    null
+                } else
+                    result.authSession.session.userId
+            } else {
+                null
+            }
         }
         .distinctUntilChanged()
         .flowOn(dispatchers.io())
@@ -60,6 +69,15 @@ class WireActivityViewModel @Inject constructor(
         viewModelScope.launch(dispatchers.io()) {
             notificationManager.observeNotificationsAndCalls(observeUserId, viewModelScope) { openIncomingCall(it.conversationId) }
         }
+    }
+
+    private suspend fun navigateToLogin(userId: UserId) {
+        navigationManager.navigate(
+            NavigationCommand(
+                NavigationItem.Login.getRouteWithArgs(listOf(userId)),
+                BackStackMode.CLEAR_WHOLE
+            )
+        )
     }
 
     fun navigationArguments() = navigationArguments.values.toList()
@@ -82,8 +100,10 @@ class WireActivityViewModel @Inject constructor(
                         authServerConfigProvider.updateAuthServer(serverLinks)
                         navigationArguments.put(SERVER_CONFIG_ARG, serverLinks)
                     }
+
                 is DeepLinkResult.SSOLogin ->
                     navigationArguments.put(SSO_DEEPLINK_ARG, result)
+
                 is DeepLinkResult.IncomingCall -> {
                     if (isLaunchedFromHistory(intent)) {
                         //We don't need to handle deepLink, if activity was launched from history.
@@ -94,6 +114,7 @@ class WireActivityViewModel @Inject constructor(
                         navigationArguments.put(INCOMING_CALL_CONVERSATION_ID_ARG, result.conversationsId)
                     }
                 }
+
                 is DeepLinkResult.OpenConversation -> {
                     if (isLaunchedFromHistory(intent)) {
                         appLogger.i("OpenConversation deepLink launched from the history")
@@ -101,6 +122,7 @@ class WireActivityViewModel @Inject constructor(
                         navigationArguments.put(OPEN_CONVERSATION_ID_ARG, result.conversationsId)
                     }
                 }
+
                 is DeepLinkResult.OpenOtherUserProfile -> {
                     if (isLaunchedFromHistory(intent)) {
                         appLogger.i("OpenOtherUserProfile deepLink launched from the history")
@@ -108,6 +130,7 @@ class WireActivityViewModel @Inject constructor(
                         navigationArguments.put(OPEN_OTHER_USER_PROFILE_ARG, result.userId)
                     }
                 }
+
                 DeepLinkResult.Unknown -> {
                     appLogger.e("unknown deeplink result $result")
                 }
@@ -139,14 +162,17 @@ class WireActivityViewModel @Inject constructor(
                 openIncomingCall(navigationArguments[INCOMING_CALL_CONVERSATION_ID_ARG] as ConversationId)
                 false
             }
+
             shouldGoToConversation() -> {
                 openConversation(navigationArguments[OPEN_CONVERSATION_ID_ARG] as ConversationId)
                 false
             }
+
             shouldGoToOtherProfile() -> {
                 openOtherUserProfile(navigationArguments[OPEN_OTHER_USER_PROFILE_ARG] as QualifiedID)
                 false
             }
+
             intent == null -> false
             else -> true
         }
@@ -181,10 +207,12 @@ class WireActivityViewModel @Inject constructor(
                 appLogger.e("something went wrong during handling the scustom server deep link: ${result.genericFailure}")
                 null
             }
+
             GetServerConfigResult.Failure.TooNewVersion -> {
                 appLogger.e("server version is too new")
                 null
             }
+
             GetServerConfigResult.Failure.UnknownServerVersion -> {
                 appLogger.e("unknown server version")
                 null

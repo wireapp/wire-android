@@ -16,6 +16,7 @@ import com.wire.kalium.logic.data.conversation.ConversationDetails.OneOne
 import com.wire.kalium.logic.data.conversation.LegalHoldStatus
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus.AllAllowed
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
@@ -169,6 +170,9 @@ class MediaGalleryViewModelTest {
         @MockK
         lateinit var fileManager: FileManager
 
+        @MockK
+        private lateinit var qualifiedIdMapper: QualifiedIdMapper
+
         lateinit var conversationDetails: ConversationDetails
 
         init {
@@ -207,6 +211,7 @@ class MediaGalleryViewModelTest {
         fun arrange() = this to MediaGalleryViewModel(
             savedStateHandle,
             wireSessionImageLoader,
+            qualifiedIdMapper,
             navigationManager,
             getConversationDetails,
             dispatchers,
@@ -221,27 +226,31 @@ class MediaGalleryViewModelTest {
         dummyConversationId: QualifiedID = QualifiedID("a-value", "a-domain")
     ): ConversationDetails =
         OneOne(
-            Conversation(
-                dummyConversationId,
-                mockedConversationTitle,
-                Conversation.Type.ONE_ON_ONE,
-                null,
+            conversation = Conversation(
+                id = dummyConversationId,
+                name = mockedConversationTitle,
+                type = Conversation.Type.ONE_ON_ONE,
+                teamId = null,
                 protocol = Conversation.ProtocolInfo.Proteus,
-                AllAllowed,
-                null, null,
+                mutedStatus = AllAllowed,
+                lastNotificationDate = null,
+                lastModifiedDate = null,
+                lastReadDate = null,
                 access = listOf(Conversation.Access.INVITE),
                 accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER)
             ),
-            OtherUser(
+            otherUser = OtherUser(
                 QualifiedID("other-user-id", "domain-id"),
                 null, null, null, null,
                 1, null, ConnectionState.ACCEPTED, null, null,
                 UserType.INTERNAL,
-                UserAvailabilityStatus.AVAILABLE
+                UserAvailabilityStatus.AVAILABLE,
+                null
             ),
-            ConnectionState.ACCEPTED,
-            LegalHoldStatus.DISABLED,
-            UserType.INTERNAL
+            connectionState = ConnectionState.ACCEPTED,
+            legalHoldStatus = LegalHoldStatus.DISABLED,
+            userType = UserType.INTERNAL,
+            unreadMessagesCount = 0L
         )
 
     companion object {

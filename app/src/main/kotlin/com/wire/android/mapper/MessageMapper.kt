@@ -57,24 +57,26 @@ class MessageMapper @Inject constructor(
                 UIMessage(
                     messageContent = content,
                     messageSource = if (sender is SelfUser) MessageSource.Self else MessageSource.OtherUser,
-                    messageHeader = MessageHeader(
-                        // TODO: Designs for deleted users?
-                        username = sender?.name?.let { UIText.DynamicString(it) }
-                            ?: UIText.StringResource(R.string.member_name_deleted_label),
-                        membership = when (sender) {
-                            is OtherUser -> userTypeMapper.toMembership(sender.userType)
-                            is SelfUser, null -> Membership.None
-                        },
-                        isLegalHold = false,
-                        time = message.date.uiMessageDateTime() ?: "",
-                        messageStatus = getMessageStatus(message),
-                        messageId = message.id,
-                        userId = sender?.id
-                    ),
+                    messageHeader = provideMessageHeader(sender, message),
                     userAvatarData = getUserAvatarData(sender)
                 )
         }.filterNotNull()
     }
+
+    private fun provideMessageHeader(sender: User?, message: Message): MessageHeader = MessageHeader(
+        // TODO: Designs for deleted users?
+        username = sender?.name?.let { UIText.DynamicString(it) }
+            ?: UIText.StringResource(R.string.member_name_deleted_label),
+        membership = when (sender) {
+            is OtherUser -> userTypeMapper.toMembership(sender.userType)
+            is SelfUser, null -> Membership.None
+        },
+        isLegalHold = false,
+        time = message.date.uiMessageDateTime() ?: "",
+        messageStatus = getMessageStatus(message),
+        messageId = message.id,
+        userId = sender?.id
+    )
 
     private fun getMessageStatus(message: Message) = when {
         message.status == Message.Status.FAILED -> MessageStatus.SendFailure

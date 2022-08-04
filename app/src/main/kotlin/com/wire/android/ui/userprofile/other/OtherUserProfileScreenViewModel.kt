@@ -23,7 +23,8 @@ import com.wire.android.util.EMPTY
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.Member
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.parseIntoQualifiedID
+import com.wire.kalium.logic.data.id.QualifiedIdMapper
+import com.wire.kalium.logic.data.id.toQualifiedID
 import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCase
@@ -57,15 +58,15 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val ignoreConnectionRequest: IgnoreConnectionRequestUseCase,
     private val userTypeMapper: UserTypeMapper,
     private val wireSessionImageLoader: WireSessionImageLoader,
-    private val observeConversationRoleForUser: ObserveConversationRoleForUserUseCase
+    private val observeConversationRoleForUser: ObserveConversationRoleForUserUseCase,
+    qualifiedIdMapper: QualifiedIdMapper
 ) : ViewModel() {
 
     var state: OtherUserProfileState by mutableStateOf(OtherUserProfileState())
     var connectionOperationState: ConnectionOperationState? by mutableStateOf(null)
 
-    private val userId = savedStateHandle.get<String>(EXTRA_USER_ID)!!.parseIntoQualifiedID()
-
-    val conversationId: QualifiedID? = savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)?.parseIntoQualifiedID()
+    private val userId: QualifiedID = savedStateHandle.get<String>(EXTRA_USER_ID)!!.toQualifiedID(qualifiedIdMapper)
+    private val conversationId: QualifiedID? = savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)?.toQualifiedID(qualifiedIdMapper)
 
     init {
         state = state.copy(isDataLoading = true)
@@ -100,7 +101,8 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                     role = userRole,
                     isSelfAnAdmin = conversationRoleData.selfRole is Member.Role.Admin
                 )
-            }
+            },
+            botService = otherUser.botService
         )
     }
 

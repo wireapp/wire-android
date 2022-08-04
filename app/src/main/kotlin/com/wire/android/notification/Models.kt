@@ -2,6 +2,7 @@ package com.wire.android.notification
 
 import androidx.annotation.StringRes
 import com.wire.android.R
+import com.wire.android.appLogger
 import com.wire.kalium.logic.data.notification.LocalNotificationCommentType
 import com.wire.kalium.logic.data.notification.LocalNotificationConversation
 import com.wire.kalium.logic.data.notification.LocalNotificationMessage
@@ -70,6 +71,10 @@ fun LocalNotificationMessage.intoNotificationMessage(): NotificationMessage {
             notificationMessageTime,
             this.authorId.toString()
         )
+        is LocalNotificationMessage.ConversationDeleted -> {
+            appLogger.d("under construction")
+            NotificationMessage.Text(notificationMessageAuthor, notificationMessageTime, "conversation x deleted")
+        }
     }
 }
 

@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -64,7 +65,7 @@ fun WireBottomNavigationBar(
                         else MaterialTheme.wireDimensions.bottomNavigationBetweenItemsPadding
                     )
 
-                WireBottomNavigationItem(
+                SingleWireBottomNavigationItem(
                     data = item,
                     selected = currentRoute == item.route,
                     modifier = modifier
@@ -147,8 +148,9 @@ fun SingleWireBottomNavigationItem(
         }
     }
 }
+
 @Composable
-fun WireBottomNavigationItem(
+fun RowScope.WireBottomNavigationItem(
     data: WireBottomNavigationItemData,
     selected: Boolean,
     modifier: Modifier = Modifier,
@@ -162,12 +164,10 @@ fun WireBottomNavigationItem(
             .selectableBackground(selected) { onItemClick(data) }
             .background(backgroundColor)
             .padding(MaterialTheme.wireDimensions.bottomNavigationItemPadding)
-            .wrapContentSize()
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier.align(Alignment.Center)
-
         ) {
             Image(
                 painter = painterResource(id = data.icon),
@@ -191,9 +191,10 @@ fun WireBottomNavigationItem(
         if (data.notificationAmount > 0) {
             Box(
                 modifier = Modifier
-                    .padding(start = 20.dp, bottom = 4.dp)
+                    .padding(end = 20.dp)
                     .align(Alignment.TopEnd)
             ) {
+
                 Text(
                     text = data.notificationAmount.toString(),
                     color = MaterialTheme.colorScheme.onError,

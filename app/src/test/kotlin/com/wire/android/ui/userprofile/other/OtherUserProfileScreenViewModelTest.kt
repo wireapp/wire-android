@@ -50,6 +50,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
+import org.junit.Assert.assertNotNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -111,7 +112,10 @@ class OtherUserProfileScreenViewModelTest {
         coEvery {
             qualifiedIdMapper.fromStringToQualifiedID("some_value@some_domain")
         } returns QualifiedID("some_value", "some_domain")
+        initViewModel()
+    }
 
+    private fun initViewModel() {
         otherUserProfileScreenViewModel = OtherUserProfileScreenViewModel(
             savedStateHandle,
             navigationManager,
@@ -265,6 +269,8 @@ class OtherUserProfileScreenViewModelTest {
         runTest {
             // given
             val expected =  OtherUserProfileGroupState("some_name", Member.Role.Member, false)
+            every { savedStateHandle.get<String>(eq(EXTRA_CONVERSATION_ID)) } returns CONVERSATION_ID.toString()
+            initViewModel()
             // when
             val groupState = otherUserProfileScreenViewModel.state.groupState
             // then
@@ -273,6 +279,22 @@ class OtherUserProfileScreenViewModelTest {
                 navigationManager wasNot Called
             }
             assertEquals(groupState, expected)
+        }
+
+    @Test
+    fun `given no conversationId, when loading the data, then return null group state`() =
+        runTest {
+            // given
+            every { savedStateHandle.get<String>(eq(EXTRA_CONVERSATION_ID)) } returns null
+            initViewModel()
+            // when
+            val groupState = otherUserProfileScreenViewModel.state.groupState
+            // then
+            coVerify {
+                observeConversationRoleForUserUseCase(any(), any()) wasNot Called
+                navigationManager wasNot Called
+            }
+            assertEquals(groupState, null)
         }
 
     @Test
@@ -336,18 +358,20 @@ class OtherUserProfileScreenViewModelTest {
             null,
             null,
             UserType.INTERNAL,
-            UserAvailabilityStatus.AVAILABLE
+            UserAvailabilityStatus.AVAILABLE,
+            null
         )
         val TEAM = Team("some_id", null)
         val CONVERSATION = Conversation(
-            CONVERSATION_ID,
-            "some_name",
-            Conversation.Type.ONE_ON_ONE,
-            null,
+            id = CONVERSATION_ID,
+            name = "some_name",
+            type = Conversation.Type.ONE_ON_ONE,
+            teamId = null,
             protocol = Conversation.ProtocolInfo.Proteus,
-            MutedConversationStatus.AllAllowed,
-            null,
-            null,
+            mutedStatus = MutedConversationStatus.AllAllowed,
+            lastNotificationDate = null,
+            lastModifiedDate = null,
+            lastReadDate = null,
             access = listOf(Conversation.Access.INVITE),
             accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER)
         )

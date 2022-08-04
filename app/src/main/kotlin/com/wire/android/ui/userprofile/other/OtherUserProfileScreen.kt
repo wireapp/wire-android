@@ -50,8 +50,10 @@ import com.wire.android.ui.common.bottomsheet.RichMenuItemState
 import com.wire.android.ui.common.calculateCurrentTab
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
+import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -237,7 +239,7 @@ private fun Content(
 ) {
     Crossfade(targetState = state) { state ->
         when {
-            state.isDataLoading -> Box {} // no content visible while loading
+            state.isDataLoading || state.botService != null -> Box {} // no content visible while loading
             state.connectionStatus is ConnectionStatus.Connected ->
                 CompositionLocalProvider(LocalOverScrollConfiguration provides null) {
                     HorizontalPager(
@@ -280,14 +282,17 @@ private fun ContentFooter(
             color = MaterialTheme.wireColorScheme.background
         ) {
             Box(modifier = Modifier.padding(all = dimensions().spacing16x)) {
-                OtherUserConnectionActionButton(
-                    state.connectionStatus,
-                    onSendConnectionRequest,
-                    onOpenConversation,
-                    onCancelConnectionRequest,
-                    acceptConnectionRequest,
-                    ignoreConnectionRequest
-                )
+                // TODO show open conversation button for service bots after AR-2135
+                if (state.membership != Membership.Service) {
+                    OtherUserConnectionActionButton(
+                        state.connectionStatus,
+                        onSendConnectionRequest,
+                        onOpenConversation,
+                        onCancelConnectionRequest,
+                        acceptConnectionRequest,
+                        ignoreConnectionRequest
+                    )
+                }
             }
         }
     }

@@ -19,32 +19,42 @@ jobs:
 
       - name: Run git merge-base
         id: validate_kalium
+	      env:
+	        GH_BASE_REF: ${{github.base_ref}}
+        continue-on-error: true
         run: |
-          echo "branch -a"
-          git branch -a
           git fetch
-          echo "checking out ${{github.base_ref}}"
-          git checkout ${{github.base_ref}}
+          git checkout $GH_BASE_REF
           git pull
           git submodule update
-          echo "checking out ${GITHUB_REF#refs\/*}"
           git checkout ${GITHUB_REF#refs\/*}
           git submodule update
-          git branch -a
-          echo "running git diff --merge-base origin/${{github.base_ref}}"
-          git diff --merge-base ${{github.base_ref}} kalium | echo
-          git diff ${{github.base_ref}} kalium | echo
-          git diff --merge-base ${{github.base_ref}} kalium | awk '/^i/{c=NR}NR>c+2&&/^[-+]/' | awk '{split($0,words," "); print words[3];}' | xargs git -C kalium merge-base 
-          echo "::set-output name=is_kalium_rollback::$(
-            git diff --merge-base ${{github.base_ref}} kalium |
+          echo "::set-output name=kalium_from_to::$(
+            git diff --merge-base $GH_BASE_REF kalium |
             awk '/^i/{c=NR}NR>c+2&&/^[-+]/' |
             awk '{split($0,words," "); print words[3];}' |
-            xargs git -C kalium merge-base 
+            tr '\n' '-' |
+            rev |
+            cut -c 2- |
+            rev
           )"
-      
+          echo "::set-output name=is_kalium_rollback::$(
+            git diff --merge-base $GH_BASE_REF kalium |
+            awk '/^i/{c=NR}NR>c+2&&/^[-+]/' |
+            awk '{split($0,words," "); print words[3];}' |
+            xargs git -C kalium merge-base --is-ancestor
+            echo $?
+          )"
+
       - name: Leave a comment
-        env: 
+        env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+        if: ${{ steps.validate_kalium.outputs.is_kalium_rollback == 0 }} # The first commit is NOT an ancestor of the second one
         run: |
-          echo ${{steps.validate_kalium.is_kalium_rollback}}
-          gh pr comment "${{github.head_ref}}" --body "@${{github.event.pull_request.user.login}} looks like you are rolling back kalium to a previous commitish. Is this intentional?"
+          echo "is_kalium_rollback: ${{ steps.validate_kalium.outputs.is_kalium_rollback }}"
+          gh pr comment "${{github.head_ref}}" --body "@$PR_AUTHOR looks like you are rolling back kalium to a previous commitish.
+
+          Commitish change: ${{steps.validate_kalium.outputs.kalium_from_to}}
+
+          Is this intentional?"

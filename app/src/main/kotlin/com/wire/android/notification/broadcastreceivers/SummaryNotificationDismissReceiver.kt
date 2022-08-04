@@ -5,10 +5,12 @@ import android.content.Context
 import android.content.Intent
 import com.wire.android.appLogger
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.di.NoSession
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.parseIntoQualifiedID
+import com.wire.kalium.logic.data.id.QualifiedIdMapper
+import com.wire.kalium.logic.data.id.toQualifiedID
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.util.toStringDate
 import dagger.hilt.android.AndroidEntryPoint
@@ -17,7 +19,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class SummaryNotificationDismissReceiver : BroadcastReceiver() {
+class SummaryNotificationDismissReceiver : BroadcastReceiver() { // requires zero argument constructor
 
     @Inject
     @KaliumCoreLogic
@@ -26,10 +28,14 @@ class SummaryNotificationDismissReceiver : BroadcastReceiver() {
     @Inject
     lateinit var dispatcherProvider: DispatcherProvider
 
+    @Inject
+    @NoSession
+    lateinit var qualifiedIdMapper: QualifiedIdMapper
+
     override fun onReceive(context: Context, intent: Intent) {
         appLogger.i("SummaryNotificationDismissReceiver: onReceive")
-        val userId: QualifiedID? =
-            intent.getStringExtra(EXTRA_RECEIVER_USER_ID)?.parseIntoQualifiedID()
+
+        val userId: QualifiedID? = intent.getStringExtra(EXTRA_RECEIVER_USER_ID)?.toQualifiedID(qualifiedIdMapper)
 
         GlobalScope.launch(dispatcherProvider.io()) {
             val sessionScope =

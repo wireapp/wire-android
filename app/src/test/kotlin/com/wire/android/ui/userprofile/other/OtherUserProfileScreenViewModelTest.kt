@@ -16,6 +16,8 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.Member
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.data.user.ConnectionState
@@ -89,6 +91,9 @@ class OtherUserProfileScreenViewModelTest {
     @MockK
     private lateinit var userTypeMapper: UserTypeMapper
 
+    @MockK
+    private lateinit var qualifiedIdMapper: QualifiedIdMapper
+
     @BeforeEach
     fun setUp() {
         MockKAnnotations.init(this, relaxUnitFun = true)
@@ -98,7 +103,13 @@ class OtherUserProfileScreenViewModelTest {
         coEvery { observeConversationRoleForUserUseCase.invoke(any(), any()) } returns flowOf(CONVERSATION_ROLE_DATA)
         coEvery { getUserInfo(any()) } returns GetUserInfoResult.Success(OTHER_USER, TEAM)
         every { userTypeMapper.toMembership(any()) } returns Membership.None
+        coEvery {
+            qualifiedIdMapper.fromStringToQualifiedID("some_value@some_domain")
+        } returns QualifiedID("some_value", "some_domain")
+        initViewModel()
+    }
 
+    private fun initViewModel() {
         otherUserProfileScreenViewModel = OtherUserProfileScreenViewModel(
             savedStateHandle,
             navigationManager,
@@ -110,7 +121,8 @@ class OtherUserProfileScreenViewModelTest {
             ignoreConnectionRequest,
             userTypeMapper,
             wireSessionImageLoader,
-            observeConversationRoleForUserUseCase
+            observeConversationRoleForUserUseCase,
+            qualifiedIdMapper
         )
     }
 
@@ -241,6 +253,8 @@ class OtherUserProfileScreenViewModelTest {
         runTest {
             // given
             val expected =  OtherUserProfileGroupState("some_name", Member.Role.Member, false)
+            every { savedStateHandle.get<String>(eq(EXTRA_CONVERSATION_ID)) } returns CONVERSATION_ID.toString()
+            initViewModel()
             // when
             val groupState = otherUserProfileScreenViewModel.state.groupState
             // then
@@ -249,6 +263,22 @@ class OtherUserProfileScreenViewModelTest {
                 navigationManager wasNot Called
             }
             assertEquals(groupState, expected)
+        }
+
+    @Test
+    fun `given no conversationId, when loading the data, then return null group state`() =
+        runTest {
+            // given
+            every { savedStateHandle.get<String>(eq(EXTRA_CONVERSATION_ID)) } returns null
+            initViewModel()
+            // when
+            val groupState = otherUserProfileScreenViewModel.state.groupState
+            // then
+            coVerify {
+                observeConversationRoleForUserUseCase(any(), any()) wasNot Called
+                navigationManager wasNot Called
+            }
+            assertEquals(groupState, null)
         }
 
     // todo: add tests for cancel request
@@ -272,14 +302,15 @@ class OtherUserProfileScreenViewModelTest {
         )
         val TEAM = Team("some_id", null)
         val CONVERSATION = Conversation(
-            CONVERSATION_ID,
-            "some_name",
-            Conversation.Type.ONE_ON_ONE,
-            null,
+            id = CONVERSATION_ID,
+            name = "some_name",
+            type = Conversation.Type.ONE_ON_ONE,
+            teamId = null,
             protocol = Conversation.ProtocolInfo.Proteus,
-            MutedConversationStatus.AllAllowed,
-            null,
-            null,
+            mutedStatus = MutedConversationStatus.AllAllowed,
+            lastNotificationDate = null,
+            lastModifiedDate = null,
+            lastReadDate = null,
             access = listOf(Conversation.Access.INVITE),
             accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER)
         )

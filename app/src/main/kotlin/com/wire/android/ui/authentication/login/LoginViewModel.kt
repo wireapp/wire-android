@@ -13,6 +13,7 @@ import com.wire.android.BuildConfig
 import com.wire.android.appLogger
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
+import com.wire.android.di.NoSession
 import com.wire.android.di.UserSessionsUseCaseProvider
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.EXTRA_USER_ID
@@ -23,7 +24,7 @@ import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.client.ClientCapability
 import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.parseIntoQualifiedID
+import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
@@ -42,6 +43,7 @@ import javax.inject.Inject
 open class LoginViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
+    @NoSession qualifiedIdMapper: QualifiedIdMapper,
     private val clientScopeProviderFactory: ClientScopeProvider.Factory,
     private val userSessionsUseCaseFactory: UserSessionsUseCaseProvider.Factory,
     authServerConfigProvider: AuthServerConfigProvider
@@ -55,7 +57,9 @@ open class LoginViewModel @Inject constructor(
     )
         protected set
 
-    private val userId: QualifiedID? = savedStateHandle.get<String>(EXTRA_USER_ID)?.parseIntoQualifiedID()
+    val userId: QualifiedID? = savedStateHandle.get<String>(EXTRA_USER_ID)?.let {
+        qualifiedIdMapper.fromStringToQualifiedID(it)
+    }
 
     val serverConfig = authServerConfigProvider.authServer.value
 

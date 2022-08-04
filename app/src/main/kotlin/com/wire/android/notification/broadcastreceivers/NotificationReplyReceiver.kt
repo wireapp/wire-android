@@ -5,18 +5,18 @@ import android.content.Context
 import android.content.Intent
 import androidx.core.app.RemoteInput
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.di.NoSession
 import com.wire.android.notification.NotificationConstants
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
-import com.wire.kalium.logic.data.id.parseIntoQualifiedID
-import com.wire.kalium.logic.data.id.toConversationId
+import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class NotificationReplyReceiver : BroadcastReceiver() {
+class NotificationReplyReceiver : BroadcastReceiver() { // requires zero argument constructor
 
     @Inject
     @KaliumCoreLogic
@@ -24,6 +24,10 @@ class NotificationReplyReceiver : BroadcastReceiver() {
 
     @Inject
     lateinit var dispatcherProvider: DispatcherProvider
+
+    @Inject
+    @NoSession
+    lateinit var qualifiedIdMapper: QualifiedIdMapper
 
     override fun onReceive(context: Context, intent: Intent) {
         val remoteInput = RemoteInput.getResultsFromIntent(intent)
@@ -34,9 +38,11 @@ class NotificationReplyReceiver : BroadcastReceiver() {
             val replyText = remoteInput.getCharSequence(NotificationConstants.KEY_TEXT_REPLY).toString()
 
             GlobalScope.launch(dispatcherProvider.io()) {
-                coreLogic.getSessionScope(userId.parseIntoQualifiedID())
+                val qualifiedUserId = qualifiedIdMapper.fromStringToQualifiedID(userId)
+                val qualifiedConversationId = qualifiedIdMapper.fromStringToQualifiedID(conversationId)
+                coreLogic.getSessionScope(qualifiedUserId)
                     .messages
-                    .sendTextMessage(conversationId.toConversationId(), replyText)
+                    .sendTextMessage(qualifiedConversationId, replyText)
             }
         }
     }

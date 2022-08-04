@@ -114,9 +114,7 @@ fun RestrictedAssetMessage(assetTypeIcon: Int, restrictedAssetMessage: String) {
         border = BorderStroke(dimensions().spacing1x, MaterialTheme.wireColorScheme.divider)
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxWidth()
-                .height(dimensions().messageImageMaxWidth),
+            modifier = Modifier.fillMaxWidth().height(dimensions().messageImageMaxWidth),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {

@@ -186,13 +186,8 @@ fun OtherProfileScreenContent(
                     color = MaterialTheme.wireColorScheme.background
                 ) {
                     Box(modifier = Modifier.padding(all = dimensions().spacing16x)) {
-                        // TODO show open conversation button for bots after AR-2135
-                        if (state.membership == Membership.Service) {
-//                            WirePrimaryButton(
-//                                text = stringResource(R.string.label_open_conversation),
-//                                onClick = onOpenConversation,
-//                            )
-                        } else {
+                        // TODO show open conversation button for service bots after AR-2135
+                        if (state.membership != Membership.Service) {
                             OtherUserConnectionActionButton(
                                 state.connectionStatus,
                                 onSendConnectionRequest,

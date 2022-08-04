@@ -1,8 +1,12 @@
 package com.wire.android.ui.userprofile.other
 
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.ModalBottomSheetValue
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import com.wire.android.model.ImageAsset.UserAvatarAsset
+import com.wire.android.ui.common.dialogs.BlockUserDialogState
+import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.kalium.logic.data.conversation.Member
 import com.wire.kalium.logic.data.user.ConnectionState
@@ -20,8 +24,20 @@ data class OtherUserProfileState(
     val connectionStatus: ConnectionState = ConnectionState.NOT_CONNECTED,
     val membership: Membership = Membership.None,
     val groupState: OtherUserProfileGroupState? = null,
-    val bottomSheetState: ModalBottomSheetValue = ModalBottomSheetValue.Hidden
+    val blockUserDialogSate: BlockUserDialogState? = null,
+    private val conversationSheetContent: ConversationSheetContent? = null
 ) {
+
+    private val startingBottomSheetContent = conversationSheetContent?.let { BottomSheetState.Conversation(it) }
+    var bottomSheetState: BottomSheetState? by mutableStateOf(startingBottomSheetContent)
+        private set
+
+    fun setBottomSheetContentToConversation() {
+        conversationSheetContent?.let {
+            bottomSheetState = BottomSheetState.Conversation(it)
+        }
+    }
+
     companion object {
         val PREVIEW = OtherUserProfileState(
             fullName = "name",
@@ -31,6 +47,11 @@ data class OtherUserProfileState(
             groupState = OtherUserProfileGroupState("group name", Member.Role.Member, false)
         )
     }
+}
+
+sealed class BottomSheetState {
+    data class Conversation(val content: ConversationSheetContent) : BottomSheetState()
+    object ChangeRole : BottomSheetState() //this will be used later
 }
 
 data class OtherUserProfileGroupState(

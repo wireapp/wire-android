@@ -1,4 +1,4 @@
-package com.wire.android.ui.home.conversationslist
+package com.wire.android.ui.home.conversationslist.bottomsheet
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -7,10 +7,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
-import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationOptionNavigation
-import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
-import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationTypeDetail
-import com.wire.android.ui.home.conversationslist.model.BlockingState
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
@@ -67,7 +63,7 @@ fun rememberConversationSheetState(
                     conversationTypeDetail = ConversationTypeDetail.Private(
                         userAvatarData.asset,
                         userId,
-                        blockingState == BlockingState.NOT_BLOCKED
+                        blockingState
                     )
                 )
             }
@@ -87,6 +83,19 @@ fun rememberConversationSheetState(
     }
 
     return remember(conversationItem, conversationOptionNavigation) {
+        ConversationSheetState(
+            conversationSheetContent = conversationSheetContent,
+            conversationOptionNavigation = conversationOptionNavigation
+        )
+    }
+}
+
+@Composable
+fun rememberConversationSheetState(
+    conversationSheetContent: ConversationSheetContent,
+    conversationOptionNavigation: ConversationOptionNavigation
+): ConversationSheetState {
+    return remember(conversationSheetContent, conversationOptionNavigation) {
         ConversationSheetState(
             conversationSheetContent = conversationSheetContent,
             conversationOptionNavigation = conversationOptionNavigation

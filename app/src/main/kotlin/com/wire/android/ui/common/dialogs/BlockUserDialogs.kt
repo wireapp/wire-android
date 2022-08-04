@@ -9,8 +9,9 @@ import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
-import com.wire.android.ui.home.conversationslist.BlockUserDialogState
 import com.wire.kalium.logic.data.user.UserId
+
+data class BlockUserDialogState(val userName: String, val userId: UserId)
 
 @Composable
 fun BlockUserDialogContent(

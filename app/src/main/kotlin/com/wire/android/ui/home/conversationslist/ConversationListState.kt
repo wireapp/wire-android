@@ -1,9 +1,9 @@
 package com.wire.android.ui.home.conversationslist
 
+import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.NewActivity
-import com.wire.kalium.logic.data.user.UserId
 
 data class ConversationListState(
     val newActivities: List<NewActivity> = emptyList(),
@@ -17,5 +17,3 @@ data class ConversationListState(
     val unreadMentionsCount: Int = 0,
     val blockUserDialogSate: BlockUserDialogState? = null
 )
-
-data class BlockUserDialogState(val userName: String, val userId: UserId)

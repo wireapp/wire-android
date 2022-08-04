@@ -43,6 +43,7 @@ import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireTabRow
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.calculateCurrentTab
+import com.wire.android.ui.common.dialogs.BlockUserDialogContent
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topBarElevation
@@ -52,7 +53,10 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.userprofile.common.EditableState
 import com.wire.android.ui.userprofile.common.UserProfileInfo
+import com.wire.kalium.logic.data.conversation.MutedConversationStatus
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.ConnectionState
+import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.launch
 
 @OptIn(
@@ -66,17 +70,26 @@ import kotlinx.coroutines.launch
 fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltViewModel()) {
     OtherProfileScreenContent(
         state = viewModel.state,
-        operationState = viewModel.connectionOperationState,
+        snackBarState = viewModel.snackBarState,
+        clearSnackBarState = viewModel::clearSnackBarState,
         onSendConnectionRequest = viewModel::sendConnectionRequest,
         onOpenConversation = viewModel::openConversation,
         onCancelConnectionRequest = viewModel::cancelConnectionRequest,
         ignoreConnectionRequest = viewModel::ignoreConnectionRequest,
         acceptConnectionRequest = viewModel::acceptConnectionRequest,
-        onNavigateBack = viewModel::navigateBack
+        onNavigateBack = viewModel::navigateBack,
+        onDismissBlockUserDialog = viewModel::onDismissBlockUserDialog,
+        onBlockUserClicked = viewModel::onBlockUserClicked,
+        onBlockUser = viewModel::blockUser,
+        onMutingConversationStatusChange = viewModel::muteConversation,
+        addConversationToFavourites = viewModel::addConversationToFavourites,
+        moveConversationToArchive = viewModel::moveConversationToArchive,
+        clearConversationContent = viewModel::clearConversationContent,
+        moveConversationToFolder = viewModel::moveConversationToFolder,
     )
 }
 
-@SuppressLint("UnusedCrossfadeTargetStateParameter")
+@SuppressLint("UnusedCrossfadeTargetStateParameter", "LongParameterList")
 @OptIn(
     ExperimentalMaterialApi::class,
     ExperimentalMaterial3Api::class,
@@ -87,13 +100,22 @@ fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltView
 @Composable
 fun OtherProfileScreenContent(
     state: OtherUserProfileState,
-    operationState: ConnectionOperationState?,
+    snackBarState: SnackBarState?,
+    clearSnackBarState: () -> Unit,
     onSendConnectionRequest: () -> Unit,
     onOpenConversation: () -> Unit,
     onCancelConnectionRequest: () -> Unit,
     acceptConnectionRequest: () -> Unit,
     ignoreConnectionRequest: () -> Unit,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    onDismissBlockUserDialog: () -> Unit,
+    onBlockUserClicked: (UserId, String) -> Unit,
+    onBlockUser: (UserId, String) -> Unit,
+    onMutingConversationStatusChange: (ConversationId?, MutedConversationStatus) -> Unit,
+    addConversationToFavourites: () -> Unit,
+    moveConversationToFolder: () -> Unit,
+    moveConversationToArchive: () -> Unit,
+    clearConversationContent: () -> Unit,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val otherUserProfileScreenState = rememberOtherUserProfileScreenState(snackbarHostState)
@@ -112,122 +134,141 @@ fun OtherProfileScreenContent(
     }
     val scope = rememberCoroutineScope()
 
-    handleOperationMessages(snackbarHostState, operationState)
-
     val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
 
-    WireModalSheetLayout(
-        sheetState = sheetState,
-        coroutineScope = rememberCoroutineScope(),
-        sheetContent = {
-            // TODO
-        }
-    ) {
-        CollapsingTopBarScaffold(
-            snackbarHost = {
-                SwipeDismissSnackbarHost(
-                    hostState = otherUserProfileScreenState.snackbarHostState,
-                    modifier = Modifier.fillMaxWidth()
-                )
-            },
-            topBarHeader = { elevation ->
-                WireCenterAlignedTopAppBar(
-                    onNavigationPressed = onNavigateBack,
-                    title = stringResource(id = R.string.user_profile_title),
-                    elevation = elevation,
-                    actions = {
-                        if (state.connectionStatus in listOf(ConnectionState.ACCEPTED, ConnectionState.BLOCKED)) {
-                            MoreOptionIcon({ scope.launch { sheetState.show() } })
+    handleOperationMessages(snackbarHostState, snackBarState, sheetState::hide, clearSnackBarState)
+
+    val sheetContent = getBottomSheetContent(
+        bottomSheetState = state.bottomSheetState,
+        onMutingConversationStatusChange = onMutingConversationStatusChange,
+        addConversationToFavourites = addConversationToFavourites,
+        moveConversationToArchive = moveConversationToArchive,
+        clearConversationContent = clearConversationContent,
+        moveConversationToFolder = moveConversationToFolder,
+        blockUser = onBlockUserClicked
+    )
+
+    Surface {
+        WireModalSheetLayout(
+            sheetState = sheetState,
+            coroutineScope = scope,
+            sheetContent = sheetContent
+        ) {
+            CollapsingTopBarScaffold(
+                snackbarHost = {
+                    SwipeDismissSnackbarHost(
+                        hostState = otherUserProfileScreenState.snackbarHostState,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                },
+                topBarHeader = { elevation ->
+                    WireCenterAlignedTopAppBar(
+                        onNavigationPressed = onNavigateBack,
+                        title = stringResource(id = R.string.user_profile_title),
+                        elevation = elevation,
+                        actions = {
+                            if (state.connectionStatus in listOf(ConnectionState.ACCEPTED, ConnectionState.BLOCKED)) {
+                                MoreOptionIcon({
+                                    state.setBottomSheetContentToConversation()
+                                    scope.launch { sheetState.show() }
+                                })
+                            }
+                        }
+                    )
+                },
+                topBarCollapsing = {
+                    Crossfade(targetState = state.isDataLoading) {
+                        UserProfileInfo(
+                            connection = state.connectionStatus,
+                            isLoading = state.isAvatarLoading,
+                            avatarAsset = state.userAvatarAsset,
+                            fullName = state.fullName,
+                            userName = state.userName,
+                            teamName = state.teamName,
+                            membership = state.membership,
+                            editableState = EditableState.NotEditable,
+                            modifier = Modifier.padding(bottom = dimensions().spacing16x)
+                        )
+                    }
+                },
+                topBarFooter = {
+                    if (state.connectionStatus == ConnectionState.ACCEPTED) {
+                        AnimatedVisibility(
+                            visible = !state.isDataLoading,
+                            enter = fadeIn(),
+                            exit = fadeOut(),
+                        ) {
+                            Surface(
+                                shadowElevation = tabBarElevationState,
+                                color = MaterialTheme.wireColorScheme.background
+                            ) {
+                                WireTabRow(
+                                    tabs = tabItems,
+                                    selectedTabIndex = currentTabState,
+                                    onTabChange = { scope.launch { pagerState.animateScrollToPage(it) } },
+                                    divider = {} // no divider
+                                )
+                            }
                         }
                     }
-                )
-            },
-            topBarCollapsing = {
-                Crossfade(targetState = state.isDataLoading) {
-                    UserProfileInfo(
-                        connection = state.connectionStatus,
-                        isLoading = state.isAvatarLoading,
-                        avatarAsset = state.userAvatarAsset,
-                        fullName = state.fullName,
-                        userName = state.userName,
-                        teamName = state.teamName,
-                        membership = state.membership,
-                        editableState = EditableState.NotEditable,
-                        modifier = Modifier.padding(bottom = dimensions().spacing16x)
-                    )
-                }
-            },
-            topBarFooter = {
-                if (state.connectionStatus == ConnectionState.ACCEPTED) {
+                },
+                content = {
+                    Crossfade(targetState = state) { state ->
+                        when {
+                            state.isDataLoading -> Box {} // no content visible while loading
+                            state.connectionStatus == ConnectionState.ACCEPTED ->
+                                CompositionLocalProvider(LocalOverScrollConfiguration provides null) {
+                                    HorizontalPager(
+                                        modifier = Modifier.fillMaxSize(),
+                                        state = pagerState,
+                                        count = tabItems.size
+                                    ) { pageIndex ->
+                                        when (val tabItem = tabItems[pageIndex]) {
+                                            OtherUserProfileTabItem.DETAILS ->
+                                                OtherUserProfileDetails(state, otherUserProfileScreenState, lazyListStates[tabItem]!!)
+                                            OtherUserProfileTabItem.GROUP ->
+                                                OtherUserProfileGroup(state.groupState!!, lazyListStates[tabItem]!!)
+                                        }
+                                    }
+                                }
+                            state.connectionStatus == ConnectionState.BLOCKED -> {
+                            }
+                            else -> {
+                                OtherUserConnectionStatusInfo(state.connectionStatus, state.membership)
+                            }
+                        }
+                    }
+                },
+                contentFooter = {
                     AnimatedVisibility(
                         visible = !state.isDataLoading,
                         enter = fadeIn(),
                         exit = fadeOut(),
                     ) {
                         Surface(
-                            shadowElevation = tabBarElevationState,
+                            shadowElevation = maxBarElevation,
                             color = MaterialTheme.wireColorScheme.background
                         ) {
-                            WireTabRow(
-                                tabs = tabItems,
-                                selectedTabIndex = currentTabState,
-                                onTabChange = { scope.launch { pagerState.animateScrollToPage(it) } },
-                                divider = {} // no divider
-                            )
-                        }
-                    }
-                }
-            },
-            content = {
-                Crossfade(targetState = state) { state ->
-                    when {
-                        state.isDataLoading -> Box {} // no content visible while loading
-                        state.connectionStatus == ConnectionState.ACCEPTED ->
-                            CompositionLocalProvider(LocalOverScrollConfiguration provides null) {
-                                HorizontalPager(
-                                    modifier = Modifier.fillMaxSize(),
-                                    state = pagerState,
-                                    count = tabItems.size
-                                ) { pageIndex ->
-                                    when (val tabItem = tabItems[pageIndex]) {
-                                        OtherUserProfileTabItem.DETAILS ->
-                                            OtherUserProfileDetails(state, otherUserProfileScreenState, lazyListStates[tabItem]!!)
-                                        OtherUserProfileTabItem.GROUP ->
-                                            OtherUserProfileGroup(state.groupState!!, lazyListStates[tabItem]!!)
-                                    }
-                                }
+                            Box(modifier = Modifier.padding(all = dimensions().spacing16x)) {
+                                OtherUserConnectionActionButton(
+                                    state.connectionStatus,
+                                    onSendConnectionRequest,
+                                    onOpenConversation,
+                                    onCancelConnectionRequest,
+                                    acceptConnectionRequest,
+                                    ignoreConnectionRequest
+                                )
                             }
-                        state.connectionStatus == ConnectionState.BLOCKED -> {
-                        }
-                        else -> {
-                            OtherUserConnectionStatusInfo(state.connectionStatus, state.membership)
                         }
                     }
-                }
-            },
-            contentFooter = {
-                AnimatedVisibility(
-                    visible = !state.isDataLoading,
-                    enter = fadeIn(),
-                    exit = fadeOut(),
-                ) {
-                    Surface(
-                        shadowElevation = maxBarElevation,
-                        color = MaterialTheme.wireColorScheme.background
-                    ) {
-                        Box(modifier = Modifier.padding(all = dimensions().spacing16x)) {
-                            OtherUserConnectionActionButton(
-                                state.connectionStatus,
-                                onSendConnectionRequest,
-                                onOpenConversation,
-                                onCancelConnectionRequest,
-                                acceptConnectionRequest,
-                                ignoreConnectionRequest
-                            )
-                        }
-                    }
-                }
-            }, isSwipeable = state.connectionStatus == ConnectionState.ACCEPTED
+                }, isSwipeable = state.connectionStatus == ConnectionState.ACCEPTED
+            )
+        }
+
+        BlockUserDialogContent(
+            state = state.blockUserDialogSate,
+            dismiss = onDismissBlockUserDialog,
+            onBlock = onBlockUser
         )
     }
 }
@@ -240,18 +281,25 @@ enum class OtherUserProfileTabItem(@StringRes override val titleResId: Int) : Ta
 @Composable
 private fun handleOperationMessages(
     snackbarHostState: SnackbarHostState,
-    operationState: ConnectionOperationState?
+    operationState: SnackBarState?,
+    closeBottomSheet: suspend () -> Unit,
+    onMessageShown: () -> Unit
 ) {
     operationState?.let { errorType ->
         val message = when (errorType) {
-            is ConnectionOperationState.ConnectionRequestError -> stringResource(id = R.string.connection_request_sent_error)
-            is ConnectionOperationState.SuccessConnectionSentRequest -> stringResource(id = R.string.connection_request_sent)
-            is ConnectionOperationState.LoadUserInformationError -> stringResource(id = R.string.error_unknown_message)
-            is ConnectionOperationState.SuccessConnectionAcceptRequest -> stringResource(id = R.string.connection_request_accepted)
-            is ConnectionOperationState.SuccessConnectionCancelRequest -> stringResource(id = R.string.connection_request_canceled)
+            is SnackBarState.ConnectionRequestError -> stringResource(id = R.string.connection_request_sent_error)
+            is SnackBarState.SuccessConnectionSentRequest -> stringResource(id = R.string.connection_request_sent)
+            is SnackBarState.LoadUserInformationError -> stringResource(id = R.string.error_unknown_message)
+            is SnackBarState.SuccessConnectionAcceptRequest -> stringResource(id = R.string.connection_request_accepted)
+            is SnackBarState.SuccessConnectionCancelRequest -> stringResource(id = R.string.connection_request_canceled)
+            is SnackBarState.BlockingUserOperationError -> stringResource(id = R.string.error_blocking_user)
+            is SnackBarState.BlockingUserOperationSuccess -> stringResource(id = R.string.blocking_user_success, errorType.name)
+            is SnackBarState.MutingOperationError -> stringResource(id = R.string.error_updating_muting_setting)
         }
         LaunchedEffect(errorType) {
+            closeBottomSheet()
             snackbarHostState.showSnackbar(message)
+            onMessageShown()
         }
     }
 }
@@ -268,7 +316,8 @@ private fun handleOperationMessages(
 fun OtherProfileScreenContentPreview() {
     WireTheme(isPreview = true) {
         OtherProfileScreenContent(
-            OtherUserProfileState.PREVIEW.copy(connectionStatus = ConnectionState.ACCEPTED), null, {}, {}, {}, {}, {}, {}
+            OtherUserProfileState.PREVIEW.copy(connectionStatus = ConnectionState.ACCEPTED), null,
+            {}, {}, {}, {}, {}, {}, {}, {}, { _, _ -> }, { _, _ -> }, { _, _ -> }, {}, {}, {}, {}
         )
     }
 }
@@ -285,7 +334,8 @@ fun OtherProfileScreenContentPreview() {
 fun OtherProfileScreenContentNotConnectedPreview() {
     WireTheme(isPreview = true) {
         OtherProfileScreenContent(
-            OtherUserProfileState.PREVIEW.copy(connectionStatus = ConnectionState.CANCELLED), null, {}, {}, {}, {}, {}, {}
+            OtherUserProfileState.PREVIEW.copy(connectionStatus = ConnectionState.CANCELLED), null,
+            {}, {}, {}, {}, {}, {}, {}, {}, { _, _ -> }, { _, _ -> }, { _, _ -> }, {}, {}, {}, {}
         )
     }
 }

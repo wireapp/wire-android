@@ -28,6 +28,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.HomeSnackbarState
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationOptionNavigation
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
+import com.wire.android.ui.home.conversationslist.bottomsheet.rememberConversationSheetState
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.navigation.ConversationsNavigationItem
 import com.wire.kalium.logic.data.id.ConversationId

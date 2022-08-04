@@ -2,6 +2,7 @@ package com.wire.android.ui.userprofile.other
 
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
@@ -27,6 +28,7 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCase
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCaseResult
+import com.wire.kalium.logic.feature.connection.BlockUserUseCase
 import com.wire.kalium.logic.feature.connection.CancelConnectionRequestUseCase
 import com.wire.kalium.logic.feature.connection.CancelConnectionRequestUseCaseResult
 import com.wire.kalium.logic.feature.connection.IgnoreConnectionRequestUseCase
@@ -35,6 +37,8 @@ import com.wire.kalium.logic.feature.connection.SendConnectionRequestResult
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
 import com.wire.kalium.logic.feature.conversation.CreateConversationResult
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
+import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
+import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
 import com.wire.kalium.logic.feature.user.GetUserInfoUseCase
 import io.mockk.Called
@@ -94,6 +98,15 @@ class OtherUserProfileScreenViewModelTest {
     @MockK
     private lateinit var qualifiedIdMapper: QualifiedIdMapper
 
+    @MockK
+    private lateinit var observeSelfUser: GetSelfUserUseCase
+
+    @MockK
+    private lateinit var blockUser: BlockUserUseCase
+
+    @MockK
+    private lateinit var updateConversationMutedStatus: UpdateConversationMutedStatusUseCase
+
     @BeforeEach
     fun setUp() {
         MockKAnnotations.init(this, relaxUnitFun = true)
@@ -110,6 +123,9 @@ class OtherUserProfileScreenViewModelTest {
         otherUserProfileScreenViewModel = OtherUserProfileScreenViewModel(
             savedStateHandle,
             navigationManager,
+            observeSelfUser,
+            updateConversationMutedStatus,
+            blockUser,
             getOrCreateOneToOneConversation,
             getUserInfo,
             sendConnectionRequest,
@@ -119,6 +135,7 @@ class OtherUserProfileScreenViewModelTest {
             userTypeMapper,
             wireSessionImageLoader,
             observeConversationRoleForUserUseCase,
+            TestDispatcherProvider(),
             qualifiedIdMapper
         )
     }
@@ -153,7 +170,7 @@ class OtherUserProfileScreenViewModelTest {
                 sendConnectionRequest(eq(USER_ID))
                 navigationManager wasNot Called
             }
-            assertNotNull(otherUserProfileScreenViewModel.connectionOperationState)
+            assertNotNull(otherUserProfileScreenViewModel.snackBarState)
         }
 
     @Test
@@ -249,7 +266,7 @@ class OtherUserProfileScreenViewModelTest {
     fun `given a group conversationId, when loading the data, then return group state`() =
         runTest {
             // given
-            val expected =  OtherUserProfileGroupState("some_name", Member.Role.Member, false)
+            val expected = OtherUserProfileGroupState("some_name", Member.Role.Member, false)
             // when
             val groupState = otherUserProfileScreenViewModel.state.groupState
             // then

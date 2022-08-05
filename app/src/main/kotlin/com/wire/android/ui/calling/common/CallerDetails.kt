@@ -26,6 +26,8 @@ import com.wire.android.ui.calling.ConversationName
 import com.wire.android.ui.common.MembershipQualifierLabel
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.spacers.Height8x
+import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.conversationslist.model.hasLabel
 import com.wire.android.ui.theme.wireTypography
@@ -76,7 +78,8 @@ fun CallerDetails(
             modifier = Modifier.padding(top = dimensions().spacing8x)
         )
         if (membership.hasLabel()) {
-            Spacer(Modifier.height(dimensions().spacing16x))
+            Height8x()
+            VerticalSpace.x8()
             MembershipQualifierLabel(membership)
         }
         if (!isCameraOn && conversationType == ConversationType.OneOnOne) {

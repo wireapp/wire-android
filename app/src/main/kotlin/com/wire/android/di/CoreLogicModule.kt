@@ -44,6 +44,7 @@ import com.wire.kalium.logic.feature.session.RegisterTokenUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoUseCase
+import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import dagger.Module
 import dagger.Provides
@@ -598,6 +599,14 @@ class UseCaseModule {
         @CurrentAccount currentAccount: UserId
     ): QualifiedIdMapper =
         coreLogic.getSessionScope(currentAccount).qualifiedIdMapper
+
+
+    @ViewModelScoped
+    @Provides
+    fun provideIsPasswordRequiredUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): IsPasswordRequiredUseCase = coreLogic.getSessionScope(currentAccount).users.isPasswordRequired
 
     @ViewModelScoped
     @Provides

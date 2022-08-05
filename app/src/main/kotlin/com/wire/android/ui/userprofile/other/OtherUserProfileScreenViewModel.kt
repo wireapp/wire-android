@@ -37,6 +37,7 @@ import com.wire.kalium.logic.feature.connection.SendConnectionRequestResult
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
 import com.wire.kalium.logic.feature.conversation.CreateConversationResult
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
+import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
 import com.wire.kalium.logic.feature.user.GetUserInfoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -59,6 +60,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val userTypeMapper: UserTypeMapper,
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val observeConversationRoleForUser: ObserveConversationRoleForUserUseCase,
+    private val removeMemberFromConversation: RemoveMemberFromConversationUseCase,
     qualifiedIdMapper: QualifiedIdMapper
 ) : ViewModel() {
 
@@ -99,7 +101,8 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                 OtherUserProfileGroupState(
                     groupName = conversationRoleData.conversationName,
                     role = userRole,
-                    isSelfAnAdmin = conversationRoleData.selfRole is Member.Role.Admin
+                    isSelfAnAdmin = conversationRoleData.selfRole is Member.Role.Admin,
+                    conversationId = conversationRoleData.conversationId
                 )
             },
             botService = otherUser.botService
@@ -182,6 +185,12 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                     )
                 }
             }
+        }
+    }
+
+    fun removeFromConversation() {
+        viewModelScope.launch {
+            removeMemberFromConversation(state.groupState!!.conversationId, userId)
         }
     }
 

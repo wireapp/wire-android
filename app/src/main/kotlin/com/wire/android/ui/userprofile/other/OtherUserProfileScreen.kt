@@ -60,6 +60,7 @@ fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltView
         onCancelConnectionRequest = viewModel::cancelConnectionRequest,
         ignoreConnectionRequest = viewModel::ignoreConnectionRequest,
         acceptConnectionRequest = viewModel::acceptConnectionRequest,
+        onRemoveFromConversation = viewModel::removeFromConversation,
         onNavigateBack = viewModel::navigateBack
     )
 }
@@ -75,7 +76,8 @@ fun OtherProfileScreenContent(
     onCancelConnectionRequest: () -> Unit,
     acceptConnectionRequest: () -> Unit,
     ignoreConnectionRequest: () -> Unit,
-    onNavigateBack: () -> Unit
+    onNavigateBack: () -> Unit,
+    onRemoveFromConversation: () -> Unit,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val otherUserProfileScreenState = rememberOtherUserProfileScreenState(snackbarHostState)
@@ -165,7 +167,11 @@ fun OtherProfileScreenContent(
                                     OtherUserProfileTabItem.DETAILS ->
                                         OtherUserProfileDetails(state, otherUserProfileScreenState, lazyListStates[tabItem]!!)
                                     OtherUserProfileTabItem.GROUP ->
-                                        OtherUserProfileGroup(state.groupState!!, lazyListStates[tabItem]!!)
+                                        OtherUserProfileGroup(
+                                            state = state.groupState!!,
+                                            lazyListState = lazyListStates[tabItem]!!,
+                                            onRemoveFromConversation = onRemoveFromConversation
+                                        )
                                 }
                             }
                         }
@@ -233,7 +239,7 @@ private fun handleOperationMessages(
 fun OtherProfileScreenContentPreview() {
     WireTheme(isPreview = true) {
         OtherProfileScreenContent(
-            OtherUserProfileState.PREVIEW.copy(connectionStatus = ConnectionStatus.Connected), null, {}, {}, {}, {}, {}, {}
+            OtherUserProfileState.PREVIEW.copy(connectionStatus = ConnectionStatus.Connected), null, {}, {}, {}, {}, {}, {}, {}
         )
     }
 }
@@ -243,7 +249,7 @@ fun OtherProfileScreenContentPreview() {
 fun OtherProfileScreenContentNotConnectedPreview() {
     WireTheme(isPreview = true) {
         OtherProfileScreenContent(
-            OtherUserProfileState.PREVIEW.copy(connectionStatus = ConnectionStatus.NotConnected), null, {}, {}, {}, {}, {}, {}
+            OtherUserProfileState.PREVIEW.copy(connectionStatus = ConnectionStatus.NotConnected), null, {}, {}, {}, {}, {}, {}, {}
         )
     }
 }

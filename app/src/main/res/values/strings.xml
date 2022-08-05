@@ -305,6 +305,7 @@
     <string name="user_profile_group_tab">Group</string>
     <string name="user_profile_group_member">Member of the group ”%s”</string>
     <string name="user_profile_group_role">ROLE</string>
+    <string name="user_profile_group_remove_button">Remove from group</string>
 
     <string name="group_role_admin">Admin</string>
     <string name="group_role_member">Member</string>

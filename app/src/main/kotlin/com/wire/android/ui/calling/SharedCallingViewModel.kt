@@ -150,7 +150,9 @@ class SharedCallingViewModel @Inject constructor(
     private suspend fun observeCallState() {
         allCalls().collect { calls ->
             calls.find { call ->
-                call.conversationId == conversationId && call.status != CallStatus.CLOSED
+                call.conversationId == conversationId &&
+                        call.status != CallStatus.CLOSED &&
+                        call.status != CallStatus.MISSED
             }?.let { call ->
                 callState = callState.copy(
                     callerName = call.callerName,

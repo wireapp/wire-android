@@ -100,7 +100,8 @@ fun testOtherUser(i: Int): OtherUser = OtherUser(
     previewPicture = null,
     completePicture = null,
     availabilityStatus = UserAvailabilityStatus.NONE,
-    userType = UserType.INTERNAL
+    userType = UserType.INTERNAL,
+    botService = null
 )
 
 fun testUIParticipant(i: Int): UIParticipant = UIParticipant(

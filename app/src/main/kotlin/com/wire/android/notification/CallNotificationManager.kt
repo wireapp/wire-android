@@ -2,7 +2,11 @@ package com.wire.android.notification
 
 import android.app.Notification
 import android.app.PendingIntent
+import android.content.ContentResolver
 import android.content.Context
+import android.media.AudioAttributes
+import android.media.AudioManager.STREAM_MUSIC
+import android.net.Uri
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -18,6 +22,7 @@ import javax.inject.Singleton
 class CallNotificationManager @Inject constructor(private val context: Context) {
 
     private val notificationManager = NotificationManagerCompat.from(context)
+    private val soundUri = Uri.parse("${ContentResolver.SCHEME_ANDROID_RESOURCE}://${context.packageName}/raw/ringing_from_them")
 
     init {
         appLogger.i("${TAG}: initialized")
@@ -40,9 +45,18 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
     }
 
     private fun createNotificationChannel() {
+        val audioAttributes = AudioAttributes.Builder()
+            .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+            .setUsage(AudioAttributes.USAGE_MEDIA)
+            .build()
+
         val notificationChannel = NotificationChannelCompat
             .Builder(NotificationConstants.CALL_CHANNEL_ID, NotificationManagerCompat.IMPORTANCE_MAX)
             .setName(NotificationConstants.CALL_CHANNEL_NAME)
+            .setSound(
+                soundUri,
+                audioAttributes
+            )
             .build()
 
         notificationManager.createNotificationChannel(notificationChannel)
@@ -54,9 +68,13 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
         val title = getNotificationTitle(call)
         val content = getNotificationBody(call)
 
-        return NotificationCompat.Builder(context, NotificationConstants.CALL_CHANNEL_ID)
+        val notification = NotificationCompat.Builder(context, NotificationConstants.CALL_CHANNEL_ID)
             .setContentTitle(title)
             .setContentText(content)
+            .setSound(
+                soundUri,
+                STREAM_MUSIC
+            )
             .addAction(getDeclineCallAction(conversationIdString, userIdString))
             .addAction(getOpenCallAction(conversationIdString))
             .setOngoing(true)
@@ -68,6 +86,11 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
             .setDeleteIntent(declineCallPendingIntent(context, conversationIdString, userIdString))
             .setAutoCancel(true)
             .build()
+
+        // Added FLAG_INSISTENT so the ringing sound repeats itself until an action is done.
+        notification.flags = Notification.FLAG_INSISTENT
+
+        return notification
     }
 
     private fun getNotificationBody(call: Call) =

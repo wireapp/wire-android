@@ -120,6 +120,7 @@ internal class NewConversationViewModelArrangement {
             completePicture = UserAssetId("value", "domain"),
             availabilityStatus = UserAvailabilityStatus.AVAILABLE,
             userType = UserType.FEDERATED,
+            botService = null
         )
 
         val KNOWN_USER = OtherUser(
@@ -135,6 +136,7 @@ internal class NewConversationViewModelArrangement {
             completePicture = UserAssetId("value", "domain"),
             availabilityStatus = UserAvailabilityStatus.AVAILABLE,
             userType = UserType.FEDERATED,
+            botService = null,
         )
     }
 

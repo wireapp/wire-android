@@ -244,7 +244,8 @@ class MediaGalleryViewModelTest {
                 null, null, null, null,
                 1, null, ConnectionState.ACCEPTED, null, null,
                 UserType.INTERNAL,
-                UserAvailabilityStatus.AVAILABLE
+                UserAvailabilityStatus.AVAILABLE,
+                null
             ),
             connectionState = ConnectionState.ACCEPTED,
             legalHoldStatus = LegalHoldStatus.DISABLED,

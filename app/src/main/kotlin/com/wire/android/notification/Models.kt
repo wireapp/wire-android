@@ -2,7 +2,6 @@ package com.wire.android.notification
 
 import androidx.annotation.StringRes
 import com.wire.android.R
-import com.wire.android.appLogger
 import com.wire.kalium.logic.data.notification.LocalNotificationCommentType
 import com.wire.kalium.logic.data.notification.LocalNotificationConversation
 import com.wire.kalium.logic.data.notification.LocalNotificationMessage
@@ -21,11 +20,14 @@ sealed class NotificationMessage(open val author: NotificationMessageAuthor, ope
     data class Text(override val author: NotificationMessageAuthor, override val time: Long, val text: String) :
         NotificationMessage(author, time)
 
-    //shared file, picture, reaction
+    // shared file, picture, reaction
     data class Comment(override val author: NotificationMessageAuthor, override val time: Long, val textResId: CommentResId) :
         NotificationMessage(author, time)
 
     data class ConnectionRequest(override val author: NotificationMessageAuthor, override val time: Long, val authorId: String) :
+        NotificationMessage(author, time)
+
+    data class ConversationDeleted(override val author: NotificationMessageAuthor, override val time: Long) :
         NotificationMessage(author, time)
 }
 
@@ -47,7 +49,7 @@ fun LocalNotificationConversation.intoNotificationConversation(): NotificationCo
     return NotificationConversation(
         id = id.toString(),
         name = conversationName,
-        image = null, //TODO
+        image = null, // TODO
         messages = notificationMessages,
         isOneToOneConversation = isOneToOneConversation,
         lastMessageTime = lastMessageTime
@@ -56,7 +58,7 @@ fun LocalNotificationConversation.intoNotificationConversation(): NotificationCo
 
 fun LocalNotificationMessage.intoNotificationMessage(): NotificationMessage {
 
-    val notificationMessageAuthor = NotificationMessageAuthor(author.name, null) //TODO image
+    val notificationMessageAuthor = NotificationMessageAuthor(author.name, null) // TODO image
     val notificationMessageTime = time.toTimeInMillis()
 
     return when (this) {
@@ -72,8 +74,10 @@ fun LocalNotificationMessage.intoNotificationMessage(): NotificationMessage {
             this.authorId.toString()
         )
         is LocalNotificationMessage.ConversationDeleted -> {
-            appLogger.d("under construction")
-            NotificationMessage.Text(notificationMessageAuthor, notificationMessageTime, "conversation x deleted")
+            NotificationMessage.ConversationDeleted(
+                notificationMessageAuthor,
+                notificationMessageTime
+            )
         }
     }
 }

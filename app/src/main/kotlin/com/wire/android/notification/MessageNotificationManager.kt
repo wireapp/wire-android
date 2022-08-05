@@ -164,6 +164,7 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
                 is NotificationMessage.Text -> messageData.text
                 is NotificationMessage.Comment -> italicTextFromResId(messageData.textResId.value)
                 is NotificationMessage.ConnectionRequest -> italicTextFromResId(R.string.notification_connection_request)
+                is NotificationMessage.ConversationDeleted -> italicTextFromResId(R.string.notification_conversation_deleted)
             }
 
             val notificationMessage = NotificationCompat.MessagingStyle.Message(message, messageData.time, sender)

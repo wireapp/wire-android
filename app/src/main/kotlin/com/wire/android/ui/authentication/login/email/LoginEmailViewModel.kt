@@ -46,7 +46,7 @@ class LoginEmailViewModel @Inject constructor(
     fun login() {
         loginState = loginState.copy(emailLoginLoading = true, loginError = LoginError.None).updateEmailLoginEnabled()
         viewModelScope.launch {
-            val authSession = loginUseCase(loginState.userIdentifier.text, loginState.password.text, true)
+            val (authSession, ssoId) = loginUseCase(loginState.userIdentifier.text, loginState.password.text, true)
                 .let {
                     when (it) {
                         is AuthenticationResult.Failure -> {
@@ -54,10 +54,10 @@ class LoginEmailViewModel @Inject constructor(
                             return@launch
                         }
 
-                        is AuthenticationResult.Success -> it.userSession
+                        is AuthenticationResult.Success -> it.userSession to it.ssoId
                     }
                 }
-            val storedUserId = addAuthenticatedUser(authSession, false).let {
+            val storedUserId = addAuthenticatedUser(authSession, ssoId, false).let {
                 when (it) {
                     is AddAuthenticatedUserUseCase.Result.Failure -> {
                         updateEmailLoginError(it.toLoginError())

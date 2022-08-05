@@ -9,6 +9,7 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.notification.LocalNotificationConversation
+import com.wire.kalium.logic.data.sync.ConnectionPolicy
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.Call
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
@@ -48,7 +49,11 @@ class WireNotificationManager @Inject constructor(
             //      All of this could be handled inside Kalium,
             //      and Reloaded shouldn't need to call `waitUntilLive`.
             //      Kalium could be smarter
-            coreLogic.getSessionScope(userId).syncManager.waitUntilLive()
+            coreLogic.sessionScope(userId) {
+                setConnectionPolicy(ConnectionPolicy.KEEP_ALIVE)
+                syncManager.waitUntilLive()
+                setConnectionPolicy(ConnectionPolicy.DISCONNECT_AFTER_PENDING_EVENTS)
+            }
             fetchAndShowMessageNotificationsOnce(userId)
             fetchAndShowCallNotificationsOnce(userId)
         }

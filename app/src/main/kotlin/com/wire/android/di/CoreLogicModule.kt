@@ -86,6 +86,11 @@ class CoreLogicModule {
             kaliumConfigs = kaliumConfigs
         )
     }
+
+    @NoSession
+    @Singleton
+    @Provides
+    fun provideNoSessionQualifiedIdMapper(): QualifiedIdMapper = QualifiedIdMapperImpl(null)
 }
 
 @Module
@@ -585,11 +590,6 @@ class UseCaseModule {
         @CurrentAccount currentAccount: UserId
     ): FederatedIdMapper =
         coreLogic.getSessionScope(currentAccount).federatedIdMapper
-
-    @NoSession
-    @ViewModelScoped
-    @Provides
-    fun provideNoSessionQualifiedIdMapper(): QualifiedIdMapper = QualifiedIdMapperImpl(null)
 
     @ViewModelScoped
     @Provides

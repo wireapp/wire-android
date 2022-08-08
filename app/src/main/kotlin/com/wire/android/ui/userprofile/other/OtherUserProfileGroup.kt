@@ -16,6 +16,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.RowItemTemplate
+import com.wire.android.ui.common.button.WireIconButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
@@ -26,7 +27,8 @@ import com.wire.kalium.logic.data.conversation.Member
 @Composable
 fun OtherUserProfileGroup(
     state: OtherUserProfileGroupState,
-    lazyListState: LazyListState = rememberLazyListState()
+    lazyListState: LazyListState = rememberLazyListState(),
+    openChangeRoleBottomSheet: () -> Unit
 ) {
     val context = LocalContext.current
     LazyColumn(
@@ -49,6 +51,10 @@ fun OtherUserProfileGroup(
             UserGroupInformation(
                 title = stringResource(id = R.string.user_profile_group_role),
                 value = AnnotatedString(state.role.name.asString()),
+                actions = {
+                    if (state.isSelfAnAdmin)
+                        EditButton(onEditClicked = openChangeRoleBottomSheet)
+                },
             )
         }
     }
@@ -58,7 +64,8 @@ fun OtherUserProfileGroup(
 private fun UserGroupInformation(
     title: String? = null,
     value: AnnotatedString,
-    clickable: Clickable = Clickable(enabled = false) {}
+    clickable: Clickable = Clickable(enabled = false) {},
+    actions: @Composable () -> Unit = {},
 ) {
     RowItemTemplate(
         modifier = Modifier.padding(horizontal = dimensions().spacing8x),
@@ -78,18 +85,30 @@ private fun UserGroupInformation(
                 text = value
             )
         },
+        actions = actions,
         clickable = clickable
     )
 }
 
-val Member.Role.name get() = when(this) {
-    Member.Role.Admin -> UIText.StringResource(R.string.group_role_admin)
-    Member.Role.Member -> UIText.StringResource(R.string.group_role_member)
-    is Member.Role.Unknown -> UIText.DynamicString(name)
+@Composable
+fun EditButton(onEditClicked: () -> Unit, modifier: Modifier = Modifier) {
+    WireIconButton(
+        onButtonClicked = onEditClicked,
+        iconResource = R.drawable.ic_edit,
+        contentDescription = R.string.content_description_edit,
+        modifier = modifier
+    )
 }
+
+val Member.Role.name
+    get() = when (this) {
+        Member.Role.Admin -> UIText.StringResource(R.string.group_role_admin)
+        Member.Role.Member -> UIText.StringResource(R.string.group_role_member)
+        is Member.Role.Unknown -> UIText.DynamicString(name)
+    }
 
 @Composable
 @Preview
 fun OtherUserProfileGroupPreview() {
-    OtherUserProfileGroup(OtherUserProfileState.PREVIEW.groupState!!)
+    OtherUserProfileGroup(OtherUserProfileState.PREVIEW.groupState!!) {}
 }

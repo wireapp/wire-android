@@ -1,5 +1,6 @@
 package com.wire.android.ui.calling
 
+import android.view.View
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -29,6 +30,7 @@ import com.wire.android.ui.calling.controlButtons.CameraFlipButton
 import com.wire.android.ui.calling.controlButtons.HangUpButton
 import com.wire.android.ui.calling.controlButtons.MicrophoneButton
 import com.wire.android.ui.calling.controlButtons.SpeakerButton
+import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
@@ -40,13 +42,38 @@ fun OngoingCallScreen(
     ongoingCallViewModel: OngoingCallViewModel = hiltViewModel(),
     sharedCallingViewModel: SharedCallingViewModel = hiltViewModel()
 ) {
-    OngoingCallContent(sharedCallingViewModel)
+
+    with(sharedCallingViewModel) {
+        OngoingCallContent(
+            callState.conversationName,
+            callState.participants,
+            callState.isMuted ?: true,
+            callState.isCameraOn ?: false,
+            callState.isSpeakerOn,
+            ::toggleSpeaker,
+            ::toggleMute,
+            ::hangUpCall,
+            ::toggleVideo,
+            ::setVideoPreview,
+            ::clearVideoPreview
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun OngoingCallContent(
-    sharedCallingViewModel: SharedCallingViewModel
+    conversationName: ConversationName?,
+    participants: List<UICallParticipant>,
+    isMuted: Boolean,
+    isCameraOn: Boolean,
+    isSpeakerOn: Boolean,
+    toggleSpeaker: () -> Unit,
+    toggleMute: () -> Unit,
+    hangUpCall: () -> Unit,
+    toggleVideo: () -> Unit,
+    setVideoPreview: (view: View) -> Unit,
+    clearVideoPreview: () -> Unit
 ) {
     val sheetState = rememberBottomSheetState(
         initialValue = BottomSheetValue.Collapsed
@@ -54,46 +81,43 @@ private fun OngoingCallContent(
     val scaffoldState = rememberBottomSheetScaffoldState(
         bottomSheetState = sheetState
     )
-    with(sharedCallingViewModel) {
-        BottomSheetScaffold(
-            topBar = {
-                val conversationName = callState.conversationName
-                OngoingCallTopBar(
-                    conversationName = when (conversationName) {
-                        is ConversationName.Known -> conversationName.name
-                        is ConversationName.Unknown -> stringResource(id = conversationName.resourceId)
-                        else -> ""
-                    }
-                ) { }
-            },
-            sheetShape = RoundedCornerShape(topStart = dimensions().corner16x, topEnd = dimensions().corner16x),
-            sheetPeekHeight = dimensions().defaultSheetPeekHeight,
-            scaffoldState = scaffoldState,
-            sheetContent = {
-                CallingControls(
-                    isMuted = callState.isMuted,
-                    isCameraOn = callState.isCameraOn,
-                    isSpeakerOn = callState.isSpeakerOn,
-                    toggleSpeaker = ::toggleSpeaker,
-                    toggleMute = ::toggleMute,
-                    onHangUpCall = ::hangUpCall,
-                    onToggleVideo = ::toggleVideo
-                )
-            },
+    BottomSheetScaffold(
+        topBar = {
+            OngoingCallTopBar(
+                conversationName = when (conversationName) {
+                    is ConversationName.Known -> conversationName.name
+                    is ConversationName.Unknown -> stringResource(id = conversationName.resourceId)
+                    else -> ""
+                }
+            ) { }
+        },
+        sheetShape = RoundedCornerShape(topStart = dimensions().corner16x, topEnd = dimensions().corner16x),
+        sheetPeekHeight = dimensions().defaultSheetPeekHeight,
+        scaffoldState = scaffoldState,
+        sheetContent = {
+            CallingControls(
+                isMuted = isMuted,
+                isCameraOn = isCameraOn,
+                isSpeakerOn = isSpeakerOn,
+                toggleSpeaker = toggleSpeaker,
+                toggleMute = toggleMute,
+                onHangUpCall = hangUpCall,
+                onToggleVideo = toggleVideo
+            )
+        },
+    ) {
+        Box(
+            modifier = Modifier.padding(
+                bottom = 95.dp
+            )
         ) {
-            Box(
-                modifier = Modifier.padding(
-                    bottom = 95.dp
-                )
-            ) {
-                VerticalCallingPager(
-                    participants = callState.participants,
-                    isSelfUserCameraOn = callState.isCameraOn,
-                    isSelfUserMuted = callState.isMuted,
-                    onSelfVideoPreviewCreated = sharedCallingViewModel::setVideoPreview,
-                    onSelfClearVideoPreview = sharedCallingViewModel::clearVideoPreview
-                )
-            }
+            VerticalCallingPager(
+                participants = participants,
+                isSelfUserCameraOn = isCameraOn,
+                isSelfUserMuted = isMuted,
+                onSelfVideoPreviewCreated = setVideoPreview,
+                onSelfClearVideoPreview = clearVideoPreview
+            )
         }
     }
 }
@@ -130,15 +154,13 @@ private fun CallingControls(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(0.dp, dimensions().spacing16x, 0.dp, 0.dp)
+            .padding(top = dimensions().spacing16x)
     ) {
         MicrophoneButton(isMuted) { toggleMute() }
         CameraButton(
             isCameraOn = isCameraOn,
             onCameraPermissionDenied = { },
-            onCameraButtonClicked = {
-                onToggleVideo()
-            }
+            onCameraButtonClicked = onToggleVideo
         )
         if (isCameraOn) {
             val context = LocalContext.current

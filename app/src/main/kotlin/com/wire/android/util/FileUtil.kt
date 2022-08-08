@@ -22,8 +22,6 @@ import com.wire.android.util.ImageUtil.ImageSizeClass
 import com.wire.android.util.ImageUtil.ImageSizeClass.Medium
 import com.wire.android.util.dispatchers.DefaultDispatcherProvider
 import com.wire.android.util.dispatchers.DispatcherProvider
-import dagger.hilt.android.qualifiers.ApplicationContext
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import okio.Path
 import okio.Path.Companion.toPath
@@ -204,12 +202,15 @@ fun Context.startMultipleFileSharingIntent(path: String) {
 fun openAssetFileWithExternalApp(assetDataPath: Path, context: Context, assetExtension: String, onError: () -> Unit) {
     try {
         val assetUri = context.pathToUri(assetDataPath)
-
+        val mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(assetExtension)
         // Set intent and launch
         val intent = Intent()
-        intent.setActionViewIntentFlags()
-        intent.setDataAndType(assetUri, MimeTypeMap.getSingleton().getMimeTypeFromExtension(assetExtension))
-
+        intent.apply {
+            action = Intent.ACTION_VIEW
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            setDataAndType(assetUri, mimeType)
+        }
         context.startActivity(intent)
     } catch (e: java.lang.IllegalArgumentException) {
         appLogger.e("The file couldn't be found on the internal storage \n$e")
@@ -220,18 +221,9 @@ fun openAssetFileWithExternalApp(assetDataPath: Path, context: Context, assetExt
     }
 }
 
-private fun Intent.setActionViewIntentFlags() {
-    action = Intent.ACTION_VIEW
-    // These flags allow the external app to access the temporal uri
-    flags = if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.LOLLIPOP) {
-        Intent.FLAG_GRANT_WRITE_URI_PERMISSION or Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK
-    } else {
-        Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_ACTIVITY_NEW_TASK
-    }
-}
 
 fun getDeviceId(context: Context): String? {
-    return Settings.Secure.getString(context.getContentResolver(), Settings.Secure.ANDROID_ID)
+    return Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
 }
 
 fun Context.getProviderAuthority() = "${packageName}.provider"

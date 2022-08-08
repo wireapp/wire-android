@@ -41,7 +41,9 @@ class IncomingCallViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val incomingCallConversationId: QualifiedID = qualifiedIdMapper.fromStringToQualifiedID(
-        savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!
+        checkNotNull(savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)) {
+            "No conversationId was provided via savedStateHandle to IncomingCallViewModel"
+        }
     )
 
     lateinit var observeIncomingCallJob: Job
@@ -126,6 +128,6 @@ class IncomingCallViewModel @Inject constructor(
     companion object {
         private const val DELAY_TIME_AFTER_ENDING_CALL = 1000L
         private val ACCEPT_CALL_DEFAULT_BACKSTACK_NODE = BackStackMode.REMOVE_CURRENT
-        private const val ACCEPT_CALL_DEFAULT_DELAY_TIME = 0L
+        private const val ACCEPT_CALL_DEFAULT_DELAY_TIME = 200L
     }
 }

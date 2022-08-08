@@ -33,6 +33,7 @@ import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
+import com.wire.kalium.logic.data.id.toQualifiedID
 import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
@@ -86,12 +87,8 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     var state: OtherUserProfileState by mutableStateOf(OtherUserProfileState())
     var snackBarState: SnackBarState? by mutableStateOf(null)
 
-    private val userId: QualifiedID = qualifiedIdMapper.fromStringToQualifiedID(
-        savedStateHandle.get<String>(EXTRA_USER_ID)!!
-    )
-
-    private val conversationId: QualifiedID? =
-        savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)?.let { qualifiedIdMapper.fromStringToQualifiedID(it) }
+    private val userId: QualifiedID = savedStateHandle.get<String>(EXTRA_USER_ID)!!.toQualifiedID(qualifiedIdMapper)
+    private val conversationId: QualifiedID? = savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)?.toQualifiedID(qualifiedIdMapper)
 
     init {
         state = state.copy(isDataLoading = true)
@@ -100,14 +97,17 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             val conversationResult = getOrCreateOneToOneConversation(userId)
             when {
                 userInfoResult is GetUserInfoResult.Failure -> {
+                    println("cyka 3")
                     appLogger.d("Couldn't not find the user with provided id: $userId")
                     snackBarState = SnackBarState.LoadUserInformationError()
                 }
                 conversationResult is CreateConversationResult.Failure -> {
+                    println("cyka 2")
                     appLogger.d("Couldn't not getOrCreateOneToOneConversation for user id: $userId")
                     snackBarState = SnackBarState.LoadUserInformationError()
                 }
                 conversationResult is CreateConversationResult.Success && userInfoResult is GetUserInfoResult.Success -> {
+                    println("cyka 1 $conversationId")
                     conversationId
                         .let { if (it != null) observeConversationRoleForUser(it, userId) else flowOf(it) }
                         .combine(observeSelfUser(), ::Pair)
@@ -145,6 +145,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                     isSelfAnAdmin = conversationRoleData.selfRole is Member.Role.Admin
                 )
             },
+            botService = getInfoResult.otherUser.botService,
             conversationSheetContent = ConversationSheetContent(
                 title = getInfoResult.otherUser.name.orEmpty(),
                 conversationId = directConversation.id,

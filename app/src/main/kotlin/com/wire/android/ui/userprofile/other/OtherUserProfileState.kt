@@ -9,6 +9,7 @@ import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.kalium.logic.data.conversation.Member
+import com.wire.kalium.logic.data.user.BotService
 import com.wire.kalium.logic.data.user.ConnectionState
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -24,6 +25,7 @@ data class OtherUserProfileState(
     val connectionStatus: ConnectionState = ConnectionState.NOT_CONNECTED,
     val membership: Membership = Membership.None,
     val groupState: OtherUserProfileGroupState? = null,
+    val botService: BotService? = null,
     val blockUserDialogSate: BlockUserDialogState? = null,
     private val conversationSheetContent: ConversationSheetContent? = null
 ) {

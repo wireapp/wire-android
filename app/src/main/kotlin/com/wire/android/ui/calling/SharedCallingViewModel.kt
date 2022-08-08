@@ -250,8 +250,10 @@ class SharedCallingViewModel @Inject constructor(
     private fun unPauseVideo() {
         viewModelScope.launch {
             // We should turn on video only for established call
-            if (callState.isCameraOn && callState.participants.isNotEmpty())
-                updateVideoState(conversationId, VideoState.STARTED)
+            callState.isCameraOn?.let {
+                if (it && callState.participants.isNotEmpty())
+                    updateVideoState(conversationId, VideoState.STARTED)
+            }
         }
     }
 }

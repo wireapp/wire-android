@@ -188,7 +188,7 @@ class GroupConversationDetailsViewModelTest {
             .arrange()
 
         viewModel.onGuestUpdate(false)
-        assertEquals(true, viewModel.groupOptionsState.isGuestUpdateDialogShown)
+        assertEquals(true, viewModel.groupOptionsState.changeGuestOptionConformationRequired)
     }
 
     @Test
@@ -215,7 +215,7 @@ class GroupConversationDetailsViewModelTest {
             .arrange()
 
         viewModel.onGuestDialogConfirm()
-        assertEquals(false, viewModel.groupOptionsState.isGuestUpdateDialogShown)
+        assertEquals(false, viewModel.groupOptionsState.changeGuestOptionConformationRequired)
         coVerify(exactly = 1) {
             arrangement.updateConversationAccessRoleUseCase(
                 conversationId = details.conversation.id,

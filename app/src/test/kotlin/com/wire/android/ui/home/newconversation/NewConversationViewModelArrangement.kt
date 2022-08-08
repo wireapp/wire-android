@@ -26,6 +26,7 @@ import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
 import com.wire.kalium.logic.feature.publicuser.search.Result
 import com.wire.kalium.logic.feature.publicuser.search.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchUsersUseCase
+import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
 import com.wire.kalium.logic.functional.Either
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -36,6 +37,7 @@ internal class NewConversationViewModelArrangement {
         MockKAnnotations.init(this, relaxUnitFun = true)
 
         // Default empty values
+        coEvery { isMLSEnabledUseCase() } returns true
         coEvery { searchUsers(any()) } returns Result.Success(userSearchResult = UserSearchResult(listOf(PUBLIC_USER)))
         coEvery { searchKnownUsers(any()) } returns Result.Success(userSearchResult = UserSearchResult(listOf(KNOWN_USER)))
         coEvery { getAllContacts() } returns GetAllContactsResult.Success(listOf())
@@ -84,6 +86,9 @@ internal class NewConversationViewModelArrangement {
 
     @MockK
     lateinit var sendConnectionRequestUseCase: SendConnectionRequestUseCase
+
+    @MockK
+    lateinit var isMLSEnabledUseCase: IsMLSEnabledUseCase
 
     @MockK
     lateinit var contactMapper: ContactMapper
@@ -149,7 +154,8 @@ internal class NewConversationViewModelArrangement {
             createGroupConversation = createGroupConversation,
             contactMapper = contactMapper,
             sendConnectionRequest = sendConnectionRequestUseCase,
-            dispatchers = TestDispatcherProvider()
+            dispatchers = TestDispatcherProvider(),
+            isMLSEnabled = isMLSEnabledUseCase
         )
     }
 

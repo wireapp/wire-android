@@ -1,14 +1,12 @@
 package com.wire.android.ui.common.bottomsheet
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.material3.MaterialTheme
@@ -16,6 +14,10 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
+import com.wire.android.model.Clickable
+import com.wire.android.ui.common.WireCheckIcon
+import com.wire.android.ui.common.clickable
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.DEFAULT_WEIGHT
 import com.wire.android.ui.theme.wireColorScheme
@@ -25,43 +27,44 @@ import io.github.esentsov.PackagePrivate
 @Composable
 fun RichMenuBottomSheetItem(
     title: String,
-    subLine: String,
+    subLine: String? = null,
     icon: @Composable () -> Unit = { },
     action: @Composable () -> Unit = { },
-    onItemClick: () -> Unit = {},
+    onItemClick: Clickable = Clickable(enabled = false) {},
     state: RichMenuItemState = RichMenuItemState.DEFAULT
 ) {
     Row(
         verticalAlignment = Alignment.CenterVertically,
-        modifier = if (isSelectedItem(state)) Modifier.background(MaterialTheme.wireColorScheme.secondaryButtonSelected) else Modifier
+        modifier = Modifier
+            .wrapContentHeight()
+            .wrapContentWidth()
+            .defaultMinSize(minHeight = dimensions().spacing48x)
+            .let { if (isSelectedItem(state)) it.background(MaterialTheme.wireColorScheme.secondaryButtonSelected) else it }
+            .clickable(onItemClick)
+            .padding(vertical = dimensions().spacing12x, horizontal = dimensions().spacing16x)
     ) {
-        Row(
+        icon()
+        Column(
+            horizontalAlignment = Alignment.Start,
+            verticalArrangement = Arrangement.Center,
             modifier = Modifier
-                .wrapContentHeight()
-                .wrapContentWidth()
-                .clickable { onItemClick() }
+                .weight(DEFAULT_WEIGHT),
         ) {
-            icon()
-            Column(
-                horizontalAlignment = Alignment.Start,
-                modifier = Modifier
-                    .padding(dimensions().spacing12x)
-                    .height(dimensions().spacing64x)
-                    .weight(DEFAULT_WEIGHT),
-            ) {
-                Spacer(modifier = Modifier.width(dimensions().spacing12x))
-                MenuItemHeading(title = title, state = state)
-                Spacer(modifier = Modifier.height(dimensions().spacing8x))
-                MenuItemSubLine(subLine = subLine)
+            MenuItemHeading(title = title, state = state)
+            if (subLine != null) {
+                MenuItemSubLine(
+                    subLine = subLine,
+                    modifier = Modifier.padding(top = dimensions().spacing8x)
+                )
             }
-            if (isSelectedItem(state)) {
-                Column(
-                    modifier = Modifier
-                        .padding(dimensions().spacing8x)
-                        .align(Alignment.CenterVertically)
-                ) {
-                    action()
-                }
+        }
+        if (isSelectedItem(state)) {
+            Column(
+                modifier = Modifier
+                    .padding(start = dimensions().spacing8x)
+                    .align(Alignment.CenterVertically)
+            ) {
+                action()
             }
         }
     }
@@ -100,4 +103,10 @@ private fun isSelectedItem(state: RichMenuItemState) = state == RichMenuItemStat
 
 enum class RichMenuItemState {
     DEFAULT, SELECTED
+}
+
+@Composable
+@Preview
+fun RichMenuBottomSheetItemPreview() {
+    RichMenuBottomSheetItem("title", "subLine", { WireCheckIcon() }, {}, Clickable {}, RichMenuItemState.SELECTED)
 }

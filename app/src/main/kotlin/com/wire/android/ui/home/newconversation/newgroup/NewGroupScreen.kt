@@ -120,17 +120,18 @@ fun NewGroupScreenContent(
                     }
 
                 }
-
-                WireDropDown(
-                    items =
-                    ConversationOptions.Protocol.values().map { it.name },
-                    defaultItemIndex = 0,
-                    stringResource(R.string.protocol),
-                    modifier = Modifier.constrainAs(protocol) {
-                        top.linkTo(textField.bottom)
-                    }.padding(MaterialTheme.wireDimensions.spacing16x)
-                ) { selectedIndex ->
-                    groupProtocol = ConversationOptions.Protocol.values()[selectedIndex]
+                if (mlsEnabled) {
+                    WireDropDown(
+                        items =
+                        ConversationOptions.Protocol.values().map { it.name },
+                        defaultItemIndex = 0,
+                        stringResource(R.string.protocol),
+                        modifier = Modifier.constrainAs(protocol) {
+                            top.linkTo(textField.bottom)
+                        }.padding(MaterialTheme.wireDimensions.spacing16x)
+                    ) { selectedIndex ->
+                        groupProtocol = ConversationOptions.Protocol.values()[selectedIndex]
+                    }
                 }
                 WirePrimaryButton(
                     text = stringResource(R.string.label_continue),

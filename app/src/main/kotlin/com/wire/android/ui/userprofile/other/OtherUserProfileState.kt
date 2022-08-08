@@ -30,7 +30,7 @@ data class OtherUserProfileState(
             userName = "username",
             teamName = "team",
             email = "email",
-            groupState = OtherUserProfileGroupState("group name", Member.Role.Member, false)
+            groupState = OtherUserProfileGroupState("group name", Member.Role.Member, true)
         )
     }
 }

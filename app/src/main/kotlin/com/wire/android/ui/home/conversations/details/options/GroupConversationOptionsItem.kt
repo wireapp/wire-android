@@ -77,23 +77,9 @@ fun GroupConversationOptionsItem(
                 )
                 if (titleTrailingItem != null)
                     Box(modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing8x)) { titleTrailingItem() }
-                if (switchState is SwitchState.Visible) {
-                    if (switchState.isOnOffVisible) {
-                        Text(
-                            text = stringResource(if (switchState.value) R.string.label_on else R.string.label_off),
-                            style = MaterialTheme.wireTypography.body01,
-                            color = MaterialTheme.wireColorScheme.onBackground,
-                            modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing8x)
-                        )
-                    }
-                    if (switchState.isSwitchVisible) {
-                        WireSwitch(
-                            checked = switchState.value,
-                            enabled = switchState is SwitchState.Enabled,
-                            onCheckedChange = (switchState as? SwitchState.Enabled)?.onCheckedChange
-                        )
-                    }
-                }
+
+                ConversationOptionSwitch(switchState)
+
                 if (arrowType == ArrowType.TITLE_ALIGNED) ArrowRight()
             }
             if (subtitle != null)
@@ -107,6 +93,29 @@ fun GroupConversationOptionsItem(
                 Box(modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing8x)) { footer() }
         }
         if (arrowType == ArrowType.CENTER_ALIGNED) ArrowRight()
+    }
+}
+
+@Composable
+fun ConversationOptionSwitch(
+    switchState: SwitchState
+) {
+    if (switchState is SwitchState.Visible) {
+        if (switchState.isOnOffVisible) {
+            Text(
+                text = stringResource(if (switchState.value) R.string.label_on else R.string.label_off),
+                style = MaterialTheme.wireTypography.body01,
+                color = MaterialTheme.wireColorScheme.onBackground,
+                modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing8x)
+            )
+        }
+        if (switchState.isSwitchVisible) {
+            WireSwitch(
+                checked = switchState.value,
+                enabled = ((switchState is SwitchState.Enabled) && switchState.isLoading.not()),
+                onCheckedChange = (switchState as? SwitchState.Enabled)?.onCheckedChange
+            )
+        }
     }
 }
 
@@ -129,14 +138,16 @@ sealed class SwitchState {
     sealed class Visible(
         open val value: Boolean = false,
         open val isOnOffVisible: Boolean = true,
-        open val isSwitchVisible: Boolean = true
+        open val isSwitchVisible: Boolean = true,
+        open val isLoading: Boolean = false
     ) : SwitchState()
 
     data class Enabled(
         override val value: Boolean = false,
         override val isOnOffVisible: Boolean = true,
+        override val isLoading: Boolean = false,
         val onCheckedChange: (Boolean) -> Unit
-    ) : Visible(value = value, isSwitchVisible = true)
+    ) : Visible(value = value, isSwitchVisible = true, isLoading = isLoading)
 
     data class Disabled(
         override val value: Boolean = false,
@@ -145,7 +156,8 @@ sealed class SwitchState {
 
     data class TextOnly(
         override val value: Boolean = false,
-    ) : Visible(value = value, isOnOffVisible = true, isSwitchVisible = false)
+        override val isLoading: Boolean = false,
+    ) : Visible(value = value, isOnOffVisible = true, isSwitchVisible = false, isLoading = isLoading)
 }
 
 @Composable

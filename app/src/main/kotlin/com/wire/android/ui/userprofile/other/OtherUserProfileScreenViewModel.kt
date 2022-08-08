@@ -8,6 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.model.ImageAsset
@@ -22,6 +23,7 @@ import com.wire.android.ui.home.conversations.details.participants.usecase.Conve
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
 import com.wire.android.ui.userprofile.common.UsernameMapper.mapUserLabel
 import com.wire.android.util.EMPTY
+import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.Member
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -40,9 +42,13 @@ import com.wire.kalium.logic.feature.connection.SendConnectionRequestResult
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
 import com.wire.kalium.logic.feature.conversation.CreateConversationResult
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
+import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleResult
+import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
 import com.wire.kalium.logic.feature.user.GetUserInfoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import java.util.UUID
@@ -63,11 +69,14 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val userTypeMapper: UserTypeMapper,
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val observeConversationRoleForUser: ObserveConversationRoleForUserUseCase,
-    qualifiedIdMapper: QualifiedIdMapper
+    qualifiedIdMapper: QualifiedIdMapper,
+    private val updateMemberRole: UpdateConversationMemberRoleUseCase
 ) : ViewModel() {
 
     var state: OtherUserProfileState by mutableStateOf(OtherUserProfileState())
-    var connectionOperationState: ConnectionOperationState? by mutableStateOf(null)
+
+    private val _infoMessage = MutableSharedFlow<UIText>()
+    val infoMessage = _infoMessage.asSharedFlow()
 
     private val userId: QualifiedID = savedStateHandle.get<String>(EXTRA_USER_ID)!!.toQualifiedID(qualifiedIdMapper)
     private val conversationId: QualifiedID? = savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)?.toQualifiedID(qualifiedIdMapper)
@@ -78,7 +87,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             when (val result = getUserInfo(userId)) {
                 is GetUserInfoResult.Failure -> {
                     appLogger.d("Couldn't not find the user with provided id:$userId.id and domain:$userId.domain")
-                    connectionOperationState = ConnectionOperationState.LoadUserInformationError()
+                    showInfoMessage(InfoMessageType.LoadUserInformationError)
                 }
                 is GetUserInfoResult.Success ->
                     conversationId
@@ -130,11 +139,11 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             when (sendConnectionRequest(userId)) {
                 is SendConnectionRequestResult.Failure -> {
                     appLogger.d(("Couldn't send a connect request to user $userId"))
-                    connectionOperationState = ConnectionOperationState.ConnectionRequestError()
+                    showInfoMessage(InfoMessageType.ConnectionRequestError)
                 }
                 is SendConnectionRequestResult.Success -> {
                     state = state.copy(connectionStatus = ConnectionState.SENT)
-                    connectionOperationState = ConnectionOperationState.SuccessConnectionSentRequest()
+                    showInfoMessage(InfoMessageType.SuccessConnectionSentRequest)
                 }
             }
         }
@@ -145,11 +154,11 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             when (cancelConnectionRequest(userId)) {
                 is CancelConnectionRequestUseCaseResult.Failure -> {
                     appLogger.d(("Couldn't cancel a connect request to user $userId"))
-                    connectionOperationState = ConnectionOperationState.ConnectionRequestError()
+                    showInfoMessage(InfoMessageType.ConnectionRequestError)
                 }
                 is CancelConnectionRequestUseCaseResult.Success -> {
                     state = state.copy(connectionStatus = ConnectionState.NOT_CONNECTED)
-                    connectionOperationState = ConnectionOperationState.SuccessConnectionCancelRequest()
+                    showInfoMessage(InfoMessageType.SuccessConnectionCancelRequest)
                 }
             }
         }
@@ -160,11 +169,11 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             when (acceptConnectionRequest(userId)) {
                 is AcceptConnectionRequestUseCaseResult.Failure -> {
                     appLogger.d(("Couldn't accept a connect request to user $userId"))
-                    connectionOperationState = ConnectionOperationState.ConnectionRequestError()
+                    showInfoMessage(InfoMessageType.ConnectionRequestError)
                 }
                 is AcceptConnectionRequestUseCaseResult.Success -> {
                     state = state.copy(connectionStatus = ConnectionState.ACCEPTED)
-                    connectionOperationState = ConnectionOperationState.SuccessConnectionAcceptRequest()
+                    showInfoMessage(InfoMessageType.SuccessConnectionAcceptRequest)
                 }
             }
         }
@@ -175,7 +184,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             when (ignoreConnectionRequest(userId)) {
                 is IgnoreConnectionRequestUseCaseResult.Failure -> {
                     appLogger.d(("Couldn't ignore a connect request to user $userId"))
-                    connectionOperationState = ConnectionOperationState.ConnectionRequestError()
+                    showInfoMessage(InfoMessageType.ConnectionRequestError)
                 }
                 is IgnoreConnectionRequestUseCaseResult.Success -> {
                     state = state.copy(connectionStatus = ConnectionState.NOT_CONNECTED)
@@ -187,6 +196,21 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    fun changeMemberRole(role: Member.Role) {
+        viewModelScope.launch {
+            if (conversationId != null) {
+                updateMemberRole(conversationId, userId, role).also {
+                    if (it is UpdateConversationMemberRoleResult.Failure)
+                        showInfoMessage(InfoMessageType.ChangeGroupRoleError)
+                }
+            }
+        }
+    }
+
+    suspend fun showInfoMessage(type: InfoMessageType) {
+        _infoMessage.emit(type.uiText)
     }
 
     fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }
@@ -202,10 +226,14 @@ class OtherUserProfileScreenViewModel @Inject constructor(
 /**
  * We are adding a [randomEventIdentifier] as [UUID], so the msg can be discarded every time after being generated.
  */
-sealed class ConnectionOperationState(private val randomEventIdentifier: UUID) {
-    class SuccessConnectionSentRequest : ConnectionOperationState(UUID.randomUUID())
-    class SuccessConnectionAcceptRequest : ConnectionOperationState(UUID.randomUUID())
-    class SuccessConnectionCancelRequest : ConnectionOperationState(UUID.randomUUID())
-    class ConnectionRequestError : ConnectionOperationState(UUID.randomUUID())
-    class LoadUserInformationError : ConnectionOperationState(UUID.randomUUID())
+enum class InfoMessageType(val uiText: UIText) {
+    // connection
+    SuccessConnectionSentRequest(UIText.StringResource(R.string.connection_request_sent)),
+    SuccessConnectionAcceptRequest(UIText.StringResource(R.string.connection_request_accepted)),
+    SuccessConnectionCancelRequest(UIText.StringResource(R.string.connection_request_canceled)),
+    ConnectionRequestError(UIText.StringResource(R.string.connection_request_sent_error)),
+    LoadUserInformationError(UIText.StringResource(R.string.error_unknown_message)),
+
+    // change group role
+    ChangeGroupRoleError(UIText.StringResource(R.string.user_profile_role_change_error));
 }

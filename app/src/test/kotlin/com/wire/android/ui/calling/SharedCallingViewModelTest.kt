@@ -207,7 +207,6 @@ class SharedCallingViewModelTest {
 
         runTest { sharedCallingViewModel.clearVideoPreview() }
 
-        coVerify(exactly = 1) { setVideoPreview(any(), any()) }
         coVerify(exactly = 1) { updateVideoState(any(), VideoState.STOPPED) }
     }
 
@@ -219,7 +218,6 @@ class SharedCallingViewModelTest {
 
         runTest { sharedCallingViewModel.pauseVideo() }
 
-        coVerify(exactly = 1) { setVideoPreview(any(), any()) }
         coVerify(exactly = 1) { updateVideoState(any(), VideoState.PAUSED) }
     }
 

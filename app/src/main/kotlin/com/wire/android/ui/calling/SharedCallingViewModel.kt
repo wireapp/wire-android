@@ -96,7 +96,8 @@ class SharedCallingViewModel @Inject constructor(
         currentScreenManager.observeCurrentScreen(viewModelScope).collect {
             if (it == CurrentScreen.InBackground) {
                 pauseVideo()
-            }
+            } else if (it == CurrentScreen.OngoingCallScreen(conversationId))
+                unPauseVideo()
         }
     }
 
@@ -230,8 +231,15 @@ class SharedCallingViewModel @Inject constructor(
         viewModelScope.launch {
             if (callState.isCameraOn) {
                 updateVideoState(conversationId, VideoState.PAUSED)
-                setVideoPreview(conversationId, PlatformView(null))
             }
+        }
+    }
+
+    private fun unPauseVideo() {
+        viewModelScope.launch {
+            // We should turn on video only for established call
+            if (callState.isCameraOn && callState.participants.isNotEmpty())
+                updateVideoState(conversationId, VideoState.STARTED)
         }
     }
 }

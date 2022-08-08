@@ -17,6 +17,7 @@ import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.client.RegisterClientUseCase
 import com.wire.kalium.logic.feature.session.RegisterTokenResult
 import com.wire.kalium.logic.feature.session.RegisterTokenUseCase
+import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -48,14 +49,23 @@ class RegisterDeviceViewModelTest {
     @MockK
     private lateinit var registerTokenUseCase: RegisterTokenUseCase
 
+    @MockK
+    private lateinit var isPasswordRequiredUseCase: IsPasswordRequiredUseCase
+
     private lateinit var registerDeviceViewModel: RegisterDeviceViewModel
 
     @BeforeEach
     fun setup() {
         MockKAnnotations.init(this)
         mockUri()
+        coEvery { isPasswordRequiredUseCase() } returns IsPasswordRequiredUseCase.Result.Success(true)
         registerDeviceViewModel =
-            RegisterDeviceViewModel(navigationManager, registerClientUseCase, registerTokenUseCase)
+            RegisterDeviceViewModel(
+                navigationManager,
+                registerClientUseCase,
+                registerTokenUseCase,
+                isPasswordRequiredUseCase
+            )
     }
 
     @Test

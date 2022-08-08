@@ -40,8 +40,8 @@ import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.AnswerCallUseCase
-import com.wire.kalium.logic.feature.connection.BlockUserUseCase
 import com.wire.kalium.logic.feature.connection.BlockUserResult
+import com.wire.kalium.logic.feature.connection.BlockUserUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationsAndConnectionsUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
@@ -215,64 +215,65 @@ class ConversationListViewModel @Inject constructor(
 
 private fun LegalHoldStatus.showLegalHoldIndicator() = this == LegalHoldStatus.ENABLED
 
-private fun ConversationDetails.toType(wireSessionImageLoader: WireSessionImageLoader,
-                                       selfTeamId: TeamId?,
-                                       userTypeMapper: UserTypeMapper): ConversationItem =
-    when (this) {
-        is Group -> {
-            ConversationItem.GroupConversation(
-                groupName = conversation.name.orEmpty(),
-                conversationId = conversation.id,
-                mutedStatus = conversation.mutedStatus,
-                isLegalHold = legalHoldStatus.showLegalHoldIndicator(),
-                lastEvent = ConversationLastEvent.None, // TODO implement unread events
-                hasOnGoingCall = hasOngoingCall
-            )
-        }
-        is OneOne -> {
-            ConversationItem.PrivateConversation(
-                userAvatarData = UserAvatarData(
-                    otherUser.previewPicture?.let { UserAvatarAsset(wireSessionImageLoader, it) },
-                    UserAvailabilityStatus.NONE // TODO Get actual status
-                ),
-                conversationInfo = ConversationInfo(
-                    name = otherUser.name.orEmpty(),
-                    membership = userTypeMapper.toMembership(userType)
-                ),
-                conversationId = conversation.id,
-                mutedStatus = conversation.mutedStatus,
-                isLegalHold = legalHoldStatus.showLegalHoldIndicator(),
-                lastEvent = ConversationLastEvent.None, // TODO implement unread events
-                userId = otherUser.id,
-                blockingState = otherUser.getBlockingState(selfTeamId)
-            )
-        }
-        is Connection -> {
-            ConversationItem.ConnectionConversation(
-                userAvatarData = UserAvatarData(
-                    otherUser?.previewPicture?.let { UserAvatarAsset(wireSessionImageLoader, it) },
-                    UserAvailabilityStatus.NONE // TODO Get actual status
-                ),
-                conversationInfo = ConversationInfo(
-                    name = otherUser?.name.orEmpty(),
-                    membership = userTypeMapper.toMembership(userType)
-                ),
-                lastEvent = ConversationLastEvent.Connection(
-                    connection.status,
-                    connection.qualifiedToId
-                ),
-                conversationId = conversation.id,
-                mutedStatus = conversation.mutedStatus,
-                connectionState = connection.status
-            )
-        }
-        is Self -> {
-            throw IllegalArgumentException("Self conversations should not be visible to the user.")
-        }
-        else -> {
-            throw IllegalArgumentException("$this conversations should not be visible to the user.")
-        }
+private fun ConversationDetails.toType(
+    wireSessionImageLoader: WireSessionImageLoader,
+    selfTeamId: TeamId?,
+    userTypeMapper: UserTypeMapper
+): ConversationItem = when (this) {
+    is Group -> {
+        ConversationItem.GroupConversation(
+            groupName = conversation.name.orEmpty(),
+            conversationId = conversation.id,
+            mutedStatus = conversation.mutedStatus,
+            isLegalHold = legalHoldStatus.showLegalHoldIndicator(),
+            lastEvent = ConversationLastEvent.None, // TODO implement unread events
+            hasOnGoingCall = hasOngoingCall
+        )
     }
+    is OneOne -> {
+        ConversationItem.PrivateConversation(
+            userAvatarData = UserAvatarData(
+                otherUser.previewPicture?.let { UserAvatarAsset(wireSessionImageLoader, it) },
+                otherUser.availabilityStatus
+            ),
+            conversationInfo = ConversationInfo(
+                name = otherUser.name.orEmpty(),
+                membership = userTypeMapper.toMembership(userType)
+            ),
+            conversationId = conversation.id,
+            mutedStatus = conversation.mutedStatus,
+            isLegalHold = legalHoldStatus.showLegalHoldIndicator(),
+            lastEvent = ConversationLastEvent.None, // TODO implement unread events
+            userId = otherUser.id,
+            blockingState = otherUser.getBlockingState(selfTeamId)
+        )
+    }
+    is Connection -> {
+        ConversationItem.ConnectionConversation(
+            userAvatarData = UserAvatarData(
+                otherUser?.previewPicture?.let { UserAvatarAsset(wireSessionImageLoader, it) },
+                otherUser?.availabilityStatus ?: UserAvailabilityStatus.NONE
+            ),
+            conversationInfo = ConversationInfo(
+                name = otherUser?.name.orEmpty(),
+                membership = userTypeMapper.toMembership(userType)
+            ),
+            lastEvent = ConversationLastEvent.Connection(
+                connection.status,
+                connection.qualifiedToId
+            ),
+            conversationId = conversation.id,
+            mutedStatus = conversation.mutedStatus,
+            connectionState = connection.status
+        )
+    }
+    is Self -> {
+        throw IllegalArgumentException("Self conversations should not be visible to the user.")
+    }
+    else -> {
+        throw IllegalArgumentException("$this conversations should not be visible to the user.")
+    }
+}
 
 private fun OtherUser.getBlockingState(selfTeamId: TeamId?): BlockingState =
     when {

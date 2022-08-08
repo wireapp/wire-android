@@ -34,7 +34,7 @@ fun GroupConversationOptions(
         lazyListState = lazyListState
     )
     DisableGuestConformationDialog(
-        state = viewModel.groupOptionsState.isGuestUpdateDialogShown,
+        state = viewModel.groupOptionsState.changeGuestOptionConformationRequired,
         onConform = viewModel::onGuestDialogConfirm,
         onDialogDismiss = viewModel::onGuestDialogDismiss
     )
@@ -61,6 +61,7 @@ fun GroupConversationSettings(
                 GuestOption(
                     isClickable = state.isUpdatingGuestAllowed,
                     switchState = state.isGuestAllowed,
+                    isLoading = state.loadingGuestOption,
                     onCheckedChange = onGuestSwitchClicked
                 )
             }
@@ -69,6 +70,7 @@ fun GroupConversationSettings(
                 ServicesOption(
                     isClickable = state.isUpdatingAllowed,
                     switchState = state.isServicesAllowed,
+                    isLoading = state.loadingServicesOption,
                     onCheckedChange = onServiceSwitchClicked
                 )
             }
@@ -88,21 +90,23 @@ private fun GroupNameItem(groupName: String, canBeChanged: Boolean) {
 
 
 @Composable
-private fun GuestOption(isClickable: Boolean, switchState: Boolean, onCheckedChange: (Boolean) -> Unit) {
+private fun GuestOption(isClickable: Boolean, switchState: Boolean, isLoading: Boolean, onCheckedChange: (Boolean) -> Unit) {
     GroupOptionWithSwitch(
         isClickable = isClickable,
         switchState = switchState,
         onClick = onCheckedChange,
+        isLoading = isLoading,
         title = R.string.label_membership_guest,
         subTitle = R.string.convrsation_options_guest_discriptions
     )
 }
 
 @Composable
-private fun ServicesOption(isClickable: Boolean, switchState: Boolean, onCheckedChange: (Boolean) -> Unit) {
+private fun ServicesOption(isClickable: Boolean, switchState: Boolean, isLoading: Boolean, onCheckedChange: (Boolean) -> Unit) {
     GroupOptionWithSwitch(
         isClickable = isClickable,
         switchState = switchState,
+        isLoading = isLoading,
         onClick = onCheckedChange,
         title = R.string.conversation_Option_services_lable,
         subTitle = R.string.convrsation_options_services_discriptions
@@ -113,6 +117,7 @@ private fun ServicesOption(isClickable: Boolean, switchState: Boolean, onChecked
 private fun GroupOptionWithSwitch(
     isClickable: Boolean,
     switchState: Boolean,
+    isLoading: Boolean,
     onClick: (Boolean) -> Unit,
     @StringRes title: Int,
     @StringRes subTitle: Int?
@@ -125,6 +130,7 @@ private fun GroupOptionWithSwitch(
         },
         switchState = if (isClickable) SwitchState.Enabled(
             value = switchState,
+            isLoading = isLoading,
             onCheckedChange = onClick
         ) else SwitchState.TextOnly(switchState),
         arrowType = ArrowType.NONE

@@ -1,5 +1,6 @@
 package com.wire.android.ui.userprofile.other
 
+import android.content.Context
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -7,6 +8,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.text.AnnotatedString
+import com.wire.android.R
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -32,8 +34,8 @@ class OtherUserProfileScreenState(
     private val coroutineScope: CoroutineScope
 ) {
 
-    fun copy(text: String) {
+    fun copy(text: String, context: Context) {
         clipBoardManager.setText(AnnotatedString(text))
-        coroutineScope.launch { snackbarHostState.showSnackbar(text) }
+        coroutineScope.launch { snackbarHostState.showSnackbar(context.getString(R.string.label_value_copied, text)) }
     }
 }

@@ -42,8 +42,8 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-@Suppress("LongParameterList, TooManyFunctions")
 @HiltViewModel
+@Suppress("LongParameterList, TooManyFunctions")
 class SharedCallingViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,

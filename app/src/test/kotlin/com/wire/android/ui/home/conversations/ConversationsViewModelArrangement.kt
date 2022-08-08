@@ -27,6 +27,7 @@ import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserAssetId
+import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
@@ -254,22 +255,29 @@ internal fun withMockConversationDetailsOneOnOne(
     senderId: UserId = UserId("user-id", "user-domain"),
     connectionState: ConnectionState = ConnectionState.ACCEPTED
 ) = ConversationDetails.OneOne(
-    mockk(),
-    mockk<OtherUser>().apply {
+    conversation = mockk(),
+    otherUser = mockk<OtherUser>().apply {
         every { id } returns senderId
         every { name } returns senderName
         every { previewPicture } returns senderAvatar
+        every { availabilityStatus } returns UserAvailabilityStatus.NONE
         every { connectionStatus } returns connectionState
     },
-    ConnectionState.PENDING,
-    LegalHoldStatus.DISABLED,
-    UserType.INTERNAL
+    connectionState = ConnectionState.PENDING,
+    legalHoldStatus = LegalHoldStatus.DISABLED,
+    userType = UserType.INTERNAL,
+    unreadMessagesCount = 0L
 )
 
-internal fun mockConversationDetailsGroup(conversationName: String) = ConversationDetails.Group(mockk<Conversation>().apply {
-    every { name } returns conversationName
-    every { id } returns ConversationId("someId", "someDomain")
-}, mockk())
+internal fun mockConversationDetailsGroup(conversationName: String) = ConversationDetails.Group(
+    conversation = mockk<Conversation>().apply {
+        every { name } returns conversationName
+        every { id } returns ConversationId("someId", "someDomain")
+    },
+    legalHoldStatus = mockk(),
+    hasOngoingCall = false,
+    unreadMessagesCount = 0
+)
 
 internal fun mockUITextMessage(userName: String = "mockUserName"): UIMessage {
     return mockk<UIMessage>().also {

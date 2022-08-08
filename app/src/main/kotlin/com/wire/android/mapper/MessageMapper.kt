@@ -19,6 +19,7 @@ import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.User
+import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -57,7 +58,7 @@ class MessageMapper @Inject constructor(
                     messageContent = content,
                     messageSource = if (sender is SelfUser) MessageSource.Self else MessageSource.OtherUser,
                     messageHeader = provideMessageHeader(sender, message),
-                    userAvatarData = UserAvatarData(asset = sender?.previewAsset(wireSessionImageLoader))
+                    userAvatarData = getUserAvatarData(sender)
                 )
         }.filterNotNull()
     }
@@ -70,26 +71,35 @@ class MessageMapper @Inject constructor(
             is OtherUser -> userTypeMapper.toMembership(sender.userType)
             is SelfUser, null -> Membership.None
         },
-        connectionState = when (sender) {
-            is OtherUser -> sender.connectionStatus
-            is SelfUser, null -> null
-        },
+        connectionState = getConnectionState(sender),
         isLegalHold = false,
         time = message.date.uiMessageDateTime() ?: "",
-        messageStatus = when {
-            message.status == Message.Status.FAILED -> MessageStatus.SendFailure
-            message.visibility == Message.Visibility.DELETED -> MessageStatus.Deleted
-            message is Message.Regular && message.editStatus is Message.EditStatus.Edited ->
-                MessageStatus.Edited(
-                    isoFormatter.fromISO8601ToTimeFormat(
-                        utcISO = (message.editStatus as Message.EditStatus.Edited).lastTimeStamp
-                    )
-                )
-            message.content is MessageContent.FailedDecryption -> MessageStatus.DecryptionFailure
-            else -> MessageStatus.Untouched
-        },
+        messageStatus = getMessageStatus(message),
         messageId = message.id,
         userId = sender?.id
     )
 
+    private fun getMessageStatus(message: Message) = when {
+        message.status == Message.Status.FAILED -> MessageStatus.SendFailure
+        message.visibility == Message.Visibility.DELETED -> MessageStatus.Deleted
+        message is Message.Regular && message.editStatus is Message.EditStatus.Edited ->
+            MessageStatus.Edited(
+                isoFormatter.fromISO8601ToTimeFormat(
+                    utcISO = (message.editStatus as Message.EditStatus.Edited).lastTimeStamp
+                )
+            )
+        else -> MessageStatus.Untouched
+    }
+
+    private fun getUserAvatarData(sender: User?) = UserAvatarData(
+        asset = sender?.previewAsset(wireSessionImageLoader),
+        availabilityStatus = sender?.availabilityStatus ?: UserAvailabilityStatus.NONE,
+        connectionState = getConnectionState(sender)
+    )
+
+    private fun getConnectionState(sender: User?) =
+        when (sender) {
+            is OtherUser -> sender.connectionStatus
+            is SelfUser, null -> null
+        }
 }

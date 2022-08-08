@@ -31,7 +31,6 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.model.Clickable
-import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.LegalHoldIndicator
 import com.wire.android.ui.common.UserBadge
 import com.wire.android.ui.common.UserProfileAvatar
@@ -86,11 +85,7 @@ fun MessageItem(
                 }
             }
             UserProfileAvatar(
-                avatarData = UserAvatarData(
-                    message.userAvatarData.asset,
-                    message.userAvatarData.availabilityStatus,
-                    message.messageHeader.connectionState
-                ),
+                avatarData = message.userAvatarData,
                 clickable = avatarClickable
             )
             Spacer(Modifier.padding(start = dimensions().spacing16x - fullAvatarOuterPadding))
@@ -228,9 +223,12 @@ private fun MessageContent(
             assetDownloadStatus = messageContent.downloadStatus,
             onAssetClick = onAssetClick
         )
-        is MessageContent.SystemMessage.MemberAdded -> {}
-        is MessageContent.SystemMessage.MemberLeft -> {}
-        is MessageContent.SystemMessage.MemberRemoved -> {}
+        is MessageContent.SystemMessage.MemberAdded -> {
+        }
+        is MessageContent.SystemMessage.MemberLeft -> {
+        }
+        is MessageContent.SystemMessage.MemberRemoved -> {
+        }
         is MessageContent.RestrictedAsset -> {
             when {
                 messageContent.mimeType.contains("image/") -> {
@@ -280,7 +278,8 @@ private fun MessageStatusLabel(messageStatus: MessageStatus) {
                     )
                 }
             }
-            MessageStatus.SendFailure, MessageStatus.Untouched, MessageStatus.DecryptionFailure -> {}
+            MessageStatus.SendFailure, MessageStatus.Untouched, MessageStatus.DecryptionFailure -> {
+            }
         }
     }
 }

@@ -201,6 +201,7 @@ private fun ConversationScreen(
                                     is ConversationAvatar.OneOne -> UserProfileAvatar(
                                         UserAvatarData(
                                             asset = conversationAvatar.avatarAsset,
+                                            availabilityStatus = conversationAvatar.status,
                                             connectionState = connectionStateOrNull
                                         )
                                     )

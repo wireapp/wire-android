@@ -5,6 +5,7 @@ import androidx.compose.material.ModalBottomSheetValue
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.kalium.logic.data.conversation.Member
+import com.wire.kalium.logic.data.user.BotService
 import com.wire.kalium.logic.data.user.ConnectionState
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -20,7 +21,8 @@ data class OtherUserProfileState(
     val connectionStatus: ConnectionState = ConnectionState.NOT_CONNECTED,
     val membership: Membership = Membership.None,
     val groupState: OtherUserProfileGroupState? = null,
-    val bottomSheetState: ModalBottomSheetValue = ModalBottomSheetValue.Hidden
+    val bottomSheetState: ModalBottomSheetValue = ModalBottomSheetValue.Hidden,
+    val botService: BotService? = null
 ) {
     companion object {
         val PREVIEW = OtherUserProfileState(

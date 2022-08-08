@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import androidx.core.app.RemoteInput
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.di.NoSession
 import com.wire.android.notification.NotificationConstants
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
@@ -15,9 +16,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
-class NotificationReplyReceiver(
-    private val qualifiedIdMapper: QualifiedIdMapper
-) : BroadcastReceiver() {
+class NotificationReplyReceiver : BroadcastReceiver() { // requires zero argument constructor
 
     @Inject
     @KaliumCoreLogic
@@ -25,6 +24,10 @@ class NotificationReplyReceiver(
 
     @Inject
     lateinit var dispatcherProvider: DispatcherProvider
+
+    @Inject
+    @NoSession
+    lateinit var qualifiedIdMapper: QualifiedIdMapper
 
     override fun onReceive(context: Context, intent: Intent) {
         val remoteInput = RemoteInput.getResultsFromIntent(intent)

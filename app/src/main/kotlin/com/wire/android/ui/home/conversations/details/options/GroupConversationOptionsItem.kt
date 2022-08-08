@@ -55,10 +55,10 @@ fun GroupConversationOptionsItem(
             modifier = Modifier
                 .weight(1f)
                 .padding(
-                    top = MaterialTheme.wireDimensions.spacing8x,
-                    bottom = MaterialTheme.wireDimensions.spacing8x,
+                    top = MaterialTheme.wireDimensions.spacing12x,
+                    bottom = MaterialTheme.wireDimensions.spacing12x,
                     start = MaterialTheme.wireDimensions.spacing16x,
-                    end = MaterialTheme.wireDimensions.spacing16x
+                    end = MaterialTheme.wireDimensions.spacing12x
                 )
         ) {
             if (label != null)
@@ -101,7 +101,7 @@ fun GroupConversationOptionsItem(
                     text = subtitle,
                     style = MaterialTheme.wireTypography.body01,
                     color = MaterialTheme.wireColorScheme.secondaryText,
-                    modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing8x)
+                    modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing2x)
                 )
             if (footer != null)
                 Box(modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing8x)) { footer() }

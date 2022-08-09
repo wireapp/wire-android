@@ -235,7 +235,7 @@ class MediaGalleryViewModelTest {
                 mutedStatus = AllAllowed,
                 lastNotificationDate = null,
                 lastModifiedDate = null,
-                lastReadDate = null,
+                lastReadDate = "2022-04-04T16:11:28.388Z",
                 access = listOf(Conversation.Access.INVITE),
                 accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER)
             ),
@@ -244,7 +244,8 @@ class MediaGalleryViewModelTest {
                 null, null, null, null,
                 1, null, ConnectionState.ACCEPTED, null, null,
                 UserType.INTERNAL,
-                UserAvailabilityStatus.AVAILABLE
+                UserAvailabilityStatus.AVAILABLE,
+                null
             ),
             connectionState = ConnectionState.ACCEPTED,
             legalHoldStatus = LegalHoldStatus.DISABLED,

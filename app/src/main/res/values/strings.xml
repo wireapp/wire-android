@@ -91,6 +91,9 @@
     <string name="content_description_calling_turn_camera_off">Turn camera off</string>
     <string name="content_description_calling_turn_speaker_on">Turn speaker on</string>
     <string name="content_description_calling_turn_speaker_off">Turn speaker off</string>
+    <string name="content_description_show_more_options">Show more options</string>
+    <string name="content_description_copy">Copy</string>
+    <string name="content_description_edit">Edit</string>
 
     <!-- Non translatable strings-->
     <string name="url_decryption_failure_learn_more" translatable="false">https://support.wire.com/hc/en-us/articles/207948115-Why-was-I-notified-that-a-message-from-a-contact-was-not-received-</string>
@@ -305,6 +308,8 @@
     <string name="user_profile_group_tab">Group</string>
     <string name="user_profile_group_member">Member of the group ”%s”</string>
     <string name="user_profile_group_role">ROLE</string>
+    <string name="user_profile_role_in_group">Role in ”%s”</string>
+    <string name="user_profile_role_change_error">There was an error trying to change the role. Please check your Internet connection and try again</string>
 
     <string name="group_role_admin">Admin</string>
     <string name="group_role_member">Member</string>
@@ -406,11 +411,10 @@
     <string name="notification_missed_call">Missed call</string>
     <string name="notification_not_supported_issue">Something not supported in notifications</string>
     <string name="notification_connection_request">Wants to connect</string>
+    <string name="notification_conversation_deleted">Deleted the group</string>
     <string name="notification_action_call">Call</string>
     <string name="notification_action_reply">Reply</string>
     <string name="notification_receiver_name">You</string>
-    <string name="content_description_copy">Copy</string>
-    <string name="content_description_show_more_options">Show more options</string>
     <string name="label_type_a_message">Type a message</string>
     <string name="notification_action_open_call">Open Call</string>
     <string name="notification_action_decline_call">Decline</string>

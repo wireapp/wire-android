@@ -68,16 +68,16 @@ class LoginSSOViewModel @Inject constructor(
     fun establishSSOSession(cookie: String) {
         loginState = loginState.copy(ssoLoginLoading = true, loginError = LoginError.None).updateSSOLoginEnabled()
         viewModelScope.launch {
-            val authSession = getSSOLoginSessionUseCase(cookie).let {
+            val (authSession, ssoId) = getSSOLoginSessionUseCase(cookie).let {
                 when (it) {
                     is SSOLoginSessionResult.Failure -> {
                         updateSSOLoginError(it.toLoginError())
                         return@launch
                     }
-                    is SSOLoginSessionResult.Success -> it.userSession
+                    is SSOLoginSessionResult.Success -> it.userSession to it.ssoId
                 }
             }
-            val storedUserId = addAuthenticatedUser(authSession, false).let {
+            val storedUserId = addAuthenticatedUser(authSession, ssoId, false).let {
                 when (it) {
                     is AddAuthenticatedUserUseCase.Result.Failure -> {
                         updateSSOLoginError(it.toLoginError())

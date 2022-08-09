@@ -38,7 +38,8 @@ object TestUser {
         previewPicture = UserAssetId("value", "domain"),
         completePicture = UserAssetId("value", "domain"),
         availabilityStatus = UserAvailabilityStatus.AVAILABLE,
-        userType = UserType.INTERNAL
+        userType = UserType.INTERNAL,
+        botService = null
     )
     val MEMBER_SELF = MemberDetails(SELF_USER, Member.Role.Admin)
     val MEMBER_OTHER = MemberDetails(OTHER_USER, Member.Role.Member)

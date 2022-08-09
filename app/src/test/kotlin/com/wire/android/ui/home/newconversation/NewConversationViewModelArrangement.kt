@@ -105,6 +105,7 @@ internal class NewConversationViewModelArrangement {
             teamId = null,
             protocol = Conversation.ProtocolInfo.Proteus,
             mutedStatus = MutedConversationStatus.AllAllowed,
+            removedBy = null,
             lastNotificationDate = null,
             lastModifiedDate = null,
             lastReadDate = "2022-04-04T16:11:28.388Z",

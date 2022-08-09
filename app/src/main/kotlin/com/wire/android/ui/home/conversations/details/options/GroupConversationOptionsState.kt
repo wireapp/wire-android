@@ -9,7 +9,9 @@ data class GroupConversationOptionsState (
     val isServicesAllowed: Boolean = false,
     val isUpdatingAllowed: Boolean = false,
     val isUpdatingGuestAllowed: Boolean = false,
-    val isGuestUpdateDialogShown: Boolean = false,
+    val changeGuestOptionConformationRequired: Boolean = false,
+    val loadingGuestOption: Boolean = false,
+    val loadingServicesOption: Boolean = false,
     val error: Error = Error.None
 ) {
     sealed interface Error {

@@ -194,7 +194,9 @@ private fun ConversationScreen(
                                         GroupConversationAvatar(
                                             color = colorsScheme().conversationColor(id = conversationAvatar.conversationId)
                                         )
-                                    is ConversationAvatar.OneOne -> UserProfileAvatar(UserAvatarData(conversationAvatar.avatarAsset))
+                                    is ConversationAvatar.OneOne -> UserProfileAvatar(
+                                        UserAvatarData(conversationAvatar.avatarAsset, conversationAvatar.status)
+                                    )
                                     ConversationAvatar.None -> Box(modifier = Modifier.size(dimensions().userAvatarDefaultSize))
                                 }
                             },

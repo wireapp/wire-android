@@ -4,6 +4,7 @@ import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.team.Team
+import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import okio.Path
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.id.QualifiedID as ConversationId
@@ -24,7 +25,7 @@ data class ConversationViewState(
 
 sealed class ConversationAvatar {
     object None : ConversationAvatar()
-    class OneOne(val avatarAsset: UserAvatarAsset?) : ConversationAvatar()
+    class OneOne(val avatarAsset: UserAvatarAsset?, val status: UserAvailabilityStatus) : ConversationAvatar()
     class Group(val conversationId: ConversationId) : ConversationAvatar()
 }
 

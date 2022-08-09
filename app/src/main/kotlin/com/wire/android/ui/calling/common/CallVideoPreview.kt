@@ -11,7 +11,8 @@ import com.waz.avs.VideoPreview
 @Composable
 fun CallVideoPreview(
     isCameraOn: Boolean,
-    onVideoPreviewCreated: (view: View) -> Unit
+    onVideoPreviewCreated: (view: View) -> Unit,
+    onSelfClearVideoPreview: () -> Unit
 ) {
     if (isCameraOn) {
         Box {
@@ -26,5 +27,7 @@ fun CallVideoPreview(
                 it.alpha = 0.5F
             }
         }
+    } else {
+        onSelfClearVideoPreview()
     }
 }

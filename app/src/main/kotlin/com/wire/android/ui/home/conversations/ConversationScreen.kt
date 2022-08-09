@@ -295,6 +295,10 @@ private fun ConversationScreenContent(
         )
     }
 
+    LaunchedEffect(messages) {
+        lazyListState.animateScrollToItem(0)
+    }
+
     MessageComposer(
         content = {
             MessageList(
@@ -324,9 +328,6 @@ private fun ConversationScreenContent(
         tempCachePath = tempCachePath
     )
 
-    LaunchedEffect(messages) {
-        lazyListState.animateScrollToItem(0)
-    }
 }
 
 @Composable

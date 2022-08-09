@@ -68,7 +68,9 @@ class SharedCallingViewModel @Inject constructor(
     var callState by mutableStateOf(CallState())
 
     val conversationId: QualifiedID = qualifiedIdMapper.fromStringToQualifiedID(
-        savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!
+        checkNotNull(savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)) {
+            "No conversationId was provided via savedStateHandle to SharedCallingViewModel"
+        }
     )
 
     init {
@@ -135,10 +137,12 @@ class SharedCallingViewModel @Inject constructor(
 
     private suspend fun observeOnMute() {
         snapshotFlow { callState.isMuted }.collectLatest {
-            if (it) {
-                muteCall(conversationId)
-            } else {
-                unMuteCall(conversationId)
+            it?.let {
+                if (it) {
+                    muteCall(conversationId)
+                } else {
+                    unMuteCall(conversationId)
+                }
             }
         }
     }
@@ -146,7 +150,9 @@ class SharedCallingViewModel @Inject constructor(
     private suspend fun observeCallState() {
         allCalls().collect { calls ->
             calls.find { call ->
-                call.conversationId == conversationId && call.status == CallStatus.ESTABLISHED
+                call.conversationId == conversationId &&
+                        call.status != CallStatus.CLOSED &&
+                        call.status != CallStatus.MISSED
             }?.let { call ->
                 callState = callState.copy(
                     callerName = call.callerName,
@@ -185,28 +191,32 @@ class SharedCallingViewModel @Inject constructor(
 
     fun toggleMute() {
         viewModelScope.launch {
-            callState = if (callState.isMuted) {
-                callState.copy(isMuted = false)
-            } else {
-                callState.copy(isMuted = true)
+            callState.isMuted?.let {
+                callState = if (it) {
+                    callState.copy(isMuted = false)
+                } else {
+                    callState.copy(isMuted = true)
+                }
             }
         }
     }
 
     fun toggleVideo() {
         viewModelScope.launch {
-            callState = if (callState.isCameraOn) {
-                turnLoudSpeakerOff()
-                callState.copy(
-                    isCameraOn = false,
-                    isSpeakerOn = false
-                )
-            } else {
-                turnLoudSpeakerOn()
-                callState.copy(
-                    isCameraOn = true,
-                    isSpeakerOn = true
-                )
+            callState.isCameraOn?.let {
+                callState = if (it) {
+                    turnLoudSpeakerOff()
+                    callState.copy(
+                        isCameraOn = false,
+                        isSpeakerOn = false
+                    )
+                } else {
+                    turnLoudSpeakerOn()
+                    callState.copy(
+                        isCameraOn = true,
+                        isSpeakerOn = true
+                    )
+                }
             }
         }
     }
@@ -228,9 +238,11 @@ class SharedCallingViewModel @Inject constructor(
 
     fun pauseVideo() {
         viewModelScope.launch {
-            if (callState.isCameraOn) {
-                updateVideoState(conversationId, VideoState.PAUSED)
-                setVideoPreview(conversationId, PlatformView(null))
+            callState.isCameraOn?.let {
+                if (it) {
+                    updateVideoState(conversationId, VideoState.PAUSED)
+                    setVideoPreview(conversationId, PlatformView(null))
+                }
             }
         }
     }

@@ -40,20 +40,26 @@ data class OtherUserProfileState(
         }
     }
 
+    fun setBottomSheetContentToChangeRole() {
+        groupState?.let {
+            bottomSheetState = BottomSheetState.ChangeRole(it)
+        }
+    }
+
     companion object {
         val PREVIEW = OtherUserProfileState(
             fullName = "name",
             userName = "username",
             teamName = "team",
             email = "email",
-            groupState = OtherUserProfileGroupState("group name", Member.Role.Member, false)
+            groupState = OtherUserProfileGroupState("group name", Member.Role.Member, true)
         )
     }
 }
 
 sealed class BottomSheetState {
-    data class Conversation(val content: ConversationSheetContent) : BottomSheetState()
-    object ChangeRole : BottomSheetState() //this will be used later
+    data class Conversation(val conversationData: ConversationSheetContent) : BottomSheetState()
+    data class ChangeRole(val groupState: OtherUserProfileGroupState?) : BottomSheetState()
 }
 
 data class OtherUserProfileGroupState(

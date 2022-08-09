@@ -1,6 +1,7 @@
 package com.wire.android.ui.userprofile.other
 
 import androidx.lifecycle.SavedStateHandle
+import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
@@ -40,6 +41,8 @@ import com.wire.kalium.logic.feature.conversation.CreateConversationResult
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
+import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleResult
+import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
 import com.wire.kalium.logic.feature.user.GetUserInfoUseCase
 import io.mockk.Called
@@ -100,6 +103,9 @@ class OtherUserProfileScreenViewModelTest {
     private lateinit var qualifiedIdMapper: QualifiedIdMapper
 
     @MockK
+    private lateinit var updateConversationMemberRoleUseCase: UpdateConversationMemberRoleUseCase
+
+    @MockK
     private lateinit var observeSelfUser: GetSelfUserUseCase
 
     @MockK
@@ -140,8 +146,9 @@ class OtherUserProfileScreenViewModelTest {
             userTypeMapper,
             wireSessionImageLoader,
             observeConversationRoleForUserUseCase,
+            qualifiedIdMapper,
+            updateConversationMemberRoleUseCase,
             TestDispatcherProvider(),
-            qualifiedIdMapper
         )
     }
 
@@ -150,32 +157,37 @@ class OtherUserProfileScreenViewModelTest {
         runTest {
             // given
             coEvery { sendConnectionRequest(any()) } returns SendConnectionRequestResult.Success
+            otherUserProfileScreenViewModel.infoMessage.test {
 
-            // when
-            otherUserProfileScreenViewModel.sendConnectionRequest()
+                // when
+                expectNoEvents()
+                otherUserProfileScreenViewModel.sendConnectionRequest()
 
-            // then
-            coVerify {
-                sendConnectionRequest(eq(USER_ID))
+                // then
+                coVerify { sendConnectionRequest(eq(USER_ID)) }
+                assertEquals(ConnectionState.SENT, otherUserProfileScreenViewModel.state.connectionStatus)
+                assertEquals(InfoMessageType.SuccessConnectionSentRequest.uiText, awaitItem())
             }
-            assertEquals(ConnectionState.SENT, otherUserProfileScreenViewModel.state.connectionStatus)
         }
 
     @Test
-    fun `given a userId, when sending a connection request a fails, then returns a Failure result and update view error state`() =
+    fun `given a userId, when sending a connection request a fails, then returns a Failure result and show error message`() =
         runTest {
             // given
             coEvery { sendConnectionRequest(any()) } returns SendConnectionRequestResult.Failure(Unknown(RuntimeException("some error")))
+            otherUserProfileScreenViewModel.infoMessage.test {
 
-            // when
-            otherUserProfileScreenViewModel.sendConnectionRequest()
+                // when
+                expectNoEvents()
+                otherUserProfileScreenViewModel.sendConnectionRequest()
 
-            // then
-            coVerify {
-                sendConnectionRequest(eq(USER_ID))
-                navigationManager wasNot Called
+                // then
+                coVerify {
+                    sendConnectionRequest(eq(USER_ID))
+                    navigationManager wasNot Called
+                }
+                assertEquals(InfoMessageType.ConnectionRequestError.uiText, awaitItem())
             }
-            assertNotNull(otherUserProfileScreenViewModel.snackBarState)
         }
 
     @Test
@@ -199,15 +211,17 @@ class OtherUserProfileScreenViewModelTest {
         runTest {
             // given
             coEvery { cancelConnectionRequest(any()) } returns CancelConnectionRequestUseCaseResult.Success
+            otherUserProfileScreenViewModel.infoMessage.test {
 
-            // when
-            otherUserProfileScreenViewModel.cancelConnectionRequest()
+                // when
+                expectNoEvents()
+                otherUserProfileScreenViewModel.cancelConnectionRequest()
 
-            // then
-            coVerify {
-                cancelConnectionRequest(eq(USER_ID))
+                // then
+                coVerify { cancelConnectionRequest(eq(USER_ID)) }
+                assertEquals(ConnectionState.NOT_CONNECTED, otherUserProfileScreenViewModel.state.connectionStatus)
+                assertEquals(InfoMessageType.SuccessConnectionCancelRequest.uiText, awaitItem())
             }
-            assertEquals(ConnectionState.NOT_CONNECTED, otherUserProfileScreenViewModel.state.connectionStatus)
         }
 
     @Test
@@ -215,15 +229,17 @@ class OtherUserProfileScreenViewModelTest {
         runTest {
             // given
             coEvery { acceptConnectionRequest(any()) } returns AcceptConnectionRequestUseCaseResult.Success
+            otherUserProfileScreenViewModel.infoMessage.test {
 
-            // when
-            otherUserProfileScreenViewModel.acceptConnectionRequest()
+                // when
+                expectNoEvents()
+                otherUserProfileScreenViewModel.acceptConnectionRequest()
 
-            // then
-            coVerify {
-                acceptConnectionRequest(eq(USER_ID))
+                // then
+                coVerify { acceptConnectionRequest(eq(USER_ID)) }
+                assertEquals(ConnectionState.ACCEPTED, otherUserProfileScreenViewModel.state.connectionStatus)
+                assertEquals(InfoMessageType.SuccessConnectionAcceptRequest.uiText, awaitItem())
             }
-            assertEquals(ConnectionState.ACCEPTED, otherUserProfileScreenViewModel.state.connectionStatus)
         }
 
     @Test
@@ -299,6 +315,50 @@ class OtherUserProfileScreenViewModelTest {
                 navigationManager wasNot Called
             }
             assertEquals(groupState, null)
+        }
+
+    @Test
+    fun `given a group conversationId, when changing the role, then the request should be configured correctly`() =
+        runTest {
+            // given
+            val newRole = Member.Role.Admin
+            coEvery { updateConversationMemberRoleUseCase(CONVERSATION_ID, USER_ID, any()) } returns
+                    UpdateConversationMemberRoleResult.Success
+            otherUserProfileScreenViewModel.infoMessage.test {
+
+                // when
+                expectNoEvents()
+                otherUserProfileScreenViewModel.changeMemberRole(newRole)
+
+                // then
+                coVerify {
+                    updateConversationMemberRoleUseCase(CONVERSATION_ID, USER_ID, newRole)
+                    navigationManager wasNot Called
+                }
+                expectNoEvents()
+            }
+        }
+
+    @Test
+    fun `given a group conversationId and a failed response when changing the role, then show info message`() =
+        runTest {
+            // given
+            val newRole = Member.Role.Admin
+            coEvery { updateConversationMemberRoleUseCase(CONVERSATION_ID, USER_ID, any()) } returns
+                    UpdateConversationMemberRoleResult.Failure
+            otherUserProfileScreenViewModel.infoMessage.test {
+
+                // when
+                expectNoEvents()
+                otherUserProfileScreenViewModel.changeMemberRole(newRole)
+
+                // then
+                coVerify {
+                    updateConversationMemberRoleUseCase(CONVERSATION_ID, USER_ID, newRole)
+                    navigationManager wasNot Called
+                }
+                assertEquals(InfoMessageType.ChangeGroupRoleError.uiText, awaitItem())
+            }
         }
 
     // todo: add tests for cancel request

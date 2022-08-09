@@ -34,6 +34,7 @@ fun OtherUserProfileDetails(
     otherUserProfileScreenState: OtherUserProfileScreenState = rememberOtherUserProfileScreenState(remember { SnackbarHostState() }),
     lazyListState: LazyListState = rememberLazyListState()
 ) {
+    val context = LocalContext.current
     LazyColumn(
         state = lazyListState,
         modifier = Modifier.fillMaxSize()
@@ -43,7 +44,7 @@ fun OtherUserProfileDetails(
                 UserDetailInformation(
                     title = stringResource(R.string.email_label),
                     value = state.email,
-                    onCopy = { otherUserProfileScreenState.copy(it) }
+                    onCopy = { otherUserProfileScreenState.copy(it, context) }
                 )
             }
         if (state.phone.isNotEmpty())
@@ -51,7 +52,7 @@ fun OtherUserProfileDetails(
                 UserDetailInformation(
                     title = stringResource(R.string.phone_label),
                     value = state.phone,
-                    onCopy = { otherUserProfileScreenState.copy(it) }
+                    onCopy = { otherUserProfileScreenState.copy(it, context) }
                 )
             }
     }
@@ -64,7 +65,6 @@ private fun UserDetailInformation(
     value: String,
     onCopy: (String) -> Unit
 ) {
-    val context = LocalContext.current
     RowItemTemplate(
         modifier = Modifier.padding(horizontal = dimensions().spacing8x),
         title = {
@@ -81,7 +81,7 @@ private fun UserDetailInformation(
                 text = value
             )
         },
-        actions = { CopyButton(onCopyClicked = { onCopy(context.getString(R.string.label_value_copied, value)) }) },
+        actions = { CopyButton(onCopyClicked = { onCopy(value) }) },
         clickable = Clickable(enabled = false) {}
     )
 }

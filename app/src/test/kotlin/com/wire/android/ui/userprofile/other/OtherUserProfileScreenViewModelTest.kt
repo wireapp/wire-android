@@ -156,7 +156,7 @@ class OtherUserProfileScreenViewModelTest {
                 sendConnectionRequest(eq(USER_ID))
                 navigationManager wasNot Called
             }
-            assertNotNull(otherUserProfileScreenViewModel.connectionOperationState)
+            assertNotNull(otherUserProfileScreenViewModel.otherUserProfileSnackBarState)
         }
 
     @Test

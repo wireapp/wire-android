@@ -307,6 +307,11 @@
     <string name="user_profile_group_role">ROLE</string>
     <string name="user_profile_group_remove_button">Remove from group</string>
 
+    <!-- Remove Conversation Member Dialog -->
+    <string name="remove_conversation_member_title">Remove from group?</string>
+    <string name="remove_conversation_member_description">%s (@%s) will not be able to send or receive messages in this conversation.</string>
+    <string name="remove_conversation_member_error">There was an error while removing %s from conversation</string>
+
     <string name="group_role_admin">Admin</string>
     <string name="group_role_member">Member</string>
 

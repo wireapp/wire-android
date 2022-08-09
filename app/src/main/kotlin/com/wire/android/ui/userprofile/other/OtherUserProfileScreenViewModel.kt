@@ -8,7 +8,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.mapper.UserTypeMapper
+import com.wire.android.model.DialogState
 import com.wire.android.model.ImageAsset
+import com.wire.android.model.PreservedState
+import com.wire.android.model.toError
+import com.wire.android.model.toLoading
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.EXTRA_CONNECTION_IGNORED_USER_NAME
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
@@ -19,6 +23,7 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.details.participants.usecase.ConversationRoleData
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
 import com.wire.android.ui.userprofile.common.UsernameMapper.mapUserLabel
+import com.wire.android.ui.userprofile.group.RemoveConversationMemberState
 import com.wire.android.util.EMPTY
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.Member
@@ -65,7 +70,10 @@ class OtherUserProfileScreenViewModel @Inject constructor(
 ) : ViewModel() {
 
     var state: OtherUserProfileState by mutableStateOf(OtherUserProfileState())
-    var connectionOperationState: ConnectionOperationState? by mutableStateOf(null)
+    var otherUserProfileSnackBarState: OtherUserProfileSnackBarState? by mutableStateOf(null)
+
+    var removeConversationMemberDialogState: DialogState<PreservedState<RemoveConversationMemberState>>
+            by mutableStateOf(DialogState.Hidden)
 
     private val userId: QualifiedID = savedStateHandle.get<String>(EXTRA_USER_ID)!!.toQualifiedID(qualifiedIdMapper)
     private val conversationId: QualifiedID? = savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)?.toQualifiedID(qualifiedIdMapper)
@@ -76,7 +84,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             when (val result = getUserInfo(userId)) {
                 is GetUserInfoResult.Failure -> {
                     appLogger.d("Couldn't not find the user with provided id:$userId.id and domain:$userId.domain")
-                    connectionOperationState = ConnectionOperationState.LoadUserInformationError()
+                    otherUserProfileSnackBarState = OtherUserProfileSnackBarState.LoadUserInformationError()
                 }
                 is GetUserInfoResult.Success ->
                     conversationId
@@ -129,11 +137,11 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             when (sendConnectionRequest(userId)) {
                 is SendConnectionRequestResult.Failure -> {
                     appLogger.d(("Couldn't send a connect request to user $userId"))
-                    connectionOperationState = ConnectionOperationState.ConnectionRequestError()
+                    otherUserProfileSnackBarState = OtherUserProfileSnackBarState.ConnectionRequestError()
                 }
                 is SendConnectionRequestResult.Success -> {
                     state = state.copy(connectionStatus = ConnectionStatus.Sent)
-                    connectionOperationState = ConnectionOperationState.SuccessConnectionSentRequest()
+                    otherUserProfileSnackBarState = OtherUserProfileSnackBarState.SuccessConnectionSentRequest()
                 }
             }
         }
@@ -144,11 +152,11 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             when (cancelConnectionRequest(userId)) {
                 is CancelConnectionRequestUseCaseResult.Failure -> {
                     appLogger.d(("Couldn't cancel a connect request to user $userId"))
-                    connectionOperationState = ConnectionOperationState.ConnectionRequestError()
+                    otherUserProfileSnackBarState = OtherUserProfileSnackBarState.ConnectionRequestError()
                 }
                 is CancelConnectionRequestUseCaseResult.Success -> {
                     state = state.copy(connectionStatus = ConnectionStatus.NotConnected)
-                    connectionOperationState = ConnectionOperationState.SuccessConnectionCancelRequest()
+                    otherUserProfileSnackBarState = OtherUserProfileSnackBarState.SuccessConnectionCancelRequest()
                 }
             }
         }
@@ -159,11 +167,11 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             when (acceptConnectionRequest(userId)) {
                 is AcceptConnectionRequestUseCaseResult.Failure -> {
                     appLogger.d(("Couldn't accept a connect request to user $userId"))
-                    connectionOperationState = ConnectionOperationState.ConnectionRequestError()
+                    otherUserProfileSnackBarState = OtherUserProfileSnackBarState.ConnectionRequestError()
                 }
                 is AcceptConnectionRequestUseCaseResult.Success -> {
                     state = state.copy(connectionStatus = ConnectionStatus.Connected)
-                    connectionOperationState = ConnectionOperationState.SuccessConnectionAcceptRequest()
+                    otherUserProfileSnackBarState = OtherUserProfileSnackBarState.SuccessConnectionAcceptRequest()
                 }
             }
         }
@@ -174,7 +182,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             when (ignoreConnectionRequest(userId)) {
                 is IgnoreConnectionRequestUseCaseResult.Failure -> {
                     appLogger.d(("Couldn't ignore a connect request to user $userId"))
-                    connectionOperationState = ConnectionOperationState.ConnectionRequestError()
+                    otherUserProfileSnackBarState = OtherUserProfileSnackBarState.ConnectionRequestError()
                 }
                 is IgnoreConnectionRequestUseCaseResult.Success -> {
                     state = state.copy(connectionStatus = ConnectionStatus.NotConnected)
@@ -188,9 +196,41 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         }
     }
 
-    fun removeFromConversation() {
+    fun openRemoveConversationMemberDialog() {
         viewModelScope.launch {
-            removeMemberFromConversation(state.groupState!!.conversationId, userId)
+            removeConversationMemberDialogState = DialogState.Visible(
+                PreservedState.State(
+                    RemoveConversationMemberState(
+                        conversationId = conversationId!!,
+                        fullName = state.fullName,
+                        userName = state.userName,
+                        userId = userId
+                    )
+                )
+            )
+        }
+    }
+
+    fun hideRemoveConversationMemberDialog() {
+        viewModelScope.launch {
+            removeConversationMemberDialogState = DialogState.Hidden
+        }
+    }
+
+    fun removeConversationMember(preservedState: PreservedState<RemoveConversationMemberState>) {
+        viewModelScope.launch {
+            removeConversationMemberDialogState = DialogState.Visible(
+                preservedState.toLoading()
+            )
+            when (removeMemberFromConversation(state.groupState!!.conversationId, userId)) {
+                is RemoveMemberFromConversationUseCase.Result.Failure -> {
+                    otherUserProfileSnackBarState =
+                        OtherUserProfileSnackBarState.RemoveConversationMemberError(preservedState.state.fullName)
+                    removeConversationMemberDialogState = DialogState.Hidden
+                }
+                RemoveMemberFromConversationUseCase.Result.Success -> removeConversationMemberDialogState =
+                    DialogState.Hidden
+            }
         }
     }
 
@@ -200,10 +240,11 @@ class OtherUserProfileScreenViewModel @Inject constructor(
 /**
  * We are adding a [randomEventIdentifier] as [UUID], so the msg can be discarded every time after being generated.
  */
-sealed class ConnectionOperationState(private val randomEventIdentifier: UUID) {
-    class SuccessConnectionSentRequest : ConnectionOperationState(UUID.randomUUID())
-    class SuccessConnectionAcceptRequest : ConnectionOperationState(UUID.randomUUID())
-    class SuccessConnectionCancelRequest : ConnectionOperationState(UUID.randomUUID())
-    class ConnectionRequestError : ConnectionOperationState(UUID.randomUUID())
-    class LoadUserInformationError : ConnectionOperationState(UUID.randomUUID())
+sealed class OtherUserProfileSnackBarState(private val randomEventIdentifier: UUID) {
+    class SuccessConnectionSentRequest : OtherUserProfileSnackBarState(UUID.randomUUID())
+    class SuccessConnectionAcceptRequest : OtherUserProfileSnackBarState(UUID.randomUUID())
+    class SuccessConnectionCancelRequest : OtherUserProfileSnackBarState(UUID.randomUUID())
+    class ConnectionRequestError : OtherUserProfileSnackBarState(UUID.randomUUID())
+    class LoadUserInformationError : OtherUserProfileSnackBarState(UUID.randomUUID())
+    data class RemoveConversationMemberError(val fullName: String) : OtherUserProfileSnackBarState(UUID.randomUUID())
 }

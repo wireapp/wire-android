@@ -32,6 +32,8 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
 import com.wire.android.R
+import com.wire.android.model.DialogState
+import com.wire.android.model.PreservedState
 import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.MoreOptionIcon
 import com.wire.android.ui.common.TabItem
@@ -39,7 +41,6 @@ import com.wire.android.ui.common.WireTabRow
 import com.wire.android.ui.common.calculateCurrentTab
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
-import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.home.conversationslist.model.Membership
@@ -48,20 +49,24 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.userprofile.common.EditableState
 import com.wire.android.ui.userprofile.common.UserProfileInfo
+import com.wire.android.ui.userprofile.group.RemoveConversationMemberState
 import kotlinx.coroutines.launch
 
 @Composable
 fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltViewModel()) {
     OtherProfileScreenContent(
         state = viewModel.state,
-        operationState = viewModel.connectionOperationState,
+        operationState = viewModel.otherUserProfileSnackBarState,
+        removeMemberDialogState = viewModel.removeConversationMemberDialogState,
         onSendConnectionRequest = viewModel::sendConnectionRequest,
         onOpenConversation = viewModel::openConversation,
         onCancelConnectionRequest = viewModel::cancelConnectionRequest,
         ignoreConnectionRequest = viewModel::ignoreConnectionRequest,
         acceptConnectionRequest = viewModel::acceptConnectionRequest,
-        onRemoveFromConversation = viewModel::removeFromConversation,
-        onNavigateBack = viewModel::navigateBack
+        openRemoveConversationMemberDialog = viewModel::openRemoveConversationMemberDialog,
+        hideRemoveConversationMemberDialog = viewModel::hideRemoveConversationMemberDialog,
+        onNavigateBack = viewModel::navigateBack,
+        onRemoveConversationMember = viewModel::removeConversationMember
     )
 }
 
@@ -70,14 +75,17 @@ fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltView
 @Composable
 fun OtherProfileScreenContent(
     state: OtherUserProfileState,
-    operationState: ConnectionOperationState?,
+    operationState: OtherUserProfileSnackBarState?,
+    removeMemberDialogState: DialogState<PreservedState<RemoveConversationMemberState>>,
     onSendConnectionRequest: () -> Unit,
     onOpenConversation: () -> Unit,
     onCancelConnectionRequest: () -> Unit,
     acceptConnectionRequest: () -> Unit,
     ignoreConnectionRequest: () -> Unit,
     onNavigateBack: () -> Unit,
-    onRemoveFromConversation: () -> Unit,
+    openRemoveConversationMemberDialog: () -> Unit,
+    hideRemoveConversationMemberDialog: () -> Unit,
+    onRemoveConversationMember: (PreservedState<RemoveConversationMemberState>) -> Unit,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
     val otherUserProfileScreenState = rememberOtherUserProfileScreenState(snackbarHostState)
@@ -170,7 +178,7 @@ fun OtherProfileScreenContent(
                                         OtherUserProfileGroup(
                                             state = state.groupState!!,
                                             lazyListState = lazyListStates[tabItem]!!,
-                                            onRemoveFromConversation = onRemoveFromConversation
+                                            onRemoveFromConversation = openRemoveConversationMemberDialog
                                         )
                                 }
                             }
@@ -208,6 +216,12 @@ fun OtherProfileScreenContent(
             }
         }, isSwipeable = state.connectionStatus == ConnectionStatus.Connected
     )
+
+    RemoveConversationMemberDialog(
+        dialogState = removeMemberDialogState,
+        onDialogDismiss = hideRemoveConversationMemberDialog,
+        onRemoveConversationMember = onRemoveConversationMember
+    )
 }
 
 enum class OtherUserProfileTabItem(@StringRes override val titleResId: Int) : TabItem {
@@ -218,15 +232,19 @@ enum class OtherUserProfileTabItem(@StringRes override val titleResId: Int) : Ta
 @Composable
 private fun handleOperationMessages(
     snackbarHostState: SnackbarHostState,
-    operationState: ConnectionOperationState?
+    operationState: OtherUserProfileSnackBarState?
 ) {
     operationState?.let { errorType ->
         val message = when (errorType) {
-            is ConnectionOperationState.ConnectionRequestError -> stringResource(id = R.string.connection_request_sent_error)
-            is ConnectionOperationState.SuccessConnectionSentRequest -> stringResource(id = R.string.connection_request_sent)
-            is ConnectionOperationState.LoadUserInformationError -> stringResource(id = R.string.error_unknown_message)
-            is ConnectionOperationState.SuccessConnectionAcceptRequest -> stringResource(id = R.string.connection_request_accepted)
-            is ConnectionOperationState.SuccessConnectionCancelRequest -> stringResource(id = R.string.connection_request_canceled)
+            is OtherUserProfileSnackBarState.ConnectionRequestError -> stringResource(id = R.string.connection_request_sent_error)
+            is OtherUserProfileSnackBarState.SuccessConnectionSentRequest -> stringResource(id = R.string.connection_request_sent)
+            is OtherUserProfileSnackBarState.LoadUserInformationError -> stringResource(id = R.string.error_unknown_message)
+            is OtherUserProfileSnackBarState.SuccessConnectionAcceptRequest -> stringResource(id = R.string.connection_request_accepted)
+            is OtherUserProfileSnackBarState.SuccessConnectionCancelRequest -> stringResource(id = R.string.connection_request_canceled)
+            is OtherUserProfileSnackBarState.RemoveConversationMemberError -> stringResource(
+                id = R.string.remove_conversation_member_error,
+                errorType.fullName
+            )
         }
         LaunchedEffect(errorType) {
             snackbarHostState.showSnackbar(message)
@@ -239,7 +257,10 @@ private fun handleOperationMessages(
 fun OtherProfileScreenContentPreview() {
     WireTheme(isPreview = true) {
         OtherProfileScreenContent(
-            OtherUserProfileState.PREVIEW.copy(connectionStatus = ConnectionStatus.Connected), null, {}, {}, {}, {}, {}, {}, {}
+            OtherUserProfileState.PREVIEW.copy(connectionStatus = ConnectionStatus.Connected),
+            null,
+            DialogState.Hidden,
+            {}, {}, {}, {}, {}, {}, {}, {}, {}
         )
     }
 }
@@ -249,7 +270,10 @@ fun OtherProfileScreenContentPreview() {
 fun OtherProfileScreenContentNotConnectedPreview() {
     WireTheme(isPreview = true) {
         OtherProfileScreenContent(
-            OtherUserProfileState.PREVIEW.copy(connectionStatus = ConnectionStatus.NotConnected), null, {}, {}, {}, {}, {}, {}, {}
+            OtherUserProfileState.PREVIEW.copy(connectionStatus = ConnectionStatus.NotConnected),
+            null,
+            DialogState.Hidden,
+            {}, {}, {}, {}, {}, {}, {}, {}, {}
         )
     }
 }

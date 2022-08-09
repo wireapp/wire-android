@@ -60,7 +60,7 @@ class WireNotificationManager @Inject constructor(
     }
 
     private suspend fun fetchAndShowCallNotificationsOnce(userId: QualifiedID) {
-        //TODO: for now GetIncomingCallsUseCase() doesn't return valid data on the first try.
+        // TODO: for now GetIncomingCallsUseCase() doesn't return valid data on the first try.
         //      so it's possible to have scenario, when FCM comes informing us that there is a Call,
         //      but we don't get it from the first GetIncomingCallsUseCase() call.
         //      To cover that case we have this `intervalFlow().take(CHECK_INCOMING_CALLS_TRIES)`
@@ -185,7 +185,6 @@ class WireNotificationManager @Inject constructor(
                 }
             }
     }
-
 
     /**
      * Infinitely listen for the new Message notifications and show it.

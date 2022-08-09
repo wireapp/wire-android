@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
+import com.wire.android.mapper.MessageMapper
 import com.wire.android.model.ImageAsset.PrivateAsset
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.navigation.BackStackMode
@@ -103,7 +104,8 @@ class ConversationViewModel @Inject constructor(
     private val fileManager: FileManager,
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val kaliumFileSystem: KaliumFileSystem,
-    private val updateConversationReadDateUseCase: UpdateConversationReadDateUseCase
+    private val updateConversationReadDateUseCase: UpdateConversationReadDateUseCase,
+    private val messageMapper: MessageMapper
 ) : SavedStateViewModel(savedStateHandle) {
 
     var conversationViewState by mutableStateOf(ConversationViewState())
@@ -136,10 +138,6 @@ class ConversationViewModel @Inject constructor(
 
                 Pair(a, b)
             }.collect { (a: List<UIMessage>?, b: ObserveConversationDetailsUseCase.Result?) ->
-                if (a != null) {
-                    Log.d("TEST", "a is not null")
-                    updateMessagesList(a)
-                }
                 if (b != null) {
                     Log.d("TEST", "b is not null")
                     when (b) {
@@ -150,9 +148,25 @@ class ConversationViewModel @Inject constructor(
 
                 if (a != null && (b != null && b is Success)) {
                     Log.d("TEST", "both are not null")
-                    when (b.conversationDetails) {
-                        is ConversationDetails.OneOne -> {}
-                        is ConversationDetails.Group -> {}
+                    updateMessagesList(a)
+                    when (val details = b.conversationDetails) {
+                        is ConversationDetails.OneOne -> {
+                            val lastUnreadMessage = details.lastUnreadMessage
+                            if (lastUnreadMessage != null) {
+                                conversationViewState =
+                                    conversationViewState.copy(lastUnreadMessage = a.first { it.messageHeader.messageId == lastUnreadMessage.id })
+                            }
+                            Log.d("TEST", "lastunreadMessage: ${details.lastUnreadMessage}")
+                        }
+                        is ConversationDetails.Group -> {
+                            val lastUnreadMessage = details.lastUnreadMessage
+                            if (lastUnreadMessage != null) {
+                                conversationViewState =
+                                    conversationViewState.copy(lastUnreadMessage = a.first { it.messageHeader.messageId == lastUnreadMessage.id })
+                            }
+
+                            Log.d("TEST", "lastunreadMessage: ${details.lastUnreadMessage}")
+                        }
                         else -> ConversationAvatar.None
                     }
                 }

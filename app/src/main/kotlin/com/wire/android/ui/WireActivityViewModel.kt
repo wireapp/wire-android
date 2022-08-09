@@ -86,9 +86,9 @@ class WireActivityViewModel @Inject constructor(
         when {
             shouldGoToLogin() -> NavigationItem.Login.getRouteWithArgs()
             shouldGoToWelcome() -> NavigationItem.Welcome.getRouteWithArgs()
-            shouldGoToIncomingCall() -> NavigationItem.IncomingCall.getRouteWithArgs()
-            shouldGoToConversation() -> NavigationItem.Conversation.getRouteWithArgs()
-            shouldGoToOtherProfile() -> NavigationItem.OtherUserProfile.getRouteWithArgs()
+            shouldGoToIncomingCall() -> NavigationItem.Home.getRouteWithArgs()
+            shouldGoToConversation() -> NavigationItem.Home.getRouteWithArgs()
+            shouldGoToOtherProfile() -> NavigationItem.Home.getRouteWithArgs()
             else -> NavigationItem.Home.getRouteWithArgs()
         }
 

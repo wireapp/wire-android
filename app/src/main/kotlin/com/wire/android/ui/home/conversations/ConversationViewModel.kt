@@ -123,22 +123,39 @@ class ConversationViewModel @Inject constructor(
 
     var establishedCallConversationId: ConversationId? = null
 
-    init {
-//        fetchMessages()
-//        listenConversationDetails()
 
+    init {
         viewModelScope.launch {
             flow {
                 emitAll(getMessageForConversation(conversationId).onStart { emit(null) })
             }.zip(
-                flow { emitAll(observeConversationDetails(conversationId).onStart { emit(null) }) },
-                { a, b ->
-                    Log.d("TEST", "this is a :$a")
-                    Log.d("TEST", "this is b :$b")
+                flow { emitAll(observeConversationDetails(conversationId).onStart { emit(null) }) }
+            ) { a, b ->
+                Log.d("TEST", "this is a :$a")
+                Log.d("TEST", "this is b :$b")
 
-                    "test"
-                }).collect {
+                Pair(a, b)
+            }.collect { (a: List<UIMessage>?, b: ObserveConversationDetailsUseCase.Result?) ->
+                if (a != null) {
+                    Log.d("TEST", "a is not null")
+                    updateMessagesList(a)
+                }
+                if (b != null) {
+                    Log.d("TEST", "b is not null")
+                    when (b) {
+                        is Failure -> handleConversationDetailsFailure(b.storageFailure)
+                        is Success -> handleConversationDetails(b.conversationDetails)
+                    }
+                }
 
+                if (a != null && (b != null && b is Success)) {
+                    Log.d("TEST", "both are not null")
+                    when (b.conversationDetails) {
+                        is ConversationDetails.OneOne -> {}
+                        is ConversationDetails.Group -> {}
+                        else -> ConversationAvatar.None
+                    }
+                }
             }
         }
 

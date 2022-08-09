@@ -1,5 +1,6 @@
 package com.wire.android.ui.home.conversations
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -60,8 +61,16 @@ import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
+import com.wire.kalium.logic.functional.combine
 import com.wire.kalium.logic.functional.onFailure
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.emitAll
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.startWith
+import kotlinx.coroutines.flow.zip
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
@@ -115,9 +124,24 @@ class ConversationViewModel @Inject constructor(
     var establishedCallConversationId: ConversationId? = null
 
     init {
-        markAsRead()
-        fetchMessages()
-        listenConversationDetails()
+//        fetchMessages()
+//        listenConversationDetails()
+
+        viewModelScope.launch {
+            flow {
+                emitAll(getMessageForConversation(conversationId).onStart { emit(null) })
+            }.zip(
+                flow { emitAll(observeConversationDetails(conversationId).onStart { emit(null) }) },
+                { a, b ->
+                    Log.d("TEST", "this is a :$a")
+                    Log.d("TEST", "this is b :$b")
+
+                    "test"
+                }).collect {
+
+            }
+        }
+
         fetchSelfUserTeam()
         setFileSharingStatus()
         listenOngoingCall()

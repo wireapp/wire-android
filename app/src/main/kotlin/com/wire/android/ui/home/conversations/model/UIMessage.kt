@@ -122,6 +122,6 @@ enum class MessageSource {
     Self, OtherUser
 }
 
-data class MessageTime(val ISODate : String){
-    val formattedDate = ISODate.uiMessageDateTime() ?: ""
+data class MessageTime(val utcISO : String){
+    val formattedDate = utcISO.uiMessageDateTime() ?: ""
 }

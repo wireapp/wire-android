@@ -15,6 +15,7 @@ import com.wire.android.ui.home.conversations.model.MessageContent
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
+import com.wire.android.ui.home.conversations.model.MessageTime
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.ui.UIText
@@ -29,7 +30,7 @@ val mockMessageWithText = UIMessage(
         username = UIText.DynamicString("John Doe"),
         membership = Membership.Guest,
         isLegalHold = true,
-        time = "12.23pm",
+        messageTime = MessageTime("12.23pm"),
         messageStatus = MessageStatus.Untouched,
         messageId = ""
     ),
@@ -66,7 +67,7 @@ val mockAssetMessage = UIMessage(
         username = UIText.DynamicString("John Doe"),
         membership = Membership.Guest,
         isLegalHold = true,
-        time = "12.23pm",
+        messageTime = MessageTime( "12.23pm"),
         messageStatus = MessageStatus.Untouched,
         messageId = ""
     ),
@@ -91,7 +92,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             username = UIText.DynamicString("John Doe"),
             membership = Membership.Guest,
             isLegalHold = true,
-            time = "12.23pm",
+            messageTime = MessageTime(  "12.23pm"),
             messageStatus = MessageStatus.Untouched,
             messageId = "1"
         ),
@@ -113,7 +114,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             username = UIText.DynamicString("John Doe"),
             membership = Membership.Guest,
             isLegalHold = true,
-            time = "12.23pm",
+            messageTime = MessageTime(  "12.23pm"),
             messageStatus = MessageStatus.Deleted,
             messageId = "2"
         ),
@@ -126,7 +127,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             username = UIText.DynamicString("John Doe"),
             membership = Membership.External,
             isLegalHold = false,
-            time = "12.23pm",
+            messageTime = MessageTime(  "12.23pm"),
             messageStatus = MessageStatus.Edited("May 31, 2022 12.24pm"),
             messageId = "3"
         ),
@@ -139,7 +140,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             username = UIText.DynamicString("John Doe"),
             membership = Membership.External,
             isLegalHold = false,
-            time = "12.23pm",
+            messageTime = MessageTime( "12.23pm"),
             messageStatus = MessageStatus.Edited("May 31, 2022 12.24pm"),
             messageId = "4"
         ),
@@ -152,7 +153,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             username = UIText.DynamicString("John Doe"),
             membership = Membership.External,
             isLegalHold = false,
-            time = "12.23pm",
+            messageTime = MessageTime( "12.23pm"),
             messageStatus = MessageStatus.Deleted,
             messageId = "5"
         ),
@@ -174,7 +175,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             username = UIText.DynamicString("John Doe"),
             membership = Membership.External,
             isLegalHold = false,
-            time = "12.23pm",
+            messageTime = MessageTime( "12.23pm"),
             messageStatus = MessageStatus.Edited("May 31, 2022 12.24pm"),
             messageId = "6"
         ),
@@ -187,7 +188,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             username = UIText.DynamicString("John Doe"),
             membership = Membership.External,
             isLegalHold = false,
-            time = "12.23pm",
+            messageTime = MessageTime( "12.23pm"),
             messageStatus = MessageStatus.Edited("May 31, 2022 12.24pm"),
             messageId = "7"
         ),
@@ -220,3 +221,4 @@ fun getMockedMessages(): List<UIMessage> = listOf(
         messageSource = MessageSource.Self
     )
 )
+

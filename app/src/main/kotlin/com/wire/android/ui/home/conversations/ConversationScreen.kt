@@ -11,17 +11,19 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -36,7 +38,6 @@ import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.conversationColor
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.rememberBottomBarElevationState
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorDeletingMessage
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorDownloadingAsset
@@ -119,7 +120,8 @@ fun ConversationScreen(conversationViewModel: ConversationViewModel) {
         onSnackbarMessageShown = conversationViewModel::clearSnackbarMessage,
         onDropDownClick = conversationViewModel::navigateToDetails,
         tempCachePath = conversationViewModel.provideTempCachePath(),
-        onOpenProfile = conversationViewModel::navigateToProfile
+        onOpenProfile = conversationViewModel::navigateToProfile,
+        onUpdateConversationReadDate = conversationViewModel::updateConversationReadDate
     )
 
     DeleteMessageDialog(conversationViewModel = conversationViewModel)
@@ -166,7 +168,8 @@ private fun ConversationScreen(
     onSnackbarMessageShown: () -> Unit,
     onDropDownClick: () -> Unit,
     tempCachePath: Path,
-    onOpenProfile: (MessageSource, UserId) -> Unit
+    onOpenProfile: (MessageSource, UserId) -> Unit,
+    onUpdateConversationReadDate: (String) -> Unit
 ) {
     val conversationScreenState = rememberConversationScreenState()
 
@@ -234,7 +237,8 @@ private fun ConversationScreen(
                                 conversationScreenState = conversationScreenState,
                                 isFileSharingEnabled = isFileSharingEnabled,
                                 tempCachePath = tempCachePath,
-                                onOpenProfile = onOpenProfile
+                                onOpenProfile = onOpenProfile,
+                                onUpdateConversationReadDate = onUpdateConversationReadDate
                             )
                         }
                     }
@@ -262,7 +266,8 @@ private fun ConversationScreenContent(
     onSnackbarMessageShown: () -> Unit,
     conversationScreenState: ConversationScreenState,
     isFileSharingEnabled: Boolean,
-    tempCachePath: Path
+    tempCachePath: Path,
+    onUpdateConversationReadDate: (String) -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -297,7 +302,8 @@ private fun ConversationScreenContent(
                 onShowContextMenu = onShowContextMenu,
                 onDownloadAsset = onDownloadAsset,
                 onImageFullScreenMode = onImageFullScreenMode,
-                onOpenProfile = onOpenProfile
+                onOpenProfile = onOpenProfile,
+                onUpdateConversationReadDate = onUpdateConversationReadDate
             )
         },
         messageText = messageText,
@@ -348,8 +354,19 @@ fun MessageList(
     onShowContextMenu: (UIMessage) -> Unit,
     onDownloadAsset: (String) -> Unit,
     onImageFullScreenMode: (String, Boolean) -> Unit,
-    onOpenProfile: (MessageSource, UserId) -> Unit
+    onOpenProfile: (MessageSource, UserId) -> Unit,
+    onUpdateConversationReadDate: (String) -> Unit
 ) {
+    if (messages.isNotEmpty()) {
+        LaunchedEffect(lazyListState.isScrollInProgress) {
+            if (!lazyListState.isScrollInProgress) {
+                val lastVisibleMessage = messages[lazyListState.firstVisibleItemIndex]
+                onUpdateConversationReadDate(lastVisibleMessage.messageHeader.messageTime.utcISO)
+                Log.d("TEST", "last visible  ${messages[lazyListState.firstVisibleItemIndex]}")
+            }
+        }
+    }
+
     LazyColumn(
         state = lazyListState,
         reverseLayout = true,
@@ -360,12 +377,6 @@ fun MessageList(
         items(messages, key = {
             it.messageHeader.messageId
         }) { message ->
-//            Log.d("TEST","item is composed ${message.messageHeader.messageId} index is ${ messages.indexOf(message)}")
-            val test = remember(message.messageHeader.messageId){
-                Log.d("TEST","item is composed from within the remember${message.messageHeader.messageId} index is ${ messages.indexOf(message)}")
-
-                "test"
-            }
             if (message.messageContent is MessageContent.SystemMessage) {
                 SystemMessageItem(message = message.messageContent)
             } else {
@@ -402,6 +413,7 @@ fun ConversationScreenPreview() {
         onSnackbarMessageShown = {},
         onDropDownClick = {},
         tempCachePath = "".toPath(),
-        onOpenProfile = { _, _ -> }
+        onOpenProfile = { _, _ -> },
+        onUpdateConversationReadDate = {}
     )
 }

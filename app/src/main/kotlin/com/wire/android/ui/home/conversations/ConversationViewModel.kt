@@ -75,6 +75,7 @@ import kotlinx.coroutines.flow.zip
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Clock
+import kotlinx.datetime.Instant
 import okio.Path
 import okio.buffer
 import javax.inject.Inject
@@ -493,6 +494,12 @@ class ConversationViewModel @Inject constructor(
                 else -> it
             }
         }
+
+    fun updateConversationReadDate(utcISO: String) {
+        viewModelScope.launch(dispatchers.io()) {
+            updateConversationReadDateUseCase(conversationId, Instant.parse(utcISO))
+        }
+    }
 
     fun deleteMessage(messageId: String, deleteForEveryone: Boolean) = viewModelScope.launch {
         // update dialogs state to loading

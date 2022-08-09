@@ -61,6 +61,7 @@ import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Instant
 import okio.Path
 import okio.Path.Companion.toPath
 
@@ -298,6 +299,7 @@ private fun ConversationScreenContent(
         content = {
             MessageList(
                 messages = messages,
+                lastUnreadMessage,
                 lazyListState = lazyListState,
                 onShowContextMenu = onShowContextMenu,
                 onDownloadAsset = onDownloadAsset,
@@ -350,6 +352,7 @@ private fun getSnackbarMessage(messageCode: ConversationSnackbarMessages): Pair<
 @Composable
 fun MessageList(
     messages: List<UIMessage>,
+    lastUnreadMessage: UIMessage?,
     lazyListState: LazyListState,
     onShowContextMenu: (UIMessage) -> Unit,
     onDownloadAsset: (String) -> Unit,
@@ -357,11 +360,14 @@ fun MessageList(
     onOpenProfile: (MessageSource, UserId) -> Unit,
     onUpdateConversationReadDate: (String) -> Unit
 ) {
-    if (messages.isNotEmpty()) {
+    if (messages.isNotEmpty() && lastUnreadMessage != null) {
         LaunchedEffect(lazyListState.isScrollInProgress) {
             if (!lazyListState.isScrollInProgress) {
                 val lastVisibleMessage = messages[lazyListState.firstVisibleItemIndex]
-                onUpdateConversationReadDate(lastVisibleMessage.messageHeader.messageTime.utcISO)
+
+                if (Instant.parse(lastVisibleMessage.messageHeader.messageTime.utcISO) >= Instant.parse(lastUnreadMessage.messageHeader.messageTime.utcISO)) {
+                    onUpdateConversationReadDate(lastVisibleMessage.messageHeader.messageTime.utcISO)
+                }
                 Log.d("TEST", "last visible  ${messages[lazyListState.firstVisibleItemIndex]}")
             }
         }

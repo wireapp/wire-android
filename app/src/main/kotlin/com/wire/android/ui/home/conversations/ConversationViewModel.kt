@@ -1,13 +1,11 @@
 package com.wire.android.ui.home.conversations
 
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
-import com.wire.android.mapper.MessageMapper
 import com.wire.android.model.ImageAsset.PrivateAsset
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.navigation.BackStackMode
@@ -62,19 +60,14 @@ import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
-import com.wire.kalium.logic.functional.combine
 import com.wire.kalium.logic.functional.onFailure
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.emitAll
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.flow.startWith
-import kotlinx.coroutines.flow.zip
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import kotlinx.datetime.Clock
 import kotlinx.datetime.Instant
 import okio.Path
 import okio.buffer
@@ -130,7 +123,7 @@ class ConversationViewModel @Inject constructor(
         viewModelScope.launch {
             flow {
                 emitAll(getMessageForConversation(conversationId).onStart { emit(null) })
-            }.zip(
+            }.combine(
                 flow { emitAll(observeConversationDetails(conversationId).onStart { emit(null) }) }
             ) { a, b ->
                 Pair(a, b)
@@ -151,9 +144,7 @@ class ConversationViewModel @Inject constructor(
                                 a.firstOrNull { it.messageHeader.messageId == lastUnreadMessage.id }?.let {
                                     conversationViewState = conversationViewState.copy(lastUnreadMessage = it)
                                 }
-
                             }
-                            Log.d("TEST", "lastunreadMessage: ${details.lastUnreadMessage}")
                         }
                         is ConversationDetails.Group -> {
                             val lastUnreadMessage = details.lastUnreadMessage
@@ -162,8 +153,6 @@ class ConversationViewModel @Inject constructor(
                                     conversationViewState = conversationViewState.copy(lastUnreadMessage = it)
                                 }
                             }
-
-                            Log.d("TEST", "lastunreadMessage: ${details.lastUnreadMessage}")
                         }
                         else -> ConversationAvatar.None
                     }
@@ -177,35 +166,12 @@ class ConversationViewModel @Inject constructor(
         observeEstablishedCall()
     }
 
-    private fun markAsRead() {
-        viewModelScope.launch(dispatchers.io()) {
-            updateConversationReadDateUseCase(conversationId, Clock.System.now())
-        }
-    }
-
     // region ------------------------------ Init Methods -------------------------------------
-    private fun fetchMessages() = viewModelScope.launch(dispatchers.io()) {
-        getMessageForConversation(conversationId).collect { messages ->
-            updateMessagesList(messages)
-        }
-    }
-
     private suspend fun updateMessagesList(messages: List<UIMessage>) {
         withContext(dispatchers.main()) {
             conversationViewState = conversationViewState.copy(messages = messages)
         }
     }
-
-    private fun listenConversationDetails() = viewModelScope.launch {
-        observeConversationDetails(conversationId)
-            .collect { result ->
-                when (result) {
-                    is Failure -> handleConversationDetailsFailure(result.storageFailure)
-                    is Success -> handleConversationDetails(result.conversationDetails)
-                }
-            }
-    }
-
     /**
      * TODO: This right now handles only the case when a conversation details doesn't exists.
      * Later we'll have to expand the error cases to different behaviors

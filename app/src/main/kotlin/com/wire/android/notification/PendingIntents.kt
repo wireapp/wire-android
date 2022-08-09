@@ -88,7 +88,7 @@ fun dismissConnectionRequestPendingIntent(context: Context, requesterUserId: Str
     )
 }
 
-//TODO
+// TODO
 fun callMessagePendingIntent(context: Context, conversationId: String): PendingIntent = messagePendingIntent(context, conversationId)
 
 fun summaryMessagePendingIntent(context: Context): PendingIntent {
@@ -152,6 +152,16 @@ private fun openCallIntent(context: Context, conversationId: String) =
             .appendPath(conversationId)
             .build()
     }
+
+fun openAppPendingIntent(context: Context): PendingIntent {
+    val appIntent = Intent(context.applicationContext, WireActivity::class.java)
+    return PendingIntent.getActivity(
+        context.applicationContext,
+        MESSAGE_NOTIFICATIONS_SUMMARY_REQUEST_CODE,
+        appIntent,
+        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+    )
+}
 
 private const val MESSAGE_NOTIFICATIONS_SUMMARY_REQUEST_CODE = 0
 private const val DISMISS_MESSAGE_NOTIFICATION_DEFAULT_REQUEST_CODE = 1

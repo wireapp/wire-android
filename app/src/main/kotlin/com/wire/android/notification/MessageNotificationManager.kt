@@ -58,7 +58,7 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
 
         appLogger.i(
             "$TAG: handled notifications: oldDataSize ${oldData.size}; newDataSize ${newData.size}; " +
-                    "${conversationsToAdd.size} notifications were added; ${conversationIdsToRemove.size} notifications were removed. "
+                "${conversationsToAdd.size} notifications were added; ${conversationIdsToRemove.size} notifications were removed. "
         )
         prevNotificationsData = newData
     }
@@ -117,19 +117,23 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
             setAutoCancel(true)
 
             conversation.messages
-                .filterIsInstance<NotificationMessage.ConnectionRequest>()
                 .firstOrNull()
                 .let {
-                    if (it == null) {
-                        // It's regular Message Notification
-                        setContentIntent(messagePendingIntent(context, conversation.id))
-                        setDeleteIntent(dismissMessagePendingIntent(context, conversation.id, userId))
-                        addAction(getActionCall(conversation.id))
-                        addAction(getActionReply(conversation.id, userId))
-                    } else {
-                        // It's ConnectionRequest Notification
-                        setContentIntent(otherUserProfilePendingIntent(context, it.authorId))
-                        setDeleteIntent(dismissConnectionRequestPendingIntent(context, it.authorId, userId))
+                    when (it) {
+                        is NotificationMessage.ConnectionRequest -> {
+                            setContentIntent(otherUserProfilePendingIntent(context, it.authorId))
+                            setDeleteIntent(dismissConnectionRequestPendingIntent(context, it.authorId, userId))
+                        }
+                        is NotificationMessage.ConversationDeleted -> {
+                            setContentIntent(openAppPendingIntent(context))
+                            setDeleteIntent(dismissSummaryPendingIntent(context, userId))
+                        }
+                        else -> {
+                            setContentIntent(messagePendingIntent(context, conversation.id))
+                            setDeleteIntent(dismissMessagePendingIntent(context, conversation.id, userId))
+                            addAction(getActionCall(conversation.id))
+                            addAction(getActionReply(conversation.id, userId))
+                        }
                     }
                 }
 

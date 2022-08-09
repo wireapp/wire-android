@@ -78,8 +78,7 @@ fun CallerDetails(
             modifier = Modifier.padding(top = dimensions().spacing8x)
         )
         if (membership.hasLabel()) {
-            Height8x()
-            VerticalSpace.x8()
+            VerticalSpace.x16()
             MembershipQualifierLabel(membership)
         }
         if (!isCameraOn && conversationType == ConversationType.OneOnOne) {

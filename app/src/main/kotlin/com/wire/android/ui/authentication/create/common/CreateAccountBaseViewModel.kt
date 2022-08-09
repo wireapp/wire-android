@@ -1,7 +1,5 @@
 package com.wire.android.ui.authentication.create.common
 
-import android.net.Uri
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -226,16 +224,16 @@ abstract class CreateAccountBaseViewModel(
                     )
             }
 
-            val (userInfo, session) = registerAccountUseCase(registerParam).let {
+            val (ssoId, session) = registerAccountUseCase(registerParam).let {
                 when (it) {
                     is RegisterResult.Failure -> {
                         updateCodeErrorState(it.toCodeError())
                         return@launch
                     }
-                    is RegisterResult.Success -> it.value
+                    is RegisterResult.Success -> it.ssoId to it.userSession
                 }
             }
-            val storedUserId = addAuthenticatedUser(session, false).let {
+            val storedUserId = addAuthenticatedUser(session, ssoId, false).let {
                 when (it) {
                     is AddAuthenticatedUserUseCase.Result.Failure -> {
                         updateCodeErrorState(it.toCodeError())

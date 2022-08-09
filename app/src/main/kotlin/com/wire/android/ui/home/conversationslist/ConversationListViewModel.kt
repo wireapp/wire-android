@@ -70,7 +70,7 @@ class ConversationListViewModel @Inject constructor(
     private fun startObservingConversationsAndConnections() = viewModelScope.launch(dispatchers.io()) {
         observeConversationsAndConnections() // TODO AR-1736
             .collect { list ->
-                val detailedList = list.toConversationsFoldersMap()
+                val detailedList = list.conversationList.toConversationsFoldersMap()
                 val newActivities = emptyList<NewActivity>()
                 val missedCalls = mockMissedCalls // TODO: needs to be implemented
                 val unreadMentions = mockUnreadMentionList // TODO: needs to be implemented

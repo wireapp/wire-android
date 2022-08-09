@@ -21,6 +21,7 @@ import com.wire.kalium.logic.data.client.ClientType
 import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
+import com.wire.kalium.logic.data.user.SsoId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthSession
 import com.wire.kalium.logic.feature.auth.sso.GetSSOLoginSessionUseCase
@@ -108,6 +109,7 @@ class LoginSSOViewModelTest {
         every { clientScope.register } returns registerClientUseCase
         every { clientScope.registerPushToken } returns registerTokenUseCase
         every { authServerConfigProvider.authServer.value } returns newServerConfig(1).links
+
         loginViewModel = LoginSSOViewModel(
             savedStateHandle,
             qualifiedIdMapper,
@@ -216,7 +218,7 @@ class LoginSSOViewModelTest {
 
     @Test
     fun `given establishSSOSession is called, when SSOLogin Success, then SSOLoginResult is passed`() {
-        coEvery { getSSOLoginSessionUseCase(any()) } returns SSOLoginSessionResult.Success(authSession)
+        coEvery { getSSOLoginSessionUseCase(any()) } returns SSOLoginSessionResult.Success(authSession, SSO_ID)
         coEvery { addAuthenticatedUserUseCase(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
         coEvery {
             registerClientUseCase(any())
@@ -265,7 +267,7 @@ class LoginSSOViewModelTest {
 
     @Test
     fun `given HandleSSOResult is called, when SSOLoginResult is success, then establishSSOSession should be called once`() {
-        coEvery { getSSOLoginSessionUseCase(any()) } returns SSOLoginSessionResult.Success(authSession)
+        coEvery { getSSOLoginSessionUseCase(any()) } returns SSOLoginSessionResult.Success(authSession, SSO_ID)
         coEvery { addAuthenticatedUserUseCase(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
         coEvery { registerClientUseCase(any()) } returns RegisterClientResult.Success(CLIENT)
         coEvery { registerTokenUseCase(any(), CLIENT.id) } returns RegisterTokenResult.Success
@@ -276,7 +278,7 @@ class LoginSSOViewModelTest {
 
     @Test
     fun `given establishSSOSession called, when addAuthenticatedUser returns UserAlreadyExists error, then UserAlreadyExists is passed`() {
-        coEvery { getSSOLoginSessionUseCase(any()) } returns SSOLoginSessionResult.Success(authSession)
+        coEvery { getSSOLoginSessionUseCase(any()) } returns SSOLoginSessionResult.Success(authSession, SSO_ID)
         coEvery { addAuthenticatedUserUseCase(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists
 
         runTest { loginViewModel.establishSSOSession("") }
@@ -291,7 +293,7 @@ class LoginSSOViewModelTest {
 
     @Test
     fun `given establishSSOSession is called, when registerClientUseCase returns TooManyClients error, then TooManyClients is passed`() {
-        coEvery { getSSOLoginSessionUseCase(any()) } returns SSOLoginSessionResult.Success(authSession)
+        coEvery { getSSOLoginSessionUseCase(any()) } returns SSOLoginSessionResult.Success(authSession, SSO_ID)
         coEvery { addAuthenticatedUserUseCase(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
         coEvery {
             registerClientUseCase(any())
@@ -309,7 +311,7 @@ class LoginSSOViewModelTest {
 
     @Test
     fun `given establishSSOSession is called, when registerTokenUseCase returns PushTokenFailure error, then LoginError is None`() {
-        coEvery { getSSOLoginSessionUseCase(any()) } returns SSOLoginSessionResult.Success(authSession)
+        coEvery { getSSOLoginSessionUseCase(any()) } returns SSOLoginSessionResult.Success(authSession, SSO_ID)
         coEvery { addAuthenticatedUserUseCase(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
         coEvery {
             registerClientUseCase(any())
@@ -337,5 +339,6 @@ class LoginSSOViewModelTest {
             CLIENT_ID, ClientType.Permanent, "time", null,
             null, "label", "cookie", null, "model"
         )
+        val SSO_ID: SsoId = SsoId("scim_id", null, null)
     }
 }

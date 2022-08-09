@@ -188,7 +188,7 @@ class GroupConversationDetailsViewModelTest {
             .arrange()
 
         viewModel.onGuestUpdate(false)
-        assertEquals(true, viewModel.groupOptionsState.isGuestUpdateDialogShown)
+        assertEquals(true, viewModel.groupOptionsState.changeGuestOptionConformationRequired)
     }
 
     @Test
@@ -215,7 +215,7 @@ class GroupConversationDetailsViewModelTest {
             .arrange()
 
         viewModel.onGuestDialogConfirm()
-        assertEquals(false, viewModel.groupOptionsState.isGuestUpdateDialogShown)
+        assertEquals(false, viewModel.groupOptionsState.changeGuestOptionConformationRequired)
         coVerify(exactly = 1) {
             arrangement.updateConversationAccessRoleUseCase(
                 conversationId = details.conversation.id,
@@ -307,7 +307,7 @@ class GroupConversationDetailsViewModelTest {
                 lastModifiedDate = null,
                 access = listOf(Conversation.Access.CODE, Conversation.Access.INVITE),
                 accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER, Conversation.AccessRole.GUEST),
-                lastReadDate = null
+                lastReadDate = "2022-04-04T16:11:28.388Z"
             ),
             legalHoldStatus = LegalHoldStatus.DISABLED,
             hasOngoingCall = false,

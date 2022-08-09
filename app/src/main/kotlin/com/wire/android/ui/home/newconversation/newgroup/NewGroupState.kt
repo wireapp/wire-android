@@ -8,6 +8,7 @@ data class NewGroupState(
     var groupProtocol: ConversationOptions.Protocol = ConversationOptions.Protocol.PROTEUS,
     val animatedGroupNameError: Boolean = false,
     val continueEnabled: Boolean = false,
+    val mlsEnabled: Boolean = true,
     val isLoading : Boolean = false,
     val error: GroupNameError = GroupNameError.None
 ) {

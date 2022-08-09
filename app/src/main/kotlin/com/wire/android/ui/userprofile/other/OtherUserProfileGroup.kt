@@ -17,6 +17,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.RowItemTemplate
+import com.wire.android.ui.common.button.WireIconButton
 import com.wire.android.ui.common.SurfaceBackgroundWrapper
 import com.wire.android.ui.common.button.WireButton
 import com.wire.android.ui.common.dimensions
@@ -33,6 +34,7 @@ fun OtherUserProfileGroup(
     state: OtherUserProfileGroupState,
     lazyListState: LazyListState = rememberLazyListState(),
     onRemoveFromConversation: () -> Unit,
+    openChangeRoleBottomSheet: () -> Unit
 ) {
     val context = LocalContext.current
     LazyColumn(
@@ -57,6 +59,10 @@ fun OtherUserProfileGroup(
             UserRoleInformation(
                 label = stringResource(id = R.string.user_profile_group_role),
                 value = AnnotatedString(state.role.name.asString()),
+                actions = {
+                    if (state.isSelfAnAdmin)
+                        EditButton(onEditClicked = openChangeRoleBottomSheet)
+                },
             )
         }
     }
@@ -95,6 +101,7 @@ private fun UserRoleInformation(
     label: String,
     value: AnnotatedString,
     clickable: Clickable = Clickable(enabled = false) {},
+    actions: @Composable () -> Unit = {},
 ) {
     RowItemTemplate(
         modifier = Modifier.padding(horizontal = dimensions().spacing8x),
@@ -112,7 +119,18 @@ private fun UserRoleInformation(
                 text = value
             )
         },
+        actions = actions,
         clickable = clickable
+    )
+}
+
+@Composable
+fun EditButton(onEditClicked: () -> Unit, modifier: Modifier = Modifier) {
+    WireIconButton(
+        onButtonClicked = onEditClicked,
+        iconResource = R.drawable.ic_edit,
+        contentDescription = R.string.content_description_edit,
+        modifier = modifier
     )
 }
 
@@ -126,5 +144,5 @@ val Member.Role.name
 @Composable
 @Preview
 fun OtherUserProfileGroupPreview() {
-    OtherUserProfileGroup(OtherUserProfileState.PREVIEW.groupState!!, rememberLazyListState()) {}
+    OtherUserProfileGroup(OtherUserProfileState.PREVIEW.groupState!!, rememberLazyListState(), {}) {}
 }

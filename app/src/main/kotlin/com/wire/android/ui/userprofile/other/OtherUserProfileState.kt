@@ -28,7 +28,7 @@ data class OtherUserProfileState(
             teamName = "team",
             email = "email",
             groupState = OtherUserProfileGroupState(
-                "group name", Member.Role.Member, false, ConversationId("some_user", "domain.com")
+                "group name", Member.Role.Member, true, ConversationId("some_user", "domain.com")
             )
         )
     }

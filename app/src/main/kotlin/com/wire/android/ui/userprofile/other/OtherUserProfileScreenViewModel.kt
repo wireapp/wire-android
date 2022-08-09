@@ -6,12 +6,12 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.model.DialogState
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.PreservedState
-import com.wire.android.model.toError
 import com.wire.android.model.toLoading
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.EXTRA_CONNECTION_IGNORED_USER_NAME
@@ -25,6 +25,7 @@ import com.wire.android.ui.home.conversations.details.participants.usecase.Obser
 import com.wire.android.ui.userprofile.common.UsernameMapper.mapUserLabel
 import com.wire.android.ui.userprofile.group.RemoveConversationMemberState
 import com.wire.android.util.EMPTY
+import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.Member
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -43,13 +44,17 @@ import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
 import com.wire.kalium.logic.feature.conversation.CreateConversationResult
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
+import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleResult
+import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
 import com.wire.kalium.logic.feature.user.GetUserInfoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import java.util.UUID
-import javax.inject.Inject
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
+import java.util.UUID
+import javax.inject.Inject
 
 @Suppress("LongParameterList")
 @HiltViewModel
@@ -65,15 +70,18 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val userTypeMapper: UserTypeMapper,
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val observeConversationRoleForUser: ObserveConversationRoleForUserUseCase,
+    private val updateMemberRole: UpdateConversationMemberRoleUseCase,
     private val removeMemberFromConversation: RemoveMemberFromConversationUseCase,
     qualifiedIdMapper: QualifiedIdMapper
 ) : ViewModel() {
 
     var state: OtherUserProfileState by mutableStateOf(OtherUserProfileState())
-    var otherUserProfileSnackBarState: OtherUserProfileSnackBarState? by mutableStateOf(null)
 
     var removeConversationMemberDialogState: DialogState<PreservedState<RemoveConversationMemberState>>
             by mutableStateOf(DialogState.Hidden)
+
+    private val _infoMessage = MutableSharedFlow<UIText>()
+    val infoMessage = _infoMessage.asSharedFlow()
 
     private val userId: QualifiedID = savedStateHandle.get<String>(EXTRA_USER_ID)!!.toQualifiedID(qualifiedIdMapper)
     private val conversationId: QualifiedID? = savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)?.toQualifiedID(qualifiedIdMapper)
@@ -84,7 +92,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             when (val result = getUserInfo(userId)) {
                 is GetUserInfoResult.Failure -> {
                     appLogger.d("Couldn't not find the user with provided id:$userId.id and domain:$userId.domain")
-                    otherUserProfileSnackBarState = OtherUserProfileSnackBarState.LoadUserInformationError()
+                    showInfoMessage(InfoMessageType.LoadUserInformationError)
                 }
                 is GetUserInfoResult.Success ->
                     conversationId
@@ -137,11 +145,11 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             when (sendConnectionRequest(userId)) {
                 is SendConnectionRequestResult.Failure -> {
                     appLogger.d(("Couldn't send a connect request to user $userId"))
-                    otherUserProfileSnackBarState = OtherUserProfileSnackBarState.ConnectionRequestError()
+                    showInfoMessage(InfoMessageType.ConnectionRequestError)
                 }
                 is SendConnectionRequestResult.Success -> {
                     state = state.copy(connectionStatus = ConnectionStatus.Sent)
-                    otherUserProfileSnackBarState = OtherUserProfileSnackBarState.SuccessConnectionSentRequest()
+                    showInfoMessage(InfoMessageType.SuccessConnectionSentRequest)
                 }
             }
         }
@@ -152,11 +160,11 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             when (cancelConnectionRequest(userId)) {
                 is CancelConnectionRequestUseCaseResult.Failure -> {
                     appLogger.d(("Couldn't cancel a connect request to user $userId"))
-                    otherUserProfileSnackBarState = OtherUserProfileSnackBarState.ConnectionRequestError()
+                    showInfoMessage(InfoMessageType.ConnectionRequestError)
                 }
                 is CancelConnectionRequestUseCaseResult.Success -> {
                     state = state.copy(connectionStatus = ConnectionStatus.NotConnected)
-                    otherUserProfileSnackBarState = OtherUserProfileSnackBarState.SuccessConnectionCancelRequest()
+                    showInfoMessage(InfoMessageType.SuccessConnectionCancelRequest)
                 }
             }
         }
@@ -167,11 +175,11 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             when (acceptConnectionRequest(userId)) {
                 is AcceptConnectionRequestUseCaseResult.Failure -> {
                     appLogger.d(("Couldn't accept a connect request to user $userId"))
-                    otherUserProfileSnackBarState = OtherUserProfileSnackBarState.ConnectionRequestError()
+                    showInfoMessage(InfoMessageType.ConnectionRequestError)
                 }
                 is AcceptConnectionRequestUseCaseResult.Success -> {
                     state = state.copy(connectionStatus = ConnectionStatus.Connected)
-                    otherUserProfileSnackBarState = OtherUserProfileSnackBarState.SuccessConnectionAcceptRequest()
+                    showInfoMessage(InfoMessageType.SuccessConnectionAcceptRequest)
                 }
             }
         }
@@ -182,7 +190,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             when (ignoreConnectionRequest(userId)) {
                 is IgnoreConnectionRequestUseCaseResult.Failure -> {
                     appLogger.d(("Couldn't ignore a connect request to user $userId"))
-                    otherUserProfileSnackBarState = OtherUserProfileSnackBarState.ConnectionRequestError()
+                    showInfoMessage(InfoMessageType.ConnectionRequestError)
                 }
                 is IgnoreConnectionRequestUseCaseResult.Success -> {
                     state = state.copy(connectionStatus = ConnectionStatus.NotConnected)
@@ -194,6 +202,21 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    fun changeMemberRole(role: Member.Role) {
+        viewModelScope.launch {
+            if (conversationId != null) {
+                updateMemberRole(conversationId, userId, role).also {
+                    if (it is UpdateConversationMemberRoleResult.Failure)
+                        showInfoMessage(InfoMessageType.ChangeGroupRoleError)
+                }
+            }
+        }
+    }
+
+    suspend fun showInfoMessage(type: InfoMessageType) {
+        _infoMessage.emit(type.uiText)
     }
 
     fun openRemoveConversationMemberDialog() {
@@ -224,8 +247,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             )
             when (removeMemberFromConversation(state.groupState!!.conversationId, userId)) {
                 is RemoveMemberFromConversationUseCase.Result.Failure -> {
-                    otherUserProfileSnackBarState =
-                        OtherUserProfileSnackBarState.RemoveConversationMemberError(preservedState.state.fullName)
+                    showInfoMessage(InfoMessageType.RemoveConversationMemberError)
                     removeConversationMemberDialogState = DialogState.Hidden
                 }
                 RemoveMemberFromConversationUseCase.Result.Success -> removeConversationMemberDialogState =
@@ -240,11 +262,18 @@ class OtherUserProfileScreenViewModel @Inject constructor(
 /**
  * We are adding a [randomEventIdentifier] as [UUID], so the msg can be discarded every time after being generated.
  */
-sealed class OtherUserProfileSnackBarState(private val randomEventIdentifier: UUID) {
-    class SuccessConnectionSentRequest : OtherUserProfileSnackBarState(UUID.randomUUID())
-    class SuccessConnectionAcceptRequest : OtherUserProfileSnackBarState(UUID.randomUUID())
-    class SuccessConnectionCancelRequest : OtherUserProfileSnackBarState(UUID.randomUUID())
-    class ConnectionRequestError : OtherUserProfileSnackBarState(UUID.randomUUID())
-    class LoadUserInformationError : OtherUserProfileSnackBarState(UUID.randomUUID())
-    data class RemoveConversationMemberError(val fullName: String) : OtherUserProfileSnackBarState(UUID.randomUUID())
+enum class InfoMessageType(val uiText: UIText) {
+    // connection
+    SuccessConnectionSentRequest(UIText.StringResource(R.string.connection_request_sent)),
+    SuccessConnectionAcceptRequest(UIText.StringResource(R.string.connection_request_accepted)),
+    SuccessConnectionCancelRequest(UIText.StringResource(R.string.connection_request_canceled)),
+    ConnectionRequestError(UIText.StringResource(R.string.connection_request_sent_error)),
+    LoadUserInformationError(UIText.StringResource(R.string.error_unknown_message)),
+
+    // change group role
+    ChangeGroupRoleError(UIText.StringResource(R.string.user_profile_role_change_error)),
+
+    // remove conversation member
+    RemoveConversationMemberError(UIText.StringResource(R.string.remove_conversation_member_error))
+
 }

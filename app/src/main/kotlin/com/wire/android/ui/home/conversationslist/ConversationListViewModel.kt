@@ -202,7 +202,7 @@ private fun ConversationDetails.toType(
         ConversationItem.PrivateConversation(
             userAvatarData = UserAvatarData(
                 otherUser.previewPicture?.let { UserAvatarAsset(wireSessionImageLoader, it) },
-                UserAvailabilityStatus.NONE // TODO Get actual status
+                otherUser.availabilityStatus
             ),
             conversationInfo = ConversationInfo(
                 name = otherUser.name.orEmpty(),
@@ -218,7 +218,7 @@ private fun ConversationDetails.toType(
         ConversationItem.ConnectionConversation(
             userAvatarData = UserAvatarData(
                 otherUser?.previewPicture?.let { UserAvatarAsset(wireSessionImageLoader, it) },
-                UserAvailabilityStatus.NONE // TODO Get actual status
+                otherUser?.availabilityStatus ?: UserAvailabilityStatus.NONE
             ),
             conversationInfo = ConversationInfo(
                 name = otherUser?.name.orEmpty(),

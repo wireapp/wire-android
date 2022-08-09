@@ -44,7 +44,8 @@ fun InitiatingCallScreen(
             toggleVideo = ::toggleVideo,
             onNavigateBack = ::navigateBack,
             onHangUpCall = initiatingCallViewModel::hangUpCall,
-            onVideoPreviewCreated = ::setVideoPreview
+            onVideoPreviewCreated = ::setVideoPreview,
+            onSelfClearVideoPreview = ::clearVideoPreview
         )
     }
 }
@@ -58,7 +59,8 @@ private fun InitiatingCallContent(
     toggleVideo: () -> Unit,
     onNavigateBack: () -> Unit,
     onHangUpCall: () -> Unit,
-    onVideoPreviewCreated: (view: View) -> Unit
+    onVideoPreviewCreated: (view: View) -> Unit,
+    onSelfClearVideoPreview: () -> Unit
 ) {
 
     val scaffoldState = rememberBottomSheetScaffoldState()
@@ -75,8 +77,8 @@ private fun InitiatingCallContent(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
                 CallOptionsControls(
-                    isMuted = callState.isMuted,
-                    isCameraOn = callState.isCameraOn,
+                    isMuted = callState.isMuted ?: true,
+                    isCameraOn = callState.isCameraOn ?: false,
                     isSpeakerOn = callState.isSpeakerOn,
                     toggleSpeaker = toggleSpeaker,
                     toggleMute = toggleMute,
@@ -98,12 +100,13 @@ private fun InitiatingCallContent(
     ) {
         Box {
             CallVideoPreview(
-                isCameraOn = callState.isCameraOn,
-                onVideoPreviewCreated = { onVideoPreviewCreated(it) }
+                isCameraOn = callState.isCameraOn ?: false,
+                onVideoPreviewCreated = onVideoPreviewCreated,
+                onSelfClearVideoPreview = onSelfClearVideoPreview
             )
             CallerDetails(
                 conversationName = callState.conversationName,
-                isCameraOn = callState.isCameraOn,
+                isCameraOn = callState.isCameraOn ?: false,
                 avatarAssetId = callState.avatarAssetId,
                 conversationType = callState.conversationType,
                 membership = callState.membership,

@@ -21,6 +21,7 @@ import com.wire.kalium.logic.data.client.ClientType
 import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
+import com.wire.kalium.logic.data.user.SsoId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthSession
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
@@ -84,9 +85,6 @@ class LoginEmailViewModelTest {
     private lateinit var authSession: AuthSession
 
     @MockK
-    private lateinit var client: Client
-
-    @MockK
     private lateinit var qualifiedIdMapper: QualifiedIdMapper
 
     @MockK
@@ -94,7 +92,6 @@ class LoginEmailViewModelTest {
 
     private lateinit var loginViewModel: LoginEmailViewModel
 
-    private val apiBaseUrl: String = "apiBaseUrl"
     private val userId: QualifiedID = QualifiedID("userId", "domain")
 
     @BeforeEach
@@ -161,7 +158,7 @@ class LoginEmailViewModelTest {
         val scheduler = TestCoroutineScheduler()
         val password = "abc"
         Dispatchers.setMain(StandardTestDispatcher(scheduler))
-        coEvery { loginUseCase(any(), any(), any()) } returns AuthenticationResult.Success(authSession)
+        coEvery { loginUseCase(any(), any(), any()) } returns AuthenticationResult.Success(authSession, SSO_ID)
         coEvery { addAuthenticatedUserUseCase(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
         coEvery { navigationManager.navigate(any()) } returns Unit
         coEvery { registerClientUseCase(any()) } returns RegisterClientResult.Success(CLIENT)
@@ -226,7 +223,7 @@ class LoginEmailViewModelTest {
 
     @Test
     fun `given button is clicked, when addAuthenticatedUser returns UserAlreadyExists error, then UserAlreadyExists is passed`() {
-        coEvery { loginUseCase(any(), any(), any()) } returns AuthenticationResult.Success(authSession)
+        coEvery { loginUseCase(any(), any(), any()) } returns AuthenticationResult.Success(authSession, SSO_ID)
         coEvery { addAuthenticatedUserUseCase(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists
 
         runTest { loginViewModel.login() }
@@ -240,6 +237,7 @@ class LoginEmailViewModelTest {
             CLIENT_ID, ClientType.Permanent, "time", null,
             null, "label", "cookie", null, "model"
         )
+        val SSO_ID: SsoId = SsoId("scim_id", null, null)
     }
 }
 

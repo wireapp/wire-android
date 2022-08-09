@@ -62,12 +62,14 @@ class CurrentScreenManager @Inject constructor() : DefaultLifecycleObserver, Nav
 
 sealed class CurrentScreen {
 
-
     // Some Conversation is opened
     data class Conversation(val id: ConversationId) : CurrentScreen()
 
     // Another User Profile Screen is opened
     data class OtherUserProfile(val id: QualifiedID) : CurrentScreen()
+
+    // Ongoing call screen is opened
+    data class OngoingCallScreen(val id: QualifiedID) : CurrentScreen()
 
     // Some other screen is opened, kinda "do nothing screen"
     object SomeOther : CurrentScreen()
@@ -90,6 +92,12 @@ sealed class CurrentScreen {
                     arguments?.getString(EXTRA_USER_ID)
                         ?.toQualifiedID(qualifiedIdMapper)
                         ?.let { OtherUserProfile(it) }
+                        ?: SomeOther
+                }
+                NavigationItem.OngoingCall -> {
+                    arguments?.getString(EXTRA_CONVERSATION_ID)
+                        ?.toQualifiedID(qualifiedIdMapper)
+                        ?.let { OngoingCallScreen(it) }
                         ?: SomeOther
                 }
                 else -> SomeOther

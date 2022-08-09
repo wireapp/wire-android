@@ -148,8 +148,7 @@ class ConversationViewModel @Inject constructor(
                             val lastUnreadMessage = details.lastUnreadMessage
                             if (lastUnreadMessage != null) {
                                 a.firstOrNull { it.messageHeader.messageId == lastUnreadMessage.id }?.let {
-                                    conversationViewState =
-                                        conversationViewState.copy(lastUnreadMessage = it)
+                                    conversationViewState = conversationViewState.copy(lastUnreadMessage = it)
                                 }
 
                             }
@@ -159,8 +158,7 @@ class ConversationViewModel @Inject constructor(
                             val lastUnreadMessage = details.lastUnreadMessage
                             if (lastUnreadMessage != null) {
                                 a.firstOrNull { it.messageHeader.messageId == lastUnreadMessage.id }?.let {
-                                    conversationViewState =
-                                        conversationViewState.copy(lastUnreadMessage = it)
+                                    conversationViewState = conversationViewState.copy(lastUnreadMessage = it)
                                 }
                             }
 

@@ -10,6 +10,7 @@ import com.wire.android.ui.home.conversations.model.MessageStatus.ReceiveFailure
 import com.wire.android.ui.home.conversations.model.MessageStatus.SendFailure
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.ui.UIText
+import com.wire.android.util.uiMessageDateTime
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.user.AssetId
 import com.wire.kalium.logic.data.user.UserId
@@ -30,7 +31,7 @@ data class MessageHeader(
     val username: UIText,
     val membership: Membership,
     val isLegalHold: Boolean,
-    val time: String,
+    val messageTime: MessageTime,
     val messageStatus: MessageStatus,
     val messageId: String,
     val userId: UserId? = null
@@ -119,4 +120,8 @@ data class MessageBody(
 
 enum class MessageSource {
     Self, OtherUser
+}
+
+data class MessageTime(val ISODate : String){
+    val formattedDate = ISODate.uiMessageDateTime() ?: ""
 }

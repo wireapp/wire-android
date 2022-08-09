@@ -2,6 +2,7 @@ package com.wire.android.ui.home.conversations
 
 import android.app.DownloadManager
 import android.content.Intent
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -20,6 +21,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -34,6 +36,7 @@ import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.conversationColor
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.rememberBottomBarElevationState
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorDeletingMessage
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorDownloadingAsset
@@ -279,10 +282,11 @@ private fun ConversationScreenContent(
         }
     }
 
-    val lazyListState = rememberLazyListState(if (lastUnreadMessage != null) messages.indexOf(lastUnreadMessage) else 1)
-
-    LaunchedEffect(messages) {
-        lazyListState.animateScrollToItem(0)
+    val lazyListState = rememberSaveable(lastUnreadMessage, saver = LazyListState.Saver) {
+        LazyListState(
+            if (lastUnreadMessage != null) messages.indexOf(lastUnreadMessage) else 0,
+            0
+        )
     }
 
     MessageComposer(
@@ -311,6 +315,10 @@ private fun ConversationScreenContent(
         isFileSharingEnabled = isFileSharingEnabled,
         tempCachePath = tempCachePath
     )
+
+    LaunchedEffect(messages) {
+        lazyListState.animateScrollToItem(0)
+    }
 }
 
 @Composable
@@ -352,6 +360,12 @@ fun MessageList(
         items(messages, key = {
             it.messageHeader.messageId
         }) { message ->
+//            Log.d("TEST","item is composed ${message.messageHeader.messageId} index is ${ messages.indexOf(message)}")
+            val test = remember(message.messageHeader.messageId){
+                Log.d("TEST","item is composed from within the remember${message.messageHeader.messageId} index is ${ messages.indexOf(message)}")
+
+                "test"
+            }
             if (message.messageContent is MessageContent.SystemMessage) {
                 SystemMessageItem(message = message.messageContent)
             } else {

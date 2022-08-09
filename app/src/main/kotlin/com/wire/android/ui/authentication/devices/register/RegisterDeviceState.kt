@@ -7,6 +7,7 @@ data class RegisterDeviceState(
     val password: TextFieldValue = TextFieldValue(""),
     val continueEnabled: Boolean = false,
     val loading: Boolean = false,
+    val isPasswordRequired: Boolean = false,
     val error: RegisterDeviceError = RegisterDeviceError.None
 )
 

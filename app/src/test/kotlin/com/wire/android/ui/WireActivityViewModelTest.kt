@@ -195,7 +195,7 @@ class WireActivityViewModelTest {
     }
 
     @Test
-    fun `given OpenConversation Intent, when currentSession is there AND activity was created from history, then startNavigation is Home`() {
+    fun `given OpenConversation Intent, when currentSession is there AND activity created from history, then startNavigation is Home`() {
         val (_, viewModel) = Arrangement()
             .withSomeCurrentSession()
             .withDeepLinkResult(DeepLinkResult.OpenConversation(ConversationId("val", "dom")))

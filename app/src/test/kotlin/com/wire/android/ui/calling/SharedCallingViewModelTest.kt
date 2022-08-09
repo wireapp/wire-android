@@ -133,7 +133,17 @@ class SharedCallingViewModelTest {
     }
 
     @Test
-    fun `given muteOrUnMuteCall is called, when active call is muted, then un-mute the call`() {
+    fun `given isMuted value is null, when toggling microphone, then do not update microphone state`() {
+        sharedCallingViewModel.callState = sharedCallingViewModel.callState.copy(isMuted = null)
+        coEvery { muteCall(conversationId) } returns Unit
+
+        runTest { sharedCallingViewModel.toggleMute() }
+
+        sharedCallingViewModel.callState.isMuted shouldBeEqualTo null
+    }
+
+    @Test
+    fun `given an un-muted call, when toggling microphone, then mute the call`() {
         sharedCallingViewModel.callState = sharedCallingViewModel.callState.copy(isMuted = false)
         coEvery { muteCall(conversationId) } returns Unit
 
@@ -143,13 +153,23 @@ class SharedCallingViewModelTest {
     }
 
     @Test
-    fun `given muteOrUnMuteCall is called, when active call is un-muted, then mute the call`() {
+    fun `given a muted call, when toggling microphone, then un-mute the call`() {
         sharedCallingViewModel.callState = sharedCallingViewModel.callState.copy(isMuted = true)
         coEvery { unMuteCall(conversationId) } returns Unit
 
         runTest { sharedCallingViewModel.toggleMute() }
 
         sharedCallingViewModel.callState.isMuted shouldBeEqualTo false
+    }
+
+    @Test
+    fun `given isCameraOn value is null, when toggling camera, then do not update camera state`() {
+        sharedCallingViewModel.callState = sharedCallingViewModel.callState.copy(isCameraOn = null)
+        coEvery { muteCall(conversationId) } returns Unit
+
+        runTest { sharedCallingViewModel.toggleVideo() }
+
+        sharedCallingViewModel.callState.isCameraOn shouldBeEqualTo null
     }
 
     @Test
@@ -231,8 +251,20 @@ class SharedCallingViewModelTest {
 
         runTest { sharedCallingViewModel.pauseVideo() }
 
-        coVerify(exactly = 0) { setVideoPreview(any(), any()) }
-        coVerify(exactly = 0) { updateVideoState(any(), VideoState.PAUSED) }
+        coVerify(inverse = true) { setVideoPreview(any(), any()) }
+        coVerify(inverse = true) { updateVideoState(any(), VideoState.PAUSED) }
+    }
+
+    @Test
+    fun `given an audio call with a null camera value, when pauseVideo is called, then do not pause the video`() {
+        sharedCallingViewModel.callState = sharedCallingViewModel.callState.copy(isCameraOn = null)
+        coEvery { setVideoPreview(any(), any()) } returns Unit
+        coEvery { updateVideoState(any(), any()) } returns Unit
+
+        runTest { sharedCallingViewModel.pauseVideo() }
+
+        coVerify(inverse = true) { setVideoPreview(any(), any()) }
+        coVerify(inverse = true) { updateVideoState(any(), VideoState.PAUSED) }
     }
 
     companion object {

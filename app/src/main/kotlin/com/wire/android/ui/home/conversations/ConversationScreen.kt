@@ -365,10 +365,12 @@ fun MessageList(
             if (!lazyListState.isScrollInProgress) {
                 val lastVisibleMessage = messages[lazyListState.firstVisibleItemIndex]
 
-                if (Instant.parse(lastVisibleMessage.messageHeader.messageTime.utcISO) >= Instant.parse(lastUnreadMessage.messageHeader.messageTime.utcISO)) {
+                val lastVisibleMessageInstant = Instant.parse(lastVisibleMessage.messageHeader.messageTime.utcISO)
+                val lastUnreadMessageInstant = Instant.parse(lastUnreadMessage.messageHeader.messageTime.utcISO)
+
+                if (lastVisibleMessageInstant > lastUnreadMessageInstant) {
                     onUpdateConversationReadDate(lastVisibleMessage.messageHeader.messageTime.utcISO)
                 }
-                Log.d("TEST", "last visible  ${messages[lazyListState.firstVisibleItemIndex]}")
             }
         }
     }

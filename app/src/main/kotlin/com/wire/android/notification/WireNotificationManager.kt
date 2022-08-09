@@ -45,13 +45,13 @@ class WireNotificationManager @Inject constructor(
      */
     suspend fun fetchAndShowNotificationsOnce(userIdValue: String) {
         checkIfUserIsAuthenticated(userId = userIdValue)?.let { userId ->
-            //TODO: Move logic to Kalium.
-            //      All of this could be handled inside Kalium,
-            //      and Reloaded shouldn't need to call `waitUntilLive`.
-            //      Kalium could be smarter
             coreLogic.sessionScope(userId) {
+                // Force KEEP_ALIVE policy so we gather pending events
                 setConnectionPolicy(ConnectionPolicy.KEEP_ALIVE)
+                // Wait until the client is live and pending events are processed
                 syncManager.waitUntilLive()
+                // As the app is in the background when receiving PUSH notifications,
+                // we can downgrade the policy back
                 setConnectionPolicy(ConnectionPolicy.DISCONNECT_AFTER_PENDING_EVENTS)
             }
             fetchAndShowMessageNotificationsOnce(userId)

@@ -45,7 +45,7 @@ class WireNotificationManager @Inject constructor(
      */
     suspend fun fetchAndShowNotificationsOnce(userIdValue: String) {
         checkIfUserIsAuthenticated(userId = userIdValue)?.let { userId ->
-            coreLogic.sessionScope(userId) {
+            coreLogic.getSessionScope(userId).run {
                 // Force KEEP_ALIVE policy so we gather pending events
                 setConnectionPolicy(ConnectionPolicy.KEEP_ALIVE)
                 // Wait until the client is live and pending events are processed

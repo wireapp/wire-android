@@ -104,8 +104,7 @@ class ConversationViewModel @Inject constructor(
     private val fileManager: FileManager,
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val kaliumFileSystem: KaliumFileSystem,
-    private val updateConversationReadDateUseCase: UpdateConversationReadDateUseCase,
-    private val messageMapper: MessageMapper
+    private val updateConversationReadDateUseCase: UpdateConversationReadDateUseCase
 ) : SavedStateViewModel(savedStateHandle) {
 
     var conversationViewState by mutableStateOf(ConversationViewState())
@@ -125,21 +124,17 @@ class ConversationViewModel @Inject constructor(
 
     var establishedCallConversationId: ConversationId? = null
 
-
     init {
+        // we emit null on start to push the zip pipe to start emitting without waiting for each other
         viewModelScope.launch {
             flow {
                 emitAll(getMessageForConversation(conversationId).onStart { emit(null) })
             }.zip(
                 flow { emitAll(observeConversationDetails(conversationId).onStart { emit(null) }) }
             ) { a, b ->
-                Log.d("TEST", "this is a :$a")
-                Log.d("TEST", "this is b :$b")
-
                 Pair(a, b)
             }.collect { (a: List<UIMessage>?, b: ObserveConversationDetailsUseCase.Result?) ->
                 if (b != null) {
-                    Log.d("TEST", "b is not null")
                     when (b) {
                         is Failure -> handleConversationDetailsFailure(b.storageFailure)
                         is Success -> handleConversationDetails(b.conversationDetails)
@@ -147,22 +142,26 @@ class ConversationViewModel @Inject constructor(
                 }
 
                 if (a != null && (b != null && b is Success)) {
-                    Log.d("TEST", "both are not null")
                     updateMessagesList(a)
                     when (val details = b.conversationDetails) {
                         is ConversationDetails.OneOne -> {
                             val lastUnreadMessage = details.lastUnreadMessage
                             if (lastUnreadMessage != null) {
-                                conversationViewState =
-                                    conversationViewState.copy(lastUnreadMessage = a.first { it.messageHeader.messageId == lastUnreadMessage.id })
+                                a.firstOrNull { it.messageHeader.messageId == lastUnreadMessage.id }?.let {
+                                    conversationViewState =
+                                        conversationViewState.copy(lastUnreadMessage = it)
+                                }
+
                             }
                             Log.d("TEST", "lastunreadMessage: ${details.lastUnreadMessage}")
                         }
                         is ConversationDetails.Group -> {
                             val lastUnreadMessage = details.lastUnreadMessage
                             if (lastUnreadMessage != null) {
-                                conversationViewState =
-                                    conversationViewState.copy(lastUnreadMessage = a.first { it.messageHeader.messageId == lastUnreadMessage.id })
+                                a.firstOrNull { it.messageHeader.messageId == lastUnreadMessage.id }?.let {
+                                    conversationViewState =
+                                        conversationViewState.copy(lastUnreadMessage = it)
+                                }
                             }
 
                             Log.d("TEST", "lastunreadMessage: ${details.lastUnreadMessage}")

@@ -166,12 +166,11 @@ private fun ConversationScreen(
     onOpenProfile: (MessageSource, UserId) -> Unit
 ) {
     val conversationScreenState = rememberConversationScreenState()
-    val scope = rememberCoroutineScope()
 
     with(conversationViewState) {
         MenuModalSheetLayout(
             sheetState = conversationScreenState.modalBottomSheetState,
-            coroutineScope = scope,
+            coroutineScope = conversationScreenState.coroutineScope,
             menuItems = EditMessageMenuItems(
                 isMyMessage = conversationScreenState.isSelectedMessageMyMessage(),
                 onCopyMessage = conversationScreenState::copyMessage,
@@ -218,6 +217,7 @@ private fun ConversationScreen(
                         Box(modifier = Modifier.padding(internalPadding)) {
                             ConversationScreenContent(
                                 messages = messages,
+                                lastUnreadMessage = lastUnreadMessage,
                                 onMessageChanged = onMessageChanged,
                                 messageText = conversationViewState.messageText,
                                 onSendButtonClicked = onSendButtonClicked,
@@ -245,6 +245,7 @@ private fun ConversationScreen(
 @Composable
 private fun ConversationScreenContent(
     messages: List<UIMessage>,
+    lastUnreadMessage: UIMessage?,
     onMessageChanged: (String) -> Unit,
     messageText: String,
     onSendButtonClicked: () -> Unit,
@@ -278,7 +279,7 @@ private fun ConversationScreenContent(
         }
     }
 
-    val lazyListState = rememberLazyListState()
+    val lazyListState = rememberLazyListState(if (lastUnreadMessage != null) messages.indexOf(lastUnreadMessage) else 1)
 
     LaunchedEffect(messages) {
         lazyListState.animateScrollToItem(0)
@@ -386,7 +387,7 @@ fun ConversationScreenPreview() {
         onSnackbarMessage = {},
         onSnackbarMessageShown = {},
         onDropDownClick = {},
-        tempCachePath =  "".toPath(),
-        onOpenProfile = {_, _ -> }
+        tempCachePath = "".toPath(),
+        onOpenProfile = { _, _ -> }
     )
 }

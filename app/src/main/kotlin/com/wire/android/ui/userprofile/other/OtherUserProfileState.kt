@@ -1,9 +1,6 @@
 package com.wire.android.ui.userprofile.other
 
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
@@ -22,29 +19,26 @@ data class OtherUserProfileState(
     val teamName: String = "",
     val email: String = "",
     val phone: String = "",
-    val connectionStatus: ConnectionState = ConnectionState.NOT_CONNECTED,
+    val connectionState: ConnectionState = ConnectionState.NOT_CONNECTED,
     val membership: Membership = Membership.None,
     val groupState: OtherUserProfileGroupState? = null,
     val botService: BotService? = null,
-    val blockUserDialogSate: BlockUserDialogState? = null,
-    private val conversationSheetContent: ConversationSheetContent? = null
+    val blockUserDialogState: BlockUserDialogState? = null,
+    private val conversationSheetContent: ConversationSheetContent? = null,
+    val bottomSheetContentState: BottomSheetContent? = null
 ) {
 
-    private val startingBottomSheetContent = conversationSheetContent?.let { BottomSheetState.Conversation(it) }
-    var bottomSheetState: BottomSheetState? by mutableStateOf(startingBottomSheetContent)
-        private set
+    fun setBottomSheetStateToConversation(): OtherUserProfileState =
+        conversationSheetContent?.let { copy(bottomSheetContentState = BottomSheetContent.Conversation(it)) } ?: this
 
-    fun setBottomSheetContentToConversation() {
-        conversationSheetContent?.let {
-            bottomSheetState = BottomSheetState.Conversation(it)
-        }
-    }
+    fun setBottomSheetStateToMuteOptions(): OtherUserProfileState =
+        conversationSheetContent?.let { copy(bottomSheetContentState = BottomSheetContent.Mute(it)) } ?: this
 
-    fun setBottomSheetContentToChangeRole() {
-        groupState?.let {
-            bottomSheetState = BottomSheetState.ChangeRole(it)
-        }
-    }
+    fun setBottomSheetStateToChangeRole(): OtherUserProfileState =
+        groupState?.let { copy(bottomSheetContentState = BottomSheetContent.ChangeRole(it)) } ?: this
+
+    fun clearBottomSheetState(): OtherUserProfileState =
+        copy(bottomSheetContentState = null)
 
     companion object {
         val PREVIEW = OtherUserProfileState(
@@ -57,9 +51,10 @@ data class OtherUserProfileState(
     }
 }
 
-sealed class BottomSheetState {
-    data class Conversation(val conversationData: ConversationSheetContent) : BottomSheetState()
-    data class ChangeRole(val groupState: OtherUserProfileGroupState?) : BottomSheetState()
+sealed class BottomSheetContent {
+    data class Conversation(val conversationData: ConversationSheetContent) : BottomSheetContent()
+    data class Mute(val conversationData: ConversationSheetContent) : BottomSheetContent()
+    data class ChangeRole(val groupState: OtherUserProfileGroupState?) : BottomSheetContent()
 }
 
 data class OtherUserProfileGroupState(

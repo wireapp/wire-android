@@ -59,15 +59,20 @@ import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
 import com.wire.kalium.logic.feature.user.GetUserInfoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import java.util.Date
 import javax.inject.Inject
 
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "TooManyFunctions")
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @HiltViewModel
 class OtherUserProfileScreenViewModel @Inject constructor(
@@ -92,6 +97,8 @@ class OtherUserProfileScreenViewModel @Inject constructor(
 
     var state: OtherUserProfileState by mutableStateOf(OtherUserProfileState())
 
+    private val _refreshUserInfo = MutableSharedFlow<Unit>()
+
     private val _infoMessage = MutableSharedFlow<UIText>()
     val infoMessage = _infoMessage.asSharedFlow()
 
@@ -101,28 +108,35 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     init {
         state = state.copy(isDataLoading = true)
         viewModelScope.launch {
-            val userInfoResult = getUserInfo(userId)
-            val conversationResult = getOrCreateOneToOneConversation(userId)
-            when {
-                userInfoResult is GetUserInfoResult.Failure -> {
-                    appLogger.d("Couldn't not find the user with provided id: $userId")
-                    showInfoMessage(InfoMessageType.LoadUserInformationError)
-                }
-                conversationResult is CreateConversationResult.Failure -> {
+            when (val conversationResult = getOrCreateOneToOneConversation(userId)) {
+                is CreateConversationResult.Failure -> {
                     appLogger.d("Couldn't not getOrCreateOneToOneConversation for user id: $userId")
                     showInfoMessage(InfoMessageType.LoadUserInformationError)
                 }
-                conversationResult is CreateConversationResult.Success && userInfoResult is GetUserInfoResult.Success -> {
-                    conversationId
+                is CreateConversationResult.Success -> {
+                    val observeConversationRoleData = conversationId
                         .let { if (it != null) observeConversationRoleForUser(it, userId) else flowOf(it) }
-                        .combine(observeSelfUser(), ::Pair)
-                        .collect { (conversationRoleData, selfUser) ->
+
+                    combine(observeConversationRoleData, observeSelfUser(), observeUserInfo(), ::Triple)
+                        .collect { (conversationRoleData, selfUser, userInfoResult) ->
                             loadViewState(userInfoResult, conversationResult.conversation, conversationRoleData, selfUser.teamId)
                         }
                 }
             }
         }
     }
+
+    private fun observeUserInfo(): Flow<GetUserInfoResult.Success> =
+        _refreshUserInfo
+            .onStart { emit(Unit) }
+            .map { getUserInfo(userId) }
+            .onEach {
+                if (it is GetUserInfoResult.Failure) {
+                    appLogger.d("Couldn't not find the user with provided id: $userId")
+                    showInfoMessage(InfoMessageType.LoadUserInformationError)
+                }
+            }
+            .filterIsInstance<GetUserInfoResult.Success>()
 
     private fun loadViewState(
         getInfoResult: GetUserInfoResult.Success,
@@ -133,35 +147,37 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         val userAvatarAsset = getInfoResult.otherUser.completePicture
             ?.let { pic -> ImageAsset.UserAvatarAsset(wireSessionImageLoader, pic) }
 
-        state = state.copy(
-            isDataLoading = false,
-            userAvatarAsset = userAvatarAsset,
-            fullName = getInfoResult.otherUser.name.orEmpty(),
-            userName = mapUserLabel(getInfoResult.otherUser),
-            teamName = getInfoResult.team?.name.orEmpty(),
-            email = getInfoResult.otherUser.email.orEmpty(),
-            phone = getInfoResult.otherUser.phone.orEmpty(),
-            connectionStatus = getInfoResult.otherUser.connectionStatus,
-            membership = userTypeMapper.toMembership(getInfoResult.otherUser.userType),
-            groupState = conversationRoleData?.userRole?.let { userRole ->
-                OtherUserProfileGroupState(
-                    groupName = conversationRoleData.conversationName,
-                    role = userRole,
-                    isSelfAnAdmin = conversationRoleData.selfRole is Member.Role.Admin
-                )
-            },
-            botService = getInfoResult.otherUser.botService,
-            conversationSheetContent = ConversationSheetContent(
-                title = getInfoResult.otherUser.name.orEmpty(),
-                conversationId = directConversation.id,
-                mutingConversationState = directConversation.mutedStatus,
-                conversationTypeDetail = ConversationTypeDetail.Private(
-                    userAvatarAsset,
-                    userId,
-                    getInfoResult.otherUser.getBlockingState(selfTeamId)
+        state = with(getInfoResult) {
+            state.copy(
+                isDataLoading = false,
+                userAvatarAsset = userAvatarAsset,
+                fullName = otherUser.name.orEmpty(),
+                userName = mapUserLabel(otherUser),
+                teamName = team?.name.orEmpty(),
+                email = otherUser.email.orEmpty(),
+                phone = otherUser.phone.orEmpty(),
+                connectionState = otherUser.connectionStatus,
+                membership = userTypeMapper.toMembership(otherUser.userType),
+                groupState = conversationRoleData?.userRole?.let { userRole ->
+                    OtherUserProfileGroupState(
+                        groupName = conversationRoleData.conversationName,
+                        role = userRole,
+                        isSelfAnAdmin = conversationRoleData.selfRole is Member.Role.Admin
+                    )
+                },
+                botService = otherUser.botService,
+                conversationSheetContent = ConversationSheetContent(
+                    title = otherUser.name.orEmpty(),
+                    conversationId = directConversation.id,
+                    mutingConversationState = directConversation.mutedStatus,
+                    conversationTypeDetail = ConversationTypeDetail.Private(
+                        userAvatarAsset,
+                        userId,
+                        getInfoResult.otherUser.getBlockingState(selfTeamId)
+                    )
                 )
             )
-        )
+        }
     }
 
     fun openConversation() {
@@ -187,7 +203,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                     showInfoMessage(InfoMessageType.ConnectionRequestError)
                 }
                 is SendConnectionRequestResult.Success -> {
-                    state = state.copy(connectionStatus = ConnectionState.SENT)
+                    state = state.copy(connectionState = ConnectionState.SENT)
                     showInfoMessage(InfoMessageType.SuccessConnectionSentRequest)
                 }
             }
@@ -202,7 +218,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                     showInfoMessage(InfoMessageType.ConnectionRequestError)
                 }
                 is CancelConnectionRequestUseCaseResult.Success -> {
-                    state = state.copy(connectionStatus = ConnectionState.NOT_CONNECTED)
+                    state = state.copy(connectionState = ConnectionState.NOT_CONNECTED)
                     showInfoMessage(InfoMessageType.SuccessConnectionCancelRequest)
                 }
             }
@@ -217,7 +233,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                     showInfoMessage(InfoMessageType.ConnectionRequestError)
                 }
                 is AcceptConnectionRequestUseCaseResult.Success -> {
-                    state = state.copy(connectionStatus = ConnectionState.ACCEPTED)
+                    state = state.copy(connectionState = ConnectionState.ACCEPTED)
                     showInfoMessage(InfoMessageType.SuccessConnectionAcceptRequest)
                 }
             }
@@ -232,7 +248,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                     showInfoMessage(InfoMessageType.ConnectionRequestError)
                 }
                 is IgnoreConnectionRequestUseCaseResult.Success -> {
-                    state = state.copy(connectionStatus = ConnectionState.NOT_CONNECTED)
+                    state = state.copy(connectionState = ConnectionState.NOT_CONNECTED)
                     navigationManager.navigateBack(
                         mapOf(
                             EXTRA_CONNECTION_IGNORED_USER_NAME to state.userName,
@@ -246,8 +262,6 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     fun changeMemberRole(role: Member.Role) {
         viewModelScope.launch {
             if (conversationId != null) {
-
-                //TODO is it possible to change users role in conversation that we didn't come from but for some other conversation???
                 updateMemberRole(conversationId, userId, role).also {
                     if (it is UpdateConversationMemberRoleResult.Failure)
                         showInfoMessage(InfoMessageType.ChangeGroupRoleError)
@@ -266,7 +280,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                 when (updateConversationMutedStatus(directConversationId, mutedConversationStatus, Date().time)) {
                     ConversationUpdateStatusResult.Failure -> showInfoMessage(InfoMessageType.MutingOperationError)
                     ConversationUpdateStatusResult.Success ->
-                        appLogger.d("MutedStatus changed for conversation: $directConversationId to $mutedConversationStatus")
+                        appLogger.i("MutedStatus changed for conversation: $directConversationId to $mutedConversationStatus")
                 }
             }
         }
@@ -277,6 +291,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             when (val result = blockUser(id)) {
                 BlockUserResult.Success -> {
                     appLogger.i("User $id was blocked")
+                    _refreshUserInfo.emit(Unit)
                     showInfoMessage(InfoMessageType.BlockingUserOperationSuccess(userName))
                 }
                 is BlockUserResult.Failure -> {
@@ -284,36 +299,52 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                     showInfoMessage(InfoMessageType.BlockingUserOperationError)
                 }
             }
-            state = state.copy(blockUserDialogSate = null)
+            state = state.copy(blockUserDialogState = null)
         }
     }
 
-    fun onDismissBlockUserDialog() {
-        state = state.copy(blockUserDialogSate = null)
+    fun dismissBlockUserDialog() {
+        state = state.copy(blockUserDialogState = null)
     }
 
-    fun onBlockUserClicked(id: UserId, name: String) {
-        state = state.copy(blockUserDialogSate = BlockUserDialogState(name, id))
+    fun showBlockUserDialog(id: UserId, name: String) {
+        state = state.copy(blockUserDialogState = BlockUserDialogState(name, id))
     }
 
-    // TODO: needs to be implemented
     @Suppress("EmptyFunctionBlock")
     fun addConversationToFavourites(id: String = "") {
     }
 
-    // TODO: needs to be implemented
     @Suppress("EmptyFunctionBlock")
     fun moveConversationToFolder(id: String = "") {
     }
 
-    // TODO: needs to be implemented
     @Suppress("EmptyFunctionBlock")
     fun moveConversationToArchive(id: String = "") {
     }
 
-    // TODO: needs to be implemented
     @Suppress("EmptyFunctionBlock")
     fun clearConversationContent(id: String = "") {
+    }
+
+    @Suppress("EmptyFunctionBlock")
+    fun unblockUser() {
+    }
+
+    fun setBottomSheetStateToConversation() {
+        state = state.setBottomSheetStateToConversation()
+    }
+
+    fun setBottomSheetStateToMuteOptions() {
+        state = state.setBottomSheetStateToMuteOptions()
+    }
+
+    fun setBottomSheetStateToChangeRole() {
+        state = state.setBottomSheetStateToChangeRole()
+    }
+
+    fun clearBottomSheetState() {
+        state = state.clearBottomSheetState()
     }
 
     fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }

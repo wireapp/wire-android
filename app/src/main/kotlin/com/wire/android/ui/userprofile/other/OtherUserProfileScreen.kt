@@ -30,6 +30,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -94,24 +95,40 @@ fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltView
         onSendConnectionRequest = viewModel::sendConnectionRequest,
         onOpenConversation = viewModel::openConversation,
         onCancelConnectionRequest = viewModel::cancelConnectionRequest,
-        ignoreConnectionRequest = viewModel::ignoreConnectionRequest,
-        acceptConnectionRequest = viewModel::acceptConnectionRequest,
+        onIgnoreConnectionRequest = viewModel::ignoreConnectionRequest,
+        onUnblockUser = viewModel::unblockUser,
+        onAcceptConnectionRequest = viewModel::acceptConnectionRequest,
         onNavigateBack = viewModel::navigateBack,
-        changeMemberRole = viewModel::changeMemberRole,
+        onChangeMemberRole = viewModel::changeMemberRole,
         snackbarHostState = snackbarHostState,
-        onDismissBlockUserDialog = viewModel::onDismissBlockUserDialog,
-        onBlockUserClicked = viewModel::onBlockUserClicked,
+        onDismissBlockUserDialog = viewModel::dismissBlockUserDialog,
+        onBlockUserClicked = viewModel::showBlockUserDialog,
         onBlockUser = viewModel::blockUser,
         onMutingConversationStatusChange = viewModel::muteConversation,
-        addConversationToFavourites = viewModel::addConversationToFavourites,
-        moveConversationToArchive = viewModel::moveConversationToArchive,
-        clearConversationContent = viewModel::clearConversationContent,
-        moveConversationToFolder = viewModel::moveConversationToFolder,
+        onAddConversationToFavourites = viewModel::addConversationToFavourites,
+        onMoveConversationToArchive = viewModel::moveConversationToArchive,
+        onClearConversationContent = viewModel::clearConversationContent,
+        onMoveConversationToFolder = viewModel::moveConversationToFolder,
+        setBottomSheetStateToConversation = viewModel::setBottomSheetStateToConversation,
+        setBottomSheetStateToMutOptions = viewModel::setBottomSheetStateToMuteOptions,
+        setBottomSheetStateToChangeRole = viewModel::setBottomSheetStateToChangeRole
     )
     LaunchedEffect(Unit) {
         viewModel.infoMessage.collect {
             closeBottomSheet()
             snackbarHostState.showSnackbar(it.asString(context.resources))
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        snapshotFlow { sheetState.isVisible }.collect { isVisible ->
+            // without clearing BottomSheet after every closing there could be strange UI behaviour.
+            // Example: open some big BottomSheet (ConversationBS), close it, then open small BS (ChangeRoleBS) ->
+            // in that case user will see ChangeRoleBS at the center of the screen (just for few milliseconds)
+            // and then it moves to the bottom.
+            // It happens cause when `sheetState.show()` is called, it calculates animation offset by the old BS height (which was big)
+            // To avoid such case we clear BS content on every closing
+            if (!isVisible) viewModel.clearBottomSheetState()
         }
     }
 }
@@ -134,18 +151,22 @@ fun OtherProfileScreenContent(
     onSendConnectionRequest: () -> Unit,
     onOpenConversation: () -> Unit,
     onCancelConnectionRequest: () -> Unit,
-    acceptConnectionRequest: () -> Unit,
-    ignoreConnectionRequest: () -> Unit,
+    onAcceptConnectionRequest: () -> Unit,
+    onIgnoreConnectionRequest: () -> Unit,
+    onUnblockUser: () -> Unit,
     onNavigateBack: () -> Unit,
-    changeMemberRole: (Member.Role) -> Unit,
+    onChangeMemberRole: (Member.Role) -> Unit,
     onDismissBlockUserDialog: () -> Unit,
     onBlockUserClicked: (UserId, String) -> Unit,
     onBlockUser: (UserId, String) -> Unit,
     onMutingConversationStatusChange: (ConversationId?, MutedConversationStatus) -> Unit,
-    addConversationToFavourites: () -> Unit,
-    moveConversationToFolder: () -> Unit,
-    moveConversationToArchive: () -> Unit,
-    clearConversationContent: () -> Unit,
+    onAddConversationToFavourites: () -> Unit,
+    onMoveConversationToFolder: () -> Unit,
+    onMoveConversationToArchive: () -> Unit,
+    onClearConversationContent: () -> Unit,
+    setBottomSheetStateToConversation: () -> Unit,
+    setBottomSheetStateToMutOptions: () -> Unit,
+    setBottomSheetStateToChangeRole: () -> Unit,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
     val otherUserProfileScreenState = rememberOtherUserProfileScreenState(snackbarHostState)
@@ -169,15 +190,17 @@ fun OtherProfileScreenContent(
             coroutineScope = rememberCoroutineScope(),
             sheetContent = {
                 OtherUserProfileBottomSheetContent(
-                    bottomSheetState = state.bottomSheetState,
+                    bottomSheetState = state.bottomSheetContentState,
                     onMutingConversationStatusChange = onMutingConversationStatusChange,
-                    addConversationToFavourites = addConversationToFavourites,
-                    moveConversationToArchive = moveConversationToArchive,
-                    clearConversationContent = clearConversationContent,
-                    moveConversationToFolder = moveConversationToFolder,
+                    addConversationToFavourites = onAddConversationToFavourites,
+                    moveConversationToArchive = onMoveConversationToArchive,
+                    clearConversationContent = onClearConversationContent,
+                    moveConversationToFolder = onMoveConversationToFolder,
                     blockUser = onBlockUserClicked,
                     closeBottomSheet = closeBottomSheet,
-                    changeMemberRole = changeMemberRole
+                    changeMemberRole = onChangeMemberRole,
+                    openConversationSheet = setBottomSheetStateToConversation,
+                    openMuteOptionsSheet = setBottomSheetStateToMutOptions
                 )
             }
         ) {
@@ -192,19 +215,25 @@ fun OtherProfileScreenContent(
                     TopBarHeader(
                         state = state,
                         elevation = elevation,
-                        onNavigateBack = onNavigateBack
-                    ) {
-                        state.setBottomSheetContentToConversation()
-                        openBottomSheet()
-                    }
+                        onNavigateBack = onNavigateBack,
+                        openConversationBottomSheet = {
+                            setBottomSheetStateToConversation()
+                            openBottomSheet()
+                        })
                 },
                 topBarCollapsing = { TopBarCollapsing(state) },
                 topBarFooter = { TopBarFooter(state, pagerState, tabBarElevationState, tabItems, currentTabState, scope) },
                 content = {
-                    Content(state, pagerState, tabItems, otherUserProfileScreenState, lazyListStates) {
-                        state.setBottomSheetContentToChangeRole()
-                        openBottomSheet()
-                    }
+                    Content(
+                        state = state,
+                        pagerState = pagerState,
+                        tabItems = tabItems,
+                        otherUserProfileScreenState = otherUserProfileScreenState,
+                        lazyListStates = lazyListStates,
+                        openChangeRoleBottomSheet = {
+                            setBottomSheetStateToChangeRole()
+                            openBottomSheet()
+                        })
                 },
                 contentFooter = {
                     ContentFooter(
@@ -213,16 +242,17 @@ fun OtherProfileScreenContent(
                         onSendConnectionRequest,
                         onOpenConversation,
                         onCancelConnectionRequest,
-                        acceptConnectionRequest,
-                        ignoreConnectionRequest
+                        onAcceptConnectionRequest,
+                        onIgnoreConnectionRequest,
+                        onUnblockUser
                     )
                 },
-                isSwipeable = state.connectionStatus == ConnectionState.ACCEPTED
+                isSwipeable = state.connectionState == ConnectionState.ACCEPTED
             )
         }
 
         BlockUserDialogContent(
-            state = state.blockUserDialogSate,
+            state = state.blockUserDialogState,
             dismiss = onDismissBlockUserDialog,
             onBlock = onBlockUser
         )
@@ -234,15 +264,15 @@ private fun TopBarHeader(
     state: OtherUserProfileState,
     elevation: Dp,
     onNavigateBack: () -> Unit,
-    openChangeRoleBottomSheet: () -> Unit
+    openConversationBottomSheet: () -> Unit
 ) {
     WireCenterAlignedTopAppBar(
         onNavigationPressed = onNavigateBack,
         title = stringResource(id = R.string.user_profile_title),
         elevation = elevation,
         actions = {
-            if (state.connectionStatus in listOf(ConnectionState.ACCEPTED, ConnectionState.BLOCKED)) {
-                MoreOptionIcon(openChangeRoleBottomSheet)
+            if (state.connectionState in listOf(ConnectionState.ACCEPTED, ConnectionState.BLOCKED)) {
+                MoreOptionIcon(openConversationBottomSheet)
             }
         }
     )
@@ -260,7 +290,8 @@ private fun TopBarCollapsing(state: OtherUserProfileState) {
             teamName = state.teamName,
             membership = state.membership,
             editableState = EditableState.NotEditable,
-            modifier = Modifier.padding(bottom = dimensions().spacing16x)
+            modifier = Modifier.padding(bottom = dimensions().spacing16x),
+            connection = state.connectionState
         )
     }
 }
@@ -275,7 +306,7 @@ private fun TopBarFooter(
     currentTab: Int,
     scope: CoroutineScope
 ) {
-    if (state.connectionStatus == ConnectionState.ACCEPTED) {
+    if (state.connectionState == ConnectionState.ACCEPTED) {
         AnimatedVisibility(
             visible = !state.isDataLoading,
             enter = fadeIn(),
@@ -309,7 +340,7 @@ private fun Content(
     Crossfade(targetState = state) { state ->
         when {
             state.isDataLoading || state.botService != null -> Box {} // no content visible while loading
-            state.connectionStatus == ConnectionState.ACCEPTED ->
+            state.connectionState == ConnectionState.ACCEPTED ->
                 CompositionLocalProvider(LocalOverScrollConfiguration provides null) {
                     HorizontalPager(
                         modifier = Modifier.fillMaxSize(),
@@ -324,8 +355,9 @@ private fun Content(
                         }
                     }
                 }
+            state.connectionState == ConnectionState.BLOCKED -> Box {} // no content visible for blocked users
             else -> {
-                OtherUserConnectionStatusInfo(state.connectionStatus, state.membership)
+                OtherUserConnectionStatusInfo(state.connectionState, state.membership)
             }
         }
     }
@@ -340,6 +372,7 @@ private fun ContentFooter(
     onCancelConnectionRequest: () -> Unit,
     acceptConnectionRequest: () -> Unit,
     ignoreConnectionRequest: () -> Unit,
+    onUnblockUser: () -> Unit
 ) {
     AnimatedVisibility(
         visible = !state.isDataLoading,
@@ -354,12 +387,13 @@ private fun ContentFooter(
                 // TODO show open conversation button for service bots after AR-2135
                 if (state.membership != Membership.Service) {
                     OtherUserConnectionActionButton(
-                        state.connectionStatus,
+                        state.connectionState,
                         onSendConnectionRequest,
                         onOpenConversation,
                         onCancelConnectionRequest,
                         acceptConnectionRequest,
-                        ignoreConnectionRequest
+                        ignoreConnectionRequest,
+                        onUnblockUser
                     )
                 }
             }
@@ -385,10 +419,9 @@ fun OtherProfileScreenContentPreview() {
     WireTheme(isPreview = true) {
         OtherProfileScreenContent(
             rememberCoroutineScope(),
-            OtherUserProfileState.PREVIEW.copy(connectionStatus = ConnectionState.ACCEPTED),
+            OtherUserProfileState.PREVIEW.copy(connectionState = ConnectionState.ACCEPTED),
             rememberModalBottomSheetState(ModalBottomSheetValue.Hidden),
-            {}, {}, {},
-            {}, {}, {}, {}, {}, {}, {}, { _, _ -> }, { _, _ -> }, { _, _ -> }, {}, {}, {}, {}
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, { _, _ -> }, { _, _ -> }, { _, _ -> }, {}, {}, {}, {}, {}, {}, {}
         )
     }
 }
@@ -406,10 +439,9 @@ fun OtherProfileScreenContentNotConnectedPreview() {
     WireTheme(isPreview = true) {
         OtherProfileScreenContent(
             rememberCoroutineScope(),
-            OtherUserProfileState.PREVIEW.copy(connectionStatus = ConnectionState.CANCELLED),
+            OtherUserProfileState.PREVIEW.copy(connectionState = ConnectionState.CANCELLED),
             rememberModalBottomSheetState(ModalBottomSheetValue.Hidden),
-            {}, {}, {},
-            {}, {}, {}, {}, {}, {}, {}, { _, _ -> }, { _, _ -> }, { _, _ -> }, {}, {}, {}, {}
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {},{}, { _, _ -> }, { _, _ -> }, { _, _ -> }, {}, {}, {}, {}, {}, {}, {}
         )
     }
 }

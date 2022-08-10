@@ -55,7 +55,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
-import org.junit.Assert.assertNotNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -127,6 +126,7 @@ class OtherUserProfileScreenViewModelTest {
         coEvery {
             qualifiedIdMapper.fromStringToQualifiedID("some_value@some_domain")
         } returns QualifiedID("some_value", "some_domain")
+        coEvery { getOrCreateOneToOneConversation(USER_ID) } returns CreateConversationResult.Success(CONVERSATION)
         initViewModel()
     }
 
@@ -165,7 +165,7 @@ class OtherUserProfileScreenViewModelTest {
 
                 // then
                 coVerify { sendConnectionRequest(eq(USER_ID)) }
-                assertEquals(ConnectionState.SENT, otherUserProfileScreenViewModel.state.connectionStatus)
+                assertEquals(ConnectionState.SENT, otherUserProfileScreenViewModel.state.connectionState)
                 assertEquals(InfoMessageType.SuccessConnectionSentRequest.uiText, awaitItem())
             }
         }
@@ -203,7 +203,7 @@ class OtherUserProfileScreenViewModelTest {
             coVerify {
                 ignoreConnectionRequest(eq(USER_ID))
             }
-            assertEquals(ConnectionState.NOT_CONNECTED, otherUserProfileScreenViewModel.state.connectionStatus)
+            assertEquals(ConnectionState.NOT_CONNECTED, otherUserProfileScreenViewModel.state.connectionState)
         }
 
     @Test
@@ -219,7 +219,7 @@ class OtherUserProfileScreenViewModelTest {
 
                 // then
                 coVerify { cancelConnectionRequest(eq(USER_ID)) }
-                assertEquals(ConnectionState.NOT_CONNECTED, otherUserProfileScreenViewModel.state.connectionStatus)
+                assertEquals(ConnectionState.NOT_CONNECTED, otherUserProfileScreenViewModel.state.connectionState)
                 assertEquals(InfoMessageType.SuccessConnectionCancelRequest.uiText, awaitItem())
             }
         }
@@ -237,7 +237,7 @@ class OtherUserProfileScreenViewModelTest {
 
                 // then
                 coVerify { acceptConnectionRequest(eq(USER_ID)) }
-                assertEquals(ConnectionState.ACCEPTED, otherUserProfileScreenViewModel.state.connectionStatus)
+                assertEquals(ConnectionState.ACCEPTED, otherUserProfileScreenViewModel.state.connectionState)
                 assertEquals(InfoMessageType.SuccessConnectionAcceptRequest.uiText, awaitItem())
             }
         }

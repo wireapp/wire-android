@@ -89,16 +89,3 @@ fun rememberConversationSheetState(
         )
     }
 }
-
-@Composable
-fun rememberConversationSheetState(
-    conversationSheetContent: ConversationSheetContent,
-    conversationOptionNavigation: ConversationOptionNavigation
-): ConversationSheetState {
-    return remember(conversationSheetContent, conversationOptionNavigation) {
-        ConversationSheetState(
-            conversationSheetContent = conversationSheetContent,
-            conversationOptionNavigation = conversationOptionNavigation
-        )
-    }
-}

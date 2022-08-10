@@ -1,6 +1,7 @@
 package com.wire.android.ui.userprofile.other
 
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ModalBottomSheetValue
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent

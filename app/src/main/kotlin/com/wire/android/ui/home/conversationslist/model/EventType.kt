@@ -7,4 +7,5 @@ sealed class EventType {
     object MissedCall : EventType()
     object ReceivedConnectionRequest : EventType()
     object SentConnectRequest : EventType()
+    object Blocked : EventType()
 }

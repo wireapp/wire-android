@@ -5,6 +5,10 @@ on:
     types: [ opened, synchronize ] # Don't rerun on `edited` to save time
   workflow_call:
 
+concurrency:
+    group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+    cancel-in-progress: true
+
 jobs:
   ui-tests:
     if: ${{ contains(github.head_ref, 'qa/') || contains(github.ref_name, 'qa/')}}  # disable for as they are not yet completed

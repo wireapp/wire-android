@@ -59,6 +59,8 @@ import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
 import com.wire.android.ui.home.messagecomposer.MessageComposeInputState
 import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
+import com.wire.kalium.logic.data.user.ConnectionState
+import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
@@ -175,6 +177,9 @@ private fun ConversationScreen(
     val conversationScreenState = rememberConversationScreenState()
 
     with(conversationViewState) {
+
+        val connectionStateOrNull = (conversationDetailsData as? ConversationDetailsData.OneOne)?.connectionState
+
         MenuModalSheetLayout(
             sheetState = conversationScreenState.modalBottomSheetState,
             coroutineScope = conversationScreenState.coroutineScope,
@@ -193,7 +198,7 @@ private fun ConversationScreen(
                 Scaffold(
                     topBar = {
                         ConversationScreenTopAppBar(
-                            title = conversationName.ifEmpty { stringResource(id = R.string.member_name_deleted_label) },
+                            title = conversationName.asString(),
                             avatar = {
                                 when (conversationAvatar) {
                                     is ConversationAvatar.Group ->
@@ -201,7 +206,11 @@ private fun ConversationScreen(
                                             color = colorsScheme().conversationColor(id = conversationAvatar.conversationId)
                                         )
                                     is ConversationAvatar.OneOne -> UserProfileAvatar(
-                                        UserAvatarData(conversationAvatar.avatarAsset, conversationAvatar.status)
+                                        UserAvatarData(
+                                            asset = conversationAvatar.avatarAsset,
+                                            availabilityStatus = conversationAvatar.status,
+                                            connectionState = connectionStateOrNull
+                                        )
                                     )
                                     ConversationAvatar.None -> Box(modifier = Modifier.size(dimensions().userAvatarDefaultSize))
                                 }
@@ -211,7 +220,8 @@ private fun ConversationScreen(
                             onSearchButtonClick = { },
                             onPhoneButtonClick = onStartCall,
                             hasOngoingCall = hasOngoingCall,
-                            onJoinCallButtonClick = onJoinCall
+                            onJoinCallButtonClick = onJoinCall,
+                            isUserBlocked = connectionStateOrNull == ConnectionState.BLOCKED
                         )
                     },
                     snackbarHost = {
@@ -238,6 +248,7 @@ private fun ConversationScreen(
                                 conversationScreenState = conversationScreenState,
                                 isFileSharingEnabled = isFileSharingEnabled,
                                 tempCachePath = tempCachePath,
+                                isUserBlocked = connectionStateOrNull == ConnectionState.BLOCKED,
                                 onOpenProfile = onOpenProfile,
                                 onUpdateConversationReadDate = onUpdateConversationReadDate
                             )
@@ -267,6 +278,7 @@ private fun ConversationScreenContent(
     onSnackbarMessageShown: () -> Unit,
     conversationScreenState: ConversationScreenState,
     isFileSharingEnabled: Boolean,
+    isUserBlocked: Boolean,
     tempCachePath: Path,
     onUpdateConversationReadDate: (String) -> Unit
 ) {
@@ -325,7 +337,8 @@ private fun ConversationScreenContent(
             }
         },
         isFileSharingEnabled = isFileSharingEnabled,
-        tempCachePath = tempCachePath
+        tempCachePath = tempCachePath,
+        isUserBlocked = isUserBlocked
     )
 
 }
@@ -406,7 +419,7 @@ fun MessageList(
 fun ConversationScreenPreview() {
     ConversationScreen(
         conversationViewState = ConversationViewState(
-            conversationName = "Some test conversation",
+            conversationName = UIText.DynamicString("Some test conversation"),
             messages = getMockedMessages(),
         ),
         onMessageChanged = {},

@@ -24,6 +24,7 @@ import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOffUseCase
 import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOnUseCase
 import com.wire.kalium.logic.feature.call.usecase.UnMuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.UpdateVideoStateUseCase
+import com.wire.kalium.logic.feature.connection.BlockUserUseCase
 import com.wire.kalium.logic.feature.conversation.AddMemberToConversationUseCase
 import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetAllContactsNotInConversationUseCase
@@ -606,7 +607,6 @@ class UseCaseModule {
     ): QualifiedIdMapper =
         coreLogic.getSessionScope(currentAccount).qualifiedIdMapper
 
-
     @ViewModelScoped
     @Provides
     fun provideIsPasswordRequiredUseCase(
@@ -629,4 +629,11 @@ class UseCaseModule {
         @CurrentAccount currentAccount: UserId
     ): UpdateConversationReadDateUseCase =
         coreLogic.getSessionScope(currentAccount).conversations.updateConversationReadDateUseCase
+
+    @ViewModelScoped
+    @Provides
+    fun provideBlockUserUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): BlockUserUseCase = coreLogic.getSessionScope(currentAccount).connection.blockUser
 }

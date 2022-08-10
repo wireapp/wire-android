@@ -72,6 +72,7 @@ class MessageMapper @Inject constructor(
             is OtherUser -> userTypeMapper.toMembership(sender.userType)
             is SelfUser, null -> Membership.None
         },
+        connectionState = getConnectionState(sender),
         isLegalHold = false,
         messageTime = MessageTime(message.date),
         messageStatus = getMessageStatus(message),
@@ -93,6 +94,13 @@ class MessageMapper @Inject constructor(
 
     private fun getUserAvatarData(sender: User?) = UserAvatarData(
         asset = sender?.previewAsset(wireSessionImageLoader),
-        availabilityStatus = sender?.availabilityStatus ?: UserAvailabilityStatus.NONE
+        availabilityStatus = sender?.availabilityStatus ?: UserAvailabilityStatus.NONE,
+        connectionState = getConnectionState(sender)
     )
+
+    private fun getConnectionState(sender: User?) =
+        when (sender) {
+            is OtherUser -> sender.connectionStatus
+            is SelfUser, null -> null
+        }
 }

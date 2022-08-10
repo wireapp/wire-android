@@ -3,17 +3,14 @@ package com.wire.android.ui.home.conversationslist
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
@@ -27,9 +24,9 @@ import com.wire.android.R
 import com.wire.android.ui.common.FloatingActionButton
 import com.wire.android.ui.common.WireBottomNavigationBar
 import com.wire.android.ui.common.WireBottomNavigationItemData
+import com.wire.android.ui.common.dialogs.BlockUserDialogContent
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
-import com.wire.android.ui.home.conversationslist.ConversationOperationErrorState.MutingOperationErrorState
+import com.wire.android.ui.home.HomeSnackbarState
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationOptionNavigation
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
@@ -46,10 +43,15 @@ import com.wire.kalium.logic.data.user.UserId
 @Composable
 fun ConversationRouterHomeBridge(
     onHomeBottomSheetContentChanged: (@Composable ColumnScope.() -> Unit) -> Unit,
-    onBottomSheetVisibilityChanged: () -> Unit,
+    onOpenBottomSheet: () -> Unit,
+    onSnackBarStateChanged: (HomeSnackbarState) -> Unit,
     onScrollPositionProviderChanged: (() -> Int) -> Unit
 ) {
     val viewModel: ConversationListViewModel = hiltViewModel()
+
+    LaunchedEffect(Unit) {
+        viewModel.snackBarState.collect { onSnackBarStateChanged(it) }
+    }
 
     fun openConversationBottomSheet(
         conversationItem: ConversationItem,
@@ -84,17 +86,16 @@ fun ConversationRouterHomeBridge(
                 moveConversationToFolder = viewModel::moveConversationToFolder,
                 moveConversationToArchive = viewModel::moveConversationToArchive,
                 clearConversationContent = viewModel::clearConversationContent,
-                blockUser = viewModel::blockUser,
+                blockUser = viewModel::onBlockUserClicked,
                 leaveGroup = viewModel::leaveGroup
             )
         }
 
-        onBottomSheetVisibilityChanged()
+        onOpenBottomSheet()
     }
 
     ConversationRouter(
         uiState = viewModel.state,
-        errorState = viewModel.errorState,
         openConversation = viewModel::openConversation,
         openNewConversation = viewModel::openNewConversation,
         onEditConversationItem = { conversationItem ->
@@ -103,7 +104,6 @@ fun ConversationRouterHomeBridge(
             )
         },
         onScrollPositionProviderChanged = onScrollPositionProviderChanged,
-        onError = onBottomSheetVisibilityChanged,
         openProfile = viewModel::openUserProfile,
         onEditNotifications = { conversationItem ->
             openConversationBottomSheet(
@@ -111,7 +111,9 @@ fun ConversationRouterHomeBridge(
                 conversationOptionNavigation = ConversationOptionNavigation.MutingNotificationOption
             )
         },
-        onJoinCall = viewModel::joinOngoingCall
+        onJoinCall = viewModel::joinOngoingCall,
+        onBlockUser = viewModel::blockUser,
+        onDismissBlockUserDialog = viewModel::onDismissBlockUserDialog,
     )
 }
 
@@ -121,28 +123,17 @@ fun ConversationRouterHomeBridge(
 @Composable
 private fun ConversationRouter(
     uiState: ConversationListState,
-    errorState: ConversationOperationErrorState?,
     openConversation: (ConversationId) -> Unit,
     openNewConversation: () -> Unit,
     onEditConversationItem: (ConversationItem) -> Unit,
     onEditNotifications: (ConversationItem) -> Unit,
     onJoinCall: (ConversationId) -> Unit,
     onScrollPositionProviderChanged: (() -> Int) -> Unit,
-    onError: () -> Unit,
     openProfile: (UserId) -> Unit,
+    onBlockUser: (UserId, String) -> Unit,
+    onDismissBlockUserDialog: () -> Unit,
 ) {
-    val snackbarHostState = remember { SnackbarHostState() }
     val navHostController = rememberNavController()
-
-    errorState?.let { errorType ->
-        val message = when (errorType) {
-            is MutingOperationErrorState -> stringResource(id = R.string.error_updating_muting_setting)
-        }
-        LaunchedEffect(errorType) {
-            onError()
-            snackbarHostState.showSnackbar(message)
-        }
-    }
 
     Scaffold(
         floatingActionButton = {
@@ -160,12 +151,6 @@ private fun ConversationRouter(
                     )
                 },
                 onClick = openNewConversation
-            )
-        },
-        snackbarHost = {
-            SwipeDismissSnackbarHost(
-                hostState = snackbarHostState,
-                modifier = Modifier.fillMaxWidth()
             )
         },
         bottomBar = {
@@ -228,6 +213,12 @@ private fun ConversationRouter(
 //                )
             }
         }
+
+        BlockUserDialogContent(
+            state = uiState.blockUserDialogSate,
+            dismiss = onDismissBlockUserDialog,
+            onBlock = onBlockUser
+        )
     }
 }
 

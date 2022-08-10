@@ -13,6 +13,7 @@ import com.wire.android.util.ui.UIText
 import com.wire.android.util.uiMessageDateTime
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.user.AssetId
+import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
 
 data class UIMessage(
@@ -34,7 +35,8 @@ data class MessageHeader(
     val messageTime: MessageTime,
     val messageStatus: MessageStatus,
     val messageId: String,
-    val userId: UserId? = null
+    val userId: UserId? = null,
+    val connectionState: ConnectionState?
 )
 
 sealed class MessageStatus(val text: UIText) {

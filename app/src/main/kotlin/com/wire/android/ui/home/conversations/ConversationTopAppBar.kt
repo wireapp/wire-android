@@ -4,7 +4,6 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -24,6 +23,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.calling.controlButtons.JoinButton
+import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.topappbar.BackNavigationIconButton
 import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
@@ -39,6 +39,7 @@ fun ConversationScreenTopAppBar(
     onSearchButtonClick: () -> Unit,
     onPhoneButtonClick: () -> Unit,
     hasOngoingCall: Boolean,
+    isUserBlocked: Boolean,
     onJoinCallButtonClick: () -> Unit
 ) {
     SmallTopAppBar(
@@ -86,7 +87,8 @@ fun ConversationScreenTopAppBar(
             callControlButton(
                 hasOngoingCall = hasOngoingCall,
                 onJoinCallButtonClick = onJoinCallButtonClick,
-                onPhoneButtonClick = onPhoneButtonClick
+                onPhoneButtonClick = onPhoneButtonClick,
+                isUserBlocked = isUserBlocked
             )
             Spacer(Modifier.width(MaterialTheme.wireDimensions.spacing6x))
         }, colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
@@ -101,6 +103,7 @@ fun ConversationScreenTopAppBar(
 @Composable
 private fun callControlButton(
     hasOngoingCall: Boolean,
+    isUserBlocked: Boolean,
     onJoinCallButtonClick: () -> Unit,
     onPhoneButtonClick: () -> Unit
 ) {
@@ -118,6 +121,7 @@ private fun callControlButton(
                     contentDescription = stringResource(R.string.content_description_conversation_phone_icon),
                 )
             },
+            state = if (isUserBlocked) WireButtonState.Disabled else WireButtonState.Default,
             fillMaxWidth = false,
             minHeight = MaterialTheme.wireDimensions.spacing32x,
             minWidth = MaterialTheme.wireDimensions.spacing40x,
@@ -138,6 +142,7 @@ fun ConversationScreenTopAppBarLongTitlePreview() {
         {},
         {},
         false,
+        false,
         {}
     )
 }
@@ -152,6 +157,7 @@ fun ConversationScreenTopAppBarShortTitlePreview() {
         {},
         {},
         {},
+        false,
         false,
         {}
     )
@@ -168,6 +174,7 @@ fun ConversationScreenTopAppBarShortTitleWithOngoingCallPreview() {
         {},
         {},
         true,
+        false,
         {}
     )
 }

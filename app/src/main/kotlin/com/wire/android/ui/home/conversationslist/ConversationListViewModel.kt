@@ -80,7 +80,7 @@ class ConversationListViewModel @Inject constructor(
         observeConversationsAndConnections() // TODO AR-1736
             .combine(getSelf(), ::Pair)
             .collect { (list, selfUser) ->
-                val detailedList = list.toConversationsFoldersMap(selfUser.teamId)
+                val detailedList = list.conversationList.toConversationsFoldersMap(selfUser.teamId)
                 val newActivities = emptyList<NewActivity>()
                 val missedCalls = mockMissedCalls // TODO: needs to be implemented
                 val unreadMentions = mockUnreadMentionList // TODO: needs to be implemented

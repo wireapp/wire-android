@@ -17,9 +17,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusManager
-import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.button.WireIconButton
+import com.wire.android.ui.common.dimensions
 
 @ExperimentalAnimationApi
 @Composable
@@ -58,7 +58,7 @@ private fun MessageComposeActions(
         horizontalArrangement = Arrangement.SpaceEvenly,
         modifier = Modifier
             .fillMaxWidth()
-            .height(56.dp)
+            .height(dimensions().spacing56x)
     ) {
         AdditionalOptionButton(messageComposerState.attachmentOptionsDisplayed) {
             focusManager.clearFocus()

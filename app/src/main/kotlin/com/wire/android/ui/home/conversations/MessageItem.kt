@@ -223,12 +223,9 @@ private fun MessageContent(
             assetDownloadStatus = messageContent.downloadStatus,
             onAssetClick = onAssetClick
         )
-        is MessageContent.SystemMessage.MemberAdded -> {
-        }
-        is MessageContent.SystemMessage.MemberLeft -> {
-        }
-        is MessageContent.SystemMessage.MemberRemoved -> {
-        }
+        is MessageContent.SystemMessage.MemberAdded -> {}
+        is MessageContent.SystemMessage.MemberLeft -> {}
+        is MessageContent.SystemMessage.MemberRemoved -> {}
         is MessageContent.RestrictedAsset -> {
             when {
                 messageContent.mimeType.contains("image/") -> {

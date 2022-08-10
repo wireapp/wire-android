@@ -16,7 +16,8 @@ import com.wire.kalium.logic.data.user.ConnectionState
  * It may be some of the Users Membership (Guest, Federated, External, Service),
  * or "Blocked" for the user that was blocked by me.
  *
- * Only 1 Label is displayed, so if user is blocked - "Blocked" label is displayed, no meter what is users Membership
+ * Only 1 Label is displayed, so if user is blocked - "Blocked" label is displayed,
+ * no matter what Membership value the user might have
  * If user is not blocked, then Membership Label is displayed.
  *
  * @param membership - users Membership that is used for membership Label

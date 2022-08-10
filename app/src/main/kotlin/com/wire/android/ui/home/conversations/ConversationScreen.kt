@@ -56,6 +56,7 @@ import com.wire.android.ui.home.messagecomposer.MessageComposeInputState
 import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
 import com.wire.kalium.logic.data.user.ConnectionState
+import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.launch
 import okio.Path
@@ -191,7 +192,7 @@ private fun ConversationScreen(
                 Scaffold(
                     topBar = {
                         ConversationScreenTopAppBar(
-                            title = conversationName.ifEmpty { stringResource(id = R.string.member_name_deleted_label) },
+                            title = conversationName.asString(),
                             avatar = {
                                 when (conversationAvatar) {
                                     is ConversationAvatar.Group ->
@@ -383,7 +384,7 @@ fun MessageList(
 fun ConversationScreenPreview() {
     ConversationScreen(
         conversationViewState = ConversationViewState(
-            conversationName = "Some test conversation",
+            conversationName = UIText.DynamicString("Some test conversation"),
             messages = getMockedMessages(),
         ),
         onMessageChanged = {},

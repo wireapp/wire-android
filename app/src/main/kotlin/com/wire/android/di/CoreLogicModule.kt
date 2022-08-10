@@ -44,8 +44,10 @@ import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.components.ServiceComponent
 import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.android.scopes.ServiceScoped
 import dagger.hilt.android.scopes.ViewModelScoped
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.runBlocking
@@ -55,6 +57,11 @@ import javax.inject.Singleton
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
 annotation class KaliumCoreLogic
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class CurrentSessionFlowService
+
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
@@ -121,6 +128,16 @@ class ConnectionModule {
     @Provides
     fun provideAcceptConnectionRequestUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).connection.acceptConnectionRequest
+}
+
+@Module
+@InstallIn(ServiceComponent::class)
+class ServiceModule {
+    @ServiceScoped
+    @Provides
+    @CurrentSessionFlowService
+    fun provideCurrentSessionFlowUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
+        coreLogic.getGlobalScope().session.currentSessionFlow
 }
 
 @Module

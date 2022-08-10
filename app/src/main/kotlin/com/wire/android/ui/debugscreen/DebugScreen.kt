@@ -40,10 +40,15 @@ import com.wire.android.util.startMultipleFileSharingIntent
 @Composable
 fun DebugScreen() {
     val debugScreenViewModel: DebugScreenViewModel = hiltViewModel()
+    val context = LocalContext.current
+
     DebugContent(
         mlsData = debugScreenViewModel.mlsData,
         isLoggingEnabled = debugScreenViewModel.isLoggingEnabled,
-        setLoggingEnabledState = debugScreenViewModel::setLoggingEnabledState,
+        setLoggingEnabledState = {
+            debugScreenViewModel.test(context)
+            debugScreenViewModel.setLoggingEnabledState(it)
+        },
         logFilePath = debugScreenViewModel::logFilePath,
         deleteAllLogs = debugScreenViewModel::deleteAllLogs
     )

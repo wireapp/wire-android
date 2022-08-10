@@ -1,15 +1,19 @@
 package com.wire.android.ui.debugscreen
 
+import android.content.Context
+import android.content.Intent
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.platformLogWriter
+import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.util.DataDogLogger
 import com.wire.android.util.LogFileWriter
 import com.wire.kalium.logger.KaliumLogLevel
 import com.wire.kalium.logic.CoreLogger
+import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountResult
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountUseCase
 import com.wire.kalium.logic.feature.user.EnableLoggingUseCase
@@ -24,6 +28,7 @@ class DebugScreenViewModel
     private val mlsKeyPackageCountUseCase: MLSKeyPackageCountUseCase,
     private val enableLoggingUseCase: EnableLoggingUseCase,
     private val logFileWriter: LogFileWriter,
+    @KaliumCoreLogic private val coreLogic: CoreLogic,
     isLoggingEnabledUseCase: IsLoggingEnabledUseCase
 ) : ViewModel() {
     var isLoggingEnabled by mutableStateOf(isLoggingEnabledUseCase())
@@ -53,6 +58,10 @@ class DebugScreenViewModel
 
     fun deleteAllLogs() {
         logFileWriter.deleteAllLogFiles()
+    }
+
+    fun test(context: Context) {
+        context.startService(Intent(context, PersistentWebSocketService::class.java))
     }
 
     fun setLoggingEnabledState(isEnabled: Boolean) {

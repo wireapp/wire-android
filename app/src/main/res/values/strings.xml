@@ -34,6 +34,7 @@
     <string name="label_value_copied">%s copied</string>
     <string name="label_disable">Disable</string>
     <string name="folder_lable_access">Access</string>
+    <string name="label_user_blocked">Blocked</string>
 
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
     <string name="content_description_app_logo">App Logo</string>
@@ -310,6 +311,7 @@
     <string name="user_profile_group_role">ROLE</string>
     <string name="user_profile_role_in_group">Role in ”%s”</string>
     <string name="user_profile_role_change_error">There was an error trying to change the role. Please check your Internet connection and try again</string>
+    <string name="user_profile_unblock_user">Unblock User</string>
 
     <string name="group_role_admin">Admin</string>
     <string name="group_role_member">Member</string>
@@ -365,6 +367,7 @@
     <plurals name="label_system_message_x_more">
         <item quantity="other">%1$d more</item>
     </plurals>
+    <string name="label_system_message_blocked_user">%1$s blocked this user</string>
 
     <!--Search Contact-->
     <string name="label_contacts">CONTACTS</string>

@@ -2,7 +2,6 @@ package com.wire.android.ui.common
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -22,14 +21,13 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.model.Clickable
-import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.getUriFromDrawable
+import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 
 @Composable
@@ -39,7 +37,7 @@ fun UserProfileAvatar(
     modifier: Modifier = Modifier,
     clickable: Clickable = Clickable(enabled = false) {}
 ) {
-    val painter = painter(avatarData.asset)
+    val painter = painter(avatarData)
 
     Box(
         contentAlignment = Alignment.Center,
@@ -72,11 +70,14 @@ fun UserProfileAvatar(
  * @see [painter] https://developer.android.com/jetpack/compose/tooling
  */
 @Composable
-private fun painter(userAvatarAsset: UserAvatarAsset?): Painter =
-    if (LocalInspectionMode.current || userAvatarAsset == null)
+private fun painter(data: UserAvatarData): Painter =
+    if (data.connectionState == ConnectionState.BLOCKED) {
+        painterResource(id = R.drawable.ic_blocked_user_avatar)
+    } else if (LocalInspectionMode.current || data.asset == null) {
         painterResource(id = R.drawable.ic_default_user_avatar)
-     else
-         userAvatarAsset.paint(getUriFromDrawable(LocalContext.current, R.drawable.ic_default_user_avatar))
+    } else {
+        data.asset.paint(getUriFromDrawable(LocalContext.current, R.drawable.ic_default_user_avatar))
+    }
 
 
 @Preview

@@ -4,6 +4,7 @@ import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.UserAvatarData
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.MemberDetails
+import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.User
@@ -34,8 +35,12 @@ fun User.previewAsset(wireSessionImageLoader: WireSessionImageLoader): UserAvata
     is SelfUser -> previewPicture
 }?.let { UserAvatarAsset(wireSessionImageLoader, it) }
 
-fun User.avatar(wireSessionImageLoader: WireSessionImageLoader): UserAvatarData =
-    UserAvatarData(asset = this.previewAsset(wireSessionImageLoader), availabilityStatus = availabilityStatus)
+fun User.avatar(wireSessionImageLoader: WireSessionImageLoader, connectionState: ConnectionState?): UserAvatarData =
+    UserAvatarData(
+        asset = this.previewAsset(wireSessionImageLoader),
+        availabilityStatus = availabilityStatus,
+        connectionState = connectionState
+    )
 
 val MemberDetails.userType: UserType
     get() = when (this.user) {

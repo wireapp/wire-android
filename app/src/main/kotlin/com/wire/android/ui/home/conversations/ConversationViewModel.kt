@@ -178,7 +178,10 @@ class ConversationViewModel @Inject constructor(
         }
         val conversationDetailsData = when (conversationDetails) {
             is ConversationDetails.Group -> ConversationDetailsData.Group(conversationDetails.conversation.id)
-            is ConversationDetails.OneOne -> ConversationDetailsData.OneOne(conversationDetails.otherUser.id)
+            is ConversationDetails.OneOne -> ConversationDetailsData.OneOne(
+                conversationDetails.otherUser.id,
+                conversationDetails.otherUser.connectionStatus
+            )
             else -> ConversationDetailsData.None
         }
         conversationViewState = conversationViewState.copy(

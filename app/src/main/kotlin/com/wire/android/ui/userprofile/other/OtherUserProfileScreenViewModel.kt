@@ -1,6 +1,7 @@
 package com.wire.android.ui.userprofile.other
 
-import androidx.annotation.StringRes
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -29,6 +30,7 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.toQualifiedID
 import com.wire.kalium.logic.data.team.Team
+import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCase
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCaseResult
@@ -47,12 +49,13 @@ import com.wire.kalium.logic.feature.user.GetUserInfoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import java.util.UUID
-import javax.inject.Inject
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
+import java.util.UUID
+import javax.inject.Inject
 
 @Suppress("LongParameterList")
+@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @HiltViewModel
 class OtherUserProfileScreenViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
@@ -103,7 +106,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             teamName = team?.name ?: String.EMPTY,
             email = otherUser.email ?: String.EMPTY,
             phone = otherUser.phone ?: String.EMPTY,
-            connectionStatus = otherUser.connectionStatus.toOtherUserProfileConnectionStatus(),
+            connectionStatus = otherUser.connectionStatus,
             membership = userTypeMapper.toMembership(otherUser.userType),
             groupState = conversationRoleData?.userRole?.let { userRole ->
                 OtherUserProfileGroupState(
@@ -139,7 +142,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                     showInfoMessage(InfoMessageType.ConnectionRequestError)
                 }
                 is SendConnectionRequestResult.Success -> {
-                    state = state.copy(connectionStatus = ConnectionStatus.Sent)
+                    state = state.copy(connectionStatus = ConnectionState.SENT)
                     showInfoMessage(InfoMessageType.SuccessConnectionSentRequest)
                 }
             }
@@ -154,7 +157,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                     showInfoMessage(InfoMessageType.ConnectionRequestError)
                 }
                 is CancelConnectionRequestUseCaseResult.Success -> {
-                    state = state.copy(connectionStatus = ConnectionStatus.NotConnected)
+                    state = state.copy(connectionStatus = ConnectionState.NOT_CONNECTED)
                     showInfoMessage(InfoMessageType.SuccessConnectionCancelRequest)
                 }
             }
@@ -169,7 +172,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                     showInfoMessage(InfoMessageType.ConnectionRequestError)
                 }
                 is AcceptConnectionRequestUseCaseResult.Success -> {
-                    state = state.copy(connectionStatus = ConnectionStatus.Connected)
+                    state = state.copy(connectionStatus = ConnectionState.ACCEPTED)
                     showInfoMessage(InfoMessageType.SuccessConnectionAcceptRequest)
                 }
             }
@@ -184,7 +187,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                     showInfoMessage(InfoMessageType.ConnectionRequestError)
                 }
                 is IgnoreConnectionRequestUseCaseResult.Success -> {
-                    state = state.copy(connectionStatus = ConnectionStatus.NotConnected)
+                    state = state.copy(connectionStatus = ConnectionState.NOT_CONNECTED)
                     navigationManager.navigateBack(
                         mapOf(
                             EXTRA_CONNECTION_IGNORED_USER_NAME to state.userName,
@@ -211,6 +214,13 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     }
 
     fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }
+
+    fun openBottomSheet() = viewModelScope.launch {
+//        if (!state.bottomSheetState.isVisible) {
+//            bottomSheetState.animateTo(ModalBottomSheetValue.Expanded)
+//            state = state.copy(bottomSheetState = ModalBottomSheetValue.Expanded)
+//        }
+    }
 }
 
 /**

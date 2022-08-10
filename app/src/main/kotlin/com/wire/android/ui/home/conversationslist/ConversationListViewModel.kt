@@ -234,7 +234,8 @@ private fun ConversationDetails.toType(
         ConversationItem.PrivateConversation(
             userAvatarData = UserAvatarData(
                 otherUser.previewPicture?.let { UserAvatarAsset(wireSessionImageLoader, it) },
-                otherUser.availabilityStatus
+                otherUser.availabilityStatus,
+                otherUser.connectionStatus
             ),
             conversationInfo = ConversationInfo(
                 name = otherUser.name.orEmpty(),
@@ -245,7 +246,8 @@ private fun ConversationDetails.toType(
             isLegalHold = legalHoldStatus.showLegalHoldIndicator(),
             lastEvent = ConversationLastEvent.None, // TODO implement unread events
             userId = otherUser.id,
-            blockingState = otherUser.getBlockingState(selfTeamId)
+            blockingState = otherUser.getBlockingState(selfTeamId),
+            connectionState = otherUser.connectionStatus
         )
     }
     is Connection -> {

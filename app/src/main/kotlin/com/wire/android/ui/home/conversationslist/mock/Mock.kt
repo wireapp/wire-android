@@ -40,7 +40,8 @@ val mockConversations1 = listOf(
         isLegalHold = true,
         lastEvent = ConversationLastEvent.None,
         userId = UserId("someUserId", "someDomain"),
-        blockingState = BlockingState.NOT_BLOCKED
+        blockingState = BlockingState.NOT_BLOCKED,
+        connectionState = ConnectionState.ACCEPTED
     ),
     ConversationItem.PrivateConversation(
         userAvatarData = UserAvatarData(),
@@ -53,7 +54,8 @@ val mockConversations1 = listOf(
         isLegalHold = true,
         lastEvent = ConversationLastEvent.None,
         userId = UserId("someUserId", "someDomain"),
-        blockingState = BlockingState.NOT_BLOCKED
+        blockingState = BlockingState.NOT_BLOCKED,
+        connectionState = ConnectionState.ACCEPTED
     ),
     ConversationItem.PrivateConversation(
         userAvatarData = UserAvatarData(),
@@ -66,7 +68,8 @@ val mockConversations1 = listOf(
         isLegalHold = true,
         lastEvent = ConversationLastEvent.None,
         userId = UserId("someUserId", "someDomain"),
-        blockingState = BlockingState.NOT_BLOCKED
+        blockingState = BlockingState.NOT_BLOCKED,
+        connectionState = ConnectionState.ACCEPTED
     ),
 )
 
@@ -86,7 +89,8 @@ fun mockCallConversation(
     isLegalHold = true,
     lastEvent = lastEvent,
     userId = UserId("someUserId", "someDomain"),
-    blockingState = BlockingState.NOT_BLOCKED
+    blockingState = BlockingState.NOT_BLOCKED,
+    connectionState = ConnectionState.ACCEPTED
 )
 
 fun mockCallGroupConversation(
@@ -113,7 +117,8 @@ val mockConversation = ConversationItem.PrivateConversation(
     isLegalHold = true,
     lastEvent = ConversationLastEvent.None,
     userId = UserId("someUserId", "someDomain"),
-    blockingState = BlockingState.NOT_BLOCKED
+    blockingState = BlockingState.NOT_BLOCKED,
+    connectionState = ConnectionState.ACCEPTED
 )
 
 val mockGroupConversation = ConversationItem.GroupConversation(
@@ -135,7 +140,8 @@ val mockMentionPrivateConversation = ConversationItem.PrivateConversation(
     isLegalHold = true,
     lastEvent = mockShortMentionInfo,
     userId = UserId("someUserId", "someDomain"),
-    blockingState = BlockingState.NOT_BLOCKED
+    blockingState = BlockingState.NOT_BLOCKED,
+    connectionState = ConnectionState.ACCEPTED
 )
 
 val mockGeneralConversation = ConversationItem.PrivateConversation(
@@ -149,7 +155,8 @@ val mockGeneralConversation = ConversationItem.PrivateConversation(
     isLegalHold = true,
     lastEvent = ConversationLastEvent.None,
     userId = UserId("someUserId", "someDomain"),
-    blockingState = BlockingState.NOT_BLOCKED
+    blockingState = BlockingState.NOT_BLOCKED,
+    connectionState = ConnectionState.ACCEPTED
 )
 
 val mockGeneralConversationPending = ConversationItem.ConnectionConversation(

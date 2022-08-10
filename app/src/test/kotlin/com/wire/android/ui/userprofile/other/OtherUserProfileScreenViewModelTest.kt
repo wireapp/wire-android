@@ -146,7 +146,7 @@ class OtherUserProfileScreenViewModelTest {
 
                 // then
                 coVerify { sendConnectionRequest(eq(USER_ID)) }
-                assertEquals(ConnectionStatus.Sent, otherUserProfileScreenViewModel.state.connectionStatus)
+                assertEquals(ConnectionState.SENT, otherUserProfileScreenViewModel.state.connectionStatus)
                 assertEquals(InfoMessageType.SuccessConnectionSentRequest.uiText, awaitItem())
             }
         }
@@ -184,7 +184,7 @@ class OtherUserProfileScreenViewModelTest {
             coVerify {
                 ignoreConnectionRequest(eq(USER_ID))
             }
-            assertEquals(ConnectionStatus.NotConnected, otherUserProfileScreenViewModel.state.connectionStatus)
+            assertEquals(ConnectionState.NOT_CONNECTED, otherUserProfileScreenViewModel.state.connectionStatus)
         }
 
     @Test
@@ -200,7 +200,7 @@ class OtherUserProfileScreenViewModelTest {
 
                 // then
                 coVerify { cancelConnectionRequest(eq(USER_ID)) }
-                assertEquals(ConnectionStatus.NotConnected, otherUserProfileScreenViewModel.state.connectionStatus)
+                assertEquals(ConnectionState.NOT_CONNECTED, otherUserProfileScreenViewModel.state.connectionStatus)
                 assertEquals(InfoMessageType.SuccessConnectionCancelRequest.uiText, awaitItem())
             }
         }
@@ -218,7 +218,7 @@ class OtherUserProfileScreenViewModelTest {
 
                 // then
                 coVerify { acceptConnectionRequest(eq(USER_ID)) }
-                assertEquals(ConnectionStatus.Connected, otherUserProfileScreenViewModel.state.connectionStatus)
+                assertEquals(ConnectionState.ACCEPTED, otherUserProfileScreenViewModel.state.connectionStatus)
                 assertEquals(InfoMessageType.SuccessConnectionAcceptRequest.uiText, awaitItem())
             }
         }

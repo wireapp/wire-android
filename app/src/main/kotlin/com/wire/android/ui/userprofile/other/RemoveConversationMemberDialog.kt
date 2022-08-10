@@ -5,6 +5,7 @@ import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.model.DialogState
 import com.wire.android.model.PreservedState
+import com.wire.android.ui.common.VisibilityState
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
@@ -14,16 +15,16 @@ import com.wire.android.ui.userprofile.group.RemoveConversationMemberState
 
 @Composable
 internal fun RemoveConversationMemberDialog(
-    dialogState: DialogState<PreservedState<RemoveConversationMemberState>>,
+    dialogState: PreservedState<RemoveConversationMemberState>?,
     onDialogDismiss: () -> Unit,
     onRemoveConversationMember: (PreservedState<RemoveConversationMemberState>) -> Unit,
 ) {
 
-    StateDialog(dialogState = dialogState) { preservedState ->
+    VisibilityState(dialogState) { preservedState ->
         WireDialog(
-            title = stringResource(R.string.remove_conversation_member_title),
+            title = stringResource(R.string.dialog_remove_conversation_member_title),
             text = stringResource(
-                R.string.remove_conversation_member_description,
+                R.string.dialog_remove_conversation_member_description,
                 preservedState.state.fullName,
                 preservedState.state.userName
             ),

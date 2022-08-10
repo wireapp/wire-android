@@ -1,7 +1,9 @@
 package com.wire.android.ui.userprofile.other
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -21,8 +23,6 @@ import com.wire.android.ui.common.button.WireIconButton
 import com.wire.android.ui.common.SurfaceBackgroundWrapper
 import com.wire.android.ui.common.button.WireButton
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.spacers.Height16x
-import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.UIText
@@ -51,7 +51,7 @@ fun OtherUserProfileGroup(
                     MaterialTheme.wireColorScheme.onBackground,
                     state.groupName
                 ),
-                isSelfAdmin = state.isSelfAnAdmin,
+                isSelfAdmin = state.isSelfAdmin,
                 onRemoveFromConversation = onRemoveFromConversation
             )
         }
@@ -59,10 +59,8 @@ fun OtherUserProfileGroup(
             UserRoleInformation(
                 label = stringResource(id = R.string.user_profile_group_role),
                 value = AnnotatedString(state.role.name.asString()),
-                actions = {
-                    if (state.isSelfAnAdmin)
-                        EditButton(onEditClicked = openChangeRoleBottomSheet)
-                },
+                isSelfAdmin = state.isSelfAdmin,
+                openChangeRoleBottomSheet = openChangeRoleBottomSheet
             )
         }
     }
@@ -76,13 +74,13 @@ private fun UserGroupDetailsInformation(
 ) {
     SurfaceBackgroundWrapper {
         Column(modifier = Modifier.padding(horizontal = dimensions().spacing16x)) {
-            Height16x()
+            Spacer(modifier = Modifier.height(dimensions().spacing16x))
             Text(
                 style = MaterialTheme.wireTypography.body01,
                 color = MaterialTheme.wireColorScheme.labelText,
                 text = title,
             )
-            VerticalSpace.x16()
+            Spacer(modifier = Modifier.height(dimensions().spacing16x))
             if (isSelfAdmin) {
                 WireButton(
                     text = stringResource(id = R.string.user_profile_group_remove_button),
@@ -90,7 +88,7 @@ private fun UserGroupDetailsInformation(
                     fillMaxWidth = false,
                     onClick = onRemoveFromConversation,
                 )
-                Height16x()
+                Spacer(modifier = Modifier.height(dimensions().spacing16x))
             }
         }
     }
@@ -101,7 +99,8 @@ private fun UserRoleInformation(
     label: String,
     value: AnnotatedString,
     clickable: Clickable = Clickable(enabled = false) {},
-    actions: @Composable () -> Unit = {},
+    isSelfAdmin: Boolean,
+    openChangeRoleBottomSheet: () -> Unit
 ) {
     RowItemTemplate(
         modifier = Modifier.padding(horizontal = dimensions().spacing8x),
@@ -119,7 +118,11 @@ private fun UserRoleInformation(
                 text = value
             )
         },
-        actions = actions,
+        actions = {
+            if (isSelfAdmin) {
+                EditButton(onEditClicked = openChangeRoleBottomSheet)
+            }
+        },
         clickable = clickable
     )
 }

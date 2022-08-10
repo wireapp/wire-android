@@ -10,6 +10,8 @@ sealed class PreservedState<out T : Any> {
     data class Loading<out T : Any>(override val state: T) : PreservedState<T>()
 }
 
-fun <T: Any> PreservedState<T>.toLoading(): PreservedState<T> = PreservedState.Loading(state)
-fun <T: Any> PreservedState<T>.toError(coreFailure: CoreFailure): PreservedState<T> = PreservedState.Error(state, coreFailure)
-fun <T: Any> PreservedState<T>.toState(): PreservedState<T> = PreservedState.State(state)
+fun <T : Any> PreservedState<T>.toLoading(): PreservedState<T> = PreservedState.Loading(state)
+fun <T : Any> PreservedState<T>.toError(coreFailure: CoreFailure): PreservedState<T> =
+    PreservedState.Error(state, coreFailure)
+
+fun <T : Any> PreservedState<T>.toState(): PreservedState<T> = PreservedState.State(state)

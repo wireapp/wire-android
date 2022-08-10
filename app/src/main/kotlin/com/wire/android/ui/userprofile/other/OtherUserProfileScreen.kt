@@ -93,7 +93,7 @@ fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltView
 @Composable
 fun OtherProfileScreenContent(
     state: OtherUserProfileState,
-    removeMemberDialogState: DialogState<PreservedState<RemoveConversationMemberState>>,
+    removeMemberDialogState: PreservedState<RemoveConversationMemberState>?,
     onSendConnectionRequest: () -> Unit,
     onOpenConversation: () -> Unit,
     onCancelConnectionRequest: () -> Unit,
@@ -341,7 +341,7 @@ fun OtherProfileScreenContentPreview() {
     WireTheme(isPreview = true) {
         OtherProfileScreenContent(
             OtherUserProfileState.PREVIEW.copy(connectionStatus = ConnectionStatus.Connected),
-            DialogState.Hidden,
+            null,
             {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
         )
     }
@@ -353,7 +353,7 @@ fun OtherProfileScreenContentNotConnectedPreview() {
     WireTheme(isPreview = true) {
         OtherProfileScreenContent(
             OtherUserProfileState.PREVIEW.copy(connectionStatus = ConnectionStatus.NotConnected),
-            DialogState.Hidden,
+            null,
             {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
         )
     }

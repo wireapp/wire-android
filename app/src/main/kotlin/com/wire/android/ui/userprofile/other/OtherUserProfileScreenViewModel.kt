@@ -9,7 +9,6 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.mapper.UserTypeMapper
-import com.wire.android.model.DialogState
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.PreservedState
 import com.wire.android.model.toLoading
@@ -25,6 +24,7 @@ import com.wire.android.ui.home.conversations.details.participants.usecase.Obser
 import com.wire.android.ui.userprofile.common.UsernameMapper.mapUserLabel
 import com.wire.android.ui.userprofile.group.RemoveConversationMemberState
 import com.wire.android.util.EMPTY
+import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.Member
@@ -53,6 +53,7 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.UUID
 import javax.inject.Inject
 
@@ -61,6 +62,7 @@ import javax.inject.Inject
 class OtherUserProfileScreenViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
+    private val dispatchers: DispatcherProvider,
     private val getOrCreateOneToOneConversation: GetOrCreateOneToOneConversationUseCase,
     private val getUserInfo: GetUserInfoUseCase,
     private val sendConnectionRequest: SendConnectionRequestUseCase,
@@ -77,8 +79,8 @@ class OtherUserProfileScreenViewModel @Inject constructor(
 
     var state: OtherUserProfileState by mutableStateOf(OtherUserProfileState())
 
-    var removeConversationMemberDialogState: DialogState<PreservedState<RemoveConversationMemberState>>
-            by mutableStateOf(DialogState.Hidden)
+    var removeConversationMemberDialogState: PreservedState<RemoveConversationMemberState>?
+            by mutableStateOf(null)
 
     private val _infoMessage = MutableSharedFlow<UIText>()
     val infoMessage = _infoMessage.asSharedFlow()
@@ -117,7 +119,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                 OtherUserProfileGroupState(
                     groupName = conversationRoleData.conversationName,
                     role = userRole,
-                    isSelfAnAdmin = conversationRoleData.selfRole is Member.Role.Admin,
+                    isSelfAdmin = conversationRoleData.selfRole is Member.Role.Admin,
                     conversationId = conversationRoleData.conversationId
                 )
             },
@@ -221,14 +223,12 @@ class OtherUserProfileScreenViewModel @Inject constructor(
 
     fun openRemoveConversationMemberDialog() {
         viewModelScope.launch {
-            removeConversationMemberDialogState = DialogState.Visible(
-                PreservedState.State(
-                    RemoveConversationMemberState(
-                        conversationId = conversationId!!,
-                        fullName = state.fullName,
-                        userName = state.userName,
-                        userId = userId
-                    )
+            removeConversationMemberDialogState = PreservedState.State(
+                RemoveConversationMemberState(
+                    conversationId = conversationId!!,
+                    fullName = state.fullName,
+                    userName = state.userName,
+                    userId = userId
                 )
             )
         }
@@ -236,25 +236,28 @@ class OtherUserProfileScreenViewModel @Inject constructor(
 
     fun hideRemoveConversationMemberDialog() {
         viewModelScope.launch {
-            removeConversationMemberDialogState = DialogState.Hidden
+            removeConversationMemberDialogState = null
         }
     }
 
     fun removeConversationMember(preservedState: PreservedState<RemoveConversationMemberState>) {
         viewModelScope.launch {
-            removeConversationMemberDialogState = DialogState.Visible(
-                preservedState.toLoading()
-            )
-            when (removeMemberFromConversation(state.groupState!!.conversationId, userId)) {
-                is RemoveMemberFromConversationUseCase.Result.Failure -> {
-                    showInfoMessage(InfoMessageType.RemoveConversationMemberError)
-                    removeConversationMemberDialogState = DialogState.Hidden
-                }
-                RemoveMemberFromConversationUseCase.Result.Success -> removeConversationMemberDialogState =
-                    DialogState.Hidden
+            removeConversationMemberDialogState = preservedState.toLoading()
+            val response = withContext(dispatchers.io()) {
+                removeMemberFromConversation(
+                    state.groupState!!.conversationId,
+                    userId
+                )
             }
+
+            if (response is RemoveMemberFromConversationUseCase.Result.Failure)
+                showInfoMessage(InfoMessageType.RemoveConversationMemberError)
+
+            removeConversationMemberDialogState = null
+
         }
     }
+
 
     fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }
 }
@@ -274,6 +277,6 @@ enum class InfoMessageType(val uiText: UIText) {
     ChangeGroupRoleError(UIText.StringResource(R.string.user_profile_role_change_error)),
 
     // remove conversation member
-    RemoveConversationMemberError(UIText.StringResource(R.string.remove_conversation_member_error))
+    RemoveConversationMemberError(UIText.StringResource(R.string.dialog_remove_conversation_member_error))
 
 }

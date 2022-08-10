@@ -37,7 +37,7 @@ data class OtherUserProfileState(
 data class OtherUserProfileGroupState(
     val groupName: String,
     val role: Member.Role,
-    val isSelfAnAdmin: Boolean,
+    val isSelfAdmin: Boolean,
     val conversationId: ConversationId
 )
 

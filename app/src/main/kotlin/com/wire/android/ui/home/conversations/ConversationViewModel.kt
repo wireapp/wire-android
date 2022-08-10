@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.model.ImageAsset.PrivateAsset
 import com.wire.android.model.ImageAsset.UserAvatarAsset
@@ -33,7 +34,9 @@ import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversation
 import com.wire.android.util.FileManager
 import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
+import com.wire.android.util.ui.toUIText
 import com.wire.kalium.logic.StorageFailure
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.conversation.ConversationDetails
@@ -158,6 +161,9 @@ class ConversationViewModel @Inject constructor(
         val conversationName = when (conversationDetails) {
             is ConversationDetails.OneOne -> conversationDetails.otherUser.name.orEmpty()
             else -> conversationDetails.conversation.name.orEmpty()
+        }.let {
+            if (it.isNotEmpty()) it.toUIText()
+            else UIText.StringResource(R.string.member_name_deleted_label)
         }
         val conversationAvatar = when (conversationDetails) {
             is ConversationDetails.OneOne ->

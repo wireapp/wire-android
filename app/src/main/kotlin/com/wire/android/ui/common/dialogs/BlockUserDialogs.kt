@@ -46,7 +46,6 @@ private fun BlockUserDialog(
     )
 }
 
-@Suppress("MatchingDeclarationName")
 data class BlockUserDialogState(val userName: String, val userId: UserId)
 
 @OptIn(ExperimentalMaterial3Api::class)

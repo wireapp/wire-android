@@ -178,7 +178,8 @@ class ConversationViewModel @Inject constructor(
         conversationViewState = conversationViewState.copy(
             conversationName = conversationName,
             conversationAvatar = conversationAvatar,
-            conversationDetailsData = conversationDetailsData
+            conversationDetailsData = conversationDetailsData,
+            isConversationMember = conversationDetails.conversation.removedBy == null
         )
     }
 

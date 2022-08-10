@@ -114,7 +114,8 @@ fun MessageComposer(
             },
             onMessageComposerError = onMessageComposerError,
             isFileSharingEnabled = isFileSharingEnabled,
-            tempCachePath = tempCachePath
+            tempCachePath = tempCachePath,
+            isInputVisible = false
         )
     }
 }
@@ -137,7 +138,8 @@ private fun MessageComposer(
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
     isFileSharingEnabled: Boolean,
-    tempCachePath: Path
+    tempCachePath: Path,
+    isInputVisible: Boolean,
 ) {
     val focusManager = LocalFocusManager.current
     // when MessageComposer is composed for the first time we do not know the height
@@ -222,172 +224,177 @@ private fun MessageComposer(
                             .weight(1f)) {
                         content()
                     }
-                    // Column wrapping CollapseIconButton and MessageComposerInput
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .animateContentSize()
-                    ) {
-                        Divider()
-                        transition.AnimatedVisibility(visible = { state -> (state != MessageComposeInputState.Enabled) }) {
-                            Box(
-                                contentAlignment = Alignment.Center,
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .wrapContentHeight()
-                            ) {
-                                val collapseButtonRotationDegree by transition.animateFloat(
-                                    label = stringResource(R.string.animation_label_button_rotation_degree_transistion)
-                                ) { state ->
-                                    when (state) {
-                                        MessageComposeInputState.Active, MessageComposeInputState.Enabled -> 0f
-                                        MessageComposeInputState.FullScreen -> 180f
-
-                                    }
-                                }
-                                CollapseIconButton(
-                                    onCollapseClick = { messageComposerState.toggleFullScreen() },
-                                    collapseRotation = collapseButtonRotationDegree
-                                )
-                            }
-                        }
-                        // Row wrapping the AdditionalOptionButton() when we are in Enabled state and MessageComposerInput()
-                        // when we are in the Fullscreen state, we want to align the TextField to Top of the Row, when other we center it
-                        // vertically. Once we go to Fullscreen, we set the weight to 1f so that it fills the whole Row which is =
-                        // = height of the whole screen - height of TopBar - height of container with additional options
-                        Row(
-                            verticalAlignment =
-                            if (messageComposerState.messageComposeInputState == MessageComposeInputState.FullScreen)
-                                Alignment.Top
-                            else
-                                Alignment.CenterVertically,
+                    if (isInputVisible) {
+                        // TODO we need to hide everything under
+                        // Column wrapping CollapseIconButton and MessageComposerInput
+                        Column(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .then(
-                                    if (messageComposerState.messageComposeInputState == MessageComposeInputState.FullScreen)
-                                        Modifier.weight(1f)
-                                    else
-                                        Modifier
-                                )
+                                .animateContentSize()
                         ) {
-                            transition.AnimatedVisibility(
-                                visible = { messageComposerState.messageComposeInputState == MessageComposeInputState.Enabled }
-                            ) {
-                                Box(modifier = Modifier.padding(start = MaterialTheme.wireDimensions.spacing8x)) {
-                                    AdditionalOptionButton(messageComposerState.attachmentOptionsDisplayed) {
-                                        messageComposerState.toggleAttachmentOptionsVisibility()
+                            Divider()
+                            transition.AnimatedVisibility(visible = { state -> (state != MessageComposeInputState.Enabled) }) {
+                                Box(
+                                    contentAlignment = Alignment.Center,
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .wrapContentHeight()
+                                ) {
+                                    val collapseButtonRotationDegree by transition.animateFloat(
+                                        label = stringResource(R.string.animation_label_button_rotation_degree_transistion)
+                                    ) { state ->
+                                        when (state) {
+                                            MessageComposeInputState.Active, MessageComposeInputState.Enabled -> 0f
+                                            MessageComposeInputState.FullScreen -> 180f
+
+                                        }
                                     }
+                                    CollapseIconButton(
+                                        onCollapseClick = { messageComposerState.toggleFullScreen() },
+                                        collapseRotation = collapseButtonRotationDegree
+                                    )
                                 }
                             }
-                            // MessageComposerInput needs a padding on the end of it to give room for the SendOptions components,
-                            // because it is "floating" freely with an absolute x-y position inside of the ConstrainLayout
-                            // wrapping the whole content when in the FullScreen state we are giving it max height
-                            // when in active state we limit the height to max 82.dp
-                            // other we let it wrap the content of the height, which will be equivalent to the text
-                            MessageComposerInput(
-                                messageText = messageText,
-                                onMessageTextChanged = { value ->
-                                    onMessageChanged(value)
-                                },
-                                messageComposerInputState = messageComposerState.messageComposeInputState,
-                                onIsFocused = {
-                                    messageComposerState.toActive()
-                                },
-                                onNotFocused = {
-                                    messageComposerState.hasFocus = false
-                                },
+                            // Row wrapping the AdditionalOptionButton() when we are in Enabled state and MessageComposerInput()
+                            // when we are in the Fullscreen state, we want to align the TextField to Top of the Row, when other we center it
+                            // vertically. Once we go to Fullscreen, we set the weight to 1f so that it fills the whole Row which is =
+                            // = height of the whole screen - height of TopBar - height of container with additional options
+                            Row(
+                                verticalAlignment =
+                                if (messageComposerState.messageComposeInputState == MessageComposeInputState.FullScreen)
+                                    Alignment.Top
+                                else
+                                    Alignment.CenterVertically,
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .then(
-                                        when (messageComposerState.messageComposeInputState) {
-                                            MessageComposeInputState.FullScreen ->
-                                                Modifier
-                                                    .fillMaxHeight()
-                                                    .padding(end = dimensions().messageComposerPaddingEnd)
-                                            MessageComposeInputState.Active -> {
-                                                Modifier
-                                                    .heightIn(
-                                                        max = MaterialTheme.wireDimensions.messageComposerActiveInputMaxHeight
-                                                    )
-                                                    .padding(
-                                                        end = dimensions().messageComposerPaddingEnd
-                                                    )
-                                            }
-                                            else -> Modifier.wrapContentHeight()
-                                        }
+                                        if (messageComposerState.messageComposeInputState == MessageComposeInputState.FullScreen)
+                                            Modifier.weight(1f)
+                                        else
+                                            Modifier
                                     )
-                            )
+                            ) {
+                                transition.AnimatedVisibility(
+                                    visible = { messageComposerState.messageComposeInputState == MessageComposeInputState.Enabled }
+                                ) {
+                                    Box(modifier = Modifier.padding(start = MaterialTheme.wireDimensions.spacing8x)) {
+                                        AdditionalOptionButton(messageComposerState.attachmentOptionsDisplayed) {
+                                            messageComposerState.toggleAttachmentOptionsVisibility()
+                                        }
+                                    }
+                                }
+                                // MessageComposerInput needs a padding on the end of it to give room for the SendOptions components,
+                                // because it is "floating" freely with an absolute x-y position inside of the ConstrainLayout
+                                // wrapping the whole content when in the FullScreen state we are giving it max height
+                                // when in active state we limit the height to max 82.dp
+                                // other we let it wrap the content of the height, which will be equivalent to the text
+                                MessageComposerInput(
+                                    messageText = messageText,
+                                    onMessageTextChanged = { value ->
+                                        onMessageChanged(value)
+                                    },
+                                    messageComposerInputState = messageComposerState.messageComposeInputState,
+                                    onIsFocused = {
+                                        messageComposerState.toActive()
+                                    },
+                                    onNotFocused = {
+                                        messageComposerState.hasFocus = false
+                                    },
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .then(
+                                            when (messageComposerState.messageComposeInputState) {
+                                                MessageComposeInputState.FullScreen ->
+                                                    Modifier
+                                                        .fillMaxHeight()
+                                                        .padding(end = dimensions().messageComposerPaddingEnd)
+                                                MessageComposeInputState.Active -> {
+                                                    Modifier
+                                                        .heightIn(
+                                                            max = MaterialTheme.wireDimensions.messageComposerActiveInputMaxHeight
+                                                        )
+                                                        .padding(
+                                                            end = dimensions().messageComposerPaddingEnd
+                                                        )
+                                                }
+                                                else -> Modifier.wrapContentHeight()
+                                            }
+                                        )
+                                )
+                            }
                         }
                     }
                 }
                 // Box wrapping the SendActions so that we do not include it in the animationContentSize
                 // changed which is applied only for
                 // MessageComposerInput and CollapsingButton
-                Box(
-                    Modifier.constrainAs(sendActions) {
-                        bottom.linkTo(additionalActions.top)
-                        end.linkTo(parent.end)
-                    }
-                ) {
-                    Row(Modifier.padding(end = dimensions().spacing8x)) {
-                        if (messageComposerState.sendButtonEnabled) {
-                            ScheduleMessageButton()
+                if (isInputVisible) {
+                    Box(
+                        Modifier.constrainAs(sendActions) {
+                            bottom.linkTo(additionalActions.top)
+                            end.linkTo(parent.end)
                         }
-                        transition.AnimatedVisibility(
-                            visible = { messageComposerState.messageComposeInputState != MessageComposeInputState.Enabled },
-                            enter = fadeIn(),
-                            exit = fadeOut()
-                        ) {
-                            SendButton(
-                                isEnabled = messageComposerState.sendButtonEnabled,
-                                onSendButtonClicked = onSendButtonClicked
-                            )
+                    ) {
+                        Row(Modifier.padding(end = dimensions().spacing8x)) {
+                            if (messageComposerState.sendButtonEnabled) {
+                                ScheduleMessageButton()
+                            }
+                            transition.AnimatedVisibility(
+                                visible = { messageComposerState.messageComposeInputState != MessageComposeInputState.Enabled },
+                                enter = fadeIn(),
+                                exit = fadeOut()
+                            ) {
+                                SendButton(
+                                    isEnabled = messageComposerState.sendButtonEnabled,
+                                    onSendButtonClicked = onSendButtonClicked
+                                )
+                            }
+                        }
+                    }
+                    // Box wrapping MessageComposeActions() so that we can constrain it to the bottom of MessageComposerInput and after that
+                    // constrain our SendActions to it
+                    Column(
+                        Modifier
+                            .constrainAs(additionalActions) {
+                                top.linkTo(messageInput.bottom)
+                                bottom.linkTo(parent.bottom)
+                            }
+                            .wrapContentSize()) {
+                        Divider()
+                        Box(Modifier.wrapContentSize()) {
+                            transition.AnimatedVisibility(
+                                visible = { messageComposerState.messageComposeInputState != MessageComposeInputState.Enabled },
+                                // we are animating the exit, so that the MessageComposeActions go down
+                                exit = slideOutVertically(
+                                    targetOffsetY = { fullHeight -> fullHeight / 2 }
+                                ) + fadeOut()
+                            ) {
+                                MessageComposeActions(messageComposerState, focusManager)
+                            }
                         }
                     }
                 }
-                // Box wrapping MessageComposeActions() so that we can constrain it to the bottom of MessageComposerInput and after that
-                // constrain our SendActions to it
-                Column(
-                    Modifier
-                        .constrainAs(additionalActions) {
-                            top.linkTo(messageInput.bottom)
-                            bottom.linkTo(parent.bottom)
-                        }
-                        .wrapContentSize()) {
-                    Divider()
-                    Box(Modifier.wrapContentSize()) {
-                        transition.AnimatedVisibility(
-                            visible = { messageComposerState.messageComposeInputState != MessageComposeInputState.Enabled },
-                            // we are animating the exit, so that the MessageComposeActions go down
-                            exit = slideOutVertically(
-                                targetOffsetY = { fullHeight -> fullHeight / 2 }
-                            ) + fadeOut()
-                        ) {
-                            MessageComposeActions(messageComposerState, focusManager)
-                        }
+                // Box wrapping for additional options content
+                // we want to offset the AttachmentOptionsComponent equal to where
+                // the device keyboard is displayed, so that when the keyboard is closed,
+                // we get the effect of overlapping it
+                if (messageComposerState.attachmentOptionsDisplayed && isInputVisible) {
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .height(keyboardHeightOffSet.height)
+                            .absoluteOffset(y = messageComposerState.fullScreenHeight - keyboardHeightOffSet.height)
+                    ) {
+                        Divider()
+                        AttachmentOptionsComponent(
+                            messageComposerState.attachmentInnerState,
+                            onSendAttachment,
+                            onMessageComposerError,
+                            isFileSharingEnabled,
+                            tempCachePath,
+                            Modifier.align(Alignment.Center)
+                        )
                     }
-                }
-            }
-            // Box wrapping for additional options content
-            // we want to offset the AttachmentOptionsComponent equal to where
-            // the device keyboard is displayed, so that when the keyboard is closed,
-            // we get the effect of overlapping it
-            if (messageComposerState.attachmentOptionsDisplayed) {
-                Box(
-                    Modifier
-                        .fillMaxWidth()
-                        .height(keyboardHeightOffSet.height)
-                        .absoluteOffset(y = messageComposerState.fullScreenHeight - keyboardHeightOffSet.height)
-                ) {
-                    Divider()
-                    AttachmentOptionsComponent(
-                        messageComposerState.attachmentInnerState,
-                        onSendAttachment,
-                        onMessageComposerError,
-                        isFileSharingEnabled,
-                        tempCachePath,
-                        Modifier.align(Alignment.Center)
-                    )
                 }
             }
         }

@@ -110,9 +110,6 @@
             </intent-filter>
         </receiver>
 
-<!--        <service-->
-<!--                android:name=".ui.debugscreen.ForegroundLocationService"-->
-<!--                android:exported="false" />-->
         <service
                 android:name=".ui.debugscreen.PersistentWebSocketService"
                 android:exported="false" />

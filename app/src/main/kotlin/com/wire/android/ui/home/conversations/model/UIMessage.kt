@@ -4,10 +4,15 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import com.wire.android.R
 import com.wire.android.model.UserAvatarData
+import com.wire.android.ui.home.conversations.model.MessageStatus.DecryptionFailure
+import com.wire.android.ui.home.conversations.model.MessageStatus.Deleted
+import com.wire.android.ui.home.conversations.model.MessageStatus.ReceiveFailure
+import com.wire.android.ui.home.conversations.model.MessageStatus.SendFailure
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.user.AssetId
+import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
 
 data class UIMessage(
@@ -16,9 +21,10 @@ data class UIMessage(
     val messageHeader: MessageHeader,
     val messageContent: MessageContent?,
 ) {
-    val isDeleted: Boolean = messageHeader.messageStatus == MessageStatus.Deleted
-    val sendingFailed: Boolean = messageHeader.messageStatus == MessageStatus.SendFailure
-    val receivingFailed: Boolean = messageHeader.messageStatus == MessageStatus.ReceiveFailure
+    val isDeleted: Boolean = messageHeader.messageStatus == Deleted
+    val sendingFailed: Boolean = messageHeader.messageStatus == SendFailure
+    val decryptionFailed: Boolean = messageHeader.messageStatus == DecryptionFailure
+    val receivingFailed: Boolean = messageHeader.messageStatus == ReceiveFailure || decryptionFailed
 }
 
 data class MessageHeader(
@@ -28,7 +34,8 @@ data class MessageHeader(
     val time: String,
     val messageStatus: MessageStatus,
     val messageId: String,
-    val userId: UserId? = null
+    val userId: UserId? = null,
+    val connectionState: ConnectionState?
 )
 
 sealed class MessageStatus(val text: UIText) {
@@ -39,6 +46,7 @@ sealed class MessageStatus(val text: UIText) {
 
     object SendFailure : MessageStatus(UIText.StringResource(R.string.label_message_sent_failure))
     object ReceiveFailure : MessageStatus(UIText.StringResource(R.string.label_message_receive_failure))
+    object DecryptionFailure : MessageStatus(UIText.StringResource(R.string.label_message_decryption_failure_message))
 }
 
 sealed class MessageContent {

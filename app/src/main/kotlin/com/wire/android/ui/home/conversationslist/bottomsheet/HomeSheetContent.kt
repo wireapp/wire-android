@@ -12,8 +12,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
-import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.model.UserAvatarData
+import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.MenuItemIcon
@@ -25,6 +25,7 @@ import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
 import com.wire.android.ui.home.conversationslist.model.getMutedStatusTextResource
 import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
+import com.wire.kalium.logic.data.user.UserId
 
 @Composable
 internal fun HomeSheetContent(
@@ -33,9 +34,9 @@ internal fun HomeSheetContent(
     moveConversationToFolder: () -> Unit,
     moveConversationToArchive: () -> Unit,
     clearConversationContent: () -> Unit,
-    blockUser: () -> Unit,
+    blockUserClick: (UserId, String) -> Unit,
     leaveGroup: () -> Unit,
-    navigateToNotification : () -> Unit,
+    navigateToNotification: () -> Unit
 ) {
     MenuModalSheetContent(
         headerTitle = conversationSheetContent.title,
@@ -113,17 +114,21 @@ internal fun HomeSheetContent(
             },
             {
                 if (conversationSheetContent.conversationTypeDetail is ConversationTypeDetail.Private) {
-                    CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.error) {
-                        MenuBottomSheetItem(
-                            icon = {
-                                MenuItemIcon(
-                                    id = R.drawable.ic_block,
-                                    contentDescription = stringResource(R.string.content_description_block_the_user),
-                                )
-                            },
-                            title = stringResource(R.string.label_block),
-                            onItemClick = blockUser
-                        )
+                    if (conversationSheetContent.conversationTypeDetail.isBlockable) {
+                        CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.error) {
+                            MenuBottomSheetItem(
+                                icon = {
+                                    MenuItemIcon(
+                                        id = R.drawable.ic_block,
+                                        contentDescription = stringResource(R.string.content_description_block_the_user),
+                                    )
+                                },
+                                title = stringResource(R.string.label_block),
+                                onItemClick = {
+                                    blockUserClick(conversationSheetContent.conversationTypeDetail.userId, conversationSheetContent.title)
+                                }
+                            )
+                        }
                     }
                 } else {
                     CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.error) {

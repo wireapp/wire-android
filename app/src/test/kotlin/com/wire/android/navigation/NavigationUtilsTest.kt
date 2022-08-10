@@ -2,11 +2,8 @@ package com.wire.android.navigation
 
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.parseIntoPrivateImageAsset
-import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.parseIntoQualifiedID
-import io.mockk.MockKAnnotations
-import io.mockk.impl.annotations.MockK
+import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
 import io.mockk.mockk
 import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.Test
@@ -15,22 +12,9 @@ import org.junit.jupiter.api.assertThrows
 internal class NavigationUtilsTest {
 
     @Test
-    fun `Given some correct string, when calling parseIntoQualifiedID, then it correctly parses it to QualifiedID`() {
-        // Given
-        val mockQualifiedIdValue = "mocked-value"
-        val mockQualifiedIdDomain = "mocked.domain"
-        val correctQualifiedIdString = "$mockQualifiedIdValue@$mockQualifiedIdDomain"
-
-        // When
-        val correctQualifiedId = correctQualifiedIdString.parseIntoQualifiedID()
-
-        // Then
-        assertEquals(correctQualifiedId.value, mockQualifiedIdValue)
-        assertEquals(correctQualifiedId.domain, mockQualifiedIdDomain)
-    }
-
-    @Test
     fun `Given some correct string, when calling parseIntoPrivateImageAsset, then it correctly parses it to PrivateImageAsset`() {
+        val qualifiedIdMapper = QualifiedIdMapperImpl(null)
+
         // Given
         val mockConversationIdValue = "mocked-conversation-id-value"
         val mockConversationIdDomain = "mocked.domain"
@@ -39,7 +23,7 @@ internal class NavigationUtilsTest {
         val correctImagePrivateAssetString = "$mockConversationIdValue@$mockConversationIdDomain:$mockMessageId:$mockIsSelfAsset"
 
         // When
-        val privateImgAsset = correctImagePrivateAssetString.parseIntoPrivateImageAsset(mockk())
+        val privateImgAsset = correctImagePrivateAssetString.parseIntoPrivateImageAsset(mockk(), qualifiedIdMapper)
 
         // Then
         assertEquals(privateImgAsset.conversationId.value, mockConversationIdValue)
@@ -49,30 +33,14 @@ internal class NavigationUtilsTest {
     }
 
     @Test
-    fun `Given an incorrect string, when parsing it to QualifiedId, then returns a qualifiedID with an empty domain`() {
-        // Given
-        val mockWrongImagePrivateAssetString = "wrong-private-asset/image"
-
-        // When
-        val result = mockWrongImagePrivateAssetString.parseIntoQualifiedID()
-
-        // Then
-        assertEquals(
-            QualifiedID(
-                value = "wrong-private-asset/image",
-                domain = ""
-            ),
-            result
-        )
-    }
-
-    @Test
     fun `Given an incorrect string, when parsing it to PrivateImageAsset, then it throws an exception`() {
+        val qualifiedIdMapper = QualifiedIdMapperImpl(null)
+
         // Given
         val mockWrongImagePrivateAssetString = "wrong-private-asset@image"
 
         // When, Then
-        assertThrows<Exception> { mockWrongImagePrivateAssetString.parseIntoPrivateImageAsset(mockk()) }
+        assertThrows<Exception> { mockWrongImagePrivateAssetString.parseIntoPrivateImageAsset(mockk(), qualifiedIdMapper) }
     }
 
     @Test

@@ -15,8 +15,8 @@ import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.ConversationDetails.OneOne
 import com.wire.kalium.logic.data.conversation.LegalHoldStatus
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus.AllAllowed
-import com.wire.kalium.logic.data.conversation.ProtocolInfo
 import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
@@ -170,6 +170,9 @@ class MediaGalleryViewModelTest {
         @MockK
         lateinit var fileManager: FileManager
 
+        @MockK
+        private lateinit var qualifiedIdMapper: QualifiedIdMapper
+
         lateinit var conversationDetails: ConversationDetails
 
         init {
@@ -179,7 +182,7 @@ class MediaGalleryViewModelTest {
             every { savedStateHandle.get<String>(any()) } returns dummyPrivateAsset
 
             // Default empty values
-            coEvery { getConversationDetails(any()) } returns flowOf(conversationDetails)
+            coEvery { getConversationDetails(any()) } returns flowOf(ObserveConversationDetailsUseCase.Result.Success(conversationDetails))
         }
 
         fun withStoredData(assetData: ByteArray, assetPath: Path): Arrangement {
@@ -208,6 +211,7 @@ class MediaGalleryViewModelTest {
         fun arrange() = this to MediaGalleryViewModel(
             savedStateHandle,
             wireSessionImageLoader,
+            qualifiedIdMapper,
             navigationManager,
             getConversationDetails,
             dispatchers,
@@ -222,27 +226,32 @@ class MediaGalleryViewModelTest {
         dummyConversationId: QualifiedID = QualifiedID("a-value", "a-domain")
     ): ConversationDetails =
         OneOne(
-            Conversation(
-                dummyConversationId,
-                mockedConversationTitle,
-                Conversation.Type.ONE_ON_ONE,
-                null,
-                protocol = ProtocolInfo.Proteus,
-                AllAllowed,
-                null, null,
+            conversation = Conversation(
+                id = dummyConversationId,
+                name = mockedConversationTitle,
+                type = Conversation.Type.ONE_ON_ONE,
+                teamId = null,
+                protocol = Conversation.ProtocolInfo.Proteus,
+                mutedStatus = AllAllowed,
+                removedBy = null,
+                lastNotificationDate = null,
+                lastModifiedDate = null,
+                lastReadDate = "2022-04-04T16:11:28.388Z",
                 access = listOf(Conversation.Access.INVITE),
                 accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER)
             ),
-            OtherUser(
+            otherUser = OtherUser(
                 QualifiedID("other-user-id", "domain-id"),
                 null, null, null, null,
                 1, null, ConnectionState.ACCEPTED, null, null,
                 UserType.INTERNAL,
-                UserAvailabilityStatus.AVAILABLE
+                UserAvailabilityStatus.AVAILABLE,
+                null
             ),
-            ConnectionState.ACCEPTED,
-            LegalHoldStatus.DISABLED,
-            UserType.INTERNAL
+            connectionState = ConnectionState.ACCEPTED,
+            legalHoldStatus = LegalHoldStatus.DISABLED,
+            userType = UserType.INTERNAL,
+            unreadMessagesCount = 0L
         )
 
     companion object {

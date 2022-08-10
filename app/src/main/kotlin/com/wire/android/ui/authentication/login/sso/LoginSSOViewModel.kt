@@ -2,21 +2,21 @@ package com.wire.android.ui.authentication.login.sso
 
 import androidx.annotation.VisibleForTesting
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
+import com.wire.android.di.NoSession
+import com.wire.android.di.UserSessionsUseCaseProvider
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.login.LoginError
 import com.wire.android.ui.authentication.login.LoginViewModel
 import com.wire.android.ui.authentication.login.toLoginError
-import com.wire.android.util.EMPTY
+import com.wire.android.ui.authentication.login.updateSSOLoginEnabled
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.sso.GetSSOLoginSessionUseCase
 import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginResult
@@ -33,27 +33,31 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginSSOViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
+    @NoSession qualifiedIdMapper: QualifiedIdMapper,
     private val ssoInitiateLoginUseCase: SSOInitiateLoginUseCase,
     private val getSSOLoginSessionUseCase: GetSSOLoginSessionUseCase,
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
     clientScopeProviderFactory: ClientScopeProvider.Factory,
+    userSessionsUseCaseFactory: UserSessionsUseCaseProvider.Factory,
     navigationManager: NavigationManager,
-    authServerConfigProvider: AuthServerConfigProvider
-) : LoginViewModel(navigationManager, clientScopeProviderFactory, authServerConfigProvider) {
-
-    var loginState by mutableStateOf(
-        LoginSSOState(ssoCode = TextFieldValue(savedStateHandle.get(SSO_CODE_SAVED_STATE_KEY) ?: String.EMPTY))
-    )
-        private set
+    authServerConfigProvider: AuthServerConfigProvider,
+) : LoginViewModel(
+    savedStateHandle,
+    navigationManager,
+    qualifiedIdMapper,
+    clientScopeProviderFactory,
+    userSessionsUseCaseFactory,
+    authServerConfigProvider
+) {
 
     var openWebUrl = MutableSharedFlow<String>()
 
     fun login() {
-        loginState = loginState.copy(loading = true, loginSSOError = LoginError.None).updateLoginEnabled()
+        loginState = loginState.copy(ssoLoginLoading = true, loginError = LoginError.None).updateSSOLoginEnabled()
         viewModelScope.launch {
             ssoInitiateLoginUseCase(SSOInitiateLoginUseCase.Param.WithRedirect(loginState.ssoCode.text)).let { result ->
                 when (result) {
-                    is SSOInitiateLoginResult.Failure -> updateLoginError(result.toLoginSSOError())
+                    is SSOInitiateLoginResult.Failure -> updateSSOLoginError(result.toLoginSSOError())
                     is SSOInitiateLoginResult.Success -> openWebUrl(result.requestUrl)
                 }
             }
@@ -62,21 +66,21 @@ class LoginSSOViewModel @Inject constructor(
 
     @VisibleForTesting
     fun establishSSOSession(cookie: String) {
-        loginState = loginState.copy(loading = true, loginSSOError = LoginError.None).updateLoginEnabled()
+        loginState = loginState.copy(ssoLoginLoading = true, loginError = LoginError.None).updateSSOLoginEnabled()
         viewModelScope.launch {
-            val authSession = getSSOLoginSessionUseCase(cookie).let {
+            val (authSession, ssoId) = getSSOLoginSessionUseCase(cookie).let {
                 when (it) {
                     is SSOLoginSessionResult.Failure -> {
-                        updateLoginError(it.toLoginError())
+                        updateSSOLoginError(it.toLoginError())
                         return@launch
                     }
-                    is SSOLoginSessionResult.Success -> it.userSession
+                    is SSOLoginSessionResult.Success -> it.userSession to it.ssoId
                 }
             }
-            val storedUserId = addAuthenticatedUser(authSession, false).let {
+            val storedUserId = addAuthenticatedUser(authSession, ssoId, false).let {
                 when (it) {
                     is AddAuthenticatedUserUseCase.Result.Failure -> {
-                        updateLoginError(it.toLoginError())
+                        updateSSOLoginError(it.toLoginError())
                         return@launch
                     }
                     is AddAuthenticatedUserUseCase.Result.Success -> it.userId
@@ -90,7 +94,7 @@ class LoginSSOViewModel @Inject constructor(
                         navigateToConvScreen()
                     }
                     is RegisterClientResult.Failure -> {
-                        updateLoginError(it.toLoginError())
+                        updateSSOLoginError(it.toLoginError())
                         return@launch
                     }
                 }
@@ -100,41 +104,27 @@ class LoginSSOViewModel @Inject constructor(
 
     fun onSSOCodeChange(newText: TextFieldValue) {
         // in case an error is showing e.g. inline error is should be cleared
-        if (loginState.loginSSOError is LoginError.TextFieldError && newText != loginState.ssoCode) {
-            clearLoginError()
+        if (loginState.loginError is LoginError.TextFieldError && newText != loginState.ssoCode) {
+            clearSSOLoginError()
         }
-        loginState = loginState.copy(ssoCode = newText).updateLoginEnabled()
+        loginState = loginState.copy(ssoCode = newText).updateSSOLoginEnabled()
         savedStateHandle.set(SSO_CODE_SAVED_STATE_KEY, newText.text)
-    }
-
-    override fun updateLoginError(error: LoginError) {
-        loginState = if (error is LoginError.None) {
-            loginState.copy(loginSSOError = error)
-        } else {
-            loginState.copy(loading = false, loginSSOError = error).updateLoginEnabled()
-        }
     }
 
     fun handleSSOResult(ssoLoginResult: DeepLinkResult.SSOLogin?) = when (ssoLoginResult) {
         is DeepLinkResult.SSOLogin.Success -> {
             establishSSOSession(ssoLoginResult.cookie)
         }
-        is DeepLinkResult.SSOLogin.Failure -> updateLoginError(LoginError.DialogError.SSOResultError(ssoLoginResult.ssoError))
+
+        is DeepLinkResult.SSOLogin.Failure -> updateSSOLoginError(LoginError.DialogError.SSOResultError(ssoLoginResult.ssoError))
         null -> {}
     }
 
     private fun openWebUrl(url: String) {
         viewModelScope.launch {
-            loginState = loginState.copy(loading = false, loginSSOError = LoginError.None).updateLoginEnabled()
+            loginState = loginState.copy(ssoLoginLoading = false, loginError = LoginError.None).updateSSOLoginEnabled()
             openWebUrl.emit(url)
         }
-    }
-
-    private fun LoginSSOState.updateLoginEnabled() =
-        copy(loginEnabled = ssoCode.text.isNotEmpty() && !loading)
-
-    private companion object {
-        const val SSO_CODE_SAVED_STATE_KEY = "sso_code"
     }
 }
 

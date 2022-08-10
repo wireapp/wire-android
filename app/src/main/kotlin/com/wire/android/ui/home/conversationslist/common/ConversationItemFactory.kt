@@ -2,6 +2,8 @@ package com.wire.android.ui.home.conversationslist.common
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.res.stringResource
+import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.ui.calling.controlButtons.JoinButton
 import com.wire.android.ui.common.RowItemTemplate
@@ -41,7 +43,8 @@ fun ConversationItemFactory(
             },
             onLongClick = {
                 when (conversation.lastEvent) {
-                    is ConversationLastEvent.Connection -> {}
+                    is ConversationLastEvent.Connection -> {
+                    }
                     else -> openMenu(conversation)
                 }
             }
@@ -83,7 +86,12 @@ private fun GeneralConversationItem(
             with(conversation) {
                 RowItemTemplate(
                     leadingIcon = { GroupConversationAvatar(colorsScheme().conversationColor(id = conversationId)) },
-                    title = { ConversationTitle(name = groupName, isLegalHold = conversation.isLegalHold) },
+                    title = {
+                        ConversationTitle(
+                            name = groupName.ifEmpty { stringResource(id = R.string.member_name_deleted_label) },
+                            isLegalHold = conversation.isLegalHold
+                        )
+                    },
                     subTitle = subTitle,
                     eventType = eventType,
                     clickable = onConversationItemClick,
@@ -103,7 +111,7 @@ private fun GeneralConversationItem(
                     leadingIcon = { ConversationUserAvatar(userAvatarData) },
                     title = { UserLabel(userInfoLabel = toUserInfoLabel()) },
                     subTitle = subTitle,
-                    eventType = eventType,
+                    eventType = parsePrivateConversationEventType(connectionState, eventType),
                     clickable = onConversationItemClick,
                     trailingIcon = {
                         if (mutedStatus != MutedConversationStatus.AllAllowed) {
@@ -129,3 +137,7 @@ private fun GeneralConversationItem(
 
 private fun parseConnectionEventType(connectionState: ConnectionState) =
     if (connectionState == ConnectionState.SENT) EventType.SentConnectRequest else EventType.ReceivedConnectionRequest
+
+private fun parsePrivateConversationEventType(connectionState: ConnectionState, eventType: EventType?) =
+    if (connectionState == ConnectionState.BLOCKED) EventType.Blocked
+    else eventType

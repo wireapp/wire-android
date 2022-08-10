@@ -1,0 +1,60 @@
+name: "Validate Kalium References"
+
+on:
+  pull_request:
+    types: [ opened, synchronize ] # Don't rerun on `edited` to save time
+    paths:
+      - 'kalium'
+
+jobs:
+  validate-kalium-ref:
+    runs-on: ubuntu-20.04
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+        with:
+          submodules: recursive # Needed in order to fetch Kalium sources for building
+          fetch-depth: 0
+
+      - name: Run git merge-base
+        id: validate_kalium
+	      env:
+	        GH_BASE_REF: ${{github.base_ref}}
+        continue-on-error: true
+        run: |
+          git fetch
+          git checkout $GH_BASE_REF
+          git pull
+          git submodule update
+          git checkout ${GITHUB_REF#refs\/*}
+          git submodule update
+          echo "::set-output name=kalium_from_to::$(
+            git diff --merge-base $GH_BASE_REF kalium |
+            awk '/^i/{c=NR}NR>c+2&&/^[-+]/' |
+            awk '{split($0,words," "); print words[3];}' |
+            tr '\n' '-' |
+            rev |
+            cut -c 2- |
+            rev
+          )"
+          echo "::set-output name=is_kalium_rollback::$(
+            git diff --merge-base $GH_BASE_REF kalium |
+            awk '/^i/{c=NR}NR>c+2&&/^[-+]/' |
+            awk '{split($0,words," "); print words[3];}' |
+            xargs git -C kalium merge-base --is-ancestor
+            echo $?
+          )"
+
+      - name: Leave a comment
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+        if: ${{ steps.validate_kalium.outputs.is_kalium_rollback == 0 }} # The first commit is NOT an ancestor of the second one
+        run: |
+          echo "is_kalium_rollback: ${{ steps.validate_kalium.outputs.is_kalium_rollback }}"
+          gh pr comment "${{github.head_ref}}" --body "@$PR_AUTHOR looks like you are rolling back kalium to a previous commitish.
+
+          Commitish change: ${{steps.validate_kalium.outputs.kalium_from_to}}
+
+          Is this intentional?"

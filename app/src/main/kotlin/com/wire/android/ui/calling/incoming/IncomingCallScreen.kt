@@ -36,6 +36,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
+import com.wire.kalium.logic.data.call.ConversationType
 
 @Composable
 fun IncomingCallScreen(
@@ -84,7 +85,8 @@ fun IncomingCallScreen(
                     audioPermissionCheck.launch()
                 }
             },
-            onVideoPreviewCreated = ::setVideoPreview
+            onVideoPreviewCreated = ::setVideoPreview,
+            onSelfClearVideoPreview = ::clearVideoPreview
         )
     }
 }
@@ -98,7 +100,8 @@ private fun IncomingCallContent(
     toggleVideo: () -> Unit,
     declineCall: () -> Unit,
     acceptCall: () -> Unit,
-    onVideoPreviewCreated: (view: View) -> Unit
+    onVideoPreviewCreated: (view: View) -> Unit,
+    onSelfClearVideoPreview: () -> Unit
 ) {
 
     val scaffoldState = rememberBottomSheetScaffoldState()
@@ -111,8 +114,8 @@ private fun IncomingCallContent(
         sheetPeekHeight = dimensions().defaultIncomingCallSheetPeekHeight,
         sheetContent = {
             CallOptionsControls(
-                isMuted = callState.isMuted,
-                isCameraOn = callState.isCameraOn,
+                isMuted = callState.isMuted ?: true,
+                isCameraOn = callState.isCameraOn ?: false,
                 isSpeakerOn = callState.isSpeakerOn,
                 toggleSpeaker = toggleSpeaker,
                 toggleMute = toggleMute,
@@ -161,15 +164,21 @@ private fun IncomingCallContent(
     ) {
         Box {
             CallVideoPreview(
-                isCameraOn = callState.isCameraOn,
-                onVideoPreviewCreated = { onVideoPreviewCreated(it) }
+                isCameraOn = callState.isCameraOn ?: false,
+                onVideoPreviewCreated = onVideoPreviewCreated,
+                onSelfClearVideoPreview = onSelfClearVideoPreview
             )
+            val isCallingString = if (callState.conversationType == ConversationType.Conference) {
+                stringResource(R.string.calling_label_incoming_call_someone_calling, callState.callerName ?: "")
+            } else stringResource(R.string.calling_label_incoming_call)
+
             CallerDetails(
                 conversationName = callState.conversationName,
-                isCameraOn = callState.isCameraOn,
+                isCameraOn = callState.isCameraOn ?: false,
                 avatarAssetId = callState.avatarAssetId,
                 conversationType = callState.conversationType,
-                membership = callState.membership
+                membership = callState.membership,
+                callingLabel = isCallingString
             )
         }
     }

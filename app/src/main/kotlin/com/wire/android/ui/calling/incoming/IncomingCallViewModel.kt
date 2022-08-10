@@ -12,7 +12,8 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.notification.CallNotificationManager
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.id.parseIntoQualifiedID
+import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.call.AnswerCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.GetIncomingCallsUseCase
@@ -29,6 +30,7 @@ import javax.inject.Inject
 class IncomingCallViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
+    qualifiedIdMapper: QualifiedIdMapper,
     private val incomingCalls: GetIncomingCallsUseCase,
     private val rejectCall: RejectCallUseCase,
     private val acceptCall: AnswerCallUseCase,
@@ -38,7 +40,12 @@ class IncomingCallViewModel @Inject constructor(
     notificationManager: CallNotificationManager
 ) : ViewModel() {
 
-    private val incomingCallConversationId: ConversationId = savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!.parseIntoQualifiedID()
+    private val incomingCallConversationId: QualifiedID = qualifiedIdMapper.fromStringToQualifiedID(
+        checkNotNull(savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)) {
+            "No conversationId was provided via savedStateHandle to IncomingCallViewModel"
+        }
+    )
+
     lateinit var observeIncomingCallJob: Job
     var establishedCallConversationId: ConversationId? = null
 
@@ -121,6 +128,6 @@ class IncomingCallViewModel @Inject constructor(
     companion object {
         private const val DELAY_TIME_AFTER_ENDING_CALL = 1000L
         private val ACCEPT_CALL_DEFAULT_BACKSTACK_NODE = BackStackMode.REMOVE_CURRENT
-        private const val ACCEPT_CALL_DEFAULT_DELAY_TIME = 0L
+        private const val ACCEPT_CALL_DEFAULT_DELAY_TIME = 200L
     }
 }

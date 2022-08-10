@@ -13,15 +13,17 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.kalium.logic.data.call.ConversationType
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.parseIntoQualifiedID
+import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.IsLastCallClosedUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.StartCallUseCase
-import com.wire.kalium.logic.feature.call.usecase.IsLastCallClosedUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import java.util.Calendar
 import javax.inject.Inject
@@ -31,6 +33,7 @@ import javax.inject.Inject
 class InitiatingCallViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
+    qualifiedIdMapper: QualifiedIdMapper,
     private val conversationDetails: ObserveConversationDetailsUseCase,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val startCall: StartCallUseCase,
@@ -39,9 +42,11 @@ class InitiatingCallViewModel @Inject constructor(
     private val callRinger: CallRinger
 ) : ViewModel() {
 
-    val conversationId: QualifiedID = savedStateHandle
-        .get<String>(EXTRA_CONVERSATION_ID)!!
-        .parseIntoQualifiedID()
+    private val conversationId: QualifiedID = qualifiedIdMapper.fromStringToQualifiedID(
+        checkNotNull(savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)) {
+            "No conversationId was provided via savedStateHandle to InitiatingCallViewModel"
+        }
+    )
 
     private val callStartTime: Long = Calendar.getInstance().timeInMillis
 
@@ -55,9 +60,12 @@ class InitiatingCallViewModel @Inject constructor(
 
     private fun retrieveConversationTypeAsync() = viewModelScope.async {
 
-        val conversationDetails = conversationDetails(conversationId = conversationId).first { details ->
-            details.conversation.id == conversationId
-        }
+        val conversationDetails = conversationDetails(conversationId = conversationId)
+            .filterIsInstance<ObserveConversationDetailsUseCase.Result.Success>() // TODO handle StorageFailure
+            .map { it.conversationDetails }
+            .first { details ->
+                details.conversation.id == conversationId
+            }
 
         when (conversationDetails) {
             is ConversationDetails.Group -> {

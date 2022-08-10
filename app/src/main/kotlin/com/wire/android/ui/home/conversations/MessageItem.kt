@@ -4,8 +4,8 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -24,15 +24,15 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.model.Clickable
-import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.LegalHoldIndicator
-import com.wire.android.ui.common.MembershipQualifierLabel
+import com.wire.android.ui.common.UserBadge
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.model.ImageMessageParams
@@ -46,9 +46,9 @@ import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.RestrictedAssetMessage
 import com.wire.android.ui.home.conversations.model.RestrictedFileMessage
 import com.wire.android.ui.home.conversations.model.UIMessage
-import com.wire.android.ui.home.conversationslist.model.hasLabel
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.CustomTabsHelper
 import com.wire.kalium.logic.data.user.UserId
 
 @OptIn(ExperimentalFoundationApi::class)
@@ -85,7 +85,7 @@ fun MessageItem(
                 }
             }
             UserProfileAvatar(
-                avatarData = UserAvatarData(message.userAvatarData.asset, message.userAvatarData.availabilityStatus),
+                avatarData = message.userAvatarData,
                 clickable = avatarClickable
             )
             Spacer(Modifier.padding(start = dimensions().spacing16x - fullAvatarOuterPadding))
@@ -94,8 +94,8 @@ fun MessageItem(
                 MessageHeader(messageHeader)
 
                 if (!isDeleted) {
-                    val currentOnAssetClicked =
-                        remember {
+                    if (!decryptionFailed) {
+                        val currentOnAssetClicked = remember {
                             Clickable(enabled = true, onClick = {
                                 onAssetMessageClicked(message.messageHeader.messageId)
                             }, onLongClick = {
@@ -103,8 +103,7 @@ fun MessageItem(
                             })
                         }
 
-                    val currentOnImageClick =
-                        remember {
+                        val currentOnImageClick = remember {
                             Clickable(enabled = true, onClick = {
                                 onImageMessageClicked(
                                     message.messageHeader.messageId,
@@ -114,13 +113,18 @@ fun MessageItem(
                                 onLongClicked(message)
                             })
                         }
-                    val onLongClick = remember { { onLongClicked(message) } }
-                    MessageContent(
-                        messageContent = messageContent,
-                        onAssetClick = currentOnAssetClicked,
-                        onImageClick = currentOnImageClick,
-                        onLongClick = onLongClick
-                    )
+                        val onLongClick = remember { { onLongClicked(message) } }
+
+                        MessageContent(
+                            messageContent = messageContent,
+                            onAssetClick = currentOnAssetClicked,
+                            onImageClick = currentOnImageClick,
+                            onLongClick = onLongClick
+                        )
+                    } else {
+                        // Decryption failed for this message
+                        MessageDecryptionFailure()
+                    }
                 }
 
                 if (message.sendingFailed) {
@@ -135,7 +139,7 @@ fun MessageItem(
 private fun Modifier.customizeMessageBackground(
     message: UIMessage,
 ) = run {
-    if (message.sendingFailed) {
+    if (message.sendingFailed || message.receivingFailed) {
         background(MaterialTheme.wireColorScheme.messageErrorBackgroundColor)
     } else this
 }
@@ -151,12 +155,11 @@ private fun MessageHeader(messageHeader: MessageHeader) {
                 ) {
                     Username(username.asString(), modifier = Modifier.weight(weight = 1f, fill = false))
 
-                    if (membership.hasLabel()) {
-                        MembershipQualifierLabel(
-                            membership = membership,
-                            modifier = Modifier.padding(start = dimensions().spacing6x)
-                        )
-                    }
+                    UserBadge(
+                        membership = membership,
+                        connectionState = connectionState,
+                        startPadding = dimensions().spacing6x
+                    )
 
                     if (isLegalHold) {
                         LegalHoldIndicator(modifier = Modifier.padding(start = dimensions().spacing6x))
@@ -165,7 +168,7 @@ private fun MessageHeader(messageHeader: MessageHeader) {
                 MessageTimeLabel(
                     time = messageHeader.time,
                     modifier = Modifier.padding(start = dimensions().spacing6x)
-                    )
+                )
             }
             MessageStatusLabel(messageStatus = messageStatus)
         }
@@ -176,10 +179,11 @@ private fun MessageHeader(messageHeader: MessageHeader) {
 private fun MessageTimeLabel(
     time: String,
     modifier: Modifier = Modifier
-    ) {
+) {
     Text(
         text = time,
         style = MaterialTheme.typography.labelSmall.copy(color = MaterialTheme.wireColorScheme.secondaryText),
+        maxLines = 1,
         modifier = modifier
     )
 }
@@ -271,7 +275,8 @@ private fun MessageStatusLabel(messageStatus: MessageStatus) {
                     )
                 }
             }
-            MessageStatus.SendFailure, MessageStatus.Untouched -> {}
+            MessageStatus.SendFailure, MessageStatus.Untouched, MessageStatus.DecryptionFailure -> {
+            }
         }
     }
 }
@@ -294,6 +299,33 @@ private fun MessageSendFailureWarning() {
                     textDecoration = TextDecoration.Underline
                 ),
                 text = stringResource(R.string.label_try_again),
+            )
+        }
+    }
+}
+
+@Composable
+private fun MessageDecryptionFailure() {
+    val context = LocalContext.current
+    val learnMoreUrl = stringResource(R.string.url_decryption_failure_learn_more)
+    CompositionLocalProvider(
+        LocalTextStyle provides MaterialTheme.typography.labelSmall
+    ) {
+        Row {
+            Spacer(Modifier.height(dimensions().spacing4x))
+            Text(
+                text = MessageStatus.DecryptionFailure.text.asString(),
+                style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.error)
+            )
+            Spacer(Modifier.width(dimensions().spacing4x))
+            Text(
+                modifier = Modifier
+                    .clickable { CustomTabsHelper.launchUrl(context, learnMoreUrl) },
+                style = LocalTextStyle.current.copy(
+                    color = MaterialTheme.wireColorScheme.onTertiaryButtonSelected,
+                    textDecoration = TextDecoration.Underline
+                ),
+                text = stringResource(R.string.label_learn_more),
             )
         }
     }

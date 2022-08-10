@@ -5,6 +5,7 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.di.AuthServerConfigProvider
+import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
@@ -13,8 +14,8 @@ import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.newServerConfig
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.UserSessionScope
 import com.wire.kalium.logic.feature.auth.AuthSession
 import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
@@ -100,7 +101,7 @@ class WireActivityViewModelTest {
     }
 
     @Test
-    fun `given Intent with IncomingCall, when currentSession is present, then startNavigation is IncomingCall`() {
+    fun `given Intent with IncomingCall, when currentSession is present, then startNavigation is Home`() {
         val (_, viewModel) = Arrangement()
             .withSomeCurrentSession()
             .withDeepLinkResult(DeepLinkResult.IncomingCall(ConversationId("val", "dom")))
@@ -108,12 +109,12 @@ class WireActivityViewModelTest {
 
         viewModel.handleDeepLink(mockedIntent())
 
-        assertEquals(NavigationItem.IncomingCall.getRouteWithArgs(), viewModel.startNavigationRoute())
+        assertEquals(NavigationItem.Home.getRouteWithArgs(), viewModel.startNavigationRoute())
         assert(viewModel.navigationArguments().filterIsInstance<ConversationId>().isNotEmpty())
     }
 
     @Test
-    fun `given Intent with IncomingCall, when currentSession is absent, then startNavigation is IncomingCall`() {
+    fun `given Intent with IncomingCall, when currentSession is absent, then startNavigation is Welcome`() {
         val (_, viewModel) = Arrangement()
             .withNoCurrentSession()
             .withDeepLinkResult(DeepLinkResult.IncomingCall(ConversationId("val", "dom")))
@@ -160,6 +161,144 @@ class WireActivityViewModelTest {
         val (arrangement, viewModel) = Arrangement()
             .withNoCurrentSession()
             .withDeepLinkResult(DeepLinkResult.IncomingCall(conversationId))
+            .arrange()
+
+        val shouldReCreate = viewModel.handleDeepLinkOnNewIntent(mockedIntent())
+
+        assert(shouldReCreate)
+        coVerify(exactly = 0) { arrangement.navigationManager.navigate(any()) }
+    }
+
+    @Test
+    fun `given Intent with OpenConversation, when currentSession is present, then startNavigation is Home`() {
+        val (_, viewModel) = Arrangement()
+            .withSomeCurrentSession()
+            .withDeepLinkResult(DeepLinkResult.OpenConversation(ConversationId("val", "dom")))
+            .arrange()
+
+        viewModel.handleDeepLink(mockedIntent())
+
+        assertEquals(NavigationItem.Home.getRouteWithArgs(), viewModel.startNavigationRoute())
+        assert(viewModel.navigationArguments().filterIsInstance<ConversationId>().isNotEmpty())
+    }
+
+    @Test
+    fun `given Intent with OpenConversation, when currentSession is absent, then startNavigation is Welcome`() {
+        val (_, viewModel) = Arrangement()
+            .withNoCurrentSession()
+            .withDeepLinkResult(DeepLinkResult.OpenConversation(ConversationId("val", "dom")))
+            .arrange()
+
+        viewModel.handleDeepLink(mockedIntent())
+
+        assertEquals(NavigationItem.Welcome.getRouteWithArgs(), viewModel.startNavigationRoute())
+    }
+
+    @Test
+    fun `given OpenConversation Intent, when currentSession is there AND activity created from history, then startNavigation is Home`() {
+        val (_, viewModel) = Arrangement()
+            .withSomeCurrentSession()
+            .withDeepLinkResult(DeepLinkResult.OpenConversation(ConversationId("val", "dom")))
+            .arrange()
+
+        viewModel.handleDeepLink(mockedIntent(true))
+
+        assertEquals(NavigationItem.Home.getRouteWithArgs(), viewModel.startNavigationRoute())
+    }
+
+    @Test
+    fun `given OpenConversation newIntent, when currentSession is present, then no recreation and navigate to Conversation is called`() {
+        val conversationId = ConversationId("val", "dom")
+        val (arrangement, viewModel) = Arrangement()
+            .withSomeCurrentSession()
+            .withDeepLinkResult(DeepLinkResult.OpenConversation(conversationId))
+            .arrange()
+
+        val shouldReCreate = viewModel.handleDeepLinkOnNewIntent(mockedIntent())
+
+        assert(!shouldReCreate)
+        coVerify(exactly = 1) {
+            arrangement.navigationManager.navigate(
+                NavigationCommand(NavigationItem.Conversation.getRouteWithArgs(listOf(conversationId)), BackStackMode.UPDATE_EXISTED)
+            )
+        }
+    }
+
+    @Test
+    fun `given newIntent with OpenConversation, when currentSession is absent, then should recreate and navigate no any navigation`() {
+        val conversationId = ConversationId("val", "dom")
+        val (arrangement, viewModel) = Arrangement()
+            .withNoCurrentSession()
+            .withDeepLinkResult(DeepLinkResult.OpenConversation(conversationId))
+            .arrange()
+
+        val shouldReCreate = viewModel.handleDeepLinkOnNewIntent(mockedIntent())
+
+        assert(shouldReCreate)
+        coVerify(exactly = 0) { arrangement.navigationManager.navigate(any()) }
+    }
+
+    @Test
+    fun `given Intent with OpenOtherUser, when currentSession is present, then startNavigation is Home`() {
+        val (_, viewModel) = Arrangement()
+            .withSomeCurrentSession()
+            .withDeepLinkResult(DeepLinkResult.OpenOtherUserProfile(QualifiedID("val", "dom")))
+            .arrange()
+
+        viewModel.handleDeepLink(mockedIntent())
+
+        assertEquals(NavigationItem.Home.getRouteWithArgs(), viewModel.startNavigationRoute())
+        assert(viewModel.navigationArguments().filterIsInstance<QualifiedID>().isNotEmpty())
+    }
+
+    @Test
+    fun `given Intent with OpenOtherUser, when currentSession is absent, then startNavigation is Welcome`() {
+        val (_, viewModel) = Arrangement()
+            .withNoCurrentSession()
+            .withDeepLinkResult(DeepLinkResult.OpenOtherUserProfile(QualifiedID("val", "dom")))
+            .arrange()
+
+        viewModel.handleDeepLink(mockedIntent())
+
+        assertEquals(NavigationItem.Welcome.getRouteWithArgs(), viewModel.startNavigationRoute())
+    }
+
+    @Test
+    fun `given OpenOtherUser Intent, when currentSession is there AND activity was created from history, then startNavigation is Home`() {
+        val (_, viewModel) = Arrangement()
+            .withSomeCurrentSession()
+            .withDeepLinkResult(DeepLinkResult.OpenConversation(QualifiedID("val", "dom")))
+            .arrange()
+
+        viewModel.handleDeepLink(mockedIntent(true))
+
+        assertEquals(NavigationItem.Home.getRouteWithArgs(), viewModel.startNavigationRoute())
+    }
+
+    @Test
+    fun `given OpenOtherUser newIntent, when currentSession is present, then no recreation and navigate to OtherUser is called`() {
+        val userId = QualifiedID("val", "dom")
+        val (arrangement, viewModel) = Arrangement()
+            .withSomeCurrentSession()
+            .withDeepLinkResult(DeepLinkResult.OpenOtherUserProfile(userId))
+            .arrange()
+
+        val shouldReCreate = viewModel.handleDeepLinkOnNewIntent(mockedIntent())
+
+        assert(!shouldReCreate)
+        coVerify(exactly = 1) {
+            arrangement.navigationManager.navigate(
+                NavigationCommand(NavigationItem.OtherUserProfile.getRouteWithArgs(listOf(userId)), BackStackMode.UPDATE_EXISTED)
+            )
+        }
+    }
+
+    @Test
+    fun `given newIntent with OpenOtherUser, when currentSession is absent, then should recreate and navigate no any navigation`() {
+        val userId = QualifiedID("val", "dom")
+        val (arrangement, viewModel) = Arrangement()
+            .withNoCurrentSession()
+            .withDeepLinkResult(DeepLinkResult.OpenOtherUserProfile(userId))
             .arrange()
 
         val shouldReCreate = viewModel.handleDeepLinkOnNewIntent(mockedIntent())
@@ -220,9 +359,6 @@ class WireActivityViewModelTest {
         }
 
         @MockK
-        lateinit var userSessionScope: UserSessionScope
-
-        @MockK
         lateinit var currentSessionFlow: CurrentSessionFlowUseCase
 
         @MockK
@@ -275,7 +411,7 @@ class WireActivityViewModelTest {
     companion object {
         val TEST_AUTH_SESSION =
             AuthSession(
-                AuthSession.Tokens(
+                AuthSession.Session.Valid(
                     userId = UserId("user_id", "domain.de"),
                     accessToken = "access_token",
                     refreshToken = "refresh_token",

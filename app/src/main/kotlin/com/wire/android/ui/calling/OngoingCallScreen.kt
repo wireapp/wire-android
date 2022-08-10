@@ -1,5 +1,6 @@
 package com.wire.android.ui.calling
 
+import android.view.View
 import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,24 +17,20 @@ import androidx.compose.material.rememberBottomSheetScaffoldState
 import androidx.compose.material.rememberBottomSheetState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.Lifecycle
-import androidx.lifecycle.LifecycleEventObserver
-import androidx.lifecycle.LifecycleOwner
 import com.wire.android.ui.calling.common.VerticalCallingPager
 import com.wire.android.ui.calling.controlButtons.CameraButton
 import com.wire.android.ui.calling.controlButtons.CameraFlipButton
 import com.wire.android.ui.calling.controlButtons.HangUpButton
 import com.wire.android.ui.calling.controlButtons.MicrophoneButton
 import com.wire.android.ui.calling.controlButtons.SpeakerButton
+import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
@@ -42,21 +39,41 @@ import com.wire.android.ui.theme.wireTypography
 
 @Composable
 fun OngoingCallScreen(
-    lifecycleOwner: LifecycleOwner = LocalLifecycleOwner.current,
     ongoingCallViewModel: OngoingCallViewModel = hiltViewModel(),
     sharedCallingViewModel: SharedCallingViewModel = hiltViewModel()
 ) {
-    OngoingCallContent(sharedCallingViewModel)
-    observeScreenLifecycleChanges(
-        lifecycleOwner = lifecycleOwner,
-        onPauseVideo = sharedCallingViewModel::pauseVideo
-    )
+
+    with(sharedCallingViewModel) {
+        OngoingCallContent(
+            callState.conversationName,
+            callState.participants,
+            callState.isMuted ?: true,
+            callState.isCameraOn ?: false,
+            callState.isSpeakerOn,
+            ::toggleSpeaker,
+            ::toggleMute,
+            ::hangUpCall,
+            ::toggleVideo,
+            ::setVideoPreview,
+            ::clearVideoPreview
+        )
+    }
 }
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun OngoingCallContent(
-    sharedCallingViewModel: SharedCallingViewModel
+    conversationName: ConversationName?,
+    participants: List<UICallParticipant>,
+    isMuted: Boolean,
+    isCameraOn: Boolean,
+    isSpeakerOn: Boolean,
+    toggleSpeaker: () -> Unit,
+    toggleMute: () -> Unit,
+    hangUpCall: () -> Unit,
+    toggleVideo: () -> Unit,
+    setVideoPreview: (view: View) -> Unit,
+    clearVideoPreview: () -> Unit
 ) {
     val sheetState = rememberBottomSheetState(
         initialValue = BottomSheetValue.Collapsed
@@ -64,46 +81,43 @@ private fun OngoingCallContent(
     val scaffoldState = rememberBottomSheetScaffoldState(
         bottomSheetState = sheetState
     )
-    with(sharedCallingViewModel) {
-        BottomSheetScaffold(
-            topBar = {
-                val conversationName = callState.conversationName
-                OngoingCallTopBar(
-                    conversationName = when (conversationName) {
-                        is ConversationName.Known -> conversationName.name
-                        is ConversationName.Unknown -> stringResource(id = conversationName.resourceId)
-                        else -> ""
-                    }
-                ) { }
-            },
-            sheetShape = RoundedCornerShape(topStart = dimensions().corner16x, topEnd = dimensions().corner16x),
-            sheetPeekHeight = dimensions().defaultSheetPeekHeight,
-            scaffoldState = scaffoldState,
-            sheetContent = {
-                CallingControls(
-                    isMuted = callState.isMuted,
-                    isCameraOn = callState.isCameraOn,
-                    isSpeakerOn = callState.isSpeakerOn,
-                    toggleSpeaker = ::toggleSpeaker,
-                    toggleMute = ::toggleMute,
-                    onHangUpCall = ::hangUpCall,
-                    onToggleVideo = ::toggleVideo
-                )
-            },
+    BottomSheetScaffold(
+        topBar = {
+            OngoingCallTopBar(
+                conversationName = when (conversationName) {
+                    is ConversationName.Known -> conversationName.name
+                    is ConversationName.Unknown -> stringResource(id = conversationName.resourceId)
+                    else -> ""
+                }
+            ) { }
+        },
+        sheetShape = RoundedCornerShape(topStart = dimensions().corner16x, topEnd = dimensions().corner16x),
+        sheetPeekHeight = dimensions().defaultSheetPeekHeight,
+        scaffoldState = scaffoldState,
+        sheetContent = {
+            CallingControls(
+                isMuted = isMuted,
+                isCameraOn = isCameraOn,
+                isSpeakerOn = isSpeakerOn,
+                toggleSpeaker = toggleSpeaker,
+                toggleMute = toggleMute,
+                onHangUpCall = hangUpCall,
+                onToggleVideo = toggleVideo
+            )
+        },
+    ) {
+        Box(
+            modifier = Modifier.padding(
+                bottom = 95.dp
+            )
         ) {
-            Box(
-                modifier = Modifier.padding(
-                    bottom = 95.dp
-                )
-            ) {
-                VerticalCallingPager(
-                    participants = callState.participants,
-                    isSelfUserCameraOn = callState.isCameraOn,
-                    isSelfUserMuted = callState.isMuted,
-                    onSelfVideoPreviewCreated = sharedCallingViewModel::setVideoPreview,
-                    onSelfClearVideoPreview = sharedCallingViewModel::clearVideoPreview
-                )
-            }
+            VerticalCallingPager(
+                participants = participants,
+                isSelfUserCameraOn = isCameraOn,
+                isSelfUserMuted = isMuted,
+                onSelfVideoPreviewCreated = setVideoPreview,
+                onSelfClearVideoPreview = clearVideoPreview
+            )
         }
     }
 }
@@ -140,15 +154,13 @@ private fun CallingControls(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .fillMaxWidth()
-            .padding(0.dp, dimensions().spacing16x, 0.dp, 0.dp)
+            .padding(top = dimensions().spacing16x)
     ) {
         MicrophoneButton(isMuted) { toggleMute() }
         CameraButton(
             isCameraOn = isCameraOn,
             onCameraPermissionDenied = { },
-            onCameraButtonClicked = {
-                onToggleVideo()
-            }
+            onCameraButtonClicked = onToggleVideo
         )
         if (isCameraOn) {
             val context = LocalContext.current
@@ -166,29 +178,6 @@ private fun CallingControls(
                 .height(MaterialTheme.wireDimensions.defaultCallingHangUpButtonSize),
             onHangUpButtonClicked = onHangUpCall
         )
-    }
-}
-
-@Composable
-private fun observeScreenLifecycleChanges(
-    lifecycleOwner: LifecycleOwner,
-    onPauseVideo: () -> Unit
-) {
-    // If `lifecycleOwner` changes, dispose and reset the effect
-    DisposableEffect(lifecycleOwner) {
-        val observer = LifecycleEventObserver { _, event ->
-            if (event == Lifecycle.Event.ON_STOP) {
-                onPauseVideo()
-            }
-        }
-
-        // Add the observer to the lifecycle
-        lifecycleOwner.lifecycle.addObserver(observer)
-
-        // When the effect leaves the Composition, remove the observer
-        onDispose {
-            lifecycleOwner.lifecycle.removeObserver(observer)
-        }
     }
 }
 

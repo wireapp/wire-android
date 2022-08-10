@@ -7,20 +7,22 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
+import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.UserAvatarData
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.home.HomeSnackbarState
 import com.wire.android.ui.home.conversationslist.mock.mockAllMentionList
 import com.wire.android.ui.home.conversationslist.mock.mockCallHistory
 import com.wire.android.ui.home.conversationslist.mock.mockMissedCalls
 import com.wire.android.ui.home.conversationslist.mock.mockUnreadMentionList
+import com.wire.android.ui.home.conversationslist.model.BlockingState
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.ConversationLastEvent
-import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.conversationslist.model.NewActivity
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
@@ -32,14 +34,21 @@ import com.wire.kalium.logic.data.conversation.ConversationDetails.Self
 import com.wire.kalium.logic.data.conversation.LegalHoldStatus
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.TeamId
+import com.wire.kalium.logic.data.user.ConnectionState
+import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.call.AnswerCallUseCase
+import com.wire.kalium.logic.feature.connection.BlockUserResult
+import com.wire.kalium.logic.feature.connection.BlockUserUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationsAndConnectionsUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
+import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import java.util.Date
 import javax.inject.Inject
@@ -53,13 +62,16 @@ class ConversationListViewModel @Inject constructor(
     private val answerCall: AnswerCallUseCase,
     private val observeConversationsAndConnections: ObserveConversationsAndConnectionsUseCase,
     private val dispatchers: DispatcherProvider,
-    private val wireSessionImageLoader: WireSessionImageLoader
+    private val getSelf: GetSelfUserUseCase,
+    private val blockUserUseCase: BlockUserUseCase,
+    private val wireSessionImageLoader: WireSessionImageLoader,
+    private val userTypeMapper: UserTypeMapper,
 ) : ViewModel() {
 
     var state by mutableStateOf(ConversationListState())
         private set
 
-    var errorState by mutableStateOf<ConversationOperationErrorState?>(null)
+    val snackBarState = MutableSharedFlow<HomeSnackbarState>()
 
     init {
         startObservingConversationsAndConnections()
@@ -67,8 +79,9 @@ class ConversationListViewModel @Inject constructor(
 
     private fun startObservingConversationsAndConnections() = viewModelScope.launch(dispatchers.io()) {
         observeConversationsAndConnections() // TODO AR-1736
-            .collect { list ->
-                val detailedList = list.toConversationsFoldersMap()
+            .combine(getSelf(), ::Pair)
+            .collect { (list, selfUser) ->
+                val detailedList = list.conversationList.toConversationsFoldersMap(selfUser.teamId)
                 val newActivities = emptyList<NewActivity>()
                 val missedCalls = mockMissedCalls // TODO: needs to be implemented
                 val unreadMentions = mockUnreadMentionList // TODO: needs to be implemented
@@ -87,8 +100,8 @@ class ConversationListViewModel @Inject constructor(
             }
     }
 
-    private fun List<ConversationDetails>.toConversationsFoldersMap(): Map<ConversationFolder, List<ConversationItem>> =
-        mapOf(ConversationFolder.Predefined.Conversations to this.toConversationItemList())
+    private fun List<ConversationDetails>.toConversationsFoldersMap(teamId: TeamId?): Map<ConversationFolder, List<ConversationItem>> =
+        mapOf(ConversationFolder.Predefined.Conversations to this.toConversationItemList(teamId))
 
     fun openConversation(conversationId: ConversationId) {
         viewModelScope.launch {
@@ -126,7 +139,7 @@ class ConversationListViewModel @Inject constructor(
         conversationId?.let {
             viewModelScope.launch {
                 when (updateConversationMutedStatus(conversationId, mutedConversationStatus, Date().time)) {
-                    ConversationUpdateStatusResult.Failure -> errorState = ConversationOperationErrorState.MutingOperationErrorState()
+                    ConversationUpdateStatusResult.Failure -> snackBarState.emit(HomeSnackbarState.MutingOperationError)
                     ConversationUpdateStatusResult.Success ->
                         appLogger.d("MutedStatus changed for conversation: $conversationId to $mutedConversationStatus")
                 }
@@ -165,9 +178,29 @@ class ConversationListViewModel @Inject constructor(
     fun clearConversationContent(id: String = "") {
     }
 
-    // TODO: needs to be implemented
-    @Suppress("EmptyFunctionBlock")
-    fun blockUser(id: String = "") {
+    fun blockUser(id: UserId, userName: String) {
+        viewModelScope.launch(dispatchers.io()) {
+            val state = when (val result = blockUserUseCase(id)) {
+                BlockUserResult.Success -> {
+                    appLogger.d("User $id was blocked")
+                    HomeSnackbarState.BlockingUserOperationSuccess(userName)
+                }
+                is BlockUserResult.Failure -> {
+                    appLogger.d("Error while blocking user $id ; Error ${result.coreFailure}")
+                    HomeSnackbarState.BlockingUserOperationError
+                }
+            }
+            snackBarState.emit(state)
+        }
+        state = state.copy(blockUserDialogSate = null)
+    }
+
+    fun onDismissBlockUserDialog() {
+        state = state.copy(blockUserDialogSate = null)
+    }
+
+    fun onBlockUserClicked(id: UserId, name: String) {
+        state = state.copy(blockUserDialogSate = BlockUserDialogState(name, id))
     }
 
     // TODO: needs to be implemented
@@ -175,14 +208,18 @@ class ConversationListViewModel @Inject constructor(
     fun leaveGroup(id: String = "") {
     }
 
-    private fun List<ConversationDetails>.toConversationItemList(): List<ConversationItem> =
+    private fun List<ConversationDetails>.toConversationItemList(teamId: TeamId?): List<ConversationItem> =
         filter { it is Group || it is OneOne || it is Connection }
-            .map { it.toType(wireSessionImageLoader) }
+            .map { it.toType(wireSessionImageLoader, teamId, userTypeMapper) }
 }
 
 private fun LegalHoldStatus.showLegalHoldIndicator() = this == LegalHoldStatus.ENABLED
 
-private fun ConversationDetails.toType(wireSessionImageLoader: WireSessionImageLoader): ConversationItem = when (this) {
+private fun ConversationDetails.toType(
+    wireSessionImageLoader: WireSessionImageLoader,
+    selfTeamId: TeamId?,
+    userTypeMapper: UserTypeMapper
+): ConversationItem = when (this) {
     is Group -> {
         ConversationItem.GroupConversation(
             groupName = conversation.name.orEmpty(),
@@ -197,27 +234,31 @@ private fun ConversationDetails.toType(wireSessionImageLoader: WireSessionImageL
         ConversationItem.PrivateConversation(
             userAvatarData = UserAvatarData(
                 otherUser.previewPicture?.let { UserAvatarAsset(wireSessionImageLoader, it) },
-                UserAvailabilityStatus.NONE // TODO Get actual status
+                otherUser.availabilityStatus,
+                otherUser.connectionStatus
             ),
             conversationInfo = ConversationInfo(
                 name = otherUser.name.orEmpty(),
-                membership = userType.toMembership()
+                membership = userTypeMapper.toMembership(userType)
             ),
             conversationId = conversation.id,
             mutedStatus = conversation.mutedStatus,
             isLegalHold = legalHoldStatus.showLegalHoldIndicator(),
-            lastEvent = ConversationLastEvent.None // TODO implement unread events
+            lastEvent = ConversationLastEvent.None, // TODO implement unread events
+            userId = otherUser.id,
+            blockingState = otherUser.getBlockingState(selfTeamId),
+            connectionState = otherUser.connectionStatus
         )
     }
     is Connection -> {
         ConversationItem.ConnectionConversation(
             userAvatarData = UserAvatarData(
                 otherUser?.previewPicture?.let { UserAvatarAsset(wireSessionImageLoader, it) },
-                UserAvailabilityStatus.NONE // TODO Get actual status
+                otherUser?.availabilityStatus ?: UserAvailabilityStatus.NONE
             ),
             conversationInfo = ConversationInfo(
                 name = otherUser?.name.orEmpty(),
-                membership = userType.toMembership()
+                membership = userTypeMapper.toMembership(userType)
             ),
             lastEvent = ConversationLastEvent.Connection(
                 connection.status,
@@ -236,12 +277,9 @@ private fun ConversationDetails.toType(wireSessionImageLoader: WireSessionImageL
     }
 }
 
-private fun UserType.toMembership(): Membership {
-    return when (this) {
-        UserType.GUEST -> Membership.Guest
-        UserType.FEDERATED -> Membership.Federated
-        UserType.EXTERNAL -> Membership.External
-        UserType.INTERNAL -> Membership.Internal
-        UserType.NONE -> Membership.None
+private fun OtherUser.getBlockingState(selfTeamId: TeamId?): BlockingState =
+    when {
+        connectionStatus == ConnectionState.BLOCKED -> BlockingState.BLOCKED
+        teamId == selfTeamId -> BlockingState.CAN_NOT_BE_BLOCKED
+        else -> BlockingState.NOT_BLOCKED
     }
-}

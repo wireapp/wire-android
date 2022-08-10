@@ -6,12 +6,19 @@ import com.wire.android.mapper.UICallParticipantMapper
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.media.CallRinger
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.call.VideoState
+import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.GetAllCallsWithSortedParticipantsUseCase
 import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveSpeakerUseCase
 import com.wire.kalium.logic.feature.call.usecase.SetVideoPreviewUseCase
+import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOffUseCase
+import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOnUseCase
 import com.wire.kalium.logic.feature.call.usecase.UnMuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.UpdateVideoStateUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
@@ -20,6 +27,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestCoroutineScheduler
@@ -28,12 +36,6 @@ import kotlinx.coroutines.test.setMain
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.feature.call.usecase.ObserveSpeakerUseCase
-import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOffUseCase
-import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOnUseCase
-import io.mockk.mockk
-import io.mockk.verify
 
 class SharedCallingViewModelTest {
 
@@ -74,6 +76,9 @@ class SharedCallingViewModelTest {
     private lateinit var observeSpeaker: ObserveSpeakerUseCase
 
     @MockK
+    private lateinit var qualifiedIdMapper: QualifiedIdMapper
+
+    @MockK
     private lateinit var callRinger: CallRinger
 
     @MockK
@@ -84,6 +89,9 @@ class SharedCallingViewModelTest {
 
     @MockK
     private lateinit var userTypeMapper: UserTypeMapper
+
+    @MockK
+    private lateinit var currentScreenManager: CurrentScreenManager
 
     private val uiCallParticipantMapper: UICallParticipantMapper by lazy { UICallParticipantMapper(wireSessionImageLoader, userTypeMapper) }
 
@@ -98,6 +106,9 @@ class SharedCallingViewModelTest {
         MockKAnnotations.init(this)
         every { savedStateHandle.get<String>(any()) } returns dummyConversationId
         every { savedStateHandle.set(any(), any<String>()) } returns Unit
+        coEvery {
+            qualifiedIdMapper.fromStringToQualifiedID("some-dummy-value@some.dummy.domain")
+        } returns QualifiedID("some-dummy-value", "some.dummy.domain")
 
         sharedCallingViewModel = SharedCallingViewModel(
             savedStateHandle = savedStateHandle,
@@ -115,12 +126,24 @@ class SharedCallingViewModelTest {
             callRinger = callRinger,
             uiCallParticipantMapper = uiCallParticipantMapper,
             wireSessionImageLoader = wireSessionImageLoader,
-            userTypeMapper = userTypeMapper
+            userTypeMapper = userTypeMapper,
+            currentScreenManager = currentScreenManager,
+            qualifiedIdMapper = qualifiedIdMapper
         )
     }
 
     @Test
-    fun `given muteOrUnMuteCall is called, when active call is muted, then un-mute the call`() {
+    fun `given isMuted value is null, when toggling microphone, then do not update microphone state`() {
+        sharedCallingViewModel.callState = sharedCallingViewModel.callState.copy(isMuted = null)
+        coEvery { muteCall(conversationId) } returns Unit
+
+        runTest { sharedCallingViewModel.toggleMute() }
+
+        sharedCallingViewModel.callState.isMuted shouldBeEqualTo null
+    }
+
+    @Test
+    fun `given an un-muted call, when toggling microphone, then mute the call`() {
         sharedCallingViewModel.callState = sharedCallingViewModel.callState.copy(isMuted = false)
         coEvery { muteCall(conversationId) } returns Unit
 
@@ -130,13 +153,23 @@ class SharedCallingViewModelTest {
     }
 
     @Test
-    fun `given muteOrUnMuteCall is called, when active call is un-muted, then mute the call`() {
+    fun `given a muted call, when toggling microphone, then un-mute the call`() {
         sharedCallingViewModel.callState = sharedCallingViewModel.callState.copy(isMuted = true)
         coEvery { unMuteCall(conversationId) } returns Unit
 
         runTest { sharedCallingViewModel.toggleMute() }
 
         sharedCallingViewModel.callState.isMuted shouldBeEqualTo false
+    }
+
+    @Test
+    fun `given isCameraOn value is null, when toggling camera, then do not update camera state`() {
+        sharedCallingViewModel.callState = sharedCallingViewModel.callState.copy(isCameraOn = null)
+        coEvery { muteCall(conversationId) } returns Unit
+
+        runTest { sharedCallingViewModel.toggleVideo() }
+
+        sharedCallingViewModel.callState.isCameraOn shouldBeEqualTo null
     }
 
     @Test
@@ -194,7 +227,6 @@ class SharedCallingViewModelTest {
 
         runTest { sharedCallingViewModel.clearVideoPreview() }
 
-        coVerify(exactly = 1) { setVideoPreview(any(), any()) }
         coVerify(exactly = 1) { updateVideoState(any(), VideoState.STOPPED) }
     }
 
@@ -206,9 +238,7 @@ class SharedCallingViewModelTest {
 
         runTest { sharedCallingViewModel.pauseVideo() }
 
-        coVerify(exactly = 1) { setVideoPreview(any(), any()) }
         coVerify(exactly = 1) { updateVideoState(any(), VideoState.PAUSED) }
-        sharedCallingViewModel.callState.isCameraOn shouldBeEqualTo false
     }
 
     @Test
@@ -219,9 +249,20 @@ class SharedCallingViewModelTest {
 
         runTest { sharedCallingViewModel.pauseVideo() }
 
-        coVerify(exactly = 0) { setVideoPreview(any(), any()) }
-        coVerify(exactly = 0) { updateVideoState(any(), VideoState.PAUSED) }
-        sharedCallingViewModel.callState.isCameraOn shouldBeEqualTo false
+        coVerify(inverse = true) { setVideoPreview(any(), any()) }
+        coVerify(inverse = true) { updateVideoState(any(), VideoState.PAUSED) }
+    }
+
+    @Test
+    fun `given an audio call with a null camera value, when pauseVideo is called, then do not pause the video`() {
+        sharedCallingViewModel.callState = sharedCallingViewModel.callState.copy(isCameraOn = null)
+        coEvery { setVideoPreview(any(), any()) } returns Unit
+        coEvery { updateVideoState(any(), any()) } returns Unit
+
+        runTest { sharedCallingViewModel.pauseVideo() }
+
+        coVerify(inverse = true) { setVideoPreview(any(), any()) }
+        coVerify(inverse = true) { updateVideoState(any(), VideoState.PAUSED) }
     }
 
     companion object {

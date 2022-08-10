@@ -7,7 +7,6 @@ import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.asset.isValidImage
-import com.wire.kalium.logic.data.conversation.MemberDetails
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.Message
@@ -80,10 +79,7 @@ class MessageContentMapper @Inject constructor(
     ): UIMessageContent.SystemMessage? {
         val sender = userList.findUser(userId = senderUserId)
         val isAuthorSelfAction = content.members.size == 1 && senderUserId == content.members.first()
-        val authorName = toSystemMessageMemberName(
-            user = sender,
-            type = SelfNameType.ResourceTitleCase
-        )
+        val authorName = toSystemMessageMemberName(user = sender, type = SelfNameType.ResourceTitleCase)
         val memberNameList = content.members.map {
             toSystemMessageMemberName(
                 user = userList.findUser(userId = it),
@@ -95,21 +91,13 @@ class MessageContentMapper @Inject constructor(
                 if (isAuthorSelfAction) {
                     null // we don't want to show "You added you to the conversation"
                 } else {
-                    UIMessageContent.SystemMessage.MemberAdded(
-                        author = authorName,
-                        memberNames = memberNameList
-                    )
+                    UIMessageContent.SystemMessage.MemberAdded(author = authorName, memberNames = memberNameList)
                 }
             is Removed ->
                 if (isAuthorSelfAction) {
-                    UIMessageContent.SystemMessage.MemberLeft(
-                        author = authorName
-                    )
+                    UIMessageContent.SystemMessage.MemberLeft(author = authorName)
                 } else {
-                    UIMessageContent.SystemMessage.MemberRemoved(
-                        author = authorName,
-                        memberNames = memberNameList
-                    )
+                    UIMessageContent.SystemMessage.MemberRemoved(author = authorName, memberNames = memberNameList)
                 }
         }
     }
@@ -117,23 +105,18 @@ class MessageContentMapper @Inject constructor(
     private suspend fun mapRegularMessage(
         message: Message.Regular,
     ) = when (val content = message.content) {
-        is Asset -> toAsset(
-            conversationId = message.conversationId,
-            messageId = message.id,
-            assetContent = content.value
-        )
-        is MessageContent.RestrictedAsset -> toRestrictedAsset(content.mimeType, content.sizeInBytes, content.name ?: "")
+        is Asset -> toAsset(conversationId = message.conversationId, messageId = message.id, assetContent = content.value)
+        is MessageContent.RestrictedAsset -> toRestrictedAsset(content.mimeType, content.sizeInBytes, content.name)
         else -> toText(content)
     }
 
-    fun toText(
-        content: MessageContent
-    ) = MessageBody(
+    fun toText(content: MessageContent) = MessageBody(
         when (content) {
             is MessageContent.Text -> UIText.DynamicString(content.value)
             is MessageContent.Unknown -> UIText.StringResource(
                 messageResourceProvider.sentAMessageWithContent, content.typeName ?: "Unknown"
             )
+            is MessageContent.FailedDecryption -> UIText.StringResource(R.string.label_message_decryption_failure_message)
             else -> UIText.StringResource(messageResourceProvider.sentAMessageWithContent, "Unknown")
         }
     ).let { messageBody -> UIMessageContent.TextMessage(messageBody = messageBody) }

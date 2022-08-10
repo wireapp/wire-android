@@ -14,12 +14,15 @@ import com.wire.android.media.CallRinger
 import com.wire.android.model.ImageAsset
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.util.CurrentScreen
+import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.call.ConversationType
 import com.wire.kalium.logic.data.call.VideoState
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.parseIntoQualifiedID
+import com.wire.kalium.logic.data.id.QualifiedIdMapper
+import com.wire.kalium.logic.feature.call.CallStatus
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.GetAllCallsWithSortedParticipantsUseCase
 import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
@@ -32,15 +35,19 @@ import com.wire.kalium.logic.feature.call.usecase.UpdateVideoStateUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.util.PlatformView
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel
 class SharedCallingViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
+    qualifiedIdMapper: QualifiedIdMapper,
     private val conversationDetails: ObserveConversationDetailsUseCase,
     private val allCalls: GetAllCallsWithSortedParticipantsUseCase,
     private val endCall: EndCallUseCase,
@@ -55,13 +62,16 @@ class SharedCallingViewModel @Inject constructor(
     private val uiCallParticipantMapper: UICallParticipantMapper,
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val userTypeMapper: UserTypeMapper,
+    private val currentScreenManager: CurrentScreenManager
 ) : ViewModel() {
 
     var callState by mutableStateOf(CallState())
 
-    val conversationId: QualifiedID = savedStateHandle
-        .get<String>(EXTRA_CONVERSATION_ID)!!
-        .parseIntoQualifiedID()
+    val conversationId: QualifiedID = qualifiedIdMapper.fromStringToQualifiedID(
+        checkNotNull(savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)) {
+            "No conversationId was provided via savedStateHandle to SharedCallingViewModel"
+        }
+    )
 
     init {
         viewModelScope.launch {
@@ -77,11 +87,27 @@ class SharedCallingViewModel @Inject constructor(
             launch {
                 observeOnMute()
             }
+            launch {
+                observeScreenState()
+            }
+        }
+    }
+
+    @OptIn(ExperimentalCoroutinesApi::class)
+    private suspend fun observeScreenState() {
+        currentScreenManager.observeCurrentScreen(viewModelScope).collect {
+            if (it == CurrentScreen.InBackground) {
+                pauseVideo()
+            } else if (it == CurrentScreen.OngoingCallScreen(conversationId)) {
+                unPauseVideo()
+            }
         }
     }
 
     private suspend fun observeConversationDetails() {
         conversationDetails(conversationId = conversationId)
+            .filterIsInstance<ObserveConversationDetailsUseCase.Result.Success>() // TODO handle StorageFailure
+            .map { it.conversationDetails }
             .collect { details ->
                 callState = when (details) {
                     is ConversationDetails.Group -> {
@@ -113,10 +139,12 @@ class SharedCallingViewModel @Inject constructor(
 
     private suspend fun observeOnMute() {
         snapshotFlow { callState.isMuted }.collectLatest {
-            if (it) {
-                muteCall(conversationId)
-            } else {
-                unMuteCall(conversationId)
+            it?.let {
+                if (it) {
+                    muteCall(conversationId)
+                } else {
+                    unMuteCall(conversationId)
+                }
             }
         }
     }
@@ -124,12 +152,15 @@ class SharedCallingViewModel @Inject constructor(
     private suspend fun observeCallState() {
         allCalls().collect { calls ->
             calls.find { call ->
-                call.conversationId == conversationId
-            }?.let {
+                call.conversationId == conversationId &&
+                        call.status != CallStatus.CLOSED &&
+                        call.status != CallStatus.MISSED
+            }?.let { call ->
                 callState = callState.copy(
-                    isMuted = it.isMuted,
-                    isCameraOn = it.isCameraOn,
-                    participants = it.participants.map { uiCallParticipantMapper.toUICallParticipant(it) }
+                    callerName = call.callerName,
+                    isMuted = call.isMuted,
+                    isCameraOn = call.isCameraOn,
+                    participants = call.participants.map { uiCallParticipantMapper.toUICallParticipant(it) }
                 )
             }
         }
@@ -162,28 +193,32 @@ class SharedCallingViewModel @Inject constructor(
 
     fun toggleMute() {
         viewModelScope.launch {
-            callState = if (callState.isMuted) {
-                callState.copy(isMuted = false)
-            } else {
-                callState.copy(isMuted = true)
+            callState.isMuted?.let {
+                callState = if (it) {
+                    callState.copy(isMuted = false)
+                } else {
+                    callState.copy(isMuted = true)
+                }
             }
         }
     }
 
     fun toggleVideo() {
         viewModelScope.launch {
-            callState = if (callState.isCameraOn) {
-                turnLoudSpeakerOff()
-                callState.copy(
-                    isCameraOn = false,
-                    isSpeakerOn = false
-                )
-            } else {
-                turnLoudSpeakerOn()
-                callState.copy(
-                    isCameraOn = true,
-                    isSpeakerOn = true
-                )
+            callState.isCameraOn?.let {
+                callState = if (it) {
+                    turnLoudSpeakerOff()
+                    callState.copy(
+                        isCameraOn = false,
+                        isSpeakerOn = false
+                    )
+                } else {
+                    turnLoudSpeakerOn()
+                    callState.copy(
+                        isCameraOn = true,
+                        isSpeakerOn = true
+                    )
+                }
             }
         }
     }
@@ -205,10 +240,21 @@ class SharedCallingViewModel @Inject constructor(
 
     fun pauseVideo() {
         viewModelScope.launch {
-            if (callState.isCameraOn) {
-                updateVideoState(conversationId, VideoState.PAUSED)
-                setVideoPreview(conversationId, PlatformView(null))
-                callState = callState.copy(isCameraOn = false)
+            callState.isCameraOn?.let {
+                if (it) {
+                    updateVideoState(conversationId, VideoState.PAUSED)
+                }
+            }
+        }
+    }
+
+    private fun unPauseVideo() {
+        viewModelScope.launch {
+            // We should turn on video only for established call
+            callState.isCameraOn?.let {
+                if (it && callState.participants.isNotEmpty()) {
+                    updateVideoState(conversationId, VideoState.STARTED)
+                }
             }
         }
     }

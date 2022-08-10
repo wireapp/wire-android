@@ -1,13 +1,12 @@
 package com.wire.android.util.ui
 
 import android.content.res.Resources
-import coil.ImageLoader
 import coil.fetch.FetchResult
 import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.model.ImageAsset
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.id.parseIntoQualifiedID
+import com.wire.kalium.logic.data.user.AssetId
 import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
@@ -27,9 +26,9 @@ internal class AssetImageFetcherTest {
     @Test
     fun givenAUserAvatarAssetData_WhenCallingFetch_ThenGetPublicAssetUseCaseGetsInvoked() = runTest {
         // Given
-        val someUserAssetId = "value@domain"
+        val someUserAssetId = AssetId("value", "domain")
         val someDummyData = "some-dummy-data".toByteArray()
-        val data = ImageAsset.UserAvatarAsset(mockk(), someUserAssetId.parseIntoQualifiedID())
+        val data = ImageAsset.UserAvatarAsset(mockk(), someUserAssetId)
         val avatarPath = fakeKaliumFileSystem.selfUserAvatarPath()
         val (arrangement, assetImageFetcher) = Arrangement()
             .withSuccessfulImageData(data, avatarPath, someDummyData.size.toLong())
@@ -67,8 +66,8 @@ internal class AssetImageFetcherTest {
     @Test
     fun givenAUserAvatarAssetData_WhenCallingFetchUnsuccessfully_ThenFetchResultIsNotReturned() = runTest {
         // Given
-        val someUserAssetId = "value@domain"
-        val data = ImageAsset.UserAvatarAsset(mockk(), someUserAssetId.parseIntoQualifiedID())
+        val someUserAssetId = AssetId("value", "domain")
+        val data = ImageAsset.UserAvatarAsset(mockk(), someUserAssetId)
         val (arrangement, assetImageFetcher) = Arrangement().withErrorResponse(data).arrange()
 
         // When
@@ -90,7 +89,7 @@ internal class AssetImageFetcherTest {
         assetImageFetcher.fetch()
 
         // Then
-        coVerify(inverse = true) { arrangement.drawableResultWrapper.toFetchResult(decodedAssetSource = any()) }
+        coVerify(inverse = true) { arrangement.drawableResultWrapper.toFetchResult(any()) }
     }
 
     private class Arrangement {

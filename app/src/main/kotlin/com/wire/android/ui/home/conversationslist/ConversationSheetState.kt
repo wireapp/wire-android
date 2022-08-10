@@ -5,9 +5,12 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.stringResource
+import com.wire.android.R
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationOptionNavigation
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationTypeDetail
+import com.wire.android.ui.home.conversationslist.model.BlockingState
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
@@ -47,7 +50,7 @@ fun rememberConversationSheetState(
             with(conversationItem) {
                 ConversationSheetContent(
                     conversationId = conversationId,
-                    title = groupName,
+                    title = groupName.ifEmpty { stringResource(id = R.string.member_name_deleted_label) },
                     mutingConversationState = mutedStatus,
                     conversationTypeDetail = ConversationTypeDetail.Group(
                         conversationId = conversationId
@@ -62,7 +65,9 @@ fun rememberConversationSheetState(
                     title = conversationInfo.name,
                     mutingConversationState = mutedStatus,
                     conversationTypeDetail = ConversationTypeDetail.Private(
-                        userAvatarData.asset
+                        userAvatarData.asset,
+                        userId,
+                        blockingState == BlockingState.NOT_BLOCKED
                     )
                 )
             }
@@ -73,7 +78,7 @@ fun rememberConversationSheetState(
                     conversationId = conversationId,
                     title = conversationInfo.name,
                     mutingConversationState = mutedStatus,
-                    conversationTypeDetail = ConversationTypeDetail.Private(
+                    conversationTypeDetail = ConversationTypeDetail.Connection(
                         userAvatarData.asset
                     )
                 )

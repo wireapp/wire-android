@@ -12,8 +12,9 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.LegalHoldStatus
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
-import com.wire.kalium.logic.data.conversation.ProtocolInfo
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
@@ -26,6 +27,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Test
@@ -186,7 +188,7 @@ class GroupConversationDetailsViewModelTest {
             .arrange()
 
         viewModel.onGuestUpdate(false)
-        assertEquals(true, viewModel.groupOptionsState.isGuestUpdateDialogShown)
+        assertEquals(true, viewModel.groupOptionsState.changeGuestOptionConformationRequired)
     }
 
     @Test
@@ -213,7 +215,7 @@ class GroupConversationDetailsViewModelTest {
             .arrange()
 
         viewModel.onGuestDialogConfirm()
-        assertEquals(false, viewModel.groupOptionsState.isGuestUpdateDialogShown)
+        assertEquals(false, viewModel.groupOptionsState.changeGuestOptionConformationRequired)
         coVerify(exactly = 1) {
             arrangement.updateConversationAccessRoleUseCase(
                 conversationId = details.conversation.id,
@@ -295,18 +297,22 @@ class GroupConversationDetailsViewModelTest {
     companion object {
         val testGroup = ConversationDetails.Group(
             Conversation(
-                ConversationId("conv_id", "domain"),
-                "Conv Name",
-                Conversation.Type.ONE_ON_ONE,
-                TeamId("team_id"),
-                ProtocolInfo.Proteus,
-                MutedConversationStatus.AllAllowed,
-                null,
-                null,
+                id = ConversationId("conv_id", "domain"),
+                name = "Conv Name",
+                type = Conversation.Type.ONE_ON_ONE,
+                teamId = TeamId("team_id"),
+                protocol = Conversation.ProtocolInfo.Proteus,
+                mutedStatus = MutedConversationStatus.AllAllowed,
+                removedBy = null,
+                lastNotificationDate = null,
+                lastModifiedDate = null,
                 access = listOf(Conversation.Access.CODE, Conversation.Access.INVITE),
-                accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER, Conversation.AccessRole.GUEST)
+                accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER, Conversation.AccessRole.GUEST),
+                lastReadDate = "2022-04-04T16:11:28.388Z"
             ),
-            legalHoldStatus = LegalHoldStatus.DISABLED
+            legalHoldStatus = LegalHoldStatus.DISABLED,
+            hasOngoingCall = false,
+            unreadMessagesCount = 0L
         )
     }
 }
@@ -328,6 +334,9 @@ internal class GroupConversationDetailsViewModelArrangement {
     @MockK
     lateinit var updateConversationAccessRoleUseCase: UpdateConversationAccessRoleUseCase
 
+    @MockK
+    private lateinit var qualifiedIdMapper: QualifiedIdMapper
+
     private val conversationDetailsChannel = Channel<ConversationDetails>(capacity = Channel.UNLIMITED)
 
     private val observeParticipantsForConversationChannel = Channel<ConversationParticipantsData>(capacity = Channel.UNLIMITED)
@@ -340,6 +349,7 @@ internal class GroupConversationDetailsViewModelArrangement {
             updateConversationAccessRoleUseCase,
             dispatcher = TestDispatcherProvider(),
             savedStateHandle,
+            qualifiedIdMapper = qualifiedIdMapper
         )
     }
 
@@ -351,6 +361,12 @@ internal class GroupConversationDetailsViewModelArrangement {
         // Default empty values
         coEvery { observeConversationDetails(any()) } returns flowOf()
         coEvery { observeParticipantsForConversationUseCase(any(), any()) } returns flowOf()
+        coEvery {
+            qualifiedIdMapper.fromStringToQualifiedID("some-dummy-value@some.dummy.domain")
+        } returns QualifiedID("some-dummy-value", "some.dummy.domain")
+        coEvery {
+            qualifiedIdMapper.fromStringToQualifiedID("conv_id@domain")
+        } returns QualifiedID("conv_id", "domain")
     }
 
     fun withSavedStateConversationId(conversationId: ConversationId) = apply {
@@ -358,7 +374,8 @@ internal class GroupConversationDetailsViewModelArrangement {
     }
 
     suspend fun withConversationDetailUpdate(conversationDetails: ConversationDetails) = apply {
-        coEvery { observeConversationDetails(any()) } returns conversationDetailsChannel.consumeAsFlow()
+        coEvery { observeConversationDetails(any()) }returns conversationDetailsChannel.consumeAsFlow()
+            .map { ObserveConversationDetailsUseCase.Result.Success(it) }
         conversationDetailsChannel.send(conversationDetails)
     }
 

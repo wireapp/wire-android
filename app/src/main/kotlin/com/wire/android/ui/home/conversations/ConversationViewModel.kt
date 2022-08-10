@@ -5,9 +5,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.model.ImageAsset.PrivateAsset
 import com.wire.android.model.ImageAsset.UserAvatarAsset
+import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.EXTRA_MESSAGE_TO_DELETE_ID
 import com.wire.android.navigation.EXTRA_MESSAGE_TO_DELETE_IS_SELF
@@ -26,16 +28,19 @@ import com.wire.android.ui.home.conversations.DownloadedAssetDialogVisibilitySta
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.ui.home.conversations.model.MessageContent.AssetMessage
-import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.MessageSource
+import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
 import com.wire.android.util.FileManager
 import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
+import com.wire.android.util.ui.toUIText
+import com.wire.kalium.logic.StorageFailure
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.conversation.ConversationDetails
-import com.wire.kalium.logic.data.id.parseIntoQualifiedID
+import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.FAILED
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.IN_PROGRESS
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.SAVED_EXTERNALLY
@@ -51,6 +56,8 @@ import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase.Result.Failure
+import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase.Result.Success
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
@@ -70,6 +77,7 @@ import com.wire.kalium.logic.data.id.QualifiedID as ConversationId
 class ConversationViewModel @Inject constructor(
     override val savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
+    qualifiedIdMapper: QualifiedIdMapper,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val sendAssetMessage: SendAssetMessageUseCase,
     private val sendTextMessage: SendTextMessageUseCase,
@@ -100,9 +108,9 @@ class ConversationViewModel @Inject constructor(
     )
         private set
 
-    val conversationId: ConversationId = savedStateHandle
-        .get<String>(EXTRA_CONVERSATION_ID)!!
-        .parseIntoQualifiedID()
+    val conversationId: ConversationId = qualifiedIdMapper.fromStringToQualifiedID(
+        savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!
+    )
 
     var establishedCallConversationId: ConversationId? = null
 
@@ -129,31 +137,58 @@ class ConversationViewModel @Inject constructor(
     }
 
     private fun listenConversationDetails() = viewModelScope.launch {
-        observeConversationDetails(conversationId).collect { conversationDetails ->
-            val conversationName = when (conversationDetails) {
-                is ConversationDetails.OneOne -> conversationDetails.otherUser.name.orEmpty()
-                else -> conversationDetails.conversation.name.orEmpty()
+        observeConversationDetails(conversationId)
+            .collect { result ->
+                when (result) {
+                    is Failure -> handleConversationDetailsFailure(result.storageFailure)
+                    is Success -> handleConversationDetails(result.conversationDetails)
+                }
             }
-            val conversationAvatar = when (conversationDetails) {
-                is ConversationDetails.OneOne ->
-                    ConversationAvatar.OneOne(conversationDetails.otherUser.previewPicture?.let {
-                        UserAvatarAsset(wireSessionImageLoader, it)
-                    })
-                is ConversationDetails.Group ->
-                    ConversationAvatar.Group(conversationDetails.conversation.id)
-                else -> ConversationAvatar.None
-            }
-            val conversationDetailsData = when (conversationDetails) {
-                is ConversationDetails.Group -> ConversationDetailsData.Group(conversationDetails.conversation.id)
-                is ConversationDetails.OneOne -> ConversationDetailsData.OneOne(conversationDetails.otherUser.id)
-                else -> ConversationDetailsData.None
-            }
-            conversationViewState = conversationViewState.copy(
-                conversationName = conversationName,
-                conversationAvatar = conversationAvatar,
-                conversationDetailsData = conversationDetailsData
-            )
+    }
+
+    /**
+     * TODO: This right now handles only the case when a conversation details doesn't exists.
+     * Later we'll have to expand the error cases to different behaviors
+     */
+    private suspend fun handleConversationDetailsFailure(failure: StorageFailure) {
+        when (failure) {
+            is StorageFailure.DataNotFound -> navigateToHome()
+            is StorageFailure.Generic -> appLogger.e("An error occurred when fetching details of the conversation", failure.rootCause)
         }
+    }
+
+    private fun handleConversationDetails(conversationDetails: ConversationDetails) {
+        val conversationName = when (conversationDetails) {
+            is ConversationDetails.OneOne -> conversationDetails.otherUser.name.orEmpty()
+            else -> conversationDetails.conversation.name.orEmpty()
+        }.let {
+            if (it.isNotEmpty()) it.toUIText()
+            else UIText.StringResource(R.string.member_name_deleted_label)
+        }
+        val conversationAvatar = when (conversationDetails) {
+            is ConversationDetails.OneOne ->
+                ConversationAvatar.OneOne(
+                    conversationDetails.otherUser.previewPicture?.let {
+                        UserAvatarAsset(wireSessionImageLoader, it)
+                    },
+                    conversationDetails.otherUser.availabilityStatus
+                )
+            is ConversationDetails.Group -> ConversationAvatar.Group(conversationDetails.conversation.id)
+            else -> ConversationAvatar.None
+        }
+        val conversationDetailsData = when (conversationDetails) {
+            is ConversationDetails.Group -> ConversationDetailsData.Group(conversationDetails.conversation.id)
+            is ConversationDetails.OneOne -> ConversationDetailsData.OneOne(
+                conversationDetails.otherUser.id,
+                conversationDetails.otherUser.connectionStatus
+            )
+            else -> ConversationDetailsData.None
+        }
+        conversationViewState = conversationViewState.copy(
+            conversationName = conversationName,
+            conversationAvatar = conversationAvatar,
+            conversationDetailsData = conversationDetailsData
+        )
     }
 
     private fun fetchSelfUserTeam() = viewModelScope.launch {
@@ -539,13 +574,16 @@ class ConversationViewModel @Inject constructor(
         viewModelScope.launch {
             when (messageSource) {
                 MessageSource.Self -> navigateToSelfProfile()
-                MessageSource.OtherUser -> when(conversationViewState.conversationDetailsData) {
+                MessageSource.OtherUser -> when (conversationViewState.conversationDetailsData) {
                     is ConversationDetailsData.Group -> navigateToOtherProfile(userId, conversationId)
                     else -> navigateToOtherProfile(userId)
                 }
             }
         }
     }
+
+    private suspend fun navigateToHome() =
+        navigationManager.navigate(NavigationCommand(NavigationItem.Home.getRouteWithArgs(), BackStackMode.UPDATE_EXISTED))
 
     private suspend fun navigateToSelfProfile() =
         navigationManager.navigate(NavigationCommand(NavigationItem.SelfUserProfile.getRouteWithArgs()))

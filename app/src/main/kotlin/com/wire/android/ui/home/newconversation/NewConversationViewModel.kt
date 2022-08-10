@@ -28,6 +28,7 @@ import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
 import com.wire.kalium.logic.feature.publicuser.search.Result
 import com.wire.kalium.logic.feature.publicuser.search.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchUsersUseCase
+import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
 import com.wire.kalium.logic.functional.Either
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -41,6 +42,7 @@ class NewConversationViewModel @Inject constructor(
     private val searchPublicUsers: SearchUsersUseCase,
     private val createGroupConversation: CreateGroupConversationUseCase,
     private val contactMapper: ContactMapper,
+    isMLSEnabled: IsMLSEnabledUseCase,
     dispatchers: DispatcherProvider,
     sendConnectionRequest: SendConnectionRequestUseCase,
     navigationManager: NavigationManager
@@ -49,7 +51,7 @@ class NewConversationViewModel @Inject constructor(
         const val GROUP_NAME_MAX_COUNT = 64
     }
 
-    var groupNameState: NewGroupState by mutableStateOf(NewGroupState())
+    var groupNameState: NewGroupState by mutableStateOf(NewGroupState(mlsEnabled = isMLSEnabled()))
 
     var groupOptionsState: GroupOptionState by mutableStateOf(GroupOptionState())
 
@@ -69,7 +71,7 @@ class NewConversationViewModel @Inject constructor(
             )
         }
 
-    override suspend fun searchKnownUsersUseCase(searchTerm: String) =
+    override suspend fun searchKnownUsersUseCase(searchTerm: String, selfUserIncluded: Boolean) =
         when (val result = searchKnownUsers(searchTerm)) {
             is Result.Failure.Generic, Result.Failure.InvalidRequest -> {
                 SearchResult.Failure(R.string.label_general_error)

@@ -44,10 +44,10 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel, syncViewModel: Sy
     val homeState = syncViewModel.homeState
     val snackbarHostState = remember { SnackbarHostState() }
 
-    handleSnackBarMessage(snackbarHostState, viewModel.snackbarMessageState, viewModel::clearSnackbarMessage)
+    handleSnackBarMessage(snackbarHostState, homeUIState.snackbarState, homeUIState::clearSnackbarMessage)
 
     LaunchedEffect(viewModel.savedStateHandle) {
-        viewModel.checkPendingActions()
+        viewModel.checkPendingSnackbarState()?.let(homeUIState::setSnackBarState)
     }
 
     with(homeUIState) {
@@ -205,6 +205,9 @@ private fun handleSnackBarMessage(
         val message = when (messageType) {
             is HomeSnackbarState.SuccessConnectionIgnoreRequest ->
                 stringResource(id = R.string.connection_request_ignored, messageType.userName)
+            is HomeSnackbarState.BlockingUserOperationSuccess -> stringResource(id = R.string.blocking_user_success, messageType.userName)
+            HomeSnackbarState.MutingOperationError -> stringResource(id = R.string.error_updating_muting_setting)
+            HomeSnackbarState.BlockingUserOperationError -> stringResource(id = R.string.error_blocking_user)
             HomeSnackbarState.None -> ""
         }
         LaunchedEffect(messageType) {

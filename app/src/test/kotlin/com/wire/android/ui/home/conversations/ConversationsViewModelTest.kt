@@ -3,14 +3,15 @@ package com.wire.android.ui.home.conversations
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
-import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.ui.home.conversations.ConversationViewModel.Companion.ASSET_SIZE_DEFAULT_LIMIT_BYTES
 import com.wire.android.ui.home.conversations.ConversationViewModel.Companion.IMAGE_SIZE_LIMIT_BYTES
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.ui.home.conversations.model.MessageSource
+import com.wire.android.util.EMPTY
+import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.ConversationDetails
-import com.wire.kalium.logic.data.id.parseIntoQualifiedID
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.util.fileExtension
 import com.wire.kalium.logic.data.user.UserId
@@ -142,7 +143,11 @@ class ConversationsViewModelTest {
             .arrange()
 
         // When - Then
-        assertEquals(oneToOneConversationDetails.otherUser.name, viewModel.conversationViewState.conversationName)
+        assert(viewModel.conversationViewState.conversationName is UIText.DynamicString)
+        assertEquals(
+            oneToOneConversationDetails.otherUser.name,
+            (viewModel.conversationViewState.conversationName as UIText.DynamicString).value
+        )
     }
 
     @Test
@@ -155,7 +160,11 @@ class ConversationsViewModelTest {
             .arrange()
 
         // When - Then
-        assertEquals(groupConversationDetails.conversation.name, viewModel.conversationViewState.conversationName)
+        assert(viewModel.conversationViewState.conversationName is UIText.DynamicString)
+        assertEquals(
+            groupConversationDetails.conversation.name,
+            (viewModel.conversationViewState.conversationName as UIText.DynamicString).value
+        )
     }
 
     @Test
@@ -171,11 +180,47 @@ class ConversationsViewModelTest {
             .arrange()
 
         // When - Then
-        assertEquals(firstConversationDetails.conversation.name, viewModel.conversationViewState.conversationName)
+        assert(viewModel.conversationViewState.conversationName is UIText.DynamicString)
+        assertEquals(
+            firstConversationDetails.conversation.name,
+            (viewModel.conversationViewState.conversationName as UIText.DynamicString).value
+        )
 
         // When - Then
         arrangement.withConversationDetailUpdate(conversationDetails = secondConversationDetails)
-        assertEquals(secondConversationDetails.conversation.name, viewModel.conversationViewState.conversationName)
+        assert(viewModel.conversationViewState.conversationName is UIText.DynamicString)
+        assertEquals(
+            secondConversationDetails.conversation.name,
+            (viewModel.conversationViewState.conversationName as UIText.DynamicString).value
+        )
+    }
+
+    @Test
+    fun `given the initial state, when solving the conversation name before the data is received, the name should be an empty string`() =
+        runTest {
+            // Given
+            val (_, viewModel) = ConversationsViewModelArrangement()
+                .withSuccessfulViewModelInit()
+                .arrange()
+
+            // When - Then
+            assert(viewModel.conversationViewState.conversationName is UIText.DynamicString)
+            assertEquals(String.EMPTY, (viewModel.conversationViewState.conversationName as UIText.DynamicString).value)
+        }
+
+    @Test
+    fun `given a 1 on 1 conversation, when the user is deleted, then the name of the conversation should be a string resource`() = runTest {
+        // Given
+        val oneToOneConversationDetails = withMockConversationDetailsOneOnOne("")
+        val (_, viewModel) = ConversationsViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .withConversationDetailUpdate(
+                conversationDetails = oneToOneConversationDetails
+            )
+            .arrange()
+
+        // When - Then
+        assert(viewModel.conversationViewState.conversationName is UIText.StringResource)
     }
 
     @Test
@@ -285,7 +330,7 @@ class ConversationsViewModelTest {
     @Test
     fun `given a 1 on 1 conversation, when solving the conversation avatar, then the avatar of the other user is used`() = runTest {
         // Given
-        val conversationDetails = withMockConversationDetailsOneOnOne("", "userAssetId@domain".parseIntoQualifiedID())
+        val conversationDetails = withMockConversationDetailsOneOnOne("", ConversationId("userAssetId", "domain"))
         val otherUserAvatar = conversationDetails.otherUser.previewPicture
         val (_, viewModel) = ConversationsViewModelArrangement()
             .withSuccessfulViewModelInit()
@@ -403,71 +448,71 @@ class ConversationsViewModelTest {
 
     @Test
     fun `given self user 1on1 message, when clicking on avatar, then open self profile`() = runTest {
-            // Given
-            val oneOneDetails = withMockConversationDetailsOneOnOne("Other User Name Goes Here")
-            val messageSource = MessageSource.Self
-            val userId = UserId("id", "domain")
-            val (arrangement, viewModel) = ConversationsViewModelArrangement()
-                .withConversationDetailUpdate(oneOneDetails)
-                .arrange()
-            // When
-            viewModel.navigateToProfile(messageSource, userId)
-            // Then
-            coVerify(exactly = 1) {
-                arrangement.navigationManager.navigate(NavigationCommand(NavigationItem.SelfUserProfile.getRouteWithArgs()))
-            }
+        // Given
+        val oneOneDetails = withMockConversationDetailsOneOnOne("Other User Name Goes Here")
+        val messageSource = MessageSource.Self
+        val userId = UserId("id", "domain")
+        val (arrangement, viewModel) = ConversationsViewModelArrangement()
+            .withConversationDetailUpdate(oneOneDetails)
+            .arrange()
+        // When
+        viewModel.navigateToProfile(messageSource, userId)
+        // Then
+        coVerify(exactly = 1) {
+            arrangement.navigationManager.navigate(NavigationCommand(NavigationItem.SelfUserProfile.getRouteWithArgs()))
         }
+    }
 
     @Test
     fun `given self user group message, when clicking on avatar, then open self profile`() = runTest {
-            // Given
-            val groupDetails = mockConversationDetailsGroup("Conversation Name Goes Here")
-            val messageSource = MessageSource.Self
-            val userId = UserId("id", "domain")
-            val (arrangement, viewModel) = ConversationsViewModelArrangement()
-                .withConversationDetailUpdate(groupDetails)
-                .arrange()
-            // When
-            viewModel.navigateToProfile(messageSource, userId)
-            // Then
-            coVerify(exactly = 1) {
-                arrangement.navigationManager.navigate(NavigationCommand(NavigationItem.SelfUserProfile.getRouteWithArgs()))
-            }
+        // Given
+        val groupDetails = mockConversationDetailsGroup("Conversation Name Goes Here")
+        val messageSource = MessageSource.Self
+        val userId = UserId("id", "domain")
+        val (arrangement, viewModel) = ConversationsViewModelArrangement()
+            .withConversationDetailUpdate(groupDetails)
+            .arrange()
+        // When
+        viewModel.navigateToProfile(messageSource, userId)
+        // Then
+        coVerify(exactly = 1) {
+            arrangement.navigationManager.navigate(NavigationCommand(NavigationItem.SelfUserProfile.getRouteWithArgs()))
         }
+    }
 
     @Test
     fun `given other user 1on1 message, when clicking on avatar, then open other user profile without group data`() = runTest {
-            // Given
-            val oneOneDetails: ConversationDetails.OneOne = withMockConversationDetailsOneOnOne("Other User Name Goes Here")
-            val messageSource = MessageSource.OtherUser
-            val userId = UserId("id", "domain")
-            val (arrangement, viewModel) = ConversationsViewModelArrangement()
-                .withConversationDetailUpdate(oneOneDetails)
-                .arrange()
-            // When
-            viewModel.navigateToProfile(messageSource, userId)
-            // Then
-            coVerify(exactly = 1) {
-                arrangement.navigationManager.navigate(NavigationCommand(NavigationItem.OtherUserProfile.getRouteWithArgs(listOf(userId))))
-            }
+        // Given
+        val oneOneDetails: ConversationDetails.OneOne = withMockConversationDetailsOneOnOne("Other User Name Goes Here")
+        val messageSource = MessageSource.OtherUser
+        val userId = UserId("id", "domain")
+        val (arrangement, viewModel) = ConversationsViewModelArrangement()
+            .withConversationDetailUpdate(oneOneDetails)
+            .arrange()
+        // When
+        viewModel.navigateToProfile(messageSource, userId)
+        // Then
+        coVerify(exactly = 1) {
+            arrangement.navigationManager.navigate(NavigationCommand(NavigationItem.OtherUserProfile.getRouteWithArgs(listOf(userId))))
         }
+    }
 
     @Test
     fun `given other user group message, when clicking on avatar, then open other user profile with group data`() = runTest {
-            // Given
-            val groupDetails: ConversationDetails.Group = mockConversationDetailsGroup("Conversation Name Goes Here")
-            val messageSource = MessageSource.OtherUser
-            val userId = UserId("id", "domain")
-            val (arrangement, viewModel) = ConversationsViewModelArrangement()
-                .withConversationDetailUpdate(groupDetails)
-                .arrange()
-            // When
-            viewModel.navigateToProfile(messageSource, userId)
-            // Then
-            coVerify(exactly = 1) {
-                arrangement.navigationManager.navigate(
-                    NavigationCommand(NavigationItem.OtherUserProfile.getRouteWithArgs(listOf(userId, arrangement.conversationId)))
-                )
-            }
+        // Given
+        val groupDetails: ConversationDetails.Group = mockConversationDetailsGroup("Conversation Name Goes Here")
+        val messageSource = MessageSource.OtherUser
+        val userId = UserId("id", "domain")
+        val (arrangement, viewModel) = ConversationsViewModelArrangement()
+            .withConversationDetailUpdate(groupDetails)
+            .arrange()
+        // When
+        viewModel.navigateToProfile(messageSource, userId)
+        // Then
+        coVerify(exactly = 1) {
+            arrangement.navigationManager.navigate(
+                NavigationCommand(NavigationItem.OtherUserProfile.getRouteWithArgs(listOf(userId, arrangement.conversationId)))
+            )
         }
+    }
 }

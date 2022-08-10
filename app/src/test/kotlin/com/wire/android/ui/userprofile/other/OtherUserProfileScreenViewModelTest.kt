@@ -13,6 +13,7 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.details.participants.usecase.ConversationRoleData
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.CoreFailure.Unknown
 import com.wire.kalium.logic.data.conversation.Conversation
@@ -30,6 +31,7 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCase
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCaseResult
+import com.wire.kalium.logic.feature.connection.BlockUserResult
 import com.wire.kalium.logic.feature.connection.BlockUserUseCase
 import com.wire.kalium.logic.feature.connection.CancelConnectionRequestUseCase
 import com.wire.kalium.logic.feature.connection.CancelConnectionRequestUseCaseResult
@@ -39,10 +41,10 @@ import com.wire.kalium.logic.feature.connection.SendConnectionRequestResult
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
 import com.wire.kalium.logic.feature.conversation.CreateConversationResult
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
-import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
-import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleResult
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUseCase
+import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
+import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
 import com.wire.kalium.logic.feature.user.GetUserInfoUseCase
 import io.mockk.Called
@@ -358,6 +360,51 @@ class OtherUserProfileScreenViewModelTest {
                     navigationManager wasNot Called
                 }
                 assertEquals(InfoMessageType.ChangeGroupRoleError.uiText, awaitItem())
+            }
+        }
+
+    @Test
+    fun `given a userId, when blocking user fails, then show error message and dismiss BlockDialog`() =
+        runTest {
+            // given
+            coEvery { blockUser(any()) } returns BlockUserResult.Failure(Unknown(RuntimeException("some error")))
+            otherUserProfileScreenViewModel.infoMessage.test {
+
+                // when
+                expectNoEvents()
+                otherUserProfileScreenViewModel.blockUser(USER_ID, "some name")
+
+                // then
+                coVerify {
+                    blockUser(eq(USER_ID))
+                }
+                assertEquals(InfoMessageType.BlockingUserOperationError.uiText, awaitItem())
+                assertEquals(null, otherUserProfileScreenViewModel.state.blockUserDialogState)
+            }
+        }
+
+    @Test
+    fun `given a userId, when blocking user is succeed, then returns show Success message and dismiss BlockDialog`() =
+        runTest {
+            // given
+            coEvery { blockUser(any()) } returns BlockUserResult.Success
+            initViewModel()
+            otherUserProfileScreenViewModel.infoMessage.test {
+                val userName = "some name"
+
+                // when
+                expectNoEvents()
+                otherUserProfileScreenViewModel.blockUser(USER_ID, userName)
+
+                // then
+                coVerify {
+                    blockUser(eq(USER_ID))
+                }
+                assertEquals(
+                    (awaitItem() as UIText.StringResource).resId,
+                    (InfoMessageType.BlockingUserOperationSuccess(userName).uiText as UIText.StringResource).resId
+                )
+                assertEquals(null, otherUserProfileScreenViewModel.state.blockUserDialogState)
             }
         }
 

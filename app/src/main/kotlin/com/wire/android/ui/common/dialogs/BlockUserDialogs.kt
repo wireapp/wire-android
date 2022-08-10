@@ -11,9 +11,6 @@ import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.kalium.logic.data.user.UserId
 
-@Suppress("MatchingDeclarationName")
-data class BlockUserDialogState(val userName: String, val userId: UserId)
-
 @Composable
 fun BlockUserDialogContent(
     state: BlockUserDialogState?,
@@ -48,6 +45,9 @@ private fun BlockUserDialog(
         )
     )
 }
+
+@Suppress("MatchingDeclarationName")
+data class BlockUserDialogState(val userName: String, val userId: UserId)
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = false)

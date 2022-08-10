@@ -441,7 +441,7 @@ fun OtherProfileScreenContentNotConnectedPreview() {
             rememberCoroutineScope(),
             OtherUserProfileState.PREVIEW.copy(connectionState = ConnectionState.CANCELLED),
             rememberModalBottomSheetState(ModalBottomSheetValue.Hidden),
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {},{}, { _, _ -> }, { _, _ -> }, { _, _ -> }, {}, {}, {}, {}, {}, {}, {}
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, { _, _ -> }, { _, _ -> }, { _, _ -> }, {}, {}, {}, {}, {}, {}, {}
         )
     }
 }

@@ -8,16 +8,15 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.platformLogWriter
-import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.util.DataDogLogger
 import com.wire.android.util.LogFileWriter
 import com.wire.kalium.logger.KaliumLogLevel
 import com.wire.kalium.logic.CoreLogger
-import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountResult
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountUseCase
-import com.wire.kalium.logic.feature.user.EnableLoggingUseCase
-import com.wire.kalium.logic.feature.user.IsLoggingEnabledUseCase
+import com.wire.kalium.logic.feature.user.loggingStatus.EnableLoggingUseCase
+import com.wire.kalium.logic.feature.user.loggingStatus.IsLoggingEnabledUseCase
+import com.wire.kalium.logic.feature.user.webSocketStatus.IsWebSocketEnabledUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -28,10 +27,11 @@ class DebugScreenViewModel
     private val mlsKeyPackageCountUseCase: MLSKeyPackageCountUseCase,
     private val enableLoggingUseCase: EnableLoggingUseCase,
     private val logFileWriter: LogFileWriter,
-    @KaliumCoreLogic private val coreLogic: CoreLogic,
-    isLoggingEnabledUseCase: IsLoggingEnabledUseCase
+    isLoggingEnabledUseCase: IsLoggingEnabledUseCase,
+    isWebSocketEnabledUseCase: IsWebSocketEnabledUseCase
 ) : ViewModel() {
     var isLoggingEnabled by mutableStateOf(isLoggingEnabledUseCase())
+    var isWebSocketEnabled by mutableStateOf(isWebSocketEnabledUseCase())
 
     var mlsData by mutableStateOf(listOf<String>())
 
@@ -60,7 +60,8 @@ class DebugScreenViewModel
         logFileWriter.deleteAllLogFiles()
     }
 
-    fun test(context: Context) {
+    fun setWebSocketState(isEnabled: Boolean, context: Context) {
+        isWebSocketEnabled = isEnabled
         context.startService(Intent(context, PersistentWebSocketService::class.java))
     }
 

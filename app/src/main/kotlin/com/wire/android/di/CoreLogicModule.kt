@@ -538,6 +538,16 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun provideIsWebSocketEnabledUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
+        coreLogic.getGlobalScope().isWebSocketEnabled
+
+    @ViewModelScoped
+    @Provides
+    fun provideEnableWebSocketUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
+        coreLogic.getGlobalScope().enableWebSocket
+
+    @ViewModelScoped
+    @Provides
     fun provideGetUserInfoUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): GetUserInfoUseCase =
         coreLogic.getSessionScope(currentAccount).users.getUserInfo
 

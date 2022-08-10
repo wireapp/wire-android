@@ -74,11 +74,11 @@ class PersistentWebSocketService : Service() {
         coreLogic.sessionRepository.currentSession().fold({
 
         }, { authSession ->
-            coreLogic.getSessionScope(authSession.tokens.userId).setConnectionPolicy(ConnectionPolicy.KEEP_ALIVE)
+            coreLogic.getSessionScope(authSession.session.userId).setConnectionPolicy(ConnectionPolicy.KEEP_ALIVE)
 
             val observeUserId = currentSessionFlow()
                 .map { result ->
-                    if (result is CurrentSessionResult.Success) result.authSession.tokens.userId
+                    if (result is CurrentSessionResult.Success) result.authSession.session.userId
                     else null
                 }
                 .distinctUntilChanged()
@@ -100,10 +100,10 @@ class PersistentWebSocketService : Service() {
 
     }
 
-    //Notififcation for ON-going
+    //Notifications for ON-going
     private var iconNotification: Bitmap? = null
     private var notification: Notification? = null
-    var mNotificationManager: NotificationManager? = null
+    private var mNotificationManager: NotificationManager? = null
     private val mNotificationId = 123
 
     private fun generateForegroundNotification() {

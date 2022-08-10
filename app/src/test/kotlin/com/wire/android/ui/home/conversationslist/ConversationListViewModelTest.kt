@@ -21,6 +21,7 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.AnswerCallUseCase
 import com.wire.kalium.logic.feature.connection.BlockUserUseCase
 import com.wire.kalium.logic.feature.connection.BlockUserResult
+import com.wire.kalium.logic.feature.conversation.ConversationListDetails
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationsAndConnectionsUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
@@ -82,7 +83,7 @@ class ConversationListViewModelTest {
                 UserTypeMapper()
             )
 
-        coEvery { observeConversationsAndConnections() } returns flowOf(listOf())
+        coEvery { observeConversationsAndConnections() } returns flowOf(ConversationListDetails(listOf(), 0L, 0L, 0L))
     }
 
     @Test

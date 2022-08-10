@@ -70,7 +70,12 @@ open class LoginViewModel @Inject constructor(
                     if (it.session is AuthSession.Session.Invalid) {
                         with(it.session as AuthSession.Session.Invalid) {
                             val loginError = when (this.reason) {
-                                LogoutReason.SELF_LOGOUT -> LoginError.None
+                                LogoutReason.SELF_LOGOUT -> {
+                                    userSessionsUseCaseFactory.create().sessionsUseCase
+                                        .deleteInvalidSession(userId)
+                                    LoginError.None
+                                }
+
                                 LogoutReason.REMOVED_CLIENT -> LoginError.DialogError.InvalidSession.RemovedClient
                                 LogoutReason.DELETED_ACCOUNT -> LoginError.DialogError.InvalidSession.DeletedAccount
                                 LogoutReason.SESSION_EXPIRED -> LoginError.DialogError.InvalidSession.SessionExpired

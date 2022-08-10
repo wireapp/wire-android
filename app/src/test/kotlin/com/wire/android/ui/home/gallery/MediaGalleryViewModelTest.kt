@@ -233,9 +233,10 @@ class MediaGalleryViewModelTest {
                 teamId = null,
                 protocol = Conversation.ProtocolInfo.Proteus,
                 mutedStatus = AllAllowed,
+                removedBy = null,
                 lastNotificationDate = null,
                 lastModifiedDate = null,
-                lastReadDate = null,
+                lastReadDate = "2022-04-04T16:11:28.388Z",
                 access = listOf(Conversation.Access.INVITE),
                 accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER)
             ),

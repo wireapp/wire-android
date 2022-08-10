@@ -42,7 +42,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel
 class SharedCallingViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
@@ -98,6 +98,8 @@ class SharedCallingViewModel @Inject constructor(
         currentScreenManager.observeCurrentScreen(viewModelScope).collect {
             if (it == CurrentScreen.InBackground) {
                 pauseVideo()
+            } else if (it == CurrentScreen.OngoingCallScreen(conversationId)) {
+                unPauseVideo()
             }
         }
     }
@@ -241,7 +243,17 @@ class SharedCallingViewModel @Inject constructor(
             callState.isCameraOn?.let {
                 if (it) {
                     updateVideoState(conversationId, VideoState.PAUSED)
-                    setVideoPreview(conversationId, PlatformView(null))
+                }
+            }
+        }
+    }
+
+    private fun unPauseVideo() {
+        viewModelScope.launch {
+            // We should turn on video only for established call
+            callState.isCameraOn?.let {
+                if (it && callState.participants.isNotEmpty()) {
+                    updateVideoState(conversationId, VideoState.STARTED)
                 }
             }
         }

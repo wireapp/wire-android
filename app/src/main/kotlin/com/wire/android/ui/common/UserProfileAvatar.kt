@@ -28,6 +28,7 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.getUriFromDrawable
 import com.wire.kalium.logic.data.user.ConnectionState
+import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 
 @Composable
 fun UserProfileAvatar(
@@ -82,5 +83,5 @@ private fun painter(data: UserAvatarData): Painter =
 @Preview
 @Composable
 fun UserProfileAvatarPreview() {
-    UserProfileAvatar()
+    UserProfileAvatar(UserAvatarData(availabilityStatus = UserAvailabilityStatus.AVAILABLE))
 }

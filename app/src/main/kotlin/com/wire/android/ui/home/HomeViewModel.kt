@@ -34,8 +34,6 @@ class HomeViewModel @Inject constructor(
     private val wireSessionImageLoader: WireSessionImageLoader
 ) : SavedStateViewModel(savedStateHandle) {
 
-    var snackbarMessageState by mutableStateOf<HomeSnackbarState>(HomeSnackbarState.None)
-
     var userAvatar by mutableStateOf(SelfUserData())
         private set
 
@@ -68,16 +66,10 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun checkPendingActions() {
-        val connectionIgnoredUsername = savedStateHandle
+    fun checkPendingSnackbarState(): HomeSnackbarState? =
+        savedStateHandle
             .getBackNavArg<String>(EXTRA_CONNECTION_IGNORED_USER_NAME)
-        snackbarMessageState =
-            connectionIgnoredUsername?.let { HomeSnackbarState.SuccessConnectionIgnoreRequest(it) } ?: HomeSnackbarState.None
-    }
-
-    fun clearSnackbarMessage() {
-        snackbarMessageState = HomeSnackbarState.None
-    }
+            ?.let { HomeSnackbarState.SuccessConnectionIgnoreRequest(it) }
 
     private fun loadUserAvatar() {
         viewModelScope.launch {
@@ -90,7 +82,9 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    suspend fun navigateTo(item: NavigationItem) { navigationManager.navigate(NavigationCommand(destination = item.getRouteWithArgs())) }
+    suspend fun navigateTo(item: NavigationItem) {
+        navigationManager.navigate(NavigationCommand(destination = item.getRouteWithArgs()))
+    }
 
     fun navigateToUserProfile() = viewModelScope.launch { navigateTo(NavigationItem.SelfUserProfile) }
 }
@@ -102,5 +96,8 @@ data class SelfUserData(
 
 sealed class HomeSnackbarState {
     class SuccessConnectionIgnoreRequest(val userName: String) : HomeSnackbarState()
+    object MutingOperationError : HomeSnackbarState()
+    object BlockingUserOperationError : HomeSnackbarState()
+    class BlockingUserOperationSuccess(val userName: String) : HomeSnackbarState()
     object None : HomeSnackbarState()
 }

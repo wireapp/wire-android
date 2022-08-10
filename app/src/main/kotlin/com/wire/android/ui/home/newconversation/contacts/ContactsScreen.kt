@@ -1,13 +1,10 @@
 package com.wire.android.ui.home.newconversation.contacts
 
-
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -26,7 +23,7 @@ import com.wire.android.model.Clickable
 import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.model.UserAvatarData
-import com.wire.android.ui.common.MembershipQualifierLabel
+import com.wire.android.ui.common.UserBadge
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.WireCheckbox
 import com.wire.android.ui.common.dimensions
@@ -38,6 +35,7 @@ import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.home.conversations.search.SearchResultState
 import com.wire.android.ui.home.conversations.search.widget.SearchFailureBox
 import com.wire.android.ui.theme.wireTypography
+import com.wire.kalium.logic.data.user.ConnectionState
 
 @Composable
 fun ContactsScreen(
@@ -78,6 +76,7 @@ fun ContactsScreen(
                                 name = name,
                                 avatarData = avatarData,
                                 membership = membership,
+                                connectionState = connectionState,
                                 belongsToGroup = contactsAddedToGroup.contains(this),
                                 addToGroup = { onAddToGroup(this) },
                                 removeFromGroup = { onRemoveFromGroup(this) },
@@ -105,6 +104,7 @@ private fun ContactItem(
     avatarData: UserAvatarData,
     membership: Membership,
     belongsToGroup: Boolean,
+    connectionState: ConnectionState,
     addToGroup: () -> Unit,
     removeFromGroup: () -> Unit,
     openUserProfile: () -> Unit,
@@ -134,8 +134,11 @@ private fun ContactItem(
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                Spacer(Modifier.width(dimensions().spacing8x))
-                MembershipQualifierLabel(membership = membership)
+                UserBadge(
+                    membership = membership,
+                    connectionState = connectionState,
+                    startPadding = dimensions().spacing8x
+                )
             }
         },
         actions = {

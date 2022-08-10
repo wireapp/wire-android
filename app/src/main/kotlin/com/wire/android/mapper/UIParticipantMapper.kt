@@ -12,20 +12,21 @@ import javax.inject.Inject
 class UIParticipantMapper @Inject constructor(
     private val userTypeMapper: UserTypeMapper,
     private val wireSessionImageLoader: WireSessionImageLoader
-    ) {
+) {
     fun toUIParticipant(user: User): UIParticipant = with(user) {
-        val userType = when(this) {
-            is OtherUser -> this.userType
+        val (userType, connectionState) = when (this) {
+            is OtherUser -> this.userType to this.connectionStatus
             // TODO(refactor): does self user need a type ?
-            is SelfUser -> UserType.INTERNAL
+            is SelfUser -> UserType.INTERNAL to null
         }
         UIParticipant(
             id = id,
             name = name.orEmpty(),
             handle = handle.orEmpty(),
-            avatarData = avatar(wireSessionImageLoader),
+            avatarData = avatar(wireSessionImageLoader, connectionState),
             isSelf = user is SelfUser,
-            membership = userTypeMapper.toMembership(userType)
+            membership = userTypeMapper.toMembership(userType),
+            connectionState = connectionState
         )
     }
 }

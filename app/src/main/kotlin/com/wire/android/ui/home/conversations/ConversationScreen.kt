@@ -369,7 +369,7 @@ fun MessageList(
                 val lastVisibleMessageInstant = Instant.parse(lastVisibleMessage.messageHeader.messageTime.utcISO)
                 val lastUnreadMessageInstant = Instant.parse(lastUnreadMessage.messageHeader.messageTime.utcISO)
 
-                if (lastVisibleMessageInstant > lastUnreadMessageInstant) {
+                if (lastVisibleMessageInstant >= lastUnreadMessageInstant) {
                     onUpdateConversationReadDate(lastVisibleMessage.messageHeader.messageTime.utcISO)
                 }
             }

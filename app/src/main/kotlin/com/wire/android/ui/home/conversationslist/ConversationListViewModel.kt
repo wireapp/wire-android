@@ -80,7 +80,8 @@ class ConversationListViewModel @Inject constructor(
 
     private fun startObservingConversationsAndConnections() = viewModelScope.launch(dispatchers.io()) {
         observeConversationsAndConnections() // TODO AR-1736
-            .collect { conversationListDetails ->
+            .combine(getSelf(), ::Pair)
+            .collect { (conversationListDetails, selfUser) ->
                 with(conversationListDetails) {
                     val allConversations = conversationList
 
@@ -92,11 +93,11 @@ class ConversationListViewModel @Inject constructor(
                         }
                     }
 
-                   val remainingConversations = allConversations - unreadConversations.toSet()
+                    val remainingConversations = allConversations - unreadConversations.toSet()
 
                     state = ConversationListState(
-                        newActivities = unreadConversations.toNewActivities(),
-                        conversations = remainingConversations.toConversationsFoldersMap(),
+                        newActivities = unreadConversations.toNewActivities(selfUser.teamId),
+                        conversations = remainingConversations.toConversationsFoldersMap(selfUser.teamId),
                         missedCalls = mockMissedCalls, // TODO: needs to be implemented
                         callHistory = mockCallHistory, // TODO: needs to be implemented
                         unreadMentions = mockUnreadMentionList, // TODO: needs to be implemented
@@ -109,24 +110,25 @@ class ConversationListViewModel @Inject constructor(
             }
     }
 
-    private fun List<ConversationDetails>.toNewActivities(): List<NewActivity> = filter { it.conversation.supportsUnreadMessageCount }
-        .map { conversationDetails ->
-            when (conversationDetails) {
-                is Group -> {
-                    NewActivity(
-                        eventType = EventType.UnreadMessage(conversationDetails.unreadMessagesCount),
-                        conversationItem = conversationDetails.toConversationItem(wireSessionImageLoader, userTypeMapper)
-                    )
+    private fun List<ConversationDetails>.toNewActivities(teamId: TeamId?): List<NewActivity> =
+        filter { it.conversation.supportsUnreadMessageCount }
+            .map { conversationDetails ->
+                when (conversationDetails) {
+                    is Group -> {
+                        NewActivity(
+                            eventType = EventType.UnreadMessage(conversationDetails.unreadMessagesCount),
+                            conversationItem = conversationDetails.toConversationItem(wireSessionImageLoader, teamId, userTypeMapper)
+                        )
+                    }
+                    is OneOne -> {
+                        NewActivity(
+                            eventType = EventType.UnreadMessage(conversationDetails.unreadMessagesCount),
+                            conversationItem = conversationDetails.toConversationItem(wireSessionImageLoader, teamId, userTypeMapper)
+                        )
+                    }
+                    else -> throw IllegalStateException("Unsupported type to get unread conversation count")
                 }
-                is OneOne -> {
-                    NewActivity(
-                        eventType = EventType.UnreadMessage(conversationDetails.unreadMessagesCount),
-                        conversationItem = conversationDetails.toConversationItem(wireSessionImageLoader, userTypeMapper)
-                    )
-                }
-                else -> throw IllegalStateException("Unsupported type to get unread conversation count")
             }
-        }
 
     private fun List<ConversationDetails>.toConversationsFoldersMap(teamId: TeamId?): Map<ConversationFolder, List<ConversationItem>> {
         return mapOf(ConversationFolder.Predefined.Conversations to this.toConversationItemList(teamId))

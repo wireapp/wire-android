@@ -1,6 +1,7 @@
 package com.wire.android.ui.home.conversationslist.mock
 
 import com.wire.android.model.UserAvatarData
+import com.wire.android.ui.home.conversationslist.model.BlockingState
 import com.wire.android.ui.home.conversationslist.model.CallEvent
 import com.wire.android.ui.home.conversationslist.model.CallTime
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
@@ -37,7 +38,9 @@ val mockConversations1 = listOf(
         conversationId = ConversationId("someId", "someDomain"),
         mutedStatus = MutedConversationStatus.AllAllowed,
         isLegalHold = true,
-        lastEvent = ConversationLastEvent.None
+        lastEvent = ConversationLastEvent.None,
+        userId = UserId("someUserId", "someDomain"),
+        blockingState = BlockingState.NOT_BLOCKED
     ),
     ConversationItem.PrivateConversation(
         userAvatarData = UserAvatarData(),
@@ -48,7 +51,9 @@ val mockConversations1 = listOf(
         conversationId = ConversationId("someId", "someDomain"),
         mutedStatus = MutedConversationStatus.AllAllowed,
         isLegalHold = true,
-        lastEvent = ConversationLastEvent.None
+        lastEvent = ConversationLastEvent.None,
+        userId = UserId("someUserId", "someDomain"),
+        blockingState = BlockingState.NOT_BLOCKED
     ),
     ConversationItem.PrivateConversation(
         userAvatarData = UserAvatarData(),
@@ -59,7 +64,9 @@ val mockConversations1 = listOf(
         conversationId = ConversationId("someId", "someDomain"),
         mutedStatus = MutedConversationStatus.AllAllowed,
         isLegalHold = true,
-        lastEvent = ConversationLastEvent.None
+        lastEvent = ConversationLastEvent.None,
+        userId = UserId("someUserId", "someDomain"),
+        blockingState = BlockingState.NOT_BLOCKED
     ),
 )
 
@@ -78,6 +85,8 @@ fun mockCallConversation(
     mutedStatus = MutedConversationStatus.AllAllowed,
     isLegalHold = true,
     lastEvent = lastEvent,
+    userId = UserId("someUserId", "someDomain"),
+    blockingState = BlockingState.NOT_BLOCKED
 )
 
 fun mockCallGroupConversation(
@@ -102,7 +111,9 @@ val mockConversation = ConversationItem.PrivateConversation(
     conversationId = ConversationId("someId", "someDomain"),
     mutedStatus = MutedConversationStatus.AllAllowed,
     isLegalHold = true,
-    lastEvent = ConversationLastEvent.None
+    lastEvent = ConversationLastEvent.None,
+    userId = UserId("someUserId", "someDomain"),
+    blockingState = BlockingState.NOT_BLOCKED
 )
 
 val mockGroupConversation = ConversationItem.GroupConversation(
@@ -123,6 +134,8 @@ val mockMentionPrivateConversation = ConversationItem.PrivateConversation(
     mutedStatus = MutedConversationStatus.AllAllowed,
     isLegalHold = true,
     lastEvent = mockShortMentionInfo,
+    userId = UserId("someUserId", "someDomain"),
+    blockingState = BlockingState.NOT_BLOCKED
 )
 
 val mockGeneralConversation = ConversationItem.PrivateConversation(
@@ -134,7 +147,9 @@ val mockGeneralConversation = ConversationItem.PrivateConversation(
     conversationId = ConversationId("someId", "someDomain"),
     mutedStatus = MutedConversationStatus.AllAllowed,
     isLegalHold = true,
-    lastEvent = ConversationLastEvent.None
+    lastEvent = ConversationLastEvent.None,
+    userId = UserId("someUserId", "someDomain"),
+    blockingState = BlockingState.NOT_BLOCKED
 )
 
 val mockGeneralConversationPending = ConversationItem.ConnectionConversation(

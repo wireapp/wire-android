@@ -303,6 +303,7 @@ class GroupConversationDetailsViewModelTest {
                 teamId = TeamId("team_id"),
                 protocol = Conversation.ProtocolInfo.Proteus,
                 mutedStatus = MutedConversationStatus.AllAllowed,
+                removedBy = null,
                 lastNotificationDate = null,
                 lastModifiedDate = null,
                 access = listOf(Conversation.Access.CODE, Conversation.Access.INVITE),

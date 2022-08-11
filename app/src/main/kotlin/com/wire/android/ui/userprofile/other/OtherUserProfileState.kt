@@ -55,7 +55,7 @@ data class OtherUserProfileState(
 sealed class BottomSheetContent {
     data class Conversation(val conversationData: ConversationSheetContent) : BottomSheetContent()
     data class Mute(val conversationData: ConversationSheetContent) : BottomSheetContent()
-    data class ChangeRole(val groupState: OtherUserProfileGroupState?) : BottomSheetContent()
+    data class ChangeRole(val groupState: OtherUserProfileGroupState) : BottomSheetContent()
 }
 
 data class OtherUserProfileGroupState(

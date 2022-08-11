@@ -11,13 +11,13 @@ import com.wire.kalium.logic.data.conversation.Member
 
 @Composable
 fun EditGroupRoleBottomSheet(
-    groupState: OtherUserProfileGroupState?,
+    groupState: OtherUserProfileGroupState,
     changeMemberRole: (Member.Role) -> Unit,
     closeChangeRoleBottomSheet: () -> Unit
 ) {
     MenuModalSheetContent(
-        headerTitle = stringResource(R.string.user_profile_role_in_group, groupState?.groupName ?: ""),
-        menuItems = if (groupState == null) listOf() else listOf(
+        headerTitle = stringResource(R.string.user_profile_role_in_group, groupState.groupName),
+        menuItems = listOf(
             { EditGroupRoleItem(Member.Role.Admin, groupState.role, changeMemberRole, closeChangeRoleBottomSheet) },
             { EditGroupRoleItem(Member.Role.Member, groupState.role, changeMemberRole, closeChangeRoleBottomSheet) }
         ),

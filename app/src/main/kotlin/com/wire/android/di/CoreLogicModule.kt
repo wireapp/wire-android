@@ -100,6 +100,12 @@ class CoreLogicModule {
     @Singleton
     @Provides
     fun provideNoSessionQualifiedIdMapper(): QualifiedIdMapper = QualifiedIdMapperImpl(null)
+
+    @NoSession
+    @Singleton
+    @Provides
+    fun provideIsWebSocketEnabledUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
+        coreLogic.getGlobalScope().isWebSocketEnabled
 }
 
 @Module

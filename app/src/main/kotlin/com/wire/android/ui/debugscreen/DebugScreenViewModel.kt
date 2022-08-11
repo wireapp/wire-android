@@ -8,6 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.platformLogWriter
+import com.wire.android.ui.debugscreen.PersistentWebSocketService.Companion.ACTION_STOP_FOREGROUND
 import com.wire.android.util.DataDogLogger
 import com.wire.android.util.LogFileWriter
 import com.wire.kalium.logger.KaliumLogLevel
@@ -16,6 +17,7 @@ import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountResult
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountUseCase
 import com.wire.kalium.logic.feature.user.loggingStatus.EnableLoggingUseCase
 import com.wire.kalium.logic.feature.user.loggingStatus.IsLoggingEnabledUseCase
+import com.wire.kalium.logic.feature.user.webSocketStatus.EnableWebSocketUseCase
 import com.wire.kalium.logic.feature.user.webSocketStatus.IsWebSocketEnabledUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -26,6 +28,7 @@ class DebugScreenViewModel
 @Inject constructor(
     private val mlsKeyPackageCountUseCase: MLSKeyPackageCountUseCase,
     private val enableLoggingUseCase: EnableLoggingUseCase,
+    private val enableWebSocketUseCase: EnableWebSocketUseCase,
     private val logFileWriter: LogFileWriter,
     isLoggingEnabledUseCase: IsLoggingEnabledUseCase,
     isWebSocketEnabledUseCase: IsWebSocketEnabledUseCase
@@ -61,12 +64,19 @@ class DebugScreenViewModel
     }
 
     fun setWebSocketState(isEnabled: Boolean, context: Context) {
+        enableWebSocketUseCase(isEnabled)
         isWebSocketEnabled = isEnabled
-        context.startService(Intent(context, PersistentWebSocketService::class.java))
+        if (isEnabled) {
+            context.startService(Intent(context, PersistentWebSocketService::class.java))
+        } else {
+            val intentStop = Intent(context, PersistentWebSocketService::class.java)
+            intentStop.action = ACTION_STOP_FOREGROUND
+            context.startService(intentStop)
+        }
     }
 
     fun setLoggingEnabledState(isEnabled: Boolean) {
-        enableLoggingUseCase.invoke(isEnabled)
+        enableLoggingUseCase(isEnabled)
         isLoggingEnabled = isEnabled
         if (isEnabled) {
             logFileWriter.start()

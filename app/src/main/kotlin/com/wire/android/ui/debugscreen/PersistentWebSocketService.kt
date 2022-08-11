@@ -17,9 +17,13 @@ import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.di.CurrentSessionFlowService
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.NavigationItem
+import com.wire.android.navigation.NavigationManager
 import com.wire.android.notification.WireNotificationManager
 import com.wire.android.ui.WireActivity
 import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.sync.ConnectionPolicy
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
@@ -55,6 +59,7 @@ class PersistentWebSocketService : Service() {
     @CurrentSessionFlowService
     lateinit var currentSessionFlow: CurrentSessionFlowUseCase
 
+    private val navigationManager: NavigationManager = NavigationManager()
 
     override fun onBind(intent: Intent?): IBinder? {
         return null
@@ -88,7 +93,7 @@ class PersistentWebSocketService : Service() {
 
             scope.launch {
                 notificationManager.observeNotificationsAndCalls(observeUserId, scope) {
-//                    openIncomingCall(it.conversationId)
+                    openIncomingCall(it.conversationId)
                 }
             }
         })
@@ -98,6 +103,12 @@ class PersistentWebSocketService : Service() {
         generateForegroundNotification()
         return START_STICKY
 
+    }
+
+    private fun openIncomingCall(conversationId: ConversationId) {
+        scope.launch {
+            navigationManager.navigate(NavigationCommand(NavigationItem.IncomingCall.getRouteWithArgs(listOf(conversationId))))
+        }
     }
 
     //Notifications for ON-going

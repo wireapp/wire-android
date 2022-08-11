@@ -63,8 +63,9 @@ private fun OngoingCallContent(
                         is ConversationName.Known -> conversationName.name
                         is ConversationName.Unknown -> stringResource(id = conversationName.resourceId)
                         else -> ""
-                    }
-                ) { }
+                    },
+                    onCollapse = ::navigateBack
+                )
             },
             sheetShape = RoundedCornerShape(topStart = dimensions().corner16x, topEnd = dimensions().corner16x),
             sheetPeekHeight = dimensions().defaultSheetPeekHeight,

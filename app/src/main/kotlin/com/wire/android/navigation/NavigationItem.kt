@@ -148,7 +148,9 @@ enum class NavigationItem(
         content = {
             HomeScreen(
                 it.navBackStackEntry.arguments?.getString(EXTRA_HOME_TAB_ITEM),
-                hiltSavedStateViewModel(it.navBackStackEntry), hiltViewModel()
+                hiltSavedStateViewModel(it.navBackStackEntry),
+                hiltViewModel(),
+                hiltViewModel()
             )
         },
         animationConfig = NavigationAnimationConfig.DelegatedAnimation
@@ -211,7 +213,7 @@ enum class NavigationItem(
                         "{$EXTRA_CONVERSATION_ID}"
             }
         ),
-        content = { ConversationScreen(hiltSavedStateViewModel(it.navBackStackEntry)) },
+        content = { ConversationScreen(hiltSavedStateViewModel(it.navBackStackEntry), hiltViewModel()) },
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
             val conversationIdString: String = arguments.filterIsInstance<ConversationId>().firstOrNull()?.toString()

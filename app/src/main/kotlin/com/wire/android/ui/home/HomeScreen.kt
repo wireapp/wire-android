@@ -2,6 +2,7 @@ package com.wire.android.ui.home
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -28,6 +29,9 @@ import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
+import com.wire.android.ui.common.topappbar.CommonTopAppBar
+import com.wire.android.ui.common.topappbar.CommonTopAppBarBaseViewModel
+import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
 import com.wire.android.ui.common.topappbar.search.AppTopBarWithSearchBar
 import com.wire.android.ui.home.sync.SyncStateViewModel
 
@@ -37,7 +41,12 @@ import com.wire.android.ui.home.sync.SyncStateViewModel
     ExperimentalMaterial3Api::class
 )
 @Composable
-fun HomeScreen(startScreen: String?, viewModel: HomeViewModel, syncViewModel: SyncStateViewModel) {
+fun HomeScreen(
+    startScreen: String?,
+    viewModel: HomeViewModel,
+    syncViewModel: SyncStateViewModel,
+    commonTopAppBarViewModel: CommonTopAppBarViewModel
+) {
     viewModel.checkRequirements()
     val homeUIState = rememberHomeUIState()
     val coroutineScope = rememberCoroutineScope()
@@ -74,14 +83,17 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel, syncViewModel: Sy
                 homeBottomSheetState = homeUIState.bottomSheetState,
                 snackbarHostState = snackbarHostState,
                 homeTopBar = {
-                    HomeTopBar(
-                        avatarAsset = viewModel.userAvatar.avatarAsset,
-                        status = viewModel.userAvatar.status,
-                        currentNavigationItem = homeUIState.currentNavigationItem,
-                        syncState = syncViewModel.syncState,
-                        onOpenDrawerClicked = ::openDrawer,
-                        onNavigateToUserProfile = viewModel::navigateToUserProfile,
-                    )
+                    Column {
+                        CommonTopAppBar(commonTopAppBarViewModel = commonTopAppBarViewModel) // as CommonTopAppBarViewModel)
+                        HomeTopBar(
+                            avatarAsset = viewModel.userAvatar.avatarAsset,
+                            status = viewModel.userAvatar.status,
+                            currentNavigationItem = homeUIState.currentNavigationItem,
+                            syncState = syncViewModel.syncState,
+                            onOpenDrawerClicked = ::openDrawer,
+                            onNavigateToUserProfile = viewModel::navigateToUserProfile,
+                        )
+                    }
                 },
                 currentNavigationItem = homeUIState.currentNavigationItem,
                 homeNavigationGraph = {

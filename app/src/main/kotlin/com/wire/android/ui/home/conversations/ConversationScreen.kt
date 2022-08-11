@@ -3,6 +3,7 @@ package com.wire.android.ui.home.conversations
 import android.app.DownloadManager
 import android.content.Intent
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -35,6 +36,9 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.conversationColor
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
+import com.wire.android.ui.common.topappbar.CommonTopAppBar
+import com.wire.android.ui.common.topappbar.CommonTopAppBarBaseViewModel
+import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorDeletingMessage
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorDownloadingAsset
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorMaxAssetSize
@@ -61,7 +65,10 @@ import okio.Path
 import okio.Path.Companion.toPath
 
 @Composable
-fun ConversationScreen(conversationViewModel: ConversationViewModel) {
+fun ConversationScreen(
+    conversationViewModel: ConversationViewModel,
+    commonTopAppBarViewModel: CommonTopAppBarViewModel
+) {
     val showDialog = remember { mutableStateOf(false) }
 
     val startCallAudioPermissionCheck = StartCallAudioBluetoothPermissionCheckFlow {
@@ -116,7 +123,8 @@ fun ConversationScreen(conversationViewModel: ConversationViewModel) {
         onSnackbarMessageShown = conversationViewModel::clearSnackbarMessage,
         onDropDownClick = conversationViewModel::navigateToDetails,
         tempCachePath = conversationViewModel.provideTempCachePath(),
-        onOpenProfile = conversationViewModel::navigateToProfile
+        onOpenProfile = conversationViewModel::navigateToProfile,
+        commonTopAppBarViewModel = commonTopAppBarViewModel
     )
 
     DeleteMessageDialog(conversationViewModel = conversationViewModel)
@@ -163,7 +171,8 @@ private fun ConversationScreen(
     onSnackbarMessageShown: () -> Unit,
     onDropDownClick: () -> Unit,
     tempCachePath: Path,
-    onOpenProfile: (MessageSource, UserId) -> Unit
+    onOpenProfile: (MessageSource, UserId) -> Unit,
+    commonTopAppBarViewModel: CommonTopAppBarBaseViewModel
 ) {
     val conversationScreenState = rememberConversationScreenState()
     val scope = rememberCoroutineScope()
@@ -186,27 +195,30 @@ private fun ConversationScreen(
             content = {
                 Scaffold(
                     topBar = {
-                        ConversationScreenTopAppBar(
-                            title = conversationName.ifEmpty { stringResource(id = R.string.member_name_deleted_label) },
-                            avatar = {
-                                when (conversationAvatar) {
-                                    is ConversationAvatar.Group ->
-                                        GroupConversationAvatar(
-                                            color = colorsScheme().conversationColor(id = conversationAvatar.conversationId)
+                        Column {
+                            CommonTopAppBar(commonTopAppBarViewModel = commonTopAppBarViewModel as CommonTopAppBarViewModel)
+                            ConversationScreenTopAppBar(
+                                title = conversationName.ifEmpty { stringResource(id = R.string.member_name_deleted_label) },
+                                avatar = {
+                                    when (conversationAvatar) {
+                                        is ConversationAvatar.Group ->
+                                            GroupConversationAvatar(
+                                                color = colorsScheme().conversationColor(id = conversationAvatar.conversationId)
+                                            )
+                                        is ConversationAvatar.OneOne -> UserProfileAvatar(
+                                            UserAvatarData(conversationAvatar.avatarAsset, conversationAvatar.status)
                                         )
-                                    is ConversationAvatar.OneOne -> UserProfileAvatar(
-                                        UserAvatarData(conversationAvatar.avatarAsset, conversationAvatar.status)
-                                    )
-                                    ConversationAvatar.None -> Box(modifier = Modifier.size(dimensions().userAvatarDefaultSize))
-                                }
-                            },
-                            onBackButtonClick = onBackButtonClick,
-                            onDropDownClick = onDropDownClick,
-                            onSearchButtonClick = { },
-                            onPhoneButtonClick = onStartCall,
-                            hasOngoingCall = hasOngoingCall,
-                            onJoinCallButtonClick = onJoinCall
-                        )
+                                        ConversationAvatar.None -> Box(modifier = Modifier.size(dimensions().userAvatarDefaultSize))
+                                    }
+                                },
+                                onBackButtonClick = onBackButtonClick,
+                                onDropDownClick = onDropDownClick,
+                                onSearchButtonClick = { },
+                                onPhoneButtonClick = onStartCall,
+                                hasOngoingCall = hasOngoingCall,
+                                onJoinCallButtonClick = onJoinCall
+                            )
+                        }
                     },
                     snackbarHost = {
                         SwipeDismissSnackbarHost(
@@ -386,7 +398,8 @@ fun ConversationScreenPreview() {
         onSnackbarMessage = {},
         onSnackbarMessageShown = {},
         onDropDownClick = {},
-        tempCachePath =  "".toPath(),
-        onOpenProfile = {_, _ -> }
+        tempCachePath = "".toPath(),
+        onOpenProfile = { _, _ -> },
+        commonTopAppBarViewModel = object: CommonTopAppBarBaseViewModel() { }
     )
 }

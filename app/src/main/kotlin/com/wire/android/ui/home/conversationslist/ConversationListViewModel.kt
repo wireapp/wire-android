@@ -43,6 +43,7 @@ import com.wire.kalium.logic.feature.call.AnswerCallUseCase
 import com.wire.kalium.logic.feature.connection.BlockUserResult
 import com.wire.kalium.logic.feature.connection.BlockUserUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
+import com.wire.kalium.logic.feature.conversation.LeaveGroupConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationsAndConnectionsUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
@@ -66,6 +67,7 @@ class ConversationListViewModel @Inject constructor(
     private val blockUserUseCase: BlockUserUseCase,
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val userTypeMapper: UserTypeMapper,
+    private val leaveGroupConversation: LeaveGroupConversationUseCase
 ) : ViewModel() {
 
     var state by mutableStateOf(ConversationListState())
@@ -203,10 +205,10 @@ class ConversationListViewModel @Inject constructor(
         state = state.copy(blockUserDialogSate = BlockUserDialogState(name, id))
     }
 
-    // TODO: needs to be implemented
-    @Suppress("EmptyFunctionBlock")
-    fun leaveGroup(id: String = "") {
+    fun leaveGroup(conversationId: ConversationId) = viewModelScope.launch(dispatchers.io()) {
+        leaveGroupConversation(conversationId = conversationId)
     }
+
 
     private fun List<ConversationDetails>.toConversationItemList(teamId: TeamId?): List<ConversationItem> =
         filter { it is Group || it is OneOne || it is Connection }

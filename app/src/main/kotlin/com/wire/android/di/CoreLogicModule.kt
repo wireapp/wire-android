@@ -29,6 +29,7 @@ import com.wire.kalium.logic.feature.conversation.AddMemberToConversationUseCase
 import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetAllContactsNotInConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
+import com.wire.kalium.logic.feature.conversation.LeaveGroupConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveUserListByIdUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUseCase
@@ -618,8 +619,7 @@ class UseCaseModule {
     fun provideUpdateConversationMemberRoleUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ): UpdateConversationMemberRoleUseCase =
-        coreLogic.getSessionScope(currentAccount).conversations.updateConversationMemberRole
+    ): UpdateConversationMemberRoleUseCase = coreLogic.getSessionScope(currentAccount).conversations.updateConversationMemberRole
 
     @ViewModelScoped
     @Provides
@@ -627,4 +627,11 @@ class UseCaseModule {
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
     ): BlockUserUseCase = coreLogic.getSessionScope(currentAccount).connection.blockUser
+
+    @ViewModelScoped
+    @Provides
+    fun provideLeaveGroupConversationUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): LeaveGroupConversationUseCase = coreLogic.getSessionScope(currentAccount).conversations.leaveGroupConversationUseCase
 }

@@ -43,6 +43,7 @@ import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.rememberPagerState
 import com.wire.android.R
+import com.wire.android.model.PreservedState
 import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.MoreOptionIcon
 import com.wire.android.ui.common.TabItem
@@ -50,6 +51,7 @@ import com.wire.android.ui.common.WireTabRow
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.calculateCurrentTab
 import com.wire.android.ui.common.dialogs.BlockUserDialogContent
+import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topBarElevation
@@ -60,6 +62,7 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.userprofile.common.EditableState
 import com.wire.android.ui.userprofile.common.UserProfileInfo
+import com.wire.android.ui.userprofile.group.RemoveConversationMemberState
 import com.wire.kalium.logic.data.conversation.Member
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
@@ -89,6 +92,8 @@ fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltView
     OtherProfileScreenContent(
         scope = scope,
         state = viewModel.state,
+        removeMemberDialogState = viewModel.removeConversationMemberDialogState,
+        blockUserDialogState = viewModel.blockUserDialogState,
         sheetState = sheetState,
         openBottomSheet = openBottomSheet,
         closeBottomSheet = closeBottomSheet,
@@ -100,6 +105,9 @@ fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltView
         onAcceptConnectionRequest = viewModel::acceptConnectionRequest,
         onNavigateBack = viewModel::navigateBack,
         onChangeMemberRole = viewModel::changeMemberRole,
+        openRemoveConversationMemberDialog = viewModel::openRemoveConversationMemberDialog,
+        hideRemoveConversationMemberDialog = viewModel::hideRemoveConversationMemberDialog,
+        onRemoveConversationMember = viewModel::removeConversationMember,
         snackbarHostState = snackbarHostState,
         onDismissBlockUserDialog = viewModel::dismissBlockUserDialog,
         onBlockUserClicked = viewModel::showBlockUserDialog,
@@ -136,10 +144,7 @@ fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltView
 @SuppressLint("UnusedCrossfadeTargetStateParameter", "LongParameterList")
 @OptIn(
     ExperimentalMaterialApi::class,
-    ExperimentalMaterial3Api::class,
-    ExperimentalAnimationApi::class,
     ExperimentalPagerApi::class,
-    ExperimentalFoundationApi::class
 )
 @Composable
 fun OtherProfileScreenContent(
@@ -148,6 +153,8 @@ fun OtherProfileScreenContent(
     sheetState: ModalBottomSheetState,
     openBottomSheet: () -> Unit,
     closeBottomSheet: () -> Unit,
+    removeMemberDialogState: PreservedState<RemoveConversationMemberState>?,
+    blockUserDialogState: PreservedState<BlockUserDialogState>?,
     onSendConnectionRequest: () -> Unit,
     onOpenConversation: () -> Unit,
     onCancelConnectionRequest: () -> Unit,
@@ -167,6 +174,9 @@ fun OtherProfileScreenContent(
     setBottomSheetStateToConversation: () -> Unit,
     setBottomSheetStateToMutOptions: () -> Unit,
     setBottomSheetStateToChangeRole: () -> Unit,
+    openRemoveConversationMemberDialog: () -> Unit,
+    hideRemoveConversationMemberDialog: () -> Unit,
+    onRemoveConversationMember: (PreservedState<RemoveConversationMemberState>) -> Unit,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
     val otherUserProfileScreenState = rememberOtherUserProfileScreenState(snackbarHostState)
@@ -184,79 +194,84 @@ fun OtherProfileScreenContent(
         derivedStateOf { lazyListStates[tabItems[currentTabState]]?.topBarElevation(maxBarElevation) ?: 0.dp }
     }
 
-    Surface {
-        WireModalSheetLayout(
-            sheetState = sheetState,
-            coroutineScope = rememberCoroutineScope(),
-            sheetContent = {
-                OtherUserProfileBottomSheetContent(
-                    bottomSheetState = state.bottomSheetContentState,
-                    onMutingConversationStatusChange = onMutingConversationStatusChange,
-                    addConversationToFavourites = onAddConversationToFavourites,
-                    moveConversationToArchive = onMoveConversationToArchive,
-                    clearConversationContent = onClearConversationContent,
-                    moveConversationToFolder = onMoveConversationToFolder,
-                    blockUser = onBlockUserClicked,
-                    closeBottomSheet = closeBottomSheet,
-                    changeMemberRole = onChangeMemberRole,
-                    openConversationSheet = setBottomSheetStateToConversation,
-                    openMuteOptionsSheet = setBottomSheetStateToMutOptions
-                )
-            }
-        ) {
-            CollapsingTopBarScaffold(
-                snackbarHost = {
-                    SwipeDismissSnackbarHost(
-                        hostState = otherUserProfileScreenState.snackbarHostState,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                },
-                topBarHeader = { elevation ->
-                    TopBarHeader(
-                        state = state,
-                        elevation = elevation,
-                        onNavigateBack = onNavigateBack,
-                        openConversationBottomSheet = {
-                            setBottomSheetStateToConversation()
-                            openBottomSheet()
-                        })
-                },
-                topBarCollapsing = { TopBarCollapsing(state) },
-                topBarFooter = { TopBarFooter(state, pagerState, tabBarElevationState, tabItems, currentTabState, scope) },
-                content = {
-                    Content(
-                        state = state,
-                        pagerState = pagerState,
-                        tabItems = tabItems,
-                        otherUserProfileScreenState = otherUserProfileScreenState,
-                        lazyListStates = lazyListStates,
-                        openChangeRoleBottomSheet = {
-                            setBottomSheetStateToChangeRole()
-                            openBottomSheet()
-                        })
-                },
-                contentFooter = {
-                    ContentFooter(
-                        state,
-                        maxBarElevation,
-                        onSendConnectionRequest,
-                        onOpenConversation,
-                        onCancelConnectionRequest,
-                        onAcceptConnectionRequest,
-                        onIgnoreConnectionRequest,
-                        onUnblockUser
-                    )
-                },
-                isSwipeable = state.connectionState == ConnectionState.ACCEPTED
+    WireModalSheetLayout(
+        sheetState = sheetState,
+        coroutineScope = rememberCoroutineScope(),
+        sheetContent = {
+            OtherUserProfileBottomSheetContent(
+                bottomSheetState = state.bottomSheetContentState,
+                onMutingConversationStatusChange = onMutingConversationStatusChange,
+                addConversationToFavourites = onAddConversationToFavourites,
+                moveConversationToArchive = onMoveConversationToArchive,
+                clearConversationContent = onClearConversationContent,
+                moveConversationToFolder = onMoveConversationToFolder,
+                blockUser = onBlockUserClicked,
+                closeBottomSheet = closeBottomSheet,
+                changeMemberRole = onChangeMemberRole,
+                openConversationSheet = setBottomSheetStateToConversation,
+                openMuteOptionsSheet = setBottomSheetStateToMutOptions
             )
         }
-
-        BlockUserDialogContent(
-            state = state.blockUserDialogState,
-            dismiss = onDismissBlockUserDialog,
-            onBlock = onBlockUser
+    ) {
+        CollapsingTopBarScaffold(
+            snackbarHost = {
+                SwipeDismissSnackbarHost(
+                    hostState = otherUserProfileScreenState.snackbarHostState,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            },
+            topBarHeader = { elevation ->
+                TopBarHeader(
+                    state = state,
+                    elevation = elevation,
+                    onNavigateBack = onNavigateBack,
+                    openConversationBottomSheet = {
+                        setBottomSheetStateToConversation()
+                        openBottomSheet()
+                    })
+            },
+            topBarCollapsing = { TopBarCollapsing(state) },
+            topBarFooter = { TopBarFooter(state, pagerState, tabBarElevationState, tabItems, currentTabState, scope) },
+            content = {
+                Content(
+                    state = state,
+                    pagerState = pagerState,
+                    tabItems = tabItems,
+                    otherUserProfileScreenState = otherUserProfileScreenState,
+                    lazyListStates = lazyListStates,
+                    openChangeRoleBottomSheet = {
+                        setBottomSheetStateToChangeRole()
+                        openBottomSheet()
+                    },
+                    openRemoveConversationMemberDialog
+                )
+            },
+            contentFooter = {
+                ContentFooter(
+                    state,
+                    maxBarElevation,
+                    onSendConnectionRequest,
+                    onOpenConversation,
+                    onCancelConnectionRequest,
+                    onAcceptConnectionRequest,
+                    onIgnoreConnectionRequest,
+                    onUnblockUser
+                )
+            },
+            isSwipeable = state.connectionState == ConnectionState.ACCEPTED
         )
     }
+
+    BlockUserDialogContent(
+        dialogState = blockUserDialogState,
+        dismiss = onDismissBlockUserDialog,
+        onBlock = onBlockUser
+    )
+    RemoveConversationMemberDialog(
+        dialogState = removeMemberDialogState,
+        onDialogDismiss = hideRemoveConversationMemberDialog,
+        onRemoveConversationMember = onRemoveConversationMember
+    )
 }
 
 @Composable
@@ -335,7 +350,8 @@ private fun Content(
     tabItems: List<OtherUserProfileTabItem>,
     otherUserProfileScreenState: OtherUserProfileScreenState,
     lazyListStates: Map<OtherUserProfileTabItem, LazyListState>,
-    openChangeRoleBottomSheet: () -> Unit
+    openChangeRoleBottomSheet: () -> Unit,
+    openRemoveConversationMemberDialog: () -> Unit
 ) {
     Crossfade(targetState = state) { state ->
         when {
@@ -351,7 +367,12 @@ private fun Content(
                             OtherUserProfileTabItem.DETAILS ->
                                 OtherUserProfileDetails(state, otherUserProfileScreenState, lazyListStates[tabItem]!!)
                             OtherUserProfileTabItem.GROUP ->
-                                OtherUserProfileGroup(state.groupState!!, lazyListStates[tabItem]!!, openChangeRoleBottomSheet)
+                                OtherUserProfileGroup(
+                                    state.groupState!!,
+                                    lazyListStates[tabItem]!!,
+                                    openRemoveConversationMemberDialog,
+                                    openChangeRoleBottomSheet
+                                )
                         }
                     }
                 }
@@ -406,13 +427,7 @@ enum class OtherUserProfileTabItem(@StringRes override val titleResId: Int) : Ta
     DETAILS(R.string.user_profile_details_tab);
 }
 
-@OptIn(
-    ExperimentalMaterialApi::class,
-    ExperimentalMaterial3Api::class,
-    ExperimentalAnimationApi::class,
-    ExperimentalPagerApi::class,
-    ExperimentalFoundationApi::class
-)
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 @Preview(name = "Connected")
 fun OtherProfileScreenContentPreview() {
@@ -421,18 +436,13 @@ fun OtherProfileScreenContentPreview() {
             rememberCoroutineScope(),
             OtherUserProfileState.PREVIEW.copy(connectionState = ConnectionState.ACCEPTED),
             rememberModalBottomSheetState(ModalBottomSheetValue.Hidden),
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, { _, _ -> }, { _, _ -> }, { _, _ -> }, {}, {}, {}, {}, {}, {}, {}
+            {}, {}, null, null, {}, {}, {}, {}, {}, {}, {}, {}, {}, { _, _ -> }, { _, _ -> }, { _, _ -> },
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
         )
     }
 }
 
-@OptIn(
-    ExperimentalMaterialApi::class,
-    ExperimentalMaterial3Api::class,
-    ExperimentalAnimationApi::class,
-    ExperimentalPagerApi::class,
-    ExperimentalFoundationApi::class
-)
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 @Preview(name = "Not Connected")
 fun OtherProfileScreenContentNotConnectedPreview() {
@@ -441,7 +451,8 @@ fun OtherProfileScreenContentNotConnectedPreview() {
             rememberCoroutineScope(),
             OtherUserProfileState.PREVIEW.copy(connectionState = ConnectionState.CANCELLED),
             rememberModalBottomSheetState(ModalBottomSheetValue.Hidden),
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, { _, _ -> }, { _, _ -> }, { _, _ -> }, {}, {}, {}, {}, {}, {}, {}
+            {}, {}, null, null, {}, {}, {}, {}, {}, {}, {}, {}, {}, { _, _ -> }, { _, _ -> }, { _, _ -> },
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
         )
     }
 }

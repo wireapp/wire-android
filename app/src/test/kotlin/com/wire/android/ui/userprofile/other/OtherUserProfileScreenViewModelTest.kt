@@ -41,6 +41,7 @@ import com.wire.kalium.logic.feature.connection.SendConnectionRequestResult
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
 import com.wire.kalium.logic.feature.conversation.CreateConversationResult
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
+import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleResult
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
@@ -107,6 +108,9 @@ class OtherUserProfileScreenViewModelTest {
     private lateinit var updateConversationMemberRoleUseCase: UpdateConversationMemberRoleUseCase
 
     @MockK
+    private lateinit var removeMemberFromConversationUseCase: RemoveMemberFromConversationUseCase
+
+    @MockK
     private lateinit var observeSelfUser: GetSelfUserUseCase
 
     @MockK
@@ -136,6 +140,7 @@ class OtherUserProfileScreenViewModelTest {
         otherUserProfileScreenViewModel = OtherUserProfileScreenViewModel(
             savedStateHandle,
             navigationManager,
+            TestDispatcherProvider(),
             observeSelfUser,
             updateConversationMutedStatus,
             blockUser,
@@ -148,6 +153,8 @@ class OtherUserProfileScreenViewModelTest {
             userTypeMapper,
             wireSessionImageLoader,
             observeConversationRoleForUserUseCase,
+            updateConversationMemberRoleUseCase,
+            removeMemberFromConversationUseCase,
             qualifiedIdMapper,
             updateConversationMemberRoleUseCase,
             TestDispatcherProvider(),
@@ -289,7 +296,7 @@ class OtherUserProfileScreenViewModelTest {
     fun `given a group conversationId, when loading the data, then return group state`() =
         runTest {
             // given
-            val expected = OtherUserProfileGroupState("some_name", Member.Role.Member, false)
+            val expected = OtherUserProfileGroupState("some_name", Member.Role.Member, false, CONVERSATION_ID)
             every { savedStateHandle.get<String>(eq(EXTRA_CONVERSATION_ID)) } returns CONVERSATION_ID.toString()
             coEvery { getOrCreateOneToOneConversation(USER_ID) } returns CreateConversationResult.Success(CONVERSATION)
             initViewModel()
@@ -443,6 +450,11 @@ class OtherUserProfileScreenViewModelTest {
             access = listOf(Conversation.Access.INVITE),
             accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER)
         )
-        val CONVERSATION_ROLE_DATA = ConversationRoleData("some_name", Member.Role.Member, Member.Role.Member)
+        val CONVERSATION_ROLE_DATA = ConversationRoleData(
+            "some_name",
+            Member.Role.Member,
+            Member.Role.Member,
+            CONVERSATION_ID
+        )
     }
 }

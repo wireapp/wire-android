@@ -12,6 +12,8 @@ import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.model.ImageAsset
+import com.wire.android.model.PreservedState
+import com.wire.android.model.toLoading
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.EXTRA_CONNECTION_IGNORED_USER_NAME
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
@@ -26,6 +28,7 @@ import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetC
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationTypeDetail
 import com.wire.android.ui.home.conversationslist.model.getBlockingState
 import com.wire.android.ui.userprofile.common.UsernameMapper.mapUserLabel
+import com.wire.android.ui.userprofile.group.RemoveConversationMemberState
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
@@ -52,6 +55,7 @@ import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.CreateConversationResult
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
+import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleResult
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
@@ -66,6 +70,7 @@ import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Date
 import javax.inject.Inject
 
@@ -75,6 +80,7 @@ import javax.inject.Inject
 class OtherUserProfileScreenViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
+    private val dispatchers: DispatcherProvider,
     private val observeSelfUser: GetSelfUserUseCase,
     private val updateConversationMutedStatus: UpdateConversationMutedStatusUseCase,
     private val blockUser: BlockUserUseCase,
@@ -87,12 +93,18 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val userTypeMapper: UserTypeMapper,
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val observeConversationRoleForUser: ObserveConversationRoleForUserUseCase,
+    private val removeMemberFromConversation: RemoveMemberFromConversationUseCase,
     qualifiedIdMapper: QualifiedIdMapper,
-    private val updateMemberRole: UpdateConversationMemberRoleUseCase,
-    private val dispatchers: DispatcherProvider,
+    private val updateMemberRole: UpdateConversationMemberRoleUseCase
 ) : ViewModel() {
 
     var state: OtherUserProfileState by mutableStateOf(OtherUserProfileState())
+
+    var removeConversationMemberDialogState: PreservedState<RemoveConversationMemberState>?
+            by mutableStateOf(null)
+
+    var blockUserDialogState: PreservedState<BlockUserDialogState>?
+            by mutableStateOf(null)
 
     private val _infoMessage = MutableSharedFlow<UIText>()
     val infoMessage = _infoMessage.asSharedFlow()
@@ -154,7 +166,8 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                     OtherUserProfileGroupState(
                         groupName = conversationRoleData.conversationName,
                         role = userRole,
-                        isSelfAnAdmin = conversationRoleData.selfRole is Member.Role.Admin
+                        isSelfAdmin = conversationRoleData.selfRole is Member.Role.Admin,
+                        conversationId = conversationRoleData.conversationId
                     )
                 },
                 botService = otherUser.botService,
@@ -266,6 +279,40 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         _infoMessage.emit(type.uiText)
     }
 
+    fun openRemoveConversationMemberDialog() {
+        viewModelScope.launch {
+            removeConversationMemberDialogState = PreservedState.State(
+                RemoveConversationMemberState(
+                    conversationId = conversationId!!,
+                    fullName = state.fullName,
+                    userName = state.userName,
+                    userId = userId
+                )
+            )
+        }
+    }
+
+    fun hideRemoveConversationMemberDialog() {
+        removeConversationMemberDialogState = null
+    }
+
+    fun removeConversationMember(preservedState: PreservedState<RemoveConversationMemberState>) {
+        viewModelScope.launch {
+            removeConversationMemberDialogState = preservedState.toLoading()
+            val response = withContext(dispatchers.io()) {
+                removeMemberFromConversation(
+                    state.groupState!!.conversationId,
+                    userId
+                )
+            }
+
+            if (response is RemoveMemberFromConversationUseCase.Result.Failure)
+                showInfoMessage(InfoMessageType.RemoveConversationMemberError)
+
+            removeConversationMemberDialogState = null
+        }
+    }
+
     fun muteConversation(directConversationId: ConversationId?, mutedConversationStatus: MutedConversationStatus) {
         directConversationId?.let {
             viewModelScope.launch {
@@ -280,6 +327,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
 
     fun blockUser(id: UserId, userName: String) {
         viewModelScope.launch(dispatchers.io()) {
+            blockUserDialogState = blockUserDialogState?.toLoading()
             when (val result = blockUser(id)) {
                 BlockUserResult.Success -> {
                     appLogger.i("User $id was blocked")
@@ -290,16 +338,16 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                     showInfoMessage(InfoMessageType.BlockingUserOperationError)
                 }
             }
-            state = state.copy(blockUserDialogState = null)
+            blockUserDialogState = null
         }
     }
 
     fun dismissBlockUserDialog() {
-        state = state.copy(blockUserDialogState = null)
+        blockUserDialogState = null
     }
 
     fun showBlockUserDialog(id: UserId, name: String) {
-        state = state.copy(blockUserDialogState = BlockUserDialogState(name, id))
+        blockUserDialogState = PreservedState.State(BlockUserDialogState(name, id))
     }
 
     @Suppress("EmptyFunctionBlock")
@@ -352,6 +400,9 @@ sealed class InfoMessageType(val uiText: UIText) {
 
     // change group role
     object ChangeGroupRoleError : InfoMessageType(UIText.StringResource(R.string.user_profile_role_change_error))
+
+    // remove conversation member
+    object RemoveConversationMemberError : InfoMessageType(UIText.StringResource(R.string.dialog_remove_conversation_member_error))
 
     // Conversation BottomSheet
     object BlockingUserOperationError : InfoMessageType(UIText.StringResource(R.string.error_blocking_user))

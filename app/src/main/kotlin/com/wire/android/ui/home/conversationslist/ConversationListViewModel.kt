@@ -9,7 +9,9 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.model.ImageAsset.UserAvatarAsset
+import com.wire.android.model.PreservedState
 import com.wire.android.model.UserAvatarData
+import com.wire.android.model.toLoading
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
@@ -69,6 +71,9 @@ class ConversationListViewModel @Inject constructor(
 
     var state by mutableStateOf(ConversationListState())
         private set
+
+    var blockUserDialogState: PreservedState<BlockUserDialogState>?
+            by mutableStateOf(null)
 
     val snackBarState = MutableSharedFlow<HomeSnackbarState>()
 
@@ -179,6 +184,7 @@ class ConversationListViewModel @Inject constructor(
 
     fun blockUser(id: UserId, userName: String) {
         viewModelScope.launch(dispatchers.io()) {
+            blockUserDialogState = blockUserDialogState?.toLoading()
             val state = when (val result = blockUserUseCase(id)) {
                 BlockUserResult.Success -> {
                     appLogger.d("User $id was blocked")
@@ -191,15 +197,15 @@ class ConversationListViewModel @Inject constructor(
             }
             snackBarState.emit(state)
         }
-        state = state.copy(blockUserDialogSate = null)
+        blockUserDialogState = null
     }
 
     fun onDismissBlockUserDialog() {
-        state = state.copy(blockUserDialogSate = null)
+        blockUserDialogState = null
     }
 
     fun onBlockUserClicked(id: UserId, name: String) {
-        state = state.copy(blockUserDialogSate = BlockUserDialogState(name, id))
+        blockUserDialogState = PreservedState.State(BlockUserDialogState(name, id))
     }
 
     // TODO: needs to be implemented

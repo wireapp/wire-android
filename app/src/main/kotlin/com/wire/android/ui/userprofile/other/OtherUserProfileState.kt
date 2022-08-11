@@ -1,12 +1,11 @@
 package com.wire.android.ui.userprofile.other
 
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.ModalBottomSheetValue
 import com.wire.android.model.ImageAsset.UserAvatarAsset
-import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.kalium.logic.data.conversation.Member
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.BotService
 import com.wire.kalium.logic.data.user.ConnectionState
 
@@ -24,7 +23,6 @@ data class OtherUserProfileState(
     val membership: Membership = Membership.None,
     val groupState: OtherUserProfileGroupState? = null,
     val botService: BotService? = null,
-    val blockUserDialogState: BlockUserDialogState? = null,
     private val conversationSheetContent: ConversationSheetContent? = null,
     val bottomSheetContentState: BottomSheetContent? = null
 ) {
@@ -47,7 +45,9 @@ data class OtherUserProfileState(
             userName = "username",
             teamName = "team",
             email = "email",
-            groupState = OtherUserProfileGroupState("group name", Member.Role.Member, true)
+            groupState = OtherUserProfileGroupState(
+                "group name", Member.Role.Member, true, ConversationId("some_user", "domain.com")
+            )
         )
     }
 }
@@ -61,5 +61,6 @@ sealed class BottomSheetContent {
 data class OtherUserProfileGroupState(
     val groupName: String,
     val role: Member.Role,
-    val isSelfAnAdmin: Boolean
+    val isSelfAdmin: Boolean,
+    val conversationId: ConversationId
 )

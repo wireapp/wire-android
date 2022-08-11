@@ -29,7 +29,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.search.widget.SearchFailureBox
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.home.conversationslist.folderWithElements
-import com.wire.android.ui.home.newconversation.common.AddParticipantsButtonsRow
+import com.wire.android.ui.home.newconversation.common.SelectParticipantsButtonsRow
 import com.wire.android.ui.home.newconversation.model.Contact
 
 private const val DEFAULT_SEARCH_RESULT_ITEM_SIZE = 4
@@ -124,7 +124,7 @@ private fun SearchResult(
                 onAddContactClicked = onAddContactClicked
             )
         }
-        AddParticipantsButtonsRow(
+        SelectParticipantsButtonsRow(
             count = contactsAddedToGroup.size,
             mainButtonText = stringResource(id = purpose.continueButtonTextResId),
             onMainButtonClick = onNewGroupClicked

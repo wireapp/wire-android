@@ -27,7 +27,7 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 
 @Composable
-fun AddParticipantsButtonsRow(
+fun SelectParticipantsButtonsRow(
     count: Int,
     mainButtonText: String,
     elevation: Dp = MaterialTheme.wireDimensions.bottomNavigationShadowElevation,
@@ -75,11 +75,11 @@ fun AddParticipantsButtonsRow(
 @Preview
 @Composable
 private fun GroupButtonPreview() {
-    AddParticipantsButtonsRow(count = 3, mainButtonText = "Continue", onMainButtonClick = {}, onMoreButtonClick = {})
+    SelectParticipantsButtonsRow(count = 3, mainButtonText = "Continue", onMainButtonClick = {}, onMoreButtonClick = {})
 }
 
 @Preview
 @Composable
 private fun GroupButtonWithoutMoreButtonPreview() {
-    AddParticipantsButtonsRow(count = 3, mainButtonText = "Continue", onMainButtonClick = {})
+    SelectParticipantsButtonsRow(count = 3, mainButtonText = "Continue", onMainButtonClick = {})
 }

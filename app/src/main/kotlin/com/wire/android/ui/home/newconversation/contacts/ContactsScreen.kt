@@ -31,7 +31,7 @@ import com.wire.android.ui.common.loading.CenteredCircularProgressBarIndicator
 import com.wire.android.ui.home.conversations.search.SearchPeoplePurpose
 import com.wire.android.ui.home.conversationslist.folderWithElements
 import com.wire.android.ui.home.conversationslist.model.Membership
-import com.wire.android.ui.home.newconversation.common.AddParticipantsButtonsRow
+import com.wire.android.ui.home.newconversation.common.SelectParticipantsButtonsRow
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.home.conversations.search.SearchResultState
 import com.wire.android.ui.home.conversations.search.widget.SearchFailureBox
@@ -87,7 +87,7 @@ fun ContactsScreen(
                         }
                     }
                 }
-                AddParticipantsButtonsRow(
+                SelectParticipantsButtonsRow(
                     count = contactsAddedToGroup.size,
                     mainButtonText = stringResource(id = purpose.continueButtonTextResId),
                     onMainButtonClick = onNewGroupClicked

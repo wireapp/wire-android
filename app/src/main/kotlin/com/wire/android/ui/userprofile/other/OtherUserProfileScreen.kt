@@ -4,6 +4,7 @@ import android.annotation.SuppressLint
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
+import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -17,6 +18,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.rememberModalBottomSheetState
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
@@ -46,9 +48,7 @@ import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.MoreOptionIcon
 import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireTabRow
-import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
-import com.wire.android.ui.common.bottomsheet.RichMenuBottomSheetItem
-import com.wire.android.ui.common.bottomsheet.RichMenuItemState
+import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.calculateCurrentTab
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
@@ -62,9 +62,17 @@ import com.wire.android.ui.userprofile.common.EditableState
 import com.wire.android.ui.userprofile.common.UserProfileInfo
 import com.wire.android.ui.userprofile.group.RemoveConversationMemberState
 import com.wire.kalium.logic.data.conversation.Member
+import com.wire.kalium.logic.data.user.ConnectionState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
+@OptIn(
+    ExperimentalMaterialApi::class,
+    ExperimentalMaterial3Api::class,
+    ExperimentalAnimationApi::class,
+    ExperimentalPagerApi::class,
+    ExperimentalFoundationApi::class
+)
 @Composable
 fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltViewModel()) {
     val snackbarHostState = remember { SnackbarHostState() }
@@ -89,7 +97,14 @@ fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltView
     }
 }
 
-@OptIn(ExperimentalPagerApi::class, ExperimentalMaterialApi::class)
+@SuppressLint("UnusedCrossfadeTargetStateParameter")
+@OptIn(
+    ExperimentalMaterialApi::class,
+    ExperimentalMaterial3Api::class,
+    ExperimentalAnimationApi::class,
+    ExperimentalPagerApi::class,
+    ExperimentalFoundationApi::class
+)
 @Composable
 fun OtherProfileScreenContent(
     state: OtherUserProfileState,
@@ -120,20 +135,18 @@ fun OtherProfileScreenContent(
     val tabBarElevationState by remember(tabItems, lazyListStates, currentTabState) {
         derivedStateOf { lazyListStates[tabItems[currentTabState]]?.topBarElevation(maxBarElevation) ?: 0.dp }
     }
-    val modalBottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
     val scope = rememberCoroutineScope()
 
-    val openChangeRoleBottomSheet: () -> Unit = remember { { scope.launch { modalBottomSheetState.show() } } }
-    val closeChangeRoleBottomSheet: () -> Unit = remember { { scope.launch { modalBottomSheetState.hide() } } }
+    val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
+    val openChangeRoleBottomSheet: () -> Unit = remember { { scope.launch { sheetState.show() } } }
+    val closeChangeRoleBottomSheet: () -> Unit = remember { { scope.launch { sheetState.hide() } } }
 
-    MenuModalSheetLayout(
-        sheetState = modalBottomSheetState,
-        coroutineScope = scope,
-        headerTitle = stringResource(R.string.user_profile_role_in_group, state.groupState?.groupName ?: ""),
-        menuItems = if (state.groupState == null) listOf() else listOf(
-            { EditGroupRoleItem(Member.Role.Admin, state.groupState.role, changeMemberRole, closeChangeRoleBottomSheet) },
-            { EditGroupRoleItem(Member.Role.Member, state.groupState.role, changeMemberRole, closeChangeRoleBottomSheet) }
-        ),
+    WireModalSheetLayout(
+        sheetState = sheetState,
+        coroutineScope = rememberCoroutineScope(),
+        sheetContent = {
+            EditGroupRoleBottomSheet(state, changeMemberRole, closeChangeRoleBottomSheet)
+        }
     ) {
         CollapsingTopBarScaffold(
             snackbarHost = {
@@ -142,7 +155,7 @@ fun OtherProfileScreenContent(
                     modifier = Modifier.fillMaxWidth()
                 )
             },
-            topBarHeader = { elevation -> TopBarHeader(state = state, elevation = elevation, onNavigateBack) },
+            topBarHeader = { elevation -> TopBarHeader(state = state, elevation = elevation, onNavigateBack, openChangeRoleBottomSheet) },
             topBarCollapsing = { TopBarCollapsing(state) },
             topBarFooter = { TopBarFooter(state, pagerState, tabBarElevationState, tabItems, currentTabState, scope) },
             content = {
@@ -166,7 +179,8 @@ fun OtherProfileScreenContent(
                     acceptConnectionRequest,
                     ignoreConnectionRequest
                 )
-            }, isSwipeable = state.connectionStatus == ConnectionStatus.Connected
+            },
+            isSwipeable = state.connectionStatus == ConnectionState.ACCEPTED
         )
     }
     RemoveConversationMemberDialog(
@@ -177,28 +191,19 @@ fun OtherProfileScreenContent(
 }
 
 @Composable
-private fun EditGroupRoleItem(
-    role: Member.Role,
-    currentRole: Member.Role,
-    onRoleClicked: (Member.Role) -> Unit,
-    closeChangeRoleBottomSheet: () -> Unit
+private fun TopBarHeader(
+    state: OtherUserProfileState,
+    elevation: Dp,
+    onNavigateBack: () -> Unit,
+    openChangeRoleBottomSheet: () -> Unit
 ) {
-    RichMenuBottomSheetItem(
-        title = role.name.asString(),
-        onItemClick = Clickable { onRoleClicked(role).also { closeChangeRoleBottomSheet() } },
-        state = if (currentRole == role) RichMenuItemState.SELECTED else RichMenuItemState.DEFAULT
-    )
-}
-
-@Composable
-private fun TopBarHeader(state: OtherUserProfileState, elevation: Dp, onNavigateBack: () -> Unit) {
     WireCenterAlignedTopAppBar(
         onNavigationPressed = onNavigateBack,
         title = stringResource(id = R.string.user_profile_title),
         elevation = elevation,
         actions = {
-            if (state.connectionStatus is ConnectionStatus.Connected) {
-                MoreOptionIcon({ })
+            if (state.connectionStatus in listOf(ConnectionState.ACCEPTED, ConnectionState.BLOCKED)) {
+                MoreOptionIcon(openChangeRoleBottomSheet)
             }
         }
     )
@@ -231,7 +236,7 @@ private fun TopBarFooter(
     currentTab: Int,
     scope: CoroutineScope
 ) {
-    if (state.connectionStatus == ConnectionStatus.Connected) {
+    if (state.connectionStatus == ConnectionState.ACCEPTED) {
         AnimatedVisibility(
             visible = !state.isDataLoading,
             enter = fadeIn(),
@@ -266,7 +271,7 @@ private fun Content(
     Crossfade(targetState = state) { state ->
         when {
             state.isDataLoading || state.botService != null -> Box {} // no content visible while loading
-            state.connectionStatus is ConnectionStatus.Connected ->
+            state.connectionStatus == ConnectionState.ACCEPTED ->
                 CompositionLocalProvider(LocalOverScrollConfiguration provides null) {
                     HorizontalPager(
                         modifier = Modifier.fillMaxSize(),
@@ -334,25 +339,38 @@ enum class OtherUserProfileTabItem(@StringRes override val titleResId: Int) : Ta
     DETAILS(R.string.user_profile_details_tab);
 }
 
-
+@OptIn(
+    ExperimentalMaterialApi::class,
+    ExperimentalMaterial3Api::class,
+    ExperimentalAnimationApi::class,
+    ExperimentalPagerApi::class,
+    ExperimentalFoundationApi::class
+)
 @Composable
 @Preview(name = "Connected")
 fun OtherProfileScreenContentPreview() {
     WireTheme(isPreview = true) {
         OtherProfileScreenContent(
-            OtherUserProfileState.PREVIEW.copy(connectionStatus = ConnectionStatus.Connected),
+            OtherUserProfileState.PREVIEW.copy(connectionStatus = ConnectionState.ACCEPTED),
             null,
             {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
         )
     }
 }
 
+@OptIn(
+    ExperimentalMaterialApi::class,
+    ExperimentalMaterial3Api::class,
+    ExperimentalAnimationApi::class,
+    ExperimentalPagerApi::class,
+    ExperimentalFoundationApi::class
+)
 @Composable
 @Preview(name = "Not Connected")
 fun OtherProfileScreenContentNotConnectedPreview() {
     WireTheme(isPreview = true) {
         OtherProfileScreenContent(
-            OtherUserProfileState.PREVIEW.copy(connectionStatus = ConnectionStatus.NotConnected),
+            OtherUserProfileState.PREVIEW.copy(connectionStatus = ConnectionState.CANCELLED),
             null,
             {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
         )

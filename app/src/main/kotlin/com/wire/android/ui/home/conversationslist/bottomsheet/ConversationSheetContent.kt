@@ -7,6 +7,7 @@ import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.ui.home.conversationslist.ConversationSheetState
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.user.UserId
 
 @Composable
 fun ConversationSheetContent(
@@ -16,7 +17,7 @@ fun ConversationSheetContent(
     moveConversationToFolder: () -> Unit,
     moveConversationToArchive: () -> Unit,
     clearConversationContent: () -> Unit,
-    blockUser: () -> Unit,
+    blockUser: (UserId, String) -> Unit,
     leaveGroup: () -> Unit
 ) {
     when (conversationSheetState.currentOptionNavigation) {
@@ -27,7 +28,7 @@ fun ConversationSheetContent(
                 moveConversationToFolder = moveConversationToFolder,
                 moveConversationToArchive = moveConversationToArchive,
                 clearConversationContent = clearConversationContent,
-                blockUser = blockUser,
+                blockUserClick = blockUser,
                 leaveGroup = leaveGroup,
                 navigateToNotification = conversationSheetState::toMutingNotificationOption
             )
@@ -53,7 +54,12 @@ sealed class ConversationOptionNavigation {
 
 sealed class ConversationTypeDetail {
     data class Group(val conversationId: ConversationId) : ConversationTypeDetail()
-    data class Private(val avatarAsset: UserAvatarAsset?) : ConversationTypeDetail()
+    data class Private(
+        val avatarAsset: UserAvatarAsset?,
+        val userId: UserId,
+        val isBlockable: Boolean
+    ) : ConversationTypeDetail()
+    data class Connection(val avatarAsset: UserAvatarAsset?) : ConversationTypeDetail()
 }
 
 data class ConversationSheetContent(

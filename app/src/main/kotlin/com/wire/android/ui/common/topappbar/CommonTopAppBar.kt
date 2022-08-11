@@ -32,7 +32,7 @@ import com.wire.android.ui.theme.wireTypography
 fun CommonTopAppBar(commonTopAppBarViewModel: CommonTopAppBarViewModel) {
 
     with (commonTopAppBarViewModel) {
-        returnToCall(
+        ongoingCallLabel(
             isMuted = callState.isMuted ?: false,
             shouldShow = callState.shouldShow,
             onClick = ::openOngoingCallScreen
@@ -41,7 +41,7 @@ fun CommonTopAppBar(commonTopAppBarViewModel: CommonTopAppBarViewModel) {
 }
 
 @Composable
-private fun returnToCall(
+private fun ongoingCallLabel(
     isMuted: Boolean,
     shouldShow: Boolean,
     onClick: () -> Unit
@@ -116,7 +116,7 @@ private fun clearStatusBarColor() {
 @Preview("is NOT muted")
 @Composable
 fun CommonTopAppBarCallIsNotMuted() {
-    returnToCall(
+    ongoingCallLabel(
         isMuted = false,
         shouldShow = true,
         onClick = { }
@@ -126,7 +126,7 @@ fun CommonTopAppBarCallIsNotMuted() {
 @Preview("is muted")
 @Composable
 fun CommonTopAppBarCallIsMuted() {
-    returnToCall(
+    ongoingCallLabel(
         isMuted = false,
         shouldShow = true,
         onClick = { }

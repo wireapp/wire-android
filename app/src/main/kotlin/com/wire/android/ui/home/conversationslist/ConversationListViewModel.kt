@@ -11,6 +11,7 @@ import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.UserAvatarData
 import com.wire.android.navigation.NavigationCommand
+import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.HomeSnackbarState
@@ -43,7 +44,6 @@ import com.wire.kalium.logic.feature.call.AnswerCallUseCase
 import com.wire.kalium.logic.feature.connection.BlockUserResult
 import com.wire.kalium.logic.feature.connection.BlockUserUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
-import com.wire.kalium.logic.feature.conversation.LeaveGroupConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationsAndConnectionsUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
@@ -67,13 +67,14 @@ class ConversationListViewModel @Inject constructor(
     private val blockUserUseCase: BlockUserUseCase,
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val userTypeMapper: UserTypeMapper,
-    private val leaveGroupConversation: LeaveGroupConversationUseCase
+    private val leaveGroupConversation: RemoveMemberFromConversationUseCase
 ) : ViewModel() {
 
     var state by mutableStateOf(ConversationListState())
         private set
 
     val snackBarState = MutableSharedFlow<HomeSnackbarState>()
+    lateinit var selfUserId: UserId
 
     init {
         startObservingConversationsAndConnections()
@@ -83,6 +84,7 @@ class ConversationListViewModel @Inject constructor(
         observeConversationsAndConnections() // TODO AR-1736
             .combine(getSelf(), ::Pair)
             .collect { (list, selfUser) ->
+                selfUserId = selfUser.id
                 val detailedList = list.conversationList.toConversationsFoldersMap(selfUser.teamId)
                 val newActivities = emptyList<NewActivity>()
                 val missedCalls = mockMissedCalls // TODO: needs to be implemented
@@ -206,9 +208,8 @@ class ConversationListViewModel @Inject constructor(
     }
 
     fun leaveGroup(conversationId: ConversationId) = viewModelScope.launch(dispatchers.io()) {
-        leaveGroupConversation(conversationId = conversationId)
+        leaveGroupConversation(conversationId = conversationId, selfUserId)
     }
-
 
     private fun List<ConversationDetails>.toConversationItemList(teamId: TeamId?): List<ConversationItem> =
         filter { it is Group || it is OneOne || it is Connection }

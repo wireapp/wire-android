@@ -29,7 +29,7 @@ import com.wire.kalium.logic.feature.conversation.AddMemberToConversationUseCase
 import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetAllContactsNotInConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
-import com.wire.kalium.logic.feature.conversation.LeaveGroupConversationUseCase
+import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveUserListByIdUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUseCase
@@ -630,8 +630,8 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun provideLeaveGroupConversationUseCase(
+    fun provideRemoveMemberFromConversationUserUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ): LeaveGroupConversationUseCase = coreLogic.getSessionScope(currentAccount).conversations.leaveGroupConversationUseCase
+    ): RemoveMemberFromConversationUseCase = coreLogic.getSessionScope(currentAccount).conversations.removeMemberFromConversation
 }

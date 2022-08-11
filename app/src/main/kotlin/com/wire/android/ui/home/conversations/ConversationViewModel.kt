@@ -122,29 +122,37 @@ class ConversationViewModel @Inject constructor(
     var establishedCallConversationId: ConversationId? = null
 
     init {
-        // we emit null on start to push the zip pipe to start emitting without waiting for each other
+        observeConversationDetailsAndMessages()
+        fetchSelfUserTeam()
+        setFileSharingStatus()
+        listenOngoingCall()
+        observeEstablishedCall()
+    }
+
+    private fun observeConversationDetailsAndMessages() {
+        // we emit null on start to push the combine pipeline to start emitting without waiting for each other
         viewModelScope.launch {
             flow {
                 emitAll(getMessageForConversation(conversationId).onStart { emit(null) })
             }.combine(
                 flow { emitAll(observeConversationDetails(conversationId).onStart { emit(null) }) }
-            ) { a, b ->
-                Pair(a, b)
-            }.collect { (a: List<UIMessage>?, b: ObserveConversationDetailsUseCase.Result?) ->
-                if (b != null) {
-                    when (b) {
-                        is Failure -> handleConversationDetailsFailure(b.storageFailure)
-                        is Success -> handleConversationDetails(b.conversationDetails)
+            ) { uiMessages, conversationDetailsResult ->
+                Pair(uiMessages, conversationDetailsResult)
+            }.collect { (uiMessages: List<UIMessage>?, conversationDetailsResult: ObserveConversationDetailsUseCase.Result?) ->
+                if (conversationDetailsResult != null) {
+                    when (conversationDetailsResult) {
+                        is Failure -> handleConversationDetailsFailure(conversationDetailsResult.storageFailure)
+                        is Success -> handleConversationDetails(conversationDetailsResult.conversationDetails)
                     }
                 }
 
-                if (a != null && (b != null && b is Success)) {
-                    updateMessagesList(a)
-                    when (val details = b.conversationDetails) {
+                if (uiMessages != null && (conversationDetailsResult != null && conversationDetailsResult is Success)) {
+                    updateMessagesList(uiMessages)
+                    when (val details = conversationDetailsResult.conversationDetails) {
                         is ConversationDetails.OneOne -> {
                             val lastUnreadMessage = details.lastUnreadMessage
                             if (lastUnreadMessage != null) {
-                                a.firstOrNull { it.messageHeader.messageId == lastUnreadMessage.id }?.let {
+                                uiMessages.firstOrNull { it.messageHeader.messageId == lastUnreadMessage.id }?.let {
                                     conversationViewState = conversationViewState.copy(lastUnreadMessage = it)
                                 }
                             }
@@ -152,7 +160,7 @@ class ConversationViewModel @Inject constructor(
                         is ConversationDetails.Group -> {
                             val lastUnreadMessage = details.lastUnreadMessage
                             if (lastUnreadMessage != null) {
-                                a.firstOrNull { it.messageHeader.messageId == lastUnreadMessage.id }?.let {
+                                uiMessages.firstOrNull { it.messageHeader.messageId == lastUnreadMessage.id }?.let {
                                     conversationViewState = conversationViewState.copy(lastUnreadMessage = it)
                                 }
                             }
@@ -162,11 +170,6 @@ class ConversationViewModel @Inject constructor(
                 }
             }
         }
-
-        fetchSelfUserTeam()
-        setFileSharingStatus()
-        listenOngoingCall()
-        observeEstablishedCall()
     }
 
     // region ------------------------------ Init Methods -------------------------------------
@@ -175,6 +178,7 @@ class ConversationViewModel @Inject constructor(
             conversationViewState = conversationViewState.copy(messages = messages)
         }
     }
+
     /**
      * TODO: This right now handles only the case when a conversation details doesn't exists.
      * Later we'll have to expand the error cases to different behaviors

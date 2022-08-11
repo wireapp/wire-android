@@ -177,7 +177,6 @@ private fun ConversationScreen(
     val conversationScreenState = rememberConversationScreenState()
 
     with(conversationViewState) {
-
         val connectionStateOrNull = (conversationDetailsData as? ConversationDetailsData.OneOne)?.connectionState
 
         MenuModalSheetLayout(

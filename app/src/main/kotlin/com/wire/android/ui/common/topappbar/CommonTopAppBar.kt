@@ -14,14 +14,11 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.wire.android.R
 import com.wire.android.ui.theme.wireColorScheme
@@ -49,7 +46,7 @@ private fun ongoingCallLabel(
     if (shouldShow) {
         val darkIcons = MaterialTheme.wireColorScheme.useDarkSystemBarIcons
         rememberSystemUiController().setStatusBarColor(
-            color = MaterialTheme.wireColorScheme.returnToCallColor,
+            color = MaterialTheme.wireColorScheme.ongoingCallLabelColor,
             darkIcons = darkIcons
         )
 
@@ -57,7 +54,7 @@ private fun ongoingCallLabel(
             modifier = Modifier
                 .fillMaxWidth()
                 .height(MaterialTheme.wireDimensions.ongoingCallLabelHeight)
-                .background(MaterialTheme.wireColorScheme.returnToCallColor)
+                .background(MaterialTheme.wireColorScheme.ongoingCallLabelColor)
                 .clickable { onClick() },
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
@@ -73,7 +70,7 @@ private fun ongoingCallLabel(
                         id = if (isMuted) R.string.content_description_calling_call_muted
                         else R.string.content_description_calling_call_unmuted
                     ),
-                    tint = Color.White
+                    tint = MaterialTheme.wireColorScheme.ongoingCallLabelIconColor
                 )
 
                 // Camera Icon
@@ -84,13 +81,13 @@ private fun ongoingCallLabel(
                         start = MaterialTheme.wireDimensions.spacing8x,
                         end = MaterialTheme.wireDimensions.spacing8x
                     ),
-                    tint = Color.White
+                    tint = MaterialTheme.wireColorScheme.ongoingCallLabelIconColor
                 )
 
                 Text(
                     text = stringResource(id = R.string.calling_ongoing_call_return_to_call),
                     fontWeight = FontWeight.Normal,
-                    color = Color.White,
+                    color = MaterialTheme.wireColorScheme.ongoingCallLabelTextColor,
                     style = MaterialTheme.wireTypography.title03,
                     textAlign = TextAlign.Left,
                     fontSize = MaterialTheme.wireTypography.title03.fontSize

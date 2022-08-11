@@ -20,6 +20,7 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.Member
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.PlainId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.TeamId
@@ -47,7 +48,7 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUs
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
-import com.wire.kalium.logic.feature.user.GetUserInfoUseCase
+import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
 import io.mockk.Called
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -78,7 +79,7 @@ class OtherUserProfileScreenViewModelTest {
     private lateinit var getOrCreateOneToOneConversation: GetOrCreateOneToOneConversationUseCase
 
     @MockK
-    private lateinit var getUserInfo: GetUserInfoUseCase
+    private lateinit var observeUserInfo: ObserveUserInfoUseCase
 
     @MockK
     private lateinit var sendConnectionRequest: SendConnectionRequestUseCase
@@ -126,7 +127,7 @@ class OtherUserProfileScreenViewModelTest {
         every { savedStateHandle.get<String>(eq(EXTRA_USER_ID)) } returns CONVERSATION_ID.toString()
         every { savedStateHandle.get<String>(eq(EXTRA_CONVERSATION_ID)) } returns CONVERSATION_ID.toString()
         coEvery { observeConversationRoleForUserUseCase.invoke(any(), any()) } returns flowOf(CONVERSATION_ROLE_DATA)
-        coEvery { getUserInfo(any()) } returns GetUserInfoResult.Success(OTHER_USER, TEAM)
+        coEvery { observeUserInfo(any()) } returns flowOf(GetUserInfoResult.Success(OTHER_USER, TEAM))
         coEvery { observeSelfUser() } returns flowOf(TestUser.SELF_USER)
         every { userTypeMapper.toMembership(any()) } returns Membership.None
         coEvery {
@@ -145,7 +146,7 @@ class OtherUserProfileScreenViewModelTest {
             updateConversationMutedStatus,
             blockUser,
             getOrCreateOneToOneConversation,
-            getUserInfo,
+            observeUserInfo,
             sendConnectionRequest,
             cancelConnectionRequest,
             acceptConnectionRequest,
@@ -153,11 +154,9 @@ class OtherUserProfileScreenViewModelTest {
             userTypeMapper,
             wireSessionImageLoader,
             observeConversationRoleForUserUseCase,
-            updateConversationMemberRoleUseCase,
             removeMemberFromConversationUseCase,
             qualifiedIdMapper,
             updateConversationMemberRoleUseCase,
-            TestDispatcherProvider(),
         )
     }
 
@@ -386,7 +385,7 @@ class OtherUserProfileScreenViewModelTest {
                     blockUser(eq(USER_ID))
                 }
                 assertEquals(InfoMessageType.BlockingUserOperationError.uiText, awaitItem())
-                assertEquals(null, otherUserProfileScreenViewModel.state.blockUserDialogState)
+                assertEquals(null, otherUserProfileScreenViewModel.blockUserDialogState)
             }
         }
 
@@ -411,7 +410,7 @@ class OtherUserProfileScreenViewModelTest {
                     (awaitItem() as UIText.StringResource).resId,
                     (InfoMessageType.BlockingUserOperationSuccess(userName).uiText as UIText.StringResource).resId
                 )
-                assertEquals(null, otherUserProfileScreenViewModel.state.blockUserDialogState)
+                assertEquals(null, otherUserProfileScreenViewModel.blockUserDialogState)
             }
         }
 
@@ -448,7 +447,8 @@ class OtherUserProfileScreenViewModelTest {
             lastModifiedDate = null,
             lastReadDate = "2022-04-04T16:11:28.388Z",
             access = listOf(Conversation.Access.INVITE),
-            accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER)
+            accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER),
+            creatorId = PlainId("")
         )
         val CONVERSATION_ROLE_DATA = ConversationRoleData(
             "some_name",

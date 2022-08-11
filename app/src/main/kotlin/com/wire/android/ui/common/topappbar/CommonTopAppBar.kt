@@ -86,11 +86,9 @@ private fun ongoingCallLabel(
 
                 Text(
                     text = stringResource(id = R.string.calling_ongoing_call_return_to_call),
-                    fontWeight = FontWeight.Normal,
                     color = MaterialTheme.wireColorScheme.ongoingCallLabelTextColor,
                     style = MaterialTheme.wireTypography.title03,
                     textAlign = TextAlign.Left,
-                    fontSize = MaterialTheme.wireTypography.title03.fontSize
                 )
             }
         }

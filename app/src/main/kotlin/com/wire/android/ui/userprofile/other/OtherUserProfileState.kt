@@ -5,6 +5,7 @@ import androidx.compose.material.ModalBottomSheetValue
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.kalium.logic.data.conversation.Member
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.BotService
 import com.wire.kalium.logic.data.user.ConnectionState
 
@@ -30,7 +31,9 @@ data class OtherUserProfileState(
             userName = "username",
             teamName = "team",
             email = "email",
-            groupState = OtherUserProfileGroupState("group name", Member.Role.Member, true)
+            groupState = OtherUserProfileGroupState(
+                "group name", Member.Role.Member, true, ConversationId("some_user", "domain.com")
+            )
         )
     }
 }
@@ -38,5 +41,25 @@ data class OtherUserProfileState(
 data class OtherUserProfileGroupState(
     val groupName: String,
     val role: Member.Role,
-    val isSelfAnAdmin: Boolean
+    val isSelfAdmin: Boolean,
+    val conversationId: ConversationId
 )
+
+sealed class ConnectionStatus {
+    object Unknown : ConnectionStatus()
+    object Connected : ConnectionStatus()
+    object Pending : ConnectionStatus()
+    object Sent : ConnectionStatus()
+    object NotConnected : ConnectionStatus()
+}
+
+fun ConnectionState.toOtherUserProfileConnectionStatus() = when (this) {
+    ConnectionState.NOT_CONNECTED -> ConnectionStatus.NotConnected
+    ConnectionState.CANCELLED -> ConnectionStatus.NotConnected
+    ConnectionState.PENDING -> ConnectionStatus.Pending
+    ConnectionState.SENT -> ConnectionStatus.Sent
+    ConnectionState.ACCEPTED -> ConnectionStatus.Connected
+    ConnectionState.BLOCKED,
+    ConnectionState.IGNORED,
+    ConnectionState.MISSING_LEGALHOLD_CONSENT -> ConnectionStatus.Unknown // TODO: implement rest states
+}

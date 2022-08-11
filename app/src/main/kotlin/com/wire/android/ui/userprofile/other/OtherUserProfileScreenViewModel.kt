@@ -57,20 +57,17 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUs
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
-import com.wire.kalium.logic.feature.user.GetUserInfoUseCase
+import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 import java.util.Date
+import javax.inject.Inject
 
 @Suppress("LongParameterList", "TooManyFunctions")
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
@@ -82,7 +79,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val updateConversationMutedStatus: UpdateConversationMutedStatusUseCase,
     private val blockUser: BlockUserUseCase,
     private val getOrCreateOneToOneConversation: GetOrCreateOneToOneConversationUseCase,
-    private val getUserInfo: GetUserInfoUseCase,
+    private val observeUserInfo: ObserveUserInfoUseCase,
     private val sendConnectionRequest: SendConnectionRequestUseCase,
     private val cancelConnectionRequest: CancelConnectionRequestUseCase,
     private val acceptConnectionRequest: AcceptConnectionRequestUseCase,
@@ -96,8 +93,6 @@ class OtherUserProfileScreenViewModel @Inject constructor(
 ) : ViewModel() {
 
     var state: OtherUserProfileState by mutableStateOf(OtherUserProfileState())
-
-    private val _refreshUserInfo = MutableSharedFlow<Unit>()
 
     private val _infoMessage = MutableSharedFlow<UIText>()
     val infoMessage = _infoMessage.asSharedFlow()
@@ -117,7 +112,16 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                     val observeConversationRoleData = conversationId
                         .let { if (it != null) observeConversationRoleForUser(it, userId) else flowOf(it) }
 
-                    combine(observeConversationRoleData, observeSelfUser(), observeUserInfo(), ::Triple)
+                    val observeSucceedUserInfo = observeUserInfo(userId)
+                        .onEach {
+                            if (it is GetUserInfoResult.Failure) {
+                                appLogger.d("Couldn't not find the user with provided id: $userId")
+                                showInfoMessage(InfoMessageType.LoadUserInformationError)
+                            }
+                        }
+                        .filterIsInstance<GetUserInfoResult.Success>()
+
+                    combine(observeConversationRoleData, observeSelfUser(), observeSucceedUserInfo, ::Triple)
                         .collect { (conversationRoleData, selfUser, userInfoResult) ->
                             loadViewState(userInfoResult, conversationResult.conversation, conversationRoleData, selfUser.teamId)
                         }
@@ -125,18 +129,6 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             }
         }
     }
-
-    private fun observeUserInfo(): Flow<GetUserInfoResult.Success> =
-        _refreshUserInfo
-            .onStart { emit(Unit) }
-            .map { getUserInfo(userId) }
-            .onEach {
-                if (it is GetUserInfoResult.Failure) {
-                    appLogger.d("Couldn't not find the user with provided id: $userId")
-                    showInfoMessage(InfoMessageType.LoadUserInformationError)
-                }
-            }
-            .filterIsInstance<GetUserInfoResult.Success>()
 
     private fun loadViewState(
         getInfoResult: GetUserInfoResult.Success,
@@ -291,7 +283,6 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             when (val result = blockUser(id)) {
                 BlockUserResult.Success -> {
                     appLogger.i("User $id was blocked")
-                    _refreshUserInfo.emit(Unit)
                     showInfoMessage(InfoMessageType.BlockingUserOperationSuccess(userName))
                 }
                 is BlockUserResult.Failure -> {

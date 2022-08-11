@@ -18,6 +18,7 @@ import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.notification.NotificationConstants.NOTIFICATION_ID
 import com.wire.android.notification.NotificationConstants.WEB_SOCKET_CHANNEL_ID
 import com.wire.android.notification.NotificationConstants.WEB_SOCKET_CHANNEL_NAME
 import com.wire.android.notification.WireNotificationManager
@@ -111,8 +112,6 @@ class PersistentWebSocketService : Service() {
         }
     }
 
-    private val notification_ID = 123
-
     private fun generateForegroundNotification() {
         val pendingIntent: PendingIntent =
             Intent(this, WireActivity::class.java).let { notificationIntent ->
@@ -138,8 +137,7 @@ class PersistentWebSocketService : Service() {
             .setContentIntent(pendingIntent)
             .build()
 
-        startForeground(notification_ID, notification)
-
+        startForeground(NOTIFICATION_ID, notification)
     }
 
     @RequiresApi(Build.VERSION_CODES.O)

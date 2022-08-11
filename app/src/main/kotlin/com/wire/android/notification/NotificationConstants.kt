@@ -13,6 +13,7 @@ object NotificationConstants {
     const val MESSAGE_CHANNEL_NAME = "Messages Channel"
     const val MESSAGE_GROUP_KEY = "wire_reloaded_notification_group"
     const val KEY_TEXT_REPLY = "key_text_notification_reply"
+    const val NOTIFICATION_ID = 123
 
     //Notification IDs (has to be unique!)
     val MESSAGE_SUMMARY_ID = "wire_messages_summary_notification".hashCode()

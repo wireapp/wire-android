@@ -74,12 +74,12 @@ fun SelectParticipantsButtonsRow(
 
 @Preview
 @Composable
-private fun GroupButtonPreview() {
+private fun SelectParticipantsButtonsRowPreview() {
     SelectParticipantsButtonsRow(count = 3, mainButtonText = "Continue", onMainButtonClick = {}, onMoreButtonClick = {})
 }
 
 @Preview
 @Composable
-private fun GroupButtonWithoutMoreButtonPreview() {
+private fun SelectParticipantsButtonsRowWithoutMoreButtonPreview() {
     SelectParticipantsButtonsRow(count = 3, mainButtonText = "Continue", onMainButtonClick = {})
 }

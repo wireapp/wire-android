@@ -514,5 +514,18 @@
     <string name="block_user_dialog_title">Block user?</string>
     <string name="block_user_dialog_body">%1$s won’t be able to contact you or add you to group conversations. You will lose access to any 1:1 conversations with them. The other user will not be notified about this.</string>
     <string name="block_user_dialog_confirm_button">Block</string>
+    <string name="general">GENERAL</string>
+    <string name="devices">DEVICES</string>
+    <string name="backups">BACKUPS</string>
+    <string name="others">OTHERS</string>
+    <string name="your_account_label">Your Account</string>
+    <string name="app_settings_label">App Settings</string>
+    <string name="privacy_settings_label">Privacy Settings</string>
+    <string name="network_settings_label">Network Settings</string>
+    <string name="manage_devices_label">Manage your Devices</string>
+    <string name="back_up_label"><![CDATA[Back up & Restore Conversations]]></string>
+    <string name="support_label">Support</string>
+    <string name="debug_settings_label">Debug Settings</string>
+    <string name="about_this_app_label">About this App</string>
 
 </resources>

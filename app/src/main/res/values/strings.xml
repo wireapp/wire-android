@@ -34,6 +34,7 @@
     <string name="label_value_copied">%s copied</string>
     <string name="label_disable">Disable</string>
     <string name="folder_lable_access">Access</string>
+    <string name="label_user_blocked">Blocked</string>
 
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
     <string name="content_description_app_logo">App Logo</string>
@@ -312,6 +313,7 @@
     <string name="user_profile_group_role">ROLE</string>
     <string name="user_profile_role_in_group">Role in ”%s”</string>
     <string name="user_profile_role_change_error">There was an error trying to change the role. Please check your Internet connection and try again</string>
+    <string name="user_profile_unblock_user">Unblock User</string>
 
     <string name="group_role_admin">Admin</string>
     <string name="group_role_member">Member</string>
@@ -367,6 +369,7 @@
     <plurals name="label_system_message_x_more">
         <item quantity="other">%1$d more</item>
     </plurals>
+    <string name="label_system_message_blocked_user">%1$s blocked this user</string>
 
     <!--Search Contact-->
     <string name="label_contacts">CONTACTS</string>
@@ -398,6 +401,8 @@
     <string name="error_conversation_max_asset_size_limit">The file you chose is too large. Please choose a file smaller than %sMB</string>
     <string name="error_conversation_generic">There was an unknown error when trying to send the message</string>
     <string name="conversation_on_file_downloaded">The file %s was saved successfully to the Downloads folder</string>
+    <string name="error_blocking_user">User could not be blocked</string>
+    <string name="blocking_user_success">%s blocked</string>
 
     <!-- Animation label -->
     <string name="animation_label_messagecomposeinput_state_transistion" translatable="false">MessageComposeInputState transition</string>
@@ -506,5 +511,10 @@
     <string name="disable_guests_dialoug_title">Not Allow Guests?</string>
     <string name="disable_guests_dialoug_description">Any guest user selected in the previous step will not be added to the group if you do not allow guest access.</string>
     <string name="disable_guests_dialoug_button">Not Allow Guests</string>
+
+    <!--block user dialog -->
+    <string name="block_user_dialog_title">Block user?</string>
+    <string name="block_user_dialog_body">%1$s won’t be able to contact you or add you to group conversations. You will lose access to any 1:1 conversations with them. The other user will not be notified about this.</string>
+    <string name="block_user_dialog_confirm_button">Block</string>
 
 </resources>

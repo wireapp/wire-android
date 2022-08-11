@@ -39,10 +39,27 @@ class HomeUIState(
     var homeBottomSheetContent: @Composable (ColumnScope.() -> Unit)? by mutableStateOf(null)
         private set
 
-    fun toggleBottomSheetVisibility() {
+    var snackbarState: HomeSnackbarState by mutableStateOf(HomeSnackbarState.None)
+        private set
+
+    fun setSnackBarState(state: HomeSnackbarState) {
+        snackbarState = state
+        if (state != HomeSnackbarState.None) closeBottomSheet()
+    }
+
+    fun clearSnackbarMessage() {
+        setSnackBarState(HomeSnackbarState.None)
+    }
+
+    fun openBottomSheet() {
+        coroutineScope.launch {
+            if (!bottomSheetState.isVisible) bottomSheetState.animateTo(ModalBottomSheetValue.Expanded)
+        }
+    }
+
+    fun closeBottomSheet() {
         coroutineScope.launch {
             if (bottomSheetState.isVisible) bottomSheetState.animateTo(ModalBottomSheetValue.Hidden)
-            else bottomSheetState.animateTo(ModalBottomSheetValue.Expanded)
         }
     }
 

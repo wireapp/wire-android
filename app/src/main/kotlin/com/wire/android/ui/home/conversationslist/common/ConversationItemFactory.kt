@@ -43,7 +43,8 @@ fun ConversationItemFactory(
             },
             onLongClick = {
                 when (conversation.lastEvent) {
-                    is ConversationLastEvent.Connection -> {}
+                    is ConversationLastEvent.Connection -> {
+                    }
                     else -> openMenu(conversation)
                 }
             }
@@ -110,7 +111,7 @@ private fun GeneralConversationItem(
                     leadingIcon = { ConversationUserAvatar(userAvatarData) },
                     title = { UserLabel(userInfoLabel = toUserInfoLabel()) },
                     subTitle = subTitle,
-                    eventType = eventType,
+                    eventType = parsePrivateConversationEventType(connectionState, eventType),
                     clickable = onConversationItemClick,
                     trailingIcon = {
                         if (mutedStatus != MutedConversationStatus.AllAllowed) {
@@ -136,3 +137,7 @@ private fun GeneralConversationItem(
 
 private fun parseConnectionEventType(connectionState: ConnectionState) =
     if (connectionState == ConnectionState.SENT) EventType.SentConnectRequest else EventType.ReceivedConnectionRequest
+
+private fun parsePrivateConversationEventType(connectionState: ConnectionState, eventType: EventType?) =
+    if (connectionState == ConnectionState.BLOCKED) EventType.Blocked
+    else eventType

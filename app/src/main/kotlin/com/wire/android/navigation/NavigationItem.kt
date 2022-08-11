@@ -26,6 +26,7 @@ import com.wire.android.navigation.NavigationItemDestinationsRoutes.INCOMING_CAL
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.INITIATING_CALL
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.LOGIN
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.MEDIA_GALLERY
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.NETWORK_SETTINGS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.NEW_CONVERSATION
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.ONGOING_CALL
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.OTHER_USER_PROFILE
@@ -159,7 +160,7 @@ enum class NavigationItem(
     ),
 
     NetworkSettings(
-        primaryRoute = DEBUG,
+        primaryRoute = NETWORK_SETTINGS,
         content = { NetworkSettingsScreen() },
     ),
 
@@ -366,6 +367,7 @@ object NavigationItemDestinationsRoutes {
     const val INITIATING_CALL = "initiating_call_screen"
     const val INCOMING_CALL = "incoming_call_screen"
     const val MEDIA_GALLERY = "media_gallery"
+    const val NETWORK_SETTINGS = "network_settings_screen"
 }
 
 private const val EXTRA_HOME_TAB_ITEM = "extra_home_tab_item"

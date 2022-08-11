@@ -13,12 +13,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.RowItemTemplate
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.debugscreen.ListWithHeader
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
@@ -82,7 +82,7 @@ fun settingsItem(text: String, onClick: () -> Unit) {
             Box(
                 modifier = Modifier
                     .wrapContentWidth()
-                    .padding(end = 8.dp)
+                    .padding(end = dimensions().spacing16x)
             ) {
                 ArrowRightIcon(Modifier.align(Alignment.TopEnd))
             }

@@ -40,6 +40,10 @@ class CommonTopAppBarViewModel @Inject constructor(
 
     fun openOngoingCallScreen() {
         callState.conversationId?.let { convId ->
+            callState = callState.copy(
+                shouldShow = false
+            )
+
             viewModelScope.launch {
                 navigationManager.navigate(
                     command = NavigationCommand(

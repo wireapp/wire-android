@@ -8,6 +8,7 @@ import io.github.esentsov.PackagePrivate
 @Immutable
 data class WireColorScheme(
     val useDarkSystemBarIcons: Boolean,
+    val ongoingCallLabelShouldUseDarkIcons: Boolean,
     val primary: Color, val onPrimary: Color,
     val error: Color, val onError: Color,
     val errorOutline: Color,
@@ -87,6 +88,7 @@ data class WireColorScheme(
 // Light WireColorScheme
 private val LightWireColorScheme = WireColorScheme(
     useDarkSystemBarIcons = true,
+    ongoingCallLabelShouldUseDarkIcons = false,
     primary = WireColorPalette.LightBlue500,                       onPrimary = Color.White,
     error = WireColorPalette.LightRed500,                          onError = Color.White,
     errorOutline = WireColorPalette.LightRed200,
@@ -177,6 +179,7 @@ private val LightWireColorScheme = WireColorScheme(
 // Dark WireColorScheme
 private val DarkWireColorScheme = WireColorScheme(
     useDarkSystemBarIcons = false,
+    ongoingCallLabelShouldUseDarkIcons = true,
     primary = WireColorPalette.DarkBlue500,                        onPrimary = Color.Black,
     error = WireColorPalette.DarkRed500,                           onError = Color.Black,
     errorOutline = WireColorPalette.DarkRed200,

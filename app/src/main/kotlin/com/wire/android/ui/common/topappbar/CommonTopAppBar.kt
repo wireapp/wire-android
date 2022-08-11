@@ -16,7 +16,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
@@ -44,7 +43,7 @@ private fun ongoingCallLabel(
     onClick: () -> Unit
 ) {
     if (shouldShow) {
-        val darkIcons = MaterialTheme.wireColorScheme.useDarkSystemBarIcons
+        val darkIcons = MaterialTheme.wireColorScheme.ongoingCallLabelShouldUseDarkIcons
         rememberSystemUiController().setStatusBarColor(
             color = MaterialTheme.wireColorScheme.ongoingCallLabelColor,
             darkIcons = darkIcons
@@ -100,7 +99,7 @@ private fun ongoingCallLabel(
 @Composable
 private fun clearStatusBarColor() {
     val backgroundColor = MaterialTheme.wireColorScheme.background
-    val darkIcons = MaterialTheme.wireColorScheme.useDarkSystemBarIcons
+    val darkIcons = MaterialTheme.wireColorScheme.ongoingCallLabelShouldUseDarkIcons
 
     rememberSystemUiController().setSystemBarsColor(
         color = backgroundColor,

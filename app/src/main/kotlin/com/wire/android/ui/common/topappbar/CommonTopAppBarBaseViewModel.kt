@@ -41,7 +41,7 @@ class CommonTopAppBarViewModel @Inject constructor(
     fun openOngoingCallScreen() {
         callState.conversationId?.let { convId ->
             callState = callState.copy(
-                shouldShow = false
+                shouldShowOngoingCallLabel = false
             )
 
             viewModelScope.launch {
@@ -57,22 +57,23 @@ class CommonTopAppBarViewModel @Inject constructor(
     private suspend fun observeEstablishedCall() {
         establishedCalls().collect { calls ->
             val call = calls.firstOrNull()
-            val show = call?.let { true } ?: false
+            val showOngoingCallLabel = call?.let { true } ?: false
 
             callState = callState.copy(
                 conversationId = call?.conversationId,
-                isCallHappening = show,
-                shouldShow = show,
+                isCallHappening = showOngoingCallLabel,
+                shouldShowOngoingCallLabel = showOngoingCallLabel,
                 isMuted = call?.isMuted
             )
         }
     }
 
+
     @OptIn(ExperimentalCoroutinesApi::class)
     private suspend fun observeScreenState() {
         currentScreenManager.observeCurrentScreen(viewModelScope).collect {
             callState = callState.copy(
-                shouldShow = (callState.isCallHappening && (it is CurrentScreen.Home || it is CurrentScreen.Conversation))
+                shouldShowOngoingCallLabel = (callState.isCallHappening && (it is CurrentScreen.Home || it is CurrentScreen.Conversation))
             )
         }
     }

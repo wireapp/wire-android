@@ -61,7 +61,7 @@ data class WireColorScheme(
     val callingActiveIndicator : Color,
     val callingInActiveIndicator : Color,
     val callingInActiveBorderIndicator : Color,
-    val callingReturnToCall: Color
+    val returnToCallColor: Color
     ) {
     fun toColorScheme(): ColorScheme = ColorScheme(
         primary = primary, onPrimary = onPrimary,
@@ -167,7 +167,7 @@ private val LightWireColorScheme = WireColorScheme(
     callingActiveIndicator = WireColorPalette.LightBlue500,
     callingInActiveIndicator = Color.White,
     callingInActiveBorderIndicator = WireColorPalette.Gray60,
-    callingReturnToCall = WireColorPalette.DarkGreen700
+    returnToCallColor = WireColorPalette.DarkGreen700
 )
 
 // Dark WireColorScheme
@@ -255,7 +255,7 @@ private val DarkWireColorScheme = WireColorScheme(
     callingActiveIndicator = WireColorPalette.LightBlue500,
     callingInActiveIndicator = Color.White,
     callingInActiveBorderIndicator = WireColorPalette.Gray60,
-    callingReturnToCall = WireColorPalette.DarkGreen700
+    returnToCallColor = WireColorPalette.DarkGreen700
 )
 
 @PackagePrivate

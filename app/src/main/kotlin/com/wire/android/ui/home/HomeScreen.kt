@@ -30,7 +30,6 @@ import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topappbar.CommonTopAppBar
-import com.wire.android.ui.common.topappbar.CommonTopAppBarBaseViewModel
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
 import com.wire.android.ui.common.topappbar.search.AppTopBarWithSearchBar
 import com.wire.android.ui.home.sync.SyncStateViewModel
@@ -43,20 +42,20 @@ import com.wire.android.ui.home.sync.SyncStateViewModel
 @Composable
 fun HomeScreen(
     startScreen: String?,
-    viewModel: HomeViewModel,
+    homeViewModel: HomeViewModel,
     syncViewModel: SyncStateViewModel,
     commonTopAppBarViewModel: CommonTopAppBarViewModel
 ) {
-    viewModel.checkRequirements()
+    homeViewModel.checkRequirements()
     val homeUIState = rememberHomeUIState()
     val coroutineScope = rememberCoroutineScope()
     val homeState = syncViewModel.homeState
     val snackbarHostState = remember { SnackbarHostState() }
 
-    handleSnackBarMessage(snackbarHostState, viewModel.snackbarMessageState, viewModel::clearSnackbarMessage)
+    handleSnackBarMessage(snackbarHostState, homeViewModel.snackbarMessageState, homeViewModel::clearSnackbarMessage)
 
-    LaunchedEffect(viewModel.savedStateHandle) {
-        viewModel.checkPendingActions()
+    LaunchedEffect(homeViewModel.savedStateHandle) {
+        homeViewModel.checkPendingActions()
     }
 
     with(homeUIState) {
@@ -72,7 +71,7 @@ fun HomeScreen(
                     homeNavController = navController,
                     topItems = HomeNavigationItem.all,
                     scope = coroutineScope,
-                    viewModel = viewModel
+                    viewModel = homeViewModel
                 )
             },
             gesturesEnabled = drawerState.isOpen
@@ -86,12 +85,12 @@ fun HomeScreen(
                     Column {
                         CommonTopAppBar(commonTopAppBarViewModel = commonTopAppBarViewModel) // as CommonTopAppBarViewModel)
                         HomeTopBar(
-                            avatarAsset = viewModel.userAvatar.avatarAsset,
-                            status = viewModel.userAvatar.status,
+                            avatarAsset = homeViewModel.userAvatar.avatarAsset,
+                            status = homeViewModel.userAvatar.status,
                             currentNavigationItem = homeUIState.currentNavigationItem,
                             syncState = syncViewModel.syncState,
                             onOpenDrawerClicked = ::openDrawer,
-                            onNavigateToUserProfile = viewModel::navigateToUserProfile,
+                            onNavigateToUserProfile = homeViewModel::navigateToUserProfile,
                         )
                     }
                 },

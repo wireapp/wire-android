@@ -34,7 +34,7 @@ fun CommonTopAppBar(commonTopAppBarViewModel: CommonTopAppBarViewModel) {
     with (commonTopAppBarViewModel) {
         ongoingCallLabel(
             isMuted = callState.isMuted ?: false,
-            shouldShow = callState.shouldShow,
+            shouldShow = callState.shouldShowOngoingCallLabel,
             onClick = ::openOngoingCallScreen
         )
     }
@@ -49,15 +49,15 @@ private fun ongoingCallLabel(
     if (shouldShow) {
         val darkIcons = MaterialTheme.wireColorScheme.useDarkSystemBarIcons
         rememberSystemUiController().setStatusBarColor(
-            color = MaterialTheme.wireColorScheme.callingReturnToCall,
+            color = MaterialTheme.wireColorScheme.returnToCallColor,
             darkIcons = darkIcons
         )
 
         Column(
             modifier = Modifier
                 .fillMaxWidth()
-                .height(28.dp)
-                .background(MaterialTheme.wireColorScheme.callingReturnToCall)
+                .height(MaterialTheme.wireDimensions.ongoingCallLabelHeight)
+                .background(MaterialTheme.wireColorScheme.returnToCallColor)
                 .clickable { onClick() },
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.Center
@@ -93,7 +93,7 @@ private fun ongoingCallLabel(
                     color = Color.White,
                     style = MaterialTheme.wireTypography.title03,
                     textAlign = TextAlign.Left,
-                    fontSize = 12.sp
+                    fontSize = MaterialTheme.wireTypography.title03.fontSize
                 )
             }
         }

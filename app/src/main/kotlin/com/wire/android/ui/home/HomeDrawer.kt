@@ -33,8 +33,8 @@ import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.navigation.HomeNavigationItem
 import com.wire.android.navigation.HomeNavigationItem.Conversations
+import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationItem.Debug
-import com.wire.android.navigation.NavigationItem.Settings
 import com.wire.android.navigation.NavigationItem.Support
 import com.wire.android.navigation.isExternalRoute
 import com.wire.android.navigation.navigateToItemInHome
@@ -75,6 +75,7 @@ fun HomeDrawer(
         Logo()
 
         topItems.forEach { item ->
+            if (item!=HomeNavigationItem.Settings)
             DrawerItem(
                 data = item.getDrawerData(),
                 selected = currentRoute == item.route,
@@ -87,23 +88,37 @@ fun HomeDrawer(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        val bottomItems = listOf(Settings, Support, Debug)
+        val bottomItems = listOf(HomeNavigationItem.Settings, Support, Debug)
         bottomItems.forEach { item ->
             DrawerItem(
                 data = item.getDrawerData(),
-                selected = currentRoute == item.getRouteWithArgs(),
+                selected =
+                if (item == HomeNavigationItem.Settings) {
+                    item as HomeNavigationItem
+                    currentRoute == item.route
+                } else {
+                    item as NavigationItem
+                    currentRoute == item.getRouteWithArgs()
+                },
                 onItemClick = {
-                    scope.launch {
-                        when (item.isExternalRoute()) {
-                            true -> CustomTabsHelper.launchUrl(homeNavController.context, item.getRouteWithArgs())
-                            false -> viewModel.navigateTo(item)
+                    if (item == HomeNavigationItem.Settings) {
+                        item as HomeNavigationItem
+                        navigateToItemInHome(homeNavController, item)
+                        scope.launch { drawerState.close() }
+                    } else {
+                        scope.launch {
+                            item as NavigationItem
+                            when (item.isExternalRoute()) {
+                                true -> CustomTabsHelper.launchUrl(homeNavController.context, item.getRouteWithArgs())
+                                false -> viewModel.navigateTo(item)
+                            }
+                            drawerState.close()
                         }
-                        drawerState.close()
                     }
+
                 }
             )
         }
-
         Text(
             text = stringResource(R.string.app_version, BuildConfig.VERSION_NAME),
             color = MaterialTheme.colorScheme.primary,
@@ -154,7 +169,7 @@ private fun Any.getDrawerData(): DrawerItemData =
 //        Vault -> DrawerItemData(R.string.vault_screen_title, R.drawable.ic_vault)
 //        Archive -> DrawerItemData(R.string.archive_screen_title, R.drawable.ic_archive)
         Conversations -> DrawerItemData(R.string.conversations_screen_title, R.drawable.ic_conversation)
-        Settings -> DrawerItemData(R.string.settings_screen_title, R.drawable.ic_settings)
+        HomeNavigationItem.Settings -> DrawerItemData(R.string.settings_screen_title, R.drawable.ic_settings)
         Support -> DrawerItemData(R.string.support_screen_title, R.drawable.ic_support)
         Debug -> DrawerItemData(R.string.debug_screen_title, R.drawable.ic_bug)
         else -> DrawerItemData(null, null)

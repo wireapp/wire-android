@@ -92,6 +92,7 @@ fun rememberHomeUIState(
         // TODO: Re-enable when we have Vault & Archive
 //        HomeNavigationItem.Archive.route -> HomeNavigationItem.Archive
 //        HomeNavigationItem.Vault.route -> HomeNavigationItem.Vault
+        HomeNavigationItem.Settings.route -> HomeNavigationItem.Settings
         else -> HomeNavigationItem.Conversations
     }
 

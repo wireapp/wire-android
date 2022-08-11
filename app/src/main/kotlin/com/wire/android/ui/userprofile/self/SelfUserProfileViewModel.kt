@@ -1,5 +1,7 @@
 package com.wire.android.ui.userprofile.self
 
+import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -9,6 +11,7 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.model.ImageAsset.UserAvatarAsset
+import com.wire.android.navigation.HomeNavigationItem.Settings
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
@@ -125,9 +128,10 @@ class SelfUserProfileViewModel @Inject constructor(
         }
     }
 
+    @OptIn(ExperimentalMaterialApi::class, ExperimentalAnimationApi::class)
     fun editProfile() {
         viewModelScope.launch {
-            navigationManager.navigate(NavigationCommand(NavigationItem.Settings.getRouteWithArgs()))
+            navigationManager.navigate(NavigationCommand(Settings.route))
         }
     }
 

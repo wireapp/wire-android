@@ -19,7 +19,7 @@ class StartServiceReceiver : BroadcastReceiver() {
     override fun onReceive(context: Context?, intent: Intent?) {
         val persistentWebSocketServiceIntent = Intent(context, PersistentWebSocketService::class.java)
         if (!isWebSocketEnabledUseCase()) {
-            persistentWebSocketServiceIntent.action = PersistentWebSocketService.ACTION_STOP_FOREGROUND\
+            persistentWebSocketServiceIntent.action = PersistentWebSocketService.ACTION_STOP_FOREGROUND
         }
 
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {

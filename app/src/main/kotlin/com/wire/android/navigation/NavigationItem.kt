@@ -265,7 +265,7 @@ enum class NavigationItem(
         canonicalRoute = "$ONGOING_CALL/{$EXTRA_CONVERSATION_ID}",
         content = { OngoingCallScreen() },
         screenMode = ScreenMode.WAKE_UP,
-        animationConfig = NavigationAnimationConfig.CustomAnimation(expandInToView(), shrinkOutFromView())
+        animationConfig = NavigationAnimationConfig.CustomAnimation(null, shrinkOutFromView())
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String = routeWithConversationIdArg(arguments)
     },

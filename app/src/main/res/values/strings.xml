@@ -527,5 +527,6 @@
     <string name="support_label">Support</string>
     <string name="debug_settings_label">Debug Settings</string>
     <string name="about_this_app_label">About this App</string>
+    <string name="keep_connection_to_websocket">Keep Connection to Websocket</string>
 
 </resources>

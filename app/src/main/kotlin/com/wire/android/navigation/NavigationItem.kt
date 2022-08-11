@@ -54,6 +54,7 @@ import com.wire.android.ui.home.conversations.details.participants.GroupConversa
 import com.wire.android.ui.home.conversations.search.SearchPeopleRouter
 import com.wire.android.ui.home.gallery.MediaGalleryScreen
 import com.wire.android.ui.home.newconversation.NewConversationRouter
+import com.wire.android.ui.settings.networkSettings.NetworkSettingsScreen
 import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerScreen
 import com.wire.android.ui.userprofile.other.OtherUserProfileScreen
 import com.wire.android.ui.userprofile.self.SelfUserProfileScreen
@@ -156,6 +157,12 @@ enum class NavigationItem(
         primaryRoute = DEBUG,
         content = { DebugScreen() },
     ),
+
+    NetworkSettings(
+        primaryRoute = DEBUG,
+        content = { NetworkSettingsScreen() },
+    ),
+
 
     Support(
         primaryRoute = BuildConfig.SUPPORT_URL,

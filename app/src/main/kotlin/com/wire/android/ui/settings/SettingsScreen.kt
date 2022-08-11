@@ -14,6 +14,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.ArrowRightIcon
@@ -23,7 +24,7 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 
 @Composable
-fun SettingsScreen() {
+fun SettingsScreen(settingsViewModel: SettingsViewModel = hiltViewModel()) {
     val lazyListState = rememberLazyListState()
 
     LazyColumn(
@@ -35,7 +36,9 @@ fun SettingsScreen() {
                 settingsItem(stringResource(R.string.your_account_label)) {}
                 settingsItem(stringResource(R.string.app_settings_label)) {}
                 settingsItem(stringResource(R.string.privacy_settings_label)) {}
-                settingsItem(stringResource(R.string.network_settings_label)) {}
+                settingsItem(stringResource(R.string.network_settings_label)) {
+                    settingsViewModel.navigateToNetworkSettings()
+                }
             }
 
         }

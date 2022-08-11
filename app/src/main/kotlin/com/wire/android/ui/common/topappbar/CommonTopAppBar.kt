@@ -99,7 +99,7 @@ private fun ongoingCallLabel(
 @Composable
 private fun clearStatusBarColor() {
     val backgroundColor = MaterialTheme.wireColorScheme.background
-    val darkIcons = MaterialTheme.wireColorScheme.ongoingCallLabelShouldUseDarkIcons
+    val darkIcons = MaterialTheme.wireColorScheme.useDarkSystemBarIcons
 
     rememberSystemUiController().setSystemBarsColor(
         color = backgroundColor,

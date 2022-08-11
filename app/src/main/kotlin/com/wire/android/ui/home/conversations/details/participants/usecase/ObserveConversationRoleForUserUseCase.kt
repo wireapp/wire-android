@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
 
-class ObserveConversationRoleForUserUseCase  @Inject constructor(
+class ObserveConversationRoleForUserUseCase @Inject constructor(
     private val observeConversationMembers: ObserveConversationMembersUseCase,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val getSelfUser: GetSelfUserUseCase
@@ -25,14 +25,14 @@ class ObserveConversationRoleForUserUseCase  @Inject constructor(
             getSelfUser(),
             observeConversationDetails(conversationId)
                 .filterIsInstance<ObserveConversationDetailsUseCase.Result.Success>() // TODO handle StorageFailure
-                .map { it.conversationDetails }
-            ,
+                .map { it.conversationDetails },
             observeConversationMembers(conversationId)
         ) { selfUser: SelfUser, conversationDetails: ConversationDetails, memberDetailsList: List<MemberDetails> ->
             ConversationRoleData(
                 conversationDetails.conversation.name.orEmpty(),
                 memberDetailsList.firstOrNull { it.user.id == userId }?.role,
-                memberDetailsList.firstOrNull { it.user.id == selfUser.id }?.role
+                memberDetailsList.firstOrNull { it.user.id == selfUser.id }?.role,
+                conversationId,
             )
         }
 }
@@ -40,5 +40,6 @@ class ObserveConversationRoleForUserUseCase  @Inject constructor(
 data class ConversationRoleData(
     val conversationName: String,
     val userRole: Member.Role?,
-    val selfRole: Member.Role?
-    )
+    val selfRole: Member.Role?,
+    val conversationId: ConversationId
+)

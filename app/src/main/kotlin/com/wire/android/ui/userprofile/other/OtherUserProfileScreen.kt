@@ -41,6 +41,7 @@ import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.rememberPagerState
 import com.wire.android.R
+import com.wire.android.model.PreservedState
 import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.MoreOptionIcon
 import com.wire.android.ui.common.TabItem
@@ -57,24 +58,19 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.userprofile.common.EditableState
 import com.wire.android.ui.userprofile.common.UserProfileInfo
+import com.wire.android.ui.userprofile.group.RemoveConversationMemberState
 import com.wire.kalium.logic.data.conversation.Member
 import com.wire.kalium.logic.data.user.ConnectionState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-@OptIn(
-    ExperimentalMaterialApi::class,
-    ExperimentalMaterial3Api::class,
-    ExperimentalAnimationApi::class,
-    ExperimentalPagerApi::class,
-    ExperimentalFoundationApi::class
-)
 @Composable
 fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltViewModel()) {
     val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
     OtherProfileScreenContent(
         state = viewModel.state,
+        removeMemberDialogState = viewModel.removeConversationMemberDialogState,
         onSendConnectionRequest = viewModel::sendConnectionRequest,
         onOpenConversation = viewModel::openConversation,
         onCancelConnectionRequest = viewModel::cancelConnectionRequest,
@@ -82,6 +78,9 @@ fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltView
         acceptConnectionRequest = viewModel::acceptConnectionRequest,
         onNavigateBack = viewModel::navigateBack,
         changeMemberRole = viewModel::changeMemberRole,
+        openRemoveConversationMemberDialog = viewModel::openRemoveConversationMemberDialog,
+        hideRemoveConversationMemberDialog = viewModel::hideRemoveConversationMemberDialog,
+        onRemoveConversationMember = viewModel::removeConversationMember,
         snackbarHostState = snackbarHostState
     )
     LaunchedEffect(Unit) {
@@ -92,14 +91,12 @@ fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltView
 @SuppressLint("UnusedCrossfadeTargetStateParameter")
 @OptIn(
     ExperimentalMaterialApi::class,
-    ExperimentalMaterial3Api::class,
-    ExperimentalAnimationApi::class,
     ExperimentalPagerApi::class,
-    ExperimentalFoundationApi::class
 )
 @Composable
 fun OtherProfileScreenContent(
     state: OtherUserProfileState,
+    removeMemberDialogState: PreservedState<RemoveConversationMemberState>?,
     onSendConnectionRequest: () -> Unit,
     onOpenConversation: () -> Unit,
     onCancelConnectionRequest: () -> Unit,
@@ -107,6 +104,9 @@ fun OtherProfileScreenContent(
     ignoreConnectionRequest: () -> Unit,
     onNavigateBack: () -> Unit,
     changeMemberRole: (Member.Role) -> Unit,
+    openRemoveConversationMemberDialog: () -> Unit,
+    hideRemoveConversationMemberDialog: () -> Unit,
+    onRemoveConversationMember: (PreservedState<RemoveConversationMemberState>) -> Unit,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
 ) {
     val otherUserProfileScreenState = rememberOtherUserProfileScreenState(snackbarHostState)
@@ -146,7 +146,17 @@ fun OtherProfileScreenContent(
             topBarHeader = { elevation -> TopBarHeader(state = state, elevation = elevation, onNavigateBack, openChangeRoleBottomSheet) },
             topBarCollapsing = { TopBarCollapsing(state) },
             topBarFooter = { TopBarFooter(state, pagerState, tabBarElevationState, tabItems, currentTabState, scope) },
-            content = { Content(state, pagerState, tabItems, otherUserProfileScreenState, lazyListStates, openChangeRoleBottomSheet) },
+            content = {
+                Content(
+                    state,
+                    pagerState,
+                    tabItems,
+                    otherUserProfileScreenState,
+                    lazyListStates,
+                    openChangeRoleBottomSheet,
+                    openRemoveConversationMemberDialog
+                )
+            },
             contentFooter = {
                 ContentFooter(
                     state,
@@ -161,6 +171,11 @@ fun OtherProfileScreenContent(
             isSwipeable = state.connectionStatus == ConnectionState.ACCEPTED
         )
     }
+    RemoveConversationMemberDialog(
+        dialogState = removeMemberDialogState,
+        onDialogDismiss = hideRemoveConversationMemberDialog,
+        onRemoveConversationMember = onRemoveConversationMember
+    )
 }
 
 @Composable
@@ -238,7 +253,8 @@ private fun Content(
     tabItems: List<OtherUserProfileTabItem>,
     otherUserProfileScreenState: OtherUserProfileScreenState,
     lazyListStates: Map<OtherUserProfileTabItem, LazyListState>,
-    openChangeRoleBottomSheet: () -> Unit
+    openChangeRoleBottomSheet: () -> Unit,
+    openRemoveConversationMemberDialog: () -> Unit
 ) {
     Crossfade(targetState = state) { state ->
         when {
@@ -254,7 +270,12 @@ private fun Content(
                             OtherUserProfileTabItem.DETAILS ->
                                 OtherUserProfileDetails(state, otherUserProfileScreenState, lazyListStates[tabItem]!!)
                             OtherUserProfileTabItem.GROUP ->
-                                OtherUserProfileGroup(state.groupState!!, lazyListStates[tabItem]!!, openChangeRoleBottomSheet)
+                                OtherUserProfileGroup(
+                                    state.groupState!!,
+                                    lazyListStates[tabItem]!!,
+                                    openRemoveConversationMemberDialog,
+                                    openChangeRoleBottomSheet
+                                )
                         }
                     }
                 }
@@ -306,36 +327,28 @@ enum class OtherUserProfileTabItem(@StringRes override val titleResId: Int) : Ta
     DETAILS(R.string.user_profile_details_tab);
 }
 
-@OptIn(
-    ExperimentalMaterialApi::class,
-    ExperimentalMaterial3Api::class,
-    ExperimentalAnimationApi::class,
-    ExperimentalPagerApi::class,
-    ExperimentalFoundationApi::class
-)
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 @Preview(name = "Connected")
 fun OtherProfileScreenContentPreview() {
     WireTheme(isPreview = true) {
         OtherProfileScreenContent(
-            OtherUserProfileState.PREVIEW.copy(connectionStatus = ConnectionState.ACCEPTED), {}, {}, {}, {}, {}, {}, {}
+            OtherUserProfileState.PREVIEW.copy(connectionStatus = ConnectionState.ACCEPTED),
+            null,
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
         )
     }
 }
 
-@OptIn(
-    ExperimentalMaterialApi::class,
-    ExperimentalMaterial3Api::class,
-    ExperimentalAnimationApi::class,
-    ExperimentalPagerApi::class,
-    ExperimentalFoundationApi::class
-)
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 @Preview(name = "Not Connected")
 fun OtherProfileScreenContentNotConnectedPreview() {
     WireTheme(isPreview = true) {
         OtherProfileScreenContent(
-            OtherUserProfileState.PREVIEW.copy(connectionStatus = ConnectionState.CANCELLED), {}, {}, {}, {}, {}, {}, {}
+            OtherUserProfileState.PREVIEW.copy(connectionStatus = ConnectionState.CANCELLED),
+            null,
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
         )
     }
 }

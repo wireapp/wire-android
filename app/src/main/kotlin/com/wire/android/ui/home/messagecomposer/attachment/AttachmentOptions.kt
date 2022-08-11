@@ -4,12 +4,17 @@ import android.net.Uri
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.material.Divider
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -23,6 +28,8 @@ import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.Error
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.messagecomposer.AttachmentInnerState
 import com.wire.android.ui.home.messagecomposer.AttachmentState
+import com.wire.android.ui.home.messagecomposer.KeyboardHeight
+import com.wire.android.ui.home.messagecomposer.MessageComposerInnerState
 import com.wire.android.util.getTempWritableImageUri
 import com.wire.android.util.getTempWritableVideoUri
 import com.wire.android.util.permission.UseCameraRequestFlow
@@ -38,7 +45,34 @@ import okio.Path
 import okio.Path.Companion.toPath
 
 @Composable
-fun AttachmentOptionsComponent(
+fun AttachmentOptions(
+    keyboardHeightOffSet: KeyboardHeight,
+    messageComposerState: MessageComposerInnerState,
+    onSendAttachment: (AttachmentBundle?) -> Unit,
+    onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
+    isFileSharingEnabled: Boolean,
+    tempCachePath: Path
+) {
+    Box(
+        Modifier
+            .fillMaxWidth()
+            .height(keyboardHeightOffSet.height)
+            .absoluteOffset(y = messageComposerState.fullScreenHeight - keyboardHeightOffSet.height)
+    ) {
+        Divider()
+        AttachmentOptionsComponent(
+            messageComposerState.attachmentInnerState,
+            onSendAttachment,
+            onMessageComposerError,
+            isFileSharingEnabled,
+            tempCachePath,
+            Modifier.align(Alignment.Center)
+        )
+    }
+}
+
+@Composable
+private fun AttachmentOptionsComponent(
     attachmentInnerState: AttachmentInnerState,
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onError: (ConversationSnackbarMessages) -> Unit,

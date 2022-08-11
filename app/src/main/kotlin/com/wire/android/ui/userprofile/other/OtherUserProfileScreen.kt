@@ -41,9 +41,7 @@ import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.rememberPagerState
 import com.wire.android.R
-import com.wire.android.model.DialogState
 import com.wire.android.model.PreservedState
-import com.wire.android.model.Clickable
 import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.MoreOptionIcon
 import com.wire.android.ui.common.TabItem
@@ -66,13 +64,6 @@ import com.wire.kalium.logic.data.user.ConnectionState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-@OptIn(
-    ExperimentalMaterialApi::class,
-    ExperimentalMaterial3Api::class,
-    ExperimentalAnimationApi::class,
-    ExperimentalPagerApi::class,
-    ExperimentalFoundationApi::class
-)
 @Composable
 fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltViewModel()) {
     val snackbarHostState = remember { SnackbarHostState() }
@@ -100,10 +91,7 @@ fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltView
 @SuppressLint("UnusedCrossfadeTargetStateParameter")
 @OptIn(
     ExperimentalMaterialApi::class,
-    ExperimentalMaterial3Api::class,
-    ExperimentalAnimationApi::class,
     ExperimentalPagerApi::class,
-    ExperimentalFoundationApi::class
 )
 @Composable
 fun OtherProfileScreenContent(
@@ -339,13 +327,7 @@ enum class OtherUserProfileTabItem(@StringRes override val titleResId: Int) : Ta
     DETAILS(R.string.user_profile_details_tab);
 }
 
-@OptIn(
-    ExperimentalMaterialApi::class,
-    ExperimentalMaterial3Api::class,
-    ExperimentalAnimationApi::class,
-    ExperimentalPagerApi::class,
-    ExperimentalFoundationApi::class
-)
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 @Preview(name = "Connected")
 fun OtherProfileScreenContentPreview() {
@@ -358,13 +340,7 @@ fun OtherProfileScreenContentPreview() {
     }
 }
 
-@OptIn(
-    ExperimentalMaterialApi::class,
-    ExperimentalMaterial3Api::class,
-    ExperimentalAnimationApi::class,
-    ExperimentalPagerApi::class,
-    ExperimentalFoundationApi::class
-)
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 @Preview(name = "Not Connected")
 fun OtherProfileScreenContentNotConnectedPreview() {

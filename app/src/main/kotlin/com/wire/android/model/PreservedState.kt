@@ -2,6 +2,10 @@ package com.wire.android.model
 
 import com.wire.kalium.logic.CoreFailure
 
+/**
+ * Wrapper for use case responses when we want to preserve state
+ * and show for example error on the same compose
+ */
 sealed class PreservedState<out T : Any> {
     abstract val state: T
 

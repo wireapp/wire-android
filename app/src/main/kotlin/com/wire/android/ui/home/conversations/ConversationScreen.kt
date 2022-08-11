@@ -231,7 +231,8 @@ private fun ConversationScreen(
                                 conversationScreenState = conversationScreenState,
                                 isFileSharingEnabled = isFileSharingEnabled,
                                 tempCachePath = tempCachePath,
-                                onOpenProfile = onOpenProfile
+                                onOpenProfile = onOpenProfile,
+                                isInputVisible = conversationViewState.isConversationMember,
                             )
                         }
                     }
@@ -258,7 +259,8 @@ private fun ConversationScreenContent(
     onSnackbarMessageShown: () -> Unit,
     conversationScreenState: ConversationScreenState,
     isFileSharingEnabled: Boolean,
-    tempCachePath: Path
+    tempCachePath: Path,
+    isInputVisible: Boolean
 ) {
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -308,7 +310,8 @@ private fun ConversationScreenContent(
             }
         },
         isFileSharingEnabled = isFileSharingEnabled,
-        tempCachePath = tempCachePath
+        tempCachePath = tempCachePath,
+        isInputVisible = isInputVisible
     )
 }
 

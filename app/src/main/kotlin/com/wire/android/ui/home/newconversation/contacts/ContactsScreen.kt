@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -16,6 +15,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
@@ -28,9 +28,10 @@ import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.WireCheckbox
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.loading.CenteredCircularProgressBarIndicator
+import com.wire.android.ui.home.conversations.search.SearchPeoplePurpose
 import com.wire.android.ui.home.conversationslist.folderWithElements
 import com.wire.android.ui.home.conversationslist.model.Membership
-import com.wire.android.ui.home.newconversation.common.GroupButton
+import com.wire.android.ui.home.newconversation.common.AddParticipantsButtonsRow
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.home.conversations.search.SearchResultState
 import com.wire.android.ui.home.conversations.search.widget.SearchFailureBox
@@ -39,6 +40,7 @@ import com.wire.kalium.logic.data.user.ConnectionState
 
 @Composable
 fun ContactsScreen(
+    purpose: SearchPeoplePurpose,
     scrollPositionProvider: (() -> Int) -> Unit,
     allKnownContactResult: SearchResultState,
     contactsAddedToGroup: List<Contact>,
@@ -85,10 +87,10 @@ fun ContactsScreen(
                         }
                     }
                 }
-                Divider()
-                GroupButton(
-                    groupSize = contactsAddedToGroup.size,
-                    onNewGroupClicked = onNewGroupClicked
+                AddParticipantsButtonsRow(
+                    count = contactsAddedToGroup.size,
+                    mainButtonText = stringResource(id = purpose.continueButtonTextResId),
+                    onMainButtonClick = onNewGroupClicked
                 )
             }
         }

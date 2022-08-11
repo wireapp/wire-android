@@ -40,14 +40,11 @@ import com.wire.android.util.startMultipleFileSharingIntent
 @Composable
 fun DebugScreen() {
     val debugScreenViewModel: DebugScreenViewModel = hiltViewModel()
-    val context = LocalContext.current
 
     DebugContent(
         mlsData = debugScreenViewModel.mlsData,
         isLoggingEnabled = debugScreenViewModel.isLoggingEnabled,
         setLoggingEnabledState = debugScreenViewModel::setLoggingEnabledState,
-        isWebSocketEnabled = debugScreenViewModel.isWebSocketEnabled,
-        setWebSocketState = { debugScreenViewModel.setWebSocketState(it, context) },
         logFilePath = debugScreenViewModel::logFilePath,
         deleteAllLogs = debugScreenViewModel::deleteAllLogs
     )
@@ -58,8 +55,6 @@ fun DebugContent(
     mlsData: List<String>,
     isLoggingEnabled: Boolean,
     setLoggingEnabledState: (Boolean) -> Unit,
-    isWebSocketEnabled: Boolean,
-    setWebSocketState: (Boolean) -> Unit,
     logFilePath: () -> String,
     deleteAllLogs: () -> Unit
 ) {
@@ -72,8 +67,6 @@ fun DebugContent(
             LoggingSection(
                 isLoggingEnabled,
                 setLoggingEnabledState,
-                isWebSocketEnabled,
-                setWebSocketState,
                 logFilePath,
                 deleteAllLogs
             )
@@ -139,8 +132,6 @@ fun TextRowItem(text: String, @DrawableRes trailingIcon: Int? = null, onIconClic
 fun LoggingSection(
     isLoggingEnabled: Boolean,
     setLoggingEnabledState: (Boolean) -> Unit,
-    isWebSocketEnabled: Boolean,
-    setWebSocketState: (Boolean) -> Unit,
     logFilePath: () -> String,
     deleteAllLogs: () -> Unit
 ) {
@@ -151,12 +142,6 @@ fun LoggingSection(
         text = "Enable Logging", checked = isLoggingEnabled
     ) { state: Boolean ->
         setLoggingEnabledState(state)
-    }
-
-    SwitchRowItem(
-        text = "Enable webSocket", checked = isWebSocketEnabled
-    ) { state: Boolean ->
-        setWebSocketState(state)
     }
 
     TextRowItem(
@@ -210,5 +195,5 @@ fun SwitchRowItem(
 @Preview(showBackground = false)
 @Composable
 fun debugScreenPreview() {
-    DebugContent(listOf(), true, { _: Boolean -> }, true, {}, { "" }, {})
+    DebugContent(listOf(), true, { _: Boolean -> }, { "" }, {})
 }

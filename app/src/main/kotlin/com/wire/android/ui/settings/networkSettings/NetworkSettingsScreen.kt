@@ -7,6 +7,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -20,9 +21,14 @@ import com.wire.android.ui.home.conversations.details.options.SwitchState
 
 @Composable
 fun NetworkSettingsScreen(networkSettingsViewModel: NetworkSettingsViewModel = hiltViewModel()) {
+    val context = LocalContext.current
+
     NetworkSettingsScreenContent(
-        onBackPressed = networkSettingsViewModel::navigateBack
-    )
+        onBackPressed = networkSettingsViewModel::navigateBack,
+        isWebSocketEnabled = networkSettingsViewModel.isWebSocketEnabled,
+        setWebSocketState = { networkSettingsViewModel.setWebSocketState(it, context) },
+
+        )
 }
 
 @OptIn(
@@ -31,6 +37,9 @@ fun NetworkSettingsScreen(networkSettingsViewModel: NetworkSettingsViewModel = h
 @Composable
 fun NetworkSettingsScreenContent(
     onBackPressed: () -> Unit,
+    isWebSocketEnabled: Boolean,
+    setWebSocketState: (Boolean) -> Unit
+
 ) {
     Scaffold(topBar = {
         WireCenterAlignedTopAppBar(
@@ -47,12 +56,11 @@ fun NetworkSettingsScreenContent(
             GroupConversationOptionsItem(
                 title = stringResource(R.string.keep_connection_to_websocket),
                 switchState = SwitchState.Enabled(
-                    value = true,
-                    onCheckedChange = { }
+                    value = isWebSocketEnabled,
+                    onCheckedChange = setWebSocketState
                 ),
                 arrowType = ArrowType.NONE
             )
-
         }
     }
 
@@ -62,6 +70,6 @@ fun NetworkSettingsScreenContent(
 @Preview
 private fun NewGroupScreenPreview() {
     NetworkSettingsScreenContent(
-        {}
+        {}, true, {}
     )
 }

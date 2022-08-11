@@ -50,7 +50,8 @@ object TestMessage {
         isLegalHold = true,
         time = "12.23pm",
         messageStatus = MessageStatus.Untouched,
-        messageId = "messageID"
+        messageId = "messageID",
+        connectionState = null
     )
     val UI_TEXT_MESSAGE = UIMessage(
         userAvatarData = UserAvatarData(asset = null, availabilityStatus = UserAvailabilityStatus.NONE),

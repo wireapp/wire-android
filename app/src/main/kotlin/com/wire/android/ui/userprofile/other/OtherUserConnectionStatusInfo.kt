@@ -21,9 +21,10 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.kalium.logic.data.user.ConnectionState
 
 @Composable
-fun OtherUserConnectionStatusInfo(connectionStatus: ConnectionStatus, membership: Membership) {
+fun OtherUserConnectionStatusInfo(connectionStatus: ConnectionState, membership: Membership) {
     Box(
         Modifier
             .fillMaxWidth()
@@ -31,7 +32,7 @@ fun OtherUserConnectionStatusInfo(connectionStatus: ConnectionStatus, membership
             .padding(start = dimensions().spacing32x, end = dimensions().spacing32x)
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            if (connectionStatus is ConnectionStatus.Pending)
+            if (connectionStatus == ConnectionState.PENDING)
                 Text(
                     text = stringResource(R.string.connection_label_user_wants_to_conect),
                     textAlign = TextAlign.Center,
@@ -40,8 +41,8 @@ fun OtherUserConnectionStatusInfo(connectionStatus: ConnectionStatus, membership
                 )
             Spacer(modifier = Modifier.height(24.dp))
             val descriptionResource = when (connectionStatus) {
-                ConnectionStatus.Pending -> R.string.connection_label_accepting_request_description
-                ConnectionStatus.Connected -> throw IllegalStateException("Unhandled Connected ConnectionStatus")
+                ConnectionState.PENDING -> R.string.connection_label_accepting_request_description
+                ConnectionState.ACCEPTED -> throw IllegalStateException("Unhandled Connected ConnectionStatus")
                 else -> if (membership == Membership.None)
                     R.string.connection_label_member_not_conneted
                 else R.string.connection_label_member_not_belongs_to_team
@@ -59,5 +60,5 @@ fun OtherUserConnectionStatusInfo(connectionStatus: ConnectionStatus, membership
 @Composable
 @Preview
 fun OtherUserConnectionStatusInfoPreview() {
-    OtherUserConnectionStatusInfo(ConnectionStatus.NotConnected, Membership.Guest)
+    OtherUserConnectionStatusInfo(ConnectionState.NOT_CONNECTED, Membership.Guest)
 }

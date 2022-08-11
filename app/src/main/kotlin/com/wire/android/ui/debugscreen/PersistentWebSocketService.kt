@@ -2,17 +2,15 @@ package com.wire.android.ui.debugscreen
 
 import android.app.Notification
 import android.app.NotificationChannel
-import android.app.NotificationChannelGroup
 import android.app.NotificationManager
 import android.app.PendingIntent
 import android.app.Service
 import android.content.Context
 import android.content.Intent
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
+import android.graphics.Color
 import android.os.Build
 import android.os.IBinder
-import androidx.core.app.NotificationCompat
+import androidx.annotation.RequiresApi
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.di.CurrentSessionFlowService
@@ -20,6 +18,8 @@ import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.notification.NotificationConstants.WEB_SOCKET_CHANNEL_ID
+import com.wire.android.notification.NotificationConstants.WEB_SOCKET_CHANNEL_NAME
 import com.wire.android.notification.WireNotificationManager
 import com.wire.android.ui.WireActivity
 import com.wire.kalium.logic.CoreLogic
@@ -111,53 +111,48 @@ class PersistentWebSocketService : Service() {
         }
     }
 
-    //Notifications for ON-going
-    private var iconNotification: Bitmap? = null
-    private var notification: Notification? = null
-    private var mNotificationManager: NotificationManager? = null
-    private val mNotificationId = 123
+    private val notification_ID = 123
 
     private fun generateForegroundNotification() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val intentMainLanding = Intent(this, WireActivity::class.java)
-            val pendingIntent =
-                PendingIntent.getActivity(this, 0, intentMainLanding, 0)
-            iconNotification = BitmapFactory.decodeResource(resources, R.mipmap.ic_launcher)
-            if (mNotificationManager == null) {
-                mNotificationManager = this.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                assert(mNotificationManager != null)
-                mNotificationManager?.createNotificationChannelGroup(
-                    NotificationChannelGroup("chats_group", "Chats")
+        val pendingIntent: PendingIntent =
+            Intent(this, WireActivity::class.java).let { notificationIntent ->
+                PendingIntent.getActivity(
+                    this, 0, notificationIntent,
+                    PendingIntent.FLAG_IMMUTABLE
                 )
-                val notificationChannel =
-                    NotificationChannel(
-                        "service_channel", "Service Notifications",
-                        NotificationManager.IMPORTANCE_MIN
-                    )
-                notificationChannel.enableLights(false)
-                notificationChannel.lockscreenVisibility = Notification.VISIBILITY_SECRET
-                mNotificationManager?.createNotificationChannel(notificationChannel)
             }
-            val builder = NotificationCompat.Builder(this, "service_channel")
 
-            builder.setContentTitle(StringBuilder(resources.getString(R.string.app_name)).append(" service is running").toString())
-                .setTicker(StringBuilder(resources.getString(R.string.app_name)).append("service is running").toString())
-                .setContentText("Touch to open") //                    , swipe down for more options.
-                .setSmallIcon(R.drawable.ic_dropdown_icon)
-                .setPriority(NotificationCompat.PRIORITY_LOW)
-                .setWhen(0)
-                .setOnlyAlertOnce(true)
-                .setContentIntent(pendingIntent)
-                .setOngoing(true)
-            if (iconNotification != null) {
-                builder.setLargeIcon(Bitmap.createScaledBitmap(iconNotification!!, 128, 128, false))
+        val channelId =
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                createNotificationChannel()
+            } else {
+                // If earlier version channel ID is not used
+                ""
             }
-            notification = builder.build()
-            startForeground(mNotificationId, notification)
-        }
 
+        val notification: Notification = Notification.Builder(this, channelId)
+            .setContentTitle(
+                StringBuilder(resources.getString(R.string.app_name)).append(getString(R.string.service_is_running)).toString()
+            )
+            .setSmallIcon(R.drawable.notification_icon_small)
+            .setContentIntent(pendingIntent)
+            .build()
+
+        startForeground(notification_ID, notification)
+
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    private fun createNotificationChannel(): String {
+        val chan = NotificationChannel(
+            WEB_SOCKET_CHANNEL_ID,
+            WEB_SOCKET_CHANNEL_NAME, NotificationManager.IMPORTANCE_NONE
+        )
+        chan.lightColor = Color.BLUE
+        chan.lockscreenVisibility = Notification.VISIBILITY_PRIVATE
+        val service = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+        service.createNotificationChannel(chan)
+        return WEB_SOCKET_CHANNEL_ID
     }
 
     override fun onDestroy() {

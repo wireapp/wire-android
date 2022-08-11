@@ -534,5 +534,6 @@
     <string name="debug_settings_label">Debug Settings</string>
     <string name="about_this_app_label">About this App</string>
     <string name="keep_connection_to_websocket">Keep Connection to Websocket</string>
+    <string name="service_is_running">service is running</string>
 
 </resources>

@@ -3,13 +3,11 @@ package com.wire.android.navigation
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDeepLink
 import androidx.navigation.navDeepLink
 import com.wire.android.BuildConfig
-import com.wire.android.R
 import com.wire.android.model.ImageAsset
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.ADD_CONVERSATION_PARTICIPANTS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CONVERSATION
@@ -52,6 +50,7 @@ import com.wire.android.ui.home.conversations.ConversationScreen
 import com.wire.android.ui.home.conversations.details.AddMembersToConversationViewModel
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsScreen
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationAllParticipantsScreen
+import com.wire.android.ui.home.conversations.search.SearchPeoplePurpose
 import com.wire.android.ui.home.conversations.search.SearchPeopleRouter
 import com.wire.android.ui.home.gallery.MediaGalleryScreen
 import com.wire.android.ui.home.newconversation.NewConversationRouter
@@ -237,8 +236,8 @@ enum class NavigationItem(
             val viewModel = hiltViewModel<AddMembersToConversationViewModel>()
 
             SearchPeopleRouter(
+                purpose = SearchPeoplePurpose.ADD_PARTICIPANTS,
                 searchPeopleViewModel = viewModel,
-                searchBarTitle = stringResource(id = R.string.label_add_participants),
                 onPeoplePicked = { viewModel.addMembersToConversation() }
             )
         }

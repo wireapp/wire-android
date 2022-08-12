@@ -8,7 +8,7 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.gestures.LocalOverScrollConfiguration
+import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -260,7 +260,7 @@ private fun Content(
         when {
             state.isDataLoading || state.botService != null -> Box {} // no content visible while loading
             state.connectionStatus == ConnectionState.ACCEPTED ->
-                CompositionLocalProvider(LocalOverScrollConfiguration provides null) {
+                CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
                     HorizontalPager(
                         modifier = Modifier.fillMaxSize(),
                         state = pagerState,

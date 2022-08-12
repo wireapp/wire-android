@@ -76,6 +76,7 @@ private fun RemoveDeviceContent(
                     RemoveDeviceItemsList(lazyListState, state.deviceList, false, onItemClicked)
                 RemoveDeviceState.Loading ->
                     RemoveDeviceItemsList(lazyListState, List(10) { Device() }, true, onItemClicked)
+                is RemoveDeviceState.Error -> TODO("Handle failure to get other devices")
             }
         }
         // TODO handle list loading errors

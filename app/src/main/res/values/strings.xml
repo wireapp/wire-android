@@ -521,5 +521,7 @@
     <string name="block_user_dialog_title">Block user?</string>
     <string name="block_user_dialog_body">%1$s won’t be able to contact you or add you to group conversations. You will lose access to any 1:1 conversations with them. The other user will not be notified about this.</string>
     <string name="block_user_dialog_confirm_button">Block</string>
+    <string name="other_user_devices_decription"><![CDATA[\Wire gives every device a unique fingerprint. Compare them with <other users username> and verify your conversation. \]]></string>
+    <string name="url_why_verify_conversation">hc/en-us/articles/207859815-Why-should-I-verify-my-conversations</string>
 
 </resources>

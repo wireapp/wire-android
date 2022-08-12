@@ -48,7 +48,7 @@ fun WireBottomNavigationBar(
             .fillMaxWidth()
             .height(MaterialTheme.wireDimensions.bottomNavigationHeight),
         color = MaterialTheme.colorScheme.surface,
-        shadowElevation = MaterialTheme.wireDimensions.bottomNavigationHeight,
+        shadowElevation = MaterialTheme.wireDimensions.bottomNavigationShadowElevation,
     ) {
         Row(horizontalArrangement = Arrangement.SpaceBetween) {
             items.forEachIndexed { index, item ->

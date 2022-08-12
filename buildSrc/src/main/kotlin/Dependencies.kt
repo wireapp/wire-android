@@ -62,7 +62,7 @@ object Libraries {
         const val desugaring = "1.1.5"
         const val workManager = "2.7.1"
         const val fragment = "1.5.1"
-        const val compose = "1.2.0-beta01"
+        const val compose = "1.3.0"
         const val composeMaterial = "1.2.1"
         const val composeMaterial3 = "1.0.0-alpha11"
         const val composeActivity = "1.4.0"

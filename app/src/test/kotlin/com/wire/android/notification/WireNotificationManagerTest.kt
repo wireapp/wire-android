@@ -67,7 +67,6 @@ class WireNotificationManagerTest {
 
         verify(atLeast = 1) { arrangement.coreLogic.getSessionScope(any()) }
         coVerify(exactly = 1) { arrangement.connectionPolicyManager.handleConnectionOnPushNotification(TEST_AUTH_SESSION.session.userId) }
-        coVerify(exactly = 1) { arrangement.syncManager.waitUntilLive() }
         verify(exactly = 1) { arrangement.messageNotificationManager.handleNotification(listOf(), any()) }
         verify(exactly = 1) { arrangement.callNotificationManager.handleNotifications(listOf(), any()) }
     }

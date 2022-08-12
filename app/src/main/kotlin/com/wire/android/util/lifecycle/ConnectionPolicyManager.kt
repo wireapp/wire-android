@@ -69,7 +69,7 @@ class ConnectionPolicyManager @Inject constructor(
             // Wait until the client is live and pending events are processed
             logger.d("Waiting until live")
             syncManager.waitUntilLive()
-            logger.d("Downgrading policy back if needed")
+            logger.d("Checking if downgrading policy is needed")
             downgradePolicyIfNeeded(userId)
         }
     }

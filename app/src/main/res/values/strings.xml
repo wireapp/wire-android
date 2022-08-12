@@ -314,6 +314,12 @@
     <string name="user_profile_role_in_group">Role in ”%s”</string>
     <string name="user_profile_role_change_error">There was an error trying to change the role. Please check your Internet connection and try again</string>
     <string name="user_profile_unblock_user">Unblock User</string>
+    <string name="user_profile_group_remove_button">Remove from group</string>
+
+    <!-- Remove Conversation Member Dialog -->
+    <string name="dialog_remove_conversation_member_title">Remove from group?</string>
+    <string name="dialog_remove_conversation_member_description">%s (@%s) will not be able to send or receive messages in this conversation.</string>
+    <string name="dialog_remove_conversation_member_error">There was an error while removing member from conversation</string>
 
     <string name="group_role_admin">Admin</string>
     <string name="group_role_member">Member</string>

@@ -1,11 +1,15 @@
 package com.wire.android.ui.userprofile.other
 
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ModalBottomSheetValue
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.kalium.logic.data.conversation.Member
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.BotService
 import com.wire.kalium.logic.data.user.ConnectionState
 
+@OptIn(ExperimentalMaterialApi::class)
 data class OtherUserProfileState(
     val userAvatarAsset: UserAvatarAsset? = null,
     val isDataLoading: Boolean = false,
@@ -15,10 +19,11 @@ data class OtherUserProfileState(
     val teamName: String = "",
     val email: String = "",
     val phone: String = "",
-    val connectionStatus: ConnectionStatus = ConnectionStatus.Unknown,
-    val membership : Membership = Membership.None,
+    val connectionStatus: ConnectionState = ConnectionState.NOT_CONNECTED,
+    val membership: Membership = Membership.None,
     val groupState: OtherUserProfileGroupState? = null,
-    val botService: BotService? = null,
+    val bottomSheetState: ModalBottomSheetValue = ModalBottomSheetValue.Hidden,
+    val botService: BotService? = null
 ) {
     companion object {
         val PREVIEW = OtherUserProfileState(
@@ -26,7 +31,9 @@ data class OtherUserProfileState(
             userName = "username",
             teamName = "team",
             email = "email",
-            groupState = OtherUserProfileGroupState("group name", Member.Role.Member, false)
+            groupState = OtherUserProfileGroupState(
+                "group name", Member.Role.Member, true, ConversationId("some_user", "domain.com")
+            )
         )
     }
 }
@@ -34,14 +41,15 @@ data class OtherUserProfileState(
 data class OtherUserProfileGroupState(
     val groupName: String,
     val role: Member.Role,
-    val isSelfAnAdmin: Boolean
+    val isSelfAdmin: Boolean,
+    val conversationId: ConversationId
 )
 
 sealed class ConnectionStatus {
     object Unknown : ConnectionStatus()
     object Connected : ConnectionStatus()
-    object Pending: ConnectionStatus()
-    object Sent: ConnectionStatus()
+    object Pending : ConnectionStatus()
+    object Sent : ConnectionStatus()
     object NotConnected : ConnectionStatus()
 }
 

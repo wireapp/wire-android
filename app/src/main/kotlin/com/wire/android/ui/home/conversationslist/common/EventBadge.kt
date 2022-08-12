@@ -18,6 +18,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
+import com.wire.android.ui.common.BlockedLabel
 import com.wire.android.ui.common.button.WireItemLabel
 import com.wire.android.ui.home.conversationslist.model.EventType
 import com.wire.android.ui.theme.wireColorScheme
@@ -33,6 +34,7 @@ fun EventBadgeFactory(eventType: EventType, modifier: Modifier = Modifier) {
         EventType.UnreadReply -> UnreadReplyBadge(modifier)
         EventType.ReceivedConnectionRequest -> ConnectRequestBadge(modifier)
         EventType.SentConnectRequest -> ConnectPendingRequestBadge(modifier)
+        EventType.Blocked -> BlockedLabel(modifier)
     }
 }
 

@@ -12,6 +12,7 @@ import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.PlainId
 import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.data.publicuser.model.UserSearchResult
 import com.wire.kalium.logic.data.user.ConnectionState
@@ -26,6 +27,7 @@ import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
 import com.wire.kalium.logic.feature.publicuser.search.Result
 import com.wire.kalium.logic.feature.publicuser.search.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchUsersUseCase
+import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
 import com.wire.kalium.logic.functional.Either
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -36,6 +38,7 @@ internal class NewConversationViewModelArrangement {
         MockKAnnotations.init(this, relaxUnitFun = true)
 
         // Default empty values
+        coEvery { isMLSEnabledUseCase() } returns true
         coEvery { searchUsers(any()) } returns Result.Success(userSearchResult = UserSearchResult(listOf(PUBLIC_USER)))
         coEvery { searchKnownUsers(any()) } returns Result.Success(userSearchResult = UserSearchResult(listOf(KNOWN_USER)))
         coEvery { getAllContacts() } returns GetAllContactsResult.Success(listOf())
@@ -86,6 +89,9 @@ internal class NewConversationViewModelArrangement {
     lateinit var sendConnectionRequestUseCase: SendConnectionRequestUseCase
 
     @MockK
+    lateinit var isMLSEnabledUseCase: IsMLSEnabledUseCase
+
+    @MockK
     lateinit var contactMapper: ContactMapper
 
     @MockK
@@ -100,11 +106,13 @@ internal class NewConversationViewModelArrangement {
             teamId = null,
             protocol = Conversation.ProtocolInfo.Proteus,
             mutedStatus = MutedConversationStatus.AllAllowed,
+            removedBy = null,
             lastNotificationDate = null,
             lastModifiedDate = null,
-            lastReadDate = null,
+            lastReadDate = "2022-04-04T16:11:28.388Z",
             access = listOf(Conversation.Access.INVITE),
-            accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER)
+            accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER),
+            creatorId = PlainId("")
         )
 
         val PUBLIC_USER = OtherUser(
@@ -149,7 +157,8 @@ internal class NewConversationViewModelArrangement {
             createGroupConversation = createGroupConversation,
             contactMapper = contactMapper,
             sendConnectionRequest = sendConnectionRequestUseCase,
-            dispatchers = TestDispatcherProvider()
+            dispatchers = TestDispatcherProvider(),
+            isMLSEnabled = isMLSEnabledUseCase
         )
     }
 

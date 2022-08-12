@@ -15,6 +15,7 @@ import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.ConversationDetails.OneOne
 import com.wire.kalium.logic.data.conversation.LegalHoldStatus
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus.AllAllowed
+import com.wire.kalium.logic.data.id.PlainId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.ConnectionState
@@ -233,11 +234,13 @@ class MediaGalleryViewModelTest {
                 teamId = null,
                 protocol = Conversation.ProtocolInfo.Proteus,
                 mutedStatus = AllAllowed,
+                removedBy = null,
                 lastNotificationDate = null,
                 lastModifiedDate = null,
-                lastReadDate = null,
+                lastReadDate = "2022-04-04T16:11:28.388Z",
                 access = listOf(Conversation.Access.INVITE),
-                accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER)
+                accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER),
+                creatorId = PlainId("")
             ),
             otherUser = OtherUser(
                 QualifiedID("other-user-id", "domain-id"),

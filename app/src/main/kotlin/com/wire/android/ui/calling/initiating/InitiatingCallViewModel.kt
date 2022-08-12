@@ -42,8 +42,10 @@ class InitiatingCallViewModel @Inject constructor(
     private val callRinger: CallRinger
 ) : ViewModel() {
 
-    val conversationId: QualifiedID = qualifiedIdMapper.fromStringToQualifiedID(
-        savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!
+    private val conversationId: QualifiedID = qualifiedIdMapper.fromStringToQualifiedID(
+        checkNotNull(savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)) {
+            "No conversationId was provided via savedStateHandle to InitiatingCallViewModel"
+        }
     )
 
     private val callStartTime: Long = Calendar.getInstance().timeInMillis
@@ -62,8 +64,8 @@ class InitiatingCallViewModel @Inject constructor(
             .filterIsInstance<ObserveConversationDetailsUseCase.Result.Success>() // TODO handle StorageFailure
             .map { it.conversationDetails }
             .first { details ->
-            details.conversation.id == conversationId
-        }
+                details.conversation.id == conversationId
+            }
 
         when (conversationDetails) {
             is ConversationDetails.Group -> {

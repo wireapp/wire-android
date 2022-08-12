@@ -2,9 +2,7 @@ package com.wire.android.ui.home.conversations.search
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -15,15 +13,15 @@ import com.wire.android.model.Clickable
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.AddContactButton
 import com.wire.android.ui.common.ArrowRightIcon
-import com.wire.android.ui.common.MembershipQualifierLabel
 import com.wire.android.ui.common.RowItemTemplate
+import com.wire.android.ui.common.UserBadge
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.WireCheckbox
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.common.ConnectPendingRequestBadge
 import com.wire.android.ui.home.conversationslist.common.ConnectRequestBadge
 import com.wire.android.ui.home.conversationslist.model.Membership
-import com.wire.android.ui.userprofile.other.ConnectionStatus
+import com.wire.kalium.logic.data.user.ConnectionState
 
 @Composable
 fun InternalContactSearchResultItem(
@@ -32,6 +30,7 @@ fun InternalContactSearchResultItem(
     label: String,
     membership: Membership,
     searchQuery: String,
+    connectionState: ConnectionState,
     addToGroup: () -> Unit,
     removeFromGroup: () -> Unit,
     isAddedToGroup: Boolean,
@@ -54,8 +53,11 @@ fun InternalContactSearchResultItem(
                     name = name,
                     searchQuery = searchQuery
                 )
-                Spacer(Modifier.width(dimensions().spacing8x))
-                MembershipQualifierLabel(membership)
+                UserBadge(
+                    membership = membership,
+                    connectionState = connectionState,
+                    startPadding = dimensions().spacing8x
+                )
             }
         },
         subtitle = {
@@ -85,7 +87,7 @@ fun ExternalContactSearchResultItem(
     label: String,
     membership: Membership,
     searchQuery: String,
-    connectionStatus: ConnectionStatus,
+    connectionState: ConnectionState,
     onAddContactClicked: () -> Unit,
     clickable: Clickable,
     modifier: Modifier = Modifier
@@ -102,8 +104,11 @@ fun ExternalContactSearchResultItem(
                     name = name,
                     searchQuery = searchQuery
                 )
-                Spacer(Modifier.width(dimensions().spacing8x))
-                MembershipQualifierLabel(membership)
+                UserBadge(
+                    membership = membership,
+                    connectionState = connectionState,
+                    startPadding = dimensions().spacing8x
+                )
             }
         },
         subtitle = {
@@ -113,15 +118,16 @@ fun ExternalContactSearchResultItem(
             )
         },
         actions = {
-            when (connectionStatus) {
-                ConnectionStatus.NotConnected ->
+            when (connectionState) {
+                ConnectionState.NOT_CONNECTED ->
                     AddContactButton(onAddContactClicked)
-                ConnectionStatus.Pending ->
+                ConnectionState.PENDING ->
                     Box(modifier = Modifier.padding(horizontal = dimensions().spacing12x)) { ConnectRequestBadge() }
-                ConnectionStatus.Sent ->
+                ConnectionState.SENT ->
                     Box(modifier = Modifier.padding(horizontal = dimensions().spacing12x)) { ConnectPendingRequestBadge() }
-                ConnectionStatus.Connected,
-                ConnectionStatus.Unknown -> {
+                ConnectionState.BLOCKED -> {
+                }
+                else -> {
                     appLogger.e("Unknown ConnectionStatus in InternalContactSearchResultItem")
                 }
             }

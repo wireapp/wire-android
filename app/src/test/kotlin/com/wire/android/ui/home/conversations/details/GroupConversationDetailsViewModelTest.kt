@@ -13,6 +13,7 @@ import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.LegalHoldStatus
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.PlainId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.TeamId
@@ -188,7 +189,7 @@ class GroupConversationDetailsViewModelTest {
             .arrange()
 
         viewModel.onGuestUpdate(false)
-        assertEquals(true, viewModel.groupOptionsState.isGuestUpdateDialogShown)
+        assertEquals(true, viewModel.groupOptionsState.changeGuestOptionConformationRequired)
     }
 
     @Test
@@ -215,7 +216,7 @@ class GroupConversationDetailsViewModelTest {
             .arrange()
 
         viewModel.onGuestDialogConfirm()
-        assertEquals(false, viewModel.groupOptionsState.isGuestUpdateDialogShown)
+        assertEquals(false, viewModel.groupOptionsState.changeGuestOptionConformationRequired)
         coVerify(exactly = 1) {
             arrangement.updateConversationAccessRoleUseCase(
                 conversationId = details.conversation.id,
@@ -303,11 +304,13 @@ class GroupConversationDetailsViewModelTest {
                 teamId = TeamId("team_id"),
                 protocol = Conversation.ProtocolInfo.Proteus,
                 mutedStatus = MutedConversationStatus.AllAllowed,
+                removedBy = null,
                 lastNotificationDate = null,
                 lastModifiedDate = null,
                 access = listOf(Conversation.Access.CODE, Conversation.Access.INVITE),
                 accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER, Conversation.AccessRole.GUEST),
-                lastReadDate = null
+                lastReadDate = "2022-04-04T16:11:28.388Z",
+                creatorId = PlainId("")
             ),
             legalHoldStatus = LegalHoldStatus.DISABLED,
             hasOngoingCall = false,

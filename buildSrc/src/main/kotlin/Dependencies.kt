@@ -62,14 +62,15 @@ object Libraries {
         const val desugaring = "1.1.5"
         const val workManager = "2.7.1"
         const val fragment = "1.5.1"
-        const val compose = "1.3.0"
+        const val compose = "1.2.1"
+        const val composeCompiler = "1.3.0"
         const val composeMaterial = "1.2.1"
         const val composeMaterial3 = "1.0.0-alpha11"
         const val composeActivity = "1.4.0"
         const val composeNavigation = "2.5.0"
         const val accompanist = "0.24.7-alpha" // https://github.com/google/accompanist/issues/1162
         const val composeConstraint = "1.0.0"
-        const val hilt = "2.43.2"
+        const val hilt = "2.38.1"
         const val lifecycle = "2.4.0"
         const val visibilityModifiers = "1.1.0"
         const val composeHiltNavigation = "1.0.0"
@@ -147,7 +148,7 @@ object Libraries {
 object TestLibraries {
     private object Versions {
         const val androidCore = "1.4.0"
-        const val junit4 = "4.13"
+        const val junit4 = "4.13.2"
         const val junit5 = "5.8.2"
         const val mockk = "1.12.3"
         const val kluent = "1.68"

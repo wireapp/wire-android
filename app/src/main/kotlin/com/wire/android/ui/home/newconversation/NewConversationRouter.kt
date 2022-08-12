@@ -17,6 +17,7 @@ import androidx.navigation.compose.rememberNavController
 import com.wire.android.R
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.home.conversations.search.NewConversationSnackbarState
+import com.wire.android.ui.home.conversations.search.SearchPeoplePurpose
 import com.wire.android.ui.home.newconversation.common.Screen
 import com.wire.android.ui.home.newconversation.groupOptions.GroupOptionScreen
 import com.wire.android.ui.home.newconversation.newgroup.NewGroupScreen
@@ -50,10 +51,9 @@ fun NewConversationRouter() {
                 route = Screen.SearchListNavHostScreens.route,
                 content = {
                     SearchPeopleRouter(
-                        searchBarTitle = stringResource(id = R.string.label_new_conversation),
-                    searchPeopleViewModel = newConversationViewModel,
+                        purpose = SearchPeoplePurpose.NEW_CONVERSATION,
+                        searchPeopleViewModel = newConversationViewModel,
                         onPeoplePicked = { newConversationNavController.navigate(Screen.NewGroupNameScreen.route) },
-
                     )
                 }
             )

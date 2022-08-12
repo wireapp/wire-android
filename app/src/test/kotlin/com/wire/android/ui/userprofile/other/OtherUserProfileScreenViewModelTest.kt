@@ -3,6 +3,7 @@ package com.wire.android.ui.userprofile.other
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
@@ -17,6 +18,7 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.Member
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.PlainId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.TeamId
@@ -36,6 +38,7 @@ import com.wire.kalium.logic.feature.connection.SendConnectionRequestResult
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
 import com.wire.kalium.logic.feature.conversation.CreateConversationResult
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
+import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleResult
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
@@ -100,6 +103,9 @@ class OtherUserProfileScreenViewModelTest {
     @MockK
     private lateinit var updateConversationMemberRoleUseCase: UpdateConversationMemberRoleUseCase
 
+    @MockK
+    private lateinit var removeMemberFromConversationUseCase: RemoveMemberFromConversationUseCase
+
     @BeforeEach
     fun setUp() {
         MockKAnnotations.init(this, relaxUnitFun = true)
@@ -119,6 +125,7 @@ class OtherUserProfileScreenViewModelTest {
         otherUserProfileScreenViewModel = OtherUserProfileScreenViewModel(
             savedStateHandle,
             navigationManager,
+            TestDispatcherProvider(),
             getOrCreateOneToOneConversation,
             getUserInfo,
             sendConnectionRequest,
@@ -128,8 +135,9 @@ class OtherUserProfileScreenViewModelTest {
             userTypeMapper,
             wireSessionImageLoader,
             observeConversationRoleForUserUseCase,
+            updateConversationMemberRoleUseCase,
+            removeMemberFromConversationUseCase,
             qualifiedIdMapper,
-            updateConversationMemberRoleUseCase
         )
     }
 
@@ -268,7 +276,7 @@ class OtherUserProfileScreenViewModelTest {
     fun `given a group conversationId, when loading the data, then return group state`() =
         runTest {
             // given
-            val expected =  OtherUserProfileGroupState("some_name", Member.Role.Member, false)
+            val expected = OtherUserProfileGroupState("some_name", Member.Role.Member, false, CONVERSATION_ID)
             every { savedStateHandle.get<String>(eq(EXTRA_CONVERSATION_ID)) } returns CONVERSATION_ID.toString()
             initViewModel()
             // when
@@ -374,8 +382,14 @@ class OtherUserProfileScreenViewModelTest {
             lastModifiedDate = null,
             lastReadDate = "2022-04-04T16:11:28.388Z",
             access = listOf(Conversation.Access.INVITE),
-            accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER)
+            accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER),
+            creatorId = PlainId("")
         )
-        val CONVERSATION_ROLE_DATA = ConversationRoleData("some_name", Member.Role.Member, Member.Role.Member)
+        val CONVERSATION_ROLE_DATA = ConversationRoleData(
+            "some_name",
+            Member.Role.Member,
+            Member.Role.Member,
+            CONVERSATION_ID
+        )
     }
 }

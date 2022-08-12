@@ -31,6 +31,7 @@ import com.wire.kalium.logic.feature.conversation.GetAllContactsNotInConversatio
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveUserListByIdUseCase
+import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
@@ -506,6 +507,14 @@ class UseCaseModule {
         @CurrentAccount currentAccount: UserId
     ): AddMemberToConversationUseCase =
         coreLogic.getSessionScope(currentAccount).conversations.addMemberToConversationUseCase
+
+    @ViewModelScoped
+    @Provides
+    fun provideRemoveMemberFromConversationUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): RemoveMemberFromConversationUseCase =
+        coreLogic.getSessionScope(currentAccount).conversations.removeMemberFromConversation
 
     @ViewModelScoped
     @Provides

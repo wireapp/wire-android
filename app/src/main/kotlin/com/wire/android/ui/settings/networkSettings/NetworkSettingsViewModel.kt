@@ -9,8 +9,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.debugscreen.PersistentWebSocketService
-import com.wire.kalium.logic.feature.user.webSocketStatus.EnableWebSocketUseCase
 import com.wire.kalium.logic.feature.user.webSocketStatus.IsWebSocketEnabledUseCase
+import com.wire.kalium.logic.feature.user.webSocketStatus.PersistWebSocketStatusUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -19,17 +19,17 @@ import javax.inject.Inject
 class NetworkSettingsViewModel
 @Inject constructor(
     private val navigationManager: NavigationManager,
-    private val enableWebSocketUseCase: EnableWebSocketUseCase,
-    isWebSocketEnabledUseCase: IsWebSocketEnabledUseCase
+    private val persistWebSocketStatus: PersistWebSocketStatusUseCase,
+    isWebSocketEnabled: IsWebSocketEnabledUseCase
 ) : ViewModel() {
-    var isWebSocketEnabled by mutableStateOf(isWebSocketEnabledUseCase())
+    var isWebSocketEnabled by mutableStateOf(isWebSocketEnabled())
 
     fun navigateBack() = viewModelScope.launch {
         navigationManager.navigateBack()
     }
 
     fun setWebSocketState(isEnabled: Boolean, context: Context) {
-        enableWebSocketUseCase(isEnabled)
+        persistWebSocketStatus(isEnabled)
         isWebSocketEnabled = isEnabled
         if (isEnabled) {
             context.startService(Intent(context, PersistentWebSocketService::class.java))

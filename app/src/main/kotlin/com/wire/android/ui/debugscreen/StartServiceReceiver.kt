@@ -27,6 +27,5 @@ class StartServiceReceiver : BroadcastReceiver() {
         } else {
             context?.startService(persistentWebSocketServiceIntent)
         }
-
     }
 }

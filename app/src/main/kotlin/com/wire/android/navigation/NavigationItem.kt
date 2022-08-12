@@ -164,7 +164,6 @@ enum class NavigationItem(
         content = { NetworkSettingsScreen() },
     ),
 
-
     Support(
         primaryRoute = BuildConfig.SUPPORT_URL,
         content = { },

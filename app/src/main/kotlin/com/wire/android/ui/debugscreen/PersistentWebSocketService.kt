@@ -13,6 +13,7 @@ import android.os.IBinder
 import androidx.annotation.RequiresApi
 import com.wire.android.BuildConfig
 import com.wire.android.R
+import com.wire.android.appLogger
 import com.wire.android.di.CurrentSessionFlowService
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.navigation.NavigationCommand
@@ -78,7 +79,7 @@ class PersistentWebSocketService : Service() {
         }
 
         coreLogic.sessionRepository.currentSession().fold({
-
+            appLogger.e("error while getting the current session from persistent web socket service $it")
         }, { authSession ->
             coreLogic.getSessionScope(authSession.session.userId).setConnectionPolicy(ConnectionPolicy.KEEP_ALIVE)
 
@@ -98,9 +99,6 @@ class PersistentWebSocketService : Service() {
                 }
             }
         })
-
-
-
         generateForegroundNotification()
         return START_STICKY
 

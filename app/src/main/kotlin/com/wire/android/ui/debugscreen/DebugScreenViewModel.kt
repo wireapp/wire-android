@@ -22,7 +22,7 @@ import javax.inject.Inject
 class DebugScreenViewModel
 @Inject constructor(
     private val mlsKeyPackageCountUseCase: MLSKeyPackageCountUseCase,
-    private val enableLoggingUseCase: EnableLoggingUseCase,
+    private val enableLogging: EnableLoggingUseCase,
     private val logFileWriter: LogFileWriter,
     isLoggingEnabledUseCase: IsLoggingEnabledUseCase
 ) : ViewModel() {
@@ -57,7 +57,7 @@ class DebugScreenViewModel
 
 
     fun setLoggingEnabledState(isEnabled: Boolean) {
-        enableLoggingUseCase(isEnabled)
+        enableLogging(isEnabled)
         isLoggingEnabled = isEnabled
         if (isEnabled) {
             logFileWriter.start()

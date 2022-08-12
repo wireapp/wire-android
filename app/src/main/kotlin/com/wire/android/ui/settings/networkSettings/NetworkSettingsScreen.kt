@@ -27,8 +27,7 @@ fun NetworkSettingsScreen(networkSettingsViewModel: NetworkSettingsViewModel = h
         onBackPressed = networkSettingsViewModel::navigateBack,
         isWebSocketEnabled = networkSettingsViewModel.isWebSocketEnabled,
         setWebSocketState = { networkSettingsViewModel.setWebSocketState(it, context) },
-
-        )
+    )
 }
 
 @OptIn(
@@ -63,7 +62,6 @@ fun NetworkSettingsScreenContent(
             )
         }
     }
-
 }
 
 @Composable

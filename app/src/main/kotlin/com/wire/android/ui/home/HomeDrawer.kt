@@ -75,15 +75,15 @@ fun HomeDrawer(
         Logo()
 
         topItems.forEach { item ->
-            if (item!=HomeNavigationItem.Settings)
-            DrawerItem(
-                data = item.getDrawerData(),
-                selected = currentRoute == item.route,
-                onItemClick = {
-                    navigateToItemInHome(homeNavController, item)
-                    scope.launch { drawerState.close() }
-                }
-            )
+            if (item != HomeNavigationItem.Settings)
+                DrawerItem(
+                    data = item.getDrawerData(),
+                    selected = currentRoute == item.route,
+                    onItemClick = {
+                        navigateToItemInHome(homeNavController, item)
+                        scope.launch { drawerState.close() }
+                    }
+                )
         }
 
         Spacer(modifier = Modifier.weight(1f))

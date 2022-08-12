@@ -573,8 +573,8 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun provideEnableWebSocketUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
-        coreLogic.getGlobalScope().enableWebSocket
+    fun providePersistWebSocketUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
+        coreLogic.getGlobalScope().persistWebSocket
 
     @ViewModelScoped
     @Provides

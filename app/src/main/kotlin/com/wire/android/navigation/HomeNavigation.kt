@@ -102,7 +102,7 @@ enum class HomeNavigationItem(
     companion object {
         // TODO: Re-enable once we have Archive & Vault
         // val all = listOf(Conversations, Archive, Vault)
-        val all = listOf(Conversations,Settings)
+        val all = listOf(Conversations, Settings)
     }
 }
 
@@ -111,5 +111,4 @@ private object HomeDestinationsRoutes {
     const val vault = "home_vault"
     const val archive = "home_archive"
     const val settings = "home_settings"
-
 }

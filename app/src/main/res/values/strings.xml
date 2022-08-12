@@ -306,6 +306,7 @@
     <string name="user_profile_status_none">None</string>
     <string name="user_profile_new_account_text">New Team or Account</string>
     <string name="user_profile_details_tab">Details</string>
+    <string name="user_profile_devices_tab">Devices</string>
     <string name="user_profile_group_tab">Group</string>
     <string name="user_profile_group_member">Member of the group ”%s”</string>
     <string name="user_profile_group_role">ROLE</string>

@@ -300,6 +300,11 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun provideGetOtherUsersClients(@CurrentAccount currentAccount: UserId, clientScopeProviderFactory: ClientScopeProvider.Factory) =
+        clientScopeProviderFactory.create(currentAccount).clientScope.otherUsersClients
+
+    @ViewModelScoped
+    @Provides
     fun provideNeedsToRegisterClientUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).client.needsToRegisterClient
 

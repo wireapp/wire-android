@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -18,7 +17,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.rememberModalBottomSheetState
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
@@ -111,7 +109,13 @@ fun OtherProfileScreenContent(
 ) {
     val otherUserProfileScreenState = rememberOtherUserProfileScreenState(snackbarHostState)
     val tabItems by remember(state) {
-        derivedStateOf { listOfNotNull(state.groupState?.let { OtherUserProfileTabItem.GROUP }, OtherUserProfileTabItem.DETAILS) }
+        derivedStateOf {
+            listOfNotNull(
+                state.groupState?.let { OtherUserProfileTabItem.GROUP },
+                OtherUserProfileTabItem.DETAILS,
+                OtherUserProfileTabItem.DEVICES
+            )
+        }
     }
     val initialPage = 0
     val pagerState = rememberPagerState(initialPage = initialPage)
@@ -276,6 +280,9 @@ private fun Content(
                                     openRemoveConversationMemberDialog,
                                     openChangeRoleBottomSheet
                                 )
+                            OtherUserProfileTabItem.DEVICES ->
+                                OtherUserDevicesScreen(state.otherUserClients)
+
                         }
                     }
                 }
@@ -324,7 +331,8 @@ private fun ContentFooter(
 
 enum class OtherUserProfileTabItem(@StringRes override val titleResId: Int) : TabItem {
     GROUP(R.string.user_profile_group_tab),
-    DETAILS(R.string.user_profile_details_tab);
+    DETAILS(R.string.user_profile_details_tab),
+    DEVICES(R.string.user_profile_devices_tab);
 }
 
 @OptIn(ExperimentalMaterialApi::class)

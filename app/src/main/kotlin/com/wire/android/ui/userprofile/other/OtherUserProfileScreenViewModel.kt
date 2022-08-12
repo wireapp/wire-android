@@ -36,6 +36,8 @@ import com.wire.kalium.logic.data.id.toQualifiedID
 import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.OtherUser
+import com.wire.kalium.logic.feature.client.GetOtherUserClientsResult
+import com.wire.kalium.logic.feature.client.GetOtherUserClientsUseCase
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCase
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCaseResult
 import com.wire.kalium.logic.feature.connection.CancelConnectionRequestUseCase
@@ -78,6 +80,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val observeConversationRoleForUser: ObserveConversationRoleForUserUseCase,
     private val updateMemberRole: UpdateConversationMemberRoleUseCase,
     private val removeMemberFromConversation: RemoveMemberFromConversationUseCase,
+    private val otherUserClients: GetOtherUserClientsUseCase,
     qualifiedIdMapper: QualifiedIdMapper
 ) : ViewModel() {
 
@@ -106,6 +109,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                         .collect { loadViewState(result.otherUser, result.team, it) }
             }
         }
+        getOtherUserClients()
     }
 
     private fun loadViewState(otherUser: OtherUser, team: Team?, conversationRoleData: ConversationRoleData?) {
@@ -259,6 +263,24 @@ class OtherUserProfileScreenViewModel @Inject constructor(
 
             removeConversationMemberDialogState = null
 
+        }
+    }
+
+    private fun getOtherUserClients() {
+        viewModelScope.launch {
+            otherUserClients(userId).let {
+                when (it) {
+                    is GetOtherUserClientsResult.Failure.UserNotFound -> {
+                        appLogger.e("User or Domain not found while fetching user clients ")
+                    }
+                    is GetOtherUserClientsResult.Failure.Generic -> {
+                        appLogger.e("Error while fetching the user clients : ${it.genericFailure}")
+                    }
+                    is GetOtherUserClientsResult.Success -> {
+                        state = state.copy(otherUserClients = it.otherUserClients)
+                    }
+                }
+            }
         }
     }
 

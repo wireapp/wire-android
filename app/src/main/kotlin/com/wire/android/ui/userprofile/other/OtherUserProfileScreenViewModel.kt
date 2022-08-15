@@ -29,6 +29,7 @@ import com.wire.android.util.EMPTY
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
+import com.wire.kalium.logic.data.client.OtherUserClients
 import com.wire.kalium.logic.data.conversation.Member
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
@@ -38,6 +39,7 @@ import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.feature.client.GetOtherUserClientsResult
 import com.wire.kalium.logic.feature.client.GetOtherUserClientsUseCase
+import com.wire.kalium.logic.feature.client.PersistOtherUserClientsUseCase
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCase
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCaseResult
 import com.wire.kalium.logic.feature.connection.CancelConnectionRequestUseCase
@@ -81,6 +83,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val updateMemberRole: UpdateConversationMemberRoleUseCase,
     private val removeMemberFromConversation: RemoveMemberFromConversationUseCase,
     private val otherUserClients: GetOtherUserClientsUseCase,
+    private val persistOtherUserClientsUseCase: PersistOtherUserClientsUseCase,
     qualifiedIdMapper: QualifiedIdMapper
 ) : ViewModel() {
 
@@ -109,7 +112,9 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                         .collect { loadViewState(result.otherUser, result.team, it) }
             }
         }
-        getOtherUserClients()
+        viewModelScope.launch {
+            persistOtherUserClientsUseCase(userId)
+        }
     }
 
     private fun loadViewState(otherUser: OtherUser, team: Team?, conversationRoleData: ConversationRoleData?) {
@@ -266,7 +271,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         }
     }
 
-    private fun getOtherUserClients() {
+    fun getOtherUserClients(): List<OtherUserClients> {
         viewModelScope.launch {
             otherUserClients(userId).let {
                 when (it) {
@@ -282,6 +287,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                 }
             }
         }
+        return state.otherUserClients
     }
 
 

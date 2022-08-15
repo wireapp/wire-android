@@ -79,6 +79,7 @@ fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltView
         openRemoveConversationMemberDialog = viewModel::openRemoveConversationMemberDialog,
         hideRemoveConversationMemberDialog = viewModel::hideRemoveConversationMemberDialog,
         onRemoveConversationMember = viewModel::removeConversationMember,
+        getOtherUserClients = viewModel::getOtherUserClients,
         snackbarHostState = snackbarHostState
     )
     LaunchedEffect(Unit) {
@@ -105,7 +106,8 @@ fun OtherProfileScreenContent(
     openRemoveConversationMemberDialog: () -> Unit,
     hideRemoveConversationMemberDialog: () -> Unit,
     onRemoveConversationMember: (PreservedState<RemoveConversationMemberState>) -> Unit,
-    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
+    getOtherUserClients: () -> Unit,
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
     val otherUserProfileScreenState = rememberOtherUserProfileScreenState(snackbarHostState)
     val tabItems by remember(state) {
@@ -158,7 +160,8 @@ fun OtherProfileScreenContent(
                     otherUserProfileScreenState,
                     lazyListStates,
                     openChangeRoleBottomSheet,
-                    openRemoveConversationMemberDialog
+                    openRemoveConversationMemberDialog,
+                    getOtherUserClients
                 )
             },
             contentFooter = {
@@ -258,7 +261,8 @@ private fun Content(
     otherUserProfileScreenState: OtherUserProfileScreenState,
     lazyListStates: Map<OtherUserProfileTabItem, LazyListState>,
     openChangeRoleBottomSheet: () -> Unit,
-    openRemoveConversationMemberDialog: () -> Unit
+    openRemoveConversationMemberDialog: () -> Unit,
+    getOtherUserClients: () -> Unit,
 ) {
     Crossfade(targetState = state) { state ->
         when {
@@ -280,9 +284,11 @@ private fun Content(
                                     openRemoveConversationMemberDialog,
                                     openChangeRoleBottomSheet
                                 )
-                            OtherUserProfileTabItem.DEVICES ->
+                            OtherUserProfileTabItem.DEVICES ->{
+                                getOtherUserClients()
                                 OtherUserDevicesScreen(state.otherUserClients)
 
+                            }
                         }
                     }
                 }
@@ -343,7 +349,7 @@ fun OtherProfileScreenContentPreview() {
         OtherProfileScreenContent(
             OtherUserProfileState.PREVIEW.copy(connectionStatus = ConnectionState.ACCEPTED),
             null,
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
         )
     }
 }
@@ -356,7 +362,7 @@ fun OtherProfileScreenContentNotConnectedPreview() {
         OtherProfileScreenContent(
             OtherUserProfileState.PREVIEW.copy(connectionStatus = ConnectionState.CANCELLED),
             null,
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
         )
     }
 }

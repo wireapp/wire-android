@@ -5,8 +5,8 @@ import androidx.annotation.ArrayRes
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.LocalOverScrollConfiguration
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -98,8 +98,7 @@ private fun WelcomeContent(viewModel: WelcomeViewModel) {
                 }
             }
 
-            WelcomeFooter(modifier = Modifier
-                .padding(horizontal = MaterialTheme.wireDimensions.welcomeTextHorizontalPadding),
+            WelcomeFooter(modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.welcomeTextHorizontalPadding),
                 onPrivateAccountClick = {
                     viewModel.goToCreatePrivateAccount()
                 })
@@ -125,11 +124,9 @@ private fun WelcomeCarousel() {
         autoScrollCarousel(pagerState, initialPage, circularItemsList, delay.toLong())
     }
 
-    CompositionLocalProvider(LocalOverScrollConfiguration provides null) {
+    CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
         HorizontalPager(
-            state = pagerState,
-            count = circularItemsList.size,
-            modifier = Modifier.fillMaxWidth()
+            state = pagerState, count = circularItemsList.size, modifier = Modifier.fillMaxWidth()
         ) { page ->
             val (pageIconResId, pageText) = circularItemsList[page]
             WelcomeCarouselItem(pageIconResId = pageIconResId, pageText = pageText)
@@ -139,27 +136,29 @@ private fun WelcomeCarousel() {
 
 @OptIn(ExperimentalPagerApi::class, ExperimentalCoroutinesApi::class)
 private suspend fun autoScrollCarousel(
-    pageState: PagerState,
-    initialPage: Int,
-    circularItemsList: List<CarouselPageData>,
-    delay: Long
-) = snapshotFlow { pageState.currentPage }
-    .distinctUntilChanged()
+    pageState: PagerState, initialPage: Int, circularItemsList: List<CarouselPageData>, delay: Long
+) = snapshotFlow { pageState.currentPage }.distinctUntilChanged()
     .scan(initialPage to initialPage) { (_, previousPage), currentPage -> previousPage to currentPage }
     .flatMapLatest { (previousPage, currentPage) ->
         when {
-            shouldJumpToStart(previousPage, currentPage, circularItemsList.lastIndex, initialPage) ->
-                flow { emit(CarouselScrollData(scrollToPage = initialPage, animate = false)) }
+            shouldJumpToStart(previousPage, currentPage, circularItemsList.lastIndex, initialPage) -> flow {
+                emit(
+                    CarouselScrollData(
+                        scrollToPage = initialPage,
+                        animate = false
+                    )
+                )
+            }
 
-            shouldJumpToEnd(previousPage, currentPage, circularItemsList.lastIndex) ->
-                flow { emit(CarouselScrollData(scrollToPage = circularItemsList.lastIndex - 1, animate = false)) }
+            shouldJumpToEnd(
+                previousPage,
+                currentPage,
+                circularItemsList.lastIndex
+            ) -> flow { emit(CarouselScrollData(scrollToPage = circularItemsList.lastIndex - 1, animate = false)) }
 
-            else ->
-                flow { emit(CarouselScrollData(scrollToPage = pageState.currentPage + 1, animate = true)) }
-                    .onEach { delay(delay) }
+            else -> flow { emit(CarouselScrollData(scrollToPage = pageState.currentPage + 1, animate = true)) }.onEach { delay(delay) }
         }
-    }
-    .collect { (scrollToPage, animate) ->
+    }.collect { (scrollToPage, animate) ->
         if (pageState.pageCount != 0) {
             if (animate) pageState.animateScrollToPage(scrollToPage)
             else pageState.scrollToPage(scrollToPage)
@@ -176,9 +175,7 @@ private fun WelcomeCarouselItem(pageIconResId: Int, pageText: String) {
             painter = painterResource(id = pageIconResId),
             contentDescription = "",
             contentScale = ContentScale.Inside,
-            modifier = Modifier
-                .weight(1f, true)
-                .padding(
+            modifier = Modifier.weight(1f, true).padding(
                     horizontal = MaterialTheme.wireDimensions.welcomeImageHorizontalPadding,
                     vertical = MaterialTheme.wireDimensions.welcomeVerticalSpacing
                 )
@@ -223,18 +220,10 @@ private fun WelcomeFooter(modifier: Modifier, onPrivateAccountClick: () -> Unit)
         )
 
         Text(
-            text = stringResource(R.string.welcome_button_create_personal_account),
-            style = MaterialTheme.wireTypography.body02.copy(
-                textDecoration = TextDecoration.Underline,
-                color = MaterialTheme.colorScheme.primary
-            ),
-            textAlign = TextAlign.Center,
-            modifier = Modifier
-                .fillMaxWidth()
-                .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null,
-                    onClick = onPrivateAccountClick
+            text = stringResource(R.string.welcome_button_create_personal_account), style = MaterialTheme.wireTypography.body02.copy(
+                textDecoration = TextDecoration.Underline, color = MaterialTheme.colorScheme.primary
+            ), textAlign = TextAlign.Center, modifier = Modifier.fillMaxWidth().clickable(
+                    interactionSource = remember { MutableInteractionSource() }, indication = null, onClick = onPrivateAccountClick
                 )
         )
     }

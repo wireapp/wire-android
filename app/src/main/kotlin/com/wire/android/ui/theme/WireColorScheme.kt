@@ -8,6 +8,7 @@ import io.github.esentsov.PackagePrivate
 @Immutable
 data class WireColorScheme(
     val useDarkSystemBarIcons: Boolean,
+    val ongoingCallLabelShouldUseDarkIcons: Boolean,
     val primary: Color, val onPrimary: Color,
     val error: Color, val onError: Color,
     val errorOutline: Color,
@@ -60,7 +61,10 @@ data class WireColorScheme(
     val callingPagerIndicatorBackground : Color,
     val callingActiveIndicator : Color,
     val callingInActiveIndicator : Color,
-    val callingInActiveBorderIndicator : Color
+    val callingInActiveBorderIndicator : Color,
+    val ongoingCallLabelColor: Color,
+    val ongoingCallLabelTextColor: Color,
+    val ongoingCallLabelIconColor: Color
     ) {
     fun toColorScheme(): ColorScheme = ColorScheme(
         primary = primary, onPrimary = onPrimary,
@@ -84,6 +88,7 @@ data class WireColorScheme(
 // Light WireColorScheme
 private val LightWireColorScheme = WireColorScheme(
     useDarkSystemBarIcons = true,
+    ongoingCallLabelShouldUseDarkIcons = false,
     primary = WireColorPalette.LightBlue500,                       onPrimary = Color.White,
     error = WireColorPalette.LightRed500,                          onError = Color.White,
     errorOutline = WireColorPalette.LightRed200,
@@ -165,12 +170,16 @@ private val LightWireColorScheme = WireColorScheme(
     callingPagerIndicatorBackground = WireColorPalette.Gray40,
     callingActiveIndicator = WireColorPalette.LightBlue500,
     callingInActiveIndicator = Color.White,
-    callingInActiveBorderIndicator = WireColorPalette.Gray60
+    callingInActiveBorderIndicator = WireColorPalette.Gray60,
+    ongoingCallLabelColor = WireColorPalette.DarkGreen700,
+    ongoingCallLabelTextColor = Color.White,
+    ongoingCallLabelIconColor = Color.White
 )
 
 // Dark WireColorScheme
 private val DarkWireColorScheme = WireColorScheme(
     useDarkSystemBarIcons = false,
+    ongoingCallLabelShouldUseDarkIcons = true,
     primary = WireColorPalette.DarkBlue500,                        onPrimary = Color.Black,
     error = WireColorPalette.DarkRed500,                           onError = Color.Black,
     errorOutline = WireColorPalette.DarkRed200,
@@ -252,7 +261,10 @@ private val DarkWireColorScheme = WireColorScheme(
     callingPagerIndicatorBackground = WireColorPalette.Gray40,
     callingActiveIndicator = WireColorPalette.LightBlue500,
     callingInActiveIndicator = Color.White,
-    callingInActiveBorderIndicator = WireColorPalette.Gray60
+    callingInActiveBorderIndicator = WireColorPalette.Gray60,
+    ongoingCallLabelColor = WireColorPalette.DarkGreen700,
+    ongoingCallLabelTextColor = Color.White,
+    ongoingCallLabelIconColor = Color.White
 )
 
 @PackagePrivate

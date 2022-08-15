@@ -25,6 +25,7 @@ fun OtherUserConnectionActionButton(
     onCancelConnectionRequest: () -> Unit,
     acceptConnectionRequest: () -> Unit,
     ignoreConnectionRequest: () -> Unit,
+    onUnblockUser: () -> Unit,
 ) {
     when (connectionStatus) {
         ConnectionState.SENT -> WireSecondaryButton(
@@ -63,7 +64,7 @@ fun OtherUserConnectionActionButton(
         ConnectionState.BLOCKED -> {
             WireSecondaryButton(
                 text = stringResource(R.string.user_profile_unblock_user),
-                onClick = { } //TODO
+                onClick = onUnblockUser
             )
         }
         else -> WirePrimaryButton(
@@ -89,5 +90,6 @@ fun OtherUserConnectionActionButtonPreview() {
         onOpenConversation = {},
         onCancelConnectionRequest = {},
         acceptConnectionRequest = {},
-        ignoreConnectionRequest = {})
+        ignoreConnectionRequest = {},
+        onUnblockUser = {})
 }

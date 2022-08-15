@@ -1,6 +1,5 @@
 package com.wire.android.ui.userprofile.other
 
-import androidx.compose.material.ExperimentalMaterialApi
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
 import com.wire.android.ui.home.conversationslist.model.Membership
@@ -9,7 +8,6 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.BotService
 import com.wire.kalium.logic.data.user.ConnectionState
 
-@OptIn(ExperimentalMaterialApi::class)
 data class OtherUserProfileState(
     val userAvatarAsset: UserAvatarAsset? = null,
     val isDataLoading: Boolean = false,

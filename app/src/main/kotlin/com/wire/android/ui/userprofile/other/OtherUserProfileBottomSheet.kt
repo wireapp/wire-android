@@ -12,11 +12,11 @@ import com.wire.kalium.logic.data.user.UserId
 @Composable
 fun OtherUserProfileBottomSheetContent(
     bottomSheetState: BottomSheetContent?,
-    onMutingConversationStatusChange: (ConversationId?, MutedConversationStatus) -> Unit,
-    addConversationToFavourites: () -> Unit,
-    moveConversationToFolder: () -> Unit,
-    moveConversationToArchive: () -> Unit,
-    clearConversationContent: () -> Unit,
+    onMutingConversationStatusChange: (ConversationId, MutedConversationStatus) -> Unit,
+    addConversationToFavourites: (ConversationId) -> Unit,
+    moveConversationToFolder: (ConversationId) -> Unit,
+    moveConversationToArchive: (ConversationId) -> Unit,
+    clearConversationContent: (ConversationId) -> Unit,
     blockUser: (UserId, String) -> Unit,
     changeMemberRole: (Member.Role) -> Unit,
     openMuteOptionsSheet: () -> Unit,
@@ -24,17 +24,19 @@ fun OtherUserProfileBottomSheetContent(
     closeBottomSheet: () -> Unit
 ) {
     when (bottomSheetState) {
-        is BottomSheetContent.Conversation ->
+        is BottomSheetContent.Conversation -> {
+            val conversationId = bottomSheetState.conversationData.conversationId
             ConversationMainSheetContent(
                 conversationSheetContent = bottomSheetState.conversationData,
-                addConversationToFavourites = addConversationToFavourites,
-                moveConversationToFolder = moveConversationToFolder,
-                moveConversationToArchive = moveConversationToArchive,
-                clearConversationContent = clearConversationContent,
+                addConversationToFavourites = { addConversationToFavourites(conversationId) },
+                moveConversationToFolder = { moveConversationToFolder(conversationId) },
+                moveConversationToArchive = { moveConversationToArchive(conversationId) },
+                clearConversationContent = { clearConversationContent(conversationId) },
                 blockUserClick = blockUser,
                 leaveGroup = { },
                 navigateToNotification = openMuteOptionsSheet
             )
+        }
         is BottomSheetContent.Mute ->
             MutingOptionsSheetContent(
                 mutingConversationState = bottomSheetState.conversationData.mutingConversationState,
@@ -47,8 +49,7 @@ fun OtherUserProfileBottomSheetContent(
                 changeMemberRole = changeMemberRole,
                 closeChangeRoleBottomSheet = closeBottomSheet
             )
-        null -> {
-        }
+        null -> {}
     }
 
     BackHandler(bottomSheetState != null) {

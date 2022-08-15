@@ -410,6 +410,7 @@
     <string name="conversation_on_file_downloaded">The file %s was saved successfully to the Downloads folder</string>
     <string name="error_blocking_user">User could not be blocked</string>
     <string name="blocking_user_success">%s blocked</string>
+    <string name="error_unblocking_user">User could not be unblocked</string>
 
     <!-- Animation label -->
     <string name="animation_label_messagecomposeinput_state_transistion" translatable="false">MessageComposeInputState transition</string>
@@ -524,5 +525,10 @@
     <string name="block_user_dialog_title">Block user?</string>
     <string name="block_user_dialog_body">%1$s won’t be able to contact you or add you to group conversations. You will lose access to any 1:1 conversations with them. The other user will not be notified about this.</string>
     <string name="block_user_dialog_confirm_button">Block</string>
+
+    <!--unblock user dialog -->
+    <string name="unblock_user_dialog_title">Unblock user?</string>
+    <string name="unblock_user_dialog_body">%1$s will be able to contact you or add you to group conversations. You will be able to access a 1:1 conversation with them.</string>
+    <string name="unblock_user_dialog_confirm_button">Unlock</string>
 
 </resources>

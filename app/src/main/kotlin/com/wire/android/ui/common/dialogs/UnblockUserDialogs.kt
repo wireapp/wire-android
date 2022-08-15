@@ -17,16 +17,16 @@ import com.wire.android.util.ui.stringWithStyledArgs
 import com.wire.kalium.logic.data.user.UserId
 
 @Composable
-fun BlockUserDialogContent(
-    dialogState: PreservedState<BlockUserDialogState>?,
+fun UnblockUserDialogContent(
+    dialogState: PreservedState<UnblockUserDialogState>?,
     dismiss: () -> Unit = {},
-    onBlock: (UserId, String) -> Unit = { _, _ -> }
+    onUnblock: (UserId) -> Unit = { }
 ) {
     VisibilityState(dialogState) { preservedState ->
         WireDialog(
-            title = stringResource(id = R.string.block_user_dialog_title),
+            title = stringResource(id = R.string.unblock_user_dialog_title),
             text = LocalContext.current.resources.stringWithStyledArgs(
-                R.string.block_user_dialog_body,
+                R.string.unblock_user_dialog_body,
                 MaterialTheme.wireTypography.body01,
                 MaterialTheme.wireTypography.body02,
                 colorsScheme().onBackground,
@@ -35,13 +35,13 @@ fun BlockUserDialogContent(
             ),
             onDismiss = dismiss,
             optionButton1Properties = WireDialogButtonProperties(
-                onClick = { onBlock(preservedState.state.userId, preservedState.state.userName) },
-                text = stringResource(id = R.string.block_user_dialog_confirm_button),
+                onClick = { onUnblock(preservedState.state.userId) },
+                text = stringResource(id = R.string.unblock_user_dialog_confirm_button),
                 type = WireDialogButtonType.Primary,
                 state = if (preservedState is PreservedState.Loading)
                     WireButtonState.Disabled
                 else
-                    WireButtonState.Error,
+                    WireButtonState.Default,
             ),
             dismissButtonProperties = WireDialogButtonProperties(
                 onClick = dismiss,
@@ -52,4 +52,4 @@ fun BlockUserDialogContent(
     }
 }
 
-data class BlockUserDialogState(val userName: String, val userId: UserId)
+data class UnblockUserDialogState(val userName: String, val userId: UserId)

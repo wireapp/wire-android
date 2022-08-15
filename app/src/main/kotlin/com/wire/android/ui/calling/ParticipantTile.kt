@@ -29,6 +29,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.waz.avs.VideoPreview
+import com.waz.avs.VideoRenderer
 import com.wire.android.R
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.UserAvatarData
@@ -45,10 +46,14 @@ fun ParticipantTile(
     onGoingCallTileUsernameMaxWidth: Dp = 350.dp,
     isMuted: Boolean,
     isCameraOn: Boolean,
+    isOtherCameraOn: Boolean,
     isActiveSpeaker: Boolean,
     avatarSize: Dp = dimensions().onGoingCallUserAvatarSize,
     onSelfUserVideoPreviewCreated: (view: View) -> Unit,
-    onClearSelfUserVideoPreview: () -> Unit
+    onClearSelfUserVideoPreview: () -> Unit,
+    isSelfUser: Boolean,
+    userIdString: String,
+    clientIdString: String
 ) {
     var updatedModifier = modifier
     if (isActiveSpeaker) {
@@ -68,32 +73,38 @@ fun ParticipantTile(
 
         ConstraintLayout {
             val (avatar, userName, muteIcon) = createRefs()
-
-            if (isCameraOn) {
-                val context = LocalContext.current
-                val view = remember { VideoPreview(context) }
-                //TODO fix memory leak when the app goes to background with video turned on
-                // https://issuetracker.google.com/issues/198012639
-                // The issue is marked as fixed in the issue tracker,
-                // but we are still getting it with our current compose version 1.2.0-beta01
-                AndroidView(factory = {
-                    onSelfUserVideoPreviewCreated(view)
-                    view
-                })
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .constrainAs(avatar) { },
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                UserProfileAvatar(
+                    modifier = Modifier.padding(top = dimensions().spacing16x),
+                    size = avatarSize,
+                    avatarData = UserAvatarData(participantAvatar)
+                )
+            }
+            if (isSelfUser) {
+                if (isCameraOn) {
+                    val context = LocalContext.current
+                    val view = remember { VideoPreview(context) }.apply {
+                        setShouldFill(true)
+                        setAspectRatio(0.5f)
+                    }
+                    AndroidView(factory = {
+                        onSelfUserVideoPreviewCreated(view)
+                        view
+                    })
+                } else onClearSelfUserVideoPreview()
             } else {
-                onClearSelfUserVideoPreview()
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .constrainAs(avatar) { },
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    UserProfileAvatar(
-                        modifier = Modifier.padding(top = dimensions().spacing16x),
-                        size = avatarSize,
-                        avatarData = UserAvatarData(participantAvatar)
-                    )
+                if(isOtherCameraOn) {
+                    val context = LocalContext.current
+                    val view = VideoRenderer(context, userIdString, clientIdString, false)
+                    AndroidView(factory = {
+                        view
+                    })
                 }
             }
 
@@ -161,6 +172,10 @@ private fun ParticipantTilePreview() {
         onClearSelfUserVideoPreview = {},
         onSelfUserVideoPreviewCreated = {},
         participantAvatar = null,
-        isActiveSpeaker = false
+        isActiveSpeaker = false,
+        isOtherCameraOn = false,
+        isSelfUser = false,
+        userIdString = "",
+        clientIdString = ""
     )
 }

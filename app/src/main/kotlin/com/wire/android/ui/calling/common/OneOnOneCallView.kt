@@ -41,6 +41,7 @@ fun OneOnOneCallView(
                 participantAvatar = participant.avatar,
                 isMuted = isMuted,
                 isCameraOn = isCameraOn,
+                isOtherCameraOn = participant.isCameraOn,
                 onSelfUserVideoPreviewCreated = {
                     if (pageIndex == 0 && participants.first() == participant) onSelfVideoPreviewCreated(it)
                 },
@@ -48,7 +49,10 @@ fun OneOnOneCallView(
                     if (pageIndex == 0 && participants.first() == participant)
                         onSelfClearVideoPreview()
                 },
-                isActiveSpeaker = participant.isSpeaking
+                isActiveSpeaker = participant.isSpeaking,
+                isSelfUser = participant == participants.first(),
+                userIdString = participant.id.toString(),
+                clientIdString = participant.clientId
             )
         }
     }

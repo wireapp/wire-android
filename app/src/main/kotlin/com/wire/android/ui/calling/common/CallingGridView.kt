@@ -66,6 +66,7 @@ fun GroupCallGrid(
                 avatarSize = userAvatarSize,
                 isMuted = isMuted,
                 isCameraOn = isCameraOn,
+                isOtherCameraOn = participant.isCameraOn,
                 isActiveSpeaker = participant.isSpeaking,
                 onSelfUserVideoPreviewCreated = {
                     if (pageIndex == 0 && participants.first() == participant) onSelfVideoPreviewCreated(it)
@@ -73,7 +74,10 @@ fun GroupCallGrid(
                 onClearSelfUserVideoPreview = {
                     if (pageIndex == 0 && participants.first() == participant)
                         onSelfClearVideoPreview()
-                }
+                },
+                isSelfUser = pageIndex == 0 && participant == participants.first(),
+                userIdString = participant.id.toString(),
+                clientIdString = participant.clientId
             )
         }
     }

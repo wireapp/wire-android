@@ -95,6 +95,9 @@
     <string name="content_description_show_more_options">Show more options</string>
     <string name="content_description_copy">Copy</string>
     <string name="content_description_edit">Edit</string>
+    <string name="content_description_calling_call_muted">Call Muted</string>
+    <string name="content_description_calling_call_unmuted">Call Unmuted</string>
+    <string name="content_description_calling_call_paused_camera">Paused Camera</string>
 
     <!-- Non translatable strings-->
     <string name="url_decryption_failure_learn_more" translatable="false">https://support.wire.com/hc/en-us/articles/207948115-Why-was-I-notified-that-a-message-from-a-contact-was-not-received-</string>
@@ -456,6 +459,7 @@
     <string name="calling_ongoing_call_start_anyway">Call Anyways</string>
     <string name="calling_ongoing_call_join_message_alert">A call is active in another conversation.\nJoining this call will hang up the other one.</string>
     <string name="calling_ongoing_call_join_anyway">Join Anyways</string>
+    <string name="calling_ongoing_call_return_to_call">RETURN TO CALL</string>
 
     <!-- Connections -->
     <string name="connection_label_connect">Connect</string>

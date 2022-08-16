@@ -15,6 +15,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.scale
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
@@ -50,16 +51,16 @@ fun GroupConversationOptionsItem(
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
+            .padding(
+                top = MaterialTheme.wireDimensions.spacing12x,
+                bottom = MaterialTheme.wireDimensions.spacing12x,
+                start = MaterialTheme.wireDimensions.spacing16x,
+                end = MaterialTheme.wireDimensions.spacing12x
+            )
     ) {
         Column(
             modifier = Modifier
                 .weight(1f)
-                .padding(
-                    top = MaterialTheme.wireDimensions.spacing12x,
-                    bottom = MaterialTheme.wireDimensions.spacing12x,
-                    start = MaterialTheme.wireDimensions.spacing16x,
-                    end = MaterialTheme.wireDimensions.spacing12x
-                )
         ) {
             if (label != null)
                 Text(
@@ -112,8 +113,12 @@ fun ConversationOptionSwitch(
         if (switchState.isSwitchVisible) {
             WireSwitch(
                 checked = switchState.value,
-                enabled = ((switchState is SwitchState.Enabled) && switchState.isLoading.not()),
-                onCheckedChange = (switchState as? SwitchState.Enabled)?.onCheckedChange
+                enabled = switchState is SwitchState.Enabled,
+                onCheckedChange = (switchState as? SwitchState.Enabled)?.onCheckedChange,
+                modifier = Modifier
+                    .scale(scaleX = 0.75f, scaleY = 0.75f)
+                    .size(width = 36.dp, height = 24.dp)
+                ,
             )
         }
     }
@@ -138,26 +143,23 @@ sealed class SwitchState {
     sealed class Visible(
         open val value: Boolean = false,
         open val isOnOffVisible: Boolean = true,
-        open val isSwitchVisible: Boolean = true,
-        open val isLoading: Boolean = false
+        open val isSwitchVisible: Boolean = true
     ) : SwitchState()
 
     data class Enabled(
         override val value: Boolean = false,
         override val isOnOffVisible: Boolean = true,
-        override val isLoading: Boolean = false,
         val onCheckedChange: (Boolean) -> Unit
-    ) : Visible(value = value, isSwitchVisible = true, isLoading = isLoading)
+    ) : Visible(value = value, isOnOffVisible = isOnOffVisible, isSwitchVisible = true)
 
     data class Disabled(
         override val value: Boolean = false,
         override val isOnOffVisible: Boolean = true
-    ) : Visible(value, isSwitchVisible = true)
+    ) : Visible(value = value, isOnOffVisible = isOnOffVisible, isSwitchVisible = true)
 
     data class TextOnly(
         override val value: Boolean = false,
-        override val isLoading: Boolean = false,
-    ) : Visible(value = value, isOnOffVisible = true, isSwitchVisible = false, isLoading = isLoading)
+    ) : Visible(value = value, isOnOffVisible = true, isSwitchVisible = false)
 }
 
 @Composable

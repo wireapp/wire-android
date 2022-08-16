@@ -242,9 +242,9 @@
     <string name="conversation_details_show_all_participants">Show all participants (%d)</string>
     <string name="conversation_details_group_participants_title">Teilnehmer</string>
     <string name="conversation_details_group_participants_add">Teilnehmer hinzufügen</string>
-    <string name="convrsation_options_guest_discriptions">Aktivieren Sie diese Option, um die Unterhaltung für Personen außerhalb Ihres Teams zu öffnen – auch wenn diese Wire nicht nutzen.</string>
-    <string name="conversation_Option_services_lable">Dienste</string>
-    <string name="convrsation_options_services_discriptions">Turn this option ON to open this conversation to services.</string>
+    <string name="conversation_options_guest_description">Aktivieren Sie diese Option, um die Unterhaltung für Personen außerhalb Ihres Teams zu öffnen – auch wenn diese Wire nicht nutzen.</string>
+    <string name="conversation_options_services_label">Dienste</string>
+    <string name="conversation_options_services_description">Turn this option ON to open this conversation to services.</string>
     <string name="disable_guest_dialog_title">Disable guest access?</string>
     <string name="disable_guest_dialog_text">Aktuelle Gäste werden aus der Unterhaltung entfernt. Neue Gäste können nicht hinzugefügt werden.</string>
     <!-- Attachment options -->

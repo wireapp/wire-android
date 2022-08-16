@@ -41,7 +41,6 @@ import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.data.id.toQualifiedID
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.feature.client.GetOtherUserClientsResult
 import com.wire.kalium.logic.feature.client.GetOtherUserClientsUseCase
 import com.wire.kalium.logic.feature.client.PersistOtherUserClientsUseCase

@@ -157,6 +157,7 @@ class ConversationViewModel @Inject constructor(
         }
     }
 
+    @Suppress("ComplexMethod")
     private fun handleConversationDetails(conversationDetails: ConversationDetails) {
         val isUnavailableConversation = when (conversationDetails) {
             is ConversationDetails.OneOne -> conversationDetails.otherUser.isUnavailableUser

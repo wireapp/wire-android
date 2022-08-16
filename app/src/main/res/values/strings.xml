@@ -95,6 +95,9 @@
     <string name="content_description_show_more_options">Show more options</string>
     <string name="content_description_copy">Copy</string>
     <string name="content_description_edit">Edit</string>
+    <string name="content_description_calling_call_muted">Call Muted</string>
+    <string name="content_description_calling_call_unmuted">Call Unmuted</string>
+    <string name="content_description_calling_call_paused_camera">Paused Camera</string>
 
     <!-- Non translatable strings-->
     <string name="url_decryption_failure_learn_more" translatable="false">https://support.wire.com/hc/en-us/articles/207948115-Why-was-I-notified-that-a-message-from-a-contact-was-not-received-</string>
@@ -281,9 +284,11 @@
     <string name="conversation_details_group_participants_title">Group Participants</string>
     <string name="conversation_details_group_participants_add">Add participants</string>
 
-    <string name="convrsation_options_guest_discriptions">Turn this option ON to open this conversation to people outside your team, even if they don\'t have Wire.</string>
-    <string name="conversation_Option_services_lable">Services</string>
-    <string name="convrsation_options_services_discriptions">Turn this option ON to open this conversation to services.</string>
+    <string name="conversation_options_guests_label">Guests</string>
+    <string name="conversation_options_guest_description">Turn this option ON to open this conversation to people outside your team, even if they don\'t have Wire.</string>
+    <string name="conversation_options_guest_not_editable_description">You cannot disable the guest option in this conversation, since it has been created by someone from another team.</string>
+    <string name="conversation_options_services_label">Services</string>
+    <string name="conversation_options_services_description">Turn this option ON to open this conversation to services.</string>
     <string name="disable_guest_dialog_title">Disable guest access?</string>
     <string name="disable_guest_dialog_text">Current guests will be removed from the conversation. New guests will not be allowed.</string>
 
@@ -456,6 +461,7 @@
     <string name="calling_ongoing_call_start_anyway">Call Anyways</string>
     <string name="calling_ongoing_call_join_message_alert">A call is active in another conversation.\nJoining this call will hang up the other one.</string>
     <string name="calling_ongoing_call_join_anyway">Join Anyways</string>
+    <string name="calling_ongoing_call_return_to_call">RETURN TO CALL</string>
 
     <!-- Connections -->
     <string name="connection_label_connect">Connect</string>

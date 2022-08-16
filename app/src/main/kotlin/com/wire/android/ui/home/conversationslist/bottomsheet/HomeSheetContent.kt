@@ -22,14 +22,16 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.conversationColor
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
+import com.wire.android.ui.home.conversationslist.model.BlockingState
 import com.wire.android.ui.home.conversationslist.model.getMutedStatusTextResource
 import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
 
 @Composable
-internal fun HomeSheetContent(
+internal fun ConversationMainSheetContent(
     conversationSheetContent: ConversationSheetContent,
     addConversationToFavourites: () -> Unit,
     moveConversationToFolder: () -> Unit,
@@ -48,7 +50,15 @@ internal fun HomeSheetContent(
                         .conversationColor(id = conversationSheetContent.conversationTypeDetail.conversationId)
                 )
             } else if (conversationSheetContent.conversationTypeDetail is ConversationTypeDetail.Private) {
-                UserProfileAvatar(avatarData = UserAvatarData(conversationSheetContent.conversationTypeDetail.avatarAsset))
+                val connectionState: ConnectionState? = conversationSheetContent.conversationTypeDetail.blockingState.let {
+                    if (it == BlockingState.BLOCKED) ConnectionState.BLOCKED else null
+                }
+                UserProfileAvatar(
+                    avatarData = UserAvatarData(
+                        asset = conversationSheetContent.conversationTypeDetail.avatarAsset,
+                        connectionState = connectionState
+                    )
+                )
             }
         },
         menuItems = listOf(
@@ -115,7 +125,7 @@ internal fun HomeSheetContent(
             },
             {
                 if (conversationSheetContent.conversationTypeDetail is ConversationTypeDetail.Private) {
-                    if (conversationSheetContent.conversationTypeDetail.isBlockable) {
+                    if (conversationSheetContent.conversationTypeDetail.blockingState == BlockingState.NOT_BLOCKED) {
                         CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.error) {
                             MenuBottomSheetItem(
                                 icon = {

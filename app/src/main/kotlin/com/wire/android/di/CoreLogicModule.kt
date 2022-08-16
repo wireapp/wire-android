@@ -639,11 +639,6 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun provideRemoveMemberFromConversationUserUseCase(
-        @KaliumCoreLogic coreLogic: CoreLogic,
-        @CurrentAccount currentAccount: UserId
-    ): RemoveMemberFromConversationUseCase = coreLogic.getSessionScope(currentAccount).conversations.removeMemberFromConversation
-
     fun provideObserveUserInfoUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId

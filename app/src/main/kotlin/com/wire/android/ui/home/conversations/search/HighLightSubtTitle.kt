@@ -52,11 +52,7 @@ fun HighlightSubtitle(
                         fontStyle = MaterialTheme.wireTypography.subline01.fontStyle
                     )
                 ) {
-                    if (subTitle.isNotEmpty()) {
-                        append("@$subTitle")
-                    } else {
-                        append(subTitle)
-                    }
+                    append("@$subTitle")
                 }
 
                 highlightIndexes

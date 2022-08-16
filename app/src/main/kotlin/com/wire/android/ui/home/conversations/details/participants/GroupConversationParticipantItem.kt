@@ -50,7 +50,14 @@ fun GroupConversationParticipantItem(
             }
 
         },
-        subtitle = { HighlightSubtitle(subTitle = uiParticipant.handle, searchQuery = searchQuery) },
+        subtitle = {
+            HighlightSubtitle(
+                subTitle = if (uiParticipant.unavailable) {
+                    stringResource(R.string.username_unavailable_label)
+                } else uiParticipant.handle,
+                searchQuery = searchQuery
+            )
+        },
         actions = {
             Box(
                 modifier = Modifier

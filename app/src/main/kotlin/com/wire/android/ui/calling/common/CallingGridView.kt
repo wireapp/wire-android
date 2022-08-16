@@ -12,7 +12,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.wire.android.ui.calling.ConversationName
 import com.wire.android.ui.calling.ParticipantTile
 import com.wire.android.ui.calling.getConversationName
 import com.wire.android.ui.calling.model.UICallParticipant
@@ -40,44 +42,58 @@ fun GroupCallGrid(
     ) {
 
         items(participants) { participant ->
+            val isSelfUser = pageIndex == 0 && participants.first() == participant
+
             // We need the number of tiles rows needed to calculate their height
             val numberOfTilesRows = tilesRowsCount(participants.size)
             // For now we are handling only self user camera state
-            val isCameraOn = if (pageIndex == 0 && participants.first() == participant)
-                isSelfUserCameraOn else false
+            val isCameraOn = if (isSelfUser) {
+                isSelfUserCameraOn
+            } else participant.isCameraOn
             // for self user we don't need to get the muted value from participants list
             // if we do, this will show visuals with some delay
             // since we are getting participants by chunk of 8 items,
             // we need to check that we are on first page for sel user
-            val isMuted = if (pageIndex == 0 && participants.first() == participant) isSelfUserMuted
+            val isMuted = if (isSelfUser) isSelfUserMuted
             else participant.isMuted
 
             // if we have more than 4 participants then we reduce avatar size
             val userAvatarSize = if (participants.size > 4) dimensions().onGoingCallUserAvatarSize
             else dimensions().onGoingCallUserAvatarMinimizedSize
+            val username = when (val conversationName = getConversationName(participant.name)) {
+                is ConversationName.Known -> conversationName.name
+                is ConversationName.Unknown -> stringResource(id = conversationName.resourceId)
+            }
+
+            val participantState = UICallParticipant(
+                id = participant.id,
+                clientId = participant.clientId,
+                name = username,
+                isMuted = isMuted,
+                isSpeaking = participant.isSpeaking,
+                isCameraOn = isCameraOn,
+                avatar = participant.avatar,
+                membership = participant.membership
+            )
 
             ParticipantTile(
                 modifier = Modifier
                     .height(((config.screenHeightDp - TOP_APP_BAR_AND_BOTTOM_SHEET_HEIGHT) / numberOfTilesRows).dp)
                     .animateItemPlacement(),
-                conversationName = getConversationName(participant.name),
+                participantTitleState = participantState,
                 onGoingCallTileUsernameMaxWidth = MaterialTheme.wireDimensions.onGoingCallTileUsernameMaxWidth,
-                participantAvatar = participant.avatar,
                 avatarSize = userAvatarSize,
-                isMuted = isMuted,
-                isCameraOn = isCameraOn,
-                isOtherCameraOn = participant.isCameraOn,
-                isActiveSpeaker = participant.isSpeaking,
+                isSelfUser = isSelfUser,
                 onSelfUserVideoPreviewCreated = {
-                    if (pageIndex == 0 && participants.first() == participant) onSelfVideoPreviewCreated(it)
+                    if (isSelfUser) {
+                        onSelfVideoPreviewCreated(it)
+                    }
                 },
                 onClearSelfUserVideoPreview = {
-                    if (pageIndex == 0 && participants.first() == participant)
+                    if (isSelfUser) {
                         onSelfClearVideoPreview()
-                },
-                isSelfUser = pageIndex == 0 && participant == participants.first(),
-                userIdString = participant.id.toString(),
-                clientIdString = participant.clientId
+                    }
+                }
             )
         }
     }

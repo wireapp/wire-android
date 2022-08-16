@@ -14,7 +14,6 @@ import androidx.compose.material.Text
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -31,32 +30,27 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import com.waz.avs.VideoPreview
 import com.waz.avs.VideoRenderer
 import com.wire.android.R
-import com.wire.android.model.ImageAsset
 import com.wire.android.model.UserAvatarData
+import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.kalium.logic.data.id.QualifiedID
 
 @Composable
 fun ParticipantTile(
     modifier: Modifier,
-    conversationName: ConversationName?,
-    participantAvatar: ImageAsset.UserAvatarAsset?,
+    participantTitleState: UICallParticipant,
     onGoingCallTileUsernameMaxWidth: Dp = 350.dp,
-    isMuted: Boolean,
-    isCameraOn: Boolean,
-    isOtherCameraOn: Boolean,
-    isActiveSpeaker: Boolean,
     avatarSize: Dp = dimensions().onGoingCallUserAvatarSize,
-    onSelfUserVideoPreviewCreated: (view: View) -> Unit,
-    onClearSelfUserVideoPreview: () -> Unit,
     isSelfUser: Boolean,
-    userIdString: String,
-    clientIdString: String
+    onSelfUserVideoPreviewCreated: (view: View) -> Unit,
+    onClearSelfUserVideoPreview: () -> Unit
 ) {
     var updatedModifier = modifier
-    if (isActiveSpeaker) {
+    if (participantTitleState.isSpeaking) {
         updatedModifier = modifier
             .border(
                 width = dimensions().spacing4x,
@@ -83,32 +77,27 @@ fun ParticipantTile(
                 UserProfileAvatar(
                     modifier = Modifier.padding(top = dimensions().spacing16x),
                     size = avatarSize,
-                    avatarData = UserAvatarData(participantAvatar)
+                    avatarData = UserAvatarData(participantTitleState.avatar)
                 )
             }
             if (isSelfUser) {
-                if (isCameraOn) {
+                if (participantTitleState.isCameraOn) {
                     val context = LocalContext.current
-                    val view = remember { VideoPreview(context) }.apply {
-                        setShouldFill(true)
-                        setAspectRatio(0.5f)
-                    }
                     AndroidView(factory = {
-                        onSelfUserVideoPreviewCreated(view)
-                        view
+                        val videoPreview = VideoPreview(context).also(onSelfUserVideoPreviewCreated)
+                        videoPreview
                     })
                 } else onClearSelfUserVideoPreview()
             } else {
-                if(isOtherCameraOn) {
+                if (participantTitleState.isCameraOn) {
                     val context = LocalContext.current
-                    val view = VideoRenderer(context, userIdString, clientIdString, false)
                     AndroidView(factory = {
-                        view
+                        VideoRenderer(context, participantTitleState.id.toString(), participantTitleState.clientId, false)
                     })
                 }
             }
 
-            if (isMuted) {
+            if (participantTitleState.isMuted) {
                 Surface(
                     modifier = Modifier
                         .padding(
@@ -142,17 +131,13 @@ fun ParticipantTile(
                     }
                     .widthIn(max = onGoingCallTileUsernameMaxWidth),
                 shape = RoundedCornerShape(dimensions().corner4x),
-                color = if (isActiveSpeaker) MaterialTheme.wireColorScheme.primary else Color.Black
+                color = if (participantTitleState.isSpeaking) MaterialTheme.wireColorScheme.primary else Color.Black
             ) {
                 Text(
                     color = Color.White,
                     style = MaterialTheme.wireTypography.label01,
                     modifier = Modifier.padding(3.dp),
-                    text = when (conversationName) {
-                        is ConversationName.Known -> conversationName.name
-                        is ConversationName.Unknown -> stringResource(id = conversationName.resourceId)
-                        else -> ""
-                    },
+                    text = participantTitleState.name,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
@@ -166,16 +151,18 @@ fun ParticipantTile(
 private fun ParticipantTilePreview() {
     ParticipantTile(
         modifier = Modifier.height(300.dp),
-        isMuted = false,
-        isCameraOn = false,
-        conversationName = ConversationName.Known("Known Conversation"),
+        participantTitleState = UICallParticipant(
+            id = QualifiedID("", ""),
+            clientId = "client-id",
+            name = "name",
+            isMuted = true,
+            isSpeaking = true,
+            isCameraOn = true,
+            avatar = null,
+            membership = Membership.Admin
+        ),
         onClearSelfUserVideoPreview = {},
         onSelfUserVideoPreviewCreated = {},
-        participantAvatar = null,
-        isActiveSpeaker = false,
-        isOtherCameraOn = false,
-        isSelfUser = false,
-        userIdString = "",
-        clientIdString = ""
+        isSelfUser = false
     )
 }

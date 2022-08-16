@@ -8,6 +8,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
+import com.wire.android.ui.calling.ConversationName
 import com.wire.android.ui.calling.ParticipantTile
 import com.wire.android.ui.calling.getConversationName
 import com.wire.android.ui.calling.model.UICallParticipant
@@ -28,31 +30,42 @@ fun OneOnOneCallView(
         verticalArrangement = Arrangement.spacedBy(MaterialTheme.wireDimensions.spacing6x)
     ) {
         participants.forEach { participant ->
+            val isSelfUser = pageIndex == 0 && participants.first() == participant
+
             // For now we are handling only self user camera state
-            val isCameraOn = if (pageIndex == 0 && participants.first() == participant)
-                isSelfUserCameraOn else false
-            val isMuted = if (pageIndex == 0 && participants.first() == participant) isSelfUserMuted
-                else participant.isMuted
+            val isCameraOn = if (isSelfUser)
+                isSelfUserCameraOn else participant.isCameraOn
+            val isMuted = if (isSelfUser)
+                isSelfUserMuted else participant.isMuted
+
+            val username = when (val conversationName = getConversationName(participant.name)) {
+                is ConversationName.Known -> conversationName.name
+                is ConversationName.Unknown -> stringResource(id = conversationName.resourceId)
+            }
+
+            val participantState = UICallParticipant(
+                id = participant.id,
+                clientId = participant.clientId,
+                name = username,
+                isMuted = isMuted,
+                isSpeaking = participant.isSpeaking,
+                isCameraOn = isCameraOn,
+                avatar = participant.avatar,
+                membership = participant.membership
+            )
             ParticipantTile(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f),
-                conversationName = getConversationName(participant.name),
-                participantAvatar = participant.avatar,
-                isMuted = isMuted,
-                isCameraOn = isCameraOn,
-                isOtherCameraOn = participant.isCameraOn,
+                participantTitleState = participantState,
+                isSelfUser = isSelfUser,
                 onSelfUserVideoPreviewCreated = {
-                    if (pageIndex == 0 && participants.first() == participant) onSelfVideoPreviewCreated(it)
+                    if (isSelfUser) onSelfVideoPreviewCreated(it)
                 },
                 onClearSelfUserVideoPreview = {
-                    if (pageIndex == 0 && participants.first() == participant)
+                    if (isSelfUser)
                         onSelfClearVideoPreview()
-                },
-                isActiveSpeaker = participant.isSpeaking,
-                isSelfUser = participant == participants.first(),
-                userIdString = participant.id.toString(),
-                clientIdString = participant.clientId
+                }
             )
         }
     }

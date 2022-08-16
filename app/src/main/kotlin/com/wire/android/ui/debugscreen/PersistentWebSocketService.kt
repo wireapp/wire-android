@@ -1,16 +1,11 @@
 package com.wire.android.ui.debugscreen
 
 import android.app.Notification
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.app.PendingIntent
 import android.app.Service
-import android.content.Context
 import android.content.Intent
-import android.graphics.Color
-import android.os.Build
 import android.os.IBinder
-import androidx.annotation.RequiresApi
+import androidx.core.app.NotificationChannelCompat
+import androidx.core.app.NotificationManagerCompat
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.appLogger
@@ -23,7 +18,7 @@ import com.wire.android.notification.NotificationConstants.NOTIFICATION_ID
 import com.wire.android.notification.NotificationConstants.WEB_SOCKET_CHANNEL_ID
 import com.wire.android.notification.NotificationConstants.WEB_SOCKET_CHANNEL_NAME
 import com.wire.android.notification.WireNotificationManager
-import com.wire.android.ui.WireActivity
+import com.wire.android.notification.openAppPendingIntent
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.sync.ConnectionPolicy
@@ -61,7 +56,8 @@ class PersistentWebSocketService : Service() {
     @CurrentSessionFlowService
     lateinit var currentSessionFlow: CurrentSessionFlowUseCase
 
-    private val navigationManager: NavigationManager = NavigationManager()
+    @Inject
+    lateinit var navigationManager: NavigationManager
 
     override fun onBind(intent: Intent?): IBinder? {
         return null
@@ -111,45 +107,25 @@ class PersistentWebSocketService : Service() {
     }
 
     private fun generateForegroundNotification() {
-        val pendingIntent: PendingIntent =
-            Intent(this, WireActivity::class.java).let { notificationIntent ->
-                PendingIntent.getActivity(
-                    this, 0, notificationIntent,
-                    PendingIntent.FLAG_IMMUTABLE
-                )
-            }
+        val notificationManager = NotificationManagerCompat.from(this)
+        val notificationChannel = NotificationChannelCompat
+            .Builder(WEB_SOCKET_CHANNEL_ID, NotificationManagerCompat.IMPORTANCE_HIGH)
+            .setName(WEB_SOCKET_CHANNEL_NAME)
+            .build()
 
-        val channelId =
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                createNotificationChannel()
-            } else {
-                // If earlier version channel ID is not used
-                ""
-            }
+        notificationManager.createNotificationChannel(notificationChannel)
 
-        val notification: Notification = Notification.Builder(this, channelId)
+        val notification: Notification = Notification.Builder(this, WEB_SOCKET_CHANNEL_ID)
             .setContentTitle(
-                StringBuilder(resources.getString(R.string.app_name)).append(getString(R.string.service_is_running)).toString()
+                StringBuilder(resources.getString(R.string.app_name)).append(getString(R.string.settings_service_is_running)).toString()
             )
             .setSmallIcon(R.drawable.notification_icon_small)
-            .setContentIntent(pendingIntent)
+            .setContentIntent(openAppPendingIntent(this))
             .build()
 
         startForeground(NOTIFICATION_ID, notification)
     }
 
-    @RequiresApi(Build.VERSION_CODES.O)
-    private fun createNotificationChannel(): String {
-        val chan = NotificationChannel(
-            WEB_SOCKET_CHANNEL_ID,
-            WEB_SOCKET_CHANNEL_NAME, NotificationManager.IMPORTANCE_NONE
-        )
-        chan.lightColor = Color.BLUE
-        chan.lockscreenVisibility = Notification.VISIBILITY_PRIVATE
-        val service = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-        service.createNotificationChannel(chan)
-        return WEB_SOCKET_CHANNEL_ID
-    }
 
     override fun onDestroy() {
         super.onDestroy()

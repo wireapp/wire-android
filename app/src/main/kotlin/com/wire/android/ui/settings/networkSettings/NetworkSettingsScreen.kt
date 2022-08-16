@@ -44,7 +44,7 @@ fun NetworkSettingsScreenContent(
         WireCenterAlignedTopAppBar(
             onNavigationPressed = onBackPressed,
             elevation = 0.dp,
-            title = stringResource(id = R.string.network_settings_label)
+            title = stringResource(id = R.string.settings_network_settings_label)
         )
     }) { internalPadding ->
         Column(
@@ -53,7 +53,7 @@ fun NetworkSettingsScreenContent(
                 .padding(internalPadding)
         ) {
             GroupConversationOptionsItem(
-                title = stringResource(R.string.keep_connection_to_websocket),
+                title = stringResource(R.string.settings_keep_connection_to_websocket),
                 switchState = SwitchState.Enabled(
                     value = isWebSocketEnabled,
                     onCheckedChange = setWebSocketState

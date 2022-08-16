@@ -15,7 +15,7 @@ import com.wire.android.ui.home.conversationslist.model.hasLabel
 fun UserLabel(userInfoLabel: UserInfoLabel, modifier: Modifier = Modifier) {
     with(userInfoLabel) {
         ConversationTitle(
-            name = if (unavailable) stringResource(id = R.string.unavailable_user_label) else labelName,
+            name = if (unavailable) stringResource(id = R.string.username_unavailable_label) else labelName,
             isLegalHold = isLegalHold,
             modifier = modifier,
             badges = {

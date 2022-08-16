@@ -59,7 +59,7 @@ fun rememberConversationSheetState(
                 ConversationSheetContent(
                     conversationId = conversationId,
                     title = if (conversationInfo.unavailable) {
-                        stringResource(id = R.string.unavailable_user_label)
+                        stringResource(id = R.string.username_unavailable_label)
                     } else conversationInfo.name,
                     mutingConversationState = mutedStatus,
                     conversationTypeDetail = ConversationTypeDetail.Private(

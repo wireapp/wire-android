@@ -13,6 +13,7 @@ import com.wire.android.appLogger
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.PreservedState
+import com.wire.android.model.SnackBarMessage
 import com.wire.android.model.toLoading
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.EXTRA_CONNECTION_IGNORED_USER_NAME
@@ -221,7 +222,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         }
     }
 
-    suspend fun showInfoMessage(type: InfoMessageType) {
+    suspend fun showInfoMessage(type: SnackBarMessage) {
         _infoMessage.emit(type.uiText)
     }
 
@@ -273,10 +274,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     }
 }
 
-/**
- * We are adding a [randomEventIdentifier] as [UUID], so the msg can be discarded every time after being generated.
- */
-enum class InfoMessageType(val uiText: UIText) {
+enum class InfoMessageType(override val uiText: UIText): SnackBarMessage {
     // connection
     SuccessConnectionSentRequest(UIText.StringResource(R.string.connection_request_sent)),
     SuccessConnectionAcceptRequest(UIText.StringResource(R.string.connection_request_accepted)),

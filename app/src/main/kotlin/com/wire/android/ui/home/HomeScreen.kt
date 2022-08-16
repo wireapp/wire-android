@@ -209,6 +209,8 @@ private fun handleSnackBarMessage(
             HomeSnackbarState.MutingOperationError -> stringResource(id = R.string.error_updating_muting_setting)
             HomeSnackbarState.BlockingUserOperationError -> stringResource(id = R.string.error_blocking_user)
             HomeSnackbarState.None -> ""
+            is HomeSnackbarState.DeletedConversationGroupSuccess -> stringResource(id = R.string.conversation_group_removed_success, messageType.groupName)
+            HomeSnackbarState.LeftConversationSuccess -> stringResource(id = R.string.left_conversation_group_success)
         }
         LaunchedEffect(messageType) {
             if (messageType != HomeSnackbarState.None) {

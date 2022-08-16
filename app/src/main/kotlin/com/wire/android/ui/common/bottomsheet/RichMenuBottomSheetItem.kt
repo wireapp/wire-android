@@ -14,6 +14,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.WireCheckIcon
@@ -27,6 +28,7 @@ import io.github.esentsov.PackagePrivate
 @Composable
 fun RichMenuBottomSheetItem(
     title: String,
+    titleColor: Color? = null,
     subLine: String? = null,
     icon: @Composable () -> Unit = { },
     action: @Composable () -> Unit = { },
@@ -50,7 +52,7 @@ fun RichMenuBottomSheetItem(
             modifier = Modifier
                 .weight(DEFAULT_WEIGHT),
         ) {
-            MenuItemHeading(title = title, state = state)
+            MenuItemHeading(title = title, state = state, color = titleColor)
             if (subLine != null) {
                 MenuItemSubLine(
                     subLine = subLine,
@@ -75,11 +77,12 @@ fun RichMenuBottomSheetItem(
 fun MenuItemHeading(
     title: String,
     state: RichMenuItemState = RichMenuItemState.DEFAULT,
+    color: Color? = null,
     modifier: Modifier = Modifier
 ) {
     Text(
         style = MaterialTheme.wireTypography.body02,
-        color = if (isSelectedItem(state)) MaterialTheme.wireColorScheme.primary else MaterialTheme.wireColorScheme.onBackground,
+        color = if (isSelectedItem(state)) MaterialTheme.wireColorScheme.primary else color ?: MaterialTheme.wireColorScheme.onBackground,
         text = title,
         modifier = modifier.fillMaxWidth()
     )
@@ -108,5 +111,5 @@ enum class RichMenuItemState {
 @Composable
 @Preview
 fun RichMenuBottomSheetItemPreview() {
-    RichMenuBottomSheetItem("title", "subLine", { WireCheckIcon() }, {}, Clickable {}, RichMenuItemState.SELECTED)
+    RichMenuBottomSheetItem("title", null, "subLine", { WireCheckIcon() }, {}, Clickable {}, RichMenuItemState.SELECTED)
 }

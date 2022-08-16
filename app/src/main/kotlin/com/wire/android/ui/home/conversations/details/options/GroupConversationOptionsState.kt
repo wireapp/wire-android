@@ -1,14 +1,17 @@
 package com.wire.android.ui.home.conversations.details.options
 
 import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.logic.data.id.ConversationId
 
 data class GroupConversationOptionsState (
+    val conversationId: ConversationId,
     val groupName: String = "",
     val isTeamGroup: Boolean = false,
     val isGuestAllowed: Boolean = false,
     val isServicesAllowed: Boolean = false,
     val isUpdatingAllowed: Boolean = false,
     val isUpdatingGuestAllowed: Boolean = false,
+    val isAbleToRemoveGroup: Boolean = true,
     val changeGuestOptionConformationRequired: Boolean = false,
     val loadingGuestOption: Boolean = false,
     val loadingServicesOption: Boolean = false,

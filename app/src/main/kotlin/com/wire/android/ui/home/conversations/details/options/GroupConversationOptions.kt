@@ -21,6 +21,7 @@ import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsViewModel
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.theme.wireColorScheme
+import com.wire.kalium.logic.data.id.ConversationId
 
 @Composable
 fun GroupConversationOptions(
@@ -164,6 +165,7 @@ private fun DisableGuestConformationDialog(state: Boolean, onConform: () -> Unit
 private fun TeamGroupConversationOptionsPreview() {
     GroupConversationSettings(
         GroupConversationOptionsState(
+            conversationId = ConversationId("someValue", "someDomain"),
             groupName = "Team Group Conversation",
             isUpdatingAllowed = true,
             isTeamGroup = true,
@@ -178,6 +180,7 @@ private fun TeamGroupConversationOptionsPreview() {
 private fun NormalGroupConversationOptionsPreview() {
     GroupConversationSettings(
         GroupConversationOptionsState(
+            conversationId = ConversationId("someValue", "someDomain"),
             groupName = "Normal Group Conversation",
             isUpdatingAllowed = true,
             isTeamGroup = false

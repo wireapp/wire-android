@@ -272,6 +272,11 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun provideDeleteTeamConversationUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).conversations.deleteTeamConversation
+
+    @ViewModelScoped
+    @Provides
     fun provideObserveConversationMembersUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).conversations.observeConversationMembers
 

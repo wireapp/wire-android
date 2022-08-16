@@ -2,7 +2,7 @@ const val appId = "com.wire.android"
 
 object AndroidSdk {
     const val min = 24
-    const val compile = 31
+    const val compile = 32
     const val target = compile
 }
 
@@ -20,7 +20,7 @@ object AndroidClient {
 
 object BuildPlugins {
     object Versions {
-        const val gradleVersion = "7.1.1"
+        const val gradleVersion = "7.5.1"
     }
 
     const val androidApplication = "com.android.application"
@@ -51,28 +51,29 @@ object Repositories {
 
 object Libraries {
     object Versions {
-        const val kotlin = "1.6.21"
-        const val coroutines = "1.6.1-native-mt"
+        const val kotlin = "1.7.10"
+        const val coroutines = "1.6.4"
         const val jetpack = "1.1.0"
         const val constraintLayout = "1.1.3"
-        const val ktx = "1.6.0"
+        const val ktx = "1.8.0"
         const val material = "1.5.0"
         const val pinEditText = "1.2.3"
         const val sqlLiteJdbc = "3.36.0"
         const val desugaring = "1.1.5"
         const val workManager = "2.7.1"
-        const val fragment = "1.2.5"
-        const val compose = "1.2.0-beta01"
-        const val composeMaterial = compose
+        const val fragment = "1.5.1"
+        const val compose = "1.2.1"
+        const val composeCompiler = "1.3.0"
+        const val composeMaterial = "1.2.1"
         const val composeMaterial3 = "1.0.0-alpha11"
         const val composeActivity = "1.4.0"
-        const val composeNavigation = "2.4.2"
+        const val composeNavigation = "2.5.0"
         const val accompanist = "0.24.7-alpha" // https://github.com/google/accompanist/issues/1162
         const val composeConstraint = "1.0.0"
-        const val hilt = "2.38.1"
+        const val hilt = "2.42"
         const val lifecycle = "2.4.0"
         const val visibilityModifiers = "1.1.0"
-        const val composeHiltNavigation = "1.0.0-alpha03"
+        const val composeHiltNavigation = "1.0.0"
         const val browser = "1.3.0"
         const val dataStore = "1.0.0"
         const val splashscreen = "1.0.0-beta01"
@@ -87,7 +88,7 @@ object Libraries {
     const val constraintLayout          = "androidx.constraintlayout:constraintlayout:${Versions.constraintLayout}"
     const val ktxCore                   = "androidx.core:core-ktx:${Versions.ktx}"
     const val workManager               = "androidx.work:work-runtime-ktx:${Versions.workManager}"
-    const val fragment                  = "androidx.fragment:fragment:${Versions.fragment}"
+    const val fragment                  = "androidx.fragment:fragment-ktx:${Versions.fragment}"
     const val composeUi                 = "androidx.compose.ui:ui:${Versions.compose}"
     const val composeFoundation         = "androidx.compose.foundation:foundation:${Versions.compose}"
     const val composeMaterial           = "androidx.compose.material:material:${Versions.composeMaterial}"
@@ -110,7 +111,7 @@ object Libraries {
     const val accompanistNavAnimation   = "com.google.accompanist:accompanist-navigation-animation:${Versions.accompanist}"
     const val accompanistIndicator      = "com.google.accompanist:accompanist-pager-indicators:${Versions.accompanist}"
     const val material                  = "com.google.android.material:material:${Versions.material}"
-    const val visibilityModifiers       = "io.github.esentsov:kotlin-visibility:${Versions.visibilityModifiers}"
+    const val visibilityModifiers        = "io.github.esentsov:kotlin-visibility:${Versions.visibilityModifiers}"
     const val browser                   = "androidx.browser:browser:${Versions.browser}"
     const val splashscreen              = "androidx.core:core-splashscreen:${Versions.splashscreen}"
     const val coil                      = "io.coil-kt:coil:${Versions.coil}"
@@ -147,7 +148,7 @@ object Libraries {
 object TestLibraries {
     private object Versions {
         const val androidCore = "1.4.0"
-        const val junit4 = "4.13"
+        const val junit4 = "4.13.2"
         const val junit5 = "5.8.2"
         const val mockk = "1.12.3"
         const val kluent = "1.68"

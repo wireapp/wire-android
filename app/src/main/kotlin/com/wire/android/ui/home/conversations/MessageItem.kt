@@ -30,6 +30,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
+import com.wire.android.appLogger
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.LegalHoldIndicator
 import com.wire.android.ui.common.UserBadge
@@ -241,6 +242,9 @@ private fun MessageContent(
                     RestrictedFileMessage(messageContent.assetName, messageContent.assetSizeInBytes)
                 }
             }
+        }
+        else -> {
+            appLogger.w("Unhandled MessageContent type: '$messageContent'")
         }
     }
 }

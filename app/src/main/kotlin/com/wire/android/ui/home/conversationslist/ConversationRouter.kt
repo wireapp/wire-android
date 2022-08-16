@@ -21,13 +21,16 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.wire.android.R
+import com.wire.android.model.PreservedState
 import com.wire.android.ui.common.FloatingActionButton
 import com.wire.android.ui.common.WireBottomNavigationItemData
 import com.wire.android.ui.common.dialogs.BlockUserDialogContent
+import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.HomeSnackbarState
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationOptionNavigation
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
+import com.wire.android.ui.home.conversationslist.bottomsheet.rememberConversationSheetState
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.navigation.ConversationsNavigationItem
 import com.wire.kalium.logic.data.id.ConversationId
@@ -95,6 +98,7 @@ fun ConversationRouterHomeBridge(
 
     ConversationRouter(
         uiState = viewModel.state,
+        blockUserDialogSate = viewModel.blockUserDialogState,
         openConversation = viewModel::openConversation,
         openNewConversation = viewModel::openNewConversation,
         onEditConversationItem = { conversationItem ->
@@ -122,6 +126,7 @@ fun ConversationRouterHomeBridge(
 @Composable
 private fun ConversationRouter(
     uiState: ConversationListState,
+    blockUserDialogSate: PreservedState<BlockUserDialogState>?,
     openConversation: (ConversationId) -> Unit,
     openNewConversation: () -> Unit,
     onEditConversationItem: (ConversationItem) -> Unit,
@@ -214,7 +219,7 @@ private fun ConversationRouter(
         }
 
         BlockUserDialogContent(
-            state = uiState.blockUserDialogSate,
+            dialogState = blockUserDialogSate,
             dismiss = onDismissBlockUserDialog,
             onBlock = onBlockUser
         )

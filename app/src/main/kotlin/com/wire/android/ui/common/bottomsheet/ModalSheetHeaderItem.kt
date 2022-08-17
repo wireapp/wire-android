@@ -41,12 +41,13 @@ fun ModalSheetHeaderItem(header: MenuModalSheetHeader = MenuModalSheetHeader.Gon
     }
 }
 
-sealed class MenuModalSheetHeader() {
+sealed class MenuModalSheetHeader {
 
     data class Visible (
         val title: String,
         val leadingIcon: @Composable () -> Unit = {},
         val customBottomPadding: Dp? = null
     ) : MenuModalSheetHeader()
+
     object Gone : MenuModalSheetHeader()
 }

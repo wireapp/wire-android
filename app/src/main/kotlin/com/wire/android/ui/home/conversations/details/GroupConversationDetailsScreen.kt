@@ -2,7 +2,7 @@ package com.wire.android.ui.home.conversations.details
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.gestures.LocalOverScrollConfiguration
+import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -79,8 +79,10 @@ fun GroupConversationDetailsScreen(viewModel: GroupConversationDetailsViewModel)
 }
 
 @OptIn(
-    ExperimentalComposeUiApi::class, ExperimentalMaterial3Api::class, ExperimentalPagerApi::class, ExperimentalFoundationApi::class,
-    ExperimentalMaterialApi::class
+    ExperimentalComposeUiApi::class,
+    ExperimentalMaterial3Api::class,
+    ExperimentalPagerApi::class,
+    ExperimentalMaterialApi::class, ExperimentalFoundationApi::class
 )
 @Composable
 private fun GroupConversationDetailsContent(
@@ -114,72 +116,59 @@ private fun GroupConversationDetailsContent(
         leaveGroupDialogState.dismiss()
     }
 
-    WireModalSheetLayout(
-        sheetState = sheetState,
-        coroutineScope = rememberCoroutineScope(),
-        sheetContent = {
-            ConversationGroupDetailsBottomSheet(
-                conversationOptionsState = groupOptionsState,
-                closeBottomSheet = closeBottomSheet,
-                onDeleteGroup = deleteGroupDialogState::show,
-                onLeaveGroup = leaveGroupDialogState::show
-            )
-        }
-    ) {
-        Scaffold(
-            topBar = {
-                WireCenterAlignedTopAppBar(
-                    elevation = elevationState,
-                    title = stringResource(R.string.conversation_details_title),
-                    navigationIconType = NavigationIconType.Close,
-                    onNavigationPressed = onBackPressed,
-                    actions = {
-                        MoreOptionIcon(openBottomSheet)
-                    }
-                ) {
-                    WireTabRow(
-                        tabs = GroupConversationDetailsTabItem.values().toList(),
-                        selectedTabIndex = currentTabState,
-                        onTabChange = { scope.launch { pagerState.animateScrollToPage(it) } },
-                        modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing16x),
-                        divider = {} // no divider
+    Scaffold(
+        topBar = {
+            WireCenterAlignedTopAppBar(
+                elevation = elevationState,
+                title = stringResource(R.string.conversation_details_title),
+                navigationIconType = NavigationIconType.Close,
+                onNavigationPressed = onBackPressed,
+                actions = {
+                    MoreOptionIcon({ })
+                }
+            ) {
+                WireTabRow(
+                    tabs = GroupConversationDetailsTabItem.values().toList(),
+                    selectedTabIndex = currentTabState,
+                    onTabChange = { scope.launch { pagerState.animateScrollToPage(it) } },
+                    modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing16x),
+                    divider = {} // no divider
+                )
+            }
+        },
+        modifier = Modifier.fillMaxHeight(),
+    ) { internalPadding ->
+        var focusedTabIndex: Int by remember { mutableStateOf(initialPageIndex) }
+        val keyboardController = LocalSoftwareKeyboardController.current
+        val focusManager = LocalFocusManager.current
+
+        CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
+            HorizontalPager(
+                state = pagerState,
+                count = GroupConversationDetailsTabItem.values().size,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(internalPadding)
+            ) { pageIndex ->
+                when (GroupConversationDetailsTabItem.values()[pageIndex]) {
+                    GroupConversationDetailsTabItem.OPTIONS -> GroupConversationOptions(
+                        lazyListState = lazyListStates[pageIndex]
+                    )
+                    GroupConversationDetailsTabItem.PARTICIPANTS -> GroupConversationParticipants(
+                        groupParticipantsState = groupParticipantsState,
+                        openFullListPressed = openFullListPressed,
+                        onAddParticipantsPressed = onAddParticipantsPressed,
+                        onProfilePressed = onProfilePressed,
+                        lazyListState = lazyListStates[pageIndex]
                     )
                 }
-            },
-            modifier = Modifier.fillMaxHeight(),
-        ) { internalPadding ->
-            var focusedTabIndex: Int by remember { mutableStateOf(initialPageIndex) }
-            val keyboardController = LocalSoftwareKeyboardController.current
-            val focusManager = LocalFocusManager.current
+            }
 
-            CompositionLocalProvider(LocalOverScrollConfiguration provides null) {
-                HorizontalPager(
-                    state = pagerState,
-                    count = GroupConversationDetailsTabItem.values().size,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(internalPadding)
-                ) { pageIndex ->
-                    when (GroupConversationDetailsTabItem.values()[pageIndex]) {
-                        GroupConversationDetailsTabItem.OPTIONS -> GroupConversationOptions(
-                            lazyListState = lazyListStates[pageIndex]
-                        )
-                        GroupConversationDetailsTabItem.PARTICIPANTS -> GroupConversationParticipants(
-                            groupParticipantsState = groupParticipantsState,
-                            openFullListPressed = openFullListPressed,
-                            onAddParticipantsPressed = onAddParticipantsPressed,
-                            onProfilePressed = onProfilePressed,
-                            lazyListState = lazyListStates[pageIndex]
-                        )
-                    }
-                }
-
-                LaunchedEffect(pagerState.isScrollInProgress, focusedTabIndex, pagerState.currentPage) {
-                    if (!pagerState.isScrollInProgress && focusedTabIndex != pagerState.currentPage) {
-                        keyboardController?.hide()
-                        focusManager.clearFocus()
-                        focusedTabIndex = pagerState.currentPage
-                    }
+            LaunchedEffect(pagerState.isScrollInProgress, focusedTabIndex, pagerState.currentPage) {
+                if (!pagerState.isScrollInProgress && focusedTabIndex != pagerState.currentPage) {
+                    keyboardController?.hide()
+                    focusManager.clearFocus()
+                    focusedTabIndex = pagerState.currentPage
                 }
             }
         }

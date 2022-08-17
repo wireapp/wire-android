@@ -1,6 +1,7 @@
 package com.wire.android.ui.home.conversations.search
 
 import androidx.activity.compose.BackHandler
+import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -18,13 +19,13 @@ import com.wire.android.ui.home.newconversation.model.Contact
 
 @Composable
 fun SearchPeopleRouter(
-    searchBarTitle: String,
+    purpose: SearchPeoplePurpose,
     onPeoplePicked: () -> Unit,
     searchPeopleViewModel: SearchPeopleViewModel,
 ) {
     SearchPeopleContent(
+        purpose = purpose,
         searchPeopleState = searchPeopleViewModel.state,
-        topBarTitle = searchBarTitle,
         onPeoplePicked = onPeoplePicked,
         onSearchContact = searchPeopleViewModel::search,
         onClose = searchPeopleViewModel::close,
@@ -37,8 +38,8 @@ fun SearchPeopleRouter(
 
 @Composable
 fun SearchPeopleContent(
+    purpose: SearchPeoplePurpose,
     searchPeopleState: SearchPeopleState,
-    topBarTitle: String,
     onPeoplePicked: () -> Unit,
     onSearchContact: (String) -> Unit,
     onClose: () -> Unit,
@@ -73,7 +74,7 @@ fun SearchPeopleContent(
             appTopBar = {
                 WireCenterAlignedTopAppBar(
                     elevation = 0.dp,
-                    title = topBarTitle,
+                    title = stringResource(id = purpose.titleTextResId),
                     navigationIconType = NavigationIconType.Close,
                     onNavigationPressed = onClose
                 )
@@ -87,6 +88,7 @@ fun SearchPeopleContent(
                         route = SearchListScreens.KnownContactsScreen.route,
                         content = {
                             ContactsScreen(
+                                purpose = purpose,
                                 scrollPositionProvider = {
                                     searchBarState.scrollPositionProvider = it
                                 },
@@ -103,6 +105,7 @@ fun SearchPeopleContent(
                         route = SearchListScreens.SearchPeopleScreen.route,
                         content = {
                             SearchPeopleScreen(
+                                purpose = purpose,
                                 scrollPositionProvider = {
                                     searchBarState.scrollPositionProvider = it
                                 },
@@ -132,3 +135,10 @@ fun SearchPeopleContent(
     }
 }
 
+enum class SearchPeoplePurpose(
+    @StringRes val titleTextResId: Int,
+    @StringRes val continueButtonTextResId: Int
+    ) {
+    NEW_CONVERSATION(R.string.label_new_conversation, R.string.label_new_group),
+    ADD_PARTICIPANTS(R.string.label_add_participants, R.string.label_continue);
+}

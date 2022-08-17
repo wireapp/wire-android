@@ -27,6 +27,7 @@ import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
+import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
 import com.wire.kalium.logic.feature.team.Result
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
@@ -44,13 +45,14 @@ import javax.inject.Inject
 @HiltViewModel
 class GroupConversationDetailsViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
+    private val dispatcher: DispatcherProvider,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val observeConversationMembers: ObserveParticipantsForConversationUseCase,
-    private val observerSelfUser: GetSelfUserUseCase,
     private val updateConversationAccessRole: UpdateConversationAccessRoleUseCase,
+    private val getSelfTeam: GetSelfTeamUseCase,
+    private val observerSelfUser: GetSelfUserUseCase,
     private val deleteTeamConversation: DeleteTeamConversationUseCase,
     private val removeMemberFromConversation: RemoveMemberFromConversationUseCase,
-    private val dispatcher: DispatcherProvider,
     savedStateHandle: SavedStateHandle,
     qualifiedIdMapper: QualifiedIdMapper
 ) : GroupConversationParticipantsViewModel(
@@ -82,38 +84,44 @@ class GroupConversationDetailsViewModel @Inject constructor(
                         .map { it.isSelfAnAdmin }
                         .distinctUntilChanged()
                         .also { isSelfAdminFlow ->
-                            observeConversationDetails(conversationId)
+                            val conversationDetailsFlow = observeConversationDetails(conversationId)
                                 .filterIsInstance<ObserveConversationDetailsUseCase.Result.Success>() // TODO handle StorageFailure
                                 .map { it.conversationDetails }
-                                .combine(isSelfAdminFlow) { conversationDetails, isSelfAdmin -> Pair(conversationDetails, isSelfAdmin) }
-                                .collect { (conversationDetails, isSelfAdmin) ->
-                                    with(conversationDetails) {
-                                        if (this is ConversationDetails.Group) {
-                                            updateState(
-                                                groupOptionsState.copy(
-                                                    conversationId = conversationId,
-                                                    groupName = conversation.name.orEmpty(),
-                                                    isTeamGroup = conversation.isTeamGroup(),
-                                                    isGuestAllowed = (
-                                                            conversation.isGuestAllowed()
-                                                                    || conversation.isNonTeamMemberAllowed()
-                                                            ),
-                                                    isServicesAllowed = conversation.isServicesAllowed(),
-                                                    isUpdatingGuestAllowed = isSelfAdmin, /* TODO: check if self belongs to the same team */
-                                                    isUpdatingAllowed = isSelfAdmin,
-                                                    // public members cannot remove even their own group conversation
-                                                    isAbleToRemoveGroup = selfUser.teamId != null
-                                                            && conversation.creatorId.value == selfUser.id.value
-                                                )
+                            combine(
+                                conversationDetailsFlow,
+                                isSelfAdminFlow,
+                                getSelfTeam()
+                            ) { conversationDetails, isSelfAnAdmin, selfTeam ->
+                                Triple(
+                                    conversationDetails,
+                                    isSelfAnAdmin,
+                                    selfTeam
+                                )
+                            }.collect { (conversationDetails, isSelfAnAdmin, selfTeam) ->
+                                with(conversationDetails) {
+                                    val isSelfInOwnerTeam =
+                                        selfTeam?.id != null && selfTeam.id == conversationDetails.conversation.teamId?.value
+
+                                    if (this is ConversationDetails.Group) {
+                                        updateState(
+                                            groupOptionsState.copy(
+                                                groupName = conversation.name.orEmpty(),
+                                                isUpdatingAllowed = isSelfAnAdmin,
+                                                areAccessOptionsAvailable = conversation.isTeamGroup(),
+                                                isGuestAllowed = (conversation.isGuestAllowed() || conversation.isNonTeamMemberAllowed()),
+                                                isServicesAllowed = conversation.isServicesAllowed(),
+                                                isUpdatingGuestAllowed = isSelfAnAdmin && isSelfInOwnerTeam,
+                                                isAbleToRemoveGroup = selfUser.teamId != null
+                                                        && conversation.creatorId.value == selfUser.id.value
                                             )
-                                        }
+                                        )
                                     }
                                 }
+                            }
                         }
                 }
         }
     }
-
 
     fun leaveGroup() {
         viewModelScope.launch {
@@ -176,14 +184,14 @@ class GroupConversationDetailsViewModel @Inject constructor(
         updateState(
             groupOptionsState.copy(
                 loadingGuestOption = false,
-                changeGuestOptionConformationRequired = false,
+                changeGuestOptionConfirmationRequired = false,
                 isGuestAllowed = !groupOptionsState.isGuestAllowed
             )
         )
     }
 
     fun onGuestDialogConfirm() {
-        updateState(groupOptionsState.copy(changeGuestOptionConformationRequired = false, loadingGuestOption = true))
+        updateState(groupOptionsState.copy(changeGuestOptionConfirmationRequired = false, loadingGuestOption = true))
         updateGuestRemoteRequest(false)
     }
 
@@ -242,7 +250,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
         groupOptionsState = newState
     }
 
-    private fun showGuestConformationDialog() = updateState(groupOptionsState.copy(changeGuestOptionConformationRequired = true))
+    private fun showGuestConformationDialog() = updateState(groupOptionsState.copy(changeGuestOptionConfirmationRequired = true))
 
     fun navigateToFullParticipantsList() = viewModelScope.launch {
         navigationManager.navigate(

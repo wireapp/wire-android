@@ -49,7 +49,7 @@ fun topBar() {
         null, UserAvailabilityStatus.AVAILABLE, HomeNavigationItem.Conversations, {}, {}
     )
     HomeTopBar(
-        null, UserAvailabilityStatus.AVAILABLE, HomeNavigationItem.Settings, SyncViewState.SLOW_SYNC, {}, {}
+        null, UserAvailabilityStatus.AVAILABLE, HomeNavigationItem.Settings, {}, {}
     )
     // TODO: Re-enable and recheck when we have Archive
 //    HomeTopBar(

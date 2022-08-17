@@ -73,7 +73,7 @@ fun HomeDrawer(
 
     ) {
         Logo()
-
+        val closeDrawer = { scope.launch { drawerState.close() } }
         topItems.forEach { item ->
             if (item != HomeNavigationItem.Settings)
                 DrawerItem(
@@ -81,7 +81,7 @@ fun HomeDrawer(
                     selected = currentRoute == item.route,
                     onItemClick = {
                         navigateToItemInHome(homeNavController, item)
-                        scope.launch { drawerState.close() }
+                        closeDrawer()
                     }
                 )
         }
@@ -89,34 +89,31 @@ fun HomeDrawer(
         Spacer(modifier = Modifier.weight(1f))
 
         val bottomItems = listOf(HomeNavigationItem.Settings, Support, Debug)
+
         bottomItems.forEach { item ->
+            val (isSelected, onClick: () -> Unit) = when (item) {
+                is HomeNavigationItem -> (currentRoute == item.route) to {
+                    navigateToItemInHome(homeNavController, item)
+                    closeDrawer()
+                    Unit
+                }
+
+                is NavigationItem -> false to {
+                    when (item.isExternalRoute()) {
+                        true -> CustomTabsHelper.launchUrl(homeNavController.context, item.getRouteWithArgs())
+                        false -> scope.launch { viewModel.navigateTo(item) }
+                    }
+                    closeDrawer()
+                    Unit
+                }
+
+                else -> false to {}
+            }
+
             DrawerItem(
                 data = item.getDrawerData(),
-                selected =
-                if (item == HomeNavigationItem.Settings) {
-                    item as HomeNavigationItem
-                    currentRoute == item.route
-                } else {
-                    item as NavigationItem
-                    currentRoute == item.getRouteWithArgs()
-                },
-                onItemClick = {
-                    if (item == HomeNavigationItem.Settings) {
-                        item as HomeNavigationItem
-                        navigateToItemInHome(homeNavController, item)
-                        scope.launch { drawerState.close() }
-                    } else {
-                        scope.launch {
-                            item as NavigationItem
-                            when (item.isExternalRoute()) {
-                                true -> CustomTabsHelper.launchUrl(homeNavController.context, item.getRouteWithArgs())
-                                false -> viewModel.navigateTo(item)
-                            }
-                            drawerState.close()
-                        }
-                    }
-
-                }
+                selected = isSelected,
+                onItemClick = onClick
             )
         }
         Text(

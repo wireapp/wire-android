@@ -33,37 +33,37 @@ fun SettingsScreen(settingsViewModel: SettingsViewModel = hiltViewModel()) {
     ) {
         item {
             ListWithHeader(stringResource(R.string.settings_general_label).uppercase()) {
-                settingsItem(stringResource(R.string.settings_your_account_label)) {}
-                settingsItem(stringResource(R.string.settings_app_settings_label)) {}
-                settingsItem(stringResource(R.string.settings_privacy_settings_label)) {}
-                settingsItem(stringResource(R.string.settings_network_settings_label)) {
+                SettingsItem(stringResource(R.string.settings_your_account_label)) {}
+                SettingsItem(stringResource(R.string.settings_app_settings_label)) {}
+                SettingsItem(stringResource(R.string.settings_privacy_settings_label)) {}
+                SettingsItem(stringResource(R.string.settings_network_settings_label)) {
                     settingsViewModel.navigateToNetworkSettings()
                 }
             }
         }
         item {
             ListWithHeader(stringResource(R.string.settings_devices_label).uppercase()) {
-                settingsItem(stringResource(R.string.settings_manage_devices_label)) {}
+                SettingsItem(stringResource(R.string.settings_manage_devices_label)) {}
             }
         }
 
         item {
             ListWithHeader(stringResource(R.string.settings_backups_label).uppercase()) {
-                settingsItem(stringResource(R.string.settings_back_up_label)) {}
+                SettingsItem(stringResource(R.string.settings_back_up_label)) {}
             }
         }
         item {
             ListWithHeader(stringResource(R.string.settings_others_label).uppercase()) {
-                settingsItem(stringResource(R.string.settings_support_label)) {}
-                settingsItem(stringResource(R.string.settings_debug_settings_label)) {}
-                settingsItem(stringResource(R.string.settings_about_this_app_label)) {}
+                SettingsItem(stringResource(R.string.settings_support_label)) {}
+                SettingsItem(stringResource(R.string.settings_debug_settings_label)) {}
+                SettingsItem(stringResource(R.string.settings_about_this_app_label)) {}
             }
         }
     }
 }
 
 @Composable
-fun settingsItem(text: String, onClick: () -> Unit) {
+fun SettingsItem(text: String, onClick: () -> Unit) {
     RowItemTemplate(
         title = {
             Text(

@@ -31,14 +31,14 @@ class CommonTopAppBarViewModel @Inject constructor(
     private val observeSyncState: ObserveSyncStateUseCase,
 ) : CommonTopAppBarBaseViewModel() {
 
-    var callState by mutableStateOf(ConnectivityUIState(ConnectivityUIState.Info.None))
+    var connectivityState by mutableStateOf(ConnectivityUIState(ConnectivityUIState.Info.None))
 
     init {
         viewModelScope.launch {
             combine(activeCallFlow(), currentScreenFlow(), connectivityFlow()) { activeCall, currentScreen, connectivity ->
                 mapToUIState(currentScreen, connectivity, activeCall)
             }.collect {
-                callState = callState.copy(info = it)
+                connectivityState = connectivityState.copy(info = it)
             }
         }
     }
@@ -74,7 +74,7 @@ class CommonTopAppBarViewModel @Inject constructor(
     }
 
     fun openOngoingCallScreen() {
-        (callState.info as? ConnectivityUIState.Info.EstablishedCall)?.conversationId?.let { convId ->
+        (connectivityState.info as? ConnectivityUIState.Info.EstablishedCall)?.conversationId?.let { convId ->
             viewModelScope.launch {
                 navigationManager.navigate(
                     command = NavigationCommand(

@@ -51,7 +51,7 @@ class CommonTopAppBarViewModelTest {
             .arrange()
 
         advanceUntilIdle()
-        val state = commonTopAppBarViewModel.callState
+        val state = commonTopAppBarViewModel.connectivityState
 
         val info = state.info
         info shouldBeInstanceOf ConnectivityUIState.Info.Connecting::class
@@ -66,7 +66,7 @@ class CommonTopAppBarViewModelTest {
             .arrange()
 
         advanceUntilIdle()
-        val state = commonTopAppBarViewModel.callState
+        val state = commonTopAppBarViewModel.connectivityState
 
         val info = state.info
         info shouldBeInstanceOf ConnectivityUIState.Info.Connecting::class
@@ -81,7 +81,7 @@ class CommonTopAppBarViewModelTest {
             .arrange()
 
         advanceUntilIdle()
-        val state = commonTopAppBarViewModel.callState
+        val state = commonTopAppBarViewModel.connectivityState
 
         val info = state.info
         info shouldBeInstanceOf ConnectivityUIState.Info.EstablishedCall::class
@@ -98,7 +98,7 @@ class CommonTopAppBarViewModelTest {
             .arrange()
 
         advanceUntilIdle()
-        val state = commonTopAppBarViewModel.callState
+        val state = commonTopAppBarViewModel.connectivityState
 
         val info = state.info
         info shouldBeInstanceOf ConnectivityUIState.Info.WaitingConnection::class
@@ -114,7 +114,7 @@ class CommonTopAppBarViewModelTest {
             .arrange()
 
         advanceUntilIdle()
-        val state = commonTopAppBarViewModel.callState
+        val state = commonTopAppBarViewModel.connectivityState
 
         val info = state.info
         info shouldBeInstanceOf ConnectivityUIState.Info.EstablishedCall::class
@@ -132,7 +132,7 @@ class CommonTopAppBarViewModelTest {
             .arrange()
 
         advanceUntilIdle()
-        val state = commonTopAppBarViewModel.callState
+        val state = commonTopAppBarViewModel.connectivityState
 
         val info = state.info
         info shouldBeInstanceOf ConnectivityUIState.Info.EstablishedCall::class
@@ -149,7 +149,7 @@ class CommonTopAppBarViewModelTest {
             .arrange()
 
         advanceUntilIdle()
-        val state = commonTopAppBarViewModel.callState
+        val state = commonTopAppBarViewModel.connectivityState
 
         val info = state.info
         info shouldBeInstanceOf ConnectivityUIState.Info.None::class

@@ -37,7 +37,7 @@ fun CommonTopAppBar(commonTopAppBarViewModel: CommonTopAppBarViewModel) {
 
     with(commonTopAppBarViewModel) {
         ConnectivityStatusBar(
-            commonTopAppBarViewModel.callState.info,
+            commonTopAppBarViewModel.connectivityState.info,
             onReturnToCallClick = ::openOngoingCallScreen
         )
     }

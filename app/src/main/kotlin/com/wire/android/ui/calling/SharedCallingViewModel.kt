@@ -168,6 +168,7 @@ class SharedCallingViewModel @Inject constructor(
 
     fun navigateBack() {
         viewModelScope.launch {
+            pauseVideo()
             navigationManager.navigateBack()
         }
     }

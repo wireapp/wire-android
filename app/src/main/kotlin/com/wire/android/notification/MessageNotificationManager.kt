@@ -1,7 +1,10 @@
 package com.wire.android.notification
 
+import android.app.Notification
+import android.app.NotificationManager
 import android.content.Context
 import android.graphics.Typeface
+import android.service.notification.StatusBarNotification
 import android.text.Spannable
 import android.text.style.StyleSpan
 import androidx.annotation.StringRes
@@ -14,6 +17,7 @@ import androidx.core.graphics.drawable.IconCompat
 import androidx.core.text.toSpannable
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.notification.NotificationConstants.getConversationNotificationId
 import com.wire.android.util.toBitmap
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -26,41 +30,40 @@ import javax.inject.Singleton
 class MessageNotificationManager @Inject constructor(private val context: Context) {
 
     private val notificationManager = NotificationManagerCompat.from(context)
+    private val oldNotificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
 
-    private var prevNotificationsData: List<LocalNotificationConversation> = listOf()
+    fun handleNotification(newNotifications: List<LocalNotificationConversation>, userId: QualifiedID?) {
 
-    init {
-        appLogger.i("$TAG: initialized")
-    }
+        if (newNotifications.isEmpty()) return
 
-    fun handleNotification(
-        newData: List<LocalNotificationConversation>,
-        userId: QualifiedID?
-    ) {
-        val oldData = prevNotificationsData
-        val oldConversationIds = oldData.map { it.id }
-        val newConversationIds = newData.map { it.id }
-
-        val conversationIdsToRemove = oldConversationIds.filter { !newConversationIds.contains(it) }
-        val conversationsToAdd = newData
-            .filter { conversation ->
-                val oldConversation = oldData.firstOrNull { it.id == conversation.id }
-                oldConversation == null || oldConversation != conversation
-            }
-            .map { it.intoNotificationConversation() }
-
+        val activeNotifications: Array<StatusBarNotification> = oldNotificationManager.activeNotifications ?: arrayOf()
         val userIdString = userId?.toString()
 
         createNotificationChannel()
-        conversationsToAdd.forEach { showConversationNotification(it, userIdString) }
-        conversationIdsToRemove.forEach { hideNotification(it) }
-        showSummaryIfNeeded(oldData, newData, userIdString)
+        showSummaryIfNeeded(activeNotifications)
+        newNotifications.forEach {
+            showConversationNotification(it.intoNotificationConversation(), userIdString, activeNotifications)
+        }
 
-        appLogger.i(
-            "$TAG: handled notifications: oldDataSize ${oldData.size}; newDataSize ${newData.size}; " +
-                "${conversationsToAdd.size} notifications were added; ${conversationIdsToRemove.size} notifications were removed. "
-        )
-        prevNotificationsData = newData
+        appLogger.i("$TAG: handled notifications: newNotifications size ${newNotifications.size}; ")
+    }
+
+    fun hideNotification(conversationsId: ConversationId) {
+        notificationManager.cancel(getConversationNotificationId(conversationsId))
+
+        val notificationsLeft = oldNotificationManager.activeNotifications
+            ?.filter { it.groupKey.endsWith(NotificationConstants.MESSAGE_GROUP_KEY) }
+            ?.size ?: 0
+
+        if (notificationsLeft <= 1) {
+            // only SummaryNotification left
+            notificationManager.cancel(NotificationConstants.MESSAGE_SUMMARY_ID)
+        }
+    }
+
+    fun hideAllNotifications() {
+        // removing groupSummary removes all the notifications in a group
+        notificationManager.cancel(NotificationConstants.MESSAGE_SUMMARY_ID)
     }
 
     private fun createNotificationChannel() {
@@ -72,41 +75,49 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
         notificationManager.createNotificationChannel(notificationChannel)
     }
 
-    private fun showSummaryIfNeeded(
-        oldData: List<LocalNotificationConversation>,
-        newData: List<LocalNotificationConversation>,
-        userId: String?
+    private fun showSummaryIfNeeded(activeNotifications: Array<StatusBarNotification>) {
+        if (activeNotifications.find { it.id == NotificationConstants.MESSAGE_SUMMARY_ID } != null) return
+
+        appLogger.i("$TAG adding groupSummary")
+        notificationManager.notify(NotificationConstants.MESSAGE_SUMMARY_ID, getSummaryNotification())
+    }
+
+    private fun showConversationNotification(
+        conversation: NotificationConversation,
+        userId: String?,
+        activeNotifications: Array<StatusBarNotification>
     ) {
-        if (newData.isEmpty()) {
-            appLogger.i("$TAG removing groupSummary")
-            notificationManager.cancel(NotificationConstants.MESSAGE_SUMMARY_ID)
-        } else if (oldData.size <= 1 && newData.size > 1) {
-            appLogger.i("$TAG adding groupSummary")
-            notificationManager.notify(NotificationConstants.MESSAGE_SUMMARY_ID, getSummaryNotification(userId))
+        val notificationId = getConversationNotificationId(conversation.id)
+        getConversationNotification(conversation, userId, activeNotifications)?.let { notification ->
+            appLogger.i("$TAG adding ConversationNotification")
+            notificationManager.notify(notificationId, notification)
         }
     }
 
-    private fun showConversationNotification(conversation: NotificationConversation, userId: String?) {
-        val notificationId = NotificationConstants.getConversationNotificationId(conversation.id)
-        val notification = getConversationNotification(conversation, userId)
-        notificationManager.notify(notificationId, notification)
-    }
-
-    private fun hideNotification(conversationsId: ConversationId) =
-        notificationManager.cancel(NotificationConstants.getConversationNotificationId(conversationsId))
-
-    private fun getSummaryNotification(userId: String?) = NotificationCompat.Builder(context, NotificationConstants.MESSAGE_CHANNEL_ID)
+    private fun getSummaryNotification() = NotificationCompat.Builder(context, NotificationConstants.MESSAGE_CHANNEL_ID)
         .setSmallIcon(R.drawable.notification_icon_small)
         .setGroup(NotificationConstants.MESSAGE_GROUP_KEY)
         .setGroupSummary(true)
+        .setAutoCancel(true)
         .setDefaults(NotificationCompat.DEFAULT_ALL)
         .setPriority(NotificationCompat.PRIORITY_MAX)
         .setContentIntent(summaryMessagePendingIntent(context))
-        .setDeleteIntent(dismissSummaryPendingIntent(context, userId))
         .build()
 
-    private fun getConversationNotification(conversation: NotificationConversation, userId: String?) =
-        NotificationCompat.Builder(context, NotificationConstants.MESSAGE_CHANNEL_ID).apply {
+    /**
+     * Create or update existed [Notification]
+     * @return [Notification] for the conversation with all the messages in it (including the messages that been there before)
+     * OR null if there is no new messages in conversation and no need to update the existed notification.
+     */
+    private fun getConversationNotification(
+        conversation: NotificationConversation,
+        userId: String?,
+        activeNotifications: Array<StatusBarNotification>
+    ): Notification? {
+
+        val updatedMessageStyle = getUpdatedMessageStyle(conversation, activeNotifications) ?: return null
+
+        return NotificationCompat.Builder(context, NotificationConstants.MESSAGE_CHANNEL_ID).apply {
             setDefaults(NotificationCompat.DEFAULT_ALL)
 
             priority = NotificationCompat.PRIORITY_MAX
@@ -122,15 +133,12 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
                     when (it) {
                         is NotificationMessage.ConnectionRequest -> {
                             setContentIntent(otherUserProfilePendingIntent(context, it.authorId))
-                            setDeleteIntent(dismissConnectionRequestPendingIntent(context, it.authorId, userId))
                         }
                         is NotificationMessage.ConversationDeleted -> {
                             setContentIntent(openAppPendingIntent(context))
-                            setDeleteIntent(dismissSummaryPendingIntent(context, userId))
                         }
                         else -> {
                             setContentIntent(messagePendingIntent(context, conversation.id))
-                            setDeleteIntent(dismissMessagePendingIntent(context, conversation.id, userId))
                             addAction(getActionCall(conversation.id))
                             addAction(getActionReply(conversation.id, userId))
                         }
@@ -141,10 +149,37 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
 
             setLargeIcon(conversation.image?.toBitmap())
 
-            setStyle(getMessageStyle(conversation))
+            setStyle(updatedMessageStyle)
         }.build()
+    }
 
-    private fun getMessageStyle(conversation: NotificationConversation): NotificationCompat.Style {
+    /**
+     * @return [NotificationCompat.Style] that should be set to Notification with all the messages in it,
+     * OR null if there is no new messages in conversation and no need to update the existed notification
+     */
+    private fun getUpdatedMessageStyle(
+        conversation: NotificationConversation,
+        activeNotifications: Array<StatusBarNotification>
+    ): NotificationCompat.Style? {
+
+        val activeMessages = activeNotifications
+            .find { it.id == getConversationNotificationId(conversation.id) }
+            ?.notification
+            ?.let { NotificationCompat.MessagingStyle.extractMessagingStyleFromNotification(it) }
+            ?.messages
+
+        val messagesToAdd = conversation.messages
+            .map { it.intoStyledMessage() }
+            .filter { notificationMessage ->
+                // to not notify about messages that are already there
+                activeMessages?.find { it.text == notificationMessage.text && it.timestamp == notificationMessage.timestamp } == null
+            }
+
+        if (messagesToAdd.isEmpty()) {
+            // there is nothing to add to the notification
+            return null
+        }
+
         val receiver = Person.Builder()
             .setName(context.getString(R.string.notification_receiver_name))
             .build()
@@ -154,25 +189,11 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
         notificationStyle.conversationTitle = if (conversation.isOneToOneConversation) null else conversation.name
         notificationStyle.isGroupConversation = !conversation.isOneToOneConversation
 
-        conversation.messages.forEach { messageData ->
-            val sender = Person.Builder()
-                .apply {
-                    setName(messageData.author.name)
-                    messageData.author.image?.toBitmap()?.let {
-                        setIcon(IconCompat.createWithAdaptiveBitmap(it))
-                    }
-                }
-                .build()
+        activeMessages?.forEach { notificationMessage ->
+            notificationStyle.addMessage(notificationMessage)
+        }
 
-            val message = when (messageData) {
-                is NotificationMessage.Text -> messageData.text
-                is NotificationMessage.Comment -> italicTextFromResId(messageData.textResId.value)
-                is NotificationMessage.ConnectionRequest -> italicTextFromResId(R.string.notification_connection_request)
-                is NotificationMessage.ConversationDeleted -> italicTextFromResId(R.string.notification_conversation_deleted)
-            }
-
-            val notificationMessage = NotificationCompat.MessagingStyle.Message(message, messageData.time, sender)
-
+        messagesToAdd.forEach { notificationMessage ->
             notificationStyle.addMessage(notificationMessage)
         }
 
@@ -198,6 +219,26 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
     private fun italicTextFromResId(@StringRes stringResId: Int) =
         context.getString(stringResId).toSpannable()
             .apply { setSpan(StyleSpan(Typeface.ITALIC), 0, length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE) }
+
+    private fun NotificationMessage.intoStyledMessage(): NotificationCompat.MessagingStyle.Message {
+        val sender = Person.Builder()
+            .apply {
+                setName(author.name)
+                author.image?.toBitmap()?.let {
+                    setIcon(IconCompat.createWithAdaptiveBitmap(it))
+                }
+            }
+            .build()
+
+        val message = when (this) {
+            is NotificationMessage.Text -> text
+            is NotificationMessage.Comment -> italicTextFromResId(textResId.value)
+            is NotificationMessage.ConnectionRequest -> italicTextFromResId(R.string.notification_connection_request)
+            is NotificationMessage.ConversationDeleted -> italicTextFromResId(R.string.notification_conversation_deleted)
+        }
+
+        return NotificationCompat.MessagingStyle.Message(message, time, sender)
+    }
 
     companion object {
         private const val TAG = "MessageNotificationManager"

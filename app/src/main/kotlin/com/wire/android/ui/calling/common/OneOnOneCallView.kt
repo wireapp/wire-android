@@ -26,8 +26,8 @@ fun OneOnOneCallView(
     onSelfClearVideoPreview: () -> Unit
 ) {
     Column(
-        modifier = Modifier.padding(dimensions().spacing6x),
-        verticalArrangement = Arrangement.spacedBy(MaterialTheme.wireDimensions.spacing6x)
+        modifier = Modifier.padding(dimensions().spacing4x),
+        verticalArrangement = Arrangement.spacedBy(MaterialTheme.wireDimensions.spacing2x)
     ) {
         participants.forEach { participant ->
             val isSelfUser = pageIndex == 0 && participants.first() == participant

@@ -66,7 +66,10 @@ class RemoveDeviceViewModel @Inject constructor(
     fun onPasswordChange(newText: TextFieldValue) {
         updateStateIfDialogVisible {
             if (it.password == newText) state
-            else state.copy(removeDeviceDialogState = it.copy(password = newText, removeEnabled = newText.text.isNotEmpty()), error = RemoveDeviceError.None)
+            else state.copy(
+                removeDeviceDialogState = it.copy(password = newText, removeEnabled = newText.text.isNotEmpty()),
+                error = RemoveDeviceError.None
+            )
         }
     }
 
@@ -104,7 +107,8 @@ class RemoveDeviceViewModel @Inject constructor(
             RegisterClientUseCase.RegisterClientParam(password, null)
         ).also { result ->
             when (result) {
-                is RegisterClientResult.Failure.PasswordAuthRequired -> { /* the check for password is done before this function is called */
+                is RegisterClientResult.Failure.PasswordAuthRequired -> {
+                    /* the check for password is done before this function is called */
                 }
                 is RegisterClientResult.Failure.Generic -> state = state.copy(error = RemoveDeviceError.GenericError(result.genericFailure))
                 RegisterClientResult.Failure.InvalidCredentials -> state = state.copy(error = RemoveDeviceError.InvalidCredentialsError)
@@ -166,23 +170,6 @@ class RemoveDeviceViewModel @Inject constructor(
             }
         }
     }
-
-//    private fun DeleteClientResult.toRemoveDeviceError(): RemoveDeviceError =
-//        when (this) {
-//            is DeleteClientResult.Failure.Generic -> RemoveDeviceError.GenericError(this.genericFailure)
-//            DeleteClientResult.Failure.InvalidCredentials -> RemoveDeviceError.InvalidCredentialsError
-//            DeleteClientResult.Failure.PasswordAuthRequired -> RemoveDeviceError.PasswordRequired
-//            DeleteClientResult.Success -> RemoveDeviceError.None
-//        }
-//
-//    private fun RegisterClientResult.toRemoveDeviceError(): RemoveDeviceError =
-//        when (this) {
-//            is RegisterClientResult.Failure.Generic -> RemoveDeviceError.GenericError(this.genericFailure)
-//            is RegisterClientResult.Failure.InvalidCredentials -> RemoveDeviceError.InvalidCredentialsError
-//            is RegisterClientResult.Failure.TooManyClients -> RemoveDeviceError.TooManyDevicesError
-//            RegisterClientResult.Failure.PasswordAuthRequired -> RemoveDeviceError.PasswordRequired
-//            is RegisterClientResult.Success -> RemoveDeviceError.None
-//        }
 
     private suspend fun navigateToConvScreen() =
         navigationManager.navigate(NavigationCommand(NavigationItem.Home.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))

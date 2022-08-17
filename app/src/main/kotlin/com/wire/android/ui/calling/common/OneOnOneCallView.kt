@@ -30,9 +30,10 @@ fun OneOnOneCallView(
         verticalArrangement = Arrangement.spacedBy(MaterialTheme.wireDimensions.spacing2x)
     ) {
         participants.forEach { participant ->
+            // since we are getting participants by chunk of 8 items,
+            // we need to check that we are on first page for sel user
             val isSelfUser = pageIndex == 0 && participants.first() == participant
 
-            // For now we are handling only self user camera state
             val isCameraOn = if (isSelfUser)
                 isSelfUserCameraOn else participant.isCameraOn
             val isMuted = if (isSelfUser)

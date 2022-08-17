@@ -45,18 +45,17 @@ fun GroupCallGrid(
     ) {
 
         items(participants) { participant ->
+            // since we are getting participants by chunk of 8 items,
+            // we need to check that we are on first page for sel user
             val isSelfUser = pageIndex == 0 && participants.first() == participant
 
             // We need the number of tiles rows needed to calculate their height
             val numberOfTilesRows = tilesRowsCount(participants.size)
-            // For now we are handling only self user camera state
             val isCameraOn = if (isSelfUser) {
                 isSelfUserCameraOn
             } else participant.isCameraOn
             // for self user we don't need to get the muted value from participants list
             // if we do, this will show visuals with some delay
-            // since we are getting participants by chunk of 8 items,
-            // we need to check that we are on first page for sel user
             val isMuted = if (isSelfUser) isSelfUserMuted
             else participant.isMuted
 

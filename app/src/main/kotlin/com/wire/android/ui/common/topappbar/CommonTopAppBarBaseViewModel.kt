@@ -10,40 +10,71 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
+import com.wire.kalium.logic.data.sync.SyncState
+import com.wire.kalium.logic.feature.call.Call
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
+import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-abstract class CommonTopAppBarBaseViewModel: ViewModel()
+abstract class CommonTopAppBarBaseViewModel : ViewModel()
 
 @HiltViewModel
 class CommonTopAppBarViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val establishedCalls: ObserveEstablishedCallsUseCase,
-    private val currentScreenManager: CurrentScreenManager
+    private val currentScreenManager: CurrentScreenManager,
+    private val observeSyncState: ObserveSyncStateUseCase,
 ) : CommonTopAppBarBaseViewModel() {
 
-    var callState by mutableStateOf(EstablishedCallState())
+    var callState by mutableStateOf(ConnectivityUIState(ConnectivityUIState.Info.None))
 
     init {
         viewModelScope.launch {
-            launch {
-                observeEstablishedCall()
-            }
-            launch {
-                observeScreenState()
+            combine(activeCallFlow(), currentScreenFlow(), connectivityFlow()) { activeCall, currentScreen, connectivity ->
+                mapToUIState(currentScreen, connectivity, activeCall)
+            }.collect {
+                callState = callState.copy(info = it)
             }
         }
     }
 
-    fun openOngoingCallScreen() {
-        callState.conversationId?.let { convId ->
-            callState = callState.copy(
-                shouldShowOngoingCallLabel = false
-            )
+    private fun mapToUIState(
+        currentScreen: CurrentScreen,
+        connectivity: Connectivity,
+        activeCall: Call?
+    ): ConnectivityUIState.Info {
+        val canDisplayActiveCall = currentScreen is CurrentScreen.Home || currentScreen is CurrentScreen.Conversation
 
+        // If, for whatever reason Sync is dropped during an active call, the user can see it as well
+        val canDisplayConnectivityIssues = canDisplayActiveCall || currentScreen is CurrentScreen.OngoingCallScreen
+
+        val hasConnectivityIssues = connectivity in setOf(Connectivity.CONNECTING, Connectivity.WAITING_CONNECTION)
+
+        return when {
+            // Prioritise active call
+            activeCall != null && canDisplayActiveCall -> {
+                ConnectivityUIState.Info.EstablishedCall(activeCall.conversationId, activeCall.isMuted)
+            }
+
+            hasConnectivityIssues && canDisplayConnectivityIssues -> {
+                if (connectivity == Connectivity.WAITING_CONNECTION) {
+                    ConnectivityUIState.Info.WaitingConnection
+                } else {
+                    ConnectivityUIState.Info.Connecting
+                }
+            }
+
+            else -> ConnectivityUIState.Info.None
+        }
+    }
+
+    fun openOngoingCallScreen() {
+        (callState.info as? ConnectivityUIState.Info.EstablishedCall)?.conversationId?.let { convId ->
             viewModelScope.launch {
                 navigationManager.navigate(
                     command = NavigationCommand(
@@ -54,26 +85,20 @@ class CommonTopAppBarViewModel @Inject constructor(
         }
     }
 
-    private suspend fun observeEstablishedCall() {
-        establishedCalls().collect { calls ->
-            val call = calls.firstOrNull()
-            val showOngoingCallLabel = call?.let { true } ?: false
-
-            callState = callState.copy(
-                conversationId = call?.conversationId,
-                isCallHappening = showOngoingCallLabel,
-                shouldShowOngoingCallLabel = showOngoingCallLabel,
-                isMuted = call?.isMuted
-            )
+    private fun connectivityFlow() = observeSyncState().map {
+        when (it) {
+            is SyncState.Failed -> Connectivity.WAITING_CONNECTION
+            SyncState.GatheringPendingEvents -> Connectivity.CONNECTING
+            SyncState.Live -> Connectivity.CONNECTED
+            SyncState.SlowSync -> Connectivity.WAITING_CONNECTION
+            SyncState.Waiting -> Connectivity.WAITING_CONNECTION
         }
+    }
+
+    private suspend fun activeCallFlow() = establishedCalls().map { calls ->
+        calls.firstOrNull()
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    private suspend fun observeScreenState() {
-        currentScreenManager.observeCurrentScreen(viewModelScope).collect {
-            callState = callState.copy(
-                shouldShowOngoingCallLabel = (callState.isCallHappening && (it is CurrentScreen.Home || it is CurrentScreen.Conversation))
-            )
-        }
-    }
+    private suspend fun currentScreenFlow() = currentScreenManager.observeCurrentScreen(viewModelScope)
 }

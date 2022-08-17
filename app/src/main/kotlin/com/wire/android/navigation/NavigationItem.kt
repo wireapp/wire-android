@@ -148,6 +148,7 @@ enum class NavigationItem(
             HomeScreen(
                 it.navBackStackEntry.arguments?.getString(EXTRA_HOME_TAB_ITEM),
                 hiltSavedStateViewModel(it.navBackStackEntry),
+                hiltViewModel(),
                 hiltViewModel()
             )
         },

@@ -32,7 +32,7 @@ import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topappbar.CommonTopAppBar
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
 import com.wire.android.ui.common.topappbar.search.AppTopBarWithSearchBar
-import com.wire.android.ui.home.sync.SyncStateViewModel
+import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
 
 @OptIn(
     ExperimentalAnimationApi::class,
@@ -43,7 +43,7 @@ import com.wire.android.ui.home.sync.SyncStateViewModel
 fun HomeScreen(
     startScreen: String?,
     homeViewModel: HomeViewModel,
-    syncViewModel: SyncStateViewModel,
+    syncViewModel: FeatureFlagNotificationViewModel,
     commonTopAppBarViewModel: CommonTopAppBarViewModel
 ) {
     homeViewModel.checkRequirements()

@@ -9,8 +9,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.debugscreen.PersistentWebSocketService
-import com.wire.kalium.logic.feature.user.webSocketStatus.IsWebSocketEnabledUseCase
-import com.wire.kalium.logic.feature.user.webSocketStatus.PersistWebSocketStatusUseCase
+import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
+import com.wire.kalium.logic.feature.user.webSocketStatus.PersistPersistentWebSocketConnectionStatusUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -19,18 +19,26 @@ import javax.inject.Inject
 class NetworkSettingsViewModel
 @Inject constructor(
     private val navigationManager: NavigationManager,
-    private val persistWebSocketStatus: PersistWebSocketStatusUseCase,
-    isWebSocketEnabled: IsWebSocketEnabledUseCase
+    private val persistPersistentWebSocketConnectionStatus: PersistPersistentWebSocketConnectionStatusUseCase,
+    private val observePersistentWebSocketConnectionStatus: ObservePersistentWebSocketConnectionStatusUseCase
 ) : ViewModel() {
-    var isWebSocketEnabled by mutableStateOf(isWebSocketEnabled())
+    var networkSettingsState by mutableStateOf(NetworkSettingsState())
 
     fun navigateBack() = viewModelScope.launch {
         navigationManager.navigateBack()
     }
 
+    fun observePersistentWebSocketConnection() =
+        viewModelScope.launch {
+            observePersistentWebSocketConnectionStatus().collect {
+                networkSettingsState = networkSettingsState.copy(isPersistentWebSocketConnectionEnabled = it)
+            }
+        }
+
+
     fun setWebSocketState(isEnabled: Boolean, context: Context) {
-        persistWebSocketStatus(isEnabled)
-        isWebSocketEnabled = isEnabled
+        persistPersistentWebSocketConnectionStatus(isEnabled)
+        observePersistentWebSocketConnection()
         if (isEnabled) {
             context.startService(Intent(context, PersistentWebSocketService::class.java))
         } else {

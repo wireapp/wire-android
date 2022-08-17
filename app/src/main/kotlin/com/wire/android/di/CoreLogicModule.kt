@@ -106,8 +106,8 @@ class CoreLogicModule {
     @NoSession
     @Singleton
     @Provides
-    fun provideIsWebSocketEnabledUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
-        coreLogic.getGlobalScope().isWebSocketEnabled
+    fun provideObservePersistentWebSocketConnectionStatusUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
+        coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus
 }
 
 @Module
@@ -569,13 +569,13 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun provideIsWebSocketEnabledUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
-        coreLogic.getGlobalScope().isWebSocketEnabled
+    fun provideObservePersistentWebSocketConnectionStatusUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
+        coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus
 
     @ViewModelScoped
     @Provides
-    fun providePersistWebSocketUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
-        coreLogic.getGlobalScope().persistWebSocket
+    fun providePersistPersistentWebSocketConnectionStatusUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
+        coreLogic.getGlobalScope().persistPersistentWebSocketConnectionStatus
 
     @ViewModelScoped
     @Provides

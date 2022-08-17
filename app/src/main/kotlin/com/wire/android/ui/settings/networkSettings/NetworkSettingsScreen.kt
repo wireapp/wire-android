@@ -25,7 +25,7 @@ fun NetworkSettingsScreen(networkSettingsViewModel: NetworkSettingsViewModel = h
 
     NetworkSettingsScreenContent(
         onBackPressed = networkSettingsViewModel::navigateBack,
-        isWebSocketEnabled = networkSettingsViewModel.isWebSocketEnabled,
+        isWebSocketEnabled = networkSettingsViewModel.networkSettingsState.isPersistentWebSocketConnectionEnabled,
         setWebSocketState = { networkSettingsViewModel.setWebSocketState(it, context) },
     )
 }

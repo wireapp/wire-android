@@ -433,7 +433,7 @@ class OtherUserProfileScreenViewModelTest {
             UserType.INTERNAL,
             UserAvailabilityStatus.AVAILABLE,
             null,
-            deleted = false
+            false
         )
         val TEAM = Team("some_id", null)
         val CONVERSATION = Conversation(

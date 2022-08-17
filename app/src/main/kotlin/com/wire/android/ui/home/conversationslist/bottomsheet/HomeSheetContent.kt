@@ -18,6 +18,7 @@ import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetContent
+import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.conversationColor
 import com.wire.android.ui.common.dimensions
@@ -41,25 +42,28 @@ internal fun ConversationMainSheetContent(
     navigateToNotification: () -> Unit
 ) {
     MenuModalSheetContent(
-        headerTitle = conversationSheetContent.title,
-        headerIcon = {
-            if (conversationSheetContent.conversationTypeDetail is ConversationTypeDetail.Group) {
-                GroupConversationAvatar(
-                    color = colorsScheme()
-                        .conversationColor(id = conversationSheetContent.conversationTypeDetail.conversationId)
-                )
-            } else if (conversationSheetContent.conversationTypeDetail is ConversationTypeDetail.Private) {
-                val connectionState: ConnectionState? = conversationSheetContent.conversationTypeDetail.blockingState.let {
-                    if (it == BlockingState.BLOCKED) ConnectionState.BLOCKED else null
-                }
-                UserProfileAvatar(
-                    avatarData = UserAvatarData(
-                        asset = conversationSheetContent.conversationTypeDetail.avatarAsset,
-                        connectionState = connectionState
+        header = MenuModalSheetHeader.Visible(
+            title = conversationSheetContent.title,
+            leadingIcon = {
+                if (conversationSheetContent.conversationTypeDetail is ConversationTypeDetail.Group) {
+                    GroupConversationAvatar(
+                        color = colorsScheme()
+                            .conversationColor(id = conversationSheetContent.conversationTypeDetail.conversationId)
                     )
-                )
-            }
-        },
+                } else if (conversationSheetContent.conversationTypeDetail is ConversationTypeDetail.Private) {
+                    val connectionState: ConnectionState? = conversationSheetContent.conversationTypeDetail.blockingState.let {
+                        if (it == BlockingState.BLOCKED) ConnectionState.BLOCKED else null
+                    }
+                    UserProfileAvatar(
+                        avatarData = UserAvatarData(
+                            asset = conversationSheetContent.conversationTypeDetail.avatarAsset,
+                            connectionState = connectionState
+                        )
+                    )
+                }
+            },
+            customBottomPadding = dimensions().spacing8x
+        ),
         menuItems = listOf(
             {
                 MenuBottomSheetItem(

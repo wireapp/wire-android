@@ -59,38 +59,24 @@ fun WireModalSheetLayout(
 fun MenuModalSheetLayout(
     sheetState: ModalBottomSheetState,
     coroutineScope: CoroutineScope,
-    headerTitle: String? = null,
-    headerIcon: @Composable () -> Unit = {},
+    header: MenuModalSheetHeader = MenuModalSheetHeader.Gone,
     menuItems: List<@Composable () -> Unit>,
     content: @Composable () -> Unit,
 ) {
     WireModalSheetLayout(
         sheetState = sheetState,
         coroutineScope = coroutineScope,
-        sheetContent = {
-            MenuModalSheetContent(
-                headerTitle,
-                headerIcon,
-                menuItems
-            )
-        }
-    ) {
-        content()
-    }
+        sheetContent = { MenuModalSheetContent(header, menuItems) },
+        content = { content() }
+    )
 }
+
 
 @Composable
 fun MenuModalSheetContent(
-    headerTitle: String? = null,
-    headerIcon: @Composable () -> Unit = {},
-    menuItems: List<@Composable () -> Unit>,
-    headerModifier: Modifier = Modifier
+    header: MenuModalSheetHeader = MenuModalSheetHeader.Gone,
+    menuItems: List<@Composable () -> Unit>
 ) {
-    ModalSheetHeaderItem(
-        title = headerTitle,
-        leadingIcon = headerIcon,
-        modifier = headerModifier
-    )
-
+    ModalSheetHeaderItem(header = header)
     buildMenuSheetItems(items = menuItems)
 }

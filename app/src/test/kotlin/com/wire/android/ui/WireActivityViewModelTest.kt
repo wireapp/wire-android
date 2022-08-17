@@ -21,7 +21,7 @@ import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
-import com.wire.kalium.logic.feature.user.webSocketStatus.IsPersistentWebSocketConnectionEnabledUseCase
+import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -357,7 +357,7 @@ class WireActivityViewModelTest {
             coEvery { deepLinkProcessor(any()) } returns DeepLinkResult.Unknown
             coEvery { notificationManager.observeNotificationsAndCalls(any(), any(), any()) } returns Unit
             coEvery { navigationManager.navigate(any()) } returns Unit
-            coEvery { isPersistentWebSocketConnectionEnabled() } returns true
+            coEvery { observePersistentWebSocketConnectionStatus() } returns flowOf(true)
         }
 
         @MockK
@@ -376,7 +376,7 @@ class WireActivityViewModelTest {
         lateinit var navigationManager: NavigationManager
 
         @MockK
-        lateinit var isPersistentWebSocketConnectionEnabled: IsPersistentWebSocketConnectionEnabledUseCase
+        lateinit var observePersistentWebSocketConnectionStatus: ObservePersistentWebSocketConnectionStatusUseCase
 
         @MockK
         private lateinit var authServerConfigProvider: AuthServerConfigProvider
@@ -390,7 +390,7 @@ class WireActivityViewModelTest {
                 notificationManager = notificationManager,
                 navigationManager = navigationManager,
                 authServerConfigProvider = authServerConfigProvider,
-                isPersistentWebSocketConnectionEnabled = isPersistentWebSocketConnectionEnabled
+                observePersistentWebSocketConnectionStatus = observePersistentWebSocketConnectionStatus
             )
         }
 

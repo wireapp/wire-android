@@ -28,7 +28,7 @@ fun JoinButton(
     val audioPermissionCheck = AudioBluetoothPermissionCheckFlow { buttonClick() }
 
     WirePrimaryButton(
-        onClick = { audioPermissionCheck.launch() },
+        onClick = audioPermissionCheck::launch,
         fillMaxWidth = false,
         shape = RoundedCornerShape(size = MaterialTheme.wireDimensions.corner12x),
         text = stringResource(R.string.calling_button_label_join_call),

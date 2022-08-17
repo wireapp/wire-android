@@ -13,8 +13,8 @@ import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.team.Team
-import com.wire.kalium.logic.util.fileExtension
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.util.fileExtension
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.verify
@@ -149,6 +149,22 @@ class ConversationsViewModelTest {
             (viewModel.conversationViewState.conversationName as UIText.DynamicString).value
         )
     }
+
+    @Test
+    fun `given a 1 on 1 conversation, when solving the conversation name, then unavailable user is used`() = runTest {
+        // Given
+        val oneToOneConversationDetails = withMockConversationDetailsOneOnOne(senderName = "", unavailable = true)
+        val (_, viewModel) = ConversationsViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .withConversationDetailUpdate(
+                conversationDetails = oneToOneConversationDetails
+            )
+            .arrange()
+
+        // When - Then
+        assert(viewModel.conversationViewState.conversationName is UIText.StringResource)
+    }
+
 
     @Test
     fun `given a group conversation, when solving the conversation name, then the name of the conversation is used`() = runTest {

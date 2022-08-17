@@ -88,7 +88,6 @@ fun HomeScreen(
                             avatarAsset = homeViewModel.userAvatar.avatarAsset,
                             status = homeViewModel.userAvatar.status,
                             currentNavigationItem = homeUIState.currentNavigationItem,
-                            syncState = syncViewModel.syncState,
                             onOpenDrawerClicked = ::openDrawer,
                             onNavigateToUserProfile = homeViewModel::navigateToUserProfile,
                         )

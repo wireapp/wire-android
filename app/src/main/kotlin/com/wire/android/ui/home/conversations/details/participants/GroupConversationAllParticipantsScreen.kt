@@ -1,7 +1,7 @@
 package com.wire.android.ui.home.conversations.details.participants
 
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.LocalOverscrollConfiguration
+import androidx.compose.foundation.gestures.LocalOverScrollConfiguration
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -53,7 +53,7 @@ private fun GroupConversationAllParticipantsContent(
         },
         modifier = Modifier.fillMaxHeight(),
     ) { internalPadding ->
-        CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
+        CompositionLocalProvider(LocalOverScrollConfiguration provides null) {
             val context = LocalContext.current
             LazyColumn(
                 state = lazyListState,

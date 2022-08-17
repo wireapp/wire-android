@@ -253,7 +253,8 @@ internal fun withMockConversationDetailsOneOnOne(
     senderName: String,
     senderAvatar: UserAssetId? = null,
     senderId: UserId = UserId("user-id", "user-domain"),
-    connectionState: ConnectionState = ConnectionState.ACCEPTED
+    connectionState: ConnectionState = ConnectionState.ACCEPTED,
+    unavailable: Boolean = false
 ) = ConversationDetails.OneOne(
     conversation = mockk(),
     otherUser = mockk<OtherUser>().apply {
@@ -262,6 +263,7 @@ internal fun withMockConversationDetailsOneOnOne(
         every { previewPicture } returns senderAvatar
         every { availabilityStatus } returns UserAvailabilityStatus.NONE
         every { connectionStatus } returns connectionState
+        every { isUnavailableUser } returns unavailable
     },
     connectionState = ConnectionState.PENDING,
     legalHoldStatus = LegalHoldStatus.DISABLED,

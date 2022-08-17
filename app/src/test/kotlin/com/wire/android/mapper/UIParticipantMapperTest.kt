@@ -103,7 +103,8 @@ fun testOtherUser(i: Int): OtherUser = OtherUser(
     completePicture = null,
     availabilityStatus = UserAvailabilityStatus.NONE,
     userType = UserType.INTERNAL,
-    botService = null
+    botService = null,
+    deleted = false
 )
 
 fun testUIParticipant(i: Int): UIParticipant = UIParticipant(

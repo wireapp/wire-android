@@ -273,6 +273,7 @@
     <string name="member_name_you_label_titlecase">You</string>
     <string name="member_name_you_label_lowercase">you</string>
     <string name="label_add_participants"> Add Participants</string>
+    <string name="username_unavailable_label">Username unavailable</string>
 
     <string name="conversation_details_title">Conversation Details</string>
     <string name="conversation_details_options_tab">OPTIONS</string>
@@ -463,7 +464,11 @@
     <string name="calling_ongoing_call_start_anyway">Call Anyways</string>
     <string name="calling_ongoing_call_join_message_alert">A call is active in another conversation.\nJoining this call will hang up the other one.</string>
     <string name="calling_ongoing_call_join_anyway">Join Anyways</string>
-    <string name="calling_ongoing_call_return_to_call">RETURN TO CALL</string>
+
+    <!-- Connectivity Status Bar -->
+    <string name="connectivity_status_bar_return_to_call">Return to call</string>
+    <string name="connectivity_status_bar_connecting">Connecting</string>
+    <string name="connectivity_status_bar_waiting_for_network">Waiting for network</string>
 
     <!-- Connections -->
     <string name="connection_label_connect">Connect</string>

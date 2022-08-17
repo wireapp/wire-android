@@ -31,7 +31,6 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.Conversation
-import com.wire.kalium.logic.data.client.OtherUserClients
 import com.wire.kalium.logic.data.conversation.Member
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
@@ -391,7 +390,8 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     fun clearBottomSheetState() {
         state = state.clearBottomSheetState()
     }
-    fun getOtherUserClients(): List<OtherUserClients> {
+
+    fun getOtherUserClients() {
         viewModelScope.launch {
             otherUserClients(userId).let {
                 when (it) {
@@ -407,7 +407,6 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                 }
             }
         }
-        return state.otherUserClients
     }
 
 

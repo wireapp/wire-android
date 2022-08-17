@@ -76,7 +76,6 @@ fun ConversationScreen(
     val startCallAudioPermissionCheck = StartCallAudioBluetoothPermissionCheckFlow {
         conversationViewModel.navigateToInitiatingCallScreen()
     }
-    val joinCallAudioPermissionCheck = JoinCallAudioBluetoothPermissionCheckFlow(conversationViewModel)
     val uiState = conversationViewModel.conversationViewState
 
     LaunchedEffect(conversationViewModel.savedStateHandle) {
@@ -120,7 +119,7 @@ fun ConversationScreen(
                 startCallAudioPermissionCheck.launch()
             }
         },
-        onJoinCall = joinCallAudioPermissionCheck::launch,
+        onJoinCall = conversationViewModel::joinOngoingCall,
         onSnackbarMessage = conversationViewModel::onSnackbarMessage,
         onSnackbarMessageShown = conversationViewModel::clearSnackbarMessage,
         onDropDownClick = conversationViewModel::navigateToDetails,
@@ -146,14 +145,6 @@ private fun StartCallAudioBluetoothPermissionCheckFlow(
 }) {
     //TODO display an error dialog
 }
-
-@Composable
-private fun JoinCallAudioBluetoothPermissionCheckFlow(conversationViewModel: ConversationViewModel) =
-    rememberCallingRecordAudioBluetoothRequestFlow(onAudioBluetoothPermissionGranted = {
-        conversationViewModel.joinOngoingCall()
-    }) {
-        //TODO display an error dialog
-    }
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Suppress("LongParameterList")

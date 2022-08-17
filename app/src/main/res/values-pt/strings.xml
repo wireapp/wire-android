@@ -387,6 +387,12 @@
     <string name="calling_ongoing_call_start_anyway">Call Anyways</string>
     <string name="calling_ongoing_call_join_message_alert">A call is active in another conversation.\nJoining this call will hang up the other one.</string>
     <string name="calling_ongoing_call_join_anyway">Join Anyways</string>
+
+    <!-- Connectivity Status Bar -->
+    <string name="connectivity_status_bar_return_to_call">Abrir chamada</string>
+    <string name="connectivity_status_bar_connecting">Conectando</string>
+    <string name="connectivity_status_bar_waiting_for_network">Aguardando conexão</string>
+
     <!-- Connections -->
     <string name="connection_label_connect">Connect</string>
     <string name="connection_label_cancel_request">Cancel Request</string>

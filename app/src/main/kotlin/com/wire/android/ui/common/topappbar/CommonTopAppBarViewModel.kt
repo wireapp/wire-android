@@ -87,11 +87,9 @@ class CommonTopAppBarViewModel @Inject constructor(
 
     private fun connectivityFlow() = observeSyncState().map {
         when (it) {
-            is SyncState.Failed -> Connectivity.WAITING_CONNECTION
-            SyncState.GatheringPendingEvents -> Connectivity.CONNECTING
+            is SyncState.Failed, SyncState.Waiting -> Connectivity.WAITING_CONNECTION
+            SyncState.GatheringPendingEvents, SyncState.SlowSync -> Connectivity.CONNECTING
             SyncState.Live -> Connectivity.CONNECTED
-            SyncState.SlowSync -> Connectivity.WAITING_CONNECTION
-            SyncState.Waiting -> Connectivity.WAITING_CONNECTION
         }
     }
 

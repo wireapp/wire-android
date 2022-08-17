@@ -2,6 +2,7 @@ package com.wire.android.ui.calling
 
 import android.view.View
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -58,6 +59,9 @@ fun OngoingCallScreen(
             ::clearVideoPreview,
             ::navigateBack
         )
+        callState.isCameraOn?.let {
+            BackHandler(enabled = it) { navigateBack() }
+        }
     }
 }
 

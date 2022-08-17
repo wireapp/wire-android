@@ -2,7 +2,7 @@ package com.wire.android.ui.authentication.login
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.LocalOverscrollConfiguration
+import androidx.compose.foundation.gestures.LocalOverScrollConfiguration
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -103,7 +103,7 @@ private fun LoginContent(
         if (loginState.loginError is LoginError.DialogError.InvalidSession) {
             LoginErrorDialog(loginState.loginError, viewModel::onDialogDismiss)
         }
-        CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
+        CompositionLocalProvider(LocalOverScrollConfiguration provides null) {
             HorizontalPager(
                 state = pagerState,
                 count = LoginTabItem.values().size,

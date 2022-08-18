@@ -8,6 +8,7 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.Job
 
+@Suppress("TooManyFunctions")
 interface OtherUserProfileEventsHandler {
     fun onSendConnectionRequest()
     fun onOpenConversation()
@@ -36,6 +37,7 @@ interface OtherUserProfileEventsHandler {
     suspend fun showInfoMessage(type: InfoMessageType)
 
     companion object {
+        @Suppress("TooManyFunctions")
         val PREVIEW = object : OtherUserProfileEventsHandler {
             override fun onSendConnectionRequest() {}
             override fun onOpenConversation() {}

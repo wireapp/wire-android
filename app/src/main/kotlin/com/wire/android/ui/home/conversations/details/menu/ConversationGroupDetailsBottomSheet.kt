@@ -10,7 +10,8 @@ import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetContent
-import com.wire.android.ui.common.bottomsheet.RichMenuBottomSheetItem
+import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
+import com.wire.android.ui.common.bottomsheet.SelectableMenuBottomSheetItem
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.conversationColor
 import com.wire.android.ui.common.dimensions
@@ -25,15 +26,16 @@ fun ConversationGroupDetailsBottomSheet(
     closeBottomSheet: () -> Unit
 ) {
     MenuModalSheetContent(
-        headerTitle = conversationOptionsState.groupName,
-        headerIcon = {
-            GroupConversationAvatar(
-                color = colorsScheme().conversationColor(
-                    id =
-                    conversationOptionsState.conversationId
+        header = MenuModalSheetHeader.Visible(
+            title = conversationOptionsState.groupName,
+            leadingIcon = {
+                GroupConversationAvatar(
+                    color = colorsScheme().conversationColor(
+                        id =
+                        conversationOptionsState.conversationId
+                    )
                 )
-            )
-        },
+            }),
         menuItems = listOf {
             LeaveGroupItem(
                 onLeaveGroup = onLeaveGroup,
@@ -53,7 +55,7 @@ private fun LeaveGroupItem(
     onLeaveGroup: () -> Unit,
     closeBottomSheet: () -> Unit
 ) {
-    RichMenuBottomSheetItem(
+    SelectableMenuBottomSheetItem(
         title = stringResource(id = R.string.leave_group_conversation_menu_item),
         titleColor = MaterialTheme.colorScheme.error,
         icon = {
@@ -76,7 +78,7 @@ private fun DeleteGroupItem(
     onDeleteGroup: () -> Unit,
     closeBottomSheet: () -> Unit
 ) {
-    RichMenuBottomSheetItem(
+    SelectableMenuBottomSheetItem(
         title = stringResource(id = R.string.delete_group_conversation_menu_item),
         titleColor = MaterialTheme.colorScheme.error,
         icon = {

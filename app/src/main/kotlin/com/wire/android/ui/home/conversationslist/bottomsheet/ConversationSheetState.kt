@@ -58,7 +58,9 @@ fun rememberConversationSheetState(
             with(conversationItem) {
                 ConversationSheetContent(
                     conversationId = conversationId,
-                    title = conversationInfo.name,
+                    title = if (conversationInfo.unavailable) {
+                        stringResource(id = R.string.username_unavailable_label)
+                    } else conversationInfo.name,
                     mutingConversationState = mutedStatus,
                     conversationTypeDetail = ConversationTypeDetail.Private(
                         userAvatarData.asset,

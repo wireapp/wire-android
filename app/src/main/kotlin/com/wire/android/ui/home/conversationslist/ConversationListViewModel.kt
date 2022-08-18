@@ -13,6 +13,7 @@ import com.wire.android.model.PreservedState
 import com.wire.android.model.UserAvatarData
 import com.wire.android.model.toLoading
 import com.wire.android.navigation.NavigationCommand
+import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
@@ -67,6 +68,7 @@ class ConversationListViewModel @Inject constructor(
     private val blockUserUseCase: BlockUserUseCase,
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val userTypeMapper: UserTypeMapper,
+    private val leaveGroupConversation: RemoveMemberFromConversationUseCase
 ) : ViewModel() {
 
     var state by mutableStateOf(ConversationListState())
@@ -76,6 +78,7 @@ class ConversationListViewModel @Inject constructor(
             by mutableStateOf(null)
 
     val snackBarState = MutableSharedFlow<HomeSnackbarState>()
+    lateinit var selfUserId: UserId
 
     init {
         startObservingConversationsAndConnections()
@@ -85,6 +88,7 @@ class ConversationListViewModel @Inject constructor(
         observeConversationsAndConnections() // TODO AR-1736
             .combine(getSelf(), ::Pair)
             .collect { (list, selfUser) ->
+                selfUserId = selfUser.id
                 val detailedList = list.conversationList.toConversationsFoldersMap(selfUser.teamId)
                 val newActivities = emptyList<NewActivity>()
                 val missedCalls = mockMissedCalls // TODO: needs to be implemented
@@ -208,9 +212,8 @@ class ConversationListViewModel @Inject constructor(
         blockUserDialogState = PreservedState.State(BlockUserDialogState(name, id))
     }
 
-    // TODO: needs to be implemented
-    @Suppress("EmptyFunctionBlock")
-    fun leaveGroup(id: String = "") {
+    fun leaveGroup(conversationId: ConversationId) = viewModelScope.launch(dispatchers.io()) {
+        leaveGroupConversation(conversationId = conversationId, selfUserId)
     }
 
     private fun List<ConversationDetails>.toConversationItemList(teamId: TeamId?): List<ConversationItem> =

@@ -27,6 +27,7 @@ import com.wire.android.ui.home.conversationslist.model.BlockingState
 import com.wire.android.ui.home.conversationslist.model.getMutedStatusTextResource
 import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
 
@@ -38,7 +39,7 @@ internal fun ConversationMainSheetContent(
     moveConversationToArchive: () -> Unit,
     clearConversationContent: () -> Unit,
     blockUserClick: (UserId, String) -> Unit,
-    leaveGroup: () -> Unit,
+    leaveGroup: (ConversationId) -> Unit,
     navigateToNotification: () -> Unit
 ) {
     MenuModalSheetContent(
@@ -154,7 +155,9 @@ internal fun ConversationMainSheetContent(
                                 )
                             },
                             title = stringResource(R.string.label_leave_group),
-                            onItemClick = leaveGroup
+                            onItemClick = {
+                                leaveGroup(conversationSheetContent.conversationId)
+                            }
                         )
                     }
                 }

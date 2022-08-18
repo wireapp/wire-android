@@ -6,7 +6,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.ui.home.HomeState
-import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.feature.user.ObserveFileSharingStatusUseCase
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
@@ -15,12 +14,11 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class SyncStateViewModel @Inject constructor(
+class FeatureFlagNotificationViewModel @Inject constructor(
     private val observeSyncState: ObserveSyncStateUseCase,
     private val observeFileSharingStatusUseCase: ObserveFileSharingStatusUseCase
 ) : ViewModel() {
 
-    var syncState by mutableStateOf(SyncViewState.WAITING)
     var homeState by mutableStateOf(HomeState())
         private set
 
@@ -32,21 +30,8 @@ class SyncStateViewModel @Inject constructor(
 
     private suspend fun loadSync() {
         observeSyncState().collect { newState ->
-            syncState = when (newState) {
-                is SyncState.Failed -> {
-                    if (newState.cause is NetworkFailure.NoNetworkConnection) {
-                        SyncViewState.LACK_OF_CONNECTION
-                    } else {
-                        SyncViewState.UNKNOWN_FAILURE
-                    }
-                }
-                SyncState.GatheringPendingEvents -> SyncViewState.GATHERING_EVENTS
-                SyncState.Live -> {
-                    SyncViewState.LIVE.also { setFileSharingState() }
-                }
-
-                SyncState.SlowSync -> SyncViewState.SLOW_SYNC
-                SyncState.Waiting -> SyncViewState.WAITING
+            if (newState == SyncState.Live) {
+                setFileSharingState()
             }
         }
     }

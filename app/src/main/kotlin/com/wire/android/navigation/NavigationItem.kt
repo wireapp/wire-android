@@ -146,7 +146,13 @@ enum class NavigationItem(
 
     Home(
         primaryRoute = HOME,
-        content = { HomeScreen(hiltSavedStateViewModel(it.navBackStackEntry), hiltViewModel()) },
+        content = {
+            HomeScreen(
+                hiltSavedStateViewModel(it.navBackStackEntry),
+                hiltViewModel(),
+                hiltViewModel()
+            )
+        },
         animationConfig = NavigationAnimationConfig.DelegatedAnimation
     ),
 
@@ -212,7 +218,7 @@ enum class NavigationItem(
                         "{$EXTRA_CONVERSATION_ID}"
             }
         ),
-        content = { ConversationScreen(hiltSavedStateViewModel(it.navBackStackEntry)) },
+        content = { ConversationScreen(hiltSavedStateViewModel(it.navBackStackEntry), hiltViewModel()) },
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
             val conversationIdString: String = arguments.filterIsInstance<ConversationId>().firstOrNull()?.toString()
@@ -263,7 +269,8 @@ enum class NavigationItem(
         primaryRoute = ONGOING_CALL,
         canonicalRoute = "$ONGOING_CALL/{$EXTRA_CONVERSATION_ID}",
         content = { OngoingCallScreen() },
-        screenMode = ScreenMode.WAKE_UP
+        screenMode = ScreenMode.WAKE_UP,
+        animationConfig = NavigationAnimationConfig.CustomAnimation(null, shrinkOutFromView())
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String = routeWithConversationIdArg(arguments)
     },

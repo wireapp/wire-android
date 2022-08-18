@@ -2,7 +2,7 @@ const val appId = "com.wire.android"
 
 object AndroidSdk {
     const val min = 24
-    const val compile = 31
+    const val compile = 32
     const val target = compile
 }
 
@@ -20,7 +20,7 @@ object AndroidClient {
 
 object BuildPlugins {
     object Versions {
-        const val gradleVersion = "7.1.1"
+        const val gradleVersion = "7.5.1"
     }
 
     const val androidApplication = "com.android.application"

@@ -17,7 +17,7 @@ import com.wire.android.ui.theme.wireColorScheme
 fun WireSwitch(
     checked: Boolean,
     onCheckedChange: ((Boolean) -> Unit)?,
-    modifier: Modifier = Modifier.scale(scaleX = 1f, scaleY = 0.85f),
+    modifier: Modifier = Modifier,
     thumbContent: @Composable () -> Unit = { },
     enabled: Boolean = true,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },

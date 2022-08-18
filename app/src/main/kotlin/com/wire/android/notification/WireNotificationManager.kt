@@ -5,11 +5,11 @@ import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.extension.intervalFlow
+import com.wire.android.util.lifecycle.ConnectionPolicyManager
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.notification.LocalNotificationConversation
-import com.wire.kalium.logic.data.sync.ConnectionPolicy
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.Call
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
@@ -37,6 +37,7 @@ class WireNotificationManager @Inject constructor(
     private val currentScreenManager: CurrentScreenManager,
     private val messagesNotificationManager: MessageNotificationManager,
     private val callNotificationManager: CallNotificationManager,
+    private val connectionPolicyManager: ConnectionPolicyManager
 ) {
     /**
      * Sync all the Pending events, fetch Message notifications from DB once and show it.
@@ -45,15 +46,7 @@ class WireNotificationManager @Inject constructor(
      */
     suspend fun fetchAndShowNotificationsOnce(userIdValue: String) {
         checkIfUserIsAuthenticated(userId = userIdValue)?.let { userId ->
-            coreLogic.getSessionScope(userId).run {
-                // Force KEEP_ALIVE policy so we gather pending events
-                setConnectionPolicy(ConnectionPolicy.KEEP_ALIVE)
-                // Wait until the client is live and pending events are processed
-                syncManager.waitUntilLive()
-                // As the app is in the background when receiving PUSH notifications,
-                // we can downgrade the policy back
-                setConnectionPolicy(ConnectionPolicy.DISCONNECT_AFTER_PENDING_EVENTS)
-            }
+            connectionPolicyManager.handleConnectionOnPushNotification(userId)
             fetchAndShowMessageNotificationsOnce(userId)
             fetchAndShowCallNotificationsOnce(userId)
         }
@@ -106,10 +99,12 @@ class WireNotificationManager @Inject constructor(
                     }
                     null
                 }
+
                 is GetAllSessionsResult.Failure.Generic -> {
                     appLogger.e("get sessions failed ${it.genericFailure} ")
                     null
                 }
+
                 GetAllSessionsResult.Failure.NoSessionFound -> null
             }
         }

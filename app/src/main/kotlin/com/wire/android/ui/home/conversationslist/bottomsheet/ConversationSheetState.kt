@@ -1,4 +1,4 @@
-package com.wire.android.ui.home.conversationslist
+package com.wire.android.ui.home.conversationslist.bottomsheet
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -7,10 +7,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
-import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationOptionNavigation
-import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
-import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationTypeDetail
-import com.wire.android.ui.home.conversationslist.model.BlockingState
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
@@ -62,12 +58,14 @@ fun rememberConversationSheetState(
             with(conversationItem) {
                 ConversationSheetContent(
                     conversationId = conversationId,
-                    title = conversationInfo.name,
+                    title = if (conversationInfo.unavailable) {
+                        stringResource(id = R.string.username_unavailable_label)
+                    } else conversationInfo.name,
                     mutingConversationState = mutedStatus,
                     conversationTypeDetail = ConversationTypeDetail.Private(
                         userAvatarData.asset,
                         userId,
-                        blockingState == BlockingState.NOT_BLOCKED
+                        blockingState
                     )
                 )
             }

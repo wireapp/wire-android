@@ -14,10 +14,10 @@ class UIParticipantMapper @Inject constructor(
     private val wireSessionImageLoader: WireSessionImageLoader
 ) {
     fun toUIParticipant(user: User): UIParticipant = with(user) {
-        val (userType, connectionState) = when (this) {
-            is OtherUser -> this.userType to this.connectionStatus
-            // TODO(refactor): does self user need a type ?
-            is SelfUser -> UserType.INTERNAL to null
+        val (userType, connectionState, unavailable) = when (this) {
+            is OtherUser -> Triple(this.userType, this.connectionStatus, this.isUnavailableUser)
+            // TODO(refactor): does self user need a type ? to false
+            is SelfUser -> Triple(UserType.INTERNAL, null, false)
         }
         UIParticipant(
             id = id,
@@ -26,7 +26,8 @@ class UIParticipantMapper @Inject constructor(
             avatarData = avatar(wireSessionImageLoader, connectionState),
             isSelf = user is SelfUser,
             membership = userTypeMapper.toMembership(userType),
-            connectionState = connectionState
+            connectionState = connectionState,
+            unavailable = unavailable
         )
     }
 }

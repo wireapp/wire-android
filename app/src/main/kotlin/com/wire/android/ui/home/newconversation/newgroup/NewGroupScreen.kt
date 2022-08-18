@@ -23,6 +23,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
+import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.ShakeAnimation
@@ -120,7 +121,7 @@ fun NewGroupScreenContent(
                     }
 
                 }
-                if (mlsEnabled) {
+                if (mlsEnabled || BuildConfig.DEBUG) {
                     WireDropDown(
                         items =
                         ConversationOptions.Protocol.values().map { it.name },

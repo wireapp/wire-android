@@ -1,6 +1,7 @@
 package com.wire.android.ui.home.settings
 
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
 import androidx.compose.foundation.lazy.LazyListState
@@ -20,6 +21,7 @@ import com.wire.android.model.Clickable
 import com.wire.android.navigation.isExternalRoute
 import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.RowItemTemplate
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.folderWithElements
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
@@ -97,7 +99,8 @@ private fun SettingsItem(item: SettingsItem, clickable: Clickable) {
             Text(
                 style = MaterialTheme.wireTypography.body01,
                 color = MaterialTheme.wireColorScheme.onBackground,
-                text = item.title.asString()
+                text = item.title.asString(),
+                modifier = Modifier.padding(start = dimensions().spacing8x)
             )
         },
         actions = Icons.Filled.ChevronRight.Icon(),

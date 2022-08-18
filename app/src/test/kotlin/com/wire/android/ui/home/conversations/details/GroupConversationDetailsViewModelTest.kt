@@ -19,8 +19,11 @@ import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
+import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
+import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
+import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -370,6 +373,15 @@ internal class GroupConversationDetailsViewModelArrangement {
     lateinit var observeConversationDetails: ObserveConversationDetailsUseCase
 
     @MockK
+    lateinit var deleteTeamConversation: DeleteTeamConversationUseCase
+
+    @MockK
+    lateinit var removeMemberFromConversation: RemoveMemberFromConversationUseCase
+
+    @MockK
+    lateinit var observerSelfUser: GetSelfUserUseCase
+
+    @MockK
     lateinit var observeParticipantsForConversationUseCase: ObserveParticipantsForConversationUseCase
 
     @MockK
@@ -388,7 +400,11 @@ internal class GroupConversationDetailsViewModelArrangement {
     private val viewModel by lazy {
         GroupConversationDetailsViewModel(
             navigationManager = navigationManager,
+            dispatcher = TestDispatcherProvider(),
+            observerSelfUser = observerSelfUser,
             observeConversationDetails = observeConversationDetails,
+            deleteTeamConversation = deleteTeamConversation,
+            removeMemberFromConversation = removeMemberFromConversation,
             observeConversationMembers = observeParticipantsForConversationUseCase,
             updateConversationAccessRole = updateConversationAccessRoleUseCase,
             getSelfTeam = getSelfTeamUseCase,

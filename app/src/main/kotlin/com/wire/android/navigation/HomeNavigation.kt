@@ -13,6 +13,7 @@ import androidx.navigation.compose.composable
 import com.wire.android.R
 import com.wire.android.ui.home.HomeUIState
 import com.wire.android.ui.home.conversationslist.ConversationRouterHomeBridge
+import com.wire.android.ui.home.settings.SettingsScreen
 
 @OptIn(
     ExperimentalAnimationApi::class,
@@ -20,12 +21,12 @@ import com.wire.android.ui.home.conversationslist.ConversationRouterHomeBridge
     ExperimentalMaterial3Api::class
 )
 @Composable
-fun HomeNavigationGraph(homeUIState: HomeUIState, navController: NavHostController, startDestination: String?) {
+fun HomeNavigationGraph(homeUIState: HomeUIState, navController: NavHostController, startDestination: HomeNavigationItem) {
     NavHost(
         navController = navController,
-        startDestination = startDestination ?: HomeNavigationItem.Conversations.route
+        startDestination = startDestination.route
     ) {
-        HomeNavigationItem.all
+        HomeNavigationItem.values()
             .forEach { item ->
                 composable(
                     route = item.route,
@@ -78,7 +79,14 @@ enum class HomeNavigationItem(
                 )
             }
         }
+    ),
+
+    Settings(
+        route = HomeDestinationsRoutes.SETTINGS,
+        title = R.string.settings_screen_title,
+        content = { homeUIState -> { SettingsScreen(homeUIState.lazyListState) } }
     );
+
 // TODO: Re-enable once we have vault
 //    Vault(
 //        route = HomeDestinationsRoutes.vault,
@@ -92,16 +100,11 @@ enum class HomeNavigationItem(
 //        title = R.string.archive_screen_title,
 //        content = { { ArchiveScreen() } }
 //    );
-
-    companion object {
-        // TODO: Re-enable once we have Archive & Vault
-        // val all = listOf(Conversations, Archive, Vault)
-        val all = listOf(Conversations)
-    }
 }
 
 private object HomeDestinationsRoutes {
     const val conversations = "home_conversations"
     const val vault = "home_vault"
     const val archive = "home_archive"
+    const val SETTINGS = "home_settings"
 }

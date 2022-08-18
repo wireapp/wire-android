@@ -27,7 +27,9 @@ import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
+import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.search.AppTopBarWithSearchBar
 import com.wire.android.ui.home.sync.SyncStateViewModel
 
@@ -37,7 +39,7 @@ import com.wire.android.ui.home.sync.SyncStateViewModel
     ExperimentalMaterial3Api::class
 )
 @Composable
-fun HomeScreen(startScreen: String?, viewModel: HomeViewModel, syncViewModel: SyncStateViewModel) {
+fun HomeScreen(viewModel: HomeViewModel, syncViewModel: SyncStateViewModel) {
     viewModel.checkRequirements()
     val homeUIState = rememberHomeUIState()
     val coroutineScope = rememberCoroutineScope()
@@ -50,6 +52,10 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel, syncViewModel: Sy
         viewModel.checkPendingSnackbarState()?.let(homeUIState::setSnackBarState)
     }
 
+    val topItems = listOf(HomeNavigationItem.Conversations)
+    // TODO: Re-enable once we have Archive & Vault
+    // listOf(HomeNavigationItem.Conversations, HomeNavigationItem.Archive, HomeNavigationItem.Vault)
+
     with(homeUIState) {
         ModalDrawer(
             drawerBackgroundColor = MaterialTheme.colorScheme.surface,
@@ -61,7 +67,7 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel, syncViewModel: Sy
                     drawerState = drawerState,
                     currentRoute = currentNavigationItem.route,
                     homeNavController = navController,
-                    topItems = HomeNavigationItem.all,
+                    topItems = topItems,
                     scope = coroutineScope,
                     viewModel = viewModel
                 )
@@ -77,7 +83,11 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel, syncViewModel: Sy
                     HomeTopBar(
                         avatarAsset = viewModel.userAvatar.avatarAsset,
                         status = viewModel.userAvatar.status,
-                        currentNavigationItem = homeUIState.currentNavigationItem,
+                        title = stringResource(id = homeUIState.currentNavigationItem.title),
+                        elevation = when (currentNavigationItem.isSearchable) {
+                            true -> 0.dp
+                            false -> lazyListState.topBarElevation(dimensions().topBarElevationHeight)
+                        },
                         syncState = syncViewModel.syncState,
                         onOpenDrawerClicked = ::openDrawer,
                         onNavigateToUserProfile = viewModel::navigateToUserProfile,
@@ -86,8 +96,9 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel, syncViewModel: Sy
                 currentNavigationItem = homeUIState.currentNavigationItem,
                 homeNavigationGraph = {
                     HomeNavigationGraph(
-                        homeState = homeUIState,
-                        startScreen = startScreen
+                        homeUIState = homeUIState,
+                        navController = homeUIState.navController,
+                        startDestination = topItems[0]
                     )
                 }
             )
@@ -181,18 +192,6 @@ fun HomeContent(
             }
         }
     }
-}
-
-@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
-@Composable
-fun HomeNavigationGraph(startScreen: String?, homeState: HomeUIState) {
-    val startDestination = HomeNavigationItem.all.firstOrNull { startScreen == it.route }?.route
-
-    HomeNavigationGraph(
-        homeUIState = homeState,
-        navController = homeState.navController,
-        startDestination = startDestination
-    )
 }
 
 @Composable

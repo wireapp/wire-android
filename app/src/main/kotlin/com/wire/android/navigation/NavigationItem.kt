@@ -10,6 +10,8 @@ import androidx.navigation.navDeepLink
 import com.wire.android.BuildConfig
 import com.wire.android.model.ImageAsset
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.ADD_CONVERSATION_PARTICIPANTS
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.APP_SETTINGS
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.BACKUP_AND_RESTORE
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CONVERSATION
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_ACCOUNT_SUMMARY
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_ACCOUNT_USERNAME
@@ -30,7 +32,6 @@ import com.wire.android.navigation.NavigationItemDestinationsRoutes.OTHER_USER_P
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.REGISTER_DEVICE
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.REMOVE_DEVICES
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.SELF_USER_PROFILE
-import com.wire.android.navigation.NavigationItemDestinationsRoutes.SETTINGS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.WELCOME
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.authentication.create.personalaccount.CreatePersonalAccountScreen
@@ -54,7 +55,8 @@ import com.wire.android.ui.home.conversations.search.SearchPeoplePurpose
 import com.wire.android.ui.home.conversations.search.SearchPeopleRouter
 import com.wire.android.ui.home.gallery.MediaGalleryScreen
 import com.wire.android.ui.home.newconversation.NewConversationRouter
-import com.wire.android.ui.settings.SettingsScreen
+import com.wire.android.ui.home.settings.backup.BackupAndRestoreScreen
+import com.wire.android.ui.settings.AppSettingsScreen
 import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerScreen
 import com.wire.android.ui.userprofile.other.OtherUserProfileScreen
 import com.wire.android.ui.userprofile.self.SelfUserProfileScreen
@@ -144,18 +146,18 @@ enum class NavigationItem(
 
     Home(
         primaryRoute = HOME,
-        content = {
-            HomeScreen(
-                it.navBackStackEntry.arguments?.getString(EXTRA_HOME_TAB_ITEM),
-                hiltSavedStateViewModel(it.navBackStackEntry), hiltViewModel()
-            )
-        },
+        content = { HomeScreen(hiltSavedStateViewModel(it.navBackStackEntry), hiltViewModel()) },
         animationConfig = NavigationAnimationConfig.DelegatedAnimation
     ),
 
-    Settings(
-        primaryRoute = SETTINGS,
-        content = { SettingsScreen() },
+    AppSettings(
+        primaryRoute = APP_SETTINGS,
+        content = { AppSettingsScreen() },
+    ),
+
+    BackupAndRestore(
+        primaryRoute = BACKUP_AND_RESTORE,
+        content = { BackupAndRestoreScreen() }
     ),
 
     Debug(
@@ -355,7 +357,8 @@ object NavigationItemDestinationsRoutes {
     const val GROUP_CONVERSATION_DETAILS = "group_conversation_details_screen"
     const val GROUP_CONVERSATION_ALL_PARTICIPANTS = "group_conversation_all_participants_screen"
     const val ADD_CONVERSATION_PARTICIPANTS = "add_conversation_participants"
-    const val SETTINGS = "settings_screen"
+    const val APP_SETTINGS = "app_settings_screen"
+    const val BACKUP_AND_RESTORE = "backup_and_restore_screen"
     const val DEBUG = "debug_screen"
     const val REMOVE_DEVICES = "remove_devices_screen"
     const val REGISTER_DEVICE = "register_device_screen"
@@ -367,7 +370,6 @@ object NavigationItemDestinationsRoutes {
     const val MEDIA_GALLERY = "media_gallery"
 }
 
-private const val EXTRA_HOME_TAB_ITEM = "extra_home_tab_item"
 const val EXTRA_USER_ID = "extra_user_id"
 const val EXTRA_USER_DOMAIN = "extra_user_domain"
 

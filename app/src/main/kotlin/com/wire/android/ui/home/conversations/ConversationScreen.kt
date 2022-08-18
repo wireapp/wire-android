@@ -213,6 +213,7 @@ private fun ConversationScreen(
                                 },
                                 onBackButtonClick = onBackButtonClick,
                                 onDropDownClick = onDropDownClick,
+                                isDropDownEnabled = conversationViewState.conversationDetailsData !is ConversationDetailsData.None,
                                 onSearchButtonClick = { },
                                 onPhoneButtonClick = onStartCall,
                                 hasOngoingCall = hasOngoingCall,

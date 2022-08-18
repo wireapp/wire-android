@@ -36,6 +36,7 @@ fun ConversationScreenTopAppBar(
     avatar: @Composable () -> Unit = {},
     onBackButtonClick: () -> Unit,
     onDropDownClick: () -> Unit,
+    isDropDownEnabled: Boolean = false,
     onSearchButtonClick: () -> Unit,
     onPhoneButtonClick: () -> Unit,
     hasOngoingCall: Boolean,
@@ -48,7 +49,7 @@ fun ConversationScreenTopAppBar(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .clip(RoundedCornerShape(MaterialTheme.wireDimensions.buttonCornerSize))
-                    .clickable(onClick = onDropDownClick)
+                    .clickable(onClick = onDropDownClick, enabled = isDropDownEnabled)
 
             ) {
                 avatar()
@@ -60,10 +61,11 @@ fun ConversationScreenTopAppBar(
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(weight = 1f, fill = false)
                 )
-                Icon(
-                    painter = painterResource(id = R.drawable.ic_dropdown_icon),
-                    contentDescription = stringResource(R.string.content_description_drop_down_icon)
-                )
+                if (isDropDownEnabled)
+                    Icon(
+                        painter = painterResource(id = R.drawable.ic_dropdown_icon),
+                        contentDescription = stringResource(R.string.content_description_drop_down_icon)
+                    )
             }
         },
         navigationIcon = { BackNavigationIconButton(onBackButtonClick = onBackButtonClick) },
@@ -139,6 +141,7 @@ fun ConversationScreenTopAppBarLongTitlePreview() {
         { GroupConversationAvatar(color = Color.Green) },
         {},
         {},
+        true,
         {},
         {},
         false,
@@ -155,6 +158,7 @@ fun ConversationScreenTopAppBarShortTitlePreview() {
         { GroupConversationAvatar(color = Color.Blue) },
         {},
         {},
+        true,
         {},
         {},
         false,
@@ -171,6 +175,7 @@ fun ConversationScreenTopAppBarShortTitleWithOngoingCallPreview() {
         { GroupConversationAvatar(color = Color.Blue) },
         {},
         {},
+        true,
         {},
         {},
         true,

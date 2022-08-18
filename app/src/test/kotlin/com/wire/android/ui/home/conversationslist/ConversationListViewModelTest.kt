@@ -14,6 +14,7 @@ import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.ConversationLastEvent
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
@@ -64,6 +65,9 @@ class ConversationListViewModelTest {
     lateinit var blockUser: BlockUserUseCase
 
     @MockK
+    lateinit var leaveGroup: RemoveMemberFromConversationUseCase
+
+    @MockK
     private lateinit var wireSessionImageLoader: WireSessionImageLoader
 
     @BeforeEach
@@ -81,7 +85,8 @@ class ConversationListViewModelTest {
                 getSelf,
                 blockUser,
                 wireSessionImageLoader,
-                UserTypeMapper()
+                UserTypeMapper(),
+                leaveGroup
             )
 
         coEvery { observeConversationsAndConnections() } returns flowOf(ConversationListDetails(listOf(), 0L, 0L, 0L))

@@ -1,6 +1,9 @@
+@file:Suppress("TooManyFunctions")
+
 package com.wire.android.ui.home.conversations.details.options
 
 import androidx.annotation.StringRes
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
@@ -13,6 +16,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.WireDialog
@@ -21,6 +25,8 @@ import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsViewModel
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.conversation.Conversation
 
 @Composable
 fun GroupConversationOptions(
@@ -76,6 +82,45 @@ fun GroupConversationSettings(
                 )
             }
         }
+        item {
+            ConversationProtocolDetails(
+                protocolInfo = state.protocolInfo
+            )
+        }
+    }
+}
+
+@Composable
+fun ConversationProtocolDetails(
+    protocolInfo: Conversation.ProtocolInfo
+) {
+    Column {
+        FolderHeader(name = stringResource(R.string.folder_lable_protocol_details))
+
+        ProtocolDetails(
+            label = UIText.StringResource(R.string.protocol),
+            text = UIText.DynamicString(protocolInfo.name())
+        )
+
+        if (protocolInfo is Conversation.ProtocolInfo.MLS) {
+            ProtocolDetails(
+                label = UIText.StringResource(R.string.cipher_suite),
+                text = UIText.DynamicString(protocolInfo.cipherSuite.name)
+            )
+
+            if (BuildConfig.DEBUG) {
+                ProtocolDetails(
+                    label = UIText.StringResource(R.string.last_key_material_update_label),
+                    text = UIText.DynamicString(protocolInfo.keyingMaterialLastUpdate.toString())
+                )
+
+                ProtocolDetails(
+                    label = UIText.StringResource(R.string.group_state_label),
+                    text = UIText.DynamicString(protocolInfo.groupState.name)
+                )
+
+            }
+        }
     }
 }
 
@@ -89,6 +134,15 @@ private fun GroupNameItem(groupName: String, canBeChanged: Boolean) {
     Divider(color = MaterialTheme.wireColorScheme.divider, thickness = Dp.Hairline)
 }
 
+@Composable
+private fun ProtocolDetails(label: UIText, text: UIText) {
+    GroupConversationOptionsItem(
+        label = label.asString(),
+        title = text.asString(),
+        arrowType = ArrowType.NONE
+    )
+    Divider(color = MaterialTheme.wireColorScheme.divider, thickness = Dp.Hairline)
+}
 
 @Composable
 private fun GuestOption(
@@ -216,7 +270,8 @@ private fun MemberTeamGroupConversationOptionsPreview() {
             isGuestAllowed = true,
             isServicesAllowed = true,
             isUpdatingGuestAllowed = false
-        ), {}, {}
+        ),
+        {}, {}
     )
 }
 
@@ -227,7 +282,8 @@ private fun NormalGroupConversationOptionsPreview() {
         GroupConversationOptionsState(
             groupName = "Normal Group Conversation",
             areAccessOptionsAvailable = false
-        ), {}, {}
+        ),
+        {}, {}
     )
 }
 
@@ -236,4 +292,3 @@ private fun NormalGroupConversationOptionsPreview() {
 private fun DisableGuestConformationDialogPreview() {
     DisableGuestConfirmationDialog({}, {})
 }
-

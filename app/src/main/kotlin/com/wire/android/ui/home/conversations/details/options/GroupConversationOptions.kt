@@ -37,11 +37,19 @@ fun GroupConversationOptions(
         onServiceSwitchClicked = viewModel::onServicesUpdate,
         lazyListState = lazyListState
     )
-    if (viewModel.groupOptionsState.changeGuestOptionConfirmationRequired)
+    if (viewModel.groupOptionsState.changeGuestOptionConfirmationRequired) {
         DisableGuestConfirmationDialog(
             onConfirm = viewModel::onGuestDialogConfirm,
             onDialogDismiss = viewModel::onGuestDialogDismiss
         )
+    }
+
+    if (viewModel.groupOptionsState.changeServiceOptionConfirmationRequired){
+        DisableServicesConfirmationDialog(
+            onConfirm = viewModel::onServiceDialogConfirm,
+            onDialogDismiss = viewModel::onServiceDialogDismiss
+        )
+    }
 }
 
 @Composable
@@ -160,12 +168,32 @@ private fun GroupOptionWithSwitch(
 
 @Composable
 private fun DisableGuestConfirmationDialog(onConfirm: () -> Unit, onDialogDismiss: () -> Unit) {
-    WireDialog(
-        title = stringResource(id = R.string.disable_guest_dialog_title),
-        text = stringResource(id = R.string.disable_guest_dialog_text),
+    DisableConformationDialog(
+        text = R.string.disable_guest_dialog_text,
+        title = R.string.disable_guest_dialog_title,
+        onConfirm = onConfirm,
+        onDismiss = onDialogDismiss
+    )
+}
+
+@Composable
+private fun DisableServicesConfirmationDialog(onConfirm: () -> Unit, onDialogDismiss: () -> Unit) {
+    DisableConformationDialog(
+        title = R.string.disable_services_dialog_title,
+        text = R.string.disable_services_dialog_text,
         onDismiss = onDialogDismiss,
+        onConfirm = onConfirm
+    )
+}
+
+@Composable
+private fun DisableConformationDialog(@StringRes title: Int, @StringRes text: Int, onConfirm: () -> Unit, onDismiss: () -> Unit) {
+    WireDialog(
+        title = stringResource(id = title),
+        text = stringResource(id = text),
+        onDismiss = onDismiss,
         optionButton1Properties = WireDialogButtonProperties(
-            onClick = onDialogDismiss,
+            onClick = onDismiss,
             text = stringResource(id = R.string.label_cancel),
             type = WireDialogButtonType.Secondary,
         ),

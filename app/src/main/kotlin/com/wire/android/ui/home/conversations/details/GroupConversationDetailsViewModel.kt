@@ -91,13 +91,16 @@ class GroupConversationDetailsViewModel @Inject constructor(
         groupOptionsState = groupOptionsState.copy(loadingGuestOption = true, isGuestAllowed = enableGuestAndNonTeamMember)
         when (enableGuestAndNonTeamMember) {
             true -> updateGuestRemoteRequest(enableGuestAndNonTeamMember)
-            false -> showGuestConformationDialog()
+            false -> updateState(groupOptionsState.copy(changeGuestOptionConfirmationRequired = true))
         }
     }
 
     fun onServicesUpdate(enableServices: Boolean) {
         updateState(groupOptionsState.copy(loadingServicesOption = true, isServicesAllowed = enableServices))
-        updateServicesRemoteRequest(enableServices)
+        when(enableServices) {
+            true -> updateServicesRemoteRequest(enableServices)
+            false -> updateState(groupOptionsState.copy(changeServiceOptionConfirmationRequired = true))
+        }
     }
 
     fun onGuestDialogDismiss() {
@@ -113,6 +116,21 @@ class GroupConversationDetailsViewModel @Inject constructor(
     fun onGuestDialogConfirm() {
         updateState(groupOptionsState.copy(changeGuestOptionConfirmationRequired = false, loadingGuestOption = true))
         updateGuestRemoteRequest(false)
+    }
+
+    fun onServiceDialogDismiss() {
+        updateState(
+            groupOptionsState.copy(
+                loadingServicesOption = false,
+                changeServiceOptionConfirmationRequired = false,
+                isServicesAllowed = !groupOptionsState.isServicesAllowed
+            )
+        )
+    }
+
+    fun onServiceDialogConfirm() {
+        updateState(groupOptionsState.copy(changeServiceOptionConfirmationRequired = false, loadingServicesOption = true))
+        updateServicesRemoteRequest(false)
     }
 
     private fun updateGuestRemoteRequest(enableGuestAndNonTeamMember: Boolean) {
@@ -170,8 +188,6 @@ class GroupConversationDetailsViewModel @Inject constructor(
     private fun updateState(newState: GroupConversationOptionsState) {
         groupOptionsState = newState
     }
-
-    private fun showGuestConformationDialog() = updateState(groupOptionsState.copy(changeGuestOptionConfirmationRequired = true))
 
     fun navigateToFullParticipantsList() = viewModelScope.launch {
         navigationManager.navigate(

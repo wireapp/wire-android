@@ -41,6 +41,7 @@ import com.wire.kalium.logic.StorageFailure
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
+import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.FAILED
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.IN_PROGRESS
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.SAVED_EXTERNALLY
@@ -148,26 +149,26 @@ class ConversationViewModel @Inject constructor(
 
                 if (uiMessages != null && (conversationDetailsResult != null && conversationDetailsResult is Success)) {
                     updateMessagesList(uiMessages)
+
                     when (val details = conversationDetailsResult.conversationDetails) {
+                        // TODO: think about lastUnreadMessage being a "common" field of ConversationDetails
                         is ConversationDetails.OneOne -> {
-                            val lastUnreadMessage = details.lastUnreadMessage
-                            if (lastUnreadMessage != null) {
-                                uiMessages.firstOrNull { it.messageHeader.messageId == lastUnreadMessage.id }?.let {
-                                    conversationViewState = conversationViewState.copy(lastUnreadMessage = it)
-                                }
-                            }
+                            extractLastUnreadMessage(details.lastUnreadMessage,uiMessages)
                         }
                         is ConversationDetails.Group -> {
-                            val lastUnreadMessage = details.lastUnreadMessage
-                            if (lastUnreadMessage != null) {
-                                uiMessages.firstOrNull { it.messageHeader.messageId == lastUnreadMessage.id }?.let {
-                                    conversationViewState = conversationViewState.copy(lastUnreadMessage = it)
-                                }
-                            }
+                            extractLastUnreadMessage(details.lastUnreadMessage, uiMessages)
                         }
                         else -> ConversationAvatar.None
                     }
                 }
+            }
+        }
+    }
+
+    private fun extractLastUnreadMessage(lastUnreadMessage: Message?, uiMessages: List<UIMessage>) {
+        if (lastUnreadMessage != null) {
+            uiMessages.firstOrNull { it.messageHeader.messageId == lastUnreadMessage.id }?.let {
+                conversationViewState = conversationViewState.copy(lastUnreadMessage = it)
             }
         }
     }

@@ -1,3 +1,5 @@
+@file:Suppress("TooManyFunctions")
+
 package com.wire.android.ui.home.conversations.details.options
 
 import androidx.annotation.StringRes

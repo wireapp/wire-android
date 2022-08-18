@@ -1,5 +1,6 @@
 package com.wire.android.ui.home.conversations
 
+import android.webkit.MimeTypeMap
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -266,7 +267,8 @@ class ConversationViewModel @Inject constructor(
                                     assetWidth = imgWidth,
                                     assetHeight = imgHeight,
                                     assetDataSize = dataSize,
-                                    assetMimeType = mimeType
+                                    assetMimeType = mimeType,
+                                    extension = MimeTypeMap.getFileExtensionFromUrl(fileName)
                                 )
                                 if (result is SendAssetMessageResult.Failure) {
                                     onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingImage)
@@ -289,7 +291,8 @@ class ConversationViewModel @Inject constructor(
                                         assetMimeType = mimeType,
                                         assetDataSize = dataSize,
                                         assetHeight = null,
-                                        assetWidth = null
+                                        assetWidth = null,
+                                        extension = MimeTypeMap.getFileExtensionFromUrl(fileName)
                                     )
                                     if (result is SendAssetMessageResult.Failure) {
                                         onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingAsset)

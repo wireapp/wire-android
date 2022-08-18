@@ -247,7 +247,8 @@ private fun ConversationDetails.toType(
             ),
             conversationInfo = ConversationInfo(
                 name = otherUser.name.orEmpty(),
-                membership = userTypeMapper.toMembership(userType)
+                membership = userTypeMapper.toMembership(userType),
+                unavailable = otherUser.isUnavailableUser
             ),
             conversationId = conversation.id,
             mutedStatus = conversation.mutedStatus,

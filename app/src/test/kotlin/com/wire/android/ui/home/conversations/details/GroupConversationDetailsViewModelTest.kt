@@ -235,6 +235,33 @@ class GroupConversationDetailsViewModelTest {
     }
 
     @Test
+    fun `when disabling Services , then the dialog must state must be updated`() = runTest {
+        // Given
+        val members = buildList {
+            for (i in 1..5) {
+                add(testUIParticipant(i))
+            }
+        }
+        val conversationParticipantsData = ConversationParticipantsData(
+            participants = members.take(GroupConversationDetailsViewModel.MAX_NUMBER_OF_PARTICIPANTS),
+            allParticipantsCount = members.size
+        )
+
+        val details = testGroup
+
+        val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
+            .withSavedStateConversationId(details.conversation.id)
+            .withUpdateConversationAccessUseCaseReturns(
+                UpdateConversationAccessRoleUseCase.Result.Success
+            ).withConversationDetailUpdate(details)
+            .withConversationMembersUpdate(conversationParticipantsData)
+            .arrange()
+
+        viewModel.onServicesUpdate(false)
+        assertEquals(true, viewModel.groupOptionsState.changeServiceOptionConfirmationRequired)
+    }
+
+    @Test
     fun `when enabling Services, use case is called with the correct values`() = runTest {
         // Given
         val members = buildList {
@@ -269,7 +296,7 @@ class GroupConversationDetailsViewModelTest {
     }
 
     @Test
-    fun `when disabling Services, use case is called with the correct values`() = runTest {
+    fun `when disable Service guest dialog conferment, then use case is called with the correct values`() = runTest {
         // Given
         val members = buildList {
             for (i in 1..5) {
@@ -281,7 +308,7 @@ class GroupConversationDetailsViewModelTest {
             allParticipantsCount = members.size
         )
 
-        val details = testGroup.copy(testGroup.conversation.copy(id = ConversationId("some-dummy-value", "some.dummy.domain")))
+        val details = testGroup
 
         val (arrangement, viewModel) = GroupConversationDetailsViewModelArrangement()
             .withSavedStateConversationId(details.conversation.id)
@@ -291,7 +318,8 @@ class GroupConversationDetailsViewModelTest {
             .withConversationMembersUpdate(conversationParticipantsData)
             .arrange()
 
-        viewModel.onServicesUpdate(false)
+        viewModel.onServiceDialogConfirm()
+        assertEquals(false, viewModel.groupOptionsState.changeServiceOptionConfirmationRequired)
         coVerify(exactly = 1) {
             arrangement.updateConversationAccessRoleUseCase(
                 conversationId = details.conversation.id,

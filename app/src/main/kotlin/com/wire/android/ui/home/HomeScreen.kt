@@ -216,11 +216,13 @@ private fun handleSnackBarMessage(
         val message = when (messageType) {
             is HomeSnackbarState.SuccessConnectionIgnoreRequest ->
                 stringResource(id = R.string.connection_request_ignored, messageType.userName)
-            is HomeSnackbarState.BlockingUserOperationSuccess -> stringResource(id = R.string.blocking_user_success, messageType.userName)
+            is HomeSnackbarState.BlockingUserOperationSuccess ->
+                stringResource(id = R.string.blocking_user_success, messageType.userName)
             HomeSnackbarState.MutingOperationError -> stringResource(id = R.string.error_updating_muting_setting)
             HomeSnackbarState.BlockingUserOperationError -> stringResource(id = R.string.error_blocking_user)
             HomeSnackbarState.None -> ""
-            is HomeSnackbarState.DeletedConversationGroupSuccess -> stringResource(id = R.string.conversation_group_removed_success, messageType.groupName)
+            is HomeSnackbarState.DeletedConversationGroupSuccess ->
+                stringResource(id = R.string.conversation_group_removed_success, messageType.groupName)
             HomeSnackbarState.LeftConversationSuccess -> stringResource(id = R.string.left_conversation_group_success)
         }
         LaunchedEffect(messageType) {

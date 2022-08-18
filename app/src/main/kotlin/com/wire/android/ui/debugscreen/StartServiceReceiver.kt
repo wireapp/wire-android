@@ -5,29 +5,35 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import com.wire.android.di.NoSession
+import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
 class StartServiceReceiver : BroadcastReceiver() {
-    private val job = SupervisorJob()
-    private val scope = CoroutineScope(Dispatchers.IO + job)
+    @Inject
+    lateinit var dispatcherProvider: DispatcherProvider
+
+    private val scope by lazy {
+        CoroutineScope(SupervisorJob() + dispatcherProvider.io())
+    }
 
     @Inject
     @NoSession
     lateinit var observePersistentWebSocketConnectionStatus: ObservePersistentWebSocketConnectionStatusUseCase
 
     override fun onReceive(context: Context?, intent: Intent?) {
-        val persistentWebSocketServiceIntent = Intent(context, PersistentWebSocketService::class.java)
+        val persistentWebSocketServiceIntent =
+            Intent(context, PersistentWebSocketService::class.java)
         scope.launch {
             observePersistentWebSocketConnectionStatus().collect {
                 if (!it) {
-                    persistentWebSocketServiceIntent.action = PersistentWebSocketService.ACTION_STOP_FOREGROUND
+                    persistentWebSocketServiceIntent.action =
+                        PersistentWebSocketService.ACTION_STOP_FOREGROUND
                 }
                 if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                     context?.startForegroundService(persistentWebSocketServiceIntent)

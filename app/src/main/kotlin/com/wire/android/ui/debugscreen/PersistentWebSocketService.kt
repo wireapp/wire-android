@@ -19,6 +19,7 @@ import com.wire.android.notification.NotificationConstants.WEB_SOCKET_CHANNEL_ID
 import com.wire.android.notification.NotificationConstants.WEB_SOCKET_CHANNEL_NAME
 import com.wire.android.notification.WireNotificationManager
 import com.wire.android.notification.openAppPendingIntent
+import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.sync.ConnectionPolicy
@@ -27,9 +28,9 @@ import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.functional.fold
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
@@ -45,8 +46,12 @@ class PersistentWebSocketService : Service() {
     @KaliumCoreLogic
     lateinit var coreLogic: CoreLogic
 
-    private val job = SupervisorJob()
-    private val scope = CoroutineScope(Dispatchers.IO + job)
+    @Inject
+    lateinit var dispatcherProvider: DispatcherProvider
+
+    private val scope by lazy {
+        CoroutineScope(SupervisorJob() + dispatcherProvider.io())
+    }
 
     @OptIn(ExperimentalCoroutinesApi::class)
     @Inject
@@ -62,7 +67,6 @@ class PersistentWebSocketService : Service() {
     override fun onBind(intent: Intent?): IBinder? {
         return null
     }
-
 
     @OptIn(ExperimentalCoroutinesApi::class)
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
@@ -85,7 +89,7 @@ class PersistentWebSocketService : Service() {
                     else null
                 }
                 .distinctUntilChanged()
-                .flowOn(Dispatchers.IO)
+                .flowOn(dispatcherProvider.io())
                 .shareIn(scope, SharingStarted.WhileSubscribed(), 1)
 
 
@@ -129,7 +133,7 @@ class PersistentWebSocketService : Service() {
 
     override fun onDestroy() {
         super.onDestroy()
-        job.cancel()
+        scope.cancel("PersistentWebSocketService was destroyed")
     }
 
     companion object {

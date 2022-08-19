@@ -126,8 +126,7 @@ fun ConversationScreen(
         onDropDownClick = conversationViewModel::navigateToDetails,
         tempCachePath = conversationViewModel.provideTempCachePath(),
         onOpenProfile = conversationViewModel::navigateToProfile,
-        onUpdateConversationReadDate = conversationViewModel::updateConversationReadDate
-        onOpenProfile = conversationViewModel::navigateToProfile,
+        onUpdateConversationReadDate = conversationViewModel::updateConversationReadDate,
         commonTopAppBarViewModel = commonTopAppBarViewModel
     )
 
@@ -168,6 +167,7 @@ private fun ConversationScreen(
     onDropDownClick: () -> Unit,
     tempCachePath: Path,
     onOpenProfile: (MessageSource, UserId) -> Unit,
+    onUpdateConversationReadDate: (String) -> Unit,
     commonTopAppBarViewModel: CommonTopAppBarBaseViewModel
 ) {
     val conversationScreenState = rememberConversationScreenState()
@@ -435,8 +435,7 @@ fun ConversationScreenPreview() {
         onDropDownClick = {},
         tempCachePath = "".toPath(),
         onOpenProfile = { _, _ -> },
-        onUpdateConversationReadDate = {}
-        onOpenProfile = { _, _ -> },
+        onUpdateConversationReadDate = {},
         commonTopAppBarViewModel = object: CommonTopAppBarBaseViewModel() { }
     )
 }

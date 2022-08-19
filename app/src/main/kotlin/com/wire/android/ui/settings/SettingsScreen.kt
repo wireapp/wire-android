@@ -65,6 +65,10 @@ fun SettingsScreen(settingsViewModel: SettingsViewModel = hiltViewModel()) {
 @Composable
 fun SettingsItem(text: String, onClick: () -> Unit) {
     RowItemTemplate(
+        modifier = Modifier.padding(
+            start = dimensions().spacing12x,
+            end = dimensions().spacing12x
+        ),
         title = {
             Text(
                 style = MaterialTheme.wireTypography.body01,
@@ -81,7 +85,6 @@ fun SettingsItem(text: String, onClick: () -> Unit) {
             Box(
                 modifier = Modifier
                     .wrapContentWidth()
-                    .padding(dimensions().spacing16x)
             ) {
                 ArrowRightIcon(Modifier.align(Alignment.TopEnd))
             }

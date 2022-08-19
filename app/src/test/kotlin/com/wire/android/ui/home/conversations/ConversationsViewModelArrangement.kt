@@ -268,7 +268,8 @@ internal fun withMockConversationDetailsOneOnOne(
     connectionState = ConnectionState.PENDING,
     legalHoldStatus = LegalHoldStatus.DISABLED,
     userType = UserType.INTERNAL,
-    unreadMessagesCount = 0L
+    unreadMessagesCount = 0L,
+    lastUnreadMessage = null
 )
 
 internal fun mockConversationDetailsGroup(conversationName: String) = ConversationDetails.Group(
@@ -278,7 +279,8 @@ internal fun mockConversationDetailsGroup(conversationName: String) = Conversati
     },
     legalHoldStatus = mockk(),
     hasOngoingCall = false,
-    unreadMessagesCount = 0
+    unreadMessagesCount = 0,
+    lastUnreadMessage = null
 )
 
 internal fun mockUITextMessage(userName: String = "mockUserName"): UIMessage {

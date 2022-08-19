@@ -638,8 +638,7 @@ class UseCaseModule {
     fun provideUpdateConversationMemberRoleUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ): UpdateConversationMemberRoleUseCase =
-        coreLogic.getSessionScope(currentAccount).conversations.updateConversationMemberRole
+    ): UpdateConversationMemberRoleUseCase = coreLogic.getSessionScope(currentAccount).conversations.updateConversationMemberRole
 
     @ViewModelScoped
     @Provides

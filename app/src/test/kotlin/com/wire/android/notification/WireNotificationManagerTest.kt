@@ -21,6 +21,8 @@ import com.wire.kalium.logic.feature.call.Call
 import com.wire.kalium.logic.feature.call.CallStatus
 import com.wire.kalium.logic.feature.call.CallsScope
 import com.wire.kalium.logic.feature.call.usecase.GetIncomingCallsUseCase
+import com.wire.kalium.logic.feature.connection.MarkConnectionRequestAsNotifiedUseCase
+import com.wire.kalium.logic.feature.conversation.ConversationScope
 import com.wire.kalium.logic.feature.message.GetNotificationsUseCase
 import com.wire.kalium.logic.feature.message.MarkMessagesAsNotifiedUseCase
 import com.wire.kalium.logic.feature.message.MessageScope
@@ -68,7 +70,7 @@ class WireNotificationManagerTest {
 
         verify(atLeast = 1) { arrangement.coreLogic.getSessionScope(any()) }
         coVerify(exactly = 1) { arrangement.connectionPolicyManager.handleConnectionOnPushNotification(TEST_AUTH_SESSION.session.userId) }
-        verify(exactly = 1) { arrangement.messageNotificationManager.handleNotification(listOf(), any()) }
+        verify(exactly = 0) { arrangement.messageNotificationManager.handleNotification(listOf(), any()) }
         verify(exactly = 1) { arrangement.callNotificationManager.handleNotifications(listOf(), any()) }
     }
 
@@ -141,7 +143,7 @@ class WireNotificationManagerTest {
         runCurrent()
 
         verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
-        verify(exactly = 1) { arrangement.messageNotificationManager.handleNotification(listOf(), any()) }
+        verify(exactly = 0) { arrangement.messageNotificationManager.handleNotification(listOf(), any()) }
         verify(exactly = 1) { arrangement.callNotificationManager.hideCallNotification() }
     }
 
@@ -160,7 +162,7 @@ class WireNotificationManagerTest {
     }
 
     @Test
-    fun givenSomeNotificationsAndCurrentScreenIsConversation_whenObserveCalled_thenCallNotificationShowed() =
+    fun givenSomeNotificationsAndCurrentScreenIsConversation_whenObserveCalled_thenNotificationIsNotShowed() =
         runTestWithCancellation {
             val conversationId = ConversationId("conversation_value", "conversation_domain")
             val (arrangement, manager) = Arrangement()
@@ -180,11 +182,11 @@ class WireNotificationManagerTest {
             runCurrent()
 
             verify(exactly = 1) { arrangement.messageNotificationManager.handleNotification(listOf(), any()) }
-            coVerify(atLeast = 2) { arrangement.markMessagesAsNotified(conversationId, any()) }
+            coVerify(atLeast = 1) { arrangement.markMessagesAsNotified(conversationId, any()) }
         }
 
     @Test
-    fun givenCurrentScreenIsConversation_whenObserveCalled_thenConversationNotificationDateUpdated() =
+    fun givenCurrentScreenIsConversation_whenObserveCalled_thenNotificationForThatConversationIsHidden() =
         runTestWithCancellation {
             val conversationId = ConversationId("conversation_value", "conversation_domain")
             val (arrangement, manager) = Arrangement()
@@ -196,7 +198,7 @@ class WireNotificationManagerTest {
             manager.observeNotificationsAndCalls(flowOf(provideUserId()), this) {}
             runCurrent()
 
-            coVerify(atLeast = 1) { arrangement.markMessagesAsNotified(conversationId, any()) }
+            coVerify(atLeast = 1) { arrangement.messageNotificationManager.hideNotification(conversationId) }
         }
 
     @Test
@@ -237,6 +239,9 @@ class WireNotificationManagerTest {
         lateinit var callsScope: CallsScope
 
         @MockK
+        lateinit var conversationScope: ConversationScope
+
+        @MockK
         lateinit var syncManager: SyncManager
 
         @MockK
@@ -253,6 +258,9 @@ class WireNotificationManagerTest {
 
         @MockK
         lateinit var markMessagesAsNotified: MarkMessagesAsNotifiedUseCase
+
+        @MockK
+        lateinit var markConnectionRequestAsNotified: MarkConnectionRequestAsNotifiedUseCase
 
         @MockK
         lateinit var getIncomingCallsUseCase: GetIncomingCallsUseCase
@@ -277,6 +285,9 @@ class WireNotificationManagerTest {
             coEvery { userSessionScope.calls } returns callsScope
             coEvery { userSessionScope.messages } returns messageScope
             coEvery { userSessionScope.syncManager } returns syncManager
+            coEvery { userSessionScope.conversations } returns conversationScope
+            coEvery { conversationScope.markConnectionRequestAsNotified } returns markConnectionRequestAsNotified
+            coEvery { markConnectionRequestAsNotified(any()) } returns Unit
             coEvery { syncManager.waitUntilLive() } returns Unit
             coEvery { globalKaliumScope.getSessions } returns getSessionsUseCase
             coEvery { coreLogic.getSessionScope(any()) } returns userSessionScope

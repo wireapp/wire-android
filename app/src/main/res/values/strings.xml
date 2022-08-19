@@ -185,6 +185,7 @@
     </string>
     <string name="remove_device_label">YOUR DEVICES</string>
     <string name="remove_device_id_and_time_label">ID: %1$s\nAdded: %2$s</string>
+    <string name="remove_device_id_label">ID: %1$s</string>
     <string name="remove_device_dialog_title">Remove the following device?</string>
     <string name="remove_device_invalid_password">Invalid password</string>
 
@@ -331,6 +332,7 @@
     <string name="user_profile_status_none">None</string>
     <string name="user_profile_new_account_text">New Team or Account</string>
     <string name="user_profile_details_tab">Details</string>
+    <string name="user_profile_devices_tab">Devices</string>
     <string name="user_profile_group_tab">Group</string>
     <string name="user_profile_group_member">Member of the group ”%s”</string>
     <string name="user_profile_group_role">ROLE</string>
@@ -550,5 +552,7 @@
     <string name="block_user_dialog_title">Block user?</string>
     <string name="block_user_dialog_body">%1$s won’t be able to contact you or add you to group conversations. You will lose access to any 1:1 conversations with them. The other user will not be notified about this.</string>
     <string name="block_user_dialog_confirm_button">Block</string>
+    <string name="other_user_devices_decription"><![CDATA[\Wire gives every device a unique fingerprint. Compare them with <other users username> and verify your conversation. \]]></string>
+    <string name="url_why_verify_conversation">/hc/en-us/articles/207859815-Why-should-I-verify-my-conversations</string>
 
 </resources>

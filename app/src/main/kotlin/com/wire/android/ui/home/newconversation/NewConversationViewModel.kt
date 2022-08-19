@@ -29,12 +29,11 @@ import com.wire.kalium.logic.feature.publicuser.search.Result
 import com.wire.kalium.logic.feature.publicuser.search.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchUsersUseCase
 import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
-import com.wire.kalium.logic.functional.Either
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-@Suppress("LongParameterList","TooManyFunctions")
+@Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel
 class NewConversationViewModel @Inject constructor(
     private val getAllKnownUsers: GetAllContactsUseCase,
@@ -194,12 +193,12 @@ class NewConversationViewModel @Inject constructor(
     }
 
     fun createGroup(shouldCheckGuests: Boolean = true) {
-        if (shouldCheckGuests && checkIfGuestAdded())
-            return
+        if (shouldCheckGuests && checkIfGuestAdded()) return
+
         viewModelScope.launch {
             groupNameState = groupNameState.copy(isLoading = true)
 
-            when (val result = createGroupConversation(
+            val result = createGroupConversation(
                 name = groupNameState.groupName.text,
                 // TODO: change the id in Contact to UserId instead of String
                 userIdList = state.contactsAddedToGroup.map { contact -> UserId(contact.id, contact.domain) },
@@ -209,20 +208,20 @@ class NewConversationViewModel @Inject constructor(
                     accessRole = groupOptionsState.accessRoleState
                 )
             )
-            ) {
-                // TODO: handle the error state
-                is Either.Left -> {
-                    groupNameState = groupNameState.copy(isLoading = false)
-                    Log.d("TEST", "error while creating a group ${result.value}")
-                }
-                is Either.Right -> {
+
+            when (result) {
+                is CreateGroupConversationUseCase.Result.Success -> {
                     groupNameState = groupNameState.copy(isLoading = false)
                     navigationManager.navigate(
                         command = NavigationCommand(
-                            destination = NavigationItem.Conversation.getRouteWithArgs(listOf(result.value.id)),
+                            destination = NavigationItem.Conversation.getRouteWithArgs(listOf(result.conversation.id)),
                             backStackMode = BackStackMode.REMOVE_CURRENT
                         )
                     )
+                }
+                CreateGroupConversationUseCase.Result.SyncFailure, is CreateGroupConversationUseCase.Result.UnknownFailure -> {
+                    groupNameState = groupNameState.copy(isLoading = false)
+                    Log.d("TEST", "error while creating a group $result")
                 }
             }
         }

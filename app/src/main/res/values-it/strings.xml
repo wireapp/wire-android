@@ -31,7 +31,7 @@
     <string name="label_off">OFF</string>
     <string name="label_value_copied">%s copied</string>
     <string name="label_disable">Disable</string>
-    <string name="folder_lable_access">Access</string>
+    <string name="folder_lable_access">ACCESS</string>
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
     <string name="content_description_app_logo">App Logo</string>
     <string name="content_description_reveal_password">Show password</string>

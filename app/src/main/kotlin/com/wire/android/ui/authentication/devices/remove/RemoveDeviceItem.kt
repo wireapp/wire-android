@@ -35,12 +35,12 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.formatMediumDateTime
 
 @Composable
-fun RemoveDeviceItem(device: Device, placeholder: Boolean, onRemoveDeviceClick: (Device) -> Unit) {
+fun RemoveDeviceItem(device: Device, placeholder: Boolean, onRemoveDeviceClick: ((Device) -> Unit)?) {
     RemoveDeviceItemContent(device = device, placeholder = placeholder, onRemoveDeviceClick = onRemoveDeviceClick)
 }
 
 @Composable
-private fun RemoveDeviceItemContent(device: Device, placeholder: Boolean, onRemoveDeviceClick: (Device) -> Unit) {
+private fun RemoveDeviceItemContent(device: Device, placeholder: Boolean, onRemoveDeviceClick: ((Device) -> Unit)?) {
     Row(verticalAlignment = Alignment.Top) {
         Row(
             modifier = Modifier
@@ -57,7 +57,7 @@ private fun RemoveDeviceItemContent(device: Device, placeholder: Boolean, onRemo
                 modifier = Modifier
                     .padding(start = MaterialTheme.wireDimensions.removeDeviceItemPadding)
                     .weight(1f),
-            ) { RemoveDeviceItemTexts(device, placeholder) }
+            ) { RemoveDeviceItemTexts(device, placeholder, onRemoveDeviceClick != null) }
         }
         val (buttonTopPadding, buttonEndPadding) = getMinTouchMargins(minSize = MaterialTheme.wireDimensions.buttonSmallMinSize)
             .let {
@@ -68,7 +68,7 @@ private fun RemoveDeviceItemContent(device: Device, placeholder: Boolean, onRemo
                     MaterialTheme.wireDimensions.removeDeviceItemPadding - it.calculateEndPadding(LocalLayoutDirection.current)
                 )
             }
-        if (!placeholder)
+        if (!placeholder && onRemoveDeviceClick != null)
             WireSecondaryButton(
                 modifier = Modifier
                     .padding(top = buttonTopPadding, end = buttonEndPadding)
@@ -90,7 +90,7 @@ private fun RemoveDeviceItemContent(device: Device, placeholder: Boolean, onRemo
 }
 
 @Composable
-private fun RemoveDeviceItemTexts(device: Device, placeholder: Boolean) {
+private fun RemoveDeviceItemTexts(device: Device, placeholder: Boolean, isRemoveDeviceScreen: Boolean) {
     Text(
         style = MaterialTheme.wireTypography.body02,
         color = MaterialTheme.wireColorScheme.onBackground,
@@ -100,11 +100,18 @@ private fun RemoveDeviceItemTexts(device: Device, placeholder: Boolean) {
             .shimmerPlaceholder(visible = placeholder)
     )
     Spacer(modifier = Modifier.height(MaterialTheme.wireDimensions.removeDeviceItemTitleVerticalPadding))
-    val details = stringResource(
-        R.string.remove_device_id_and_time_label,
-        device.clientId.value,
-        device.registrationTime.formatMediumDateTime() ?: ""
-    )
+    val details: String = if (isRemoveDeviceScreen) {
+        stringResource(
+            R.string.remove_device_id_and_time_label,
+            device.clientId.value.chunked(2).joinToString(separator = " "),
+            device.registrationTime.formatMediumDateTime() ?: ""
+        )
+    } else {
+        stringResource(
+            R.string.remove_device_id_label,
+            device.clientId.value.chunked(2).joinToString(separator = " ")
+        )
+    }
     Text(
         style = MaterialTheme.wireTypography.subline01,
         color = MaterialTheme.wireColorScheme.labelText,

@@ -166,7 +166,7 @@ private fun MessageHeader(messageHeader: MessageHeader) {
                     }
                 }
                 MessageTimeLabel(
-                    time = messageHeader.time,
+                    time = messageHeader.messageTime.formattedDate,
                     modifier = Modifier.padding(start = dimensions().spacing6x)
                 )
             }

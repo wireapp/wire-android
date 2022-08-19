@@ -42,7 +42,7 @@ internal class NewConversationViewModelArrangement {
         coEvery { searchUsers(any()) } returns Result.Success(userSearchResult = UserSearchResult(listOf(PUBLIC_USER)))
         coEvery { searchKnownUsers(any()) } returns Result.Success(userSearchResult = UserSearchResult(listOf(KNOWN_USER)))
         coEvery { getAllContacts() } returns GetAllContactsResult.Success(listOf())
-        coEvery { createGroupConversation(any(), any(), any()) } returns Either.Right(CONVERSATION)
+        coEvery { createGroupConversation(any(), any(), any()) } returns CreateGroupConversationUseCase.Result.Success(CONVERSATION)
         coEvery { contactMapper.fromOtherUser(PUBLIC_USER) } returns Contact(
             id = "publicValue",
             domain = "domain",

@@ -102,8 +102,11 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
         .build()
 
     /**
-     * Create or update existed [Notification]
-     * @return [Notification] for the conversation with all the messages in it (including the messages that been there before)
+     * Creates or updates existing [Notification]
+     * @param [conversation] the notification object containing all the messages for the given conversation
+     * @param [userId] the id of the user receiving the notifications
+     * @param [activeNotifications] a list with the notifications that are already be displayed to the user
+     * @return [Notification] for the conversation with all the messages in it (including previous messages as well)
      * OR null if there is no new messages in conversation and no need to update the existed notification.
      */
     private fun getConversationNotification(

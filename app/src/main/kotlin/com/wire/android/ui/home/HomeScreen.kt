@@ -2,6 +2,7 @@ package com.wire.android.ui.home
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -28,8 +29,10 @@ import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
+import com.wire.android.ui.common.topappbar.CommonTopAppBar
+import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
 import com.wire.android.ui.common.topappbar.search.AppTopBarWithSearchBar
-import com.wire.android.ui.home.sync.SyncStateViewModel
+import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
 
 @OptIn(
     ExperimentalAnimationApi::class,
@@ -37,8 +40,13 @@ import com.wire.android.ui.home.sync.SyncStateViewModel
     ExperimentalMaterial3Api::class
 )
 @Composable
-fun HomeScreen(startScreen: String?, viewModel: HomeViewModel, syncViewModel: SyncStateViewModel) {
-    viewModel.checkRequirements()
+fun HomeScreen(
+    startScreen: String?,
+    homeViewModel: HomeViewModel,
+    syncViewModel: FeatureFlagNotificationViewModel,
+    commonTopAppBarViewModel: CommonTopAppBarViewModel
+) {
+    homeViewModel.checkRequirements()
     val homeUIState = rememberHomeUIState()
     val coroutineScope = rememberCoroutineScope()
     val homeState = syncViewModel.homeState
@@ -46,8 +54,8 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel, syncViewModel: Sy
 
     handleSnackBarMessage(snackbarHostState, homeUIState.snackbarState, homeUIState::clearSnackbarMessage)
 
-    LaunchedEffect(viewModel.savedStateHandle) {
-        viewModel.checkPendingSnackbarState()?.let(homeUIState::setSnackBarState)
+    LaunchedEffect(homeViewModel.savedStateHandle) {
+        homeViewModel.checkPendingSnackbarState()?.let(homeUIState::setSnackBarState)
     }
 
     with(homeUIState) {
@@ -63,7 +71,7 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel, syncViewModel: Sy
                     homeNavController = navController,
                     topItems = HomeNavigationItem.all,
                     scope = coroutineScope,
-                    viewModel = viewModel
+                    viewModel = homeViewModel
                 )
             },
             gesturesEnabled = drawerState.isOpen
@@ -74,14 +82,16 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel, syncViewModel: Sy
                 homeBottomSheetState = homeUIState.bottomSheetState,
                 snackbarHostState = snackbarHostState,
                 homeTopBar = {
-                    HomeTopBar(
-                        avatarAsset = viewModel.userAvatar.avatarAsset,
-                        status = viewModel.userAvatar.status,
-                        currentNavigationItem = homeUIState.currentNavigationItem,
-                        syncState = syncViewModel.syncState,
-                        onOpenDrawerClicked = ::openDrawer,
-                        onNavigateToUserProfile = viewModel::navigateToUserProfile,
-                    )
+                    Column {
+                        CommonTopAppBar(commonTopAppBarViewModel = commonTopAppBarViewModel) // as CommonTopAppBarViewModel)
+                        HomeTopBar(
+                            avatarAsset = homeViewModel.userAvatar.avatarAsset,
+                            status = homeViewModel.userAvatar.status,
+                            currentNavigationItem = homeUIState.currentNavigationItem,
+                            onOpenDrawerClicked = ::openDrawer,
+                            onNavigateToUserProfile = homeViewModel::navigateToUserProfile,
+                        )
+                    }
                 },
                 currentNavigationItem = homeUIState.currentNavigationItem,
                 homeNavigationGraph = {

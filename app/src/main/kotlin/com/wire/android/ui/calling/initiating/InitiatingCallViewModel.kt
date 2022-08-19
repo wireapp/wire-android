@@ -49,6 +49,7 @@ class InitiatingCallViewModel @Inject constructor(
     )
 
     private val callStartTime: Long = Calendar.getInstance().timeInMillis
+    private var wasCallHangUp: Boolean = false
 
     init {
         viewModelScope.launch {
@@ -94,7 +95,7 @@ class InitiatingCallViewModel @Inject constructor(
             conversationId = conversationId,
             startedTime = callStartTime
         ).collect { isCurrentCallClosed ->
-            if (isCurrentCallClosed) {
+            if (isCurrentCallClosed && wasCallHangUp.not()) {
                 onCallClosed()
             }
         }
@@ -124,7 +125,10 @@ class InitiatingCallViewModel @Inject constructor(
         callRinger.ring(R.raw.ringing_from_me)
     }
 
-    fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }
+    fun navigateBack() = viewModelScope.launch {
+        wasCallHangUp = true
+        navigationManager.navigateBack()
+    }
 
     fun hangUpCall() {
         viewModelScope.launch {

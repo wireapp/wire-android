@@ -130,9 +130,9 @@ data class WireDimensions(
     val notificationBadgeRadius: Dp,
     // Wire ModalSheetLayout
     val modalBottomSheetDividerWidth: Dp,
-    val modalBottomSheetHeaderStartPadding: Dp,
-    val modalBottomSheetHeaderTopPadding: Dp,
-    val modalBottomSheetHeaderBottomPadding: Dp,
+    val modalBottomSheetHeaderHorizontalPadding: Dp,
+    val modalBottomSheetHeaderVerticalPadding: Dp,
+    val modalBottomSheetNoHeaderVerticalPadding: Dp,
     // Divider
     val dividerThickness: Dp,
     // Search People
@@ -151,6 +151,7 @@ data class WireDimensions(
     val defaultIncomingCallSheetPeekHeight: Dp,
     val callingIncomingUserAvatarSize: Dp,
     val initiatingCallHangUpButtonSize: Dp,
+    val ongoingCallLabelHeight: Dp,
     // Message item
     val messageItemBottomPadding: Dp,
     // conversation options
@@ -256,9 +257,9 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     notificationBadgeHeight = 18.dp,
     notificationBadgeRadius = 6.dp,
     modalBottomSheetDividerWidth = 48.dp,
-    modalBottomSheetHeaderStartPadding = 8.dp,
-    modalBottomSheetHeaderTopPadding = 16.dp,
-    modalBottomSheetHeaderBottomPadding = 8.dp,
+    modalBottomSheetHeaderHorizontalPadding = 8.dp,
+    modalBottomSheetHeaderVerticalPadding = 16.dp,
+    modalBottomSheetNoHeaderVerticalPadding = 24.dp,
     dividerThickness = 0.5.dp,
     defaultSearchLazyColumnHeight = 320.dp,
     showAllCollapseButtonMinHeight = 32.dp,
@@ -278,7 +279,8 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     callingIncomingUserAvatarSize = 128.dp,
     initiatingCallHangUpButtonSize = 72.dp,
     messageItemBottomPadding = 12.dp,
-    conversationOptionsItemMinHeight = 57.dp
+    conversationOptionsItemMinHeight = 57.dp,
+    ongoingCallLabelHeight = 28.dp
 )
 
 private val DefaultPhoneLandscapeWireDimensions: WireDimensions = DefaultPhonePortraitWireDimensions

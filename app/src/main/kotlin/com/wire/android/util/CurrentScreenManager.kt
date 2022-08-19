@@ -62,6 +62,9 @@ class CurrentScreenManager @Inject constructor() : DefaultLifecycleObserver, Nav
 
 sealed class CurrentScreen {
 
+    // Home Screen is being displayed
+    object Home : CurrentScreen()
+
     // Some Conversation is opened
     data class Conversation(val id: ConversationId) : CurrentScreen()
 
@@ -82,6 +85,7 @@ sealed class CurrentScreen {
 
         fun fromNavigationItem(currentItem: NavigationItem?, arguments: Bundle?): CurrentScreen =
             when (currentItem) {
+                NavigationItem.Home -> Home
                 NavigationItem.Conversation -> {
                     arguments?.getString(EXTRA_CONVERSATION_ID)
                         ?.toQualifiedID(qualifiedIdMapper)

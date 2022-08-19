@@ -253,7 +253,8 @@ internal fun withMockConversationDetailsOneOnOne(
     senderName: String,
     senderAvatar: UserAssetId? = null,
     senderId: UserId = UserId("user-id", "user-domain"),
-    connectionState: ConnectionState = ConnectionState.ACCEPTED
+    connectionState: ConnectionState = ConnectionState.ACCEPTED,
+    unavailable: Boolean = false
 ) = ConversationDetails.OneOne(
     conversation = mockk(),
     otherUser = mockk<OtherUser>().apply {
@@ -262,11 +263,13 @@ internal fun withMockConversationDetailsOneOnOne(
         every { previewPicture } returns senderAvatar
         every { availabilityStatus } returns UserAvailabilityStatus.NONE
         every { connectionStatus } returns connectionState
+        every { isUnavailableUser } returns unavailable
     },
     connectionState = ConnectionState.PENDING,
     legalHoldStatus = LegalHoldStatus.DISABLED,
     userType = UserType.INTERNAL,
-    unreadMessagesCount = 0L
+    unreadMessagesCount = 0L,
+    lastUnreadMessage = null
 )
 
 internal fun mockConversationDetailsGroup(conversationName: String) = ConversationDetails.Group(
@@ -276,7 +279,8 @@ internal fun mockConversationDetailsGroup(conversationName: String) = Conversati
     },
     legalHoldStatus = mockk(),
     hasOngoingCall = false,
-    unreadMessagesCount = 0
+    unreadMessagesCount = 0,
+    lastUnreadMessage = null
 )
 
 internal fun mockUITextMessage(userName: String = "mockUserName"): UIMessage {

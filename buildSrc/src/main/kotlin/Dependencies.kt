@@ -2,7 +2,7 @@ const val appId = "com.wire.android"
 
 object AndroidSdk {
     const val min = 24
-    const val compile = 31
+    const val compile = 32
     const val target = compile
 }
 
@@ -20,7 +20,7 @@ object AndroidClient {
 
 object BuildPlugins {
     object Versions {
-        const val gradleVersion = "7.1.1"
+        const val gradleVersion = "7.5.1"
     }
 
     const val androidApplication = "com.android.application"
@@ -80,6 +80,7 @@ object Libraries {
         const val exif = "1.3.3"
         const val firebaseBOM = "29.3.1"
         const val dataDog = "1.13.0"
+        const val ktxDateTime = "0.3.2"
     }
 
     // AndroidX Dependencies
@@ -101,6 +102,8 @@ object Libraries {
     const val composeRuntimeLiveData    = "androidx.compose.runtime:runtime-livedata:${Versions.compose}"
     const val dataStore                 = "androidx.datastore:datastore-preferences:${Versions.dataStore}"
     const val exifInterface             = "androidx.exifinterface:exifinterface:${Versions.exif}"
+    const val ktxDateTime                  = "org.jetbrains.kotlinx:kotlinx-datetime:${Versions.ktxDateTime}"
+
 
     // Other dependencies
     const val desugaring                = "com.android.tools:desugar_jdk_libs:${Versions.desugaring}"

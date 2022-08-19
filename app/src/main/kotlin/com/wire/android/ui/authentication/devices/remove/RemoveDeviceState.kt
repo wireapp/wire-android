@@ -5,15 +5,12 @@ import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.client.Client
 
-sealed class RemoveDeviceState {
-    data class Success(
-        val deviceList: List<Device>,
-        val removeDeviceDialogState: RemoveDeviceDialogState
-    ) : RemoveDeviceState()
-
-    object Loading : RemoveDeviceState()
-    data class Error(val coreFailure: CoreFailure) : RemoveDeviceState()
-}
+data class RemoveDeviceState (
+    val deviceList: List<Device>,
+    val removeDeviceDialogState: RemoveDeviceDialogState = RemoveDeviceDialogState.Hidden,
+    val isLoadingClientsList: Boolean,
+    val error: RemoveDeviceError = RemoveDeviceError.None
+)
 
 sealed class RemoveDeviceDialogState {
     object Hidden : RemoveDeviceDialogState()
@@ -21,8 +18,7 @@ sealed class RemoveDeviceDialogState {
         val device: Device,
         val password: TextFieldValue = TextFieldValue(""),
         val loading: Boolean = false,
-        val removeEnabled: Boolean = false,
-        val error: RemoveDeviceError = RemoveDeviceError.None
+        val removeEnabled: Boolean = false
     ) : RemoveDeviceDialogState()
 }
 

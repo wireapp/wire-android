@@ -12,13 +12,13 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsState
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipantsViewModel
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
-import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
+import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -33,8 +33,8 @@ class GroupConversationDetailsViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val observeConversationMembers: ObserveParticipantsForConversationUseCase,
-    private val updateConversationAccessRoleUseCase: UpdateConversationAccessRoleUseCase,
-    private val dispatcher: DispatcherProvider,
+    private val updateConversationAccessRole: UpdateConversationAccessRoleUseCase,
+    private val getSelfTeam: GetSelfTeamUseCase,
     savedStateHandle: SavedStateHandle,
     qualifiedIdMapper: QualifiedIdMapper
 ) : GroupConversationParticipantsViewModel(savedStateHandle, navigationManager, observeConversationMembers, qualifiedIdMapper) {
@@ -58,26 +58,32 @@ class GroupConversationDetailsViewModel @Inject constructor(
                 .map { it.isSelfAnAdmin }
                 .distinctUntilChanged()
                 .also { isSelfAdminFlow ->
-                    observeConversationDetails(conversationId)
+                    val conversationDetailsFlow = observeConversationDetails(conversationId)
                         .filterIsInstance<ObserveConversationDetailsUseCase.Result.Success>() // TODO handle StorageFailure
                         .map { it.conversationDetails }
-                        .combine(isSelfAdminFlow) { conversationDetails, isSelfAdmin -> Pair(conversationDetails, isSelfAdmin) }
-                        .collect { (conversationDetails, isSelfAdmin) ->
-                            with(conversationDetails) {
-                                if (this is ConversationDetails.Group) {
-                                    updateState(
-                                        groupOptionsState.copy(
-                                            groupName = conversation.name.orEmpty(),
-                                            isTeamGroup = conversation.isTeamGroup(),
-                                            isGuestAllowed = (conversation.isGuestAllowed() || conversation.isNonTeamMemberAllowed()),
-                                            isServicesAllowed = conversation.isServicesAllowed(),
-                                            isUpdatingGuestAllowed = isSelfAdmin /* TODO: check if self belongs to the same team */,
-                                            isUpdatingAllowed = isSelfAdmin
-                                        )
+                    combine(conversationDetailsFlow, isSelfAdminFlow, getSelfTeam()) { conversationDetails, isSelfAnAdmin, selfTeam ->
+                        Triple(
+                            conversationDetails,
+                            isSelfAnAdmin,
+                            selfTeam?.id != null && selfTeam.id == conversationDetails.conversation.teamId?.value
+                        )
+                    }.collect { (conversationDetails, isSelfAnAdmin, isSelfInOwnerTeam) ->
+                        with(conversationDetails) {
+                            if (this is ConversationDetails.Group) {
+                                updateState(
+                                    groupOptionsState.copy(
+                                        groupName = conversation.name.orEmpty(),
+                                        protocolInfo = conversation.protocol,
+                                        isUpdatingAllowed = isSelfAnAdmin,
+                                        areAccessOptionsAvailable = conversation.isTeamGroup(),
+                                        isGuestAllowed = (conversation.isGuestAllowed() || conversation.isNonTeamMemberAllowed()),
+                                        isServicesAllowed = conversation.isServicesAllowed(),
+                                        isUpdatingGuestAllowed = isSelfAnAdmin && isSelfInOwnerTeam
                                     )
-                                }
+                                )
                             }
                         }
+                    }
                 }
         }
     }
@@ -99,14 +105,14 @@ class GroupConversationDetailsViewModel @Inject constructor(
         updateState(
             groupOptionsState.copy(
                 loadingGuestOption = false,
-                changeGuestOptionConformationRequired = false,
+                changeGuestOptionConfirmationRequired = false,
                 isGuestAllowed = !groupOptionsState.isGuestAllowed
             )
         )
     }
 
     fun onGuestDialogConfirm() {
-        updateState(groupOptionsState.copy(changeGuestOptionConformationRequired = false, loadingGuestOption = true))
+        updateState(groupOptionsState.copy(changeGuestOptionConfirmationRequired = false, loadingGuestOption = true))
         updateGuestRemoteRequest(false)
     }
 
@@ -154,7 +160,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
         enableGuestAndNonTeamMember: Boolean,
         enableServices: Boolean,
         conversationId: ConversationId
-    ) = updateConversationAccessRoleUseCase(
+    ) = updateConversationAccessRole(
         allowGuest = enableGuestAndNonTeamMember,
         allowNonTeamMember = enableGuestAndNonTeamMember,
         allowServices = enableServices,
@@ -163,10 +169,10 @@ class GroupConversationDetailsViewModel @Inject constructor(
 
 
     private fun updateState(newState: GroupConversationOptionsState) {
-            groupOptionsState = newState
+        groupOptionsState = newState
     }
 
-    private fun showGuestConformationDialog() = updateState(groupOptionsState.copy(changeGuestOptionConformationRequired = true))
+    private fun showGuestConformationDialog() = updateState(groupOptionsState.copy(changeGuestOptionConfirmationRequired = true))
 
     fun navigateToFullParticipantsList() = viewModelScope.launch {
         navigationManager.navigate(

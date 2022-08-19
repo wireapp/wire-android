@@ -2,6 +2,7 @@ package com.wire.android.ui.calling
 
 import android.view.View
 import android.widget.Toast
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
@@ -55,8 +56,12 @@ fun OngoingCallScreen(
             ::hangUpCall,
             ::toggleVideo,
             ::setVideoPreview,
-            ::clearVideoPreview
+            ::clearVideoPreview,
+            ::navigateBack
         )
+        callState.isCameraOn?.let {
+            BackHandler(enabled = it) { navigateBack() }
+        }
     }
 }
 
@@ -73,7 +78,8 @@ private fun OngoingCallContent(
     hangUpCall: () -> Unit,
     toggleVideo: () -> Unit,
     setVideoPreview: (view: View) -> Unit,
-    clearVideoPreview: () -> Unit
+    clearVideoPreview: () -> Unit,
+    navigateBack: () -> Unit
 ) {
     val sheetState = rememberBottomSheetState(
         initialValue = BottomSheetValue.Collapsed
@@ -88,8 +94,9 @@ private fun OngoingCallContent(
                     is ConversationName.Known -> conversationName.name
                     is ConversationName.Unknown -> stringResource(id = conversationName.resourceId)
                     else -> ""
-                }
-            ) { }
+                },
+                onCollapse = navigateBack
+            )
         },
         sheetShape = RoundedCornerShape(topStart = dimensions().corner16x, topEnd = dimensions().corner16x),
         sheetPeekHeight = dimensions().defaultSheetPeekHeight,

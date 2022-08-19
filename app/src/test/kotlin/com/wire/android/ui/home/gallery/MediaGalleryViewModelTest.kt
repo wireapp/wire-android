@@ -248,12 +248,14 @@ class MediaGalleryViewModelTest {
                 1, null, ConnectionState.ACCEPTED, null, null,
                 UserType.INTERNAL,
                 UserAvailabilityStatus.AVAILABLE,
-                null
+                null,
+                false
             ),
             connectionState = ConnectionState.ACCEPTED,
             legalHoldStatus = LegalHoldStatus.DISABLED,
             userType = UserType.INTERNAL,
-            unreadMessagesCount = 0L
+            unreadMessagesCount = 0L,
+            lastUnreadMessage = null
         )
 
     companion object {

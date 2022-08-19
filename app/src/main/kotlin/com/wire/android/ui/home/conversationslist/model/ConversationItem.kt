@@ -4,7 +4,9 @@ import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversationslist.common.UserInfoLabel
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.data.user.ConnectionState
+import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserId
 
 sealed class ConversationItem {
@@ -47,7 +49,8 @@ sealed class ConversationItem {
 
 data class ConversationInfo(
     val name: String,
-    val membership: Membership = Membership.None
+    val membership: Membership = Membership.None,
+    val unavailable: Boolean = false
 )
 
 enum class BlockingState {
@@ -56,11 +59,19 @@ enum class BlockingState {
     NOT_BLOCKED
 }
 
+fun OtherUser.getBlockingState(selfTeamId: TeamId?): BlockingState =
+    when {
+        connectionStatus == ConnectionState.BLOCKED -> BlockingState.BLOCKED
+        teamId == selfTeamId -> BlockingState.CAN_NOT_BE_BLOCKED
+        else -> BlockingState.NOT_BLOCKED
+    }
+
 fun ConversationItem.PrivateConversation.toUserInfoLabel() =
     UserInfoLabel(
         labelName = conversationInfo.name,
         isLegalHold = isLegalHold,
-        membership = conversationInfo.membership
+        membership = conversationInfo.membership,
+        unavailable = conversationInfo.unavailable
     )
 
 fun ConversationItem.ConnectionConversation.toUserInfoLabel() =

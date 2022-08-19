@@ -4,18 +4,21 @@ import com.wire.android.appLogger
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
+import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.extension.intervalFlow
+import com.wire.android.util.lifecycle.ConnectionPolicyManager
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.notification.LocalNotificationConversation
-import com.wire.kalium.logic.data.sync.ConnectionPolicy
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.Call
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.util.toStringDate
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
@@ -26,6 +29,8 @@ import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -37,23 +42,39 @@ class WireNotificationManager @Inject constructor(
     private val currentScreenManager: CurrentScreenManager,
     private val messagesNotificationManager: MessageNotificationManager,
     private val callNotificationManager: CallNotificationManager,
+    private val connectionPolicyManager: ConnectionPolicyManager,
+    dispatcherProvider: DispatcherProvider
 ) {
+
+    private val scope = CoroutineScope(SupervisorJob() + dispatcherProvider.default())
+    private val fetchOnceMutex = Mutex()
+    private val fetchOnceJobs = hashMapOf<String, Job>()
+
     /**
-     * Sync all the Pending events, fetch Message notifications from DB once and show it.
-     * Can be used in Services (e.g., after receiving FCM)
+     * Become online, process all the Pending events,
+     * and display notifications for new events.
+     * Can be used in Services (e.g., after receiving FCM push).
+     *
+     * This function is asynchronous and thread-safe.
+     * It ignores successive calls with the same [userIdValue]
+     * until the first call is finished processing.
      * @param userIdValue String value param of QualifiedID of the User that need to check Notifications for
      */
-    suspend fun fetchAndShowNotificationsOnce(userIdValue: String) {
-        checkIfUserIsAuthenticated(userId = userIdValue)?.let { userId ->
-            coreLogic.getSessionScope(userId).run {
-                // Force KEEP_ALIVE policy so we gather pending events
-                setConnectionPolicy(ConnectionPolicy.KEEP_ALIVE)
-                // Wait until the client is live and pending events are processed
-                syncManager.waitUntilLive()
-                // As the app is in the background when receiving PUSH notifications,
-                // we can downgrade the policy back
-                setConnectionPolicy(ConnectionPolicy.DISCONNECT_AFTER_PENDING_EVENTS)
+    suspend fun fetchAndShowNotificationsOnce(userIdValue: String) = fetchOnceMutex.withLock {
+        val isJobRunningForUser = fetchOnceJobs[userIdValue]?.isActive ?: false
+        if (isJobRunningForUser) {
+            appLogger.d("Already processing notifications for user=$userIdValue, ignoring request")
+        } else {
+            appLogger.d("Starting to processing notifications for user=$userIdValue")
+            fetchOnceJobs[userIdValue] = scope.launch {
+                triggerSyncForUserIfAuthenticated(userIdValue)
             }
+        }
+    }
+
+    private suspend fun triggerSyncForUserIfAuthenticated(userIdValue: String) {
+        checkIfUserIsAuthenticated(userId = userIdValue)?.let { userId ->
+            connectionPolicyManager.handleConnectionOnPushNotification(userId)
             fetchAndShowMessageNotificationsOnce(userId)
             fetchAndShowCallNotificationsOnce(userId)
         }
@@ -106,10 +127,12 @@ class WireNotificationManager @Inject constructor(
                     }
                     null
                 }
+
                 is GetAllSessionsResult.Failure.Generic -> {
                     appLogger.e("get sessions failed ${it.genericFailure} ")
                     null
                 }
+
                 GetAllSessionsResult.Failure.NoSessionFound -> null
             }
         }

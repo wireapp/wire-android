@@ -9,21 +9,25 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.model.ImageAsset.UserAvatarAsset
+import com.wire.android.model.PreservedState
 import com.wire.android.model.UserAvatarData
+import com.wire.android.model.toLoading
 import com.wire.android.navigation.NavigationCommand
+import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.home.HomeSnackbarState
 import com.wire.android.ui.home.conversationslist.mock.mockAllMentionList
 import com.wire.android.ui.home.conversationslist.mock.mockCallHistory
 import com.wire.android.ui.home.conversationslist.mock.mockMissedCalls
 import com.wire.android.ui.home.conversationslist.mock.mockUnreadMentionList
-import com.wire.android.ui.home.conversationslist.model.BlockingState
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.ConversationLastEvent
 import com.wire.android.ui.home.conversationslist.model.NewActivity
+import com.wire.android.ui.home.conversationslist.model.getBlockingState
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.ConversationDetails
@@ -35,8 +39,6 @@ import com.wire.kalium.logic.data.conversation.LegalHoldStatus
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.TeamId
-import com.wire.kalium.logic.data.user.ConnectionState
-import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.AnswerCallUseCase
@@ -66,12 +68,17 @@ class ConversationListViewModel @Inject constructor(
     private val blockUserUseCase: BlockUserUseCase,
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val userTypeMapper: UserTypeMapper,
+    private val leaveGroupConversation: RemoveMemberFromConversationUseCase
 ) : ViewModel() {
 
     var state by mutableStateOf(ConversationListState())
         private set
 
+    var blockUserDialogState: PreservedState<BlockUserDialogState>?
+            by mutableStateOf(null)
+
     val snackBarState = MutableSharedFlow<HomeSnackbarState>()
+    lateinit var selfUserId: UserId
 
     init {
         startObservingConversationsAndConnections()
@@ -81,6 +88,7 @@ class ConversationListViewModel @Inject constructor(
         observeConversationsAndConnections() // TODO AR-1736
             .combine(getSelf(), ::Pair)
             .collect { (list, selfUser) ->
+                selfUserId = selfUser.id
                 val detailedList = list.conversationList.toConversationsFoldersMap(selfUser.teamId)
                 val newActivities = emptyList<NewActivity>()
                 val missedCalls = mockMissedCalls // TODO: needs to be implemented
@@ -180,6 +188,7 @@ class ConversationListViewModel @Inject constructor(
 
     fun blockUser(id: UserId, userName: String) {
         viewModelScope.launch(dispatchers.io()) {
+            blockUserDialogState = blockUserDialogState?.toLoading()
             val state = when (val result = blockUserUseCase(id)) {
                 BlockUserResult.Success -> {
                     appLogger.d("User $id was blocked")
@@ -192,20 +201,19 @@ class ConversationListViewModel @Inject constructor(
             }
             snackBarState.emit(state)
         }
-        state = state.copy(blockUserDialogSate = null)
+        blockUserDialogState = null
     }
 
     fun onDismissBlockUserDialog() {
-        state = state.copy(blockUserDialogSate = null)
+        blockUserDialogState = null
     }
 
     fun onBlockUserClicked(id: UserId, name: String) {
-        state = state.copy(blockUserDialogSate = BlockUserDialogState(name, id))
+        blockUserDialogState = PreservedState.State(BlockUserDialogState(name, id))
     }
 
-    // TODO: needs to be implemented
-    @Suppress("EmptyFunctionBlock")
-    fun leaveGroup(id: String = "") {
+    fun leaveGroup(conversationId: ConversationId) = viewModelScope.launch(dispatchers.io()) {
+        leaveGroupConversation(conversationId = conversationId, selfUserId)
     }
 
     private fun List<ConversationDetails>.toConversationItemList(teamId: TeamId?): List<ConversationItem> =
@@ -239,7 +247,8 @@ private fun ConversationDetails.toType(
             ),
             conversationInfo = ConversationInfo(
                 name = otherUser.name.orEmpty(),
-                membership = userTypeMapper.toMembership(userType)
+                membership = userTypeMapper.toMembership(userType),
+                unavailable = otherUser.isUnavailableUser
             ),
             conversationId = conversation.id,
             mutedStatus = conversation.mutedStatus,
@@ -276,10 +285,3 @@ private fun ConversationDetails.toType(
         throw IllegalArgumentException("$this conversations should not be visible to the user.")
     }
 }
-
-private fun OtherUser.getBlockingState(selfTeamId: TeamId?): BlockingState =
-    when {
-        connectionStatus == ConnectionState.BLOCKED -> BlockingState.BLOCKED
-        teamId == selfTeamId -> BlockingState.CAN_NOT_BE_BLOCKED
-        else -> BlockingState.NOT_BLOCKED
-    }

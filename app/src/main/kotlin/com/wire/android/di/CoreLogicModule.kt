@@ -34,6 +34,7 @@ import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUs
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
+import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
@@ -672,6 +673,14 @@ class UseCaseModule {
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
     ): UpdateConversationMemberRoleUseCase = coreLogic.getSessionScope(currentAccount).conversations.updateConversationMemberRole
+
+    @ViewModelScoped
+    @Provides
+    fun provideUpdateConversationReadDateUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): UpdateConversationReadDateUseCase =
+        coreLogic.getSessionScope(currentAccount).conversations.updateConversationReadDateUseCase
 
     @ViewModelScoped
     @Provides

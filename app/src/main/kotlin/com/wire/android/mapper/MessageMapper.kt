@@ -6,6 +6,7 @@ import com.wire.android.ui.home.conversations.findUser
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
+import com.wire.android.ui.home.conversations.model.MessageTime
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.previewAsset
 import com.wire.android.ui.home.conversationslist.model.Membership
@@ -73,7 +74,7 @@ class MessageMapper @Inject constructor(
         },
         connectionState = getConnectionState(sender),
         isLegalHold = false,
-        time = message.date.uiMessageDateTime() ?: "",
+        messageTime = MessageTime(message.date),
         messageStatus = getMessageStatus(message),
         messageId = message.id,
         userId = sender?.id

@@ -2,7 +2,6 @@ package com.wire.android.ui.home.conversations.details
 
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.mapper.testUIParticipant
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationManager
@@ -353,7 +352,8 @@ class GroupConversationDetailsViewModelTest {
             ),
             legalHoldStatus = LegalHoldStatus.DISABLED,
             hasOngoingCall = false,
-            unreadMessagesCount = 0L
+            unreadMessagesCount = 0L,
+            lastUnreadMessage = null
         )
     }
 }

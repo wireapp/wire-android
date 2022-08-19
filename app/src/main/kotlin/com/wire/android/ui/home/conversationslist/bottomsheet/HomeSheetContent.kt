@@ -18,6 +18,7 @@ import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetContent
+import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.conversationColor
 import com.wire.android.ui.common.dimensions
@@ -26,6 +27,7 @@ import com.wire.android.ui.home.conversationslist.model.BlockingState
 import com.wire.android.ui.home.conversationslist.model.getMutedStatusTextResource
 import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
 
@@ -37,29 +39,32 @@ internal fun ConversationMainSheetContent(
     moveConversationToArchive: () -> Unit,
     clearConversationContent: () -> Unit,
     blockUserClick: (UserId, String) -> Unit,
-    leaveGroup: () -> Unit,
+    leaveGroup: (ConversationId) -> Unit,
     navigateToNotification: () -> Unit
 ) {
     MenuModalSheetContent(
-        headerTitle = conversationSheetContent.title,
-        headerIcon = {
-            if (conversationSheetContent.conversationTypeDetail is ConversationTypeDetail.Group) {
-                GroupConversationAvatar(
-                    color = colorsScheme()
-                        .conversationColor(id = conversationSheetContent.conversationTypeDetail.conversationId)
-                )
-            } else if (conversationSheetContent.conversationTypeDetail is ConversationTypeDetail.Private) {
-                val connectionState: ConnectionState? = conversationSheetContent.conversationTypeDetail.blockingState.let {
-                    if (it == BlockingState.BLOCKED) ConnectionState.BLOCKED else null
-                }
-                UserProfileAvatar(
-                    avatarData = UserAvatarData(
-                        asset = conversationSheetContent.conversationTypeDetail.avatarAsset,
-                        connectionState = connectionState
+        header = MenuModalSheetHeader.Visible(
+            title = conversationSheetContent.title,
+            leadingIcon = {
+                if (conversationSheetContent.conversationTypeDetail is ConversationTypeDetail.Group) {
+                    GroupConversationAvatar(
+                        color = colorsScheme()
+                            .conversationColor(id = conversationSheetContent.conversationTypeDetail.conversationId)
                     )
-                )
-            }
-        },
+                } else if (conversationSheetContent.conversationTypeDetail is ConversationTypeDetail.Private) {
+                    val connectionState: ConnectionState? = conversationSheetContent.conversationTypeDetail.blockingState.let {
+                        if (it == BlockingState.BLOCKED) ConnectionState.BLOCKED else null
+                    }
+                    UserProfileAvatar(
+                        avatarData = UserAvatarData(
+                            asset = conversationSheetContent.conversationTypeDetail.avatarAsset,
+                            connectionState = connectionState
+                        )
+                    )
+                }
+            },
+            customBottomPadding = dimensions().spacing8x
+        ),
         menuItems = listOf(
             {
                 MenuBottomSheetItem(
@@ -150,7 +155,9 @@ internal fun ConversationMainSheetContent(
                                 )
                             },
                             title = stringResource(R.string.label_leave_group),
-                            onItemClick = leaveGroup
+                            onItemClick = {
+                                leaveGroup(conversationSheetContent.conversationId)
+                            }
                         )
                     }
                 }

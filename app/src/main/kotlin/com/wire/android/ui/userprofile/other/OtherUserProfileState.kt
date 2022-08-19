@@ -4,6 +4,7 @@ import androidx.compose.material.ExperimentalMaterialApi
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.kalium.logic.data.client.OtherUserClients
 import com.wire.kalium.logic.data.conversation.Member
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.BotService
@@ -24,7 +25,8 @@ data class OtherUserProfileState(
     val groupState: OtherUserProfileGroupState? = null,
     val botService: BotService? = null,
     private val conversationSheetContent: ConversationSheetContent? = null,
-    val bottomSheetContentState: BottomSheetContent? = null
+    val bottomSheetContentState: BottomSheetContent? = null,
+    val otherUserClients: List<OtherUserClients> = listOf()
 ) {
 
     fun setBottomSheetStateToConversation(): OtherUserProfileState =

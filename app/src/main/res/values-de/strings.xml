@@ -320,7 +320,6 @@
     <!--Search Contact-->
     <string name="label_contacts">KONTAKTE</string>
     <string name="label_new_group">Neue Gruppe</string>
-    <string name="label_new_guestroom">New Guestroom</string>
     <string name="label_new_conversation">Neue Unterhaltung</string>
     <string name="label_search_people">Personen suchen</string>
     <string name="label_public_wire">PUBLIC WIRE</string>

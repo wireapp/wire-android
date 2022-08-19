@@ -26,6 +26,6 @@ enum class ConversationsNavigationItem(
         R.string.conversations_mentions_tab_title,
         "conversations_mentions");
 
-    fun toBottomNavigationItemData(notificationAmount: Int): WireBottomNavigationItemData =
+    fun toBottomNavigationItemData(notificationAmount: Long): WireBottomNavigationItemData =
         WireBottomNavigationItemData(icon, title, notificationAmount, route)
 }

@@ -99,6 +99,7 @@ dependencies {
     implementation(Libraries.Kotlin.stdLib)
     implementation(Libraries.appCompat)
     implementation(Libraries.ktxCore)
+    implementation(Libraries.ktxDateTime)
     implementation(Libraries.constraintLayout)
     implementation(Libraries.material)
     implementation(Libraries.Kotlin.coroutinesCore)
@@ -191,6 +192,7 @@ dependencies {
     androidTestImplementation(TestLibraries.workManager)
     kaptAndroidTest(Libraries.Hilt.compiler)
     androidTestUtil(TestLibraries.testOrchestrator)
+    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
 
     // Development dependencies
     debugImplementation(DevLibraries.leakCanary)

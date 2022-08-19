@@ -18,7 +18,7 @@ fun ConversationSheetContent(
     moveConversationToArchive: () -> Unit,
     clearConversationContent: () -> Unit,
     blockUser: (UserId, String) -> Unit,
-    leaveGroup: () -> Unit
+    leaveGroup: (ConversationId) -> Unit
 ) {
     when (conversationSheetState.currentOptionNavigation) {
         ConversationOptionNavigation.Home -> {

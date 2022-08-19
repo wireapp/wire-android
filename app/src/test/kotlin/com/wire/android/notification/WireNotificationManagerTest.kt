@@ -1,6 +1,7 @@
 package com.wire.android.notification
 
 import com.wire.android.common.runTestWithCancellation
+import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.lifecycle.ConnectionPolicyManager
@@ -198,6 +199,24 @@ class WireNotificationManagerTest {
             coVerify(atLeast = 1) { arrangement.markMessagesAsNotified(conversationId, any()) }
         }
 
+    @Test
+    fun givenASingleUserId_whenCallingFetchAndShowOnceMultipleTimes_thenConversationNotificationDateUpdated() =
+        runTestWithCancellation {
+            val userId = TEST_AUTH_SESSION.session.userId
+            val (arrangement, manager) = Arrangement()
+                .withMessageNotifications(listOf())
+                .withSession(GetAllSessionsResult.Success(listOf(TEST_AUTH_SESSION)))
+                .withIncomingCalls(listOf())
+                .withCurrentScreen(CurrentScreen.InBackground)
+                .arrange()
+
+            manager.fetchAndShowNotificationsOnce(userId.value)
+            manager.fetchAndShowNotificationsOnce(userId.value)
+            runCurrent()
+
+            coVerify(exactly = 1) { arrangement.connectionPolicyManager.handleConnectionOnPushNotification(userId) }
+        }
+
     private class Arrangement {
         @MockK
         lateinit var coreLogic: CoreLogic
@@ -247,7 +266,8 @@ class WireNotificationManagerTest {
                 currentScreenManager,
                 messageNotificationManager,
                 callNotificationManager,
-                connectionPolicyManager
+                connectionPolicyManager,
+                TestDispatcherProvider()
             )
         }
 

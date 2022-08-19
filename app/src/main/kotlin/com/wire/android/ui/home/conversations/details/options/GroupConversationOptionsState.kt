@@ -1,9 +1,11 @@
 package com.wire.android.ui.home.conversations.details.options
 
 import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.logic.data.conversation.Conversation
 
 data class GroupConversationOptionsState(
     val groupName: String = "",
+    val protocolInfo: Conversation.ProtocolInfo = Conversation.ProtocolInfo.Proteus,
     val areAccessOptionsAvailable: Boolean = false,
     val isGuestAllowed: Boolean = false,
     val isServicesAllowed: Boolean = false,

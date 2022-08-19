@@ -10,6 +10,7 @@ import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSo
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -30,16 +31,14 @@ class StartServiceReceiver : BroadcastReceiver() {
         val persistentWebSocketServiceIntent =
             Intent(context, PersistentWebSocketService::class.java)
         scope.launch {
-            observePersistentWebSocketConnectionStatus().collect {
-                if (!it) {
-                    persistentWebSocketServiceIntent.action =
-                        PersistentWebSocketService.ACTION_STOP_FOREGROUND
-                }
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    context?.startForegroundService(persistentWebSocketServiceIntent)
-                } else {
-                    context?.startService(persistentWebSocketServiceIntent)
-                }
+            if (!observePersistentWebSocketConnectionStatus().first()) {
+                persistentWebSocketServiceIntent.action =
+                    PersistentWebSocketService.ACTION_STOP_FOREGROUND
+            }
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                context?.startForegroundService(persistentWebSocketServiceIntent)
+            } else {
+                context?.startService(persistentWebSocketServiceIntent)
             }
         }
 

@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.platformLogWriter
+import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.DataDogLogger
 import com.wire.android.util.LogFileWriter
 import com.wire.kalium.logger.KaliumLogLevel
@@ -21,6 +22,7 @@ import javax.inject.Inject
 @HiltViewModel
 class DebugScreenViewModel
 @Inject constructor(
+    private val navigationManager: NavigationManager,
     private val mlsKeyPackageCountUseCase: MLSKeyPackageCountUseCase,
     private val enableLogging: EnableLoggingUseCase,
     private val logFileWriter: LogFileWriter,
@@ -67,4 +69,6 @@ class DebugScreenViewModel
             CoreLogger.setLoggingLevel(level = KaliumLogLevel.DISABLED, logWriters = arrayOf(DataDogLogger, platformLogWriter()))
         }
     }
+
+    fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }
 }

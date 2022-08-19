@@ -4,6 +4,8 @@ package com.wire.android.ui.home
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.ColumnScope
+import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.DrawerState
 import androidx.compose.material.DrawerValue
 import androidx.compose.material.ExperimentalMaterialApi
@@ -31,6 +33,7 @@ class HomeUIState(
     val navController: NavHostController,
     val drawerState: DrawerState,
     val bottomSheetState: ModalBottomSheetState,
+    val lazyListState: LazyListState,
     val currentNavigationItem: HomeNavigationItem
 ) {
 
@@ -85,26 +88,22 @@ fun rememberHomeUIState(
     navController: NavHostController = rememberAnimatedNavController(),
     drawerState: DrawerState = rememberDrawerState(DrawerValue.Closed),
     bottomSheetState: ModalBottomSheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden),
+    lazyListState: LazyListState = rememberLazyListState()
 ): HomeUIState {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
-
-    val navigationItem = when (navBackStackEntry?.destination?.route) {
-        // TODO: Re-enable when we have Vault & Archive
-//        HomeNavigationItem.Archive.route -> HomeNavigationItem.Archive
-//        HomeNavigationItem.Vault.route -> HomeNavigationItem.Vault
-        HomeNavigationItem.Settings.route -> HomeNavigationItem.Settings
-        else -> HomeNavigationItem.Conversations
-    }
+    val currentRoute = navBackStackEntry?.destination?.route
+    val currentNavigationItem = HomeNavigationItem.values().firstOrNull { it.route == currentRoute } ?: HomeNavigationItem.Conversations
 
     val homeState = remember(
-        navigationItem
+        currentNavigationItem
     ) {
         HomeUIState(
             coroutineScope,
             navController,
             drawerState,
             bottomSheetState,
-            navigationItem
+            lazyListState,
+            currentNavigationItem
         )
     }
 

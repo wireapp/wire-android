@@ -128,10 +128,9 @@ class SelfUserProfileViewModel @Inject constructor(
         }
     }
 
-    @OptIn(ExperimentalMaterialApi::class, ExperimentalAnimationApi::class)
     fun editProfile() {
-        viewModelScope.launch {
-            navigationManager.navigate(NavigationCommand(Settings.route))
+        viewModelScope.launch { // TODO change to "Your Account Settings" when implemented
+            navigationManager.navigate(NavigationCommand(NavigationItem.AppSettings.getRouteWithArgs()))
         }
     }
 

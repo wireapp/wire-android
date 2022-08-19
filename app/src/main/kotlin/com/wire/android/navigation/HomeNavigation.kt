@@ -13,7 +13,7 @@ import androidx.navigation.compose.composable
 import com.wire.android.R
 import com.wire.android.ui.home.HomeUIState
 import com.wire.android.ui.home.conversationslist.ConversationRouterHomeBridge
-import com.wire.android.ui.settings.SettingsScreen
+import com.wire.android.ui.home.settings.SettingsScreen
 
 @OptIn(
     ExperimentalAnimationApi::class,
@@ -21,12 +21,12 @@ import com.wire.android.ui.settings.SettingsScreen
     ExperimentalMaterial3Api::class
 )
 @Composable
-fun HomeNavigationGraph(homeUIState: HomeUIState, navController: NavHostController, startDestination: String?) {
+fun HomeNavigationGraph(homeUIState: HomeUIState, navController: NavHostController, startDestination: HomeNavigationItem) {
     NavHost(
         navController = navController,
-        startDestination = startDestination ?: HomeNavigationItem.Conversations.route
+        startDestination = startDestination.route
     ) {
-        HomeNavigationItem.all
+        HomeNavigationItem.values()
             .forEach { item ->
                 composable(
                     route = item.route,

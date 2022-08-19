@@ -9,14 +9,14 @@ data class NewGroupState(
     val animatedGroupNameError: Boolean = false,
     val continueEnabled: Boolean = false,
     val mlsEnabled: Boolean = true,
-    val isLoading : Boolean = false,
-    val error: GroupNameError = GroupNameError.None
+    val isLoading: Boolean = false,
+    val error: NewGroupError = NewGroupError.None
 ) {
-    sealed class GroupNameError {
-        object None : GroupNameError()
-        sealed class TextFieldError : GroupNameError() {
-            object GroupNameEmptyError : TextFieldError()
-            object GroupNameExceedLimitError : TextFieldError()
+    sealed interface NewGroupError {
+        object None : NewGroupError
+        sealed interface TextFieldError : NewGroupError {
+            object GroupNameEmptyError : TextFieldError
+            object GroupNameExceedLimitError : TextFieldError
         }
     }
 }

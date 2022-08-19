@@ -2,6 +2,7 @@ package com.wire.android.ui.home
 
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -27,9 +28,13 @@ import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
+import com.wire.android.ui.common.topappbar.CommonTopAppBar
+import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
+import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.search.AppTopBarWithSearchBar
-import com.wire.android.ui.home.sync.SyncStateViewModel
+import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
 
 @OptIn(
     ExperimentalAnimationApi::class,
@@ -37,8 +42,12 @@ import com.wire.android.ui.home.sync.SyncStateViewModel
     ExperimentalMaterial3Api::class
 )
 @Composable
-fun HomeScreen(startScreen: String?, viewModel: HomeViewModel, syncViewModel: SyncStateViewModel) {
-    viewModel.checkRequirements()
+fun HomeScreen(
+    homeViewModel: HomeViewModel,
+    syncViewModel: FeatureFlagNotificationViewModel,
+    commonTopAppBarViewModel: CommonTopAppBarViewModel
+) {
+    homeViewModel.checkRequirements()
     val homeUIState = rememberHomeUIState()
     val coroutineScope = rememberCoroutineScope()
     val homeState = syncViewModel.homeState
@@ -46,9 +55,13 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel, syncViewModel: Sy
 
     handleSnackBarMessage(snackbarHostState, homeUIState.snackbarState, homeUIState::clearSnackbarMessage)
 
-    LaunchedEffect(viewModel.savedStateHandle) {
-        viewModel.checkPendingSnackbarState()?.let(homeUIState::setSnackBarState)
+    LaunchedEffect(homeViewModel.savedStateHandle) {
+        homeViewModel.checkPendingSnackbarState()?.let(homeUIState::setSnackBarState)
     }
+
+    val topItems = listOf(HomeNavigationItem.Conversations)
+    // TODO: Re-enable once we have Archive & Vault
+    // listOf(HomeNavigationItem.Conversations, HomeNavigationItem.Archive, HomeNavigationItem.Vault)
 
     with(homeUIState) {
         ModalDrawer(
@@ -61,9 +74,9 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel, syncViewModel: Sy
                     drawerState = drawerState,
                     currentRoute = currentNavigationItem.route,
                     homeNavController = navController,
-                    topItems = HomeNavigationItem.all,
+                    topItems = topItems,
                     scope = coroutineScope,
-                    viewModel = viewModel
+                    viewModel = homeViewModel
                 )
             },
             gesturesEnabled = drawerState.isOpen
@@ -74,20 +87,27 @@ fun HomeScreen(startScreen: String?, viewModel: HomeViewModel, syncViewModel: Sy
                 homeBottomSheetState = homeUIState.bottomSheetState,
                 snackbarHostState = snackbarHostState,
                 homeTopBar = {
-                    HomeTopBar(
-                        avatarAsset = viewModel.userAvatar.avatarAsset,
-                        status = viewModel.userAvatar.status,
-                        currentNavigationItem = homeUIState.currentNavigationItem,
-                        syncState = syncViewModel.syncState,
-                        onOpenDrawerClicked = ::openDrawer,
-                        onNavigateToUserProfile = viewModel::navigateToUserProfile,
-                    )
+                    Column {
+                        CommonTopAppBar(commonTopAppBarViewModel = commonTopAppBarViewModel) // as CommonTopAppBarViewModel)
+                        HomeTopBar(
+                            avatarAsset = homeViewModel.userAvatar.avatarAsset,
+                            status = homeViewModel.userAvatar.status,
+                            title = stringResource(id = homeUIState.currentNavigationItem.title),
+                            elevation = when (currentNavigationItem.isSearchable) {
+                                true -> 0.dp
+                                false -> lazyListState.topBarElevation(dimensions().topBarElevationHeight)
+                            },
+                            onOpenDrawerClicked = ::openDrawer,
+                            onNavigateToUserProfile = homeViewModel::navigateToUserProfile,
+                        )
+                    }
                 },
                 currentNavigationItem = homeUIState.currentNavigationItem,
                 homeNavigationGraph = {
                     HomeNavigationGraph(
-                        homeState = homeUIState,
-                        startScreen = startScreen
+                        homeUIState = homeUIState,
+                        navController = homeUIState.navController,
+                        startDestination = topItems[0]
                     )
                 }
             )
@@ -181,18 +201,6 @@ fun HomeContent(
             }
         }
     }
-}
-
-@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
-@Composable
-fun HomeNavigationGraph(startScreen: String?, homeState: HomeUIState) {
-    val startDestination = HomeNavigationItem.all.firstOrNull { startScreen == it.route }?.route
-
-    HomeNavigationGraph(
-        homeUIState = homeState,
-        navController = homeState.navController,
-        startDestination = startDestination
-    )
 }
 
 @Composable

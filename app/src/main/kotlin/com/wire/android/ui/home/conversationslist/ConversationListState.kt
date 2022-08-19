@@ -3,7 +3,6 @@ package com.wire.android.ui.home.conversationslist
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.NewActivity
-import com.wire.kalium.logic.data.user.UserId
 
 data class ConversationListState(
     val newActivities: List<NewActivity> = emptyList(),
@@ -14,8 +13,5 @@ data class ConversationListState(
     val allMentions: List<ConversationItem> = emptyList(),
     val newActivityCount: Long = 0,
     val missedCallsCount: Long = 0,
-    val unreadMentionsCount: Long = 0,
-    val blockUserDialogSate: BlockUserDialogState? = null
+    val unreadMentionsCount: Long = 0
 )
-
-data class BlockUserDialogState(val userName: String, val userId: UserId)

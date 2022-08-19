@@ -1,8 +1,10 @@
 package com.wire.android.notification
 
 import com.wire.android.common.runTestWithCancellation
+import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
+import com.wire.android.util.lifecycle.ConnectionPolicyManager
 import com.wire.android.util.newServerConfig
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.GlobalKaliumScope
@@ -12,7 +14,6 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.notification.LocalNotificationConversation
 import com.wire.kalium.logic.data.notification.LocalNotificationMessage
 import com.wire.kalium.logic.data.notification.LocalNotificationMessageAuthor
-import com.wire.kalium.logic.data.sync.ConnectionPolicy
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.UserSessionScope
 import com.wire.kalium.logic.feature.auth.AuthSession
@@ -26,7 +27,6 @@ import com.wire.kalium.logic.feature.message.MessageScope
 import com.wire.kalium.logic.feature.message.Result
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
-import com.wire.kalium.logic.sync.SetConnectionPolicyUseCase
 import com.wire.kalium.logic.sync.SyncManager
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -57,7 +57,7 @@ class WireNotificationManagerTest {
     }
 
     @Test
-    fun givenAuthenticatedUser_whenFetchAndShowNotificationsOnceCalled_thenSyncIsPerformedWithPolicyTemporarilyUpgraded() = runTest {
+    fun givenAuthenticatedUser_whenFetchAndShowNotificationsOnceCalled_thenConnectionPolicyManagerIsCalled() = runTest {
         val (arrangement, manager) = Arrangement()
             .withSession(GetAllSessionsResult.Success(listOf(TEST_AUTH_SESSION)))
             .withMessageNotifications(listOf())
@@ -67,9 +67,7 @@ class WireNotificationManagerTest {
         manager.fetchAndShowNotificationsOnce("user_id")
 
         verify(atLeast = 1) { arrangement.coreLogic.getSessionScope(any()) }
-        coVerify(exactly = 1) { arrangement.setConnectionPolicyUseCase(ConnectionPolicy.KEEP_ALIVE) }
-        coVerify(exactly = 1) { arrangement.setConnectionPolicyUseCase(ConnectionPolicy.DISCONNECT_AFTER_PENDING_EVENTS) }
-        coVerify(exactly = 1) { arrangement.syncManager.waitUntilLive() }
+        coVerify(exactly = 1) { arrangement.connectionPolicyManager.handleConnectionOnPushNotification(TEST_AUTH_SESSION.session.userId) }
         verify(exactly = 1) { arrangement.messageNotificationManager.handleNotification(listOf(), any()) }
         verify(exactly = 1) { arrangement.callNotificationManager.handleNotifications(listOf(), any()) }
     }
@@ -201,6 +199,24 @@ class WireNotificationManagerTest {
             coVerify(atLeast = 1) { arrangement.markMessagesAsNotified(conversationId, any()) }
         }
 
+    @Test
+    fun givenASingleUserId_whenCallingFetchAndShowOnceMultipleTimes_thenConversationNotificationDateUpdated() =
+        runTestWithCancellation {
+            val userId = TEST_AUTH_SESSION.session.userId
+            val (arrangement, manager) = Arrangement()
+                .withMessageNotifications(listOf())
+                .withSession(GetAllSessionsResult.Success(listOf(TEST_AUTH_SESSION)))
+                .withIncomingCalls(listOf())
+                .withCurrentScreen(CurrentScreen.InBackground)
+                .arrange()
+
+            manager.fetchAndShowNotificationsOnce(userId.value)
+            manager.fetchAndShowNotificationsOnce(userId.value)
+            runCurrent()
+
+            coVerify(exactly = 1) { arrangement.connectionPolicyManager.handleConnectionOnPushNotification(userId) }
+        }
+
     private class Arrangement {
         @MockK
         lateinit var coreLogic: CoreLogic
@@ -233,13 +249,13 @@ class WireNotificationManagerTest {
         lateinit var getNotificationsUseCase: GetNotificationsUseCase
 
         @MockK
+        lateinit var connectionPolicyManager: ConnectionPolicyManager
+
+        @MockK
         lateinit var markMessagesAsNotified: MarkMessagesAsNotifiedUseCase
 
         @MockK
         lateinit var getIncomingCallsUseCase: GetIncomingCallsUseCase
-
-        @MockK
-        lateinit var setConnectionPolicyUseCase: SetConnectionPolicyUseCase
 
         @MockK
         lateinit var getSessionsUseCase: GetSessionsUseCase
@@ -249,7 +265,9 @@ class WireNotificationManagerTest {
                 coreLogic,
                 currentScreenManager,
                 messageNotificationManager,
-                callNotificationManager
+                callNotificationManager,
+                connectionPolicyManager,
+                TestDispatcherProvider()
             )
         }
 
@@ -260,7 +278,6 @@ class WireNotificationManagerTest {
             coEvery { userSessionScope.messages } returns messageScope
             coEvery { userSessionScope.syncManager } returns syncManager
             coEvery { syncManager.waitUntilLive() } returns Unit
-            coEvery { userSessionScope.setConnectionPolicy } returns setConnectionPolicyUseCase
             coEvery { globalKaliumScope.getSessions } returns getSessionsUseCase
             coEvery { coreLogic.getSessionScope(any()) } returns userSessionScope
             coEvery { coreLogic.getGlobalScope() } returns globalKaliumScope

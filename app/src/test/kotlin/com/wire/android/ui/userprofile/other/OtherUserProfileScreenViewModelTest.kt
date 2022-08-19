@@ -3,7 +3,9 @@ package com.wire.android.ui.userprofile.other
 import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
+import com.wire.android.framework.TestUser
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.EXTRA_USER_ID
@@ -11,12 +13,14 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.details.participants.usecase.ConversationRoleData
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.CoreFailure.Unknown
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.Member
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.PlainId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.TeamId
@@ -26,8 +30,12 @@ import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.feature.client.GetOtherUserClientsUseCase
+import com.wire.kalium.logic.feature.client.PersistOtherUserClientsUseCase
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCase
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCaseResult
+import com.wire.kalium.logic.feature.connection.BlockUserResult
+import com.wire.kalium.logic.feature.connection.BlockUserUseCase
 import com.wire.kalium.logic.feature.connection.CancelConnectionRequestUseCase
 import com.wire.kalium.logic.feature.connection.CancelConnectionRequestUseCaseResult
 import com.wire.kalium.logic.feature.connection.IgnoreConnectionRequestUseCase
@@ -36,10 +44,13 @@ import com.wire.kalium.logic.feature.connection.SendConnectionRequestResult
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
 import com.wire.kalium.logic.feature.conversation.CreateConversationResult
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
+import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleResult
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUseCase
+import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
+import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
-import com.wire.kalium.logic.feature.user.GetUserInfoUseCase
+import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
 import io.mockk.Called
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -50,7 +61,6 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
-import org.junit.Assert.assertNotNull
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
@@ -71,7 +81,7 @@ class OtherUserProfileScreenViewModelTest {
     private lateinit var getOrCreateOneToOneConversation: GetOrCreateOneToOneConversationUseCase
 
     @MockK
-    private lateinit var getUserInfo: GetUserInfoUseCase
+    private lateinit var observeUserInfo: ObserveUserInfoUseCase
 
     @MockK
     private lateinit var sendConnectionRequest: SendConnectionRequestUseCase
@@ -100,6 +110,24 @@ class OtherUserProfileScreenViewModelTest {
     @MockK
     private lateinit var updateConversationMemberRoleUseCase: UpdateConversationMemberRoleUseCase
 
+    @MockK
+    private lateinit var removeMemberFromConversationUseCase: RemoveMemberFromConversationUseCase
+
+    @MockK
+    private lateinit var observeSelfUser: GetSelfUserUseCase
+
+    @MockK
+    private lateinit var blockUser: BlockUserUseCase
+
+    @MockK
+    private lateinit var updateConversationMutedStatus: UpdateConversationMutedStatusUseCase
+
+    @MockK
+    private lateinit var otherUserClients: GetOtherUserClientsUseCase
+
+    @MockK
+    private lateinit var persistOtherUserClientsUseCase: PersistOtherUserClientsUseCase
+
     @BeforeEach
     fun setUp() {
         MockKAnnotations.init(this, relaxUnitFun = true)
@@ -107,11 +135,13 @@ class OtherUserProfileScreenViewModelTest {
         every { savedStateHandle.get<String>(eq(EXTRA_USER_ID)) } returns CONVERSATION_ID.toString()
         every { savedStateHandle.get<String>(eq(EXTRA_CONVERSATION_ID)) } returns CONVERSATION_ID.toString()
         coEvery { observeConversationRoleForUserUseCase.invoke(any(), any()) } returns flowOf(CONVERSATION_ROLE_DATA)
-        coEvery { getUserInfo(any()) } returns GetUserInfoResult.Success(OTHER_USER, TEAM)
+        coEvery { observeUserInfo(any()) } returns flowOf(GetUserInfoResult.Success(OTHER_USER, TEAM))
+        coEvery { observeSelfUser() } returns flowOf(TestUser.SELF_USER)
         every { userTypeMapper.toMembership(any()) } returns Membership.None
         coEvery {
             qualifiedIdMapper.fromStringToQualifiedID("some_value@some_domain")
         } returns QualifiedID("some_value", "some_domain")
+        coEvery { getOrCreateOneToOneConversation(USER_ID) } returns CreateConversationResult.Success(CONVERSATION)
         initViewModel()
     }
 
@@ -119,8 +149,12 @@ class OtherUserProfileScreenViewModelTest {
         otherUserProfileScreenViewModel = OtherUserProfileScreenViewModel(
             savedStateHandle,
             navigationManager,
+            TestDispatcherProvider(),
+            observeSelfUser,
+            updateConversationMutedStatus,
+            blockUser,
             getOrCreateOneToOneConversation,
-            getUserInfo,
+            observeUserInfo,
             sendConnectionRequest,
             cancelConnectionRequest,
             acceptConnectionRequest,
@@ -128,8 +162,11 @@ class OtherUserProfileScreenViewModelTest {
             userTypeMapper,
             wireSessionImageLoader,
             observeConversationRoleForUserUseCase,
-            qualifiedIdMapper,
-            updateConversationMemberRoleUseCase
+            removeMemberFromConversationUseCase,
+            updateConversationMemberRoleUseCase,
+            otherUserClients,
+            persistOtherUserClientsUseCase,
+            qualifiedIdMapper
         )
     }
 
@@ -146,7 +183,7 @@ class OtherUserProfileScreenViewModelTest {
 
                 // then
                 coVerify { sendConnectionRequest(eq(USER_ID)) }
-                assertEquals(ConnectionState.SENT, otherUserProfileScreenViewModel.state.connectionStatus)
+                assertEquals(ConnectionState.SENT, otherUserProfileScreenViewModel.state.connectionState)
                 assertEquals(InfoMessageType.SuccessConnectionSentRequest.uiText, awaitItem())
             }
         }
@@ -184,7 +221,7 @@ class OtherUserProfileScreenViewModelTest {
             coVerify {
                 ignoreConnectionRequest(eq(USER_ID))
             }
-            assertEquals(ConnectionState.NOT_CONNECTED, otherUserProfileScreenViewModel.state.connectionStatus)
+            assertEquals(ConnectionState.NOT_CONNECTED, otherUserProfileScreenViewModel.state.connectionState)
         }
 
     @Test
@@ -200,7 +237,7 @@ class OtherUserProfileScreenViewModelTest {
 
                 // then
                 coVerify { cancelConnectionRequest(eq(USER_ID)) }
-                assertEquals(ConnectionState.NOT_CONNECTED, otherUserProfileScreenViewModel.state.connectionStatus)
+                assertEquals(ConnectionState.NOT_CONNECTED, otherUserProfileScreenViewModel.state.connectionState)
                 assertEquals(InfoMessageType.SuccessConnectionCancelRequest.uiText, awaitItem())
             }
         }
@@ -218,7 +255,7 @@ class OtherUserProfileScreenViewModelTest {
 
                 // then
                 coVerify { acceptConnectionRequest(eq(USER_ID)) }
-                assertEquals(ConnectionState.ACCEPTED, otherUserProfileScreenViewModel.state.connectionStatus)
+                assertEquals(ConnectionState.ACCEPTED, otherUserProfileScreenViewModel.state.connectionState)
                 assertEquals(InfoMessageType.SuccessConnectionAcceptRequest.uiText, awaitItem())
             }
         }
@@ -268,8 +305,9 @@ class OtherUserProfileScreenViewModelTest {
     fun `given a group conversationId, when loading the data, then return group state`() =
         runTest {
             // given
-            val expected =  OtherUserProfileGroupState("some_name", Member.Role.Member, false)
+            val expected = OtherUserProfileGroupState("some_name", Member.Role.Member, false, CONVERSATION_ID)
             every { savedStateHandle.get<String>(eq(EXTRA_CONVERSATION_ID)) } returns CONVERSATION_ID.toString()
+            coEvery { getOrCreateOneToOneConversation(USER_ID) } returns CreateConversationResult.Success(CONVERSATION)
             initViewModel()
             // when
             val groupState = otherUserProfileScreenViewModel.state.groupState
@@ -341,6 +379,51 @@ class OtherUserProfileScreenViewModelTest {
             }
         }
 
+    @Test
+    fun `given a userId, when blocking user fails, then show error message and dismiss BlockDialog`() =
+        runTest {
+            // given
+            coEvery { blockUser(any()) } returns BlockUserResult.Failure(Unknown(RuntimeException("some error")))
+            otherUserProfileScreenViewModel.infoMessage.test {
+
+                // when
+                expectNoEvents()
+                otherUserProfileScreenViewModel.blockUser(USER_ID, "some name")
+
+                // then
+                coVerify {
+                    blockUser(eq(USER_ID))
+                }
+                assertEquals(InfoMessageType.BlockingUserOperationError.uiText, awaitItem())
+                assertEquals(null, otherUserProfileScreenViewModel.blockUserDialogState)
+            }
+        }
+
+    @Test
+    fun `given a userId, when blocking user is succeed, then returns show Success message and dismiss BlockDialog`() =
+        runTest {
+            // given
+            coEvery { blockUser(any()) } returns BlockUserResult.Success
+            initViewModel()
+            otherUserProfileScreenViewModel.infoMessage.test {
+                val userName = "some name"
+
+                // when
+                expectNoEvents()
+                otherUserProfileScreenViewModel.blockUser(USER_ID, userName)
+
+                // then
+                coVerify {
+                    blockUser(eq(USER_ID))
+                }
+                assertEquals(
+                    (awaitItem() as UIText.StringResource).resId,
+                    (InfoMessageType.BlockingUserOperationSuccess(userName).uiText as UIText.StringResource).resId
+                )
+                assertEquals(null, otherUserProfileScreenViewModel.blockUserDialogState)
+            }
+        }
+
     // todo: add tests for cancel request
 
     companion object {
@@ -359,7 +442,8 @@ class OtherUserProfileScreenViewModelTest {
             null,
             UserType.INTERNAL,
             UserAvailabilityStatus.AVAILABLE,
-            null
+            null,
+            false
         )
         val TEAM = Team("some_id", null)
         val CONVERSATION = Conversation(
@@ -374,8 +458,14 @@ class OtherUserProfileScreenViewModelTest {
             lastModifiedDate = null,
             lastReadDate = "2022-04-04T16:11:28.388Z",
             access = listOf(Conversation.Access.INVITE),
-            accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER)
+            accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER),
+            creatorId = PlainId("")
         )
-        val CONVERSATION_ROLE_DATA = ConversationRoleData("some_name", Member.Role.Member, Member.Role.Member)
+        val CONVERSATION_ROLE_DATA = ConversationRoleData(
+            "some_name",
+            Member.Role.Member,
+            Member.Role.Member,
+            CONVERSATION_ID
+        )
     }
 }

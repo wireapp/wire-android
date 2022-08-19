@@ -12,6 +12,7 @@ import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.PlainId
 import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.data.publicuser.model.UserSearchResult
 import com.wire.kalium.logic.data.user.ConnectionState
@@ -110,7 +111,8 @@ internal class NewConversationViewModelArrangement {
             lastModifiedDate = null,
             lastReadDate = "2022-04-04T16:11:28.388Z",
             access = listOf(Conversation.Access.INVITE),
-            accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER)
+            accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER),
+            creatorId = PlainId("")
         )
 
         val PUBLIC_USER = OtherUser(
@@ -126,7 +128,8 @@ internal class NewConversationViewModelArrangement {
             completePicture = UserAssetId("value", "domain"),
             availabilityStatus = UserAvailabilityStatus.AVAILABLE,
             userType = UserType.FEDERATED,
-            botService = null
+            botService = null,
+            deleted = false
         )
 
         val KNOWN_USER = OtherUser(
@@ -143,6 +146,7 @@ internal class NewConversationViewModelArrangement {
             availabilityStatus = UserAvailabilityStatus.AVAILABLE,
             userType = UserType.FEDERATED,
             botService = null,
+            deleted = false
         )
     }
 

@@ -42,7 +42,6 @@ fun InitiatingCallScreen(
             toggleMute = ::toggleMute,
             toggleSpeaker = ::toggleSpeaker,
             toggleVideo = ::toggleVideo,
-            onNavigateBack = ::navigateBack,
             onHangUpCall = initiatingCallViewModel::hangUpCall,
             onVideoPreviewCreated = ::setVideoPreview,
             onSelfClearVideoPreview = ::clearVideoPreview
@@ -57,7 +56,6 @@ private fun InitiatingCallContent(
     toggleMute: () -> Unit,
     toggleSpeaker: () -> Unit,
     toggleVideo: () -> Unit,
-    onNavigateBack: () -> Unit,
     onHangUpCall: () -> Unit,
     onVideoPreviewCreated: (view: View) -> Unit,
     onSelfClearVideoPreview: () -> Unit

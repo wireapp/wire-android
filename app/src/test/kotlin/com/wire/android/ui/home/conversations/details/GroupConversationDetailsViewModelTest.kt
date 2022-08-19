@@ -2,7 +2,6 @@ package com.wire.android.ui.home.conversations.details
 
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.mapper.testUIParticipant
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationManager
@@ -13,11 +12,14 @@ import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.LegalHoldStatus
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.PlainId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.TeamId
+import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
+import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -113,21 +115,26 @@ class GroupConversationDetailsViewModelTest {
                 )
             )
         )
+        val selfTeam = Team("team_id", "team_name")
         val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
             .withConversationDetailUpdate(details)
             .withConversationMembersUpdate(conversationParticipantsData)
+            .withSelfTeamUseCaseReturns(selfTeam)
             .arrange()
 
         // When - Then
         assertEquals(details.conversation.name, viewModel.groupOptionsState.groupName)
         assertEquals(conversationParticipantsData.isSelfAnAdmin, viewModel.groupOptionsState.isUpdatingAllowed)
         assertEquals(details.conversation.name, viewModel.groupOptionsState.groupName)
-        assertEquals(details.conversation.isTeamGroup(), viewModel.groupOptionsState.isTeamGroup)
+        assertEquals(details.conversation.isTeamGroup(), viewModel.groupOptionsState.areAccessOptionsAvailable)
         assertEquals(
             (details.conversation.isGuestAllowed() || details.conversation.isNonTeamMemberAllowed()),
             viewModel.groupOptionsState.isGuestAllowed
         )
-        assertEquals(conversationParticipantsData.isSelfAnAdmin, viewModel.groupOptionsState.isUpdatingGuestAllowed)
+        assertEquals(
+            conversationParticipantsData.isSelfAnAdmin && details.conversation.teamId?.value == selfTeam.id,
+            viewModel.groupOptionsState.isUpdatingGuestAllowed
+        )
     }
 
     @Test
@@ -188,7 +195,7 @@ class GroupConversationDetailsViewModelTest {
             .arrange()
 
         viewModel.onGuestUpdate(false)
-        assertEquals(true, viewModel.groupOptionsState.changeGuestOptionConformationRequired)
+        assertEquals(true, viewModel.groupOptionsState.changeGuestOptionConfirmationRequired)
     }
 
     @Test
@@ -215,7 +222,7 @@ class GroupConversationDetailsViewModelTest {
             .arrange()
 
         viewModel.onGuestDialogConfirm()
-        assertEquals(false, viewModel.groupOptionsState.changeGuestOptionConformationRequired)
+        assertEquals(false, viewModel.groupOptionsState.changeGuestOptionConfirmationRequired)
         coVerify(exactly = 1) {
             arrangement.updateConversationAccessRoleUseCase(
                 conversationId = details.conversation.id,
@@ -294,6 +301,38 @@ class GroupConversationDetailsViewModelTest {
         }
     }
 
+    @Test
+    fun `given a group conversation, when self is admin and in owner team, then should be able to edit Guests option`() = runTest {
+        // Given
+        val conversationParticipantsData = ConversationParticipantsData(isSelfAnAdmin = true)
+        val details = testGroup.copy(conversation = testGroup.conversation.copy(teamId = TeamId("team_id")))
+        val selfTeam = Team("team_id", "team_name")
+        val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
+            .withConversationDetailUpdate(details)
+            .withConversationMembersUpdate(conversationParticipantsData)
+            .withSelfTeamUseCaseReturns(selfTeam)
+            .arrange()
+
+        // When - Then
+        assertEquals(true, viewModel.groupOptionsState.isUpdatingGuestAllowed)
+    }
+
+    @Test
+    fun `given a group conversation, when self is admin and not in owner team, then should not be able to edit Guests option`() = runTest {
+        // Given
+        val conversationParticipantsData = ConversationParticipantsData(isSelfAnAdmin = true)
+        val details = testGroup.copy(conversation = testGroup.conversation.copy(teamId = TeamId("team_id")))
+        val selfTeam = Team("other_team_id", "team_name")
+        val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
+            .withConversationDetailUpdate(details)
+            .withConversationMembersUpdate(conversationParticipantsData)
+            .withSelfTeamUseCaseReturns(selfTeam)
+            .arrange()
+
+        // When - Then
+        assertEquals(false, viewModel.groupOptionsState.isUpdatingGuestAllowed)
+    }
+
     companion object {
         val testGroup = ConversationDetails.Group(
             Conversation(
@@ -308,11 +347,13 @@ class GroupConversationDetailsViewModelTest {
                 lastModifiedDate = null,
                 access = listOf(Conversation.Access.CODE, Conversation.Access.INVITE),
                 accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER, Conversation.AccessRole.GUEST),
-                lastReadDate = "2022-04-04T16:11:28.388Z"
+                lastReadDate = "2022-04-04T16:11:28.388Z",
+                creatorId = PlainId("")
             ),
             legalHoldStatus = LegalHoldStatus.DISABLED,
             hasOngoingCall = false,
-            unreadMessagesCount = 0L
+            unreadMessagesCount = 0L,
+            lastUnreadMessage = null
         )
     }
 }
@@ -335,6 +376,9 @@ internal class GroupConversationDetailsViewModelArrangement {
     lateinit var updateConversationAccessRoleUseCase: UpdateConversationAccessRoleUseCase
 
     @MockK
+    lateinit var getSelfTeamUseCase: GetSelfTeamUseCase
+
+    @MockK
     private lateinit var qualifiedIdMapper: QualifiedIdMapper
 
     private val conversationDetailsChannel = Channel<ConversationDetails>(capacity = Channel.UNLIMITED)
@@ -343,12 +387,12 @@ internal class GroupConversationDetailsViewModelArrangement {
 
     private val viewModel by lazy {
         GroupConversationDetailsViewModel(
-            navigationManager,
-            observeConversationDetails,
-            observeParticipantsForConversationUseCase,
-            updateConversationAccessRoleUseCase,
-            dispatcher = TestDispatcherProvider(),
-            savedStateHandle,
+            navigationManager = navigationManager,
+            observeConversationDetails = observeConversationDetails,
+            observeConversationMembers = observeParticipantsForConversationUseCase,
+            updateConversationAccessRole = updateConversationAccessRoleUseCase,
+            getSelfTeam = getSelfTeamUseCase,
+            savedStateHandle = savedStateHandle,
             qualifiedIdMapper = qualifiedIdMapper
         )
     }
@@ -361,6 +405,7 @@ internal class GroupConversationDetailsViewModelArrangement {
         // Default empty values
         coEvery { observeConversationDetails(any()) } returns flowOf()
         coEvery { observeParticipantsForConversationUseCase(any(), any()) } returns flowOf()
+        coEvery { getSelfTeamUseCase() } returns flowOf(null)
         coEvery {
             qualifiedIdMapper.fromStringToQualifiedID("some-dummy-value@some.dummy.domain")
         } returns QualifiedID("some-dummy-value", "some.dummy.domain")
@@ -387,6 +432,10 @@ internal class GroupConversationDetailsViewModelArrangement {
 
     suspend fun withUpdateConversationAccessUseCaseReturns(result: UpdateConversationAccessRoleUseCase.Result) = apply {
         coEvery { updateConversationAccessRoleUseCase(any(), any(), any(), any()) } returns result
+    }
+
+    suspend fun withSelfTeamUseCaseReturns(result: Team?) = apply {
+        coEvery { getSelfTeamUseCase() } returns flowOf(result)
     }
 
     fun arrange() = this to viewModel

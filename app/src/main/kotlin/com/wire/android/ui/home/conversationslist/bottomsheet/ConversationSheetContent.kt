@@ -4,7 +4,7 @@ import MutingOptionsSheetContent
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import com.wire.android.model.ImageAsset.UserAvatarAsset
-import com.wire.android.ui.home.conversationslist.ConversationSheetState
+import com.wire.android.ui.home.conversationslist.model.BlockingState
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
@@ -18,11 +18,11 @@ fun ConversationSheetContent(
     moveConversationToArchive: () -> Unit,
     clearConversationContent: () -> Unit,
     blockUser: (UserId, String) -> Unit,
-    leaveGroup: () -> Unit
+    leaveGroup: (ConversationId) -> Unit
 ) {
     when (conversationSheetState.currentOptionNavigation) {
         ConversationOptionNavigation.Home -> {
-            HomeSheetContent(
+            ConversationMainSheetContent(
                 conversationSheetContent = conversationSheetState.conversationSheetContent!!,
                 addConversationToFavourites = addConversationToFavourites,
                 moveConversationToFolder = moveConversationToFolder,
@@ -57,7 +57,7 @@ sealed class ConversationTypeDetail {
     data class Private(
         val avatarAsset: UserAvatarAsset?,
         val userId: UserId,
-        val isBlockable: Boolean
+        val blockingState: BlockingState
     ) : ConversationTypeDetail()
     data class Connection(val avatarAsset: UserAvatarAsset?) : ConversationTypeDetail()
 }

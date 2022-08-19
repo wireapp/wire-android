@@ -2,8 +2,8 @@ package com.wire.android.ui.home.conversations
 
 import android.app.DownloadManager
 import android.content.Intent
-import android.util.Log
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -17,13 +17,10 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -39,6 +36,9 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.conversationColor
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
+import com.wire.android.ui.common.topappbar.CommonTopAppBar
+import com.wire.android.ui.common.topappbar.CommonTopAppBarBaseViewModel
+import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorDeletingMessage
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorDownloadingAsset
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorMaxAssetSize
@@ -59,8 +59,8 @@ import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
 import com.wire.android.ui.home.messagecomposer.MessageComposeInputState
 import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
-import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
@@ -68,13 +68,15 @@ import okio.Path
 import okio.Path.Companion.toPath
 
 @Composable
-fun ConversationScreen(conversationViewModel: ConversationViewModel) {
+fun ConversationScreen(
+    conversationViewModel: ConversationViewModel,
+    commonTopAppBarViewModel: CommonTopAppBarViewModel
+) {
     val showDialog = remember { mutableStateOf(false) }
 
     val startCallAudioPermissionCheck = StartCallAudioBluetoothPermissionCheckFlow {
         conversationViewModel.navigateToInitiatingCallScreen()
     }
-    val joinCallAudioPermissionCheck = JoinCallAudioBluetoothPermissionCheckFlow(conversationViewModel)
     val uiState = conversationViewModel.conversationViewState
 
     LaunchedEffect(conversationViewModel.savedStateHandle) {
@@ -118,13 +120,15 @@ fun ConversationScreen(conversationViewModel: ConversationViewModel) {
                 startCallAudioPermissionCheck.launch()
             }
         },
-        onJoinCall = joinCallAudioPermissionCheck::launch,
+        onJoinCall = conversationViewModel::joinOngoingCall,
         onSnackbarMessage = conversationViewModel::onSnackbarMessage,
         onSnackbarMessageShown = conversationViewModel::clearSnackbarMessage,
         onDropDownClick = conversationViewModel::navigateToDetails,
         tempCachePath = conversationViewModel.provideTempCachePath(),
         onOpenProfile = conversationViewModel::navigateToProfile,
         onUpdateConversationReadDate = conversationViewModel::updateConversationReadDate
+        onOpenProfile = conversationViewModel::navigateToProfile,
+        commonTopAppBarViewModel = commonTopAppBarViewModel
     )
 
     DeleteMessageDialog(conversationViewModel = conversationViewModel)
@@ -145,14 +149,6 @@ private fun StartCallAudioBluetoothPermissionCheckFlow(
     //TODO display an error dialog
 }
 
-@Composable
-private fun JoinCallAudioBluetoothPermissionCheckFlow(conversationViewModel: ConversationViewModel) =
-    rememberCallingRecordAudioBluetoothRequestFlow(onAudioBluetoothPermissionGranted = {
-        conversationViewModel.joinOngoingCall()
-    }) {
-        //TODO display an error dialog
-    }
-
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterialApi::class)
 @Suppress("LongParameterList")
 @Composable
@@ -172,7 +168,7 @@ private fun ConversationScreen(
     onDropDownClick: () -> Unit,
     tempCachePath: Path,
     onOpenProfile: (MessageSource, UserId) -> Unit,
-    onUpdateConversationReadDate: (String) -> Unit
+    commonTopAppBarViewModel: CommonTopAppBarBaseViewModel
 ) {
     val conversationScreenState = rememberConversationScreenState()
 
@@ -196,32 +192,36 @@ private fun ConversationScreen(
             content = {
                 Scaffold(
                     topBar = {
-                        ConversationScreenTopAppBar(
-                            title = conversationName.asString(),
-                            avatar = {
-                                when (conversationAvatar) {
-                                    is ConversationAvatar.Group ->
-                                        GroupConversationAvatar(
-                                            color = colorsScheme().conversationColor(id = conversationAvatar.conversationId)
+                        Column {
+                            CommonTopAppBar(commonTopAppBarViewModel = commonTopAppBarViewModel as CommonTopAppBarViewModel)
+                            ConversationScreenTopAppBar(
+                                title = conversationName.asString(),
+                                avatar = {
+                                    when (conversationAvatar) {
+                                        is ConversationAvatar.Group ->
+                                            GroupConversationAvatar(
+                                                color = colorsScheme().conversationColor(id = conversationAvatar.conversationId)
+                                            )
+                                        is ConversationAvatar.OneOne -> UserProfileAvatar(
+                                            UserAvatarData(
+                                                asset = conversationAvatar.avatarAsset,
+                                                availabilityStatus = conversationAvatar.status,
+                                                connectionState = connectionStateOrNull
+                                            )
                                         )
-                                    is ConversationAvatar.OneOne -> UserProfileAvatar(
-                                        UserAvatarData(
-                                            asset = conversationAvatar.avatarAsset,
-                                            availabilityStatus = conversationAvatar.status,
-                                            connectionState = connectionStateOrNull
-                                        )
-                                    )
-                                    ConversationAvatar.None -> Box(modifier = Modifier.size(dimensions().userAvatarDefaultSize))
-                                }
-                            },
-                            onBackButtonClick = onBackButtonClick,
-                            onDropDownClick = onDropDownClick,
-                            onSearchButtonClick = { },
-                            onPhoneButtonClick = onStartCall,
-                            hasOngoingCall = hasOngoingCall,
-                            onJoinCallButtonClick = onJoinCall,
-                            isUserBlocked = connectionStateOrNull == ConnectionState.BLOCKED
-                        )
+                                        ConversationAvatar.None -> Box(modifier = Modifier.size(dimensions().userAvatarDefaultSize))
+                                    }
+                                },
+                                onBackButtonClick = onBackButtonClick,
+                                onDropDownClick = onDropDownClick,
+                                isDropDownEnabled = conversationViewState.conversationDetailsData !is ConversationDetailsData.None,
+                                onSearchButtonClick = { },
+                                onPhoneButtonClick = onStartCall,
+                                hasOngoingCall = hasOngoingCall,
+                                onJoinCallButtonClick = onJoinCall,
+                                isUserBlocked = connectionStateOrNull == ConnectionState.BLOCKED
+                            )
+                        }
                     },
                     snackbarHost = {
                         SwipeDismissSnackbarHost(
@@ -436,5 +436,7 @@ fun ConversationScreenPreview() {
         tempCachePath = "".toPath(),
         onOpenProfile = { _, _ -> },
         onUpdateConversationReadDate = {}
+        onOpenProfile = { _, _ -> },
+        commonTopAppBarViewModel = object: CommonTopAppBarBaseViewModel() { }
     )
 }

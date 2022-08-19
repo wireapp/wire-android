@@ -99,6 +99,7 @@ dependencies {
     implementation(Libraries.Kotlin.stdLib)
     implementation(Libraries.appCompat)
     implementation(Libraries.ktxCore)
+    implementation(Libraries.ktxDateTime)
     implementation(Libraries.constraintLayout)
     implementation(Libraries.material)
     implementation(Libraries.Kotlin.coroutinesCore)

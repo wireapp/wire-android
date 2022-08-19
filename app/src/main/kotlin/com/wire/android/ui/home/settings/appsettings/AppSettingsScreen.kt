@@ -17,7 +17,7 @@ import androidx.compose.ui.unit.sp
 
 // the logic here is just temporary and will be updated to be added to the VM once we build the settings screen
 @Composable
-fun SettingsScreen() {
+fun AppSettingsScreen() {
     Column(
         modifier = Modifier.fillMaxSize().wrapContentSize(Alignment.Center)
     ) {
@@ -34,6 +34,6 @@ fun SettingsScreen() {
 
 @Preview(showBackground = false)
 @Composable
-fun SettingsScreenPreview() {
-    SettingsScreen()
+fun AppSettingsScreenPreview() {
+    AppSettingsScreen()
 }

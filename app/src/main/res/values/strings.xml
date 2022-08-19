@@ -33,8 +33,8 @@
     <string name="label_off">OFF</string>
     <string name="label_value_copied">%s copied</string>
     <string name="label_disable">Disable</string>
-    <string name="folder_lable_access">Access</string>
-    <string name="folder_lable_protocol_details">Protocol details (beta)</string>
+    <string name="folder_lable_access">ACCESS</string>
+    <string name="folder_lable_protocol_details">PROTOCOL DETAILS (beta)</string>
     <string name="label_user_blocked">Blocked</string>
 
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->

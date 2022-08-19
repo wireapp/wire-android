@@ -24,6 +24,7 @@ import com.wire.android.ui.common.conversationColor
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
 import com.wire.android.ui.home.conversationslist.model.BlockingState
+import com.wire.android.ui.home.conversationslist.model.LeaveGroupState
 import com.wire.android.ui.home.conversationslist.model.getMutedStatusTextResource
 import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
@@ -38,7 +39,7 @@ internal fun ConversationMainSheetContent(
     moveConversationToArchive: () -> Unit,
     clearConversationContent: () -> Unit,
     blockUserClick: (UserId, String) -> Unit,
-    leaveGroup: () -> Unit,
+    leaveGroup: (LeaveGroupState) -> Unit,
     navigateToNotification: () -> Unit
 ) {
     MenuModalSheetContent(
@@ -154,7 +155,9 @@ internal fun ConversationMainSheetContent(
                                 )
                             },
                             title = stringResource(R.string.label_leave_group),
-                            onItemClick = leaveGroup
+                            onItemClick = {
+                                leaveGroup(LeaveGroupState(conversationSheetContent.conversationId, conversationSheetContent.title))
+                            }
                         )
                     }
                 }

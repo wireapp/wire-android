@@ -12,7 +12,7 @@ import com.wire.android.ui.common.visbility.VisibilityState
 
 @Composable
 internal fun DeleteConversationGroupDialog(
-    dialogState: VisibilityState,
+    dialogState: VisibilityState<Unit>,
     isLoading: Boolean,
     conversationName: String,
     onDeleteGroup: () -> Unit,

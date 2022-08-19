@@ -110,5 +110,6 @@ sealed class HomeSnackbarState {
     class BlockingUserOperationSuccess(val userName: String) : HomeSnackbarState()
     class DeletedConversationGroupSuccess(val groupName: String) : HomeSnackbarState()
     object LeftConversationSuccess : HomeSnackbarState()
+    object LeaveConversationError : HomeSnackbarState()
     object None : HomeSnackbarState()
 }

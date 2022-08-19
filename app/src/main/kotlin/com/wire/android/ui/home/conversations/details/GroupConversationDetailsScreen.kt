@@ -52,6 +52,7 @@ import com.wire.android.ui.home.conversations.details.options.GroupConversationO
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipants
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipantsState
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
+import com.wire.android.ui.home.conversationslist.model.LeaveGroupState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.kalium.logic.data.id.ConversationId
@@ -90,7 +91,7 @@ private fun GroupConversationDetailsContent(
     openFullListPressed: () -> Unit,
     onProfilePressed: (UIParticipant) -> Unit,
     onAddParticipantsPressed: () -> Unit,
-    onLeaveGroup: () -> Unit,
+    onLeaveGroup: (LeaveGroupState) -> Unit,
     onDeleteGroup: () -> Unit,
     groupOptionsState: GroupConversationOptionsState,
     groupParticipantsState: GroupConversationParticipantsState,
@@ -108,8 +109,8 @@ private fun GroupConversationDetailsContent(
     val openBottomSheet: () -> Unit = remember { { scope.launch { sheetState.show() } } }
     val closeBottomSheet: () -> Unit = remember { { scope.launch { sheetState.hide() } } }
 
-    val deleteGroupDialogState = rememberVisibilityState()
-    val leaveGroupDialogState = rememberVisibilityState()
+    val deleteGroupDialogState = rememberVisibilityState<Unit>()
+    val leaveGroupDialogState = rememberVisibilityState<LeaveGroupState>()
 
     if(!isLoading) {
         deleteGroupDialogState.dismiss()
@@ -194,9 +195,8 @@ private fun GroupConversationDetailsContent(
         )
 
     LeaveConversationGroupDialog(
-        conversationName = groupOptionsState.groupName,
-        isLoading = isLoading,
         dialogState = leaveGroupDialogState,
+        isLoading = isLoading,
         onLeaveGroup = onLeaveGroup
     )
 

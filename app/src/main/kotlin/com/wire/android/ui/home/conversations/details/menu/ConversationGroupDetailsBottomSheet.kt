@@ -17,12 +17,13 @@ import com.wire.android.ui.common.conversationColor
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsState
 import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
+import com.wire.android.ui.home.conversationslist.model.LeaveGroupState
 
 @Composable
 fun ConversationGroupDetailsBottomSheet(
     conversationOptionsState: GroupConversationOptionsState,
-    onDeleteGroup: () -> Unit,
-    onLeaveGroup: () -> Unit,
+    onDeleteGroup: (Unit) -> Unit,
+    onLeaveGroup: (LeaveGroupState) -> Unit,
     closeBottomSheet: () -> Unit
 ) {
     MenuModalSheetContent(
@@ -38,12 +39,12 @@ fun ConversationGroupDetailsBottomSheet(
             }),
         menuItems = listOf {
             LeaveGroupItem(
-                onLeaveGroup = onLeaveGroup,
+                onLeaveGroup = { onLeaveGroup(LeaveGroupState(conversationOptionsState.conversationId, conversationOptionsState.groupName))},
                 closeBottomSheet = closeBottomSheet
             )
             if (conversationOptionsState.isAbleToRemoveGroup)
                 DeleteGroupItem(
-                    onDeleteGroup = onDeleteGroup,
+                    onDeleteGroup = { onDeleteGroup(Unit) },
                     closeBottomSheet = closeBottomSheet
                 )
         },

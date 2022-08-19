@@ -27,11 +27,14 @@ import com.wire.android.ui.common.WireBottomNavigationItemData
 import com.wire.android.ui.common.dialogs.BlockUserDialogContent
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.home.HomeSnackbarState
+import com.wire.android.ui.home.conversations.details.menu.LeaveConversationGroupDialog
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationOptionNavigation
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
 import com.wire.android.ui.home.conversationslist.bottomsheet.rememberConversationSheetState
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
+import com.wire.android.ui.home.conversationslist.model.LeaveGroupState
 import com.wire.android.ui.home.conversationslist.navigation.ConversationsNavigationItem
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
@@ -54,6 +57,8 @@ fun ConversationRouterHomeBridge(
     LaunchedEffect(Unit) {
         viewModel.snackBarState.collect { onSnackBarStateChanged(it) }
     }
+
+    val leaveGroupDialogState = rememberVisibilityState<LeaveGroupState>()
 
     fun openConversationBottomSheet(
         conversationItem: ConversationItem,
@@ -89,7 +94,7 @@ fun ConversationRouterHomeBridge(
                 moveConversationToArchive = viewModel::moveConversationToArchive,
                 clearConversationContent = viewModel::clearConversationContent,
                 blockUser = viewModel::onBlockUserClicked,
-                leaveGroup = viewModel::leaveGroup
+                leaveGroup = leaveGroupDialogState::show
             )
         }
 
@@ -118,6 +123,12 @@ fun ConversationRouterHomeBridge(
         onBlockUser = viewModel::blockUser,
         onDismissBlockUserDialog = viewModel::onDismissBlockUserDialog,
     )
+
+        LeaveConversationGroupDialog(
+            dialogState = leaveGroupDialogState,
+            isLoading = viewModel.requestInProgress,
+            onLeaveGroup = viewModel::leaveGroup
+        )
 }
 
 @ExperimentalAnimationApi

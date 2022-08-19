@@ -25,6 +25,7 @@ import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.ConversationLastEvent
+import com.wire.android.ui.home.conversationslist.model.LeaveGroupState
 import com.wire.android.ui.home.conversationslist.model.NewActivity
 import com.wire.android.ui.home.conversationslist.model.getBlockingState
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -45,12 +46,15 @@ import com.wire.kalium.logic.feature.connection.BlockUserResult
 import com.wire.kalium.logic.feature.connection.BlockUserUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationsAndConnectionsUseCase
+import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Date
 import javax.inject.Inject
 
@@ -59,11 +63,13 @@ import javax.inject.Inject
 @HiltViewModel
 class ConversationListViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
+    private val dispatcher: DispatcherProvider,
     private val updateConversationMutedStatus: UpdateConversationMutedStatusUseCase,
     private val answerCall: AnswerCallUseCase,
     private val observeConversationsAndConnections: ObserveConversationsAndConnectionsUseCase,
+    private val removeMemberFromConversation: RemoveMemberFromConversationUseCase,
     private val dispatchers: DispatcherProvider,
-    private val getSelf: GetSelfUserUseCase,
+    private val observeSelfUser: GetSelfUserUseCase,
     private val blockUserUseCase: BlockUserUseCase,
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val userTypeMapper: UserTypeMapper,
@@ -77,13 +83,15 @@ class ConversationListViewModel @Inject constructor(
 
     val snackBarState = MutableSharedFlow<HomeSnackbarState>()
 
+    var requestInProgress: Boolean by mutableStateOf(false)
+
     init {
         startObservingConversationsAndConnections()
     }
 
     private fun startObservingConversationsAndConnections() = viewModelScope.launch(dispatchers.io()) {
         observeConversationsAndConnections() // TODO AR-1736
-            .combine(getSelf(), ::Pair)
+            .combine(observeSelfUser(), ::Pair)
             .collect { (list, selfUser) ->
                 val detailedList = list.conversationList.toConversationsFoldersMap(selfUser.teamId)
                 val newActivities = emptyList<NewActivity>()
@@ -208,9 +216,25 @@ class ConversationListViewModel @Inject constructor(
         blockUserDialogState = PreservedState.State(BlockUserDialogState(name, id))
     }
 
-    // TODO: needs to be implemented
-    @Suppress("EmptyFunctionBlock")
-    fun leaveGroup(id: String = "") {
+    fun leaveGroup(leaveGroupState: LeaveGroupState) {
+        viewModelScope.launch {
+            requestInProgress = true
+            val response = withContext(dispatcher.io()) {
+                val selfUser = observeSelfUser().first()
+                removeMemberFromConversation(
+                    leaveGroupState.conversationId,
+                    selfUser.id
+                )
+            }
+            when (response) {
+                is RemoveMemberFromConversationUseCase.Result.Failure ->
+                    snackBarState.emit(HomeSnackbarState.LeaveConversationError)
+                RemoveMemberFromConversationUseCase.Result.Success -> {
+                    snackBarState.emit(HomeSnackbarState.LeftConversationSuccess)
+                }
+            }
+            requestInProgress = false
+        }
     }
 
     private fun List<ConversationDetails>.toConversationItemList(teamId: TeamId?): List<ConversationItem> =

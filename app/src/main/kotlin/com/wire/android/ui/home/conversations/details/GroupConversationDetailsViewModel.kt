@@ -16,6 +16,7 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsState
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipantsViewModel
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
+import com.wire.android.ui.home.conversationslist.model.LeaveGroupState
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.uiText
@@ -123,13 +124,13 @@ class GroupConversationDetailsViewModel @Inject constructor(
         }
     }
 
-    fun leaveGroup() {
+    fun leaveGroup(leaveGroupState: LeaveGroupState) {
         viewModelScope.launch {
             requestInProgress = true
             val response = withContext(dispatcher.io()) {
                 val selfUser = observerSelfUser().first()
                 removeMemberFromConversation(
-                    conversationId,
+                    leaveGroupState.conversationId,
                     selfUser.id
                 )
             }

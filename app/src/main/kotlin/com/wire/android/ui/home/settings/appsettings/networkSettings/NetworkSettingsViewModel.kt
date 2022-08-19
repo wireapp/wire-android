@@ -41,7 +41,6 @@ class NetworkSettingsViewModel
 
     fun setWebSocketState(isEnabled: Boolean, context: Context) {
         persistPersistentWebSocketConnectionStatus(isEnabled)
-        networkSettingsState = networkSettingsState.copy(isPersistentWebSocketConnectionEnabled = isEnabled)
         if (isEnabled) {
             context.startService(Intent(context, PersistentWebSocketService::class.java))
         } else {

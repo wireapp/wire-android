@@ -70,8 +70,6 @@ class PersistentWebSocketService : Service() {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-//        shouldStopPersistentConnectionForegroundService(intent)
-
         coreLogic.sessionRepository.currentSession().fold({
             appLogger.e("error while getting the current session from persistent web socket service $it")
         }, { authSession ->

@@ -49,15 +49,12 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
     }
 
     fun hideNotification(conversationsId: ConversationId) {
-        notificationManager.cancel(getConversationNotificationId(conversationsId))
+        val notificationId = getConversationNotificationId(conversationsId)
 
-        val notificationsLeft = oldNotificationManager.activeNotifications
-            ?.filter { it.groupKey.endsWith(NotificationConstants.MESSAGE_GROUP_KEY) }
-            ?.size ?: 0
-
-        if (notificationsLeft <= 1) {
-            // only SummaryNotification left
-            notificationManager.cancel(NotificationConstants.MESSAGE_SUMMARY_ID)
+        if (isThereAnyOtherWireNotification(notificationId)) {
+            notificationManager.cancel(notificationId)
+        } else {
+            hideAllNotifications()
         }
     }
 
@@ -240,11 +237,21 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
         return NotificationCompat.MessagingStyle.Message(message, time, sender)
     }
 
+    /**
+     * @return true if there is at least one Wire message notification except the Summary notification
+     * and notification with id [exceptNotificationId]
+     */
+    private fun isThereAnyOtherWireNotification(exceptNotificationId: Int): Boolean {
+        return oldNotificationManager.activeNotifications
+            ?.any {
+                it.groupKey.endsWith(NotificationConstants.MESSAGE_GROUP_KEY)
+                        && it.id != exceptNotificationId
+                        && it.id != NotificationConstants.MESSAGE_SUMMARY_ID
+            }
+            ?: false
+    }
+
     companion object {
         private const val TAG = "MessageNotificationManager"
-
-        fun cancelNotification(context: Context, notificationId: Int) {
-            NotificationManagerCompat.from(context).cancel(notificationId)
-        }
     }
 }

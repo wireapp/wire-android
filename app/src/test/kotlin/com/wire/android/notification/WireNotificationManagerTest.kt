@@ -201,6 +201,24 @@ class WireNotificationManagerTest {
             coVerify(atLeast = 1) { arrangement.messageNotificationManager.hideNotification(conversationId) }
         }
 
+    @Test
+    fun givenASingleUserId_whenCallingFetchAndShowOnceMultipleTimes_thenConversationNotificationDateUpdated() =
+        runTestWithCancellation {
+            val userId = TEST_AUTH_SESSION.session.userId
+            val (arrangement, manager) = Arrangement()
+                .withMessageNotifications(listOf())
+                .withSession(GetAllSessionsResult.Success(listOf(TEST_AUTH_SESSION)))
+                .withIncomingCalls(listOf())
+                .withCurrentScreen(CurrentScreen.InBackground)
+                .arrange()
+
+            manager.fetchAndShowNotificationsOnce(userId.value)
+            manager.fetchAndShowNotificationsOnce(userId.value)
+            runCurrent()
+
+            coVerify(exactly = 1) { arrangement.connectionPolicyManager.handleConnectionOnPushNotification(userId) }
+        }
+
     private class Arrangement {
         @MockK
         lateinit var coreLogic: CoreLogic

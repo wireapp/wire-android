@@ -18,6 +18,8 @@ import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.util.toStringDate
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -34,6 +36,8 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -46,28 +50,50 @@ class WireNotificationManager @Inject constructor(
     private val messagesNotificationManager: MessageNotificationManager,
     private val callNotificationManager: CallNotificationManager,
     private val connectionPolicyManager: ConnectionPolicyManager,
-    private val dispatchers: DispatcherProvider
+    dispatcherProvider: DispatcherProvider
 ) {
+
+    private val scope = CoroutineScope(SupervisorJob() + dispatcherProvider.default())
+    private val fetchOnceMutex = Mutex()
+    private val fetchOnceJobs = hashMapOf<String, Job>()
+
     /**
-     * Sync all the Pending events, fetch Message notifications from DB once and show it.
-     * Can be used in Services (e.g., after receiving FCM)
+     * Become online, process all the Pending events,
+     * and display notifications for new events.
+     * Can be used in Services (e.g., after receiving FCM push).
+     *
+     * This function is asynchronous and thread-safe.
+     * It ignores successive calls with the same [userIdValue]
+     * until the first call is finished processing.
      * @param userIdValue String value param of QualifiedID of the User that need to check Notifications for
      */
-    suspend fun fetchAndShowNotificationsOnce(userIdValue: String) {
-        checkIfUserIsAuthenticated(userId = userIdValue)?.let { userId ->
-            appLogger.i("$TAG checking the notifications once")
-            val scope = CoroutineScope(dispatchers.io())
+    suspend fun fetchAndShowNotificationsOnce(userIdValue: String) = fetchOnceMutex.withLock {
+        val isJobRunningForUser = fetchOnceJobs[userIdValue]?.isActive ?: false
+        if (isJobRunningForUser) {
+            appLogger.d("$TAG Already processing notifications for user=$userIdValue, ignoring request")
+        } else {
+            appLogger.d("$TAG Starting to processing notifications for user=$userIdValue")
+            fetchOnceJobs[userIdValue] = scope.launch {
+                triggerSyncForUserIfAuthenticated(userIdValue)
+            }
+        }
+    }
 
-            scope.launch {
+    private suspend fun triggerSyncForUserIfAuthenticated(userIdValue: String) {
+        checkIfUserIsAuthenticated(userId = userIdValue)?.let { userId ->
+            appLogger.d("$TAG checking the notifications once")
+
+            val observeMessagesJob = scope.launch {
                 observeMessageNotifications(flowOf(userId), MutableStateFlow(CurrentScreen.InBackground))
             }
-
+            appLogger.d("$TAG start syncing")
             connectionPolicyManager.handleConnectionOnPushNotification(userId)
 
+            appLogger.d("$TAG checking calls once")
             fetchAndShowCallNotificationsOnce(userId)
 
-            appLogger.i("$TAG checked the notifications once, canceling observing.")
-            scope.cancel()
+            appLogger.d("$TAG checked the notifications once, canceling observing.")
+            observeMessagesJob.cancel("$TAG checked the notifications once, canceling observing.")
         }
     }
 
@@ -77,7 +103,6 @@ class WireNotificationManager @Inject constructor(
         //      but we don't get it from the first GetIncomingCallsUseCase() call.
         //      To cover that case we have this `intervalFlow().take(CHECK_INCOMING_CALLS_TRIES)`
         //      to try get incoming calls 6 times, if it returns nothing we assume there is no incoming call
-        appLogger.i("$TAG checking calls once")
         intervalFlow(CHECK_INCOMING_CALLS_PERIOD_MS)
             .map {
                 coreLogic.getSessionScope(userId)
@@ -89,7 +114,6 @@ class WireNotificationManager @Inject constructor(
             .distinctUntilChanged()
             .cancellable()
             .collect { callsList ->
-                appLogger.i("$TAG got ${callsList.size} calls")
                 callNotificationManager.handleNotifications(callsList, userId)
             }
     }
@@ -186,12 +210,12 @@ class WireNotificationManager @Inject constructor(
             .collect { (calls, userId) ->
                 if (currentScreenState.value != CurrentScreen.InBackground) {
                     calls.firstOrNull()?.run {
-                        appLogger.i("$TAG got some call while app is visible")
+                        appLogger.d("$TAG got some call while app is visible")
                         doIfCallCameAndAppVisible(this)
                     }
                     callNotificationManager.hideCallNotification()
                 } else {
-                    appLogger.i("$TAG got ${calls.size} calls while app is in background")
+                    appLogger.d("$TAG got ${calls.size} calls while app is in background")
                     callNotificationManager.handleNotifications(calls, userId)
                 }
             }
@@ -225,7 +249,10 @@ class WireNotificationManager @Inject constructor(
                         .messages
                         .getNotifications()
                         // no need to do the whole work if there is no notifications
-                        .filter { it.isNotEmpty() }
+                        .filter {
+                            appLogger.i("$TAG filtering notifications ${it.size}")
+                            it.isNotEmpty()
+                        }
                         .map { newNotifications ->
                             // we don't want to display notifications for the Conversation that user currently in.
                             val notificationsList = filterAccordingToScreenAndUpdateNotifyDate(
@@ -243,7 +270,7 @@ class WireNotificationManager @Inject constructor(
             .filterNotNull()
             .cancellable()
             .collect { (newNotifications, userId) ->
-                appLogger.i("$TAG got ${newNotifications.size} notifications")
+                appLogger.d("$TAG got ${newNotifications.size} notifications")
                 messagesNotificationManager.handleNotification(newNotifications, userId)
                 markMessagesAsNotified(userId, null)
                 markConnectionAsNotified(userId, null)
@@ -263,7 +290,7 @@ class WireNotificationManager @Inject constructor(
         }
 
     private suspend fun markMessagesAsNotified(userId: QualifiedID?, conversationId: ConversationId?) {
-        appLogger.i("$TAG markMessagesAsNotified")
+        appLogger.d("$TAG markMessagesAsNotified")
         userId?.let {
             coreLogic.getSessionScope(it)
                 .messages
@@ -272,7 +299,7 @@ class WireNotificationManager @Inject constructor(
     }
 
     private suspend fun markConnectionAsNotified(userId: QualifiedID?, connectionRequestUserId: QualifiedID?) {
-        appLogger.i("$TAG markConnectionAsNotified")
+        appLogger.d("$TAG markConnectionAsNotified")
         userId?.let {
             coreLogic.getSessionScope(it)
                 .conversations

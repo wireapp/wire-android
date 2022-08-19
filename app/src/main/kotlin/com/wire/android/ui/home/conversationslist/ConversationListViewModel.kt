@@ -13,7 +13,6 @@ import com.wire.android.model.PreservedState
 import com.wire.android.model.UserAvatarData
 import com.wire.android.model.toLoading
 import com.wire.android.navigation.NavigationCommand
-import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
@@ -47,6 +46,7 @@ import com.wire.kalium.logic.feature.connection.BlockUserResult
 import com.wire.kalium.logic.feature.connection.BlockUserUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationsAndConnectionsUseCase
+import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -254,6 +254,7 @@ class ConversationListViewModel @Inject constructor(
 
 private fun LegalHoldStatus.showLegalHoldIndicator() = this == LegalHoldStatus.ENABLED
 
+@Suppress("LongMethod")
 private fun ConversationDetails.toConversationItem(
     wireSessionImageLoader: WireSessionImageLoader,
     selfTeamId: TeamId?,

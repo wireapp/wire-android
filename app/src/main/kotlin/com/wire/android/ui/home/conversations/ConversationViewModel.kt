@@ -153,8 +153,12 @@ class ConversationViewModel @Inject constructor(
 
     private suspend fun handleConversationDetailsResult(conversationDetailsResult: ObserveConversationDetailsUseCase.Result) {
         when (conversationDetailsResult) {
-            is ObserveConversationDetailsUseCase.Result.Failure -> handleConversationDetailsFailure(conversationDetailsResult.storageFailure)
-            is Success -> handleConversationDetails(conversationDetailsResult.conversationDetails)
+            is ObserveConversationDetailsUseCase.Result.Failure -> handleConversationDetailsFailure(
+                conversationDetailsResult.storageFailure
+            )
+            is Success -> handleConversationDetails(
+                conversationDetailsResult.conversationDetails
+            )
         }
     }
 
@@ -195,8 +199,10 @@ class ConversationViewModel @Inject constructor(
             is ConversationDetails.OneOne -> conversationDetails.otherUser.name.orEmpty()
             else -> conversationDetails.conversation.name.orEmpty()
         }.let {
-            if (it.isNotEmpty()) it.toUIText() else if (it.isEmpty() && isUnavailableConversation) UIText.StringResource(R.string.username_unavailable_label)
-            else UIText.StringResource(R.string.member_name_deleted_label)
+            if (it.isNotEmpty()) it.toUIText()
+            else
+                if (it.isEmpty() && isUnavailableConversation) UIText.StringResource(R.string.username_unavailable_label)
+                else UIText.StringResource(R.string.member_name_deleted_label)
         }
         val conversationAvatar = when (conversationDetails) {
             is ConversationDetails.OneOne ->

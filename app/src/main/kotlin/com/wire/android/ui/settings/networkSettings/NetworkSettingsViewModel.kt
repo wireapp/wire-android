@@ -24,17 +24,20 @@ class NetworkSettingsViewModel
 ) : ViewModel() {
     var networkSettingsState by mutableStateOf(NetworkSettingsState())
 
+    init {
+        observePersistentWebSocketConnection()
+    }
+
     fun navigateBack() = viewModelScope.launch {
         navigationManager.navigateBack()
     }
 
-    fun observePersistentWebSocketConnection() =
+    private fun observePersistentWebSocketConnection() =
         viewModelScope.launch {
             observePersistentWebSocketConnectionStatus().collect {
                 networkSettingsState = networkSettingsState.copy(isPersistentWebSocketConnectionEnabled = it)
             }
         }
-
 
     fun setWebSocketState(isEnabled: Boolean, context: Context) {
         persistPersistentWebSocketConnectionStatus(isEnabled)
@@ -47,6 +50,4 @@ class NetworkSettingsViewModel
             context.startService(intentStop)
         }
     }
-
-
 }

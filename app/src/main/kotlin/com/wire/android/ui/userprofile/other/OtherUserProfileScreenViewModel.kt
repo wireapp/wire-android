@@ -95,8 +95,8 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val observeConversationRoleForUser: ObserveConversationRoleForUserUseCase,
     private val removeMemberFromConversation: RemoveMemberFromConversationUseCase,
     private val updateMemberRole: UpdateConversationMemberRoleUseCase,
-    private val otherUserClients: GetOtherUserClientsUseCase,
-    private val persistOtherUserClientsUseCase: PersistOtherUserClientsUseCase,
+    private val getOtherUserClients: GetOtherUserClientsUseCase,
+    private val persistOtherUserClients: PersistOtherUserClientsUseCase,
     qualifiedIdMapper: QualifiedIdMapper
 ) : ViewModel() {
 
@@ -143,7 +143,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             }
         }
         viewModelScope.launch {
-            persistOtherUserClientsUseCase(userId)
+            persistOtherUserClients(userId)
         }
     }
 
@@ -393,7 +393,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
 
     fun getOtherUserClients() {
         viewModelScope.launch {
-            otherUserClients(userId).let {
+            getOtherUserClients(userId).let {
                 when (it) {
                     is GetOtherUserClientsResult.Failure.UserNotFound -> {
                         appLogger.e("User or Domain not found while fetching user clients ")

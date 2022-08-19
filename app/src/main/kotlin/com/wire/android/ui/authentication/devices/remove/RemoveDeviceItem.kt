@@ -35,12 +35,12 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.formatMediumDateTime
 
 @Composable
-fun RemoveDeviceItem(device: Device, placeholder: Boolean, onRemoveDeviceClick: ((Device) -> Unit?)?) {
+fun RemoveDeviceItem(device: Device, placeholder: Boolean, onRemoveDeviceClick: ((Device) -> Unit)?) {
     RemoveDeviceItemContent(device = device, placeholder = placeholder, onRemoveDeviceClick = onRemoveDeviceClick)
 }
 
 @Composable
-private fun RemoveDeviceItemContent(device: Device, placeholder: Boolean, onRemoveDeviceClick: ((Device) -> Unit?)?) {
+private fun RemoveDeviceItemContent(device: Device, placeholder: Boolean, onRemoveDeviceClick: ((Device) -> Unit)?) {
     Row(verticalAlignment = Alignment.Top) {
         Row(
             modifier = Modifier

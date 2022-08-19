@@ -56,7 +56,7 @@ fun OtherUserDevicesScreen(
         }
 
         itemsIndexed(otherUserClient) { index, item ->
-            RemoveDeviceItem(Device(item.deviceType.name, ClientId(item.id), ""), false,null)
+            RemoveDeviceItem(Device(item.deviceType.name, ClientId(item.id), ""), false, null)
             if (index < otherUserClient.lastIndex) Divider()
         }
 

@@ -58,7 +58,7 @@ import com.wire.android.ui.home.gallery.MediaGalleryScreen
 import com.wire.android.ui.home.newconversation.NewConversationRouter
 import com.wire.android.ui.home.settings.backup.BackupAndRestoreScreen
 import com.wire.android.ui.home.settings.appsettings.AppSettingsScreen
-import com.wire.android.ui.settings.networkSettings.NetworkSettingsScreen
+import com.wire.android.ui.home.settings.appsettings.networkSettings.NetworkSettingsScreen
 import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerScreen
 import com.wire.android.ui.userprofile.other.OtherUserProfileScreen
 import com.wire.android.ui.userprofile.self.SelfUserProfileScreen

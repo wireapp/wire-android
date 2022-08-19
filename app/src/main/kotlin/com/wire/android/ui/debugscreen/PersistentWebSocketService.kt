@@ -7,7 +7,6 @@ import android.os.IBinder
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
-import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.di.CurrentSessionFlowService
@@ -71,7 +70,7 @@ class PersistentWebSocketService : Service() {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        shouldStopPersistentConnectionForegroundService(intent)
+//        shouldStopPersistentConnectionForegroundService(intent)
 
         coreLogic.sessionRepository.currentSession().fold({
             appLogger.e("error while getting the current session from persistent web socket service $it")
@@ -128,22 +127,8 @@ class PersistentWebSocketService : Service() {
         startForeground(PERSISTENT_NOTIFICATION_ID, notification)
     }
 
-    private fun shouldStopPersistentConnectionForegroundService(intent: Intent?) {
-        if (intent?.action != null && intent.action.equals(
-                ACTION_STOP_FOREGROUND, ignoreCase = true
-            )
-        ) {
-            stopForeground(true)
-            stopSelf()
-        }
-    }
-
     override fun onDestroy() {
         super.onDestroy()
         scope.cancel("PersistentWebSocketService was destroyed")
-    }
-
-    companion object {
-        const val ACTION_STOP_FOREGROUND = "${BuildConfig.APPLICATION_ID}.stopforeground"
     }
 }

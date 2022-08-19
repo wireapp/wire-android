@@ -1,4 +1,4 @@
-package com.wire.android.ui.settings.networkSettings
+package com.wire.android.ui.home.settings.appsettings.networkSettings
 
 import android.content.Context
 import android.content.Intent
@@ -41,13 +41,11 @@ class NetworkSettingsViewModel
 
     fun setWebSocketState(isEnabled: Boolean, context: Context) {
         persistPersistentWebSocketConnectionStatus(isEnabled)
-        observePersistentWebSocketConnection()
+        networkSettingsState = networkSettingsState.copy(isPersistentWebSocketConnectionEnabled = isEnabled)
         if (isEnabled) {
             context.startService(Intent(context, PersistentWebSocketService::class.java))
         } else {
-            val intentStop = Intent(context, PersistentWebSocketService::class.java)
-            intentStop.action = PersistentWebSocketService.ACTION_STOP_FOREGROUND
-            context.startService(intentStop)
+            context.stopService(Intent(context, PersistentWebSocketService::class.java))
         }
     }
 }

@@ -32,13 +32,13 @@ class StartServiceReceiver : BroadcastReceiver() {
             Intent(context, PersistentWebSocketService::class.java)
         scope.launch {
             if (!observePersistentWebSocketConnectionStatus().first()) {
-                persistentWebSocketServiceIntent.action =
-                    PersistentWebSocketService.ACTION_STOP_FOREGROUND
-            }
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                context?.startForegroundService(persistentWebSocketServiceIntent)
+                context?.stopService(persistentWebSocketServiceIntent)
             } else {
-                context?.startService(persistentWebSocketServiceIntent)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    context?.startForegroundService(persistentWebSocketServiceIntent)
+                } else {
+                    context?.startService(persistentWebSocketServiceIntent)
+                }
             }
         }
     }

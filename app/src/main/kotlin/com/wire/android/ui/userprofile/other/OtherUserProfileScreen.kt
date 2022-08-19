@@ -4,7 +4,6 @@ import android.annotation.SuppressLint
 import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.Crossfade
-import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -19,7 +18,6 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.rememberModalBottomSheetState
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
@@ -73,10 +71,6 @@ import kotlinx.coroutines.launch
 
 @OptIn(
     ExperimentalMaterialApi::class,
-    ExperimentalMaterial3Api::class,
-    ExperimentalAnimationApi::class,
-    ExperimentalPagerApi::class,
-    ExperimentalFoundationApi::class
 )
 @Composable
 fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltViewModel()) {
@@ -119,7 +113,8 @@ fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltView
         onMoveConversationToFolder = viewModel::moveConversationToFolder,
         setBottomSheetStateToConversation = viewModel::setBottomSheetStateToConversation,
         setBottomSheetStateToMutOptions = viewModel::setBottomSheetStateToMuteOptions,
-        setBottomSheetStateToChangeRole = viewModel::setBottomSheetStateToChangeRole
+        setBottomSheetStateToChangeRole = viewModel::setBottomSheetStateToChangeRole,
+        getOtherUserClients = viewModel::getOtherUserClients
     )
     LaunchedEffect(Unit) {
         viewModel.infoMessage.collect {
@@ -177,11 +172,18 @@ fun OtherProfileScreenContent(
     openRemoveConversationMemberDialog: () -> Unit,
     hideRemoveConversationMemberDialog: () -> Unit,
     onRemoveConversationMember: (PreservedState<RemoveConversationMemberState>) -> Unit,
-    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
+    getOtherUserClients: () -> Unit,
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
 ) {
     val otherUserProfileScreenState = rememberOtherUserProfileScreenState(snackbarHostState)
     val tabItems by remember(state) {
-        derivedStateOf { listOfNotNull(state.groupState?.let { OtherUserProfileTabItem.GROUP }, OtherUserProfileTabItem.DETAILS) }
+        derivedStateOf {
+            listOfNotNull(
+                state.groupState?.let { OtherUserProfileTabItem.GROUP },
+                OtherUserProfileTabItem.DETAILS,
+                OtherUserProfileTabItem.DEVICES
+            )
+        }
     }
     val initialPage = 0
     val pagerState = rememberPagerState(initialPage = initialPage)
@@ -243,7 +245,8 @@ fun OtherProfileScreenContent(
                         setBottomSheetStateToChangeRole()
                         openBottomSheet()
                     },
-                    openRemoveConversationMemberDialog
+                    openRemoveConversationMemberDialog,
+                    getOtherUserClients
                 )
             },
             contentFooter = {
@@ -351,7 +354,8 @@ private fun Content(
     otherUserProfileScreenState: OtherUserProfileScreenState,
     lazyListStates: Map<OtherUserProfileTabItem, LazyListState>,
     openChangeRoleBottomSheet: () -> Unit,
-    openRemoveConversationMemberDialog: () -> Unit
+    openRemoveConversationMemberDialog: () -> Unit,
+    getOtherUserClients: () -> Unit,
 ) {
     Crossfade(targetState = state) { state ->
         when {
@@ -366,6 +370,7 @@ private fun Content(
                         when (val tabItem = tabItems[pageIndex]) {
                             OtherUserProfileTabItem.DETAILS ->
                                 OtherUserProfileDetails(state, otherUserProfileScreenState, lazyListStates[tabItem]!!)
+
                             OtherUserProfileTabItem.GROUP ->
                                 OtherUserProfileGroup(
                                     state.groupState!!,
@@ -373,9 +378,16 @@ private fun Content(
                                     openRemoveConversationMemberDialog,
                                     openChangeRoleBottomSheet
                                 )
+
+                            OtherUserProfileTabItem.DEVICES -> {
+                                getOtherUserClients()
+                                OtherUserDevicesScreen(state.otherUserClients)
+
+                            }
                         }
                     }
                 }
+
             state.connectionState == ConnectionState.BLOCKED -> Box {} // no content visible for blocked users
             else -> {
                 OtherUserConnectionStatusInfo(state.connectionState, state.membership)
@@ -424,7 +436,8 @@ private fun ContentFooter(
 
 enum class OtherUserProfileTabItem(@StringRes override val titleResId: Int) : TabItem {
     GROUP(R.string.user_profile_group_tab),
-    DETAILS(R.string.user_profile_details_tab);
+    DETAILS(R.string.user_profile_details_tab),
+    DEVICES(R.string.user_profile_devices_tab);
 }
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -437,7 +450,7 @@ fun OtherProfileScreenContentPreview() {
             OtherUserProfileState.PREVIEW.copy(connectionState = ConnectionState.ACCEPTED),
             rememberModalBottomSheetState(ModalBottomSheetValue.Hidden),
             {}, {}, null, null, {}, {}, {}, {}, {}, {}, {}, {}, {}, { _, _ -> }, { _, _ -> }, { _, _ -> },
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
         )
     }
 }
@@ -452,7 +465,7 @@ fun OtherProfileScreenContentNotConnectedPreview() {
             OtherUserProfileState.PREVIEW.copy(connectionState = ConnectionState.CANCELLED),
             rememberModalBottomSheetState(ModalBottomSheetValue.Hidden),
             {}, {}, null, null, {}, {}, {}, {}, {}, {}, {}, {}, {}, { _, _ -> }, { _, _ -> }, { _, _ -> },
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
+            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
         )
     }
 }

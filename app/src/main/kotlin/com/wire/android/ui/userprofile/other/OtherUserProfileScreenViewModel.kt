@@ -1,7 +1,5 @@
 package com.wire.android.ui.userprofile.other
 
-import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -42,6 +40,9 @@ import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.data.id.toQualifiedID
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.client.GetOtherUserClientsResult
+import com.wire.kalium.logic.feature.client.GetOtherUserClientsUseCase
+import com.wire.kalium.logic.feature.client.PersistOtherUserClientsUseCase
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCase
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCaseResult
 import com.wire.kalium.logic.feature.connection.BlockUserResult
@@ -75,7 +76,6 @@ import java.util.Date
 import javax.inject.Inject
 
 @Suppress("LongParameterList", "TooManyFunctions")
-@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @HiltViewModel
 class OtherUserProfileScreenViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
@@ -94,8 +94,10 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val observeConversationRoleForUser: ObserveConversationRoleForUserUseCase,
     private val removeMemberFromConversation: RemoveMemberFromConversationUseCase,
-    qualifiedIdMapper: QualifiedIdMapper,
-    private val updateMemberRole: UpdateConversationMemberRoleUseCase
+    private val updateMemberRole: UpdateConversationMemberRoleUseCase,
+    private val getOtherUserClients: GetOtherUserClientsUseCase,
+    private val persistOtherUserClients: PersistOtherUserClientsUseCase,
+    qualifiedIdMapper: QualifiedIdMapper
 ) : ViewModel() {
 
     var state: OtherUserProfileState by mutableStateOf(OtherUserProfileState())
@@ -139,6 +141,9 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                         }
                 }
             }
+        }
+        viewModelScope.launch {
+            persistOtherUserClients(userId)
         }
     }
 
@@ -385,6 +390,25 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     fun clearBottomSheetState() {
         state = state.clearBottomSheetState()
     }
+
+    fun getOtherUserClients() {
+        viewModelScope.launch {
+            getOtherUserClients(userId).let {
+                when (it) {
+                    is GetOtherUserClientsResult.Failure.UserNotFound -> {
+                        appLogger.e("User or Domain not found while fetching user clients ")
+                    }
+                    is GetOtherUserClientsResult.Failure.Generic -> {
+                        appLogger.e("Error while fetching the user clients : ${it.genericFailure}")
+                    }
+                    is GetOtherUserClientsResult.Success -> {
+                        state = state.copy(otherUserClients = it.otherUserClients)
+                    }
+                }
+            }
+        }
+    }
+
 
     fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }
 

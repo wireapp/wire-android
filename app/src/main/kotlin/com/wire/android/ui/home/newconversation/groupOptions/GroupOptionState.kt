@@ -13,5 +13,11 @@ data class GroupOptionState(
     val isAllowServicesEnabled: Boolean = true,
     val isReadReceiptEnabled: Boolean = true,
     val showAllowGuestsDialog: Boolean = false,
-    val accessRoleState: MutableSet<Conversation.AccessRole> = mutableSetOf(TEAM_MEMBER, NON_TEAM_MEMBER, GUEST, SERVICE)
-)
+    val accessRoleState: MutableSet<Conversation.AccessRole> = mutableSetOf(TEAM_MEMBER, NON_TEAM_MEMBER, GUEST, SERVICE),
+    val error: Error? = null
+) {
+    sealed interface Error {
+        object Unknown : Error
+        object LackingConnection : Error
+    }
+}

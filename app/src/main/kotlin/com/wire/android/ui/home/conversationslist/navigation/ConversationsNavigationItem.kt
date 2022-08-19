@@ -14,17 +14,17 @@ enum class ConversationsNavigationItem(
     All(
         R.drawable.ic_conversation,
         R.string.conversations_all_tab_title,
-        "conversations_all");
-//
-//    Calls(
-//        R.drawable.ic_call,
-//        R.string.conversations_calls_tab_title,
-//        "conversations_calls"),
-//
-//    Mentions(
-//        R.drawable.ic_mention,
-//        R.string.conversations_mentions_tab_title,
-//        "conversations_mentions");
+        "conversations_all"),
+
+    Calls(
+        R.drawable.ic_call,
+        R.string.conversations_calls_tab_title,
+        "conversations_calls"),
+
+    Mentions(
+        R.drawable.ic_mention,
+        R.string.conversations_mentions_tab_title,
+        "conversations_mentions");
 
     fun toBottomNavigationItemData(notificationAmount: Long): WireBottomNavigationItemData =
         WireBottomNavigationItemData(icon, title, notificationAmount, route)

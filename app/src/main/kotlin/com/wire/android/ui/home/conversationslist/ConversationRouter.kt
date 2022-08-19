@@ -22,7 +22,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.wire.android.R
 import com.wire.android.ui.common.FloatingActionButton
-import com.wire.android.ui.common.WireBottomNavigationBar
 import com.wire.android.ui.common.WireBottomNavigationItemData
 import com.wire.android.ui.common.dialogs.BlockUserDialogContent
 import com.wire.android.ui.common.dimensions
@@ -153,9 +152,10 @@ private fun ConversationRouter(
                 onClick = openNewConversation
             )
         },
-        bottomBar = {
-            WireBottomNavigationBar(ConversationNavigationItems(uiState), navHostController)
-        }
+        // TODO uncomment when CallsScreen and MentionScreen will be implemented
+//        bottomBar = {
+//            WireBottomNavigationBar(ConversationNavigationItems(uiState), navHostController)
+//        }
     ) { internalPadding ->
 
         with(uiState) {
@@ -180,37 +180,36 @@ private fun ConversationRouter(
                         )
                     }
                 )
-                // Disable for now until it is supported
-//                composable(
-//                    route = ConversationsNavigationItem.Calls.route,
-//                    content = {
-//                        CallsScreen(
-//                            missedCalls = missedCalls,
-//                            callHistory = callHistory,
-//                            onCallItemClick = openConversation,
-//                            onEditConversationItem = onEditConversationItem,
-//                            onScrollPositionProviderChanged = onScrollPositionProviderChanged,
-//                            onOpenUserProfile = openProfile,
-//                            openConversationNotificationsSettings = onEditNotifications,
-//                            onJoinCall = onJoinCall
-//                        )
-//                    }
-//                )
-//                composable(
-//                    route = ConversationsNavigationItem.Mentions.route,
-//                    content = {
-//                        MentionScreen(
-//                            unreadMentions = unreadMentions,
-//                            allMentions = allMentions,
-//                            onMentionItemClick = openConversation,
-//                            onEditConversationItem = onEditConversationItem,
-//                            onScrollPositionProviderChanged = onScrollPositionProviderChanged,
-//                            onOpenUserProfile = openProfile,
-//                            openConversationNotificationsSettings = onEditNotifications,
-//                            onJoinCall = onJoinCall
-//                        )
-//                    }
-//                )
+                composable(
+                    route = ConversationsNavigationItem.Calls.route,
+                    content = {
+                        CallsScreen(
+                            missedCalls = missedCalls,
+                            callHistory = callHistory,
+                            onCallItemClick = openConversation,
+                            onEditConversationItem = onEditConversationItem,
+                            onScrollPositionProviderChanged = onScrollPositionProviderChanged,
+                            onOpenUserProfile = openProfile,
+                            openConversationNotificationsSettings = onEditNotifications,
+                            onJoinCall = onJoinCall
+                        )
+                    }
+                )
+                composable(
+                    route = ConversationsNavigationItem.Mentions.route,
+                    content = {
+                        MentionScreen(
+                            unreadMentions = unreadMentions,
+                            allMentions = allMentions,
+                            onMentionItemClick = openConversation,
+                            onEditConversationItem = onEditConversationItem,
+                            onScrollPositionProviderChanged = onScrollPositionProviderChanged,
+                            onOpenUserProfile = openProfile,
+                            openConversationNotificationsSettings = onEditNotifications,
+                            onJoinCall = onJoinCall
+                        )
+                    }
+                )
             }
         }
 
@@ -228,10 +227,9 @@ private fun ConversationNavigationItems(
 ): List<WireBottomNavigationItemData> {
     return ConversationsNavigationItem.values().map { conversationsNavigationItem ->
         when (conversationsNavigationItem) {
-            ConversationsNavigationItem.All -> conversationsNavigationItem.toBottomNavigationItemData(uiListState.newActivityCount)
-            // Disable for now until it is supported
-//            ConversationsNavigationItem.Calls -> conversationsNavigationItem.toBottomNavigationItemData(uiListState.missedCallsCount)
-//            ConversationsNavigationItem.Mentions -> conversationsNavigationItem.toBottomNavigationItemData(uiListState.unreadMentionsCount)
+            ConversationsNavigationItem.All -> conversationsNavigationItem.toBottomNavigationItemData(uiListState.conversations.size)
+            ConversationsNavigationItem.Calls -> conversationsNavigationItem.toBottomNavigationItemData(uiListState.missedCallsCount)
+            ConversationsNavigationItem.Mentions -> conversationsNavigationItem.toBottomNavigationItemData(uiListState.unreadMentionsCount)
         }
     }
 }

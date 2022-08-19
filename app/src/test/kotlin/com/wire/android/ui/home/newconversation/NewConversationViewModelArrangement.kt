@@ -28,7 +28,7 @@ import com.wire.kalium.logic.feature.publicuser.search.Result
 import com.wire.kalium.logic.feature.publicuser.search.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchUsersUseCase
 import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
-import com.wire.kalium.logic.functional.Either
+import com.wire.kalium.logic.CoreFailure
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
@@ -42,7 +42,7 @@ internal class NewConversationViewModelArrangement {
         coEvery { searchUsers(any()) } returns Result.Success(userSearchResult = UserSearchResult(listOf(PUBLIC_USER)))
         coEvery { searchKnownUsers(any()) } returns Result.Success(userSearchResult = UserSearchResult(listOf(KNOWN_USER)))
         coEvery { getAllContacts() } returns GetAllContactsResult.Success(listOf())
-        coEvery { createGroupConversation(any(), any(), any()) } returns Either.Right(CONVERSATION)
+        coEvery { createGroupConversation(any(), any(), any()) } returns CreateGroupConversationUseCase.Result.Success(CONVERSATION)
         coEvery { contactMapper.fromOtherUser(PUBLIC_USER) } returns Contact(
             id = "publicValue",
             domain = "domain",
@@ -164,14 +164,22 @@ internal class NewConversationViewModelArrangement {
         )
     }
 
-    fun withFailureKnownSearchResponse(): NewConversationViewModelArrangement {
+    fun withFailureKnownSearchResponse() = apply {
         coEvery { searchKnownUsers(any()) } returns Result.Failure.InvalidRequest
-        return this
     }
 
-    fun withFailurePublicSearchResponse(): NewConversationViewModelArrangement {
+    fun withFailurePublicSearchResponse() = apply {
         coEvery { searchUsers(any()) } returns Result.Failure.InvalidRequest
-        return this
+    }
+
+    fun withSyncFailureOnCreatingGroup() = apply {
+        coEvery { createGroupConversation(any(), any(), any()) } returns CreateGroupConversationUseCase.Result.SyncFailure
+    }
+
+    fun withUnknownFailureOnCreatingGroup() = apply {
+        coEvery { createGroupConversation(any(), any(), any()) } returns CreateGroupConversationUseCase.Result.UnknownFailure(
+            CoreFailure.MissingClientRegistration
+        )
     }
 
     fun arrange() = this to viewModel

@@ -81,7 +81,7 @@ fun SettingsItem(text: String, onClick: () -> Unit) {
             Box(
                 modifier = Modifier
                     .wrapContentWidth()
-                    .padding(end = dimensions().spacing16x)
+                    .padding(dimensions().spacing16x)
             ) {
                 ArrowRightIcon(Modifier.align(Alignment.TopEnd))
             }

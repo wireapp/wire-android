@@ -5,6 +5,7 @@ import android.app.Service
 import android.content.Intent
 import android.os.IBinder
 import androidx.core.app.NotificationChannelCompat
+import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.wire.android.BuildConfig
 import com.wire.android.R
@@ -14,7 +15,7 @@ import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
-import com.wire.android.notification.NotificationConstants.NOTIFICATION_ID
+import com.wire.android.notification.NotificationConstants.PERSISTENT_NOTIFICATION_ID
 import com.wire.android.notification.NotificationConstants.WEB_SOCKET_CHANNEL_ID
 import com.wire.android.notification.NotificationConstants.WEB_SOCKET_CHANNEL_NAME
 import com.wire.android.notification.WireNotificationManager
@@ -70,13 +71,7 @@ class PersistentWebSocketService : Service() {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        if (intent?.action != null && intent.action.equals(
-                ACTION_STOP_FOREGROUND, ignoreCase = true
-            )
-        ) {
-            stopForeground(true)
-            stopSelf()
-        }
+        shouldStopPersistentConnectionForegroundService(intent)
 
         coreLogic.sessionRepository.currentSession().fold({
             appLogger.e("error while getting the current session from persistent web socket service $it")
@@ -125,11 +120,23 @@ class PersistentWebSocketService : Service() {
             )
             .setSmallIcon(R.drawable.notification_icon_small)
             .setContentIntent(openAppPendingIntent(this))
+            .setCategory(NotificationCompat.CATEGORY_SERVICE)
+            .setAutoCancel(false)
+            .setOngoing(true)
             .build()
 
-        startForeground(NOTIFICATION_ID, notification)
+        startForeground(PERSISTENT_NOTIFICATION_ID, notification)
     }
 
+    private fun shouldStopPersistentConnectionForegroundService(intent: Intent?) {
+        if (intent?.action != null && intent.action.equals(
+                ACTION_STOP_FOREGROUND, ignoreCase = true
+            )
+        ) {
+            stopForeground(true)
+            stopSelf()
+        }
+    }
 
     override fun onDestroy() {
         super.onDestroy()

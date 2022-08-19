@@ -125,6 +125,7 @@ fun ConversationScreen(
         onDropDownClick = conversationViewModel::navigateToDetails,
         tempCachePath = conversationViewModel.provideTempCachePath(),
         onOpenProfile = conversationViewModel::navigateToProfile,
+        isConversationMember = conversationViewModel.isConversationMemberState,
         commonTopAppBarViewModel = commonTopAppBarViewModel
     )
 
@@ -165,6 +166,7 @@ private fun ConversationScreen(
     onDropDownClick: () -> Unit,
     tempCachePath: Path,
     onOpenProfile: (MessageSource, UserId) -> Unit,
+    isConversationMember: Boolean,
     commonTopAppBarViewModel: CommonTopAppBarBaseViewModel
 ) {
     val conversationScreenState = rememberConversationScreenState()
@@ -246,7 +248,7 @@ private fun ConversationScreen(
                                 isFileSharingEnabled = isFileSharingEnabled,
                                 tempCachePath = tempCachePath,
                                 isUserBlocked = connectionStateOrNull == ConnectionState.BLOCKED,
-                                isConversationMember = conversationViewState.isConversationMember,
+                                isConversationMember = isConversationMember,
                                 onOpenProfile = onOpenProfile
                             )
                         }
@@ -408,6 +410,7 @@ fun ConversationScreenPreview() {
         onDropDownClick = {},
         tempCachePath = "".toPath(),
         onOpenProfile = { _, _ -> },
+        isConversationMember = true,
         commonTopAppBarViewModel = object: CommonTopAppBarBaseViewModel() { }
     )
 }

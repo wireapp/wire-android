@@ -22,8 +22,7 @@ data class ConversationViewState(
     val userTeam: Team? = null,
     val isFileSharingEnabled: Boolean = true,
     val hasOngoingCall: Boolean = false,
-    val hasEstablishedCall: Boolean = false,
-    val isConversationMember: Boolean = true,
+    val hasEstablishedCall: Boolean = false
 )
 
 sealed class ConversationAvatar {

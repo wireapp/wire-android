@@ -210,7 +210,7 @@ private fun MessageComposer(
                     }
                     if (isUserBlocked) {
                         BlockedUserMessage()
-                    } else {
+                    } else if (isConversationMember) {
                         // Column wrapping CollapseIconButton and MessageComposerInput
                         Column(
                             modifier = Modifier
@@ -228,7 +228,7 @@ private fun MessageComposer(
                         }
                     }
                 }
-                if (!isUserBlocked) {
+                if (!isUserBlocked && isConversationMember) {
                     // Box wrapping the SendActions so that we do not include it in the animationContentSize
                     // changed which is applied only for
                     // MessageComposerInput and CollapsingButton
@@ -259,7 +259,7 @@ private fun MessageComposer(
             // we want to offset the AttachmentOptionsComponent equal to where
             // the device keyboard is displayed, so that when the keyboard is closed,
             // we get the effect of overlapping it
-            if (messageComposerState.attachmentOptionsDisplayed && !isUserBlocked) {
+            if (messageComposerState.attachmentOptionsDisplayed && !isUserBlocked && isConversationMember) {
                 AttachmentOptions(
                     keyboardHeightOffSet,
                     messageComposerState,

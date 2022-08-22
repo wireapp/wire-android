@@ -3,8 +3,10 @@ package com.wire.android.ui.home.conversations.details.participants.usecase
 import com.wire.android.mapper.UIParticipantMapper
 import com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData
 import com.wire.android.ui.home.conversations.name
+import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.conversation.Member
+import com.wire.kalium.logic.data.conversation.MemberDetails
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.feature.conversation.ObserveConversationMembersUseCase
@@ -22,22 +24,31 @@ class ObserveParticipantsForConversationUseCase @Inject constructor(
         observeConversationMembers(conversationId)
             .map { memberDetailList -> memberDetailList.sortedBy { it.name } }
             .map { sortedMemberList ->
-                val allAdmins = sortedMemberList.filter { it.role == Member.Role.Admin }
-                val allParticipants = sortedMemberList.filter { it.role != Member.Role.Admin }
+                val allAdmins =
+                    sortedMemberList.filter { it.role == Member.Role.Admin } as ArrayList<MemberDetails>
+                val allParticipants = sortedMemberList.filter { it.role != Member.Role.Admin } as ArrayList<MemberDetails>
+                val adminsWithoutService = arrayListOf<MemberDetails>()
 
+                allAdmins.map {
+                    if (uiParticipantMapper.toUIParticipant(it.user).membership == Membership.Service) {
+                        allParticipants.add(it)
+                    } else {
+                        adminsWithoutService.add(it)
+                    }
+                }
                 ConversationParticipantsData(
-                    admins = allAdmins.limit(limit).map { uiParticipantMapper.toUIParticipant(it.user) },
+                    admins = adminsWithoutService.limit(limit).map { uiParticipantMapper.toUIParticipant(it.user) },
                     participants = allParticipants.limit(limit).map { uiParticipantMapper.toUIParticipant(it.user) },
-                    allAdminsCount = allAdmins.size,
+                    allAdminsCount = adminsWithoutService.size,
                     allParticipantsCount = allParticipants.size,
-                    isSelfAnAdmin = allAdmins.any { it.user is SelfUser }
+                    isSelfAnAdmin = adminsWithoutService.any { it.user is SelfUser }
                 )
             }
             .flowOn(dispatchers.io())
 
     private fun <T> List<T>.limit(limit: Int = -1) = when {
-            limit > 0 -> this.take(limit)
-            limit == 0 -> listOf()
-            else -> this
-        }
+        limit > 0 -> this.take(limit)
+        limit == 0 -> listOf()
+        else -> this
+    }
 }

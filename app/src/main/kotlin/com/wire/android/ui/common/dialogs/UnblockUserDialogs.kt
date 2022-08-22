@@ -31,7 +31,7 @@ fun UnblockUserDialogContent(
                 MaterialTheme.wireTypography.body02,
                 colorsScheme().onBackground,
                 colorsScheme().onBackground,
-                preservedState.state.userName
+                preservedState.state.username
             ),
             onDismiss = dismiss,
             optionButton1Properties = WireDialogButtonProperties(
@@ -52,4 +52,4 @@ fun UnblockUserDialogContent(
     }
 }
 
-data class UnblockUserDialogState(val userName: String, val userId: UserId)
+data class UnblockUserDialogState(val username: String, val userId: UserId)

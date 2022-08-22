@@ -56,7 +56,10 @@ class ConversationScreenTest {
         scenario.onActivity { activity ->
             activity.setContent {
                 WireTheme {
-                    ConversationScreen(getViewModel(activity, ConversationViewModel::class), getViewModel(activity, CommonTopAppBarViewModel::class))
+                    ConversationScreen(
+                        getViewModel(activity, ConversationViewModel::class),
+                        getViewModel(activity, CommonTopAppBarViewModel::class)
+                    )
                 }
             }
         }

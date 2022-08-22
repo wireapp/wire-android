@@ -39,7 +39,14 @@ fun ConversationGroupDetailsBottomSheet(
             }),
         menuItems = listOf {
             LeaveGroupItem(
-                onLeaveGroup = { onLeaveGroup(LeaveGroupState(conversationOptionsState.conversationId, conversationOptionsState.groupName))},
+                onLeaveGroup = {
+                    onLeaveGroup(
+                        LeaveGroupState(
+                            conversationOptionsState.conversationId,
+                            conversationOptionsState.groupName
+                        )
+                    )
+                },
                 closeBottomSheet = closeBottomSheet
             )
             if (conversationOptionsState.isAbleToRemoveGroup)

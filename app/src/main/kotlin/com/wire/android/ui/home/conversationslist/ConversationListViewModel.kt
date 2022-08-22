@@ -69,12 +69,10 @@ class ConversationListViewModel @Inject constructor(
     private val answerCall: AnswerCallUseCase,
     private val observeConversationsAndConnections: ObserveConversationsAndConnectionsUseCase,
     private val removeMemberFromConversation: RemoveMemberFromConversationUseCase,
-    private val dispatchers: DispatcherProvider,
     private val observeSelfUser: GetSelfUserUseCase,
     private val blockUserUseCase: BlockUserUseCase,
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val userTypeMapper: UserTypeMapper,
-    private val leaveGroupConversation: RemoveMemberFromConversationUseCase
 ) : ViewModel() {
 
     var state by mutableStateOf(ConversationListState())
@@ -92,7 +90,7 @@ class ConversationListViewModel @Inject constructor(
         startObservingConversationsAndConnections()
     }
 
-    private fun startObservingConversationsAndConnections() = viewModelScope.launch(dispatchers.io()) {
+    private fun startObservingConversationsAndConnections() = viewModelScope.launch(dispatcher.io()) {
         observeConversationsAndConnections() // TODO AR-1736
             .combine(observeSelfUser(), ::Pair)
             .collect { (conversationListDetails, selfUser) ->
@@ -225,7 +223,7 @@ class ConversationListViewModel @Inject constructor(
     }
 
     fun blockUser(id: UserId, userName: String) {
-        viewModelScope.launch(dispatchers.io()) {
+        viewModelScope.launch(dispatcher.io()) {
             blockUserDialogState = blockUserDialogState?.toLoading()
             val state = when (val result = blockUserUseCase(id)) {
                 BlockUserResult.Success -> {

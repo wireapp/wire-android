@@ -56,6 +56,9 @@ class ConversationListViewModelTest {
     lateinit var observeConversationsAndConnections: ObserveConversationsAndConnectionsUseCase
 
     @MockK
+    lateinit var removeMemberFromConversationUseCase: RemoveMemberFromConversationUseCase
+
+    @MockK
     lateinit var joinCall: AnswerCallUseCase
 
     @MockK
@@ -63,9 +66,6 @@ class ConversationListViewModelTest {
 
     @MockK
     lateinit var blockUser: BlockUserUseCase
-
-    @MockK
-    lateinit var leaveGroup: RemoveMemberFromConversationUseCase
 
     @MockK
     private lateinit var wireSessionImageLoader: WireSessionImageLoader
@@ -78,15 +78,15 @@ class ConversationListViewModelTest {
         conversationListViewModel =
             ConversationListViewModel(
                 navigationManager,
+                TestDispatcherProvider(),
                 updateConversationMutedStatus,
                 joinCall,
                 observeConversationsAndConnections,
-                TestDispatcherProvider(),
+                removeMemberFromConversationUseCase,
                 getSelf,
                 blockUser,
                 wireSessionImageLoader,
                 UserTypeMapper(),
-                leaveGroup
             )
 
         coEvery { observeConversationsAndConnections() } returns flowOf(ConversationListDetails(listOf(), 0L, 0L, 0L))

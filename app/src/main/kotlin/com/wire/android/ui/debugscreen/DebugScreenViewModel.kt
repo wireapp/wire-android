@@ -6,14 +6,15 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.platformLogWriter
+import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.DataDogLogger
 import com.wire.android.util.LogFileWriter
 import com.wire.kalium.logger.KaliumLogLevel
 import com.wire.kalium.logic.CoreLogger
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountResult
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountUseCase
-import com.wire.kalium.logic.feature.user.EnableLoggingUseCase
-import com.wire.kalium.logic.feature.user.IsLoggingEnabledUseCase
+import com.wire.kalium.logic.feature.user.loggingStatus.EnableLoggingUseCase
+import com.wire.kalium.logic.feature.user.loggingStatus.IsLoggingEnabledUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -21,8 +22,9 @@ import javax.inject.Inject
 @HiltViewModel
 class DebugScreenViewModel
 @Inject constructor(
+    private val navigationManager: NavigationManager,
     private val mlsKeyPackageCountUseCase: MLSKeyPackageCountUseCase,
-    private val enableLoggingUseCase: EnableLoggingUseCase,
+    private val enableLogging: EnableLoggingUseCase,
     private val logFileWriter: LogFileWriter,
     isLoggingEnabledUseCase: IsLoggingEnabledUseCase
 ) : ViewModel() {
@@ -55,8 +57,9 @@ class DebugScreenViewModel
         logFileWriter.deleteAllLogFiles()
     }
 
+
     fun setLoggingEnabledState(isEnabled: Boolean) {
-        enableLoggingUseCase.invoke(isEnabled)
+        enableLogging(isEnabled)
         isLoggingEnabled = isEnabled
         if (isEnabled) {
             logFileWriter.start()
@@ -66,5 +69,6 @@ class DebugScreenViewModel
             CoreLogger.setLoggingLevel(level = KaliumLogLevel.DISABLED, logWriters = arrayOf(DataDogLogger, platformLogWriter()))
         }
     }
-}
 
+    fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }
+}

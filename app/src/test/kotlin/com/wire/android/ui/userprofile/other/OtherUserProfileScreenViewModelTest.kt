@@ -30,6 +30,8 @@ import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.feature.client.GetOtherUserClientsUseCase
+import com.wire.kalium.logic.feature.client.PersistOtherUserClientsUseCase
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCase
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCaseResult
 import com.wire.kalium.logic.feature.connection.BlockUserResult
@@ -120,6 +122,12 @@ class OtherUserProfileScreenViewModelTest {
     @MockK
     private lateinit var updateConversationMutedStatus: UpdateConversationMutedStatusUseCase
 
+    @MockK
+    private lateinit var otherUserClients: GetOtherUserClientsUseCase
+
+    @MockK
+    private lateinit var persistOtherUserClientsUseCase: PersistOtherUserClientsUseCase
+
     @BeforeEach
     fun setUp() {
         MockKAnnotations.init(this, relaxUnitFun = true)
@@ -155,8 +163,10 @@ class OtherUserProfileScreenViewModelTest {
             wireSessionImageLoader,
             observeConversationRoleForUserUseCase,
             removeMemberFromConversationUseCase,
-            qualifiedIdMapper,
             updateConversationMemberRoleUseCase,
+            otherUserClients,
+            persistOtherUserClientsUseCase,
+            qualifiedIdMapper
         )
     }
 

@@ -26,6 +26,7 @@ import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.ConversationLastEvent
 import com.wire.android.ui.home.conversationslist.model.LeaveGroupState
+import com.wire.android.ui.home.conversationslist.model.EventType
 import com.wire.android.ui.home.conversationslist.model.NewActivity
 import com.wire.android.ui.home.conversationslist.model.getBlockingState
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -73,6 +74,7 @@ class ConversationListViewModel @Inject constructor(
     private val blockUserUseCase: BlockUserUseCase,
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val userTypeMapper: UserTypeMapper,
+    private val leaveGroupConversation: RemoveMemberFromConversationUseCase
 ) : ViewModel() {
 
     var state by mutableStateOf(ConversationListState())
@@ -82,6 +84,7 @@ class ConversationListViewModel @Inject constructor(
             by mutableStateOf(null)
 
     val snackBarState = MutableSharedFlow<HomeSnackbarState>()
+    lateinit var selfUserId: UserId
 
     var requestInProgress: Boolean by mutableStateOf(false)
 
@@ -92,28 +95,59 @@ class ConversationListViewModel @Inject constructor(
     private fun startObservingConversationsAndConnections() = viewModelScope.launch(dispatchers.io()) {
         observeConversationsAndConnections() // TODO AR-1736
             .combine(observeSelfUser(), ::Pair)
-            .collect { (list, selfUser) ->
-                val detailedList = list.conversationList.toConversationsFoldersMap(selfUser.teamId)
-                val newActivities = emptyList<NewActivity>()
-                val missedCalls = mockMissedCalls // TODO: needs to be implemented
-                val unreadMentions = mockUnreadMentionList // TODO: needs to be implemented
+            .collect { (conversationListDetails, selfUser) ->
+                with(conversationListDetails) {
+                    selfUserId = selfUser.id
+                val allConversations = conversationList
 
-                state = ConversationListState(
-                    newActivities = newActivities,
-                    conversations = detailedList,
-                    missedCalls = missedCalls,
-                    callHistory = mockCallHistory, // TODO: needs to be implemented
-                    unreadMentions = unreadMentions,
-                    allMentions = mockAllMentionList, // TODO: needs to be implemented
-                    unreadMentionsCount = unreadMentions.size,
-                    missedCallsCount = missedCalls.size,
-                    newActivityCount = 0 // TODO: needs to be implemented
-                )
+                    val unreadConversations = allConversations.filter {
+                        when (it) {
+                            is Group -> it.unreadMessagesCount > 0
+                            is OneOne -> it.unreadMessagesCount > 0
+                            else -> false
+                        }
+                    }
+
+                    val remainingConversations = allConversations - unreadConversations.toSet()
+
+                    state = ConversationListState(
+                        newActivities = unreadConversations.toNewActivities(selfUser.teamId),
+                        conversations = remainingConversations.toConversationsFoldersMap(selfUser.teamId),
+                        missedCalls = mockMissedCalls, // TODO: needs to be implemented
+                        callHistory = mockCallHistory, // TODO: needs to be implemented
+                        unreadMentions = mockUnreadMentionList, // TODO: needs to be implemented
+                        allMentions = mockAllMentionList, // TODO: needs to be implemented
+                        newActivityCount = unreadConversationsCount,
+                        unreadMentionsCount = mentionsCount, // TODO: needs to be implemented on Kalium side
+                        missedCallsCount = missedCallsCount // TODO: needs to be implemented on Kalium side
+                    )
+                }
             }
     }
 
-    private fun List<ConversationDetails>.toConversationsFoldersMap(teamId: TeamId?): Map<ConversationFolder, List<ConversationItem>> =
-        mapOf(ConversationFolder.Predefined.Conversations to this.toConversationItemList(teamId))
+    private fun List<ConversationDetails>.toNewActivities(teamId: TeamId?): List<NewActivity> =
+        filter { it.conversation.supportsUnreadMessageCount }
+            .map { conversationDetails ->
+                when (conversationDetails) {
+                    is Group -> {
+                        NewActivity(
+                            eventType = EventType.UnreadMessage(conversationDetails.unreadMessagesCount),
+                            conversationItem = conversationDetails.toConversationItem(wireSessionImageLoader, teamId, userTypeMapper)
+                        )
+                    }
+                    is OneOne -> {
+                        NewActivity(
+                            eventType = EventType.UnreadMessage(conversationDetails.unreadMessagesCount),
+                            conversationItem = conversationDetails.toConversationItem(wireSessionImageLoader, teamId, userTypeMapper)
+                        )
+                    }
+                    else -> throw IllegalStateException("Unsupported type to get unread conversation count")
+                }
+            }
+
+    private fun List<ConversationDetails>.toConversationsFoldersMap(teamId: TeamId?): Map<ConversationFolder, List<ConversationItem>> {
+        return mapOf(ConversationFolder.Predefined.Conversations to this.toConversationItemList(teamId))
+    }
 
     fun openConversation(conversationId: ConversationId) {
         viewModelScope.launch {
@@ -239,12 +273,13 @@ class ConversationListViewModel @Inject constructor(
 
     private fun List<ConversationDetails>.toConversationItemList(teamId: TeamId?): List<ConversationItem> =
         filter { it is Group || it is OneOne || it is Connection }
-            .map { it.toType(wireSessionImageLoader, teamId, userTypeMapper) }
+            .map { it.toConversationItem(wireSessionImageLoader, teamId, userTypeMapper) }
 }
 
 private fun LegalHoldStatus.showLegalHoldIndicator() = this == LegalHoldStatus.ENABLED
 
-private fun ConversationDetails.toType(
+@Suppress("LongMethod")
+private fun ConversationDetails.toConversationItem(
     wireSessionImageLoader: WireSessionImageLoader,
     selfTeamId: TeamId?,
     userTypeMapper: UserTypeMapper
@@ -256,7 +291,8 @@ private fun ConversationDetails.toType(
             mutedStatus = conversation.mutedStatus,
             isLegalHold = legalHoldStatus.showLegalHoldIndicator(),
             lastEvent = ConversationLastEvent.None, // TODO implement unread events
-            hasOnGoingCall = hasOngoingCall
+            hasOnGoingCall = hasOngoingCall,
+            unreadMessagesCount = unreadMessagesCount
         )
     }
     is OneOne -> {
@@ -275,6 +311,7 @@ private fun ConversationDetails.toType(
             mutedStatus = conversation.mutedStatus,
             isLegalHold = legalHoldStatus.showLegalHoldIndicator(),
             lastEvent = ConversationLastEvent.None, // TODO implement unread events
+            unreadMessagesCount = unreadMessagesCount,
             userId = otherUser.id,
             blockingState = otherUser.getBlockingState(selfTeamId),
             connectionState = otherUser.connectionStatus

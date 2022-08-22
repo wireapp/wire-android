@@ -3,6 +3,7 @@ package com.wire.android.ui.home.conversations.details
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
+import com.wire.android.framework.TestUser
 import com.wire.android.mapper.testUIParticipant
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationManager
@@ -356,7 +357,8 @@ class GroupConversationDetailsViewModelTest {
             ),
             legalHoldStatus = LegalHoldStatus.DISABLED,
             hasOngoingCall = false,
-            unreadMessagesCount = 0L
+            unreadMessagesCount = 0L,
+            lastUnreadMessage = null
         )
     }
 }
@@ -420,6 +422,7 @@ internal class GroupConversationDetailsViewModelArrangement {
         every { savedStateHandle.get<String>(EXTRA_CONVERSATION_ID) } returns dummyConversationId
         // Default empty values
         coEvery { observeConversationDetails(any()) } returns flowOf()
+        coEvery { observerSelfUser() } returns flowOf(TestUser.SELF_USER)
         coEvery { observeParticipantsForConversationUseCase(any(), any()) } returns flowOf()
         coEvery { getSelfTeamUseCase() } returns flowOf(null)
         coEvery {

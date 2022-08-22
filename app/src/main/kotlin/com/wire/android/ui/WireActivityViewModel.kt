@@ -22,6 +22,7 @@ import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
+import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.SharingStarted
@@ -45,6 +46,7 @@ class WireActivityViewModel @Inject constructor(
     private val notificationManager: WireNotificationManager,
     private val navigationManager: NavigationManager,
     private val authServerConfigProvider: AuthServerConfigProvider,
+    observePersistentWebSocketConnectionStatus: ObservePersistentWebSocketConnectionStatusUseCase
 ) : ViewModel() {
 
     private val navigationArguments = mutableMapOf<String, Any>(SERVER_CONFIG_ARG to ServerConfig.DEFAULT)
@@ -67,7 +69,11 @@ class WireActivityViewModel @Inject constructor(
 
     init {
         viewModelScope.launch(dispatchers.io()) {
-            notificationManager.observeNotificationsAndCalls(observeUserId, viewModelScope) { openIncomingCall(it.conversationId) }
+            observePersistentWebSocketConnectionStatus().collect {
+                if (!it) {
+                    notificationManager.observeNotificationsAndCalls(observeUserId, viewModelScope) { openIncomingCall(it.conversationId) }
+                }
+            }
         }
     }
 

@@ -59,9 +59,11 @@ import com.wire.kalium.logic.feature.call.AnswerCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
+import com.wire.kalium.logic.feature.conversation.IsSelfUserMemberResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase.Result.Success
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveIsSelfUserMemberUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
@@ -97,6 +99,7 @@ class ConversationViewModel @Inject constructor(
     private val isFileSharingEnabled: IsFileSharingEnabledUseCase,
     private val observeOngoingCalls: ObserveOngoingCallsUseCase,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
+    private val observeIsSelfConversationMember: ObserveIsSelfUserMemberUseCase,
     private val answerCall: AnswerCallUseCase,
     private val endCall: EndCallUseCase,
     private val fileManager: FileManager,
@@ -107,6 +110,8 @@ class ConversationViewModel @Inject constructor(
 
     var conversationViewState by mutableStateOf(ConversationViewState())
         private set
+
+    var isConversationMemberState by mutableStateOf(true)
 
     var deleteMessageDialogsState: DeleteMessageDialogsState by mutableStateOf(
         DeleteMessageDialogsState.States(
@@ -124,6 +129,7 @@ class ConversationViewModel @Inject constructor(
 
     init {
         observeConversationDetailsAndMessages()
+        listenIfSelfIsConversationMember()
         fetchSelfUserTeam()
         setFileSharingStatus()
         listenOngoingCall()
@@ -180,6 +186,14 @@ class ConversationViewModel @Inject constructor(
         }
     }
 
+    private fun listenIfSelfIsConversationMember() = viewModelScope.launch {
+        observeIsSelfConversationMember(conversationId)
+            .collect{result -> when(result) {
+                is IsSelfUserMemberResult.Failure -> isConversationMemberState = false
+                is IsSelfUserMemberResult.Success -> isConversationMemberState = result.isMember
+            } }
+    }
+
     /**
      * TODO: This right now handles only the case when a conversation details doesn't exists.
      * Later we'll have to expand the error cases to different behaviors
@@ -229,7 +243,7 @@ class ConversationViewModel @Inject constructor(
         conversationViewState = conversationViewState.copy(
             conversationName = conversationName,
             conversationAvatar = conversationAvatar,
-            conversationDetailsData = conversationDetailsData
+            conversationDetailsData = conversationDetailsData,
         )
     }
 

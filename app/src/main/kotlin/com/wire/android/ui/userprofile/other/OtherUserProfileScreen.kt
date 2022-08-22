@@ -381,7 +381,7 @@ private fun Content(
 
                             OtherUserProfileTabItem.DEVICES -> {
                                 getOtherUserClients()
-                                OtherUserDevicesScreen(state.otherUserClients, state = state)
+                                OtherUserDevicesScreen(state = state)
 
                             }
                         }

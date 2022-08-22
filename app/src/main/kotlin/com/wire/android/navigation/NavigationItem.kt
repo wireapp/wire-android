@@ -26,6 +26,7 @@ import com.wire.android.navigation.NavigationItemDestinationsRoutes.INCOMING_CAL
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.INITIATING_CALL
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.LOGIN
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.MEDIA_GALLERY
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.NETWORK_SETTINGS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.NEW_CONVERSATION
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.ONGOING_CALL
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.OTHER_USER_PROFILE
@@ -56,7 +57,8 @@ import com.wire.android.ui.home.conversations.search.SearchPeopleRouter
 import com.wire.android.ui.home.gallery.MediaGalleryScreen
 import com.wire.android.ui.home.newconversation.NewConversationRouter
 import com.wire.android.ui.home.settings.backup.BackupAndRestoreScreen
-import com.wire.android.ui.settings.AppSettingsScreen
+import com.wire.android.ui.home.settings.appsettings.AppSettingsScreen
+import com.wire.android.ui.home.settings.appsettings.networkSettings.NetworkSettingsScreen
 import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerScreen
 import com.wire.android.ui.userprofile.other.OtherUserProfileScreen
 import com.wire.android.ui.userprofile.self.SelfUserProfileScreen
@@ -169,6 +171,11 @@ enum class NavigationItem(
     Debug(
         primaryRoute = DEBUG,
         content = { DebugScreen() },
+    ),
+
+    NetworkSettings(
+        primaryRoute = NETWORK_SETTINGS,
+        content = { NetworkSettingsScreen() },
     ),
 
     Support(
@@ -375,6 +382,7 @@ object NavigationItemDestinationsRoutes {
     const val INITIATING_CALL = "initiating_call_screen"
     const val INCOMING_CALL = "incoming_call_screen"
     const val MEDIA_GALLERY = "media_gallery"
+    const val NETWORK_SETTINGS = "network_settings_screen"
 }
 
 const val EXTRA_USER_ID = "extra_user_id"

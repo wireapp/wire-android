@@ -39,7 +39,9 @@ import com.wire.kalium.logic.feature.call.AnswerCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
+import com.wire.kalium.logic.feature.conversation.IsSelfUserMemberResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveIsSelfUserMemberUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
@@ -140,6 +142,9 @@ internal class ConversationsViewModelArrangement {
     private lateinit var observeEstablishedCallsUseCase: ObserveEstablishedCallsUseCase
 
     @MockK
+    private lateinit var observeIsSelfUserMemberUseCase: ObserveIsSelfUserMemberUseCase
+
+    @MockK
     private lateinit var endCall: EndCallUseCase
 
     @MockK
@@ -173,7 +178,8 @@ internal class ConversationsViewModelArrangement {
             kaliumFileSystem = fakeKaliumFileSystem,
             observeEstablishedCalls = observeEstablishedCallsUseCase,
             endCall = endCall,
-            updateConversationReadDateUseCase = updateConversationReadDateUseCase
+            updateConversationReadDateUseCase = updateConversationReadDateUseCase,
+            observeIsSelfConversationMember = observeIsSelfUserMemberUseCase
         )
     }
 
@@ -182,6 +188,7 @@ internal class ConversationsViewModelArrangement {
         coEvery { getMessagesForConversationUseCase(any()) } returns messagesChannel.consumeAsFlow()
         coEvery { observeOngoingCallsUseCase() } returns emptyFlow()
         coEvery { observeEstablishedCallsUseCase() } returns emptyFlow()
+        coEvery { observeIsSelfUserMemberUseCase(any()) } returns flowOf(IsSelfUserMemberResult.Success(true))
         return this
     }
 

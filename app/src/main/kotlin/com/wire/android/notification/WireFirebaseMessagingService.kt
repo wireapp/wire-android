@@ -9,12 +9,14 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.feature.notificationToken.SaveNotificationTokenUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
+@OptIn(ExperimentalCoroutinesApi::class)
 class WireFirebaseMessagingService : FirebaseMessagingService() {
 
     @Inject
@@ -45,10 +47,13 @@ class WireFirebaseMessagingService : FirebaseMessagingService() {
         scope.launch {
             wireNotificationManager.fetchAndShowNotificationsOnce(userIdValue)
         }
+
+        appLogger.i("$TAG: onMessageReceived End")
     }
 
     override fun onDestroy() {
         scope.cancel("WireFirebaseMessagingService was destroyed")
+        appLogger.i("$TAG: onDestroy")
         super.onDestroy()
     }
 

@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
@@ -21,6 +20,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -59,10 +59,11 @@ import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
 import com.wire.android.ui.home.messagecomposer.MessageComposeInputState
 import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
-import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.launch
+import kotlinx.datetime.Instant
 import okio.Path
 import okio.Path.Companion.toPath
 
@@ -125,6 +126,7 @@ fun ConversationScreen(
         onDropDownClick = conversationViewModel::navigateToDetails,
         tempCachePath = conversationViewModel.provideTempCachePath(),
         onOpenProfile = conversationViewModel::navigateToProfile,
+        onUpdateConversationReadDate = conversationViewModel::updateConversationReadDate,
         isConversationMember = conversationViewModel.isConversationMemberState,
         commonTopAppBarViewModel = commonTopAppBarViewModel
     )
@@ -166,19 +168,18 @@ private fun ConversationScreen(
     onDropDownClick: () -> Unit,
     tempCachePath: Path,
     onOpenProfile: (MessageSource, UserId) -> Unit,
+    onUpdateConversationReadDate: (String) -> Unit,
     isConversationMember: Boolean,
     commonTopAppBarViewModel: CommonTopAppBarBaseViewModel
 ) {
     val conversationScreenState = rememberConversationScreenState()
-    val scope = rememberCoroutineScope()
 
     with(conversationViewState) {
-
         val connectionStateOrNull = (conversationDetailsData as? ConversationDetailsData.OneOne)?.connectionState
 
         MenuModalSheetLayout(
             sheetState = conversationScreenState.modalBottomSheetState,
-            coroutineScope = scope,
+            coroutineScope = conversationScreenState.coroutineScope,
             menuItems = EditMessageMenuItems(
                 isMyMessage = conversationScreenState.isSelectedMessageMyMessage(),
                 onCopyMessage = conversationScreenState::copyMessage,
@@ -234,6 +235,7 @@ private fun ConversationScreen(
                         Box(modifier = Modifier.padding(internalPadding)) {
                             ConversationScreenContent(
                                 messages = messages,
+                                lastUnreadMessage = lastUnreadMessage,
                                 onMessageChanged = onMessageChanged,
                                 messageText = conversationViewState.messageText,
                                 onSendButtonClicked = onSendButtonClicked,
@@ -249,7 +251,8 @@ private fun ConversationScreen(
                                 tempCachePath = tempCachePath,
                                 isUserBlocked = connectionStateOrNull == ConnectionState.BLOCKED,
                                 isConversationMember = isConversationMember,
-                                onOpenProfile = onOpenProfile
+                                onOpenProfile = onOpenProfile,
+                                onUpdateConversationReadDate = onUpdateConversationReadDate
                             )
                         }
                     }
@@ -263,6 +266,7 @@ private fun ConversationScreen(
 @Composable
 private fun ConversationScreenContent(
     messages: List<UIMessage>,
+    lastUnreadMessage: UIMessage?,
     onMessageChanged: (String) -> Unit,
     messageText: String,
     onSendButtonClicked: () -> Unit,
@@ -278,7 +282,8 @@ private fun ConversationScreenContent(
     isFileSharingEnabled: Boolean,
     isUserBlocked: Boolean,
     isConversationMember: Boolean,
-    tempCachePath: Path
+    tempCachePath: Path,
+    onUpdateConversationReadDate: (String) -> Unit
 ) {
     val coroutineScope = rememberCoroutineScope()
     val context = LocalContext.current
@@ -298,7 +303,12 @@ private fun ConversationScreenContent(
         }
     }
 
-    val lazyListState = rememberLazyListState()
+    val lazyListState = rememberSaveable(lastUnreadMessage, saver = LazyListState.Saver) {
+        LazyListState(
+            if (lastUnreadMessage != null) messages.indexOf(lastUnreadMessage) else 0,
+            0
+        )
+    }
 
     LaunchedEffect(messages) {
         lazyListState.animateScrollToItem(0)
@@ -308,11 +318,13 @@ private fun ConversationScreenContent(
         content = {
             MessageList(
                 messages = messages,
+                lastUnreadMessage,
                 lazyListState = lazyListState,
                 onShowContextMenu = onShowContextMenu,
                 onDownloadAsset = onDownloadAsset,
                 onImageFullScreenMode = onImageFullScreenMode,
-                onOpenProfile = onOpenProfile
+                onOpenProfile = onOpenProfile,
+                onUpdateConversationReadDate = onUpdateConversationReadDate
             )
         },
         messageText = messageText,
@@ -332,6 +344,7 @@ private fun ConversationScreenContent(
         isUserBlocked = isUserBlocked,
         isConversationMember = isConversationMember
     )
+
 }
 
 @Composable
@@ -357,12 +370,29 @@ private fun getSnackbarMessage(messageCode: ConversationSnackbarMessages): Pair<
 @Composable
 fun MessageList(
     messages: List<UIMessage>,
+    lastUnreadMessage: UIMessage?,
     lazyListState: LazyListState,
     onShowContextMenu: (UIMessage) -> Unit,
     onDownloadAsset: (String) -> Unit,
     onImageFullScreenMode: (String, Boolean) -> Unit,
-    onOpenProfile: (MessageSource, UserId) -> Unit
+    onOpenProfile: (MessageSource, UserId) -> Unit,
+    onUpdateConversationReadDate: (String) -> Unit
 ) {
+    if (messages.isNotEmpty() && lastUnreadMessage != null) {
+        LaunchedEffect(lazyListState.isScrollInProgress) {
+            if (!lazyListState.isScrollInProgress) {
+                val lastVisibleMessage = messages[lazyListState.firstVisibleItemIndex]
+
+                val lastVisibleMessageInstant = Instant.parse(lastVisibleMessage.messageHeader.messageTime.utcISO)
+                val lastUnreadMessageInstant = Instant.parse(lastUnreadMessage.messageHeader.messageTime.utcISO)
+
+                if (lastVisibleMessageInstant >= lastUnreadMessageInstant) {
+                    onUpdateConversationReadDate(lastVisibleMessage.messageHeader.messageTime.utcISO)
+                }
+            }
+        }
+    }
+
     LazyColumn(
         state = lazyListState,
         reverseLayout = true,
@@ -410,6 +440,7 @@ fun ConversationScreenPreview() {
         onDropDownClick = {},
         tempCachePath = "".toPath(),
         onOpenProfile = { _, _ -> },
+        onUpdateConversationReadDate = {},
         isConversationMember = true,
         commonTopAppBarViewModel = object: CommonTopAppBarBaseViewModel() { }
     )

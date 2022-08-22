@@ -447,6 +447,7 @@
     <string name="conversation_group_removed_success">“%s” removed</string>
     <string name="leave_group_conversation_error">There was an error while leaving conversation</string>
     <string name="left_conversation_group_success">You left the conversation.</string>
+    <string name="error_unblocking_user">User could not be unblocked</string>
 
     <!-- Animation label -->
     <string name="animation_label_messagecomposeinput_state_transistion" translatable="false">MessageComposeInputState transition</string>
@@ -582,5 +583,10 @@
     <string name="settings_about_this_app_label">About this App</string>
     <string name="settings_keep_connection_to_websocket">Keep Connection to Websocket</string>
     <string name="settings_service_is_running">service is running</string>
+
+    <!--unblock user dialog -->
+    <string name="unblock_user_dialog_title">Unblock user?</string>
+    <string name="unblock_user_dialog_body">%1$s will be able to contact you or add you to group conversations. You will be able to access a 1:1 conversation with them.</string>
+    <string name="unblock_user_dialog_confirm_button">Unblock</string>
 
 </resources>

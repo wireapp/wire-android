@@ -37,7 +37,7 @@ class TestModule {
         return runBlocking {
             val result = restoreSession(coreLogic)
             if (result != null) {
-                result.tokens.userId
+                result.session.userId
             } else {
                 // execute manual login
                 val authResult = coreLogic.getAuthenticationScope(ServerConfig.STAGING)
@@ -45,14 +45,14 @@ class TestModule {
 
                 if (authResult is AuthenticationResult.Success) {
                     // persist locally the session if successful
-                    coreLogic.sessionRepository.storeSession(authResult.userSession)
-                    authResult.userSession.tokens.userId
+                    coreLogic.sessionRepository.storeSession(authResult.userSession, authResult.ssoId)
+                    authResult.userSession.session.userId
                 } else {
                     val authResultRetry = coreLogic.getAuthenticationScope(ServerConfig.STAGING)
                         .login(EMAIL_2, PASSWORD_2, false)
                     if (authResultRetry is AuthenticationResult.Success) {
-                        coreLogic.sessionRepository.storeSession(authResultRetry.userSession)
-                        authResultRetry.userSession.tokens.userId
+                        coreLogic.sessionRepository.storeSession(authResultRetry.userSession, authResultRetry.ssoId)
+                        authResultRetry.userSession.session.userId
                     } else {
                         throw RuntimeException("Failed to setup testing custom injection")
                     }

@@ -23,6 +23,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
+import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.ShakeAnimation
@@ -107,10 +108,10 @@ fun NewGroupScreenContent(
                             onValueChange = onGroupNameChange,
                             placeholderText = stringResource(R.string.group_name),
                             labelText = stringResource(R.string.group_name).uppercase(),
-                            state = if (error is NewGroupState.GroupNameError.TextFieldError) when (error) {
-                                NewGroupState.GroupNameError.TextFieldError.GroupNameEmptyError ->
+                            state = if (error is NewGroupState.NewGroupError.TextFieldError) when (error) {
+                                NewGroupState.NewGroupError.TextFieldError.GroupNameEmptyError ->
                                     WireTextFieldState.Error(stringResource(id = R.string.empty_group_name_error))
-                                NewGroupState.GroupNameError.TextFieldError.GroupNameExceedLimitError ->
+                                NewGroupState.NewGroupError.TextFieldError.GroupNameExceedLimitError ->
                                     WireTextFieldState.Error(stringResource(id = R.string.group_name_exceeded_limit_error))
                             } else WireTextFieldState.Default,
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Done),
@@ -120,7 +121,7 @@ fun NewGroupScreenContent(
                     }
 
                 }
-                if (mlsEnabled) {
+                if (mlsEnabled || BuildConfig.DEBUG) {
                     WireDropDown(
                         items =
                         ConversationOptions.Protocol.values().map { it.name },

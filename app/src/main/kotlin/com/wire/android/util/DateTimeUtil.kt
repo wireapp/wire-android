@@ -1,6 +1,7 @@
 package com.wire.android.util
 
 import android.text.format.DateUtils
+import com.wire.android.appLogger
 import java.text.DateFormat
 import java.text.ParseException
 import java.text.SimpleDateFormat
@@ -22,11 +23,22 @@ private val messageDateTimeFormatter = DateFormat
     .apply { timeZone = TimeZone.getDefault() }
 
 fun String.formatMediumDateTime(): String? =
-    try { this.serverDate()?.let { mediumDateTimeFormat.format(it) } } catch (e: ParseException) { null }
-fun String.serverDate(): Date? = serverDateTimeFormat.parse(this)
+    try {
+        this.serverDate()?.let { mediumDateTimeFormat.format(it) }
+    } catch (e: ParseException) {
+        null
+    }
+
+fun String.serverDate(): Date? = try {
+    serverDateTimeFormat.parse(this)
+} catch (e: ParseException) {
+    appLogger.e("There was an error parsing the server date")
+    null
+}
+
 fun String.uiMessageDateTime(): String? = this
     .serverDate()?.let { serverDate ->
-        when(DateUtils.isToday(serverDate.time)) {
+        when (DateUtils.isToday(serverDate.time)) {
             true -> messageTimeFormatter.format(serverDate)
             false -> messageDateTimeFormatter.format(serverDate)
         }

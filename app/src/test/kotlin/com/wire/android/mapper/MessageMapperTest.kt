@@ -112,7 +112,7 @@ class MessageMapperTest {
         membership: Membership = Membership.None,
         status: MessageStatus = MessageStatus.Untouched
     ) = uiMessage.messageSource == source && uiMessage.messageHeader.membership == membership
-                && uiMessage.messageHeader.time == time && uiMessage.messageHeader.messageStatus == status
+                && uiMessage.messageHeader.messageTime.formattedDate == time && uiMessage.messageHeader.messageStatus == status
 
     private class Arrangement {
         @MockK

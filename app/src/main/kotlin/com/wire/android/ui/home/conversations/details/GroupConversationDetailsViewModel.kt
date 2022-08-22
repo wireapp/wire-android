@@ -106,7 +106,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
                                         updateState(
                                             groupOptionsState.copy(
                                                 groupName = conversation.name.orEmpty(),
-                                                isUpdatingAllowed = isSelfAnAdmin,
+                                                protocolInfo = conversation.protocol,isUpdatingAllowed = isSelfAnAdmin,
                                                 areAccessOptionsAvailable = conversation.isTeamGroup(),
                                                 isGuestAllowed = (conversation.isGuestAllowed() || conversation.isNonTeamMemberAllowed()),
                                                 isServicesAllowed = conversation.isServicesAllowed(),
@@ -165,7 +165,6 @@ class GroupConversationDetailsViewModel @Inject constructor(
         }
         requestInProgress = false
     }
-
 
     fun onGuestUpdate(enableGuestAndNonTeamMember: Boolean) {
         groupOptionsState = groupOptionsState.copy(loadingGuestOption = true, isGuestAllowed = enableGuestAndNonTeamMember)

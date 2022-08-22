@@ -34,6 +34,7 @@ import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUs
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
+import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
@@ -303,6 +304,16 @@ class UseCaseModule {
     @Provides
     fun provideRegisterClientUseCase(@CurrentAccount currentAccount: UserId, clientScopeProviderFactory: ClientScopeProvider.Factory) =
         clientScopeProviderFactory.create(currentAccount).clientScope.register
+
+    @ViewModelScoped
+    @Provides
+    fun providePersistOtherUsersClients(@CurrentAccount currentAccount: UserId, clientScopeProviderFactory: ClientScopeProvider.Factory) =
+        clientScopeProviderFactory.create(currentAccount).clientScope.persistOtherUserClients
+
+    @ViewModelScoped
+    @Provides
+    fun provideGetOtherUsersClients(@CurrentAccount currentAccount: UserId, clientScopeProviderFactory: ClientScopeProvider.Factory) =
+        clientScopeProviderFactory.create(currentAccount).clientScope.getOtherUserClients
 
     @ViewModelScoped
     @Provides
@@ -633,8 +644,15 @@ class UseCaseModule {
     fun provideUpdateConversationMemberRoleUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ): UpdateConversationMemberRoleUseCase =
-        coreLogic.getSessionScope(currentAccount).conversations.updateConversationMemberRole
+    ): UpdateConversationMemberRoleUseCase = coreLogic.getSessionScope(currentAccount).conversations.updateConversationMemberRole
+
+    @ViewModelScoped
+    @Provides
+    fun provideUpdateConversationReadDateUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): UpdateConversationReadDateUseCase =
+        coreLogic.getSessionScope(currentAccount).conversations.updateConversationReadDateUseCase
 
     @ViewModelScoped
     @Provides

@@ -2,6 +2,8 @@ package com.wire.android.ui.home.conversations.details
 
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.TestDispatcherProvider
+import com.wire.android.framework.TestUser
 import com.wire.android.mapper.testUIParticipant
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationManager
@@ -18,8 +20,11 @@ import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
+import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
+import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
+import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -370,6 +375,15 @@ internal class GroupConversationDetailsViewModelArrangement {
     lateinit var observeConversationDetails: ObserveConversationDetailsUseCase
 
     @MockK
+    lateinit var deleteTeamConversation: DeleteTeamConversationUseCase
+
+    @MockK
+    lateinit var removeMemberFromConversation: RemoveMemberFromConversationUseCase
+
+    @MockK
+    lateinit var observerSelfUser: GetSelfUserUseCase
+
+    @MockK
     lateinit var observeParticipantsForConversationUseCase: ObserveParticipantsForConversationUseCase
 
     @MockK
@@ -388,7 +402,11 @@ internal class GroupConversationDetailsViewModelArrangement {
     private val viewModel by lazy {
         GroupConversationDetailsViewModel(
             navigationManager = navigationManager,
+            dispatcher = TestDispatcherProvider(),
+            observerSelfUser = observerSelfUser,
             observeConversationDetails = observeConversationDetails,
+            deleteTeamConversation = deleteTeamConversation,
+            removeMemberFromConversation = removeMemberFromConversation,
             observeConversationMembers = observeParticipantsForConversationUseCase,
             updateConversationAccessRole = updateConversationAccessRoleUseCase,
             getSelfTeam = getSelfTeamUseCase,
@@ -404,6 +422,7 @@ internal class GroupConversationDetailsViewModelArrangement {
         every { savedStateHandle.get<String>(EXTRA_CONVERSATION_ID) } returns dummyConversationId
         // Default empty values
         coEvery { observeConversationDetails(any()) } returns flowOf()
+        coEvery { observerSelfUser() } returns flowOf(TestUser.SELF_USER)
         coEvery { observeParticipantsForConversationUseCase(any(), any()) } returns flowOf()
         coEvery { getSelfTeamUseCase() } returns flowOf(null)
         coEvery {

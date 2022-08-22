@@ -11,6 +11,8 @@ import com.wire.android.model.ImageAsset.PrivateAsset
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
+import com.wire.android.navigation.EXTRA_GROUP_DELETED_NAME
+import com.wire.android.navigation.EXTRA_LEFT_GROUP
 import com.wire.android.navigation.EXTRA_MESSAGE_TO_DELETE_ID
 import com.wire.android.navigation.EXTRA_MESSAGE_TO_DELETE_IS_SELF
 import com.wire.android.navigation.NavigationCommand
@@ -18,6 +20,7 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.navigation.getBackNavArg
+import com.wire.android.navigation.getBackNavArgs
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorDeletingMessage
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorMaxAssetSize
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorMaxImageSize
@@ -126,7 +129,7 @@ class ConversationViewModel @Inject constructor(
 
     init {
         observeConversationDetailsAndMessages()
-        listenIfSelfIsConversationMember()
+        observeIfSelfIsConversationMember()
         fetchSelfUserTeam()
         setFileSharingStatus()
         listenOngoingCall()
@@ -183,7 +186,7 @@ class ConversationViewModel @Inject constructor(
         }
     }
 
-    private fun listenIfSelfIsConversationMember() = viewModelScope.launch {
+    private fun observeIfSelfIsConversationMember() = viewModelScope.launch {
         observeIsSelfConversationMember(conversationId)
             .collect{result -> when(result) {
                 is IsSelfUserMemberResult.Failure -> isConversationMemberState = false
@@ -276,9 +279,19 @@ class ConversationViewModel @Inject constructor(
         val messageToDeleteIsSelf = savedStateHandle
             .getBackNavArg<Boolean>(EXTRA_MESSAGE_TO_DELETE_IS_SELF)
 
+        val groupDeletedName = savedStateHandle
+            .getBackNavArg<String>(EXTRA_GROUP_DELETED_NAME)
+
+        val leftGroup = savedStateHandle
+            .getBackNavArg(EXTRA_LEFT_GROUP) ?: false
+
         if (messageToDeleteId != null && messageToDeleteIsSelf != null) {
             showDeleteMessageDialog(messageToDeleteId, messageToDeleteIsSelf)
         }
+        if (leftGroup || groupDeletedName != null) {
+            navigateBack(savedStateHandle.getBackNavArgs())
+        }
+
     }
 // endregion
 
@@ -575,9 +588,9 @@ class ConversationViewModel @Inject constructor(
 // endregion
 
     // region ------------------------------ Navigation ------------------------------
-    fun navigateBack() {
+    fun navigateBack(previousBackStackPassedArgs: Map<String, Any> = mapOf()) {
         viewModelScope.launch {
-            navigationManager.navigateBack()
+            navigationManager.navigateBack(previousBackStackPassedArgs)
         }
     }
 

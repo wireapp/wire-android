@@ -10,6 +10,7 @@
     <string name="label_continue">Continue</string>
     <string name="label_get_started">Get Started</string>
     <string name="label_remove">Remove</string>
+    <string name="label_leave">Leave</string>
     <string name="label_add_device">Add Device</string>
     <string name="label_learn_more">Learn more</string>
     <string name="label_removing">Removing...</string>
@@ -52,6 +53,7 @@
     <string name="content_description_move_to_archive">Move to archive</string>
     <string name="content_description_block_the_user">Block the user</string>
     <string name="content_description_leave_the_group">Leave the group</string>
+    <string name="content_description_delete_the_group">Delete the group</string>
     <string name="content_description_conversation_phone_icon">Make audio call</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
     <string name="content_description_conversation_search_icon">Conversation search icon</string>
@@ -313,6 +315,14 @@
     <string name="disable_guest_dialog_title">Disable guest access?</string>
     <string name="disable_guest_dialog_text">Current guests will be removed from the conversation. New guests will not be allowed.</string>
 
+    <string name="leave_group_conversation_menu_item">Leave Group...</string>
+    <string name="leave_group_conversation_dialog_title">Leave “%s”?</string>
+    <string name="leave_group_conversation_dialog_description">You will then no longer be able to send or read messages in this group on any device.</string>
+
+    <string name="delete_group_conversation_menu_item">Delete Group...</string>
+    <string name="delete_group_conversation_dialog_title">Remove “%s”?</string>
+    <string name="delete_group_conversation_dialog_description">The group will be removed from your conversations list on all devices. You will no longer be able to access the group and its content.</string>
+
     <!-- Attachment options -->
     <string name="attachment_share_file">Attach File</string>
     <string name="attachment_share_image">Attach Image</string>
@@ -434,6 +444,9 @@
     <string name="conversation_on_file_downloaded">The file %s was saved successfully to the Downloads folder</string>
     <string name="error_blocking_user">User could not be blocked</string>
     <string name="blocking_user_success">%s blocked</string>
+    <string name="conversation_group_removed_success">“%s” removed</string>
+    <string name="leave_group_conversation_error">There was an error while leaving conversation</string>
+    <string name="left_conversation_group_success">You left the conversation.</string>
 
     <!-- Animation label -->
     <string name="animation_label_messagecomposeinput_state_transistion" translatable="false">MessageComposeInputState transition</string>

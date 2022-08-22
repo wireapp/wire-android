@@ -331,8 +331,10 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             viewModelScope.launch {
                 when (updateConversationMutedStatus(conversationId, status, Date().time)) {
                     ConversationUpdateStatusResult.Failure -> showInfoMessage(InfoMessageType.MutingOperationError)
-                    ConversationUpdateStatusResult.Success ->
+                    ConversationUpdateStatusResult.Success -> {
+                        state = state.updateMuteStatus(status)
                         appLogger.i("MutedStatus changed for conversation: $conversationId to $status")
+                    }
                 }
             }
         }

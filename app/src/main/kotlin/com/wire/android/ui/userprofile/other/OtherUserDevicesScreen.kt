@@ -28,7 +28,8 @@ import com.wire.kalium.logic.data.conversation.ClientId
 @Composable
 fun OtherUserDevicesScreen(
     otherUserClient: List<OtherUserClients>,
-    lazyListState: LazyListState = rememberLazyListState()
+    lazyListState: LazyListState = rememberLazyListState(),
+    state: OtherUserProfileState
 ) {
     val context = LocalContext.current
     val supportUrl = BuildConfig.SUPPORT_URL + stringResource(id = R.string.url_why_verify_conversation)
@@ -44,7 +45,7 @@ fun OtherUserDevicesScreen(
             LinkText(
                 linkTextData = listOf(
                     LinkTextData(
-                        text = stringResource(R.string.other_user_devices_decription),
+                        text = stringResource(R.string.other_user_devices_decription, state.fullName),
                     ),
                     LinkTextData(
                         text = stringResource(id = R.string.label_learn_more),

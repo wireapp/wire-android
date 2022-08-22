@@ -55,10 +55,11 @@ import com.wire.kalium.logic.feature.call.AnswerCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
+import com.wire.kalium.logic.feature.conversation.IsSelfUserMemberResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase.Result.Failure
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase.Result.Success
-import com.wire.kalium.logic.feature.conversation.ObserveIsSelfConversationMemberUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveIsSelfUserMemberUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
@@ -91,7 +92,7 @@ class ConversationViewModel @Inject constructor(
     private val isFileSharingEnabled: IsFileSharingEnabledUseCase,
     private val observeOngoingCalls: ObserveOngoingCallsUseCase,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
-    private val observeIsSelfConversationMember: ObserveIsSelfConversationMemberUseCase,
+    private val observeIsSelfConversationMember: ObserveIsSelfUserMemberUseCase,
     private val answerCall: AnswerCallUseCase,
     private val endCall: EndCallUseCase,
     private val fileManager: FileManager,
@@ -154,8 +155,8 @@ class ConversationViewModel @Inject constructor(
     private fun listenIfSelfIsConversationMember() = viewModelScope.launch {
         observeIsSelfConversationMember(conversationId)
             .collect{result -> when(result) {
-                is ObserveIsSelfConversationMemberUseCase.Result.Failure -> isConversationMemberState = false
-                is ObserveIsSelfConversationMemberUseCase.Result.Success -> isConversationMemberState = result.isMember
+                is IsSelfUserMemberResult.Failure -> isConversationMemberState = false
+                is IsSelfUserMemberResult.Success -> isConversationMemberState = result.isMember
             } }
     }
 

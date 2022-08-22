@@ -274,7 +274,7 @@ class UseCaseModule {
     @ViewModelScoped
     @Provides
     fun provideObserveIsSelfConversationMemberUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
-        coreLogic.getSessionScope(currentAccount).conversations.observeIsSelfConversationMemberUseCase
+        coreLogic.getSessionScope(currentAccount).conversations.observeIsSelfUserMemberUseCase
 
     @ViewModelScoped
     @Provides

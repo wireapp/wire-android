@@ -129,7 +129,7 @@ class ConversationViewModel @Inject constructor(
 
     init {
         observeConversationDetailsAndMessages()
-        listenIfSelfIsConversationMember()
+        observeIfSelfIsConversationMember()
         fetchSelfUserTeam()
         setFileSharingStatus()
         listenOngoingCall()
@@ -186,7 +186,7 @@ class ConversationViewModel @Inject constructor(
         }
     }
 
-    private fun listenIfSelfIsConversationMember() = viewModelScope.launch {
+    private fun observeIfSelfIsConversationMember() = viewModelScope.launch {
         observeIsSelfConversationMember(conversationId)
             .collect{result -> when(result) {
                 is IsSelfUserMemberResult.Failure -> isConversationMemberState = false

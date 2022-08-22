@@ -108,10 +108,21 @@
     <string name="archive_screen_title">Archive</string>
     <string name="user_profile_screen_title">User Profile</string>
     <string name="settings_screen_title">Settings</string>
+    <string name="app_settings_screen_title">App Settings</string>
     <string name="debug_screen_title">Debug</string>
+    <string name="debug_settings_screen_title">Debug Settings</string>
     <string name="support_screen_title">Support</string>
+    <string name="backup_and_restore_screen_title">Back up &amp; Restore Conversations</string>
     <string name="search_bar_hint">Search %s</string>
     <string name="search_no_results">No matches found</string>
+
+    <!-- Settings -->
+    <string name="settings_general_group_title">General</string>
+    <string name="settings_backups_group_title">Backups</string>
+    <string name="settings_other_group_title">Other</string>
+    <string name="settings_backup_info">Create a backup to preserve your conversation history. You can use this to restore history if you lose your device or switch to a new one.\n\nChoose a strong password to protect the backup file.</string>
+    <string name="settings_backup_create">Create a Backup</string>
+    <string name="settings_backup_restore">Restore from Backup</string>
 
     <!-- Welcome -->
     <string name="welcome_screen_title">welcome</string>
@@ -174,6 +185,7 @@
     </string>
     <string name="remove_device_label">YOUR DEVICES</string>
     <string name="remove_device_id_and_time_label">ID: %1$s\nAdded: %2$s</string>
+    <string name="remove_device_id_label">ID: %1$s</string>
     <string name="remove_device_dialog_title">Remove the following device?</string>
     <string name="remove_device_invalid_password">Invalid password</string>
 
@@ -320,6 +332,7 @@
     <string name="user_profile_status_none">None</string>
     <string name="user_profile_new_account_text">New Team or Account</string>
     <string name="user_profile_details_tab">Details</string>
+    <string name="user_profile_devices_tab">Devices</string>
     <string name="user_profile_group_tab">Group</string>
     <string name="user_profile_group_member">Member of the group ”%s”</string>
     <string name="user_profile_group_role">ROLE</string>
@@ -405,8 +418,8 @@
     <string name="error_unknown_message">Please try again in a moment</string>
     <string name="error_server_miscommunication_title">Server error</string>
     <string name="error_server_miscommunication_message">Please try again in a moment</string>
-    <string name="error_no_network_title">No network error</string>
-    <string name="error_no_network_message">Please check your Internet connection</string>
+    <string name="error_no_network_title">Waiting for network</string>
+    <string name="error_no_network_message">Please check your Internet connection and try again</string>
     <string name="error_downloading_user_info">There was an error downloading the user information. Please check your Internet connection</string>
     <string name="error_uploading_user_avatar">Image could not be uploaded</string>
     <string name="error_updating_muting_setting">Notifications could not be updated</string>
@@ -540,10 +553,12 @@
     <string name="block_user_dialog_title">Block user?</string>
     <string name="block_user_dialog_body">%1$s won’t be able to contact you or add you to group conversations. You will lose access to any 1:1 conversations with them. The other user will not be notified about this.</string>
     <string name="block_user_dialog_confirm_button">Block</string>
+    <string name="other_user_devices_decription"><![CDATA[\Wire gives every device a unique fingerprint. Compare them with <other users username> and verify your conversation. \]]></string>
+    <string name="url_why_verify_conversation">/hc/en-us/articles/207859815-Why-should-I-verify-my-conversations</string>
 
     <!--unblock user dialog -->
     <string name="unblock_user_dialog_title">Unblock user?</string>
     <string name="unblock_user_dialog_body">%1$s will be able to contact you or add you to group conversations. You will be able to access a 1:1 conversation with them.</string>
-    <string name="unblock_user_dialog_confirm_button">Unlock</string>
+    <string name="unblock_user_dialog_confirm_button">Unblock</string>
 
 </resources>

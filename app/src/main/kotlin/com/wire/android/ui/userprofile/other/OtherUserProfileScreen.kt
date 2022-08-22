@@ -65,9 +65,10 @@ import com.wire.android.ui.userprofile.common.UserProfileInfo
 import com.wire.android.ui.userprofile.group.RemoveConversationMemberState
 import com.wire.kalium.logic.data.user.ConnectionState
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterialApi::class)
+@OptIn(ExperimentalMaterialApi::class, InternalCoroutinesApi::class)
 @Composable
 fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltViewModel()) {
     val snackbarHostState = remember { SnackbarHostState() }
@@ -89,7 +90,9 @@ fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltView
         openBottomSheet = openBottomSheet,
         closeBottomSheet = closeBottomSheet,
         snackbarHostState = snackbarHostState,
-        eventsHandler = viewModel
+        eventsHandler = viewModel,
+        footerEventsHandler = viewModel,
+        bottomSheetEventsHandler = viewModel
     )
     LaunchedEffect(Unit) {
         viewModel.infoMessage.collect {
@@ -127,11 +130,19 @@ fun OtherProfileScreenContent(
     blockUserDialogState: PreservedState<BlockUserDialogState>?,
     unblockUserDialogState: PreservedState<UnblockUserDialogState>?,
     eventsHandler: OtherUserProfileEventsHandler,
+    footerEventsHandler: OtherUserProfileFooterEventsHandler,
+    bottomSheetEventsHandler: OtherUserProfileBottomSheetEventsHandler,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
     val otherUserProfileScreenState = rememberOtherUserProfileScreenState(snackbarHostState)
     val tabItems by remember(state) {
-        derivedStateOf { listOfNotNull(state.groupState?.let { OtherUserProfileTabItem.GROUP }, OtherUserProfileTabItem.DETAILS) }
+        derivedStateOf {
+            listOfNotNull(
+                state.groupState?.let { OtherUserProfileTabItem.GROUP },
+                OtherUserProfileTabItem.DETAILS,
+                OtherUserProfileTabItem.DEVICES
+            )
+        }
     }
     val initialPage = 0
     val pagerState = rememberPagerState(initialPage = initialPage)
@@ -150,16 +161,16 @@ fun OtherProfileScreenContent(
         sheetContent = {
             OtherUserProfileBottomSheetContent(
                 bottomSheetState = state.bottomSheetContentState,
-                onMutingConversationStatusChange = eventsHandler::onMutingConversationStatusChange,
-                addConversationToFavourites = eventsHandler::onAddConversationToFavourites,
-                moveConversationToArchive = eventsHandler::onMoveConversationToArchive,
-                clearConversationContent = eventsHandler::onClearConversationContent,
-                moveConversationToFolder = eventsHandler::onMoveConversationToFolder,
+                onMutingConversationStatusChange = bottomSheetEventsHandler::onMutingConversationStatusChange,
+                addConversationToFavourites = bottomSheetEventsHandler::onAddConversationToFavourites,
+                moveConversationToArchive = bottomSheetEventsHandler::onMoveConversationToArchive,
+                clearConversationContent = bottomSheetEventsHandler::onClearConversationContent,
+                moveConversationToFolder = bottomSheetEventsHandler::onMoveConversationToFolder,
                 blockUser = eventsHandler::showBlockUserDialog,
                 closeBottomSheet = closeBottomSheet,
-                changeMemberRole = eventsHandler::onChangeMemberRole,
-                openConversationSheet = eventsHandler::setBottomSheetStateToConversation,
-                openMuteOptionsSheet = eventsHandler::setBottomSheetStateToMuteOptions
+                changeMemberRole = bottomSheetEventsHandler::onChangeMemberRole,
+                openConversationSheet = bottomSheetEventsHandler::setBottomSheetStateToConversation,
+                openMuteOptionsSheet = bottomSheetEventsHandler::setBottomSheetStateToMuteOptions
             )
         }
     ) {
@@ -176,7 +187,7 @@ fun OtherProfileScreenContent(
                     elevation = elevation,
                     onNavigateBack = eventsHandler::navigateBack,
                     openConversationBottomSheet = {
-                        eventsHandler.setBottomSheetStateToConversation()
+                        bottomSheetEventsHandler.setBottomSheetStateToConversation()
                         openBottomSheet()
                     })
             },
@@ -193,18 +204,19 @@ fun OtherProfileScreenContent(
                         eventsHandler.setBottomSheetStateToChangeRole()
                         openBottomSheet()
                     },
-                    eventsHandler::showRemoveConversationMemberDialog
+                    eventsHandler::showRemoveConversationMemberDialog,
+                    eventsHandler::getOtherUserClients
                 )
             },
             contentFooter = {
                 ContentFooter(
                     state,
                     maxBarElevation,
-                    eventsHandler::onSendConnectionRequest,
-                    eventsHandler::onOpenConversation,
-                    eventsHandler::onCancelConnectionRequest,
-                    eventsHandler::onAcceptConnectionRequest,
-                    eventsHandler::onIgnoreConnectionRequest,
+                    footerEventsHandler::onSendConnectionRequest,
+                    footerEventsHandler::onOpenConversation,
+                    footerEventsHandler::onCancelConnectionRequest,
+                    footerEventsHandler::onAcceptConnectionRequest,
+                    footerEventsHandler::onIgnoreConnectionRequest,
                     eventsHandler::showUnblockUserDialog
                 )
             },
@@ -306,7 +318,8 @@ private fun Content(
     otherUserProfileScreenState: OtherUserProfileScreenState,
     lazyListStates: Map<OtherUserProfileTabItem, LazyListState>,
     openChangeRoleBottomSheet: () -> Unit,
-    openRemoveConversationMemberDialog: () -> Unit
+    openRemoveConversationMemberDialog: () -> Unit,
+    getOtherUserClients: () -> Unit,
 ) {
     Crossfade(targetState = state) { state ->
         when {
@@ -321,6 +334,7 @@ private fun Content(
                         when (val tabItem = tabItems[pageIndex]) {
                             OtherUserProfileTabItem.DETAILS ->
                                 OtherUserProfileDetails(state, otherUserProfileScreenState, lazyListStates[tabItem]!!)
+
                             OtherUserProfileTabItem.GROUP ->
                                 OtherUserProfileGroup(
                                     state.groupState!!,
@@ -328,9 +342,16 @@ private fun Content(
                                     openRemoveConversationMemberDialog,
                                     openChangeRoleBottomSheet
                                 )
+
+                            OtherUserProfileTabItem.DEVICES -> {
+                                getOtherUserClients()
+                                OtherUserDevicesScreen(state.otherUserClients)
+
+                            }
                         }
                     }
                 }
+
             state.connectionState == ConnectionState.BLOCKED -> Box {} // no content visible for blocked users
             else -> {
                 OtherUserConnectionStatusInfo(state.connectionState, state.membership)
@@ -378,7 +399,8 @@ private fun ContentFooter(
 
 enum class OtherUserProfileTabItem(@StringRes override val titleResId: Int) : TabItem {
     GROUP(R.string.user_profile_group_tab),
-    DETAILS(R.string.user_profile_details_tab);
+    DETAILS(R.string.user_profile_details_tab),
+    DEVICES(R.string.user_profile_devices_tab);
 }
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -390,7 +412,8 @@ fun OtherProfileScreenContentPreview() {
             rememberCoroutineScope(),
             OtherUserProfileState.PREVIEW.copy(connectionState = ConnectionState.ACCEPTED),
             rememberModalBottomSheetState(ModalBottomSheetValue.Hidden),
-            {}, {}, null, null, null, OtherUserProfileEventsHandler.PREVIEW
+            {}, {}, null, null, null, OtherUserProfileEventsHandler.PREVIEW,
+            OtherUserProfileFooterEventsHandler.PREVIEW, OtherUserProfileBottomSheetEventsHandler.PREVIEW
         )
     }
 }
@@ -404,7 +427,8 @@ fun OtherProfileScreenContentNotConnectedPreview() {
             rememberCoroutineScope(),
             OtherUserProfileState.PREVIEW.copy(connectionState = ConnectionState.CANCELLED),
             rememberModalBottomSheetState(ModalBottomSheetValue.Hidden),
-            {}, {}, null, null, null, OtherUserProfileEventsHandler.PREVIEW
+            {}, {}, null, null, null, OtherUserProfileEventsHandler.PREVIEW,
+            OtherUserProfileFooterEventsHandler.PREVIEW, OtherUserProfileBottomSheetEventsHandler.PREVIEW
         )
     }
 }

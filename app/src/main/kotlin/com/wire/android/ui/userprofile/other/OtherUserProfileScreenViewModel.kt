@@ -41,6 +41,9 @@ import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.data.id.toQualifiedID
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.client.GetOtherUserClientsResult
+import com.wire.kalium.logic.feature.client.GetOtherUserClientsUseCase
+import com.wire.kalium.logic.feature.client.PersistOtherUserClientsUseCase
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCase
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCaseResult
 import com.wire.kalium.logic.feature.connection.BlockUserResult
@@ -95,9 +98,11 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val observeConversationRoleForUser: ObserveConversationRoleForUserUseCase,
     private val removeMemberFromConversation: RemoveMemberFromConversationUseCase,
-    qualifiedIdMapper: QualifiedIdMapper,
-    private val updateMemberRole: UpdateConversationMemberRoleUseCase
-) : ViewModel(), OtherUserProfileEventsHandler {
+    private val updateMemberRole: UpdateConversationMemberRoleUseCase,
+    private val getOtherUserClients: GetOtherUserClientsUseCase,
+    private val persistOtherUserClients: PersistOtherUserClientsUseCase,
+    qualifiedIdMapper: QualifiedIdMapper
+) : ViewModel(), OtherUserProfileEventsHandler, OtherUserProfileBottomSheetEventsHandler, OtherUserProfileFooterEventsHandler {
 
     var state: OtherUserProfileState by mutableStateOf(OtherUserProfileState())
 
@@ -143,6 +148,9 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                         }
                 }
             }
+        }
+        viewModelScope.launch {
+            persistOtherUserClients(userId)
         }
     }
 
@@ -409,6 +417,25 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     fun clearBottomSheetState() {
         state = state.clearBottomSheetState()
     }
+
+    override fun getOtherUserClients() {
+        viewModelScope.launch {
+            getOtherUserClients(userId).let {
+                when (it) {
+                    is GetOtherUserClientsResult.Failure.UserNotFound -> {
+                        appLogger.e("User or Domain not found while fetching user clients ")
+                    }
+                    is GetOtherUserClientsResult.Failure.Generic -> {
+                        appLogger.e("Error while fetching the user clients : ${it.genericFailure}")
+                    }
+                    is GetOtherUserClientsResult.Success -> {
+                        state = state.copy(otherUserClients = it.otherUserClients)
+                    }
+                }
+            }
+        }
+    }
+
 
     override fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }
 

@@ -13,6 +13,7 @@ import androidx.compose.ui.test.onNodeWithText
 import androidx.compose.ui.test.performTextInput
 import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
+import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
 import com.wire.android.ui.home.conversations.ConversationScreen
 import com.wire.android.ui.home.conversations.ConversationViewModel
 import com.wire.android.ui.theme.WireTheme
@@ -55,7 +56,7 @@ class ConversationScreenTest {
         scenario.onActivity { activity ->
             activity.setContent {
                 WireTheme {
-                    ConversationScreen(getViewModel(activity, ConversationViewModel::class))
+                    ConversationScreen(getViewModel(activity, ConversationViewModel::class), getViewModel(activity, CommonTopAppBarViewModel::class))
                 }
             }
         }

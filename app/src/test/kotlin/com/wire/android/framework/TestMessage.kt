@@ -1,8 +1,13 @@
 package com.wire.android.framework
 
 import com.wire.android.model.UserAvatarData
-import com.wire.android.ui.home.conversations.model.*
+import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.MessageContent.TextMessage
+import com.wire.android.ui.home.conversations.model.MessageHeader
+import com.wire.android.ui.home.conversations.model.MessageSource
+import com.wire.android.ui.home.conversations.model.MessageStatus
+import com.wire.android.ui.home.conversations.model.MessageTime
+import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.ClientId
@@ -48,7 +53,7 @@ object TestMessage {
         username = UIText.DynamicString("username"),
         membership = Membership.Guest,
         isLegalHold = true,
-        time = "12.23pm",
+        messageTime = MessageTime("12.23pm"),
         messageStatus = MessageStatus.Untouched,
         messageId = "messageID",
         connectionState = null

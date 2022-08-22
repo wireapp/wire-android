@@ -62,7 +62,7 @@ private fun AllConversationContent(
     ) {
         folderWithElements(
             header = context.getString(R.string.conversation_label_new_activity),
-            items = newActivities.mapIndexed { index, newActivity -> index to newActivity }.toMap() // TODO can we find unique key?
+            items = newActivities.associateBy { it.conversationItem.conversationId.toString() }
         ) { newActivity ->
             with(newActivity) {
                 ConversationItemFactory(

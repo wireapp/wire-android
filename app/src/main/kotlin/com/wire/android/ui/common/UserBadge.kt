@@ -26,7 +26,8 @@ import com.wire.kalium.logic.data.user.ConnectionState
  */
 @Composable
 fun UserBadge(
-    membership: Membership, connectionState: ConnectionState? = null,
+    membership: Membership,
+    connectionState: ConnectionState? = null,
     startPadding: Dp = dimensions().spacing0x,
     topPadding: Dp = dimensions().spacing0x
 ) {

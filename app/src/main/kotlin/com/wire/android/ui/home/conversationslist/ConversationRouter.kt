@@ -60,6 +60,10 @@ fun ConversationRouterHomeBridge(
 
     val leaveGroupDialogState = rememberVisibilityState<LeaveGroupState>()
 
+    if(!viewModel.requestInProgress) {
+        leaveGroupDialogState.dismiss()
+    }
+
     fun openConversationBottomSheet(
         conversationItem: ConversationItem,
         conversationOptionNavigation: ConversationOptionNavigation = ConversationOptionNavigation.Home

@@ -13,8 +13,8 @@ import com.wire.kalium.logger.KaliumLogLevel
 import com.wire.kalium.logic.CoreLogger
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountResult
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountUseCase
-import com.wire.kalium.logic.feature.user.EnableLoggingUseCase
-import com.wire.kalium.logic.feature.user.IsLoggingEnabledUseCase
+import com.wire.kalium.logic.feature.user.loggingStatus.EnableLoggingUseCase
+import com.wire.kalium.logic.feature.user.loggingStatus.IsLoggingEnabledUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -24,7 +24,7 @@ class DebugScreenViewModel
 @Inject constructor(
     private val navigationManager: NavigationManager,
     private val mlsKeyPackageCountUseCase: MLSKeyPackageCountUseCase,
-    private val enableLoggingUseCase: EnableLoggingUseCase,
+    private val enableLogging: EnableLoggingUseCase,
     private val logFileWriter: LogFileWriter,
     isLoggingEnabledUseCase: IsLoggingEnabledUseCase
 ) : ViewModel() {
@@ -57,8 +57,9 @@ class DebugScreenViewModel
         logFileWriter.deleteAllLogFiles()
     }
 
+
     fun setLoggingEnabledState(isEnabled: Boolean) {
-        enableLoggingUseCase.invoke(isEnabled)
+        enableLogging(isEnabled)
         isLoggingEnabled = isEnabled
         if (isEnabled) {
             logFileWriter.start()
@@ -71,4 +72,3 @@ class DebugScreenViewModel
 
     fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }
 }
-

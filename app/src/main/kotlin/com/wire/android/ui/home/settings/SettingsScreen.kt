@@ -36,13 +36,13 @@ fun SettingsScreen(
     SettingsScreenContent(
         lazyListState = lazyListState,
         onItemClicked = remember {
-        {
-            when (it.navigationItem.isExternalRoute()) {
-                true -> CustomTabsHelper.launchUrl(context, it.navigationItem.getRouteWithArgs())
-                false -> viewModel.navigateTo(it.navigationItem)
+            {
+                when (it.navigationItem.isExternalRoute()) {
+                    true -> CustomTabsHelper.launchUrl(context, it.navigationItem.getRouteWithArgs())
+                    false -> viewModel.navigateTo(it.navigationItem)
+                }
             }
-        }
-    })
+        })
 }
 
 @Composable
@@ -58,7 +58,7 @@ fun SettingsScreenContent(
 
         folderWithElements(
             header = context.getString(R.string.settings_general_group_title),
-            items = listOf(SettingsItem.AppSettings),
+            items = listOf(SettingsItem.AppSettings, SettingsItem.NetworkSettings),
             onItemClicked = onItemClicked
         )
 

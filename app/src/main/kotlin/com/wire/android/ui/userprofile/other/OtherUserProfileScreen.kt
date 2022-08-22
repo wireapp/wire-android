@@ -161,16 +161,9 @@ fun OtherProfileScreenContent(
         sheetContent = {
             OtherUserProfileBottomSheetContent(
                 bottomSheetState = state.bottomSheetContentState,
-                onMutingConversationStatusChange = bottomSheetEventsHandler::onMutingConversationStatusChange,
-                addConversationToFavourites = bottomSheetEventsHandler::onAddConversationToFavourites,
-                moveConversationToArchive = bottomSheetEventsHandler::onMoveConversationToArchive,
-                clearConversationContent = bottomSheetEventsHandler::onClearConversationContent,
-                moveConversationToFolder = bottomSheetEventsHandler::onMoveConversationToFolder,
+                eventsHandler = bottomSheetEventsHandler,
                 blockUser = eventsHandler::showBlockUserDialog,
                 closeBottomSheet = closeBottomSheet,
-                changeMemberRole = bottomSheetEventsHandler::onChangeMemberRole,
-                openConversationSheet = bottomSheetEventsHandler::setBottomSheetStateToConversation,
-                openMuteOptionsSheet = bottomSheetEventsHandler::setBottomSheetStateToMuteOptions
             )
         }
     ) {
@@ -212,11 +205,7 @@ fun OtherProfileScreenContent(
                 ContentFooter(
                     state,
                     maxBarElevation,
-                    footerEventsHandler::onSendConnectionRequest,
-                    footerEventsHandler::onOpenConversation,
-                    footerEventsHandler::onCancelConnectionRequest,
-                    footerEventsHandler::onAcceptConnectionRequest,
-                    footerEventsHandler::onIgnoreConnectionRequest,
+                    footerEventsHandler,
                     eventsHandler::showUnblockUserDialog
                 )
             },
@@ -364,11 +353,7 @@ private fun Content(
 private fun ContentFooter(
     state: OtherUserProfileState,
     maxBarElevation: Dp,
-    onSendConnectionRequest: () -> Unit,
-    onOpenConversation: () -> Unit,
-    onCancelConnectionRequest: () -> Unit,
-    acceptConnectionRequest: () -> Unit,
-    ignoreConnectionRequest: () -> Unit,
+    footerEventsHandler: OtherUserProfileFooterEventsHandler,
     onUnblockUser: (String) -> Unit
 ) {
     AnimatedVisibility(
@@ -385,11 +370,11 @@ private fun ContentFooter(
                 if (state.membership != Membership.Service) {
                     OtherUserConnectionActionButton(
                         state.connectionState,
-                        onSendConnectionRequest,
-                        onOpenConversation,
-                        onCancelConnectionRequest,
-                        acceptConnectionRequest,
-                        ignoreConnectionRequest
+                        footerEventsHandler::onSendConnectionRequest,
+                        footerEventsHandler::onOpenConversation,
+                        footerEventsHandler::onCancelConnectionRequest,
+                        footerEventsHandler::onAcceptConnectionRequest,
+                        footerEventsHandler::onIgnoreConnectionRequest
                     ) { onUnblockUser(state.userName) }
                 }
             }

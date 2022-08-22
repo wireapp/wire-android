@@ -4,23 +4,13 @@ import MutingOptionsSheetContent
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationMainSheetContent
-import com.wire.kalium.logic.data.conversation.Member
-import com.wire.kalium.logic.data.conversation.MutedConversationStatus
-import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 
 @Composable
 fun OtherUserProfileBottomSheetContent(
     bottomSheetState: BottomSheetContent?,
-    onMutingConversationStatusChange: (ConversationId, MutedConversationStatus) -> Unit,
-    addConversationToFavourites: (ConversationId) -> Unit,
-    moveConversationToFolder: (ConversationId) -> Unit,
-    moveConversationToArchive: (ConversationId) -> Unit,
-    clearConversationContent: (ConversationId) -> Unit,
+    eventsHandler: OtherUserProfileBottomSheetEventsHandler,
     blockUser: (UserId, String) -> Unit,
-    changeMemberRole: (Member.Role) -> Unit,
-    openMuteOptionsSheet: () -> Unit,
-    openConversationSheet: () -> Unit,
     closeBottomSheet: () -> Unit
 ) {
     when (bottomSheetState) {
@@ -28,32 +18,34 @@ fun OtherUserProfileBottomSheetContent(
             val conversationId = bottomSheetState.conversationData.conversationId
             ConversationMainSheetContent(
                 conversationSheetContent = bottomSheetState.conversationData,
-                addConversationToFavourites = { addConversationToFavourites(conversationId) },
-                moveConversationToFolder = { moveConversationToFolder(conversationId) },
-                moveConversationToArchive = { moveConversationToArchive(conversationId) },
-                clearConversationContent = { clearConversationContent(conversationId) },
+                addConversationToFavourites = { eventsHandler.onAddConversationToFavourites(conversationId) },
+                moveConversationToFolder = { eventsHandler.onMoveConversationToFolder(conversationId) },
+                moveConversationToArchive = { eventsHandler.onMoveConversationToArchive(conversationId) },
+                clearConversationContent = { eventsHandler.onClearConversationContent(conversationId) },
                 blockUserClick = blockUser,
                 leaveGroup = { },
-                navigateToNotification = openMuteOptionsSheet
+                navigateToNotification = eventsHandler::setBottomSheetStateToMuteOptions
             )
         }
         is BottomSheetContent.Mute ->
             MutingOptionsSheetContent(
                 mutingConversationState = bottomSheetState.conversationData.mutingConversationState,
-                onMuteConversation = { onMutingConversationStatusChange(bottomSheetState.conversationData.conversationId, it) },
-                onBackClick = openConversationSheet
+                onMuteConversation = {
+                    eventsHandler.onMutingConversationStatusChange(bottomSheetState.conversationData.conversationId, it)
+                },
+                onBackClick = eventsHandler::setBottomSheetStateToConversation
             )
         is BottomSheetContent.ChangeRole ->
             EditGroupRoleBottomSheet(
                 groupState = bottomSheetState.groupState,
-                changeMemberRole = changeMemberRole,
+                changeMemberRole = eventsHandler::onChangeMemberRole,
                 closeChangeRoleBottomSheet = closeBottomSheet
             )
         null -> {}
     }
 
     BackHandler(bottomSheetState != null) {
-        if (bottomSheetState is BottomSheetContent.Mute) openConversationSheet()
+        if (bottomSheetState is BottomSheetContent.Mute) eventsHandler.setBottomSheetStateToConversation()
         else closeBottomSheet()
     }
 }

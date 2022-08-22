@@ -54,8 +54,10 @@ import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.components.ServiceComponent
 import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.android.scopes.ServiceScoped
 import dagger.hilt.android.scopes.ViewModelScoped
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.runBlocking
@@ -65,6 +67,11 @@ import javax.inject.Singleton
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
 annotation class KaliumCoreLogic
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class CurrentSessionFlowService
+
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
@@ -97,6 +104,12 @@ class CoreLogicModule {
     @Singleton
     @Provides
     fun provideNoSessionQualifiedIdMapper(): QualifiedIdMapper = QualifiedIdMapperImpl(null)
+
+    @NoSession
+    @Singleton
+    @Provides
+    fun provideObservePersistentWebSocketConnectionStatusUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
+        coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus
 }
 
 @Module
@@ -140,6 +153,16 @@ class ConnectionModule {
     @Provides
     fun provideAcceptConnectionRequestUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).connection.acceptConnectionRequest
+}
+
+@Module
+@InstallIn(ServiceComponent::class)
+class ServiceModule {
+    @ServiceScoped
+    @Provides
+    @CurrentSessionFlowService
+    fun provideCurrentSessionFlowUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
+        coreLogic.getGlobalScope().session.currentSessionFlow
 }
 
 @Module
@@ -272,6 +295,16 @@ class UseCaseModule {
     @Provides
     fun provideObserveConversationDetailsUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).conversations.observeConversationDetails
+
+    @ViewModelScoped
+    @Provides
+    fun provideDeleteTeamConversationUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).conversations.deleteTeamConversation
+
+    @ViewModelScoped
+    @Provides
+    fun provideObserveIsSelfConversationMemberUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).conversations.observeIsSelfUserMemberUseCase
 
     @ViewModelScoped
     @Provides
@@ -555,6 +588,16 @@ class UseCaseModule {
     @Provides
     fun provideLoggingUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
         coreLogic.getGlobalScope().isLoggingEnabled
+
+    @ViewModelScoped
+    @Provides
+    fun provideObservePersistentWebSocketConnectionStatusUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
+        coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus
+
+    @ViewModelScoped
+    @Provides
+    fun providePersistPersistentWebSocketConnectionStatusUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
+        coreLogic.getGlobalScope().persistPersistentWebSocketConnectionStatus
 
     @ViewModelScoped
     @Provides

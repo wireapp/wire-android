@@ -11,6 +11,7 @@ import com.wire.android.appLogger
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.PreservedState
+import com.wire.android.model.SnackBarMessage
 import com.wire.android.model.toLoading
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.EXTRA_CONNECTION_IGNORED_USER_NAME
@@ -287,7 +288,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         }
     }
 
-    override suspend fun showInfoMessage(type: InfoMessageType) {
+    private suspend fun showInfoMessage(type: SnackBarMessage) {
         _infoMessage.emit(type.uiText)
     }
 
@@ -436,12 +437,11 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         }
     }
 
-
     override fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }
 
 }
 
-sealed class InfoMessageType(val uiText: UIText) {
+sealed class InfoMessageType(override val uiText: UIText) : SnackBarMessage {
     // connection
     object SuccessConnectionSentRequest : InfoMessageType(UIText.StringResource(R.string.connection_request_sent))
     object SuccessConnectionAcceptRequest : InfoMessageType(UIText.StringResource(R.string.connection_request_accepted))

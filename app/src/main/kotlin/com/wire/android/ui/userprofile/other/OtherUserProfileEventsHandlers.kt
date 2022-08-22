@@ -21,7 +21,6 @@ interface OtherUserProfileEventsHandler {
     fun hideUnblockUserDialog()
     fun showUnblockUserDialog(userName: String)
     fun onUnblockUser(userId: UserId)
-    suspend fun showInfoMessage(type: InfoMessageType)
     fun getOtherUserClients()
 
     companion object {
@@ -37,7 +36,6 @@ interface OtherUserProfileEventsHandler {
             override fun hideUnblockUserDialog() {}
             override fun showUnblockUserDialog(userName: String) {}
             override fun onUnblockUser(userId: UserId) {}
-            override suspend fun showInfoMessage(type: InfoMessageType) {}
             override fun getOtherUserClients() {}
             override fun navigateBack(): Job {
                 TODO()

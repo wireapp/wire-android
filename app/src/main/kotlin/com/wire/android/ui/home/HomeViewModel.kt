@@ -9,6 +9,8 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.EXTRA_CONNECTION_IGNORED_USER_NAME
+import com.wire.android.navigation.EXTRA_GROUP_DELETED_NAME
+import com.wire.android.navigation.EXTRA_LEFT_GROUP
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
@@ -66,10 +68,16 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun checkPendingSnackbarState(): HomeSnackbarState? =
-        savedStateHandle
-            .getBackNavArg<String>(EXTRA_CONNECTION_IGNORED_USER_NAME)
-            ?.let { HomeSnackbarState.SuccessConnectionIgnoreRequest(it) }
+    fun checkPendingSnackbarState(): HomeSnackbarState? {
+        return with(savedStateHandle) {
+            getBackNavArg<String>(EXTRA_CONNECTION_IGNORED_USER_NAME)
+                ?.let { HomeSnackbarState.SuccessConnectionIgnoreRequest(it) }
+                ?: getBackNavArg<String>(EXTRA_GROUP_DELETED_NAME)
+                    ?.let { HomeSnackbarState.DeletedConversationGroupSuccess(it) }
+                ?: getBackNavArg<Boolean>(EXTRA_LEFT_GROUP)
+                    ?.let { if (it) HomeSnackbarState.LeftConversationSuccess else null }
+        }
+    }
 
     private fun loadUserAvatar() {
         viewModelScope.launch {
@@ -94,10 +102,13 @@ data class SelfUserData(
     val status: UserAvailabilityStatus = UserAvailabilityStatus.NONE
 )
 
+// TODO change to extend [SnackBarMessage]
 sealed class HomeSnackbarState {
     class SuccessConnectionIgnoreRequest(val userName: String) : HomeSnackbarState()
     object MutingOperationError : HomeSnackbarState()
     object BlockingUserOperationError : HomeSnackbarState()
     class BlockingUserOperationSuccess(val userName: String) : HomeSnackbarState()
+    class DeletedConversationGroupSuccess(val groupName: String) : HomeSnackbarState()
+    object LeftConversationSuccess : HomeSnackbarState()
     object None : HomeSnackbarState()
 }

@@ -15,6 +15,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.WireCheckIcon
@@ -28,6 +29,7 @@ import io.github.esentsov.PackagePrivate
 @Composable
 fun SelectableMenuBottomSheetItem(
     title: String,
+    titleColor: Color? = null,
     titleStyleUnselected: TextStyle = MaterialTheme.wireTypography.body02,
     titleStyleSelected: TextStyle = MaterialTheme.wireTypography.body02,
     subLine: String? = null,
@@ -52,7 +54,12 @@ fun SelectableMenuBottomSheetItem(
             modifier = Modifier
                 .weight(DEFAULT_WEIGHT),
         ) {
-            MenuItemHeading(title, titleStyleUnselected, titleStyleSelected, state)
+            MenuItemHeading(
+                title = title, color = titleColor,
+                titleStyleUnselected = titleStyleUnselected,
+                titleStyleSelected = titleStyleSelected,
+                state = state
+            )
             if (subLine != null) {
                 MenuItemSubLine(
                     subLine = subLine,
@@ -79,11 +86,12 @@ fun MenuItemHeading(
     titleStyleUnselected: TextStyle = MaterialTheme.wireTypography.body02,
     titleStyleSelected: TextStyle = MaterialTheme.wireTypography.body02,
     state: RichMenuItemState = RichMenuItemState.DEFAULT,
+    color: Color? = null,
     modifier: Modifier = Modifier
 ) {
     Text(
         style = if (isSelectedItem(state)) titleStyleSelected else titleStyleUnselected,
-        color = if (isSelectedItem(state)) MaterialTheme.wireColorScheme.primary else MaterialTheme.wireColorScheme.onBackground,
+        color = if (isSelectedItem(state)) MaterialTheme.wireColorScheme.primary else color ?: MaterialTheme.wireColorScheme.onBackground,
         text = title,
         modifier = modifier.fillMaxWidth()
     )
@@ -112,5 +120,11 @@ enum class RichMenuItemState {
 @Composable
 @Preview
 fun RichMenuBottomSheetItemPreview() {
-    SelectableMenuBottomSheetItem(title = "title",  subLine = "subLine", onItemClick = Clickable {}, state = RichMenuItemState.SELECTED)
+    SelectableMenuBottomSheetItem(
+        title = "title",
+        titleColor = null,
+        subLine = "subLine",
+        onItemClick = Clickable {},
+        state = RichMenuItemState.SELECTED
+    )
 }

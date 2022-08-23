@@ -142,7 +142,7 @@ fun ConversationRouterHomeBridge(
 
     BlockUserDialogContent(
         dialogState = viewModel.blockUserDialogState,
-        dismiss = viewModel:onDismissBlockUserDialog,
+        dismiss = viewModel::onDismissBlockUserDialog,
         onBlock = viewModel::onBlockUserClicked
     )
 

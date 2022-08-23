@@ -1,28 +1,16 @@
 package com.wire.android.ui.userprofile.other
 
-import androidx.lifecycle.SavedStateHandle
 import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.config.TestDispatcherProvider
-import com.wire.android.config.mockUri
-import com.wire.android.framework.TestUser
-import com.wire.android.mapper.UserTypeMapper
-import com.wire.android.navigation.EXTRA_CONVERSATION_ID
-import com.wire.android.navigation.EXTRA_USER_ID
-import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.details.participants.usecase.ConversationRoleData
-import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
-import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.ui.userprofile.common.UsernameMapper
 import com.wire.android.util.ui.UIText
-import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.CoreFailure.Unknown
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.Member
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.PlainId
-import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.data.user.ConnectionState
@@ -30,39 +18,19 @@ import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
-import com.wire.kalium.logic.feature.client.GetOtherUserClientsUseCase
-import com.wire.kalium.logic.feature.client.PersistOtherUserClientsUseCase
-import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCase
 import com.wire.kalium.logic.feature.connection.AcceptConnectionRequestUseCaseResult
 import com.wire.kalium.logic.feature.connection.BlockUserResult
-import com.wire.kalium.logic.feature.connection.BlockUserUseCase
-import com.wire.kalium.logic.feature.connection.CancelConnectionRequestUseCase
 import com.wire.kalium.logic.feature.connection.CancelConnectionRequestUseCaseResult
-import com.wire.kalium.logic.feature.connection.IgnoreConnectionRequestUseCase
 import com.wire.kalium.logic.feature.connection.IgnoreConnectionRequestUseCaseResult
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestResult
-import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
-import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
 import com.wire.kalium.logic.feature.conversation.CreateConversationResult
-import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
-import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleResult
-import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUseCase
-import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
-import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
-import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
 import io.mockk.Called
-import io.mockk.MockKAnnotations
-import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
-import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -70,125 +38,22 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(CoroutineTestExtension::class)
 class OtherUserProfileScreenViewModelTest {
 
-    lateinit var otherUserProfileScreenViewModel: OtherUserProfileScreenViewModel
-
-    @MockK
-    lateinit var navigationManager: NavigationManager
-
-    @MockK
-    private lateinit var savedStateHandle: SavedStateHandle
-
-    @MockK
-    private lateinit var getOrCreateOneToOneConversation: GetOrCreateOneToOneConversationUseCase
-
-    @MockK
-    private lateinit var observeUserInfo: ObserveUserInfoUseCase
-
-    @MockK
-    private lateinit var sendConnectionRequest: SendConnectionRequestUseCase
-
-    @MockK
-    private lateinit var cancelConnectionRequest: CancelConnectionRequestUseCase
-
-    @MockK
-    private lateinit var acceptConnectionRequest: AcceptConnectionRequestUseCase
-
-    @MockK
-    private lateinit var ignoreConnectionRequest: IgnoreConnectionRequestUseCase
-
-    @MockK
-    private lateinit var wireSessionImageLoader: WireSessionImageLoader
-
-    @MockK
-    private lateinit var observeConversationRoleForUserUseCase: ObserveConversationRoleForUserUseCase
-
-    @MockK
-    private lateinit var userTypeMapper: UserTypeMapper
-
-    @MockK
-    private lateinit var qualifiedIdMapper: QualifiedIdMapper
-
-    @MockK
-    private lateinit var updateConversationMemberRoleUseCase: UpdateConversationMemberRoleUseCase
-
-    @MockK
-    private lateinit var removeMemberFromConversationUseCase: RemoveMemberFromConversationUseCase
-
-    @MockK
-    private lateinit var observeSelfUser: GetSelfUserUseCase
-
-    @MockK
-    private lateinit var blockUser: BlockUserUseCase
-
-    @MockK
-    private lateinit var unblockUser: UnblockUserUseCase
-
-    @MockK
-    private lateinit var updateConversationMutedStatus: UpdateConversationMutedStatusUseCase
-
-    @MockK
-    private lateinit var otherUserClients: GetOtherUserClientsUseCase
-
-    @MockK
-    private lateinit var persistOtherUserClientsUseCase: PersistOtherUserClientsUseCase
-
-    @BeforeEach
-    fun setUp() {
-        MockKAnnotations.init(this, relaxUnitFun = true)
-        mockUri()
-        every { savedStateHandle.get<String>(eq(EXTRA_USER_ID)) } returns CONVERSATION_ID.toString()
-        every { savedStateHandle.get<String>(eq(EXTRA_CONVERSATION_ID)) } returns CONVERSATION_ID.toString()
-        coEvery { observeConversationRoleForUserUseCase.invoke(any(), any()) } returns flowOf(CONVERSATION_ROLE_DATA)
-        coEvery { observeUserInfo(any()) } returns flowOf(GetUserInfoResult.Success(OTHER_USER, TEAM))
-        coEvery { observeSelfUser() } returns flowOf(TestUser.SELF_USER)
-        every { userTypeMapper.toMembership(any()) } returns Membership.None
-        coEvery {
-            qualifiedIdMapper.fromStringToQualifiedID("some_value@some_domain")
-        } returns QualifiedID("some_value", "some_domain")
-        coEvery { getOrCreateOneToOneConversation(USER_ID) } returns CreateConversationResult.Success(CONVERSATION)
-        initViewModel()
-    }
-
-    private fun initViewModel() {
-        otherUserProfileScreenViewModel = OtherUserProfileScreenViewModel(
-            savedStateHandle,
-            navigationManager,
-            TestDispatcherProvider(),
-            observeSelfUser,
-            updateConversationMutedStatus,
-            blockUser,
-            unblockUser,
-            getOrCreateOneToOneConversation,
-            observeUserInfo,
-            sendConnectionRequest,
-            cancelConnectionRequest,
-            acceptConnectionRequest,
-            ignoreConnectionRequest,
-            userTypeMapper,
-            wireSessionImageLoader,
-            observeConversationRoleForUserUseCase,
-            removeMemberFromConversationUseCase,
-            updateConversationMemberRoleUseCase,
-            otherUserClients,
-            persistOtherUserClientsUseCase,
-            qualifiedIdMapper
-        )
-    }
-
     @Test
     fun `given a userId, when sending a connection request, then returns a Success result and update view state`() =
         runTest {
             // given
-            coEvery { sendConnectionRequest(any()) } returns SendConnectionRequestResult.Success
-            otherUserProfileScreenViewModel.infoMessage.test {
+            val (arrangement, viewModel) = OtherUserProfileViewModelArrangement()
+                .withSendConnectionRequest(SendConnectionRequestResult.Success)
+                .arrange()
+            viewModel.infoMessage.test {
 
                 // when
                 expectNoEvents()
-                otherUserProfileScreenViewModel.onSendConnectionRequest()
+                viewModel.onSendConnectionRequest()
 
                 // then
-                coVerify { sendConnectionRequest(eq(USER_ID)) }
-                assertEquals(ConnectionState.SENT, otherUserProfileScreenViewModel.state.connectionState)
+                coVerify { arrangement.sendConnectionRequest(eq(USER_ID)) }
+                assertEquals(ConnectionState.SENT, viewModel.state.connectionState)
                 assertEquals(InfoMessageType.SuccessConnectionSentRequest.uiText, awaitItem())
             }
         }
@@ -197,17 +62,19 @@ class OtherUserProfileScreenViewModelTest {
     fun `given a userId, when sending a connection request a fails, then returns a Failure result and show error message`() =
         runTest {
             // given
-            coEvery { sendConnectionRequest(any()) } returns SendConnectionRequestResult.Failure(Unknown(RuntimeException("some error")))
-            otherUserProfileScreenViewModel.infoMessage.test {
+            val (arrangement, viewModel) = OtherUserProfileViewModelArrangement()
+                .withSendConnectionRequest(SendConnectionRequestResult.Failure(Unknown(RuntimeException("some error"))))
+                .arrange()
+            viewModel.infoMessage.test {
 
                 // when
                 expectNoEvents()
-                otherUserProfileScreenViewModel.onSendConnectionRequest()
+                viewModel.onSendConnectionRequest()
 
                 // then
                 coVerify {
-                    sendConnectionRequest(eq(USER_ID))
-                    navigationManager wasNot Called
+                    arrangement.sendConnectionRequest(eq(USER_ID))
+                    arrangement.navigationManager wasNot Called
                 }
                 assertEquals(InfoMessageType.ConnectionRequestError.uiText, awaitItem())
             }
@@ -217,32 +84,34 @@ class OtherUserProfileScreenViewModelTest {
     fun `given a userId, when ignoring a connection request, then returns a Success result and update view state`() =
         runTest {
             // given
-            coEvery { ignoreConnectionRequest(any()) } returns IgnoreConnectionRequestUseCaseResult.Success
+            val (arrangement, viewModel) = OtherUserProfileViewModelArrangement()
+                .withIgnoreConnectionRequest(IgnoreConnectionRequestUseCaseResult.Success)
+                .arrange()
 
             // when
-            otherUserProfileScreenViewModel.onIgnoreConnectionRequest()
+            viewModel.onIgnoreConnectionRequest()
 
             // then
-            coVerify {
-                ignoreConnectionRequest(eq(USER_ID))
-            }
-            assertEquals(ConnectionState.NOT_CONNECTED, otherUserProfileScreenViewModel.state.connectionState)
+            coVerify { arrangement.ignoreConnectionRequest(eq(USER_ID)) }
+            assertEquals(ConnectionState.NOT_CONNECTED, viewModel.state.connectionState)
         }
 
     @Test
     fun `given a userId, when canceling a connection request, then returns a Success result and update view state`() =
         runTest {
             // given
-            coEvery { cancelConnectionRequest(any()) } returns CancelConnectionRequestUseCaseResult.Success
-            otherUserProfileScreenViewModel.infoMessage.test {
+            val (arrangement, viewModel) = OtherUserProfileViewModelArrangement()
+                .withCancelConnectionRequest(CancelConnectionRequestUseCaseResult.Success)
+                .arrange()
+            viewModel.infoMessage.test {
 
                 // when
                 expectNoEvents()
-                otherUserProfileScreenViewModel.onCancelConnectionRequest()
+                viewModel.onCancelConnectionRequest()
 
                 // then
-                coVerify { cancelConnectionRequest(eq(USER_ID)) }
-                assertEquals(ConnectionState.NOT_CONNECTED, otherUserProfileScreenViewModel.state.connectionState)
+                coVerify { arrangement.cancelConnectionRequest(eq(USER_ID)) }
+                assertEquals(ConnectionState.NOT_CONNECTED, viewModel.state.connectionState)
                 assertEquals(InfoMessageType.SuccessConnectionCancelRequest.uiText, awaitItem())
             }
         }
@@ -251,16 +120,18 @@ class OtherUserProfileScreenViewModelTest {
     fun `given a userId, when accepting a connection request, then returns a Success result and update view state`() =
         runTest {
             // given
-            coEvery { acceptConnectionRequest(any()) } returns AcceptConnectionRequestUseCaseResult.Success
-            otherUserProfileScreenViewModel.infoMessage.test {
+            val (arrangement, viewModel) = OtherUserProfileViewModelArrangement()
+                .withAcceptConnectionRequest(AcceptConnectionRequestUseCaseResult.Success)
+                .arrange()
+            viewModel.infoMessage.test {
 
                 // when
                 expectNoEvents()
-                otherUserProfileScreenViewModel.onAcceptConnectionRequest()
+                viewModel.onAcceptConnectionRequest()
 
                 // then
-                coVerify { acceptConnectionRequest(eq(USER_ID)) }
-                assertEquals(ConnectionState.ACCEPTED, otherUserProfileScreenViewModel.state.connectionState)
+                coVerify { arrangement.acceptConnectionRequest(eq(USER_ID)) }
+                assertEquals(ConnectionState.ACCEPTED, viewModel.state.connectionState)
                 assertEquals(InfoMessageType.SuccessConnectionAcceptRequest.uiText, awaitItem())
             }
         }
@@ -269,16 +140,17 @@ class OtherUserProfileScreenViewModelTest {
     fun `given a conversationId, when trying to open the conversation, then returns a Success result with the conversation`() =
         runTest {
             // given
-            coEvery { getOrCreateOneToOneConversation(USER_ID) } returns CreateConversationResult.Success(CONVERSATION)
-            coEvery { navigationManager.navigate(command = any()) } returns Unit
+            val (arrangement, viewModel) = OtherUserProfileViewModelArrangement()
+                .withGetOneToOneConversation(CreateConversationResult.Success(CONVERSATION))
+                .arrange()
 
             // when
-            otherUserProfileScreenViewModel.onOpenConversation()
+            viewModel.onOpenConversation()
 
             // then
             coVerify {
-                getOrCreateOneToOneConversation(USER_ID)
-                navigationManager.navigate(any())
+                arrangement.getOrCreateOneToOneConversation(USER_ID)
+                arrangement.navigationManager.navigate(any())
             }
         }
 
@@ -286,24 +158,27 @@ class OtherUserProfileScreenViewModelTest {
     fun `given a conversationId, when trying to open the conversation and fails, then returns a Failure result and update error state`() =
         runTest {
             // given
-            coEvery { getOrCreateOneToOneConversation(USER_ID) } returns
-                    CreateConversationResult.Failure(Unknown(RuntimeException("some error")))
+            val (arrangement, viewModel) = OtherUserProfileViewModelArrangement()
+                .withGetOneToOneConversation(CreateConversationResult.Failure(Unknown(RuntimeException("some error"))))
+                .arrange()
 
             // when
-            otherUserProfileScreenViewModel.onOpenConversation()
+            viewModel.onOpenConversation()
 
             // then
             coVerify {
-                getOrCreateOneToOneConversation(USER_ID)
-                navigationManager wasNot Called
+                arrangement.getOrCreateOneToOneConversation(USER_ID)
+                arrangement.navigationManager wasNot Called
             }
         }
 
     @Test
     fun `given a navigation case, when going back requested, then should delegate call to manager navigateBack`() = runTest {
-        otherUserProfileScreenViewModel.navigateBack()
+        val (arrangement, viewModel) = OtherUserProfileViewModelArrangement()
+            .arrange()
+        viewModel.navigateBack()
 
-        coVerify(exactly = 1) { navigationManager.navigateBack() }
+        coVerify(exactly = 1) { arrangement.navigationManager.navigateBack() }
     }
 
     @Test
@@ -311,15 +186,18 @@ class OtherUserProfileScreenViewModelTest {
         runTest {
             // given
             val expected = OtherUserProfileGroupState("some_name", Member.Role.Member, false, CONVERSATION_ID)
-            every { savedStateHandle.get<String>(eq(EXTRA_CONVERSATION_ID)) } returns CONVERSATION_ID.toString()
-            coEvery { getOrCreateOneToOneConversation(USER_ID) } returns CreateConversationResult.Success(CONVERSATION)
-            initViewModel()
+            val (arrangement, viewModel) = OtherUserProfileViewModelArrangement()
+                .withConversationIdInSavedState(CONVERSATION_ID.toString())
+                .withGetOneToOneConversation(CreateConversationResult.Success(CONVERSATION))
+                .arrange()
+
             // when
-            val groupState = otherUserProfileScreenViewModel.state.groupState
+            val groupState = viewModel.state.groupState
+
             // then
             coVerify {
-                observeConversationRoleForUserUseCase(CONVERSATION_ID, USER_ID)
-                navigationManager wasNot Called
+                arrangement.observeConversationRoleForUserUseCase(CONVERSATION_ID, USER_ID)
+                arrangement.navigationManager wasNot Called
             }
             assertEquals(groupState, expected)
         }
@@ -328,14 +206,17 @@ class OtherUserProfileScreenViewModelTest {
     fun `given no conversationId, when loading the data, then return null group state`() =
         runTest {
             // given
-            every { savedStateHandle.get<String>(eq(EXTRA_CONVERSATION_ID)) } returns null
-            initViewModel()
+            val (arrangement, viewModel) = OtherUserProfileViewModelArrangement()
+                .withConversationIdInSavedState(null)
+                .arrange()
+
             // when
-            val groupState = otherUserProfileScreenViewModel.state.groupState
+            val groupState = viewModel.state.groupState
+
             // then
             coVerify {
-                observeConversationRoleForUserUseCase(any(), any()) wasNot Called
-                navigationManager wasNot Called
+                arrangement.observeConversationRoleForUserUseCase(any(), any()) wasNot Called
+                arrangement.navigationManager wasNot Called
             }
             assertEquals(groupState, null)
         }
@@ -344,19 +225,20 @@ class OtherUserProfileScreenViewModelTest {
     fun `given a group conversationId, when changing the role, then the request should be configured correctly`() =
         runTest {
             // given
+            val (arrangement, viewModel) = OtherUserProfileViewModelArrangement()
+                .withUpdateConversationMemberRole(UpdateConversationMemberRoleResult.Success)
+                .arrange()
             val newRole = Member.Role.Admin
-            coEvery { updateConversationMemberRoleUseCase(CONVERSATION_ID, USER_ID, any()) } returns
-                    UpdateConversationMemberRoleResult.Success
-            otherUserProfileScreenViewModel.infoMessage.test {
+            viewModel.infoMessage.test {
 
                 // when
                 expectNoEvents()
-                otherUserProfileScreenViewModel.onChangeMemberRole(newRole)
+                viewModel.onChangeMemberRole(newRole)
 
                 // then
                 coVerify {
-                    updateConversationMemberRoleUseCase(CONVERSATION_ID, USER_ID, newRole)
-                    navigationManager wasNot Called
+                    arrangement.updateConversationMemberRoleUseCase(CONVERSATION_ID, USER_ID, newRole)
+                    arrangement.navigationManager wasNot Called
                 }
                 expectNoEvents()
             }
@@ -366,19 +248,20 @@ class OtherUserProfileScreenViewModelTest {
     fun `given a group conversationId and a failed response when changing the role, then show info message`() =
         runTest {
             // given
+            val (arrangement, viewModel) = OtherUserProfileViewModelArrangement()
+                .withUpdateConversationMemberRole(UpdateConversationMemberRoleResult.Failure)
+                .arrange()
             val newRole = Member.Role.Admin
-            coEvery { updateConversationMemberRoleUseCase(CONVERSATION_ID, USER_ID, any()) } returns
-                    UpdateConversationMemberRoleResult.Failure
-            otherUserProfileScreenViewModel.infoMessage.test {
+            viewModel.infoMessage.test {
 
                 // when
                 expectNoEvents()
-                otherUserProfileScreenViewModel.onChangeMemberRole(newRole)
+                viewModel.onChangeMemberRole(newRole)
 
                 // then
                 coVerify {
-                    updateConversationMemberRoleUseCase(CONVERSATION_ID, USER_ID, newRole)
-                    navigationManager wasNot Called
+                    arrangement.updateConversationMemberRoleUseCase(CONVERSATION_ID, USER_ID, newRole)
+                    arrangement.navigationManager wasNot Called
                 }
                 assertEquals(InfoMessageType.ChangeGroupRoleError.uiText, awaitItem())
             }
@@ -388,48 +271,97 @@ class OtherUserProfileScreenViewModelTest {
     fun `given a userId, when blocking user fails, then show error message and dismiss BlockDialog`() =
         runTest {
             // given
-            coEvery { blockUser(any()) } returns BlockUserResult.Failure(Unknown(RuntimeException("some error")))
-            otherUserProfileScreenViewModel.infoMessage.test {
+            val (arrangement, viewModel) = OtherUserProfileViewModelArrangement()
+                .withBlockUserResult(BlockUserResult.Failure(Unknown(RuntimeException("some error"))))
+                .arrange()
+            viewModel.infoMessage.test {
 
                 // when
                 expectNoEvents()
-                otherUserProfileScreenViewModel.onBlockUser(USER_ID, "some name")
+                viewModel.onBlockUser(USER_ID, "some name")
 
                 // then
-                coVerify {
-                    blockUser(eq(USER_ID))
-                }
+                coVerify { arrangement.blockUser(eq(USER_ID)) }
                 assertEquals(InfoMessageType.BlockingUserOperationError.uiText, awaitItem())
-                assertEquals(null, otherUserProfileScreenViewModel.blockUserDialogState)
+                assertEquals(null, viewModel.blockUserDialogState)
             }
         }
 
     @Test
-    fun `given a userId, when blocking user is succeed, then returns show Success message and dismiss BlockDialog`() =
+    fun `given a userId, when blocking user is succeed, then show Success message and dismiss BlockDialog`() =
         runTest {
             // given
-            coEvery { blockUser(any()) } returns BlockUserResult.Success
-            initViewModel()
-            otherUserProfileScreenViewModel.infoMessage.test {
+            val (arrangement, viewModel) = OtherUserProfileViewModelArrangement()
+                .withBlockUserResult(BlockUserResult.Success)
+                .arrange()
+            viewModel.infoMessage.test {
                 val userName = "some name"
 
                 // when
                 expectNoEvents()
-                otherUserProfileScreenViewModel.onBlockUser(USER_ID, userName)
+                viewModel.onBlockUser(USER_ID, userName)
 
                 // then
-                coVerify {
-                    blockUser(eq(USER_ID))
-                }
+                coVerify { arrangement.blockUser(eq(USER_ID)) }
                 assertEquals(
                     (awaitItem() as UIText.StringResource).resId,
                     (InfoMessageType.BlockingUserOperationSuccess(userName).uiText as UIText.StringResource).resId
                 )
-                assertEquals(null, otherUserProfileScreenViewModel.blockUserDialogState)
+                assertEquals(null, viewModel.blockUserDialogState)
             }
         }
 
-    // todo: add tests for cancel request
+    @Test
+    fun `given not connected user, then direct conversation is not requested`() = runTest {
+        // given
+        val (arrangement, viewModel) = OtherUserProfileViewModelArrangement()
+            .arrange()
+
+        // then
+        coVerify {
+            arrangement.getOrCreateOneToOneConversation wasNot Called
+        }
+    }
+
+    @Test
+    fun `given connected user, then direct conversation data is requested`() = runTest {
+        // given
+        val (arrangement, viewModel) = OtherUserProfileViewModelArrangement()
+            .withUserInfo(
+                GetUserInfoResult.Success(OTHER_USER.copy(connectionStatus = ConnectionState.ACCEPTED), TEAM)
+            )
+            .arrange()
+
+        // then
+        coVerify {
+            arrangement.getOrCreateOneToOneConversation(USER_ID)
+        }
+    }
+
+    @Test
+    fun `given connected user AND direct conversation data error, then the other data is displayed`() = runTest {
+        // given
+        val (arrangement, viewModel) = OtherUserProfileViewModelArrangement()
+            .withUserInfo(
+                GetUserInfoResult.Success(OTHER_USER.copy(connectionStatus = ConnectionState.ACCEPTED), TEAM)
+            )
+            .withGetOneToOneConversation(CreateConversationResult.Failure(Unknown(RuntimeException("some error"))))
+            .arrange()
+
+        // then
+        coVerify {
+            arrangement.getOrCreateOneToOneConversation(USER_ID)
+        }
+
+        assertEquals(false, viewModel.state.isDataLoading)
+        assertEquals(OTHER_USER.name.orEmpty(), viewModel.state.fullName)
+        assertEquals(UsernameMapper.mapUserLabel(OTHER_USER), viewModel.state.userName)
+        assertEquals(TEAM.name.orEmpty(), viewModel.state.teamName)
+        assertEquals(OTHER_USER.email.orEmpty(), viewModel.state.email)
+        assertEquals(OTHER_USER.phone.orEmpty(), viewModel.state.phone)
+        assertEquals(ConnectionState.ACCEPTED, viewModel.state.connectionState)
+        assertEquals(OTHER_USER.botService, viewModel.state.botService)
+    }
 
     companion object {
         val USER_ID = UserId("some_value", "some_domain")

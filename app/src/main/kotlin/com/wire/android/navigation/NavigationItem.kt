@@ -150,6 +150,7 @@ enum class NavigationItem(
             HomeScreen(
                 hiltSavedStateViewModel(it.navBackStackEntry),
                 hiltViewModel(),
+                hiltViewModel(),
                 hiltViewModel()
             )
         },

@@ -1,7 +1,7 @@
 package com.wire.android.ui.home.conversations.details.participants.usecase
 
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
-import com.wire.kalium.logic.data.conversation.Member
 import com.wire.kalium.logic.data.conversation.MemberDetails
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.SelfUser
@@ -39,7 +39,7 @@ class ObserveConversationRoleForUserUseCase @Inject constructor(
 
 data class ConversationRoleData(
     val conversationName: String,
-    val userRole: Member.Role?,
-    val selfRole: Member.Role?,
+    val userRole: Conversation.Member.Role?,
+    val selfRole: Conversation.Member.Role?,
     val conversationId: ConversationId
 )

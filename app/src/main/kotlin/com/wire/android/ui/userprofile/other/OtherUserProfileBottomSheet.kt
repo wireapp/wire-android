@@ -24,6 +24,7 @@ fun OtherUserProfileBottomSheetContent(
                 clearConversationContent = { eventsHandler.onClearConversationContent(conversationId) },
                 blockUserClick = blockUser,
                 leaveGroup = { },
+                deleteGroup = { },
                 navigateToNotification = eventsHandler::setBottomSheetStateToMuteOptions
             )
         }

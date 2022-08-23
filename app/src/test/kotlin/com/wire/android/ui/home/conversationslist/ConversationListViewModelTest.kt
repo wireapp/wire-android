@@ -27,6 +27,7 @@ import com.wire.kalium.logic.feature.conversation.ConversationListDetails
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationsAndConnectionsUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
+import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -56,6 +57,12 @@ class ConversationListViewModelTest {
     lateinit var observeConversationsAndConnections: ObserveConversationsAndConnectionsUseCase
 
     @MockK
+    lateinit var removeMemberFromConversationUseCase: RemoveMemberFromConversationUseCase
+
+    @MockK
+    lateinit var deleteTeamConversationUseCase: DeleteTeamConversationUseCase
+
+    @MockK
     lateinit var joinCall: AnswerCallUseCase
 
     @MockK
@@ -63,9 +70,6 @@ class ConversationListViewModelTest {
 
     @MockK
     lateinit var blockUser: BlockUserUseCase
-
-    @MockK
-    lateinit var leaveGroup: RemoveMemberFromConversationUseCase
 
     @MockK
     private lateinit var wireSessionImageLoader: WireSessionImageLoader
@@ -78,15 +82,16 @@ class ConversationListViewModelTest {
         conversationListViewModel =
             ConversationListViewModel(
                 navigationManager,
+                TestDispatcherProvider(),
                 updateConversationMutedStatus,
                 joinCall,
                 observeConversationsAndConnections,
-                TestDispatcherProvider(),
+                removeMemberFromConversationUseCase,
+                deleteTeamConversationUseCase,
                 getSelf,
                 blockUser,
                 wireSessionImageLoader,
                 UserTypeMapper(),
-                leaveGroup
             )
 
         coEvery { observeConversationsAndConnections() } returns flowOf(ConversationListDetails(listOf(), 0L, 0L, 0L))

@@ -62,6 +62,7 @@ internal fun navigateToItemInHome(
 @ExperimentalMaterialApi
 @ExperimentalMaterial3Api
 @ExperimentalAnimationApi
+@Suppress("LongParameterList")
 enum class HomeNavigationItem(
     val route: String,
     @StringRes val title: Int,

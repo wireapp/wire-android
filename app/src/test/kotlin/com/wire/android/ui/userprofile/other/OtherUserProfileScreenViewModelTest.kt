@@ -313,11 +313,11 @@ class OtherUserProfileScreenViewModelTest {
 
     @Test
     fun `given not connected user, then direct conversation is not requested`() = runTest {
-        //giver
+        // given
         val (arrangement, viewModel) = OtherUserProfileViewModelArrangement()
             .arrange()
 
-        //then
+        // then
         coVerify {
             arrangement.getOrCreateOneToOneConversation wasNot Called
         }
@@ -325,14 +325,14 @@ class OtherUserProfileScreenViewModelTest {
 
     @Test
     fun `given connected user, then direct conversation data is requested`() = runTest {
-        //giver
+        // given
         val (arrangement, viewModel) = OtherUserProfileViewModelArrangement()
             .withUserInfo(
                 GetUserInfoResult.Success(OTHER_USER.copy(connectionStatus = ConnectionState.ACCEPTED), TEAM)
             )
             .arrange()
 
-        //then
+        // then
         coVerify {
             arrangement.getOrCreateOneToOneConversation(USER_ID)
         }
@@ -340,7 +340,7 @@ class OtherUserProfileScreenViewModelTest {
 
     @Test
     fun `given connected user AND direct conversation data error, then the other data is displayed`() = runTest {
-        //giver
+        // given
         val (arrangement, viewModel) = OtherUserProfileViewModelArrangement()
             .withUserInfo(
                 GetUserInfoResult.Success(OTHER_USER.copy(connectionStatus = ConnectionState.ACCEPTED), TEAM)

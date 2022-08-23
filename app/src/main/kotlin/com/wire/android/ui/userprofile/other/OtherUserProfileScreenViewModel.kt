@@ -68,8 +68,6 @@ import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.filterIsInstance
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Date
@@ -122,7 +120,10 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         state = state.copy(isDataLoading = true)
 
         observeUserInfoAndUpdateViewState()
+        persistClients()
+    }
 
+    private fun persistClients() {
         viewModelScope.launch {
             persistOtherUserClients(userId)
         }
@@ -130,28 +131,26 @@ class OtherUserProfileScreenViewModel @Inject constructor(
 
     private fun observeUserInfoAndUpdateViewState() {
         viewModelScope.launch {
-            observeUserInfo(userId)
-                .onEach {
-                    if (it is GetUserInfoResult.Failure) {
+            observeUserInfo(userId).collect { getInfoResult ->
+                when (getInfoResult) {
+                    is GetUserInfoResult.Failure -> {
                         appLogger.d("Couldn't not find the user with provided id: $userId")
                         showInfoMessage(InfoMessageType.LoadUserInformationError)
                     }
-                }
-                .filterIsInstance<GetUserInfoResult.Success>()
-                .collect { getInfoResult ->
-                    val userAvatarAsset = getInfoResult.otherUser.completePicture
-                        ?.let { pic -> ImageAsset.UserAvatarAsset(wireSessionImageLoader, pic) }
+                    is GetUserInfoResult.Success -> {
+                        val otherUser = getInfoResult.otherUser
+                        val userAvatarAsset = otherUser.completePicture
+                            ?.let { pic -> ImageAsset.UserAvatarAsset(wireSessionImageLoader, pic) }
 
-                    observeConversationSheetContentIfNeeded(getInfoResult.otherUser, userAvatarAsset)
-                    observeGroupStateIfNeeded()
+                        observeConversationSheetContentIfNeeded(otherUser, userAvatarAsset)
+                        observeGroupStateIfNeeded()
 
-                    state = with(getInfoResult) {
-                        state.copy(
+                        state = state.copy(
                             isDataLoading = false,
                             userAvatarAsset = userAvatarAsset,
                             fullName = otherUser.name.orEmpty(),
                             userName = mapUserLabel(otherUser),
-                            teamName = team?.name.orEmpty(),
+                            teamName = getInfoResult.team?.name.orEmpty(),
                             email = otherUser.email.orEmpty(),
                             phone = otherUser.phone.orEmpty(),
                             connectionState = otherUser.connectionStatus,
@@ -160,13 +159,14 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                         )
                     }
                 }
+            }
         }
     }
 
     private fun observeConversationSheetContentIfNeeded(otherUser: OtherUser, userAvatarAsset: ImageAsset.UserAvatarAsset?) {
 
         // if we are not connected with that user -> we don't have a direct conversation ->
-        // -> don't need to load data for ConversationBottomSheet
+        // -> no need to load data for ConversationBottomSheet
         if (otherUser.connectionStatus != ConnectionState.ACCEPTED) return
 
         viewModelScope.launch {
@@ -176,21 +176,20 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                     showInfoMessage(InfoMessageType.LoadDirectConversationError)
                 }
                 is CreateConversationResult.Success -> {
-                    observeSelfUser()
-                        .collect { selfUser ->
-                            state = state.copy(
-                                conversationSheetContent = ConversationSheetContent(
-                                    title = otherUser.name.orEmpty(),
-                                    conversationId = conversationResult.conversation.id,
-                                    mutingConversationState = conversationResult.conversation.mutedStatus,
-                                    conversationTypeDetail = ConversationTypeDetail.Private(
-                                        userAvatarAsset,
-                                        userId,
-                                        otherUser.getBlockingState(selfUser.teamId)
-                                    )
+                    observeSelfUser().collect { selfUser ->
+                        state = state.copy(
+                            conversationSheetContent = ConversationSheetContent(
+                                title = otherUser.name.orEmpty(),
+                                conversationId = conversationResult.conversation.id,
+                                mutingConversationState = conversationResult.conversation.mutedStatus,
+                                conversationTypeDetail = ConversationTypeDetail.Private(
+                                    userAvatarAsset,
+                                    userId,
+                                    otherUser.getBlockingState(selfUser.teamId)
                                 )
                             )
-                        }
+                        )
+                    }
                 }
             }
         }

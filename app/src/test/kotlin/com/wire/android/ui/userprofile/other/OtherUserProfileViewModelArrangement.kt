@@ -132,7 +132,8 @@ internal class OtherUserProfileViewModelArrangement {
         MockKAnnotations.init(this, relaxUnitFun = true)
         mockUri()
         every { savedStateHandle.get<String>(eq(EXTRA_USER_ID)) } returns OtherUserProfileScreenViewModelTest.CONVERSATION_ID.toString()
-        every { savedStateHandle.get<String>(eq(EXTRA_CONVERSATION_ID)) } returns OtherUserProfileScreenViewModelTest.CONVERSATION_ID.toString()
+        every { savedStateHandle.get<String>(eq(EXTRA_CONVERSATION_ID)) } returns
+                OtherUserProfileScreenViewModelTest.CONVERSATION_ID.toString()
         coEvery {
             observeConversationRoleForUserUseCase.invoke(any(), any())
         } returns flowOf(OtherUserProfileScreenViewModelTest.CONVERSATION_ROLE_DATA)

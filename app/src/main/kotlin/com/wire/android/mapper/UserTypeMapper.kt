@@ -10,7 +10,7 @@ class UserTypeMapper @Inject constructor() {
         UserType.GUEST -> Membership.Guest
         UserType.FEDERATED -> Membership.Federated
         UserType.EXTERNAL -> Membership.External
-        UserType.INTERNAL -> Membership.Internal
+        UserType.INTERNAL -> Membership.Standard
         UserType.NONE -> Membership.None
         UserType.SERVICE -> Membership.Service
         UserType.ADMIN -> Membership.Admin

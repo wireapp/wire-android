@@ -40,11 +40,19 @@ fun GroupConversationOptions(
         onServiceSwitchClicked = viewModel::onServicesUpdate,
         lazyListState = lazyListState
     )
-    if (viewModel.groupOptionsState.changeGuestOptionConfirmationRequired)
+    if (viewModel.groupOptionsState.changeGuestOptionConfirmationRequired) {
         DisableGuestConfirmationDialog(
             onConfirm = viewModel::onGuestDialogConfirm,
             onDialogDismiss = viewModel::onGuestDialogDismiss
         )
+    }
+
+    if (viewModel.groupOptionsState.changeServiceOptionConfirmationRequired){
+        DisableServicesConfirmationDialog(
+            onConfirm = viewModel::onServiceDialogConfirm,
+            onDialogDismiss = viewModel::onServiceDialogDismiss
+        )
+    }
 }
 
 @Composable
@@ -97,29 +105,29 @@ fun ConversationProtocolDetails(
 ) {
     Column {
         FolderHeader(name = stringResource(R.string.folder_lable_protocol_details))
-
-        ProtocolDetails(
-            label = UIText.StringResource(R.string.protocol),
-            text = UIText.DynamicString(protocolInfo.name())
-        )
-
-        if (protocolInfo is Conversation.ProtocolInfo.MLS) {
+        if (protocolInfo is Conversation.ProtocolInfo.MLS || BuildConfig.PRIVATE_BUILD) {
             ProtocolDetails(
-                label = UIText.StringResource(R.string.cipher_suite),
-                text = UIText.DynamicString(protocolInfo.cipherSuite.name)
+                label = UIText.StringResource(R.string.protocol),
+                text = UIText.DynamicString(protocolInfo.name())
             )
 
-            if (BuildConfig.DEBUG) {
+            if (protocolInfo is Conversation.ProtocolInfo.MLS) {
                 ProtocolDetails(
-                    label = UIText.StringResource(R.string.last_key_material_update_label),
-                    text = UIText.DynamicString(protocolInfo.keyingMaterialLastUpdate.toString())
+                    label = UIText.StringResource(R.string.cipher_suite),
+                    text = UIText.DynamicString(protocolInfo.cipherSuite.name)
                 )
 
-                ProtocolDetails(
-                    label = UIText.StringResource(R.string.group_state_label),
-                    text = UIText.DynamicString(protocolInfo.groupState.name)
-                )
+                if (BuildConfig.PRIVATE_BUILD) {
+                    ProtocolDetails(
+                        label = UIText.StringResource(R.string.last_key_material_update_label),
+                        text = UIText.DynamicString(protocolInfo.keyingMaterialLastUpdate.toString())
+                    )
 
+                    ProtocolDetails(
+                        label = UIText.StringResource(R.string.group_state_label),
+                        text = UIText.DynamicString(protocolInfo.groupState.name)
+                    )
+                }
             }
         }
     }
@@ -211,12 +219,32 @@ private fun GroupOptionWithSwitch(
 
 @Composable
 private fun DisableGuestConfirmationDialog(onConfirm: () -> Unit, onDialogDismiss: () -> Unit) {
-    WireDialog(
-        title = stringResource(id = R.string.disable_guest_dialog_title),
-        text = stringResource(id = R.string.disable_guest_dialog_text),
+    DisableConformationDialog(
+        text = R.string.disable_guest_dialog_text,
+        title = R.string.disable_guest_dialog_title,
+        onConfirm = onConfirm,
+        onDismiss = onDialogDismiss
+    )
+}
+
+@Composable
+private fun DisableServicesConfirmationDialog(onConfirm: () -> Unit, onDialogDismiss: () -> Unit) {
+    DisableConformationDialog(
+        title = R.string.disable_services_dialog_title,
+        text = R.string.disable_services_dialog_text,
         onDismiss = onDialogDismiss,
+        onConfirm = onConfirm
+    )
+}
+
+@Composable
+private fun DisableConformationDialog(@StringRes title: Int, @StringRes text: Int, onConfirm: () -> Unit, onDismiss: () -> Unit) {
+    WireDialog(
+        title = stringResource(id = title),
+        text = stringResource(id = text),
+        onDismiss = onDismiss,
         optionButton1Properties = WireDialogButtonProperties(
-            onClick = onDialogDismiss,
+            onClick = onDismiss,
             text = stringResource(id = R.string.label_cancel),
             type = WireDialogButtonType.Secondary,
         ),

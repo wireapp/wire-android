@@ -314,6 +314,8 @@
     <string name="conversation_options_services_description">Turn this option ON to open this conversation to services.</string>
     <string name="disable_guest_dialog_title">Disable guest access?</string>
     <string name="disable_guest_dialog_text">Current guests will be removed from the conversation. New guests will not be allowed.</string>
+    <string name="disable_services_dialog_title">Disable services access?</string>
+    <string name="disable_services_dialog_text">Current services will be removed from the conversation. New services will not be allowed.</string>
 
     <string name="leave_group_conversation_menu_item">Leave Group...</string>
     <string name="leave_group_conversation_dialog_title">Leave “%s”?</string>
@@ -378,6 +380,7 @@
     <string name="label_clear_content">Clear Content...</string>
     <string name="label_block">Block</string>
     <string name="label_leave_group">Leave Group</string>
+    <string name="label_delete_group">Delete Group</string>
 
     <!-- Muting options BottomSheet -->
     <string name="muting_option_all_allowed_title">Everything</string>
@@ -448,6 +451,7 @@
     <string name="leave_group_conversation_error">There was an error while leaving conversation</string>
     <string name="left_conversation_group_success">You left the conversation.</string>
     <string name="error_unblocking_user">User could not be unblocked</string>
+    <string name="delete_group_conversation_error">There was an error while deleting conversation</string>
 
     <!-- Animation label -->
     <string name="animation_label_messagecomposeinput_state_transistion" translatable="false">MessageComposeInputState transition</string>

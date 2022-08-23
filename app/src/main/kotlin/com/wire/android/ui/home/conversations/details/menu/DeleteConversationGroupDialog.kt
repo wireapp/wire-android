@@ -9,17 +9,17 @@ import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.visbility.VisibilityState
+import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 
 @Composable
 internal fun DeleteConversationGroupDialog(
-    dialogState: VisibilityState,
+    dialogState: VisibilityState<GroupDialogState>,
     isLoading: Boolean,
-    conversationName: String,
-    onDeleteGroup: () -> Unit,
+    onDeleteGroup: (GroupDialogState) -> Unit,
 ) {
     VisibilityStateExt(dialogState) {
         WireDialog(
-            title = stringResource(id = R.string.delete_group_conversation_dialog_title, conversationName),
+            title = stringResource(id = R.string.delete_group_conversation_dialog_title, it.conversationName),
             text = stringResource(id = R.string.delete_group_conversation_dialog_description),
             buttonsHorizontalAlignment = true,
             onDismiss = dialogState::dismiss,
@@ -29,7 +29,7 @@ internal fun DeleteConversationGroupDialog(
                 state = WireButtonState.Default
             ),
             optionButton1Properties = WireDialogButtonProperties(
-                onClick = { onDeleteGroup() },
+                onClick = { onDeleteGroup(it) },
                 text = stringResource(id = R.string.label_remove),
                 type = WireDialogButtonType.Primary,
                 state =

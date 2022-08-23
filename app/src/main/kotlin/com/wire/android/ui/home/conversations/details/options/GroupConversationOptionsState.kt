@@ -15,6 +15,7 @@ data class GroupConversationOptionsState(
     val isUpdatingGuestAllowed: Boolean = false,
     val isAbleToRemoveGroup: Boolean = true,
     val changeGuestOptionConfirmationRequired: Boolean = false,
+    val changeServiceOptionConfirmationRequired: Boolean = false,
     val loadingGuestOption: Boolean = false,
     val loadingServicesOption: Boolean = false,
     val error: Error = Error.None

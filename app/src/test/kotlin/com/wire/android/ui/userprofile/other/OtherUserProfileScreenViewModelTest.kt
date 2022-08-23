@@ -42,6 +42,7 @@ import com.wire.kalium.logic.feature.connection.IgnoreConnectionRequestUseCase
 import com.wire.kalium.logic.feature.connection.IgnoreConnectionRequestUseCaseResult
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestResult
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
+import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
 import com.wire.kalium.logic.feature.conversation.CreateConversationResult
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
@@ -120,6 +121,9 @@ class OtherUserProfileScreenViewModelTest {
     private lateinit var blockUser: BlockUserUseCase
 
     @MockK
+    private lateinit var unblockUser: UnblockUserUseCase
+
+    @MockK
     private lateinit var updateConversationMutedStatus: UpdateConversationMutedStatusUseCase
 
     @MockK
@@ -153,6 +157,7 @@ class OtherUserProfileScreenViewModelTest {
             observeSelfUser,
             updateConversationMutedStatus,
             blockUser,
+            unblockUser,
             getOrCreateOneToOneConversation,
             observeUserInfo,
             sendConnectionRequest,
@@ -179,7 +184,7 @@ class OtherUserProfileScreenViewModelTest {
 
                 // when
                 expectNoEvents()
-                otherUserProfileScreenViewModel.sendConnectionRequest()
+                otherUserProfileScreenViewModel.onSendConnectionRequest()
 
                 // then
                 coVerify { sendConnectionRequest(eq(USER_ID)) }
@@ -197,7 +202,7 @@ class OtherUserProfileScreenViewModelTest {
 
                 // when
                 expectNoEvents()
-                otherUserProfileScreenViewModel.sendConnectionRequest()
+                otherUserProfileScreenViewModel.onSendConnectionRequest()
 
                 // then
                 coVerify {
@@ -215,7 +220,7 @@ class OtherUserProfileScreenViewModelTest {
             coEvery { ignoreConnectionRequest(any()) } returns IgnoreConnectionRequestUseCaseResult.Success
 
             // when
-            otherUserProfileScreenViewModel.ignoreConnectionRequest()
+            otherUserProfileScreenViewModel.onIgnoreConnectionRequest()
 
             // then
             coVerify {
@@ -233,7 +238,7 @@ class OtherUserProfileScreenViewModelTest {
 
                 // when
                 expectNoEvents()
-                otherUserProfileScreenViewModel.cancelConnectionRequest()
+                otherUserProfileScreenViewModel.onCancelConnectionRequest()
 
                 // then
                 coVerify { cancelConnectionRequest(eq(USER_ID)) }
@@ -251,7 +256,7 @@ class OtherUserProfileScreenViewModelTest {
 
                 // when
                 expectNoEvents()
-                otherUserProfileScreenViewModel.acceptConnectionRequest()
+                otherUserProfileScreenViewModel.onAcceptConnectionRequest()
 
                 // then
                 coVerify { acceptConnectionRequest(eq(USER_ID)) }
@@ -268,7 +273,7 @@ class OtherUserProfileScreenViewModelTest {
             coEvery { navigationManager.navigate(command = any()) } returns Unit
 
             // when
-            otherUserProfileScreenViewModel.openConversation()
+            otherUserProfileScreenViewModel.onOpenConversation()
 
             // then
             coVerify {
@@ -285,7 +290,7 @@ class OtherUserProfileScreenViewModelTest {
                     CreateConversationResult.Failure(Unknown(RuntimeException("some error")))
 
             // when
-            otherUserProfileScreenViewModel.openConversation()
+            otherUserProfileScreenViewModel.onOpenConversation()
 
             // then
             coVerify {
@@ -346,7 +351,7 @@ class OtherUserProfileScreenViewModelTest {
 
                 // when
                 expectNoEvents()
-                otherUserProfileScreenViewModel.changeMemberRole(newRole)
+                otherUserProfileScreenViewModel.onChangeMemberRole(newRole)
 
                 // then
                 coVerify {
@@ -368,7 +373,7 @@ class OtherUserProfileScreenViewModelTest {
 
                 // when
                 expectNoEvents()
-                otherUserProfileScreenViewModel.changeMemberRole(newRole)
+                otherUserProfileScreenViewModel.onChangeMemberRole(newRole)
 
                 // then
                 coVerify {
@@ -388,7 +393,7 @@ class OtherUserProfileScreenViewModelTest {
 
                 // when
                 expectNoEvents()
-                otherUserProfileScreenViewModel.blockUser(USER_ID, "some name")
+                otherUserProfileScreenViewModel.onBlockUser(USER_ID, "some name")
 
                 // then
                 coVerify {
@@ -410,7 +415,7 @@ class OtherUserProfileScreenViewModelTest {
 
                 // when
                 expectNoEvents()
-                otherUserProfileScreenViewModel.blockUser(USER_ID, userName)
+                otherUserProfileScreenViewModel.onBlockUser(USER_ID, userName)
 
                 // then
                 coVerify {

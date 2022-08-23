@@ -16,9 +16,8 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsState
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipantsViewModel
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
-import com.wire.android.ui.home.conversationslist.model.LeaveGroupState
+import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.android.util.ui.UIText
 import com.wire.android.util.uiText
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.conversation.ConversationDetails
@@ -124,7 +123,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
         }
     }
 
-    fun leaveGroup(leaveGroupState: LeaveGroupState) {
+    fun leaveGroup(leaveGroupState: GroupDialogState) {
         viewModelScope.launch {
             requestInProgress = true
             val response = withContext(dispatcher.io()) {
@@ -149,16 +148,16 @@ class GroupConversationDetailsViewModel @Inject constructor(
         }
     }
 
-    fun deleteGroup() {
+    fun deleteGroup(groupState: GroupDialogState) {
         viewModelScope.launch {
             requestInProgress = true
-            when (val response = withContext(dispatcher.io()) { deleteTeamConversation(conversationId) }) {
+            when (val response = withContext(dispatcher.io()) { deleteTeamConversation(groupState.conversationId) }) {
                 is Result.Failure.GenericFailure -> showSnackBarMessage(response.coreFailure.uiText())
                 Result.Failure.NoTeamFailure -> showSnackBarMessage(CoreFailure.Unknown(null).uiText())
                 Result.Success -> {
                     navigationManager.navigateBack(
                         mapOf(
-                            EXTRA_GROUP_DELETED_NAME to groupOptionsState.groupName,
+                            EXTRA_GROUP_DELETED_NAME to groupState.conversationName,
                         )
                     )
                 }

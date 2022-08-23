@@ -378,6 +378,7 @@
     <string name="label_clear_content">Clear Content...</string>
     <string name="label_block">Block</string>
     <string name="label_leave_group">Leave Group</string>
+    <string name="label_delete_group">Delete Group</string>
 
     <!-- Muting options BottomSheet -->
     <string name="muting_option_all_allowed_title">Everything</string>
@@ -447,6 +448,7 @@
     <string name="conversation_group_removed_success">“%s” removed</string>
     <string name="leave_group_conversation_error">There was an error while leaving conversation</string>
     <string name="left_conversation_group_success">You left the conversation.</string>
+    <string name="delete_group_conversation_error">There was an error while deleting conversation</string>
 
     <!-- Animation label -->
     <string name="animation_label_messagecomposeinput_state_transistion" translatable="false">MessageComposeInputState transition</string>

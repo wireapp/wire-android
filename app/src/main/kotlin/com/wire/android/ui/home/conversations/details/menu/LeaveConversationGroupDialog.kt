@@ -9,13 +9,13 @@ import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.visbility.VisibilityState
-import com.wire.android.ui.home.conversationslist.model.LeaveGroupState
+import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 
 @Composable
 internal fun LeaveConversationGroupDialog(
-    dialogState: VisibilityState<LeaveGroupState>,
+    dialogState: VisibilityState<GroupDialogState>,
     isLoading: Boolean,
-    onLeaveGroup: (LeaveGroupState) -> Unit,
+    onLeaveGroup: (GroupDialogState) -> Unit,
 ) {
     VisibilityStateExt(dialogState) {
         WireDialog(
@@ -29,7 +29,7 @@ internal fun LeaveConversationGroupDialog(
                 state = WireButtonState.Default
             ),
             optionButton1Properties = WireDialogButtonProperties(
-                onClick = { onLeaveGroup(LeaveGroupState(it.conversationId, it.conversationName)) },
+                onClick = { onLeaveGroup(it) },
                 text = stringResource(id = R.string.label_leave),
                 type = WireDialogButtonType.Primary,
                 state =

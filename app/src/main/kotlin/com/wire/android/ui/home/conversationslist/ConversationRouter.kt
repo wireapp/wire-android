@@ -29,12 +29,13 @@ import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.home.HomeSnackbarState
+import com.wire.android.ui.home.conversations.details.menu.DeleteConversationGroupDialog
 import com.wire.android.ui.home.conversations.details.menu.LeaveConversationGroupDialog
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationOptionNavigation
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
 import com.wire.android.ui.home.conversationslist.bottomsheet.rememberConversationSheetState
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
-import com.wire.android.ui.home.conversationslist.model.LeaveGroupState
+import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.ui.home.conversationslist.navigation.ConversationsNavigationItem
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
@@ -58,10 +59,13 @@ fun ConversationRouterHomeBridge(
         viewModel.snackBarState.collect { onSnackBarStateChanged(it) }
     }
 
-    val leaveGroupDialogState = rememberVisibilityState<LeaveGroupState>()
+    val leaveGroupDialogState = rememberVisibilityState<GroupDialogState>()
+    val deleteGroupDialogState = rememberVisibilityState<GroupDialogState>()
 
-    if(!viewModel.requestInProgress) {
+
+    if (!viewModel.requestInProgress) {
         leaveGroupDialogState.dismiss()
+        deleteGroupDialogState.dismiss()
     }
 
     fun openConversationBottomSheet(
@@ -98,7 +102,8 @@ fun ConversationRouterHomeBridge(
                 moveConversationToArchive = viewModel::moveConversationToArchive,
                 clearConversationContent = viewModel::clearConversationContent,
                 blockUser = viewModel::onBlockUserClicked,
-                leaveGroup = leaveGroupDialogState::show
+                leaveGroup = leaveGroupDialogState::show,
+                deleteGroup = deleteGroupDialogState::show
             )
         }
 
@@ -128,11 +133,17 @@ fun ConversationRouterHomeBridge(
         onDismissBlockUserDialog = viewModel::onDismissBlockUserDialog,
     )
 
-        LeaveConversationGroupDialog(
-            dialogState = leaveGroupDialogState,
-            isLoading = viewModel.requestInProgress,
-            onLeaveGroup = viewModel::leaveGroup
-        )
+    DeleteConversationGroupDialog(
+        isLoading = viewModel.requestInProgress,
+        dialogState = deleteGroupDialogState,
+        onDeleteGroup = viewModel::deleteGroup
+    )
+
+    LeaveConversationGroupDialog(
+        dialogState = leaveGroupDialogState,
+        isLoading = viewModel.requestInProgress,
+        onLeaveGroup = viewModel::leaveGroup
+    )
 }
 
 @ExperimentalAnimationApi

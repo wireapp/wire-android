@@ -33,6 +33,7 @@ fun OtherUserProfileBottomSheetContent(
                 clearConversationContent = clearConversationContent,
                 blockUserClick = blockUser,
                 leaveGroup = { },
+                deleteGroup = { },
                 navigateToNotification = openMuteOptionsSheet
             )
         is BottomSheetContent.Mute ->

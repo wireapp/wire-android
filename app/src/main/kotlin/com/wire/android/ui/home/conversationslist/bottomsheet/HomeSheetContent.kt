@@ -24,7 +24,7 @@ import com.wire.android.ui.common.conversationColor
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
 import com.wire.android.ui.home.conversationslist.model.BlockingState
-import com.wire.android.ui.home.conversationslist.model.LeaveGroupState
+import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.ui.home.conversationslist.model.getMutedStatusTextResource
 import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
@@ -39,7 +39,8 @@ internal fun ConversationMainSheetContent(
     moveConversationToArchive: () -> Unit,
     clearConversationContent: () -> Unit,
     blockUserClick: (UserId, String) -> Unit,
-    leaveGroup: (LeaveGroupState) -> Unit,
+    leaveGroup: (GroupDialogState) -> Unit,
+    deleteGroup: (GroupDialogState) -> Unit,
     navigateToNotification: () -> Unit
 ) {
     MenuModalSheetContent(
@@ -140,7 +141,10 @@ internal fun ConversationMainSheetContent(
                                 },
                                 title = stringResource(R.string.label_block),
                                 onItemClick = {
-                                    blockUserClick(conversationSheetContent.conversationTypeDetail.userId, conversationSheetContent.title)
+                                    blockUserClick(
+                                        conversationSheetContent.conversationTypeDetail.userId,
+                                        conversationSheetContent.title
+                                    )
                                 }
                             )
                         }
@@ -156,7 +160,36 @@ internal fun ConversationMainSheetContent(
                             },
                             title = stringResource(R.string.label_leave_group),
                             onItemClick = {
-                                leaveGroup(LeaveGroupState(conversationSheetContent.conversationId, conversationSheetContent.title))
+                                leaveGroup(
+                                    GroupDialogState(
+                                        conversationSheetContent.conversationId,
+                                        conversationSheetContent.title
+                                    )
+                                )
+                            }
+                        )
+                    }
+                }
+            },
+            {
+                val conversationTypeDetail = conversationSheetContent.conversationTypeDetail
+                if (conversationTypeDetail is ConversationTypeDetail.Group && conversationTypeDetail.isCreator) {
+                    CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.error) {
+                        MenuBottomSheetItem(
+                            icon = {
+                                MenuItemIcon(
+                                    id = R.drawable.ic_remove,
+                                    contentDescription = stringResource(R.string.content_description_delete_the_group),
+                                )
+                            },
+                            title = stringResource(R.string.label_delete_group),
+                            onItemClick = {
+                                deleteGroup(
+                                    GroupDialogState(
+                                        conversationSheetContent.conversationId,
+                                        conversationSheetContent.title
+                                    )
+                                )
                             }
                         )
                     }

@@ -336,8 +336,7 @@ private fun Content(
 
                             OtherUserProfileTabItem.DEVICES -> {
                                 getOtherUserClients()
-                                OtherUserDevicesScreen(state = state)
-
+                                OtherUserDevicesScreen(lazyListState = lazyListStates[tabItem]!!, state = state)
                             }
                         }
                     }

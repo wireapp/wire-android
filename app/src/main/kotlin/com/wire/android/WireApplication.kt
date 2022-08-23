@@ -27,11 +27,10 @@ import javax.inject.Inject
 /**
  * Indicates whether the build is private (dev || internal) or public
  */
-private val IS_PRIVATE_BUILD = BuildConfig.FLAVOR in setOf("dev", "internal")
 
 var appLogger = KaliumLogger(
     config = KaliumLogger.Config(
-        severity = if (IS_PRIVATE_BUILD) KaliumLogLevel.DEBUG else KaliumLogLevel.DISABLED,
+        severity = if (BuildConfig.PRIVATE_BUILD) KaliumLogLevel.DEBUG else KaliumLogLevel.DISABLED,
         tag = "WireAppLogger"
     ),
     DataDogLogger,
@@ -66,7 +65,7 @@ class WireApplication : Application(), Configuration.Provider {
 
         enableDatadog()
 
-        if (IS_PRIVATE_BUILD || coreLogic.getGlobalScope().isLoggingEnabled()) {
+        if (BuildConfig.PRIVATE_BUILD || coreLogic.getGlobalScope().isLoggingEnabled()) {
             enableLoggingAndInitiateFileLogging()
         }
 

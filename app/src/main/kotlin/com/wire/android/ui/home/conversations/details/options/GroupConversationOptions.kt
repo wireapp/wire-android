@@ -27,6 +27,7 @@ import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.Conversation
+import com.wire.kalium.logic.data.id.ConversationId
 
 @Composable
 fun GroupConversationOptions(
@@ -260,6 +261,7 @@ private fun DisableConformationDialog(@StringRes title: Int, @StringRes text: In
 private fun AdminTeamGroupConversationOptionsPreview() {
     GroupConversationSettings(
         GroupConversationOptionsState(
+            conversationId = ConversationId("someValue", "someDomain"),
             groupName = "Team Group Conversation",
             areAccessOptionsAvailable = true,
             isUpdatingAllowed = true,
@@ -276,6 +278,7 @@ private fun AdminTeamGroupConversationOptionsPreview() {
 private fun GuestAdminTeamGroupConversationOptionsPreview() {
     GroupConversationSettings(
         GroupConversationOptionsState(
+            conversationId = ConversationId("someValue", "someDomain"),
             groupName = "Team Group Conversation",
             areAccessOptionsAvailable = true,
             isUpdatingAllowed = true,
@@ -292,6 +295,7 @@ private fun GuestAdminTeamGroupConversationOptionsPreview() {
 private fun MemberTeamGroupConversationOptionsPreview() {
     GroupConversationSettings(
         GroupConversationOptionsState(
+            conversationId = ConversationId("someValue", "someDomain"),
             groupName = "Normal Group Conversation",
             areAccessOptionsAvailable = true,
             isUpdatingAllowed = false,
@@ -308,6 +312,7 @@ private fun MemberTeamGroupConversationOptionsPreview() {
 private fun NormalGroupConversationOptionsPreview() {
     GroupConversationSettings(
         GroupConversationOptionsState(
+            conversationId = ConversationId("someValue", "someDomain"),
             groupName = "Normal Group Conversation",
             areAccessOptionsAvailable = false
         ),

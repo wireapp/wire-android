@@ -1,5 +1,3 @@
-@file:Suppress("TooManyFunctions")
-
 package com.wire.android.ui.home.messagecomposer
 
 import androidx.activity.compose.BackHandler
@@ -16,6 +14,7 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
@@ -44,6 +43,7 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.wire.android.R
 import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.messagecomposer.attachment.AttachmentOptions
@@ -62,6 +62,7 @@ fun MessageComposer(
     onMessageComposerInputStateChange: (MessageComposerStateTransition) -> Unit,
     isFileSharingEnabled: Boolean,
     isUserBlocked: Boolean,
+    isConversationMember: Boolean,
     tempCachePath: Path
 ) {
     BoxWithConstraints {
@@ -95,6 +96,7 @@ fun MessageComposer(
             onMessageComposerError = onMessageComposerError,
             isFileSharingEnabled = isFileSharingEnabled,
             isUserBlocked = isUserBlocked,
+            isConversationMember = isConversationMember,
             tempCachePath = tempCachePath
         )
     }
@@ -119,6 +121,7 @@ private fun MessageComposer(
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
     isFileSharingEnabled: Boolean,
     isUserBlocked: Boolean,
+    isConversationMember: Boolean,
     tempCachePath: Path
 ) {
     val focusManager = LocalFocusManager.current
@@ -201,12 +204,13 @@ private fun MessageComposer(
                                 )
                             }
                             .background(color = colorsScheme().backgroundVariant)
+                            .padding(bottom = if (isConversationMember) 0.dp else dimensions().spacing16x)
                             .weight(1f)) {
                         content()
                     }
                     if (isUserBlocked) {
                         BlockedUserMessage()
-                    } else {
+                    } else if (isConversationMember) {
                         // Column wrapping CollapseIconButton and MessageComposerInput
                         Column(
                             modifier = Modifier
@@ -224,7 +228,7 @@ private fun MessageComposer(
                         }
                     }
                 }
-                if (!isUserBlocked) {
+                if (!isUserBlocked && isConversationMember) {
                     // Box wrapping the SendActions so that we do not include it in the animationContentSize
                     // changed which is applied only for
                     // MessageComposerInput and CollapsingButton
@@ -255,7 +259,7 @@ private fun MessageComposer(
             // we want to offset the AttachmentOptionsComponent equal to where
             // the device keyboard is displayed, so that when the keyboard is closed,
             // we get the effect of overlapping it
-            if (messageComposerState.attachmentOptionsDisplayed && !isUserBlocked) {
+            if (messageComposerState.attachmentOptionsDisplayed && !isUserBlocked && isConversationMember) {
                 AttachmentOptions(
                     keyboardHeightOffSet,
                     messageComposerState,

@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.conversationslist.model.hasLabel
 import com.wire.kalium.logic.data.user.ConnectionState
@@ -26,12 +25,17 @@ import com.wire.kalium.logic.data.user.ConnectionState
  * @param startPadding - Dp of labels left padding
  */
 @Composable
-fun UserBadge(membership: Membership, connectionState: ConnectionState? = null, startPadding: Dp = 0.dp) {
+fun UserBadge(
+    membership: Membership,
+    connectionState: ConnectionState? = null,
+    startPadding: Dp = dimensions().spacing0x,
+    topPadding: Dp = dimensions().spacing0x
+) {
     if (connectionState == ConnectionState.BLOCKED) {
         Spacer(modifier = Modifier.width(startPadding))
         BlockedLabel()
     } else if (membership.hasLabel()) {
         Spacer(modifier = Modifier.width(startPadding))
-        MembershipQualifierLabel(membership, Modifier.padding(top = dimensions().spacing8x))
+        MembershipQualifierLabel(membership, Modifier.padding(top = topPadding))
     }
 }

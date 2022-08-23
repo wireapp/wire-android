@@ -16,8 +16,8 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsState
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipantsViewModel
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
+import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.android.util.ui.UIText
 import com.wire.android.util.uiText
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.conversation.ConversationDetails
@@ -106,7 +106,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
                                         updateState(
                                             groupOptionsState.copy(
                                                 groupName = conversation.name.orEmpty(),
-                                                protocolInfo = conversation.protocol,isUpdatingAllowed = isSelfAnAdmin,
+                                                isUpdatingAllowed = isSelfAnAdmin,
                                                 areAccessOptionsAvailable = conversation.isTeamGroup(),
                                                 isGuestAllowed = (conversation.isGuestAllowed() || conversation.isNonTeamMemberAllowed()),
                                                 isServicesAllowed = conversation.isServicesAllowed(),
@@ -123,13 +123,13 @@ class GroupConversationDetailsViewModel @Inject constructor(
         }
     }
 
-    fun leaveGroup() {
+    fun leaveGroup(leaveGroupState: GroupDialogState) {
         viewModelScope.launch {
             requestInProgress = true
             val response = withContext(dispatcher.io()) {
                 val selfUser = observerSelfUser().first()
                 removeMemberFromConversation(
-                    conversationId,
+                    leaveGroupState.conversationId,
                     selfUser.id
                 )
             }
@@ -148,16 +148,16 @@ class GroupConversationDetailsViewModel @Inject constructor(
         }
     }
 
-    fun deleteGroup() {
+    fun deleteGroup(groupState: GroupDialogState) {
         viewModelScope.launch {
             requestInProgress = true
-            when (val response = withContext(dispatcher.io()) { deleteTeamConversation(conversationId) }) {
+            when (val response = withContext(dispatcher.io()) { deleteTeamConversation(groupState.conversationId) }) {
                 is Result.Failure.GenericFailure -> showSnackBarMessage(response.coreFailure.uiText())
                 Result.Failure.NoTeamFailure -> showSnackBarMessage(CoreFailure.Unknown(null).uiText())
                 Result.Success -> {
                     navigationManager.navigateBack(
                         mapOf(
-                            EXTRA_GROUP_DELETED_NAME to groupOptionsState.groupName,
+                            EXTRA_GROUP_DELETED_NAME to groupState.conversationName,
                         )
                     )
                 }
@@ -166,17 +166,21 @@ class GroupConversationDetailsViewModel @Inject constructor(
         requestInProgress = false
     }
 
+
     fun onGuestUpdate(enableGuestAndNonTeamMember: Boolean) {
         groupOptionsState = groupOptionsState.copy(loadingGuestOption = true, isGuestAllowed = enableGuestAndNonTeamMember)
         when (enableGuestAndNonTeamMember) {
             true -> updateGuestRemoteRequest(enableGuestAndNonTeamMember)
-            false -> showGuestConformationDialog()
+            false -> updateState(groupOptionsState.copy(changeGuestOptionConfirmationRequired = true))
         }
     }
 
     fun onServicesUpdate(enableServices: Boolean) {
         updateState(groupOptionsState.copy(loadingServicesOption = true, isServicesAllowed = enableServices))
-        updateServicesRemoteRequest(enableServices)
+        when(enableServices) {
+            true -> updateServicesRemoteRequest(enableServices)
+            false -> updateState(groupOptionsState.copy(changeServiceOptionConfirmationRequired = true))
+        }
     }
 
     fun onGuestDialogDismiss() {
@@ -192,6 +196,21 @@ class GroupConversationDetailsViewModel @Inject constructor(
     fun onGuestDialogConfirm() {
         updateState(groupOptionsState.copy(changeGuestOptionConfirmationRequired = false, loadingGuestOption = true))
         updateGuestRemoteRequest(false)
+    }
+
+    fun onServiceDialogDismiss() {
+        updateState(
+            groupOptionsState.copy(
+                loadingServicesOption = false,
+                changeServiceOptionConfirmationRequired = false,
+                isServicesAllowed = !groupOptionsState.isServicesAllowed
+            )
+        )
+    }
+
+    fun onServiceDialogConfirm() {
+        updateState(groupOptionsState.copy(changeServiceOptionConfirmationRequired = false, loadingServicesOption = true))
+        updateServicesRemoteRequest(false)
     }
 
     private fun updateGuestRemoteRequest(enableGuestAndNonTeamMember: Boolean) {
@@ -248,8 +267,6 @@ class GroupConversationDetailsViewModel @Inject constructor(
     private fun updateState(newState: GroupConversationOptionsState) {
         groupOptionsState = newState
     }
-
-    private fun showGuestConformationDialog() = updateState(groupOptionsState.copy(changeGuestOptionConfirmationRequired = true))
 
     fun navigateToFullParticipantsList() = viewModelScope.launch {
         navigationManager.navigate(

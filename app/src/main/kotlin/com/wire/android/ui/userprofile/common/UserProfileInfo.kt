@@ -20,7 +20,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.constraintlayout.compose.ConstraintLayout
@@ -113,7 +112,7 @@ fun UserProfileInfo(
                     maxLines = 1,
                     color = MaterialTheme.wireColorScheme.labelText,
                 )
-                UserBadge(membership, connection)
+                UserBadge(membership, connection, topPadding = dimensions().spacing8x)
             }
 
             if (editableState is EditableState.IsEditable) {

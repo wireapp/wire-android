@@ -101,7 +101,7 @@ private fun createAnnotatedString(data: List<LinkTextData>): AnnotatedString {
                 }
                 pop()
             } else {
-                append(linkTextData.text)
+                append("${linkTextData.text} ")
             }
         }
     }

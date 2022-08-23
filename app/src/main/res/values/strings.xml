@@ -448,6 +448,7 @@
     <string name="conversation_group_removed_success">“%s” removed</string>
     <string name="leave_group_conversation_error">There was an error while leaving conversation</string>
     <string name="left_conversation_group_success">You left the conversation.</string>
+    <string name="error_unblocking_user">User could not be unblocked</string>
     <string name="delete_group_conversation_error">There was an error while deleting conversation</string>
 
     <!-- Animation label -->
@@ -567,7 +568,7 @@
     <string name="block_user_dialog_title">Block user?</string>
     <string name="block_user_dialog_body">%1$s won’t be able to contact you or add you to group conversations. You will lose access to any 1:1 conversations with them. The other user will not be notified about this.</string>
     <string name="block_user_dialog_confirm_button">Block</string>
-    <string name="other_user_devices_decription"><![CDATA[\Wire gives every device a unique fingerprint. Compare them with <other users username> and verify your conversation. \]]></string>
+    <string name="other_user_devices_decription"><![CDATA[\Wire gives every device a unique fingerprint. Compare them with %1$s and verify your conversation. \]]></string>
 
 
     <!--Settings -->
@@ -584,5 +585,10 @@
     <string name="settings_about_this_app_label">About this App</string>
     <string name="settings_keep_connection_to_websocket">Keep Connection to Websocket</string>
     <string name="settings_service_is_running">service is running</string>
+
+    <!--unblock user dialog -->
+    <string name="unblock_user_dialog_title">Unblock user?</string>
+    <string name="unblock_user_dialog_body">%1$s will be able to contact you or add you to group conversations. You will be able to access a 1:1 conversation with them.</string>
+    <string name="unblock_user_dialog_confirm_button">Unblock</string>
 
 </resources>

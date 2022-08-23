@@ -51,6 +51,8 @@ import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.calculateCurrentTab
 import com.wire.android.ui.common.dialogs.BlockUserDialogContent
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
+import com.wire.android.ui.common.dialogs.UnblockUserDialogContent
+import com.wire.android.ui.common.dialogs.UnblockUserDialogState
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topBarElevation
@@ -62,17 +64,12 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.userprofile.common.EditableState
 import com.wire.android.ui.userprofile.common.UserProfileInfo
 import com.wire.android.ui.userprofile.group.RemoveConversationMemberState
-import com.wire.kalium.logic.data.conversation.Member
-import com.wire.kalium.logic.data.conversation.MutedConversationStatus
-import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.ConnectionState
-import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.launch
 
-@OptIn(
-    ExperimentalMaterialApi::class,
-)
+@OptIn(ExperimentalMaterialApi::class, InternalCoroutinesApi::class)
 @Composable
 fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltViewModel()) {
     val snackbarHostState = remember { SnackbarHostState() }
@@ -89,33 +86,14 @@ fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltView
         state = viewModel.state,
         removeMemberDialogState = viewModel.removeConversationMemberDialogState,
         blockUserDialogState = viewModel.blockUserDialogState,
+        unblockUserDialogState = viewModel.unblockUserDialogState,
         sheetState = sheetState,
         openBottomSheet = openBottomSheet,
         closeBottomSheet = closeBottomSheet,
-        onSendConnectionRequest = viewModel::sendConnectionRequest,
-        onOpenConversation = viewModel::openConversation,
-        onCancelConnectionRequest = viewModel::cancelConnectionRequest,
-        onIgnoreConnectionRequest = viewModel::ignoreConnectionRequest,
-        onUnblockUser = viewModel::unblockUser,
-        onAcceptConnectionRequest = viewModel::acceptConnectionRequest,
-        onNavigateBack = viewModel::navigateBack,
-        onChangeMemberRole = viewModel::changeMemberRole,
-        openRemoveConversationMemberDialog = viewModel::openRemoveConversationMemberDialog,
-        hideRemoveConversationMemberDialog = viewModel::hideRemoveConversationMemberDialog,
-        onRemoveConversationMember = viewModel::removeConversationMember,
         snackbarHostState = snackbarHostState,
-        onDismissBlockUserDialog = viewModel::dismissBlockUserDialog,
-        onBlockUserClicked = viewModel::showBlockUserDialog,
-        onBlockUser = viewModel::blockUser,
-        onMutingConversationStatusChange = viewModel::muteConversation,
-        onAddConversationToFavourites = viewModel::addConversationToFavourites,
-        onMoveConversationToArchive = viewModel::moveConversationToArchive,
-        onClearConversationContent = viewModel::clearConversationContent,
-        onMoveConversationToFolder = viewModel::moveConversationToFolder,
-        setBottomSheetStateToConversation = viewModel::setBottomSheetStateToConversation,
-        setBottomSheetStateToMutOptions = viewModel::setBottomSheetStateToMuteOptions,
-        setBottomSheetStateToChangeRole = viewModel::setBottomSheetStateToChangeRole,
-        getOtherUserClients = viewModel::getOtherUserClients
+        eventsHandler = viewModel,
+        footerEventsHandler = viewModel,
+        bottomSheetEventsHandler = viewModel
     )
     LaunchedEffect(Unit) {
         viewModel.infoMessage.collect {
@@ -152,30 +130,11 @@ fun OtherProfileScreenContent(
     closeBottomSheet: () -> Unit,
     removeMemberDialogState: PreservedState<RemoveConversationMemberState>?,
     blockUserDialogState: PreservedState<BlockUserDialogState>?,
-    onSendConnectionRequest: () -> Unit,
-    onOpenConversation: () -> Unit,
-    onCancelConnectionRequest: () -> Unit,
-    onAcceptConnectionRequest: () -> Unit,
-    onIgnoreConnectionRequest: () -> Unit,
-    onUnblockUser: () -> Unit,
-    onNavigateBack: () -> Unit,
-    onChangeMemberRole: (Member.Role) -> Unit,
-    onDismissBlockUserDialog: () -> Unit,
-    onBlockUserClicked: (UserId, String) -> Unit,
-    onBlockUser: (UserId, String) -> Unit,
-    onMutingConversationStatusChange: (ConversationId?, MutedConversationStatus) -> Unit,
-    onAddConversationToFavourites: () -> Unit,
-    onMoveConversationToFolder: () -> Unit,
-    onMoveConversationToArchive: () -> Unit,
-    onClearConversationContent: () -> Unit,
-    setBottomSheetStateToConversation: () -> Unit,
-    setBottomSheetStateToMutOptions: () -> Unit,
-    setBottomSheetStateToChangeRole: () -> Unit,
-    openRemoveConversationMemberDialog: () -> Unit,
-    hideRemoveConversationMemberDialog: () -> Unit,
-    onRemoveConversationMember: (PreservedState<RemoveConversationMemberState>) -> Unit,
-    getOtherUserClients: () -> Unit,
-    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() }
+    unblockUserDialogState: PreservedState<UnblockUserDialogState>?,
+    eventsHandler: OtherUserProfileEventsHandler,
+    footerEventsHandler: OtherUserProfileFooterEventsHandler,
+    bottomSheetEventsHandler: OtherUserProfileBottomSheetEventsHandler,
+    snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
     val otherUserProfileScreenState = rememberOtherUserProfileScreenState(snackbarHostState)
     val tabItems by remember(state) {
@@ -204,16 +163,9 @@ fun OtherProfileScreenContent(
         sheetContent = {
             OtherUserProfileBottomSheetContent(
                 bottomSheetState = state.bottomSheetContentState,
-                onMutingConversationStatusChange = onMutingConversationStatusChange,
-                addConversationToFavourites = onAddConversationToFavourites,
-                moveConversationToArchive = onMoveConversationToArchive,
-                clearConversationContent = onClearConversationContent,
-                moveConversationToFolder = onMoveConversationToFolder,
-                blockUser = onBlockUserClicked,
+                eventsHandler = bottomSheetEventsHandler,
+                blockUser = eventsHandler::showBlockUserDialog,
                 closeBottomSheet = closeBottomSheet,
-                changeMemberRole = onChangeMemberRole,
-                openConversationSheet = setBottomSheetStateToConversation,
-                openMuteOptionsSheet = setBottomSheetStateToMutOptions
             )
         }
     ) {
@@ -228,9 +180,9 @@ fun OtherProfileScreenContent(
                 TopBarHeader(
                     state = state,
                     elevation = elevation,
-                    onNavigateBack = onNavigateBack,
+                    onNavigateBack = eventsHandler::navigateBack,
                     openConversationBottomSheet = {
-                        setBottomSheetStateToConversation()
+                        bottomSheetEventsHandler.setBottomSheetStateToConversation()
                         openBottomSheet()
                     })
             },
@@ -244,23 +196,19 @@ fun OtherProfileScreenContent(
                     otherUserProfileScreenState = otherUserProfileScreenState,
                     lazyListStates = lazyListStates,
                     openChangeRoleBottomSheet = {
-                        setBottomSheetStateToChangeRole()
+                        eventsHandler.setBottomSheetStateToChangeRole()
                         openBottomSheet()
                     },
-                    openRemoveConversationMemberDialog,
-                    getOtherUserClients
+                    eventsHandler::showRemoveConversationMemberDialog,
+                    eventsHandler::getOtherUserClients
                 )
             },
             bottomBar = {
                 ContentFooter(
                     state,
                     maxBarElevation,
-                    onSendConnectionRequest,
-                    onOpenConversation,
-                    onCancelConnectionRequest,
-                    onAcceptConnectionRequest,
-                    onIgnoreConnectionRequest,
-                    onUnblockUser
+                    footerEventsHandler,
+                    eventsHandler::showUnblockUserDialog
                 )
             },
             isSwipeable = state.connectionState == ConnectionState.ACCEPTED
@@ -269,13 +217,18 @@ fun OtherProfileScreenContent(
 
     BlockUserDialogContent(
         dialogState = blockUserDialogState,
-        dismiss = onDismissBlockUserDialog,
-        onBlock = onBlockUser
+        dismiss = eventsHandler::hideBlockUserDialog,
+        onBlock = eventsHandler::onBlockUser
+    )
+    UnblockUserDialogContent(
+        dialogState = unblockUserDialogState,
+        dismiss = eventsHandler::hideUnblockUserDialog,
+        onUnblock = eventsHandler::onUnblockUser
     )
     RemoveConversationMemberDialog(
         dialogState = removeMemberDialogState,
-        onDialogDismiss = hideRemoveConversationMemberDialog,
-        onRemoveConversationMember = onRemoveConversationMember
+        onDialogDismiss = eventsHandler::hideRemoveConversationMemberDialog,
+        onRemoveConversationMember = eventsHandler::onRemoveConversationMember
     )
 }
 
@@ -383,7 +336,7 @@ private fun Content(
 
                             OtherUserProfileTabItem.DEVICES -> {
                                 getOtherUserClients()
-                                OtherUserDevicesScreen(state.otherUserClients)
+                                OtherUserDevicesScreen(state = state)
 
                             }
                         }
@@ -402,12 +355,8 @@ private fun Content(
 private fun ContentFooter(
     state: OtherUserProfileState,
     maxBarElevation: Dp,
-    onSendConnectionRequest: () -> Unit,
-    onOpenConversation: () -> Unit,
-    onCancelConnectionRequest: () -> Unit,
-    acceptConnectionRequest: () -> Unit,
-    ignoreConnectionRequest: () -> Unit,
-    onUnblockUser: () -> Unit
+    footerEventsHandler: OtherUserProfileFooterEventsHandler,
+    onUnblockUser: (String) -> Unit
 ) {
     AnimatedVisibility(
         visible = !state.isDataLoading,
@@ -423,13 +372,12 @@ private fun ContentFooter(
                 if (state.membership != Membership.Service) {
                     OtherUserConnectionActionButton(
                         state.connectionState,
-                        onSendConnectionRequest,
-                        onOpenConversation,
-                        onCancelConnectionRequest,
-                        acceptConnectionRequest,
-                        ignoreConnectionRequest,
-                        onUnblockUser
-                    )
+                        footerEventsHandler::onSendConnectionRequest,
+                        footerEventsHandler::onOpenConversation,
+                        footerEventsHandler::onCancelConnectionRequest,
+                        footerEventsHandler::onAcceptConnectionRequest,
+                        footerEventsHandler::onIgnoreConnectionRequest
+                    ) { onUnblockUser(state.userName) }
                 }
             }
         }
@@ -451,8 +399,8 @@ fun OtherProfileScreenContentPreview() {
             rememberCoroutineScope(),
             OtherUserProfileState.PREVIEW.copy(connectionState = ConnectionState.ACCEPTED),
             rememberModalBottomSheetState(ModalBottomSheetValue.Hidden),
-            {}, {}, null, null, {}, {}, {}, {}, {}, {}, {}, {}, {}, { _, _ -> }, { _, _ -> }, { _, _ -> },
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
+            {}, {}, null, null, null, OtherUserProfileEventsHandler.PREVIEW,
+            OtherUserProfileFooterEventsHandler.PREVIEW, OtherUserProfileBottomSheetEventsHandler.PREVIEW
         )
     }
 }
@@ -466,8 +414,8 @@ fun OtherProfileScreenContentNotConnectedPreview() {
             rememberCoroutineScope(),
             OtherUserProfileState.PREVIEW.copy(connectionState = ConnectionState.CANCELLED),
             rememberModalBottomSheetState(ModalBottomSheetValue.Hidden),
-            {}, {}, null, null, {}, {}, {}, {}, {}, {}, {}, {}, {}, { _, _ -> }, { _, _ -> }, { _, _ -> },
-            {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}
+            {}, {}, null, null, null, OtherUserProfileEventsHandler.PREVIEW,
+            OtherUserProfileFooterEventsHandler.PREVIEW, OtherUserProfileBottomSheetEventsHandler.PREVIEW
         )
     }
 }

@@ -22,7 +22,11 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -40,6 +44,47 @@ import com.wire.android.ui.theme.wireTypography
 fun WireDialog(
     title: String,
     text: String,
+    onDismiss: () -> Unit,
+    optionButton1Properties: WireDialogButtonProperties,
+    optionButton2Properties: WireDialogButtonProperties? = null,
+    dismissButtonProperties: WireDialogButtonProperties? = null,
+    buttonsHorizontalAlignment: Boolean = true,
+    modifier: Modifier = Modifier,
+    shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.dialogCornerSize),
+    contentPadding: PaddingValues = PaddingValues(MaterialTheme.wireDimensions.dialogContentPadding),
+    properties: DialogProperties = DialogProperties(usePlatformDefaultWidth = false),
+    content: @Composable (() -> Unit)? = null
+) {
+    WireDialog(
+        onDismiss = onDismiss,
+        properties = properties,
+        optionButton1Properties = optionButton1Properties,
+        optionButton2Properties = optionButton2Properties,
+        dismissButtonProperties = dismissButtonProperties,
+        buttonsHorizontalAlignment = buttonsHorizontalAlignment,
+        modifier = modifier,
+        shape = shape,
+        contentPadding = contentPadding,
+        title = title,
+        text = buildAnnotatedString {
+            val style = SpanStyle(
+                color = colorsScheme().onBackground,
+                fontWeight = MaterialTheme.wireTypography.body01.fontWeight,
+                fontSize = MaterialTheme.wireTypography.body01.fontSize,
+                fontFamily = MaterialTheme.wireTypography.body01.fontFamily,
+                fontStyle = MaterialTheme.wireTypography.body01.fontStyle
+            )
+            withStyle(style) { append(text) }
+        },
+        content = content
+    )
+}
+
+@OptIn(ExperimentalComposeUiApi::class)
+@Composable
+fun WireDialog(
+    title: String,
+    text: AnnotatedString,
     onDismiss: () -> Unit,
     optionButton1Properties: WireDialogButtonProperties,
     optionButton2Properties: WireDialogButtonProperties? = null,
@@ -73,7 +118,7 @@ fun WireDialog(
 @Composable
 private fun WireDialogContent(
     title: String,
-    text: String,
+    text: AnnotatedString,
     optionButton1Properties: WireDialogButtonProperties,
     optionButton2Properties: WireDialogButtonProperties? = null,
     dismissButtonProperties: WireDialogButtonProperties? = null,
@@ -173,7 +218,16 @@ private fun WireDialogPreview() {
                     onClick = { }
                 ),
                 title = "title",
-                text = "text",
+                text = buildAnnotatedString {
+                    val style = SpanStyle(
+                        color = colorsScheme().onBackground,
+                        fontWeight = MaterialTheme.wireTypography.body01.fontWeight,
+                        fontSize = MaterialTheme.wireTypography.body01.fontSize,
+                        fontFamily = MaterialTheme.wireTypography.body01.fontFamily,
+                        fontStyle = MaterialTheme.wireTypography.body01.fontStyle
+                    )
+                    withStyle(style) { append("text") }
+                },
             ) {
                 WirePasswordTextField(
                     value = password,
@@ -210,7 +264,16 @@ private fun WireDialogPreviewWith2OptionButtons() {
                     onClick = { }
                 ),
                 title = "title",
-                text = "text",
+                text = buildAnnotatedString {
+                    val style = SpanStyle(
+                        color = colorsScheme().onBackground,
+                        fontWeight = MaterialTheme.wireTypography.body01.fontWeight,
+                        fontSize = MaterialTheme.wireTypography.body01.fontSize,
+                        fontFamily = MaterialTheme.wireTypography.body01.fontFamily,
+                        fontStyle = MaterialTheme.wireTypography.body01.fontStyle
+                    )
+                    withStyle(style) { append("text") }
+                },
                 buttonsHorizontalAlignment = false
             ) {
                 WirePasswordTextField(

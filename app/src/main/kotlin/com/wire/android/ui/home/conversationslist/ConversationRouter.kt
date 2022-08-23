@@ -8,11 +8,16 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.ui.common.dialogs.BlockUserDialogContent
+import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.home.HomeSnackbarState
+import com.wire.android.ui.home.conversations.details.menu.DeleteConversationGroupDialog
+import com.wire.android.ui.home.conversations.details.menu.LeaveConversationGroupDialog
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationOptionNavigation
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
 import com.wire.android.ui.home.conversationslist.bottomsheet.rememberConversationSheetState
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
+import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 
 @ExperimentalAnimationApi
 @ExperimentalMaterial3Api
@@ -31,6 +36,15 @@ fun ConversationRouterHomeBridge(
 
     LaunchedEffect(Unit) {
         viewModel.snackBarState.collect { onSnackBarStateChanged(it) }
+    }
+
+    val leaveGroupDialogState = rememberVisibilityState<GroupDialogState>()
+    val deleteGroupDialogState = rememberVisibilityState<GroupDialogState>()
+
+
+    if (!viewModel.requestInProgress) {
+        leaveGroupDialogState.dismiss()
+        deleteGroupDialogState.dismiss()
     }
 
     fun openConversationBottomSheet(
@@ -67,7 +81,8 @@ fun ConversationRouterHomeBridge(
                 moveConversationToArchive = viewModel::moveConversationToArchive,
                 clearConversationContent = viewModel::clearConversationContent,
                 blockUser = viewModel::onBlockUserClicked,
-                leaveGroup = viewModel::leaveGroup
+                leaveGroup = leaveGroupDialogState::show,
+                deleteGroup = deleteGroupDialogState::show
             )
         }
 
@@ -124,6 +139,24 @@ fun ConversationRouterHomeBridge(
                 )
         }
     }
+
+    BlockUserDialogContent(
+        dialogState = viewModel.blockUserDialogState,
+        dismiss = viewModel:onDismissBlockUserDialog,
+        onBlock = viewModel::onBlockUserClicked
+    )
+
+    DeleteConversationGroupDialog(
+        isLoading = viewModel.requestInProgress,
+        dialogState = deleteGroupDialogState,
+        onDeleteGroup = viewModel::deleteGroup
+    )
+
+    LeaveConversationGroupDialog(
+        dialogState = leaveGroupDialogState,
+        isLoading = viewModel.requestInProgress,
+        onLeaveGroup = viewModel::leaveGroup
+    )
 }
 
 enum class ConversationItemType {

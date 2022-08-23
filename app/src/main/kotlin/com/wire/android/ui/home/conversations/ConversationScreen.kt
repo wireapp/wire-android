@@ -127,6 +127,7 @@ fun ConversationScreen(
         tempCachePath = conversationViewModel.provideTempCachePath(),
         onOpenProfile = conversationViewModel::navigateToProfile,
         onUpdateConversationReadDate = conversationViewModel::updateConversationReadDate,
+        isConversationMember = conversationViewModel.isConversationMemberState,
         commonTopAppBarViewModel = commonTopAppBarViewModel
     )
 
@@ -168,6 +169,7 @@ private fun ConversationScreen(
     tempCachePath: Path,
     onOpenProfile: (MessageSource, UserId) -> Unit,
     onUpdateConversationReadDate: (String) -> Unit,
+    isConversationMember: Boolean,
     commonTopAppBarViewModel: CommonTopAppBarBaseViewModel
 ) {
     val conversationScreenState = rememberConversationScreenState()
@@ -248,6 +250,7 @@ private fun ConversationScreen(
                                 isFileSharingEnabled = isFileSharingEnabled,
                                 tempCachePath = tempCachePath,
                                 isUserBlocked = connectionStateOrNull == ConnectionState.BLOCKED,
+                                isConversationMember = isConversationMember,
                                 onOpenProfile = onOpenProfile,
                                 onUpdateConversationReadDate = onUpdateConversationReadDate
                             )
@@ -278,6 +281,7 @@ private fun ConversationScreenContent(
     conversationScreenState: ConversationScreenState,
     isFileSharingEnabled: Boolean,
     isUserBlocked: Boolean,
+    isConversationMember: Boolean,
     tempCachePath: Path,
     onUpdateConversationReadDate: (String) -> Unit
 ) {
@@ -337,7 +341,8 @@ private fun ConversationScreenContent(
         },
         isFileSharingEnabled = isFileSharingEnabled,
         tempCachePath = tempCachePath,
-        isUserBlocked = isUserBlocked
+        isUserBlocked = isUserBlocked,
+        isConversationMember = isConversationMember
     )
 
 }
@@ -436,6 +441,7 @@ fun ConversationScreenPreview() {
         tempCachePath = "".toPath(),
         onOpenProfile = { _, _ -> },
         onUpdateConversationReadDate = {},
+        isConversationMember = true,
         commonTopAppBarViewModel = object: CommonTopAppBarBaseViewModel() { }
     )
 }

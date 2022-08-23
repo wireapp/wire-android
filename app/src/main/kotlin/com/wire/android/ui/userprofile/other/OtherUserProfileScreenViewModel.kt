@@ -11,6 +11,7 @@ import com.wire.android.appLogger
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.PreservedState
+import com.wire.android.model.SnackBarMessage
 import com.wire.android.model.toLoading
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.EXTRA_CONNECTION_IGNORED_USER_NAME
@@ -20,6 +21,7 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
+import com.wire.android.ui.common.dialogs.UnblockUserDialogState
 import com.wire.android.ui.home.conversations.details.participants.usecase.ConversationRoleData
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
@@ -53,6 +55,8 @@ import com.wire.kalium.logic.feature.connection.IgnoreConnectionRequestUseCase
 import com.wire.kalium.logic.feature.connection.IgnoreConnectionRequestUseCaseResult
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestResult
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
+import com.wire.kalium.logic.feature.connection.UnblockUserResult
+import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.CreateConversationResult
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
@@ -84,6 +88,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val observeSelfUser: GetSelfUserUseCase,
     private val updateConversationMutedStatus: UpdateConversationMutedStatusUseCase,
     private val blockUser: BlockUserUseCase,
+    private val unblockUser: UnblockUserUseCase,
     private val getOrCreateOneToOneConversation: GetOrCreateOneToOneConversationUseCase,
     private val observeUserInfo: ObserveUserInfoUseCase,
     private val sendConnectionRequest: SendConnectionRequestUseCase,
@@ -98,7 +103,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val getOtherUserClients: GetOtherUserClientsUseCase,
     private val persistOtherUserClients: PersistOtherUserClientsUseCase,
     qualifiedIdMapper: QualifiedIdMapper
-) : ViewModel() {
+) : ViewModel(), OtherUserProfileEventsHandler, OtherUserProfileBottomSheetEventsHandler, OtherUserProfileFooterEventsHandler {
 
     var state: OtherUserProfileState by mutableStateOf(OtherUserProfileState())
 
@@ -106,6 +111,9 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             by mutableStateOf(null)
 
     var blockUserDialogState: PreservedState<BlockUserDialogState>?
+            by mutableStateOf(null)
+
+    var unblockUserDialogState: PreservedState<UnblockUserDialogState>?
             by mutableStateOf(null)
 
     private val _infoMessage = MutableSharedFlow<UIText>()
@@ -190,7 +198,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         }
     }
 
-    fun openConversation() {
+    override fun onOpenConversation() {
         viewModelScope.launch {
             when (val result = getOrCreateOneToOneConversation(userId)) {
                 is CreateConversationResult.Failure -> appLogger.d(("Couldn't retrieve or create the conversation"))
@@ -205,7 +213,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         }
     }
 
-    fun sendConnectionRequest() {
+    override fun onSendConnectionRequest() {
         viewModelScope.launch {
             when (sendConnectionRequest(userId)) {
                 is SendConnectionRequestResult.Failure -> {
@@ -220,7 +228,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         }
     }
 
-    fun cancelConnectionRequest() {
+    override fun onCancelConnectionRequest() {
         viewModelScope.launch {
             when (cancelConnectionRequest(userId)) {
                 is CancelConnectionRequestUseCaseResult.Failure -> {
@@ -235,7 +243,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         }
     }
 
-    fun acceptConnectionRequest() {
+    override fun onAcceptConnectionRequest() {
         viewModelScope.launch {
             when (acceptConnectionRequest(userId)) {
                 is AcceptConnectionRequestUseCaseResult.Failure -> {
@@ -250,7 +258,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         }
     }
 
-    fun ignoreConnectionRequest() {
+    override fun onIgnoreConnectionRequest() {
         viewModelScope.launch {
             when (ignoreConnectionRequest(userId)) {
                 is IgnoreConnectionRequestUseCaseResult.Failure -> {
@@ -269,7 +277,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         }
     }
 
-    fun changeMemberRole(role: Member.Role) {
+    override fun onChangeMemberRole(role: Member.Role) {
         viewModelScope.launch {
             if (conversationId != null) {
                 updateMemberRole(conversationId, userId, role).also {
@@ -280,11 +288,11 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         }
     }
 
-    suspend fun showInfoMessage(type: InfoMessageType) {
+    private suspend fun showInfoMessage(type: SnackBarMessage) {
         _infoMessage.emit(type.uiText)
     }
 
-    fun openRemoveConversationMemberDialog() {
+    override fun showRemoveConversationMemberDialog() {
         viewModelScope.launch {
             removeConversationMemberDialogState = PreservedState.State(
                 RemoveConversationMemberState(
@@ -297,16 +305,16 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         }
     }
 
-    fun hideRemoveConversationMemberDialog() {
+    override fun hideRemoveConversationMemberDialog() {
         removeConversationMemberDialogState = null
     }
 
-    fun removeConversationMember(preservedState: PreservedState<RemoveConversationMemberState>) {
+    override fun onRemoveConversationMember(state: PreservedState<RemoveConversationMemberState>) {
         viewModelScope.launch {
-            removeConversationMemberDialogState = preservedState.toLoading()
+            removeConversationMemberDialogState = state.toLoading()
             val response = withContext(dispatchers.io()) {
                 removeMemberFromConversation(
-                    state.groupState!!.conversationId,
+                    state.state.conversationId,
                     userId
                 )
             }
@@ -318,28 +326,30 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         }
     }
 
-    fun muteConversation(directConversationId: ConversationId?, mutedConversationStatus: MutedConversationStatus) {
-        directConversationId?.let {
+    override fun onMutingConversationStatusChange(conversationId: ConversationId?, status: MutedConversationStatus) {
+        conversationId?.let {
             viewModelScope.launch {
-                when (updateConversationMutedStatus(directConversationId, mutedConversationStatus, Date().time)) {
+                when (updateConversationMutedStatus(conversationId, status, Date().time)) {
                     ConversationUpdateStatusResult.Failure -> showInfoMessage(InfoMessageType.MutingOperationError)
-                    ConversationUpdateStatusResult.Success ->
-                        appLogger.i("MutedStatus changed for conversation: $directConversationId to $mutedConversationStatus")
+                    ConversationUpdateStatusResult.Success -> {
+                        state = state.updateMuteStatus(status)
+                        appLogger.i("MutedStatus changed for conversation: $conversationId to $status")
+                    }
                 }
             }
         }
     }
 
-    fun blockUser(id: UserId, userName: String) {
+    override fun onBlockUser(userId: UserId, userName: String) {
         viewModelScope.launch(dispatchers.io()) {
             blockUserDialogState = blockUserDialogState?.toLoading()
-            when (val result = blockUser(id)) {
+            when (val result = blockUser(userId)) {
                 BlockUserResult.Success -> {
-                    appLogger.i("User $id was blocked")
+                    appLogger.i("User $userId was blocked")
                     showInfoMessage(InfoMessageType.BlockingUserOperationSuccess(userName))
                 }
                 is BlockUserResult.Failure -> {
-                    appLogger.e("Error while blocking user $id ; Error ${result.coreFailure}")
+                    appLogger.e("Error while blocking user $userId ; Error ${result.coreFailure}")
                     showInfoMessage(InfoMessageType.BlockingUserOperationError)
                 }
             }
@@ -347,43 +357,63 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         }
     }
 
-    fun dismissBlockUserDialog() {
+    override fun hideBlockUserDialog() {
         blockUserDialogState = null
     }
 
-    fun showBlockUserDialog(id: UserId, name: String) {
-        blockUserDialogState = PreservedState.State(BlockUserDialogState(name, id))
+    override fun showBlockUserDialog(userId: UserId, userName: String) {
+        blockUserDialogState = PreservedState.State(BlockUserDialogState(userName, userId))
+    }
+
+    override fun hideUnblockUserDialog() {
+        unblockUserDialogState = null
+    }
+
+    override fun showUnblockUserDialog(userName: String) {
+        unblockUserDialogState = PreservedState.State(UnblockUserDialogState(userName, userId))
+    }
+
+    override fun onUnblockUser(userId: UserId) {
+        viewModelScope.launch(dispatchers.io()) {
+            unblockUserDialogState = unblockUserDialogState?.toLoading()
+            when (val result = unblockUser(userId)) {
+                UnblockUserResult.Success -> {
+                    appLogger.i("User $userId was unblocked")
+                }
+                is UnblockUserResult.Failure -> {
+                    appLogger.e("Error while unblocking user $userId ; Error ${result.coreFailure}")
+                    showInfoMessage(InfoMessageType.UnblockingUserOperationError)
+                }
+            }
+            unblockUserDialogState = null
+        }
     }
 
     @Suppress("EmptyFunctionBlock")
-    fun addConversationToFavourites(id: String = "") {
+    override fun onAddConversationToFavourites(conversationId: ConversationId) {
     }
 
     @Suppress("EmptyFunctionBlock")
-    fun moveConversationToFolder(id: String = "") {
+    override fun onMoveConversationToFolder(conversationId: ConversationId) {
     }
 
     @Suppress("EmptyFunctionBlock")
-    fun moveConversationToArchive(id: String = "") {
+    override fun onMoveConversationToArchive(conversationId: ConversationId) {
     }
 
     @Suppress("EmptyFunctionBlock")
-    fun clearConversationContent(id: String = "") {
+    override fun onClearConversationContent(conversationId: ConversationId) {
     }
 
-    @Suppress("EmptyFunctionBlock")
-    fun unblockUser() {
-    }
-
-    fun setBottomSheetStateToConversation() {
+    override fun setBottomSheetStateToConversation() {
         state = state.setBottomSheetStateToConversation()
     }
 
-    fun setBottomSheetStateToMuteOptions() {
+    override fun setBottomSheetStateToMuteOptions() {
         state = state.setBottomSheetStateToMuteOptions()
     }
 
-    fun setBottomSheetStateToChangeRole() {
+    override fun setBottomSheetStateToChangeRole() {
         state = state.setBottomSheetStateToChangeRole()
     }
 
@@ -391,7 +421,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         state = state.clearBottomSheetState()
     }
 
-    fun getOtherUserClients() {
+    override fun getOtherUserClients() {
         viewModelScope.launch {
             getOtherUserClients(userId).let {
                 when (it) {
@@ -409,12 +439,11 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         }
     }
 
-
-    fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }
+    override fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }
 
 }
 
-sealed class InfoMessageType(val uiText: UIText) {
+sealed class InfoMessageType(override val uiText: UIText) : SnackBarMessage {
     // connection
     object SuccessConnectionSentRequest : InfoMessageType(UIText.StringResource(R.string.connection_request_sent))
     object SuccessConnectionAcceptRequest : InfoMessageType(UIText.StringResource(R.string.connection_request_accepted))
@@ -431,5 +460,7 @@ sealed class InfoMessageType(val uiText: UIText) {
     // Conversation BottomSheet
     object BlockingUserOperationError : InfoMessageType(UIText.StringResource(R.string.error_blocking_user))
     class BlockingUserOperationSuccess(val name: String) : InfoMessageType(UIText.StringResource(R.string.blocking_user_success, name))
-    object MutingOperationError : InfoMessageType(UIText.StringResource(R.string.error_updating_muting_setting));
+    object MutingOperationError : InfoMessageType(UIText.StringResource(R.string.error_updating_muting_setting))
+
+    object UnblockingUserOperationError : InfoMessageType(UIText.StringResource(R.string.error_unblocking_user))
 }

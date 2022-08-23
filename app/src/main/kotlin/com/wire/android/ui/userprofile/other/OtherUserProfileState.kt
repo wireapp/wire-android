@@ -1,16 +1,15 @@
 package com.wire.android.ui.userprofile.other
 
-import androidx.compose.material.ExperimentalMaterialApi
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.kalium.logic.data.client.OtherUserClients
 import com.wire.kalium.logic.data.conversation.Member
+import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.BotService
 import com.wire.kalium.logic.data.user.ConnectionState
 
-@OptIn(ExperimentalMaterialApi::class)
 data class OtherUserProfileState(
     val userAvatarAsset: UserAvatarAsset? = null,
     val isDataLoading: Boolean = false,
@@ -37,6 +36,23 @@ data class OtherUserProfileState(
 
     fun setBottomSheetStateToChangeRole(): OtherUserProfileState =
         groupState?.let { copy(bottomSheetContentState = BottomSheetContent.ChangeRole(it)) } ?: this
+
+    fun updateMuteStatus(status: MutedConversationStatus): OtherUserProfileState {
+        return conversationSheetContent?.let {
+            val newConversationSheetContent = conversationSheetContent.copy(mutingConversationState = status)
+            val newBottomSheetContentState = when (bottomSheetContentState) {
+                is BottomSheetContent.Mute -> bottomSheetContentState.copy(
+                    conversationData = bottomSheetContentState.conversationData.copy(mutingConversationState = status)
+                )
+                is BottomSheetContent.Conversation -> bottomSheetContentState.copy(
+                    conversationData = bottomSheetContentState.conversationData.copy(mutingConversationState = status)
+                )
+                is BottomSheetContent.ChangeRole -> bottomSheetContentState
+                null -> null
+            }
+            copy(conversationSheetContent = newConversationSheetContent, bottomSheetContentState = newBottomSheetContentState)
+        } ?: this
+    }
 
     fun clearBottomSheetState(): OtherUserProfileState =
         copy(bottomSheetContentState = null)

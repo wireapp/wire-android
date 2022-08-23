@@ -125,7 +125,6 @@ enum class HomeNavigationItem(
             }
         }
     ),
-
     Settings(
         route = HomeDestinationsRoutes.settings,
         title = R.string.settings_screen_title,

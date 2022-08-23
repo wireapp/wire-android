@@ -285,10 +285,13 @@ internal fun withMockConversationDetailsOneOnOne(
     lastUnreadMessage = null
 )
 
-internal fun mockConversationDetailsGroup(conversationName: String) = ConversationDetails.Group(
+internal fun mockConversationDetailsGroup(
+    conversationName: String,
+    mockedConversationId: ConversationId = ConversationId("someId", "someDomain")
+) = ConversationDetails.Group(
     conversation = mockk<Conversation>().apply {
         every { name } returns conversationName
-        every { id } returns ConversationId("someId", "someDomain")
+        every { id } returns mockedConversationId
     },
     legalHoldStatus = mockk(),
     hasOngoingCall = false,

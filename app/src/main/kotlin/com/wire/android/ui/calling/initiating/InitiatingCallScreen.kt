@@ -43,10 +43,7 @@ fun InitiatingCallScreen(
     with(sharedCallingViewModel) {
         InitiatingCallContent(
             errorState = initiatingCallViewModel.initiatingCallState.error,
-            onErrorStartingCall = {
-                initiatingCallViewModel.initiatingCallState = initiatingCallViewModel.initiatingCallState.copy(error = None)
-                navigateBack()
-            },
+            onErrorStartingCall = initiatingCallViewModel::onDismissErrorDialog,
             callState = callState,
             toggleMute = ::toggleMute,
             toggleSpeaker = ::toggleSpeaker,

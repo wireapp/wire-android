@@ -1,9 +1,13 @@
 package com.wire.android.ui.calling.initiating
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
+import com.wire.android.appLogger
 import com.wire.android.media.CallRinger
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
@@ -25,6 +29,7 @@ import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
+import java.io.IOException
 import java.util.Calendar
 import javax.inject.Inject
 
@@ -32,8 +37,8 @@ import javax.inject.Inject
 @HiltViewModel
 class InitiatingCallViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val navigationManager: NavigationManager,
     qualifiedIdMapper: QualifiedIdMapper,
+    private val navigationManager: NavigationManager,
     private val conversationDetails: ObserveConversationDetailsUseCase,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val startCall: StartCallUseCase,
@@ -41,6 +46,8 @@ class InitiatingCallViewModel @Inject constructor(
     private val isLastCallClosed: IsLastCallClosedUseCase,
     private val callRinger: CallRinger
 ) : ViewModel() {
+
+    var initiatingCallState: InitiatingCallState by mutableStateOf(InitiatingCallState(error = InitiatingCallState.InitiatingCallError.None))
 
     private val conversationId: QualifiedID = qualifiedIdMapper.fromStringToQualifiedID(
         checkNotNull(savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)) {
@@ -118,11 +125,18 @@ class InitiatingCallViewModel @Inject constructor(
 
     private suspend fun initiateCall() {
         val conversationType = retrieveConversationTypeAsync().await()
-        startCall(
+        val result = startCall(
             conversationId = conversationId,
             conversationType = conversationType
         )
-        callRinger.ring(R.raw.ringing_from_me)
+        when (result) {
+            StartCallUseCase.Result.Success -> callRinger.ring(R.raw.ringing_from_me)
+            StartCallUseCase.Result.SyncFailure -> showNoConnectionDialog()
+        }
+    }
+
+    private fun showNoConnectionDialog() {
+        initiatingCallState = initiatingCallState.copy(error = InitiatingCallState.InitiatingCallError.NoConnection)
     }
 
     fun navigateBack() = viewModelScope.launch {
@@ -132,10 +146,16 @@ class InitiatingCallViewModel @Inject constructor(
 
     fun hangUpCall() {
         viewModelScope.launch {
-            launch { endCall(conversationId) }
             launch {
-                navigateBack()
-                callRinger.stop()
+                try {
+                    endCall(conversationId)
+                } catch (e: IOException) {
+                    appLogger.e("The call could not be hanged up due to lack of Internet connection")
+                }
+                launch {
+                    navigateBack()
+                    callRinger.stop()
+                }
             }
         }
     }

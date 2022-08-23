@@ -12,6 +12,8 @@ import com.wire.android.model.ImageAsset.PrivateAsset
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
+import com.wire.android.navigation.EXTRA_GROUP_DELETED_NAME
+import com.wire.android.navigation.EXTRA_LEFT_GROUP
 import com.wire.android.navigation.EXTRA_MESSAGE_TO_DELETE_ID
 import com.wire.android.navigation.EXTRA_MESSAGE_TO_DELETE_IS_SELF
 import com.wire.android.navigation.NavigationCommand
@@ -19,6 +21,7 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.navigation.getBackNavArg
+import com.wire.android.navigation.getBackNavArgs
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorDeletingMessage
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorMaxAssetSize
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorMaxImageSize
@@ -42,6 +45,7 @@ import com.wire.kalium.logic.StorageFailure
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
+import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.FAILED
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.IN_PROGRESS
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.SAVED_EXTERNALLY
@@ -56,17 +60,22 @@ import com.wire.kalium.logic.feature.call.AnswerCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
+import com.wire.kalium.logic.feature.conversation.IsSelfUserMemberResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
-import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase.Result.Failure
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase.Result.Success
+import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveIsSelfUserMemberUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
 import com.wire.kalium.logic.functional.onFailure
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.datetime.Instant
 import okio.Path
 import okio.buffer
 import javax.inject.Inject
@@ -91,15 +100,19 @@ class ConversationViewModel @Inject constructor(
     private val isFileSharingEnabled: IsFileSharingEnabledUseCase,
     private val observeOngoingCalls: ObserveOngoingCallsUseCase,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
+    private val observeIsSelfConversationMember: ObserveIsSelfUserMemberUseCase,
     private val answerCall: AnswerCallUseCase,
     private val endCall: EndCallUseCase,
     private val fileManager: FileManager,
     private val wireSessionImageLoader: WireSessionImageLoader,
-    private val kaliumFileSystem: KaliumFileSystem
+    private val kaliumFileSystem: KaliumFileSystem,
+    private val updateConversationReadDateUseCase: UpdateConversationReadDateUseCase
 ) : SavedStateViewModel(savedStateHandle) {
 
     var conversationViewState by mutableStateOf(ConversationViewState())
         private set
+
+    var isConversationMemberState by mutableStateOf(true)
 
     var deleteMessageDialogsState: DeleteMessageDialogsState by mutableStateOf(
         DeleteMessageDialogsState.States(
@@ -116,35 +129,70 @@ class ConversationViewModel @Inject constructor(
     var establishedCallConversationId: ConversationId? = null
 
     init {
-        fetchMessages()
-        listenConversationDetails()
+        observeConversationDetailsAndMessages()
+        observeIfSelfIsConversationMember()
         fetchSelfUserTeam()
         setFileSharingStatus()
         listenOngoingCall()
         observeEstablishedCall()
     }
 
-    // region ------------------------------ Init Methods -------------------------------------
-    private fun fetchMessages() = viewModelScope.launch(dispatchers.io()) {
-        getMessageForConversation(conversationId).collect { messages ->
-            updateMessagesList(messages)
+    private fun observeConversationDetailsAndMessages() {
+        viewModelScope.launch {
+            observeConversationDetails(conversationId).onEach(::handleConversationDetailsResult)
+                .combine(
+                    getMessageForConversation(conversationId).onEach(::updateMessagesList)
+                ) { conversationDetailsResult, uiMessages ->
+                    Pair(conversationDetailsResult, uiMessages)
+                }.collect { (conversationDetailsResult, uiMessages) ->
+                    if (conversationDetailsResult is Success) {
+                        when (val details = conversationDetailsResult.conversationDetails) {
+                            // TODO: think about lastUnreadMessage being a "common" field of ConversationDetails
+                            is ConversationDetails.OneOne -> {
+                                extractLastUnreadMessage(details.lastUnreadMessage, uiMessages)
+                            }
+                            is ConversationDetails.Group -> {
+                                extractLastUnreadMessage(details.lastUnreadMessage, uiMessages)
+                            }
+                            else -> ConversationAvatar.None
+                        }
+                    }
+                }
         }
     }
 
+    private suspend fun handleConversationDetailsResult(conversationDetailsResult: ObserveConversationDetailsUseCase.Result) {
+        when (conversationDetailsResult) {
+            is ObserveConversationDetailsUseCase.Result.Failure -> handleConversationDetailsFailure(
+                conversationDetailsResult.storageFailure
+            )
+            is Success -> handleConversationDetails(
+                conversationDetailsResult.conversationDetails
+            )
+        }
+    }
+
+    private fun extractLastUnreadMessage(lastUnreadMessage: Message?, uiMessages: List<UIMessage>) {
+        if (lastUnreadMessage != null) {
+            uiMessages.firstOrNull { it.messageHeader.messageId == lastUnreadMessage.id }?.let {
+                conversationViewState = conversationViewState.copy(lastUnreadMessage = it)
+            }
+        }
+    }
+
+    // region ------------------------------ Init Methods -------------------------------------
     private suspend fun updateMessagesList(messages: List<UIMessage>) {
         withContext(dispatchers.main()) {
             conversationViewState = conversationViewState.copy(messages = messages)
         }
     }
 
-    private fun listenConversationDetails() = viewModelScope.launch {
-        observeConversationDetails(conversationId)
-            .collect { result ->
-                when (result) {
-                    is Failure -> handleConversationDetailsFailure(result.storageFailure)
-                    is Success -> handleConversationDetails(result.conversationDetails)
-                }
-            }
+    private fun observeIfSelfIsConversationMember() = viewModelScope.launch {
+        observeIsSelfConversationMember(conversationId)
+            .collect{result -> when(result) {
+                is IsSelfUserMemberResult.Failure -> isConversationMemberState = false
+                is IsSelfUserMemberResult.Success -> isConversationMemberState = result.isMember
+            } }
     }
 
     /**
@@ -164,13 +212,15 @@ class ConversationViewModel @Inject constructor(
             is ConversationDetails.OneOne -> conversationDetails.otherUser.isUnavailableUser
             else -> false
         }
+
         val conversationName = when (conversationDetails) {
             is ConversationDetails.OneOne -> conversationDetails.otherUser.name.orEmpty()
             else -> conversationDetails.conversation.name.orEmpty()
         }.let {
             if (it.isNotEmpty()) it.toUIText()
-            else if (it.isEmpty() && isUnavailableConversation) UIText.StringResource(R.string.username_unavailable_label)
-            else UIText.StringResource(R.string.member_name_deleted_label)
+            else
+                if (it.isEmpty() && isUnavailableConversation) UIText.StringResource(R.string.username_unavailable_label)
+                else UIText.StringResource(R.string.member_name_deleted_label)
         }
         val conversationAvatar = when (conversationDetails) {
             is ConversationDetails.OneOne ->
@@ -194,7 +244,7 @@ class ConversationViewModel @Inject constructor(
         conversationViewState = conversationViewState.copy(
             conversationName = conversationName,
             conversationAvatar = conversationAvatar,
-            conversationDetailsData = conversationDetailsData
+            conversationDetailsData = conversationDetailsData,
         )
     }
 
@@ -230,11 +280,21 @@ class ConversationViewModel @Inject constructor(
         val messageToDeleteIsSelf = savedStateHandle
             .getBackNavArg<Boolean>(EXTRA_MESSAGE_TO_DELETE_IS_SELF)
 
+        val groupDeletedName = savedStateHandle
+            .getBackNavArg<String>(EXTRA_GROUP_DELETED_NAME)
+
+        val leftGroup = savedStateHandle
+            .getBackNavArg(EXTRA_LEFT_GROUP) ?: false
+
         if (messageToDeleteId != null && messageToDeleteIsSelf != null) {
             showDeleteMessageDialog(messageToDeleteId, messageToDeleteIsSelf)
         }
+        if (leftGroup || groupDeletedName != null) {
+            navigateBack(savedStateHandle.getBackNavArgs())
+        }
+
     }
-    // endregion
+// endregion
 
     // region ------------------------------ UI triggered actions -----------------------------
     fun onMessageChanged(message: String) {
@@ -310,7 +370,7 @@ class ConversationViewModel @Inject constructor(
     }
 
     // This will download the asset remotely to an internal temporary storage or fetch it from the local database if it had been previously
-    // downloaded. After doing so, a dialog is shown to ask the user whether he wants to open the file or download it to external storage
+// downloaded. After doing so, a dialog is shown to ask the user whether he wants to open the file or download it to external storage
     fun downloadOrFetchAssetToInternalStorage(messageId: String) {
         viewModelScope.launch {
             withContext(dispatchers.io()) {
@@ -450,6 +510,12 @@ class ConversationViewModel @Inject constructor(
             }
         }
 
+    fun updateConversationReadDate(utcISO: String) {
+        viewModelScope.launch(dispatchers.io()) {
+            updateConversationReadDateUseCase(conversationId, Instant.parse(utcISO))
+        }
+    }
+
     fun deleteMessage(messageId: String, deleteForEveryone: Boolean) = viewModelScope.launch {
         // update dialogs state to loading
         if (deleteForEveryone) {
@@ -522,12 +588,12 @@ class ConversationViewModel @Inject constructor(
     private fun onFileSavedToExternalStorage(assetName: String?) {
         onSnackbarMessage(OnFileDownloaded(assetName))
     }
-    // endregion
+// endregion
 
     // region ------------------------------ Navigation ------------------------------
-    fun navigateBack() {
+    fun navigateBack(previousBackStackPassedArgs: Map<String, Any> = mapOf()) {
         viewModelScope.launch {
-            navigationManager.navigateBack()
+            navigationManager.navigateBack(previousBackStackPassedArgs)
         }
     }
 

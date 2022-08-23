@@ -13,6 +13,7 @@ import androidx.navigation.compose.composable
 import com.wire.android.R
 import com.wire.android.ui.home.HomeUIState
 import com.wire.android.ui.home.conversationslist.ConversationRouterHomeBridge
+import com.wire.android.ui.home.settings.SettingsScreen
 
 @OptIn(
     ExperimentalAnimationApi::class,
@@ -20,12 +21,12 @@ import com.wire.android.ui.home.conversationslist.ConversationRouterHomeBridge
     ExperimentalMaterial3Api::class
 )
 @Composable
-fun HomeNavigationGraph(homeUIState: HomeUIState, navController: NavHostController, startDestination: String?) {
+fun HomeNavigationGraph(homeUIState: HomeUIState, navController: NavHostController, startDestination: HomeNavigationItem) {
     NavHost(
         navController = navController,
-        startDestination = startDestination ?: HomeNavigationItem.Conversations.route
+        startDestination = startDestination.route
     ) {
-        HomeNavigationItem.all
+        HomeNavigationItem.values()
             .forEach { item ->
                 composable(
                     route = item.route,
@@ -78,6 +79,11 @@ enum class HomeNavigationItem(
                 )
             }
         }
+    ),
+    Settings(
+        route = HomeDestinationsRoutes.settings,
+        title = R.string.settings_screen_title,
+        content = { { SettingsScreen() } }
     );
 // TODO: Re-enable once we have vault
 //    Vault(
@@ -96,7 +102,7 @@ enum class HomeNavigationItem(
     companion object {
         // TODO: Re-enable once we have Archive & Vault
         // val all = listOf(Conversations, Archive, Vault)
-        val all = listOf(Conversations)
+        val all = listOf(Conversations, Settings)
     }
 }
 
@@ -104,4 +110,5 @@ private object HomeDestinationsRoutes {
     const val conversations = "home_conversations"
     const val vault = "home_vault"
     const val archive = "home_archive"
+    const val settings = "home_settings"
 }

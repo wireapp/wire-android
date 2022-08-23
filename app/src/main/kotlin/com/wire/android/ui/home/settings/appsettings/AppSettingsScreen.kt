@@ -1,4 +1,4 @@
-package com.wire.android.ui.settings
+package com.wire.android.ui.home.settings.appsettings
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,9 +15,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
-// the logic here is just temporary and will be updated to be added to the VM once we build the settings screen
 @Composable
-fun SettingsScreen() {
+fun AppSettingsScreen() {
     Column(
         modifier = Modifier.fillMaxSize().wrapContentSize(Alignment.Center)
     ) {
@@ -32,8 +31,9 @@ fun SettingsScreen() {
     }
 }
 
+
 @Preview(showBackground = false)
 @Composable
 fun SettingsScreenPreview() {
-    SettingsScreen()
+    AppSettingsScreen()
 }

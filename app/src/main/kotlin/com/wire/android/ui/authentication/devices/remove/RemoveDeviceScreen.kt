@@ -58,36 +58,36 @@ fun RemoveDeviceScreen() {
 
 typealias HideKeyboard = () -> Unit
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun RemoveDeviceContent(
     state: RemoveDeviceState,
     onItemClicked: (Device) -> Unit,
     onPasswordChange: (TextFieldValue) -> Unit,
-    onRemoveConfirm: (HideKeyboard) -> Unit,
+    onRemoveConfirm: () -> Unit,
     onDialogDismiss: () -> Unit,
     onErrorDialogDismiss: () -> Unit,
 ) {
     val lazyListState = rememberLazyListState()
     Scaffold(topBar = { RemoveDeviceTopBar(elevation = lazyListState.rememberTopBarElevationState().value) }) { internalPadding ->
         Box(modifier = Modifier.padding(internalPadding)) {
-            when (state) {
-                is RemoveDeviceState.Success ->
-                    RemoveDeviceItemsList(lazyListState, state.deviceList, false, onItemClicked)
-                RemoveDeviceState.Loading ->
-                    RemoveDeviceItemsList(lazyListState, List(10) { Device() }, true, onItemClicked)
+            when (state.isLoadingClientsList) {
+                true -> RemoveDeviceItemsList(lazyListState, List(10) { Device() }, true, onItemClicked)
+                false -> RemoveDeviceItemsList(lazyListState, state.deviceList, false, onItemClicked)
+
             }
         }
         // TODO handle list loading errors
-        if (state is RemoveDeviceState.Success && state.removeDeviceDialogState is RemoveDeviceDialogState.Visible) {
+        if (!state.isLoadingClientsList && state.removeDeviceDialogState is RemoveDeviceDialogState.Visible) {
             RemoveDeviceDialog(
+                errorState = state.error,
                 state = state.removeDeviceDialogState,
                 onPasswordChange = onPasswordChange,
                 onDialogDismiss = onDialogDismiss,
                 onRemoveConfirm = onRemoveConfirm,
             )
-            if (state.removeDeviceDialogState.error is RemoveDeviceError.GenericError) {
-                val (title, message) = state.removeDeviceDialogState.error.coreFailure.dialogErrorStrings(LocalContext.current.resources)
+            if (state.error is RemoveDeviceError.GenericError) {
+                val (title, message) = state.error.coreFailure.dialogErrorStrings(LocalContext.current.resources)
                 WireDialog(
                     title = title,
                     text = message,
@@ -126,10 +126,11 @@ private fun RemoveDeviceItemsList(
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
 private fun RemoveDeviceDialog(
+    errorState: RemoveDeviceError,
     state: RemoveDeviceDialogState.Visible,
     onPasswordChange: (TextFieldValue) -> Unit,
     onDialogDismiss: () -> Unit,
-    onRemoveConfirm: (HideKeyboard) -> Unit,
+    onRemoveConfirm: () -> Unit,
 ) {
     var keyboardController: SoftwareKeyboardController? = null
     val onDialogDismissHideKeyboard: () -> Unit = {
@@ -152,9 +153,8 @@ private fun RemoveDeviceDialog(
         ),
         optionButton1Properties = WireDialogButtonProperties(
             onClick = {
-                onRemoveConfirm {
-                    keyboardController?.hide()
-                }
+                keyboardController?.hide()
+                onRemoveConfirm()
             },
             text = stringResource(id = if (state.loading) R.string.label_removing else R.string.label_remove),
             type = WireDialogButtonType.Primary,
@@ -170,7 +170,7 @@ private fun RemoveDeviceDialog(
                 value = state.password,
                 onValueChange = onPasswordChange,
                 state = when {
-                    state.error is RemoveDeviceError.InvalidCredentialsError ->
+                    errorState is RemoveDeviceError.InvalidCredentialsError ->
                         WireTextFieldState.Error(stringResource(id = R.string.remove_device_invalid_password))
                     state.loading -> WireTextFieldState.Disabled
                     else -> WireTextFieldState.Default
@@ -193,9 +193,10 @@ private fun RemoveDeviceDialog(
 @Composable
 private fun RemoveDeviceScreenPreview() {
     RemoveDeviceContent(
-        state = RemoveDeviceState.Success(
+        state = RemoveDeviceState(
             List(10) { Device() },
-            RemoveDeviceDialogState.Hidden
+            RemoveDeviceDialogState.Hidden,
+            isLoadingClientsList = false
         ),
         onItemClicked = {},
         onPasswordChange = {},

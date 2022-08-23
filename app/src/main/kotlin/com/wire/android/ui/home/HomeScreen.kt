@@ -28,9 +28,11 @@ import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topappbar.CommonTopAppBar
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
+import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.search.AppTopBarWithSearchBar
 import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
 
@@ -41,7 +43,6 @@ import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
 )
 @Composable
 fun HomeScreen(
-    startScreen: String?,
     homeViewModel: HomeViewModel,
     syncViewModel: FeatureFlagNotificationViewModel,
     commonTopAppBarViewModel: CommonTopAppBarViewModel
@@ -58,6 +59,10 @@ fun HomeScreen(
         homeViewModel.checkPendingSnackbarState()?.let(homeUIState::setSnackBarState)
     }
 
+    val topItems = listOf(HomeNavigationItem.Conversations)
+    // TODO: Re-enable once we have Archive & Vault
+    // listOf(HomeNavigationItem.Conversations, HomeNavigationItem.Archive, HomeNavigationItem.Vault)
+
     with(homeUIState) {
         ModalDrawer(
             drawerBackgroundColor = MaterialTheme.colorScheme.surface,
@@ -69,7 +74,7 @@ fun HomeScreen(
                     drawerState = drawerState,
                     currentRoute = currentNavigationItem.route,
                     homeNavController = navController,
-                    topItems = HomeNavigationItem.all,
+                    topItems = topItems,
                     scope = coroutineScope,
                     viewModel = homeViewModel
                 )
@@ -87,7 +92,11 @@ fun HomeScreen(
                         HomeTopBar(
                             avatarAsset = homeViewModel.userAvatar.avatarAsset,
                             status = homeViewModel.userAvatar.status,
-                            currentNavigationItem = homeUIState.currentNavigationItem,
+                            title = stringResource(id = homeUIState.currentNavigationItem.title),
+                            elevation = when (currentNavigationItem.isSearchable) {
+                                true -> 0.dp
+                                false -> lazyListState.topBarElevation(dimensions().topBarElevationHeight)
+                            },
                             onOpenDrawerClicked = ::openDrawer,
                             onNavigateToUserProfile = homeViewModel::navigateToUserProfile,
                         )
@@ -96,8 +105,9 @@ fun HomeScreen(
                 currentNavigationItem = homeUIState.currentNavigationItem,
                 homeNavigationGraph = {
                     HomeNavigationGraph(
-                        homeState = homeUIState,
-                        startScreen = startScreen
+                        homeUIState = homeUIState,
+                        navController = homeUIState.navController,
+                        startDestination = topItems[0]
                     )
                 }
             )
@@ -193,18 +203,6 @@ fun HomeContent(
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
-@Composable
-fun HomeNavigationGraph(startScreen: String?, homeState: HomeUIState) {
-    val startDestination = HomeNavigationItem.all.firstOrNull { startScreen == it.route }?.route
-
-    HomeNavigationGraph(
-        homeUIState = homeState,
-        navController = homeState.navController,
-        startDestination = startDestination
-    )
-}
-
 @Composable
 private fun handleSnackBarMessage(
     snackbarHostState: SnackbarHostState,
@@ -215,10 +213,14 @@ private fun handleSnackBarMessage(
         val message = when (messageType) {
             is HomeSnackbarState.SuccessConnectionIgnoreRequest ->
                 stringResource(id = R.string.connection_request_ignored, messageType.userName)
-            is HomeSnackbarState.BlockingUserOperationSuccess -> stringResource(id = R.string.blocking_user_success, messageType.userName)
+            is HomeSnackbarState.BlockingUserOperationSuccess ->
+                stringResource(id = R.string.blocking_user_success, messageType.userName)
             HomeSnackbarState.MutingOperationError -> stringResource(id = R.string.error_updating_muting_setting)
             HomeSnackbarState.BlockingUserOperationError -> stringResource(id = R.string.error_blocking_user)
             HomeSnackbarState.None -> ""
+            is HomeSnackbarState.DeletedConversationGroupSuccess ->
+                stringResource(id = R.string.conversation_group_removed_success, messageType.groupName)
+            HomeSnackbarState.LeftConversationSuccess -> stringResource(id = R.string.left_conversation_group_success)
         }
         LaunchedEffect(messageType) {
             if (messageType != HomeSnackbarState.None) {

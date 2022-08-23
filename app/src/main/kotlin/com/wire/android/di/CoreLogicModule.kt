@@ -25,6 +25,7 @@ import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOnUseCase
 import com.wire.kalium.logic.feature.call.usecase.UnMuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.UpdateVideoStateUseCase
 import com.wire.kalium.logic.feature.connection.BlockUserUseCase
+import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
 import com.wire.kalium.logic.feature.conversation.AddMemberToConversationUseCase
 import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetAllContactsNotInConversationUseCase
@@ -34,6 +35,7 @@ import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUs
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
+import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
@@ -52,8 +54,10 @@ import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
+import dagger.hilt.android.components.ServiceComponent
 import dagger.hilt.android.components.ViewModelComponent
 import dagger.hilt.android.qualifiers.ApplicationContext
+import dagger.hilt.android.scopes.ServiceScoped
 import dagger.hilt.android.scopes.ViewModelScoped
 import dagger.hilt.components.SingletonComponent
 import kotlinx.coroutines.runBlocking
@@ -63,6 +67,11 @@ import javax.inject.Singleton
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
 annotation class KaliumCoreLogic
+
+@Qualifier
+@Retention(AnnotationRetention.BINARY)
+annotation class CurrentSessionFlowService
+
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
@@ -95,6 +104,12 @@ class CoreLogicModule {
     @Singleton
     @Provides
     fun provideNoSessionQualifiedIdMapper(): QualifiedIdMapper = QualifiedIdMapperImpl(null)
+
+    @NoSession
+    @Singleton
+    @Provides
+    fun provideObservePersistentWebSocketConnectionStatusUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
+        coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus
 }
 
 @Module
@@ -138,6 +153,16 @@ class ConnectionModule {
     @Provides
     fun provideAcceptConnectionRequestUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).connection.acceptConnectionRequest
+}
+
+@Module
+@InstallIn(ServiceComponent::class)
+class ServiceModule {
+    @ServiceScoped
+    @Provides
+    @CurrentSessionFlowService
+    fun provideCurrentSessionFlowUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
+        coreLogic.getGlobalScope().session.currentSessionFlow
 }
 
 @Module
@@ -273,6 +298,16 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun provideDeleteTeamConversationUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).conversations.deleteTeamConversation
+
+    @ViewModelScoped
+    @Provides
+    fun provideObserveIsSelfConversationMemberUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).conversations.observeIsSelfUserMemberUseCase
+
+    @ViewModelScoped
+    @Provides
     fun provideObserveConversationMembersUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).conversations.observeConversationMembers
 
@@ -298,6 +333,16 @@ class UseCaseModule {
     @Provides
     fun provideRegisterClientUseCase(@CurrentAccount currentAccount: UserId, clientScopeProviderFactory: ClientScopeProvider.Factory) =
         clientScopeProviderFactory.create(currentAccount).clientScope.register
+
+    @ViewModelScoped
+    @Provides
+    fun providePersistOtherUsersClients(@CurrentAccount currentAccount: UserId, clientScopeProviderFactory: ClientScopeProvider.Factory) =
+        clientScopeProviderFactory.create(currentAccount).clientScope.persistOtherUserClients
+
+    @ViewModelScoped
+    @Provides
+    fun provideGetOtherUsersClients(@CurrentAccount currentAccount: UserId, clientScopeProviderFactory: ClientScopeProvider.Factory) =
+        clientScopeProviderFactory.create(currentAccount).clientScope.getOtherUserClients
 
     @ViewModelScoped
     @Provides
@@ -546,6 +591,16 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun provideObservePersistentWebSocketConnectionStatusUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
+        coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus
+
+    @ViewModelScoped
+    @Provides
+    fun providePersistPersistentWebSocketConnectionStatusUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
+        coreLogic.getGlobalScope().persistPersistentWebSocketConnectionStatus
+
+    @ViewModelScoped
+    @Provides
     fun provideGetUserInfoUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): GetUserInfoUseCase =
         coreLogic.getSessionScope(currentAccount).users.getUserInfo
 
@@ -628,8 +683,15 @@ class UseCaseModule {
     fun provideUpdateConversationMemberRoleUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ): UpdateConversationMemberRoleUseCase =
-        coreLogic.getSessionScope(currentAccount).conversations.updateConversationMemberRole
+    ): UpdateConversationMemberRoleUseCase = coreLogic.getSessionScope(currentAccount).conversations.updateConversationMemberRole
+
+    @ViewModelScoped
+    @Provides
+    fun provideUpdateConversationReadDateUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): UpdateConversationReadDateUseCase =
+        coreLogic.getSessionScope(currentAccount).conversations.updateConversationReadDateUseCase
 
     @ViewModelScoped
     @Provides
@@ -644,4 +706,11 @@ class UseCaseModule {
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
     ): ObserveUserInfoUseCase = coreLogic.getSessionScope(currentAccount).users.observeUserInfo
+
+    @ViewModelScoped
+    @Provides
+    fun provideUnblockUserUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): UnblockUserUseCase = coreLogic.getSessionScope(currentAccount).connection.unblockUser
 }

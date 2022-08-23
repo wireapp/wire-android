@@ -16,7 +16,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.wire.android.BuildConfig
+import com.wire.android.BuildConfig.IS_PRIVATE_BUILD
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.WireDialog
@@ -105,29 +105,29 @@ fun ConversationProtocolDetails(
 ) {
     Column {
         FolderHeader(name = stringResource(R.string.folder_lable_protocol_details))
-
-        ProtocolDetails(
-            label = UIText.StringResource(R.string.protocol),
-            text = UIText.DynamicString(protocolInfo.name())
-        )
-
-        if (protocolInfo is Conversation.ProtocolInfo.MLS) {
+        if (protocolInfo is Conversation.ProtocolInfo.MLS || IS_PRIVATE_BUILD) {
             ProtocolDetails(
-                label = UIText.StringResource(R.string.cipher_suite),
-                text = UIText.DynamicString(protocolInfo.cipherSuite.name)
+                label = UIText.StringResource(R.string.protocol),
+                text = UIText.DynamicString(protocolInfo.name())
             )
 
-            if (BuildConfig.DEBUG) {
+            if (protocolInfo is Conversation.ProtocolInfo.MLS) {
                 ProtocolDetails(
-                    label = UIText.StringResource(R.string.last_key_material_update_label),
-                    text = UIText.DynamicString(protocolInfo.keyingMaterialLastUpdate.toString())
+                    label = UIText.StringResource(R.string.cipher_suite),
+                    text = UIText.DynamicString(protocolInfo.cipherSuite.name)
                 )
 
-                ProtocolDetails(
-                    label = UIText.StringResource(R.string.group_state_label),
-                    text = UIText.DynamicString(protocolInfo.groupState.name)
-                )
+                if (IS_PRIVATE_BUILD) {
+                    ProtocolDetails(
+                        label = UIText.StringResource(R.string.last_key_material_update_label),
+                        text = UIText.DynamicString(protocolInfo.keyingMaterialLastUpdate.toString())
+                    )
 
+                    ProtocolDetails(
+                        label = UIText.StringResource(R.string.group_state_label),
+                        text = UIText.DynamicString(protocolInfo.groupState.name)
+                    )
+                }
             }
         }
     }

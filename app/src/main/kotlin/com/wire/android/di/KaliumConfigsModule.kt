@@ -50,8 +50,8 @@ class KaliumConfigsModule {
             appLockTimeout = BuildConfig.APP_LOCK_TIMEOUT,
             // we use upsert, available from SQL3.24, which is supported from Android API30, so for older APIs we have to use SQLCipher
             shouldEncryptData = !BuildConfig.DEBUG || Build.VERSION.SDK_INT < Build.VERSION_CODES.R,
-            lowerKeyPackageLimits = BuildConfig.FLAVOR in setOf("dev"),
-            lowerKeyingMaterialsUpdateThreshold = BuildConfig.FLAVOR in setOf("dev")
+            lowerKeyPackageLimits = BuildConfig.IS_PRIVATE_BUILD,
+            lowerKeyingMaterialsUpdateThreshold = BuildConfig.IS_PRIVATE_BUILD
         )
     }
 

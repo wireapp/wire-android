@@ -10,6 +10,7 @@ import com.datadog.android.privacy.TrackingConsent
 import com.datadog.android.rum.GlobalRum
 import com.datadog.android.rum.RumMonitor
 import com.google.firebase.FirebaseApp
+import com.wire.android.BuildConfig.IS_PRIVATE_BUILD
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.util.DataDogLogger
 import com.wire.android.util.LogFileWriter
@@ -27,7 +28,6 @@ import javax.inject.Inject
 /**
  * Indicates whether the build is private (dev || internal) or public
  */
-private val IS_PRIVATE_BUILD = BuildConfig.FLAVOR in setOf("dev", "internal")
 
 var appLogger = KaliumLogger(
     config = KaliumLogger.Config(

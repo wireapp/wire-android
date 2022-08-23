@@ -16,7 +16,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.wire.android.BuildConfig.IS_PRIVATE_BUILD
+import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.WireDialog
@@ -105,7 +105,7 @@ fun ConversationProtocolDetails(
 ) {
     Column {
         FolderHeader(name = stringResource(R.string.folder_lable_protocol_details))
-        if (protocolInfo is Conversation.ProtocolInfo.MLS || IS_PRIVATE_BUILD) {
+        if (protocolInfo is Conversation.ProtocolInfo.MLS || BuildConfig.PRIVATE_BUILD) {
             ProtocolDetails(
                 label = UIText.StringResource(R.string.protocol),
                 text = UIText.DynamicString(protocolInfo.name())
@@ -117,7 +117,7 @@ fun ConversationProtocolDetails(
                     text = UIText.DynamicString(protocolInfo.cipherSuite.name)
                 )
 
-                if (IS_PRIVATE_BUILD) {
+                if (BuildConfig.PRIVATE_BUILD) {
                     ProtocolDetails(
                         label = UIText.StringResource(R.string.last_key_material_update_label),
                         text = UIText.DynamicString(protocolInfo.keyingMaterialLastUpdate.toString())

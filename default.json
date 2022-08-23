@@ -7,7 +7,8 @@
         "launcherIcon": "ic_launcher_wire",
         "developer_features_enabled": false,
         "logging_enabled": false,
-        "safe_logging": false
+        "safe_logging": false,
+        "private_build": false
     },
     "dev": {
         "applicationId": "com.waz.zclient.dev",
@@ -18,7 +19,8 @@
         "version_name_postfix": "-dev",
         "developer_features_enabled": true,
         "logging_enabled": true,
-        "safe_logging": false
+        "safe_logging": false,
+        "private_build": true
     },
     "candidate": {
         "applicationId": "com.wire.candidate",
@@ -28,7 +30,8 @@
         "launcherIcon": "ic_launcher_wire_candidate",
         "developer_features_enabled": true,
         "logging_enabled": true,
-        "safe_logging": true
+        "safe_logging": true,
+        "private_build": false
     },
     "internal": {
         "applicationId": "com.wire.internal",
@@ -39,7 +42,8 @@
         "version_name_postfix": "-internal",
         "developer_features_enabled": true,
         "logging_enabled": true,
-        "safe_logging": true
+        "safe_logging": true,
+        "private_build": true
     },
     "experimental": {
         "applicationId": "com.wire.x",
@@ -50,7 +54,8 @@
         "version_name_postfix": "-exp",
         "developer_features_enabled": true,
         "logging_enabled": true,
-        "safe_logging": true
+        "safe_logging": true,
+        "private_build": true
     },
     "fdroid": {
         "applicationId": "com.wire",
@@ -61,7 +66,8 @@
         "developer_features_enabled": false,
         "logging_enabled": false,
         "safe_logging": true,
-        "keep_websocket_on": true
+        "keep_websocket_on": true,
+        "private_build": false
     },
     "maxAccounts": 2,
     "backendUrl": "https://prod-nginz-https.wire.com",

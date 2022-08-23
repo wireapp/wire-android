@@ -10,7 +10,6 @@ import com.datadog.android.privacy.TrackingConsent
 import com.datadog.android.rum.GlobalRum
 import com.datadog.android.rum.RumMonitor
 import com.google.firebase.FirebaseApp
-import com.wire.android.BuildConfig.IS_PRIVATE_BUILD
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.util.DataDogLogger
 import com.wire.android.util.LogFileWriter
@@ -31,7 +30,7 @@ import javax.inject.Inject
 
 var appLogger = KaliumLogger(
     config = KaliumLogger.Config(
-        severity = if (IS_PRIVATE_BUILD) KaliumLogLevel.DEBUG else KaliumLogLevel.DISABLED,
+        severity = if (BuildConfig.PRIVATE_BUILD) KaliumLogLevel.DEBUG else KaliumLogLevel.DISABLED,
         tag = "WireAppLogger"
     ),
     DataDogLogger,
@@ -66,7 +65,7 @@ class WireApplication : Application(), Configuration.Provider {
 
         enableDatadog()
 
-        if (IS_PRIVATE_BUILD || coreLogic.getGlobalScope().isLoggingEnabled()) {
+        if (BuildConfig.PRIVATE_BUILD || coreLogic.getGlobalScope().isLoggingEnabled()) {
             enableLoggingAndInitiateFileLogging()
         }
 

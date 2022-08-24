@@ -26,7 +26,6 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -51,7 +50,7 @@ class InitiatingCallViewModelTest {
     }
 
     @Test
-    fun `given no internet connection, when user tries to start a call, an info dialog is shown `() = runTest {
+    fun `given a start call error, when user tries to start a call, call ring tone is not called`() = runTest {
         // Given
         val (arrangement, viewModel) = Arrangement()
             .withNoInternetConnection()
@@ -62,25 +61,8 @@ class InitiatingCallViewModelTest {
 
         // Then
         with(arrangement) {
-            coVerify(exactly = 0) { callRinger.stop() }
-            coVerify(exactly = 0) { viewModel.navigateBack() }
-            assertEquals(InitiatingCallState.InitiatingCallError.NoConnection, viewModel.initiatingCallState.error)
+            coVerify(exactly = 0) { callRinger.ring(any()) }
         }
-    }
-
-    @Test
-    fun `given a no internet connection dialog, when user clicks on OK, dialog is dismissed and closes the current screen `() = runTest {
-        // Given
-        val (_, viewModel) = Arrangement()
-            .withNoInternetConnectionDialogDisplayed()
-            .arrange()
-
-        // When
-        viewModel.onDismissErrorDialog()
-
-        // Then
-        coVerify(exactly = 1) { viewModel.navigateBack() }
-        assertEquals(InitiatingCallState.InitiatingCallError.None, viewModel.initiatingCallState.error)
     }
 
     private class Arrangement {
@@ -151,12 +133,6 @@ class InitiatingCallViewModelTest {
         fun withNoInternetConnection(): Arrangement = apply {
             coEvery { startCall(any(), any(), any(), any()) } returns StartCallUseCase.Result.SyncFailure
             every { callRinger.stop() } returns Unit
-            coEvery { navigationManager.navigateBack() } returns Unit
-        }
-
-        fun withNoInternetConnectionDialogDisplayed(): Arrangement = apply {
-            initiatingCallViewModel.initiatingCallState =
-                initiatingCallViewModel.initiatingCallState.copy(error = InitiatingCallState.InitiatingCallError.NoConnection)
             coEvery { navigationManager.navigateBack() } returns Unit
         }
 

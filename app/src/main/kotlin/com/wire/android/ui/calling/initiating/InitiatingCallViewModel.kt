@@ -1,8 +1,5 @@
 package com.wire.android.ui.calling.initiating
 
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -13,7 +10,6 @@ import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
-import com.wire.android.ui.calling.initiating.InitiatingCallState.InitiatingCallError
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.call.ConversationType
 import com.wire.kalium.logic.data.conversation.ConversationDetails
@@ -47,8 +43,6 @@ class InitiatingCallViewModel @Inject constructor(
     private val callRinger: CallRinger,
     private val dispatchers: DispatcherProvider
 ) : ViewModel() {
-
-    var initiatingCallState: InitiatingCallState by mutableStateOf(InitiatingCallState(error = InitiatingCallError.None))
 
     private val conversationId: QualifiedID = qualifiedIdMapper.fromStringToQualifiedID(
         checkNotNull(savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)) {
@@ -125,20 +119,14 @@ class InitiatingCallViewModel @Inject constructor(
 
     internal suspend fun initiateCall() {
         val conversationType = retrieveConversationType()
-        withContext(dispatchers.main()) {
-            val result = startCall(
-                conversationId = conversationId,
-                conversationType = conversationType
-            )
-            when (result) {
-                StartCallUseCase.Result.Success -> callRinger.ring(R.raw.ringing_from_me)
-                StartCallUseCase.Result.SyncFailure -> showNoConnectionDialog()
-            }
+        val result = startCall(
+            conversationId = conversationId,
+            conversationType = conversationType
+        )
+        when (result) {
+            StartCallUseCase.Result.Success -> callRinger.ring(R.raw.ringing_from_me)
+            StartCallUseCase.Result.SyncFailure -> {} // TODO: handle case where start call fails
         }
-    }
-
-    private fun showNoConnectionDialog() {
-        initiatingCallState = initiatingCallState.copy(error = InitiatingCallError.NoConnection)
     }
 
     fun navigateBack() = viewModelScope.launch(dispatchers.main()) {
@@ -146,14 +134,9 @@ class InitiatingCallViewModel @Inject constructor(
         navigationManager.navigateBack()
     }
 
-    fun hangUpCall() = viewModelScope.launch(dispatchers.io()) {
-        endCall(conversationId)
+    fun hangUpCall() = viewModelScope.launch {
+        launch(dispatchers.io()) { endCall(conversationId) }
         callRinger.stop()
-        navigateBack()
-    }
-
-    fun onDismissErrorDialog() {
-        initiatingCallState = initiatingCallState.copy(error = InitiatingCallError.None)
         navigateBack()
     }
 }

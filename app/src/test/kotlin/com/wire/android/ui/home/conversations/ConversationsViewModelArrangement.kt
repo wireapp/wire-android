@@ -24,6 +24,7 @@ import com.wire.kalium.logic.data.conversation.LegalHoldStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
+import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.OtherUser
@@ -48,6 +49,7 @@ import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
 import com.wire.kalium.logic.functional.Either
+import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
@@ -79,6 +81,7 @@ internal class ConversationsViewModelArrangement {
         every { isFileSharingEnabledUseCase() } returns FileSharingStatus(null, null)
         coEvery { observeOngoingCallsUseCase() } returns flowOf(listOf())
         coEvery { observeEstablishedCallsUseCase() } returns flowOf(listOf())
+        coEvery { observeSyncState() } returns flowOf(SyncState.Live)
         every {
             qualifiedIdMapper.fromStringToQualifiedID("some-dummy-value@some.dummy.domain")
         } returns QualifiedID("some-dummy-value", "some.dummy.domain")
@@ -150,6 +153,9 @@ internal class ConversationsViewModelArrangement {
     @MockK
     private lateinit var updateConversationReadDateUseCase: UpdateConversationReadDateUseCase
 
+    @MockK
+    private lateinit var observeSyncState: ObserveSyncStateUseCase
+
     private val fakeKaliumFileSystem = FakeKaliumFileSystem()
 
     private val conversationDetailsChannel = Channel<ConversationDetails>(capacity = Channel.UNLIMITED)
@@ -179,7 +185,8 @@ internal class ConversationsViewModelArrangement {
             observeEstablishedCalls = observeEstablishedCallsUseCase,
             endCall = endCall,
             updateConversationReadDateUseCase = updateConversationReadDateUseCase,
-            observeIsSelfConversationMember = observeIsSelfUserMemberUseCase
+            observeIsSelfConversationMember = observeIsSelfUserMemberUseCase,
+            observeSyncState = observeSyncState
         )
     }
 

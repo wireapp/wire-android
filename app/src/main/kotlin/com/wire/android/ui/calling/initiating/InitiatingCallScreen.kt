@@ -23,17 +23,13 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.ui.calling.CallState
 import com.wire.android.ui.calling.SharedCallingViewModel
-import com.wire.android.ui.calling.initiating.InitiatingCallState.InitiatingCallError.NoConnection
-import com.wire.android.ui.calling.initiating.InitiatingCallState.InitiatingCallError.None
 import com.wire.android.ui.calling.common.CallVideoPreview
 import com.wire.android.ui.calling.common.CallerDetails
 import com.wire.android.ui.calling.controlButtons.CallOptionsControls
 import com.wire.android.ui.calling.controlButtons.HangUpButton
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.error.CoreFailureErrorDialog
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
-import com.wire.kalium.logic.NetworkFailure
 
 @Composable
 fun InitiatingCallScreen(
@@ -42,8 +38,6 @@ fun InitiatingCallScreen(
 ) {
     with(sharedCallingViewModel) {
         InitiatingCallContent(
-            errorState = initiatingCallViewModel.initiatingCallState.error,
-            onErrorStartingCall = initiatingCallViewModel::onDismissErrorDialog,
             callState = callState,
             toggleMute = ::toggleMute,
             toggleSpeaker = ::toggleSpeaker,
@@ -58,15 +52,13 @@ fun InitiatingCallScreen(
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun InitiatingCallContent(
-    errorState: InitiatingCallState.InitiatingCallError,
-    onErrorStartingCall: () -> Unit,
     callState: CallState,
     toggleMute: () -> Unit,
     toggleSpeaker: () -> Unit,
     toggleVideo: () -> Unit,
     onHangUpCall: () -> Unit,
     onVideoPreviewCreated: (view: View) -> Unit,
-    onSelfClearVideoPreview: () -> Unit,
+    onSelfClearVideoPreview: () -> Unit
 ) {
     val scaffoldState = rememberBottomSheetScaffoldState()
 
@@ -117,11 +109,6 @@ private fun InitiatingCallContent(
                 membership = callState.membership,
                 callingLabel = stringResource(id = R.string.calling_label_ringing_call)
             )
-            if (errorState == NoConnection) {
-                CoreFailureErrorDialog(coreFailure = NetworkFailure.NoNetworkConnection(null)) {
-                    onErrorStartingCall()
-                }
-            }
         }
     }
 }

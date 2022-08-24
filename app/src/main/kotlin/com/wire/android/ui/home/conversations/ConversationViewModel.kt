@@ -21,6 +21,7 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.navigation.getBackNavArg
 import com.wire.android.navigation.getBackNavArgs
+import com.wire.android.ui.common.topappbar.Connectivity
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorDeletingMessage
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorMaxAssetSize
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorMaxImageSize
@@ -49,6 +50,7 @@ import com.wire.kalium.logic.data.message.Message.DownloadStatus.FAILED
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.IN_PROGRESS
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.SAVED_EXTERNALLY
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.SAVED_INTERNALLY
+import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
@@ -69,8 +71,12 @@ import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
 import com.wire.kalium.logic.functional.onFailure
+import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -105,7 +111,8 @@ class ConversationViewModel @Inject constructor(
     private val fileManager: FileManager,
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val kaliumFileSystem: KaliumFileSystem,
-    private val updateConversationReadDateUseCase: UpdateConversationReadDateUseCase
+    private val updateConversationReadDateUseCase: UpdateConversationReadDateUseCase,
+    private val observeSyncState: ObserveSyncStateUseCase
 ) : SavedStateViewModel(savedStateHandle) {
 
     var conversationViewState by mutableStateOf(ConversationViewState())
@@ -188,10 +195,12 @@ class ConversationViewModel @Inject constructor(
 
     private fun observeIfSelfIsConversationMember() = viewModelScope.launch {
         observeIsSelfConversationMember(conversationId)
-            .collect{result -> when(result) {
-                is IsSelfUserMemberResult.Failure -> isConversationMemberState = false
-                is IsSelfUserMemberResult.Success -> isConversationMemberState = result.isMember
-            } }
+            .collect { result ->
+                when (result) {
+                    is IsSelfUserMemberResult.Failure -> isConversationMemberState = false
+                    is IsSelfUserMemberResult.Success -> isConversationMemberState = result.isMember
+                }
+            }
     }
 
     /**
@@ -664,6 +673,17 @@ class ConversationViewModel @Inject constructor(
         navigationManager.navigate(NavigationCommand(NavigationItem.OtherUserProfile.getRouteWithArgs(listOfNotNull(id, conversationId))))
 
     fun provideTempCachePath(): Path = kaliumFileSystem.rootCachePath
+
+    suspend fun hasStableConnectivity(): Boolean {
+        var hasConnection = false
+        observeSyncState().firstOrNull()?.let {
+            hasConnection = when (it) {
+                is SyncState.Failed, SyncState.Waiting -> false
+                SyncState.GatheringPendingEvents, SyncState.SlowSync, SyncState.Live -> true
+            }
+        }
+        return hasConnection
+    }
 
     companion object {
         const val IMAGE_SIZE_LIMIT_BYTES = 15 * 1024 * 1024 // 15 MB limit for images

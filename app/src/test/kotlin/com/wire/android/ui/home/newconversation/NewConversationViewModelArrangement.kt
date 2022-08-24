@@ -1,6 +1,7 @@
 package com.wire.android.ui.home.newconversation
 
 import com.wire.android.config.TestDispatcherProvider
+import com.wire.android.config.mockUri
 import com.wire.android.framework.TestUser
 import com.wire.android.mapper.ContactMapper
 import com.wire.android.model.ImageAsset
@@ -36,6 +37,7 @@ import io.mockk.impl.annotations.MockK
 internal class NewConversationViewModelArrangement {
     init {
         MockKAnnotations.init(this, relaxUnitFun = true)
+        mockUri()
 
         // Default empty values
         coEvery { isMLSEnabledUseCase() } returns true

@@ -5,8 +5,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.wire.android.R
-import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.EXTRA_GROUP_DELETED_NAME
 import com.wire.android.navigation.EXTRA_LEFT_GROUP
@@ -27,8 +25,8 @@ import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
-import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
+import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.team.Result
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -106,6 +104,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
                                         updateState(
                                             groupOptionsState.copy(
                                                 groupName = conversation.name.orEmpty(),
+                                                protocolInfo = conversation.protocol,
                                                 isUpdatingAllowed = isSelfAnAdmin,
                                                 areAccessOptionsAvailable = conversation.isTeamGroup(),
                                                 isGuestAllowed = (conversation.isGuestAllowed() || conversation.isNonTeamMemberAllowed()),

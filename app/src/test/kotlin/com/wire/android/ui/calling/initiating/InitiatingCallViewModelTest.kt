@@ -1,7 +1,6 @@
 package com.wire.android.ui.calling.initiating
 
 import androidx.lifecycle.SavedStateHandle
-import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.media.CallRinger
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.mockConversationDetailsGroup
@@ -104,8 +103,7 @@ class InitiatingCallViewModelTest {
                 endCall = endCall,
                 isLastCallClosed = isLastCallClosed,
                 callRinger = callRinger,
-                qualifiedIdMapper = qualifiedIdMapper,
-                dispatchers = TestDispatcherProvider(),
+                qualifiedIdMapper = qualifiedIdMapper
             )
         }
 

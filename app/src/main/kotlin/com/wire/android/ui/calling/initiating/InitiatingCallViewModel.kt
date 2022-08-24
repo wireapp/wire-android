@@ -10,7 +10,6 @@ import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
-import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.call.ConversationType
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -25,7 +24,6 @@ import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 import java.util.Calendar
 import javax.inject.Inject
 
@@ -40,8 +38,7 @@ class InitiatingCallViewModel @Inject constructor(
     private val startCall: StartCallUseCase,
     private val endCall: EndCallUseCase,
     private val isLastCallClosed: IsLastCallClosedUseCase,
-    private val callRinger: CallRinger,
-    private val dispatchers: DispatcherProvider
+    private val callRinger: CallRinger
 ) : ViewModel() {
 
     private val conversationId: QualifiedID = qualifiedIdMapper.fromStringToQualifiedID(
@@ -61,7 +58,7 @@ class InitiatingCallViewModel @Inject constructor(
         }
     }
 
-    private suspend fun retrieveConversationType(): ConversationType = withContext(dispatchers.io()) {
+    private suspend fun retrieveConversationType(): ConversationType {
         val conversationDetails = conversationDetails(conversationId = conversationId)
             .filterIsInstance<ObserveConversationDetailsUseCase.Result.Success>() // TODO handle StorageFailure
             .map { it.conversationDetails }
@@ -69,7 +66,7 @@ class InitiatingCallViewModel @Inject constructor(
                 details.conversation.id == conversationId
             }
 
-        return@withContext when (conversationDetails) {
+        return when (conversationDetails) {
             is ConversationDetails.Group -> {
                 ConversationType.Conference
             }
@@ -129,14 +126,16 @@ class InitiatingCallViewModel @Inject constructor(
         }
     }
 
-    fun navigateBack() = viewModelScope.launch(dispatchers.main()) {
+    fun navigateBack() = viewModelScope.launch {
         wasCallHangUp = true
         navigationManager.navigateBack()
     }
 
     fun hangUpCall() = viewModelScope.launch {
-        launch(dispatchers.io()) { endCall(conversationId) }
-        callRinger.stop()
-        navigateBack()
+        launch { endCall(conversationId) }
+        launch {
+            callRinger.stop()
+            navigateBack()
+        }
     }
 }

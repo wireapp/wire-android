@@ -6,7 +6,7 @@ import com.wire.android.mapper.UIParticipantMapper
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.mapper.testOtherUser
 import com.wire.android.util.ui.WireSessionImageLoader
-import com.wire.kalium.logic.data.conversation.Member
+import com.wire.kalium.logic.data.conversation.Conversation.Member
 import com.wire.kalium.logic.data.conversation.MemberDetails
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.type.UserType

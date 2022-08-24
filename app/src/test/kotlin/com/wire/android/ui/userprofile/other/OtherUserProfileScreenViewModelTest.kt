@@ -7,7 +7,7 @@ import com.wire.android.ui.userprofile.common.UsernameMapper
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.CoreFailure.Unknown
 import com.wire.kalium.logic.data.conversation.Conversation
-import com.wire.kalium.logic.data.conversation.Member
+import com.wire.kalium.logic.data.conversation.Conversation.Member
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.PlainId

@@ -24,13 +24,10 @@ fun AllConversationScreen(
     onOpenConversation: (ConversationId) -> Unit,
     onEditConversation: (ConversationItem) -> Unit,
     onOpenUserProfile: (UserId) -> Unit,
-    onScrollPositionProviderChanged: (() -> Int) -> Unit = { 0 },
     onOpenConversationNotificationsSettings: (ConversationItem) -> Unit,
     onJoinCall: (ConversationId) -> Unit
 ) {
     val lazyListState = rememberLazyListState()
-
-    onScrollPositionProviderChanged { lazyListState.firstVisibleItemIndex }
 
     AllConversationContent(
         lazyListState = lazyListState,
@@ -101,5 +98,5 @@ private fun AllConversationContent(
 @Preview
 @Composable
 fun ComposablePreview() {
-    AllConversationScreen(listOf(), mapOf(), {}, {}, {}, {}, {}, {})
+    AllConversationScreen(listOf(), mapOf(), {}, {}, {}, {}, {})
 }

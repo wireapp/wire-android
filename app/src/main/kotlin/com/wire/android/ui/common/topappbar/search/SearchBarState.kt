@@ -29,8 +29,6 @@ class SearchBarState(
     var isSearchActive by mutableStateOf(isSearchActive)
         private set
 
-    var scrollPositionProvider: (() -> Int) by mutableStateOf(scrollPositionProvider)
-
     fun closeSearch() {
         isSearchActive = false
     }

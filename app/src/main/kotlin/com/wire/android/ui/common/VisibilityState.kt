@@ -14,11 +14,11 @@ fun <T : Any> VisibilityState(
 
 // TODO kubaz rename to [VisibilityState] after resolving merge conflicts
 @Composable
-fun VisibilityStateExt(
-    status: VisibilityState,
-    content: @Composable () -> Unit,
+fun <State: Any> VisibilityStateExt(
+    status: VisibilityState<State>,
+    content: @Composable (State) -> Unit,
 ) {
-    if (status.isVisible) {
-        content()
+    if (status.isVisible && status.savedState != null) {
+        content(status.savedState!!)
     }
 }

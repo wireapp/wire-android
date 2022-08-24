@@ -69,6 +69,7 @@ enum class FlavourConfigs(val value: String, val configType: ConfigType) {
     LAUNCHER_ICON("launcherIcon", ConfigType.STRING),
     LOGGING_ENABLED("logging_enabled", ConfigType.BOOLEAN),
     SAFE_LOGGING("safe_logging", ConfigType.BOOLEAN),
+    PRIVATE_BUILD("private_build", ConfigType.BOOLEAN),
     USER_ID("userId", ConfigType.STRING);
 
 }

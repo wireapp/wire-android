@@ -31,7 +31,7 @@ import com.wire.android.ui.theme.wireColorScheme
 @Composable
 fun SearchBar(
     placeholderText: String,
-    onTextTyped: (String) -> Unit = {},
+    onTextTyped: (TextFieldValue) -> Unit = {},
     modifier: Modifier = Modifier
 ) {
     SearchBarInput(
@@ -57,37 +57,29 @@ fun SearchBar(
 fun SearchBarInput(
     placeholderText: String,
     leadingIcon: @Composable () -> Unit,
-    text: String = "",
-    onTextTyped: (String) -> Unit = {},
+    text: TextFieldValue = TextFieldValue(""),
+    onTextTyped: (TextFieldValue) -> Unit = {},
     placeholderTextStyle: TextStyle = LocalTextStyle.current,
     interactionSource: MutableInteractionSource = remember { MutableInteractionSource() },
     textStyle: TextStyle = LocalTextStyle.current,
     modifier: Modifier = Modifier
 ) {
-    var searchTextFieldValue by remember {
-        mutableStateOf(TextFieldValue(""))
-    }
-
     WireTextField(
         modifier = modifier,
-        value = searchTextFieldValue.copy(text = text),
-        onValueChange = {
-            searchTextFieldValue = it
-            onTextTyped(it.text)
-        },
+        value = text,
+        onValueChange = onTextTyped,
         leadingIcon = {
             leadingIcon()
         },
         trailingIcon = {
             Box(modifier = Modifier.size(40.dp)) {
                 AnimatedVisibility(
-                    visible = text.isNotBlank(),
+                    visible = text.text.isNotBlank(),
                     enter = fadeIn(),
                     exit = fadeOut()
                 ) {
                     IconButton(onClick = {
-                        searchTextFieldValue = TextFieldValue()
-                        onTextTyped("")
+                        onTextTyped(TextFieldValue(""))
                     }) {
                         Icon(
                             painter = painterResource(id = R.drawable.ic_clear_search),

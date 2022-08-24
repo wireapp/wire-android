@@ -1,40 +1,23 @@
 package com.wire.android.ui.home.conversationslist
 
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.ColumnScope
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
+import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
-import com.wire.android.R
-import com.wire.android.model.PreservedState
-import com.wire.android.ui.common.FloatingActionButton
-import com.wire.android.ui.common.WireBottomNavigationItemData
 import com.wire.android.ui.common.dialogs.BlockUserDialogContent
-import com.wire.android.ui.common.dialogs.BlockUserDialogState
-import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.home.HomeSnackbarState
+import com.wire.android.ui.home.conversations.details.menu.DeleteConversationGroupDialog
+import com.wire.android.ui.home.conversations.details.menu.LeaveConversationGroupDialog
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationOptionNavigation
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
 import com.wire.android.ui.home.conversationslist.bottomsheet.rememberConversationSheetState
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
-import com.wire.android.ui.home.conversationslist.navigation.ConversationsNavigationItem
-import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.user.UserId
+import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 
 @ExperimentalAnimationApi
 @ExperimentalMaterial3Api
@@ -44,15 +27,24 @@ import com.wire.kalium.logic.data.user.UserId
 // also we expose the lambda which expands the BottomSheet from the HomeScreen
 @Composable
 fun ConversationRouterHomeBridge(
+    itemType: ConversationItemType,
     onHomeBottomSheetContentChanged: (@Composable ColumnScope.() -> Unit) -> Unit,
     onOpenBottomSheet: () -> Unit,
-    onSnackBarStateChanged: (HomeSnackbarState) -> Unit,
-    onScrollPositionProviderChanged: (() -> Int) -> Unit
+    onSnackBarStateChanged: (HomeSnackbarState) -> Unit
 ) {
     val viewModel: ConversationListViewModel = hiltViewModel()
 
     LaunchedEffect(Unit) {
         viewModel.snackBarState.collect { onSnackBarStateChanged(it) }
+    }
+
+    val leaveGroupDialogState = rememberVisibilityState<GroupDialogState>()
+    val deleteGroupDialogState = rememberVisibilityState<GroupDialogState>()
+
+
+    if (!viewModel.requestInProgress) {
+        leaveGroupDialogState.dismiss()
+        deleteGroupDialogState.dismiss()
     }
 
     fun openConversationBottomSheet(
@@ -89,158 +81,84 @@ fun ConversationRouterHomeBridge(
                 moveConversationToArchive = viewModel::moveConversationToArchive,
                 clearConversationContent = viewModel::clearConversationContent,
                 blockUser = viewModel::onBlockUserClicked,
-                leaveGroup = viewModel::leaveGroup
+                leaveGroup = leaveGroupDialogState::show,
+                deleteGroup = deleteGroupDialogState::show
             )
         }
 
         onOpenBottomSheet()
     }
 
-    ConversationRouter(
-        uiState = viewModel.state,
-        blockUserDialogSate = viewModel.blockUserDialogState,
-        openConversation = viewModel::openConversation,
-        openNewConversation = viewModel::openNewConversation,
-        onEditConversationItem = { conversationItem ->
+    val onEditConversationItem: (ConversationItem) -> Unit = remember {
+        { conversationItem ->
             openConversationBottomSheet(
                 conversationItem = conversationItem
             )
-        },
-        onScrollPositionProviderChanged = onScrollPositionProviderChanged,
-        openProfile = viewModel::openUserProfile,
-        onEditNotifications = { conversationItem ->
+        }
+    }
+    val onEditNotifications: (ConversationItem) -> Unit = remember {
+        { conversationItem ->
             openConversationBottomSheet(
                 conversationItem = conversationItem,
                 conversationOptionNavigation = ConversationOptionNavigation.MutingNotificationOption
             )
-        },
-        onJoinCall = viewModel::joinOngoingCall,
-        onBlockUser = viewModel::blockUser,
-        onDismissBlockUserDialog = viewModel::onDismissBlockUserDialog,
+        }
+    }
+
+    with(viewModel.state) {
+        when (itemType) {
+            ConversationItemType.ALL_CONVERSATIONS ->
+                AllConversationScreen(
+                    newActivities = newActivities,
+                    conversations = conversations,
+                    onOpenConversation = viewModel::openConversation,
+                    onEditConversation = onEditConversationItem,
+                    onOpenUserProfile = viewModel::openUserProfile,
+                    onOpenConversationNotificationsSettings = onEditNotifications,
+                    onJoinCall = viewModel::joinOngoingCall
+                )
+            ConversationItemType.CALLS ->
+                CallsScreen(
+                    missedCalls = missedCalls,
+                    callHistory = callHistory,
+                    onCallItemClick = viewModel::openConversation,
+                    onEditConversationItem = onEditConversationItem,
+                    onOpenUserProfile = viewModel::openUserProfile,
+                    openConversationNotificationsSettings = onEditNotifications,
+                    onJoinCall = viewModel::joinOngoingCall
+                )
+            ConversationItemType.MENTIONS ->
+                MentionScreen(
+                    unreadMentions = unreadMentions,
+                    allMentions = allMentions,
+                    onMentionItemClick = viewModel::openConversation,
+                    onEditConversationItem = onEditConversationItem,
+                    onOpenUserProfile = viewModel::openUserProfile,
+                    openConversationNotificationsSettings = onEditNotifications,
+                    onJoinCall = viewModel::joinOngoingCall
+                )
+        }
+    }
+
+    BlockUserDialogContent(
+        dialogState = viewModel.blockUserDialogState,
+        dismiss = viewModel::onDismissBlockUserDialog,
+        onBlock = viewModel::onBlockUserClicked
+    )
+
+    DeleteConversationGroupDialog(
+        isLoading = viewModel.requestInProgress,
+        dialogState = deleteGroupDialogState,
+        onDeleteGroup = viewModel::deleteGroup
+    )
+
+    LeaveConversationGroupDialog(
+        dialogState = leaveGroupDialogState,
+        isLoading = viewModel.requestInProgress,
+        onLeaveGroup = viewModel::leaveGroup
     )
 }
 
-@ExperimentalAnimationApi
-@ExperimentalMaterial3Api
-@ExperimentalMaterialApi
-@Composable
-private fun ConversationRouter(
-    uiState: ConversationListState,
-    blockUserDialogSate: PreservedState<BlockUserDialogState>?,
-    openConversation: (ConversationId) -> Unit,
-    openNewConversation: () -> Unit,
-    onEditConversationItem: (ConversationItem) -> Unit,
-    onEditNotifications: (ConversationItem) -> Unit,
-    onJoinCall: (ConversationId) -> Unit,
-    onScrollPositionProviderChanged: (() -> Int) -> Unit,
-    openProfile: (UserId) -> Unit,
-    onBlockUser: (UserId, String) -> Unit,
-    onDismissBlockUserDialog: () -> Unit,
-) {
-    val navHostController = rememberNavController()
-
-    Scaffold(
-        floatingActionButton = {
-            FloatingActionButton(
-                text = stringResource(R.string.label_new),
-                icon = {
-                    Image(
-                        painter = painterResource(id = R.drawable.ic_conversation),
-                        contentDescription = stringResource(R.string.content_description_new_conversation),
-                        contentScale = ContentScale.FillBounds,
-                        colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimary),
-                        modifier = Modifier
-                            .padding(start = dimensions().spacing4x, top = dimensions().spacing2x)
-                            .size(dimensions().fabIconSize)
-                    )
-                },
-                onClick = openNewConversation
-            )
-        },
-        // TODO uncomment when CallsScreen and MentionScreen will be implemented
-//        bottomBar = {
-//            WireBottomNavigationBar(ConversationNavigationItems(uiState), navHostController)
-//        }
-    ) { internalPadding ->
-
-        with(uiState) {
-            // Change to a AnimatedNavHost and composable from accompanist lib to add transitions animations
-            NavHost(
-                navHostController,
-                startDestination = ConversationsNavigationItem.All.route,
-                modifier = Modifier.padding(internalPadding)
-            ) {
-                composable(
-                    route = ConversationsNavigationItem.All.route,
-                    content = {
-                        AllConversationScreen(
-                            newActivities = newActivities,
-                            conversations = conversations,
-                            onOpenConversation = openConversation,
-                            onEditConversation = onEditConversationItem,
-                            onScrollPositionProviderChanged = onScrollPositionProviderChanged,
-                            onOpenUserProfile = openProfile,
-                            onOpenConversationNotificationsSettings = onEditNotifications,
-                            onJoinCall = onJoinCall
-                        )
-                    }
-                )
-                composable(
-                    route = ConversationsNavigationItem.Calls.route,
-                    content = {
-                        CallsScreen(
-                            missedCalls = missedCalls,
-                            callHistory = callHistory,
-                            onCallItemClick = openConversation,
-                            onEditConversationItem = onEditConversationItem,
-                            onScrollPositionProviderChanged = onScrollPositionProviderChanged,
-                            onOpenUserProfile = openProfile,
-                            openConversationNotificationsSettings = onEditNotifications,
-                            onJoinCall = onJoinCall
-                        )
-                    }
-                )
-                composable(
-                    route = ConversationsNavigationItem.Mentions.route,
-                    content = {
-                        MentionScreen(
-                            unreadMentions = unreadMentions,
-                            allMentions = allMentions,
-                            onMentionItemClick = openConversation,
-                            onEditConversationItem = onEditConversationItem,
-                            onScrollPositionProviderChanged = onScrollPositionProviderChanged,
-                            onOpenUserProfile = openProfile,
-                            openConversationNotificationsSettings = onEditNotifications,
-                            onJoinCall = onJoinCall
-                        )
-                    }
-                )
-            }
-        }
-
-        BlockUserDialogContent(
-            dialogState = blockUserDialogSate,
-            dismiss = onDismissBlockUserDialog,
-            onBlock = onBlockUser
-        )
-    }
-}
-
-@Composable
-private fun ConversationNavigationItems(
-    uiListState: ConversationListState
-): List<WireBottomNavigationItemData> {
-    return ConversationsNavigationItem.values().map { conversationsNavigationItem ->
-        when (conversationsNavigationItem) {
-            ConversationsNavigationItem.All -> conversationsNavigationItem.toBottomNavigationItemData(
-                uiListState.conversations.size.toLong()
-            )
-            ConversationsNavigationItem.Calls -> conversationsNavigationItem.toBottomNavigationItemData(
-                uiListState.missedCallsCount
-            )
-            ConversationsNavigationItem.Mentions -> conversationsNavigationItem.toBottomNavigationItemData(
-                uiListState.unreadMentionsCount
-            )
-        }
-    }
+enum class ConversationItemType {
+    ALL_CONVERSATIONS, CALLS, MENTIONS;
 }

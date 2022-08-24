@@ -155,11 +155,7 @@ data class DrawerItemData(@StringRes val title: Int?, @DrawableRes val icon: Int
 @ExperimentalMaterial3Api
 private fun Any.getDrawerData(): DrawerItemData =
     when (this) {
-        // TODO: Re-enable when we have Vault & Archive
-//        Vault -> DrawerItemData(R.string.vault_screen_title, R.drawable.ic_vault)
-//        Archive -> DrawerItemData(R.string.archive_screen_title, R.drawable.ic_archive)
-        Conversations -> DrawerItemData(R.string.conversations_screen_title, R.drawable.ic_conversation)
-        Settings -> DrawerItemData(R.string.settings_screen_title, R.drawable.ic_settings)
+        is HomeNavigationItem -> DrawerItemData(this.title, this.icon)
         Support -> DrawerItemData(R.string.support_screen_title, R.drawable.ic_support)
         Debug -> DrawerItemData(R.string.debug_screen_title, R.drawable.ic_bug)
         else -> DrawerItemData(null, null)

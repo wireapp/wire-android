@@ -2,7 +2,7 @@ package com.wire.android.ui.userprofile.other
 
 import com.wire.android.model.PreservedState
 import com.wire.android.ui.userprofile.group.RemoveConversationMemberState
-import com.wire.kalium.logic.data.conversation.Member
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
@@ -66,7 +66,7 @@ interface OtherUserProfileFooterEventsHandler {
 
 @Suppress("TooManyFunctions")
 interface OtherUserProfileBottomSheetEventsHandler {
-    fun onChangeMemberRole(role: Member.Role)
+    fun onChangeMemberRole(role: Conversation.Member.Role)
     fun onMutingConversationStatusChange(conversationId: ConversationId?, status: MutedConversationStatus)
     fun onAddConversationToFavourites(conversationId: ConversationId)
     fun onMoveConversationToFolder(conversationId: ConversationId)
@@ -78,7 +78,7 @@ interface OtherUserProfileBottomSheetEventsHandler {
     companion object {
         @Suppress("TooManyFunctions")
         val PREVIEW = object : OtherUserProfileBottomSheetEventsHandler {
-            override fun onChangeMemberRole(role: Member.Role) {}
+            override fun onChangeMemberRole(role: Conversation.Member.Role) {}
             override fun onMutingConversationStatusChange(conversationId: ConversationId?, status: MutedConversationStatus) {}
             override fun onAddConversationToFavourites(conversationId: ConversationId) {}
             override fun onMoveConversationToFolder(conversationId: ConversationId) {}

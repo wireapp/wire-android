@@ -33,16 +33,13 @@ class HomeUIState(
     val navController: NavHostController,
     val drawerState: DrawerState,
     val bottomSheetState: ModalBottomSheetState,
-    val lazyListState: LazyListState,
     val currentNavigationItem: HomeNavigationItem
 ) {
-
-    var scrollPositionProvider: (() -> Int)? by mutableStateOf(null)
 
     var homeBottomSheetContent: @Composable (ColumnScope.() -> Unit)? by mutableStateOf(null)
         private set
 
-    var snackbarState: HomeSnackbarState by mutableStateOf(HomeSnackbarState.None)
+    var snackbarState: HomeSnackbarState by mutableStateOf(HomeSnackbarState.None) // TODO replace with Flow
         private set
 
     fun setSnackBarState(state: HomeSnackbarState) {
@@ -70,10 +67,6 @@ class HomeUIState(
         homeBottomSheetContent = content
     }
 
-    fun updateScrollPositionProvider(newScrollPositionProvider: () -> Int) {
-        scrollPositionProvider = newScrollPositionProvider
-    }
-
     fun openDrawer() {
         coroutineScope.launch {
             drawerState.open()
@@ -87,8 +80,7 @@ fun rememberHomeUIState(
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
     navController: NavHostController = rememberAnimatedNavController(),
     drawerState: DrawerState = rememberDrawerState(DrawerValue.Closed),
-    bottomSheetState: ModalBottomSheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden),
-    lazyListState: LazyListState = rememberLazyListState()
+    bottomSheetState: ModalBottomSheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
 ): HomeUIState {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
@@ -102,7 +94,6 @@ fun rememberHomeUIState(
             navController,
             drawerState,
             bottomSheetState,
-            lazyListState,
             currentNavigationItem
         )
     }

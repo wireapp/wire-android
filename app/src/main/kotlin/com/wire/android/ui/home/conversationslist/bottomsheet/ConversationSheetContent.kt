@@ -63,7 +63,11 @@ sealed class ConversationTypeDetail {
         val userId: UserId,
         val blockingState: BlockingState
     ) : ConversationTypeDetail()
+
     data class Connection(val avatarAsset: UserAvatarAsset?) : ConversationTypeDetail()
+
+    val label: String
+        get() = if (this is Group) "group" else "conversation"
 }
 
 data class ConversationSheetContent(

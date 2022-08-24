@@ -22,8 +22,8 @@ fun ClearConversationContentDialog(
 ) {
     VisibilityStateExt(dialogState) {
         WireDialog(
-            title = stringResource(id = R.string.leave_group_conversation_dialog_title, it.conversationName),
-            text = stringResource(id = R.string.leave_group_conversation_dialog_description),
+            title = "Clear content?",
+            text = "This will clear the previous conversation history on all your devices. You remain in the ${it.conversation.label} and have access to all new ${it.conversation.label} activity.",
             buttonsHorizontalAlignment = true,
             onDismiss = dialogState::dismiss,
             dismissButtonProperties = WireDialogButtonProperties(
@@ -33,7 +33,7 @@ fun ClearConversationContentDialog(
             ),
             optionButton1Properties = WireDialogButtonProperties(
                 onClick = { onClearConversationContent(it.conversationId) },
-                text = stringResource(id = R.string.label_leave),
+                text = "Clear content",
                 type = WireDialogButtonType.Primary,
                 state =
                 if (isLoading)

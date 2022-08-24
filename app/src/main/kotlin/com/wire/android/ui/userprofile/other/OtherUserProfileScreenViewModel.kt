@@ -22,7 +22,6 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.common.dialogs.UnblockUserDialogState
-import com.wire.android.ui.home.conversations.details.participants.usecase.ConversationRoleData
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationTypeDetail
@@ -37,9 +36,9 @@ import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
-import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.data.id.toQualifiedID
 import com.wire.kalium.logic.data.user.ConnectionState
+import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.client.GetOtherUserClientsResult
 import com.wire.kalium.logic.feature.client.GetOtherUserClientsUseCase
@@ -69,10 +68,6 @@ import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.filterIsInstance
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Date
@@ -123,77 +118,99 @@ class OtherUserProfileScreenViewModel @Inject constructor(
 
     init {
         state = state.copy(isDataLoading = true)
-        viewModelScope.launch {
-            when (val conversationResult = getOrCreateOneToOneConversation(userId)) {
-                is CreateConversationResult.Failure -> {
-                    appLogger.d("Couldn't not getOrCreateOneToOneConversation for user id: $userId")
-                    showInfoMessage(InfoMessageType.LoadUserInformationError)
-                }
-                is CreateConversationResult.Success -> {
-                    val observeConversationRoleData = conversationId
-                        .let { if (it != null) observeConversationRoleForUser(it, userId) else flowOf(it) }
 
-                    val observeSucceedUserInfo = observeUserInfo(userId)
-                        .onEach {
-                            if (it is GetUserInfoResult.Failure) {
-                                appLogger.d("Couldn't not find the user with provided id: $userId")
-                                showInfoMessage(InfoMessageType.LoadUserInformationError)
-                            }
-                        }
-                        .filterIsInstance<GetUserInfoResult.Success>()
+        observeUserInfoAndUpdateViewState()
+        persistClients()
+    }
 
-                    combine(observeConversationRoleData, observeSelfUser(), observeSucceedUserInfo, ::Triple)
-                        .collect { (conversationRoleData, selfUser, userInfoResult) ->
-                            loadViewState(userInfoResult, conversationResult.conversation, conversationRoleData, selfUser.teamId)
-                        }
-                }
-            }
-        }
+    private fun persistClients() {
         viewModelScope.launch {
             persistOtherUserClients(userId)
         }
     }
 
-    private fun loadViewState(
-        getInfoResult: GetUserInfoResult.Success,
-        directConversation: Conversation,
-        conversationRoleData: ConversationRoleData?,
-        selfTeamId: TeamId?
-    ) {
-        val userAvatarAsset = getInfoResult.otherUser.completePicture
-            ?.let { pic -> ImageAsset.UserAvatarAsset(wireSessionImageLoader, pic) }
+    private fun observeUserInfoAndUpdateViewState() {
+        viewModelScope.launch {
+            observeUserInfo(userId).collect { getInfoResult ->
+                when (getInfoResult) {
+                    is GetUserInfoResult.Failure -> {
+                        appLogger.d("Couldn't not find the user with provided id: $userId")
+                        showInfoMessage(InfoMessageType.LoadUserInformationError)
+                    }
+                    is GetUserInfoResult.Success -> {
+                        val otherUser = getInfoResult.otherUser
+                        val userAvatarAsset = otherUser.completePicture
+                            ?.let { pic -> ImageAsset.UserAvatarAsset(wireSessionImageLoader, pic) }
 
-        state = with(getInfoResult) {
-            state.copy(
-                isDataLoading = false,
-                userAvatarAsset = userAvatarAsset,
-                fullName = otherUser.name.orEmpty(),
-                userName = mapUserLabel(otherUser),
-                teamName = team?.name.orEmpty(),
-                email = otherUser.email.orEmpty(),
-                phone = otherUser.phone.orEmpty(),
-                connectionState = otherUser.connectionStatus,
-                membership = userTypeMapper.toMembership(otherUser.userType),
-                groupState = conversationRoleData?.userRole?.let { userRole ->
-                    OtherUserProfileGroupState(
-                        groupName = conversationRoleData.conversationName,
-                        role = userRole,
-                        isSelfAdmin = conversationRoleData.selfRole is Conversation.Member.Role.Admin,
-                        conversationId = conversationRoleData.conversationId
+                        observeConversationSheetContentIfNeeded(otherUser, userAvatarAsset)
+                        observeGroupStateIfNeeded()
+
+                        state = state.copy(
+                            isDataLoading = false,
+                            userAvatarAsset = userAvatarAsset,
+                            fullName = otherUser.name.orEmpty(),
+                            userName = mapUserLabel(otherUser),
+                            teamName = getInfoResult.team?.name.orEmpty(),
+                            email = otherUser.email.orEmpty(),
+                            phone = otherUser.phone.orEmpty(),
+                            connectionState = otherUser.connectionStatus,
+                            membership = userTypeMapper.toMembership(otherUser.userType),
+                            botService = otherUser.botService,
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    private fun observeConversationSheetContentIfNeeded(otherUser: OtherUser, userAvatarAsset: ImageAsset.UserAvatarAsset?) {
+
+        // if we are not connected with that user -> we don't have a direct conversation ->
+        // -> no need to load data for ConversationBottomSheet
+        if (otherUser.connectionStatus != ConnectionState.ACCEPTED) return
+
+        viewModelScope.launch {
+            when (val conversationResult = getOrCreateOneToOneConversation(userId)) {
+                is CreateConversationResult.Failure -> {
+                    appLogger.d("Couldn't not getOrCreateOneToOneConversation for user id: $userId")
+                    showInfoMessage(InfoMessageType.LoadDirectConversationError)
+                }
+                is CreateConversationResult.Success -> {
+                    observeSelfUser().collect { selfUser ->
+                        state = state.copy(
+                            conversationSheetContent = ConversationSheetContent(
+                                title = otherUser.name.orEmpty(),
+                                conversationId = conversationResult.conversation.id,
+                                mutingConversationState = conversationResult.conversation.mutedStatus,
+                                conversationTypeDetail = ConversationTypeDetail.Private(
+                                    userAvatarAsset,
+                                    userId,
+                                    otherUser.getBlockingState(selfUser.teamId)
+                                )
+                            )
+                        )
+                    }
+                }
+            }
+        }
+    }
+
+    private fun observeGroupStateIfNeeded() {
+        conversationId?.let {
+            viewModelScope.launch {
+                observeConversationRoleForUser(it, userId).collect { conversationRoleData ->
+                    state = state.copy(
+                        groupState = conversationRoleData.userRole?.let { userRole ->
+                            OtherUserProfileGroupState(
+                                groupName = conversationRoleData.conversationName,
+                                role = userRole,
+                                isSelfAdmin = conversationRoleData.selfRole is Conversation.Member.Role.Admin,
+                                conversationId = conversationRoleData.conversationId
+                            )
+                        }
                     )
-                },
-                botService = otherUser.botService,
-                conversationSheetContent = ConversationSheetContent(
-                    title = otherUser.name.orEmpty(),
-                    conversationId = directConversation.id,
-                    mutingConversationState = directConversation.mutedStatus,
-                    conversationTypeDetail = ConversationTypeDetail.Private(
-                        userAvatarAsset,
-                        userId,
-                        getInfoResult.otherUser.getBlockingState(selfTeamId)
-                    )
-                )
-            )
+                }
+            }
         }
     }
 
@@ -449,6 +466,7 @@ sealed class InfoMessageType(override val uiText: UIText) : SnackBarMessage {
     object SuccessConnectionCancelRequest : InfoMessageType(UIText.StringResource(R.string.connection_request_canceled))
     object ConnectionRequestError : InfoMessageType(UIText.StringResource(R.string.connection_request_sent_error))
     object LoadUserInformationError : InfoMessageType(UIText.StringResource(R.string.error_unknown_message))
+    object LoadDirectConversationError : InfoMessageType(UIText.StringResource(R.string.error_unknown_message))
 
     // change group role
     object ChangeGroupRoleError : InfoMessageType(UIText.StringResource(R.string.user_profile_role_change_error))
@@ -458,7 +476,9 @@ sealed class InfoMessageType(override val uiText: UIText) : SnackBarMessage {
 
     // Conversation BottomSheet
     object BlockingUserOperationError : InfoMessageType(UIText.StringResource(R.string.error_blocking_user))
-    class BlockingUserOperationSuccess(val name: String) : InfoMessageType(UIText.StringResource(R.string.blocking_user_success, name))
+    class BlockingUserOperationSuccess(val name: String) :
+        InfoMessageType(UIText.StringResource(R.string.blocking_user_success, name))
+
     object MutingOperationError : InfoMessageType(UIText.StringResource(R.string.error_updating_muting_setting))
 
     object UnblockingUserOperationError : InfoMessageType(UIText.StringResource(R.string.error_unblocking_user))

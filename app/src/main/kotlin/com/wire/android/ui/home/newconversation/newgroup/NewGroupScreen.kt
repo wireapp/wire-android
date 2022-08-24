@@ -121,7 +121,7 @@ fun NewGroupScreenContent(
                     }
 
                 }
-                if (mlsEnabled || BuildConfig.DEBUG) {
+                if (mlsEnabled || BuildConfig.PRIVATE_BUILD) {
                     WireDropDown(
                         items =
                         ConversationOptions.Protocol.values().map { it.name },

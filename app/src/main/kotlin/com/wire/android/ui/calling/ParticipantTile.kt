@@ -1,6 +1,9 @@
 package com.wire.android.ui.calling
 
+import android.util.Log
 import android.view.View
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.widget.FrameLayout
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -92,7 +95,9 @@ fun ParticipantTile(
                 if (participantTitleState.isCameraOn) {
                     val context = LocalContext.current
                     AndroidView(factory = {
-                        VideoRenderer(context, participantTitleState.id.toString(), participantTitleState.clientId, false)
+                        VideoRenderer(context, participantTitleState.id.toString(), participantTitleState.clientId, false).apply {
+                            layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+                        }
                     })
                 }
             }

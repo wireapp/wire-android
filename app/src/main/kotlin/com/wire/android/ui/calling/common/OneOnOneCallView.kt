@@ -1,14 +1,20 @@
 package com.wire.android.ui.calling.common
 
 import android.view.View
+import androidx.compose.animation.core.tween
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import com.wire.android.ui.calling.ConversationName
 import com.wire.android.ui.calling.ParticipantTile
 import com.wire.android.ui.calling.getConversationName
@@ -16,6 +22,7 @@ import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireDimensions
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun OneOnOneCallView(
     participants: List<UICallParticipant>,
@@ -25,11 +32,13 @@ fun OneOnOneCallView(
     onSelfVideoPreviewCreated: (view: View) -> Unit,
     onSelfClearVideoPreview: () -> Unit
 ) {
-    Column(
+    val config = LocalConfiguration.current
+
+    LazyColumn(
         modifier = Modifier.padding(dimensions().spacing4x),
         verticalArrangement = Arrangement.spacedBy(MaterialTheme.wireDimensions.spacing2x)
     ) {
-        participants.forEach { participant ->
+        items(items = participants, key = { it.id.toString() }) { participant ->
             // since we are getting participants by chunk of 8 items,
             // we need to check that we are on first page for sel user
             val isSelfUser = pageIndex == 0 && participants.first() == participant
@@ -54,10 +63,12 @@ fun OneOnOneCallView(
                 avatar = participant.avatar,
                 membership = participant.membership
             )
+            val maxHeight = (config.screenHeightDp - TOP_APP_BAR_AND_BOTTOM_SHEET_HEIGHT) / participants.size
             ParticipantTile(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .weight(1f),
+                    .height(maxHeight.dp)
+                    .animateItemPlacement(tween(durationMillis = 200)),
                 participantTitleState = participantState,
                 isSelfUser = isSelfUser,
                 onSelfUserVideoPreviewCreated = {
@@ -70,4 +81,7 @@ fun OneOnOneCallView(
             )
         }
     }
+
 }
+
+private const val TOP_APP_BAR_AND_BOTTOM_SHEET_HEIGHT = 170

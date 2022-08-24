@@ -1,6 +1,7 @@
 package com.wire.android.ui.calling.common
 
 import android.view.View
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
@@ -44,7 +45,7 @@ fun GroupCallGrid(
         columns = GridCells.Fixed(NUMBER_OF_GRID_CELLS)
     ) {
 
-        items(participants) { participant ->
+        items(items = participants, key = { it.id.toString() }) { participant ->
             // since we are getting participants by chunk of 8 items,
             // we need to check that we are on first page for sel user
             val isSelfUser = pageIndex == 0 && participants.first() == participant
@@ -62,7 +63,7 @@ fun GroupCallGrid(
             // if we have more than 4 participants then we reduce avatar size
             val userAvatarSize = if (participants.size > 4) dimensions().onGoingCallUserAvatarSize
             else dimensions().onGoingCallUserAvatarMinimizedSize
-            val username = when (val conversationName = getConversationName(participant.name)) {
+            val usernameString = when (val conversationName = getConversationName(participant.name)) {
                 is ConversationName.Known -> conversationName.name
                 is ConversationName.Unknown -> stringResource(id = conversationName.resourceId)
             }
@@ -70,7 +71,7 @@ fun GroupCallGrid(
             val participantState = UICallParticipant(
                 id = participant.id,
                 clientId = participant.clientId,
-                name = username,
+                name = usernameString,
                 isMuted = isMuted,
                 isSpeaking = participant.isSpeaking,
                 isCameraOn = isCameraOn,
@@ -81,7 +82,7 @@ fun GroupCallGrid(
             ParticipantTile(
                 modifier = Modifier
                     .height(((config.screenHeightDp - TOP_APP_BAR_AND_BOTTOM_SHEET_HEIGHT) / numberOfTilesRows).dp)
-                    .animateItemPlacement(),
+                    .animateItemPlacement(tween(durationMillis = 200)),
                 participantTitleState = participantState,
                 onGoingCallTileUsernameMaxWidth = MaterialTheme.wireDimensions.onGoingCallTileUsernameMaxWidth,
                 avatarSize = userAvatarSize,

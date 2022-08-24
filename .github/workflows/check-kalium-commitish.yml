@@ -19,8 +19,8 @@ jobs:
 
       - name: Run git merge-base
         id: validate_kalium
-	      env:
-	        GH_BASE_REF: ${{github.base_ref}}
+	    env:
+	      GH_BASE_REF: ${{github.base_ref}}
         continue-on-error: true
         run: |
           git fetch

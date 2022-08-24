@@ -50,7 +50,7 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           PR_AUTHOR: ${{ github.event.pull_request.user.login }}
-        if: ${{ steps.validate_kalium.outputs.is_kalium_rollback == 0 }} # The first commit is NOT an ancestor of the second one
+        if: ${{ steps.validate_kalium.outputs.is_kalium_rollback == 1 }} # The first commit is NOT an ancestor of the second one
         run: |
           echo "is_kalium_rollback: ${{ steps.validate_kalium.outputs.is_kalium_rollback }}"
           gh pr comment "${{github.head_ref}}" --body "@$PR_AUTHOR looks like you are rolling back kalium to a previous commitish.

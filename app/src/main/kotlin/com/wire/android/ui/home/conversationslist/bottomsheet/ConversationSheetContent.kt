@@ -16,7 +16,7 @@ fun ConversationSheetContent(
     addConversationToFavourites: () -> Unit,
     moveConversationToFolder: () -> Unit,
     moveConversationToArchive: () -> Unit,
-    clearConversationContent: () -> Unit,
+    clearConversationContent: (ConversationId) -> Unit,
     blockUser: (UserId, String) -> Unit,
     leaveGroup: (ConversationId) -> Unit
 ) {

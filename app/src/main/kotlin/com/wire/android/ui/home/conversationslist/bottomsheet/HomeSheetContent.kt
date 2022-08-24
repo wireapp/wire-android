@@ -37,7 +37,7 @@ internal fun ConversationMainSheetContent(
     addConversationToFavourites: () -> Unit,
     moveConversationToFolder: () -> Unit,
     moveConversationToArchive: () -> Unit,
-    clearConversationContent: () -> Unit,
+    clearConversationContent: (ConversationId) -> Unit,
     blockUserClick: (UserId, String) -> Unit,
     leaveGroup: (ConversationId) -> Unit,
     navigateToNotification: () -> Unit
@@ -124,7 +124,7 @@ internal fun ConversationMainSheetContent(
                         )
                     },
                     title = stringResource(R.string.label_clear_content),
-                    onItemClick = clearConversationContent
+                    onItemClick = { clearConversationContent(conversationSheetContent.conversationId) }
                 )
             },
             {

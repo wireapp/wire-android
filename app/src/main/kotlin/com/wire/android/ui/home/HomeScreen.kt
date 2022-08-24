@@ -226,6 +226,7 @@ private fun handleSnackBarMessage(
             is HomeSnackbarState.DeletedConversationGroupSuccess ->
                 stringResource(id = R.string.conversation_group_removed_success, messageType.groupName)
             HomeSnackbarState.LeftConversationSuccess -> stringResource(id = R.string.left_conversation_group_success)
+            HomeSnackbarState.ClearConversationContentSuccess -> stringResource(id = R.string.left_conversation_group_success)
         }
         LaunchedEffect(messageType) {
             if (messageType != HomeSnackbarState.None) {

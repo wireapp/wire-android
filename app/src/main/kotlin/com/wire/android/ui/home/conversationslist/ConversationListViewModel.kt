@@ -44,6 +44,7 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.AnswerCallUseCase
 import com.wire.kalium.logic.feature.connection.BlockUserResult
 import com.wire.kalium.logic.feature.connection.BlockUserUseCase
+import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationsAndConnectionsUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
@@ -69,7 +70,8 @@ class ConversationListViewModel @Inject constructor(
     private val blockUserUseCase: BlockUserUseCase,
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val userTypeMapper: UserTypeMapper,
-    private val leaveGroupConversation: RemoveMemberFromConversationUseCase
+    private val leaveGroupConversation: RemoveMemberFromConversationUseCase,
+    private val clearConversationContentUseCase: ClearConversationContentUseCase
 ) : ViewModel() {
 
     var state by mutableStateOf(ConversationListState())
@@ -79,6 +81,7 @@ class ConversationListViewModel @Inject constructor(
             by mutableStateOf(null)
 
     val snackBarState = MutableSharedFlow<HomeSnackbarState>()
+
     lateinit var selfUserId: UserId
 
     init {
@@ -91,7 +94,8 @@ class ConversationListViewModel @Inject constructor(
             .collect { (conversationListDetails, selfUser) ->
                 with(conversationListDetails) {
                     selfUserId = selfUser.id
-                val allConversations = conversationList
+
+                    val allConversations = conversationList
 
                     val unreadConversations = allConversations.filter {
                         when (it) {
@@ -212,9 +216,17 @@ class ConversationListViewModel @Inject constructor(
     fun moveConversationToArchive(id: String = "") {
     }
 
-    // TODO: needs to be implemented
-    @Suppress("EmptyFunctionBlock")
-    fun clearConversationContent(id: String = "") {
+    fun clearConversationContent(conversationId: ConversationId) {
+        viewModelScope.launch {
+            when (clearConversationContentUseCase(conversationId)) {
+                ClearConversationContentUseCase.Result.Failure -> {
+                    snackBarState.emit(HomeSnackbarState.ClearConversationContentSuccess)
+                }
+                ClearConversationContentUseCase.Result.Success -> {
+                    snackBarState.emit(HomeSnackbarState.ClearConversationContentSuccess)
+                }
+            }
+        }
     }
 
     fun blockUser(id: UserId, userName: String) {

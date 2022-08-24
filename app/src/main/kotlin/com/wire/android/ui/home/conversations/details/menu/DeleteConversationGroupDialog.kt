@@ -1,6 +1,7 @@
 package com.wire.android.ui.home.conversations.details.menu
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.ui.common.VisibilityStateExt
@@ -17,6 +18,12 @@ internal fun DeleteConversationGroupDialog(
     isLoading: Boolean,
     onDeleteGroup: (GroupDialogState) -> Unit,
 ) {
+    LaunchedEffect(isLoading) {
+        if (!isLoading) {
+            dialogState.dismiss()
+        }
+    }
+
     VisibilityStateExt(dialogState) {
         WireDialog(
             title = stringResource(id = R.string.delete_group_conversation_dialog_title, it.conversationName),

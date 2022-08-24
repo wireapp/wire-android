@@ -44,12 +44,6 @@ fun ConversationRouterHomeBridge(
     val deleteGroupDialogState = rememberVisibilityState<GroupDialogState>()
     val clearConversationContentDialogState = rememberVisibilityState<DialogState>()
 
-    if (!viewModel.requestInProgress) {
-        leaveGroupDialogState.dismiss()
-        deleteGroupDialogState.dismiss()
-        clearConversationContentDialogState.dismiss()
-    }
-
     fun openConversationBottomSheet(
         conversationItem: ConversationItem,
         conversationOptionNavigation: ConversationOptionNavigation = ConversationOptionNavigation.Home

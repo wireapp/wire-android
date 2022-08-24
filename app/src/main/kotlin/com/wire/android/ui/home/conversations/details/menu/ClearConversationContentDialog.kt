@@ -10,9 +10,7 @@ import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.visbility.VisibilityState
-import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationTypeDetail
 import com.wire.android.ui.home.conversationslist.model.DialogState
-import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.kalium.logic.data.id.ConversationId
 
 @Composable

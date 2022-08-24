@@ -226,12 +226,12 @@ class ConversationListViewModel @Inject constructor(
 
     fun clearConversationContent(conversationId: ConversationId) {
         executeWithProgress {
-            when (clearConversationContentUseCase(conversationId)) {
+            when (withContext(dispatcher.io()) { clearConversationContentUseCase(conversationId) }) {
                 ClearConversationContentUseCase.Result.Failure -> {
-                    snackBarState.emit(HomeSnackbarState.ClearConversationContentSuccess)
+                    snackBarState.emit(HomeSnackbarState.ClearGroupConversationContentSuccess)
                 }
                 ClearConversationContentUseCase.Result.Success -> {
-                    snackBarState.emit(HomeSnackbarState.ClearConversationContentSuccess)
+                    snackBarState.emit(HomeSnackbarState.ClearGroupConversationContentSuccess)
                 }
             }
         }

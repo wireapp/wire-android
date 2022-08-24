@@ -2,17 +2,13 @@ package com.wire.android.ui.home
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetState
@@ -27,12 +23,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.RectangleShape
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.semantics.Role.Companion.Image
-import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -56,7 +49,6 @@ import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import com.wire.android.ui.home.conversationslist.ConversationListState
 import com.wire.android.ui.home.conversationslist.ConversationListViewModel
 import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
-import com.wire.android.ui.theme.wireDimensions
 
 @OptIn(
     ExperimentalAnimationApi::class,
@@ -257,7 +249,8 @@ private fun handleSnackBarMessage(
             HomeSnackbarState.LeftConversationSuccess -> stringResource(id = R.string.left_conversation_group_success)
             HomeSnackbarState.LeaveConversationError -> stringResource(id = R.string.leave_group_conversation_error)
             HomeSnackbarState.DeleteConversationGroupError -> stringResource(id = R.string.delete_group_conversation_error)
-            HomeSnackbarState.ClearConversationContentSuccess -> stringResource(id = R.string.left_conversation_group_success)
+            HomeSnackbarState.ClearGroupConversationContentSuccess -> stringResource(R.string.group_content_deleted)
+            HomeSnackbarState.ClearPrivateConverstaionContentSuccess -> stringResource(R.string.conversation_content_deleted)
         }
         LaunchedEffect(messageType) {
             if (messageType != HomeSnackbarState.None) {

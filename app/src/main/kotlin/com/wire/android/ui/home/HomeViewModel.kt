@@ -111,7 +111,8 @@ sealed class HomeSnackbarState {
     class DeletedConversationGroupSuccess(val groupName: String) : HomeSnackbarState()
     object DeleteConversationGroupError : HomeSnackbarState()
     object LeftConversationSuccess : HomeSnackbarState()
-    object ClearConversationContentSuccess : HomeSnackbarState()
+    object ClearGroupConversationContentSuccess : HomeSnackbarState()
+    object ClearPrivateConverstaionContentSuccess : HomeSnackbarState()
     object LeaveConversationError : HomeSnackbarState()
     object None : HomeSnackbarState()
 }

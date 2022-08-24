@@ -592,5 +592,7 @@
     <string name="unblock_user_dialog_title">Unblock user?</string>
     <string name="unblock_user_dialog_body">%1$s will be able to contact you or add you to group conversations. You will be able to access a 1:1 conversation with them.</string>
     <string name="unblock_user_dialog_confirm_button">Unblock</string>
+    <string name="group_content_deleted">Group content was deleted</string>
+    <string name="conversation_content_deleted">Conversation content was deleted</string>
 
 </resources>

@@ -80,13 +80,11 @@ enum class HomeNavigationItem(
             }
         }
     ),
-
     Settings(
-        route = HomeDestinationsRoutes.SETTINGS,
+        route = HomeDestinationsRoutes.settings,
         title = R.string.settings_screen_title,
-        content = { homeUIState -> { SettingsScreen(homeUIState.lazyListState) } }
+        content = { { SettingsScreen() } }
     );
-
 // TODO: Re-enable once we have vault
 //    Vault(
 //        route = HomeDestinationsRoutes.vault,
@@ -100,11 +98,17 @@ enum class HomeNavigationItem(
 //        title = R.string.archive_screen_title,
 //        content = { { ArchiveScreen() } }
 //    );
+
+    companion object {
+        // TODO: Re-enable once we have Archive & Vault
+        // val all = listOf(Conversations, Archive, Vault)
+        val all = listOf(Conversations, Settings)
+    }
 }
 
 private object HomeDestinationsRoutes {
     const val conversations = "home_conversations"
     const val vault = "home_vault"
     const val archive = "home_archive"
-    const val SETTINGS = "home_settings"
+    const val settings = "home_settings"
 }

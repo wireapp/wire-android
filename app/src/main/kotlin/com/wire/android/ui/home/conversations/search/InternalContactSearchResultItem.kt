@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import com.wire.android.appLogger
@@ -48,7 +49,7 @@ fun InternalContactSearchResultItem(
             }
         },
         title = {
-            Row {
+            Row(verticalAlignment = CenterVertically) {
                 HighlightName(
                     name = name,
                     searchQuery = searchQuery
@@ -99,7 +100,7 @@ fun ExternalContactSearchResultItem(
             }
         },
         title = {
-            Row {
+            Row(verticalAlignment = CenterVertically) {
                 HighlightName(
                     name = name,
                     searchQuery = searchQuery

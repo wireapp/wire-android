@@ -10,7 +10,7 @@ import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
 import com.wire.android.ui.common.bottomsheet.SelectableMenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.RichMenuItemState
 import com.wire.android.ui.theme.wireTypography
-import com.wire.kalium.logic.data.conversation.Member
+import com.wire.kalium.logic.data.conversation.Conversation.Member
 
 @Composable
 fun EditGroupRoleBottomSheet(

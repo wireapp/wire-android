@@ -14,7 +14,7 @@ import com.wire.android.ui.theme.wireTypography
 @Composable
 fun FolderHeader(name: String) {
     Text(
-        text = name,
+        text = name.uppercase(),
         modifier = Modifier
             .padding(start = 16.dp, top = 8.dp, bottom = 8.dp),
         maxLines = 1,

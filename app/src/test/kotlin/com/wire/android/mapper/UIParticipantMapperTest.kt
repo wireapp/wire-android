@@ -7,7 +7,7 @@ import com.wire.android.ui.home.conversations.name
 import com.wire.android.ui.home.conversations.userId
 import com.wire.android.ui.home.conversations.userType
 import com.wire.android.util.ui.WireSessionImageLoader
-import com.wire.kalium.logic.data.conversation.Member
+import com.wire.kalium.logic.data.conversation.Conversation.Member
 import com.wire.kalium.logic.data.conversation.MemberDetails
 import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.data.user.ConnectionState

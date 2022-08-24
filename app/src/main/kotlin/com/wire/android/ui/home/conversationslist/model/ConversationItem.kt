@@ -22,7 +22,8 @@ sealed class ConversationItem {
         override val isLegalHold: Boolean = false,
         override val lastEvent: ConversationLastEvent,
         val unreadMessagesCount: Long = 0,
-        val hasOnGoingCall: Boolean = false
+        val hasOnGoingCall: Boolean = false,
+        val isCreator: Boolean = false
     ) : ConversationItem()
 
     data class PrivateConversation(

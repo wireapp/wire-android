@@ -20,21 +20,21 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.model.Clickable
+import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.RowItemTemplate
-import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.UserBadge
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.WireCheckbox
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.loading.CenteredCircularProgressBarIndicator
 import com.wire.android.ui.home.conversations.search.SearchPeoplePurpose
+import com.wire.android.ui.home.conversations.search.SearchResultState
+import com.wire.android.ui.home.conversations.search.widget.SearchFailureBox
 import com.wire.android.ui.home.conversationslist.folderWithElements
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.newconversation.common.SelectParticipantsButtonsRow
 import com.wire.android.ui.home.newconversation.model.Contact
-import com.wire.android.ui.home.conversations.search.SearchResultState
-import com.wire.android.ui.home.conversations.search.widget.SearchFailureBox
 import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.data.user.ConnectionState
 
@@ -129,7 +129,7 @@ private fun ContactItem(
             }
         },
         title = {
-            Row {
+            Row(verticalAlignment = Alignment.CenterVertically) {
                 Text(
                     text = name,
                     style = MaterialTheme.wireTypography.title02,

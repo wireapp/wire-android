@@ -10,7 +10,7 @@ enum class Membership(@StringRes val stringResourceId: Int) {
     Service(R.string.label_membership_service),
     Owner(-1),
     Admin(-1),
-    Internal(-1), //TODO Kubaz rename to member
+    Standard(-1),
     None(-1)
 }
 

@@ -38,8 +38,6 @@ data class SearchOpenUserProfile(val contact: Contact)
 
 @Composable
 fun SearchPeopleScreen(
-    purpose: SearchPeoplePurpose,
-    scrollPositionProvider: (() -> Int) -> Unit,
     searchQuery: String,
     noneSearchSucceed: Boolean,
     knownContactSearchResult: ContactSearchResult,
@@ -48,7 +46,6 @@ fun SearchPeopleScreen(
     onAddToGroup: (Contact) -> Unit,
     onRemoveFromGroup: (Contact) -> Unit,
     onOpenUserProfile: (SearchOpenUserProfile) -> Unit,
-    onNewGroupClicked: () -> Unit,
     onAddContactClicked: (Contact) -> Unit,
 ) {
     if (searchQuery.isEmpty()) {
@@ -59,8 +56,6 @@ fun SearchPeopleScreen(
         } else {
             Column {
                 SearchResult(
-                    purpose = purpose,
-                    scrollPositionProvider = scrollPositionProvider,
                     searchQuery = searchQuery,
                     knownContactSearchResult = knownContactSearchResult,
                     publicContactSearchResult = publicContactSearchResult,
@@ -68,7 +63,6 @@ fun SearchPeopleScreen(
                     onAddToGroup = onAddToGroup,
                     onRemoveContactFromGroup = onRemoveFromGroup,
                     onOpenUserProfile = onOpenUserProfile,
-                    onNewGroupClicked = onNewGroupClicked,
                     onAddContactClicked = onAddContactClicked
                 )
             }
@@ -78,8 +72,6 @@ fun SearchPeopleScreen(
 
 @Composable
 private fun SearchResult(
-    purpose: SearchPeoplePurpose,
-    scrollPositionProvider: (() -> Int) -> Unit,
     searchQuery: String,
     knownContactSearchResult: ContactSearchResult,
     publicContactSearchResult: ContactSearchResult,
@@ -87,13 +79,10 @@ private fun SearchResult(
     onAddToGroup: (Contact) -> Unit,
     onRemoveContactFromGroup: (Contact) -> Unit,
     onOpenUserProfile: (SearchOpenUserProfile) -> Unit,
-    onNewGroupClicked: () -> Unit,
     onAddContactClicked: (Contact) -> Unit,
 ) {
     val searchPeopleScreenState = rememberSearchPeopleScreenState()
     val lazyListState = rememberLazyListState()
-
-    scrollPositionProvider { lazyListState.firstVisibleItemIndex }
 
     val context = LocalContext.current
 
@@ -124,11 +113,6 @@ private fun SearchResult(
                 onAddContactClicked = onAddContactClicked
             )
         }
-        SelectParticipantsButtonsRow(
-            count = contactsAddedToGroup.size,
-            mainButtonText = stringResource(id = purpose.continueButtonTextResId),
-            onMainButtonClick = onNewGroupClicked
-        )
     }
 }
 

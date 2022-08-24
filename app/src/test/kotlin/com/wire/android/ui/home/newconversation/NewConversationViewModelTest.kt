@@ -1,5 +1,6 @@
 package com.wire.android.ui.home.newconversation
 
+import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.UserAvatarData
@@ -30,7 +31,7 @@ class NewConversationViewModelTest {
             val (arrangement, viewModel) = NewConversationViewModelArrangement().arrange()
 
             // When
-            viewModel.search("search")
+            viewModel.searchQueryChanged(TextFieldValue("search"))
             advanceUntilIdle() // 500ms debounce
 
             // Then
@@ -124,7 +125,7 @@ class NewConversationViewModelTest {
                 .arrange()
 
             // When
-            viewModel.search("search")
+            viewModel.searchQueryChanged(TextFieldValue("search"))
             advanceUntilIdle() // 500ms debounce
 
             // Then

@@ -31,7 +31,7 @@ import com.wire.android.ui.userprofile.group.RemoveConversationMemberState
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
-import com.wire.kalium.logic.data.conversation.Member
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -204,7 +204,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                             OtherUserProfileGroupState(
                                 groupName = conversationRoleData.conversationName,
                                 role = userRole,
-                                isSelfAdmin = conversationRoleData.selfRole is Member.Role.Admin,
+                                isSelfAdmin = conversationRoleData.selfRole is Conversation.Member.Role.Admin,
                                 conversationId = conversationRoleData.conversationId
                             )
                         }
@@ -293,7 +293,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         }
     }
 
-    override fun onChangeMemberRole(role: Member.Role) {
+    override fun onChangeMemberRole(role: Conversation.Member.Role) {
         viewModelScope.launch {
             if (conversationId != null) {
                 updateMemberRole(conversationId, userId, role).also {

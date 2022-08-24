@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.RowScope
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -29,7 +28,6 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.currentBackStackEntryAsState
@@ -85,7 +83,7 @@ fun WireBottomNavigationBar(
 }
 
 @Composable
-fun RowScope.WireBottomNavigationItem(
+fun WireBottomNavigationItem(
     data: WireBottomNavigationItemData,
     selected: Boolean,
     modifier: Modifier = Modifier,
@@ -149,6 +147,6 @@ fun RowScope.WireBottomNavigationItem(
 data class WireBottomNavigationItemData(
     @DrawableRes val icon: Int,
     @StringRes val title: Int,
-    val notificationAmount: Int,
+    val notificationAmount: Long,
     val route: String,
 )

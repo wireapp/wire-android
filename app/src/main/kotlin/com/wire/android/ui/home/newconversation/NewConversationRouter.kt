@@ -62,7 +62,7 @@ fun NewConversationRouter() {
                 content = {
                     NewGroupScreen(
                         onBackPressed = newConversationNavController::popBackStack,
-                        newGroupState = newConversationViewModel.groupNameState,
+                        newGroupState = newConversationViewModel.newGroupState,
                         onGroupNameChange = newConversationViewModel::onGroupNameChange,
                         onContinuePressed = { newConversationNavController.navigate(Screen.GroupOptionsScreen.route) },
                         onGroupNameErrorAnimated = newConversationViewModel::onGroupNameErrorAnimated
@@ -82,7 +82,8 @@ fun NewConversationRouter() {
                         onReadReceiptChanged = newConversationViewModel::onReadReceiptStatusChanged,
                         onAllowGuestsDialogDismissed = newConversationViewModel::onAllowGuestsDialogDismissed,
                         onAllowGuestsClicked = newConversationViewModel::onAllowGuestsClicked,
-                        onNotAllowGuestsClicked = newConversationViewModel::onNotAllowGuestClicked
+                        onNotAllowGuestsClicked = newConversationViewModel::onNotAllowGuestClicked,
+                        onErrorDismissed = newConversationViewModel::onGroupOptionsErrorDismiss
                     )
                 }
             )

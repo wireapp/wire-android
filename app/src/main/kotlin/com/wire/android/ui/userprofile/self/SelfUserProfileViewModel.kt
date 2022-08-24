@@ -126,8 +126,8 @@ class SelfUserProfileViewModel @Inject constructor(
     }
 
     fun editProfile() {
-        viewModelScope.launch {
-            navigationManager.navigate(NavigationCommand(NavigationItem.Settings.getRouteWithArgs()))
+        viewModelScope.launch { // TODO change to "Your Account Settings" when implemented
+            navigationManager.navigate(NavigationCommand(NavigationItem.AppSettings.getRouteWithArgs()))
         }
     }
 

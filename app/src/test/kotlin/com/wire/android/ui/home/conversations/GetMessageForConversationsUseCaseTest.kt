@@ -8,6 +8,7 @@ import com.wire.android.ui.home.conversations.model.MessageContent
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
+import com.wire.android.ui.home.conversations.model.MessageTime
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
 import com.wire.android.util.ui.UIText
@@ -134,7 +135,7 @@ class GetMessageForConversationsUseCaseTest {
                 every { it.messageId } returns "someId"
                 every { it.username } returns UIText.DynamicString(userName)
                 every { it.isLegalHold } returns false
-                every { it.time } returns ""
+                every { it.messageTime } returns MessageTime("")
                 every { it.messageStatus } returns MessageStatus.Untouched
             }
             every { it.messageContent } returns MessageContent.TextMessage(MessageBody(UIText.DynamicString(messageBody)))

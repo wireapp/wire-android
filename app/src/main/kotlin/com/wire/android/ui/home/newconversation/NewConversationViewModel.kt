@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
+import com.wire.android.appLogger
 import com.wire.android.mapper.ContactMapper
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
@@ -29,12 +30,11 @@ import com.wire.kalium.logic.feature.publicuser.search.Result
 import com.wire.kalium.logic.feature.publicuser.search.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchUsersUseCase
 import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
-import com.wire.kalium.logic.functional.Either
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-@Suppress("LongParameterList","TooManyFunctions")
+@Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel
 class NewConversationViewModel @Inject constructor(
     private val getAllKnownUsers: GetAllContactsUseCase,
@@ -51,7 +51,7 @@ class NewConversationViewModel @Inject constructor(
         const val GROUP_NAME_MAX_COUNT = 64
     }
 
-    var groupNameState: NewGroupState by mutableStateOf(NewGroupState(mlsEnabled = isMLSEnabled()))
+    var newGroupState: NewGroupState by mutableStateOf(NewGroupState(mlsEnabled = isMLSEnabled()))
 
     var groupOptionsState: GroupOptionState by mutableStateOf(GroupOptionState())
 
@@ -100,30 +100,34 @@ class NewConversationViewModel @Inject constructor(
     fun onGroupNameChange(newText: TextFieldValue) {
         when {
             newText.text.trim().isEmpty() -> {
-                groupNameState = groupNameState.copy(
+                newGroupState = newGroupState.copy(
                     animatedGroupNameError = true,
                     groupName = newText,
                     continueEnabled = false,
-                    error = NewGroupState.GroupNameError.TextFieldError.GroupNameEmptyError
+                    error = NewGroupState.NewGroupError.TextFieldError.GroupNameEmptyError
                 )
             }
             newText.text.trim().count() > GROUP_NAME_MAX_COUNT -> {
-                groupNameState = groupNameState.copy(
+                newGroupState = newGroupState.copy(
                     animatedGroupNameError = true,
                     groupName = newText,
                     continueEnabled = false,
-                    error = NewGroupState.GroupNameError.TextFieldError.GroupNameExceedLimitError
+                    error = NewGroupState.NewGroupError.TextFieldError.GroupNameExceedLimitError
                 )
             }
             else -> {
-                groupNameState = groupNameState.copy(
+                newGroupState = newGroupState.copy(
                     animatedGroupNameError = false,
                     groupName = newText,
                     continueEnabled = true,
-                    error = NewGroupState.GroupNameError.None
+                    error = NewGroupState.NewGroupError.None
                 )
             }
         }
+    }
+
+    fun onGroupOptionsErrorDismiss() {
+        groupOptionsState = groupOptionsState.copy(error = null)
     }
 
     fun onAllowGuestStatusChanged(status: Boolean) {
@@ -197,39 +201,47 @@ class NewConversationViewModel @Inject constructor(
         if (shouldCheckGuests && checkIfGuestAdded())
             return
         viewModelScope.launch {
-            groupNameState = groupNameState.copy(isLoading = true)
-
-            when (val result = createGroupConversation(
-                name = groupNameState.groupName.text,
+            newGroupState = newGroupState.copy(isLoading = true)
+            val result = createGroupConversation(
+                name = newGroupState.groupName.text,
                 // TODO: change the id in Contact to UserId instead of String
                 userIdList = state.contactsAddedToGroup.map { contact -> UserId(contact.id, contact.domain) },
                 options = ConversationOptions().copy(
-                    protocol = groupNameState.groupProtocol,
+                    protocol = newGroupState.groupProtocol,
                     readReceiptsEnabled = groupOptionsState.isReadReceiptEnabled,
                     accessRole = groupOptionsState.accessRoleState
                 )
             )
-            ) {
-                // TODO: handle the error state
-                is Either.Left -> {
-                    groupNameState = groupNameState.copy(isLoading = false)
-                    Log.d("TEST", "error while creating a group ${result.value}")
-                }
-                is Either.Right -> {
-                    groupNameState = groupNameState.copy(isLoading = false)
-                    navigationManager.navigate(
-                        command = NavigationCommand(
-                            destination = NavigationItem.Conversation.getRouteWithArgs(listOf(result.value.id)),
-                            backStackMode = BackStackMode.REMOVE_CURRENT
-                        )
+            handleNewGroupCreationResult(result)
+        }
+    }
+
+    private suspend fun handleNewGroupCreationResult(result: CreateGroupConversationUseCase.Result) {
+        when (result) {
+            is CreateGroupConversationUseCase.Result.Success -> {
+                newGroupState = newGroupState.copy(isLoading = false)
+                navigationManager.navigate(
+                    command = NavigationCommand(
+                        destination = NavigationItem.Conversation.getRouteWithArgs(listOf(result.conversation.id)),
+                        backStackMode = BackStackMode.REMOVE_CURRENT
                     )
-                }
+                )
+            }
+
+            CreateGroupConversationUseCase.Result.SyncFailure -> {
+                appLogger.d("Can't create group due to SyncFailure")
+                groupOptionsState = groupOptionsState.copy(isLoading = false, error = GroupOptionState.Error.LackingConnection)
+            }
+
+            is CreateGroupConversationUseCase.Result.UnknownFailure -> {
+                appLogger.w("Error while creating a group ${result.cause}")
+                groupOptionsState = groupOptionsState.copy(isLoading = false, error = GroupOptionState.Error.Unknown)
             }
         }
     }
 
     fun onGroupNameErrorAnimated() {
-        groupNameState = groupNameState.copy(animatedGroupNameError = false)
+        newGroupState = newGroupState.copy(animatedGroupNameError = false)
     }
 
 }

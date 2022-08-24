@@ -10,6 +10,7 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
+import com.wire.android.ui.home.conversations.model.MessageTime
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
 import com.wire.android.util.FileManager
@@ -39,6 +40,7 @@ import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
+import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
@@ -140,6 +142,9 @@ internal class ConversationsViewModelArrangement {
     @MockK
     private lateinit var endCall: EndCallUseCase
 
+    @MockK
+    private lateinit var updateConversationReadDateUseCase: UpdateConversationReadDateUseCase
+
     private val fakeKaliumFileSystem = FakeKaliumFileSystem()
 
     private val conversationDetailsChannel = Channel<ConversationDetails>(capacity = Channel.UNLIMITED)
@@ -167,7 +172,8 @@ internal class ConversationsViewModelArrangement {
             wireSessionImageLoader = wireSessionImageLoader,
             kaliumFileSystem = fakeKaliumFileSystem,
             observeEstablishedCalls = observeEstablishedCallsUseCase,
-            endCall = endCall
+            endCall = endCall,
+            updateConversationReadDateUseCase = updateConversationReadDateUseCase
         )
     }
 
@@ -268,7 +274,8 @@ internal fun withMockConversationDetailsOneOnOne(
     connectionState = ConnectionState.PENDING,
     legalHoldStatus = LegalHoldStatus.DISABLED,
     userType = UserType.INTERNAL,
-    unreadMessagesCount = 0L
+    unreadMessagesCount = 0L,
+    lastUnreadMessage = null
 )
 
 internal fun mockConversationDetailsGroup(conversationName: String) = ConversationDetails.Group(
@@ -278,7 +285,8 @@ internal fun mockConversationDetailsGroup(conversationName: String) = Conversati
     },
     legalHoldStatus = mockk(),
     hasOngoingCall = false,
-    unreadMessagesCount = 0
+    unreadMessagesCount = 0,
+    lastUnreadMessage = null
 )
 
 internal fun mockUITextMessage(userName: String = "mockUserName"): UIMessage {
@@ -289,7 +297,7 @@ internal fun mockUITextMessage(userName: String = "mockUserName"): UIMessage {
             every { it.messageId } returns "someId"
             every { it.username } returns UIText.DynamicString(userName)
             every { it.isLegalHold } returns false
-            every { it.time } returns ""
+            every { it.messageTime } returns MessageTime("")
             every { it.messageStatus } returns MessageStatus.Untouched
         }
         every { it.messageContent } returns null

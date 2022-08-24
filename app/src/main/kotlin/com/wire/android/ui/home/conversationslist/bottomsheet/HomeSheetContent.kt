@@ -24,6 +24,7 @@ import com.wire.android.ui.common.conversationColor
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
 import com.wire.android.ui.home.conversationslist.model.BlockingState
+import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.ui.home.conversationslist.model.getMutedStatusTextResource
 import com.wire.android.ui.theme.wireTypography
@@ -37,7 +38,7 @@ internal fun ConversationMainSheetContent(
     addConversationToFavourites: () -> Unit,
     moveConversationToFolder: () -> Unit,
     moveConversationToArchive: () -> Unit,
-    clearConversationContent: (ConversationId) -> Unit,
+    clearConversationContent: (DialogState) -> Unit,
     blockUserClick: (UserId, String) -> Unit,
     leaveGroup: (GroupDialogState) -> Unit,
     deleteGroup: (GroupDialogState) -> Unit,
@@ -125,7 +126,15 @@ internal fun ConversationMainSheetContent(
                         )
                     },
                     title = stringResource(R.string.label_clear_content),
-                    onItemClick = { clearConversationContent(conversationSheetContent.conversationId) }
+                    onItemClick = {
+                        clearConversationContent(
+                            DialogState(
+                                conversationSheetContent.conversationId,
+                                conversationSheetContent.title,
+                                conversationSheetContent.conversationTypeDetail
+                            )
+                        )
+                    }
                 )
             },
             {

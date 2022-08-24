@@ -9,18 +9,21 @@ import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.visbility.VisibilityState
+import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationTypeDetail
+import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
+import com.wire.kalium.logic.data.id.ConversationId
 
 @Composable
-internal fun DeleteConversationGroupDialog(
-    dialogState: VisibilityState<GroupDialogState>,
+fun ClearConversationContentDialog(
+    dialogState: VisibilityState<DialogState>,
     isLoading: Boolean,
-    onDeleteGroup: (GroupDialogState) -> Unit,
+    onClearConversationContent: (ConversationId) -> Unit
 ) {
     VisibilityStateExt(dialogState) {
         WireDialog(
-            title = stringResource(id = R.string.delete_group_conversation_dialog_title, it.conversationName),
-            text = stringResource(id = R.string.delete_group_conversation_dialog_description),
+            title = stringResource(id = R.string.leave_group_conversation_dialog_title, it.conversationName),
+            text = stringResource(id = R.string.leave_group_conversation_dialog_description),
             buttonsHorizontalAlignment = true,
             onDismiss = dialogState::dismiss,
             dismissButtonProperties = WireDialogButtonProperties(
@@ -29,8 +32,8 @@ internal fun DeleteConversationGroupDialog(
                 state = WireButtonState.Default
             ),
             optionButton1Properties = WireDialogButtonProperties(
-                onClick = { onDeleteGroup(it) },
-                text = stringResource(id = R.string.label_remove),
+                onClick = { onClearConversationContent(it.conversationId) },
+                text = stringResource(id = R.string.label_leave),
                 type = WireDialogButtonType.Primary,
                 state =
                 if (isLoading)
@@ -42,4 +45,3 @@ internal fun DeleteConversationGroupDialog(
         )
     }
 }
-

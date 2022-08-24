@@ -5,6 +5,7 @@ import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
@@ -106,11 +107,11 @@ abstract class SearchPeopleViewModel(
         }
     }
 
-    fun search(searchTerm: String) {
+    fun searchQueryChanged(searchQuery: TextFieldValue) {
+        val textQueryChanged = innerSearchPeopleState.searchQuery.text != searchQuery.text
         // we set the state with a searchQuery, immediately to update the UI first
-        innerSearchPeopleState = state.copy(searchQuery = searchTerm)
-
-        searchQueryStateFlow.search(searchTerm)
+        innerSearchPeopleState = state.copy(searchQuery = searchQuery)
+        if (textQueryChanged) searchQueryStateFlow.search(searchQuery.text)
     }
 
     private suspend fun searchKnown(searchTerm: String) {
@@ -158,7 +159,7 @@ abstract class SearchPeopleViewModel(
                     appLogger.d(("Couldn't send a connect request to user $userId"))
                 }
                 is SendConnectionRequestResult.Success -> {
-                    searchPublic(state.searchQuery, showProgress = false)
+                    searchPublic(state.searchQuery.text, showProgress = false)
                     snackbarMessageState = NewConversationSnackbarState.SuccessSendConnectionRequest
                 }
             }

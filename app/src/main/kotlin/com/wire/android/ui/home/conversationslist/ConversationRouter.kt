@@ -156,8 +156,8 @@ fun ConversationRouterHomeBridge(
     )
 
     LeaveConversationGroupDialog(
-        dialogState = leaveGroupDialogState,
         isLoading = viewModel.requestInProgress,
+        dialogState = leaveGroupDialogState,
         onLeaveGroup = viewModel::leaveGroup
     )
 

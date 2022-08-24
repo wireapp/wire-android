@@ -77,7 +77,6 @@ class ConversationListViewModel @Inject constructor(
     private val blockUserUseCase: BlockUserUseCase,
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val userTypeMapper: UserTypeMapper,
-    private val leaveGroupConversation: RemoveMemberFromConversationUseCase,
     private val clearConversationContentUseCase: ClearConversationContentUseCase
 ) : ViewModel() {
 
@@ -226,7 +225,7 @@ class ConversationListViewModel @Inject constructor(
     }
 
     fun clearConversationContent(conversationId: ConversationId) {
-        viewModelScope.launch {
+        executeWithProgress {
             when (clearConversationContentUseCase(conversationId)) {
                 ClearConversationContentUseCase.Result.Failure -> {
                     snackBarState.emit(HomeSnackbarState.ClearConversationContentSuccess)
@@ -265,8 +264,7 @@ class ConversationListViewModel @Inject constructor(
     }
 
     fun leaveGroup(leaveGroupState: GroupDialogState) {
-        viewModelScope.launch {
-            requestInProgress = true
+        executeWithProgress {
             val response = withContext(dispatcher.io()) {
                 val selfUser = observeSelfUser().first()
                 removeMemberFromConversation(
@@ -281,25 +279,32 @@ class ConversationListViewModel @Inject constructor(
                     snackBarState.emit(HomeSnackbarState.LeftConversationSuccess)
                 }
             }
-            requestInProgress = false
         }
     }
 
     fun deleteGroup(groupDialogState: GroupDialogState) {
-        viewModelScope.launch {
-            requestInProgress = true
+        executeWithProgress {
             when (withContext(dispatcher.io()) { deleteTeamConversation(groupDialogState.conversationId) }) {
                 is Result.Failure.GenericFailure -> snackBarState.emit(HomeSnackbarState.DeleteConversationGroupError)
                 Result.Failure.NoTeamFailure -> snackBarState.emit(HomeSnackbarState.DeleteConversationGroupError)
                 Result.Success -> snackBarState.emit(HomeSnackbarState.DeletedConversationGroupSuccess(groupDialogState.conversationName))
             }
         }
-        requestInProgress = false
+    }
+
+    private fun executeWithProgress(request: suspend () -> Unit) {
+        requestInProgress = true
+
+        viewModelScope.launch {
+            request()
+            requestInProgress = false
+        }
     }
 
     private fun List<ConversationDetails>.toConversationItemList(selfUser: SelfUser?): List<ConversationItem> =
         filter { it is Group || it is OneOne || it is Connection }
             .map { it.toConversationItem(wireSessionImageLoader, selfUser, userTypeMapper) }
+
 }
 
 private fun LegalHoldStatus.showLegalHoldIndicator() = this == LegalHoldStatus.ENABLED

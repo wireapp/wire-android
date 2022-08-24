@@ -1,6 +1,7 @@
 package com.wire.android.ui.home.conversations.details.menu
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.ui.common.VisibilityStateExt
@@ -20,6 +21,12 @@ fun ClearConversationContentDialog(
     isLoading: Boolean,
     onClearConversationContent: (ConversationId) -> Unit
 ) {
+    LaunchedEffect(isLoading) {
+        if (!isLoading) {
+            dialogState.dismiss()
+        }
+    }
+
     VisibilityStateExt(dialogState) {
         WireDialog(
             title = "Clear content?",

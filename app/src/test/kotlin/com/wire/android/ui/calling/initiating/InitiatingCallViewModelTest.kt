@@ -23,15 +23,31 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestCoroutineScheduler
+import kotlinx.coroutines.test.advanceUntilIdle
+import kotlinx.coroutines.test.resetMain
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class InitiatingCallViewModelTest {
 
+    private val dispatcher = StandardTestDispatcher()
+
+    @BeforeEach
+    fun setup() {
+        Dispatchers.setMain(dispatcher)
+    }
+
+    @AfterEach
+    fun tearDown() {
+        Dispatchers.resetMain()
+    }
+
     @Test
-    fun `given an outgoing call, when the user ends call, then invoke endCall useCase and close the screen`() = runTest {
+    fun `given an outgoing call, when the user ends call, then invoke endCall useCase and close the screen`() = runTest(dispatcher) {
         // Given
         val (arrangement, viewModel) = Arrangement()
             .withEndingCall()
@@ -39,6 +55,7 @@ class InitiatingCallViewModelTest {
 
         // When
         viewModel.hangUpCall()
+        advanceUntilIdle()
 
         // Then
         with(arrangement) {

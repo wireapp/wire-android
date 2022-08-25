@@ -1,7 +1,5 @@
 package com.wire.android.ui.userprofile.self
 
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -10,8 +8,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.datastore.UserDataStore
+import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.model.ImageAsset.UserAvatarAsset
-import com.wire.android.navigation.HomeNavigationItem.Settings
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
@@ -23,6 +21,7 @@ import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
+import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import com.wire.kalium.logic.feature.user.UpdateSelfAvailabilityStatusUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.combine
@@ -43,7 +42,9 @@ class SelfUserProfileViewModel @Inject constructor(
     private val updateStatus: UpdateSelfAvailabilityStatusUseCase,
     private val logout: LogoutUseCase,
     private val dispatchers: DispatcherProvider,
-    private val wireSessionImageLoader: WireSessionImageLoader
+    private val wireSessionImageLoader: WireSessionImageLoader,
+    private val authServerConfigProvider: AuthServerConfigProvider,
+    private val selfServerLinks: SelfServerConfigUseCase
 ) : ViewModel() {
 
     var userProfileState by mutableStateOf(SelfUserProfileState())
@@ -73,7 +74,6 @@ class SelfUserProfileViewModel @Inject constructor(
                         )
                     }
                 }
-
         }
     }
 
@@ -124,7 +124,14 @@ class SelfUserProfileViewModel @Inject constructor(
 
     fun addAccount() {
         viewModelScope.launch {
-            navigationManager.navigate(NavigationCommand(NavigationItem.CreatePersonalAccount.getRouteWithArgs()))
+            val selfServerLinks = with(selfServerLinks()) {
+                when (this) {
+                    is SelfServerConfigUseCase.Result.Failure -> return@launch
+                    is SelfServerConfigUseCase.Result.Success -> this.serverLinks
+                }
+            }
+            authServerConfigProvider.updateAuthServer(selfServerLinks)
+            navigationManager.navigate(NavigationCommand(NavigationItem.Welcome.getRouteWithArgs()))
         }
     }
 

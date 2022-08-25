@@ -1,3 +1,5 @@
+@file:Suppress("TooManyFunctions")
+
 package com.wire.android.ui.authentication.welcome
 
 import android.content.res.TypedArray

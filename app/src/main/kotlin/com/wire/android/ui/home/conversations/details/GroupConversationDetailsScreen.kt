@@ -115,8 +115,7 @@ private fun GroupConversationDetailsContent(
     val elevationState by remember { derivedStateOf { lazyListStates[currentTabState].topBarElevation(maxAppBarElevation) } }
 
     val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
-    val openBottomSheet: () -> Unit = remember { { scope.launch { sheetState.show() } } }
-    val closeBottomSheet: () -> Unit = remember { { scope.launch { sheetState.hide() } } }
+    val openBottomSheet: () -> Unit = remember { { scope.launch { sheetState.animateTo(ModalBottomSheetValue.Expanded) } } }
 
     val deleteGroupDialogState = rememberVisibilityState<GroupDialogState>()
     val leaveGroupDialogState = rememberVisibilityState<GroupDialogState>()
@@ -130,9 +129,9 @@ private fun GroupConversationDetailsContent(
                     conversationSheetContent = ConversationSheetContent(
                         title = groupOptionsState.groupName,
                         conversationId = groupOptionsState.conversationId,
-                        mutingConversationState = MutedConversationStatus.AllMuted,
+                        mutingConversationState = groupOptionsState.mutedState,
                         conversationTypeDetail = ConversationTypeDetail.Group(
-                            groupOptionsState.conversationId,
+                            conversationId = groupOptionsState.conversationId,
                             isCreator = groupOptionsState.isAbleToRemoveGroup
                         )
                     ),
@@ -219,7 +218,6 @@ private fun GroupConversationDetailsContent(
         isLoading = isLoading,
         onLeaveGroup = onLeaveGroup
     )
-
 }
 
 enum class GroupConversationDetailsTabItem(@StringRes override val titleResId: Int) : TabItem {

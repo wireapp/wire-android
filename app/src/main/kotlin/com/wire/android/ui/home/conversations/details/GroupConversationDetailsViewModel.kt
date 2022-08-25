@@ -107,6 +107,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
                                             groupOptionsState.copy(
                                                 groupName = conversation.name.orEmpty(),
                                                 isUpdatingAllowed = isSelfAnAdmin,
+                                                mutedState = conversation.mutedStatus,
                                                 areAccessOptionsAvailable = conversation.isTeamGroup(),
                                                 isGuestAllowed = (conversation.isGuestAllowed() || conversation.isNonTeamMemberAllowed()),
                                                 isServicesAllowed = conversation.isServicesAllowed(),

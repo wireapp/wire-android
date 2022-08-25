@@ -19,6 +19,8 @@ import com.wire.android.ui.home.conversations.details.options.GroupConversationO
 import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 
+
+//TODO:kubaz : remove in name of ConversationSheetContent
 @Composable
 fun ConversationGroupDetailsBottomSheet(
     conversationOptionsState: GroupConversationOptionsState,

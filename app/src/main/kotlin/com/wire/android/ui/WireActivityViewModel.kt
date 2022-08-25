@@ -26,6 +26,8 @@ import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
+import com.wire.kalium.logic.feature.session.GetAllSessionsResult
+import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -50,27 +52,23 @@ class WireActivityViewModel @Inject constructor(
     private val notificationManager: WireNotificationManager,
     private val navigationManager: NavigationManager,
     private val authServerConfigProvider: AuthServerConfigProvider,
+    private val getSessions: GetSessionsUseCase,
     observePersistentWebSocketConnectionStatus: ObservePersistentWebSocketConnectionStatusUseCase
 ) : ViewModel() {
 
     private val navigationArguments = mutableMapOf<String, Any>(SERVER_CONFIG_ARG to ServerConfig.DEFAULT)
     var shouldShowDeeplinkDialogState: CustomBEDeeplinkDialogState by mutableStateOf(CustomBEDeeplinkDialogState())
 
-    private val observeUserId = currentSessionFlow()
-        .map { result ->
-            if (result is CurrentSessionResult.Success) {
-                if (result.authSession.session is AuthSession.Session.Invalid) {
-                    navigateToLogin(result.authSession.session.userId)
-                    null
-                } else
-                    result.authSession.session.userId
-            } else {
+    private val observeUserId = currentSessionFlow().map { result ->
+        if (result is CurrentSessionResult.Success) {
+            if (result.authSession.session is AuthSession.Session.Invalid) {
+                navigateToLogin(result.authSession.session.userId)
                 null
-            }
+            } else result.authSession.session.userId
+        } else {
+            null
         }
-        .distinctUntilChanged()
-        .flowOn(dispatchers.io())
-        .shareIn(viewModelScope, SharingStarted.WhileSubscribed(), 1)
+    }.distinctUntilChanged().flowOn(dispatchers.io()).shareIn(viewModelScope, SharingStarted.WhileSubscribed(), 1)
 
     init {
         viewModelScope.launch(dispatchers.io()) {
@@ -85,37 +83,32 @@ class WireActivityViewModel @Inject constructor(
     private suspend fun navigateToLogin(userId: UserId) {
         navigationManager.navigate(
             NavigationCommand(
-                NavigationItem.Login.getRouteWithArgs(listOf(userId)),
-                BackStackMode.CLEAR_WHOLE
+                NavigationItem.Login.getRouteWithArgs(listOf(userId)), BackStackMode.CLEAR_WHOLE
             )
         )
     }
 
     fun navigationArguments() = navigationArguments.values.toList()
 
-    fun startNavigationRoute(): String =
-        when {
-//            shouldGoToLogin() -> NavigationItem.Welcome.getRouteWithArgs()
-            shouldGoToLogin() -> {
-                shouldShowDeeplinkDialogState = shouldShowDeeplinkDialogState.copy(shouldShowDialog = true)
-                NavigationItem.Welcome.getRouteWithArgs()
-            }
-
-            shouldGoToWelcome() -> NavigationItem.Welcome.getRouteWithArgs()
-            else -> NavigationItem.Home.getRouteWithArgs()
-        }
+    fun startNavigationRoute(): String = when {
+        shouldGoToLogin() -> NavigationItem.Welcome.getRouteWithArgs()
+        shouldGoToWelcome() -> NavigationItem.Welcome.getRouteWithArgs()
+        else -> NavigationItem.Home.getRouteWithArgs()
+    }
 
     fun handleDeepLink(intent: Intent?) {
         intent?.data?.let { deepLink ->
             when (val result = deepLinkProcessor(deepLink)) {
-                is DeepLinkResult.CustomServerConfig ->
-                    loadServerConfig(result.url)?.let { serverLinks ->
-                        authServerConfigProvider.updateAuthServer(serverLinks)
-                        navigationArguments.put(SERVER_CONFIG_ARG, serverLinks)
-                    }
+                is DeepLinkResult.CustomServerConfig -> loadServerConfig(result.url)?.let { serverLinks ->
+                    authServerConfigProvider.updateAuthServer(serverLinks)
+                    shouldShowDeeplinkDialogState = shouldShowDeeplinkDialogState.copy(
+                        shouldShowDialog = true, backendName = serverLinks.title, backendUrl = serverLinks.teams
+                    )
 
-                is DeepLinkResult.SSOLogin ->
-                    navigationArguments.put(SSO_DEEPLINK_ARG, result)
+//                        navigationArguments.put(SERVER_CONFIG_ARG, serverLinks)
+                }
+
+                is DeepLinkResult.SSOLogin -> navigationArguments.put(SSO_DEEPLINK_ARG, result)
 
                 is DeepLinkResult.IncomingCall -> {
                     if (isLaunchedFromHistory(intent)) {
@@ -191,6 +184,23 @@ class WireActivityViewModel @Inject constructor(
         }
     }
 
+    private fun checkNumberOfSessions(): Int {
+        getSessions().let {
+            when (it) {
+                is GetAllSessionsResult.Success -> {
+                    if (it.sessions.isNullOrEmpty()) {
+                        return 0
+                    } else {
+                        return it.sessions.size
+                    }
+                }
+                else -> {
+                    return 0
+                }
+            }
+        }
+    }
+
     private fun openIncomingCall(conversationId: ConversationId) {
         navigateTo(NavigationCommand(NavigationItem.IncomingCall.getRouteWithArgs(listOf(conversationId))))
     }
@@ -214,37 +224,33 @@ class WireActivityViewModel @Inject constructor(
 
     private fun loadServerConfig(url: String): ServerConfig.Links? = runBlocking {
         return@runBlocking when (val result = getServerConfigUseCase(url)) {
-            is GetServerConfigResult.Success -> result.serverConfig.links
+            is GetServerConfigResult.Success -> result.serverConfigLinks
             // TODO: show error message on failure
             is GetServerConfigResult.Failure.Generic -> {
-                appLogger.e("something went wrong during handling the scustom server deep link: ${result.genericFailure}")
+                appLogger.e("something went wrong during handling the custom server deep link: ${result.genericFailure}")
                 null
             }
 
-            GetServerConfigResult.Failure.TooNewVersion -> {
-                appLogger.e("server version is too new")
-                null
-            }
+//            GetServerConfigResult.Failure.TooNewVersion -> {
+//                appLogger.e("server version is too new")
+//                null
+//            }
 
-            GetServerConfigResult.Failure.UnknownServerVersion -> {
-                appLogger.e("unknown server version")
-                null
-            }
+//            GetServerConfigResult.Failure.UnknownServerVersion -> {
+//                appLogger.e("unknown server version")
+//                null
+//            }
         }
     }
 
     private fun shouldGoToLogin(): Boolean =
-        (navigationArguments[SERVER_CONFIG_ARG] as ServerConfig.Links) != ServerConfig.DEFAULT ||
-                navigationArguments[SSO_DEEPLINK_ARG] != null
+        (navigationArguments[SERVER_CONFIG_ARG] as ServerConfig.Links) != ServerConfig.DEFAULT || navigationArguments[SSO_DEEPLINK_ARG] != null
 
-    private fun shouldGoToIncomingCall(): Boolean =
-        (navigationArguments[INCOMING_CALL_CONVERSATION_ID_ARG] as? ConversationId) != null
+    private fun shouldGoToIncomingCall(): Boolean = (navigationArguments[INCOMING_CALL_CONVERSATION_ID_ARG] as? ConversationId) != null
 
-    private fun shouldGoToConversation(): Boolean =
-        (navigationArguments[OPEN_CONVERSATION_ID_ARG] as? ConversationId) != null
+    private fun shouldGoToConversation(): Boolean = (navigationArguments[OPEN_CONVERSATION_ID_ARG] as? ConversationId) != null
 
-    private fun shouldGoToOtherProfile(): Boolean =
-        (navigationArguments[OPEN_OTHER_USER_PROFILE_ARG] as? QualifiedID) != null
+    private fun shouldGoToOtherProfile(): Boolean = (navigationArguments[OPEN_OTHER_USER_PROFILE_ARG] as? QualifiedID) != null
 
     private fun shouldGoToWelcome(): Boolean = runBlocking { observeUserId.first() } == null
 

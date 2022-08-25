@@ -268,6 +268,11 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun provideGetAllSessionsUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
+        coreLogic.getGlobalScope().session.allSessions
+
+    @ViewModelScoped
+    @Provides
     fun provideCurrentSessionFlowUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
         coreLogic.getGlobalScope().session.currentSessionFlow
 

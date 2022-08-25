@@ -1,6 +1,9 @@
 package com.wire.android.ui
 
 import android.content.Intent
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
@@ -10,6 +13,7 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.notification.WireNotificationManager
+import com.wire.android.ui.common.dialogs.CustomBEDeeplinkDialogState
 import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -50,6 +54,7 @@ class WireActivityViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val navigationArguments = mutableMapOf<String, Any>(SERVER_CONFIG_ARG to ServerConfig.DEFAULT)
+    var shouldShowDeeplinkDialogState: CustomBEDeeplinkDialogState by mutableStateOf(CustomBEDeeplinkDialogState())
 
     private val observeUserId = currentSessionFlow()
         .map { result ->
@@ -90,7 +95,12 @@ class WireActivityViewModel @Inject constructor(
 
     fun startNavigationRoute(): String =
         when {
-            shouldGoToLogin() -> NavigationItem.Login.getRouteWithArgs()
+//            shouldGoToLogin() -> NavigationItem.Welcome.getRouteWithArgs()
+            shouldGoToLogin() -> {
+                shouldShowDeeplinkDialogState = shouldShowDeeplinkDialogState.copy(shouldShowDialog = true)
+                NavigationItem.Welcome.getRouteWithArgs()
+            }
+
             shouldGoToWelcome() -> NavigationItem.Welcome.getRouteWithArgs()
             else -> NavigationItem.Home.getRouteWithArgs()
         }

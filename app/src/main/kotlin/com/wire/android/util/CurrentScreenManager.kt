@@ -86,6 +86,7 @@ sealed class CurrentScreen {
     companion object {
         val qualifiedIdMapper = QualifiedIdMapperImpl(null)
 
+        @Suppress("ComplexMethod")
         fun fromNavigationItem(currentItem: NavigationItem?, arguments: Bundle?): CurrentScreen =
             when (currentItem) {
                 NavigationItem.Home -> Home

@@ -20,6 +20,7 @@ import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
+@Suppress("TooManyFunctions")
 class CallNotificationManager @Inject constructor(private val context: Context) {
 
     private val notificationManager = NotificationManagerCompat.from(context)

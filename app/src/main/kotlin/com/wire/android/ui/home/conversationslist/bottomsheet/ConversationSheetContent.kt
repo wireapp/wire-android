@@ -25,7 +25,7 @@ fun ConversationSheetContent(
 ) {
     when (conversationSheetState.currentOptionNavigation) {
         ConversationOptionNavigation.Home -> {
-            ConversationMainSheetContent(
+            ConversationHomeSheetContent(
                 conversationSheetContent = conversationSheetState.conversationSheetContent!!,
                 addConversationToFavourites = addConversationToFavourites,
                 moveConversationToFolder = moveConversationToFolder,

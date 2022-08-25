@@ -52,10 +52,18 @@ import com.wire.android.ui.home.conversations.details.options.GroupConversationO
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipants
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipantsState
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
+import com.wire.android.ui.home.conversationslist.MutingConversationState
+import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationOptionNavigation
+import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
+import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationTypeDetail
+import com.wire.android.ui.home.conversationslist.bottomsheet.rememberConversationSheetState
+import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
+import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.QualifiedID
 import kotlinx.coroutines.launch
 
 @Composable
@@ -74,6 +82,7 @@ fun GroupConversationDetailsScreen(viewModel: GroupConversationDetailsViewModel)
         onDeleteGroup = viewModel::deleteGroup,
         isLoading = viewModel.requestInProgress
     )
+
     LaunchedEffect(Unit) {
         viewModel.snackBarMessage.collect { snackbarHostState.showSnackbar(it.asString(context.resources)) }
     }
@@ -112,19 +121,31 @@ private fun GroupConversationDetailsContent(
     val deleteGroupDialogState = rememberVisibilityState<GroupDialogState>()
     val leaveGroupDialogState = rememberVisibilityState<GroupDialogState>()
 
-    if(!isLoading) {
-        deleteGroupDialogState.dismiss()
-        leaveGroupDialogState.dismiss()
-    }
     WireModalSheetLayout(
         sheetState = sheetState,
         coroutineScope = rememberCoroutineScope(),
         sheetContent = {
-            ConversationGroupDetailsBottomSheet(
-                conversationOptionsState = groupOptionsState,
-                closeBottomSheet = closeBottomSheet,
-                onDeleteGroup = deleteGroupDialogState::show,
-                onLeaveGroup = leaveGroupDialogState::show
+            ConversationSheetContent(
+                conversationSheetState = rememberConversationSheetState(
+                    conversationSheetContent = ConversationSheetContent(
+                        title = groupOptionsState.groupName,
+                        conversationId = groupOptionsState.conversationId,
+                        mutingConversationState = MutedConversationStatus.AllMuted,
+                        conversationTypeDetail = ConversationTypeDetail.Group(
+                            groupOptionsState.conversationId,
+                            isCreator = groupOptionsState.isAbleToRemoveGroup
+                        )
+                    ),
+                    conversationOptionNavigation = ConversationOptionNavigation.Home
+                ),
+                onMutingConversationStatusChange = { },
+                addConversationToFavourites = { /*TODO*/ },
+                moveConversationToFolder = { /*TODO*/ },
+                moveConversationToArchive = { /*TODO*/ },
+                clearConversationContent = { },
+                blockUser = { _, _ -> },
+                leaveGroup = leaveGroupDialogState::show,
+                deleteGroup = deleteGroupDialogState::show,
             )
         }
     ) {
@@ -191,7 +212,7 @@ private fun GroupConversationDetailsContent(
         isLoading = isLoading,
         dialogState = deleteGroupDialogState,
         onDeleteGroup = onDeleteGroup
-        )
+    )
 
     LeaveConversationGroupDialog(
         dialogState = leaveGroupDialogState,

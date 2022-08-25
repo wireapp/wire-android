@@ -38,6 +38,19 @@ class ConversationSheetState(
 
 @Composable
 fun rememberConversationSheetState(
+    conversationSheetContent: ConversationSheetContent,
+    conversationOptionNavigation: ConversationOptionNavigation
+): ConversationSheetState {
+    return remember {
+        ConversationSheetState(
+            conversationSheetContent = conversationSheetContent,
+            conversationOptionNavigation = conversationOptionNavigation
+        )
+    }
+}
+
+@Composable
+fun rememberConversationSheetState(
     conversationItem: ConversationItem,
     conversationOptionNavigation: ConversationOptionNavigation
 ): ConversationSheetState {

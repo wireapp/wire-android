@@ -165,8 +165,6 @@ fun ConversationRouterHomeBridge(
     )
 }
 
-
-
 enum class ConversationItemType {
     ALL_CONVERSATIONS, CALLS, MENTIONS;
 }

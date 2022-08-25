@@ -33,7 +33,7 @@ import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
 
 @Composable
-internal fun ConversationMainSheetContent(
+internal fun ConversationHomeSheetContent(
     conversationSheetContent: ConversationSheetContent,
     addConversationToFavourites: () -> Unit,
     moveConversationToFolder: () -> Unit,

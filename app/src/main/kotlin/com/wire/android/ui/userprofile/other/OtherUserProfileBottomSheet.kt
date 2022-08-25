@@ -3,7 +3,7 @@ package com.wire.android.ui.userprofile.other
 import MutingOptionsSheetContent
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
-import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationMainSheetContent
+import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationHomeSheetContent
 import com.wire.kalium.logic.data.user.UserId
 
 @Composable
@@ -16,7 +16,7 @@ fun OtherUserProfileBottomSheetContent(
     when (bottomSheetState) {
         is BottomSheetContent.Conversation -> {
             val conversationId = bottomSheetState.conversationData.conversationId
-            ConversationMainSheetContent(
+            ConversationHomeSheetContent(
                 conversationSheetContent = bottomSheetState.conversationData,
                 addConversationToFavourites = { eventsHandler.onAddConversationToFavourites(conversationId) },
                 moveConversationToFolder = { eventsHandler.onMoveConversationToFolder(conversationId) },

@@ -134,6 +134,8 @@
     <string name="welcome_button_create_enterprise_account">Create Enterprise Account</string>
     <string name="welcome_button_create_personal_account">Create a Personal Account</string>
     <string name="welcome_button_create_team">Create a Team</string>
+    <string name="server_details_dialog_body">Backend name:\n%1$s\n\nBackend URL:\n%2$s</string>
+    <string name="server_details_dialog_title">On-premises Backend</string>
 
     <!-- API Versioning Dialogs -->
     <string name="api_versioning_client_update_required_title">Update required</string>
@@ -520,6 +522,9 @@
     <string name="connection_request_accepted">Connection request accepted</string>
 
     <string name="connection_request_sent_error">Connection request could not be sent</string>
+    <string name="connection_request_accept_error">Connection request could not be accepted</string>
+    <string name="connection_request_ignore_error">Connection request could not be ignored</string>
+    <string name="connection_request_cancel_error">Connection request could not be canceled</string>
     <string name="connection_pending_message">Wants to connect</string>
     <string name="connection_pending_label">pending</string>
     <string name="connection_label_user_wants_to_conect">This user wants to connect with you.</string>

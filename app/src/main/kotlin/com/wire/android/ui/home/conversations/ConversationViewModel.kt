@@ -188,10 +188,12 @@ class ConversationViewModel @Inject constructor(
 
     private fun observeIfSelfIsConversationMember() = viewModelScope.launch {
         observeIsSelfConversationMember(conversationId)
-            .collect{result -> when(result) {
-                is IsSelfUserMemberResult.Failure -> isConversationMemberState = false
-                is IsSelfUserMemberResult.Success -> isConversationMemberState = result.isMember
-            } }
+            .collect { result ->
+                when (result) {
+                    is IsSelfUserMemberResult.Failure -> isConversationMemberState = false
+                    is IsSelfUserMemberResult.Success -> isConversationMemberState = result.isMember
+                }
+            }
     }
 
     /**

@@ -132,6 +132,7 @@ fun ConversationScreen(
     )
 
     DeleteMessageDialog(conversationViewModel = conversationViewModel)
+
     DownloadedAssetDialog(
         downloadedAssetDialogState = conversationViewModel.conversationViewState.downloadedAssetDialogState,
         onSaveFileToExternalStorage = conversationViewModel::onSaveFile,

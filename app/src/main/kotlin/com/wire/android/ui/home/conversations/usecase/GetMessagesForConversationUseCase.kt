@@ -9,6 +9,7 @@ import com.wire.kalium.logic.feature.message.GetRecentMessagesUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -23,8 +24,13 @@ class GetMessagesForConversationUseCase
 
     @OptIn(ExperimentalCoroutinesApi::class)
     suspend operator fun invoke(conversationId: ConversationId): Flow<List<UIMessage>> =
-        getMessages(conversationId).flatMapLatest { messages ->
-            observeMemberDetailsByIds(messageMapper.memberIdList(messages))
+        getMessages(conversationId)
+            .flatMapLatest { messages ->
+                if (messages.isEmpty()) {
+                    flowOf(emptyList())
+                } else {
+                    observeMemberDetailsByIds(messageMapper.memberIdList(messages))
                         .map { userList -> messageMapper.toUIMessages(userList, messages) }
-                }.flowOn(dispatchers.io())
-        }
+                }
+            }.flowOn(dispatchers.io())
+}

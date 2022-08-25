@@ -74,6 +74,9 @@ sealed class CurrentScreen {
     // Ongoing call screen is opened
     data class OngoingCallScreen(val id: QualifiedID) : CurrentScreen()
 
+    // Incoming call screen is opened
+    data class IncomingCallScreen(val id: QualifiedID) : CurrentScreen()
+
     // Some other screen is opened, kinda "do nothing screen"
     object SomeOther : CurrentScreen()
 
@@ -102,6 +105,12 @@ sealed class CurrentScreen {
                     arguments?.getString(EXTRA_CONVERSATION_ID)
                         ?.toQualifiedID(qualifiedIdMapper)
                         ?.let { OngoingCallScreen(it) }
+                        ?: SomeOther
+                }
+                NavigationItem.IncomingCall -> {
+                    arguments?.getString(EXTRA_CONVERSATION_ID)
+                        ?.toQualifiedID(qualifiedIdMapper)
+                        ?.let { IncomingCallScreen(it) }
                         ?: SomeOther
                 }
                 else -> SomeOther

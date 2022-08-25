@@ -125,7 +125,6 @@ class InitiatingCallViewModelTest {
         }
 
         init {
-            Dispatchers.setMain(StandardTestDispatcher(TestCoroutineScheduler()))
             val dummyConversationId = ConversationId("some-dummy-value", "some.dummy.domain")
             val dummyConversationDetails = mockConversationDetailsGroup("Some Mocked Group", dummyConversationId)
             MockKAnnotations.init(this)

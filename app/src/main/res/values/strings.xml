@@ -133,6 +133,8 @@
     <string name="welcome_button_create_enterprise_account">Create Enterprise Account</string>
     <string name="welcome_button_create_personal_account">Create a Personal Account</string>
     <string name="welcome_button_create_team">Create a Team</string>
+    <string name="server_details_dialog_body">Backend name:\n%1$s\n\nBackend URL:\n%2$s</string>
+    <string name="server_details_dialog_title">On-premises Backend</string>
 
     <!-- API Versioning Dialogs -->
     <string name="api_versioning_client_update_required_title">Update required</string>

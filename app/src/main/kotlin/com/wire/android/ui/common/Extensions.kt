@@ -61,6 +61,7 @@ fun Modifier.clickable(clickable: Clickable?) = clickable?.let {
     this.combinedClickable(
         enabled = clickable.enabled,
         onClick = clickable.onClick,
-        onLongClick = clickable.onLongClick
+        onLongClick = clickable.onLongClick,
+        onClickLabel = clickable.onClickLabel
     )
 } ?: this

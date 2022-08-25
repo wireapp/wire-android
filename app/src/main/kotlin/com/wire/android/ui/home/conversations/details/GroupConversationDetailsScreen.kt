@@ -123,6 +123,7 @@ private fun GroupConversationDetailsContent(
 
     val deleteGroupDialogState = rememberVisibilityState<GroupDialogState>()
     val leaveGroupDialogState = rememberVisibilityState<GroupDialogState>()
+    val clearConversationContentDialogState = rememberVisibilityState<DialogState>()
 
     WireModalSheetLayout(
         sheetState = sheetState,
@@ -246,6 +247,7 @@ private fun GroupConversationDetailsPreview() {
             onAddParticipantsPressed = {},
             onDeleteGroup = {},
             onLeaveGroup = {},
+            onClearConversationContent = {},
             groupOptionsState = GroupConversationOptionsState(
                 conversationId = ConversationId("someValue", "someDomain"),
                 groupName = "Group name"

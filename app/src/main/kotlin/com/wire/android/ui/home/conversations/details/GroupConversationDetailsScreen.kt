@@ -146,7 +146,7 @@ private fun GroupConversationDetailsContent(
                 addConversationToFavourites = { /*TODO*/ },
                 moveConversationToFolder = { /*TODO*/ },
                 moveConversationToArchive = { /*TODO*/ },
-                clearConversationContent = { },
+                clearConversationContent = clearConversationContentDialogState::show,
                 blockUser = { _, _ -> },
                 leaveGroup = leaveGroupDialogState::show,
                 deleteGroup = deleteGroupDialogState::show,

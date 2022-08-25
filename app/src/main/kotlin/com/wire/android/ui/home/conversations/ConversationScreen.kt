@@ -17,6 +17,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarResult
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -28,13 +29,12 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.UserProfileAvatar
-import com.wire.android.ui.common.WireDialog
-import com.wire.android.ui.common.WireDialogButtonProperties
-import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.conversationColor
+import com.wire.android.ui.common.dialogs.OngoingActiveCallDialog
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.error.CoreFailureErrorDialog
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topappbar.CommonTopAppBar
 import com.wire.android.ui.common.topappbar.CommonTopAppBarBaseViewModel
@@ -58,10 +58,13 @@ import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
 import com.wire.android.ui.home.messagecomposer.MessageComposeInputState
 import com.wire.android.ui.home.messagecomposer.MessageComposer
+import com.wire.android.util.permission.CallingAudioRequestFlow
 import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 import okio.Path
@@ -72,7 +75,8 @@ fun ConversationScreen(
     conversationViewModel: ConversationViewModel,
     commonTopAppBarViewModel: CommonTopAppBarViewModel
 ) {
-    val showDialog = remember { mutableStateOf(false) }
+    val coroutineScope = rememberCoroutineScope()
+    val showDialog = remember { mutableStateOf(ConversationScreenDialogType.NONE) }
 
     val startCallAudioPermissionCheck = StartCallAudioBluetoothPermissionCheckFlow {
         conversationViewModel.navigateToInitiatingCallScreen()
@@ -83,25 +87,21 @@ fun ConversationScreen(
         conversationViewModel.checkPendingActions()
     }
 
-    if (showDialog.value) {
-        WireDialog(
-            title = stringResource(id = R.string.calling_ongoing_call_title_alert),
-            text = stringResource(id = R.string.calling_ongoing_call_start_message_alert),
-            onDismiss = { showDialog.value = false },
-            optionButton1Properties = WireDialogButtonProperties(
-                onClick = { showDialog.value = false },
-                text = stringResource(id = R.string.label_cancel),
-                type = WireDialogButtonType.Secondary
-            ),
-            optionButton2Properties = WireDialogButtonProperties(
-                onClick = {
-                    conversationViewModel.navigateToInitiatingCallScreen()
-                    showDialog.value = false
-                },
-                text = stringResource(id = R.string.calling_ongoing_call_start_anyway),
-                type = WireDialogButtonType.Primary
-            )
-        )
+    when (showDialog.value) {
+        ConversationScreenDialogType.ONGOING_ACTIVE_CALL -> {
+            OngoingActiveCallDialog(onJoinAnyways = {
+                conversationViewModel.navigateToInitiatingCallScreen()
+                showDialog.value = ConversationScreenDialogType.NONE
+            }, onDialogDismiss = {
+                showDialog.value = ConversationScreenDialogType.NONE
+            })
+        }
+        ConversationScreenDialogType.NO_CONNECTIVITY -> {
+            CoreFailureErrorDialog(coreFailure = NetworkFailure.NoNetworkConnection(null)) {
+                showDialog.value = ConversationScreenDialogType.NONE
+            }
+        }
+        ConversationScreenDialogType.NONE -> {}
     }
 
     ConversationScreen(
@@ -113,13 +113,7 @@ fun ConversationScreen(
         onImageFullScreenMode = conversationViewModel::navigateToGallery,
         onBackButtonClick = conversationViewModel::navigateBack,
         onDeleteMessage = conversationViewModel::showDeleteMessageDialog,
-        onStartCall = {
-            conversationViewModel.establishedCallConversationId?.let {
-                showDialog.value = true
-            } ?: run {
-                startCallAudioPermissionCheck.launch()
-            }
-        },
+        onStartCall = { startCallIfPossible(conversationViewModel, showDialog, startCallAudioPermissionCheck, coroutineScope) },
         onJoinCall = conversationViewModel::joinOngoingCall,
         onSnackbarMessage = conversationViewModel::onSnackbarMessage,
         onSnackbarMessageShown = conversationViewModel::clearSnackbarMessage,
@@ -138,6 +132,25 @@ fun ConversationScreen(
         onOpenFileWithExternalApp = conversationViewModel::onOpenFileWithExternalApp,
         hideOnAssetDownloadedDialog = conversationViewModel::hideOnAssetDownloadedDialog
     )
+}
+
+private fun startCallIfPossible(
+    conversationViewModel: ConversationViewModel,
+    showDialog: MutableState<ConversationScreenDialogType>,
+    startCallAudioPermissionCheck: CallingAudioRequestFlow,
+    coroutineScope: CoroutineScope
+) {
+    coroutineScope.launch {
+        if (!conversationViewModel.hasStableConnectivity()) {
+            showDialog.value = ConversationScreenDialogType.NO_CONNECTIVITY
+        } else {
+            conversationViewModel.establishedCallConversationId?.let {
+                showDialog.value = ConversationScreenDialogType.ONGOING_ACTIVE_CALL
+            } ?: run {
+                startCallAudioPermissionCheck.launch()
+            }
+        }
+    }
 }
 
 @Composable
@@ -442,6 +455,6 @@ fun ConversationScreenPreview() {
         onOpenProfile = { _, _ -> },
         onUpdateConversationReadDate = {},
         isConversationMember = true,
-        commonTopAppBarViewModel = object: CommonTopAppBarBaseViewModel() { }
+        commonTopAppBarViewModel = object : CommonTopAppBarBaseViewModel() {}
     )
 }

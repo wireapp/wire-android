@@ -17,6 +17,7 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.home.HomeSnackbarState
+import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationTypeDetail
 import com.wire.android.ui.home.conversationslist.mock.mockAllMentionList
 import com.wire.android.ui.home.conversationslist.mock.mockCallHistory
 import com.wire.android.ui.home.conversationslist.mock.mockMissedCalls
@@ -25,6 +26,7 @@ import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.ConversationLastEvent
+import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.ui.home.conversationslist.model.EventType
 import com.wire.android.ui.home.conversationslist.model.NewActivity
@@ -224,16 +226,25 @@ class ConversationListViewModel @Inject constructor(
     fun moveConversationToArchive(id: String = "") {
     }
 
-    fun clearConversationContent(conversationId: ConversationId) {
-        executeWithProgress {
-            when (withContext(dispatcher.io()) { clearConversationContentUseCase(conversationId) }) {
-                ClearConversationContentUseCase.Result.Failure -> {
-                    snackBarState.emit(HomeSnackbarState.ClearGroupConversationContentSuccess)
-                }
-                ClearConversationContentUseCase.Result.Success -> {
-                    snackBarState.emit(HomeSnackbarState.ClearGroupConversationContentSuccess)
-                }
+    fun clearConversationContent(dialogState: DialogState) {
+        with(dialogState) {
+            executeWithProgress {
+                val result = withContext(dispatcher.io()) { clearConversationContentUseCase(conversationId) }
+                clearContentSnackbarResult(result, dialogState.conversationTypeDetail)
             }
+        }
+    }
+
+    private suspend fun clearContentSnackbarResult(
+        clearContentResult: ClearConversationContentUseCase.Result,
+        conversationTypeDetail: ConversationTypeDetail
+    ) {
+        if (conversationTypeDetail is ConversationTypeDetail.Connection) throw IllegalStateException("Unsupported conversation type to clear content, something went wrong?")
+
+        if (clearContentResult is ClearConversationContentUseCase.Result.Failure) {
+            snackBarState.emit(HomeSnackbarState.ClearConversationContentFailure(conversationTypeDetail is ConversationTypeDetail.Group))
+        } else {
+            snackBarState.emit(HomeSnackbarState.ClearConversationContentSuccess(conversationTypeDetail is ConversationTypeDetail.Group))
         }
     }
 

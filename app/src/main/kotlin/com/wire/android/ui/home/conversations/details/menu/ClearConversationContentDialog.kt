@@ -10,6 +10,7 @@ import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.visbility.VisibilityState
+import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationTypeDetail
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.kalium.logic.data.id.ConversationId
 
@@ -17,7 +18,7 @@ import com.wire.kalium.logic.data.id.ConversationId
 fun ClearConversationContentDialog(
     dialogState: VisibilityState<DialogState>,
     isLoading: Boolean,
-    onClearConversationContent: (ConversationId) -> Unit
+    onClearConversationContent: (DialogState) -> Unit
 ) {
     LaunchedEffect(isLoading) {
         if (!isLoading) {
@@ -28,7 +29,7 @@ fun ClearConversationContentDialog(
     VisibilityStateExt(dialogState) {
         WireDialog(
             title = "Clear content?",
-            text = "This will clear the previous conversation history on all your devices. You remain in the ${it.conversation.label} and have access to all new ${it.conversation.label} activity.",
+            text = "This will clear the previous conversation history on all your devices. You remain in the ${it.conversationTypeDetail.label} and have access to all new ${it.conversationTypeDetail.label} activity.",
             buttonsHorizontalAlignment = true,
             onDismiss = dialogState::dismiss,
             dismissButtonProperties = WireDialogButtonProperties(
@@ -37,7 +38,7 @@ fun ClearConversationContentDialog(
                 state = WireButtonState.Default
             ),
             optionButton1Properties = WireDialogButtonProperties(
-                onClick = { onClearConversationContent(it.conversationId) },
+                onClick = { onClearConversationContent(it) },
                 text = "Clear content",
                 type = WireDialogButtonType.Primary,
                 state =

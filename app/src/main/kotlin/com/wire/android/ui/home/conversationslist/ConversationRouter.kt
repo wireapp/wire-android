@@ -16,6 +16,7 @@ import com.wire.android.ui.home.conversations.details.menu.DeleteConversationGro
 import com.wire.android.ui.home.conversations.details.menu.LeaveConversationGroupDialog
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationOptionNavigation
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
+import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationTypeDetail
 import com.wire.android.ui.home.conversationslist.bottomsheet.rememberConversationSheetState
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.DialogState
@@ -137,6 +138,8 @@ fun ConversationRouterHomeBridge(
         }
     }
 
+    //TODO: refactor to use the mechanism as DeleteConversationGroupDialog
+    // for example
     BlockUserDialogContent(
         dialogState = viewModel.blockUserDialogState,
         dismiss = viewModel::onDismissBlockUserDialog,
@@ -161,6 +164,8 @@ fun ConversationRouterHomeBridge(
         onClearConversationContent = viewModel::clearConversationContent
     )
 }
+
+
 
 enum class ConversationItemType {
     ALL_CONVERSATIONS, CALLS, MENTIONS;

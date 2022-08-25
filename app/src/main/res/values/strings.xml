@@ -594,5 +594,7 @@
     <string name="unblock_user_dialog_confirm_button">Unblock</string>
     <string name="group_content_deleted">Group content was deleted</string>
     <string name="conversation_content_deleted">Conversation content was deleted</string>
+    <string name="group_content_delete_failure">Group content could not be deleted</string>
+    <string name="conversation_content_delete_failure">Conversation content could not be deleted</string>
 
 </resources>

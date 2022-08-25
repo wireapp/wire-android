@@ -1,5 +1,6 @@
 package com.wire.android.ui.home.conversations.details
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -13,17 +14,22 @@ import com.wire.android.navigation.EXTRA_LEFT_GROUP
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.home.HomeSnackbarState
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsState
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipantsViewModel
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
+import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationTypeDetail
+import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.android.util.ui.UIText
 import com.wire.android.util.uiText
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
+import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
@@ -53,6 +59,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
     private val observerSelfUser: GetSelfUserUseCase,
     private val deleteTeamConversation: DeleteTeamConversationUseCase,
     private val removeMemberFromConversation: RemoveMemberFromConversationUseCase,
+    private val clearConversationContentUseCase: ClearConversationContentUseCase,
     savedStateHandle: SavedStateHandle,
     qualifiedIdMapper: QualifiedIdMapper
 ) : GroupConversationParticipantsViewModel(
@@ -124,9 +131,9 @@ class GroupConversationDetailsViewModel @Inject constructor(
         }
     }
 
+    //TODO: some duplication here with ConversationListViewModel
     fun leaveGroup(leaveGroupState: GroupDialogState) {
-        viewModelScope.launch {
-            requestInProgress = true
+        executeWithProgress {
             val response = withContext(dispatcher.io()) {
                 val selfUser = observerSelfUser().first()
                 removeMemberFromConversation(
@@ -145,13 +152,33 @@ class GroupConversationDetailsViewModel @Inject constructor(
                     )
                 }
             }
-            requestInProgress = false
         }
     }
 
+
+    interface Dupa {
+        fun someDupa(cipa: Int): String
+    }
+
+    fun test() {
+        test1 { someDupa(10) }
+    }
+
+    fun test1(dupa: Dupa.() -> Unit) {
+        val cipa = object : Dupa {
+            override fun someDupa(cipa: Int): String {
+                Log.d("TEST", "cos tam $cipa")
+
+                return "test"
+            }
+        }
+
+        cipa.dupa()
+    }
+
+    //TODO: some duplication here with ConversationListViewModel
     fun deleteGroup(groupState: GroupDialogState) {
-        viewModelScope.launch {
-            requestInProgress = true
+        executeWithProgress {
             when (val response = withContext(dispatcher.io()) { deleteTeamConversation(groupState.conversationId) }) {
                 is Result.Failure.GenericFailure -> showSnackBarMessage(response.coreFailure.uiText())
                 Result.Failure.NoTeamFailure -> showSnackBarMessage(CoreFailure.Unknown(null).uiText())
@@ -164,9 +191,31 @@ class GroupConversationDetailsViewModel @Inject constructor(
                 }
             }
         }
-        requestInProgress = false
     }
 
+    fun clearConversationContent(dialogState: DialogState) {
+        test()
+
+        with(dialogState) {
+            executeWithProgress {
+                val result = withContext(dispatcher.io()) { clearConversationContentUseCase(conversationId) }
+                clearContentSnackbarResult(result, conversationTypeDetail)
+            }
+        }
+    }
+
+    private suspend fun clearContentSnackbarResult(
+        clearContentResult: ClearConversationContentUseCase.Result,
+        conversationTypeDetail: ConversationTypeDetail
+    ) {
+        if (conversationTypeDetail is ConversationTypeDetail.Connection) throw IllegalStateException("Unsupported conversation type to clear content, something went wrong?")
+
+        if (clearContentResult is ClearConversationContentUseCase.Result.Failure) {
+            showSnackBarMessage(UIText.StringResource(R.string.group_content_delete_failure))
+        } else {
+            showSnackBarMessage(UIText.StringResource(R.string.group_content_deleted))
+        }
+    }
 
     fun onGuestUpdate(enableGuestAndNonTeamMember: Boolean) {
         groupOptionsState = groupOptionsState.copy(loadingGuestOption = true, isGuestAllowed = enableGuestAndNonTeamMember)
@@ -178,7 +227,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
 
     fun onServicesUpdate(enableServices: Boolean) {
         updateState(groupOptionsState.copy(loadingServicesOption = true, isServicesAllowed = enableServices))
-        when(enableServices) {
+        when (enableServices) {
             true -> updateServicesRemoteRequest(enableServices)
             false -> updateState(groupOptionsState.copy(changeServiceOptionConfirmationRequired = true))
         }
@@ -283,6 +332,16 @@ class GroupConversationDetailsViewModel @Inject constructor(
                 destination = NavigationItem.AddConversationParticipants.getRouteWithArgs(listOf(conversationId))
             )
         )
+    }
+
+    //TODO: duplication here with ConversationViewModel, think about some progress mechanism ?
+    private fun executeWithProgress(request: suspend () -> Unit) {
+        requestInProgress = true
+
+        viewModelScope.launch {
+            request()
+            requestInProgress = false
+        }
     }
 
     companion object {

@@ -230,7 +230,7 @@ class ConversationListViewModel @Inject constructor(
         with(dialogState) {
             executeWithProgress {
                 val result = withContext(dispatcher.io()) { clearConversationContentUseCase(conversationId) }
-                clearContentSnackbarResult(result, dialogState.conversationTypeDetail)
+                clearContentSnackbarResult(result, conversationTypeDetail)
             }
         }
     }

@@ -44,6 +44,7 @@ import com.wire.android.ui.common.calculateCurrentTab
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
+import com.wire.android.ui.home.conversations.details.menu.ClearConversationContentDialog
 import com.wire.android.ui.home.conversations.details.menu.ConversationGroupDetailsBottomSheet
 import com.wire.android.ui.home.conversations.details.menu.DeleteConversationGroupDialog
 import com.wire.android.ui.home.conversations.details.menu.LeaveConversationGroupDialog
@@ -58,6 +59,7 @@ import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetC
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationTypeDetail
 import com.wire.android.ui.home.conversationslist.bottomsheet.rememberConversationSheetState
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
+import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
@@ -80,6 +82,7 @@ fun GroupConversationDetailsScreen(viewModel: GroupConversationDetailsViewModel)
         groupParticipantsState = viewModel.groupParticipantsState,
         onLeaveGroup = viewModel::leaveGroup,
         onDeleteGroup = viewModel::deleteGroup,
+        onClearConversationContent = viewModel::clearConversationContent,
         isLoading = viewModel.requestInProgress
     )
 
@@ -102,6 +105,7 @@ private fun GroupConversationDetailsContent(
     onAddParticipantsPressed: () -> Unit,
     onLeaveGroup: (GroupDialogState) -> Unit,
     onDeleteGroup: (GroupDialogState) -> Unit,
+    onClearConversationContent: (DialogState) -> Unit,
     groupOptionsState: GroupConversationOptionsState,
     groupParticipantsState: GroupConversationParticipantsState,
     isLoading: Boolean,
@@ -217,6 +221,12 @@ private fun GroupConversationDetailsContent(
         dialogState = leaveGroupDialogState,
         isLoading = isLoading,
         onLeaveGroup = onLeaveGroup
+    )
+
+    ClearConversationContentDialog(
+        isLoading = isLoading,
+        dialogState = clearConversationContentDialogState,
+        onClearConversationContent = onClearConversationContent
     )
 }
 

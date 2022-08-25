@@ -14,7 +14,6 @@ import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
@@ -43,7 +42,6 @@ import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.wire.android.R
 import com.wire.android.ui.common.colorsScheme
-import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.messagecomposer.attachment.AttachmentOptions
@@ -204,7 +202,6 @@ private fun MessageComposer(
                                 )
                             }
                             .background(color = colorsScheme().backgroundVariant)
-                            .padding(bottom = if (isSendingMessagesAllowed) 0.dp else dimensions().spacing16x)
                             .weight(1f)) {
                         content()
                     }

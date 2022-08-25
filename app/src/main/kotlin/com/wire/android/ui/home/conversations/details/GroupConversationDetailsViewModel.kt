@@ -7,14 +7,12 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
-
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.EXTRA_GROUP_DELETED_NAME
 import com.wire.android.navigation.EXTRA_LEFT_GROUP
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
-
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsState
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipantsViewModel
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
@@ -155,27 +153,6 @@ class GroupConversationDetailsViewModel @Inject constructor(
         }
     }
 
-
-    interface Dupa {
-        fun someDupa(cipa: Int): String
-    }
-
-    fun test() {
-        test1 { someDupa(10) }
-    }
-
-    fun test1(dupa: Dupa.() -> Unit) {
-        val cipa = object : Dupa {
-            override fun someDupa(cipa: Int): String {
-                Log.d("TEST", "cos tam $cipa")
-
-                return "test"
-            }
-        }
-
-        cipa.dupa()
-    }
-
     //TODO: some duplication here with ConversationListViewModel
     fun deleteGroup(groupState: GroupDialogState) {
         executeWithProgress {
@@ -194,8 +171,6 @@ class GroupConversationDetailsViewModel @Inject constructor(
     }
 
     fun clearConversationContent(dialogState: DialogState) {
-        test()
-
         with(dialogState) {
             executeWithProgress {
                 val result = withContext(dispatcher.io()) { clearConversationContentUseCase(conversationId) }

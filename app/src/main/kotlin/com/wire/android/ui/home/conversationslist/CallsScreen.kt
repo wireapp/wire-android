@@ -22,14 +22,11 @@ fun CallsScreen(
     callHistory: List<ConversationItem> = emptyList(),
     onCallItemClick: (ConversationId) -> Unit,
     onEditConversationItem: (ConversationItem) -> Unit,
-    onScrollPositionProviderChanged: (() -> Int) -> Unit,
     onOpenUserProfile: (UserId) -> Unit,
     openConversationNotificationsSettings: (ConversationItem) -> Unit,
     onJoinCall: (ConversationId) -> Unit
 ) {
     val lazyListState = rememberLazyListState()
-
-    onScrollPositionProviderChanged { lazyListState.firstVisibleItemIndex }
 
     CallContent(
         lazyListState = lazyListState,

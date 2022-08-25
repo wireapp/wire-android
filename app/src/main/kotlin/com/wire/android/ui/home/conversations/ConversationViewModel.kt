@@ -49,6 +49,7 @@ import com.wire.kalium.logic.data.message.Message.DownloadStatus.FAILED
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.IN_PROGRESS
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.SAVED_EXTERNALLY
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.SAVED_INTERNALLY
+import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
@@ -62,15 +63,17 @@ import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
 import com.wire.kalium.logic.feature.conversation.IsSelfUserMemberResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase.Result.Success
-import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveIsSelfUserMemberUseCase
+import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
 import com.wire.kalium.logic.functional.onFailure
+import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -84,9 +87,9 @@ import com.wire.kalium.logic.data.id.QualifiedID as ConversationId
 @Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel
 class ConversationViewModel @Inject constructor(
+    qualifiedIdMapper: QualifiedIdMapper,
     override val savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
-    qualifiedIdMapper: QualifiedIdMapper,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val sendAssetMessage: SendAssetMessageUseCase,
     private val sendTextMessage: SendTextMessageUseCase,
@@ -105,7 +108,8 @@ class ConversationViewModel @Inject constructor(
     private val fileManager: FileManager,
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val kaliumFileSystem: KaliumFileSystem,
-    private val updateConversationReadDateUseCase: UpdateConversationReadDateUseCase
+    private val updateConversationReadDateUseCase: UpdateConversationReadDateUseCase,
+    private val observeSyncState: ObserveSyncStateUseCase
 ) : SavedStateViewModel(savedStateHandle) {
 
     var conversationViewState by mutableStateOf(ConversationViewState())
@@ -188,10 +192,12 @@ class ConversationViewModel @Inject constructor(
 
     private fun observeIfSelfIsConversationMember() = viewModelScope.launch {
         observeIsSelfConversationMember(conversationId)
-            .collect{result -> when(result) {
-                is IsSelfUserMemberResult.Failure -> isConversationMemberState = false
-                is IsSelfUserMemberResult.Success -> isConversationMemberState = result.isMember
-            } }
+            .collect { result ->
+                when (result) {
+                    is IsSelfUserMemberResult.Failure -> isConversationMemberState = false
+                    is IsSelfUserMemberResult.Success -> isConversationMemberState = result.isMember
+                }
+            }
     }
 
     /**
@@ -664,6 +670,17 @@ class ConversationViewModel @Inject constructor(
         navigationManager.navigate(NavigationCommand(NavigationItem.OtherUserProfile.getRouteWithArgs(listOfNotNull(id, conversationId))))
 
     fun provideTempCachePath(): Path = kaliumFileSystem.rootCachePath
+
+    suspend fun hasStableConnectivity(): Boolean {
+        var hasConnection = false
+        observeSyncState().firstOrNull()?.let {
+            hasConnection = when (it) {
+                is SyncState.Failed, SyncState.Waiting -> false
+                SyncState.GatheringPendingEvents, SyncState.SlowSync, SyncState.Live -> true
+            }
+        }
+        return hasConnection
+    }
 
     companion object {
         const val IMAGE_SIZE_LIMIT_BYTES = 15 * 1024 * 1024 // 15 MB limit for images

@@ -105,29 +105,29 @@ fun ConversationProtocolDetails(
 ) {
     Column {
         FolderHeader(name = stringResource(R.string.folder_lable_protocol_details))
-
-        ProtocolDetails(
-            label = UIText.StringResource(R.string.protocol),
-            text = UIText.DynamicString(protocolInfo.name())
-        )
-
-        if (protocolInfo is Conversation.ProtocolInfo.MLS) {
+        if (protocolInfo is Conversation.ProtocolInfo.MLS || BuildConfig.PRIVATE_BUILD) {
             ProtocolDetails(
-                label = UIText.StringResource(R.string.cipher_suite),
-                text = UIText.DynamicString(protocolInfo.cipherSuite.name)
+                label = UIText.StringResource(R.string.protocol),
+                text = UIText.DynamicString(protocolInfo.name())
             )
 
-            if (BuildConfig.DEBUG) {
+            if (protocolInfo is Conversation.ProtocolInfo.MLS) {
                 ProtocolDetails(
-                    label = UIText.StringResource(R.string.last_key_material_update_label),
-                    text = UIText.DynamicString(protocolInfo.keyingMaterialLastUpdate.toString())
+                    label = UIText.StringResource(R.string.cipher_suite),
+                    text = UIText.DynamicString(protocolInfo.cipherSuite.name)
                 )
 
-                ProtocolDetails(
-                    label = UIText.StringResource(R.string.group_state_label),
-                    text = UIText.DynamicString(protocolInfo.groupState.name)
-                )
+                if (BuildConfig.PRIVATE_BUILD) {
+                    ProtocolDetails(
+                        label = UIText.StringResource(R.string.last_key_material_update_label),
+                        text = UIText.DynamicString(protocolInfo.keyingMaterialLastUpdate.toString())
+                    )
 
+                    ProtocolDetails(
+                        label = UIText.StringResource(R.string.group_state_label),
+                        text = UIText.DynamicString(protocolInfo.groupState.name)
+                    )
+                }
             }
         }
     }

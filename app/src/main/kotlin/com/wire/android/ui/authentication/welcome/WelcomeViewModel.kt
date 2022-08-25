@@ -1,7 +1,5 @@
 package com.wire.android.ui.authentication.welcome
 
-
-import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -11,9 +9,7 @@ import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
-import com.wire.kalium.logic.configuration.server.ServerConfig
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 

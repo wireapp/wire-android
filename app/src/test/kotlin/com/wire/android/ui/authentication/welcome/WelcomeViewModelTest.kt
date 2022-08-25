@@ -2,13 +2,18 @@ package com.wire.android.ui.authentication.welcome
 
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.mockUri
+import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.util.newServerConfig
 import io.mockk.MockKAnnotations
+import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
@@ -21,13 +26,18 @@ class WelcomeViewModelTest {
     @MockK
     lateinit var navigationManager: NavigationManager
 
+    @MockK
+    lateinit var authServerConfigProvider: AuthServerConfigProvider
+
     private lateinit var welcomeViewModel: WelcomeViewModel
 
     @BeforeEach
     fun setUp() {
         MockKAnnotations.init(this, relaxUnitFun = true)
         mockUri()
-        welcomeViewModel = WelcomeViewModel(navigationManager)
+        every { authServerConfigProvider.authServer } returns MutableStateFlow(newServerConfig(1).links)
+        coEvery { authServerConfigProvider.authServer.value } returns newServerConfig(1).links
+        welcomeViewModel = WelcomeViewModel(navigationManager, authServerConfigProvider)
     }
 
     @Test

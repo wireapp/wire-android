@@ -18,13 +18,12 @@ import com.google.accompanist.pager.rememberPagerState
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireDimensions
-import com.wire.kalium.logic.data.call.Participant
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.ui.calling.model.UICallParticipant
 
-@OptIn(ExperimentalPagerApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalPagerApi::class)
 @Composable
 fun VerticalCallingPager(
     participants: List<UICallParticipant>,

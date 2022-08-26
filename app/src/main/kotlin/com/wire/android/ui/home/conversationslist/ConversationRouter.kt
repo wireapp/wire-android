@@ -11,12 +11,11 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.ui.common.dialogs.BlockUserDialogContent
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.home.HomeSnackbarState
-import com.wire.android.ui.home.conversations.details.menu.ClearConversationContentDialog
-import com.wire.android.ui.home.conversations.details.menu.DeleteConversationGroupDialog
-import com.wire.android.ui.home.conversations.details.menu.LeaveConversationGroupDialog
+import com.wire.android.ui.home.conversations.details.dialog.ClearConversationContentDialog
+import com.wire.android.ui.home.conversations.details.dialog.DeleteConversationGroupDialog
+import com.wire.android.ui.home.conversations.details.dialog.LeaveConversationGroupDialog
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationOptionNavigation
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
-import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationTypeDetail
 import com.wire.android.ui.home.conversationslist.bottomsheet.rememberConversationSheetState
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.DialogState

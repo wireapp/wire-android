@@ -1,4 +1,4 @@
-package com.wire.android.ui.home.conversations.details.menu
+package com.wire.android.ui.home.conversations.details.dialog
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -10,15 +10,13 @@ import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.visbility.VisibilityState
-import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationTypeDetail
-import com.wire.android.ui.home.conversationslist.model.DialogState
-import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 
 @Composable
-fun ClearConversationContentDialog(
-    dialogState: VisibilityState<DialogState>,
+internal fun DeleteConversationGroupDialog(
+    dialogState: VisibilityState<GroupDialogState>,
     isLoading: Boolean,
-    onClearConversationContent: (DialogState) -> Unit
+    onDeleteGroup: (GroupDialogState) -> Unit,
 ) {
     LaunchedEffect(isLoading) {
         if (!isLoading) {
@@ -28,8 +26,8 @@ fun ClearConversationContentDialog(
 
     VisibilityStateExt(dialogState) {
         WireDialog(
-            title = "Clear content?",
-            text = "This will clear the previous conversation history on all your devices. You remain in the ${it.conversationTypeDetail.label} and have access to all new ${it.conversationTypeDetail.label} activity.",
+            title = stringResource(id = R.string.delete_group_conversation_dialog_title, it.conversationName),
+            text = stringResource(id = R.string.delete_group_conversation_dialog_description),
             buttonsHorizontalAlignment = true,
             onDismiss = dialogState::dismiss,
             dismissButtonProperties = WireDialogButtonProperties(
@@ -38,8 +36,8 @@ fun ClearConversationContentDialog(
                 state = WireButtonState.Default
             ),
             optionButton1Properties = WireDialogButtonProperties(
-                onClick = { onClearConversationContent(it) },
-                text = "Clear content",
+                onClick = { onDeleteGroup(it) },
+                text = stringResource(id = R.string.label_remove),
                 type = WireDialogButtonType.Primary,
                 state =
                 if (isLoading)
@@ -51,3 +49,4 @@ fun ClearConversationContentDialog(
         )
     }
 }
+

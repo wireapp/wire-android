@@ -44,28 +44,23 @@ import com.wire.android.ui.common.calculateCurrentTab
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
-import com.wire.android.ui.home.conversations.details.menu.ClearConversationContentDialog
-import com.wire.android.ui.home.conversations.details.menu.ConversationGroupDetailsBottomSheet
-import com.wire.android.ui.home.conversations.details.menu.DeleteConversationGroupDialog
-import com.wire.android.ui.home.conversations.details.menu.LeaveConversationGroupDialog
+import com.wire.android.ui.home.conversations.details.dialog.ClearConversationContentDialog
+import com.wire.android.ui.home.conversations.details.dialog.DeleteConversationGroupDialog
+import com.wire.android.ui.home.conversations.details.dialog.LeaveConversationGroupDialog
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptions
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsState
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipants
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipantsState
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
-import com.wire.android.ui.home.conversationslist.MutingConversationState
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationOptionNavigation
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationTypeDetail
 import com.wire.android.ui.home.conversationslist.bottomsheet.rememberConversationSheetState
-import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
-import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.id.QualifiedID
 import kotlinx.coroutines.launch
 
 @Composable

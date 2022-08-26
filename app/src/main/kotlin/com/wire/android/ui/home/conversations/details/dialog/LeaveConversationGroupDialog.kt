@@ -1,4 +1,4 @@
-package com.wire.android.ui.home.conversations.details.menu
+package com.wire.android.ui.home.conversations.details.dialog
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -13,10 +13,10 @@ import com.wire.android.ui.common.visbility.VisibilityState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 
 @Composable
-internal fun DeleteConversationGroupDialog(
+internal fun LeaveConversationGroupDialog(
     dialogState: VisibilityState<GroupDialogState>,
     isLoading: Boolean,
-    onDeleteGroup: (GroupDialogState) -> Unit,
+    onLeaveGroup: (GroupDialogState) -> Unit,
 ) {
     LaunchedEffect(isLoading) {
         if (!isLoading) {
@@ -26,8 +26,8 @@ internal fun DeleteConversationGroupDialog(
 
     VisibilityStateExt(dialogState) {
         WireDialog(
-            title = stringResource(id = R.string.delete_group_conversation_dialog_title, it.conversationName),
-            text = stringResource(id = R.string.delete_group_conversation_dialog_description),
+            title = stringResource(id = R.string.leave_group_conversation_dialog_title, it.conversationName),
+            text = stringResource(id = R.string.leave_group_conversation_dialog_description),
             buttonsHorizontalAlignment = true,
             onDismiss = dialogState::dismiss,
             dismissButtonProperties = WireDialogButtonProperties(
@@ -36,8 +36,8 @@ internal fun DeleteConversationGroupDialog(
                 state = WireButtonState.Default
             ),
             optionButton1Properties = WireDialogButtonProperties(
-                onClick = { onDeleteGroup(it) },
-                text = stringResource(id = R.string.label_remove),
+                onClick = { onLeaveGroup(it) },
+                text = stringResource(id = R.string.label_leave),
                 type = WireDialogButtonType.Primary,
                 state =
                 if (isLoading)
@@ -49,4 +49,3 @@ internal fun DeleteConversationGroupDialog(
         )
     }
 }
-

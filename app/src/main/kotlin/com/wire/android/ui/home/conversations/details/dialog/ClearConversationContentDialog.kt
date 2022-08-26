@@ -1,4 +1,4 @@
-package com.wire.android.ui.home.conversations.details.menu
+package com.wire.android.ui.home.conversations.details.dialog
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -10,13 +10,13 @@ import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.visbility.VisibilityState
-import com.wire.android.ui.home.conversationslist.model.GroupDialogState
+import com.wire.android.ui.home.conversationslist.model.DialogState
 
 @Composable
-internal fun LeaveConversationGroupDialog(
-    dialogState: VisibilityState<GroupDialogState>,
+fun ClearConversationContentDialog(
+    dialogState: VisibilityState<DialogState>,
     isLoading: Boolean,
-    onLeaveGroup: (GroupDialogState) -> Unit,
+    onClearConversationContent: (DialogState) -> Unit
 ) {
     LaunchedEffect(isLoading) {
         if (!isLoading) {
@@ -26,8 +26,8 @@ internal fun LeaveConversationGroupDialog(
 
     VisibilityStateExt(dialogState) {
         WireDialog(
-            title = stringResource(id = R.string.leave_group_conversation_dialog_title, it.conversationName),
-            text = stringResource(id = R.string.leave_group_conversation_dialog_description),
+            title = "Clear content?",
+            text = "This will clear the previous conversation history on all your devices. You remain in the ${it.conversationTypeDetail.label} and have access to all new ${it.conversationTypeDetail.label} activity.",
             buttonsHorizontalAlignment = true,
             onDismiss = dialogState::dismiss,
             dismissButtonProperties = WireDialogButtonProperties(
@@ -36,8 +36,8 @@ internal fun LeaveConversationGroupDialog(
                 state = WireButtonState.Default
             ),
             optionButton1Properties = WireDialogButtonProperties(
-                onClick = { onLeaveGroup(it) },
-                text = stringResource(id = R.string.label_leave),
+                onClick = { onClearConversationContent(it) },
+                text = "Clear content",
                 type = WireDialogButtonType.Primary,
                 state =
                 if (isLoading)

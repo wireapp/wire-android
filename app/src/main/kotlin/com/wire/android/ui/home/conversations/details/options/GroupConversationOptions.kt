@@ -40,6 +40,7 @@ fun GroupConversationOptions(
         onServiceSwitchClicked = viewModel::onServicesUpdate,
         lazyListState = lazyListState
     )
+
     if (viewModel.groupOptionsState.changeGuestOptionConfirmationRequired) {
         DisableGuestConfirmationDialog(
             onConfirm = viewModel::onGuestDialogConfirm,

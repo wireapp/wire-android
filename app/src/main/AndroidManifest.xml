@@ -91,6 +91,7 @@
 
         <receiver android:name=".notification.broadcastreceivers.NotificationReplyReceiver"/>
         <receiver android:name=".notification.broadcastreceivers.CallNotificationDismissReceiver"/>
+        <receiver android:name=".notification.broadcastreceivers.EndOngoingCallReceiver"/>
 
         <service
                 android:name=".notification.WireFirebaseMessagingService"

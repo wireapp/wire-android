@@ -326,8 +326,7 @@ private fun NewTeamButton(onAddAccountClick: () -> Unit) {
 @Composable
 private fun OtherAccountItem(
     account: OtherAccount,
-    clickable: Clickable = Clickable(enabled = false) {},
-    modifier: Modifier = Modifier
+    clickable: Clickable = Clickable(enabled = true) {}
 ) {
     RowItemTemplate(
         leadingIcon = { UserProfileAvatar(account.avatarData) },
@@ -356,7 +355,7 @@ private fun OtherAccountItem(
             }
         },
         clickable = clickable,
-        modifier = modifier
+        modifier = Modifier.padding(start = dimensions().spacing8x)
     )
 }
 

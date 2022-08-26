@@ -369,7 +369,7 @@ class ConversationViewModel @Inject constructor(
     }
 
     // This will download the asset remotely to an internal temporary storage or fetch it from the local database if it had been previously
-// downloaded. After doing so, a dialog is shown to ask the user whether he wants to open the file or download it to external storage
+    // downloaded. After doing so, a dialog is shown to ask the user whether he wants to open the file or download it to external storage
     fun downloadOrFetchAssetToInternalStorage(messageId: String) {
         viewModelScope.launch {
             withContext(dispatchers.io()) {

@@ -10,7 +10,6 @@ import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
-import com.wire.android.notification.CallNotificationManager
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
@@ -37,7 +36,6 @@ class IncomingCallViewModel @Inject constructor(
     private val callRinger: CallRinger,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val endCall: EndCallUseCase,
-    notificationManager: CallNotificationManager
 ) : ViewModel() {
 
     private val incomingCallConversationId: QualifiedID = qualifiedIdMapper.fromStringToQualifiedID(
@@ -50,8 +48,6 @@ class IncomingCallViewModel @Inject constructor(
     var establishedCallConversationId: ConversationId? = null
 
     init {
-        notificationManager.hideCallNotification()
-
         viewModelScope.launch {
             callRinger.ring(R.raw.ringing_from_them)
             observeIncomingCallJob = launch {

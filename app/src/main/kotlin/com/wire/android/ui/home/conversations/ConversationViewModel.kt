@@ -49,6 +49,7 @@ import com.wire.kalium.logic.data.message.Message.DownloadStatus.FAILED
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.IN_PROGRESS
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.SAVED_EXTERNALLY
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.SAVED_INTERNALLY
+import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
@@ -62,15 +63,17 @@ import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
 import com.wire.kalium.logic.feature.conversation.IsSelfUserMemberResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase.Result.Success
-import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveIsSelfUserMemberUseCase
+import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.IsFileSharingEnabledUseCase
 import com.wire.kalium.logic.functional.onFailure
+import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -105,6 +108,7 @@ class ConversationViewModel @Inject constructor(
     private val kaliumFileSystem: KaliumFileSystem,
     override val savedStateHandle: SavedStateHandle,
     private val dispatchers: DispatcherProvider,
+    private val observeSyncState: ObserveSyncStateUseCase,
     qualifiedIdMapper: QualifiedIdMapper
 ) : SavedStateViewModel(savedStateHandle) {
 
@@ -666,6 +670,17 @@ class ConversationViewModel @Inject constructor(
         navigationManager.navigate(NavigationCommand(NavigationItem.OtherUserProfile.getRouteWithArgs(listOfNotNull(id, conversationId))))
 
     fun provideTempCachePath(): Path = kaliumFileSystem.rootCachePath
+
+    suspend fun hasStableConnectivity(): Boolean {
+        var hasConnection = false
+        observeSyncState().firstOrNull()?.let {
+            hasConnection = when (it) {
+                is SyncState.Failed, SyncState.Waiting -> false
+                SyncState.GatheringPendingEvents, SyncState.SlowSync, SyncState.Live -> true
+            }
+        }
+        return hasConnection
+    }
 
     companion object {
         const val IMAGE_SIZE_LIMIT_BYTES = 15 * 1024 * 1024 // 15 MB limit for images

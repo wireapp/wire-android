@@ -30,8 +30,8 @@ import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCas
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
-import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
+import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.team.Result
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -110,6 +110,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
                                         updateState(
                                             groupOptionsState.copy(
                                                 groupName = conversation.name.orEmpty(),
+                                                protocolInfo = conversation.protocol,
                                                 isUpdatingAllowed = isSelfAnAdmin,
                                                 mutedState = conversation.mutedStatus,
                                                 areAccessOptionsAvailable = conversation.isTeamGroup(),

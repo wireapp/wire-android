@@ -57,7 +57,7 @@ class WireActivityViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val navigationArguments = mutableMapOf<String, Any>(SERVER_CONFIG_ARG to ServerConfig.DEFAULT)
-    var shouldShowDeeplinkDialogState: CustomBEDeeplinkDialogState by mutableStateOf(CustomBEDeeplinkDialogState())
+    var customBackendDialogState: CustomBEDeeplinkDialogState by mutableStateOf(CustomBEDeeplinkDialogState())
 
     private val observeUserId = currentSessionFlow().map { result ->
         if (result is CurrentSessionResult.Success) {
@@ -91,7 +91,6 @@ class WireActivityViewModel @Inject constructor(
     fun navigationArguments() = navigationArguments.values.toList()
 
     fun startNavigationRoute(): String = when {
-        shouldGoToLogin() -> NavigationItem.Welcome.getRouteWithArgs()
         shouldGoToWelcome() -> NavigationItem.Welcome.getRouteWithArgs()
         else -> NavigationItem.Home.getRouteWithArgs()
     }
@@ -100,12 +99,11 @@ class WireActivityViewModel @Inject constructor(
         intent?.data?.let { deepLink ->
             when (val result = deepLinkProcessor(deepLink)) {
                 is DeepLinkResult.CustomServerConfig -> loadServerConfig(result.url)?.let { serverLinks ->
-                    authServerConfigProvider.updateAuthServer(serverLinks)
-                    shouldShowDeeplinkDialogState = shouldShowDeeplinkDialogState.copy(
+//                    authServerConfigProvider.updateAuthServer(serverLinks)
+                    customBackendDialogState = customBackendDialogState.copy(
                         shouldShowDialog = true, backendName = serverLinks.title, backendUrl = serverLinks.teams
                     )
-
-//                        navigationArguments.put(SERVER_CONFIG_ARG, serverLinks)
+                    navigationArguments.put(SERVER_CONFIG_ARG, serverLinks)
                 }
 
                 is DeepLinkResult.SSOLogin -> navigationArguments.put(SSO_DEEPLINK_ARG, result)
@@ -163,6 +161,7 @@ class WireActivityViewModel @Inject constructor(
         handleDeepLink(intent)
 
         return when {
+            isServerConfigOnPremises() -> false
             shouldGoToLogin() || shouldGoToWelcome() -> true
             shouldGoToIncomingCall() -> {
                 openIncomingCall(navigationArguments[INCOMING_CALL_CONVERSATION_ID_ARG] as ConversationId)
@@ -182,6 +181,10 @@ class WireActivityViewModel @Inject constructor(
             intent == null -> false
             else -> true
         }
+    }
+
+     fun dismissCustomBackendDialog() {
+        customBackendDialogState = customBackendDialogState.copy(shouldShowDialog = false)
     }
 
     private fun checkNumberOfSessions(): Int {
@@ -230,21 +233,14 @@ class WireActivityViewModel @Inject constructor(
                 appLogger.e("something went wrong during handling the custom server deep link: ${result.genericFailure}")
                 null
             }
-
-//            GetServerConfigResult.Failure.TooNewVersion -> {
-//                appLogger.e("server version is too new")
-//                null
-//            }
-
-//            GetServerConfigResult.Failure.UnknownServerVersion -> {
-//                appLogger.e("unknown server version")
-//                null
-//            }
         }
     }
 
+    private fun isServerConfigOnPremises(): Boolean =
+        (navigationArguments[SERVER_CONFIG_ARG] as ServerConfig.Links) != ServerConfig.DEFAULT
+
     private fun shouldGoToLogin(): Boolean =
-        (navigationArguments[SERVER_CONFIG_ARG] as ServerConfig.Links) != ServerConfig.DEFAULT || navigationArguments[SSO_DEEPLINK_ARG] != null
+        navigationArguments[SSO_DEEPLINK_ARG] != null
 
     private fun shouldGoToIncomingCall(): Boolean = (navigationArguments[INCOMING_CALL_CONVERSATION_ID_ARG] as? ConversationId) != null
 

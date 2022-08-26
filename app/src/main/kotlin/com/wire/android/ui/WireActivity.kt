@@ -22,8 +22,6 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.navigateToItem
 import com.wire.android.navigation.popWithArguments
 import com.wire.android.ui.common.dialogs.CustomBEDeeplinkDialog
-import com.wire.android.ui.common.dialogs.CustomBEDeeplinkDialogState
-import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.ui.updateScreenSettings
@@ -77,14 +75,16 @@ class WireActivity : AppCompatActivity() {
                     NavigationGraph(navController = navController, startDestination, viewModel.navigationArguments())
                 }
                 setUpNavigation(navController, scope)
-                viewModel.shouldShowDeeplinkDialogState.let {
-                    if (it.shouldShowDialog) {
-                        val deleteGroupDialogState = rememberVisibilityState<CustomBEDeeplinkDialogState>()
-                        deleteGroupDialogState.show(it)
-                        CustomBEDeeplinkDialog(deleteGroupDialogState)
-                    }
-                }
+
+                handleCustomBackendDialog(viewModel.customBackendDialogState.shouldShowDialog)
             }
+        }
+    }
+
+    @Composable
+    private fun handleCustomBackendDialog(shouldShow: Boolean) {
+        if (shouldShow) {
+            CustomBEDeeplinkDialog(viewModel)
         }
     }
 

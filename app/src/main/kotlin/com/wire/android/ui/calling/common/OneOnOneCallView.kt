@@ -38,7 +38,7 @@ fun OneOnOneCallView(
         modifier = Modifier.padding(dimensions().spacing4x),
         verticalArrangement = Arrangement.spacedBy(MaterialTheme.wireDimensions.spacing2x)
     ) {
-        items(items = participants, key = { it.id.toString() }) { participant ->
+        items(items = participants, key = { it.id.toString() + it.clientId }) { participant ->
             // since we are getting participants by chunk of 8 items,
             // we need to check that we are on first page for sel user
             val isSelfUser = pageIndex == 0 && participants.first() == participant

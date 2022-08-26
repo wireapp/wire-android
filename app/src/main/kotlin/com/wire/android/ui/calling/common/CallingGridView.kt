@@ -45,7 +45,7 @@ fun GroupCallGrid(
         columns = GridCells.Fixed(NUMBER_OF_GRID_CELLS)
     ) {
 
-        items(items = participants, key = { it.id.toString() }) { participant ->
+        items(items = participants, key = { it.id.toString() + it.clientId }) { participant ->
             // since we are getting participants by chunk of 8 items,
             // we need to check that we are on first page for sel user
             val isSelfUser = pageIndex == 0 && participants.first() == participant

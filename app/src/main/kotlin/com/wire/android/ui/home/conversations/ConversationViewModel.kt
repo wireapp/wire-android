@@ -84,15 +84,11 @@ import com.wire.kalium.logic.data.id.QualifiedID as ConversationId
 @Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel
 class ConversationViewModel @Inject constructor(
-    override val savedStateHandle: SavedStateHandle,
-    private val navigationManager: NavigationManager,
-    qualifiedIdMapper: QualifiedIdMapper,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val sendAssetMessage: SendAssetMessageUseCase,
     private val sendTextMessage: SendTextMessageUseCase,
     private val getMessageAsset: GetMessageAssetUseCase,
     private val deleteMessage: DeleteMessageUseCase,
-    private val dispatchers: DispatcherProvider,
     private val updateAssetMessageDownloadStatus: UpdateAssetMessageDownloadStatusUseCase,
     private val getSelfUserTeam: GetSelfTeamUseCase,
     private val getMessageForConversation: GetMessagesForConversationUseCase,
@@ -102,10 +98,14 @@ class ConversationViewModel @Inject constructor(
     private val observeIsSelfConversationMember: ObserveIsSelfUserMemberUseCase,
     private val answerCall: AnswerCallUseCase,
     private val endCall: EndCallUseCase,
+    private val updateConversationReadDateUseCase: UpdateConversationReadDateUseCase,
+    private val navigationManager: NavigationManager,
     private val fileManager: FileManager,
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val kaliumFileSystem: KaliumFileSystem,
-    private val updateConversationReadDateUseCase: UpdateConversationReadDateUseCase
+    override val savedStateHandle: SavedStateHandle,
+    private val dispatchers: DispatcherProvider,
+    qualifiedIdMapper: QualifiedIdMapper
 ) : SavedStateViewModel(savedStateHandle) {
 
     var conversationViewState by mutableStateOf(ConversationViewState())

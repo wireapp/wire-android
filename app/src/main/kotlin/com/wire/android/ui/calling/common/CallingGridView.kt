@@ -47,7 +47,7 @@ fun GroupCallGrid(
 
         items(items = participants, key = { it.id.toString() }) { participant ->
             // since we are getting participants by chunk of 8 items,
-            // we need to check that we are on first page for sel user
+            // we need to check that we are on first page for self user
             val isSelfUser = pageIndex == 0 && participants.first() == participant
 
             // We need the number of tiles rows needed to calculate their height

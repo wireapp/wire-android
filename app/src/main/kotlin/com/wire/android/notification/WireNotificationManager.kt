@@ -281,7 +281,7 @@ class WireNotificationManager @Inject constructor(
     }
 
     /**
-     * Infinitely listen for the screen that use is in
+     * Infinitely listen for changes on the screen that user is currently in
      * and show notification for OngoingCall if user hides the app from the OngoingCallScreen.
      * @param userIdFlow Flow of QualifiedID of User
      * @param currentScreenState StateFlow that informs which screen is currently visible,
@@ -303,7 +303,7 @@ class WireNotificationManager @Inject constructor(
                             // looking for the call that user was in
                             val currentOngoingCall = calls.firstOrNull()
 
-                            // combining founded ongoingCall with a userId for displaying a notification
+                            // combine current ongoingCall with a userId in order to display a notification
                             Optional.ofNullable(currentOngoingCall) to userId
                         }
                 } else {

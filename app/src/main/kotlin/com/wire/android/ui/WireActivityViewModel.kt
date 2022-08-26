@@ -99,9 +99,8 @@ class WireActivityViewModel @Inject constructor(
         intent?.data?.let { deepLink ->
             when (val result = deepLinkProcessor(deepLink)) {
                 is DeepLinkResult.CustomServerConfig -> loadServerConfig(result.url)?.let { serverLinks ->
-//                    authServerConfigProvider.updateAuthServer(serverLinks)
                     customBackendDialogState = customBackendDialogState.copy(
-                        shouldShowDialog = true, backendName = serverLinks.title, backendUrl = serverLinks.teams
+                        shouldShowDialog = true, serverLinks = serverLinks
                     )
                     navigationArguments.put(SERVER_CONFIG_ARG, serverLinks)
                 }
@@ -183,8 +182,18 @@ class WireActivityViewModel @Inject constructor(
         }
     }
 
-     fun dismissCustomBackendDialog() {
+    fun dismissCustomBackendDialog() {
         customBackendDialogState = customBackendDialogState.copy(shouldShowDialog = false)
+    }
+
+    fun customBackendDialogProceedButtonClicked(serverLinks: ServerConfig.Links) {
+        dismissCustomBackendDialog()
+        authServerConfigProvider.updateAuthServer(serverLinks)
+        if (checkNumberOfSessions() == 3) {
+            // todo : show the reached the limit dialog
+        } else {
+            navigateTo(NavigationCommand(NavigationItem.Welcome.getRouteWithArgs()))
+        }
     }
 
     private fun checkNumberOfSessions(): Int {

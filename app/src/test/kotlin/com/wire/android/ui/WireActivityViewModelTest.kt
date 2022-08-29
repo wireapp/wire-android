@@ -64,7 +64,7 @@ class WireActivityViewModelTest {
     }
 
     @Test
-    fun `given Intent with SSOLogin, when currentSession is present, then startNavigation is Login and navArguments contains SSOLogin`() {
+    fun `given Intent with SSOLogin, when currentSession is present, then startNavigation is Home and navArguments contains SSOLogin`() {
         val (_, viewModel) = Arrangement()
             .withSomeCurrentSession()
             .withDeepLinkResult(DeepLinkResult.SSOLogin.Success("cookie", "config"))
@@ -72,12 +72,12 @@ class WireActivityViewModelTest {
 
         viewModel.handleDeepLink(mockedIntent())
 
-        assertEquals(NavigationItem.Login.getRouteWithArgs(), viewModel.startNavigationRoute())
+        assertEquals(NavigationItem.Home.getRouteWithArgs(), viewModel.startNavigationRoute())
         assert(viewModel.navigationArguments().filterIsInstance<DeepLinkResult.SSOLogin>().isNotEmpty())
     }
 
     @Test
-    fun `given Intent with ServerConfig, when currentSession is present, then startNavigation is Login and no SSOLogin in navArguments`() {
+    fun `given Intent with ServerConfig, when currentSession is present, then startNavigation is Home and no SSOLogin in navArguments`() {
         val (_, viewModel) = Arrangement()
             .withSomeCurrentSession()
             .withDeepLinkResult(DeepLinkResult.CustomServerConfig("url"))
@@ -85,12 +85,12 @@ class WireActivityViewModelTest {
 
         viewModel.handleDeepLink(mockedIntent())
 
-        assertEquals(NavigationItem.Login.getRouteWithArgs(), viewModel.startNavigationRoute())
+        assertEquals(NavigationItem.Home.getRouteWithArgs(), viewModel.startNavigationRoute())
         assert(viewModel.navigationArguments().filterIsInstance<DeepLinkResult.SSOLogin>().isEmpty())
     }
 
     @Test
-    fun `given Intent with ServerConfig, when currentSession is absent, then startNavigation is Login and no SSOLogin in navArguments`() {
+    fun `given Intent with ServerConfig, when currentSession is absent, then startNavigation is Welcome and no SSOLogin in navArguments`() {
         val (_, viewModel) = Arrangement()
             .withNoCurrentSession()
             .withDeepLinkResult(DeepLinkResult.CustomServerConfig("url"))
@@ -98,7 +98,7 @@ class WireActivityViewModelTest {
 
         viewModel.handleDeepLink(mockedIntent())
 
-        assertEquals(NavigationItem.Login.getRouteWithArgs(), viewModel.startNavigationRoute())
+        assertEquals(NavigationItem.Welcome.getRouteWithArgs(), viewModel.startNavigationRoute())
         assert(viewModel.navigationArguments().filterIsInstance<DeepLinkResult.SSOLogin>().isEmpty())
     }
 

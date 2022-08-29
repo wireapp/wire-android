@@ -16,6 +16,8 @@ sealed class DeepLinkResult {
     }
 
     data class IncomingCall(val conversationsId: ConversationId) : DeepLinkResult()
+
+    data class OngoingCall(val conversationsId: ConversationId) : DeepLinkResult()
     data class OpenConversation(val conversationsId: ConversationId) : DeepLinkResult()
     data class OpenOtherUserProfile(val userId: QualifiedID) : DeepLinkResult()
 }
@@ -27,6 +29,7 @@ class DeepLinkProcessor {
         ACCESS_DEEPLINK_HOST -> getCustomServerConfigDeepLinkResult(uri)
         SSO_LOGIN_DEEPLINK_HOST -> getSSOLoginDeepLinkResult(uri)
         INCOMING_CALL_DEEPLINK_HOST -> getIncomingCallDeepLinkResult(uri)
+        ONGOING_CALL_DEEPLINK_HOST -> getOngoingCallDeepLinkResult(uri)
         CONVERSATION_DEEPLINK_HOST -> getOpenConversationDeepLinkResult(uri)
         OTHER_USER_PROFILE_DEEPLINK_HOST -> getOpenOtherUserProfileDeepLinkResult(uri)
         else -> DeepLinkResult.Unknown
@@ -49,6 +52,11 @@ class DeepLinkProcessor {
     private fun getIncomingCallDeepLinkResult(uri: Uri) =
         uri.lastPathSegment?.toQualifiedID(qualifiedIdMapper)?.let {
             DeepLinkResult.IncomingCall(it)
+        } ?: DeepLinkResult.Unknown
+
+    private fun getOngoingCallDeepLinkResult(uri: Uri) =
+        uri.lastPathSegment?.toQualifiedID(qualifiedIdMapper)?.let {
+            DeepLinkResult.OngoingCall(it)
         } ?: DeepLinkResult.Unknown
 
     private fun getSSOLoginDeepLinkResult(uri: Uri) = when (uri.lastPathSegment) {
@@ -80,6 +88,7 @@ class DeepLinkProcessor {
         const val SSO_LOGIN_ERROR_PARAM = "error"
         const val SSO_LOGIN_SERVER_CONFIG_PARAM = "location"
         const val INCOMING_CALL_DEEPLINK_HOST = "incoming-call"
+        const val ONGOING_CALL_DEEPLINK_HOST = "ongoing-call"
         const val CONVERSATION_DEEPLINK_HOST = "conversation"
         const val OTHER_USER_PROFILE_DEEPLINK_HOST = "other-user-profile"
 

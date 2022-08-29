@@ -97,7 +97,6 @@ class SharedCallingViewModelTest {
 
     private lateinit var sharedCallingViewModel: SharedCallingViewModel
 
-
     @BeforeEach
     fun setup() {
         val scheduler = TestCoroutineScheduler()
@@ -268,5 +267,4 @@ class SharedCallingViewModelTest {
     companion object {
         private val conversationId = ConversationId("some-dummy-value", "some.dummy.domain")
     }
-
 }

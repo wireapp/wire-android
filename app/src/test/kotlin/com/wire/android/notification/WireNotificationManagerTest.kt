@@ -21,6 +21,7 @@ import com.wire.kalium.logic.feature.call.Call
 import com.wire.kalium.logic.feature.call.CallStatus
 import com.wire.kalium.logic.feature.call.CallsScope
 import com.wire.kalium.logic.feature.call.usecase.GetIncomingCallsUseCase
+import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.connection.MarkConnectionRequestAsNotifiedUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationScope
 import com.wire.kalium.logic.feature.message.GetNotificationsUseCase
@@ -55,7 +56,7 @@ class WireNotificationManagerTest {
 
         verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
         verify(exactly = 0) { arrangement.messageNotificationManager.handleNotification(any(), any()) }
-        verify(exactly = 0) { arrangement.callNotificationManager.handleNotifications(any(), any()) }
+        verify(exactly = 0) { arrangement.callNotificationManager.handleIncomingCallNotifications(any(), any()) }
     }
 
     @Test
@@ -71,7 +72,7 @@ class WireNotificationManagerTest {
         verify(atLeast = 1) { arrangement.coreLogic.getSessionScope(any()) }
         coVerify(exactly = 1) { arrangement.connectionPolicyManager.handleConnectionOnPushNotification(TEST_AUTH_SESSION.session.userId) }
         verify(exactly = 0) { arrangement.messageNotificationManager.handleNotification(listOf(), any()) }
-        verify(exactly = 1) { arrangement.callNotificationManager.handleNotifications(listOf(), any()) }
+        verify(exactly = 1) { arrangement.callNotificationManager.handleIncomingCallNotifications(listOf(), any()) }
     }
 
     @Test
@@ -84,7 +85,7 @@ class WireNotificationManagerTest {
         runCurrent()
 
         verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
-        verify(exactly = 1) { arrangement.callNotificationManager.hideCallNotification() }
+        verify(exactly = 1) { arrangement.callNotificationManager.hideIncomingCallNotification() }
     }
 
     @Test
@@ -98,7 +99,7 @@ class WireNotificationManagerTest {
         manager.observeNotificationsAndCalls(flowOf(provideUserId()), this) {}
         runCurrent()
 
-        verify(exactly = 1) { arrangement.callNotificationManager.hideCallNotification() }
+        verify(exactly = 1) { arrangement.callNotificationManager.hideIncomingCallNotification() }
     }
 
     @Test
@@ -107,13 +108,14 @@ class WireNotificationManagerTest {
             .withIncomingCalls(listOf(provideCall()))
             .withMessageNotifications(listOf())
             .withCurrentScreen(CurrentScreen.InBackground)
+            .withEstablishedCall(listOf())
             .arrange()
 
         manager.observeNotificationsAndCalls(flowOf(provideUserId()), this) {}
         runCurrent()
 
-        verify(exactly = 0) { arrangement.callNotificationManager.hideCallNotification() }
-        verify(exactly = 1) { arrangement.callNotificationManager.handleNotifications(any(), any()) }
+        verify(exactly = 0) { arrangement.callNotificationManager.hideIncomingCallNotification() }
+        verify(exactly = 1) { arrangement.callNotificationManager.handleIncomingCallNotifications(any(), any()) }
     }
 
     @Test
@@ -127,8 +129,8 @@ class WireNotificationManagerTest {
         manager.observeNotificationsAndCalls(flowOf(provideUserId()), this) {}
         runCurrent()
 
-        verify(exactly = 1) { arrangement.callNotificationManager.hideCallNotification() }
-        verify(exactly = 0) { arrangement.callNotificationManager.handleNotifications(any(), any()) }
+        verify(exactly = 1) { arrangement.callNotificationManager.hideIncomingCallNotification() }
+        verify(exactly = 0) { arrangement.callNotificationManager.handleIncomingCallNotifications(any(), any()) }
     }
 
     @Test
@@ -144,7 +146,7 @@ class WireNotificationManagerTest {
 
         verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
         verify(exactly = 0) { arrangement.messageNotificationManager.handleNotification(listOf(), any()) }
-        verify(exactly = 1) { arrangement.callNotificationManager.hideCallNotification() }
+        verify(exactly = 1) { arrangement.callNotificationManager.hideIncomingCallNotification() }
     }
 
     @Test
@@ -219,6 +221,21 @@ class WireNotificationManagerTest {
             coVerify(exactly = 1) { arrangement.connectionPolicyManager.handleConnectionOnPushNotification(userId) }
         }
 
+    @Test
+    fun givenSomeEstablishedCalls_whenAppIsNotVisible_thenOngoingCallNotificationShowed() = runTestWithCancellation {
+        val (arrangement, manager) = Arrangement()
+            .withIncomingCalls(listOf())
+            .withMessageNotifications(listOf())
+            .withCurrentScreen(CurrentScreen.InBackground)
+            .withEstablishedCall(listOf(provideCall().copy(status = CallStatus.ESTABLISHED)))
+            .arrange()
+
+        manager.observeNotificationsAndCalls(flowOf(provideUserId()), this) {}
+        runCurrent()
+
+        verify(exactly = 1) { arrangement.callNotificationManager.showOngoingCallNotification(any(), any()) }
+    }
+
     private class Arrangement {
         @MockK
         lateinit var coreLogic: CoreLogic
@@ -266,6 +283,9 @@ class WireNotificationManagerTest {
         lateinit var getIncomingCallsUseCase: GetIncomingCallsUseCase
 
         @MockK
+        lateinit var establishedCall: ObserveEstablishedCallsUseCase
+
+        @MockK
         lateinit var getSessionsUseCase: GetSessionsUseCase
 
         val wireNotificationManager by lazy {
@@ -294,8 +314,9 @@ class WireNotificationManagerTest {
             coEvery { coreLogic.getGlobalScope() } returns globalKaliumScope
             coEvery { messageNotificationManager.handleNotification(any(), any()) } returns Unit
             coEvery { callsScope.getIncomingCalls } returns getIncomingCallsUseCase
-            coEvery { callNotificationManager.handleNotifications(any(), any()) } returns Unit
-            coEvery { callNotificationManager.hideCallNotification() } returns Unit
+            coEvery { callsScope.establishedCall } returns establishedCall
+            coEvery { callNotificationManager.handleIncomingCallNotifications(any(), any()) } returns Unit
+            coEvery { callNotificationManager.hideIncomingCallNotification() } returns Unit
             coEvery { messageScope.getNotifications } returns getNotificationsUseCase
             coEvery { messageScope.markMessagesAsNotified } returns markMessagesAsNotified
             coEvery { markMessagesAsNotified(any(), any()) } returns Result.Success
@@ -313,6 +334,11 @@ class WireNotificationManagerTest {
 
         fun withIncomingCalls(calls: List<Call>): Arrangement {
             coEvery { getIncomingCallsUseCase() } returns flowOf(calls)
+            return this
+        }
+
+        fun withEstablishedCall(calls: List<Call>): Arrangement {
+            coEvery { establishedCall() } returns flowOf(calls)
             return this
         }
 

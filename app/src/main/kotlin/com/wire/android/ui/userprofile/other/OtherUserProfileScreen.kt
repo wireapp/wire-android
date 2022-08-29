@@ -312,7 +312,7 @@ private fun Content(
     openRemoveConversationMemberDialog: () -> Unit,
     getOtherUserClients: () -> Unit,
 ) {
-    Crossfade(targetState = state) { state ->
+    Crossfade(targetState = tabItems to state) { (tabItems, state) ->
         when {
             state.isDataLoading || state.botService != null -> Box {} // no content visible while loading
             state.connectionState == ConnectionState.ACCEPTED ->

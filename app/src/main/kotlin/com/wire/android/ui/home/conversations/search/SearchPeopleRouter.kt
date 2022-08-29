@@ -13,6 +13,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
@@ -22,16 +24,34 @@ import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import com.wire.android.ui.common.topappbar.search.rememberSearchbarState
+import com.wire.android.ui.home.conversations.details.AddMembersToConversationViewModel
 import com.wire.android.ui.home.newconversation.common.SearchListScreens
 import com.wire.android.ui.home.newconversation.common.SelectParticipantsButtonsRow
 import com.wire.android.ui.home.newconversation.contacts.ContactsScreen
 import com.wire.android.ui.home.newconversation.model.Contact
 
 @Composable
+fun AddPeopleToConversationRouter(
+    purpose: SearchPeoplePurpose,
+    addMembersToConversationViewModel: AddMembersToConversationViewModel = hiltViewModel(),
+    navHostController: NavHostController = rememberNavController()
+) {
+    SearchPeopleRouter(
+        purpose = purpose,
+        onPeoplePicked = {
+            addMembersToConversationViewModel.addMembersToConversation()
+        },
+        navHostController = navHostController,
+        searchPeopleViewModel = addMembersToConversationViewModel
+    )
+}
+
+@Composable
 fun SearchPeopleRouter(
     purpose: SearchPeoplePurpose,
     onPeoplePicked: () -> Unit,
     searchPeopleViewModel: SearchPeopleViewModel,
+    navHostController: NavHostController = rememberNavController(),
 ) {
     SearchPeopleContent(
         purpose = purpose,
@@ -42,7 +62,8 @@ fun SearchPeopleRouter(
         onAddContactToGroup = searchPeopleViewModel::addContactToGroup,
         onRemoveContactFromGroup = searchPeopleViewModel::removeContactFromGroup,
         onOpenUserProfile = { searchPeopleViewModel.openUserProfile(it.contact) },
-        onAddContact = searchPeopleViewModel::addContact
+        onAddContact = searchPeopleViewModel::addContact,
+        searchNavController = navHostController,
     )
 }
 
@@ -57,9 +78,9 @@ fun SearchPeopleContent(
     onAddContactToGroup: (Contact) -> Unit,
     onRemoveContactFromGroup: (Contact) -> Unit,
     onOpenUserProfile: (SearchOpenUserProfile) -> Unit,
-    onAddContact: (Contact) -> Unit
+    onAddContact: (Contact) -> Unit,
+    searchNavController: NavHostController,
 ) {
-    val searchNavController = rememberNavController()
     val searchBarState = rememberSearchbarState()
 
     with(searchPeopleState) {

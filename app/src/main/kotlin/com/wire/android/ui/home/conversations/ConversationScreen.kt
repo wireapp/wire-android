@@ -125,7 +125,10 @@ fun ConversationScreen(
         commonTopAppBarViewModel = commonTopAppBarViewModel
     )
 
-    DeleteMessageDialog(conversationViewModel = conversationViewModel)
+    DeleteMessageDialog(
+        state = conversationViewModel.deleteMessageDialogsState,
+        actions = conversationViewModel.deleteMessageHelper
+    )
     DownloadedAssetDialog(
         downloadedAssetDialogState = conversationViewModel.conversationViewState.downloadedAssetDialogState,
         onSaveFileToExternalStorage = conversationViewModel::onSaveFile,

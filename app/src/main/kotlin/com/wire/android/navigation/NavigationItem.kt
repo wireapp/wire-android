@@ -311,13 +311,15 @@ enum class NavigationItem(
 
     Gallery(
         primaryRoute = MEDIA_GALLERY,
-        canonicalRoute = "$MEDIA_GALLERY/{$EXTRA_IMAGE_DATA}",
+        canonicalRoute = "$MEDIA_GALLERY/{$EXTRA_CONVERSATION_ID}/{$EXTRA_IMAGE_DATA}",
         content = { MediaGalleryScreen() }
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
             val imageAssetId: ImageAsset.PrivateAsset? = arguments.filterIsInstance<ImageAsset.PrivateAsset>().firstOrNull()
             val mappedArgs = imageAssetId?.toString() ?: ""
-            return imageAssetId?.run { "$primaryRoute/$mappedArgs" } ?: primaryRoute
+            val conversationIdString: String = arguments.filterIsInstance<ConversationId>().firstOrNull()?.toString()
+                ?: "{$EXTRA_CONVERSATION_ID}"
+            return imageAssetId?.run { "$primaryRoute/$conversationIdString/$mappedArgs" } ?: primaryRoute
         }
     };
 

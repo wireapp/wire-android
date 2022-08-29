@@ -19,10 +19,12 @@ import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
+import com.wire.kalium.logic.feature.auth.NumberOfAuthenticatedAccountsUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import com.wire.kalium.logic.feature.user.UpdateSelfAvailabilityStatusUseCase
+import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
@@ -44,7 +46,9 @@ class SelfUserProfileViewModel @Inject constructor(
     private val dispatchers: DispatcherProvider,
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val authServerConfigProvider: AuthServerConfigProvider,
-    private val selfServerLinks: SelfServerConfigUseCase
+    private val selfServerLinks: SelfServerConfigUseCase,
+    private val kaliumConfigs: KaliumConfigs,
+    private val numberOfAuthenticatedAccounts: NumberOfAuthenticatedAccountsUseCase
 ) : ViewModel() {
 
     var userProfileState by mutableStateOf(SelfUserProfileState())
@@ -124,6 +128,17 @@ class SelfUserProfileViewModel @Inject constructor(
 
     fun addAccount() {
         viewModelScope.launch {
+            val canAddNewAccounts: Boolean = numberOfAuthenticatedAccounts().let {
+                when(it) {
+                    is NumberOfAuthenticatedAccountsUseCase.Result.Failure -> return@launch
+                    is NumberOfAuthenticatedAccountsUseCase.Result.Success -> it.count < kaliumConfigs.maxAccount
+                }
+            }
+            if (!canAddNewAccounts) {
+                userProfileState = userProfileState.copy(maxAccountsReached = true)
+                return@launch
+            }
+
             val selfServerLinks = with(selfServerLinks()) {
                 when (this) {
                     is SelfServerConfigUseCase.Result.Failure -> return@launch
@@ -174,6 +189,10 @@ class SelfUserProfileViewModel @Inject constructor(
                 changeStatus(status)
             }
         }
+    }
+
+    fun onMaxAccountReachedDialogDismissed() {
+        userProfileState = userProfileState.copy(maxAccountsReached = false)
     }
 
     private fun setNotShowStatusRationaleAgainIfNeeded(status: UserAvailabilityStatus) {

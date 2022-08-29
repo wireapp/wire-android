@@ -67,9 +67,10 @@ fun SelfUserProfileScreen(viewModelSelf: SelfUserProfileViewModel = hiltViewMode
         onStatusClicked = viewModelSelf::changeStatusClick,
         onAddAccountClick = viewModelSelf::addAccount,
         dismissStatusDialog = viewModelSelf::dismissStatusDialog,
-        onStatusChange = viewModelSelf::changeStatus ,
+        onStatusChange = viewModelSelf::changeStatus,
         onNotShowRationaleAgainChange = viewModelSelf::dialogCheckBoxStateChanged,
-        onMessageShown = viewModelSelf::clearErrorMessage
+        onMessageShown = viewModelSelf::clearErrorMessage,
+        onMaxAccountReachedDialogDismissed = viewModelSelf::onMaxAccountReachedDialogDismissed
     )
 }
 
@@ -86,7 +87,8 @@ private fun SelfUserProfileContent(
     dismissStatusDialog: () -> Unit = {},
     onStatusChange: (UserAvailabilityStatus) -> Unit = {},
     onNotShowRationaleAgainChange: (Boolean) -> Unit = {},
-    onMessageShown: () -> Unit = {}
+    onMessageShown: () -> Unit = {},
+    onMaxAccountReachedDialogDismissed: () -> Unit = {}
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -164,6 +166,14 @@ private fun SelfUserProfileContent(
                 onStatusChange = onStatusChange,
                 onNotShowRationaleAgainChange = onNotShowRationaleAgainChange
             )
+
+            if (state.maxAccountsReached) {
+                MaxAccountReachedDialog(
+                    onConfirm = onMaxAccountReachedDialogDismissed,
+                    onDismiss = onMaxAccountReachedDialogDismissed,
+                    buttonText = R.string.label_ok
+                )
+            }
         }
     }
 }
@@ -300,7 +310,7 @@ private fun OtherAccountsHeader() {
 
 @Composable
 private fun NewTeamButton(onAddAccountClick: () -> Unit) {
-    Surface(shadowElevation = 8.dp) {
+    Surface(shadowElevation = dimensions().spacing8x) {
         WirePrimaryButton(
             modifier = Modifier
                 .background(MaterialTheme.colorScheme.background)

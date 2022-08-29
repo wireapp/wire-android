@@ -5,15 +5,13 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.viewModelScope
-import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.mapper.ContactMapper
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
-import com.wire.android.ui.home.conversations.search.SearchPeopleViewModel
-import com.wire.android.ui.home.conversations.search.SearchResult
+import com.wire.android.ui.home.conversations.search.SearchAllUsersViewModel
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.newconversation.groupOptions.GroupOptionState
 import com.wire.android.ui.home.newconversation.newgroup.NewGroupState
@@ -23,9 +21,7 @@ import com.wire.kalium.logic.data.conversation.ConversationOptions
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
 import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
-import com.wire.kalium.logic.feature.publicuser.GetAllContactsResult
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
-import com.wire.kalium.logic.feature.publicuser.search.Result
 import com.wire.kalium.logic.feature.publicuser.search.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchUsersUseCase
 import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
@@ -36,16 +32,24 @@ import javax.inject.Inject
 @Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel
 class NewConversationViewModel @Inject constructor(
-    private val getAllKnownUsers: GetAllContactsUseCase,
-    private val searchKnownUsers: SearchKnownUsersUseCase,
-    private val searchPublicUsers: SearchUsersUseCase,
     private val createGroupConversation: CreateGroupConversationUseCase,
-    private val contactMapper: ContactMapper,
+    getAllKnownUsers: GetAllContactsUseCase,
+    searchKnownUsers: SearchKnownUsersUseCase,
+    searchPublicUsers: SearchUsersUseCase,
+    contactMapper: ContactMapper,
     isMLSEnabled: IsMLSEnabledUseCase,
     dispatchers: DispatcherProvider,
     sendConnectionRequest: SendConnectionRequestUseCase,
     navigationManager: NavigationManager
-) : SearchPeopleViewModel(navigationManager, sendConnectionRequest, dispatchers) {
+) : SearchAllUsersViewModel(
+    getAllKnownUsers = getAllKnownUsers,
+    sendConnectionRequest = sendConnectionRequest,
+    searchKnownUsers = searchKnownUsers,
+    searchPublicUsers = searchPublicUsers,
+    contactMapper = contactMapper,
+    dispatcher = dispatchers,
+    navigationManager = navigationManager
+) {
     private companion object {
         const val GROUP_NAME_MAX_COUNT = 64
     }
@@ -54,47 +58,9 @@ class NewConversationViewModel @Inject constructor(
 
     var groupOptionsState: GroupOptionState by mutableStateOf(GroupOptionState())
 
-    init {
-        viewModelScope.launch { allContacts() }
-    }
-
-    override suspend fun getAllUsersUseCase() =
-        when (val result = getAllKnownUsers()) {
-            is GetAllContactsResult.Failure -> SearchResult.Failure(R.string.label_general_error)
-            is GetAllContactsResult.Success -> SearchResult.Success(
-                result.allContacts.map { otherUser ->
-                    contactMapper.fromOtherUser(
-                        otherUser
-                    )
-                }
-            )
-        }
-
-    override suspend fun searchKnownUsersUseCase(searchTerm: String, selfUserIncluded: Boolean) =
-        when (val result = searchKnownUsers(searchTerm)) {
-            is Result.Failure.Generic, Result.Failure.InvalidRequest -> {
-                SearchResult.Failure(R.string.label_general_error)
-            }
-            is Result.Failure.InvalidQuery -> {
-                SearchResult.Failure(R.string.label_no_results_found)
-            }
-            is Result.Success -> {
-                SearchResult.Success(result.userSearchResult.result.map { otherUser -> contactMapper.fromOtherUser(otherUser) })
-            }
-        }
-
-    override suspend fun searchPublicUsersUseCase(searchTerm: String) =
-        when (val result = searchPublicUsers(searchTerm)) {
-            is Result.Failure.Generic, Result.Failure.InvalidRequest -> {
-                SearchResult.Failure(R.string.label_general_error)
-            }
-            is Result.Failure.InvalidQuery -> {
-                SearchResult.Failure(R.string.label_no_results_found)
-            }
-            is Result.Success -> {
-                SearchResult.Success(result.userSearchResult.result.map { otherUser -> contactMapper.fromOtherUser(otherUser) })
-            }
-        }
+//    init {
+//        viewModelScope.launch { initialContacts() }
+//    }
 
     fun onGroupNameChange(newText: TextFieldValue) {
         when {

@@ -6,25 +6,18 @@ import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.kalium.logic.data.user.SelfUser
 
 data class SearchPeopleState(
+    val self: SelfUser? = null,
+    val initialContacts: SearchResultState = SearchResultState.Initial,
     val searchQuery: TextFieldValue = TextFieldValue(""),
+    val searchResult: Map<String, ContactSearchResult> = emptyMap(),
     val noneSearchSucceed: Boolean = false,
-    val localContactSearchResult: ContactSearchResult =
-        ContactSearchResult.InternalContact(
-            searchResultState = SearchResultState.Initial
-        ),
-    val publicContactsSearchResult: ContactSearchResult =
-        ContactSearchResult.ExternalContact(
-            searchResultState = SearchResultState.Initial
-        ),
-    val contactsAddedToGroup: List<Contact> = emptyList(),
-    val allKnownContacts: SearchResultState = SearchResultState.Initial,
-    val self: SelfUser? = null
+    val contactsAddedToGroup: List<Contact> = emptyList()
 )
 
 sealed class ContactSearchResult(val searchResultState: SearchResultState) {
     class InternalContact(searchResultState: SearchResultState) :
         ContactSearchResult(
-            searchResultState = searchResultState,
+            searchResultState = searchResultState
         )
 
     class ExternalContact(searchResultState: SearchResultState) :

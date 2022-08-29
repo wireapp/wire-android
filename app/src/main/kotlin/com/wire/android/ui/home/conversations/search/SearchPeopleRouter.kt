@@ -1,7 +1,6 @@
 package com.wire.android.ui.home.conversations.search
 
 import androidx.activity.compose.BackHandler
-import androidx.annotation.StringRes
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
@@ -30,58 +29,55 @@ import com.wire.android.ui.home.newconversation.common.SelectParticipantsButtons
 import com.wire.android.ui.home.newconversation.contacts.ContactsScreen
 import com.wire.android.ui.home.newconversation.model.Contact
 
+
 @Composable
-fun AddPeopleToConversationRouter(
-    purpose: SearchPeoplePurpose,
-    addMembersToConversationViewModel: AddMembersToConversationViewModel = hiltViewModel(),
-    navHostController: NavHostController = rememberNavController()
+fun AddMembersSearchRouter(
+    addMembersToConversationViewModel: AddMembersToConversationViewModel = hiltViewModel()
 ) {
-    SearchPeopleRouter(
-        purpose = purpose,
-        onPeoplePicked = {
-            addMembersToConversationViewModel.addMembersToConversation()
-        },
-        navHostController = navHostController,
-        searchPeopleViewModel = addMembersToConversationViewModel
+    SearchPeopleContent(
+        searchPeopleState = addMembersToConversationViewModel.state,
+        onSearchQueryChanged = addMembersToConversationViewModel::searchQueryChanged,
+        onOpenUserProfile = addMembersToConversationViewModel::openUserProfile,
+        onAddContactToGroup = addMembersToConversationViewModel::addContactToGroup,
+        onRemoveContactFromGroup = addMembersToConversationViewModel::removeContactFromGroup,
+        // Members search does not has the option to add a contact
+        onAddContact = { },
+        onGroupSelectionSubmitAction = addMembersToConversationViewModel::addMembersToConversation,
+        onClose = addMembersToConversationViewModel::close,
     )
 }
 
 @Composable
 fun SearchPeopleRouter(
-    purpose: SearchPeoplePurpose,
-    onPeoplePicked: () -> Unit,
-    searchPeopleViewModel: SearchPeopleViewModel,
-    navHostController: NavHostController = rememberNavController(),
+    onGroupSelectionSubmitAction: () -> Unit,
+    searchAllUsersViewModel: SearchAllUsersViewModel,
 ) {
     SearchPeopleContent(
-        purpose = purpose,
-        searchPeopleState = searchPeopleViewModel.state,
-        onPeoplePicked = onPeoplePicked,
-        onSearchQueryChanged = searchPeopleViewModel::searchQueryChanged,
-        onClose = searchPeopleViewModel::close,
-        onAddContactToGroup = searchPeopleViewModel::addContactToGroup,
-        onRemoveContactFromGroup = searchPeopleViewModel::removeContactFromGroup,
-        onOpenUserProfile = { searchPeopleViewModel.openUserProfile(it.contact) },
-        onAddContact = searchPeopleViewModel::addContact,
-        searchNavController = navHostController,
+        searchPeopleState = searchAllUsersViewModel.state,
+        onSearchQueryChanged = searchAllUsersViewModel::searchQueryChanged,
+        onOpenUserProfile = searchAllUsersViewModel::openUserProfile,
+        onAddContactToGroup = searchAllUsersViewModel::addContactToGroup,
+        onRemoveContactFromGroup = searchAllUsersViewModel::removeContactFromGroup,
+        onAddContact = searchAllUsersViewModel::addContact,
+        onGroupSelectionSubmitAction = onGroupSelectionSubmitAction,
+        onClose = searchAllUsersViewModel::close,
     )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchPeopleContent(
-    purpose: SearchPeoplePurpose,
     searchPeopleState: SearchPeopleState,
-    onPeoplePicked: () -> Unit,
     onSearchQueryChanged: (TextFieldValue) -> Unit,
-    onClose: () -> Unit,
+    onGroupSelectionSubmitAction: () -> Unit,
+    onAddContact: (Contact) -> Unit,
     onAddContactToGroup: (Contact) -> Unit,
     onRemoveContactFromGroup: (Contact) -> Unit,
-    onOpenUserProfile: (SearchOpenUserProfile) -> Unit,
-    onAddContact: (Contact) -> Unit,
-    searchNavController: NavHostController,
+    onOpenUserProfile: (Contact) -> Unit,
+    onClose: () -> Unit
 ) {
     val searchBarState = rememberSearchbarState()
+    val searchNavController: NavHostController = rememberNavController()
 
     with(searchPeopleState) {
         CollapsingTopBarScaffold(
@@ -94,7 +90,7 @@ fun SearchPeopleContent(
                     Box(modifier = Modifier.wrapContentSize()) {
                         WireCenterAlignedTopAppBar(
                             elevation = elevation,
-                            title = stringResource(id = purpose.titleTextResId),
+                            title = "test",
                             navigationIconType = NavigationIconType.Close,
                             onNavigationPressed = onClose
                         )
@@ -133,26 +129,25 @@ fun SearchPeopleContent(
                         route = SearchListScreens.KnownContactsScreen.route,
                         content = {
                             ContactsScreen(
-                                allKnownContactResult = allKnownContacts,
+                                allKnownContactResult = initialContacts,
                                 contactsAddedToGroup = contactsAddedToGroup,
                                 onAddToGroup = onAddContactToGroup,
                                 onRemoveFromGroup = onRemoveContactFromGroup,
-                                onOpenUserProfile =  remember { { onOpenUserProfile(SearchOpenUserProfile(it)) } }
+                                onOpenUserProfile = onOpenUserProfile
                             )
                         }
                     )
                     composable(
                         route = SearchListScreens.SearchPeopleScreen.route,
                         content = {
-                            SearchPeopleScreen(
+                            SearchAllPeopleScreen(
                                 searchQuery = searchQuery.text,
                                 noneSearchSucceed = noneSearchSucceed,
-                                knownContactSearchResult = localContactSearchResult,
-                                publicContactSearchResult = publicContactsSearchResult,
+                                searchResult = searchResult,
                                 contactsAddedToGroup = contactsAddedToGroup,
                                 onAddToGroup = onAddContactToGroup,
                                 onRemoveFromGroup = onRemoveContactFromGroup,
-                                onOpenUserProfile = remember { { onOpenUserProfile(SearchOpenUserProfile(it.contact)) } },
+                                onOpenUserProfile = onOpenUserProfile,
                                 onAddContactClicked = onAddContact
                             )
                         }
@@ -162,8 +157,8 @@ fun SearchPeopleContent(
             bottomBar = {
                 SelectParticipantsButtonsRow(
                     count = contactsAddedToGroup.size,
-                    mainButtonText = stringResource(id = purpose.continueButtonTextResId),
-                    onMainButtonClick = onPeoplePicked
+                    mainButtonText = "test",
+                    onMainButtonClick = onGroupSelectionSubmitAction
                 )
             },
             snapOnFling = false,
@@ -175,12 +170,4 @@ fun SearchPeopleContent(
         searchBarState.closeSearch()
         searchNavController.popBackStack()
     }
-}
-
-enum class SearchPeoplePurpose(
-    @StringRes val titleTextResId: Int,
-    @StringRes val continueButtonTextResId: Int
-) {
-    NEW_CONVERSATION(R.string.label_new_conversation, R.string.label_new_group),
-    ADD_PARTICIPANTS(R.string.label_add_participants, R.string.label_continue);
 }

@@ -174,6 +174,18 @@ open class LoginViewModel @Inject constructor(
         navigationManager.navigate(NavigationCommand(NavigationItem.RemoveDevices.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
     }
 
+    fun dismissClientUpdateDialog() {
+        loginState = loginState.copy(showClientUpdateDialog = false)
+    }
+
+    fun dismissApiVersionNotSupportedDialog() {
+        loginState = loginState.copy(showServerVersionNotSupportedDialog = false)
+    }
+
+    fun updateTheApp(){
+        // todo : update the app after releasing on the store
+    }
+
     companion object {
         const val SSO_CODE_SAVED_STATE_KEY = "sso_code"
         const val USER_IDENTIFIER_SAVED_STATE_KEY = "user_identifier"

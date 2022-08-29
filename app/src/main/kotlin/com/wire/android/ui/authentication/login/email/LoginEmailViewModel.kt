@@ -18,6 +18,8 @@ import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
 import com.wire.kalium.logic.feature.auth.LoginUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
+import com.wire.kalium.logic.feature.server.FetchApiVersionResult
+import com.wire.kalium.logic.feature.server.FetchApiVersionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -31,6 +33,7 @@ class LoginEmailViewModel @Inject constructor(
     @NoSession qualifiedIdMapper: QualifiedIdMapper,
     clientScopeProviderFactory: ClientScopeProvider.Factory,
     userSessionsUseCaseFactory: UserSessionsUseCaseProvider.Factory,
+    private val fetchApiVersion: FetchApiVersionUseCase,
     private val savedStateHandle: SavedStateHandle,
     navigationManager: NavigationManager,
     authServerConfigProvider: AuthServerConfigProvider,
@@ -46,6 +49,23 @@ class LoginEmailViewModel @Inject constructor(
     fun login() {
         loginState = loginState.copy(emailLoginLoading = true, loginError = LoginError.None).updateEmailLoginEnabled()
         viewModelScope.launch {
+            fetchApiVersion(serverConfig).let {
+                when (it) {
+                    is FetchApiVersionResult.Success -> {}
+                    is FetchApiVersionResult.Failure.UnknownServerVersion -> {
+                        loginState = loginState.copy(showServerVersionNotSupportedDialog = true)
+                        return@launch
+                    }
+                    is FetchApiVersionResult.Failure.TooNewVersion -> {
+                        loginState = loginState.copy(showClientUpdateDialog = true)
+                        return@launch
+                    }
+                    is FetchApiVersionResult.Failure.Generic -> {
+                        return@launch
+                    }
+                }
+            }
+
             val (authSession, ssoId) = loginUseCase(loginState.userIdentifier.text, loginState.password.text, true)
                 .let {
                     when (it) {

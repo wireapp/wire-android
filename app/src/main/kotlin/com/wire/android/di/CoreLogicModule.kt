@@ -252,6 +252,11 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun provideFetchApiVersionUserCase(@KaliumCoreLogic coreLogic: CoreLogic) =
+        coreLogic.getGlobalScope().fetchApiVersion
+
+    @ViewModelScoped
+    @Provides
     fun provideObserveServerConfigUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
         coreLogic.getGlobalScope().observeServerConfig
 

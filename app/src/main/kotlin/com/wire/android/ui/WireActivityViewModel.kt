@@ -207,7 +207,7 @@ class WireActivityViewModel @Inject constructor(
     fun customBackendDialogProceedButtonClicked(serverLinks: ServerConfig.Links) {
         dismissCustomBackendDialog()
         authServerConfigProvider.updateAuthServer(serverLinks)
-        if (checkNumberOfSessions() == 3) {
+        if (checkNumberOfSessions() == MAX_SESSION_COUNT) {
             // todo : show the reached the limit dialog
         } else {
             navigateTo(NavigationCommand(NavigationItem.Welcome.getRouteWithArgs()))
@@ -218,17 +218,13 @@ class WireActivityViewModel @Inject constructor(
         getSessions().let {
             when (it) {
                 is GetAllSessionsResult.Success -> {
-                    if (it.sessions.isNullOrEmpty()) {
-                        return 0
-                    } else {
+                    if (!it.sessions.isNullOrEmpty()) {
                         return it.sessions.size
                     }
                 }
-                else -> {
-                    return 0
-                }
             }
         }
+        return 0
     }
 
     private fun openIncomingCall(conversationId: ConversationId) {
@@ -290,5 +286,6 @@ class WireActivityViewModel @Inject constructor(
         private const val ONGOING_CALL_CONVERSATION_ID_ARG = "ongoing_call_conversation_id"
         private const val OPEN_CONVERSATION_ID_ARG = "open_conversation_id"
         private const val OPEN_OTHER_USER_PROFILE_ARG = "open_other_user_id"
+        private const val MAX_SESSION_COUNT = 3
     }
 }

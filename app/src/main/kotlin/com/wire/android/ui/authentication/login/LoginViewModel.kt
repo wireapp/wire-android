@@ -40,6 +40,7 @@ import javax.inject.Inject
 
 @ExperimentalMaterialApi
 @HiltViewModel
+@Suppress("TooManyFunctions")
 open class LoginViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
@@ -182,7 +183,7 @@ open class LoginViewModel @Inject constructor(
         loginState = loginState.copy(showServerVersionNotSupportedDialog = false)
     }
 
-    fun updateTheApp(){
+    fun updateTheApp() {
         // todo : update the app after releasing on the store
     }
 

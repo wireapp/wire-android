@@ -21,6 +21,7 @@ import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
+import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -353,11 +354,12 @@ class WireActivityViewModelTest {
             // Default empty values
             mockUri()
             coEvery { currentSessionFlow() } returns flowOf()
-            coEvery { getServerConfigUseCase(any()) } returns GetServerConfigResult.Success(newServerConfig(1))
+            coEvery { getServerConfigUseCase(any()) } returns GetServerConfigResult.Success(newServerConfig(1).links)
             coEvery { deepLinkProcessor(any()) } returns DeepLinkResult.Unknown
             coEvery { notificationManager.observeNotificationsAndCalls(any(), any(), any()) } returns Unit
             coEvery { navigationManager.navigate(any()) } returns Unit
             coEvery { observePersistentWebSocketConnectionStatus() } returns flowOf(true)
+            coEvery { GetSessionsUseCase(any()) }
         }
 
         @MockK
@@ -379,6 +381,9 @@ class WireActivityViewModelTest {
         lateinit var observePersistentWebSocketConnectionStatus: ObservePersistentWebSocketConnectionStatusUseCase
 
         @MockK
+        lateinit var getSessionsUseCase: GetSessionsUseCase
+
+        @MockK
         private lateinit var authServerConfigProvider: AuthServerConfigProvider
 
         private val viewModel by lazy {
@@ -390,7 +395,8 @@ class WireActivityViewModelTest {
                 notificationManager = notificationManager,
                 navigationManager = navigationManager,
                 authServerConfigProvider = authServerConfigProvider,
-                observePersistentWebSocketConnectionStatus = observePersistentWebSocketConnectionStatus
+                observePersistentWebSocketConnectionStatus = observePersistentWebSocketConnectionStatus,
+                getSessions = getSessionsUseCase
             )
         }
 

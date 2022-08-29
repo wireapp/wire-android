@@ -7,6 +7,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
+import com.wire.android.ui.common.WireDialogButtonType
 
 @Composable
 fun MaxAccountReachedDialog(onConfirm: () -> Unit, onDismiss: () -> Unit, @StringRes buttonText: Int) {
@@ -15,7 +16,9 @@ fun MaxAccountReachedDialog(onConfirm: () -> Unit, onDismiss: () -> Unit, @Strin
         text = stringResource(id = R.string.max_account_reached_dialog_message),
         onDismiss = onDismiss,
         optionButton1Properties = WireDialogButtonProperties(
-            text = stringResource(buttonText), onClick = onConfirm
+            text = stringResource(buttonText),
+            onClick = onConfirm,
+            type = WireDialogButtonType.Primary
         )
     )
 }

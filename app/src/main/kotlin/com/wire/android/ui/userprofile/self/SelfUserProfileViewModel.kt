@@ -1,7 +1,5 @@
 package com.wire.android.ui.userprofile.self
 
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -12,12 +10,10 @@ import com.wire.android.appLogger
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.mapper.OtherAccountMapper
 import com.wire.android.model.ImageAsset.UserAvatarAsset
-import com.wire.android.navigation.HomeNavigationItem.Settings
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.userprofile.self.dialog.StatusDialogData
-import com.wire.android.ui.userprofile.self.model.OtherAccount
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.team.Team
@@ -27,7 +23,7 @@ import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
-import com.wire.kalium.logic.feature.user.ObserveSelfUsersWithTeamsUseCase
+import com.wire.kalium.logic.feature.user.ObserveValidAccountsUseCase
 import com.wire.kalium.logic.feature.user.UpdateSelfAvailabilityStatusUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.combine
@@ -46,7 +42,7 @@ class SelfUserProfileViewModel @Inject constructor(
     private val dataStore: UserDataStore,
     private val getSelf: GetSelfUserUseCase,
     private val getSelfTeam: GetSelfTeamUseCase,
-    private val observeSelfUsersWithTeams: ObserveSelfUsersWithTeamsUseCase,
+    private val observeValidAccounts: ObserveValidAccountsUseCase,
     private val updateStatus: UpdateSelfAvailabilityStatusUseCase,
     private val logout: LogoutUseCase,
     private val dispatchers: DispatcherProvider,
@@ -68,7 +64,7 @@ class SelfUserProfileViewModel @Inject constructor(
             combine(
                 getSelf(),
                 getSelfTeam(),
-                observeSelfUsersWithTeams()
+                observeValidAccounts()
             ) { selfUser: SelfUser, team: Team?, list: List<Pair<SelfUser, Team?>> ->
                 Triple(
                     selfUser,

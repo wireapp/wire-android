@@ -45,6 +45,7 @@ import com.wire.kalium.logic.feature.publicuser.search.SearchUserDirectoryUseCas
 import com.wire.kalium.logic.feature.publicuser.search.SearchUsersUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.RegisterTokenUseCase
+import com.wire.kalium.logic.feature.session.UpdateCurrentSessionUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoUseCase
@@ -727,4 +728,9 @@ class UseCaseModule {
     @Provides
     fun provideObserveValidAccountsUseCase(@KaliumCoreLogic coreLogic: CoreLogic): ObserveValidAccountsUseCase =
         coreLogic.getGlobalScope().observeValidAccounts
+
+    @ViewModelScoped
+    @Provides
+    fun provideUpdateCurrentSessionUseCase(@KaliumCoreLogic coreLogic: CoreLogic): UpdateCurrentSessionUseCase =
+        coreLogic.getGlobalScope().session.updateCurrentSession
 }

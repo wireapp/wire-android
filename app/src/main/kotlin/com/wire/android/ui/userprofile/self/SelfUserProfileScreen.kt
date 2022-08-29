@@ -1,5 +1,8 @@
 package com.wire.android.ui.userprofile.self
 
+import android.content.Context
+import android.content.ContextWrapper
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
@@ -11,7 +14,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
@@ -35,19 +37,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.RowItemTemplate
-import com.wire.android.ui.common.UserBadge
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.UserStatusIndicator
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.selectableBackground
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.common.topappbar.NavigationIconType
@@ -65,6 +64,7 @@ import com.wire.android.ui.userprofile.self.model.OtherAccount
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SelfUserProfileScreen(viewModelSelf: SelfUserProfileViewModel = hiltViewModel()) {
@@ -80,7 +80,8 @@ fun SelfUserProfileScreen(viewModelSelf: SelfUserProfileViewModel = hiltViewMode
         onStatusChange = viewModelSelf::changeStatus,
         onNotShowRationaleAgainChange = viewModelSelf::dialogCheckBoxStateChanged,
         onMessageShown = viewModelSelf::clearErrorMessage,
-        onMaxAccountReachedDialogDismissed = viewModelSelf::onMaxAccountReachedDialogDismissed
+        onMaxAccountReachedDialogDismissed = viewModelSelf::onMaxAccountReachedDialogDismissed,
+        onOtherAccountClick = viewModelSelf::onOtherAccountClick
     )
 }
 
@@ -98,7 +99,8 @@ private fun SelfUserProfileContent(
     onStatusChange: (UserAvailabilityStatus) -> Unit = {},
     onNotShowRationaleAgainChange: (Boolean) -> Unit = {},
     onMessageShown: () -> Unit = {},
-    onMaxAccountReachedDialogDismissed: () -> Unit = {}
+    onMaxAccountReachedDialogDismissed: () -> Unit = {},
+    onOtherAccountClick: (UserId) -> Unit = {}
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -164,7 +166,12 @@ private fun SelfUserProfileContent(
                         }
                         items(
                             items = otherAccounts,
-                            itemContent = { account -> OtherAccountItem(account) }
+                            itemContent = { account ->
+                                OtherAccountItem(
+                                    account,
+                                    clickable = Clickable(enabled = true, onClick = { onOtherAccountClick(account.id) })
+                                )
+                            }
                         )
                     }
                 }
@@ -392,4 +399,12 @@ private fun SelfUserProfileScreenPreview() {
 @Composable
 private fun CurrentSelfUserStatusPreview() {
     CurrentSelfUserStatus(UserAvailabilityStatus.AVAILABLE, onStatusClicked = {})
+}
+
+
+
+fun Context.getActivity(): AppCompatActivity? = when (this) {
+    is AppCompatActivity -> this
+    is ContextWrapper -> baseContext.getActivity()
+    else -> null
 }

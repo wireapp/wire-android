@@ -23,7 +23,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun HighlightSubtitle(
     subTitle: String,
-    searchQuery: String,
+    searchQuery: String = "",
 ) {
     val scope = rememberCoroutineScope()
 

@@ -46,7 +46,8 @@ class UserProfileScreenTest {
     @get:Rule(order = 1)
     var workManagerTestRule = WorkManagerTestRule()
 
-    // Third, we create the compose rule using an AndroidComposeRule, as we are depending on instrumented environment ie: Hilt, WorkManager
+    // Third, we create the compose rule using an AndroidComposeRule,
+    //      as we are depending on instrumented environment ie: Hilt, WorkManager
     @get:Rule(order = 2)
     val composeTestRule = createEmptyComposeRule()
 
@@ -57,7 +58,9 @@ class UserProfileScreenTest {
         hiltRule.inject()
 
         // Start the app
-        scenario = ActivityScenario.launch(Intent(ApplicationProvider.getApplicationContext(), WireActivity::class.java))
+        scenario = ActivityScenario.launch(
+            Intent(ApplicationProvider.getApplicationContext(), WireActivity::class.java)
+        )
         scenario.onActivity { activity ->
             activity.setContent {
                 WireTheme {
@@ -91,10 +94,15 @@ class UserProfileScreenTest {
         }
         busyText.onSiblings()[0].assertTextContains(
             "You will appear as Busy to other people. You will only receive notifications " +
-                "for mentions, replies, and calls in conversations that are not muted."
+                    "for mentions, replies, and calls in conversations that are not muted."
         )
         busyText.onSiblings()[1].performClick().assertIsOn()
-        busyText.onSiblings()[1].performClick().assertIsOff().assertTextContains("Do not display this information again")
+        busyText
+            .onSiblings()[1]
+            .performClick()
+            .assertIsOff()
+            .assertTextContains("Do not display this information again")
+
         okButton.performClick()
         busyText.assertDoesNotExist()
     }
@@ -108,6 +116,7 @@ class UserProfileScreenTest {
             availableText.assertIsDisplayed()
         }
     }
+
     @Test
     fun userProfile_change_status_away() {
         title.assertIsDisplayed()
@@ -118,7 +127,7 @@ class UserProfileScreenTest {
         }
         awayText.onSiblings()[1].performClick().assertIsOn().performClick().assertIsOff().assertTextContains(
             "Do not display this" +
-                " information again"
+                    " information again"
         )
         okButton.performClick()
         awayText.assertDoesNotExist()
@@ -147,7 +156,7 @@ class UserProfileScreenTest {
         composeTestRule.waitForExecution {
             awayText.assertIsDisplayed().onSiblings()[1].performClick().assertIsOn().assertTextContains(
                 "Do not display this " +
-                    "information again"
+                        "information again"
             )
         }
         okButton.performClick()
@@ -166,7 +175,7 @@ class UserProfileScreenTest {
         composeTestRule.waitForExecution {
             awayText.assertIsDisplayed().onSiblings()[1].performClick().assertIsOn().assertTextContains(
                 "Do not " +
-                    "display this information again"
+                        "display this information again"
             )
         }
         cancelButton.performClick()

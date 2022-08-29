@@ -30,6 +30,7 @@ fun ConversationTitle(
             style = MaterialTheme.wireTypography.body02,
             overflow = TextOverflow.Ellipsis,
             maxLines = 1,
+            modifier = Modifier.weight(weight = 1f, fill = false)
         )
         badges()
         if (isLegalHold) {

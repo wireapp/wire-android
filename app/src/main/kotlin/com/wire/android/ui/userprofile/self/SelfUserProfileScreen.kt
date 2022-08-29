@@ -70,16 +70,17 @@ import com.wire.kalium.logic.data.user.UserId
 fun SelfUserProfileScreen(viewModelSelf: SelfUserProfileViewModel = hiltViewModel()) {
     SelfUserProfileContent(
         state = viewModelSelf.userProfileState,
-        onCloseClick = { viewModelSelf.navigateBack() },
-        onLogoutClick = { viewModelSelf.onLogoutClick() },
-        onChangeUserProfilePicture = { viewModelSelf.onChangeProfilePictureClicked() },
-        onEditClick = { viewModelSelf.editProfile() },
-        onStatusClicked = { viewModelSelf.changeStatusClick(it) },
-        onAddAccountClick = { viewModelSelf.addAccount() },
-        dismissStatusDialog = { viewModelSelf.dismissStatusDialog() },
-        onStatusChange = { viewModelSelf.changeStatus(it) },
-        onNotShowRationaleAgainChange = { show -> viewModelSelf.dialogCheckBoxStateChanged(show) },
-        onMessageShown = { viewModelSelf.clearErrorMessage() }
+        onCloseClick = viewModelSelf::navigateBack,
+        onLogoutClick = viewModelSelf::onLogoutClick,
+        onChangeUserProfilePicture = viewModelSelf::onChangeProfilePictureClicked,
+        onEditClick = viewModelSelf::editProfile,
+        onStatusClicked = viewModelSelf::changeStatusClick,
+        onAddAccountClick = viewModelSelf::addAccount,
+        dismissStatusDialog = viewModelSelf::dismissStatusDialog,
+        onStatusChange = viewModelSelf::changeStatus,
+        onNotShowRationaleAgainChange = viewModelSelf::dialogCheckBoxStateChanged,
+        onMessageShown = viewModelSelf::clearErrorMessage,
+        onMaxAccountReachedDialogDismissed = viewModelSelf::onMaxAccountReachedDialogDismissed
     )
 }
 
@@ -96,7 +97,8 @@ private fun SelfUserProfileContent(
     dismissStatusDialog: () -> Unit = {},
     onStatusChange: (UserAvailabilityStatus) -> Unit = {},
     onNotShowRationaleAgainChange: (Boolean) -> Unit = {},
-    onMessageShown: () -> Unit = {}
+    onMessageShown: () -> Unit = {},
+    onMaxAccountReachedDialogDismissed: () -> Unit = {}
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -166,8 +168,7 @@ private fun SelfUserProfileContent(
                         )
                     }
                 }
-                // TODO: Re-enable this when we support multiple accounts
-//                NewTeamButton(onAddAccountClick)
+                NewTeamButton(onAddAccountClick)
             }
             ChangeStatusDialogContent(
                 data = statusDialogData,
@@ -175,6 +176,14 @@ private fun SelfUserProfileContent(
                 onStatusChange = onStatusChange,
                 onNotShowRationaleAgainChange = onNotShowRationaleAgainChange
             )
+
+            if (state.maxAccountsReached) {
+                MaxAccountReachedDialog(
+                    onConfirm = onMaxAccountReachedDialogDismissed,
+                    onDismiss = onMaxAccountReachedDialogDismissed,
+                    buttonText = R.string.label_ok
+                )
+            }
         }
     }
 }
@@ -311,7 +320,7 @@ private fun OtherAccountsHeader() {
 
 @Composable
 private fun NewTeamButton(onAddAccountClick: () -> Unit) {
-    Surface(shadowElevation = 8.dp) {
+    Surface(shadowElevation = dimensions().spacing8x) {
         WirePrimaryButton(
             modifier = Modifier
                 .background(MaterialTheme.colorScheme.background)

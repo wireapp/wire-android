@@ -8,6 +8,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.datastore.UserDataStore
+import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.mapper.OtherAccountMapper
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.navigation.NavigationCommand
@@ -16,6 +17,7 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.userprofile.self.dialog.StatusDialogData
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
+import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.UserAssetId
@@ -24,8 +26,11 @@ import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.ObserveValidAccountsUseCase
+import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import com.wire.kalium.logic.feature.user.UpdateSelfAvailabilityStatusUseCase
+import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
@@ -47,6 +52,9 @@ class SelfUserProfileViewModel @Inject constructor(
     private val logout: LogoutUseCase,
     private val dispatchers: DispatcherProvider,
     private val wireSessionImageLoader: WireSessionImageLoader,
+    private val authServerConfigProvider: AuthServerConfigProvider,
+    private val selfServerLinks: SelfServerConfigUseCase,
+    private val kaliumConfigs: KaliumConfigs,
     private val otherAccountMapper: OtherAccountMapper
 ) : ViewModel() {
 
@@ -69,7 +77,7 @@ class SelfUserProfileViewModel @Inject constructor(
                 Triple(
                     selfUser,
                     team,
-                    list.filter { it.first.id != selfUser.id }.map {(selfUser, team) -> otherAccountMapper.toOtherAccount(selfUser, team) }
+                    list.filter { it.first.id != selfUser.id }.map { (selfUser, team) -> otherAccountMapper.toOtherAccount(selfUser, team) }
                 )
             }
                 .distinctUntilChanged()
@@ -88,7 +96,6 @@ class SelfUserProfileViewModel @Inject constructor(
                         )
                     }
                 }
-
         }
     }
 
@@ -139,7 +146,21 @@ class SelfUserProfileViewModel @Inject constructor(
 
     fun addAccount() {
         viewModelScope.launch {
-            navigationManager.navigate(NavigationCommand(NavigationItem.CreatePersonalAccount.getRouteWithArgs()))
+            // the total number of accounts is otherAccounts + 1 for the current account
+            val canAddNewAccounts: Boolean = (userProfileState.otherAccounts.size + 1) < kaliumConfigs.maxAccount
+
+            if (!canAddNewAccounts) {
+                userProfileState = userProfileState.copy(maxAccountsReached = true)
+                return@launch
+            }
+
+            val selfServerLinks: ServerConfig.Links =
+                when (val result = selfServerLinks()) {
+                    is SelfServerConfigUseCase.Result.Failure -> return@launch
+                    is SelfServerConfigUseCase.Result.Success -> result.serverLinks
+                }
+            authServerConfigProvider.updateAuthServer(selfServerLinks)
+            navigationManager.navigate(NavigationCommand(NavigationItem.Welcome.getRouteWithArgs()))
         }
     }
 
@@ -182,6 +203,10 @@ class SelfUserProfileViewModel @Inject constructor(
                 changeStatus(status)
             }
         }
+    }
+
+    fun onMaxAccountReachedDialogDismissed() {
+        userProfileState = userProfileState.copy(maxAccountsReached = false)
     }
 
     private fun setNotShowStatusRationaleAgainIfNeeded(status: UserAvailabilityStatus) {

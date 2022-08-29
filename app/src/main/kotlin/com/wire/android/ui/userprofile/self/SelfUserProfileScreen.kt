@@ -2,6 +2,7 @@ package com.wire.android.ui.userprofile.self
 
 import android.content.Context
 import android.content.ContextWrapper
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -32,6 +33,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
@@ -128,6 +130,7 @@ private fun SelfUserProfileContent(
         }
     ) { internalPadding ->
         with(state) {
+            val context = LocalContext.current
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -169,7 +172,17 @@ private fun SelfUserProfileContent(
                             itemContent = { account ->
                                 OtherAccountItem(
                                     account,
-                                    clickable = Clickable(enabled = true, onClick = { onOtherAccountClick(account.id) })
+                                    clickable = Clickable(enabled = true, onClick = {
+                                        if (state.isUserInCall) {
+                                            Toast.makeText(
+                                                context,
+                                                context.getString(R.string.cant_switch_account_in_call),
+                                                Toast.LENGTH_SHORT
+                                            ).show()
+                                        } else {
+                                            onOtherAccountClick(account.id)
+                                        }
+                                    })
                                 )
                             }
                         )
@@ -400,7 +413,6 @@ private fun SelfUserProfileScreenPreview() {
 private fun CurrentSelfUserStatusPreview() {
     CurrentSelfUserStatus(UserAvailabilityStatus.AVAILABLE, onStatusClicked = {})
 }
-
 
 
 fun Context.getActivity(): AppCompatActivity? = when (this) {

@@ -58,6 +58,7 @@ class WireActivityViewModel @Inject constructor(
 
     private val navigationArguments = mutableMapOf<String, Any>(SERVER_CONFIG_ARG to ServerConfig.DEFAULT)
     var customBackendDialogState: CustomBEDeeplinkDialogState by mutableStateOf(CustomBEDeeplinkDialogState())
+    var maxAccountDialogState: Boolean by mutableStateOf(false)
 
     private val observeUserId = currentSessionFlow().map { result ->
         if (result is CurrentSessionResult.Success) {
@@ -208,7 +209,7 @@ class WireActivityViewModel @Inject constructor(
         dismissCustomBackendDialog()
         authServerConfigProvider.updateAuthServer(serverLinks)
         if (checkNumberOfSessions() == MAX_SESSION_COUNT) {
-            // todo : show the reached the limit dialog
+            maxAccountDialogState = true
         } else {
             navigateTo(NavigationCommand(NavigationItem.Welcome.getRouteWithArgs()))
         }
@@ -278,6 +279,15 @@ class WireActivityViewModel @Inject constructor(
     private fun shouldGoToOtherProfile(): Boolean = (navigationArguments[OPEN_OTHER_USER_PROFILE_ARG] as? QualifiedID) != null
 
     private fun shouldGoToWelcome(): Boolean = runBlocking { observeUserId.first() } == null
+
+    fun openProfile() {
+        dismissMaxAccountDialog()
+        navigateTo(NavigationCommand(NavigationItem.SelfUserProfile.getRouteWithArgs()))
+    }
+
+    fun dismissMaxAccountDialog() {
+        maxAccountDialogState = false
+    }
 
     companion object {
         private const val SERVER_CONFIG_ARG = "server_config"

@@ -6,6 +6,7 @@ import android.content.Context
 import android.content.Intent
 import android.net.Uri
 import com.wire.android.notification.broadcastreceivers.CallNotificationDismissReceiver
+import com.wire.android.notification.broadcastreceivers.EndOngoingCallReceiver
 import com.wire.android.notification.broadcastreceivers.NotificationReplyReceiver
 import com.wire.android.ui.WireActivity
 import com.wire.android.util.deeplink.DeepLinkProcessor
@@ -69,14 +70,35 @@ fun replyMessagePendingIntent(context: Context, conversationId: String, userId: 
     PendingIntent.FLAG_MUTABLE
 )
 
-fun openCallPendingIntent(context: Context, conversationId: String): PendingIntent {
-    val intent = openCallIntent(context, conversationId)
+fun openIncomingCallPendingIntent(context: Context, conversationId: String): PendingIntent {
+    val intent = openIncomingCallIntent(context, conversationId)
 
     return PendingIntent.getActivity(
         context.applicationContext,
-        OPEN_CALL_REQUEST_CODE,
+        OPEN_INCOMING_CALL_REQUEST_CODE,
         intent,
         PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+    )
+}
+fun openOngoingCallPendingIntent(context: Context, conversationId: String): PendingIntent {
+    val intent = openOngoingCallIntent(context, conversationId)
+
+    return PendingIntent.getActivity(
+        context.applicationContext,
+        OPEN_ONGOING_CALL_REQUEST_CODE,
+        intent,
+        PendingIntent.FLAG_IMMUTABLE or PendingIntent.FLAG_UPDATE_CURRENT
+    )
+}
+
+fun endOngoingCallPendingIntent(context: Context, conversationId: String, userId: String): PendingIntent {
+    val intent = EndOngoingCallReceiver.newIntent(context, conversationId, userId)
+
+    return PendingIntent.getBroadcast(
+        context.applicationContext,
+        END_ONGOING_CALL_REQUEST_CODE,
+        intent,
+        PendingIntent.FLAG_IMMUTABLE
     )
 }
 
@@ -91,8 +113,8 @@ fun declineCallPendingIntent(context: Context, conversationId: String, userId: S
     )
 }
 
-fun fullScreenCallPendingIntent(context: Context, conversationId: String): PendingIntent {
-    val intent = openCallIntent(context, conversationId)
+fun fullScreenIncomingCallPendingIntent(context: Context, conversationId: String): PendingIntent {
+    val intent = openIncomingCallIntent(context, conversationId)
 
     return PendingIntent.getActivity(
         context,
@@ -102,11 +124,19 @@ fun fullScreenCallPendingIntent(context: Context, conversationId: String): Pendi
     )
 }
 
-private fun openCallIntent(context: Context, conversationId: String) =
+private fun openIncomingCallIntent(context: Context, conversationId: String) =
     Intent(context.applicationContext, WireActivity::class.java).apply {
         data = Uri.Builder()
             .scheme(DeepLinkProcessor.DEEP_LINK_SCHEME)
             .authority(DeepLinkProcessor.INCOMING_CALL_DEEPLINK_HOST)
+            .appendPath(conversationId)
+            .build()
+    }
+private fun openOngoingCallIntent(context: Context, conversationId: String) =
+    Intent(context.applicationContext, WireActivity::class.java).apply {
+        data = Uri.Builder()
+            .scheme(DeepLinkProcessor.DEEP_LINK_SCHEME)
+            .authority(DeepLinkProcessor.ONGOING_CALL_DEEPLINK_HOST)
             .appendPath(conversationId)
             .build()
     }
@@ -123,8 +153,10 @@ fun openAppPendingIntent(context: Context): PendingIntent {
 
 private const val MESSAGE_NOTIFICATIONS_SUMMARY_REQUEST_CODE = 0
 private const val DECLINE_CALL_REQUEST_CODE = 1
-private const val OPEN_CALL_REQUEST_CODE = 2
+private const val OPEN_INCOMING_CALL_REQUEST_CODE = 2
 private const val FULL_SCREEN_REQUEST_CODE = 3
+private const val OPEN_ONGOING_CALL_REQUEST_CODE = 4
+private const val END_ONGOING_CALL_REQUEST_CODE = 5
 private const val OPEN_MESSAGE_REQUEST_CODE_PREFIX = "open_message_"
 private const val OPEN_OTHER_USER_PROFILE_CODE_PREFIX = "open_other_user_profile_"
 private const val CALL_REQUEST_CODE_PREFIX = "call_"

@@ -254,7 +254,7 @@
     <string name="user_profile_title">User Profile</string>
     <string name="user_profile_close_description">Close User profile</string>
     <string name="user_profile_logout">Logout</string>
-    <string name="user_profile_other_accs">Other Accounts</string>
+    <string name="user_profile_other_accs">Your Other Accounts</string>
     <string name="user_profile_status_available">Available</string>
     <string name="user_profile_status_busy">Busy</string>
     <string name="user_profile_status_away">Away</string>
@@ -363,7 +363,7 @@
     <string name="label_type_a_message">Type a message</string>
     <string name="notification_action_open_call">Open Call</string>
     <string name="notification_action_decline_call">Decline</string>
-    <string name="notification_call_content">Calling...</string>
+    <string name="notification_incoming_call_content">Calling...</string>
     <string name="notification_group_call_content">%s calling...</string>
     <string name="notification_call_default_caller_name">Someone</string>
     <string name="notification_call_default_group_name">Default Group Name</string>

@@ -118,6 +118,17 @@ class WireActivityViewModel @Inject constructor(
                     }
                 }
 
+                is DeepLinkResult.OngoingCall -> {
+                    if (isLaunchedFromHistory(intent)) {
+                        //We don't need to handle deepLink, if activity was launched from history.
+                        //For example: user opened app by deepLink, then closed it by back button click,
+                        //then open the app from the "Recent Apps"
+                        appLogger.i("IncomingCall deepLink launched from the history")
+                    } else {
+                        navigationArguments.put(ONGOING_CALL_CONVERSATION_ID_ARG, result.conversationsId)
+                    }
+                }
+
                 is DeepLinkResult.OpenConversation -> {
                     if (isLaunchedFromHistory(intent)) {
                         appLogger.i("OpenConversation deepLink launched from the history")
@@ -152,6 +163,7 @@ class WireActivityViewModel @Inject constructor(
         //removing arguments that could be there from prev deeplink handling
         navigationArguments.apply {
             remove(INCOMING_CALL_CONVERSATION_ID_ARG)
+            remove(ONGOING_CALL_CONVERSATION_ID_ARG)
             remove(OPEN_CONVERSATION_ID_ARG)
             remove(OPEN_OTHER_USER_PROFILE_ARG)
             remove(SSO_DEEPLINK_ARG)
@@ -162,8 +174,14 @@ class WireActivityViewModel @Inject constructor(
         return when {
             isServerConfigOnPremises() -> false
             shouldGoToLogin() || shouldGoToWelcome() -> true
+
             shouldGoToIncomingCall() -> {
                 openIncomingCall(navigationArguments[INCOMING_CALL_CONVERSATION_ID_ARG] as ConversationId)
+                false
+            }
+
+            shouldGoToOngoingCall() -> {
+                openOngoingCall(navigationArguments[ONGOING_CALL_CONVERSATION_ID_ARG] as ConversationId)
                 false
             }
 
@@ -217,6 +235,10 @@ class WireActivityViewModel @Inject constructor(
         navigateTo(NavigationCommand(NavigationItem.IncomingCall.getRouteWithArgs(listOf(conversationId))))
     }
 
+    private fun openOngoingCall(conversationId: ConversationId) {
+        navigateTo(NavigationCommand(NavigationItem.OngoingCall.getRouteWithArgs(listOf(conversationId))))
+    }
+
     private fun openConversation(conversationId: ConversationId) {
         navigateTo(NavigationCommand(NavigationItem.Conversation.getRouteWithArgs(listOf(conversationId)), BackStackMode.UPDATE_EXISTED))
     }
@@ -254,6 +276,8 @@ class WireActivityViewModel @Inject constructor(
     private fun shouldGoToIncomingCall(): Boolean = (navigationArguments[INCOMING_CALL_CONVERSATION_ID_ARG] as? ConversationId) != null
 
     private fun shouldGoToConversation(): Boolean = (navigationArguments[OPEN_CONVERSATION_ID_ARG] as? ConversationId) != null
+    private fun shouldGoToOngoingCall(): Boolean =
+        (navigationArguments[ONGOING_CALL_CONVERSATION_ID_ARG] as? ConversationId) != null
 
     private fun shouldGoToOtherProfile(): Boolean = (navigationArguments[OPEN_OTHER_USER_PROFILE_ARG] as? QualifiedID) != null
 
@@ -263,6 +287,7 @@ class WireActivityViewModel @Inject constructor(
         private const val SERVER_CONFIG_ARG = "server_config"
         private const val SSO_DEEPLINK_ARG = "sso_deeplink"
         private const val INCOMING_CALL_CONVERSATION_ID_ARG = "incoming_call_conversation_id"
+        private const val ONGOING_CALL_CONVERSATION_ID_ARG = "ongoing_call_conversation_id"
         private const val OPEN_CONVERSATION_ID_ARG = "open_conversation_id"
         private const val OPEN_OTHER_USER_PROFILE_ARG = "open_other_user_id"
     }

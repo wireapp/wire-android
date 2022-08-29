@@ -17,6 +17,7 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.userprofile.self.dialog.StatusDialogData
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
+import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.UserAssetId
@@ -29,6 +30,7 @@ import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import com.wire.kalium.logic.feature.user.UpdateSelfAvailabilityStatusUseCase
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
@@ -75,7 +77,7 @@ class SelfUserProfileViewModel @Inject constructor(
                 Triple(
                     selfUser,
                     team,
-                    list.filter { it.first.id != selfUser.id }.map {(selfUser, team) -> otherAccountMapper.toOtherAccount(selfUser, team) }
+                    list.filter { it.first.id != selfUser.id }.map { (selfUser, team) -> otherAccountMapper.toOtherAccount(selfUser, team) }
                 )
             }
                 .distinctUntilChanged()
@@ -152,12 +154,11 @@ class SelfUserProfileViewModel @Inject constructor(
                 return@launch
             }
 
-            val selfServerLinks = with(selfServerLinks()) {
-                when (this) {
+            val selfServerLinks: ServerConfig.Links =
+                when (val result = selfServerLinks()) {
                     is SelfServerConfigUseCase.Result.Failure -> return@launch
-                    is SelfServerConfigUseCase.Result.Success -> this.serverLinks
+                    is SelfServerConfigUseCase.Result.Success -> result.serverLinks
                 }
-            }
             authServerConfigProvider.updateAuthServer(selfServerLinks)
             navigationManager.navigate(NavigationCommand(NavigationItem.Welcome.getRouteWithArgs()))
         }

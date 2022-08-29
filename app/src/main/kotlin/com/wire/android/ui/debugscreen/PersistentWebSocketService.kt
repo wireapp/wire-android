@@ -113,7 +113,7 @@ class PersistentWebSocketService : Service() {
 
         val notification: Notification = Notification.Builder(this, WEB_SOCKET_CHANNEL_ID)
             .setContentTitle("${resources.getString(R.string.app_name)} ${resources.getString(R.string.settings_service_is_running)}")
-            .setSmallIcon(R.drawable.notification_icon_small)
+            .setSmallIcon(R.drawable.websocket_notification_icon_small)
             .setContentIntent(openAppPendingIntent(this))
             .setCategory(NotificationCompat.CATEGORY_SERVICE)
             .setAutoCancel(false)

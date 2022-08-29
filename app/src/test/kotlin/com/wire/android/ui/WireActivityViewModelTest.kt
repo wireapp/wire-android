@@ -359,7 +359,7 @@ class WireActivityViewModelTest {
             coEvery { notificationManager.observeNotificationsAndCalls(any(), any(), any()) } returns Unit
             coEvery { navigationManager.navigate(any()) } returns Unit
             coEvery { observePersistentWebSocketConnectionStatus() } returns flowOf(true)
-            coEvery { GetSessionsUseCase(any()) }
+            coEvery { getSessionsUseCase.invoke() }
         }
 
         @MockK

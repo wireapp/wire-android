@@ -109,11 +109,11 @@ abstract class CreateAccountBaseViewModel(
                 when (it) {
                     is FetchApiVersionResult.Success -> {}
                     is FetchApiVersionResult.Failure.UnknownServerVersion -> {
-                        emailState = emailState.copy(showServerVersionNotSupportedDialog = true, loading = false)
+                        emailState = emailState.copy(showServerVersionNotSupportedDialog = true)
                         return@launch
                     }
                     is FetchApiVersionResult.Failure.TooNewVersion -> {
-                        emailState = emailState.copy(showClientUpdateDialog = true, loading = false)
+                        emailState = emailState.copy(showClientUpdateDialog = true)
                         return@launch
                     }
                     is FetchApiVersionResult.Failure.Generic -> {
@@ -132,6 +132,8 @@ abstract class CreateAccountBaseViewModel(
                 error = emailError
             )
             if (emailState.termsAccepted) onTermsAccept()
+        }.invokeOnCompletion {
+            emailState = emailState.copy(loading = false)
         }
     }
 

@@ -1,7 +1,5 @@
 package com.wire.android.ui.userprofile.self
 
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -10,22 +8,26 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.datastore.UserDataStore
+import com.wire.android.mapper.OtherAccountMapper
 import com.wire.android.model.ImageAsset.UserAvatarAsset
-import com.wire.android.navigation.HomeNavigationItem.Settings
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.userprofile.self.dialog.StatusDialogData
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
+import com.wire.kalium.logic.data.team.Team
+import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
+import com.wire.kalium.logic.feature.user.ObserveValidAccountsUseCase
 import com.wire.kalium.logic.feature.user.UpdateSelfAvailabilityStatusUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -40,10 +42,12 @@ class SelfUserProfileViewModel @Inject constructor(
     private val dataStore: UserDataStore,
     private val getSelf: GetSelfUserUseCase,
     private val getSelfTeam: GetSelfTeamUseCase,
+    private val observeValidAccounts: ObserveValidAccountsUseCase,
     private val updateStatus: UpdateSelfAvailabilityStatusUseCase,
     private val logout: LogoutUseCase,
     private val dispatchers: DispatcherProvider,
-    private val wireSessionImageLoader: WireSessionImageLoader
+    private val wireSessionImageLoader: WireSessionImageLoader,
+    private val otherAccountMapper: OtherAccountMapper
 ) : ViewModel() {
 
     var userProfileState by mutableStateOf(SelfUserProfileState())
@@ -57,8 +61,19 @@ class SelfUserProfileViewModel @Inject constructor(
 
     private suspend fun fetchSelfUser() {
         viewModelScope.launch {
-            getSelf().combine(getSelfTeam(), ::Pair)
-                .collect { (selfUser, selfTeam) ->
+            combine(
+                getSelf(),
+                getSelfTeam(),
+                observeValidAccounts()
+            ) { selfUser: SelfUser, team: Team?, list: List<Pair<SelfUser, Team?>> ->
+                Triple(
+                    selfUser,
+                    team,
+                    list.filter { it.first.id != selfUser.id }.map {(selfUser, team) -> otherAccountMapper.toOtherAccount(selfUser, team) }
+                )
+            }
+                .distinctUntilChanged()
+                .collect { (selfUser, selfTeam, otherAccounts) ->
                     with(selfUser) {
                         // Load user avatar raw image data
                         completePicture?.let { updateUserAvatar(it) }
@@ -69,7 +84,7 @@ class SelfUserProfileViewModel @Inject constructor(
                             fullName = name.orEmpty(),
                             userName = handle.orEmpty(),
                             teamName = selfTeam?.name,
-                            otherAccounts = listOf() //TODO: implement other accounts functionality
+                            otherAccounts = otherAccounts
                         )
                     }
                 }

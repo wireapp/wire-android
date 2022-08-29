@@ -13,7 +13,6 @@ import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.SendAssetMessageUseCase
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
-import com.wire.kalium.logic.feature.auth.NumberOfAuthenticatedAccountsUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.GetAllCallsWithSortedParticipantsUseCase
 import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
@@ -723,13 +722,6 @@ class UseCaseModule {
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
     ): SelfServerConfigUseCase = coreLogic.getSessionScope(currentAccount).users.serverLinks
-
-    @ViewModelScoped
-    @Provides
-    fun provideNumberOfAuthenticatedAccountsUseCase(
-        @KaliumCoreLogic coreLogic: CoreLogic
-    ): NumberOfAuthenticatedAccountsUseCase = coreLogic.getGlobalScope().numberOfAuthenticatedAccounts
-
 
     @ViewModelScoped
     @Provides

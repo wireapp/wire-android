@@ -1,7 +1,5 @@
 package com.wire.android.ui.userprofile.self
 
-import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -19,17 +17,20 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.userprofile.self.dialog.StatusDialogData
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
+import com.wire.kalium.logic.data.team.Team
+import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
-import com.wire.kalium.logic.feature.auth.NumberOfAuthenticatedAccountsUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
+import com.wire.kalium.logic.feature.user.ObserveValidAccountsUseCase
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import com.wire.kalium.logic.feature.user.UpdateSelfAvailabilityStatusUseCase
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -52,7 +53,6 @@ class SelfUserProfileViewModel @Inject constructor(
     private val authServerConfigProvider: AuthServerConfigProvider,
     private val selfServerLinks: SelfServerConfigUseCase,
     private val kaliumConfigs: KaliumConfigs,
-    private val numberOfAuthenticatedAccounts: NumberOfAuthenticatedAccountsUseCase
     private val otherAccountMapper: OtherAccountMapper
 ) : ViewModel() {
 
@@ -144,12 +144,9 @@ class SelfUserProfileViewModel @Inject constructor(
 
     fun addAccount() {
         viewModelScope.launch {
-            val canAddNewAccounts: Boolean = numberOfAuthenticatedAccounts().let {
-                when(it) {
-                    is NumberOfAuthenticatedAccountsUseCase.Result.Failure -> return@launch
-                    is NumberOfAuthenticatedAccountsUseCase.Result.Success -> it.count < kaliumConfigs.maxAccount
-                }
-            }
+            // the total number of accounts is otherAccounts + 1 for the current account
+            val canAddNewAccounts: Boolean = (userProfileState.otherAccounts.size + 1) < kaliumConfigs.maxAccount
+
             if (!canAddNewAccounts) {
                 userProfileState = userProfileState.copy(maxAccountsReached = true)
                 return@launch

@@ -36,6 +36,8 @@ fun AddMembersSearchRouter(
 ) {
     SearchPeopleContent(
         searchPeopleState = addMembersToConversationViewModel.state,
+        searchTitle = stringResource(id = R.string.label_add_participants),
+        actionButtonTitle = stringResource(id = R.string.label_continue),
         onSearchQueryChanged = addMembersToConversationViewModel::searchQueryChanged,
         onOpenUserProfile = addMembersToConversationViewModel::openUserProfile,
         onAddContactToGroup = addMembersToConversationViewModel::addContactToGroup,
@@ -50,17 +52,19 @@ fun AddMembersSearchRouter(
 @Composable
 fun SearchPeopleRouter(
     onGroupSelectionSubmitAction: () -> Unit,
-    searchAllUsersViewModel: SearchAllUsersViewModel,
+    searchAllPeopleViewModel: SearchAllPeopleViewModel,
 ) {
     SearchPeopleContent(
-        searchPeopleState = searchAllUsersViewModel.state,
-        onSearchQueryChanged = searchAllUsersViewModel::searchQueryChanged,
-        onOpenUserProfile = searchAllUsersViewModel::openUserProfile,
-        onAddContactToGroup = searchAllUsersViewModel::addContactToGroup,
-        onRemoveContactFromGroup = searchAllUsersViewModel::removeContactFromGroup,
-        onAddContact = searchAllUsersViewModel::addContact,
+        searchPeopleState = searchAllPeopleViewModel.state,
+        searchTitle = stringResource(id = R.string.label_new_conversation),
+        actionButtonTitle = stringResource(id = R.string.label_new_group),
+        onSearchQueryChanged = searchAllPeopleViewModel::searchQueryChanged,
+        onOpenUserProfile = searchAllPeopleViewModel::openUserProfile,
+        onAddContactToGroup = searchAllPeopleViewModel::addContactToGroup,
+        onRemoveContactFromGroup = searchAllPeopleViewModel::removeContactFromGroup,
+        onAddContact = searchAllPeopleViewModel::addContact,
         onGroupSelectionSubmitAction = onGroupSelectionSubmitAction,
-        onClose = searchAllUsersViewModel::close,
+        onClose = searchAllPeopleViewModel::close,
     )
 }
 
@@ -68,6 +72,8 @@ fun SearchPeopleRouter(
 @Composable
 fun SearchPeopleContent(
     searchPeopleState: SearchPeopleState,
+    searchTitle: String,
+    actionButtonTitle: String,
     onSearchQueryChanged: (TextFieldValue) -> Unit,
     onGroupSelectionSubmitAction: () -> Unit,
     onAddContact: (Contact) -> Unit,
@@ -90,7 +96,7 @@ fun SearchPeopleContent(
                     Box(modifier = Modifier.wrapContentSize()) {
                         WireCenterAlignedTopAppBar(
                             elevation = elevation,
-                            title = "test",
+                            title = searchTitle,
                             navigationIconType = NavigationIconType.Close,
                             onNavigationPressed = onClose
                         )
@@ -157,7 +163,7 @@ fun SearchPeopleContent(
             bottomBar = {
                 SelectParticipantsButtonsRow(
                     count = contactsAddedToGroup.size,
-                    mainButtonText = "test",
+                    mainButtonText = actionButtonTitle,
                     onMainButtonClick = onGroupSelectionSubmitAction
                 )
             },

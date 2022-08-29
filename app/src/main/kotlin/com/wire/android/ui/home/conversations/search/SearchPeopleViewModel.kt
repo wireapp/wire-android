@@ -15,7 +15,6 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.android.util.flow.SearchQueryStateFlow
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestResult
@@ -26,14 +25,18 @@ import com.wire.kalium.logic.feature.publicuser.search.Result
 import com.wire.kalium.logic.feature.publicuser.search.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchUsersUseCase
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 
 @Suppress("TooManyFunctions")
-open class SearchAllUsersViewModel(
+open class SearchAllPeopleViewModel(
     private val getAllKnownUsers: GetAllContactsUseCase,
     private val sendConnectionRequest: SendConnectionRequestUseCase,
     private val searchKnownUsers: SearchKnownUsersUseCase,
@@ -74,13 +77,21 @@ open class SearchAllUsersViewModel(
                             "test" to localContactSearchResult,
                             "test1" to publicContactSearchResult.filterContacts(localContactSearchResult)
                         ),
-                        noneSearchSucceed = false,
+                        noneSearchSucceed = (localContactSearchResult.searchResultState is SearchResultState.Failure
+                                && publicContactSearchResult.searchResultState is SearchResultState.Failure),
                         contactsAddedToGroup = searchPeopleResult.selectedContacts
                     )
                 }.collect { searchPeopleState ->
                     state = searchPeopleState
                 }
             }
+        }
+    }
+
+    override suspend fun getInitialContacts(): SearchResult = withContext(dispatcher.io()) {
+        when (val result = getAllKnownUsers()) {
+            is GetAllContactsResult.Failure -> SearchResult.Failure(R.string.label_general_error)
+            is GetAllContactsResult.Success -> SearchResult.Success(result.allContacts.map(contactMapper::fromOtherUser))
         }
     }
 
@@ -95,13 +106,6 @@ open class SearchAllUsersViewModel(
             }))
         } else {
             this
-        }
-    }
-
-    override suspend fun getInitialContacts(): SearchResult = withContext(dispatcher.io()) {
-        when (val result = getAllKnownUsers()) {
-            is GetAllContactsResult.Failure -> SearchResult.Failure(R.string.label_general_error)
-            is GetAllContactsResult.Success -> SearchResult.Success(result.allContacts.map(contactMapper::fromOtherUser))
         }
     }
 
@@ -127,6 +131,7 @@ open class SearchAllUsersViewModel(
         }
 
         val result = withContext(dispatcher.io()) { searchPublicUsers(searchTerm) }
+
         publicContactsSearchResult.emit(
             when (result) {
                 is Result.Failure.Generic -> ContactSearchResult.ExternalContact(SearchResultState.Failure(R.string.label_general_error))
@@ -167,27 +172,48 @@ data class SearchPeopleResult(
     val selectedContacts: List<Contact> = emptyList()
 )
 
+abstract class PublicWithKnownPeopleSearchViewModel() : KnownPeopleSearchViewModel() {
+
+    protected val publicPeopleSearchViewModel: MutableStateFlow<SearchResultState> = MutableStateFlow(SearchResultState.Initial)
+
+    protected val publicWithKnownPeopleSearchQueryFlow = _searchQueryFlow
+        .flatMapLatest { searchTerm ->
+            flow {
+                emit(searchKnownPeople(searchTerm))
+            }
+        }
+
+    abstract suspend fun searchPublicPeople(searchTerm: String): SearchResultState
+}
+
+abstract class KnownPeopleSearchViewModel() : SearchPeopleViewModel() {
+
+    protected val knownPeopleSearchQueryFlow = _searchQueryFlow
+        .flatMapLatest { searchTerm ->
+            flow {
+                emit(searchKnownPeople(searchTerm))
+            }
+        }
+
+    abstract suspend fun searchKnownPeople(searchTerm: String): SearchResultState
+}
+
 abstract class SearchPeopleViewModel(
     private val dispatcher: DispatcherProvider,
     val navigationManager: NavigationManager
 ) : ViewModel() {
 
-    private val initialContactResultFlow: MutableStateFlow<SearchResultState> = MutableStateFlow(SearchResultState.Initial)
+    protected val initialContactResultFlow: MutableStateFlow<SearchResultState> = MutableStateFlow(SearchResultState.Initial)
 
-    private val searchQueryFlow = MutableStateFlow(TextFieldValue(""))
+    protected val _searchQueryFlow = MutableStateFlow("")
 
-    private val selectedContactsFlow = MutableStateFlow(emptyList<Contact>())
+    protected val searchQueryFlow = _searchQueryFlow
+        .asStateFlow()
+        .debounce(500)
 
-    protected val searchQueryStateFlow = SearchQueryStateFlow(dispatcher.io())
+    protected val searchQueryTextFieldFlow = MutableStateFlow(TextFieldValue(""))
 
-    protected val searchPeopleResult =
-        combine(initialContactResultFlow, searchQueryFlow, selectedContactsFlow) { initialContactResult, searchQuery, selectedContacts ->
-            SearchPeopleResult(
-                initialContactResult = initialContactResult,
-                searchQuery = searchQuery,
-                selectedContacts = selectedContacts
-            )
-        }
+    protected val selectedContactsFlow = MutableStateFlow(emptyList<Contact>())
 
     var snackbarMessageState by mutableStateOf<NewConversationSnackbarState>(NewConversationSnackbarState.None)
 
@@ -211,12 +237,13 @@ abstract class SearchPeopleViewModel(
     }
 
     fun searchQueryChanged(searchQuery: TextFieldValue) {
-        val textQueryChanged = searchQueryFlow.value.text != searchQuery.text
+        val textQueryChanged = searchQueryTextFieldFlow.value.text != searchQuery.text
         // we set the state with a searchQuery, immediately to update the UI first
         viewModelScope.launch {
-            searchQueryFlow.emit(searchQuery)
+            searchQueryTextFieldFlow.emit(searchQuery)
+
+            if (textQueryChanged) _searchQueryFlow.emit(searchQuery.text)
         }
-        if (textQueryChanged) searchQueryStateFlow.search(searchQuery.text)
     }
 
     fun addContactToGroup(contact: Contact) {
@@ -256,6 +283,7 @@ abstract class SearchPeopleViewModel(
     }
 
     abstract suspend fun getInitialContacts(): SearchResult
+
 }
 
 // Different use cases could return different type for the search, we are making sure here

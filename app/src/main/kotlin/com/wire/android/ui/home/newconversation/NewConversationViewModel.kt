@@ -11,7 +11,7 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
-import com.wire.android.ui.home.conversations.search.SearchAllUsersViewModel
+import com.wire.android.ui.home.conversations.search.SearchAllPeopleViewModel
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.newconversation.groupOptions.GroupOptionState
 import com.wire.android.ui.home.newconversation.newgroup.NewGroupState
@@ -41,7 +41,7 @@ class NewConversationViewModel @Inject constructor(
     dispatchers: DispatcherProvider,
     sendConnectionRequest: SendConnectionRequestUseCase,
     navigationManager: NavigationManager
-) : SearchAllUsersViewModel(
+) : SearchAllPeopleViewModel(
     getAllKnownUsers = getAllKnownUsers,
     sendConnectionRequest = sendConnectionRequest,
     searchKnownUsers = searchKnownUsers,
@@ -57,10 +57,6 @@ class NewConversationViewModel @Inject constructor(
     var newGroupState: NewGroupState by mutableStateOf(NewGroupState(mlsEnabled = isMLSEnabled()))
 
     var groupOptionsState: GroupOptionState by mutableStateOf(GroupOptionState())
-
-//    init {
-//        viewModelScope.launch { initialContacts() }
-//    }
 
     fun onGroupNameChange(newText: TextFieldValue) {
         when {

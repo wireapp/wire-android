@@ -50,7 +50,7 @@ fun NewConversationRouter() {
                 route = Screen.SearchListNavHostScreens.route,
                 content = {
                     SearchPeopleRouter(
-                        searchAllUsersViewModel = newConversationViewModel,
+                        searchAllPeopleViewModel = newConversationViewModel,
                         onGroupSelectionSubmitAction = { newConversationNavController.navigate(Screen.NewGroupNameScreen.route) }
                     )
                 }

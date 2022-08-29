@@ -27,6 +27,7 @@ import com.wire.kalium.logic.feature.publicuser.search.SearchKnownUsersUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -59,10 +60,10 @@ class AddMembersToConversationViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-//            launch { initialContacts() }
-
             launch {
-                combine(searchPeopleResult, localContactSearchResult) { a, b ->
+                combine(
+                    searchPeopleResult,
+                    localContactSearchResult.onStart { ContactSearchResult.InternalContact(SearchResultState.InProgress) }) { a, b ->
                     SearchPeopleState(
                         self = null,
                         initialContacts = a.initialContactResult,
@@ -76,40 +77,40 @@ class AddMembersToConversationViewModel @Inject constructor(
                 }
             }
 
-            searchQueryStateFlow.onSearchAction { searchTerm ->
-                launch {
-//                    localContactSearchResult = ContactSearchResult.InternalContact(SearchResultState.InProgress)
-
-                    val result = withContext(dispatchers.io()) {
-                        searchKnownUsers(
-                            searchQuery = searchTerm,
-                            searchUsersOptions = SearchUsersOptions(
-                                conversationExcluded = ConversationMemberExcludedOptions.ConversationExcluded(conversationId),
-                                selfUserIncluded = false
-                            )
-                        )
-                    }
-
-                    val dupa= when (result) {
-                        is KnownUserSearchResult.Failure.Generic -> ContactSearchResult.InternalContact(
-                            SearchResultState.Failure(R.string.label_general_error)
-                        )
-                        KnownUserSearchResult.Failure.InvalidQuery -> ContactSearchResult.InternalContact(
-                            SearchResultState.Failure(R.string.label_general_error)
-                        )
-                        KnownUserSearchResult.Failure.InvalidRequest -> ContactSearchResult.InternalContact(
-                            SearchResultState.Failure(R.string.label_general_error)
-                        )
-                        is KnownUserSearchResult.Success -> ContactSearchResult.InternalContact(
-                            SearchResultState.Success(
-                                result.userSearchResult.result.map(
-                                    contactMapper::fromOtherUser
+            launch {
+                searchQueryStateFlow.onSearchAction { searchTerm ->
+                    launch {
+                        val result = withContext(dispatchers.io()) {
+                            searchKnownUsers(
+                                searchQuery = searchTerm,
+                                searchUsersOptions = SearchUsersOptions(
+                                    conversationExcluded = ConversationMemberExcludedOptions.ConversationExcluded(conversationId),
+                                    selfUserIncluded = false
                                 )
                             )
+                        }
+
+                        localContactSearchResult.emit(
+                            when (result) {
+                                is KnownUserSearchResult.Failure.Generic -> ContactSearchResult.InternalContact(
+                                    SearchResultState.Failure(R.string.label_general_error)
+                                )
+                                KnownUserSearchResult.Failure.InvalidQuery -> ContactSearchResult.InternalContact(
+                                    SearchResultState.Failure(R.string.label_general_error)
+                                )
+                                KnownUserSearchResult.Failure.InvalidRequest -> ContactSearchResult.InternalContact(
+                                    SearchResultState.Failure(R.string.label_general_error)
+                                )
+                                is KnownUserSearchResult.Success -> ContactSearchResult.InternalContact(
+                                    SearchResultState.Success(
+                                        result.userSearchResult.result.map(
+                                            contactMapper::fromOtherUser
+                                        )
+                                    )
+                                )
+                            }
                         )
                     }
-
-                    localContactSearchResult.emit(dupa)
                 }
             }
         }

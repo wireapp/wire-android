@@ -43,6 +43,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -59,6 +60,8 @@ import com.wire.android.ui.common.clickable
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.textfield.WirePrimaryButton
+import com.wire.android.ui.common.topappbar.NavigationIconType
+import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -82,78 +85,60 @@ fun WelcomeScreen(viewModel: WelcomeViewModel = hiltViewModel()) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun WelcomeContent(viewModel: WelcomeViewModel) {
-    ConstraintLayout {
-        val (closeIcon, welcomeScreen) = createRefs()
-
+    Scaffold(topBar = {
         if (viewModel.isThereActiveSession && viewModel.state.isOnPremises) {
-            Icon(painter = painterResource(id = R.drawable.ic_close),
-                contentDescription = stringResource(R.string.content_description_right_arrow),
-                modifier = Modifier
-                    .clickable(Clickable(enabled = true, onClick = { viewModel.navigateBack() }))
-                    .padding(horizontal = dimensions().spacing24x, vertical = dimensions().spacing32x)
-                    .constrainAs(closeIcon) {
-                        start.linkTo(parent.start)
-                        top.linkTo(parent.top)
-                    })
+            WireCenterAlignedTopAppBar(
+                elevation = 0.dp,
+                title = "",
+                navigationIconType = NavigationIconType.Close,
+                onNavigationPressed = viewModel::navigateBack
+            )
         }
+    }) { internalPadding ->
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.SpaceBetween,
+            modifier = Modifier
+                .padding(internalPadding)
+        ) {
+            Icon(
+                imageVector = ImageVector.vectorResource(id = R.drawable.ic_wire_logo),
+                tint = MaterialTheme.colorScheme.onBackground,
+                contentDescription = stringResource(id = R.string.content_description_welcome_wire_logo)
+            )
 
-        Scaffold(modifier = Modifier
-            .padding(vertical = MaterialTheme.wireDimensions.welcomeVerticalPadding)
-            .constrainAs(welcomeScreen) {
-                start.linkTo(parent.start)
-                top.linkTo(parent.top)
-                end.linkTo(parent.end)
-                bottom.linkTo(parent.bottom)
-            }) { internalPadding ->
-
+            if (viewModel.state.isOnPremises) {
+                ServerTitle(serverLinks = viewModel.state, modifier = Modifier.padding(top = dimensions().spacing16x))
+            }
 
             Column(
                 horizontalAlignment = Alignment.CenterHorizontally,
-                verticalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier
-                    .padding(internalPadding)
+                verticalArrangement = Arrangement.Center,
+                modifier = Modifier.weight(1f, true)
             ) {
-
-
-                Icon(
-                    imageVector = ImageVector.vectorResource(id = R.drawable.ic_wire_logo),
-                    tint = MaterialTheme.colorScheme.onBackground,
-                    contentDescription = stringResource(id = R.string.content_description_welcome_wire_logo)
-                )
-
-                if (viewModel.state.isOnPremises) {
-                    ServerTitle(serverLinks = viewModel.state, modifier = Modifier.padding(top = dimensions().spacing16x))
-                }
-
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.Center,
-                    modifier = Modifier.weight(1f, true)
-                ) {
-                    WelcomeCarousel()
-                }
-
-                Column(
-                    modifier = Modifier.padding(
-                        vertical = MaterialTheme.wireDimensions.welcomeVerticalSpacing,
-                        horizontal = MaterialTheme.wireDimensions.welcomeButtonHorizontalPadding
-                    )
-                ) {
-                    LoginButton {
-                        viewModel.goToLogin()
-                    }
-                    CreateEnterpriseAccountButton {
-                        viewModel.goToCreateEnterpriseAccount()
-                    }
-                }
-
-                WelcomeFooter(modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.welcomeTextHorizontalPadding),
-                    onPrivateAccountClick = {
-                        viewModel.goToCreatePrivateAccount()
-                    })
+                WelcomeCarousel()
             }
 
+            Column(
+                modifier = Modifier.padding(
+                    vertical = MaterialTheme.wireDimensions.welcomeVerticalSpacing,
+                    horizontal = MaterialTheme.wireDimensions.welcomeButtonHorizontalPadding
+                )
+            ) {
+                LoginButton {
+                    viewModel.goToLogin()
+                }
+                CreateEnterpriseAccountButton {
+                    viewModel.goToCreateEnterpriseAccount()
+                }
+            }
+
+            WelcomeFooter(modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.welcomeTextHorizontalPadding),
+                onPrivateAccountClick = {
+                    viewModel.goToCreatePrivateAccount()
+                })
         }
+
     }
 }
 

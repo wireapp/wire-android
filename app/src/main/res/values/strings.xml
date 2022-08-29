@@ -339,7 +339,7 @@
     <string name="user_profile_title">User Profile</string>
     <string name="user_profile_close_description">Close User profile</string>
     <string name="user_profile_logout">Logout</string>
-    <string name="user_profile_other_accs">Other Accounts</string>
+    <string name="user_profile_other_accs">Your Other Accounts</string>
     <string name="user_profile_status_available">Available</string>
     <string name="user_profile_status_busy">Busy</string>
     <string name="user_profile_status_away">Away</string>
@@ -599,5 +599,10 @@
     <string name="unblock_user_dialog_title">Unblock user?</string>
     <string name="unblock_user_dialog_body">%1$s will be able to contact you or add you to group conversations. You will be able to access a 1:1 conversation with them.</string>
     <string name="unblock_user_dialog_confirm_button">Unblock</string>
+
+    <!--max account reached dialog-->
+    <string name="max_account_reached_dialog_title">Three accounts active</string>
+    <string name="max_account_reached_dialog_message">You can only be logged in with three accounts at once. Log out from one to add another.</string>
+    <string name="max_account_reached_dialog_button_open_profile">Open Profile</string>
 
 </resources>

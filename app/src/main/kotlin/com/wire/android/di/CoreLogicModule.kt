@@ -254,6 +254,11 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun provideFetchApiVersionUserCase(@KaliumCoreLogic coreLogic: CoreLogic) =
+        coreLogic.getGlobalScope().fetchApiVersion
+
+    @ViewModelScoped
+    @Provides
     fun provideObserveServerConfigUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
         coreLogic.getGlobalScope().observeServerConfig
 
@@ -267,6 +272,11 @@ class UseCaseModule {
     // TODO: kind of redundant to CurrentSession - need to rename CurrentSession
     fun provideCurrentSessionUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
         coreLogic.getGlobalScope().session.currentSession
+
+    @ViewModelScoped
+    @Provides
+    fun provideGetAllSessionsUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
+        coreLogic.getGlobalScope().session.allSessions
 
     @ViewModelScoped
     @Provides

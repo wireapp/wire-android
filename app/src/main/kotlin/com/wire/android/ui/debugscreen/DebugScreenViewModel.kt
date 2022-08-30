@@ -8,9 +8,11 @@ import androidx.lifecycle.viewModelScope
 import co.touchlab.kermit.platformLogWriter
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.DataDogLogger
+import com.wire.android.util.EMPTY
 import com.wire.android.util.LogFileWriter
 import com.wire.kalium.logger.KaliumLogLevel
 import com.wire.kalium.logic.CoreLogger
+import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountResult
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountUseCase
 import com.wire.kalium.logic.feature.user.loggingStatus.EnableLoggingUseCase
@@ -19,6 +21,12 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+data class DebugScreenState(
+    val isLoggingEnabled: Boolean = false,
+    val mlsData: List<String> = emptyList(),
+    val currentClientId: String = String.EMPTY
+)
+
 @HiltViewModel
 class DebugScreenViewModel
 @Inject constructor(
@@ -26,28 +34,41 @@ class DebugScreenViewModel
     private val mlsKeyPackageCountUseCase: MLSKeyPackageCountUseCase,
     private val enableLogging: EnableLoggingUseCase,
     private val logFileWriter: LogFileWriter,
+    private val currentClientIdUseCase: ObserveCurrentClientIdUseCase,
     isLoggingEnabledUseCase: IsLoggingEnabledUseCase
 ) : ViewModel() {
-    var isLoggingEnabled by mutableStateOf(isLoggingEnabledUseCase())
-
-    var mlsData by mutableStateOf(listOf<String>())
+    var state by mutableStateOf(DebugScreenState(isLoggingEnabled = isLoggingEnabledUseCase()))
 
     fun logFilePath(): String = logFileWriter.activeLoggingFile.absolutePath
 
     init {
+        observeMlsMetadata()
+        observeCurrentClientId()
+    }
+
+    private fun observeCurrentClientId() {
+        viewModelScope.launch {
+            currentClientIdUseCase().collect {
+                val clientId = it?.let { clientId -> clientId.value } ?: "Client not fount"
+                state = state.copy(currentClientId = clientId)
+            }
+        }
+    }
+
+    private fun observeMlsMetadata() {
         viewModelScope.launch {
             mlsKeyPackageCountUseCase().let {
                 when (it) {
                     is MLSKeyPackageCountResult.Success -> {
-                        mlsData = listOf("KeyPackages Count: ${it.count}", "ClientId: ${it.clientId.value}")
+                        state = state.copy(mlsData = listOf("KeyPackages Count: ${it.count}", "MLS ClientId: ${it.clientId.value}"))
                     }
                     is MLSKeyPackageCountResult.Failure.NetworkCallFailure -> {
-                        mlsData = listOf("Network Error!")
+                        state = state.copy(mlsData = listOf("Network Error!"))
                     }
                     is MLSKeyPackageCountResult.Failure.FetchClientIdFailure -> {
-                        mlsData = listOf("ClientId Fetch Error!")
+                        state = state.copy(mlsData = listOf("ClientId Fetch Error!"))
                     }
-                    else -> {}
+                    is MLSKeyPackageCountResult.Failure.Generic -> {}
                 }
             }
         }
@@ -60,7 +81,7 @@ class DebugScreenViewModel
 
     fun setLoggingEnabledState(isEnabled: Boolean) {
         enableLogging(isEnabled)
-        isLoggingEnabled = isEnabled
+        state = state.copy(isLoggingEnabled = isEnabled)
         if (isEnabled) {
             logFileWriter.start()
             CoreLogger.setLoggingLevel(level = KaliumLogLevel.VERBOSE, logWriters = arrayOf(DataDogLogger, platformLogWriter()))

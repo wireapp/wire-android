@@ -3,10 +3,8 @@ package com.wire.android.ui.home.conversations.search
 import androidx.annotation.StringRes
 import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.ui.home.newconversation.model.Contact
-import com.wire.kalium.logic.data.user.SelfUser
 
 data class SearchPeopleState(
-    val self: SelfUser? = null,
     val initialContacts: SearchResultState = SearchResultState.Initial,
     val searchQuery: TextFieldValue = TextFieldValue(""),
     val searchResult: Map<String, ContactSearchResult> = emptyMap(),

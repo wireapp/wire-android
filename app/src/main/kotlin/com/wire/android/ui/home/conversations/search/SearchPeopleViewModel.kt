@@ -61,10 +61,12 @@ open class SearchAllPeopleViewModel(
                 selectedContactsFlow
             ) { initialContacts, publicResult, knownResult, searchQuery, selectedContacts ->
                 SearchPeopleState(
-                    self = null,
                     initialContacts = initialContacts,
                     searchQuery = searchQuery,
-                    searchResult = mapOf("test" to publicResult.filterContacts(knownResult), "test1" to knownResult),
+                    searchResult = mapOf(
+                        "test" to publicResult.filterContacts(knownResult),
+                        "test1" to knownResult
+                    ),
                     noneSearchSucceed = publicResult.searchResultState is SearchResultState.Failure
                             && knownResult.searchResultState is SearchResultState.Failure,
                     contactsAddedToGroup = selectedContacts

@@ -65,7 +65,8 @@ open class SearchAllPeopleViewModel(
                     initialContacts = initialContacts,
                     searchQuery = searchQuery,
                     searchResult = mapOf("test" to publicResult.filterContacts(knownResult), "test1" to knownResult),
-                    noneSearchSucceed = false,
+                    noneSearchSucceed = publicResult.searchResultState is SearchResultState.Failure
+                            && knownResult.searchResultState is SearchResultState.Failure,
                     contactsAddedToGroup = selectedContacts
                 )
             }.collect { updatedState ->

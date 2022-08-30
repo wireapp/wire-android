@@ -89,10 +89,10 @@ open class SearchAllPeopleViewModel(
 
     override suspend fun searchKnownPeople(searchTerm: String): ContactSearchResult.InternalContact =
         when (val result: Result = withContext(dispatcher.io()) { searchKnownUsers(searchTerm) }) {
-            is Result.Failure.Generic, Result.Failure.InvalidQuery ->
+            is Result.Failure.Generic, Result.Failure.InvalidRequest ->
                 ContactSearchResult.InternalContact(SearchResultState.Failure(R.string.label_general_error))
-            Result.Failure.InvalidRequest ->
-                ContactSearchResult.InternalContact(SearchResultState.Failure(R.string.label_general_error))
+            Result.Failure.InvalidQuery ->
+                ContactSearchResult.InternalContact(SearchResultState.Failure(R.string.label_no_results_found))
             is Result.Success -> ContactSearchResult.InternalContact(
                 SearchResultState.Success(result.userSearchResult.result.map(contactMapper::fromOtherUser))
             )
@@ -100,9 +100,8 @@ open class SearchAllPeopleViewModel(
 
     override suspend fun searchPublicPeople(searchTerm: String): ContactSearchResult.ExternalContact =
         when (val result = withContext(dispatcher.io()) { searchPublicUsers(searchTerm) }) {
-            is Result.Failure.Generic -> ContactSearchResult.ExternalContact(SearchResultState.Failure(R.string.label_general_error))
-            Result.Failure.InvalidQuery -> ContactSearchResult.ExternalContact(SearchResultState.Failure(R.string.label_general_error))
-            Result.Failure.InvalidRequest -> ContactSearchResult.ExternalContact(SearchResultState.Failure(R.string.label_general_error))
+            is Result.Failure.Generic, Result.Failure.InvalidRequest  -> ContactSearchResult.ExternalContact(SearchResultState.Failure(R.string.label_general_error))
+            Result.Failure.InvalidQuery -> ContactSearchResult.ExternalContact(SearchResultState.Failure(R.string.label_no_results_found))
             is Result.Success -> ContactSearchResult.ExternalContact(
                 SearchResultState.Success(result.userSearchResult.result.map(contactMapper::fromOtherUser))
             )

@@ -24,7 +24,7 @@ import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOffUseCase
 import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOnUseCase
 import com.wire.kalium.logic.feature.call.usecase.UnMuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.UpdateVideoStateUseCase
-import com.wire.kalium.logic.feature.client.ObserveCurrentClientUseCase
+import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
 import com.wire.kalium.logic.feature.connection.BlockUserUseCase
 import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
 import com.wire.kalium.logic.feature.conversation.AddMemberToConversationUseCase
@@ -750,7 +750,7 @@ class UseCaseModule {
     fun provideObserveCurrentClientUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ): ObserveCurrentClientUseCase =
-        coreLogic.getSessionScope(currentAccount).client.observeCurrentClient
+    ): ObserveCurrentClientIdUseCase =
+        coreLogic.getSessionScope(currentAccount).client.observeCurrentClientId
 
 }

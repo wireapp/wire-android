@@ -12,7 +12,7 @@ import com.wire.android.util.EMPTY
 import com.wire.android.util.LogFileWriter
 import com.wire.kalium.logger.KaliumLogLevel
 import com.wire.kalium.logic.CoreLogger
-import com.wire.kalium.logic.feature.client.ObserveCurrentClientUseCase
+import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountResult
 import com.wire.kalium.logic.feature.keypackage.MLSKeyPackageCountUseCase
 import com.wire.kalium.logic.feature.user.loggingStatus.EnableLoggingUseCase
@@ -34,7 +34,7 @@ class DebugScreenViewModel
     private val mlsKeyPackageCountUseCase: MLSKeyPackageCountUseCase,
     private val enableLogging: EnableLoggingUseCase,
     private val logFileWriter: LogFileWriter,
-    private val currentClientUseCase: ObserveCurrentClientUseCase,
+    private val currentClientIdUseCase: ObserveCurrentClientIdUseCase,
     isLoggingEnabledUseCase: IsLoggingEnabledUseCase
 ) : ViewModel() {
     var state by mutableStateOf(DebugScreenState(isLoggingEnabled = isLoggingEnabledUseCase()))
@@ -48,7 +48,7 @@ class DebugScreenViewModel
 
     private fun observeCurrentClientId() {
         viewModelScope.launch {
-            currentClientUseCase().collect {
+            currentClientIdUseCase().collect {
                 val clientId = it?.let { clientId -> clientId.value } ?: "Client not fount"
                 state = state.copy(currentClientId = clientId)
             }

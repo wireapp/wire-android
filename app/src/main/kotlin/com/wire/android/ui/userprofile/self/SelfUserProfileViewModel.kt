@@ -63,7 +63,7 @@ class SelfUserProfileViewModel @Inject constructor(
     private val kaliumConfigs: KaliumConfigs,
     private val otherAccountMapper: OtherAccountMapper,
     private val updateCurrentSession: UpdateCurrentSessionUseCase,
-    private val observerEstablishedCall: ObserveEstablishedCallsUseCase
+    private val observeEstablishedCalls: ObserveEstablishedCallsUseCase
 ) : ViewModel() {
 
     var userProfileState by mutableStateOf(SelfUserProfileState())
@@ -72,13 +72,13 @@ class SelfUserProfileViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             fetchSelfUser()
-            observeONGoingCalles()
+            observeEstablishedCall()
         }
     }
 
-    private fun observeONGoingCalles() {
+    private fun observeEstablishedCall() {
         viewModelScope.launch {
-            observerEstablishedCall().map { it.isNotEmpty() }.distinctUntilChanged().collect {
+            observeEstablishedCalls().map { it.isNotEmpty() }.distinctUntilChanged().collect {
                 userProfileState = userProfileState.copy(isUserInCall = it)
             }
         }

@@ -172,18 +172,19 @@ private fun SelfUserProfileContent(
                             itemContent = { account ->
                                 OtherAccountItem(
                                     account,
-                                    clickable = Clickable(enabled = true, onClick = {
-                                        if (state.isUserInCall) {
-                                            Toast.makeText(
-                                                context,
-                                                context.getString(R.string.cant_switch_account_in_call),
-                                                Toast.LENGTH_SHORT
-                                            ).show()
-                                        } else {
-                                            onOtherAccountClick(account.id)
-                                        }
+                                    clickable = remember {
+                                        Clickable(enabled = true, onClick = {
+                                            if (state.isUserInCall) {
+                                                Toast.makeText(
+                                                    context,
+                                                    context.getString(R.string.cant_switch_account_in_call),
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
+                                            } else {
+                                                onOtherAccountClick(account.id)
+                                            }
+                                        })
                                     })
-                                )
                             }
                         )
                     }
@@ -412,11 +413,4 @@ private fun SelfUserProfileScreenPreview() {
 @Composable
 private fun CurrentSelfUserStatusPreview() {
     CurrentSelfUserStatus(UserAvailabilityStatus.AVAILABLE, onStatusClicked = {})
-}
-
-
-fun Context.getActivity(): AppCompatActivity? = when (this) {
-    is AppCompatActivity -> this
-    is ContextWrapper -> baseContext.getActivity()
-    else -> null
 }

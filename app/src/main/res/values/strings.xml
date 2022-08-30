@@ -605,6 +605,7 @@
     <string name="max_account_reached_dialog_title">Three accounts active</string>
     <string name="max_account_reached_dialog_message">You can only be logged in with three accounts at once. Log out from one to add another.</string>
     <string name="max_account_reached_dialog_button_open_profile">Open Profile</string>
+    <string name="cant_switch_account_in_call">Can not switch accounts while in call</string>
 
 
     <string name="custom_backend_dialog_title">Redirect to an on-premises backend?</string>

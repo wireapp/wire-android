@@ -1,5 +1,6 @@
 package com.wire.android.ui.home.conversations.search
 
+import android.util.Log
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.expandVertically
@@ -104,7 +105,7 @@ fun SearchPeopleContent(
                 }
             },
             topBarCollapsing = {
-                val onInputClicked: () -> Unit = remember(searchBarState) {
+                val onInputClicked: () -> Unit = remember {
                     {
                         searchBarState.openSearch()
                         searchNavController.navigate(SearchListScreens.SearchPeopleScreen.route)
@@ -118,7 +119,6 @@ fun SearchPeopleContent(
                 }
                 SearchTopBar(
                     isSearchActive = searchBarState.isSearchActive,
-                    isSearchBarCollapsed = searchBarState.isSearchBarCollapsed,
                     searchBarHint = stringResource(R.string.label_search_people),
                     searchQuery = searchQuery,
                     onSearchQueryChanged = onSearchQueryChanged,
@@ -159,6 +159,12 @@ fun SearchPeopleContent(
                         }
                     )
                 }
+
+                BackHandler(searchBarState.isSearchActive) {
+                    Log.d("TEST","inside the backhandler")
+                    searchBarState.closeSearch()
+                    searchNavController.popBackStack()
+                }
             },
             bottomBar = {
                 SelectParticipantsButtonsRow(
@@ -172,8 +178,5 @@ fun SearchPeopleContent(
         )
     }
 
-    BackHandler(searchBarState.isSearchActive) {
-        searchBarState.closeSearch()
-        searchNavController.popBackStack()
-    }
+
 }

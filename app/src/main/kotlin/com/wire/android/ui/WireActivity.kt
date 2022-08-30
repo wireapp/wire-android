@@ -17,11 +17,14 @@ import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavHostController
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
+import com.wire.android.R
 import com.wire.android.navigation.NavigationGraph
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.navigateToItem
 import com.wire.android.navigation.popWithArguments
+import com.wire.android.ui.common.dialogs.CustomBEDeeplinkDialog
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.ui.userprofile.self.MaxAccountReachedDialog
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.ui.updateScreenSettings
 import dagger.hilt.android.AndroidEntryPoint
@@ -74,7 +77,28 @@ class WireActivity : AppCompatActivity() {
                     NavigationGraph(navController = navController, startDestination, viewModel.navigationArguments())
                 }
                 setUpNavigation(navController, scope)
+
+                handleCustomBackendDialog(viewModel.customBackendDialogState.shouldShowDialog)
+                maxAccountDialog(viewModel::openProfile, viewModel::dismissMaxAccountDialog, viewModel.maxAccountDialogState)
             }
+        }
+    }
+
+    @Composable
+    private fun handleCustomBackendDialog(shouldShow: Boolean) {
+        if (shouldShow) {
+            CustomBEDeeplinkDialog(viewModel)
+        }
+    }
+
+    @Composable
+    private fun maxAccountDialog(onConfirm: () -> Unit, onDismiss: () -> Unit, shouldShow: Boolean) {
+        if (shouldShow) {
+            MaxAccountReachedDialog(
+                onConfirm = onConfirm,
+                onDismiss = onDismiss,
+                buttonText = R.string.max_account_reached_dialog_button_open_profile
+            )
         }
     }
 

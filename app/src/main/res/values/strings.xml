@@ -10,6 +10,7 @@
     <string name="label_continue">Continue</string>
     <string name="label_get_started">Get Started</string>
     <string name="label_remove">Remove</string>
+    <string name="label_proceed">Proceed</string>
     <string name="label_leave">Leave</string>
     <string name="label_add_device">Add Device</string>
     <string name="label_learn_more">Learn more</string>
@@ -606,4 +607,7 @@
     <string name="max_account_reached_dialog_button_open_profile">Open Profile</string>
     <string name="cant_switch_account_in_call">Can not switch accounts while in call</string>
 
+
+    <string name="custom_backend_dialog_title">Redirect to an on-premises backend?</string>
+    <string name="custom_backend_dialog_body">If you proceed, your client will be redirected to the following on-premises backend:\n\nBackend name:\n%1$s\n\nBackend URL:\n%2$s</string>
 </resources>

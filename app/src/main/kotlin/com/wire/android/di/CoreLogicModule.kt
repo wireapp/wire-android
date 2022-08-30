@@ -747,7 +747,10 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun provideObserveCurrentClientUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): ObserveCurrentClientUseCase =
+    fun provideObserveCurrentClientUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): ObserveCurrentClientUseCase =
         coreLogic.getSessionScope(currentAccount).client.observeCurrentClient
 
 }

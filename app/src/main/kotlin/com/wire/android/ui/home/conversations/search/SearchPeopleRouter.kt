@@ -36,8 +36,8 @@ fun AddMembersSearchRouter(
 ) {
     SearchPeopleContent(
         searchPeopleState = addMembersToConversationViewModel.state,
-        searchTitle = stringResource(R.string.label_add_participants),
-        actionButtonTitle = stringResource(R.string.label_continue),
+        searchTitle = stringResource(id = R.string.label_add_participants),
+        actionButtonTitle = stringResource(id = R.string.label_continue),
         onSearchQueryChanged = addMembersToConversationViewModel::searchQueryChanged,
         onOpenUserProfile = addMembersToConversationViewModel::openUserProfile,
         onAddContactToGroup = addMembersToConversationViewModel::addContactToGroup,
@@ -56,8 +56,8 @@ fun SearchPeopleRouter(
 ) {
     SearchPeopleContent(
         searchPeopleState = searchAllPeopleViewModel.state,
-        searchTitle = stringResource(R.string.label_new_conversation),
-        actionButtonTitle = stringResource(R.string.label_new_group),
+        searchTitle = stringResource(id = R.string.label_new_conversation),
+        actionButtonTitle = stringResource(id = R.string.label_new_group),
         onSearchQueryChanged = searchAllPeopleViewModel::searchQueryChanged,
         onOpenUserProfile = searchAllPeopleViewModel::openUserProfile,
         onAddContactToGroup = searchAllPeopleViewModel::addContactToGroup,

@@ -477,7 +477,7 @@
     <string name="label_type_a_message">Type a message</string>
     <string name="notification_action_open_call">Open Call</string>
     <string name="notification_action_decline_call">Decline</string>
-    <string name="notification_action_hang_up_call">Hung Up</string>
+    <string name="notification_action_hang_up_call">Hang Up</string>
     <string name="notification_incoming_call_content">Calling...</string>
     <string name="notification_ongoing_call_content">Ongoing call...</string>
     <string name="notification_group_call_content">%s calling...</string>
@@ -605,6 +605,7 @@
     <string name="max_account_reached_dialog_title">Three accounts active</string>
     <string name="max_account_reached_dialog_message">You can only be logged in with three accounts at once. Log out from one to add another.</string>
     <string name="max_account_reached_dialog_button_open_profile">Open Profile</string>
+    <string name="cant_switch_account_in_call">Can not switch accounts while in call</string>
 
 
     <string name="custom_backend_dialog_title">Redirect to an on-premises backend?</string>

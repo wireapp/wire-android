@@ -741,6 +741,11 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun provideUpdateCurrentSessionUseCase(@KaliumCoreLogic coreLogic: CoreLogic): UpdateCurrentSessionUseCase =
+        coreLogic.getGlobalScope().session.updateCurrentSession
+
+    @ViewModelScoped
+    @Provides
     fun provideObserveCurrentClientUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): ObserveCurrentClientUseCase =
         coreLogic.getSessionScope(currentAccount).client.observeCurrentClient
 

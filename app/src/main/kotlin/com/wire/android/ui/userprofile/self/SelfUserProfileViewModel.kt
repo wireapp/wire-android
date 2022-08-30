@@ -11,9 +11,11 @@ import com.wire.android.datastore.UserDataStore
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.mapper.OtherAccountMapper
 import com.wire.android.model.ImageAsset.UserAvatarAsset
+import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.common.topappbar.ConnectivityUIState
 import com.wire.android.ui.userprofile.self.dialog.StatusDialogData
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
@@ -22,7 +24,11 @@ import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
+import com.wire.kalium.logic.feature.call.CallManager
+import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
+import com.wire.kalium.logic.feature.session.UpdateCurrentSessionUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.ObserveValidAccountsUseCase
@@ -30,10 +36,10 @@ import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import com.wire.kalium.logic.feature.user.UpdateSelfAvailabilityStatusUseCase
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -55,7 +61,9 @@ class SelfUserProfileViewModel @Inject constructor(
     private val authServerConfigProvider: AuthServerConfigProvider,
     private val selfServerLinks: SelfServerConfigUseCase,
     private val kaliumConfigs: KaliumConfigs,
-    private val otherAccountMapper: OtherAccountMapper
+    private val otherAccountMapper: OtherAccountMapper,
+    private val updateCurrentSession: UpdateCurrentSessionUseCase,
+    private val observeEstablishedCalls: ObserveEstablishedCallsUseCase
 ) : ViewModel() {
 
     var userProfileState by mutableStateOf(SelfUserProfileState())
@@ -64,6 +72,15 @@ class SelfUserProfileViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             fetchSelfUser()
+            observeEstablishedCall()
+        }
+    }
+
+    private fun observeEstablishedCall() {
+        viewModelScope.launch {
+            observeEstablishedCalls().map { it.isNotEmpty() }.distinctUntilChanged().collect {
+                userProfileState = userProfileState.copy(isUserInCall = it)
+            }
         }
     }
 
@@ -213,6 +230,20 @@ class SelfUserProfileViewModel @Inject constructor(
         userProfileState.statusDialogData.let { dialogState ->
             if (dialogState?.isCheckBoxChecked == true) {
                 viewModelScope.launch { dataStore.dontShowStatusRationaleAgain(status) }
+            }
+        }
+    }
+
+    fun onOtherAccountClick(userId: UserId) {
+        viewModelScope.launch {
+            when (updateCurrentSession(userId)) {
+                is UpdateCurrentSessionUseCase.Result.Failure -> return@launch
+                UpdateCurrentSessionUseCase.Result.Success -> navigationManager.navigate(
+                    NavigationCommand(
+                        NavigationItem.Home.getRouteWithArgs(),
+                        backStackMode = BackStackMode.CLEAR_WHOLE
+                    )
+                )
             }
         }
     }

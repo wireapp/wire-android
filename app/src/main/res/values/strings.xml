@@ -477,7 +477,7 @@
     <string name="label_type_a_message">Type a message</string>
     <string name="notification_action_open_call">Open Call</string>
     <string name="notification_action_decline_call">Decline</string>
-    <string name="notification_action_hang_up_call">Hung Up</string>
+    <string name="notification_action_hang_up_call">Hang Up</string>
     <string name="notification_incoming_call_content">Calling...</string>
     <string name="notification_ongoing_call_content">Ongoing call...</string>
     <string name="notification_group_call_content">%s calling...</string>

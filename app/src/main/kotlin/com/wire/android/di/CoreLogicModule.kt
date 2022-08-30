@@ -45,11 +45,14 @@ import com.wire.kalium.logic.feature.publicuser.search.SearchUserDirectoryUseCas
 import com.wire.kalium.logic.feature.publicuser.search.SearchUsersUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.RegisterTokenUseCase
+import com.wire.kalium.logic.feature.session.UpdateCurrentSessionUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
+import com.wire.kalium.logic.feature.user.ObserveValidAccountsUseCase
 import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
+import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import dagger.Module
 import dagger.Provides
@@ -252,6 +255,11 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun provideFetchApiVersionUserCase(@KaliumCoreLogic coreLogic: CoreLogic) =
+        coreLogic.getGlobalScope().fetchApiVersion
+
+    @ViewModelScoped
+    @Provides
     fun provideObserveServerConfigUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
         coreLogic.getGlobalScope().observeServerConfig
 
@@ -265,6 +273,11 @@ class UseCaseModule {
     // TODO: kind of redundant to CurrentSession - need to rename CurrentSession
     fun provideCurrentSessionUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
         coreLogic.getGlobalScope().session.currentSession
+
+    @ViewModelScoped
+    @Provides
+    fun provideGetAllSessionsUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
+        coreLogic.getGlobalScope().session.allSessions
 
     @ViewModelScoped
     @Provides
@@ -713,4 +726,21 @@ class UseCaseModule {
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
     ): UnblockUserUseCase = coreLogic.getSessionScope(currentAccount).connection.unblockUser
+
+    @ViewModelScoped
+    @Provides
+    fun provideSelfServerConfig(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): SelfServerConfigUseCase = coreLogic.getSessionScope(currentAccount).users.serverLinks
+
+    @ViewModelScoped
+    @Provides
+    fun provideObserveValidAccountsUseCase(@KaliumCoreLogic coreLogic: CoreLogic): ObserveValidAccountsUseCase =
+        coreLogic.getGlobalScope().observeValidAccounts
+
+    @ViewModelScoped
+    @Provides
+    fun provideUpdateCurrentSessionUseCase(@KaliumCoreLogic coreLogic: CoreLogic): UpdateCurrentSessionUseCase =
+        coreLogic.getGlobalScope().session.updateCurrentSession
 }

@@ -11,6 +11,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import com.wire.android.R
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.ArrowRightIcon
@@ -200,13 +201,16 @@ internal fun ConversationMainSheetContent(
 }
 
 @Composable
-internal fun NotificationsOptionsItemAction(
+fun NotificationsOptionsItemAction(
     mutedStatus: MutedConversationStatus
 ) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Text(
             text = mutedStatus.getMutedStatusTextResource(),
-            style = MaterialTheme.wireTypography.body01
+            style = MaterialTheme.wireTypography.body01,
+            overflow = TextOverflow.Ellipsis,
+            maxLines = 1,
+            modifier = Modifier.weight(weight = 1f, fill = false)
         )
         Spacer(modifier = Modifier.size(dimensions().spacing16x))
         ArrowRightIcon()

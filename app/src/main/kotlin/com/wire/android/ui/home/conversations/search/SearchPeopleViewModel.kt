@@ -24,13 +24,16 @@ import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
 import com.wire.kalium.logic.feature.publicuser.search.Result
 import com.wire.kalium.logic.feature.publicuser.search.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchUsersUseCase
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.cancellable
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.onStart
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.onSubscription
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -44,56 +47,59 @@ open class SearchAllPeopleViewModel(
     private val contactMapper: ContactMapper,
     private val dispatcher: DispatcherProvider,
     navigationManager: NavigationManager,
-) : SearchPeopleViewModel(dispatcher, navigationManager) {
-
-    private val localContactSearchResult =
-        MutableStateFlow(ContactSearchResult.InternalContact(searchResultState = SearchResultState.Initial))
-
-    private val publicContactsSearchResult =
-        MutableStateFlow(ContactSearchResult.ExternalContact(searchResultState = SearchResultState.Initial))
+) : PublicWithKnownPeopleSearchViewModel(dispatcher, navigationManager) {
 
     var state: SearchPeopleState by mutableStateOf(SearchPeopleState())
 
     init {
         viewModelScope.launch {
-            launch {
-                searchQueryStateFlow.onSearchAction { searchTerm ->
-                    launch { searchKnown(searchTerm) }
-                    launch { searchPublic(searchTerm) }
-                }
-            }
-
-            launch {
-                combine(
-                    searchPeopleResult,
-                    localContactSearchResult.onStart { ContactSearchResult.InternalContact(SearchResultState.InProgress) },
-                    publicContactsSearchResult
-                ) { searchPeopleResult, localContactSearchResult, publicContactSearchResult ->
-                    SearchPeopleState(
-                        self = null,
-                        initialContacts = searchPeopleResult.initialContactResult,
-                        searchQuery = searchPeopleResult.searchQuery,
-                        searchResult = mapOf(
-                            "test" to localContactSearchResult,
-                            "test1" to publicContactSearchResult.filterContacts(localContactSearchResult)
-                        ),
-                        noneSearchSucceed = (localContactSearchResult.searchResultState is SearchResultState.Failure
-                                && publicContactSearchResult.searchResultState is SearchResultState.Failure),
-                        contactsAddedToGroup = searchPeopleResult.selectedContacts
-                    )
-                }.collect { searchPeopleState ->
-                    state = searchPeopleState
-                }
+            combine(
+                initialContactResultFlow,
+                publicPeopleSearchQueryFlow,
+                knownPeopleSearchQueryFlow,
+                searchQueryTextFieldFlow,
+                selectedContactsFlow
+            ) { initialContacts, publicResult, knownResult, searchQuery, selectedContacts ->
+                SearchPeopleState(
+                    self = null,
+                    initialContacts = initialContacts,
+                    searchQuery = searchQuery,
+                    searchResult = mapOf("test" to publicResult.filterContacts(knownResult), "test1" to knownResult),
+                    noneSearchSucceed = false,
+                    contactsAddedToGroup = selectedContacts
+                )
+            }.collect { updatedState ->
+                state = updatedState
             }
         }
     }
 
-    override suspend fun getInitialContacts(): SearchResult = withContext(dispatcher.io()) {
+    override suspend fun getInitialContacts(): SearchResult =
         when (val result = getAllKnownUsers()) {
             is GetAllContactsResult.Failure -> SearchResult.Failure(R.string.label_general_error)
             is GetAllContactsResult.Success -> SearchResult.Success(result.allContacts.map(contactMapper::fromOtherUser))
         }
-    }
+
+    override suspend fun searchKnownPeople(searchTerm: String): ContactSearchResult.InternalContact =
+        when (val result: Result = withContext(dispatcher.io()) { searchKnownUsers(searchTerm) }) {
+            is Result.Failure.Generic, Result.Failure.InvalidQuery ->
+                ContactSearchResult.InternalContact(SearchResultState.Failure(R.string.label_general_error))
+            Result.Failure.InvalidRequest ->
+                ContactSearchResult.InternalContact(SearchResultState.Failure(R.string.label_general_error))
+            is Result.Success -> ContactSearchResult.InternalContact(
+                SearchResultState.Success(result.userSearchResult.result.map(contactMapper::fromOtherUser))
+            )
+        }
+
+    override suspend fun searchPublicPeople(searchTerm: String): ContactSearchResult.ExternalContact =
+        when (val result = withContext(dispatcher.io()) { searchPublicUsers(searchTerm) }) {
+            is Result.Failure.Generic -> ContactSearchResult.ExternalContact(SearchResultState.Failure(R.string.label_general_error))
+            Result.Failure.InvalidQuery -> ContactSearchResult.ExternalContact(SearchResultState.Failure(R.string.label_general_error))
+            Result.Failure.InvalidRequest -> ContactSearchResult.ExternalContact(SearchResultState.Failure(R.string.label_general_error))
+            is Result.Success -> ContactSearchResult.ExternalContact(
+                SearchResultState.Success(result.userSearchResult.result.map(contactMapper::fromOtherUser))
+            )
+        }
 
     private fun ContactSearchResult.filterContacts(contactSearchResult: ContactSearchResult): ContactSearchResult {
         return if (searchResultState is SearchResultState.Success &&
@@ -109,45 +115,6 @@ open class SearchAllPeopleViewModel(
         }
     }
 
-    private suspend fun searchKnown(searchTerm: String) {
-        viewModelScope.launch {
-            localContactSearchResult.emit(
-                when (val result: Result = withContext(dispatcher.io()) { searchKnownUsers(searchTerm) }) {
-                    is Result.Failure.Generic, Result.Failure.InvalidQuery ->
-                        ContactSearchResult.InternalContact(SearchResultState.Failure(R.string.label_general_error))
-                    Result.Failure.InvalidRequest ->
-                        ContactSearchResult.InternalContact(SearchResultState.Failure(R.string.label_general_error))
-                    is Result.Success -> ContactSearchResult.InternalContact(
-                        SearchResultState.Success(result.userSearchResult.result.map(contactMapper::fromOtherUser))
-                    )
-                }
-            )
-        }
-    }
-
-    private suspend fun searchPublic(searchTerm: String, showProgress: Boolean = true) {
-        if (showProgress) {
-            publicContactsSearchResult.emit(ContactSearchResult.ExternalContact(SearchResultState.InProgress))
-        }
-
-        val result = withContext(dispatcher.io()) { searchPublicUsers(searchTerm) }
-
-        publicContactsSearchResult.emit(
-            when (result) {
-                is Result.Failure.Generic -> ContactSearchResult.ExternalContact(SearchResultState.Failure(R.string.label_general_error))
-                Result.Failure.InvalidQuery -> ContactSearchResult.ExternalContact(SearchResultState.Failure(R.string.label_general_error))
-                Result.Failure.InvalidRequest -> ContactSearchResult.ExternalContact(SearchResultState.Failure(R.string.label_general_error))
-                is Result.Success -> ContactSearchResult.ExternalContact(
-                    SearchResultState.Success(
-                        result.userSearchResult.result.map(
-                            contactMapper::fromOtherUser
-                        )
-                    )
-                )
-            }
-        )
-    }
-
     fun addContact(contact: Contact) {
         viewModelScope.launch {
             val userId = UserId(contact.id, contact.domain)
@@ -157,7 +124,7 @@ open class SearchAllPeopleViewModel(
                     appLogger.d(("Couldn't send a connect request to user $userId"))
                 }
                 is SendConnectionRequestResult.Success -> {
-                    searchPublic(state.searchQuery.text, showProgress = false)
+                    refreshPublicResult.emit(PublicRefresh(withProgress = false))
                     snackbarMessageState = NewConversationSnackbarState.SuccessSendConnectionRequest
                 }
             }
@@ -166,44 +133,52 @@ open class SearchAllPeopleViewModel(
 
 }
 
-data class SearchPeopleResult(
-    val initialContactResult: SearchResultState = SearchResultState.Initial,
-    val searchQuery: TextFieldValue = TextFieldValue(""),
-    val selectedContacts: List<Contact> = emptyList()
-)
+data class PublicRefresh(val withProgress: Boolean = true)
 
-abstract class PublicWithKnownPeopleSearchViewModel() : KnownPeopleSearchViewModel() {
+abstract class PublicWithKnownPeopleSearchViewModel(
+    dispatcher: DispatcherProvider,
+    navigationManager: NavigationManager
+) : KnownPeopleSearchViewModel(dispatcher, navigationManager) {
 
-    protected val publicPeopleSearchViewModel: MutableStateFlow<SearchResultState> = MutableStateFlow(SearchResultState.Initial)
+    protected val refreshPublicResult: MutableSharedFlow<PublicRefresh> = MutableSharedFlow(0)
 
-    protected val publicWithKnownPeopleSearchQueryFlow = _searchQueryFlow
-        .flatMapLatest { searchTerm ->
+    protected val publicPeopleSearchQueryFlow = _searchQueryFlow
+        .combine(refreshPublicResult.onSubscription { emit(PublicRefresh()) })
+        { searchTerm, publicRefresh ->
+            searchTerm to publicRefresh
+        }.flatMapLatest { (searchTerm, publicRefresh) ->
             flow {
-                emit(searchKnownPeople(searchTerm))
-            }
+                if (publicRefresh.withProgress) {
+                    emit(ContactSearchResult.ExternalContact(SearchResultState.InProgress))
+                }
+
+                emit(searchPublicPeople(searchTerm))
+            }.cancellable()
         }
 
-    abstract suspend fun searchPublicPeople(searchTerm: String): SearchResultState
+    abstract suspend fun searchPublicPeople(searchTerm: String): ContactSearchResult.ExternalContact
 }
 
-abstract class KnownPeopleSearchViewModel() : SearchPeopleViewModel() {
+abstract class KnownPeopleSearchViewModel(
+    dispatcher: DispatcherProvider,
+    navigationManager: NavigationManager
+) : SearchPeopleViewModel(dispatcher, navigationManager) {
 
     protected val knownPeopleSearchQueryFlow = _searchQueryFlow
         .flatMapLatest { searchTerm ->
             flow {
+                emit(ContactSearchResult.InternalContact(SearchResultState.InProgress))
                 emit(searchKnownPeople(searchTerm))
-            }
+            }.cancellable()
         }
 
-    abstract suspend fun searchKnownPeople(searchTerm: String): SearchResultState
+    abstract suspend fun searchKnownPeople(searchTerm: String): ContactSearchResult.InternalContact
 }
 
 abstract class SearchPeopleViewModel(
-    private val dispatcher: DispatcherProvider,
+    dispatcher: DispatcherProvider,
     val navigationManager: NavigationManager
 ) : ViewModel() {
-
-    protected val initialContactResultFlow: MutableStateFlow<SearchResultState> = MutableStateFlow(SearchResultState.Initial)
 
     protected val _searchQueryFlow = MutableStateFlow("")
 
@@ -211,30 +186,26 @@ abstract class SearchPeopleViewModel(
         .asStateFlow()
         .debounce(500)
 
+    protected val initialContactResultFlow = flow {
+        when (val result = getInitialContacts()) {
+            is SearchResult.Failure -> {
+                emit(
+                    SearchResultState.Failure(result.failureString)
+                )
+            }
+            is SearchResult.Success -> {
+                emit(
+                    SearchResultState.Success(result.contacts)
+                )
+            }
+        }
+    }.flowOn(dispatcher.io())
+
     protected val searchQueryTextFieldFlow = MutableStateFlow(TextFieldValue(""))
 
     protected val selectedContactsFlow = MutableStateFlow(emptyList<Contact>())
 
     var snackbarMessageState by mutableStateOf<NewConversationSnackbarState>(NewConversationSnackbarState.None)
-
-    init {
-        viewModelScope.launch {
-            launch {
-                when (val result = withContext(dispatcher.io()) { getInitialContacts() }) {
-                    is SearchResult.Failure -> {
-                        initialContactResultFlow.emit(
-                            SearchResultState.Failure(result.failureString)
-                        )
-                    }
-                    is SearchResult.Success -> {
-                        initialContactResultFlow.emit(
-                            SearchResultState.Success(result.contacts)
-                        )
-                    }
-                }
-            }
-        }
-    }
 
     fun searchQueryChanged(searchQuery: TextFieldValue) {
         val textQueryChanged = searchQueryTextFieldFlow.value.text != searchQuery.text

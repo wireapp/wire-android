@@ -142,8 +142,9 @@ class MediaGalleryViewModelTest {
         viewModel.deleteCurrentImage()
 
         // Then
-        assert(viewModel.mediaGalleryViewState.deleteMessageDialogsState is DeleteMessageDialogsState.States)
-        assert((viewModel.mediaGalleryViewState.deleteMessageDialogsState as DeleteMessageDialogsState.States).forEveryone is DeleteMessageDialogActiveState.Visible)
+        val deleteMessageDialogsState = viewModel.mediaGalleryViewState.deleteMessageDialogsState
+        assert(deleteMessageDialogsState is DeleteMessageDialogsState.States)
+        assert((deleteMessageDialogsState as DeleteMessageDialogsState.States).forEveryone is DeleteMessageDialogActiveState.Visible)
     }
 
     @Test

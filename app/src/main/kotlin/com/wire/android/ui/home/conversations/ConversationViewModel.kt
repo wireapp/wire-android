@@ -561,7 +561,6 @@ class ConversationViewModel @Inject constructor(
                 command = NavigationCommand(
                     destination = NavigationItem.Gallery.getRouteWithArgs(
                         listOf(
-                            conversationId,
                             PrivateAsset(wireSessionImageLoader, conversationId, messageId, isSelfMessage)
                         )
                     )

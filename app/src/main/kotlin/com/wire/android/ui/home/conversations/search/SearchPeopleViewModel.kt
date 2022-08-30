@@ -47,7 +47,11 @@ open class SearchAllPeopleViewModel(
     private val dispatcher: DispatcherProvider,
     sendConnectionRequest: SendConnectionRequestUseCase,
     navigationManager: NavigationManager,
-) : PublicWithKnownPeopleSearchViewModel(sendConnectionRequest, dispatcher, navigationManager) {
+) : PublicWithKnownPeopleSearchViewModel(
+    sendConnectionRequest = sendConnectionRequest,
+    dispatcher = dispatcher,
+    navigationManager = navigationManager
+) {
 
     var state: SearchPeopleState by mutableStateOf(SearchPeopleState())
 
@@ -64,8 +68,8 @@ open class SearchAllPeopleViewModel(
                     initialContacts = initialContacts,
                     searchQuery = searchQuery,
                     searchResult = mapOf(
-                        "test" to publicResult.filterContacts(knownResult),
-                        "test1" to knownResult
+                        SearchResultTitle(R.string.label_public_wire) to publicResult.filterContacts(knownResult),
+                        SearchResultTitle(R.string.label_contacts) to knownResult
                     ),
                     noneSearchSucceed = publicResult.searchResultState is SearchResultState.Failure
                             && knownResult.searchResultState is SearchResultState.Failure,
@@ -120,15 +124,16 @@ open class SearchAllPeopleViewModel(
 
 }
 
-data class PublicRefresh(val withProgress: Boolean = true)
-
 abstract class PublicWithKnownPeopleSearchViewModel(
     private val sendConnectionRequest: SendConnectionRequestUseCase,
     dispatcher: DispatcherProvider,
     navigationManager: NavigationManager
-) : KnownPeopleSearchViewModel(dispatcher, navigationManager) {
+) : KnownPeopleSearchViewModel(
+    dispatcher = dispatcher,
+    navigationManager = navigationManager
+) {
 
-    protected val refreshPublicResult: MutableSharedFlow<PublicRefresh> = MutableSharedFlow(0)
+    private val refreshPublicResult: MutableSharedFlow<PublicRefresh> = MutableSharedFlow(0)
 
     protected val publicPeopleSearchQueryFlow = _searchQueryFlow
         .combine(refreshPublicResult.onSubscription { emit(PublicRefresh()) })
@@ -143,7 +148,6 @@ abstract class PublicWithKnownPeopleSearchViewModel(
                 emit(searchPublicPeople(searchTerm))
             }.cancellable()
         }
-
 
     fun addContact(contact: Contact) {
         viewModelScope.launch {
@@ -164,10 +168,15 @@ abstract class PublicWithKnownPeopleSearchViewModel(
     abstract suspend fun searchPublicPeople(searchTerm: String): ContactSearchResult.ExternalContact
 }
 
+data class PublicRefresh(val withProgress: Boolean = true)
+
 abstract class KnownPeopleSearchViewModel(
     dispatcher: DispatcherProvider,
     navigationManager: NavigationManager
-) : SearchPeopleViewModel(dispatcher, navigationManager) {
+) : SearchPeopleViewModel(
+    dispatcher = dispatcher,
+    navigationManager = navigationManager
+) {
 
     protected val knownPeopleSearchQueryFlow = _searchQueryFlow
         .flatMapLatest { searchTerm ->

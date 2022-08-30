@@ -14,6 +14,7 @@ import com.wire.android.ui.home.conversations.search.KnownPeopleSearchViewModel
 import com.wire.android.ui.home.conversations.search.SearchPeopleState
 import com.wire.android.ui.home.conversations.search.SearchResult
 import com.wire.android.ui.home.conversations.search.SearchResultState
+import com.wire.android.ui.home.conversations.search.SearchResultTitle
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
@@ -60,14 +61,13 @@ class AddMembersToConversationViewModel @Inject constructor(
                 knownPeopleSearchQueryFlow,
                 searchQueryTextFieldFlow,
                 selectedContactsFlow
-            ) { a, b, c, d ->
+            ) { initialContacts, knownResult, searchQuery, selectedContacts ->
                 SearchPeopleState(
-                    self = null,
-                    initialContacts = a,
-                    searchQuery = c,
-                    searchResult = mapOf("test" to b),
-                    noneSearchSucceed = false,
-                    contactsAddedToGroup = d
+                    initialContacts = initialContacts,
+                    searchQuery = searchQuery,
+                    searchResult = mapOf(SearchResultTitle(R.string.label_contacts) to knownResult),
+                    noneSearchSucceed = knownResult.searchResultState is SearchResultState.Failure,
+                    contactsAddedToGroup = selectedContacts
                 )
             }.collect { updatedState ->
                 state = updatedState

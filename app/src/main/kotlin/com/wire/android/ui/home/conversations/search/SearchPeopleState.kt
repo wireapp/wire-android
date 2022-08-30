@@ -7,7 +7,7 @@ import com.wire.android.ui.home.newconversation.model.Contact
 data class SearchPeopleState(
     val initialContacts: SearchResultState = SearchResultState.Initial,
     val searchQuery: TextFieldValue = TextFieldValue(""),
-    val searchResult: Map<String, ContactSearchResult> = emptyMap(),
+    val searchResult: Map<SearchResultTitle, ContactSearchResult> = emptyMap(),
     val noneSearchSucceed: Boolean = false,
     val contactsAddedToGroup: List<Contact> = emptyList()
 )
@@ -31,3 +31,5 @@ sealed class SearchResultState {
 
     data class Success(val result: List<Contact>) : SearchResultState()
 }
+
+data class SearchResultTitle(@StringRes val stringRes : Int)

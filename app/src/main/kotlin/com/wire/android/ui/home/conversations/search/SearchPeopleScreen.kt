@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListScope
-import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -27,7 +26,6 @@ import com.wire.android.ui.common.WireCircularProgressIndicator
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.search.widget.SearchFailureBox
-import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.home.conversationslist.folderWithElements
 import com.wire.android.ui.home.newconversation.model.Contact
 
@@ -37,7 +35,7 @@ private const val DEFAULT_SEARCH_RESULT_ITEM_SIZE = 4
 fun SearchAllPeopleScreen(
     searchQuery: String,
     noneSearchSucceed: Boolean,
-    searchResult: Map<String, ContactSearchResult>,
+    searchResult: Map<SearchResultTitle, ContactSearchResult>,
     contactsAddedToGroup: List<Contact>,
     onAddToGroup: (Contact) -> Unit,
     onRemoveFromGroup: (Contact) -> Unit,
@@ -68,7 +66,7 @@ fun SearchAllPeopleScreen(
 @Composable
 private fun SearchResult(
     searchQuery: String,
-    searchResult: Map<String, ContactSearchResult>,
+    searchResult: Map<SearchResultTitle, ContactSearchResult>,
     contactsAddedToGroup: List<Contact>,
     onAddToGroup: (Contact) -> Unit,
     onRemoveContactFromGroup: (Contact) -> Unit,
@@ -77,7 +75,6 @@ private fun SearchResult(
 ) {
     val searchPeopleScreenState = rememberSearchPeopleScreenState()
     val lazyListState = rememberLazyListState()
-
     val context = LocalContext.current
 
     Column {
@@ -90,7 +87,7 @@ private fun SearchResult(
                 when (result) {
                     is ContactSearchResult.ExternalContact -> {
                         externalSearchResults(
-                            searchTitle = context.getString(R.string.label_public_wire),
+                            searchTitle = context.getString(searchTitle.stringRes),
                             searchQuery = searchQuery,
                             contactSearchResult = result,
                             showAllItems = searchPeopleScreenState.publicResultsCollapsed,
@@ -101,7 +98,7 @@ private fun SearchResult(
                     }
                     is ContactSearchResult.InternalContact -> {
                         internalSearchResults(
-                            searchTitle = { stringResource(R.string.label_contacts) },
+                            searchTitle = context.getString(searchTitle.stringRes),
                             searchQuery = searchQuery,
                             contactsAddedToGroup = contactsAddedToGroup,
                             onAddToGroup = onAddToGroup,
@@ -120,7 +117,7 @@ private fun SearchResult(
 
 @Suppress("LongParameterList")
 private fun LazyListScope.internalSearchResults(
-    searchTitle: @Composable () -> String,
+    searchTitle: String,
     searchQuery: String,
     contactsAddedToGroup: List<Contact>,
     onAddToGroup: (Contact) -> Unit,
@@ -196,7 +193,7 @@ private fun LazyListScope.externalSearchResults(
 
 @Suppress("LongParameterList")
 private fun LazyListScope.internalSuccessItem(
-    searchTitle: @Composable () -> String,
+    searchTitle: String,
     showAllItems: Boolean,
     contactsAddedToGroup: List<Contact>,
     onAddToGroup: (Contact) -> Unit,
@@ -207,9 +204,8 @@ private fun LazyListScope.internalSuccessItem(
     onOpenUserProfile: (Contact) -> Unit
 ) {
     if (searchResult.isNotEmpty()) {
-        item { FolderHeader(searchTitle()) }
-
-        items(if (showAllItems) searchResult else searchResult.take(DEFAULT_SEARCH_RESULT_ITEM_SIZE)) { contact ->
+        folderWithElements(header = searchTitle,
+            items = (if (showAllItems) searchResult else searchResult.take(DEFAULT_SEARCH_RESULT_ITEM_SIZE)).associateBy { it.id }) { contact ->
             with(contact) {
                 InternalContactSearchResultItem(
                     avatarData = avatarData,
@@ -225,22 +221,22 @@ private fun LazyListScope.internalSuccessItem(
                 )
             }
         }
+    }
 
-        if (searchResult.size > DEFAULT_SEARCH_RESULT_ITEM_SIZE) {
-            item {
-                Box(
-                    Modifier
-                        .fillMaxWidth()
-                        .wrapContentHeight()
-                ) {
-                    ShowButton(
-                        isShownAll = showAllItems,
-                        onShowButtonClicked = onShowAllButtonClicked,
-                        modifier = Modifier
-                            .align(Alignment.BottomEnd)
-                            .padding(end = dimensions().spacing8x)
-                    )
-                }
+    if (searchResult.size > DEFAULT_SEARCH_RESULT_ITEM_SIZE) {
+        item {
+            Box(
+                Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+            ) {
+                ShowButton(
+                    isShownAll = showAllItems,
+                    onShowButtonClicked = onShowAllButtonClicked,
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(end = dimensions().spacing8x)
+                )
             }
         }
     }

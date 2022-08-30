@@ -119,7 +119,8 @@ private fun ContactItem(
                     text = name,
                     style = MaterialTheme.wireTypography.title02,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(weight = 1f, fill = false)
                 )
                 UserBadge(
                     membership = membership,

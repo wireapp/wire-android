@@ -41,13 +41,13 @@ import kotlinx.coroutines.withContext
 @Suppress("TooManyFunctions")
 open class SearchAllPeopleViewModel(
     private val getAllKnownUsers: GetAllContactsUseCase,
-    private val sendConnectionRequest: SendConnectionRequestUseCase,
     private val searchKnownUsers: SearchKnownUsersUseCase,
     private val searchPublicUsers: SearchUsersUseCase,
     private val contactMapper: ContactMapper,
     private val dispatcher: DispatcherProvider,
+    sendConnectionRequest: SendConnectionRequestUseCase,
     navigationManager: NavigationManager,
-) : PublicWithKnownPeopleSearchViewModel(dispatcher, navigationManager) {
+) : PublicWithKnownPeopleSearchViewModel(sendConnectionRequest, dispatcher, navigationManager) {
 
     var state: SearchPeopleState by mutableStateOf(SearchPeopleState())
 
@@ -115,27 +115,12 @@ open class SearchAllPeopleViewModel(
         }
     }
 
-    fun addContact(contact: Contact) {
-        viewModelScope.launch {
-            val userId = UserId(contact.id, contact.domain)
-
-            when (sendConnectionRequest(userId)) {
-                is SendConnectionRequestResult.Failure -> {
-                    appLogger.d(("Couldn't send a connect request to user $userId"))
-                }
-                is SendConnectionRequestResult.Success -> {
-                    refreshPublicResult.emit(PublicRefresh(withProgress = false))
-                    snackbarMessageState = NewConversationSnackbarState.SuccessSendConnectionRequest
-                }
-            }
-        }
-    }
-
 }
 
 data class PublicRefresh(val withProgress: Boolean = true)
 
 abstract class PublicWithKnownPeopleSearchViewModel(
+    private val sendConnectionRequest: SendConnectionRequestUseCase,
     dispatcher: DispatcherProvider,
     navigationManager: NavigationManager
 ) : KnownPeopleSearchViewModel(dispatcher, navigationManager) {
@@ -155,6 +140,23 @@ abstract class PublicWithKnownPeopleSearchViewModel(
                 emit(searchPublicPeople(searchTerm))
             }.cancellable()
         }
+
+
+    fun addContact(contact: Contact) {
+        viewModelScope.launch {
+            val userId = UserId(contact.id, contact.domain)
+
+            when (sendConnectionRequest(userId)) {
+                is SendConnectionRequestResult.Failure -> {
+                    appLogger.d(("Couldn't send a connect request to user $userId"))
+                }
+                is SendConnectionRequestResult.Success -> {
+                    refreshPublicResult.emit(PublicRefresh(withProgress = false))
+                    snackbarMessageState = NewConversationSnackbarState.SuccessSendConnectionRequest
+                }
+            }
+        }
+    }
 
     abstract suspend fun searchPublicPeople(searchTerm: String): ContactSearchResult.ExternalContact
 }

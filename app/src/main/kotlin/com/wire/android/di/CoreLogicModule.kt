@@ -30,8 +30,8 @@ import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
 import com.wire.kalium.logic.feature.conversation.AddMemberToConversationUseCase
 import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetAllContactsNotInConversationUseCase
-import com.wire.kalium.logic.feature.conversation.GetConversationClassifiedTypeUseCase
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
+import com.wire.kalium.logic.feature.conversation.GetSecurityClassificationTypeUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveUserListByIdUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
@@ -759,6 +759,6 @@ class UseCaseModule {
     fun provideGetConversationClassifiedTypeUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ): GetConversationClassifiedTypeUseCase =
-        coreLogic.getSessionScope(currentAccount).getConversationClassifiedType
+    ): GetSecurityClassificationTypeUseCase =
+        coreLogic.getSessionScope(currentAccount).getSecurityClassificationType
 }

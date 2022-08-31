@@ -17,26 +17,26 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.ui.theme.wireTypography
-import com.wire.kalium.logic.feature.conversation.ClassifiedType
+import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 
 @Composable
-fun ClassifiedIndicatorBanner(
-    classifiedType: ClassifiedType,
+fun SecurityClassificationBanner(
+    securityClassificationType: SecurityClassificationType,
     modifier: Modifier = Modifier,
 ) {
-    if (classifiedType != ClassifiedType.NONE) {
+    if (securityClassificationType != SecurityClassificationType.NONE) {
         Divider()
         Row(
             horizontalArrangement = Arrangement.Center,
             verticalAlignment = Alignment.CenterVertically,
             modifier = modifier
-                .background(getBackgroundColorFor(classifiedType))
+                .background(getBackgroundColorFor(securityClassificationType))
                 .height(dimensions().spacing24x)
                 .fillMaxWidth()
         ) {
             Text(
-                text = getTextFor(classifiedType),
-                color = getColorTextFor(classifiedType),
+                text = getTextFor(securityClassificationType),
+                color = getColorTextFor(securityClassificationType),
                 style = MaterialTheme.wireTypography.label03
             )
         }
@@ -45,8 +45,8 @@ fun ClassifiedIndicatorBanner(
 }
 
 @Composable
-private fun getTextFor(classifiedType: ClassifiedType): String {
-    return if (classifiedType == ClassifiedType.CLASSIFIED) {
+private fun getTextFor(securityClassificationType: SecurityClassificationType): String {
+    return if (securityClassificationType == SecurityClassificationType.CLASSIFIED) {
         stringResource(id = R.string.conversation_details_is_classified)
     } else {
         stringResource(id = R.string.conversation_details_is_not_classified)
@@ -54,8 +54,8 @@ private fun getTextFor(classifiedType: ClassifiedType): String {
 }
 
 @Composable
-private fun getBackgroundColorFor(classifiedType: ClassifiedType): Color {
-    return if (classifiedType == ClassifiedType.CLASSIFIED) {
+private fun getBackgroundColorFor(securityClassificationType: SecurityClassificationType): Color {
+    return if (securityClassificationType == SecurityClassificationType.CLASSIFIED) {
         colorsScheme().surface
     } else {
         colorsScheme().onSurface
@@ -63,8 +63,8 @@ private fun getBackgroundColorFor(classifiedType: ClassifiedType): Color {
 }
 
 @Composable
-private fun getColorTextFor(classifiedType: ClassifiedType): Color {
-    return if (classifiedType == ClassifiedType.CLASSIFIED) {
+private fun getColorTextFor(securityClassificationType: SecurityClassificationType): Color {
+    return if (securityClassificationType == SecurityClassificationType.CLASSIFIED) {
         colorsScheme().onSurface
     } else {
         colorsScheme().surface
@@ -75,11 +75,9 @@ private fun getColorTextFor(classifiedType: ClassifiedType): Color {
 @Composable
 fun ClassifiedIndicatorPreview() {
     Column(modifier = Modifier.fillMaxWidth()) {
-        ClassifiedIndicatorBanner(classifiedType = ClassifiedType.CLASSIFIED)
-
+        SecurityClassificationBanner(securityClassificationType = SecurityClassificationType.CLASSIFIED)
         Divider()
-
-        ClassifiedIndicatorBanner(classifiedType = ClassifiedType.NOT_CLASSIFIED)
+        SecurityClassificationBanner(securityClassificationType = SecurityClassificationType.NOT_CLASSIFIED)
     }
 
 }

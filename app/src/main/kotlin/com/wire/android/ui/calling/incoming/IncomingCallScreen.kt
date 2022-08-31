@@ -179,7 +179,7 @@ private fun IncomingCallContent(
                 conversationType = callState.conversationType,
                 membership = callState.membership,
                 callingLabel = isCallingString,
-                classifiedType = callState.classifiedType
+                securityClassificationType = callState.securityClassificationType
             )
         }
     }

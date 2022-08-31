@@ -21,7 +21,7 @@ import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOffUseCase
 import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOnUseCase
 import com.wire.kalium.logic.feature.call.usecase.UnMuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.UpdateVideoStateUseCase
-import com.wire.kalium.logic.feature.conversation.GetConversationClassifiedTypeUseCase
+import com.wire.kalium.logic.feature.conversation.GetSecurityClassificationTypeUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -95,7 +95,7 @@ class SharedCallingViewModelTest {
     private lateinit var currentScreenManager: CurrentScreenManager
 
     @MockK
-    private lateinit var getConversationClassifiedType: GetConversationClassifiedTypeUseCase
+    private lateinit var getConversationClassifiedType: GetSecurityClassificationTypeUseCase
 
     private val uiCallParticipantMapper: UICallParticipantMapper by lazy { UICallParticipantMapper(wireSessionImageLoader, userTypeMapper) }
 

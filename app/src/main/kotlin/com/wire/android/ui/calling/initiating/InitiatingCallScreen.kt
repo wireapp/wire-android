@@ -108,7 +108,7 @@ private fun InitiatingCallContent(
                 conversationType = callState.conversationType,
                 membership = callState.membership,
                 callingLabel = stringResource(id = R.string.calling_label_ringing_call),
-                classifiedType = callState.classifiedType
+                securityClassificationType = callState.securityClassificationType
             )
         }
     }

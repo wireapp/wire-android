@@ -86,7 +86,7 @@ private fun OngoingCallContent(
     navigateBack: () -> Unit
 ) {
     val sheetState = rememberBottomSheetState(
-        initialValue = BottomSheetValue.Collapsed
+        initialValue = if (classifiedType == ClassifiedType.NONE) BottomSheetValue.Collapsed else BottomSheetValue.Expanded
     )
     val scaffoldState = rememberBottomSheetScaffoldState(
         bottomSheetState = sheetState
@@ -110,6 +110,7 @@ private fun OngoingCallContent(
                 isMuted = isMuted,
                 isCameraOn = isCameraOn,
                 isSpeakerOn = isSpeakerOn,
+                classifiedType = classifiedType,
                 toggleSpeaker = toggleSpeaker,
                 toggleMute = toggleMute,
                 onHangUpCall = hangUpCall,
@@ -131,7 +132,6 @@ private fun OngoingCallContent(
             )
         }
     }
-    ClassifiedIndicatorBanner(classifiedType)
 }
 
 @Composable
@@ -156,6 +156,7 @@ private fun CallingControls(
     isMuted: Boolean,
     isCameraOn: Boolean,
     isSpeakerOn: Boolean,
+    classifiedType: ClassifiedType,
     toggleSpeaker: () -> Unit,
     toggleMute: () -> Unit,
     onHangUpCall: () -> Unit,
@@ -191,6 +192,7 @@ private fun CallingControls(
             onHangUpButtonClicked = onHangUpCall
         )
     }
+    ClassifiedIndicatorBanner(classifiedType)
 }
 
 @Composable

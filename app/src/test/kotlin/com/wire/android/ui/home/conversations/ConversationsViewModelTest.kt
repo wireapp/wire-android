@@ -5,6 +5,8 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.ui.home.conversations.ConversationViewModel.Companion.ASSET_SIZE_DEFAULT_LIMIT_BYTES
 import com.wire.android.ui.home.conversations.ConversationViewModel.Companion.IMAGE_SIZE_LIMIT_BYTES
+import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogActiveState
+import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsState
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.ui.home.conversations.model.MessageSource
@@ -73,7 +75,7 @@ class ConversationsViewModelTest {
             .arrange()
 
         // When
-        viewModel.showDeleteMessageForYourselfDialog("")
+        viewModel.deleteMessageHelper.showDeleteMessageForYourselfDialog("")
 
         // Then
         viewModel.deleteMessageDialogsState shouldBeEqualTo DeleteMessageDialogsState.States(
@@ -88,7 +90,7 @@ class ConversationsViewModelTest {
         val (_, viewModel) = ConversationsViewModelArrangement().arrange()
 
         // When
-        viewModel.onDeleteDialogDismissed()
+        viewModel.deleteMessageHelper.onDeleteDialogDismissed()
 
         // Then
         viewModel.deleteMessageDialogsState shouldBeEqualTo DeleteMessageDialogsState.States(
@@ -105,7 +107,7 @@ class ConversationsViewModelTest {
 
         viewModel.conversationViewState
         // When
-        viewModel.deleteMessage("messageId", true)
+        viewModel.deleteMessageHelper.onDeleteMessage("messageId", true)
 
         // Then
         assert(viewModel.conversationViewState.onSnackbarMessage is ConversationSnackbarMessages.ErrorDeletingMessage)
@@ -121,7 +123,7 @@ class ConversationsViewModelTest {
 
         viewModel.conversationViewState
         // When
-        viewModel.deleteMessage("messageId", true)
+        viewModel.deleteMessageHelper.onDeleteMessage("messageId", true)
 
         // Then
         val expectedState = DeleteMessageDialogsState.States(

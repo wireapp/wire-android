@@ -28,6 +28,9 @@ import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.Error
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnFileDownloaded
 import com.wire.android.ui.home.conversations.DownloadedAssetDialogVisibilityState.Displayed
 import com.wire.android.ui.home.conversations.DownloadedAssetDialogVisibilityState.Hidden
+import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogActiveState
+import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogHelper
+import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsState
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.ui.home.conversations.model.MessageContent.AssetMessage
@@ -130,6 +133,15 @@ class ConversationViewModel @Inject constructor(
     )
 
     var establishedCallConversationId: ConversationId? = null
+
+    val deleteMessageHelper = DeleteMessageDialogHelper(
+        viewModelScope,
+        conversationId,
+        ::updateDeleteDialogState
+    ) { messageId, deleteForEveryone ->
+        deleteMessage(conversationId = conversationId, messageId = messageId, deleteForEveryone = deleteForEveryone)
+            .onFailure { onSnackbarMessage(ErrorDeletingMessage) }
+    }
 
     init {
         observeConversationDetailsAndMessages()
@@ -461,31 +473,6 @@ class ConversationViewModel @Inject constructor(
             }
         }
 
-    fun showDeleteMessageForYourselfDialog(messageId: String) {
-        updateDeleteDialogState { it.copy(forEveryone = DeleteMessageDialogActiveState.Hidden) }
-        updateDeleteDialogState {
-            it.copy(
-                forYourself = DeleteMessageDialogActiveState.Visible(
-                    messageId = messageId,
-                    conversationId = conversationId
-                )
-            )
-        }
-    }
-
-    fun onDeleteDialogDismissed() {
-        updateDeleteDialogState {
-            it.copy(
-                forEveryone = DeleteMessageDialogActiveState.Hidden,
-                forYourself = DeleteMessageDialogActiveState.Hidden
-            )
-        }
-    }
-
-    fun clearDeleteMessageError() {
-        updateStateIfDialogVisible { it.copy(error = DeleteMessageError.None) }
-    }
-
     fun joinOngoingCall() {
         viewModelScope.launch {
             answerCall(conversationId = conversationId)
@@ -500,55 +487,10 @@ class ConversationViewModel @Inject constructor(
     private fun updateDeleteDialogState(newValue: (DeleteMessageDialogsState.States) -> DeleteMessageDialogsState) =
         (deleteMessageDialogsState as? DeleteMessageDialogsState.States)?.let { deleteMessageDialogsState = newValue(it) }
 
-    private fun updateStateIfDialogVisible(newValue: (DeleteMessageDialogActiveState.Visible) -> DeleteMessageDialogActiveState) =
-        updateDeleteDialogState {
-            when {
-                it.forEveryone is DeleteMessageDialogActiveState.Visible -> it.copy(forEveryone = newValue(it.forEveryone))
-                it.forYourself is DeleteMessageDialogActiveState.Visible -> it.copy(
-                    forYourself = newValue(
-                        it.forYourself
-                    )
-                )
-                else -> it
-            }
-        }
-
     fun updateConversationReadDate(utcISO: String) {
         viewModelScope.launch(dispatchers.io()) {
             updateConversationReadDateUseCase(conversationId, Instant.parse(utcISO))
         }
-    }
-
-    fun deleteMessage(messageId: String, deleteForEveryone: Boolean) = viewModelScope.launch {
-        // update dialogs state to loading
-        if (deleteForEveryone) {
-            updateDeleteDialogState {
-                it.copy(
-                    forEveryone = DeleteMessageDialogActiveState.Visible(
-                        messageId = messageId,
-                        conversationId = conversationId,
-                        loading = true
-                    )
-                )
-            }
-        } else {
-            updateDeleteDialogState {
-                it.copy(
-                    forYourself = DeleteMessageDialogActiveState.Visible(
-                        messageId = messageId,
-                        conversationId = conversationId,
-                        loading = true
-                    )
-                )
-            }
-        }
-        deleteMessage(conversationId = conversationId, messageId = messageId, deleteForEveryone = deleteForEveryone)
-            .onFailure { onDeleteMessageError() }
-        onDeleteDialogDismissed()
-    }
-
-    private fun onDeleteMessageError() {
-        onSnackbarMessage(ErrorDeletingMessage)
     }
 
     private suspend fun assetDataPath(conversationId: ConversationId, messageId: String): Path? {

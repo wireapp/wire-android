@@ -92,7 +92,7 @@ fun ParticipantTile(
                     })
                 } else onClearSelfUserVideoPreview()
             } else {
-                if (participantTitleState.isCameraOn) {
+                if (participantTitleState.isCameraOn || participantTitleState.isSharingScreen) {
                     val context = LocalContext.current
                     AndroidView(factory = {
                         VideoRenderer(context, participantTitleState.id.toString(), participantTitleState.clientId, false).apply {
@@ -163,6 +163,7 @@ private fun ParticipantTilePreview() {
             isMuted = true,
             isSpeaking = true,
             isCameraOn = true,
+            isSharingScreen = false,
             avatar = null,
             membership = Membership.Admin
         ),

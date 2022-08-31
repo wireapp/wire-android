@@ -15,4 +15,5 @@ sealed class ConversationSnackbarMessages {
 sealed class MediaGallerySnackbarMessages {
     class OnImageDownloaded(val assetName: String? = null) : MediaGallerySnackbarMessages()
     object OnImageDownloadError : MediaGallerySnackbarMessages()
+    object DeletingMessageError: MediaGallerySnackbarMessages()
 }

@@ -154,8 +154,8 @@ class SharedCallingViewModel @Inject constructor(
     }
 
     private suspend fun observeOnMute() {
-        snapshotFlow { callState.isMuted }.collectLatest {
-            it?.let {
+        snapshotFlow { callState.isMuted }.collectLatest { isMute ->
+            isMute?.let {
                 if (it) {
                     muteCall(conversationId)
                 } else {

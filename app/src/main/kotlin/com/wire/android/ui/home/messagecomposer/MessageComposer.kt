@@ -25,9 +25,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
@@ -53,6 +50,7 @@ private val DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET = 250.dp
 
 @Composable
 fun MessageComposer(
+    keyboardHeight: KeyboardHeight,
     content: @Composable () -> Unit,
     messageText: String,
     onMessageChanged: (String) -> Unit,
@@ -77,7 +75,7 @@ fun MessageComposer(
 
         MessageComposer(
             content = content,
-            screenHeight = with(LocalDensity.current) { constraints.maxHeight.toDp() },
+            keyboardHeight = keyboardHeight,
             messageComposerState = messageComposerState,
             messageText = messageComposerState.messageText,
             onMessageChanged = {
@@ -112,7 +110,7 @@ fun MessageComposer(
 @Composable
 private fun MessageComposer(
     content: @Composable () -> Unit,
-    screenHeight: Dp,
+    keyboardHeight: KeyboardHeight,
     messageComposerState: MessageComposerInnerState,
     messageText: TextFieldValue,
     onMessageChanged: (TextFieldValue) -> Unit,
@@ -125,16 +123,6 @@ private fun MessageComposer(
     tempCachePath: Path
 ) {
     val focusManager = LocalFocusManager.current
-    // when MessageComposer is composed for the first time we do not know the height
-    // until users opens the keyboard
-    var keyboardHeightOffSet: KeyboardHeight by remember {
-        mutableStateOf(KeyboardHeight.NotKnown)
-    }
-    // if the currentScreenHeight is smaller than the initial fullScreenHeight
-    // calculated at the first composition of the MessageComposer, then we know the keyboard size
-    if (screenHeight < messageComposerState.fullScreenHeight) {
-        keyboardHeightOffSet = KeyboardHeight.Known(messageComposerState.fullScreenHeight - screenHeight)
-    }
 
     Surface {
         val transition = updateTransition(
@@ -157,7 +145,7 @@ private fun MessageComposer(
             // AttachmentOptions, the offset is set to DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET as default, whenever the keyboard pops up
             // we are able to calculate the actual needed offset, so that it is equal to the height of the keyboard the user is using
             val topOfKeyboardGuideLine = createGuidelineFromTop(
-                offset = messageComposerState.fullScreenHeight - keyboardHeightOffSet.height
+                offset = messageComposerState.fullScreenHeight - keyboardHeight.height
             )
 
             val messageComposer = createRef()
@@ -261,7 +249,7 @@ private fun MessageComposer(
             // we get the effect of overlapping it
             if (messageComposerState.attachmentOptionsDisplayed && !isUserBlocked && isConversationMember) {
                 AttachmentOptions(
-                    keyboardHeightOffSet,
+                    keyboardHeight,
                     messageComposerState,
                     onSendAttachment,
                     onMessageComposerError,

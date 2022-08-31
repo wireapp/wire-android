@@ -2,7 +2,10 @@ package com.wire.android.ui.home.conversations
 
 import android.app.DownloadManager
 import android.content.Intent
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.setValue
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -24,8 +27,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import com.wire.android.R
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.UserProfileAvatar
@@ -56,6 +61,7 @@ import com.wire.android.ui.home.conversations.model.MessageContent
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
+import com.wire.android.ui.home.messagecomposer.KeyboardHeight
 import com.wire.android.ui.home.messagecomposer.MessageComposeInputState
 import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.util.permission.CallingAudioRequestFlow
@@ -205,71 +211,89 @@ private fun ConversationScreen(
                 }
             ),
             content = {
-                Scaffold(
-                    topBar = {
-                        Column {
-                            CommonTopAppBar(commonTopAppBarViewModel = commonTopAppBarViewModel as CommonTopAppBarViewModel)
-                            ConversationScreenTopAppBar(
-                                title = conversationName.asString(),
-                                avatar = {
-                                    when (conversationAvatar) {
-                                        is ConversationAvatar.Group ->
-                                            GroupConversationAvatar(
-                                                color = colorsScheme().conversationColor(id = conversationAvatar.conversationId)
-                                            )
-                                        is ConversationAvatar.OneOne -> UserProfileAvatar(
-                                            UserAvatarData(
-                                                asset = conversationAvatar.avatarAsset,
-                                                availabilityStatus = conversationAvatar.status,
-                                                connectionState = connectionStateOrNull
-                                            )
-                                        )
-                                        ConversationAvatar.None -> Box(modifier = Modifier.size(dimensions().userAvatarDefaultSize))
-                                    }
-                                },
-                                onBackButtonClick = onBackButtonClick,
-                                onDropDownClick = onDropDownClick,
-                                isDropDownEnabled = conversationViewState.conversationDetailsData !is ConversationDetailsData.None,
-                                onSearchButtonClick = { },
-                                onPhoneButtonClick = onStartCall,
-                                hasOngoingCall = hasOngoingCall,
-                                onJoinCallButtonClick = onJoinCall,
-                                isUserBlocked = connectionStateOrNull == ConnectionState.BLOCKED
-                            )
-                        }
-                    },
-                    snackbarHost = {
-                        SwipeDismissSnackbarHost(
-                            hostState = conversationScreenState.snackBarHostState,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    },
-                    content = { internalPadding ->
-                        Box(modifier = Modifier.padding(internalPadding)) {
-                            ConversationScreenContent(
-                                messages = messages,
-                                lastUnreadMessage = lastUnreadMessage,
-                                onMessageChanged = onMessageChanged,
-                                messageText = conversationViewState.messageText,
-                                onSendButtonClicked = onSendButtonClicked,
-                                onShowContextMenu = conversationScreenState::showEditContextMenu,
-                                onSendAttachment = onSendAttachment,
-                                onDownloadAsset = onDownloadAsset,
-                                onImageFullScreenMode = onImageFullScreenMode,
-                                conversationState = conversationViewState,
-                                onMessageComposerError = onSnackbarMessage,
-                                onSnackbarMessageShown = onSnackbarMessageShown,
-                                conversationScreenState = conversationScreenState,
-                                isFileSharingEnabled = isFileSharingEnabled,
-                                tempCachePath = tempCachePath,
-                                isUserBlocked = connectionStateOrNull == ConnectionState.BLOCKED,
-                                isConversationMember = isConversationMember,
-                                onOpenProfile = onOpenProfile,
-                                onUpdateConversationReadDate = onUpdateConversationReadDate
-                            )
-                        }
+                BoxWithConstraints {
+                    val currentScreenHeight: Dp = with(LocalDensity.current) { constraints.maxHeight.toDp() }
+                    val fullScreenHeight: Dp = remember { currentScreenHeight }
+
+                    // when ConversationScreen is composed for the first time we do not know the height
+                    // until users opens the keyboard
+                    var keyboardHeight: KeyboardHeight by remember {
+                        mutableStateOf(KeyboardHeight.NotKnown)
                     }
-                )
+
+                    // if the currentScreenHeight is smaller than the initial fullScreenHeight
+                    // calculated at the first composition of the ConversationScreen, then we know the keyboard size
+                    if (currentScreenHeight < fullScreenHeight) {
+                        keyboardHeight = KeyboardHeight.Known(fullScreenHeight - currentScreenHeight)
+                    }
+
+                    Scaffold(
+                        topBar = {
+                            Column {
+                                CommonTopAppBar(commonTopAppBarViewModel = commonTopAppBarViewModel as CommonTopAppBarViewModel)
+                                ConversationScreenTopAppBar(
+                                    title = conversationName.asString(),
+                                    avatar = {
+                                        when (conversationAvatar) {
+                                            is ConversationAvatar.Group ->
+                                                GroupConversationAvatar(
+                                                    color = colorsScheme().conversationColor(id = conversationAvatar.conversationId)
+                                                )
+                                            is ConversationAvatar.OneOne -> UserProfileAvatar(
+                                                UserAvatarData(
+                                                    asset = conversationAvatar.avatarAsset,
+                                                    availabilityStatus = conversationAvatar.status,
+                                                    connectionState = connectionStateOrNull
+                                                )
+                                            )
+                                            ConversationAvatar.None -> Box(modifier = Modifier.size(dimensions().userAvatarDefaultSize))
+                                        }
+                                    },
+                                    onBackButtonClick = onBackButtonClick,
+                                    onDropDownClick = onDropDownClick,
+                                    isDropDownEnabled = conversationViewState.conversationDetailsData !is ConversationDetailsData.None,
+                                    onSearchButtonClick = { },
+                                    onPhoneButtonClick = onStartCall,
+                                    hasOngoingCall = hasOngoingCall,
+                                    onJoinCallButtonClick = onJoinCall,
+                                    isUserBlocked = connectionStateOrNull == ConnectionState.BLOCKED
+                                )
+                            }
+                        },
+                        snackbarHost = {
+                            SwipeDismissSnackbarHost(
+                                hostState = conversationScreenState.snackBarHostState,
+                                modifier = Modifier.fillMaxWidth()
+                            )
+                        },
+                        content = { internalPadding ->
+                            Box(modifier = Modifier.padding(internalPadding)) {
+                                ConversationScreenContent(
+                                    keyboardHeight = keyboardHeight,
+                                    messages = messages,
+                                    lastUnreadMessage = lastUnreadMessage,
+                                    onMessageChanged = onMessageChanged,
+                                    messageText = conversationViewState.messageText,
+                                    onSendButtonClicked = onSendButtonClicked,
+                                    onShowContextMenu = conversationScreenState::showEditContextMenu,
+                                    onSendAttachment = onSendAttachment,
+                                    onDownloadAsset = onDownloadAsset,
+                                    onImageFullScreenMode = onImageFullScreenMode,
+                                    conversationState = conversationViewState,
+                                    onMessageComposerError = onSnackbarMessage,
+                                    onSnackbarMessageShown = onSnackbarMessageShown,
+                                    conversationScreenState = conversationScreenState,
+                                    isFileSharingEnabled = isFileSharingEnabled,
+                                    tempCachePath = tempCachePath,
+                                    isUserBlocked = connectionStateOrNull == ConnectionState.BLOCKED,
+                                    isConversationMember = isConversationMember,
+                                    onOpenProfile = onOpenProfile,
+                                    onUpdateConversationReadDate = onUpdateConversationReadDate
+                                )
+                            }
+                        }
+                    )
+                }
             }
         )
     }
@@ -278,6 +302,7 @@ private fun ConversationScreen(
 @Suppress("LongParameterList")
 @Composable
 private fun ConversationScreenContent(
+    keyboardHeight: KeyboardHeight,
     messages: List<UIMessage>,
     lastUnreadMessage: UIMessage?,
     onMessageChanged: (String) -> Unit,
@@ -328,6 +353,7 @@ private fun ConversationScreenContent(
     }
 
     MessageComposer(
+        keyboardHeight = keyboardHeight,
         content = {
             MessageList(
                 messages = messages,

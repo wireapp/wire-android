@@ -18,7 +18,7 @@ import com.wire.android.R
 import com.wire.kalium.logic.feature.conversation.ClassifiedType
 
 @Composable
-fun ClassifiedIndicator(
+fun ClassifiedIndicatorBanner(
     classifiedType: ClassifiedType,
     modifier: Modifier = Modifier,
 ) {
@@ -70,11 +70,11 @@ private fun getColorTextFor(classifiedType: ClassifiedType): Color {
 @Composable
 fun ClassifiedIndicatorPreview() {
     Column(modifier = Modifier.fillMaxWidth()) {
-        ClassifiedIndicator(classifiedType = ClassifiedType.CLASSIFIED)
+        ClassifiedIndicatorBanner(classifiedType = ClassifiedType.CLASSIFIED)
 
         Divider()
 
-        ClassifiedIndicator(classifiedType = ClassifiedType.NOT_CLASSIFIED)
+        ClassifiedIndicatorBanner(classifiedType = ClassifiedType.NOT_CLASSIFIED)
     }
 
 }

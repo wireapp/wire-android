@@ -32,7 +32,7 @@ import com.wire.android.ui.calling.controlButtons.HangUpButton
 import com.wire.android.ui.calling.controlButtons.MicrophoneButton
 import com.wire.android.ui.calling.controlButtons.SpeakerButton
 import com.wire.android.ui.calling.model.UICallParticipant
-import com.wire.android.ui.common.ClassifiedIndicator
+import com.wire.android.ui.common.ClassifiedIndicatorBanner
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
@@ -131,7 +131,7 @@ private fun OngoingCallContent(
             )
         }
     }
-    ClassifiedIndicator(classifiedType)
+    ClassifiedIndicatorBanner(classifiedType)
 }
 
 @Composable

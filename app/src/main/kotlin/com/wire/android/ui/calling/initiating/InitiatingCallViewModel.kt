@@ -20,7 +20,6 @@ import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.StartCallUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
@@ -32,8 +31,8 @@ import javax.inject.Inject
 @HiltViewModel
 class InitiatingCallViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
-    private val navigationManager: NavigationManager,
     qualifiedIdMapper: QualifiedIdMapper,
+    private val navigationManager: NavigationManager,
     private val conversationDetails: ObserveConversationDetailsUseCase,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
     private val startCall: StartCallUseCase,
@@ -59,8 +58,7 @@ class InitiatingCallViewModel @Inject constructor(
         }
     }
 
-    private fun retrieveConversationTypeAsync() = viewModelScope.async {
-
+    private suspend fun retrieveConversationType(): ConversationType {
         val conversationDetails = conversationDetails(conversationId = conversationId)
             .filterIsInstance<ObserveConversationDetailsUseCase.Result.Success>() // TODO handle StorageFailure
             .map { it.conversationDetails }
@@ -68,12 +66,12 @@ class InitiatingCallViewModel @Inject constructor(
                 details.conversation.id == conversationId
             }
 
-        when (conversationDetails) {
+        return when (conversationDetails) {
             is ConversationDetails.Group -> {
-                return@async ConversationType.Conference
+                ConversationType.Conference
             }
             is ConversationDetails.OneOne -> {
-                return@async ConversationType.OneOnOne
+                ConversationType.OneOnOne
             }
             else -> throw IllegalStateException("Invalid conversation type")
         }
@@ -116,13 +114,16 @@ class InitiatingCallViewModel @Inject constructor(
         )
     }
 
-    private suspend fun initiateCall() {
-        val conversationType = retrieveConversationTypeAsync().await()
-        startCall(
+    internal suspend fun initiateCall() {
+        val conversationType = retrieveConversationType()
+        val result = startCall(
             conversationId = conversationId,
             conversationType = conversationType
         )
-        callRinger.ring(R.raw.ringing_from_me)
+        when (result) {
+            StartCallUseCase.Result.Success -> callRinger.ring(R.raw.ringing_from_me)
+            StartCallUseCase.Result.SyncFailure -> {} // TODO: handle case where start call fails
+        }
     }
 
     fun navigateBack() = viewModelScope.launch {
@@ -130,13 +131,11 @@ class InitiatingCallViewModel @Inject constructor(
         navigationManager.navigateBack()
     }
 
-    fun hangUpCall() {
-        viewModelScope.launch {
-            launch { endCall(conversationId) }
-            launch {
-                navigateBack()
-                callRinger.stop()
-            }
+    fun hangUpCall() = viewModelScope.launch {
+        launch { endCall(conversationId) }
+        launch {
+            callRinger.stop()
+            navigateBack()
         }
     }
 }

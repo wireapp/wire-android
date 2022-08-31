@@ -15,39 +15,33 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.model.Clickable
-import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.RowItemTemplate
+import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.UserBadge
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.WireCheckbox
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.loading.CenteredCircularProgressBarIndicator
-import com.wire.android.ui.home.conversations.search.SearchPeoplePurpose
 import com.wire.android.ui.home.conversations.search.SearchResultState
 import com.wire.android.ui.home.conversations.search.widget.SearchFailureBox
 import com.wire.android.ui.home.conversationslist.folderWithElements
 import com.wire.android.ui.home.conversationslist.model.Membership
-import com.wire.android.ui.home.newconversation.common.SelectParticipantsButtonsRow
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.data.user.ConnectionState
 
 @Composable
 fun ContactsScreen(
-    purpose: SearchPeoplePurpose,
-    scrollPositionProvider: (() -> Int) -> Unit,
     allKnownContactResult: SearchResultState,
     contactsAddedToGroup: List<Contact>,
     onOpenUserProfile: (Contact) -> Unit,
     onAddToGroup: (Contact) -> Unit,
-    onRemoveFromGroup: (Contact) -> Unit,
-    onNewGroupClicked: () -> Unit
+    onRemoveFromGroup: (Contact) -> Unit
 ) {
     when (allKnownContactResult) {
         SearchResultState.Initial, SearchResultState.InProgress -> {
@@ -55,10 +49,6 @@ fun ContactsScreen(
         }
         is SearchResultState.Success -> {
             val lazyListState = rememberLazyListState()
-
-            scrollPositionProvider {
-                lazyListState.firstVisibleItemIndex
-            }
 
             val context = LocalContext.current
             Column(
@@ -87,11 +77,6 @@ fun ContactsScreen(
                         }
                     }
                 }
-                SelectParticipantsButtonsRow(
-                    count = contactsAddedToGroup.size,
-                    mainButtonText = stringResource(id = purpose.continueButtonTextResId),
-                    onMainButtonClick = onNewGroupClicked
-                )
             }
         }
         is SearchResultState.Failure -> {
@@ -134,7 +119,8 @@ private fun ContactItem(
                     text = name,
                     style = MaterialTheme.wireTypography.title02,
                     maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.weight(weight = 1f, fill = false)
                 )
                 UserBadge(
                     membership = membership,

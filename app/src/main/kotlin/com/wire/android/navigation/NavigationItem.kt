@@ -49,11 +49,10 @@ import com.wire.android.ui.calling.initiating.InitiatingCallScreen
 import com.wire.android.ui.debugscreen.DebugScreen
 import com.wire.android.ui.home.HomeScreen
 import com.wire.android.ui.home.conversations.ConversationScreen
-import com.wire.android.ui.home.conversations.details.AddMembersToConversationViewModel
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsScreen
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationAllParticipantsScreen
+import com.wire.android.ui.home.conversations.search.AddPeopleToConversationRouter
 import com.wire.android.ui.home.conversations.search.SearchPeoplePurpose
-import com.wire.android.ui.home.conversations.search.SearchPeopleRouter
 import com.wire.android.ui.home.gallery.MediaGalleryScreen
 import com.wire.android.ui.home.newconversation.NewConversationRouter
 import com.wire.android.ui.home.settings.backup.BackupAndRestoreScreen
@@ -152,6 +151,7 @@ enum class NavigationItem(
             HomeScreen(
                 hiltSavedStateViewModel(it.navBackStackEntry),
                 hiltViewModel(),
+                hiltViewModel(),
                 hiltViewModel()
             )
         },
@@ -246,12 +246,8 @@ enum class NavigationItem(
         primaryRoute = ADD_CONVERSATION_PARTICIPANTS,
         canonicalRoute = "$ADD_CONVERSATION_PARTICIPANTS/{$EXTRA_CONVERSATION_ID}",
         content = {
-            val viewModel = hiltViewModel<AddMembersToConversationViewModel>()
-
-            SearchPeopleRouter(
-                purpose = SearchPeoplePurpose.ADD_PARTICIPANTS,
-                searchPeopleViewModel = viewModel,
-                onPeoplePicked = { viewModel.addMembersToConversation() }
+            AddPeopleToConversationRouter(
+                purpose = SearchPeoplePurpose.ADD_PARTICIPANTS
             )
         }
     ) {

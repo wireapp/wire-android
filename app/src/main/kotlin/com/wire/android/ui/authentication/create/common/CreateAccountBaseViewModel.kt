@@ -36,6 +36,8 @@ import com.wire.kalium.logic.feature.register.RegisterParam
 import com.wire.kalium.logic.feature.register.RegisterResult
 import com.wire.kalium.logic.feature.register.RequestActivationCodeResult
 import com.wire.kalium.logic.feature.register.RequestActivationCodeUseCase
+import com.wire.kalium.logic.feature.server.FetchApiVersionResult
+import com.wire.kalium.logic.feature.server.FetchApiVersionUseCase
 import com.wire.kalium.logic.feature.session.RegisterTokenResult
 import kotlinx.coroutines.launch
 
@@ -50,7 +52,8 @@ abstract class CreateAccountBaseViewModel(
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
     private val registerAccountUseCase: RegisterAccountUseCase,
     private val clientScopeProviderFactory: ClientScopeProvider.Factory,
-    private val authServerConfigProvider: AuthServerConfigProvider
+    private val authServerConfigProvider: AuthServerConfigProvider,
+    private val fetchApiVersion: FetchApiVersionUseCase
 ) : ViewModel(),
     CreateAccountOverviewViewModel,
     CreateAccountEmailViewModel,
@@ -102,6 +105,23 @@ abstract class CreateAccountBaseViewModel(
     final override fun onEmailContinue() {
         emailState = emailState.copy(loading = true, continueEnabled = false)
         viewModelScope.launch {
+            fetchApiVersion(authServerConfigProvider.authServer.value).let {
+                when (it) {
+                    is FetchApiVersionResult.Success -> {}
+                    is FetchApiVersionResult.Failure.UnknownServerVersion -> {
+                        emailState = emailState.copy(showServerVersionNotSupportedDialog = true)
+                        return@launch
+                    }
+                    is FetchApiVersionResult.Failure.TooNewVersion -> {
+                        emailState = emailState.copy(showClientUpdateDialog = true)
+                        return@launch
+                    }
+                    is FetchApiVersionResult.Failure.Generic -> {
+                        return@launch
+                    }
+                }
+            }
+
             val emailError =
                 if (validateEmailUseCase(emailState.email.text.trim().lowercase())) CreateAccountEmailViewState.EmailError.None
                 else CreateAccountEmailViewState.EmailError.TextFieldError.InvalidEmailError
@@ -112,6 +132,8 @@ abstract class CreateAccountBaseViewModel(
                 error = emailError
             )
             if (emailState.termsAccepted) onTermsAccept()
+        }.invokeOnCompletion {
+            emailState = emailState.copy(loading = false)
         }
     }
 
@@ -297,6 +319,18 @@ abstract class CreateAccountBaseViewModel(
         viewModelScope.launch {
             navigationManager.navigate(NavigationCommand(NavigationItem.RemoveDevices.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
         }
+    }
+
+    override fun dismissClientUpdateDialog() {
+        emailState = emailState.copy(showClientUpdateDialog = false)
+    }
+
+    override fun dismissApiVersionNotSupportedDialog() {
+        emailState = emailState.copy(showServerVersionNotSupportedDialog = false)
+    }
+
+    override fun updateTheApp() {
+        // todo : update the app after releasing on the store
     }
 }
 

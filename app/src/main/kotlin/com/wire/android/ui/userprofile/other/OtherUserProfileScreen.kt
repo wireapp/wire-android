@@ -18,6 +18,7 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.rememberModalBottomSheetState
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
@@ -118,6 +119,7 @@ fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltView
 @OptIn(
     ExperimentalMaterialApi::class,
     ExperimentalPagerApi::class,
+    ExperimentalMaterial3Api::class,
 )
 @Composable
 fun OtherProfileScreenContent(
@@ -201,7 +203,7 @@ fun OtherProfileScreenContent(
                     eventsHandler::getOtherUserClients
                 )
             },
-            contentFooter = {
+            bottomBar = {
                 ContentFooter(
                     state,
                     maxBarElevation,
@@ -310,7 +312,7 @@ private fun Content(
     openRemoveConversationMemberDialog: () -> Unit,
     getOtherUserClients: () -> Unit,
 ) {
-    Crossfade(targetState = state) { state ->
+    Crossfade(targetState = tabItems to state) { (tabItems, state) ->
         when {
             state.isDataLoading || state.botService != null -> Box {} // no content visible while loading
             state.connectionState == ConnectionState.ACCEPTED ->
@@ -334,8 +336,7 @@ private fun Content(
 
                             OtherUserProfileTabItem.DEVICES -> {
                                 getOtherUserClients()
-                                OtherUserDevicesScreen(state = state)
-
+                                OtherUserDevicesScreen(lazyListState = lazyListStates[tabItem]!!, state = state)
                             }
                         }
                     }

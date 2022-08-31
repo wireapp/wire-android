@@ -10,6 +10,7 @@ data class UICallParticipant(
     val name: String = "",
     val isMuted: Boolean,
     val isSpeaking: Boolean = false,
+    val isCameraOn: Boolean,
     val avatar: ImageAsset.UserAvatarAsset? = null,
     val membership: Membership,
 )

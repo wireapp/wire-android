@@ -30,8 +30,7 @@ import com.wire.kalium.logic.data.user.UserId
 fun GroupConversationParticipantItem(
     uiParticipant: UIParticipant,
     searchQuery: String = String.EMPTY,
-    clickable: Clickable,
-    modifier: Modifier = Modifier
+    clickable: Clickable
 ) {
     RowItemTemplate(
         leadingIcon = { UserProfileAvatar(uiParticipant.avatarData) },
@@ -68,7 +67,7 @@ fun GroupConversationParticipantItem(
             }
         },
         clickable = clickable,
-        modifier = modifier
+        modifier = Modifier.padding(start = dimensions().spacing8x)
     )
 }
 

@@ -31,7 +31,7 @@ import com.wire.android.ui.userprofile.group.RemoveConversationMemberState
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
-import com.wire.kalium.logic.data.conversation.Member
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -204,7 +204,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                             OtherUserProfileGroupState(
                                 groupName = conversationRoleData.conversationName,
                                 role = userRole,
-                                isSelfAdmin = conversationRoleData.selfRole is Member.Role.Admin,
+                                isSelfAdmin = conversationRoleData.selfRole is Conversation.Member.Role.Admin,
                                 conversationId = conversationRoleData.conversationId
                             )
                         }
@@ -249,7 +249,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             when (cancelConnectionRequest(userId)) {
                 is CancelConnectionRequestUseCaseResult.Failure -> {
                     appLogger.d(("Couldn't cancel a connect request to user $userId"))
-                    showInfoMessage(InfoMessageType.ConnectionRequestError)
+                    showInfoMessage(InfoMessageType.ConnectionCancelError)
                 }
                 is CancelConnectionRequestUseCaseResult.Success -> {
                     state = state.copy(connectionState = ConnectionState.NOT_CONNECTED)
@@ -264,7 +264,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             when (acceptConnectionRequest(userId)) {
                 is AcceptConnectionRequestUseCaseResult.Failure -> {
                     appLogger.d(("Couldn't accept a connect request to user $userId"))
-                    showInfoMessage(InfoMessageType.ConnectionRequestError)
+                    showInfoMessage(InfoMessageType.ConnectionAcceptError)
                 }
                 is AcceptConnectionRequestUseCaseResult.Success -> {
                     state = state.copy(connectionState = ConnectionState.ACCEPTED)
@@ -279,7 +279,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             when (ignoreConnectionRequest(userId)) {
                 is IgnoreConnectionRequestUseCaseResult.Failure -> {
                     appLogger.d(("Couldn't ignore a connect request to user $userId"))
-                    showInfoMessage(InfoMessageType.ConnectionRequestError)
+                    showInfoMessage(InfoMessageType.ConnectionIgnoreError)
                 }
                 is IgnoreConnectionRequestUseCaseResult.Success -> {
                     state = state.copy(connectionState = ConnectionState.NOT_CONNECTED)
@@ -293,7 +293,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         }
     }
 
-    override fun onChangeMemberRole(role: Member.Role) {
+    override fun onChangeMemberRole(role: Conversation.Member.Role) {
         viewModelScope.launch {
             if (conversationId != null) {
                 updateMemberRole(conversationId, userId, role).also {
@@ -462,9 +462,13 @@ class OtherUserProfileScreenViewModel @Inject constructor(
 sealed class InfoMessageType(override val uiText: UIText) : SnackBarMessage {
     // connection
     object SuccessConnectionSentRequest : InfoMessageType(UIText.StringResource(R.string.connection_request_sent))
-    object SuccessConnectionAcceptRequest : InfoMessageType(UIText.StringResource(R.string.connection_request_accepted))
-    object SuccessConnectionCancelRequest : InfoMessageType(UIText.StringResource(R.string.connection_request_canceled))
     object ConnectionRequestError : InfoMessageType(UIText.StringResource(R.string.connection_request_sent_error))
+    object SuccessConnectionAcceptRequest : InfoMessageType(UIText.StringResource(R.string.connection_request_accepted))
+    object ConnectionAcceptError : InfoMessageType(UIText.StringResource(R.string.connection_request_accept_error))
+    object SuccessConnectionCancelRequest : InfoMessageType(UIText.StringResource(R.string.connection_request_canceled))
+    object ConnectionCancelError : InfoMessageType(UIText.StringResource(R.string.connection_request_cancel_error))
+    object ConnectionIgnoreError : InfoMessageType(UIText.StringResource(R.string.connection_request_ignore_error))
+
     object LoadUserInformationError : InfoMessageType(UIText.StringResource(R.string.error_unknown_message))
     object LoadDirectConversationError : InfoMessageType(UIText.StringResource(R.string.error_unknown_message))
 

@@ -10,6 +10,7 @@
     <string name="label_continue">Continue</string>
     <string name="label_get_started">Get Started</string>
     <string name="label_remove">Remove</string>
+    <string name="label_proceed">Proceed</string>
     <string name="label_leave">Leave</string>
     <string name="label_add_device">Add Device</string>
     <string name="label_learn_more">Learn more</string>
@@ -133,6 +134,8 @@
     <string name="welcome_button_create_enterprise_account">Create Enterprise Account</string>
     <string name="welcome_button_create_personal_account">Create a Personal Account</string>
     <string name="welcome_button_create_team">Create a Team</string>
+    <string name="server_details_dialog_body">Backend name:\n%1$s\n\nBackend URL:\n%2$s</string>
+    <string name="server_details_dialog_title">On-premises Backend</string>
 
     <!-- API Versioning Dialogs -->
     <string name="api_versioning_client_update_required_title">Update required</string>
@@ -337,7 +340,7 @@
     <string name="user_profile_title">User Profile</string>
     <string name="user_profile_close_description">Close User profile</string>
     <string name="user_profile_logout">Logout</string>
-    <string name="user_profile_other_accs">Other Accounts</string>
+    <string name="user_profile_other_accs">Your Other Accounts</string>
     <string name="user_profile_status_available">Available</string>
     <string name="user_profile_status_busy">Busy</string>
     <string name="user_profile_status_away">Away</string>
@@ -474,7 +477,9 @@
     <string name="label_type_a_message">Type a message</string>
     <string name="notification_action_open_call">Open Call</string>
     <string name="notification_action_decline_call">Decline</string>
-    <string name="notification_call_content">Calling...</string>
+    <string name="notification_action_hang_up_call">Hang Up</string>
+    <string name="notification_incoming_call_content">Calling...</string>
+    <string name="notification_ongoing_call_content">Ongoing call...</string>
     <string name="notification_group_call_content">%s calling...</string>
     <string name="notification_call_default_caller_name">Someone</string>
     <string name="notification_call_default_group_name">Default Group Name</string>
@@ -519,6 +524,9 @@
     <string name="connection_request_accepted">Connection request accepted</string>
 
     <string name="connection_request_sent_error">Connection request could not be sent</string>
+    <string name="connection_request_accept_error">Connection request could not be accepted</string>
+    <string name="connection_request_ignore_error">Connection request could not be ignored</string>
+    <string name="connection_request_cancel_error">Connection request could not be canceled</string>
     <string name="connection_pending_message">Wants to connect</string>
     <string name="connection_pending_label">pending</string>
     <string name="connection_label_user_wants_to_conect">This user wants to connect with you.</string>
@@ -593,4 +601,13 @@
     <string name="unblock_user_dialog_body">%1$s will be able to contact you or add you to group conversations. You will be able to access a 1:1 conversation with them.</string>
     <string name="unblock_user_dialog_confirm_button">Unblock</string>
 
+    <!--max account reached dialog-->
+    <string name="max_account_reached_dialog_title">Three accounts active</string>
+    <string name="max_account_reached_dialog_message">You can only be logged in with three accounts at once. Log out from one to add another.</string>
+    <string name="max_account_reached_dialog_button_open_profile">Open Profile</string>
+    <string name="cant_switch_account_in_call">Can not switch accounts while in call</string>
+
+
+    <string name="custom_backend_dialog_title">Redirect to an on-premises backend?</string>
+    <string name="custom_backend_dialog_body">If you proceed, your client will be redirected to the following on-premises backend:\n\nBackend name:\n%1$s\n\nBackend URL:\n%2$s</string>
 </resources>

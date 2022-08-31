@@ -21,6 +21,7 @@ import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
+import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -63,7 +64,7 @@ class WireActivityViewModelTest {
     }
 
     @Test
-    fun `given Intent with SSOLogin, when currentSession is present, then startNavigation is Login and navArguments contains SSOLogin`() {
+    fun `given Intent with SSOLogin, when currentSession is present, then startNavigation is Home and navArguments contains SSOLogin`() {
         val (_, viewModel) = Arrangement()
             .withSomeCurrentSession()
             .withDeepLinkResult(DeepLinkResult.SSOLogin.Success("cookie", "config"))
@@ -71,12 +72,12 @@ class WireActivityViewModelTest {
 
         viewModel.handleDeepLink(mockedIntent())
 
-        assertEquals(NavigationItem.Login.getRouteWithArgs(), viewModel.startNavigationRoute())
+        assertEquals(NavigationItem.Home.getRouteWithArgs(), viewModel.startNavigationRoute())
         assert(viewModel.navigationArguments().filterIsInstance<DeepLinkResult.SSOLogin>().isNotEmpty())
     }
 
     @Test
-    fun `given Intent with ServerConfig, when currentSession is present, then startNavigation is Login and no SSOLogin in navArguments`() {
+    fun `given Intent with ServerConfig, when currentSession is present, then startNavigation is Home and no SSOLogin in navArguments`() {
         val (_, viewModel) = Arrangement()
             .withSomeCurrentSession()
             .withDeepLinkResult(DeepLinkResult.CustomServerConfig("url"))
@@ -84,12 +85,12 @@ class WireActivityViewModelTest {
 
         viewModel.handleDeepLink(mockedIntent())
 
-        assertEquals(NavigationItem.Login.getRouteWithArgs(), viewModel.startNavigationRoute())
+        assertEquals(NavigationItem.Home.getRouteWithArgs(), viewModel.startNavigationRoute())
         assert(viewModel.navigationArguments().filterIsInstance<DeepLinkResult.SSOLogin>().isEmpty())
     }
 
     @Test
-    fun `given Intent with ServerConfig, when currentSession is absent, then startNavigation is Login and no SSOLogin in navArguments`() {
+    fun `given Intent with ServerConfig, when currentSession is absent, then startNavigation is Welcome and no SSOLogin in navArguments`() {
         val (_, viewModel) = Arrangement()
             .withNoCurrentSession()
             .withDeepLinkResult(DeepLinkResult.CustomServerConfig("url"))
@@ -97,7 +98,7 @@ class WireActivityViewModelTest {
 
         viewModel.handleDeepLink(mockedIntent())
 
-        assertEquals(NavigationItem.Login.getRouteWithArgs(), viewModel.startNavigationRoute())
+        assertEquals(NavigationItem.Welcome.getRouteWithArgs(), viewModel.startNavigationRoute())
         assert(viewModel.navigationArguments().filterIsInstance<DeepLinkResult.SSOLogin>().isEmpty())
     }
 
@@ -353,11 +354,12 @@ class WireActivityViewModelTest {
             // Default empty values
             mockUri()
             coEvery { currentSessionFlow() } returns flowOf()
-            coEvery { getServerConfigUseCase(any()) } returns GetServerConfigResult.Success(newServerConfig(1))
+            coEvery { getServerConfigUseCase(any()) } returns GetServerConfigResult.Success(newServerConfig(1).links)
             coEvery { deepLinkProcessor(any()) } returns DeepLinkResult.Unknown
             coEvery { notificationManager.observeNotificationsAndCalls(any(), any(), any()) } returns Unit
             coEvery { navigationManager.navigate(any()) } returns Unit
             coEvery { observePersistentWebSocketConnectionStatus() } returns flowOf(true)
+            coEvery { getSessionsUseCase.invoke() }
         }
 
         @MockK
@@ -379,6 +381,9 @@ class WireActivityViewModelTest {
         lateinit var observePersistentWebSocketConnectionStatus: ObservePersistentWebSocketConnectionStatusUseCase
 
         @MockK
+        lateinit var getSessionsUseCase: GetSessionsUseCase
+
+        @MockK
         private lateinit var authServerConfigProvider: AuthServerConfigProvider
 
         private val viewModel by lazy {
@@ -390,7 +395,8 @@ class WireActivityViewModelTest {
                 notificationManager = notificationManager,
                 navigationManager = navigationManager,
                 authServerConfigProvider = authServerConfigProvider,
-                observePersistentWebSocketConnectionStatus = observePersistentWebSocketConnectionStatus
+                observePersistentWebSocketConnectionStatus = observePersistentWebSocketConnectionStatus,
+                getSessions = getSessionsUseCase
             )
         }
 

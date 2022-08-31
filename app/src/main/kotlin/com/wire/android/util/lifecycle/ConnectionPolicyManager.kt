@@ -10,11 +10,18 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.sync.ConnectionPolicy
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.UserSessionScope
+import com.wire.kalium.logic.feature.auth.AuthSession
+import com.wire.kalium.logic.functional.combine
 import com.wire.kalium.logic.functional.flatMap
 import com.wire.kalium.logic.functional.fold
 import com.wire.kalium.logic.functional.map
+import com.wire.kalium.logic.functional.nullableFold
 import com.wire.kalium.logic.functional.onSuccess
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -42,13 +49,14 @@ class ConnectionPolicyManager @Inject constructor(
     /**
      * Starts observing the app state and take action.
      */
+    @OptIn(ExperimentalCoroutinesApi::class)
     fun startObservingAppLifecycle() {
         CoroutineScope(dispatcherProvider.default()).launch {
-            currentScreenManager.appWasVisibleAtLeastOnceFlow().collect { wasUIInitialized ->
-                getAllSessionsAndCurrentSession().onSuccess { (userIdList, currentSessionUserId) ->
-                    setPolicyForSessions(userIdList, currentSessionUserId, wasUIInitialized)
+            currentScreenManager.appWasVisibleAtLeastOnceFlow()
+                .combine(currentSessionFlow()) { wasVisible, currentSession -> wasVisible to currentSession }
+                .collect { (wasVisible, currentSession) ->
+                    setPolicyForSessions(allValidSessions(), currentSession, wasVisible)
                 }
-            }
         }
     }
 
@@ -105,7 +113,7 @@ class ConnectionPolicyManager @Inject constructor(
 
     private fun setPolicyForSessions(
         userIdList: List<QualifiedID>,
-        currentSessionUserId: QualifiedID,
+        currentSessionUserId: QualifiedID?,
         wasUIInitialized: Boolean
     ) = userIdList.forEach { userId ->
         val isCurrentSession = userId == currentSessionUserId
@@ -117,11 +125,11 @@ class ConnectionPolicyManager @Inject constructor(
         coreLogic.getSessionScope(userId).setConnectionPolicy(connectionPolicy)
     }
 
-    private fun getAllSessionsAndCurrentSession() = coreLogic.sessionRepository.currentSession().flatMap { authSession ->
-        coreLogic.sessionRepository.allValidSessions().map { sessions ->
-            sessions.map {
-                it.session.userId
-            } to authSession.session.userId
-        }
-    }
+    private fun allValidSessions() =
+        coreLogic.sessionRepository.allValidSessions()
+            .map { it.map { session -> session.session.userId } }.fold({ emptyList() }, { it })
+
+    private fun currentSessionFlow() =
+        coreLogic.sessionRepository.currentSessionFlow()
+            .map { it.nullableFold({ null }, { currentSession -> currentSession.session.userId }) }
 }

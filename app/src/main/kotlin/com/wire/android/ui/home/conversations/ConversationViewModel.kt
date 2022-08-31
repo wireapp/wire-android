@@ -505,7 +505,7 @@ class ConversationViewModel @Inject constructor(
         }
     }
 
-    fun onOpenFileWithExternalApp(assetDataPath: Path, assetExtension: String) {
+    fun onOpenFileWithExternalApp(assetDataPath: Path, assetExtension: String?) {
         viewModelScope.launch {
             withContext(dispatchers.io()) {
                 fileManager.openWithExternalApp(assetDataPath, assetExtension) { onOpenFileError() }

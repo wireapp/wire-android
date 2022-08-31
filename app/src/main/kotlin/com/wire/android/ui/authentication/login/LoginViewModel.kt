@@ -40,6 +40,7 @@ import javax.inject.Inject
 
 @ExperimentalMaterialApi
 @HiltViewModel
+@Suppress("TooManyFunctions")
 open class LoginViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
@@ -172,6 +173,18 @@ open class LoginViewModel @Inject constructor(
 
     private fun navigateToRemoveDevicesScreen() = viewModelScope.launch {
         navigationManager.navigate(NavigationCommand(NavigationItem.RemoveDevices.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
+    }
+
+    fun dismissClientUpdateDialog() {
+        loginState = loginState.copy(showClientUpdateDialog = false)
+    }
+
+    fun dismissApiVersionNotSupportedDialog() {
+        loginState = loginState.copy(showServerVersionNotSupportedDialog = false)
+    }
+
+    fun updateTheApp() {
+        // todo : update the app after releasing on the store
     }
 
     companion object {

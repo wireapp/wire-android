@@ -8,6 +8,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.appLogger
 import com.wire.android.mapper.UICallParticipantMapper
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.media.CallRinger
@@ -32,7 +33,9 @@ import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOffUseCase
 import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOnUseCase
 import com.wire.kalium.logic.feature.call.usecase.UnMuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.UpdateVideoStateUseCase
+import com.wire.kalium.logic.feature.conversation.GetSecurityClassificationTypeUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
+import com.wire.kalium.logic.feature.conversation.SecurityClassificationTypeResult
 import com.wire.kalium.logic.util.PlatformView
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -62,7 +65,8 @@ class SharedCallingViewModel @Inject constructor(
     private val uiCallParticipantMapper: UICallParticipantMapper,
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val userTypeMapper: UserTypeMapper,
-    private val currentScreenManager: CurrentScreenManager
+    private val currentScreenManager: CurrentScreenManager,
+    private val getConversationClassifiedType: GetSecurityClassificationTypeUseCase,
 ) : ViewModel() {
 
     var callState by mutableStateOf(CallState())
@@ -88,7 +92,19 @@ class SharedCallingViewModel @Inject constructor(
                 observeOnMute()
             }
             launch {
+                setClassificationType()
+            }
+            launch {
                 observeScreenState()
+            }
+        }
+    }
+
+    private suspend fun setClassificationType() {
+        when (val result = getConversationClassifiedType(conversationId)) {
+            is SecurityClassificationTypeResult.Failure -> appLogger.e("Could not determine the classification type")
+            is SecurityClassificationTypeResult.Success -> {
+                callState = callState.copy(securityClassificationType = result.classificationType)
             }
         }
     }

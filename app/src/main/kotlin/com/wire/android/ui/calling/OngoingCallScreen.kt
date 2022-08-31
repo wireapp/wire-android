@@ -32,11 +32,13 @@ import com.wire.android.ui.calling.controlButtons.HangUpButton
 import com.wire.android.ui.calling.controlButtons.MicrophoneButton
 import com.wire.android.ui.calling.controlButtons.SpeakerButton
 import com.wire.android.ui.calling.model.UICallParticipant
+import com.wire.android.ui.common.ClassifiedIndicator
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.kalium.logic.feature.conversation.ClassifiedType
 
 @Composable
 fun OngoingCallScreen(
@@ -51,6 +53,7 @@ fun OngoingCallScreen(
             callState.isMuted ?: true,
             callState.isCameraOn ?: false,
             callState.isSpeakerOn,
+            callState.classifiedType,
             ::toggleSpeaker,
             ::toggleMute,
             ::hangUpCall,
@@ -73,6 +76,7 @@ private fun OngoingCallContent(
     isMuted: Boolean,
     isCameraOn: Boolean,
     isSpeakerOn: Boolean,
+    classifiedType: ClassifiedType,
     toggleSpeaker: () -> Unit,
     toggleMute: () -> Unit,
     hangUpCall: () -> Unit,
@@ -127,6 +131,7 @@ private fun OngoingCallContent(
             )
         }
     }
+    ClassifiedIndicator(classifiedType)
 }
 
 @Composable

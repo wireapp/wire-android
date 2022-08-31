@@ -46,8 +46,6 @@ import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.messagecomposer.attachment.AttachmentOptions
 import okio.Path
 
-private val DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET = 250.dp
-
 @Composable
 fun MessageComposer(
     keyboardHeight: KeyboardHeight,
@@ -311,4 +309,8 @@ private fun CollapseIconButton(onCollapseClick: () -> Unit, modifier: Modifier =
 sealed class KeyboardHeight(open val height: Dp) {
     object NotKnown : KeyboardHeight(DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET)
     data class Known(override val height: Dp) : KeyboardHeight(height)
+
+    companion object {
+        val DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET = 250.dp
+    }
 }

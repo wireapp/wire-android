@@ -60,6 +60,7 @@ fun OneOnOneCallView(
                 isMuted = isMuted,
                 isSpeaking = participant.isSpeaking,
                 isCameraOn = isCameraOn,
+                isSharingScreen = participant.isSharingScreen,
                 avatar = participant.avatar,
                 membership = participant.membership
             )

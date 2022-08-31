@@ -11,6 +11,7 @@ data class UICallParticipant(
     val isMuted: Boolean,
     val isSpeaking: Boolean = false,
     val isCameraOn: Boolean,
+    val isSharingScreen: Boolean,
     val avatar: ImageAsset.UserAvatarAsset? = null,
     val membership: Membership,
 )

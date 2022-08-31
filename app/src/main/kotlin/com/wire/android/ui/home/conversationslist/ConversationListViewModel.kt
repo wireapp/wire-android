@@ -111,17 +111,19 @@ class ConversationListViewModel @Inject constructor(
 
                     val remainingConversations = allConversations - unreadConversations.toSet()
 
-                    state = ConversationListState(
-                        newActivities = unreadConversations.toNewActivities(selfUser),
-                        conversations = remainingConversations.toConversationsFoldersMap(selfUser),
-                        missedCalls = mockMissedCalls, // TODO: needs to be implemented
-                        callHistory = mockCallHistory, // TODO: needs to be implemented
-                        unreadMentions = mockUnreadMentionList, // TODO: needs to be implemented
-                        allMentions = mockAllMentionList, // TODO: needs to be implemented
-                        newActivityCount = unreadConversationsCount,
-                        unreadMentionsCount = mentionsCount, // TODO: needs to be implemented on Kalium side
-                        missedCallsCount = missedCallsCount // TODO: needs to be implemented on Kalium side
-                    )
+                    withContext(dispatcher.main()) {
+                        state = ConversationListState(
+                            newActivities = unreadConversations.toNewActivities(selfUser),
+                            conversations = remainingConversations.toConversationsFoldersMap(selfUser),
+                            missedCalls = mockMissedCalls, // TODO: needs to be implemented
+                            callHistory = mockCallHistory, // TODO: needs to be implemented
+                            unreadMentions = mockUnreadMentionList, // TODO: needs to be implemented
+                            allMentions = mockAllMentionList, // TODO: needs to be implemented
+                            newActivityCount = unreadConversationsCount,
+                            unreadMentionsCount = mentionsCount, // TODO: needs to be implemented on Kalium side
+                            missedCallsCount = missedCallsCount // TODO: needs to be implemented on Kalium side
+                        )
+                    }
                 }
             }
     }

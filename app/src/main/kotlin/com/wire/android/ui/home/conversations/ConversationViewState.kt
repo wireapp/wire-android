@@ -10,6 +10,7 @@ import okio.Path
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.id.QualifiedID as ConversationId
+import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 
 data class ConversationViewState(
     val conversationName: UIText = UIText.DynamicString(""),
@@ -23,7 +24,8 @@ data class ConversationViewState(
     val isFileSharingEnabled: Boolean = true,
     val hasOngoingCall: Boolean = false,
     val hasEstablishedCall: Boolean = false,
-    val lastUnreadMessage : UIMessage? = null
+    val lastUnreadMessage : UIMessage? = null,
+    val securityClassificationType: SecurityClassificationType = SecurityClassificationType.NONE
 )
 
 sealed class ConversationAvatar {

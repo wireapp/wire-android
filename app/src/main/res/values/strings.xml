@@ -38,7 +38,6 @@
     <string name="folder_lable_access">Access</string>
     <string name="folder_lable_protocol_details">Protocol details (beta)</string>
     <string name="label_user_blocked">Blocked</string>
-
     <!-- Content descriptions https://wearezeta.atlassian.net/wiki/spaces/AR/pages/122520039/Code+Style+Guideline#Content-description-strings -->
     <string name="content_description_app_logo">App Logo</string>
     <string name="content_description_reveal_password">Show password</string>
@@ -102,10 +101,8 @@
     <string name="content_description_calling_call_muted">Call Muted</string>
     <string name="content_description_calling_call_unmuted">Call Unmuted</string>
     <string name="content_description_calling_call_paused_camera">Paused Camera</string>
-
     <!-- Non translatable strings-->
     <string name="url_decryption_failure_learn_more" translatable="false">https://support.wire.com/hc/en-us/articles/207948115-Why-was-I-notified-that-a-message-from-a-contact-was-not-received-</string>
-
     <!-- Navigation -->
     <string name="vault_screen_title">Vault</string>
     <string name="archive_screen_title">Archive</string>
@@ -118,7 +115,6 @@
     <string name="backup_and_restore_screen_title">Back up &amp; Restore Conversations</string>
     <string name="search_bar_hint">Search %s</string>
     <string name="search_no_results">No matches found</string>
-
     <!-- Settings -->
     <string name="settings_general_group_title">General</string>
     <string name="settings_backups_group_title">Backups</string>
@@ -126,7 +122,6 @@
     <string name="settings_backup_info">Create a backup to preserve your conversation history. You can use this to restore history if you lose your device or switch to a new one.\n\nChoose a strong password to protect the backup file.</string>
     <string name="settings_backup_create">Create a Backup</string>
     <string name="settings_backup_restore">Restore from Backup</string>
-
     <!-- Welcome -->
     <string name="welcome_screen_title">welcome</string>
     <string name="welcome_footer_text">Want to chat with friends and family?</string>
@@ -136,13 +131,11 @@
     <string name="welcome_button_create_team">Create a Team</string>
     <string name="server_details_dialog_body">Backend name:\n%1$s\n\nBackend URL:\n%2$s</string>
     <string name="server_details_dialog_title">On-premises Backend</string>
-
     <!-- API Versioning Dialogs -->
     <string name="api_versioning_client_update_required_title">Update required</string>
     <string name="api_versioning_client_update_required_message">You are missing out on new features. Update to the latest version of Wire to continue using the app with this account.</string>
     <string name="api_versioning_server_version_not_supported_title">Server version not supported</string>
     <string name="api_versioning_server_version_not_supported_message">Your Wire server needs to be updated. Please notify your system administrator.</string>
-
     <!-- Login -->
     <string name="login_title">Login</string>
     <string name="login_forgot_password">Forgot password?</string>
@@ -182,7 +175,6 @@
     <string name="session_expired_error_message">The application did not communicate with the server
         for a long period of time, or your session has been remotely invalidated.
     </string>
-
     <!-- Remove Device -->
     <string name="remove_device_title">Remove a Device</string>
     <string name="remove_device_message">Remove one of your other devices to start using Wire on
@@ -193,21 +185,17 @@
     <string name="remove_device_id_label">ID: %1$s</string>
     <string name="remove_device_dialog_title">Remove the following device?</string>
     <string name="remove_device_invalid_password">Invalid password</string>
-
     <!-- Register Device -->
     <string name="register_device_title">Add this Device</string>
     <string name="register_device_text">Enter your password to use Wire on this device.</string>
-
     <!-- Delete Message -->
     <string name="delete_message_dialog_title">Delete Message?</string>
     <string name="delete_message_dialog_message">If you delete the message for yourself, it will only be visible to other participants.\n\nIf you delete it for everyone, the message will be removed for all participants.\n\nA deleted message can not be restored.</string>
     <string name="label_delete_for_me">Delete for Me</string>
     <string name="label_delete_for_everyone">Delete for Everyone</string>
-
     <string name="delete_message_for_yourself_dialog_title">Delete this Message for yourself?</string>
     <string name="delete_message_for_yourself_dialog_message">If you delete the message for yourself, it will only be visible to other participants.\n\nA deleted message can not be restored.</string>
     <string name="deleted_message_text">Deleted message</string>
-
     <!-- Create Account -->
     <string name="create_personal_account_title">Create a Personal Account</string>
     <string name="create_personal_account_summary_title">Personal Account Created</string>
@@ -256,7 +244,6 @@
     <string name="create_account_username_text">Enter your username. It helps others to find you in Wire and connect with you.</string>
     <string name="create_account_username_taken_error">This username is already taken. Please choose another one.</string>
     <string name="create_account_username_description">At least 2 characters, a-z, 0-9 and _</string>
-
     <!-- Conversations -->
     <string name="calls_label_missed_calls">MISSED CALLS</string>
     <string name="calls_label_calls_history">CALLS HISTORY</string>
@@ -298,7 +285,6 @@
     <string name="member_name_you_label_lowercase">you</string>
     <string name="label_add_participants">Add Participants</string>
     <string name="username_unavailable_label">Username unavailable</string>
-
     <string name="conversation_details_title">Conversation Details</string>
     <string name="conversation_details_options_tab">OPTIONS</string>
     <string name="conversation_details_participants_tab">PARTICIPANTS</string>
@@ -311,7 +297,6 @@
     <string name="conversation_details_group_participants_add">Add participants</string>
     <string name="conversation_details_is_classified">SECURITY LEVEL: VS-NfD</string>
     <string name="conversation_details_is_not_classified">SECURITY LEVEL: UNCLASSIFIED</string>
-
     <string name="conversation_options_guests_label">Guests</string>
     <string name="conversation_options_guest_description">Turn this option ON to open this conversation to people outside your team, even if they don\'t have Wire.</string>
     <string name="conversation_options_guest_not_editable_description">You cannot disable the guest option in this conversation, since it has been created by someone from another team.</string>
@@ -321,15 +306,12 @@
     <string name="disable_guest_dialog_text">Current guests will be removed from the conversation. New guests will not be allowed.</string>
     <string name="disable_services_dialog_title">Disable services access?</string>
     <string name="disable_services_dialog_text">Current services will be removed from the conversation. New services will not be allowed.</string>
-
     <string name="leave_group_conversation_menu_item">Leave Group...</string>
     <string name="leave_group_conversation_dialog_title">Leave “%s”?</string>
     <string name="leave_group_conversation_dialog_description">You will then no longer be able to send or read messages in this group on any device.</string>
-
     <string name="delete_group_conversation_menu_item">Delete Group...</string>
     <string name="delete_group_conversation_dialog_title">Remove “%s”?</string>
     <string name="delete_group_conversation_dialog_description">The group will be removed from your conversations list on all devices. You will no longer be able to access the group and its content.</string>
-
     <!-- Attachment options -->
     <string name="attachment_share_file">Attach File</string>
     <string name="attachment_share_image">Attach Image</string>
@@ -337,7 +319,6 @@
     <string name="attachment_record_video">Record Video</string>
     <string name="attachment_voice_message">Voice Message</string>
     <string name="attachment_share_location">Share Location</string>
-
     <!-- User Profile -->
     <string name="user_profile_title">User Profile</string>
     <string name="user_profile_close_description">Close User profile</string>
@@ -357,15 +338,12 @@
     <string name="user_profile_role_change_error">There was an error trying to change the role. Please check your Internet connection and try again</string>
     <string name="user_profile_unblock_user">Unblock User</string>
     <string name="user_profile_group_remove_button">Remove from group</string>
-
     <!-- Remove Conversation Member Dialog -->
     <string name="dialog_remove_conversation_member_title">Remove from group?</string>
     <string name="dialog_remove_conversation_member_description">%s (@%s) will not be able to send or receive messages in this conversation.</string>
     <string name="dialog_remove_conversation_member_error">There was an error while removing member from conversation</string>
-
     <string name="group_role_admin">Admin</string>
     <string name="group_role_member">Member</string>
-
     <!-- User Profile status dialog-->
     <string name="user_profile_change_status_dialog_available_title">Set yourself to Available</string>
     <string name="user_profile_change_status_dialog_available_text">You will appear as Available to other people. You will receive notifications for incoming calls and for messages according to the Notifications setting in each conversation.</string>
@@ -376,17 +354,15 @@
     <string name="user_profile_change_status_dialog_none_title">No Status Set</string>
     <string name="user_profile_change_status_dialog_none_text">You will receive notifications for incoming calls and for messages according to the Notifications setting in each conversation.</string>
     <string name="user_profile_change_status_dialog_checkbox_text">Do not display this information again</string>
-
     <!-- Conversations BottomSheet -->
     <string name="label_notifications">Notifications</string>
-    <string name="label_add_to_favourites">Add to Favourites</string>
+    <string name="label_add_to_favourites">Add to Favorites</string>
     <string name="label_move_to_folder">Move to Folder</string>
     <string name="label_move_to_archive">Move to Archive</string>
     <string name="label_clear_content">Clear Content...</string>
     <string name="label_block">Block</string>
     <string name="label_leave_group">Leave Group</string>
     <string name="label_delete_group">Delete Group</string>
-
     <!-- Muting options BottomSheet -->
     <string name="muting_option_all_allowed_title">Everything</string>
     <string name="muting_option_all_allowed_text">Receive notifications for this conversation about everything (including audio and video calls)</string>
@@ -394,20 +370,17 @@
     <string name="muting_option_only_mentions_text">Only receive notifications for this conversation when someone mentions you or replies to you</string>
     <string name="muting_option_all_muted_title">Nothing</string>
     <string name="muting_option_all_muted_text">Receive no notifications for this conversation at all</string>
-
     <!--Profile image-->
     <string name="profile_image_top_bar_label">Profile image</string>
     <string name="profile_image_modal_sheet_header_title">Change Image</string>
     <string name="profile_image_choose_from_gallery_menu_item">Choose from gallery</string>
     <string name="profile_image_take_a_picture_menu_item">Take a picture</string>
     <string name="profile_image_change_image_button_label">Change Image...</string>
-
     <!--Conversation-->
     <string name="label_copy">Copy</string>
     <string name="label_edit">Edit</string>
     <string name="label_delete">Delete</string>
     <string name="info_message_copied">Message copied</string>
-
     <!-- System messages -->
     <string name="label_system_message_added">%1$s added %2$s to the conversation</string>
     <string name="label_system_message_removed">%1$s removed %2$s from the conversation</string>
@@ -419,7 +392,6 @@
         <item quantity="other">%1$d more</item>
     </plurals>
     <string name="label_system_message_blocked_user">%1$s blocked this user</string>
-
     <!--Search Contact-->
     <string name="label_contacts">CONTACTS</string>
     <string name="label_new_group">New Group</string>
@@ -430,7 +402,6 @@
     <string name="label_learn_more_searching_user">Learn more</string>
     <string name="label_no_results_found">No results could be found. Please try again.</string>
     <string name="label_general_error">We are sorry, something went wrong</string>
-
     <!-- Snackbar messages -->
     <string name="error_unknown_title">Something went wrong</string>
     <string name="error_unknown_message">Please try again in a moment</string>
@@ -457,14 +428,12 @@
     <string name="left_conversation_group_success">You left the conversation.</string>
     <string name="error_unblocking_user">User could not be unblocked</string>
     <string name="delete_group_conversation_error">There was an error while deleting conversation</string>
-
     <!-- Animation label -->
     <string name="animation_label_messagecomposeinput_state_transistion" translatable="false">MessageComposeInputState transition</string>
     <string name="animation_label_button_rotation_degree_transistion" translatable="false">Collapse button rotation degree transition</string>
     <string name="label_open_conversation">Open Conversation</string>
     <string name="email_label">e-mail</string>
     <string name="phone_label">phone</string>
-
     <!-- Notifications -->
     <string name="notification_shared_picture">Shared a picture</string>
     <string name="notification_shared_file">Shared a file</string>
@@ -485,7 +454,6 @@
     <string name="notification_group_call_content">%s calling...</string>
     <string name="notification_call_default_caller_name">Someone</string>
     <string name="notification_call_default_group_name">Default Group Name</string>
-
     <!-- Calling-->
     <string name="calling_button_label_microphone">Microphone</string>
     <string name="calling_button_label_camera">Camera</string>
@@ -508,23 +476,19 @@
     <string name="calling_ongoing_call_start_anyway">Call Anyways</string>
     <string name="calling_ongoing_call_join_message_alert">A call is active in another conversation.\nJoining this call will hang up the other one.</string>
     <string name="calling_ongoing_call_join_anyway">Join Anyways</string>
-
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">Return to call</string>
     <string name="connectivity_status_bar_connecting">Connecting</string>
     <string name="connectivity_status_bar_waiting_for_network">Waiting for network</string>
-
     <!-- Connections -->
     <string name="connection_label_connect">Connect</string>
     <string name="connection_label_cancel_request">Cancel Request</string>
     <string name="connection_label_member_not_belongs_to_team">This user does not belong to your team. If they accept your connection request, they are available as a contact</string>
     <string name="connection_label_member_not_conneted">When your connection request is accepted, you can communicate directly with this contact.</string>
-
     <string name="connection_request_sent">Connection request sent</string>
     <string name="connection_request_canceled">Connection request canceled</string>
     <string name="connection_request_ignored">You ignored %1$s\'s request</string>
     <string name="connection_request_accepted">Connection request accepted</string>
-
     <string name="connection_request_sent_error">Connection request could not be sent</string>
     <string name="connection_request_accept_error">Connection request could not be accepted</string>
     <string name="connection_request_ignore_error">Connection request could not be ignored</string>
@@ -535,15 +499,12 @@
     <string name="connection_label_accepting_request_description">If you accept their request, they will be added as a contact and you two can communicate directly.</string>
     <string name="connection_label_accept">Accept</string>
     <string name="connection_label_ignore">Ignore</string>
-
-
     <!-- Gallery -->
     <string name="media_gallery_default_title_name">Media Gallery</string>
     <string name="media_gallery_on_image_downloaded">Saved to Downloads folder</string>
     <string name="media_gallery_on_image_download_error">There was an error when saving the image to
         Downloads folder. Please check your Internet connection and try again
     </string>
-
     <!--sso dialog-->
     <string name="sso_erro_dialog_title">Unable to log in with SSO</string>
     <string name="sso_erro_dialog_message">Please try again. If this does not help, contact your
@@ -552,7 +513,6 @@
     <string name="asset_download_dialog_default_title">Download file</string>
     <string name="empty_group_label">Unnamed conversation</string>
     <string name="label_show_more">Show More</string>
-
     <!--prohibited asset messages -->
     <string name="prohibited_images_message">Receiving Images is Prohibited</string>
     <string name="prohibited_videos_message">Receiving Videos is Prohibited</string>
@@ -561,7 +521,6 @@
     <string name="team_settings_changed">Team Settings Changed</string>
     <string name="sharing_files_enabled">Sharing and receiving files of any type is now enabled</string>
     <string name="sharing_files_disabled">Sharing and receiving files of any type is now disabled</string>
-
     <!--wire dropdown-->
     <string name="wire_dropdown_default_indicator">" (default)"</string>
     <string name="wire_dropdown_placeholder">Select an Item</string>
@@ -575,14 +534,11 @@
     <string name="disable_guests_dialoug_title">Not Allow Guests?</string>
     <string name="disable_guests_dialoug_description">Any guest user selected in the previous step will not be added to the group if you do not allow guest access.</string>
     <string name="disable_guests_dialoug_button">Not Allow Guests</string>
-
     <!--block user dialog -->
     <string name="block_user_dialog_title">Block user?</string>
     <string name="block_user_dialog_body">%1$s won’t be able to contact you or add you to group conversations. You will lose access to any 1:1 conversations with them. The other user will not be notified about this.</string>
     <string name="block_user_dialog_confirm_button">Block</string>
     <string name="other_user_devices_decription"><![CDATA[\Wire gives every device a unique fingerprint. Compare them with %1$s and verify your conversation. \]]></string>
-
-
     <!--Settings -->
     <string name="url_why_verify_conversation">/hc/en-us/articles/207859815-Why-should-I-verify-my-conversations</string>
     <string name="settings_general_label">General</string>
@@ -597,19 +553,15 @@
     <string name="settings_about_this_app_label">About this App</string>
     <string name="settings_keep_connection_to_websocket">Keep Connection to Websocket</string>
     <string name="settings_service_is_running">service is running</string>
-
     <!--unblock user dialog -->
     <string name="unblock_user_dialog_title">Unblock user?</string>
     <string name="unblock_user_dialog_body">%1$s will be able to contact you or add you to group conversations. You will be able to access a 1:1 conversation with them.</string>
     <string name="unblock_user_dialog_confirm_button">Unblock</string>
-
     <!--max account reached dialog-->
     <string name="max_account_reached_dialog_title">Three accounts active</string>
     <string name="max_account_reached_dialog_message">You can only be logged in with three accounts at once. Log out from one to add another.</string>
     <string name="max_account_reached_dialog_button_open_profile">Open Profile</string>
     <string name="cant_switch_account_in_call">Can not switch accounts while in call</string>
-
-
     <string name="custom_backend_dialog_title">Redirect to an on-premises backend?</string>
     <string name="custom_backend_dialog_body">If you proceed, your client will be redirected to the following on-premises backend:\n\nBackend name:\n%1$s\n\nBackend URL:\n%2$s</string>
 </resources>

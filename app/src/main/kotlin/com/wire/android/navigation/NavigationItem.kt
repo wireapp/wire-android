@@ -55,9 +55,9 @@ import com.wire.android.ui.home.conversations.search.AddPeopleToConversationRout
 import com.wire.android.ui.home.conversations.search.SearchPeoplePurpose
 import com.wire.android.ui.home.gallery.MediaGalleryScreen
 import com.wire.android.ui.home.newconversation.NewConversationRouter
-import com.wire.android.ui.home.settings.backup.BackupAndRestoreScreen
 import com.wire.android.ui.home.settings.appsettings.AppSettingsScreen
 import com.wire.android.ui.home.settings.appsettings.networkSettings.NetworkSettingsScreen
+import com.wire.android.ui.home.settings.backup.BackupAndRestoreScreen
 import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerScreen
 import com.wire.android.ui.userprofile.other.OtherUserProfileScreen
 import com.wire.android.ui.userprofile.self.SelfUserProfileScreen
@@ -225,7 +225,15 @@ enum class NavigationItem(
                         "{$EXTRA_CONVERSATION_ID}"
             }
         ),
-        content = { ConversationScreen(hiltSavedStateViewModel(it.navBackStackEntry), hiltViewModel()) },
+        content = {
+            ConversationScreen(
+                messageComposerViewModel = hiltSavedStateViewModel(it.navBackStackEntry),
+                conversationCallViewModel = hiltSavedStateViewModel(it.navBackStackEntry),
+                conversationInfoViewModel = hiltSavedStateViewModel(it.navBackStackEntry),
+                conversationMessagesViewModel = hiltSavedStateViewModel(it.navBackStackEntry),
+                commonTopAppBarViewModel = hiltViewModel()
+            )
+        },
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
             val conversationIdString: String = arguments.filterIsInstance<ConversationId>().firstOrNull()?.toString()

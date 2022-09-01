@@ -167,7 +167,7 @@ internal class ConversationsViewModelArrangement {
     private val messagesChannel = Channel<List<UIMessage>>(capacity = Channel.UNLIMITED)
 
     private val viewModel by lazy {
-        ConversationViewModel(
+        MessageComposerViewModel(
             savedStateHandle = savedStateHandle,
             navigationManager = navigationManager,
             qualifiedIdMapper = qualifiedIdMapper,

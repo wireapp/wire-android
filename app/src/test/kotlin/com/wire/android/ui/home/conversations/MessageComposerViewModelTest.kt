@@ -3,8 +3,8 @@ package com.wire.android.ui.home.conversations
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
-import com.wire.android.ui.home.conversations.ConversationViewModel.Companion.ASSET_SIZE_DEFAULT_LIMIT_BYTES
-import com.wire.android.ui.home.conversations.ConversationViewModel.Companion.IMAGE_SIZE_LIMIT_BYTES
+import com.wire.android.ui.home.conversations.MessageComposerViewModel.Companion.ASSET_SIZE_DEFAULT_LIMIT_BYTES
+import com.wire.android.ui.home.conversations.MessageComposerViewModel.Companion.IMAGE_SIZE_LIMIT_BYTES
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogActiveState
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsState
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
@@ -31,7 +31,7 @@ import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
-class ConversationsViewModelTest {
+class MessageComposerViewModelTest {
 
     @Test
     fun `validate deleteMessageDialogsState states when deleteMessageDialog is visible for my message`() = runTest {
@@ -110,7 +110,7 @@ class ConversationsViewModelTest {
         viewModel.deleteMessageHelper.onDeleteMessage("messageId", true)
 
         // Then
-        assert(viewModel.conversationViewState.onSnackbarMessage is ConversationSnackbarMessages.ErrorDeletingMessage)
+        assert(viewModel.conversationViewState.snackbarMessage is ConversationSnackbarMessages.ErrorDeletingMessage)
     }
 
     @Test
@@ -376,7 +376,7 @@ class ConversationsViewModelTest {
 
         // Then
         coVerify(inverse = true) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any()) }
-        assert(viewModel.conversationViewState.onSnackbarMessage is ConversationSnackbarMessages.ErrorMaxImageSize)
+        assert(viewModel.conversationViewState.snackbarMessage is ConversationSnackbarMessages.ErrorMaxImageSize)
     }
 
     @Test
@@ -400,7 +400,7 @@ class ConversationsViewModelTest {
 
             // Then
             coVerify(inverse = true) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any()) }
-            assert(viewModel.conversationViewState.onSnackbarMessage is ConversationSnackbarMessages.ErrorMaxAssetSize)
+            assert(viewModel.conversationViewState.snackbarMessage is ConversationSnackbarMessages.ErrorMaxAssetSize)
         }
 
     @Test
@@ -421,7 +421,7 @@ class ConversationsViewModelTest {
 
         // Then
         coVerify(exactly = 1) { arrangement.sendAssetMessage.invoke(any(), any(), any(), any(), any(), any(), any()) }
-        assertFalse(viewModel.conversationViewState.onSnackbarMessage != null)
+        assertFalse(viewModel.conversationViewState.snackbarMessage != null)
     }
 
     @Test

@@ -21,6 +21,7 @@ class UICallParticipantMapperTest {
             false,
             false,
             false,
+            false,
             UserAssetId("assetvalue", "assetdomain")
         )
         // When

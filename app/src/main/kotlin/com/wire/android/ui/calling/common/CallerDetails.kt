@@ -21,6 +21,7 @@ import com.wire.android.R
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.calling.ConversationName
+import com.wire.android.ui.common.SecurityClassificationBanner
 import com.wire.android.ui.common.MembershipQualifierLabel
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.dimensions
@@ -30,6 +31,7 @@ import com.wire.android.ui.home.conversationslist.model.hasLabel
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.call.ConversationType
+import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 
 @Composable
 fun CallerDetails(
@@ -38,7 +40,8 @@ fun CallerDetails(
     avatarAssetId: ImageAsset.UserAvatarAsset?,
     conversationType: ConversationType,
     membership: Membership,
-    callingLabel: String
+    callingLabel: String,
+    securityClassificationType: SecurityClassificationType
 ) {
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -78,6 +81,11 @@ fun CallerDetails(
             VerticalSpace.x16()
             MembershipQualifierLabel(membership)
         }
+        if (securityClassificationType != SecurityClassificationType.NONE) {
+            VerticalSpace.x8()
+            SecurityClassificationBanner(securityClassificationType = securityClassificationType)
+        }
+
         if (!isCameraOn && conversationType == ConversationType.OneOnOne) {
             UserProfileAvatar(
                 avatarData = UserAvatarData(avatarAssetId),
@@ -88,7 +96,7 @@ fun CallerDetails(
     }
 }
 
-@Preview
+@Preview(showBackground = true)
 @Composable
 fun CallerDetailsPreview() {
     CallerDetails(
@@ -97,6 +105,7 @@ fun CallerDetailsPreview() {
         avatarAssetId = null,
         conversationType = ConversationType.OneOnOne,
         membership = Membership.Guest,
-        callingLabel = String.EMPTY
+        callingLabel = String.EMPTY,
+        securityClassificationType = SecurityClassificationType.CLASSIFIED
     )
 }

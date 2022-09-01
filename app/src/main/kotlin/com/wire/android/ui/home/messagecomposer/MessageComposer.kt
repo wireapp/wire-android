@@ -39,14 +39,15 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.wire.android.R
+import com.wire.android.ui.common.SecurityClassificationBanner
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.messagecomposer.attachment.AttachmentOptions
+import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 import okio.Path
-
-private val DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET = 250.dp
 
 @Composable
 fun MessageComposer(
@@ -61,7 +62,8 @@ fun MessageComposer(
     isFileSharingEnabled: Boolean,
     isUserBlocked: Boolean,
     isConversationMember: Boolean,
-    tempCachePath: Path
+    tempCachePath: Path,
+    securityClassificationType: SecurityClassificationType
 ) {
     BoxWithConstraints {
         val messageComposerState = rememberMessageComposerInnerState(
@@ -95,7 +97,8 @@ fun MessageComposer(
             isFileSharingEnabled = isFileSharingEnabled,
             isUserBlocked = isUserBlocked,
             isConversationMember = isConversationMember,
-            tempCachePath = tempCachePath
+            tempCachePath = tempCachePath,
+            securityClassificationType = securityClassificationType
         )
     }
 }
@@ -120,7 +123,8 @@ private fun MessageComposer(
     isFileSharingEnabled: Boolean,
     isUserBlocked: Boolean,
     isConversationMember: Boolean,
-    tempCachePath: Path
+    tempCachePath: Path,
+    securityClassificationType: SecurityClassificationType
 ) {
     val focusManager = LocalFocusManager.current
 
@@ -133,7 +137,6 @@ private fun MessageComposer(
         BackHandler(enabled = messageComposerState.attachmentOptionsDisplayed) {
             messageComposerState.toggleAttachmentOptionsVisibility()
         }
-
 
         // ConstraintLayout wrapping the whole content to give us the possibility to constrain SendButton to top of AdditionalOptions, which
         // constrains to bottom of MessageComposerInput
@@ -205,6 +208,13 @@ private fun MessageComposer(
                                 .fillMaxWidth()
                                 .animateContentSize()
                         ) {
+                            val isClassifiedConversation = securityClassificationType != SecurityClassificationType.NONE
+                            if (isClassifiedConversation) {
+                                Box(Modifier.wrapContentSize()) {
+                                    VerticalSpace.x8()
+                                    SecurityClassificationBanner(securityClassificationType = securityClassificationType)
+                                }
+                            }
                             Divider()
                             CollapseIconButtonBox(transition, messageComposerState)
                             // Row wrapping the AdditionalOptionButton() when we are in Enabled state and MessageComposerInput()
@@ -311,4 +321,8 @@ private fun CollapseIconButton(onCollapseClick: () -> Unit, modifier: Modifier =
 sealed class KeyboardHeight(open val height: Dp) {
     object NotKnown : KeyboardHeight(DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET)
     data class Known(override val height: Dp) : KeyboardHeight(height)
+
+    companion object {
+        val DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET = 250.dp
+    }
 }

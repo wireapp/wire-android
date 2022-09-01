@@ -31,6 +31,7 @@ import com.wire.kalium.logic.feature.conversation.AddMemberToConversationUseCase
 import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetAllContactsNotInConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
+import com.wire.kalium.logic.feature.conversation.GetSecurityClassificationTypeUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveUserListByIdUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
@@ -51,8 +52,8 @@ import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
-import com.wire.kalium.logic.feature.user.ObserveValidAccountsUseCase
 import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
+import com.wire.kalium.logic.feature.user.ObserveValidAccountsUseCase
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import dagger.Module
@@ -753,4 +754,11 @@ class UseCaseModule {
     ): ObserveCurrentClientIdUseCase =
         coreLogic.getSessionScope(currentAccount).client.observeCurrentClientId
 
+    @ViewModelScoped
+    @Provides
+    fun provideGetConversationClassifiedTypeUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): GetSecurityClassificationTypeUseCase =
+        coreLogic.getSessionScope(currentAccount).getSecurityClassificationType
 }

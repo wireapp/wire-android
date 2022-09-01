@@ -1,4 +1,4 @@
-package com.wire.android.ui.home.conversations
+package com.wire.android.ui.home.conversations.delete
 
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.id.QualifiedID as ConversationId

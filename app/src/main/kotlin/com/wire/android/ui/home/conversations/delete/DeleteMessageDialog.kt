@@ -8,38 +8,33 @@ import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
-import com.wire.android.ui.home.conversations.ConversationViewModel
-import com.wire.android.ui.home.conversations.DeleteMessageDialogActiveState
-import com.wire.android.ui.home.conversations.DeleteMessageDialogsState
-import com.wire.android.ui.home.conversations.DeleteMessageError
 import com.wire.android.util.dialogErrorStrings
 
 @Composable
-internal fun DeleteMessageDialog(conversationViewModel: ConversationViewModel) {
-    val deleteMessageDialogsState = conversationViewModel.deleteMessageDialogsState
+internal fun DeleteMessageDialog(state: DeleteMessageDialogsState, actions: DeleteMessageDialogHelper) {
 
-    if (deleteMessageDialogsState is DeleteMessageDialogsState.States) {
+    if (state is DeleteMessageDialogsState.States) {
         when {
-            deleteMessageDialogsState.forEveryone is DeleteMessageDialogActiveState.Visible -> {
+            state.forEveryone is DeleteMessageDialogActiveState.Visible -> {
                 DeleteMessageDialog(
-                    state = deleteMessageDialogsState.forEveryone,
-                    onDialogDismiss = conversationViewModel::onDeleteDialogDismissed,
-                    onDeleteForMe = conversationViewModel::showDeleteMessageForYourselfDialog,
-                    onDeleteForEveryone = conversationViewModel::deleteMessage,
+                    state = state.forEveryone,
+                    onDialogDismiss = actions::onDeleteDialogDismissed,
+                    onDeleteForMe = actions::showDeleteMessageForYourselfDialog,
+                    onDeleteForEveryone = actions::onDeleteMessage,
                 )
-                if (deleteMessageDialogsState.forEveryone.error is DeleteMessageError.GenericError) {
-                    DeleteMessageErrorDialog(deleteMessageDialogsState.forEveryone.error, conversationViewModel::clearDeleteMessageError)
+                if (state.forEveryone.error is DeleteMessageError.GenericError) {
+                    DeleteMessageErrorDialog(state.forEveryone.error, actions::clearDeleteMessageError)
                 }
             }
-            deleteMessageDialogsState.forYourself is DeleteMessageDialogActiveState.Visible -> {
+            state.forYourself is DeleteMessageDialogActiveState.Visible -> {
 
-                if (deleteMessageDialogsState.forYourself.error is DeleteMessageError.GenericError) {
-                    DeleteMessageErrorDialog(deleteMessageDialogsState.forYourself.error, conversationViewModel::clearDeleteMessageError)
+                if (state.forYourself.error is DeleteMessageError.GenericError) {
+                    DeleteMessageErrorDialog(state.forYourself.error, actions::clearDeleteMessageError)
                 } else {
                     DeleteMessageForYourselfDialog(
-                        state = deleteMessageDialogsState.forYourself,
-                        onDialogDismiss = conversationViewModel::onDeleteDialogDismissed,
-                        onDeleteForMe = conversationViewModel::deleteMessage
+                        state = state.forYourself,
+                        onDialogDismiss = actions::onDeleteDialogDismissed,
+                        onDeleteForMe = actions::onDeleteMessage
                     )
                 }
             }

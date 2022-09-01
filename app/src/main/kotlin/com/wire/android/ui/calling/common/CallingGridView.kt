@@ -75,6 +75,7 @@ fun GroupCallGrid(
                 isMuted = isMuted,
                 isSpeaking = participant.isSpeaking,
                 isCameraOn = isCameraOn,
+                isSharingScreen = participant.isSharingScreen,
                 avatar = participant.avatar,
                 membership = participant.membership
             )
@@ -124,6 +125,7 @@ fun GroupCallGridPreview() {
                 isMuted = false,
                 isSpeaking = false,
                 isCameraOn = false,
+                isSharingScreen = false,
                 avatar = null,
                 membership = Membership.Admin,
             ),
@@ -134,6 +136,7 @@ fun GroupCallGridPreview() {
                 isMuted = false,
                 isSpeaking = false,
                 isCameraOn = false,
+                isSharingScreen = false,
                 avatar = null,
                 membership = Membership.Admin,
             )

@@ -28,6 +28,9 @@ import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.Error
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnFileDownloaded
 import com.wire.android.ui.home.conversations.DownloadedAssetDialogVisibilityState.Displayed
 import com.wire.android.ui.home.conversations.DownloadedAssetDialogVisibilityState.Hidden
+import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogActiveState
+import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogHelper
+import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsState
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.ui.home.conversations.model.MessageContent.AssetMessage
@@ -60,10 +63,12 @@ import com.wire.kalium.logic.feature.call.AnswerCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
+import com.wire.kalium.logic.feature.conversation.GetSecurityClassificationTypeUseCase
 import com.wire.kalium.logic.feature.conversation.IsSelfUserMemberResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase.Result.Success
 import com.wire.kalium.logic.feature.conversation.ObserveIsSelfUserMemberUseCase
+import com.wire.kalium.logic.feature.conversation.SecurityClassificationTypeResult
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
@@ -81,7 +86,6 @@ import kotlinx.datetime.Instant
 import okio.Path
 import okio.buffer
 import javax.inject.Inject
-import kotlin.time.Duration.Companion.seconds
 import com.wire.kalium.logic.data.id.QualifiedID as ConversationId
 
 @Suppress("LongParameterList", "TooManyFunctions")
@@ -109,7 +113,8 @@ class ConversationViewModel @Inject constructor(
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val kaliumFileSystem: KaliumFileSystem,
     private val updateConversationReadDateUseCase: UpdateConversationReadDateUseCase,
-    private val observeSyncState: ObserveSyncStateUseCase
+    private val observeSyncState: ObserveSyncStateUseCase,
+    private val getConversationClassifiedType: GetSecurityClassificationTypeUseCase
 ) : SavedStateViewModel(savedStateHandle) {
 
     var conversationViewState by mutableStateOf(ConversationViewState())
@@ -131,10 +136,20 @@ class ConversationViewModel @Inject constructor(
 
     var establishedCallConversationId: ConversationId? = null
 
+    val deleteMessageHelper = DeleteMessageDialogHelper(
+        viewModelScope,
+        conversationId,
+        ::updateDeleteDialogState
+    ) { messageId, deleteForEveryone ->
+        deleteMessage(conversationId = conversationId, messageId = messageId, deleteForEveryone = deleteForEveryone)
+            .onFailure { onSnackbarMessage(ErrorDeletingMessage) }
+    }
+
     init {
         observeConversationDetailsAndMessages()
         observeIfSelfIsConversationMember()
         fetchSelfUserTeam()
+        fetchConversationClassificationType()
         setFileSharingStatus()
         listenOngoingCall()
         observeEstablishedCall()
@@ -256,6 +271,17 @@ class ConversationViewModel @Inject constructor(
     private fun fetchSelfUserTeam() = viewModelScope.launch {
         getSelfUserTeam().collect {
             conversationViewState = conversationViewState.copy(userTeam = it)
+        }
+    }
+
+    private fun fetchConversationClassificationType() = viewModelScope.launch {
+        when (val result = getConversationClassifiedType(conversationId)) {
+            is SecurityClassificationTypeResult.Success -> {
+                conversationViewState = conversationViewState.copy(securityClassificationType = result.classificationType)
+            }
+            is SecurityClassificationTypeResult.Failure -> {
+                appLogger.e("There was an error when fetching the security classification type of conversation $conversationId")
+            }
         }
     }
 
@@ -461,31 +487,6 @@ class ConversationViewModel @Inject constructor(
             }
         }
 
-    fun showDeleteMessageForYourselfDialog(messageId: String) {
-        updateDeleteDialogState { it.copy(forEveryone = DeleteMessageDialogActiveState.Hidden) }
-        updateDeleteDialogState {
-            it.copy(
-                forYourself = DeleteMessageDialogActiveState.Visible(
-                    messageId = messageId,
-                    conversationId = conversationId
-                )
-            )
-        }
-    }
-
-    fun onDeleteDialogDismissed() {
-        updateDeleteDialogState {
-            it.copy(
-                forEveryone = DeleteMessageDialogActiveState.Hidden,
-                forYourself = DeleteMessageDialogActiveState.Hidden
-            )
-        }
-    }
-
-    fun clearDeleteMessageError() {
-        updateStateIfDialogVisible { it.copy(error = DeleteMessageError.None) }
-    }
-
     fun joinOngoingCall() {
         viewModelScope.launch {
             answerCall(conversationId = conversationId)
@@ -500,55 +501,10 @@ class ConversationViewModel @Inject constructor(
     private fun updateDeleteDialogState(newValue: (DeleteMessageDialogsState.States) -> DeleteMessageDialogsState) =
         (deleteMessageDialogsState as? DeleteMessageDialogsState.States)?.let { deleteMessageDialogsState = newValue(it) }
 
-    private fun updateStateIfDialogVisible(newValue: (DeleteMessageDialogActiveState.Visible) -> DeleteMessageDialogActiveState) =
-        updateDeleteDialogState {
-            when {
-                it.forEveryone is DeleteMessageDialogActiveState.Visible -> it.copy(forEveryone = newValue(it.forEveryone))
-                it.forYourself is DeleteMessageDialogActiveState.Visible -> it.copy(
-                    forYourself = newValue(
-                        it.forYourself
-                    )
-                )
-                else -> it
-            }
-        }
-
     fun updateConversationReadDate(utcISO: String) {
         viewModelScope.launch(dispatchers.io()) {
             updateConversationReadDateUseCase(conversationId, Instant.parse(utcISO))
         }
-    }
-
-    fun deleteMessage(messageId: String, deleteForEveryone: Boolean) = viewModelScope.launch {
-        // update dialogs state to loading
-        if (deleteForEveryone) {
-            updateDeleteDialogState {
-                it.copy(
-                    forEveryone = DeleteMessageDialogActiveState.Visible(
-                        messageId = messageId,
-                        conversationId = conversationId,
-                        loading = true
-                    )
-                )
-            }
-        } else {
-            updateDeleteDialogState {
-                it.copy(
-                    forYourself = DeleteMessageDialogActiveState.Visible(
-                        messageId = messageId,
-                        conversationId = conversationId,
-                        loading = true
-                    )
-                )
-            }
-        }
-        deleteMessage(conversationId = conversationId, messageId = messageId, deleteForEveryone = deleteForEveryone)
-            .onFailure { onDeleteMessageError() }
-        onDeleteDialogDismissed()
-    }
-
-    private fun onDeleteMessageError() {
-        onSnackbarMessage(ErrorDeletingMessage)
     }
 
     private suspend fun assetDataPath(conversationId: ConversationId, messageId: String): Path? {
@@ -686,6 +642,5 @@ class ConversationViewModel @Inject constructor(
         const val IMAGE_SIZE_LIMIT_BYTES = 15 * 1024 * 1024 // 15 MB limit for images
         const val ASSET_SIZE_DEFAULT_LIMIT_BYTES = 25 * 1024 * 1024 // 25 MB asset default user limit size
         const val ASSET_SIZE_TEAM_USER_LIMIT_BYTES = 100 * 1024 * 1024 // 100 MB asset team user limit size
-        val SNACKBAR_MESSAGE_DELAY = 3.seconds
     }
 }

@@ -73,7 +73,7 @@ fun SystemMessageItem(message: SystemMessage) {
                         else dimensions().systemMessageIconLargeSize
                     Image(
                         painter = painterResource(id = message.iconResId),
-                        contentDescription = stringResource(R.string.content_description_system_message_icon),
+                        contentDescription = stringResource(R.string.),
                         modifier = Modifier.size(size),
                         contentScale = ContentScale.Crop
                     )

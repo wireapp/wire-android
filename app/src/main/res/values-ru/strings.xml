@@ -72,7 +72,6 @@
     <string name="content_description_right_arrow">Right arrow</string>
     <string name="content_description_left_arrow">Left arrow</string>
     <string name="content_description_mention_icon">Mention icon</string>
-    <string name="content_description_create_account_summary">Summary image</string>
     <string name="content_description_attachment_item">Attachment item</string>
     <string name="content_description_copy_the_message">Copy the message</string>
     <string name="content_description_delete_the_message">Delete the message</string>
@@ -82,7 +81,6 @@
     <string name="content_description_image_message">Image message</string>
     <string name="content_description_file_message">File message</string>
     <string name="content_description_ping_everyone">Ping everyone</string>
-    <string name="content_description_system_message_icon">System message icon</string>
     <string name="content_description_calling_hang_up_call">Hang up call</string>
     <string name="content_description_calling_accept_call">Accept call</string>
     <string name="content_description_calling_decline_call">Decline call</string>

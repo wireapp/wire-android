@@ -63,10 +63,12 @@ import com.wire.kalium.logic.feature.call.AnswerCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
+import com.wire.kalium.logic.feature.conversation.GetSecurityClassificationTypeUseCase
 import com.wire.kalium.logic.feature.conversation.IsSelfUserMemberResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase.Result.Success
 import com.wire.kalium.logic.feature.conversation.ObserveIsSelfUserMemberUseCase
+import com.wire.kalium.logic.feature.conversation.SecurityClassificationTypeResult
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
@@ -84,7 +86,6 @@ import kotlinx.datetime.Instant
 import okio.Path
 import okio.buffer
 import javax.inject.Inject
-import kotlin.time.Duration.Companion.seconds
 import com.wire.kalium.logic.data.id.QualifiedID as ConversationId
 
 @Suppress("LongParameterList", "TooManyFunctions")
@@ -112,7 +113,8 @@ class ConversationViewModel @Inject constructor(
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val kaliumFileSystem: KaliumFileSystem,
     private val updateConversationReadDateUseCase: UpdateConversationReadDateUseCase,
-    private val observeSyncState: ObserveSyncStateUseCase
+    private val observeSyncState: ObserveSyncStateUseCase,
+    private val getConversationClassifiedType: GetSecurityClassificationTypeUseCase
 ) : SavedStateViewModel(savedStateHandle) {
 
     var conversationViewState by mutableStateOf(ConversationViewState())
@@ -147,6 +149,7 @@ class ConversationViewModel @Inject constructor(
         observeConversationDetailsAndMessages()
         observeIfSelfIsConversationMember()
         fetchSelfUserTeam()
+        fetchConversationClassificationType()
         setFileSharingStatus()
         listenOngoingCall()
         observeEstablishedCall()
@@ -268,6 +271,17 @@ class ConversationViewModel @Inject constructor(
     private fun fetchSelfUserTeam() = viewModelScope.launch {
         getSelfUserTeam().collect {
             conversationViewState = conversationViewState.copy(userTeam = it)
+        }
+    }
+
+    private fun fetchConversationClassificationType() = viewModelScope.launch {
+        when (val result = getConversationClassifiedType(conversationId)) {
+            is SecurityClassificationTypeResult.Success -> {
+                conversationViewState = conversationViewState.copy(securityClassificationType = result.classificationType)
+            }
+            is SecurityClassificationTypeResult.Failure -> {
+                appLogger.e("There was an error when fetching the security classification type of conversation $conversationId")
+            }
         }
     }
 
@@ -628,6 +642,5 @@ class ConversationViewModel @Inject constructor(
         const val IMAGE_SIZE_LIMIT_BYTES = 15 * 1024 * 1024 // 15 MB limit for images
         const val ASSET_SIZE_DEFAULT_LIMIT_BYTES = 25 * 1024 * 1024 // 25 MB asset default user limit size
         const val ASSET_SIZE_TEAM_USER_LIMIT_BYTES = 100 * 1024 * 1024 // 100 MB asset team user limit size
-        val SNACKBAR_MESSAGE_DELAY = 3.seconds
     }
 }

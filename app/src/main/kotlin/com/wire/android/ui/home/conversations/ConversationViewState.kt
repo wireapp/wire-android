@@ -25,7 +25,7 @@ data class ConversationViewState(
     val hasOngoingCall: Boolean = false,
     val hasEstablishedCall: Boolean = false,
     val lastUnreadMessage : UIMessage? = null,
-    val securityClassificationType: SecurityClassificationType = SecurityClassificationType.CLASSIFIED
+    val securityClassificationType: SecurityClassificationType = SecurityClassificationType.NONE
 )
 
 sealed class ConversationAvatar {

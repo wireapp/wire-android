@@ -2,6 +2,7 @@ package com.wire.android.util.ui
 
 import android.content.Context
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.painter.Painter
 import coil.Coil
 import coil.ImageLoader
@@ -16,6 +17,7 @@ import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
  * As it uses Kalium's [GetAvatarAssetUseCase], a loader created for one session may be unable to load images from another session.
  * It wraps Coil, so it becomes easier to refactor in the future if we ever switch from Coil to something else.
  */
+@Stable
 class WireSessionImageLoader(private val coilImageLoader: ImageLoader) {
 
     /**

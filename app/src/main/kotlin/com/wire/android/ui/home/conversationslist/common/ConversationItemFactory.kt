@@ -15,7 +15,6 @@ import com.wire.android.ui.home.conversationslist.MentionLabel
 import com.wire.android.ui.home.conversationslist.MutedConversationBadge
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.ConversationLastEvent
-import com.wire.android.ui.home.conversationslist.model.EventType
 import com.wire.android.ui.home.conversationslist.model.toUserInfoLabel
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
@@ -25,7 +24,6 @@ import com.wire.kalium.logic.data.user.UserId
 @Composable
 fun ConversationItemFactory(
     conversation: ConversationItem,
-    eventType: EventType? = null,
     openConversation: (ConversationId) -> Unit,
     openMenu: (ConversationItem) -> Unit,
     openUserProfile: (UserId) -> Unit,
@@ -52,7 +50,6 @@ fun ConversationItemFactory(
     }
     GeneralConversationItem(
         conversation = conversation,
-        eventType = eventType,
         subTitle = {
             when (val lastEvent = conversation.lastEvent) {
                 is ConversationLastEvent.Call -> CallLabel(callInfo = lastEvent)
@@ -75,7 +72,6 @@ fun ConversationItemFactory(
 @Composable
 private fun GeneralConversationItem(
     conversation: ConversationItem,
-    eventType: EventType? = null,
     subTitle: @Composable () -> Unit = {},
     onConversationItemClick: Clickable,
     onMutedIconClick: () -> Unit,
@@ -93,7 +89,7 @@ private fun GeneralConversationItem(
                         )
                     },
                     subTitle = subTitle,
-                    eventType = eventType,
+                    eventType = conversation.badgeEventType,
                     clickable = onConversationItemClick,
                     trailingIcon = {
                         if (hasOnGoingCall)
@@ -111,7 +107,7 @@ private fun GeneralConversationItem(
                     leadingIcon = { ConversationUserAvatar(userAvatarData) },
                     title = { UserLabel(userInfoLabel = toUserInfoLabel()) },
                     subTitle = subTitle,
-                    eventType = parsePrivateConversationEventType(connectionState, eventType),
+                    eventType = conversation.badgeEventType,
                     clickable = onConversationItemClick,
                     trailingIcon = {
                         if (mutedStatus != MutedConversationStatus.AllAllowed) {
@@ -127,7 +123,7 @@ private fun GeneralConversationItem(
                     leadingIcon = { ConversationUserAvatar(userAvatarData) },
                     title = { UserLabel(userInfoLabel = toUserInfoLabel()) },
                     subTitle = subTitle,
-                    eventType = parseConnectionEventType(connectionState),
+                    eventType = conversation.badgeEventType,
                     clickable = onConversationItemClick
                 )
             }
@@ -135,9 +131,4 @@ private fun GeneralConversationItem(
     }
 }
 
-private fun parseConnectionEventType(connectionState: ConnectionState) =
-    if (connectionState == ConnectionState.SENT) EventType.SentConnectRequest else EventType.ReceivedConnectionRequest
 
-private fun parsePrivateConversationEventType(connectionState: ConnectionState, eventType: EventType?) =
-    if (connectionState == ConnectionState.BLOCKED) EventType.Blocked
-    else eventType

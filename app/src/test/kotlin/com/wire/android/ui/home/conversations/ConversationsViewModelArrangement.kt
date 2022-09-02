@@ -40,6 +40,7 @@ import com.wire.kalium.logic.feature.call.AnswerCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
+import com.wire.kalium.logic.feature.conversation.GetSecurityClassificationTypeUseCase
 import com.wire.kalium.logic.feature.conversation.IsSelfUserMemberResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveIsSelfUserMemberUseCase
@@ -154,6 +155,9 @@ internal class ConversationsViewModelArrangement {
     private lateinit var updateConversationReadDateUseCase: UpdateConversationReadDateUseCase
 
     @MockK
+    private lateinit var getSecurityClassificationType: GetSecurityClassificationTypeUseCase
+
+    @MockK
     private lateinit var observeSyncState: ObserveSyncStateUseCase
 
     private val fakeKaliumFileSystem = FakeKaliumFileSystem()
@@ -186,7 +190,8 @@ internal class ConversationsViewModelArrangement {
             endCall = endCall,
             updateConversationReadDateUseCase = updateConversationReadDateUseCase,
             observeIsSelfConversationMember = observeIsSelfUserMemberUseCase,
-            observeSyncState = observeSyncState
+            observeSyncState = observeSyncState,
+            getConversationClassifiedType = getSecurityClassificationType
         )
     }
 

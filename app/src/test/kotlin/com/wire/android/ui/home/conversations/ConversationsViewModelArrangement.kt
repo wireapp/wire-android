@@ -24,6 +24,7 @@ import com.wire.kalium.logic.data.conversation.LegalHoldStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
+import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.data.user.ConnectionState
@@ -65,7 +66,6 @@ import okio.Path
 import okio.buffer
 
 internal class ConversationsViewModelArrangement {
-
     val conversationId: ConversationId = ConversationId("some-dummy-value", "some.dummy.domain")
 
     init {
@@ -162,7 +162,7 @@ internal class ConversationsViewModelArrangement {
 
     private val fakeKaliumFileSystem = FakeKaliumFileSystem()
 
-    private val conversationDetailsChannel = Channel<ConversationDetails>(capacity = Channel.UNLIMITED)
+    val conversationDetailsChannel = Channel<ConversationDetails>(capacity = Channel.UNLIMITED)
 
     private val messagesChannel = Channel<List<UIMessage>>(capacity = Channel.UNLIMITED)
 
@@ -299,7 +299,8 @@ internal fun withMockConversationDetailsOneOnOne(
 
 internal fun mockConversationDetailsGroup(
     conversationName: String,
-    mockedConversationId: ConversationId = ConversationId("someId", "someDomain")
+    mockedConversationId: ConversationId = ConversationId("someId", "someDomain"),
+    lastUnreadMessage: Message? = null
 ) = ConversationDetails.Group(
     conversation = mockk<Conversation>().apply {
         every { name } returns conversationName
@@ -308,15 +309,15 @@ internal fun mockConversationDetailsGroup(
     legalHoldStatus = mockk(),
     hasOngoingCall = false,
     unreadMessagesCount = 0,
-    lastUnreadMessage = null
+    lastUnreadMessage = lastUnreadMessage
 )
 
-internal fun mockUITextMessage(userName: String = "mockUserName"): UIMessage {
+internal fun mockUITextMessage(messageId: String = "someId", userName: String = "mockUserName"): UIMessage {
     return mockk<UIMessage>().also {
         every { it.userAvatarData } returns UserAvatarData()
         every { it.messageSource } returns MessageSource.OtherUser
         every { it.messageHeader } returns mockk<MessageHeader>().also {
-            every { it.messageId } returns "someId"
+            every { it.messageId } returns messageId
             every { it.username } returns UIText.DynamicString(userName)
             every { it.isLegalHold } returns false
             every { it.messageTime } returns MessageTime("")
@@ -324,4 +325,5 @@ internal fun mockUITextMessage(userName: String = "mockUserName"): UIMessage {
         }
         every { it.messageContent } returns null
     }
+
 }

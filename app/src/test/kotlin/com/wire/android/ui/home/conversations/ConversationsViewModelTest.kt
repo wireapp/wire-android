@@ -14,6 +14,10 @@ import com.wire.android.util.EMPTY
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.PlainId
+import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.message.Message
+import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.util.fileExtension
@@ -532,5 +536,36 @@ class ConversationsViewModelTest {
                 NavigationCommand(NavigationItem.OtherUserProfile.getRouteWithArgs(listOf(userId, arrangement.conversationId)))
             )
         }
+    }
+
+    @Test
+    fun `a`() = runTest {
+        val groupDetails: ConversationDetails.Group = mockConversationDetailsGroup("Conversation Name Goes Here")
+        val uiMessage = mockUITextMessage("some name")
+
+        val (arrangement, viewModel) = ConversationsViewModelArrangement()
+            .withConversationDetailUpdate(groupDetails)
+            .withMessagesUpdate(listOf(uiMessage))
+            .arrange()
+
+        val sendMessage = Message.Regular(
+            id = "commonId",
+            content = MessageContent.Text("some Text"),
+            conversationId = QualifiedID("someValue", "someId"),
+            date = "someDate",
+            senderUserId = QualifiedID("someValue", "someId"),
+            status = Message.Status.SENT,
+            visibility = Message.Visibility.VISIBLE,
+            senderClientId = PlainId(value = "someValue"),
+            editStatus = Message.EditStatus.NotEdited
+        )
+
+        arrangement.conversationDetailsChannel.send(
+            groupDetails.copy(lastUnreadMessage = sendMessage)
+        )
+
+        arrangement.conversationDetailsChannel.send(
+            groupDetails.copy(lastUnreadMessage = null)
+        )
     }
 }

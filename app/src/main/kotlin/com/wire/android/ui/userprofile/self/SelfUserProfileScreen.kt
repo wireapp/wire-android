@@ -1,9 +1,6 @@
 package com.wire.android.ui.userprofile.self
 
-import android.content.Context
-import android.content.ContextWrapper
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
@@ -83,7 +80,7 @@ fun SelfUserProfileScreen(viewModelSelf: SelfUserProfileViewModel = hiltViewMode
         onNotShowRationaleAgainChange = viewModelSelf::dialogCheckBoxStateChanged,
         onMessageShown = viewModelSelf::clearErrorMessage,
         onMaxAccountReachedDialogDismissed = viewModelSelf::onMaxAccountReachedDialogDismissed,
-        onOtherAccountClick = viewModelSelf::onOtherAccountClick
+        onOtherAccountClick = viewModelSelf::switchAccount
     )
 }
 

@@ -13,13 +13,11 @@ import com.wire.android.R
 import com.wire.android.ui.home.conversationslist.common.ConversationItemFactory
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
-import com.wire.android.ui.home.conversationslist.model.NewActivity
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 
 @Composable
 fun AllConversationScreen(
-    newActivities: List<NewActivity>,
     conversations: Map<ConversationFolder, List<ConversationItem>>,
     onOpenConversation: (ConversationId) -> Unit,
     onEditConversation: (ConversationItem) -> Unit,
@@ -31,7 +29,6 @@ fun AllConversationScreen(
 
     AllConversationContent(
         lazyListState = lazyListState,
-        newActivities = newActivities,
         conversations = conversations,
         onOpenConversation = onOpenConversation,
         onEditConversation = onEditConversation,
@@ -44,7 +41,6 @@ fun AllConversationScreen(
 @Composable
 private fun AllConversationContent(
     lazyListState: LazyListState,
-    newActivities: List<NewActivity>,
     conversations: Map<ConversationFolder, List<ConversationItem>>,
     onOpenConversation: (ConversationId) -> Unit,
     onEditConversation: (ConversationItem) -> Unit,
@@ -57,23 +53,6 @@ private fun AllConversationContent(
         state = lazyListState,
         modifier = Modifier.fillMaxSize()
     ) {
-        folderWithElements(
-            header = context.getString(R.string.conversation_label_new_activity),
-            items = newActivities.associateBy { it.conversationItem.conversationId.toString() }
-        ) { newActivity ->
-            with(newActivity) {
-                ConversationItemFactory(
-                    conversation = conversationItem,
-                    eventType = eventType,
-                    openConversation = onOpenConversation,
-                    openMenu = onEditConversation,
-                    openUserProfile = onOpenUserProfile,
-                    openNotificationsOptions = onOpenConversationNotificationsSettings,
-                    joinCall = onJoinCall
-                )
-            }
-        }
-
         conversations.forEach { (conversationFolder, conversationList) ->
             folderWithElements(
                 header = when (conversationFolder) {
@@ -98,5 +77,5 @@ private fun AllConversationContent(
 @Preview
 @Composable
 fun ComposablePreview() {
-    AllConversationScreen(listOf(), mapOf(), {}, {}, {}, {}, {})
+    AllConversationScreen(mapOf(), {}, {}, {}, {}, {})
 }

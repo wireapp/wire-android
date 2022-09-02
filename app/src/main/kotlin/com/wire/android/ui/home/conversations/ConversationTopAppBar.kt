@@ -172,7 +172,9 @@ private fun callControlButton(
 fun ConversationScreenTopAppBarLongTitlePreview() {
     ConversationScreenTopAppBar(
         ConversationInfoViewState(
-            conversationName = UIText.DynamicString("This is some very very very very very very very very very very long conversation title"),
+            conversationName = UIText.DynamicString(
+                "This is some very very very very very very very very very very long conversation title"
+            ),
             conversationDetailsData = ConversationDetailsData.Group(QualifiedID("", "")),
             conversationAvatar = ConversationAvatar.OneOne(null, UserAvailabilityStatus.NONE)
         ),

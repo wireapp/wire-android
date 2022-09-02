@@ -75,21 +75,34 @@ class ConversationInfoViewModel @Inject constructor(
     }
 
     private fun handleConversationDetails(conversationDetails: ConversationDetails) {
-        val isUnavailableConversation = when (conversationDetails) {
+        val isConversationUnavailable = when (conversationDetails) {
             is ConversationDetails.OneOne -> conversationDetails.otherUser.isUnavailableUser
             else -> false
         }
 
-        val conversationName = when (conversationDetails) {
-            is ConversationDetails.OneOne -> conversationDetails.otherUser.name.orEmpty()
-            else -> conversationDetails.conversation.name.orEmpty()
-        }.let {
-            if (it.isNotEmpty()) it.toUIText()
-            else
-                if (it.isEmpty() && isUnavailableConversation) UIText.StringResource(R.string.username_unavailable_label)
-                else UIText.StringResource(R.string.member_name_deleted_label)
+        val conversationName = getConversationName(conversationDetails, isConversationUnavailable)
+        val conversationAvatar = getConversationAvatar(conversationDetails)
+        val conversationDetailsData = getConversationDetailsData(conversationDetails)
+        conversationInfoViewState = conversationInfoViewState.copy(
+            conversationName = conversationName,
+            conversationAvatar = conversationAvatar,
+            conversationDetailsData = conversationDetailsData,
+        )
+    }
+
+    private fun getConversationDetailsData(conversationDetails: ConversationDetails) =
+        when (conversationDetails) {
+            is ConversationDetails.Group -> ConversationDetailsData.Group(conversationDetails.conversation.id)
+            is ConversationDetails.OneOne -> ConversationDetailsData.OneOne(
+                conversationDetails.otherUser.id,
+                conversationDetails.otherUser.connectionStatus
+            )
+
+            else -> ConversationDetailsData.None
         }
-        val conversationAvatar = when (conversationDetails) {
+
+    private fun getConversationAvatar(conversationDetails: ConversationDetails) =
+        when (conversationDetails) {
             is ConversationDetails.OneOne ->
                 ConversationAvatar.OneOne(
                     conversationDetails.otherUser.previewPicture?.let {
@@ -101,41 +114,37 @@ class ConversationInfoViewModel @Inject constructor(
             is ConversationDetails.Group -> ConversationAvatar.Group(conversationDetails.conversation.id)
             else -> ConversationAvatar.None
         }
-        val conversationDetailsData = when (conversationDetails) {
-            is ConversationDetails.Group -> ConversationDetailsData.Group(conversationDetails.conversation.id)
-            is ConversationDetails.OneOne -> ConversationDetailsData.OneOne(
-                conversationDetails.otherUser.id,
-                conversationDetails.otherUser.connectionStatus
-            )
 
-            else -> ConversationDetailsData.None
-        }
-        conversationInfoViewState = conversationInfoViewState.copy(
-            conversationName = conversationName,
-            conversationAvatar = conversationAvatar,
-            conversationDetailsData = conversationDetailsData,
-        )
+    private fun getConversationName(
+        conversationDetails: ConversationDetails,
+        isConversationUnavailable: Boolean
+    ) = when (conversationDetails) {
+        is ConversationDetails.OneOne -> conversationDetails.otherUser.name.orEmpty()
+        else -> conversationDetails.conversation.name.orEmpty()
+    }.let {
+        if (it.isNotEmpty()) it.toUIText()
+        else
+            if (it.isEmpty() && isConversationUnavailable) UIText.StringResource(R.string.username_unavailable_label)
+            else UIText.StringResource(R.string.member_name_deleted_label)
     }
 
-    fun navigateToDetails() {
-        viewModelScope.launch {
-            when (val data = conversationInfoViewState.conversationDetailsData) {
-                is ConversationDetailsData.OneOne -> navigationManager.navigate(
-                    command = NavigationCommand(
-                        destination = NavigationItem.OtherUserProfile.getRouteWithArgs(
-                            listOf(data.otherUserId)
-                        )
+    fun navigateToDetails() = viewModelScope.launch {
+        when (val data = conversationInfoViewState.conversationDetailsData) {
+            is ConversationDetailsData.OneOne -> navigationManager.navigate(
+                command = NavigationCommand(
+                    destination = NavigationItem.OtherUserProfile.getRouteWithArgs(
+                        listOf(data.otherUserId)
                     )
                 )
+            )
 
-                is ConversationDetailsData.Group -> navigationManager.navigate(
-                    command = NavigationCommand(
-                        destination = NavigationItem.GroupConversationDetails.getRouteWithArgs(listOf(data.conversationId))
-                    )
+            is ConversationDetailsData.Group -> navigationManager.navigate(
+                command = NavigationCommand(
+                    destination = NavigationItem.GroupConversationDetails.getRouteWithArgs(listOf(data.conversationId))
                 )
+            )
 
-                ConversationDetailsData.None -> { /* do nothing */
-                }
+            ConversationDetailsData.None -> { /* do nothing */
             }
         }
     }

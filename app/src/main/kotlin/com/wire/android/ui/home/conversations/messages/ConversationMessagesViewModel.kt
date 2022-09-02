@@ -33,6 +33,7 @@ import okio.Path
 import javax.inject.Inject
 
 @HiltViewModel
+@Suppress("LongParameterList")
 class ConversationMessagesViewModel @Inject constructor(
     qualifiedIdMapper: QualifiedIdMapper,
     override val savedStateHandle: SavedStateHandle,
@@ -94,41 +95,44 @@ class ConversationMessagesViewModel @Inject constructor(
 
     // This will download the asset remotely to an internal temporary storage or fetch it from the local database if it had been previously
     // downloaded. After doing so, a dialog is shown to ask the user whether he wants to open the file or download it to external storage
-    fun downloadOrFetchAssetToInternalStorage(messageId: String) {
-        viewModelScope.launch {
-            withContext(dispatchers.io()) {
-                try {
-                    val assetMessage = conversationViewState.messages.firstOrNull {
-                        it.messageHeader.messageId == messageId && it.messageContent is MessageContent.AssetMessage
-                    }
-
-                    val (isAssetDownloadedInternally, assetName, assetSize) = (assetMessage?.messageContent as MessageContent.AssetMessage).run {
-                        Triple(
-                            (downloadStatus == Message.DownloadStatus.SAVED_INTERNALLY || downloadStatus == Message.DownloadStatus.IN_PROGRESS),
-                            assetName,
-                            assetSizeInBytes
-                        )
-                    }
-
-                    if (!isAssetDownloadedInternally)
-                        updateAssetMessageDownloadStatus(Message.DownloadStatus.IN_PROGRESS, conversationId, messageId)
-
-                    val resultData = assetDataPath(conversationId, messageId)
-                    updateAssetMessageDownloadStatus(
-                        if (resultData != null) Message.DownloadStatus.SAVED_INTERNALLY else Message.DownloadStatus.FAILED,
-                        conversationId,
-                        messageId
-                    )
-
-                    if (resultData != null) {
-                        showOnAssetDownloadedDialog(assetName, resultData, assetSize, messageId)
-                    }
-                } catch (e: OutOfMemoryError) {
-                    appLogger.e("There was an OutOfMemory error while downloading the asset")
-                    onSnackbarMessage(ConversationSnackbarMessages.ErrorDownloadingAsset)
-                    updateAssetMessageDownloadStatus(Message.DownloadStatus.FAILED, conversationId, messageId)
-                }
+    fun downloadOrFetchAssetToInternalStorage(messageId: String) = viewModelScope.launch {
+        withContext(dispatchers.io()) {
+            try {
+                attemptDownloadOfAsset(messageId)
+            } catch (e: OutOfMemoryError) {
+                appLogger.e("There was an OutOfMemory error while downloading the asset")
+                onSnackbarMessage(ConversationSnackbarMessages.ErrorDownloadingAsset)
+                updateAssetMessageDownloadStatus(Message.DownloadStatus.FAILED, conversationId, messageId)
             }
+        }
+    }
+
+    private suspend fun attemptDownloadOfAsset(messageId: String) {
+        val assetMessage = conversationViewState.messages.firstOrNull {
+            it.messageHeader.messageId == messageId && it.messageContent is MessageContent.AssetMessage
+        }
+
+        val messageContent = assetMessage?.messageContent
+        val (isAssetDownloadedInternally, assetName, assetSize) = (messageContent as MessageContent.AssetMessage).run {
+            Triple(
+                (downloadStatus == Message.DownloadStatus.SAVED_INTERNALLY || downloadStatus == Message.DownloadStatus.IN_PROGRESS),
+                assetName,
+                assetSizeInBytes
+            )
+        }
+
+        if (!isAssetDownloadedInternally)
+            updateAssetMessageDownloadStatus(Message.DownloadStatus.IN_PROGRESS, conversationId, messageId)
+
+        val resultData = assetDataPath(conversationId, messageId)
+        updateAssetMessageDownloadStatus(
+            if (resultData != null) Message.DownloadStatus.SAVED_INTERNALLY else Message.DownloadStatus.FAILED,
+            conversationId,
+            messageId
+        )
+
+        if (resultData != null) {
+            showOnAssetDownloadedDialog(assetName, resultData, assetSize, messageId)
         }
     }
 

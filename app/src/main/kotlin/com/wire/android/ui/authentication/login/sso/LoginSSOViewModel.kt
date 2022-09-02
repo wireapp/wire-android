@@ -8,7 +8,6 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.di.NoSession
-import com.wire.android.di.UserSessionsUseCaseProvider
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.login.LoginError
 import com.wire.android.ui.authentication.login.LoginViewModel
@@ -23,6 +22,7 @@ import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginResult
 import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginUseCase
 import com.wire.kalium.logic.feature.auth.sso.SSOLoginSessionResult
 import com.wire.kalium.logic.feature.client.RegisterClientResult
+import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
@@ -38,7 +38,7 @@ class LoginSSOViewModel @Inject constructor(
     private val getSSOLoginSessionUseCase: GetSSOLoginSessionUseCase,
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
     clientScopeProviderFactory: ClientScopeProvider.Factory,
-    userSessionsUseCaseFactory: UserSessionsUseCaseProvider.Factory,
+    getSessions: GetSessionsUseCase,
     navigationManager: NavigationManager,
     authServerConfigProvider: AuthServerConfigProvider,
 ) : LoginViewModel(
@@ -46,7 +46,7 @@ class LoginSSOViewModel @Inject constructor(
     navigationManager,
     qualifiedIdMapper,
     clientScopeProviderFactory,
-    userSessionsUseCaseFactory,
+    getSessions,
     authServerConfigProvider
 ) {
 

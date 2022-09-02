@@ -46,6 +46,7 @@ import com.wire.kalium.logic.feature.publicuser.search.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchUserDirectoryUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchUsersUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
+import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import com.wire.kalium.logic.feature.session.RegisterTokenUseCase
 import com.wire.kalium.logic.feature.session.UpdateCurrentSessionUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
@@ -278,7 +279,7 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun provideGetAllSessionsUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
+    fun provideGetAllSessionsUseCase(@KaliumCoreLogic coreLogic: CoreLogic): GetSessionsUseCase =
         coreLogic.getGlobalScope().session.allSessions
 
     @ViewModelScoped

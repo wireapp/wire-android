@@ -154,12 +154,15 @@ class SharedCallingViewModel @Inject constructor(
     }
 
     private suspend fun observeOnMute() {
-        snapshotFlow { callState.isMuted }.collectLatest { isMute ->
-            isMute?.let {
-                if (it) {
-                    muteCall(conversationId)
-                } else {
-                    unMuteCall(conversationId)
+        //We should only mute established calls
+        snapshotFlow { callState.isMuted to callState.callStatus }.collectLatest { isMute ->
+            if (isMute.second == CallStatus.ESTABLISHED) {
+                isMute.first?.let {
+                    if (it) {
+                        muteCall(conversationId)
+                    } else {
+                        unMuteCall(conversationId)
+                    }
                 }
             }
         }
@@ -173,6 +176,7 @@ class SharedCallingViewModel @Inject constructor(
                         call.status != CallStatus.MISSED
             }?.let { call ->
                 callState = callState.copy(
+                    callStatus = call.status,
                     callerName = call.callerName,
                     isMuted = call.isMuted,
                     isCameraOn = call.isCameraOn,
@@ -192,6 +196,7 @@ class SharedCallingViewModel @Inject constructor(
     fun hangUpCall() {
         viewModelScope.launch {
             endCall(conversationId)
+            muteCall(conversationId)
             callRinger.stop()
         }
     }

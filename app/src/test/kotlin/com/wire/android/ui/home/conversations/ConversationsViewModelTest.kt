@@ -544,6 +544,7 @@ class ConversationsViewModelTest {
         val uiMessage = mockUITextMessage("some name")
 
         val (arrangement, viewModel) = ConversationsViewModelArrangement()
+            .withSuccessfulViewModelInit()
             .withConversationDetailUpdate(groupDetails)
             .withMessagesUpdate(listOf(uiMessage))
             .arrange()
@@ -564,8 +565,12 @@ class ConversationsViewModelTest {
             groupDetails.copy(lastUnreadMessage = sendMessage)
         )
 
+        assert(viewModel.conversationViewState.lastUnreadMessage!!.messageHeader.messageId == sendMessage.id)
+
         arrangement.conversationDetailsChannel.send(
             groupDetails.copy(lastUnreadMessage = null)
         )
+
+        assert(viewModel.conversationViewState.lastUnreadMessage == null)
     }
 }

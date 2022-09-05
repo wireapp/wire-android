@@ -83,6 +83,7 @@ internal class ConversationsViewModelArrangement {
         coEvery { observeOngoingCallsUseCase() } returns flowOf(listOf())
         coEvery { observeEstablishedCallsUseCase() } returns flowOf(listOf())
         coEvery { observeSyncState() } returns flowOf(SyncState.Live)
+        coEvery { observeIsSelfUserMemberUseCase(any()) } returns flowOf(IsSelfUserMemberResult.Success(true))
         every {
             qualifiedIdMapper.fromStringToQualifiedID("some-dummy-value@some.dummy.domain")
         } returns QualifiedID("some-dummy-value", "some.dummy.domain")

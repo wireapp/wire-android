@@ -39,7 +39,7 @@ class NewConversationViewModelTest {
 
             // Then
             assertEquals(
-                viewModel.state.searchResult[SearchResultTitle(R.string.label_public_wire)], ContactSearchResult.InternalContact(
+                viewModel.state.searchResult[SearchResultTitle(R.string.label_contacts)], ContactSearchResult.InternalContact(
                     SearchResultState.Success(
                         result = listOf(
                             Contact(
@@ -63,22 +63,24 @@ class NewConversationViewModelTest {
             )
 
             assertEquals(
-                viewModel.state.searchResult[SearchResultTitle(R.string.label_contacts)], SearchResultState.Success(
-                    result = listOf(
-                        Contact(
-                            id = "publicValue",
-                            domain = "domain",
-                            name = "publicUsername",
-                            avatarData = UserAvatarData(
-                                asset = ImageAsset.UserAvatarAsset(
-                                    arrangement.wireSessionImageLoader,
-                                    UserAssetId("value", "domain")
+                viewModel.state.searchResult[SearchResultTitle(R.string.label_public_wire)], ContactSearchResult.ExternalContact(
+                    SearchResultState.Success(
+                        result = listOf(
+                            Contact(
+                                id = "publicValue",
+                                domain = "domain",
+                                name = "publicUsername",
+                                avatarData = UserAvatarData(
+                                    asset = ImageAsset.UserAvatarAsset(
+                                        arrangement.wireSessionImageLoader,
+                                        UserAssetId("value", "domain")
+                                    ),
+                                    availabilityStatus = UserAvailabilityStatus.NONE
                                 ),
-                                availabilityStatus = UserAvailabilityStatus.NONE
-                            ),
-                            label = "publicHandle",
-                            connectionState = ConnectionState.NOT_CONNECTED,
-                            membership = Membership.Federated
+                                label = "publicHandle",
+                                connectionState = ConnectionState.NOT_CONNECTED,
+                                membership = Membership.Federated
+                            )
                         )
                     )
                 )

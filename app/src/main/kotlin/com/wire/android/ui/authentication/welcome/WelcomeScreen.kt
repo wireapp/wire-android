@@ -86,7 +86,7 @@ fun WelcomeScreen(viewModel: WelcomeViewModel = hiltViewModel()) {
 @Composable
 private fun WelcomeContent(viewModel: WelcomeViewModel) {
     Scaffold(topBar = {
-        if (viewModel.isThereActiveSession && viewModel.state.isOnPremises) {
+        if (viewModel.isThereActiveSession) {
             WireCenterAlignedTopAppBar(
                 elevation = 0.dp,
                 title = "",

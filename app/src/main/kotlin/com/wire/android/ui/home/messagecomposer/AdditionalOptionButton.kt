@@ -10,7 +10,7 @@ fun AdditionalOptionButton(isSelected: Boolean = false, onClick: () -> Unit) {
     WireIconButton(
         onButtonClicked = onClick,
         iconResource = R.drawable.ic_add,
-        contentDescription = R.string.content_description_conversation_search_icon,
+        contentDescription = R.string.content_description_attachment_item,
         state = if (isSelected) WireButtonState.Selected else WireButtonState.Default,
     )
 }

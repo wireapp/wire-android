@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.os.Build
 import com.wire.android.di.NoSession
+import com.wire.android.services.PersistentWebSocketService
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import dagger.hilt.android.AndroidEntryPoint
@@ -28,8 +29,7 @@ class StartServiceReceiver : BroadcastReceiver() {
     lateinit var observePersistentWebSocketConnectionStatus: ObservePersistentWebSocketConnectionStatusUseCase
 
     override fun onReceive(context: Context?, intent: Intent?) {
-        val persistentWebSocketServiceIntent =
-            Intent(context, PersistentWebSocketService::class.java)
+        val persistentWebSocketServiceIntent = PersistentWebSocketService.newIntent(context)
         scope.launch {
             if (!observePersistentWebSocketConnectionStatus().first()) {
                 context?.stopService(persistentWebSocketServiceIntent)

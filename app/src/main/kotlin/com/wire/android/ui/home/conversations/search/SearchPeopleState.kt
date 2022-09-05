@@ -12,13 +12,13 @@ data class SearchPeopleState(
     val contactsAddedToGroup: List<Contact> = emptyList()
 )
 
-sealed class ContactSearchResult(val searchResultState: SearchResultState) {
-    class InternalContact(searchResultState: SearchResultState) :
+sealed class ContactSearchResult(open val searchResultState: SearchResultState) {
+    data class InternalContact(override val searchResultState: SearchResultState) :
         ContactSearchResult(
             searchResultState = searchResultState
         )
 
-    class ExternalContact(searchResultState: SearchResultState) :
+    data class ExternalContact(override val searchResultState: SearchResultState) :
         ContactSearchResult(
             searchResultState = searchResultState
         )
@@ -32,4 +32,4 @@ sealed class SearchResultState {
     data class Success(val result: List<Contact>) : SearchResultState()
 }
 
-data class SearchResultTitle(@StringRes val stringRes : Int)
+data class SearchResultTitle(@StringRes val stringRes: Int)

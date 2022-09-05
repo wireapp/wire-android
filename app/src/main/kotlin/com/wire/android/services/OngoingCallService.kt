@@ -40,7 +40,10 @@ class OngoingCallService : Service() {
         if (userIdString != null && conversationIdString != null && callName != null) {
             val userId = qualifiedIdMapper.fromStringToQualifiedID(userIdString)
 
+            // we just need to keep some reference to the CallsScope,
+            // so it keeps CallManager alive
             coreLogic.getSessionScope(userId).calls
+
             generateForegroundNotification(callName, conversationIdString, userIdString)
         } else {
             stopForeground(true)

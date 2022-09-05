@@ -281,7 +281,7 @@ class WireNotificationManager @Inject constructor(
 
     /**
      * Infinitely listen for the established calls and run OngoingCall foreground Service
-     * to show corresponding notification and do not loos a call.
+     * to show corresponding notification and do not lose a call.
      * @param userIdFlow Flow of QualifiedID of User
      * @param currentScreenState StateFlow that informs which screen is currently visible,
      * so we can listen established calls only when the app is in background.

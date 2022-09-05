@@ -38,7 +38,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 
-@Suppress("TooManyFunctions, LongParameterList")
+@Suppress("TooManyFunctions", "LongParameterList")
 open class SearchAllPeopleViewModel(
     private val getAllKnownUsers: GetAllContactsUseCase,
     private val searchKnownUsers: SearchKnownUsersUseCase,

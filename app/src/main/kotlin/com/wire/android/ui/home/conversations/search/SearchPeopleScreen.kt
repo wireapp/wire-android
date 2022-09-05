@@ -205,7 +205,8 @@ private fun LazyListScope.internalSuccessItem(
 ) {
     if (searchResult.isNotEmpty()) {
         folderWithElements(header = searchTitle,
-            items = (if (showAllItems) searchResult else searchResult.take(DEFAULT_SEARCH_RESULT_ITEM_SIZE)).associateBy { it.id }) { contact ->
+            items = (if (showAllItems) searchResult else searchResult.take(DEFAULT_SEARCH_RESULT_ITEM_SIZE))
+                .associateBy { it.id }) { contact ->
             with(contact) {
                 InternalContactSearchResultItem(
                     avatarData = avatarData,

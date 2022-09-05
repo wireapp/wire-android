@@ -9,6 +9,7 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -20,7 +21,7 @@ class OngoingCallViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     qualifiedIdMapper: QualifiedIdMapper,
     private val navigationManager: NavigationManager,
-    private val establishedCall: ObserveEstablishedCallsUseCase
+    private val establishedCall: ObserveEstablishedCallsUseCase,
 ) : ViewModel() {
 
     private val conversationId: QualifiedID = qualifiedIdMapper.fromStringToQualifiedID(
@@ -40,14 +41,13 @@ class OngoingCallViewModel @Inject constructor(
         establishedCall()
             .distinctUntilChanged()
             .collect { calls ->
-                calls.find { call -> call.conversationId == conversationId }.also {
-                    if (it == null)
-                        navigateBack()
-                }
+                val currentCall = calls.find { call -> call.conversationId == conversationId }
+                if (currentCall == null) navigateBack()
             }
     }
 
     private suspend fun navigateBack() {
         navigationManager.navigateBack()
     }
+
 }

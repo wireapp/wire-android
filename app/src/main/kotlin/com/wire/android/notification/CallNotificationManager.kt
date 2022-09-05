@@ -15,7 +15,6 @@ import com.wire.android.appLogger
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.feature.call.Call
-import com.wire.kalium.logic.feature.call.CallStatus
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -35,13 +34,12 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
             hideIncomingCallNotification()
         } else {
             appLogger.i("$TAG: showing incoming call")
-            showCallNotification(calls.first(), userId)
+            showIncomingCallNotification(calls.first(), userId)
         }
     }
 
     fun hideAllNotifications() {
         hideIncomingCallNotification()
-        hideOngoingCallNotification()
     }
 
     fun hideIncomingCallNotification() {
@@ -49,29 +47,10 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
         notificationManager.cancel(NotificationConstants.CALL_INCOMING_NOTIFICATION_ID)
     }
 
-    fun showOngoingCallNotification(call: Call, userId: QualifiedID) {
-        appLogger.i("$TAG: showing ongoing call")
-        showCallNotification(call, userId)
-    }
-
-    fun hideOngoingCallNotification() {
-        appLogger.i("$TAG: hiding ongoing call")
-        notificationManager.cancel(NotificationConstants.CALL_ONGOING_NOTIFICATION_ID)
-    }
-
-    private fun showCallNotification(call: Call, userId: QualifiedID) {
-        when (call.status) {
-            CallStatus.ESTABLISHED -> {
-                createOngoingNotificationChannel()
-                val notification = getOngoingCallNotification(call, userId)
-                notificationManager.notify(NotificationConstants.CALL_ONGOING_NOTIFICATION_ID, notification)
-            }
-            CallStatus.INCOMING -> {
-                createIncomingCallsNotificationChannel()
-                val notification = getIncomingCallNotification(call, userId)
-                notificationManager.notify(NotificationConstants.CALL_INCOMING_NOTIFICATION_ID, notification)
-            }
-        }
+    private fun showIncomingCallNotification(call: Call, userId: QualifiedID) {
+        createIncomingCallsNotificationChannel()
+        val notification = getIncomingCallNotification(call, userId)
+        notificationManager.notify(NotificationConstants.CALL_INCOMING_NOTIFICATION_ID, notification)
     }
 
     // Channels
@@ -90,7 +69,7 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
         notificationManager.createNotificationChannel(notificationChannel)
     }
 
-    private fun createOngoingNotificationChannel() {
+    fun createOngoingNotificationChannel() {
         val notificationChannel = NotificationChannelCompat
             .Builder(NotificationConstants.ONGOING_CALL_CHANNEL_ID, NotificationManagerCompat.IMPORTANCE_MAX)
             .setName(NotificationConstants.ONGOING_CALL_CHANNEL_NAME)
@@ -131,31 +110,24 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
         return notification
     }
 
-    private fun getOngoingCallNotification(call: Call, userId: QualifiedID): Notification {
-        val conversationIdString = call.conversationId.toString()
-        val userIdString = userId.toString()
-        val title = getNotificationTitle(call)
-        val content = getNotificationBody(call)
-
-        return NotificationCompat.Builder(context, NotificationConstants.ONGOING_CALL_CHANNEL_ID)
-            .setContentTitle(title)
-            .setContentText(content)
+    fun getOngoingCallNotification(callName: String, conversationId: String, userId: String): Notification =
+        NotificationCompat.Builder(context, NotificationConstants.ONGOING_CALL_CHANNEL_ID)
+            .setContentTitle(callName)
+            .setContentText(context.getString(R.string.notification_ongoing_call_content))
             .setPriority(NotificationCompat.PRIORITY_DEFAULT)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setSmallIcon(R.drawable.notification_icon_small)
             .setAutoCancel(true)
             .setOngoing(true)
-            .addAction(getHangUpCallAction(conversationIdString, userIdString))
-            .addAction(getOpenOngoingCallAction(conversationIdString))
-            .setContentIntent(openOngoingCallPendingIntent(context, conversationIdString))
+            .addAction(getHangUpCallAction(conversationId, userId))
+            .addAction(getOpenOngoingCallAction(conversationId))
+            .setContentIntent(openOngoingCallPendingIntent(context, conversationId))
             .build()
-    }
 
     // Notifications content
     private fun getNotificationBody(call: Call) =
-        when {
-            call.status == CallStatus.ESTABLISHED -> context.getString(R.string.notification_ongoing_call_content)
-            call.conversationType == Conversation.Type.GROUP -> {
+        when (call.conversationType) {
+            Conversation.Type.GROUP -> {
                 val name = call.callerName ?: context.getString(R.string.notification_call_default_caller_name)
                 (call.callerTeamName?.let { "$name @$it" } ?: name)
                     .let { context.getString(R.string.notification_group_call_content, it) }
@@ -204,8 +176,8 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
             NotificationManagerCompat.from(context).cancel(NotificationConstants.CALL_INCOMING_NOTIFICATION_ID)
         }
 
-        fun hideOngoingCallNotification(context: Context) {
-            NotificationManagerCompat.from(context).cancel(NotificationConstants.CALL_ONGOING_NOTIFICATION_ID)
-        }
+//        fun hideOngoingCallNotification(context: Context) {
+//            NotificationManagerCompat.from(context).cancel(NotificationConstants.CALL_ONGOING_NOTIFICATION_ID)
+//        }
     }
 }

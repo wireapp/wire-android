@@ -221,21 +221,6 @@ class WireNotificationManagerTest {
             coVerify(exactly = 1) { arrangement.connectionPolicyManager.handleConnectionOnPushNotification(userId) }
         }
 
-    @Test
-    fun givenSomeEstablishedCalls_whenAppIsNotVisible_thenOngoingCallNotificationShowed() = runTestWithCancellation {
-        val (arrangement, manager) = Arrangement()
-            .withIncomingCalls(listOf())
-            .withMessageNotifications(listOf())
-            .withCurrentScreen(CurrentScreen.InBackground)
-            .withEstablishedCall(listOf(provideCall().copy(status = CallStatus.ESTABLISHED)))
-            .arrange()
-
-        manager.observeNotificationsAndCalls(flowOf(provideUserId()), this) {}
-        runCurrent()
-
-        verify(exactly = 1) { arrangement.callNotificationManager.showOngoingCallNotification(any(), any()) }
-    }
-
     private class Arrangement {
         @MockK
         lateinit var coreLogic: CoreLogic

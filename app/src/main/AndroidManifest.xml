@@ -110,9 +110,13 @@
         </receiver>
 
         <service
-                android:name=".ui.debugscreen.PersistentWebSocketService"
+                android:name=".services.PersistentWebSocketService"
                 android:exported="false" />
 
+        <service
+                android:name=".services.OngoingCallService"
+                android:foregroundServiceType="microphone"
+                android:exported="false" />
 
     </application>
 

@@ -2,6 +2,7 @@ package com.wire.android.notification
 
 import com.wire.android.appLogger
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.services.ServicesManager
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -49,6 +50,7 @@ class WireNotificationManager @Inject constructor(
     private val messagesNotificationManager: MessageNotificationManager,
     private val callNotificationManager: CallNotificationManager,
     private val connectionPolicyManager: ConnectionPolicyManager,
+    private val servicesManager: ServicesManager,
     dispatcherProvider: DispatcherProvider
 ) {
 
@@ -162,6 +164,7 @@ class WireNotificationManager @Inject constructor(
         scope.launch { observeCurrentScreenAndHideNotifications(currentScreenState, userIdFlow) }
         scope.launch { observeIncomingCalls(currentScreenState, userIdFlow, doIfCallCameAndAppVisible) }
         scope.launch { observeMessageNotifications(userIdFlow, currentScreenState) }
+        scope.launch { observeOngoingCalls(currentScreenState, userIdFlow) }
     }
 
     /**
@@ -276,6 +279,45 @@ class WireNotificationManager @Inject constructor(
             }
     }
 
+    /**
+     * Infinitely listen for the established calls and run OngoingCall foreground Service
+     * to show corresponding notification and do not loos a call.
+     * @param userIdFlow Flow of QualifiedID of User
+     * @param currentScreenState StateFlow that informs which screen is currently visible,
+     * so we can listen established calls only when the app is in background.
+     */
+    private suspend fun observeOngoingCalls(
+        currentScreenState: StateFlow<CurrentScreen>,
+        userIdFlow: Flow<UserId?>
+    ) {
+        currentScreenState
+            .combine(userIdFlow, ::Pair)
+            .flatMapLatest { (currentScreen, userId) ->
+                if (userId == null || currentScreen !is CurrentScreen.InBackground) {
+                    flowOf(null)
+                } else {
+                    coreLogic.getSessionScope(userId).calls
+                        .establishedCall()
+                        .map {
+                            it.firstOrNull()?.let { call ->
+                                OngoingCallData(callNotificationManager.getNotificationTitle(call), call.conversationId, userId)
+                            }
+                        }
+                }
+            }
+            .collect { ongoingCallData ->
+                if (ongoingCallData == null) {
+                    servicesManager.stopOngoingCallService()
+                } else {
+                    servicesManager.startOngoingCallService(
+                        ongoingCallData.notificationTitle,
+                        ongoingCallData.conversationId,
+                        ongoingCallData.userId
+                    )
+                }
+            }
+    }
+
     private suspend fun filterAccordingToScreenAndUpdateNotifyDate(
         currentScreen: CurrentScreen,
         userId: UserId?,
@@ -330,6 +372,8 @@ class WireNotificationManager @Inject constructor(
         val newNotifications: List<LocalNotificationConversation>,
         val userId: QualifiedID?
     )
+
+    private data class OngoingCallData(val notificationTitle: String, val conversationId: ConversationId, val userId: UserId)
 
     companion object {
         private const val CHECK_INCOMING_CALLS_PERIOD_MS = 1000L

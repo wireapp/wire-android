@@ -3,7 +3,6 @@ package com.wire.android.services
 import android.app.Service
 import android.content.Context
 import android.content.Intent
-import com.wire.android.di.CurrentAccount
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 import javax.inject.Inject
@@ -14,13 +13,10 @@ import kotlin.reflect.KClass
  * The idea is that we don't want to inject, or provide any context into ViewModel,
  * but to have an ability start Service from it.
  */
-class ServicesManager @Inject constructor(
-    @CurrentAccount private val userId: UserId,
-    private val context: Context
-) {
+class ServicesManager @Inject constructor(private val context: Context) {
 
     // Ongoing call
-    fun startOngoingCallService(notificationTitle: String, conversationId: ConversationId) {
+    fun startOngoingCallService(notificationTitle: String, conversationId: ConversationId, userId: UserId) {
         startService(OngoingCallService.newIntent(context, userId.toString(), conversationId.toString(), notificationTitle))
     }
 

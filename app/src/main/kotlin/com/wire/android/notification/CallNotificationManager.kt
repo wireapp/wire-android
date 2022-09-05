@@ -135,7 +135,7 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
             else -> context.getString(R.string.notification_incoming_call_content)
         }
 
-    private fun getNotificationTitle(call: Call): String =
+    fun getNotificationTitle(call: Call): String =
         when (call.conversationType) {
             Conversation.Type.GROUP -> call.conversationName ?: context.getString(R.string.notification_call_default_group_name)
             else -> {
@@ -175,9 +175,5 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
         fun hideIncomingCallNotification(context: Context) {
             NotificationManagerCompat.from(context).cancel(NotificationConstants.CALL_INCOMING_NOTIFICATION_ID)
         }
-
-//        fun hideOngoingCallNotification(context: Context) {
-//            NotificationManagerCompat.from(context).cancel(NotificationConstants.CALL_ONGOING_NOTIFICATION_ID)
-//        }
     }
 }

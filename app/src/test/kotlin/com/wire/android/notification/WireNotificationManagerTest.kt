@@ -2,6 +2,7 @@ package com.wire.android.notification
 
 import com.wire.android.common.runTestWithCancellation
 import com.wire.android.config.TestDispatcherProvider
+import com.wire.android.services.ServicesManager
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.lifecycle.ConnectionPolicyManager
@@ -34,6 +35,7 @@ import com.wire.kalium.logic.sync.SyncManager
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -221,6 +223,21 @@ class WireNotificationManagerTest {
             coVerify(exactly = 1) { arrangement.connectionPolicyManager.handleConnectionOnPushNotification(userId) }
         }
 
+    @Test
+    fun givenSomeEstablishedCalls_whenAppIsNotVisible_thenOngoingCallServiceRun() = runTestWithCancellation {
+        val (arrangement, manager) = Arrangement()
+            .withIncomingCalls(listOf())
+            .withMessageNotifications(listOf())
+            .withCurrentScreen(CurrentScreen.InBackground)
+            .withEstablishedCall(listOf(provideCall().copy(status = CallStatus.ESTABLISHED)))
+            .arrange()
+
+        manager.observeNotificationsAndCalls(flowOf(provideUserId()), this) {}
+        runCurrent()
+
+        verify(exactly = 1) { arrangement.servicesManager.startOngoingCallService(any(), any(), any()) }
+    }
+
     private class Arrangement {
         @MockK
         lateinit var coreLogic: CoreLogic
@@ -273,6 +290,9 @@ class WireNotificationManagerTest {
         @MockK
         lateinit var getSessionsUseCase: GetSessionsUseCase
 
+        @MockK
+        lateinit var servicesManager: ServicesManager
+
         val wireNotificationManager by lazy {
             WireNotificationManager(
                 coreLogic,
@@ -280,6 +300,7 @@ class WireNotificationManagerTest {
                 messageNotificationManager,
                 callNotificationManager,
                 connectionPolicyManager,
+                servicesManager,
                 TestDispatcherProvider()
             )
         }
@@ -302,9 +323,12 @@ class WireNotificationManagerTest {
             coEvery { callsScope.establishedCall } returns establishedCall
             coEvery { callNotificationManager.handleIncomingCallNotifications(any(), any()) } returns Unit
             coEvery { callNotificationManager.hideIncomingCallNotification() } returns Unit
+            coEvery { callNotificationManager.getNotificationTitle(any()) } returns "Test title"
             coEvery { messageScope.getNotifications } returns getNotificationsUseCase
             coEvery { messageScope.markMessagesAsNotified } returns markMessagesAsNotified
             coEvery { markMessagesAsNotified(any(), any()) } returns Result.Success
+            every { servicesManager.startOngoingCallService(any(), any(), any()) } returns Unit
+            every { servicesManager.stopOngoingCallService() } returns Unit
         }
 
         fun withSession(session: GetAllSessionsResult): Arrangement {

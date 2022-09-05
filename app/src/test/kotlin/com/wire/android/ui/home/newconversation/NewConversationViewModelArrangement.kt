@@ -10,6 +10,7 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.ui.WireSessionImageLoader
+import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
@@ -29,7 +30,6 @@ import com.wire.kalium.logic.feature.publicuser.search.Result
 import com.wire.kalium.logic.feature.publicuser.search.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchUsersUseCase
 import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
-import com.wire.kalium.logic.CoreFailure
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
@@ -155,9 +155,9 @@ internal class NewConversationViewModelArrangement {
     private val viewModel by lazy {
         NewConversationViewModel(
             navigationManager = navigationManager,
-            searchPublicUsers = searchUsers,
+            searchPublicUsers = searchPublicUsers,
             searchKnownUsers = searchKnownUsers,
-            getAllKnownUsers = getAllContacts,
+            getAllKnownUsers = getAllKnownUsers,
             createGroupConversation = createGroupConversation,
             contactMapper = contactMapper,
             sendConnectionRequest = sendConnectionRequestUseCase,
@@ -171,7 +171,7 @@ internal class NewConversationViewModelArrangement {
     }
 
     fun withFailurePublicSearchResponse() = apply {
-        coEvery { searchPublicUsersh(any()) } returns Result.Failure.InvalidRequest
+        coEvery { searchPublicUsers(any()) } returns Result.Failure.InvalidRequest
     }
 
     fun withSyncFailureOnCreatingGroup() = apply {

@@ -41,9 +41,9 @@ internal class NewConversationViewModelArrangement {
 
         // Default empty values
         coEvery { isMLSEnabledUseCase() } returns true
-        coEvery { searchUsers(any()) } returns Result.Success(userSearchResult = UserSearchResult(listOf(PUBLIC_USER)))
+        coEvery { searchPublicUsers(any()) } returns Result.Success(userSearchResult = UserSearchResult(listOf(PUBLIC_USER)))
         coEvery { searchKnownUsers(any()) } returns Result.Success(userSearchResult = UserSearchResult(listOf(KNOWN_USER)))
-        coEvery { getAllContacts() } returns GetAllContactsResult.Success(listOf())
+        coEvery { getAllKnownUsers() } returns GetAllContactsResult.Success(listOf())
         coEvery { createGroupConversation(any(), any(), any()) } returns CreateGroupConversationUseCase.Result.Success(CONVERSATION)
         coEvery { contactMapper.fromOtherUser(PUBLIC_USER) } returns Contact(
             id = "publicValue",
@@ -76,13 +76,13 @@ internal class NewConversationViewModelArrangement {
     lateinit var navigationManager: NavigationManager
 
     @MockK
-    lateinit var searchUsers: SearchUsersUseCase
+    lateinit var searchPublicUsers: SearchUsersUseCase
 
     @MockK
     lateinit var searchKnownUsers: SearchKnownUsersUseCase
 
     @MockK
-    lateinit var getAllContacts: GetAllContactsUseCase
+    lateinit var getAllKnownUsers: GetAllContactsUseCase
 
     @MockK
     lateinit var createGroupConversation: CreateGroupConversationUseCase
@@ -171,7 +171,7 @@ internal class NewConversationViewModelArrangement {
     }
 
     fun withFailurePublicSearchResponse() = apply {
-        coEvery { searchUsers(any()) } returns Result.Failure.InvalidRequest
+        coEvery { searchPublicUsersh(any()) } returns Result.Failure.InvalidRequest
     }
 
     fun withSyncFailureOnCreatingGroup() = apply {

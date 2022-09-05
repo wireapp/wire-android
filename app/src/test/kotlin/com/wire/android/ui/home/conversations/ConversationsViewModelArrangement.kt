@@ -45,6 +45,8 @@ import com.wire.kalium.logic.feature.conversation.GetSecurityClassificationTypeU
 import com.wire.kalium.logic.feature.conversation.IsSelfUserMemberResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveIsSelfUserMemberUseCase
+import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
+import com.wire.kalium.logic.feature.conversation.SecurityClassificationTypeResult
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
@@ -202,6 +204,7 @@ internal class ConversationsViewModelArrangement {
         coEvery { observeOngoingCallsUseCase() } returns emptyFlow()
         coEvery { observeEstablishedCallsUseCase() } returns emptyFlow()
         coEvery { observeIsSelfUserMemberUseCase(any()) } returns flowOf(IsSelfUserMemberResult.Success(true))
+        coEvery { getSecurityClassificationType(any()) } returns SecurityClassificationTypeResult.Success(SecurityClassificationType.NONE)
         return this
     }
 

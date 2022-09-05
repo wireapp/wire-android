@@ -73,11 +73,10 @@ class AvatarPickerViewModel @Inject constructor(
         pictureState = PictureState.Uploading(imgUri)
         viewModelScope.launch {
             val avatarPath = defaultAvatarPath()
-            val imageDataSize = imgUri.toByteArray(appContext).size.toLong()
+            val imageDataSize = imgUri.toByteArray(appContext, dispatchers).size.toLong()
             val result = uploadUserAvatar(avatarPath, imageDataSize)
             if (result is UploadAvatarResult.Success) {
                 dataStore.updateUserAvatarAssetId(result.userAssetId.toString())
-                avatarImageManager.getWritableAvatarUri(avatarPath)
                 navigateBack()
             } else {
                 errorMessageCode = when ((result as UploadAvatarResult.Failure).coreFailure) {

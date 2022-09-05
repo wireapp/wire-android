@@ -134,11 +134,11 @@ class NewConversationViewModelTest {
 
             // Then
             assertEquals(
-                viewModel.state.searchResult[SearchResultTitle(R.string.label_contacts)]?.searchResultState is SearchResultState.Failure,
+                viewModel.state.searchResult[SearchResultTitle(R.string.label_contacts)]!!.searchResultState is SearchResultState.Failure,
                 true
             )
             assertEquals(
-                viewModel.state.searchResult[SearchResultTitle(R.string.label_public_wire)]?.searchResultState is SearchResultState.Failure,
+                viewModel.state.searchResult[SearchResultTitle(R.string.label_public_wire)]!!.searchResultState is SearchResultState.Failure,
                 true
             )
         }

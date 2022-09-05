@@ -51,7 +51,7 @@ internal class NewConversationViewModelArrangement {
             name = "publicUsername",
             avatarData = UserAvatarData(
                 asset = ImageAsset.UserAvatarAsset(wireSessionImageLoader, UserAssetId("value", "domain")),
-                availabilityStatus = UserAvailabilityStatus.NONE
+                availabilityStatus = UserAvailabilityStatus.AVAILABLE
             ),
             label = "publicHandle",
             connectionState = ConnectionState.NOT_CONNECTED,
@@ -64,7 +64,7 @@ internal class NewConversationViewModelArrangement {
             name = "knownUsername",
             avatarData = UserAvatarData(
                 asset = ImageAsset.UserAvatarAsset(wireSessionImageLoader, UserAssetId("value", "domain")),
-                availabilityStatus = UserAvailabilityStatus.NONE
+                availabilityStatus = UserAvailabilityStatus.AVAILABLE
             ),
             label = "knownHandle",
             connectionState = ConnectionState.NOT_CONNECTED,

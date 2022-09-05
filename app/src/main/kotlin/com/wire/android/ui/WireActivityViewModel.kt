@@ -217,15 +217,14 @@ class WireActivityViewModel @Inject constructor(
 
     private fun checkNumberOfSessions(): Int {
         getSessions().let {
-            when (it) {
+            return when (it) {
                 is GetAllSessionsResult.Success -> {
-                    if (!it.sessions.isNullOrEmpty()) {
-                        return it.sessions.size
-                    }
+                     it.sessions.filter { it.session is AuthSession.Session.Valid }.size
                 }
+                is GetAllSessionsResult.Failure.Generic -> 0
+                GetAllSessionsResult.Failure.NoSessionFound -> 0
             }
         }
-        return 0
     }
 
     private fun openIncomingCall(conversationId: ConversationId) {

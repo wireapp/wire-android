@@ -7,7 +7,6 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.mockUri
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
-import com.wire.android.di.UserSessionsUseCaseProvider
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.login.LoginError
 import com.wire.android.util.EMPTY
@@ -31,6 +30,7 @@ import com.wire.kalium.logic.feature.auth.sso.SSOLoginSessionResult
 import com.wire.kalium.logic.feature.client.ClientScope
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.client.RegisterClientUseCase
+import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import com.wire.kalium.logic.feature.session.RegisterTokenResult
 import com.wire.kalium.logic.feature.session.RegisterTokenUseCase
 import io.mockk.MockKAnnotations
@@ -69,7 +69,7 @@ class LoginSSOViewModelTest {
     private lateinit var clientScopeProviderFactory: ClientScopeProvider.Factory
 
     @MockK
-    private lateinit var userSessionsUseCaseProviderFactory: UserSessionsUseCaseProvider.Factory
+    private lateinit var getSessionsUseCase: GetSessionsUseCase
 
     @MockK
     private lateinit var clientScope: ClientScope
@@ -117,7 +117,7 @@ class LoginSSOViewModelTest {
             getSSOLoginSessionUseCase,
             addAuthenticatedUserUseCase,
             clientScopeProviderFactory,
-            userSessionsUseCaseProviderFactory,
+            getSessionsUseCase,
             navigationManager,
             authServerConfigProvider
         )

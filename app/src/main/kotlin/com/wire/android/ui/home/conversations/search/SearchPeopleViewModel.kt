@@ -38,7 +38,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
 
-@Suppress("TooManyFunctions")
+@Suppress("TooManyFunctions, LongParameterList")
 open class SearchAllPeopleViewModel(
     private val getAllKnownUsers: GetAllContactsUseCase,
     private val searchKnownUsers: SearchKnownUsersUseCase,
@@ -100,7 +100,10 @@ open class SearchAllPeopleViewModel(
 
     override suspend fun searchPublicPeople(searchTerm: String): ContactSearchResult.ExternalContact =
         when (val result = withContext(dispatcher.io()) { searchPublicUsers(searchTerm) }) {
-            is Result.Failure.Generic, Result.Failure.InvalidRequest  -> ContactSearchResult.ExternalContact(SearchResultState.Failure(R.string.label_general_error))
+            is Result.Failure.Generic, Result.Failure.InvalidRequest ->
+                ContactSearchResult.ExternalContact(
+                    SearchResultState.Failure(R.string.label_general_error)
+                )
             Result.Failure.InvalidQuery -> ContactSearchResult.ExternalContact(SearchResultState.Failure(R.string.label_no_results_found))
             is Result.Success -> ContactSearchResult.ExternalContact(
                 SearchResultState.Success(result.userSearchResult.result.map(contactMapper::fromOtherUser))
@@ -134,7 +137,7 @@ abstract class PublicWithKnownPeopleSearchViewModel(
 
     private val refreshPublicResult: MutableSharedFlow<PublicRefresh> = MutableSharedFlow(0)
 
-    protected val publicPeopleSearchQueryFlow = _searchQueryFlow
+    protected val publicPeopleSearchQueryFlow = mutableSearchQueryFlow
         .combine(refreshPublicResult.onSubscription { emit(PublicRefresh()) })
         { searchTerm, publicRefresh ->
             searchTerm to publicRefresh
@@ -177,7 +180,7 @@ abstract class KnownPeopleSearchViewModel(
     navigationManager = navigationManager
 ) {
 
-    protected val knownPeopleSearchQueryFlow = _searchQueryFlow
+    protected val knownPeopleSearchQueryFlow = mutableSearchQueryFlow
         .flatMapLatest { searchTerm ->
             flow {
                 emit(ContactSearchResult.InternalContact(SearchResultState.InProgress))
@@ -192,12 +195,15 @@ abstract class SearchPeopleViewModel(
     dispatcher: DispatcherProvider,
     val navigationManager: NavigationManager
 ) : ViewModel() {
+    companion object {
+        const val DEFAULT_SEARCH_QUERY_DEBOUNCE = 500L
+    }
 
-    protected val _searchQueryFlow = MutableStateFlow("")
+    protected val mutableSearchQueryFlow = MutableStateFlow("")
 
-    protected val searchQueryFlow = _searchQueryFlow
+    protected val searchQueryFlow = mutableSearchQueryFlow
         .asStateFlow()
-        .debounce(500)
+        .debounce(DEFAULT_SEARCH_QUERY_DEBOUNCE)
 
     protected val initialContactResultFlow = flow {
         when (val result = getInitialContacts()) {
@@ -226,7 +232,7 @@ abstract class SearchPeopleViewModel(
         viewModelScope.launch {
             searchQueryTextFieldFlow.emit(searchQuery)
 
-            if (textQueryChanged) _searchQueryFlow.emit(searchQuery.text)
+            if (textQueryChanged) mutableSearchQueryFlow.emit(searchQuery.text)
         }
     }
 

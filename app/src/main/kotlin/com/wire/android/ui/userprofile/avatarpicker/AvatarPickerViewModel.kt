@@ -2,7 +2,6 @@ package com.wire.android.ui.userprofile.avatarpicker
 
 import android.content.Context
 import android.net.Uri
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -13,9 +12,8 @@ import com.wire.android.appLogger
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.AvatarImageManager
-import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.android.util.resampleImageAndCopyToTempPath
+import com.wire.android.util.toByteArray
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
@@ -27,9 +25,9 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
+import okio.Path
 import javax.inject.Inject
 
-@ExperimentalMaterial3Api
 @HiltViewModel
 @Suppress("LongParameterList")
 class AvatarPickerViewModel @Inject constructor(
@@ -74,8 +72,8 @@ class AvatarPickerViewModel @Inject constructor(
         val imgUri = pictureState.avatarUri
         pictureState = PictureState.Uploading(imgUri)
         viewModelScope.launch {
-            val avatarPath = kaliumFileSystem.selfUserAvatarPath()
-            val imageDataSize = imgUri.resampleImageAndCopyToTempPath(appContext, avatarPath, ImageUtil.ImageSizeClass.Small, dispatchers)
+            val avatarPath = defaultAvatarPath()
+            val imageDataSize = imgUri.toByteArray(appContext).size.toLong()
             val result = uploadUserAvatar(avatarPath, imageDataSize)
             if (result is UploadAvatarResult.Success) {
                 dataStore.updateUserAvatarAssetId(result.userAssetId.toString())
@@ -91,14 +89,16 @@ class AvatarPickerViewModel @Inject constructor(
         }
     }
 
+    fun defaultAvatarPath(): Path = kaliumFileSystem.selfUserAvatarPath()
+
     fun navigateBack() = viewModelScope.launch(dispatchers.main()) { navigationManager.navigateBack() }
 
     fun clearErrorMessage() {
         errorMessageCode = null
     }
 
-    fun getTemporaryAvatarUri(): Uri {
-        return avatarImageManager.getShareableTempAvatarUri()
+    fun getTemporaryAvatarUri(filePath: Path): Uri {
+        return avatarImageManager.getShareableTempAvatarUri(filePath)
     }
 
     sealed class ErrorCodes {

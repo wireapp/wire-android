@@ -2,7 +2,6 @@ package com.wire.android.ui.userprofile.image
 
 import android.content.Context
 import android.net.Uri
-import androidx.compose.material3.ExperimentalMaterial3Api
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.datastore.UserDataStore
@@ -14,7 +13,6 @@ import com.wire.android.util.ImageUtil
 import com.wire.android.util.copyToTempPath
 import com.wire.android.util.resampleImageAndCopyToTempPath
 import com.wire.kalium.logic.CoreFailure.Unknown
-import com.wire.kalium.logic.data.id.FederatedIdMapper
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.AssetId
 import com.wire.kalium.logic.data.user.UserAssetId
@@ -39,7 +37,7 @@ import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
-@OptIn(ExperimentalCoroutinesApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
 class AvatarPickerViewModelTest {
 

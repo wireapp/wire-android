@@ -23,13 +23,13 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
-import com.wire.android.appLogger
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.home.conversations.MediaGallerySnackbarMessages
+import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 @Composable
@@ -45,7 +45,7 @@ fun MediaGalleryScreen(mediaGalleryViewModel: MediaGalleryViewModel = hiltViewMo
             menuItems = EditGalleryMenuItems(
                 onDeleteMessage = {
                     mediaGalleryScreenState.showContextualMenu(false)
-                    mediaGalleryViewModel.deleteCurrentImageMessage()
+                    mediaGalleryViewModel.deleteCurrentImage()
                 },
                 onDownloadImage = {
                     mediaGalleryScreenState.showContextualMenu(false)
@@ -94,9 +94,9 @@ fun MediaGalleryContent(viewModel: MediaGalleryViewModel, mediaGalleryScreenStat
     }
 
     // Snackbar logic
-    uiState.onSnackbarMessage?.let { messageCode ->
-        val (message, actionLabel) = getSnackbarMessage(messageCode, context.resources)
-        LaunchedEffect(message) {
+    LaunchedEffect(Unit) {
+        viewModel.snackbarMessage.collect { messageCode ->
+            val (message, actionLabel) = getSnackbarMessage(messageCode, context.resources)
             showSnackbarMessage(message, actionLabel, messageCode)
         }
     }
@@ -112,12 +112,18 @@ fun MediaGalleryContent(viewModel: MediaGalleryViewModel, mediaGalleryScreenStat
             contentDescription = stringResource(R.string.content_description_image_message)
         )
     }
+
+    DeleteMessageDialog(
+        state = uiState.deleteMessageDialogsState,
+        actions = viewModel.deleteMessageHelper
+    )
 }
 
 private fun getSnackbarMessage(messageCode: MediaGallerySnackbarMessages, resources: Resources): Pair<String, String?> {
     val msg = when (messageCode) {
         is MediaGallerySnackbarMessages.OnImageDownloaded -> resources.getString(R.string.media_gallery_on_image_downloaded)
         is MediaGallerySnackbarMessages.OnImageDownloadError -> resources.getString(R.string.media_gallery_on_image_downloaded)
+        is MediaGallerySnackbarMessages.DeletingMessageError -> resources.getString(R.string.error_conversation_deleting_message)
     }
     val actionLabel = when (messageCode) {
         is MediaGallerySnackbarMessages.OnImageDownloaded -> resources.getString(R.string.label_show)

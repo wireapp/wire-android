@@ -1,6 +1,7 @@
 package com.wire.android.ui.home.conversationslist.mock
 
 import com.wire.android.model.UserAvatarData
+import com.wire.android.ui.home.conversationslist.model.BadgeEventType
 import com.wire.android.ui.home.conversationslist.model.BlockingState
 import com.wire.android.ui.home.conversationslist.model.CallEvent
 import com.wire.android.ui.home.conversationslist.model.CallTime
@@ -8,10 +9,8 @@ import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.ConversationLastEvent
-import com.wire.android.ui.home.conversationslist.model.EventType
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.conversationslist.model.MentionMessage
-import com.wire.android.ui.home.conversationslist.model.NewActivity
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.ConnectionState
@@ -22,9 +21,9 @@ val mockShortMentionInfo = ConversationLastEvent.Mention(mentionMessage = Mentio
 val mockLongMentionInfo = ConversationLastEvent.Mention(
     mentionMessage = MentionMessage(
         "THis is a very very very very very very very " +
-            "very very very very very very very" +
-            " very very very very very very very " +
-            "very very very very very very very mention message"
+                "very very very very very very very" +
+                " very very very very very very very " +
+                "very very very very very very very mention message"
     )
 )
 
@@ -41,7 +40,7 @@ val mockConversations1 = listOf(
         lastEvent = ConversationLastEvent.None,
         userId = UserId("someUserId", "someDomain"),
         blockingState = BlockingState.NOT_BLOCKED,
-        connectionState = ConnectionState.ACCEPTED
+        badgeEventType = BadgeEventType.UnreadMessage(1)
     ),
     ConversationItem.PrivateConversation(
         userAvatarData = UserAvatarData(),
@@ -55,7 +54,7 @@ val mockConversations1 = listOf(
         lastEvent = ConversationLastEvent.None,
         userId = UserId("someUserId", "someDomain"),
         blockingState = BlockingState.NOT_BLOCKED,
-        connectionState = ConnectionState.ACCEPTED
+        badgeEventType = BadgeEventType.None
     ),
     ConversationItem.PrivateConversation(
         userAvatarData = UserAvatarData(),
@@ -69,7 +68,7 @@ val mockConversations1 = listOf(
         lastEvent = ConversationLastEvent.None,
         userId = UserId("someUserId", "someDomain"),
         blockingState = BlockingState.NOT_BLOCKED,
-        connectionState = ConnectionState.ACCEPTED
+        badgeEventType = BadgeEventType.None
     ),
 )
 
@@ -90,7 +89,7 @@ fun mockCallConversation(
     lastEvent = lastEvent,
     userId = UserId("someUserId", "someDomain"),
     blockingState = BlockingState.NOT_BLOCKED,
-    connectionState = ConnectionState.ACCEPTED
+    badgeEventType = BadgeEventType.MissedCall
 )
 
 fun mockCallGroupConversation(
@@ -104,6 +103,7 @@ fun mockCallGroupConversation(
     mutedStatus = MutedConversationStatus.AllAllowed,
     isLegalHold = true,
     lastEvent = lastEvent,
+    badgeEventType = BadgeEventType.MissedCall
 )
 
 val mockConversation = ConversationItem.PrivateConversation(
@@ -118,7 +118,7 @@ val mockConversation = ConversationItem.PrivateConversation(
     lastEvent = ConversationLastEvent.None,
     userId = UserId("someUserId", "someDomain"),
     blockingState = BlockingState.NOT_BLOCKED,
-    connectionState = ConnectionState.ACCEPTED
+    badgeEventType = BadgeEventType.None
 )
 
 val mockGroupConversation = ConversationItem.GroupConversation(
@@ -126,7 +126,8 @@ val mockGroupConversation = ConversationItem.GroupConversation(
     conversationId = ConversationId("someId", "someDomain"),
     mutedStatus = MutedConversationStatus.AllAllowed,
     isLegalHold = true,
-    lastEvent = ConversationLastEvent.None
+    lastEvent = ConversationLastEvent.None,
+    badgeEventType = BadgeEventType.None
 )
 
 val mockMentionPrivateConversation = ConversationItem.PrivateConversation(
@@ -141,7 +142,7 @@ val mockMentionPrivateConversation = ConversationItem.PrivateConversation(
     lastEvent = mockShortMentionInfo,
     userId = UserId("someUserId", "someDomain"),
     blockingState = BlockingState.NOT_BLOCKED,
-    connectionState = ConnectionState.ACCEPTED
+    badgeEventType = BadgeEventType.UnreadMention
 )
 
 val mockGeneralConversation = ConversationItem.PrivateConversation(
@@ -156,7 +157,7 @@ val mockGeneralConversation = ConversationItem.PrivateConversation(
     lastEvent = ConversationLastEvent.None,
     userId = UserId("someUserId", "someDomain"),
     blockingState = BlockingState.NOT_BLOCKED,
-    connectionState = ConnectionState.ACCEPTED
+    badgeEventType = BadgeEventType.None
 )
 
 val mockGeneralConversationPending = ConversationItem.ConnectionConversation(
@@ -169,7 +170,7 @@ val mockGeneralConversationPending = ConversationItem.ConnectionConversation(
         membership = Membership.Guest
     ),
     lastEvent = ConversationLastEvent.Connection(ConnectionState.PENDING, UserId("someId", "someDomain")),
-    connectionState = ConnectionState.PENDING
+    badgeEventType = BadgeEventType.ReceivedConnectionRequest
 )
 
 val conversationMockData = mapOf(
@@ -180,23 +181,9 @@ val conversationMockData = mapOf(
     ConversationFolder.Custom("THIS IS A TEST FOLDER") to mockConversations1,
     ConversationFolder.Custom(
         "THIS IS A TEST FOLDER WITH A VERY VERY VERY VERY" +
-            " VERY VERY VERY VERY VERY VERY VERY " +
-            "VERY VERY VERY VERY VERY LONG NAME"
+                " VERY VERY VERY VERY VERY VERY VERY " +
+                "VERY VERY VERY VERY VERY LONG NAME"
     ) to mockConversations1
-)
-
-@Suppress("MagicNumber")
-val newActivitiesMockData = listOf(
-    NewActivity(EventType.MissedCall, mockGeneralConversation),
-    NewActivity(EventType.UnreadMention, mockGeneralConversation),
-    NewActivity(EventType.UnreadReply, mockGeneralConversation),
-    NewActivity(EventType.UnreadMessage(2), mockGeneralConversation),
-    NewActivity(EventType.UnreadMessage(1000000), mockGeneralConversation),
-    NewActivity(EventType.UnreadMessage(0), mockGeneralConversation),
-    NewActivity(EventType.UnreadMessage(50), mockGeneralConversation),
-    NewActivity(EventType.UnreadMessage(99), mockGeneralConversation),
-    NewActivity(EventType.UnreadMention, mockGeneralConversation),
-    NewActivity(EventType.UnreadReply, mockGeneralConversation)
 )
 
 val mockMentionShortGroupConversation = ConversationItem.GroupConversation(
@@ -205,6 +192,7 @@ val mockMentionShortGroupConversation = ConversationItem.GroupConversation(
     mutedStatus = MutedConversationStatus.AllAllowed,
     isLegalHold = true,
     lastEvent = mockShortMentionInfo,
+    badgeEventType = BadgeEventType.UnreadMention
 )
 
 val mockMentionGroupLongConversation = ConversationItem.GroupConversation(
@@ -213,6 +201,7 @@ val mockMentionGroupLongConversation = ConversationItem.GroupConversation(
     mutedStatus = MutedConversationStatus.AllAllowed,
     isLegalHold = true,
     lastEvent = mockShortMentionInfo,
+    badgeEventType = BadgeEventType.UnreadMention
 )
 
 val mockUnreadMentionList = listOf(

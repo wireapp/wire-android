@@ -54,7 +54,7 @@ private fun SummaryContent(
             Spacer(modifier = Modifier.weight(1f))
             Image(
                 painter = painterResource(id = state.type.summaryResources.summaryIconResId),
-                contentDescription = stringResource(id = R.string.content_description_create_account_summary),
+                contentDescription = null,
                 contentScale = ContentScale.Inside,
                 modifier = Modifier.padding(
                     horizontal = MaterialTheme.wireDimensions.spacing64x,

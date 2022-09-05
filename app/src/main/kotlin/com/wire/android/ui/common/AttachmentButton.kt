@@ -20,6 +20,8 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
@@ -49,7 +51,7 @@ fun AttachmentButton(
         ) {
             Image(
                 painter = painterResource(icon),
-                contentDescription = stringResource(R.string.content_description_attachment_item),
+                contentDescription = null,
                 contentScale = ContentScale.Inside,
                 modifier = Modifier
                     .padding(dimensions().spacing8x)

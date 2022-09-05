@@ -21,13 +21,12 @@ import com.wire.android.ui.home.conversationslist.mock.mockAllMentionList
 import com.wire.android.ui.home.conversationslist.mock.mockCallHistory
 import com.wire.android.ui.home.conversationslist.mock.mockMissedCalls
 import com.wire.android.ui.home.conversationslist.mock.mockUnreadMentionList
+import com.wire.android.ui.home.conversationslist.model.BadgeEventType
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.ConversationLastEvent
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
-import com.wire.android.ui.home.conversationslist.model.EventType
-import com.wire.android.ui.home.conversationslist.model.NewActivity
 import com.wire.android.ui.home.conversationslist.model.getBlockingState
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
@@ -39,6 +38,7 @@ import com.wire.kalium.logic.data.conversation.ConversationDetails.Self
 import com.wire.kalium.logic.data.conversation.LegalHoldStatus
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
@@ -99,21 +99,8 @@ class ConversationListViewModel @Inject constructor(
             .collect { (conversationListDetails, selfUser) ->
                 with(conversationListDetails) {
                     selfUserId = selfUser.id
-                val allConversations = conversationList
-
-                    val unreadConversations = allConversations.filter {
-                        when (it) {
-                            is Group -> it.unreadMessagesCount > 0
-                            is OneOne -> it.unreadMessagesCount > 0
-                            else -> false
-                        }
-                    }
-
-                    val remainingConversations = allConversations - unreadConversations.toSet()
-
                     state = ConversationListState(
-                        newActivities = unreadConversations.toNewActivities(selfUser),
-                        conversations = remainingConversations.toConversationsFoldersMap(selfUser),
+                        conversations = conversationList.toConversationsFoldersMap(selfUser),
                         missedCalls = mockMissedCalls, // TODO: needs to be implemented
                         callHistory = mockCallHistory, // TODO: needs to be implemented
                         unreadMentions = mockUnreadMentionList, // TODO: needs to be implemented
@@ -126,28 +113,29 @@ class ConversationListViewModel @Inject constructor(
             }
     }
 
-    private fun List<ConversationDetails>.toNewActivities(selfUser: SelfUser?): List<NewActivity> =
-        filter { it.conversation.supportsUnreadMessageCount }
-            .map { conversationDetails ->
-                when (conversationDetails) {
-                    is Group -> {
-                        NewActivity(
-                            eventType = EventType.UnreadMessage(conversationDetails.unreadMessagesCount),
-                            conversationItem = conversationDetails.toConversationItem(wireSessionImageLoader, selfUser, userTypeMapper)
-                        )
-                    }
-                    is OneOne -> {
-                        NewActivity(
-                            eventType = EventType.UnreadMessage(conversationDetails.unreadMessagesCount),
-                            conversationItem = conversationDetails.toConversationItem(wireSessionImageLoader, selfUser, userTypeMapper)
-                        )
-                    }
-                    else -> throw IllegalStateException("Unsupported type to get unread conversation count")
-                }
-            }
-
     private fun List<ConversationDetails>.toConversationsFoldersMap(selfUser: SelfUser?): Map<ConversationFolder, List<ConversationItem>> {
-        return mapOf(ConversationFolder.Predefined.Conversations to this.toConversationItemList(selfUser))
+        val unreadConversations = this.filter {
+            when (it.conversation.mutedStatus) {
+                MutedConversationStatus.AllAllowed ->
+                    when (it) {
+                        is Group -> it.unreadMessagesCount > 0
+                        is OneOne -> it.unreadMessagesCount > 0
+                        else -> false  // TODO should connection requests also be listed on "new activities"?
+                    }
+                MutedConversationStatus.OnlyMentionsAllowed ->
+                    when (it) {
+                        is Group -> it.unreadMentionsCount > 0
+                        is OneOne -> it.unreadMentionsCount > 0
+                        else -> false
+                    }
+                else -> false
+            }
+        }
+        val remainingConversations = this - unreadConversations.toSet()
+        return mapOf(
+            ConversationFolder.Predefined.NewActivities to unreadConversations.toConversationItemList(selfUser),
+            ConversationFolder.Predefined.Conversations to remainingConversations.toConversationItemList(selfUser)
+        )
     }
 
     fun openConversation(conversationId: ConversationId) {
@@ -304,8 +292,8 @@ private fun ConversationDetails.toConversationItem(
             mutedStatus = conversation.mutedStatus,
             isLegalHold = legalHoldStatus.showLegalHoldIndicator(),
             lastEvent = ConversationLastEvent.None, // TODO implement unread events
+            badgeEventType = parseConversationEventType(conversation.mutedStatus, unreadMentionsCount, unreadMessagesCount),
             hasOnGoingCall = hasOngoingCall,
-            unreadMessagesCount = unreadMessagesCount,
             isCreator = selfUser?.teamId != null
                     && conversation.creatorId.value == selfUser.id.value
         )
@@ -326,10 +314,11 @@ private fun ConversationDetails.toConversationItem(
             mutedStatus = conversation.mutedStatus,
             isLegalHold = legalHoldStatus.showLegalHoldIndicator(),
             lastEvent = ConversationLastEvent.None, // TODO implement unread events
-            unreadMessagesCount = unreadMessagesCount,
+            badgeEventType = parsePrivateConversationEventType(
+                connectionState, parseConversationEventType(conversation.mutedStatus, unreadMentionsCount, unreadMessagesCount)
+            ),
             userId = otherUser.id,
-            blockingState = otherUser.getBlockingState(selfUser?.teamId),
-            connectionState = otherUser.connectionStatus
+            blockingState = otherUser.getBlockingState(selfUser?.teamId)
         )
     }
     is Connection -> {
@@ -346,9 +335,9 @@ private fun ConversationDetails.toConversationItem(
                 connection.status,
                 connection.qualifiedToId
             ),
+            badgeEventType = parseConnectionEventType(connection.status),
             conversationId = conversation.id,
-            mutedStatus = conversation.mutedStatus,
-            connectionState = connection.status
+            mutedStatus = conversation.mutedStatus
         )
     }
     is Self -> {
@@ -356,5 +345,28 @@ private fun ConversationDetails.toConversationItem(
     }
     else -> {
         throw IllegalArgumentException("$this conversations should not be visible to the user.")
+    }
+}
+
+private fun parseConnectionEventType(connectionState: ConnectionState) =
+    if (connectionState == ConnectionState.SENT) BadgeEventType.SentConnectRequest else BadgeEventType.ReceivedConnectionRequest
+
+private fun parsePrivateConversationEventType(connectionState: ConnectionState, eventType: BadgeEventType) =
+    if (connectionState == ConnectionState.BLOCKED) BadgeEventType.Blocked
+    else eventType
+
+private fun parseConversationEventType(
+    mutedStatus: MutedConversationStatus,
+    unreadMentionsCount: Long,
+    unreadMessagesCount: Long
+): BadgeEventType = when (mutedStatus) {
+    MutedConversationStatus.AllMuted -> BadgeEventType.None
+    MutedConversationStatus.OnlyMentionsAllowed ->
+        if (unreadMentionsCount > 0) BadgeEventType.UnreadMention
+        else BadgeEventType.None
+    else -> when {
+        unreadMentionsCount > 0 -> BadgeEventType.UnreadMention
+        unreadMessagesCount > 0 -> BadgeEventType.UnreadMessage(unreadMessagesCount)
+        else -> BadgeEventType.None
     }
 }

@@ -46,7 +46,7 @@ import okio.Path.Companion.toPath
 
 @Composable
 fun AttachmentOptions(
-    keyboardHeightOffSet: KeyboardHeight,
+    keyboardHeight: KeyboardHeight,
     messageComposerState: MessageComposerInnerState,
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
@@ -56,8 +56,8 @@ fun AttachmentOptions(
     Box(
         Modifier
             .fillMaxWidth()
-            .height(keyboardHeightOffSet.height)
-            .absoluteOffset(y = messageComposerState.fullScreenHeight - keyboardHeightOffSet.height)
+            .height(keyboardHeight.height)
+            .absoluteOffset(y = messageComposerState.fullScreenHeight - keyboardHeight.height)
     ) {
         Divider()
         AttachmentOptionsComponent(

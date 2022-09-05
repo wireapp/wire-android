@@ -109,7 +109,6 @@ fun ConversationRouterHomeBridge(
         when (itemType) {
             ConversationItemType.ALL_CONVERSATIONS ->
                 AllConversationScreen(
-                    newActivities = newActivities,
                     conversations = conversations,
                     onOpenConversation = viewModel::openConversation,
                     onEditConversation = onEditConversationItem,

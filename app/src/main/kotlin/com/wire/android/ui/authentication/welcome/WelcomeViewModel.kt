@@ -9,6 +9,7 @@ import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.kalium.logic.feature.auth.AuthSession
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -42,13 +43,15 @@ class WelcomeViewModel @Inject constructor(
     }
 
     private fun checkNumberOfSessions() {
-        // todo : to be replaced by the active session use case
         getSessions().let {
             when (it) {
                 is GetAllSessionsResult.Success -> {
-                    if (!it.sessions.isNullOrEmpty()) {
-                        isThereActiveSession = true
-                    }
+                    isThereActiveSession =
+                        it.sessions.filter { it.session is AuthSession.Session.Valid }.isNullOrEmpty().not()
+                }
+                is GetAllSessionsResult.Failure.Generic -> {}
+                GetAllSessionsResult.Failure.NoSessionFound -> {
+                    isThereActiveSession = false
                 }
             }
         }

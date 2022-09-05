@@ -20,21 +20,21 @@ import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.BlockedLabel
 import com.wire.android.ui.common.button.WireItemLabel
-import com.wire.android.ui.home.conversationslist.model.EventType
+import com.wire.android.ui.home.conversationslist.model.BadgeEventType
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
 @Composable
-fun EventBadgeFactory(eventType: EventType, modifier: Modifier = Modifier) {
+fun EventBadgeFactory(eventType: BadgeEventType, modifier: Modifier = Modifier) {
     when (eventType) {
-        EventType.MissedCall -> MissedCallBadge(modifier)
-        EventType.UnreadMention -> UnreadMentionBadge(modifier)
-        is EventType.UnreadMessage -> UnreadMessageEventBadge(unreadMessageCount = eventType.unreadMessageCount, modifier)
-        EventType.UnreadReply -> UnreadReplyBadge(modifier)
-        EventType.ReceivedConnectionRequest -> ConnectRequestBadge(modifier)
-        EventType.SentConnectRequest -> ConnectPendingRequestBadge(modifier)
-        EventType.Blocked -> BlockedLabel(modifier)
+        BadgeEventType.MissedCall -> MissedCallBadge(modifier)
+        BadgeEventType.UnreadMention -> UnreadMentionBadge(modifier)
+        is BadgeEventType.UnreadMessage -> UnreadMessageEventBadge(unreadMessageCount = eventType.unreadMessageCount, modifier)
+        BadgeEventType.UnreadReply -> UnreadReplyBadge(modifier)
+        BadgeEventType.ReceivedConnectionRequest -> ConnectRequestBadge(modifier)
+        BadgeEventType.SentConnectRequest -> ConnectPendingRequestBadge(modifier)
+        BadgeEventType.Blocked -> BlockedLabel(modifier)
     }
 }
 

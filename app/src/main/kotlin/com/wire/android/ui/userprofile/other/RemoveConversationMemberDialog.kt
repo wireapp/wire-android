@@ -9,39 +9,40 @@ import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
+import com.wire.android.ui.common.visbility.VisibilityState
 import com.wire.android.ui.userprofile.group.RemoveConversationMemberState
 
 @Composable
 internal fun RemoveConversationMemberDialog(
-    dialogState: PreservedState<RemoveConversationMemberState>?,
-    onDialogDismiss: () -> Unit,
-    onRemoveConversationMember: (PreservedState<RemoveConversationMemberState>) -> Unit,
+    dialogState: VisibilityState<RemoveConversationMemberState>,
+    isLoading: Boolean,
+    onRemoveConversationMember: (RemoveConversationMemberState) -> Unit,
 ) {
 
-    VisibilityState(dialogState) { preservedState ->
+    VisibilityState(dialogState) { state ->
         WireDialog(
             title = stringResource(R.string.dialog_remove_conversation_member_title),
             text = stringResource(
                 R.string.dialog_remove_conversation_member_description,
-                preservedState.state.fullName,
-                preservedState.state.userName
+                state.fullName,
+                state.userName
             ),
             buttonsHorizontalAlignment = true,
-            onDismiss = onDialogDismiss,
+            onDismiss = dialogState::dismiss,
             dismissButtonProperties = WireDialogButtonProperties(
-                onClick = onDialogDismiss,
+                onClick = dialogState::dismiss,
                 text = stringResource(id = R.string.label_cancel),
                 state = WireButtonState.Default
             ),
             optionButton1Properties = WireDialogButtonProperties(
-                onClick = { onRemoveConversationMember(preservedState) },
+                onClick = { onRemoveConversationMember(state) },
                 text = stringResource(id = R.string.label_remove),
                 type = WireDialogButtonType.Primary,
-                state = if (preservedState is PreservedState.Loading)
+                state = if (isLoading)
                     WireButtonState.Disabled
                 else
                     WireButtonState.Error,
-                loading = (preservedState is PreservedState.Loading)
+                loading = (isLoading)
             )
         )
     }

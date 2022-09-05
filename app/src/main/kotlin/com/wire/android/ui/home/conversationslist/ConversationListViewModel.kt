@@ -9,13 +9,10 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.model.ImageAsset.UserAvatarAsset
-import com.wire.android.model.PreservedState
 import com.wire.android.model.UserAvatarData
-import com.wire.android.model.toLoading
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
-import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.home.HomeSnackbarState
 import com.wire.android.ui.home.conversationslist.mock.mockAllMentionList
 import com.wire.android.ui.home.conversationslist.mock.mockCallHistory
@@ -28,6 +25,7 @@ import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.ConversationLastEvent
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.ui.home.conversationslist.model.getBlockingState
+import com.wire.android.ui.userprofile.other.BlockUserDialogState
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.ConversationDetails
@@ -80,9 +78,6 @@ class ConversationListViewModel @Inject constructor(
 
     var state by mutableStateOf(ConversationListState())
         private set
-
-    var blockUserDialogState: PreservedState<BlockUserDialogState>?
-            by mutableStateOf(null)
 
     val snackBarState = MutableSharedFlow<HomeSnackbarState>()
     lateinit var selfUserId: UserId
@@ -213,30 +208,22 @@ class ConversationListViewModel @Inject constructor(
     fun clearConversationContent(id: String = "") {
     }
 
-    fun blockUser(id: UserId, userName: String) {
+    fun blockUser(blockUserState: BlockUserDialogState) {
         viewModelScope.launch(dispatcher.io()) {
-            blockUserDialogState = blockUserDialogState?.toLoading()
-            val state = when (val result = blockUserUseCase(id)) {
+            requestInProgress = true
+            val state = when (val result = blockUserUseCase(blockUserState.userId)) {
                 BlockUserResult.Success -> {
-                    appLogger.d("User $id was blocked")
-                    HomeSnackbarState.BlockingUserOperationSuccess(userName)
+                    appLogger.d("User ${blockUserState.userId} was blocked")
+                    HomeSnackbarState.BlockingUserOperationSuccess(blockUserState.userName)
                 }
                 is BlockUserResult.Failure -> {
-                    appLogger.d("Error while blocking user $id ; Error ${result.coreFailure}")
+                    appLogger.d("Error while blocking user ${blockUserState.userId} ; Error ${result.coreFailure}")
                     HomeSnackbarState.BlockingUserOperationError
                 }
             }
             snackBarState.emit(state)
         }
-        blockUserDialogState = null
-    }
-
-    fun onDismissBlockUserDialog() {
-        blockUserDialogState = null
-    }
-
-    fun onBlockUserClicked(id: UserId, name: String) {
-        blockUserDialogState = PreservedState.State(BlockUserDialogState(name, id))
+        requestInProgress = false
     }
 
     fun leaveGroup(leaveGroupState: GroupDialogState) {

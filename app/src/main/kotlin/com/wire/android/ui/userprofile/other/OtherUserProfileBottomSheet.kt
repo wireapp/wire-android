@@ -4,13 +4,12 @@ import MutingOptionsSheetContent
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationMainSheetContent
-import com.wire.kalium.logic.data.user.UserId
 
 @Composable
 fun OtherUserProfileBottomSheetContent(
     bottomSheetState: BottomSheetContent?,
     eventsHandler: OtherUserProfileBottomSheetEventsHandler,
-    blockUser: (UserId, String) -> Unit,
+    blockUser: (BlockUserDialogState) -> Unit,
     closeBottomSheet: () -> Unit
 ) {
     when (bottomSheetState) {

@@ -18,6 +18,7 @@ import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetC
 import com.wire.android.ui.home.conversationslist.bottomsheet.rememberConversationSheetState
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
+import com.wire.android.ui.userprofile.other.BlockUserDialogState
 
 @ExperimentalAnimationApi
 @ExperimentalMaterial3Api
@@ -40,11 +41,12 @@ fun ConversationRouterHomeBridge(
 
     val leaveGroupDialogState = rememberVisibilityState<GroupDialogState>()
     val deleteGroupDialogState = rememberVisibilityState<GroupDialogState>()
-
+    val blockUserDialogState = rememberVisibilityState<BlockUserDialogState>()
 
     if (!viewModel.requestInProgress) {
         leaveGroupDialogState.dismiss()
         deleteGroupDialogState.dismiss()
+        blockUserDialogState.dismiss()
     }
 
     fun openConversationBottomSheet(
@@ -80,7 +82,7 @@ fun ConversationRouterHomeBridge(
                 moveConversationToFolder = viewModel::moveConversationToFolder,
                 moveConversationToArchive = viewModel::moveConversationToArchive,
                 clearConversationContent = viewModel::clearConversationContent,
-                blockUser = viewModel::onBlockUserClicked,
+                blockUser = blockUserDialogState::show,
                 leaveGroup = leaveGroupDialogState::show,
                 deleteGroup = deleteGroupDialogState::show
             )
@@ -140,9 +142,9 @@ fun ConversationRouterHomeBridge(
     }
 
     BlockUserDialogContent(
-        dialogState = viewModel.blockUserDialogState,
-        dismiss = viewModel::onDismissBlockUserDialog,
-        onBlock = viewModel::onBlockUserClicked
+        isLoading = viewModel.requestInProgress,
+        dialogState = blockUserDialogState,
+        onBlock = viewModel::blockUser
     )
 
     DeleteConversationGroupDialog(

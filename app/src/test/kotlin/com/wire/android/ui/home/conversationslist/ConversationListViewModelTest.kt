@@ -15,6 +15,7 @@ import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.ConversationLastEvent
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.ui.userprofile.other.BlockUserDialogState
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
@@ -153,7 +154,12 @@ class ConversationListViewModelTest {
     @Test
     fun `given a valid conversation muting state, when calling block user, then should call BlockUserUseCase`() = runTest {
         coEvery { blockUser(any()) } returns BlockUserResult.Success
-        conversationListViewModel.blockUser(userId, "someName")
+        conversationListViewModel.blockUser(
+            BlockUserDialogState(
+                userName = "someName",
+                userId = userId
+            )
+        )
 
         coVerify(exactly = 1) { blockUser(userId) }
     }

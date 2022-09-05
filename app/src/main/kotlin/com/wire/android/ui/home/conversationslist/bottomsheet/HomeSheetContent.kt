@@ -28,6 +28,7 @@ import com.wire.android.ui.home.conversationslist.model.BlockingState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.ui.home.conversationslist.model.getMutedStatusTextResource
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.ui.userprofile.other.BlockUserDialogState
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
@@ -39,7 +40,7 @@ internal fun ConversationMainSheetContent(
     moveConversationToFolder: () -> Unit,
     moveConversationToArchive: () -> Unit,
     clearConversationContent: () -> Unit,
-    blockUserClick: (UserId, String) -> Unit,
+    blockUserClick: (BlockUserDialogState) -> Unit,
     leaveGroup: (GroupDialogState) -> Unit,
     deleteGroup: (GroupDialogState) -> Unit,
     navigateToNotification: () -> Unit
@@ -143,8 +144,10 @@ internal fun ConversationMainSheetContent(
                                 title = stringResource(R.string.label_block),
                                 onItemClick = {
                                     blockUserClick(
-                                        conversationSheetContent.conversationTypeDetail.userId,
-                                        conversationSheetContent.title
+                                        BlockUserDialogState(
+                                            userName = conversationSheetContent.title,
+                                            userId = conversationSheetContent.conversationTypeDetail.userId
+                                        )
                                     )
                                 }
                             )

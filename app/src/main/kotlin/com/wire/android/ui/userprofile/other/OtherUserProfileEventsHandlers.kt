@@ -11,30 +11,18 @@ import kotlinx.coroutines.Job
 @Suppress("TooManyFunctions")
 interface OtherUserProfileEventsHandler {
     fun navigateBack(): Job
-    fun hideBlockUserDialog()
-    fun showBlockUserDialog(userId: UserId, userName: String)
-    fun onBlockUser(userId: UserId, userName: String)
+    fun onBlockUser(blockUserState: BlockUserDialogState)
     fun setBottomSheetStateToChangeRole()
-    fun showRemoveConversationMemberDialog()
-    fun hideRemoveConversationMemberDialog()
-    fun onRemoveConversationMember(state: PreservedState<RemoveConversationMemberState>)
-    fun hideUnblockUserDialog()
-    fun showUnblockUserDialog(userName: String)
+    fun onRemoveConversationMember(state: RemoveConversationMemberState)
     fun onUnblockUser(userId: UserId)
     fun getOtherUserClients()
 
     companion object {
         @Suppress("TooManyFunctions")
         val PREVIEW = object : OtherUserProfileEventsHandler {
-            override fun hideBlockUserDialog() {}
-            override fun showBlockUserDialog(userId: UserId, userName: String) {}
-            override fun onBlockUser(userId: UserId, userName: String) {}
+            override fun onBlockUser(blockUserState: BlockUserDialogState) {}
             override fun setBottomSheetStateToChangeRole() {}
-            override fun showRemoveConversationMemberDialog() {}
-            override fun hideRemoveConversationMemberDialog() {}
-            override fun onRemoveConversationMember(state: PreservedState<RemoveConversationMemberState>) {}
-            override fun hideUnblockUserDialog() {}
-            override fun showUnblockUserDialog(userName: String) {}
+            override fun onRemoveConversationMember(state: RemoveConversationMemberState) {}
             override fun onUnblockUser(userId: UserId) {}
             override fun getOtherUserClients() {}
             override fun navigateBack(): Job {

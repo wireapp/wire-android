@@ -30,6 +30,7 @@ import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.client.RegisterClientUseCase
 import com.wire.kalium.logic.feature.server.FetchApiVersionResult
 import com.wire.kalium.logic.feature.server.FetchApiVersionUseCase
+import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import com.wire.kalium.logic.feature.session.RegisterTokenResult
 import com.wire.kalium.logic.feature.session.RegisterTokenUseCase
 import io.mockk.MockKAnnotations
@@ -65,7 +66,7 @@ class LoginEmailViewModelTest {
     private lateinit var clientScopeProviderFactory: ClientScopeProvider.Factory
 
     @MockK
-    private lateinit var userSessionsUseCaseProviderFactory: UserSessionsUseCaseProvider.Factory
+    private lateinit var getSessionsUseCase: GetSessionsUseCase
 
     @MockK
     private lateinit var clientScope: ClientScope
@@ -116,7 +117,7 @@ class LoginEmailViewModelTest {
             addAuthenticatedUserUseCase,
             qualifiedIdMapper,
             clientScopeProviderFactory,
-            userSessionsUseCaseProviderFactory,
+            getSessionsUseCase,
             fetchApiVersion,
             savedStateHandle,
             navigationManager,

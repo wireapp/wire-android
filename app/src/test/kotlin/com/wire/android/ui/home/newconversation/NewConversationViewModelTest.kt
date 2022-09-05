@@ -5,7 +5,6 @@ import com.wire.android.R
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.UserAvatarData
-import com.wire.android.ui.home.conversations.search.ContactSearchResult
 import com.wire.android.ui.home.conversations.search.SearchResultState
 import com.wire.android.ui.home.conversations.search.SearchResultTitle
 import com.wire.android.ui.home.conversationslist.model.Membership
@@ -39,48 +38,46 @@ class NewConversationViewModelTest {
 
             // Then
             assertEquals(
-                viewModel.state.searchResult[SearchResultTitle(R.string.label_contacts)], ContactSearchResult.InternalContact(
-                    SearchResultState.Success(
-                        result = listOf(
-                            Contact(
-                                id = "knownValue",
-                                domain = "domain",
-                                name = "knownUsername",
-                                avatarData = UserAvatarData(
-                                    asset = ImageAsset.UserAvatarAsset(
-                                        arrangement.wireSessionImageLoader,
-                                        UserAssetId("value", "domain")
-                                    ),
-                                    availabilityStatus = UserAvailabilityStatus.AVAILABLE
+                viewModel.state.searchResult[SearchResultTitle(R.string.label_contacts)]!!.searchResultState,
+                SearchResultState.Success(
+                    result = listOf(
+                        Contact(
+                            id = "knownValue",
+                            domain = "domain",
+                            name = "knownUsername",
+                            avatarData = UserAvatarData(
+                                asset = ImageAsset.UserAvatarAsset(
+                                    arrangement.wireSessionImageLoader,
+                                    UserAssetId("value", "domain")
                                 ),
-                                label = "knownHandle",
-                                connectionState = ConnectionState.NOT_CONNECTED,
-                                membership = Membership.Federated
-                            )
+                                availabilityStatus = UserAvailabilityStatus.AVAILABLE
+                            ),
+                            label = "knownHandle",
+                            connectionState = ConnectionState.NOT_CONNECTED,
+                            membership = Membership.Federated
                         )
                     )
                 )
             )
 
             assertEquals(
-                viewModel.state.searchResult[SearchResultTitle(R.string.label_public_wire)], ContactSearchResult.ExternalContact(
-                    SearchResultState.Success(
-                        result = listOf(
-                            Contact(
-                                id = "publicValue",
-                                domain = "domain",
-                                name = "publicUsername",
-                                avatarData = UserAvatarData(
-                                    asset = ImageAsset.UserAvatarAsset(
-                                        arrangement.wireSessionImageLoader,
-                                        UserAssetId("value", "domain")
-                                    ),
-                                    availabilityStatus = UserAvailabilityStatus.AVAILABLE
+                viewModel.state.searchResult[SearchResultTitle(R.string.label_public_wire)]!!.searchResultState,
+                SearchResultState.Success(
+                    result = listOf(
+                        Contact(
+                            id = "publicValue",
+                            domain = "domain",
+                            name = "publicUsername",
+                            avatarData = UserAvatarData(
+                                asset = ImageAsset.UserAvatarAsset(
+                                    arrangement.wireSessionImageLoader,
+                                    UserAssetId("value", "domain")
                                 ),
-                                label = "publicHandle",
-                                connectionState = ConnectionState.NOT_CONNECTED,
-                                membership = Membership.Federated
-                            )
+                                availabilityStatus = UserAvailabilityStatus.AVAILABLE
+                            ),
+                            label = "publicHandle",
+                            connectionState = ConnectionState.NOT_CONNECTED,
+                            membership = Membership.Federated
                         )
                     )
                 )

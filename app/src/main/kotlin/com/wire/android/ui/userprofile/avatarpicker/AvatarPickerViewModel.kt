@@ -83,7 +83,6 @@ class AvatarPickerViewModel @Inject constructor(
                     is NetworkFailure.NoNetworkConnection -> ErrorCodes.NoNetworkError
                     else -> ErrorCodes.UploadAvatarError
                 }
-                updatePickedAvatarUri(imgUri)
             }
         }
     }

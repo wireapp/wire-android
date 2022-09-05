@@ -2,7 +2,6 @@ package com.wire.android.ui.common.topappbar.search
 
 
 import androidx.compose.animation.AnimatedContent
-import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -34,68 +33,65 @@ import com.wire.android.ui.theme.wireColorScheme
 @Composable
 fun SearchTopBar(
     isSearchActive: Boolean,
-    isSearchBarCollapsed: Boolean,
     searchBarHint: String,
     searchQuery: TextFieldValue = TextFieldValue(""),
     onSearchQueryChanged: (TextFieldValue) -> Unit,
     onInputClicked: () -> Unit,
     onCloseSearchClicked: () -> Unit,
 ) {
-    AnimatedVisibility(!isSearchBarCollapsed) {
-        Box(
-            modifier = Modifier
-                .wrapContentHeight()
-                .fillMaxWidth()
-                .background(MaterialTheme.wireColorScheme.background)
-        ) {
-            val interactionSource = remember {
-                MutableInteractionSource()
+    Box(
+        modifier = Modifier
+            .wrapContentHeight()
+            .fillMaxWidth()
+            .background(MaterialTheme.wireColorScheme.background)
+    ) {
+        val interactionSource = remember {
+            MutableInteractionSource()
+        }
+
+        val focusManager = LocalFocusManager.current
+
+        LaunchedEffect(isSearchActive) {
+            if (!isSearchActive) {
+                focusManager.clearFocus()
+                onSearchQueryChanged(TextFieldValue(""))
             }
+        }
 
-            val focusManager = LocalFocusManager.current
-
-            LaunchedEffect(isSearchActive) {
-                if (!isSearchActive) {
-                    focusManager.clearFocus()
-                    onSearchQueryChanged(TextFieldValue(""))
-                }
-            }
-
-            SearchBarInput(
-                placeholderText = searchBarHint,
-                text = searchQuery,
-                onTextTyped = onSearchQueryChanged,
-                leadingIcon = {
-                    AnimatedContent(!isSearchActive) { isVisible ->
-                        IconButton(onClick = {
-                            if (!isVisible) {
-                                onCloseSearchClicked()
-                            }
-                        }) {
-                            Icon(
-                                painter = painterResource(
-                                    id = if (isVisible) R.drawable.ic_search
-                                    else R.drawable.ic_arrow_left
-                                ),
-                                contentDescription = stringResource(R.string.content_description_conversation_search_icon),
-                                tint = MaterialTheme.wireColorScheme.onBackground
-                            )
+        SearchBarInput(
+            placeholderText = searchBarHint,
+            text = searchQuery,
+            onTextTyped = onSearchQueryChanged,
+            leadingIcon = {
+                AnimatedContent(!isSearchActive) { isVisible ->
+                    IconButton(onClick = {
+                        if (!isVisible) {
+                            onCloseSearchClicked()
                         }
+                    }) {
+                        Icon(
+                            painter = painterResource(
+                                id = if (isVisible) R.drawable.ic_search
+                                else R.drawable.ic_arrow_left
+                            ),
+                            contentDescription = stringResource(R.string.content_description_conversation_search_icon),
+                            tint = MaterialTheme.wireColorScheme.onBackground
+                        )
                     }
-                },
-                placeholderTextStyle = textStyleAlignment(isTopBarVisible = !isSearchActive),
-                textStyle = textStyleAlignment(isTopBarVisible = !isSearchActive),
-                interactionSource = interactionSource,
-                modifier = Modifier.padding(dimensions().spacing8x)
-            )
-
-            if (interactionSource.collectIsPressedAsState().value) {
-                // we want to propagate the click on the input of the search
-                // only the first time the user clicks on the input
-                // that is when the search is not active
-                if (!isSearchActive) {
-                    onInputClicked()
                 }
+            },
+            placeholderTextStyle = textStyleAlignment(isTopBarVisible = !isSearchActive),
+            textStyle = textStyleAlignment(isTopBarVisible = !isSearchActive),
+            interactionSource = interactionSource,
+            modifier = Modifier.padding(dimensions().spacing8x)
+        )
+
+        if (interactionSource.collectIsPressedAsState().value) {
+            // we want to propagate the click on the input of the search
+            // only the first time the user clicks on the input
+            // that is when the search is not active
+            if (!isSearchActive) {
+                onInputClicked()
             }
         }
     }

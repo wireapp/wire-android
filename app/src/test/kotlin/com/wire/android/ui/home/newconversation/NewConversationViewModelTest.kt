@@ -51,7 +51,7 @@ class NewConversationViewModelTest {
                                         arrangement.wireSessionImageLoader,
                                         UserAssetId("value", "domain")
                                     ),
-                                    availabilityStatus = UserAvailabilityStatus.NONE
+                                    availabilityStatus = UserAvailabilityStatus.AVAILABLE
                                 ),
                                 label = "knownHandle",
                                 connectionState = ConnectionState.NOT_CONNECTED,
@@ -75,7 +75,7 @@ class NewConversationViewModelTest {
                                         arrangement.wireSessionImageLoader,
                                         UserAssetId("value", "domain")
                                     ),
-                                    availabilityStatus = UserAvailabilityStatus.NONE
+                                    availabilityStatus = UserAvailabilityStatus.AVAILABLE
                                 ),
                                 label = "publicHandle",
                                 connectionState = ConnectionState.NOT_CONNECTED,

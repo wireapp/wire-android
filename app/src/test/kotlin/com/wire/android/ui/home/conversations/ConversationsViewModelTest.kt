@@ -539,38 +539,78 @@ class ConversationsViewModelTest {
     }
 
     @Test
-    fun `a`() = runTest {
-        val groupDetails: ConversationDetails.Group = mockConversationDetailsGroup("Conversation Name Goes Here")
-        val uiMessage = mockUITextMessage("some name")
+    fun `given group conversation, when updating the conversation details lastUnreadMessage from non existing to existing, then correctly propagate it up to state`() =
+        runTest {
+            val groupDetails: ConversationDetails.Group = mockConversationDetailsGroup("Conversation Name Goes Here")
+            val uiMessage = mockUITextMessage("commonId")
 
-        val (arrangement, viewModel) = ConversationsViewModelArrangement()
-            .withSuccessfulViewModelInit()
-            .withConversationDetailUpdate(groupDetails)
-            .withMessagesUpdate(listOf(uiMessage))
-            .arrange()
+            val (arrangement, viewModel) = ConversationsViewModelArrangement()
+                .withSuccessfulViewModelInit()
+                .withConversationDetailUpdate(groupDetails)
+                .withMessagesUpdate(listOf(uiMessage))
+                .arrange()
 
-        val sendMessage = Message.Regular(
-            id = "commonId",
-            content = MessageContent.Text("some Text"),
-            conversationId = QualifiedID("someValue", "someId"),
-            date = "someDate",
-            senderUserId = QualifiedID("someValue", "someId"),
-            status = Message.Status.SENT,
-            visibility = Message.Visibility.VISIBLE,
-            senderClientId = PlainId(value = "someValue"),
-            editStatus = Message.EditStatus.NotEdited
-        )
+            val sendMessage = Message.Regular(
+                id = "commonId",
+                content = MessageContent.Text("some Text"),
+                conversationId = QualifiedID("someValue", "someId"),
+                date = "someDate",
+                senderUserId = QualifiedID("someValue", "someId"),
+                status = Message.Status.SENT,
+                visibility = Message.Visibility.VISIBLE,
+                senderClientId = PlainId(value = "someValue"),
+                editStatus = Message.EditStatus.NotEdited
+            )
 
-        arrangement.conversationDetailsChannel.send(
-            groupDetails.copy(lastUnreadMessage = sendMessage)
-        )
+            arrangement.conversationDetailsChannel.send(
+                groupDetails.copy(lastUnreadMessage = sendMessage)
+            )
 
-        assert(viewModel.conversationViewState.lastUnreadMessage!!.messageHeader.messageId == sendMessage.id)
+            assert(viewModel.conversationViewState.lastUnreadMessage != null)
+            assert(viewModel.conversationViewState.lastUnreadMessage!!.messageHeader.messageId == sendMessage.id)
 
-        arrangement.conversationDetailsChannel.send(
-            groupDetails.copy(lastUnreadMessage = null)
-        )
+            arrangement.conversationDetailsChannel.send(
+                groupDetails.copy(lastUnreadMessage = null)
+            )
 
-        assert(viewModel.conversationViewState.lastUnreadMessage == null)
-    }
+            assert(viewModel.conversationViewState.lastUnreadMessage == null)
+        }
+
+    @Test
+    fun `given group conversation, when updating the conversation details lastUnreadMessage from existing to non-existing, then correctly propagate it up to state`() =
+        runTest {
+            val groupDetails: ConversationDetails.Group = mockConversationDetailsGroup("Conversation Name Goes Here")
+            val uiMessage = mockUITextMessage("commonId")
+
+            val (arrangement, viewModel) = ConversationsViewModelArrangement()
+                .withSuccessfulViewModelInit()
+                .withConversationDetailUpdate(groupDetails)
+                .withMessagesUpdate(listOf(uiMessage))
+                .arrange()
+
+            val sendMessage = Message.Regular(
+                id = "commonId",
+                content = MessageContent.Text("some Text"),
+                conversationId = QualifiedID("someValue", "someId"),
+                date = "someDate",
+                senderUserId = QualifiedID("someValue", "someId"),
+                status = Message.Status.SENT,
+                visibility = Message.Visibility.VISIBLE,
+                senderClientId = PlainId(value = "someValue"),
+                editStatus = Message.EditStatus.NotEdited
+            )
+
+            arrangement.conversationDetailsChannel.send(
+                groupDetails.copy(lastUnreadMessage = null)
+            )
+
+            assert(viewModel.conversationViewState.lastUnreadMessage == null)
+
+            arrangement.conversationDetailsChannel.send(
+                groupDetails.copy(lastUnreadMessage = sendMessage)
+            )
+
+            assert(viewModel.conversationViewState.lastUnreadMessage != null)
+            assert(viewModel.conversationViewState.lastUnreadMessage!!.messageHeader.messageId == sendMessage.id)
+        }
 }

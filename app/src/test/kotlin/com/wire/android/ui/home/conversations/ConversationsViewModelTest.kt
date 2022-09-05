@@ -539,7 +539,7 @@ class ConversationsViewModelTest {
     }
 
     @Test
-    fun `given group conversation, when updating the conversation details lastUnreadMessage from non existing to existing, then correctly propagate it up to state`() =
+    fun `given group conversation, when lastUnreadMessage is cleared, then correctly propagate it up to state`() =
         runTest {
             val groupDetails: ConversationDetails.Group = mockConversationDetailsGroup("Conversation Name Goes Here")
             val uiMessage = mockUITextMessage("commonId")
@@ -577,7 +577,7 @@ class ConversationsViewModelTest {
         }
 
     @Test
-    fun `given group conversation, when updating the conversation details lastUnreadMessage from existing to non-existing, then correctly propagate it up to state`() =
+    fun `given group conversation, when new lastUnreadMessage arrive, then correctly propagate it up to state`() =
         runTest {
             val groupDetails: ConversationDetails.Group = mockConversationDetailsGroup("Conversation Name Goes Here")
             val uiMessage = mockUITextMessage("commonId")

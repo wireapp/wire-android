@@ -12,11 +12,10 @@ import com.wire.android.ui.theme.wireTypography
 
 
 @Composable
-fun FolderHeader(name: String) {
+fun FolderHeader(name: String, modifier: Modifier = Modifier) {
     Text(
         text = name.uppercase(),
-        modifier = Modifier
-            .padding(start = 16.dp, top = 8.dp, bottom = 8.dp),
+        modifier = modifier.padding(start = 16.dp, top = 8.dp, bottom = 8.dp),
         maxLines = 1,
         overflow = TextOverflow.Ellipsis,
         style = MaterialTheme.wireTypography.title03,

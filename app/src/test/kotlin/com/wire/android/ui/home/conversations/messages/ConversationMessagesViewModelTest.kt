@@ -2,7 +2,13 @@ package com.wire.android.ui.home.conversations.messages
 
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.ui.home.conversations.DownloadedAssetDialogVisibilityState
+import com.wire.android.ui.home.conversations.mockConversationDetailsGroup
 import com.wire.android.ui.home.conversations.mockUITextMessage
+import com.wire.kalium.logic.data.conversation.ConversationDetails
+import com.wire.kalium.logic.data.id.PlainId
+import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.message.Message
+import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.util.fileExtension
 import io.mockk.coVerify
 import io.mockk.every
@@ -64,7 +70,7 @@ class ConversationMessagesViewModelTest {
     fun `given message sent a user, when solving the message header, then the state should contain the user name`() = runTest {
         // Given
         val selfUserName = "self user"
-        val messages = listOf(mockUITextMessage(selfUserName))
+        val messages = listOf(mockUITextMessage(userName = selfUserName))
         val (arrangement, viewModel) = ConversationMessagesViewModelArrangement()
             .withSuccessfulViewModelInit()
             .withMessagesUpdate(messages)
@@ -81,9 +87,10 @@ class ConversationMessagesViewModelTest {
     fun `given the sender is updated, when solving the message header, then the update is propagated in the state`() = runTest {
         // Given
         val firstUserName = "other user"
-        val originalMessages = listOf(mockUITextMessage(firstUserName))
+        val originalMessages = listOf(mockUITextMessage(userName = firstUserName))
         val secondUserName = "User changed their name"
-        val updatedMessages = listOf(mockUITextMessage(secondUserName))
+        val updatedMessages = listOf(mockUITextMessage(userName = secondUserName))
+
         val (arrangement, viewModel) = ConversationMessagesViewModelArrangement()
             .withSuccessfulViewModelInit()
             .withMessagesUpdate(originalMessages)
@@ -107,4 +114,80 @@ class ConversationMessagesViewModelTest {
             viewModel.conversationViewState.messages.first().messageHeader.username.asString(arrangement.resources)
         )
     }
+
+    @Test
+    fun `given group conversation, when lastUnreadMessage is cleared, then correctly propagate it up to state`() =
+        runTest {
+            val groupDetails: ConversationDetails.Group = mockConversationDetailsGroup("Conversation Name Goes Here")
+            val uiMessage = mockUITextMessage("commonId")
+
+            val (arrangement, viewModel) = ConversationMessagesViewModelArrangement()
+                .withSuccessfulViewModelInit()
+                .withConversationDetailUpdate(groupDetails)
+                .withMessagesUpdate(listOf(uiMessage))
+                .arrange()
+
+            val sendMessage = Message.Regular(
+                id = "commonId",
+                content = MessageContent.Text("some Text"),
+                conversationId = QualifiedID("someValue", "someId"),
+                date = "someDate",
+                senderUserId = QualifiedID("someValue", "someId"),
+                status = Message.Status.SENT,
+                visibility = Message.Visibility.VISIBLE,
+                senderClientId = PlainId(value = "someValue"),
+                editStatus = Message.EditStatus.NotEdited
+            )
+
+            arrangement.conversationDetailsChannel.send(
+                groupDetails.copy(lastUnreadMessage = sendMessage)
+            )
+
+            assert(viewModel.conversationViewState.lastUnreadMessage != null)
+            assert(viewModel.conversationViewState.lastUnreadMessage!!.messageHeader.messageId == sendMessage.id)
+
+            arrangement.conversationDetailsChannel.send(
+                groupDetails.copy(lastUnreadMessage = null)
+            )
+
+            assert(viewModel.conversationViewState.lastUnreadMessage == null)
+        }
+
+    @Test
+    fun `given group conversation, when new lastUnreadMessage arrive, then correctly propagate it up to state`() =
+        runTest {
+            val groupDetails: ConversationDetails.Group = mockConversationDetailsGroup("Conversation Name Goes Here")
+            val uiMessage = mockUITextMessage("commonId")
+
+            val (arrangement, viewModel) = ConversationMessagesViewModelArrangement()
+                .withSuccessfulViewModelInit()
+                .withConversationDetailUpdate(groupDetails)
+                .withMessagesUpdate(listOf(uiMessage))
+                .arrange()
+
+            val sendMessage = Message.Regular(
+                id = "commonId",
+                content = MessageContent.Text("some Text"),
+                conversationId = QualifiedID("someValue", "someId"),
+                date = "someDate",
+                senderUserId = QualifiedID("someValue", "someId"),
+                status = Message.Status.SENT,
+                visibility = Message.Visibility.VISIBLE,
+                senderClientId = PlainId(value = "someValue"),
+                editStatus = Message.EditStatus.NotEdited
+            )
+
+            arrangement.conversationDetailsChannel.send(
+                groupDetails.copy(lastUnreadMessage = null)
+            )
+
+            assert(viewModel.conversationViewState.lastUnreadMessage == null)
+
+            arrangement.conversationDetailsChannel.send(
+                groupDetails.copy(lastUnreadMessage = sendMessage)
+            )
+
+            assert(viewModel.conversationViewState.lastUnreadMessage != null)
+            assert(viewModel.conversationViewState.lastUnreadMessage!!.messageHeader.messageId == sendMessage.id)
+        }
 }

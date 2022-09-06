@@ -18,14 +18,20 @@ inline fun <T, K : Any> LazyListScope.folderWithElements(
 ) {
     val list = items.entries.toList()
     if (items.isNotEmpty()) {
-        item(key = "header:$header") { FolderHeader(name = header) }
+        item(key = "header:$header") {
+            FolderHeader(
+                name = header,
+                modifier = Modifier.animateItemPlacement()
+            )
+        }
         itemsIndexed(
             items = list,
             key = { _: Int, item: Map.Entry<K, T> -> item.key })
         { index: Int, item: Map.Entry<K, T> ->
             Box(modifier = Modifier
                     .wrapContentSize()
-                    .animateItemPlacement()) {
+                    .animateItemPlacement()
+            ) {
                 factory(item.value)
                 if (index < list.lastIndex)
                     divider()

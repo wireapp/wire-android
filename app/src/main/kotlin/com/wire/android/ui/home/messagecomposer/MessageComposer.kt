@@ -61,7 +61,7 @@ fun MessageComposer(
     onMessageComposerInputStateChange: (MessageComposerStateTransition) -> Unit,
     isFileSharingEnabled: Boolean,
     isUserBlocked: Boolean,
-    isConversationMember: Boolean,
+    isSendingMessagesAllowed: Boolean,
     tempCachePath: Path,
     securityClassificationType: SecurityClassificationType
 ) {
@@ -96,7 +96,7 @@ fun MessageComposer(
             onMessageComposerError = onMessageComposerError,
             isFileSharingEnabled = isFileSharingEnabled,
             isUserBlocked = isUserBlocked,
-            isConversationMember = isConversationMember,
+            isSendingMessagesAllowed = isSendingMessagesAllowed,
             tempCachePath = tempCachePath,
             securityClassificationType = securityClassificationType
         )
@@ -122,7 +122,7 @@ private fun MessageComposer(
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
     isFileSharingEnabled: Boolean,
     isUserBlocked: Boolean,
-    isConversationMember: Boolean,
+    isSendingMessagesAllowed: Boolean,
     tempCachePath: Path,
     securityClassificationType: SecurityClassificationType
 ) {
@@ -195,13 +195,13 @@ private fun MessageComposer(
                                 )
                             }
                             .background(color = colorsScheme().backgroundVariant)
-                            .padding(bottom = if (isConversationMember) 0.dp else dimensions().spacing16x)
+                            .padding(bottom = dimensions().spacing8x)
                             .weight(1f)) {
                         content()
                     }
                     if (isUserBlocked) {
                         BlockedUserMessage()
-                    } else if (isConversationMember) {
+                    } else if (isSendingMessagesAllowed) {
                         // Column wrapping CollapseIconButton and MessageComposerInput
                         Column(
                             modifier = Modifier
@@ -226,7 +226,7 @@ private fun MessageComposer(
                         }
                     }
                 }
-                if (!isUserBlocked && isConversationMember) {
+                if (!isUserBlocked && isSendingMessagesAllowed) {
                     // Box wrapping the SendActions so that we do not include it in the animationContentSize
                     // changed which is applied only for
                     // MessageComposerInput and CollapsingButton
@@ -257,7 +257,7 @@ private fun MessageComposer(
             // we want to offset the AttachmentOptionsComponent equal to where
             // the device keyboard is displayed, so that when the keyboard is closed,
             // we get the effect of overlapping it
-            if (messageComposerState.attachmentOptionsDisplayed && !isUserBlocked && isConversationMember) {
+            if (messageComposerState.attachmentOptionsDisplayed && !isUserBlocked && isSendingMessagesAllowed) {
                 AttachmentOptions(
                     keyboardHeight,
                     messageComposerState,

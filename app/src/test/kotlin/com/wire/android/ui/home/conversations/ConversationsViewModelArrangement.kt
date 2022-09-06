@@ -212,12 +212,12 @@ internal fun mockConversationDetailsGroup(
     lastUnreadMessage = null
 )
 
-internal fun mockUITextMessage(userName: String = "mockUserName"): UIMessage {
+internal fun mockUITextMessage(id:String = "someId", userName: String = "mockUserName"): UIMessage {
     return mockk<UIMessage>().also {
         every { it.userAvatarData } returns UserAvatarData()
         every { it.messageSource } returns MessageSource.OtherUser
         every { it.messageHeader } returns mockk<MessageHeader>().also {
-            every { it.messageId } returns "someId"
+            every { it.messageId } returns id
             every { it.username } returns UIText.DynamicString(userName)
             every { it.isLegalHold } returns false
             every { it.messageTime } returns MessageTime("")

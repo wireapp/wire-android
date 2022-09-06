@@ -39,8 +39,9 @@ import com.wire.android.ui.common.MoreOptionIcon
 import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireTabRow
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
-import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.calculateCurrentTab
+import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
+import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
@@ -55,14 +56,14 @@ import com.wire.android.ui.home.conversations.details.participants.model.UIParti
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
+import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.id.ConversationId
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 
 @Composable
 fun GroupConversationDetailsScreen(viewModel: GroupConversationDetailsViewModel) {
-    val snackbarHostState = remember { SnackbarHostState() }
-    val context = LocalContext.current
-
     GroupConversationDetailsContent(
         onBackPressed = viewModel::navigateBack,
         openFullListPressed = viewModel::navigateToFullParticipantsList,
@@ -72,11 +73,9 @@ fun GroupConversationDetailsScreen(viewModel: GroupConversationDetailsViewModel)
         groupParticipantsState = viewModel.groupParticipantsState,
         onLeaveGroup = viewModel::leaveGroup,
         onDeleteGroup = viewModel::deleteGroup,
-        isLoading = viewModel.requestInProgress
+        isLoading = viewModel.requestInProgress,
+        messages = viewModel.snackBarMessage,
     )
-    LaunchedEffect(Unit) {
-        viewModel.snackBarMessage.collect { snackbarHostState.showSnackbar(it.asString(context.resources)) }
-    }
 }
 
 @OptIn(
@@ -96,6 +95,7 @@ private fun GroupConversationDetailsContent(
     groupOptionsState: GroupConversationOptionsState,
     groupParticipantsState: GroupConversationParticipantsState,
     isLoading: Boolean,
+    messages: SharedFlow<UIText>
 ) {
     val scope = rememberCoroutineScope()
     val lazyListStates: List<LazyListState> = GroupConversationDetailsTabItem.values().map { rememberLazyListState() }
@@ -112,7 +112,13 @@ private fun GroupConversationDetailsContent(
     val deleteGroupDialogState = rememberVisibilityState<GroupDialogState>()
     val leaveGroupDialogState = rememberVisibilityState<GroupDialogState>()
 
-    if(!isLoading) {
+    val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
+    LaunchedEffect(Unit) {
+        messages.collect { snackbarHostState.showSnackbar(it.asString(context.resources)) }
+    }
+
+    if (!isLoading) {
         deleteGroupDialogState.dismiss()
         leaveGroupDialogState.dismiss()
     }
@@ -149,6 +155,12 @@ private fun GroupConversationDetailsContent(
                 }
             },
             modifier = Modifier.fillMaxHeight(),
+            snackbarHost = {
+                SwipeDismissSnackbarHost(
+                    hostState = snackbarHostState,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            },
         ) { internalPadding ->
             var focusedTabIndex: Int by remember { mutableStateOf(initialPageIndex) }
             val keyboardController = LocalSoftwareKeyboardController.current
@@ -191,7 +203,7 @@ private fun GroupConversationDetailsContent(
         isLoading = isLoading,
         dialogState = deleteGroupDialogState,
         onDeleteGroup = onDeleteGroup
-        )
+    )
 
     LeaveConversationGroupDialog(
         dialogState = leaveGroupDialogState,
@@ -222,7 +234,8 @@ private fun GroupConversationDetailsPreview() {
                 groupName = "Group name"
             ),
             groupParticipantsState = GroupConversationParticipantsState.PREVIEW,
-            isLoading = false
+            isLoading = false,
+            messages = MutableSharedFlow()
         )
     }
 }

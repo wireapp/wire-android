@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
@@ -31,6 +30,10 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import androidx.paging.PagingData
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.items
 import com.wire.android.R
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.UserProfileAvatar
@@ -55,7 +58,6 @@ import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.Error
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnFileDownloaded
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
 import com.wire.android.ui.home.conversations.edit.EditMessageMenuItems
-import com.wire.android.ui.home.conversations.mock.getMockedMessages
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.MessageContent
 import com.wire.android.ui.home.conversations.model.MessageSource
@@ -71,8 +73,9 @@ import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.launch
-import kotlinx.datetime.Instant
 import okio.Path
 import okio.Path.Companion.toPath
 
@@ -102,11 +105,13 @@ fun ConversationScreen(
                 showDialog.value = ConversationScreenDialogType.NONE
             })
         }
+
         ConversationScreenDialogType.NO_CONNECTIVITY -> {
             CoreFailureErrorDialog(coreFailure = NetworkFailure.NoNetworkConnection(null)) {
                 showDialog.value = ConversationScreenDialogType.NONE
             }
         }
+
         ConversationScreenDialogType.NONE -> {}
     }
 
@@ -245,6 +250,7 @@ private fun ConversationScreen(
                                                 GroupConversationAvatar(
                                                     color = colorsScheme().conversationColor(id = conversationAvatar.conversationId)
                                                 )
+
                                             is ConversationAvatar.OneOne -> UserProfileAvatar(
                                                 UserAvatarData(
                                                     asset = conversationAvatar.avatarAsset,
@@ -252,6 +258,7 @@ private fun ConversationScreen(
                                                     connectionState = connectionStateOrNull
                                                 )
                                             )
+
                                             ConversationAvatar.None -> Box(modifier = Modifier.size(dimensions().userAvatarDefaultSize))
                                         }
                                     },
@@ -309,7 +316,7 @@ private fun ConversationScreen(
 @Composable
 private fun ConversationScreenContent(
     keyboardHeight: KeyboardHeight,
-    messages: List<UIMessage>,
+    messages: Flow<PagingData<UIMessage>>,
     lastUnreadMessage: UIMessage?,
     onMessageChanged: (String) -> Unit,
     messageText: String,
@@ -342,6 +349,7 @@ private fun ConversationScreenContent(
                     context.startActivity(Intent(DownloadManager.ACTION_VIEW_DOWNLOADS))
                     onSnackbarMessageShown()
                 }
+
                 snackbarResult == SnackbarResult.Dismissed -> onSnackbarMessageShown()
             }
         }
@@ -349,7 +357,7 @@ private fun ConversationScreenContent(
 
     val lazyListState = rememberSaveable(lastUnreadMessage, saver = LazyListState.Saver) {
         LazyListState(
-            if (lastUnreadMessage != null) messages.indexOf(lastUnreadMessage) else 0,
+//            if (lastUnreadMessage != null) messages.indexOf(lastUnreadMessage) else 0,
             0
         )
     }
@@ -381,7 +389,7 @@ private fun ConversationScreenContent(
             if (messageComposerState.to == MessageComposeInputState.Active &&
                 messageComposerState.from == MessageComposeInputState.Enabled
             ) {
-                coroutineScope.launch { lazyListState.animateScrollToItem(messages.size) }
+//                coroutineScope.launch { lazyListState.animateScrollToItem(messages.size) }
             }
         },
         isFileSharingEnabled = isFileSharingEnabled,
@@ -414,7 +422,7 @@ private fun getSnackbarMessage(messageCode: ConversationSnackbarMessages): Pair<
 
 @Composable
 fun MessageList(
-    messages: List<UIMessage>,
+    messages: Flow<PagingData<UIMessage>>,
     lastUnreadMessage: UIMessage?,
     lazyListState: LazyListState,
     onShowContextMenu: (UIMessage) -> Unit,
@@ -423,21 +431,21 @@ fun MessageList(
     onOpenProfile: (MessageSource, UserId) -> Unit,
     onUpdateConversationReadDate: (String) -> Unit
 ) {
-    if (messages.isNotEmpty() && lastUnreadMessage != null) {
-        LaunchedEffect(lazyListState.isScrollInProgress) {
-            if (!lazyListState.isScrollInProgress) {
-                val lastVisibleMessage = messages[lazyListState.firstVisibleItemIndex]
-
-                val lastVisibleMessageInstant = Instant.parse(lastVisibleMessage.messageHeader.messageTime.utcISO)
-                val lastUnreadMessageInstant = Instant.parse(lastUnreadMessage.messageHeader.messageTime.utcISO)
-
-                if (lastVisibleMessageInstant >= lastUnreadMessageInstant) {
-                    onUpdateConversationReadDate(lastVisibleMessage.messageHeader.messageTime.utcISO)
-                }
-            }
-        }
-    }
-
+//    if (messages.isNotEmpty() && lastUnreadMessage != null) {
+//        LaunchedEffect(lazyListState.isScrollInProgress) {
+//            if (!lazyListState.isScrollInProgress) {
+//                val lastVisibleMessage = messages[lazyListState.firstVisibleItemIndex]
+//
+//                val lastVisibleMessageInstant = Instant.parse(lastVisibleMessage.messageHeader.messageTime.utcISO)
+//                val lastUnreadMessageInstant = Instant.parse(lastUnreadMessage.messageHeader.messageTime.utcISO)
+//
+//                if (lastVisibleMessageInstant >= lastUnreadMessageInstant) {
+//                    onUpdateConversationReadDate(lastVisibleMessage.messageHeader.messageTime.utcISO)
+//                }
+//            }
+//        }
+//    }
+    val lazyMessageItems: LazyPagingItems<UIMessage> = messages.collectAsLazyPagingItems()
     LazyColumn(
         state = lazyListState,
         reverseLayout = true,
@@ -445,19 +453,21 @@ fun MessageList(
             .fillMaxHeight()
             .fillMaxWidth()
     ) {
-        items(messages, key = {
+        items(lazyMessageItems, key = {
             it.messageHeader.messageId
         }) { message ->
-            if (message.messageContent is MessageContent.SystemMessage) {
-                SystemMessageItem(message = message.messageContent)
-            } else {
-                MessageItem(
-                    message = message,
-                    onLongClicked = onShowContextMenu,
-                    onAssetMessageClicked = onDownloadAsset,
-                    onImageMessageClicked = onImageFullScreenMode,
-                    onAvatarClicked = onOpenProfile
-                )
+            message?.messageContent?.let { messageContent ->
+                if (messageContent is MessageContent.SystemMessage) {
+                    SystemMessageItem(message = messageContent)
+                } else {
+                    MessageItem(
+                        message = message,
+                        onLongClicked = onShowContextMenu,
+                        onAssetMessageClicked = onDownloadAsset,
+                        onImageMessageClicked = onImageFullScreenMode,
+                        onAvatarClicked = onOpenProfile
+                    )
+                }
             }
         }
     }
@@ -469,7 +479,7 @@ fun ConversationScreenPreview() {
     ConversationScreen(
         conversationViewState = ConversationViewState(
             conversationName = UIText.DynamicString("Some test conversation"),
-            messages = getMockedMessages(),
+            messages = emptyFlow(),
         ),
         onMessageChanged = {},
         onSendButtonClicked = {},

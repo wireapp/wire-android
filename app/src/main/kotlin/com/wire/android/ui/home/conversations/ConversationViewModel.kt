@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import androidx.paging.cachedIn
 import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.model.ImageAsset.PrivateAsset
@@ -157,25 +158,11 @@ class ConversationViewModel @Inject constructor(
 
     private fun observeConversationDetailsAndMessages() {
         viewModelScope.launch {
-            observeConversationDetails(conversationId).onEach(::handleConversationDetailsResult)
-                .combine(
-                    getMessageForConversation(conversationId).onEach(::updateMessagesList)
-                ) { conversationDetailsResult, uiMessages ->
-                    Pair(conversationDetailsResult, uiMessages)
-                }.collect { (conversationDetailsResult, uiMessages) ->
-                    if (conversationDetailsResult is Success) {
-                        when (val details = conversationDetailsResult.conversationDetails) {
-                            // TODO: think about lastUnreadMessage being a "common" field of ConversationDetails
-                            is ConversationDetails.OneOne -> {
-                                extractLastUnreadMessage(details.lastUnreadMessage, uiMessages)
-                            }
-                            is ConversationDetails.Group -> {
-                                extractLastUnreadMessage(details.lastUnreadMessage, uiMessages)
-                            }
-                            else -> ConversationAvatar.None
-                        }
-                    }
-                }
+            val messagesFlow = getMessageForConversation(conversationId)
+                .cachedIn(viewModelScope)
+            conversationViewState = conversationViewState.copy(messages = messagesFlow)
+            observeConversationDetails(conversationId)
+                .collect(::handleConversationDetailsResult)
         }
     }
 
@@ -201,7 +188,7 @@ class ConversationViewModel @Inject constructor(
     // region ------------------------------ Init Methods -------------------------------------
     private suspend fun updateMessagesList(messages: List<UIMessage>) {
         withContext(dispatchers.main()) {
-            conversationViewState = conversationViewState.copy(messages = messages)
+//            conversationViewState = conversationViewState.copy(messages = messages)
         }
     }
 
@@ -402,31 +389,31 @@ class ConversationViewModel @Inject constructor(
 // downloaded. After doing so, a dialog is shown to ask the user whether he wants to open the file or download it to external storage
     fun downloadOrFetchAssetToInternalStorage(messageId: String) {
         viewModelScope.launch {
-            withContext(dispatchers.io()) {
-                try {
-                    val assetMessage = conversationViewState.messages.firstOrNull {
-                        it.messageHeader.messageId == messageId && it.messageContent is AssetMessage
-                    }
-
-                    val (isAssetDownloadedInternally, assetName, assetSize) = (assetMessage?.messageContent as AssetMessage).run {
-                        Triple((downloadStatus == SAVED_INTERNALLY || downloadStatus == IN_PROGRESS), assetName, assetSizeInBytes)
-                    }
-
-                    if (!isAssetDownloadedInternally)
-                        updateAssetMessageDownloadStatus(IN_PROGRESS, conversationId, messageId)
-
-                    val resultData = assetDataPath(conversationId, messageId)
-                    updateAssetMessageDownloadStatus(if (resultData != null) SAVED_INTERNALLY else FAILED, conversationId, messageId)
-
-                    if (resultData != null) {
-                        showOnAssetDownloadedDialog(assetName, resultData, assetSize, messageId)
-                    }
-                } catch (e: OutOfMemoryError) {
-                    appLogger.e("There was an OutOfMemory error while downloading the asset")
-                    onSnackbarMessage(ConversationSnackbarMessages.ErrorDownloadingAsset)
-                    updateAssetMessageDownloadStatus(FAILED, conversationId, messageId)
-                }
-            }
+//            withContext(dispatchers.io()) {
+//                try {
+//                    val assetMessage = conversationViewState.messages.firstOrNull {
+//                        it.messageHeader.messageId == messageId && it.messageContent is AssetMessage
+//                    }
+//
+//                    val (isAssetDownloadedInternally, assetName, assetSize) = (assetMessage?.messageContent as AssetMessage).run {
+//                        Triple((downloadStatus == SAVED_INTERNALLY || downloadStatus == IN_PROGRESS), assetName, assetSizeInBytes)
+//                    }
+//
+//                    if (!isAssetDownloadedInternally)
+//                        updateAssetMessageDownloadStatus(IN_PROGRESS, conversationId, messageId)
+//
+//                    val resultData = assetDataPath(conversationId, messageId)
+//                    updateAssetMessageDownloadStatus(if (resultData != null) SAVED_INTERNALLY else FAILED, conversationId, messageId)
+//
+//                    if (resultData != null) {
+//                        showOnAssetDownloadedDialog(assetName, resultData, assetSize, messageId)
+//                    }
+//                } catch (e: OutOfMemoryError) {
+//                    appLogger.e("There was an OutOfMemory error while downloading the asset")
+//                    onSnackbarMessage(ConversationSnackbarMessages.ErrorDownloadingAsset)
+//                    updateAssetMessageDownloadStatus(FAILED, conversationId, messageId)
+//                }
+//            }
         }
     }
 

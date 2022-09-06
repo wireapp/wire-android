@@ -15,7 +15,7 @@ import androidx.test.core.app.ActivityScenario
 import androidx.test.core.app.ApplicationProvider
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
 import com.wire.android.ui.home.conversations.ConversationScreen
-import com.wire.android.ui.home.conversations.ConversationViewModel
+import com.wire.android.ui.home.conversations.MessageComposerViewModel
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.utils.WorkManagerTestRule
 import com.wire.android.utils.getViewModel
@@ -57,7 +57,7 @@ class ConversationScreenTest {
             activity.setContent {
                 WireTheme {
                     ConversationScreen(
-                        getViewModel(activity, ConversationViewModel::class),
+                        getViewModel(activity, MessageComposerViewModel::class),
                         getViewModel(activity, CommonTopAppBarViewModel::class)
                     )
                 }

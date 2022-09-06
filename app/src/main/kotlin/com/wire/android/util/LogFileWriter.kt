@@ -14,8 +14,6 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
 import java.io.FileWriter
 import java.io.IOException
 import java.io.PrintWriter
@@ -120,6 +118,7 @@ class LogFileWriter(private val logsDirectory: File) {
     }
 
     fun deleteAllLogFiles() {
+        clearActiveLoggingFileContent()
         logsDirectory.listFiles()?.filter {
             it.extension.lowercase(Locale.ROOT) == "gz"
         }?.forEach { it.delete() }

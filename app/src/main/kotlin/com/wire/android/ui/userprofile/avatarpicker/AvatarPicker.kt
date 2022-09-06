@@ -1,5 +1,7 @@
 package com.wire.android.ui.userprofile.avatarpicker
 
+import android.content.Context
+import android.net.Uri
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -12,7 +14,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Scaffold
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
@@ -21,8 +22,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.core.net.toUri
 import com.wire.android.R
 import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
@@ -38,30 +41,43 @@ import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerViewModel.ErrorCodes
+import com.wire.android.util.ImageUtil
+import com.wire.android.util.resampleImageAndCopyToTempPath
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.launch
+import okio.Path
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun AvatarPickerScreen(viewModel: AvatarPickerViewModel) {
-    val targetAvatarUri = viewModel.getTemporaryAvatarUri()
+    val context = LocalContext.current
+    val targetAvatarPath = viewModel.defaultAvatarPath()
+    val targetAvatarUri = viewModel.getTemporaryAvatarUri(targetAvatarPath)
+    val scope = rememberCoroutineScope()
     val state = rememberAvatarPickerState(
-        onImageSelected = { viewModel.updatePickedAvatarUri(it) },
-        onPictureTaken = { viewModel.updatePickedAvatarUri(targetAvatarUri) },
+        onImageSelected = { originalUri ->
+            onNewAvatarPicked(originalUri, targetAvatarPath, scope, context, viewModel)
+        },
+        onPictureTaken = { onNewAvatarPicked(targetAvatarUri, targetAvatarPath, scope, context, viewModel) },
         targetPictureFileUri = targetAvatarUri
     )
 
     AvatarPickerContent(
         viewModel = viewModel,
         state = state,
-        onCloseClick = {
-            viewModel.navigateBack()
-        },
-        onSaveClick = {
-            viewModel.uploadNewPickedAvatarAndBack()
-        }
+        onCloseClick = { viewModel.navigateBack() },
+        onSaveClick = { viewModel.uploadNewPickedAvatarAndBack() }
     )
 }
 
-@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
+fun onNewAvatarPicked(originalUri: Uri, targetAvatarPath: Path, scope: CoroutineScope, context: Context, viewModel: AvatarPickerViewModel) {
+    scope.launch {
+        sanitizeAvatarImage(originalUri, targetAvatarPath, context)
+        viewModel.updatePickedAvatarUri(targetAvatarPath.toFile().toUri())
+    }
+}
+
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 private fun AvatarPickerContent(
     viewModel: AvatarPickerViewModel,
@@ -97,18 +113,18 @@ private fun AvatarPickerContent(
                     onItemClick = { state.openImageSource(ImageSource.Gallery) }
                 )
             }, {
-            MenuBottomSheetItem(
-                title = stringResource(R.string.profile_image_take_a_picture_menu_item),
-                icon = {
-                    MenuItemIcon(
-                        id = R.drawable.ic_camera,
-                        contentDescription = stringResource(R.string.content_description_take_a_picture)
-                    )
-                },
-                action = { ArrowRightIcon() },
-                onItemClick = { state.openImageSource(ImageSource.Camera) }
-            )
-        }
+                MenuBottomSheetItem(
+                    title = stringResource(R.string.profile_image_take_a_picture_menu_item),
+                    icon = {
+                        MenuItemIcon(
+                            id = R.drawable.ic_camera,
+                            contentDescription = stringResource(R.string.content_description_take_a_picture)
+                        )
+                    },
+                    action = { ArrowRightIcon() },
+                    onItemClick = { state.openImageSource(ImageSource.Camera) }
+                )
+            }
         )
     ) {
         Scaffold(
@@ -120,7 +136,11 @@ private fun AvatarPickerContent(
                 )
             }
         ) { internalPadding ->
-            Box(Modifier.fillMaxSize().padding(internalPadding)) {
+            Box(
+                Modifier
+                    .fillMaxSize()
+                    .padding(internalPadding)
+            ) {
                 Column(
                     Modifier
                         .fillMaxSize()
@@ -193,19 +213,18 @@ private fun AvatarPickerTopBar(onCloseClick: () -> Unit) {
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun mapErrorCodeToString(errorCode: ErrorCodes): String {
     return when (errorCode) {
         ErrorCodes.UploadAvatarError -> stringResource(R.string.error_uploading_user_avatar)
         ErrorCodes.NoNetworkError -> stringResource(R.string.error_no_network_message)
-        // Add more future errors for a more granular error handling
-        else -> stringResource(R.string.error_unknown_title)
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 private fun hasPickedImage(state: AvatarPickerViewModel.PictureState): Boolean = state is AvatarPickerViewModel.PictureState.Picked
 
-@OptIn(ExperimentalMaterial3Api::class)
 private fun isUploadingImage(state: AvatarPickerViewModel.PictureState): Boolean = state is AvatarPickerViewModel.PictureState.Uploading
+
+private suspend fun sanitizeAvatarImage(originalAvatarUri: Uri, avatarPath: Path, appContext: Context) {
+    originalAvatarUri.resampleImageAndCopyToTempPath(appContext, avatarPath, ImageUtil.ImageSizeClass.Small)
+}

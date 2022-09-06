@@ -39,8 +39,8 @@ import com.wire.android.ui.common.MoreOptionIcon
 import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireTabRow
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
-import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.calculateCurrentTab
+import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
@@ -74,6 +74,7 @@ fun GroupConversationDetailsScreen(viewModel: GroupConversationDetailsViewModel)
         onDeleteGroup = viewModel::deleteGroup,
         isLoading = viewModel.requestInProgress
     )
+
     LaunchedEffect(Unit) {
         viewModel.snackBarMessage.collect { snackbarHostState.showSnackbar(it.asString(context.resources)) }
     }
@@ -112,7 +113,7 @@ private fun GroupConversationDetailsContent(
     val deleteGroupDialogState = rememberVisibilityState<GroupDialogState>()
     val leaveGroupDialogState = rememberVisibilityState<GroupDialogState>()
 
-    if(!isLoading) {
+    if (!isLoading) {
         deleteGroupDialogState.dismiss()
         leaveGroupDialogState.dismiss()
     }
@@ -191,7 +192,7 @@ private fun GroupConversationDetailsContent(
         isLoading = isLoading,
         dialogState = deleteGroupDialogState,
         onDeleteGroup = onDeleteGroup
-        )
+    )
 
     LeaveConversationGroupDialog(
         dialogState = leaveGroupDialogState,

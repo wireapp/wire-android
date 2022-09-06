@@ -8,6 +8,7 @@ import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
 import com.wire.android.util.FileManager
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
@@ -21,6 +22,7 @@ import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.map
 import okio.Path
 
 class ConversationMessagesViewModelArrangement {
@@ -28,6 +30,8 @@ class ConversationMessagesViewModelArrangement {
     val conversationId: ConversationId = ConversationId("some-dummy-value", "some.dummy.domain")
 
     private val messagesChannel = Channel<List<UIMessage>>(capacity = Channel.UNLIMITED)
+
+    val conversationDetailsChannel = Channel<ConversationDetails>(capacity = Channel.UNLIMITED)
 
     @MockK
     lateinit var qualifiedIdMapper: QualifiedIdMapper
@@ -79,7 +83,6 @@ class ConversationMessagesViewModelArrangement {
         } returns QualifiedID("some-dummy-value", "some.dummy.domain")
         coEvery { observeConversationDetails(any()) } returns flowOf()
         coEvery { getMessagesForConversationUseCase(any()) } returns flowOf(listOf())
-
     }
 
     suspend fun withSuccessfulViewModelInit() = apply {
@@ -113,6 +116,17 @@ class ConversationMessagesViewModelArrangement {
         coEvery { fileManager.saveToExternalStorage(any(), any(), any(), any()) }.answers {
             viewModel.hideOnAssetDownloadedDialog()
         }
+    }
+
+    suspend fun withConversationDetailUpdate(conversationDetails: ConversationDetails) = apply {
+        coEvery { observeConversationDetails(any()) } returns conversationDetailsChannel.consumeAsFlow().map {
+            ObserveConversationDetailsUseCase.Result.Success(it)
+        }
+        conversationDetailsChannel.send(conversationDetails)
+        coEvery {
+            qualifiedIdMapper.fromStringToQualifiedID("id@domain")
+        } returns QualifiedID("id", "domain")
+        return this
     }
 
     fun arrange() = this to viewModel

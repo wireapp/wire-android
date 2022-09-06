@@ -74,7 +74,7 @@ class MessageComposerViewModel @Inject constructor(
     var conversationViewState by mutableStateOf(ConversationViewState())
         private set
 
-    var isConversationMemberState by mutableStateOf(true)
+    var isSendingMessagesAllowed by mutableStateOf(true)
 
     var deleteMessageDialogsState: DeleteMessageDialogsState by mutableStateOf(
         DeleteMessageDialogsState.States(
@@ -108,8 +108,8 @@ class MessageComposerViewModel @Inject constructor(
         observeIsSelfConversationMember(conversationId)
             .collect { result ->
                 when (result) {
-                    is IsSelfUserMemberResult.Failure -> isConversationMemberState = false
-                    is IsSelfUserMemberResult.Success -> isConversationMemberState = result.isMember
+                    is IsSelfUserMemberResult.Failure -> isSendingMessagesAllowed = false
+                    is IsSelfUserMemberResult.Success -> isSendingMessagesAllowed = result.isMember
                 }
             }
     }

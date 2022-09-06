@@ -134,7 +134,7 @@ fun ConversationScreen(
         tempCachePath = messageComposerViewModel.provideTempCachePath(),
         onOpenProfile = conversationInfoViewModel::navigateToProfile,
         onUpdateConversationReadDate = messageComposerViewModel::updateConversationReadDate,
-        isConversationMember = messageComposerViewModel.isConversationMemberState,
+        isSendingMessagesAllowed = messageComposerViewModel.isSendingMessagesAllowed,
         commonTopAppBarViewModel = commonTopAppBarViewModel
     )
 
@@ -201,7 +201,7 @@ private fun ConversationScreen(
     tempCachePath: Path,
     onOpenProfile: (MessageSource, UserId) -> Unit,
     onUpdateConversationReadDate: (String) -> Unit,
-    isConversationMember: Boolean,
+    isSendingMessagesAllowed: Boolean,
     commonTopAppBarViewModel: CommonTopAppBarBaseViewModel
 ) = with(conversationViewState) {
     val conversationScreenState = rememberConversationScreenState()
@@ -286,7 +286,7 @@ private fun ConversationScreen(
                                 isFileSharingEnabled = isFileSharingEnabled,
                                 tempCachePath = tempCachePath,
                                 isUserBlocked = connectionStateOrNull == ConnectionState.BLOCKED,
-                                isConversationMember = isConversationMember,
+                                isSendingMessagesAllowed = isSendingMessagesAllowed,
                                 onOpenProfile = onOpenProfile,
                                 onUpdateConversationReadDate = onUpdateConversationReadDate
                             )
@@ -319,7 +319,7 @@ private fun ConversationScreenContent(
     conversationScreenState: ConversationScreenState,
     isFileSharingEnabled: Boolean,
     isUserBlocked: Boolean,
-    isConversationMember: Boolean,
+    isSendingMessagesAllowed: Boolean,
     tempCachePath: Path,
     onUpdateConversationReadDate: (String) -> Unit
 ) {
@@ -367,7 +367,7 @@ private fun ConversationScreenContent(
         isFileSharingEnabled = isFileSharingEnabled,
         tempCachePath = tempCachePath,
         isUserBlocked = isUserBlocked,
-        isConversationMember = isConversationMember,
+        isSendingMessagesAllowed = isSendingMessagesAllowed,
         securityClassificationType = conversationState.securityClassificationType
     )
 }
@@ -489,7 +489,7 @@ fun ConversationScreenPreview() {
         tempCachePath = "".toPath(),
         onOpenProfile = { _, _ -> },
         onUpdateConversationReadDate = {},
-        isConversationMember = true,
+        isSendingMessagesAllowed = true,
         commonTopAppBarViewModel = object : CommonTopAppBarBaseViewModel() {}
     )
 }

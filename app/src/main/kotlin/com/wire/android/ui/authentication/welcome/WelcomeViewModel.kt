@@ -47,7 +47,7 @@ class WelcomeViewModel @Inject constructor(
             when (it) {
                 is GetAllSessionsResult.Success -> {
                     isThereActiveSession =
-                        it.sessions.filter { it.session is AuthSession.Session.Valid }.isNullOrEmpty().not()
+                        it.sessions.filter { it.token is AuthSession.Token.Valid }.isNullOrEmpty().not()
                 }
                 is GetAllSessionsResult.Failure.Generic -> {}
                 GetAllSessionsResult.Failure.NoSessionFound -> {

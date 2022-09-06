@@ -125,9 +125,8 @@ private fun WelcomeContent(viewModel: WelcomeViewModel) {
                     horizontal = MaterialTheme.wireDimensions.welcomeButtonHorizontalPadding
                 )
             ) {
-                LoginButton {
-                    viewModel.goToLogin()
-                }
+                LoginButton(viewModel::goToLogin)
+
                 CreateEnterpriseAccountButton {
                     viewModel.goToCreateEnterpriseAccount()
                 }

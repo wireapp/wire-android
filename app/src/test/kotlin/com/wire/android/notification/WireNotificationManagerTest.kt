@@ -62,7 +62,7 @@ class WireNotificationManagerTest {
     @Test
     fun givenAuthenticatedUser_whenFetchAndShowNotificationsOnceCalled_thenConnectionPolicyManagerIsCalled() = runTest {
         val (arrangement, manager) = Arrangement()
-            .withSession(GetAllSessionsResult.Success(listOf(TEST_AUTH_SESSION)))
+            .withSession(GetAllSessionsResult.Success(listOf(TEST_AUTH_Token)))
             .withMessageNotifications(listOf())
             .withIncomingCalls(listOf())
             .arrange()
@@ -70,7 +70,7 @@ class WireNotificationManagerTest {
         manager.fetchAndShowNotificationsOnce("user_id")
 
         verify(atLeast = 1) { arrangement.coreLogic.getSessionScope(any()) }
-        coVerify(exactly = 1) { arrangement.connectionPolicyManager.handleConnectionOnPushNotification(TEST_AUTH_SESSION.session.userId) }
+        coVerify(exactly = 1) { arrangement.connectionPolicyManager.handleConnectionOnPushNotification(TEST_AUTH_Token.token.userId) }
         verify(exactly = 0) { arrangement.messageNotificationManager.handleNotification(listOf(), any()) }
         verify(exactly = 1) { arrangement.callNotificationManager.handleIncomingCallNotifications(listOf(), any()) }
     }
@@ -206,10 +206,10 @@ class WireNotificationManagerTest {
     @Test
     fun givenASingleUserId_whenCallingFetchAndShowOnceMultipleTimes_thenConversationNotificationDateUpdated() =
         runTestWithCancellation {
-            val userId = TEST_AUTH_SESSION.session.userId
+            val userId = TEST_AUTH_Token.token.userId
             val (arrangement, manager) = Arrangement()
                 .withMessageNotifications(listOf())
-                .withSession(GetAllSessionsResult.Success(listOf(TEST_AUTH_SESSION)))
+                .withSession(GetAllSessionsResult.Success(listOf(TEST_AUTH_Token)))
                 .withIncomingCalls(listOf())
                 .withCurrentScreen(CurrentScreen.InBackground)
                 .arrange()
@@ -352,9 +352,9 @@ class WireNotificationManagerTest {
 
     companion object {
         private val TEST_SERVER_CONFIG: ServerConfig = newServerConfig(1)
-        private val TEST_AUTH_SESSION =
+        private val TEST_AUTH_Token =
             AuthSession(
-                AuthSession.Session.Valid(
+                AuthSession.Token.Valid(
                     userId = UserId("user_id", "domain.de"),
                     accessToken = "access_token",
                     refreshToken = "refresh_token",

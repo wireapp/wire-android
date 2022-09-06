@@ -18,7 +18,6 @@ import com.wire.android.notification.WireNotificationManager
 import com.wire.android.ui.common.dialogs.CustomBEDeeplinkDialogState
 import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
-import com.wire.android.util.dispatchers.DefaultDispatcherProvider
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.id.ConversationId
@@ -33,7 +32,6 @@ import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -83,9 +81,9 @@ class WireActivityViewModel @Inject constructor(
         }
         .map { result ->
         if (result is CurrentSessionResult.Success) {
-            if (result.authSession.session is AuthSession.Session.Invalid) {
+            if (result.authSession.token is AuthSession.Token.Invalid) {
                 null
-            } else result.authSession.session.userId
+            } else result.authSession.token.userId
         } else {
             null
         }
@@ -251,7 +249,7 @@ class WireActivityViewModel @Inject constructor(
         getSessions().let {
             return when (it) {
                 is GetAllSessionsResult.Success -> {
-                    it.sessions.filter { it.session is AuthSession.Session.Valid }.size
+                    it.sessions.filter { it.token is AuthSession.Token.Valid }.size
                 }
                 is GetAllSessionsResult.Failure.Generic -> 0
                 GetAllSessionsResult.Failure.NoSessionFound -> 0

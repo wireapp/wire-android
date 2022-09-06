@@ -33,7 +33,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.scan
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
@@ -132,8 +131,8 @@ class WireNotificationManager @Inject constructor(
             when (it) {
                 is GetAllSessionsResult.Success -> {
                     for (sessions in it.sessions) {
-                        if (sessions.session.userId.value == userId)
-                            return@let sessions.session.userId
+                        if (sessions.token.userId.value == userId)
+                            return@let sessions.token.userId
                     }
                     null
                 }

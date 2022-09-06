@@ -188,7 +188,6 @@ fun HomeContent(
                     if (currentNavigationItem.isSearchable)
                         SearchTopBar(
                             isSearchActive = false, // TODO
-                            isSearchBarCollapsed = false, // TODO
                             searchBarHint = stringResource(R.string.search_bar_hint, stringResource(id = title).lowercase()),
                             searchQuery = TextFieldValue(""), // TODO
                             onSearchQueryChanged = { /* TODO */ },

@@ -155,9 +155,9 @@ class SharedCallingViewModel @Inject constructor(
 
     private suspend fun observeOnMute() {
         //We should only mute established calls
-        snapshotFlow { callState.isMuted to callState.callStatus }.collectLatest { isMute ->
-            if (isMute.second == CallStatus.ESTABLISHED) {
-                isMute.first?.let {
+          snapshotFlow { callState.isMuted to callState.callStatus }.collectLatest { (isMuted, callStatus) ->
+            if (callStatus == CallStatus.ESTABLISHED) {
+                isMuted?.let {
                     if (it) {
                         muteCall(conversationId)
                     } else {
@@ -165,6 +165,7 @@ class SharedCallingViewModel @Inject constructor(
                     }
                 }
             }
+        }
         }
     }
 

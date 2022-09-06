@@ -134,7 +134,7 @@ private fun LoginEmailContent(
         }
     }
 
-    if (loginState.loginError is LoginError.DialogError && loginState.loginError !is LoginError.DialogError.InvalidSession) {
+    if (loginState.loginError is LoginError.DialogError) {
         LoginErrorDialog(loginState.loginError, onDialogDismiss)
     } else if (loginState.loginError is LoginError.TooManyDevicesError) {
         onRemoveDeviceOpen()

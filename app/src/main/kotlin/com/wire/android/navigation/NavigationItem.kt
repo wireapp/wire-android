@@ -88,7 +88,7 @@ enum class NavigationItem(
 
     Login(
         primaryRoute = LOGIN,
-        canonicalRoute = "$LOGIN?$EXTRA_USER_ID={$EXTRA_USER_ID}",
+        canonicalRoute = LOGIN,
         content = { contentParams ->
             val ssoLoginResult = contentParams.arguments.filterIsInstance<DeepLinkResult.SSOLogin>().firstOrNull()
             LoginScreen(ssoLoginResult)

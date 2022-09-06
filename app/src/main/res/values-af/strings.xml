@@ -48,7 +48,6 @@
     <string name="content_description_muted_conversation">Muted conversation</string>
     <string name="content_description_check">Check mark</string>
     <string name="content_description_download_icon">Download icon</string>
-    <string name="content_description_add_to_favourite">Add to favourite</string>
     <string name="content_description_add_to_favourite">Add to favorite</string>
     <string name="content_description_move_to_folder">Move to folder</string>
     <string name="content_description_move_to_archive">Move to archive</string>

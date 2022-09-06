@@ -47,7 +47,7 @@ fun GroupConversationOptions(
         )
     }
 
-    if (viewModel.groupOptionsState.changeServiceOptionConfirmationRequired){
+    if (viewModel.groupOptionsState.changeServiceOptionConfirmationRequired) {
         DisableServicesConfirmationDialog(
             onConfirm = viewModel::onServiceDialogConfirm,
             onDialogDismiss = viewModel::onServiceDialogDismiss
@@ -138,7 +138,8 @@ private fun GroupNameItem(groupName: String, canBeChanged: Boolean) {
     GroupConversationOptionsItem(
         label = stringResource(id = R.string.conversation_details_options_group_name),
         title = groupName,
-        clickable = Clickable(enabled = canBeChanged, onClick = { /* TODO */ }, onLongClick = { /* not handled */ })
+        clickable = Clickable(enabled = canBeChanged, onClick = { /* TODO */ }, onLongClick = { /* not handled */ }),
+        arrowType = if (!canBeChanged) ArrowType.NONE else ArrowType.CENTER_ALIGNED
     )
     Divider(color = MaterialTheme.wireColorScheme.divider, thickness = Dp.Hairline)
 }

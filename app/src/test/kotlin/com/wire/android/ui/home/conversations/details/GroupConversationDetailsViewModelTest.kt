@@ -471,7 +471,6 @@ internal class GroupConversationDetailsViewModelArrangement {
         conversationDetailsChannel.send(conversationDetails)
     }
 
-
     suspend fun withConversationMembersUpdate(conversationParticipantsData: ConversationParticipantsData) = apply {
         coEvery { observeParticipantsForConversationUseCase(any()) } returns observeParticipantsForConversationChannel.consumeAsFlow()
         observeParticipantsForConversationChannel.send(conversationParticipantsData)

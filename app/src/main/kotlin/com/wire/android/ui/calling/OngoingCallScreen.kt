@@ -32,11 +32,13 @@ import com.wire.android.ui.calling.controlButtons.HangUpButton
 import com.wire.android.ui.calling.controlButtons.MicrophoneButton
 import com.wire.android.ui.calling.controlButtons.SpeakerButton
 import com.wire.android.ui.calling.model.UICallParticipant
+import com.wire.android.ui.common.SecurityClassificationBanner
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 
 @Composable
 fun OngoingCallScreen(
@@ -51,6 +53,7 @@ fun OngoingCallScreen(
             callState.isMuted ?: true,
             callState.isCameraOn ?: false,
             callState.isSpeakerOn,
+            callState.securityClassificationType,
             ::toggleSpeaker,
             ::toggleMute,
             ::hangUpCall,
@@ -73,6 +76,7 @@ private fun OngoingCallContent(
     isMuted: Boolean,
     isCameraOn: Boolean,
     isSpeakerOn: Boolean,
+    classificationType: SecurityClassificationType,
     toggleSpeaker: () -> Unit,
     toggleMute: () -> Unit,
     hangUpCall: () -> Unit,
@@ -82,7 +86,7 @@ private fun OngoingCallContent(
     navigateBack: () -> Unit
 ) {
     val sheetState = rememberBottomSheetState(
-        initialValue = BottomSheetValue.Collapsed
+        initialValue = if (classificationType == SecurityClassificationType.NONE) BottomSheetValue.Collapsed else BottomSheetValue.Expanded
     )
     val scaffoldState = rememberBottomSheetScaffoldState(
         bottomSheetState = sheetState
@@ -106,6 +110,7 @@ private fun OngoingCallContent(
                 isMuted = isMuted,
                 isCameraOn = isCameraOn,
                 isSpeakerOn = isSpeakerOn,
+                classificationType = classificationType,
                 toggleSpeaker = toggleSpeaker,
                 toggleMute = toggleMute,
                 onHangUpCall = hangUpCall,
@@ -151,6 +156,7 @@ private fun CallingControls(
     isMuted: Boolean,
     isCameraOn: Boolean,
     isSpeakerOn: Boolean,
+    classificationType: SecurityClassificationType,
     toggleSpeaker: () -> Unit,
     toggleMute: () -> Unit,
     onHangUpCall: () -> Unit,
@@ -186,6 +192,7 @@ private fun CallingControls(
             onHangUpButtonClicked = onHangUpCall
         )
     }
+    SecurityClassificationBanner(classificationType)
 }
 
 @Composable

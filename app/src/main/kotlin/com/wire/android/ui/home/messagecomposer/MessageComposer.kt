@@ -25,9 +25,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
@@ -42,17 +39,19 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.wire.android.R
+import com.wire.android.ui.common.SecurityClassificationBanner
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.messagecomposer.attachment.AttachmentOptions
+import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 import okio.Path
-
-private val DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET = 250.dp
 
 @Composable
 fun MessageComposer(
+    keyboardHeight: KeyboardHeight,
     content: @Composable () -> Unit,
     messageText: String,
     onMessageChanged: (String) -> Unit,
@@ -62,8 +61,9 @@ fun MessageComposer(
     onMessageComposerInputStateChange: (MessageComposerStateTransition) -> Unit,
     isFileSharingEnabled: Boolean,
     isUserBlocked: Boolean,
-    isConversationMember: Boolean,
-    tempCachePath: Path
+    isSendingMessagesAllowed: Boolean,
+    tempCachePath: Path,
+    securityClassificationType: SecurityClassificationType
 ) {
     BoxWithConstraints {
         val messageComposerState = rememberMessageComposerInnerState(
@@ -77,7 +77,7 @@ fun MessageComposer(
 
         MessageComposer(
             content = content,
-            screenHeight = with(LocalDensity.current) { constraints.maxHeight.toDp() },
+            keyboardHeight = keyboardHeight,
             messageComposerState = messageComposerState,
             messageText = messageComposerState.messageText,
             onMessageChanged = {
@@ -96,8 +96,9 @@ fun MessageComposer(
             onMessageComposerError = onMessageComposerError,
             isFileSharingEnabled = isFileSharingEnabled,
             isUserBlocked = isUserBlocked,
-            isConversationMember = isConversationMember,
-            tempCachePath = tempCachePath
+            isSendingMessagesAllowed = isSendingMessagesAllowed,
+            tempCachePath = tempCachePath,
+            securityClassificationType = securityClassificationType
         )
     }
 }
@@ -112,7 +113,7 @@ fun MessageComposer(
 @Composable
 private fun MessageComposer(
     content: @Composable () -> Unit,
-    screenHeight: Dp,
+    keyboardHeight: KeyboardHeight,
     messageComposerState: MessageComposerInnerState,
     messageText: TextFieldValue,
     onMessageChanged: (TextFieldValue) -> Unit,
@@ -121,20 +122,11 @@ private fun MessageComposer(
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
     isFileSharingEnabled: Boolean,
     isUserBlocked: Boolean,
-    isConversationMember: Boolean,
-    tempCachePath: Path
+    isSendingMessagesAllowed: Boolean,
+    tempCachePath: Path,
+    securityClassificationType: SecurityClassificationType
 ) {
     val focusManager = LocalFocusManager.current
-    // when MessageComposer is composed for the first time we do not know the height
-    // until users opens the keyboard
-    var keyboardHeightOffSet: KeyboardHeight by remember {
-        mutableStateOf(KeyboardHeight.NotKnown)
-    }
-    // if the currentScreenHeight is smaller than the initial fullScreenHeight
-    // calculated at the first composition of the MessageComposer, then we know the keyboard size
-    if (screenHeight < messageComposerState.fullScreenHeight) {
-        keyboardHeightOffSet = KeyboardHeight.Known(messageComposerState.fullScreenHeight - screenHeight)
-    }
 
     Surface {
         val transition = updateTransition(
@@ -146,7 +138,6 @@ private fun MessageComposer(
             messageComposerState.toggleAttachmentOptionsVisibility()
         }
 
-
         // ConstraintLayout wrapping the whole content to give us the possibility to constrain SendButton to top of AdditionalOptions, which
         // constrains to bottom of MessageComposerInput
         // so that MessageComposerInput is the only component animating freely, when going to Fullscreen mode
@@ -157,7 +148,7 @@ private fun MessageComposer(
             // AttachmentOptions, the offset is set to DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET as default, whenever the keyboard pops up
             // we are able to calculate the actual needed offset, so that it is equal to the height of the keyboard the user is using
             val topOfKeyboardGuideLine = createGuidelineFromTop(
-                offset = messageComposerState.fullScreenHeight - keyboardHeightOffSet.height
+                offset = messageComposerState.fullScreenHeight - keyboardHeight.height
             )
 
             val messageComposer = createRef()
@@ -204,19 +195,26 @@ private fun MessageComposer(
                                 )
                             }
                             .background(color = colorsScheme().backgroundVariant)
-                            .padding(bottom = if (isConversationMember) 0.dp else dimensions().spacing16x)
+                            .padding(bottom = dimensions().spacing8x)
                             .weight(1f)) {
                         content()
                     }
                     if (isUserBlocked) {
                         BlockedUserMessage()
-                    } else if (isConversationMember) {
+                    } else if (isSendingMessagesAllowed) {
                         // Column wrapping CollapseIconButton and MessageComposerInput
                         Column(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .animateContentSize()
                         ) {
+                            val isClassifiedConversation = securityClassificationType != SecurityClassificationType.NONE
+                            if (isClassifiedConversation) {
+                                Box(Modifier.wrapContentSize()) {
+                                    VerticalSpace.x8()
+                                    SecurityClassificationBanner(securityClassificationType = securityClassificationType)
+                                }
+                            }
                             Divider()
                             CollapseIconButtonBox(transition, messageComposerState)
                             // Row wrapping the AdditionalOptionButton() when we are in Enabled state and MessageComposerInput()
@@ -228,7 +226,7 @@ private fun MessageComposer(
                         }
                     }
                 }
-                if (!isUserBlocked && isConversationMember) {
+                if (!isUserBlocked && isSendingMessagesAllowed) {
                     // Box wrapping the SendActions so that we do not include it in the animationContentSize
                     // changed which is applied only for
                     // MessageComposerInput and CollapsingButton
@@ -259,9 +257,9 @@ private fun MessageComposer(
             // we want to offset the AttachmentOptionsComponent equal to where
             // the device keyboard is displayed, so that when the keyboard is closed,
             // we get the effect of overlapping it
-            if (messageComposerState.attachmentOptionsDisplayed && !isUserBlocked && isConversationMember) {
+            if (messageComposerState.attachmentOptionsDisplayed && !isUserBlocked && isSendingMessagesAllowed) {
                 AttachmentOptions(
-                    keyboardHeightOffSet,
+                    keyboardHeight,
                     messageComposerState,
                     onSendAttachment,
                     onMessageComposerError,
@@ -323,4 +321,8 @@ private fun CollapseIconButton(onCollapseClick: () -> Unit, modifier: Modifier =
 sealed class KeyboardHeight(open val height: Dp) {
     object NotKnown : KeyboardHeight(DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET)
     data class Known(override val height: Dp) : KeyboardHeight(height)
+
+    companion object {
+        val DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET = 250.dp
+    }
 }

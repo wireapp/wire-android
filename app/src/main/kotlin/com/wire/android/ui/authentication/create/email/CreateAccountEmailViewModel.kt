@@ -12,4 +12,9 @@ interface CreateAccountEmailViewModel {
     fun onTermsDialogDismiss()
     fun onTermsAccept()
     fun onEmailErrorDismiss()
+    fun dismissClientUpdateDialog()
+
+    fun dismissApiVersionNotSupportedDialog()
+
+    fun updateTheApp()
 }

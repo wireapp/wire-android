@@ -19,7 +19,7 @@ class FileManager @Inject constructor(@ApplicationContext private val context: C
         onFileSaved()
     }
 
-    fun openWithExternalApp(assetDataPath: Path, assetExtension: String, onError: () -> Unit) {
+    fun openWithExternalApp(assetDataPath: Path, assetExtension: String?, onError: () -> Unit) {
         openAssetFileWithExternalApp(assetDataPath, context, assetExtension, onError)
     }
 }

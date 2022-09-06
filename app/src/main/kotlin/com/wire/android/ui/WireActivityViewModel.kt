@@ -1,6 +1,9 @@
 package com.wire.android.ui
 
 import android.content.Intent
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
@@ -10,6 +13,7 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.notification.WireNotificationManager
+import com.wire.android.ui.common.dialogs.CustomBEDeeplinkDialogState
 import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -22,6 +26,8 @@ import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
+import com.wire.kalium.logic.feature.session.GetAllSessionsResult
+import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -46,26 +52,24 @@ class WireActivityViewModel @Inject constructor(
     private val notificationManager: WireNotificationManager,
     private val navigationManager: NavigationManager,
     private val authServerConfigProvider: AuthServerConfigProvider,
+    private val getSessions: GetSessionsUseCase,
     observePersistentWebSocketConnectionStatus: ObservePersistentWebSocketConnectionStatusUseCase
 ) : ViewModel() {
 
     private val navigationArguments = mutableMapOf<String, Any>(SERVER_CONFIG_ARG to ServerConfig.DEFAULT)
+    var customBackendDialogState: CustomBEDeeplinkDialogState by mutableStateOf(CustomBEDeeplinkDialogState())
+    var maxAccountDialogState: Boolean by mutableStateOf(false)
 
-    private val observeUserId = currentSessionFlow()
-        .map { result ->
-            if (result is CurrentSessionResult.Success) {
-                if (result.authSession.session is AuthSession.Session.Invalid) {
-                    navigateToLogin(result.authSession.session.userId)
-                    null
-                } else
-                    result.authSession.session.userId
-            } else {
+    private val observeUserId = currentSessionFlow().map { result ->
+        if (result is CurrentSessionResult.Success) {
+            if (result.authSession.session is AuthSession.Session.Invalid) {
+                navigateToLogin(result.authSession.session.userId)
                 null
-            }
+            } else result.authSession.session.userId
+        } else {
+            null
         }
-        .distinctUntilChanged()
-        .flowOn(dispatchers.io())
-        .shareIn(viewModelScope, SharingStarted.WhileSubscribed(), 1)
+    }.distinctUntilChanged().flowOn(dispatchers.io()).shareIn(viewModelScope, SharingStarted.WhileSubscribed(), 1)
 
     init {
         viewModelScope.launch(dispatchers.io()) {
@@ -80,32 +84,29 @@ class WireActivityViewModel @Inject constructor(
     private suspend fun navigateToLogin(userId: UserId) {
         navigationManager.navigate(
             NavigationCommand(
-                NavigationItem.Login.getRouteWithArgs(listOf(userId)),
-                BackStackMode.CLEAR_WHOLE
+                NavigationItem.Login.getRouteWithArgs(listOf(userId)), BackStackMode.CLEAR_WHOLE
             )
         )
     }
 
     fun navigationArguments() = navigationArguments.values.toList()
 
-    fun startNavigationRoute(): String =
-        when {
-            shouldGoToLogin() -> NavigationItem.Login.getRouteWithArgs()
-            shouldGoToWelcome() -> NavigationItem.Welcome.getRouteWithArgs()
-            else -> NavigationItem.Home.getRouteWithArgs()
-        }
+    fun startNavigationRoute(): String = when {
+        shouldGoToWelcome() -> NavigationItem.Welcome.getRouteWithArgs()
+        else -> NavigationItem.Home.getRouteWithArgs()
+    }
 
     fun handleDeepLink(intent: Intent?) {
         intent?.data?.let { deepLink ->
             when (val result = deepLinkProcessor(deepLink)) {
-                is DeepLinkResult.CustomServerConfig ->
-                    loadServerConfig(result.url)?.let { serverLinks ->
-                        authServerConfigProvider.updateAuthServer(serverLinks)
-                        navigationArguments.put(SERVER_CONFIG_ARG, serverLinks)
-                    }
+                is DeepLinkResult.CustomServerConfig -> loadServerConfig(result.url)?.let { serverLinks ->
+                    customBackendDialogState = customBackendDialogState.copy(
+                        shouldShowDialog = true, serverLinks = serverLinks
+                    )
+                    navigationArguments.put(SERVER_CONFIG_ARG, serverLinks)
+                }
 
-                is DeepLinkResult.SSOLogin ->
-                    navigationArguments.put(SSO_DEEPLINK_ARG, result)
+                is DeepLinkResult.SSOLogin -> navigationArguments.put(SSO_DEEPLINK_ARG, result)
 
                 is DeepLinkResult.IncomingCall -> {
                     if (isLaunchedFromHistory(intent)) {
@@ -172,6 +173,7 @@ class WireActivityViewModel @Inject constructor(
         handleDeepLink(intent)
 
         return when {
+            isServerConfigOnPremises() -> false
             shouldGoToLogin() || shouldGoToWelcome() -> true
 
             shouldGoToIncomingCall() -> {
@@ -196,6 +198,32 @@ class WireActivityViewModel @Inject constructor(
 
             intent == null -> false
             else -> true
+        }
+    }
+
+    fun dismissCustomBackendDialog() {
+        customBackendDialogState = customBackendDialogState.copy(shouldShowDialog = false)
+    }
+
+    fun customBackendDialogProceedButtonClicked(serverLinks: ServerConfig.Links) {
+        dismissCustomBackendDialog()
+        authServerConfigProvider.updateAuthServer(serverLinks)
+        if (checkNumberOfSessions() == MAX_SESSION_COUNT) {
+            maxAccountDialogState = true
+        } else {
+            navigateTo(NavigationCommand(NavigationItem.Welcome.getRouteWithArgs()))
+        }
+    }
+
+    private fun checkNumberOfSessions(): Int {
+        getSessions().let {
+            return when (it) {
+                is GetAllSessionsResult.Success -> {
+                     it.sessions.filter { it.session is AuthSession.Session.Valid }.size
+                }
+                is GetAllSessionsResult.Failure.Generic -> 0
+                GetAllSessionsResult.Failure.NoSessionFound -> 0
+            }
         }
     }
 
@@ -226,42 +254,39 @@ class WireActivityViewModel @Inject constructor(
 
     private fun loadServerConfig(url: String): ServerConfig.Links? = runBlocking {
         return@runBlocking when (val result = getServerConfigUseCase(url)) {
-            is GetServerConfigResult.Success -> result.serverConfig.links
+            is GetServerConfigResult.Success -> result.serverConfigLinks
             // TODO: show error message on failure
             is GetServerConfigResult.Failure.Generic -> {
-                appLogger.e("something went wrong during handling the scustom server deep link: ${result.genericFailure}")
-                null
-            }
-
-            GetServerConfigResult.Failure.TooNewVersion -> {
-                appLogger.e("server version is too new")
-                null
-            }
-
-            GetServerConfigResult.Failure.UnknownServerVersion -> {
-                appLogger.e("unknown server version")
+                appLogger.e("something went wrong during handling the custom server deep link: ${result.genericFailure}")
                 null
             }
         }
     }
 
+    private fun isServerConfigOnPremises(): Boolean =
+        (navigationArguments[SERVER_CONFIG_ARG] as ServerConfig.Links) != ServerConfig.DEFAULT
+
     private fun shouldGoToLogin(): Boolean =
-        (navigationArguments[SERVER_CONFIG_ARG] as ServerConfig.Links) != ServerConfig.DEFAULT ||
-                navigationArguments[SSO_DEEPLINK_ARG] != null
+        navigationArguments[SSO_DEEPLINK_ARG] != null
 
-    private fun shouldGoToIncomingCall(): Boolean =
-        (navigationArguments[INCOMING_CALL_CONVERSATION_ID_ARG] as? ConversationId) != null
+    private fun shouldGoToIncomingCall(): Boolean = (navigationArguments[INCOMING_CALL_CONVERSATION_ID_ARG] as? ConversationId) != null
 
+    private fun shouldGoToConversation(): Boolean = (navigationArguments[OPEN_CONVERSATION_ID_ARG] as? ConversationId) != null
     private fun shouldGoToOngoingCall(): Boolean =
         (navigationArguments[ONGOING_CALL_CONVERSATION_ID_ARG] as? ConversationId) != null
 
-    private fun shouldGoToConversation(): Boolean =
-        (navigationArguments[OPEN_CONVERSATION_ID_ARG] as? ConversationId) != null
-
-    private fun shouldGoToOtherProfile(): Boolean =
-        (navigationArguments[OPEN_OTHER_USER_PROFILE_ARG] as? QualifiedID) != null
+    private fun shouldGoToOtherProfile(): Boolean = (navigationArguments[OPEN_OTHER_USER_PROFILE_ARG] as? QualifiedID) != null
 
     private fun shouldGoToWelcome(): Boolean = runBlocking { observeUserId.first() } == null
+
+    fun openProfile() {
+        dismissMaxAccountDialog()
+        navigateTo(NavigationCommand(NavigationItem.SelfUserProfile.getRouteWithArgs()))
+    }
+
+    fun dismissMaxAccountDialog() {
+        maxAccountDialogState = false
+    }
 
     companion object {
         private const val SERVER_CONFIG_ARG = "server_config"
@@ -270,5 +295,6 @@ class WireActivityViewModel @Inject constructor(
         private const val ONGOING_CALL_CONVERSATION_ID_ARG = "ongoing_call_conversation_id"
         private const val OPEN_CONVERSATION_ID_ARG = "open_conversation_id"
         private const val OPEN_OTHER_USER_PROFILE_ARG = "open_other_user_id"
+        private const val MAX_SESSION_COUNT = 3
     }
 }

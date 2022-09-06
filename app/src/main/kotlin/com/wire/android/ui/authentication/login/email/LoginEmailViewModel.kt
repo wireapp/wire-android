@@ -7,7 +7,6 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.di.NoSession
-import com.wire.android.di.UserSessionsUseCaseProvider
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.login.LoginError
 import com.wire.android.ui.authentication.login.LoginViewModel
@@ -18,11 +17,14 @@ import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
 import com.wire.kalium.logic.feature.auth.LoginUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
+import com.wire.kalium.logic.feature.server.FetchApiVersionResult
+import com.wire.kalium.logic.feature.server.FetchApiVersionUseCase
+import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "ComplexMethod")
 @ExperimentalMaterialApi
 @HiltViewModel
 class LoginEmailViewModel @Inject constructor(
@@ -30,7 +32,8 @@ class LoginEmailViewModel @Inject constructor(
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
     @NoSession qualifiedIdMapper: QualifiedIdMapper,
     clientScopeProviderFactory: ClientScopeProvider.Factory,
-    userSessionsUseCaseFactory: UserSessionsUseCaseProvider.Factory,
+    getSessions: GetSessionsUseCase,
+    private val fetchApiVersion: FetchApiVersionUseCase,
     private val savedStateHandle: SavedStateHandle,
     navigationManager: NavigationManager,
     authServerConfigProvider: AuthServerConfigProvider,
@@ -39,13 +42,30 @@ class LoginEmailViewModel @Inject constructor(
     navigationManager,
     qualifiedIdMapper,
     clientScopeProviderFactory,
-    userSessionsUseCaseFactory,
+    getSessions,
     authServerConfigProvider
 ) {
 
     fun login() {
         loginState = loginState.copy(emailLoginLoading = true, loginError = LoginError.None).updateEmailLoginEnabled()
         viewModelScope.launch {
+            fetchApiVersion(serverConfig).let {
+                when (it) {
+                    is FetchApiVersionResult.Success -> {}
+                    is FetchApiVersionResult.Failure.UnknownServerVersion -> {
+                        loginState = loginState.copy(showServerVersionNotSupportedDialog = true)
+                        return@launch
+                    }
+                    is FetchApiVersionResult.Failure.TooNewVersion -> {
+                        loginState = loginState.copy(showClientUpdateDialog = true)
+                        return@launch
+                    }
+                    is FetchApiVersionResult.Failure.Generic -> {
+                        return@launch
+                    }
+                }
+            }
+
             val (authSession, ssoId) = loginUseCase(loginState.userIdentifier.text, loginState.password.text, true)
                 .let {
                     when (it) {

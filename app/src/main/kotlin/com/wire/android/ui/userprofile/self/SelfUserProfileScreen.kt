@@ -1,5 +1,9 @@
 package com.wire.android.ui.userprofile.self
 
+import android.content.Context
+import android.content.ContextWrapper
+import android.widget.Toast
+import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
@@ -11,7 +15,6 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
@@ -30,24 +33,22 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.RowItemTemplate
-import com.wire.android.ui.common.UserBadge
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.UserStatusIndicator
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.selectableBackground
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.common.topappbar.NavigationIconType
@@ -65,21 +66,24 @@ import com.wire.android.ui.userprofile.self.model.OtherAccount
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SelfUserProfileScreen(viewModelSelf: SelfUserProfileViewModel = hiltViewModel()) {
     SelfUserProfileContent(
         state = viewModelSelf.userProfileState,
-        onCloseClick = { viewModelSelf.navigateBack() },
-        onLogoutClick = { viewModelSelf.onLogoutClick() },
-        onChangeUserProfilePicture = { viewModelSelf.onChangeProfilePictureClicked() },
-        onEditClick = { viewModelSelf.editProfile() },
-        onStatusClicked = { viewModelSelf.changeStatusClick(it) },
-        onAddAccountClick = { viewModelSelf.addAccount() },
-        dismissStatusDialog = { viewModelSelf.dismissStatusDialog() },
-        onStatusChange = { viewModelSelf.changeStatus(it) },
-        onNotShowRationaleAgainChange = { show -> viewModelSelf.dialogCheckBoxStateChanged(show) },
-        onMessageShown = { viewModelSelf.clearErrorMessage() }
+        onCloseClick = viewModelSelf::navigateBack,
+        onLogoutClick = viewModelSelf::onLogoutClick,
+        onChangeUserProfilePicture = viewModelSelf::onChangeProfilePictureClicked,
+        onEditClick = viewModelSelf::editProfile,
+        onStatusClicked = viewModelSelf::changeStatusClick,
+        onAddAccountClick = viewModelSelf::addAccount,
+        dismissStatusDialog = viewModelSelf::dismissStatusDialog,
+        onStatusChange = viewModelSelf::changeStatus,
+        onNotShowRationaleAgainChange = viewModelSelf::dialogCheckBoxStateChanged,
+        onMessageShown = viewModelSelf::clearErrorMessage,
+        onMaxAccountReachedDialogDismissed = viewModelSelf::onMaxAccountReachedDialogDismissed,
+        onOtherAccountClick = viewModelSelf::onOtherAccountClick
     )
 }
 
@@ -96,7 +100,9 @@ private fun SelfUserProfileContent(
     dismissStatusDialog: () -> Unit = {},
     onStatusChange: (UserAvailabilityStatus) -> Unit = {},
     onNotShowRationaleAgainChange: (Boolean) -> Unit = {},
-    onMessageShown: () -> Unit = {}
+    onMessageShown: () -> Unit = {},
+    onMaxAccountReachedDialogDismissed: () -> Unit = {},
+    onOtherAccountClick: (UserId) -> Unit = {}
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -124,6 +130,7 @@ private fun SelfUserProfileContent(
         }
     ) { internalPadding ->
         with(state) {
+            val context = LocalContext.current
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -162,12 +169,27 @@ private fun SelfUserProfileContent(
                         }
                         items(
                             items = otherAccounts,
-                            itemContent = { account -> OtherAccountItem(account) }
+                            itemContent = { account ->
+                                OtherAccountItem(
+                                    account,
+                                    clickable = remember {
+                                        Clickable(enabled = true, onClick = {
+                                            if (state.isUserInCall) {
+                                                Toast.makeText(
+                                                    context,
+                                                    context.getString(R.string.cant_switch_account_in_call),
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
+                                            } else {
+                                                onOtherAccountClick(account.id)
+                                            }
+                                        })
+                                    })
+                            }
                         )
                     }
                 }
-                // TODO: Re-enable this when we support multiple accounts
-//                NewTeamButton(onAddAccountClick)
+                NewTeamButton(onAddAccountClick)
             }
             ChangeStatusDialogContent(
                 data = statusDialogData,
@@ -175,6 +197,14 @@ private fun SelfUserProfileContent(
                 onStatusChange = onStatusChange,
                 onNotShowRationaleAgainChange = onNotShowRationaleAgainChange
             )
+
+            if (state.maxAccountsReached) {
+                MaxAccountReachedDialog(
+                    onConfirm = onMaxAccountReachedDialogDismissed,
+                    onDismiss = onMaxAccountReachedDialogDismissed,
+                    buttonText = R.string.label_ok
+                )
+            }
         }
     }
 }
@@ -311,7 +341,7 @@ private fun OtherAccountsHeader() {
 
 @Composable
 private fun NewTeamButton(onAddAccountClick: () -> Unit) {
-    Surface(shadowElevation = 8.dp) {
+    Surface(shadowElevation = dimensions().spacing8x) {
         WirePrimaryButton(
             modifier = Modifier
                 .background(MaterialTheme.colorScheme.background)

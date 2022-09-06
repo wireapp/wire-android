@@ -10,7 +10,9 @@ data class LoginState(
     val emailLoginLoading: Boolean = false,
     val ssoLoginEnabled: Boolean = false,
     val emailLoginEnabled: Boolean = false,
-    val loginError: LoginError = LoginError.None
+    val loginError: LoginError = LoginError.None,
+    val showClientUpdateDialog: Boolean = false,
+    val showServerVersionNotSupportedDialog: Boolean = false
 )
 
 fun LoginState.updateEmailLoginEnabled() =

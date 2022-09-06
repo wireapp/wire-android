@@ -178,7 +178,8 @@ private fun IncomingCallContent(
                 avatarAssetId = callState.avatarAssetId,
                 conversationType = callState.conversationType,
                 membership = callState.membership,
-                callingLabel = isCallingString
+                callingLabel = isCallingString,
+                securityClassificationType = callState.securityClassificationType
             )
         }
     }

@@ -69,7 +69,7 @@
         "keep_websocket_on": true,
         "private_build": false
     },
-    "maxAccounts": 2,
+    "maxAccounts": 3,
     "backendUrl": "https://prod-nginz-https.wire.com",
     "websocketUrl": "https://prod-nginz-ssl.wire.com",
     "allow_account_creation": true,

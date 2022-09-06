@@ -8,11 +8,10 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.ui.home.conversationslist.common.ConversationItemFactory
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
-import com.wire.android.ui.home.conversationslist.model.EventType
+import com.wire.android.ui.home.conversationslist.model.BadgeEventType
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 
@@ -63,7 +62,6 @@ fun CallContent(
         ) { missedCall ->
             ConversationItemFactory(
                 conversation = missedCall,
-                eventType = EventType.MissedCall,
                 openConversation = onCallItemClick,
                 openMenu = onEditConversationItem,
                 openUserProfile = onOpenUserProfile,

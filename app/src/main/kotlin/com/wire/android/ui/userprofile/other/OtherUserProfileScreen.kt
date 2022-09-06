@@ -42,7 +42,6 @@ import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.PagerState
 import com.google.accompanist.pager.rememberPagerState
 import com.wire.android.R
-import com.wire.android.model.PreservedState
 import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.MoreOptionIcon
 import com.wire.android.ui.common.TabItem
@@ -57,6 +56,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
@@ -84,9 +84,7 @@ fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltView
     OtherProfileScreenContent(
         scope = scope,
         state = viewModel.state,
-        removeMemberDialogState = viewModel.removeConversationMemberDialogState,
-        blockUserDialogState = viewModel.blockUserDialogState,
-        unblockUserDialogState = viewModel.unblockUserDialogState,
+        requestInProgress = viewModel.requestInProgress,
         sheetState = sheetState,
         openBottomSheet = openBottomSheet,
         closeBottomSheet = closeBottomSheet,
@@ -125,18 +123,20 @@ fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltView
 fun OtherProfileScreenContent(
     scope: CoroutineScope,
     state: OtherUserProfileState,
+    requestInProgress: Boolean,
     sheetState: ModalBottomSheetState,
     openBottomSheet: () -> Unit,
     closeBottomSheet: () -> Unit,
-    removeMemberDialogState: PreservedState<RemoveConversationMemberState>?,
-    blockUserDialogState: PreservedState<BlockUserDialogState>?,
-    unblockUserDialogState: PreservedState<UnblockUserDialogState>?,
     eventsHandler: OtherUserProfileEventsHandler,
     footerEventsHandler: OtherUserProfileFooterEventsHandler,
     bottomSheetEventsHandler: OtherUserProfileBottomSheetEventsHandler,
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
 ) {
     val otherUserProfileScreenState = rememberOtherUserProfileScreenState(snackbarHostState)
+    val blockUserDialogState = rememberVisibilityState<BlockUserDialogState>()
+    val unblockUserDialogState = rememberVisibilityState<UnblockUserDialogState>()
+    val removeMemberDialogState = rememberVisibilityState<RemoveConversationMemberState>()
+
     val tabItems by remember(state) {
         derivedStateOf {
             listOfNotNull(
@@ -157,6 +157,12 @@ fun OtherProfileScreenContent(
         derivedStateOf { lazyListStates[tabItems[currentTabState]]?.topBarElevation(maxBarElevation) ?: 0.dp }
     }
 
+    if (!requestInProgress) {
+        blockUserDialogState.dismiss()
+        unblockUserDialogState.dismiss()
+        removeMemberDialogState.dismiss()
+    }
+
     WireModalSheetLayout(
         sheetState = sheetState,
         coroutineScope = rememberCoroutineScope(),
@@ -164,7 +170,7 @@ fun OtherProfileScreenContent(
             OtherUserProfileBottomSheetContent(
                 bottomSheetState = state.bottomSheetContentState,
                 eventsHandler = bottomSheetEventsHandler,
-                blockUser = eventsHandler::showBlockUserDialog,
+                blockUser = blockUserDialogState::show,
                 closeBottomSheet = closeBottomSheet,
             )
         }
@@ -199,8 +205,8 @@ fun OtherProfileScreenContent(
                         eventsHandler.setBottomSheetStateToChangeRole()
                         openBottomSheet()
                     },
-                    eventsHandler::showRemoveConversationMemberDialog,
-                    eventsHandler::getOtherUserClients
+                    openRemoveConversationMemberDialog = removeMemberDialogState::show,
+                    getOtherUserClients = eventsHandler::getOtherUserClients
                 )
             },
             bottomBar = {
@@ -208,7 +214,7 @@ fun OtherProfileScreenContent(
                     state,
                     maxBarElevation,
                     footerEventsHandler,
-                    eventsHandler::showUnblockUserDialog
+                    unblockUserDialogState::show
                 )
             },
             isSwipeable = state.connectionState == ConnectionState.ACCEPTED
@@ -217,18 +223,18 @@ fun OtherProfileScreenContent(
 
     BlockUserDialogContent(
         dialogState = blockUserDialogState,
-        dismiss = eventsHandler::hideBlockUserDialog,
-        onBlock = eventsHandler::onBlockUser
+        onBlock = eventsHandler::onBlockUser,
+        isLoading = requestInProgress,
     )
     UnblockUserDialogContent(
         dialogState = unblockUserDialogState,
-        dismiss = eventsHandler::hideUnblockUserDialog,
-        onUnblock = eventsHandler::onUnblockUser
+        onUnblock = eventsHandler::onUnblockUser,
+        isLoading = requestInProgress,
     )
     RemoveConversationMemberDialog(
         dialogState = removeMemberDialogState,
-        onDialogDismiss = eventsHandler::hideRemoveConversationMemberDialog,
-        onRemoveConversationMember = eventsHandler::onRemoveConversationMember
+        onRemoveConversationMember = eventsHandler::onRemoveConversationMember,
+        isLoading = requestInProgress,
     )
 }
 
@@ -309,7 +315,7 @@ private fun Content(
     otherUserProfileScreenState: OtherUserProfileScreenState,
     lazyListStates: Map<OtherUserProfileTabItem, LazyListState>,
     openChangeRoleBottomSheet: () -> Unit,
-    openRemoveConversationMemberDialog: () -> Unit,
+    openRemoveConversationMemberDialog: (RemoveConversationMemberState) -> Unit,
     getOtherUserClients: () -> Unit,
 ) {
     Crossfade(targetState = tabItems to state) { (tabItems, state) ->
@@ -328,7 +334,7 @@ private fun Content(
 
                             OtherUserProfileTabItem.GROUP ->
                                 OtherUserProfileGroup(
-                                    state.groupState!!,
+                                    state,
                                     lazyListStates[tabItem]!!,
                                     openRemoveConversationMemberDialog,
                                     openChangeRoleBottomSheet
@@ -355,7 +361,7 @@ private fun ContentFooter(
     state: OtherUserProfileState,
     maxBarElevation: Dp,
     footerEventsHandler: OtherUserProfileFooterEventsHandler,
-    onUnblockUser: (String) -> Unit
+    onUnblockUser: (UnblockUserDialogState) -> Unit
 ) {
     AnimatedVisibility(
         visible = !state.isDataLoading,
@@ -376,7 +382,7 @@ private fun ContentFooter(
                         footerEventsHandler::onCancelConnectionRequest,
                         footerEventsHandler::onAcceptConnectionRequest,
                         footerEventsHandler::onIgnoreConnectionRequest
-                    ) { onUnblockUser(state.userName) }
+                    ) { onUnblockUser(UnblockUserDialogState(state.userName, state.userId)) }
                 }
             }
         }
@@ -396,9 +402,9 @@ fun OtherProfileScreenContentPreview() {
     WireTheme(isPreview = true) {
         OtherProfileScreenContent(
             rememberCoroutineScope(),
-            OtherUserProfileState.PREVIEW.copy(connectionState = ConnectionState.ACCEPTED),
+            OtherUserProfileState.PREVIEW.copy(connectionState = ConnectionState.ACCEPTED), false,
             rememberModalBottomSheetState(ModalBottomSheetValue.Hidden),
-            {}, {}, null, null, null, OtherUserProfileEventsHandler.PREVIEW,
+            {}, {}, OtherUserProfileEventsHandler.PREVIEW,
             OtherUserProfileFooterEventsHandler.PREVIEW, OtherUserProfileBottomSheetEventsHandler.PREVIEW
         )
     }
@@ -411,9 +417,9 @@ fun OtherProfileScreenContentNotConnectedPreview() {
     WireTheme(isPreview = true) {
         OtherProfileScreenContent(
             rememberCoroutineScope(),
-            OtherUserProfileState.PREVIEW.copy(connectionState = ConnectionState.CANCELLED),
+            OtherUserProfileState.PREVIEW.copy(connectionState = ConnectionState.CANCELLED), false,
             rememberModalBottomSheetState(ModalBottomSheetValue.Hidden),
-            {}, {}, null, null, null, OtherUserProfileEventsHandler.PREVIEW,
+            {}, {}, OtherUserProfileEventsHandler.PREVIEW,
             OtherUserProfileFooterEventsHandler.PREVIEW, OtherUserProfileBottomSheetEventsHandler.PREVIEW
         )
     }

@@ -7,6 +7,8 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.newServerConfig
+import com.wire.kalium.logic.feature.session.GetAllSessionsResult
+import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -29,6 +31,9 @@ class WelcomeViewModelTest {
     @MockK
     lateinit var authServerConfigProvider: AuthServerConfigProvider
 
+    @MockK
+    lateinit var getSessions: GetSessionsUseCase
+
     private lateinit var welcomeViewModel: WelcomeViewModel
 
     @BeforeEach
@@ -37,7 +42,8 @@ class WelcomeViewModelTest {
         mockUri()
         every { authServerConfigProvider.authServer } returns MutableStateFlow(newServerConfig(1).links)
         coEvery { authServerConfigProvider.authServer.value } returns newServerConfig(1).links
-        welcomeViewModel = WelcomeViewModel(navigationManager, authServerConfigProvider)
+        coEvery { getSessions() } returns GetAllSessionsResult.Success(listOf())
+        welcomeViewModel = WelcomeViewModel(navigationManager, authServerConfigProvider, getSessions)
     }
 
     @Test

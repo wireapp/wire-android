@@ -52,7 +52,8 @@ fun InternalContactSearchResultItem(
             Row(verticalAlignment = CenterVertically) {
                 HighlightName(
                     name = name,
-                    searchQuery = searchQuery
+                    searchQuery = searchQuery,
+                    modifier = Modifier.weight(weight = 1f, fill = false)
                 )
                 UserBadge(
                     membership = membership,
@@ -103,7 +104,8 @@ fun ExternalContactSearchResultItem(
             Row(verticalAlignment = CenterVertically) {
                 HighlightName(
                     name = name,
-                    searchQuery = searchQuery
+                    searchQuery = searchQuery,
+                    modifier = Modifier.weight(weight = 1f, fill = false)
                 )
                 UserBadge(
                     membership = membership,

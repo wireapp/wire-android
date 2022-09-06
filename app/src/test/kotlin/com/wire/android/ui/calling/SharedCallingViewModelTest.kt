@@ -21,6 +21,7 @@ import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOffUseCase
 import com.wire.kalium.logic.feature.call.usecase.TurnLoudSpeakerOnUseCase
 import com.wire.kalium.logic.feature.call.usecase.UnMuteCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.UpdateVideoStateUseCase
+import com.wire.kalium.logic.feature.conversation.GetSecurityClassificationTypeUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -93,6 +94,9 @@ class SharedCallingViewModelTest {
     @MockK
     private lateinit var currentScreenManager: CurrentScreenManager
 
+    @MockK
+    private lateinit var getConversationClassifiedType: GetSecurityClassificationTypeUseCase
+
     private val uiCallParticipantMapper: UICallParticipantMapper by lazy { UICallParticipantMapper(wireSessionImageLoader, userTypeMapper) }
 
     private lateinit var sharedCallingViewModel: SharedCallingViewModel
@@ -127,7 +131,8 @@ class SharedCallingViewModelTest {
             wireSessionImageLoader = wireSessionImageLoader,
             userTypeMapper = userTypeMapper,
             currentScreenManager = currentScreenManager,
-            qualifiedIdMapper = qualifiedIdMapper
+            qualifiedIdMapper = qualifiedIdMapper,
+            getConversationClassifiedType = getConversationClassifiedType
         )
     }
 
@@ -200,11 +205,13 @@ class SharedCallingViewModelTest {
     @Test
     fun `given an active call, when the user ends call, then invoke endCall useCase`() {
         coEvery { endCall(any()) } returns Unit
+        coEvery { muteCall(any()) } returns Unit
         every { callRinger.stop() } returns Unit
 
         runTest { sharedCallingViewModel.hangUpCall() }
 
         coVerify(exactly = 1) { endCall(any()) }
+        coVerify(exactly = 1) { muteCall(any()) }
         coVerify(exactly = 1) { callRinger.stop() }
     }
 

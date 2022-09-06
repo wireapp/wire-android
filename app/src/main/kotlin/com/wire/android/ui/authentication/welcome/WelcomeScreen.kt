@@ -43,6 +43,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -59,6 +60,8 @@ import com.wire.android.ui.common.clickable
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.textfield.WirePrimaryButton
+import com.wire.android.ui.common.topappbar.NavigationIconType
+import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -79,15 +82,24 @@ fun WelcomeScreen(viewModel: WelcomeViewModel = hiltViewModel()) {
     WelcomeContent(viewModel)
 }
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun WelcomeContent(viewModel: WelcomeViewModel) {
-    Scaffold(modifier = Modifier.padding(vertical = MaterialTheme.wireDimensions.welcomeVerticalPadding)) { internalPadding ->
+    Scaffold(topBar = {
+        if (viewModel.isThereActiveSession) {
+            WireCenterAlignedTopAppBar(
+                elevation = 0.dp,
+                title = "",
+                navigationIconType = NavigationIconType.Close,
+                onNavigationPressed = viewModel::navigateBack
+            )
+        }
+    }) { internalPadding ->
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             verticalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier.padding(internalPadding)
+            modifier = Modifier
+                .padding(internalPadding)
         ) {
             Icon(
                 imageVector = ImageVector.vectorResource(id = R.drawable.ic_wire_logo),
@@ -121,12 +133,12 @@ private fun WelcomeContent(viewModel: WelcomeViewModel) {
                 }
             }
 
-            WelcomeFooter(modifier = Modifier
-                .padding(horizontal = MaterialTheme.wireDimensions.welcomeTextHorizontalPadding),
+            WelcomeFooter(modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.welcomeTextHorizontalPadding),
                 onPrivateAccountClick = {
                     viewModel.goToCreatePrivateAccount()
                 })
         }
+
     }
 }
 
@@ -150,9 +162,7 @@ private fun WelcomeCarousel() {
 
     CompositionLocalProvider(LocalOverScrollConfiguration provides null) {
         HorizontalPager(
-            state = pagerState,
-            count = circularItemsList.size,
-            modifier = Modifier.fillMaxWidth()
+            state = pagerState, count = circularItemsList.size, modifier = Modifier.fillMaxWidth()
         ) { page ->
             val (pageIconResId, pageText) = circularItemsList[page]
             WelcomeCarouselItem(pageIconResId = pageIconResId, pageText = pageText)
@@ -162,27 +172,29 @@ private fun WelcomeCarousel() {
 
 @OptIn(ExperimentalPagerApi::class, ExperimentalCoroutinesApi::class)
 private suspend fun autoScrollCarousel(
-    pageState: PagerState,
-    initialPage: Int,
-    circularItemsList: List<CarouselPageData>,
-    delay: Long
-) = snapshotFlow { pageState.currentPage }
-    .distinctUntilChanged()
+    pageState: PagerState, initialPage: Int, circularItemsList: List<CarouselPageData>, delay: Long
+) = snapshotFlow { pageState.currentPage }.distinctUntilChanged()
     .scan(initialPage to initialPage) { (_, previousPage), currentPage -> previousPage to currentPage }
     .flatMapLatest { (previousPage, currentPage) ->
         when {
-            shouldJumpToStart(previousPage, currentPage, circularItemsList.lastIndex, initialPage) ->
-                flow { emit(CarouselScrollData(scrollToPage = initialPage, animate = false)) }
+            shouldJumpToStart(previousPage, currentPage, circularItemsList.lastIndex, initialPage) -> flow {
+                emit(
+                    CarouselScrollData(
+                        scrollToPage = initialPage,
+                        animate = false
+                    )
+                )
+            }
 
-            shouldJumpToEnd(previousPage, currentPage, circularItemsList.lastIndex) ->
-                flow { emit(CarouselScrollData(scrollToPage = circularItemsList.lastIndex - 1, animate = false)) }
+            shouldJumpToEnd(
+                previousPage,
+                currentPage,
+                circularItemsList.lastIndex
+            ) -> flow { emit(CarouselScrollData(scrollToPage = circularItemsList.lastIndex - 1, animate = false)) }
 
-            else ->
-                flow { emit(CarouselScrollData(scrollToPage = pageState.currentPage + 1, animate = true)) }
-                    .onEach { delay(delay) }
+            else -> flow { emit(CarouselScrollData(scrollToPage = pageState.currentPage + 1, animate = true)) }.onEach { delay(delay) }
         }
-    }
-    .collect { (scrollToPage, animate) ->
+    }.collect { (scrollToPage, animate) ->
         if (pageState.pageCount != 0) {
             if (animate) pageState.animateScrollToPage(scrollToPage)
             else pageState.scrollToPage(scrollToPage)
@@ -246,18 +258,12 @@ private fun WelcomeFooter(modifier: Modifier, onPrivateAccountClick: () -> Unit)
         )
 
         Text(
-            text = stringResource(R.string.welcome_button_create_personal_account),
-            style = MaterialTheme.wireTypography.body02.copy(
-                textDecoration = TextDecoration.Underline,
-                color = MaterialTheme.colorScheme.primary
-            ),
-            textAlign = TextAlign.Center,
-            modifier = Modifier
+            text = stringResource(R.string.welcome_button_create_personal_account), style = MaterialTheme.wireTypography.body02.copy(
+                textDecoration = TextDecoration.Underline, color = MaterialTheme.colorScheme.primary
+            ), textAlign = TextAlign.Center, modifier = Modifier
                 .fillMaxWidth()
                 .clickable(
-                    interactionSource = remember { MutableInteractionSource() },
-                    indication = null,
-                    onClick = onPrivateAccountClick
+                    interactionSource = remember { MutableInteractionSource() }, indication = null, onClick = onPrivateAccountClick
                 )
         )
     }
@@ -276,11 +282,10 @@ private fun ServerTitle(serverLinks: ServerConfig.Links, modifier: Modifier = Mo
         var serverFullDetailsDialogState: Boolean by remember { mutableStateOf(false) }
 
         Text(
-            modifier = Modifier
-                .constrainAs(serverTitle) {
-                    start.linkTo(parent.start)
-                    end.linkTo(parent.end)
-                },
+            modifier = Modifier.constrainAs(serverTitle) {
+                start.linkTo(parent.start)
+                end.linkTo(parent.end)
+            },
             text = URL(serverLinks.api).host,
             style = MaterialTheme.wireTypography.title01,
             color = MaterialTheme.wireColorScheme.secondaryText,
@@ -288,8 +293,7 @@ private fun ServerTitle(serverLinks: ServerConfig.Links, modifier: Modifier = Mo
             overflow = TextOverflow.Ellipsis,
         )
 
-        Icon(
-            painter = painterResource(id = R.drawable.ic_info),
+        Icon(painter = painterResource(id = R.drawable.ic_info),
             contentDescription = null,
             modifier = Modifier
                 .constrainAs(infoIcon) {

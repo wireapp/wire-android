@@ -157,7 +157,7 @@ fun OtherProfileScreenContent(
         derivedStateOf { lazyListStates[tabItems[currentTabState]]?.topBarElevation(maxBarElevation) ?: 0.dp }
     }
 
-    if(!requestInProgress) {
+    if (!requestInProgress) {
         blockUserDialogState.dismiss()
         unblockUserDialogState.dismiss()
         removeMemberDialogState.dismiss()
@@ -205,8 +205,8 @@ fun OtherProfileScreenContent(
                         eventsHandler.setBottomSheetStateToChangeRole()
                         openBottomSheet()
                     },
-                    removeMemberDialogState::show,
-                    eventsHandler::getOtherUserClients
+                    openRemoveConversationMemberDialog = removeMemberDialogState::show,
+                    getOtherUserClients = eventsHandler::getOtherUserClients
                 )
             },
             bottomBar = {

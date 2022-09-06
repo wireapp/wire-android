@@ -99,7 +99,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val userId: QualifiedID = savedStateHandle.get<String>(EXTRA_USER_ID)!!.toQualifiedID(qualifiedIdMapper)
     private val conversationId: QualifiedID? = savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)?.toQualifiedID(qualifiedIdMapper)
 
-    var state: OtherUserProfileState by mutableStateOf(OtherUserProfileState(userId = userId))
+    var state: OtherUserProfileState by mutableStateOf(OtherUserProfileState(userId = userId, conversationId = conversationId))
     var requestInProgress: Boolean by mutableStateOf(false)
 
     private val _infoMessage = MutableSharedFlow<UIText>()

@@ -1,101 +1,118 @@
 package com.wire.android.ui.home.conversations.details
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.mapper.ContactMapper
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationManager
-import com.wire.android.ui.home.conversations.search.SearchPeopleViewModel
+import com.wire.android.ui.home.conversations.search.ContactSearchResult
+import com.wire.android.ui.home.conversations.search.KnownPeopleSearchViewModel
+import com.wire.android.ui.home.conversations.search.SearchPeopleState
 import com.wire.android.ui.home.conversations.search.SearchResult
+import com.wire.android.ui.home.conversations.search.SearchResultState
+import com.wire.android.ui.home.conversations.search.SearchResultTitle
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.publicuser.ConversationMemberExcludedOptions
 import com.wire.kalium.logic.data.publicuser.SearchUsersOptions
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
 import com.wire.kalium.logic.feature.conversation.AddMemberToConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetAllContactsNotInConversationUseCase
-import com.wire.kalium.logic.feature.publicuser.search.Result
+import com.wire.kalium.logic.feature.conversation.Result
 import com.wire.kalium.logic.feature.publicuser.search.SearchKnownUsersUseCase
-import com.wire.kalium.logic.feature.publicuser.search.SearchUsersUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
-import kotlin.String
-import kotlin.Suppress
-import com.wire.kalium.logic.feature.conversation.Result as GetContactsResult
+import com.wire.kalium.logic.feature.publicuser.search.Result as KnownUserSearchResult
 
 @Suppress("LongParameterList")
 @HiltViewModel
 class AddMembersToConversationViewModel @Inject constructor(
     private val getAllContactsNotInConversation: GetAllContactsNotInConversationUseCase,
-    private val searchKnownUsers: SearchKnownUsersUseCase,
-    private val searchPublicUsers: SearchUsersUseCase,
     private val contactMapper: ContactMapper,
     private val addMemberToConversation: AddMemberToConversationUseCase,
     private val dispatchers: DispatcherProvider,
-    sendConnectionRequest: SendConnectionRequestUseCase,
+    private val searchKnownUsers: SearchKnownUsersUseCase,
     savedStateHandle: SavedStateHandle,
     navigationManager: NavigationManager,
     qualifiedIdMapper: QualifiedIdMapper
-) : SearchPeopleViewModel(navigationManager, sendConnectionRequest, dispatchers) {
+) : KnownPeopleSearchViewModel(
+    dispatcher = dispatchers,
+    navigationManager = navigationManager
+) {
 
     private val conversationId: QualifiedID = qualifiedIdMapper.fromStringToQualifiedID(
         savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!
     )
 
+    var state: SearchPeopleState by mutableStateOf(SearchPeopleState())
+
     init {
-        viewModelScope.launch { allContacts() }
+        viewModelScope.launch {
+            combine(
+                initialContactResultFlow,
+                knownPeopleSearchQueryFlow,
+                searchQueryTextFieldFlow,
+                selectedContactsFlow
+            ) { initialContacts, knownResult, searchQuery, selectedContacts ->
+                SearchPeopleState(
+                    initialContacts = initialContacts,
+                    searchQuery = searchQuery,
+                    searchResult = mapOf(SearchResultTitle(R.string.label_contacts) to knownResult),
+                    noneSearchSucceed = knownResult.searchResultState is SearchResultState.Failure,
+                    contactsAddedToGroup = selectedContacts
+                )
+            }.collect { updatedState ->
+                state = updatedState
+            }
+        }
     }
 
-    override suspend fun getAllUsersUseCase() =
-        when (val result = getAllContactsNotInConversation(conversationId)) {
-            is GetContactsResult.Failure -> SearchResult.Failure(R.string.label_general_error)
-            is GetContactsResult.Success -> SearchResult.Success(
-                result.contactsNotInConversation.map { otherUser ->
-                    contactMapper.fromOtherUser(
-                        otherUser
+    override suspend fun getInitialContacts(): SearchResult =
+        withContext(dispatchers.io()) {
+            when (val result = getAllContactsNotInConversation(conversationId)) {
+                is Result.Failure -> SearchResult.Failure(R.string.label_general_error)
+                is Result.Success -> SearchResult.Success(result.contactsNotInConversation.map(contactMapper::fromOtherUser))
+            }
+        }
+
+    override suspend fun searchKnownPeople(searchTerm: String): ContactSearchResult.InternalContact {
+        val result = withContext(dispatchers.io()) {
+            searchKnownUsers(
+                searchQuery = searchTerm,
+                searchUsersOptions = SearchUsersOptions(
+                    conversationExcluded = ConversationMemberExcludedOptions.ConversationExcluded(conversationId),
+                    selfUserIncluded = false
+                )
+            )
+        }
+
+        return when (result) {
+            is KnownUserSearchResult.Failure.Generic -> ContactSearchResult.InternalContact(
+                SearchResultState.Failure(R.string.label_general_error)
+            )
+            KnownUserSearchResult.Failure.InvalidQuery -> ContactSearchResult.InternalContact(
+                SearchResultState.Failure(R.string.label_general_error)
+            )
+            KnownUserSearchResult.Failure.InvalidRequest -> ContactSearchResult.InternalContact(
+                SearchResultState.Failure(R.string.label_general_error)
+            )
+            is KnownUserSearchResult.Success -> ContactSearchResult.InternalContact(
+                SearchResultState.Success(
+                    result.userSearchResult.result.map(
+                        contactMapper::fromOtherUser
                     )
-                }
+                )
             )
         }
-
-    override suspend fun searchKnownUsersUseCase(searchTerm: String, selfUserIncluded: Boolean) =
-        when (val result = searchKnownUsers(
-            searchQuery = searchTerm,
-            searchUsersOptions = SearchUsersOptions(
-                conversationExcluded = ConversationMemberExcludedOptions.ConversationExcluded(conversationId),
-                selfUserIncluded = selfUserIncluded
-            )
-        )) {
-            is Result.Failure.Generic, Result.Failure.InvalidRequest -> {
-                SearchResult.Failure(R.string.label_general_error)
-            }
-            is Result.Failure.InvalidQuery -> {
-                SearchResult.Failure(R.string.label_no_results_found)
-            }
-            is Result.Success -> {
-                SearchResult.Success(result.userSearchResult.result.map { otherUser -> contactMapper.fromOtherUser(otherUser) })
-            }
-        }
-
-    override suspend fun searchPublicUsersUseCase(searchTerm: String) =
-        when (val result = searchPublicUsers(
-            searchTerm,
-        )) {
-            is Result.Failure.Generic, Result.Failure.InvalidRequest -> {
-                SearchResult.Failure(R.string.label_general_error)
-            }
-            is Result.Failure.InvalidQuery -> {
-                SearchResult.Failure(R.string.label_no_results_found)
-            }
-            is Result.Success -> {
-                SearchResult.Success(result.userSearchResult.result.map { otherUser -> contactMapper.fromOtherUser(otherUser) })
-            }
-        }
+    }
 
     fun addMembersToConversation() {
         viewModelScope.launch {

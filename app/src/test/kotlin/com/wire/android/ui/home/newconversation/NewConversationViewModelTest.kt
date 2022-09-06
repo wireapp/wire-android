@@ -1,10 +1,12 @@
 package com.wire.android.ui.home.newconversation
 
 import androidx.compose.ui.text.input.TextFieldValue
+import com.wire.android.R
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversations.search.SearchResultState
+import com.wire.android.ui.home.conversations.search.SearchResultTitle
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.newconversation.groupOptions.GroupOptionState
 import com.wire.android.ui.home.newconversation.model.Contact
@@ -36,7 +38,8 @@ class NewConversationViewModelTest {
 
             // Then
             assertEquals(
-                viewModel.state.localContactSearchResult.searchResultState, SearchResultState.Success(
+                viewModel.state.searchResult[SearchResultTitle(R.string.label_contacts)]!!.searchResultState,
+                SearchResultState.Success(
                     result = listOf(
                         Contact(
                             id = "knownValue",
@@ -47,7 +50,7 @@ class NewConversationViewModelTest {
                                     arrangement.wireSessionImageLoader,
                                     UserAssetId("value", "domain")
                                 ),
-                                availabilityStatus = UserAvailabilityStatus.NONE
+                                availabilityStatus = UserAvailabilityStatus.AVAILABLE
                             ),
                             label = "knownHandle",
                             connectionState = ConnectionState.NOT_CONNECTED,
@@ -58,7 +61,8 @@ class NewConversationViewModelTest {
             )
 
             assertEquals(
-                viewModel.state.publicContactsSearchResult.searchResultState, SearchResultState.Success(
+                viewModel.state.searchResult[SearchResultTitle(R.string.label_public_wire)]!!.searchResultState,
+                SearchResultState.Success(
                     result = listOf(
                         Contact(
                             id = "publicValue",
@@ -69,7 +73,7 @@ class NewConversationViewModelTest {
                                     arrangement.wireSessionImageLoader,
                                     UserAssetId("value", "domain")
                                 ),
-                                availabilityStatus = UserAvailabilityStatus.NONE
+                                availabilityStatus = UserAvailabilityStatus.AVAILABLE
                             ),
                             label = "publicHandle",
                             connectionState = ConnectionState.NOT_CONNECTED,
@@ -129,8 +133,16 @@ class NewConversationViewModelTest {
             advanceUntilIdle() // 500ms debounce
 
             // Then
-            assertEquals(viewModel.state.localContactSearchResult.searchResultState is SearchResultState.Failure, true)
-            assertEquals(viewModel.state.publicContactsSearchResult.searchResultState is SearchResultState.Failure, true)
+            assertEquals(
+                viewModel.state.searchResult[SearchResultTitle(R.string.label_contacts)]!!.searchResultState
+                        is SearchResultState.Failure,
+                true
+            )
+            assertEquals(
+                viewModel.state.searchResult[SearchResultTitle(R.string.label_public_wire)]!!.searchResultState
+                        is SearchResultState.Failure,
+                true
+            )
         }
     }
 }

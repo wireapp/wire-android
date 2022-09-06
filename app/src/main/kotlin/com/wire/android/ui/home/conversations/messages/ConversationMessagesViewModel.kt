@@ -32,6 +32,7 @@ import kotlinx.coroutines.withContext
 import okio.Path
 import javax.inject.Inject
 
+
 @HiltViewModel
 @Suppress("LongParameterList")
 class ConversationMessagesViewModel @Inject constructor(
@@ -86,6 +87,8 @@ class ConversationMessagesViewModel @Inject constructor(
             uiMessages.firstOrNull { it.messageHeader.messageId == lastUnreadMessage.id }?.let {
                 conversationViewState = conversationViewState.copy(lastUnreadMessage = it)
             }
+        } else {
+            conversationViewState = conversationViewState.copy(lastUnreadMessage = null)
         }
     }
 

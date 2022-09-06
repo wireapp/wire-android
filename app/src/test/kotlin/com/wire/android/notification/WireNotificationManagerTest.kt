@@ -38,6 +38,7 @@ import com.wire.kalium.logic.sync.SyncManager
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -359,6 +360,8 @@ class WireNotificationManagerTest {
             coEvery { markMessagesAsNotified(any(), any()) } returns Result.Success
             coEvery { globalKaliumScope.session } returns sessionScope
             coEvery { sessionScope.currentSession } returns currentSessionUseCase
+            every { servicesManager.startOngoingCallService(any(), any(), any()) } returns Unit
+            every { servicesManager.stopOngoingCallService() } returns Unit
         }
 
         fun withSession(session: GetAllSessionsResult): Arrangement {

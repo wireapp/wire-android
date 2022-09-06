@@ -166,7 +166,6 @@ class SharedCallingViewModel @Inject constructor(
                 }
             }
         }
-        }
     }
 
     private suspend fun observeCallState() {

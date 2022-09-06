@@ -3,28 +3,19 @@ package com.wire.android.ui.home.conversations.search
 import androidx.annotation.StringRes
 import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.ui.home.newconversation.model.Contact
-import com.wire.kalium.logic.data.user.SelfUser
 
 data class SearchPeopleState(
+    val initialContacts: SearchResultState = SearchResultState.Initial,
     val searchQuery: TextFieldValue = TextFieldValue(""),
+    val searchResult: Map<SearchResultTitle, ContactSearchResult> = emptyMap(),
     val noneSearchSucceed: Boolean = false,
-    val localContactSearchResult: ContactSearchResult =
-        ContactSearchResult.InternalContact(
-            searchResultState = SearchResultState.Initial
-        ),
-    val publicContactsSearchResult: ContactSearchResult =
-        ContactSearchResult.ExternalContact(
-            searchResultState = SearchResultState.Initial
-        ),
-    val contactsAddedToGroup: List<Contact> = emptyList(),
-    val allKnownContacts: SearchResultState = SearchResultState.Initial,
-    val self: SelfUser? = null
+    val contactsAddedToGroup: List<Contact> = emptyList()
 )
 
 sealed class ContactSearchResult(val searchResultState: SearchResultState) {
     class InternalContact(searchResultState: SearchResultState) :
         ContactSearchResult(
-            searchResultState = searchResultState,
+            searchResultState = searchResultState
         )
 
     class ExternalContact(searchResultState: SearchResultState) :
@@ -40,3 +31,5 @@ sealed class SearchResultState {
 
     data class Success(val result: List<Contact>) : SearchResultState()
 }
+
+data class SearchResultTitle(@StringRes val stringRes : Int)

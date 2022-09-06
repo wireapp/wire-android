@@ -41,6 +41,8 @@ import com.wire.android.ui.common.WireTabRow
 import com.wire.android.ui.common.calculateCurrentTab
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.server.ClientUpdateRequiredDialog
+import com.wire.android.ui.server.ServerVersionNotSupportedDialog
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.DialogErrorStrings
@@ -102,6 +104,15 @@ private fun LoginContent(
         val focusManager = LocalFocusManager.current
         if (loginState.loginError is LoginError.DialogError.InvalidSession) {
             LoginErrorDialog(loginState.loginError, viewModel::onDialogDismiss)
+        }
+        if (loginState.showClientUpdateDialog) {
+            ClientUpdateRequiredDialog(
+                onClose = viewModel::dismissClientUpdateDialog,
+                onUpdate = viewModel::updateTheApp
+            )
+        }
+        if (loginState.showServerVersionNotSupportedDialog) {
+            ServerVersionNotSupportedDialog(onClose = viewModel::dismissApiVersionNotSupportedDialog)
         }
         CompositionLocalProvider(LocalOverScrollConfiguration provides null) {
             HorizontalPager(

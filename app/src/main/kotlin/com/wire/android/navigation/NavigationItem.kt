@@ -49,16 +49,14 @@ import com.wire.android.ui.calling.initiating.InitiatingCallScreen
 import com.wire.android.ui.debugscreen.DebugScreen
 import com.wire.android.ui.home.HomeScreen
 import com.wire.android.ui.home.conversations.ConversationScreen
-import com.wire.android.ui.home.conversations.details.AddMembersToConversationViewModel
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsScreen
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationAllParticipantsScreen
-import com.wire.android.ui.home.conversations.search.SearchPeoplePurpose
-import com.wire.android.ui.home.conversations.search.SearchPeopleRouter
+import com.wire.android.ui.home.conversations.search.AddMembersSearchRouter
 import com.wire.android.ui.home.gallery.MediaGalleryScreen
 import com.wire.android.ui.home.newconversation.NewConversationRouter
-import com.wire.android.ui.home.settings.backup.BackupAndRestoreScreen
 import com.wire.android.ui.home.settings.appsettings.AppSettingsScreen
 import com.wire.android.ui.home.settings.appsettings.networkSettings.NetworkSettingsScreen
+import com.wire.android.ui.home.settings.backup.BackupAndRestoreScreen
 import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerScreen
 import com.wire.android.ui.userprofile.other.OtherUserProfileScreen
 import com.wire.android.ui.userprofile.self.SelfUserProfileScreen
@@ -226,7 +224,15 @@ enum class NavigationItem(
                         "{$EXTRA_CONVERSATION_ID}"
             }
         ),
-        content = { ConversationScreen(hiltSavedStateViewModel(it.navBackStackEntry), hiltViewModel()) },
+        content = {
+            ConversationScreen(
+                messageComposerViewModel = hiltSavedStateViewModel(it.navBackStackEntry),
+                conversationCallViewModel = hiltSavedStateViewModel(it.navBackStackEntry),
+                conversationInfoViewModel = hiltSavedStateViewModel(it.navBackStackEntry),
+                conversationMessagesViewModel = hiltSavedStateViewModel(it.navBackStackEntry),
+                commonTopAppBarViewModel = hiltViewModel()
+            )
+        },
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
             val conversationIdString: String = arguments.filterIsInstance<ConversationId>().firstOrNull()?.toString()
@@ -246,15 +252,7 @@ enum class NavigationItem(
     AddConversationParticipants(
         primaryRoute = ADD_CONVERSATION_PARTICIPANTS,
         canonicalRoute = "$ADD_CONVERSATION_PARTICIPANTS/{$EXTRA_CONVERSATION_ID}",
-        content = {
-            val viewModel = hiltViewModel<AddMembersToConversationViewModel>()
-
-            SearchPeopleRouter(
-                purpose = SearchPeoplePurpose.ADD_PARTICIPANTS,
-                searchPeopleViewModel = viewModel,
-                onPeoplePicked = { viewModel.addMembersToConversation() }
-            )
-        }
+        content = { AddMembersSearchRouter() }
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String = routeWithConversationIdArg(arguments)
     },

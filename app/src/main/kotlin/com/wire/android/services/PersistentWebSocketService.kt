@@ -1,7 +1,8 @@
-package com.wire.android.ui.debugscreen
+package com.wire.android.services
 
 import android.app.Notification
 import android.app.Service
+import android.content.Context
 import android.content.Intent
 import android.os.IBinder
 import androidx.core.app.NotificationChannelCompat
@@ -113,7 +114,7 @@ class PersistentWebSocketService : Service() {
 
         val notification: Notification = Notification.Builder(this, WEB_SOCKET_CHANNEL_ID)
             .setContentTitle("${resources.getString(R.string.app_name)} ${resources.getString(R.string.settings_service_is_running)}")
-            .setSmallIcon(R.drawable.notification_icon_small)
+            .setSmallIcon(R.drawable.websocket_notification_icon_small)
             .setContentIntent(openAppPendingIntent(this))
             .setCategory(NotificationCompat.CATEGORY_SERVICE)
             .setAutoCancel(false)
@@ -126,5 +127,10 @@ class PersistentWebSocketService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         scope.cancel("PersistentWebSocketService was destroyed")
+    }
+
+    companion object {
+        fun newIntent(context: Context?): Intent =
+            Intent(context, PersistentWebSocketService::class.java)
     }
 }

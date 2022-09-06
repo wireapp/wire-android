@@ -1,13 +1,15 @@
 package com.wire.android.ui.home.gallery
 
 import androidx.lifecycle.SavedStateHandle
+import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.framework.FakeKaliumFileSystem
-import com.wire.android.navigation.EXTRA_MESSAGE_TO_DELETE_ID
-import com.wire.android.navigation.EXTRA_MESSAGE_TO_DELETE_IS_SELF
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.home.conversations.MediaGallerySnackbarMessages
+import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogActiveState
+import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsState
 import com.wire.android.util.FileManager
-import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.conversation.Conversation
@@ -25,6 +27,8 @@ import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
+import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
+import com.wire.kalium.logic.functional.Either
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -37,7 +41,7 @@ import okio.Path
 import okio.Path.Companion.toPath
 import okio.buffer
 import org.amshove.kluent.internal.assertEquals
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
 @OptIn(ExperimentalCoroutinesApi::class)
@@ -47,19 +51,18 @@ class MediaGalleryViewModelTest {
     @Test
     fun givenCurrentSetup_whenInitialisingViewModel_thenScreenTitleMatchesTheConversationName() = runTest {
         // Given
-        val dummyTitle = "Test title"
         val dummyConversationId = QualifiedID(
             "dummy-value",
             "dummy-domain"
         )
-        val mockedConversation = mockedConversationDetails(dummyTitle, dummyConversationId)
+        val mockedConversation = mockedConversationDetails("dummyTitle", dummyConversationId)
         val (_, viewModel) = Arrangement().withConversationDetails(mockedConversation).arrange()
 
         // When
         val screenTitle = viewModel.mediaGalleryViewState.screenTitle
 
         // Then
-        assertEquals(dummyTitle, screenTitle)
+        assertEquals("Test user", screenTitle)
     }
 
     @Test
@@ -93,12 +96,12 @@ class MediaGalleryViewModelTest {
             .withFailedImageDataRequest()
             .arrange()
 
-        // When
-        viewModel.saveImageToExternalStorage()
+        viewModel.snackbarMessage.test {
+            // When
+            viewModel.saveImageToExternalStorage()
 
-        // Then
-        coVerify(exactly = 1) {
-            viewModel.onSaveError()
+            // Then
+            assertEquals(MediaGallerySnackbarMessages.OnImageDownloadError, awaitItem())
         }
     }
 
@@ -124,7 +127,28 @@ class MediaGalleryViewModelTest {
     }
 
     @Test
-    fun givenACorrectSetup_whenUserTriesToDeleteAnImage_navigateBackGetsInvokedWithImageInfo() = runTest {
+    fun givenACorrectSetup_whenUserTriesToDeleteAnImage_DeleteDialogIsShown() = runTest {
+        // Given
+        val mockedConversation = mockedConversationDetails()
+        val mockedImage = "mocked-image".toByteArray()
+        val imagePath = fakeKaliumFileSystem.providePersistentAssetPath("dummy-path")
+        val (_, viewModel) = Arrangement()
+            .withStoredData(mockedImage, imagePath)
+            .withConversationDetails(mockedConversation)
+            .withSuccessfulImageData(imagePath, mockedImage.size.toLong())
+            .arrange()
+
+        // When
+        viewModel.deleteCurrentImage()
+
+        // Then
+        val deleteMessageDialogsState = viewModel.mediaGalleryViewState.deleteMessageDialogsState
+        assert(deleteMessageDialogsState is DeleteMessageDialogsState.States)
+        assert((deleteMessageDialogsState as DeleteMessageDialogsState.States).forEveryone is DeleteMessageDialogActiveState.Visible)
+    }
+
+    @Test
+    fun givenACorrectSetup_whenUserDeletesAnImage_navigationBackIsCalled() = runTest {
         // Given
         val mockedConversation = mockedConversationDetails()
         val mockedImage = "mocked-image".toByteArray()
@@ -136,16 +160,32 @@ class MediaGalleryViewModelTest {
             .arrange()
 
         // When
-        viewModel.deleteCurrentImageMessage()
+        viewModel.deleteMessageHelper.onDeleteMessage("", true)
 
         // Then
-        coVerify(exactly = 1) {
-            arrangement.navigationManager.navigateBack(
-                mapOf(
-                    EXTRA_MESSAGE_TO_DELETE_ID to viewModel.imageAssetId.messageId,
-                    EXTRA_MESSAGE_TO_DELETE_IS_SELF to viewModel.imageAssetId.isSelfAsset
-                )
-            )
+        coVerify(exactly = 1) { arrangement.navigationManager.navigateBack() }
+    }
+
+    @Test
+    fun givenErrorWhileDelete_whenUserDeletesAnImage_errorIsShown() = runTest {
+        // Given
+        val mockedConversation = mockedConversationDetails()
+        val mockedImage = "mocked-image".toByteArray()
+        val imagePath = fakeKaliumFileSystem.providePersistentAssetPath("dummy-path")
+        val (arrangement, viewModel) = Arrangement()
+            .withStoredData(mockedImage, imagePath)
+            .withConversationDetails(mockedConversation)
+            .withSuccessfulImageData(imagePath, mockedImage.size.toLong())
+            .withFailedMessageDeleting()
+            .arrange()
+
+        viewModel.snackbarMessage.test {
+            // When
+            viewModel.deleteMessageHelper.onDeleteMessage("", true)
+
+            // Then
+            coVerify(exactly = 0) { arrangement.navigationManager.navigateBack() }
+            assertEquals(MediaGallerySnackbarMessages.DeletingMessageError, awaitItem())
         }
     }
 
@@ -160,10 +200,7 @@ class MediaGalleryViewModelTest {
         private lateinit var wireSessionImageLoader: WireSessionImageLoader
 
         @MockK
-        private lateinit var getConversationDetails: ObserveConversationDetailsUseCase
-
-        @MockK
-        private lateinit var dispatchers: DispatcherProvider
+        lateinit var getConversationDetails: ObserveConversationDetailsUseCase
 
         @MockK
         lateinit var getImageData: GetMessageAssetUseCase
@@ -174,16 +211,17 @@ class MediaGalleryViewModelTest {
         @MockK
         private lateinit var qualifiedIdMapper: QualifiedIdMapper
 
-        lateinit var conversationDetails: ConversationDetails
+        @MockK
+        lateinit var deleteMessage: DeleteMessageUseCase
 
         init {
             // Tests setup
             val dummyPrivateAsset = "some-conversationId:some-message-id:true"
             MockKAnnotations.init(this, relaxUnitFun = true)
             every { savedStateHandle.get<String>(any()) } returns dummyPrivateAsset
+            every { qualifiedIdMapper.fromStringToQualifiedID(any()) } returns dummyConversationId
 
-            // Default empty values
-            coEvery { getConversationDetails(any()) } returns flowOf(ObserveConversationDetailsUseCase.Result.Success(conversationDetails))
+            coEvery { deleteMessage(any(), any(), any()) } returns Either.Right(Unit)
         }
 
         fun withStoredData(assetData: ByteArray, assetPath: Path): Arrangement {
@@ -194,8 +232,8 @@ class MediaGalleryViewModelTest {
             return this
         }
 
-        fun withConversationDetails(mockedConversationDetails: ConversationDetails): Arrangement {
-            conversationDetails = mockedConversationDetails
+        fun withConversationDetails(conversationDetails: ConversationDetails): Arrangement {
+            coEvery { getConversationDetails(any()) } returns flowOf(ObserveConversationDetailsUseCase.Result.Success(conversationDetails))
             return this
         }
 
@@ -209,26 +247,32 @@ class MediaGalleryViewModelTest {
             return this
         }
 
+        fun withFailedMessageDeleting(): Arrangement {
+            coEvery { deleteMessage(any(), any(), any()) } returns Either.Left(CoreFailure.Unknown(null))
+            return this
+        }
+
         fun arrange() = this to MediaGalleryViewModel(
             savedStateHandle,
             wireSessionImageLoader,
             qualifiedIdMapper,
             navigationManager,
             getConversationDetails,
-            dispatchers,
+            TestDispatcherProvider(),
             getImageData,
-            fileManager
+            fileManager,
+            deleteMessage
         )
 
     }
 
     private fun mockedConversationDetails(
         mockedConversationTitle: String = "Dummy Screen Title",
-        dummyConversationId: QualifiedID = QualifiedID("a-value", "a-domain")
+        mockedConversationId: QualifiedID = dummyConversationId
     ): ConversationDetails =
         OneOne(
             conversation = Conversation(
-                id = dummyConversationId,
+                id = mockedConversationId,
                 name = mockedConversationTitle,
                 type = Conversation.Type.ONE_ON_ONE,
                 teamId = null,
@@ -244,7 +288,7 @@ class MediaGalleryViewModelTest {
             ),
             otherUser = OtherUser(
                 QualifiedID("other-user-id", "domain-id"),
-                null, null, null, null,
+                "Test user", null, null, null,
                 1, null, ConnectionState.ACCEPTED, null, null,
                 UserType.INTERNAL,
                 UserAvailabilityStatus.AVAILABLE,
@@ -260,5 +304,6 @@ class MediaGalleryViewModelTest {
 
     companion object {
         val fakeKaliumFileSystem = FakeKaliumFileSystem()
+        val dummyConversationId = QualifiedID("a-value", "a-domain")
     }
 }

@@ -1,6 +1,5 @@
 package com.wire.android.ui.authentication.create.team
 
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.di.AuthServerConfigProvider
@@ -16,7 +15,7 @@ import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
 import com.wire.kalium.logic.feature.register.RegisterAccountUseCase
 import com.wire.kalium.logic.feature.register.RequestActivationCodeUseCase
-import com.wire.kalium.logic.feature.session.RegisterTokenUseCase
+import com.wire.kalium.logic.feature.server.FetchApiVersionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
@@ -33,7 +32,8 @@ class CreateTeamViewModel @Inject constructor(
     addAuthenticatedUserUseCase: AddAuthenticatedUserUseCase,
     registerAccountUseCase: RegisterAccountUseCase,
     clientScopeProviderFactory: ClientScopeProvider.Factory,
-    authServerConfigProvider: AuthServerConfigProvider
+    authServerConfigProvider: AuthServerConfigProvider,
+    fetchApiVersion: FetchApiVersionUseCase
 ) : CreateAccountBaseViewModel(
     CreateAccountFlowType.CreateTeam,
     savedStateHandle,
@@ -44,7 +44,8 @@ class CreateTeamViewModel @Inject constructor(
     addAuthenticatedUserUseCase,
     registerAccountUseCase,
     clientScopeProviderFactory,
-    authServerConfigProvider
+    authServerConfigProvider,
+    fetchApiVersion
 ) {
     var moveToStep = MutableSharedFlow<CreateTeamNavigationItem>()
     var moveBack = MutableSharedFlow<Unit>()

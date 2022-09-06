@@ -199,7 +199,7 @@ fun Context.startMultipleFileSharingIntent(path: String) {
     startActivity(intent)
 }
 
-fun openAssetFileWithExternalApp(assetDataPath: Path, context: Context, assetExtension: String, onError: () -> Unit) {
+fun openAssetFileWithExternalApp(assetDataPath: Path, context: Context, assetExtension: String?, onError: () -> Unit) {
     try {
         val assetUri = context.pathToUri(assetDataPath)
         val mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(assetExtension)

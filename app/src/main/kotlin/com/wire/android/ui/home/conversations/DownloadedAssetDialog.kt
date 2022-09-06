@@ -17,7 +17,7 @@ import okio.Path
 fun DownloadedAssetDialog(
     downloadedAssetDialogState: DownloadedAssetDialogVisibilityState,
     onSaveFileToExternalStorage: (String, Path, Long, String) -> Unit,
-    onOpenFileWithExternalApp: (Path, String) -> Unit,
+    onOpenFileWithExternalApp: (Path, String?) -> Unit,
     hideOnAssetDownloadedDialog: () -> Unit
 ) {
     val context = LocalContext.current

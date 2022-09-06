@@ -2,6 +2,7 @@ package com.wire.android.ui.userprofile.other
 
 import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.home.conversations.details.participants.usecase.ConversationRoleData
 import com.wire.android.ui.userprofile.common.UsernameMapper
 import com.wire.android.util.ui.UIText
@@ -37,7 +38,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
 class OtherUserProfileScreenViewModelTest {
-
     @Test
     fun `given a userId, when sending a connection request, then returns a Success result and update view state`() =
         runTest {
@@ -278,12 +278,16 @@ class OtherUserProfileScreenViewModelTest {
 
                 // when
                 expectNoEvents()
-                viewModel.onBlockUser(USER_ID, "some name")
-
+                viewModel.onBlockUser(
+                    BlockUserDialogState(
+                        userName = "some name",
+                        userId = USER_ID
+                    )
+                )
                 // then
                 coVerify { arrangement.blockUser(eq(USER_ID)) }
                 assertEquals(InfoMessageType.BlockingUserOperationError.uiText, awaitItem())
-                assertEquals(null, viewModel.blockUserDialogState)
+                assertEquals(false, viewModel.requestInProgress)
             }
         }
 
@@ -299,7 +303,12 @@ class OtherUserProfileScreenViewModelTest {
 
                 // when
                 expectNoEvents()
-                viewModel.onBlockUser(USER_ID, userName)
+                viewModel.onBlockUser(
+                    BlockUserDialogState(
+                        userName = userName,
+                        userId = USER_ID
+                    )
+                )
 
                 // then
                 coVerify { arrangement.blockUser(eq(USER_ID)) }
@@ -307,7 +316,7 @@ class OtherUserProfileScreenViewModelTest {
                     (awaitItem() as UIText.StringResource).resId,
                     (InfoMessageType.BlockingUserOperationSuccess(userName).uiText as UIText.StringResource).resId
                 )
-                assertEquals(null, viewModel.blockUserDialogState)
+                assertEquals(false, viewModel.requestInProgress)
             }
         }
 

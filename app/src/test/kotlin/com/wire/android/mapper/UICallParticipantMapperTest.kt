@@ -20,6 +20,8 @@ class UICallParticipantMapperTest {
             "name",
             false,
             false,
+            false,
+            false,
             UserAssetId("assetvalue", "assetdomain")
         )
         // When
@@ -28,6 +30,7 @@ class UICallParticipantMapperTest {
         assert(
             result.id == item.id && result.clientId == item.clientId && result.name == item.name && result.isMuted == item.isMuted
                     && result.isSpeaking == item.isSpeaking && result.avatar?.userAssetId == item.avatarAssetId
+                    && result.isCameraOn == item.isCameraOn
         )
     }
 
@@ -37,7 +40,6 @@ class UICallParticipantMapperTest {
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
-
         }
 
         fun arrange() = this to mapper

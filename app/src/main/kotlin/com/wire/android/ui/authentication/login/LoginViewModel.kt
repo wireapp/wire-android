@@ -14,7 +14,6 @@ import com.wire.android.appLogger
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.di.NoSession
-import com.wire.android.di.UserSessionsUseCaseProvider
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.EXTRA_USER_ID
 import com.wire.android.navigation.NavigationCommand
@@ -32,6 +31,7 @@ import com.wire.kalium.logic.feature.auth.AuthSession
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.client.RegisterClientUseCase
+import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import com.wire.kalium.logic.feature.session.RegisterTokenResult
 import com.wire.kalium.logic.functional.map
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -40,12 +40,13 @@ import javax.inject.Inject
 
 @ExperimentalMaterialApi
 @HiltViewModel
+@Suppress("TooManyFunctions")
 open class LoginViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
     @NoSession qualifiedIdMapper: QualifiedIdMapper,
     private val clientScopeProviderFactory: ClientScopeProvider.Factory,
-    private val userSessionsUseCaseFactory: UserSessionsUseCaseProvider.Factory,
+    private val getSessions: GetSessionsUseCase,
     authServerConfigProvider: AuthServerConfigProvider
 ) : ViewModel() {
     var loginState by mutableStateOf(
@@ -66,13 +67,12 @@ open class LoginViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             if (userId != null)
-                userSessionsUseCaseFactory.create().sessionsUseCase.getUserSession(userId).map {
+                getSessions.getUserSession(userId).map {
                     if (it.session is AuthSession.Session.Invalid) {
                         with(it.session as AuthSession.Session.Invalid) {
                             val loginError = when (this.reason) {
                                 LogoutReason.SELF_LOGOUT -> {
-                                    userSessionsUseCaseFactory.create().sessionsUseCase
-                                        .deleteInvalidSession(userId)
+                                    getSessions.deleteInvalidSession(userId)
                                     LoginError.None
                                 }
 
@@ -105,8 +105,7 @@ open class LoginViewModel @Inject constructor(
 
     private fun deleteInvalidSession() {
         if (loginState.loginError is LoginError.DialogError.InvalidSession && userId != null) {
-            userSessionsUseCaseFactory.create().sessionsUseCase
-                .deleteInvalidSession(userId)
+            getSessions.deleteInvalidSession(userId)
         }
     }
 
@@ -172,6 +171,18 @@ open class LoginViewModel @Inject constructor(
 
     private fun navigateToRemoveDevicesScreen() = viewModelScope.launch {
         navigationManager.navigate(NavigationCommand(NavigationItem.RemoveDevices.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
+    }
+
+    fun dismissClientUpdateDialog() {
+        loginState = loginState.copy(showClientUpdateDialog = false)
+    }
+
+    fun dismissApiVersionNotSupportedDialog() {
+        loginState = loginState.copy(showServerVersionNotSupportedDialog = false)
+    }
+
+    fun updateTheApp() {
+        // todo : update the app after releasing on the store
     }
 
     companion object {

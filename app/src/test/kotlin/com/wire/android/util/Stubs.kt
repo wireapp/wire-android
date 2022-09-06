@@ -12,7 +12,8 @@ fun newServerConfig(id: Int) = ServerConfig(
         blackList = "https://server$id-blackListUrl.de/",
         teams = "https://server$id-teamsUrl.de/",
         website = "https://server$id-websiteUrl.de/",
-        title = "server$id-title"
+        title = "server$id-title",
+        isOnPremises = false
     ),
     metaData = ServerConfig.MetaData(
         commonApiVersion = CommonApiVersionType.Valid(id),

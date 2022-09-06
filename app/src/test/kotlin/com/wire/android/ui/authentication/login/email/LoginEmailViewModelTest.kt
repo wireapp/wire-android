@@ -7,7 +7,6 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.mockUri
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
-import com.wire.android.di.UserSessionsUseCaseProvider
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItemDestinationsRoutes
@@ -29,6 +28,9 @@ import com.wire.kalium.logic.feature.auth.LoginUseCase
 import com.wire.kalium.logic.feature.client.ClientScope
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.client.RegisterClientUseCase
+import com.wire.kalium.logic.feature.server.FetchApiVersionResult
+import com.wire.kalium.logic.feature.server.FetchApiVersionUseCase
+import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import com.wire.kalium.logic.feature.session.RegisterTokenResult
 import com.wire.kalium.logic.feature.session.RegisterTokenUseCase
 import io.mockk.MockKAnnotations
@@ -64,7 +66,7 @@ class LoginEmailViewModelTest {
     private lateinit var clientScopeProviderFactory: ClientScopeProvider.Factory
 
     @MockK
-    private lateinit var userSessionsUseCaseProviderFactory: UserSessionsUseCaseProvider.Factory
+    private lateinit var getSessionsUseCase: GetSessionsUseCase
 
     @MockK
     private lateinit var clientScope: ClientScope
@@ -88,6 +90,9 @@ class LoginEmailViewModelTest {
     private lateinit var qualifiedIdMapper: QualifiedIdMapper
 
     @MockK
+    private lateinit var fetchApiVersion: FetchApiVersionUseCase
+
+    @MockK
     private lateinit var authServerConfigProvider: AuthServerConfigProvider
 
     private lateinit var loginViewModel: LoginEmailViewModel
@@ -106,12 +111,14 @@ class LoginEmailViewModelTest {
         every { clientScope.registerPushToken } returns registerTokenUseCase
         every { authSession.session.userId } returns userId
         every { authServerConfigProvider.authServer.value } returns newServerConfig(1).links
+        coEvery { fetchApiVersion(newServerConfig(1).links) } returns FetchApiVersionResult.Success(newServerConfig(1))
         loginViewModel = LoginEmailViewModel(
             loginUseCase,
             addAuthenticatedUserUseCase,
             qualifiedIdMapper,
             clientScopeProviderFactory,
-            userSessionsUseCaseProviderFactory,
+            getSessionsUseCase,
+            fetchApiVersion,
             savedStateHandle,
             navigationManager,
             authServerConfigProvider

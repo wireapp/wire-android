@@ -1,5 +1,6 @@
 package com.wire.android.ui.debugscreen
 
+import android.content.Context
 import android.widget.Toast
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
@@ -43,8 +44,7 @@ import com.wire.android.util.startMultipleFileSharingIntent
 fun DebugScreen() {
     val debugScreenViewModel: DebugScreenViewModel = hiltViewModel()
     DebugContent(
-        mlsData = debugScreenViewModel.mlsData,
-        isLoggingEnabled = debugScreenViewModel.isLoggingEnabled,
+        state = debugScreenViewModel.state,
         setLoggingEnabledState = debugScreenViewModel::setLoggingEnabledState,
         logFilePath = debugScreenViewModel::logFilePath,
         deleteAllLogs = debugScreenViewModel::deleteAllLogs,
@@ -55,29 +55,45 @@ fun DebugScreen() {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DebugContent(
-    mlsData: List<String>,
-    isLoggingEnabled: Boolean,
+    state: DebugScreenState,
     setLoggingEnabledState: (Boolean) -> Unit,
     logFilePath: () -> String,
     deleteAllLogs: () -> Unit,
     navigateBack: () -> Unit,
     lazyListState: LazyListState = rememberLazyListState()
 ) {
+    val context = LocalContext.current
+    val clipboardManager = LocalClipboardManager.current
     Scaffold(
         topBar = { TopBar(title = "Debug", navigateBack = navigateBack) }
     ) { internalPadding ->
         LazyColumn(
             state = lazyListState,
-            modifier = Modifier.fillMaxSize().padding(internalPadding)
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(internalPadding)
         ) {
             item(key = "mls_data") {
                 ListWithHeader("MLS Data") {
-                    mlsData.map { TextRowItem(it) }
+                    state.mlsData.map { TextRowItem(it) }
                 }
             }
             item(key = "logs") {
                 ListWithHeader("Logs") {
-                    LoggingSection(isLoggingEnabled, setLoggingEnabledState, logFilePath, deleteAllLogs)
+                    LoggingSection(state.isLoggingEnabled, setLoggingEnabledState, logFilePath, deleteAllLogs)
+                }
+            }
+            item(key = "Client ID") {
+                ListWithHeader("Client ID") {
+                    TextRowItem(
+                        state.currentClientId,
+                        trailingIcon = R.drawable.ic_copy
+                    ) {
+                        getDeviceId(context)?.let { AnnotatedString(it) }?.let {
+                            clipboardManager.setText(it)
+                            Toast.makeText(context, "Text Copied to clipboard", Toast.LENGTH_SHORT).show()
+                        }
+                    }
                 }
             }
         }
@@ -199,5 +215,5 @@ fun SwitchRowItem(
 @Preview(showBackground = false)
 @Composable
 fun debugScreenPreview() {
-    DebugContent(listOf(), true, { _: Boolean -> }, { "" }, {}, {})
+    DebugContent(DebugScreenState(isLoggingEnabled = true), { _: Boolean -> }, { "" }, {}, {})
 }

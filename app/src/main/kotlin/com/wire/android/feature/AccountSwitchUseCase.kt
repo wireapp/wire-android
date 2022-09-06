@@ -5,14 +5,18 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.auth.AuthSession
+import com.wire.kalium.logic.feature.session.GetAllSessionsResult
+import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import com.wire.kalium.logic.feature.session.UpdateCurrentSessionUseCase
-import dagger.hilt.android.scopes.ViewModelScoped
 import javax.inject.Inject
+import javax.inject.Singleton
 
-@ViewModelScoped
+@Singleton
 class AccountSwitchUseCase @Inject constructor(
     private val updateCurrentSessionUseCase: UpdateCurrentSessionUseCase,
-    private val navigationManager: NavigationManager
+    private val navigationManager: NavigationManager,
+    private val getSessionsUseCase: GetSessionsUseCase
 ) {
     suspend operator fun invoke(userId: UserId?) {
         val navigationDistention = if (userId == null) {
@@ -34,5 +38,16 @@ class AccountSwitchUseCase @Inject constructor(
                 return
             }
         }
+    }
+
+    suspend fun switchToNextAccountOrWelcome() {
+        val nextSessionId: UserId? = getSessionsUseCase().let {
+            when(it) {
+                is GetAllSessionsResult.Failure.Generic -> null
+                GetAllSessionsResult.Failure.NoSessionFound -> null
+                is GetAllSessionsResult.Success -> it.sessions.firstOrNull { sessionList -> sessionList.session is AuthSession.Session.Valid }?.session?.userId
+            }
+        }
+        invoke(nextSessionId)
     }
 }

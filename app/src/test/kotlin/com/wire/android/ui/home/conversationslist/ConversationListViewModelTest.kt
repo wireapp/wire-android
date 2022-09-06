@@ -9,6 +9,7 @@ import com.wire.android.model.UserAvatarData
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.home.conversationslist.model.BadgeEventType
 import com.wire.android.ui.home.conversationslist.model.BlockingState
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
@@ -153,7 +154,12 @@ class ConversationListViewModelTest {
     @Test
     fun `given a valid conversation muting state, when calling block user, then should call BlockUserUseCase`() = runTest {
         coEvery { blockUser(any()) } returns BlockUserResult.Success
-        conversationListViewModel.blockUser(userId, "someName")
+        conversationListViewModel.blockUser(
+            BlockUserDialogState(
+                userName = "someName",
+                userId = userId
+            )
+        )
 
         coVerify(exactly = 1) { blockUser(userId) }
     }

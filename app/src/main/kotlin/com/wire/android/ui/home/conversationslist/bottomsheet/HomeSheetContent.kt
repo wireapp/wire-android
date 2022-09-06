@@ -22,6 +22,7 @@ import com.wire.android.ui.common.bottomsheet.MenuModalSheetContent
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.conversationColor
+import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
 import com.wire.android.ui.home.conversationslist.model.BlockingState
@@ -39,7 +40,7 @@ internal fun ConversationMainSheetContent(
     moveConversationToFolder: () -> Unit,
     moveConversationToArchive: () -> Unit,
     clearConversationContent: () -> Unit,
-    blockUserClick: (UserId, String) -> Unit,
+    blockUserClick: (BlockUserDialogState) -> Unit,
     leaveGroup: (GroupDialogState) -> Unit,
     deleteGroup: (GroupDialogState) -> Unit,
     navigateToNotification: () -> Unit
@@ -143,8 +144,10 @@ internal fun ConversationMainSheetContent(
                                 title = stringResource(R.string.label_block),
                                 onItemClick = {
                                     blockUserClick(
-                                        conversationSheetContent.conversationTypeDetail.userId,
-                                        conversationSheetContent.title
+                                        BlockUserDialogState(
+                                            userName = conversationSheetContent.title,
+                                            userId = conversationSheetContent.conversationTypeDetail.userId
+                                        )
                                     )
                                 }
                             )

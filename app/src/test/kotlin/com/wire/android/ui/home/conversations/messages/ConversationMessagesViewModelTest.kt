@@ -70,7 +70,7 @@ class ConversationMessagesViewModelTest {
     fun `given message sent a user, when solving the message header, then the state should contain the user name`() = runTest {
         // Given
         val selfUserName = "self user"
-        val messages = listOf(mockUITextMessage(selfUserName))
+        val messages = listOf(mockUITextMessage(userName = selfUserName))
         val (arrangement, viewModel) = ConversationMessagesViewModelArrangement()
             .withSuccessfulViewModelInit()
             .withMessagesUpdate(messages)
@@ -87,9 +87,10 @@ class ConversationMessagesViewModelTest {
     fun `given the sender is updated, when solving the message header, then the update is propagated in the state`() = runTest {
         // Given
         val firstUserName = "other user"
-        val originalMessages = listOf(mockUITextMessage(firstUserName))
+        val originalMessages = listOf(mockUITextMessage(userName = firstUserName))
         val secondUserName = "User changed their name"
-        val updatedMessages = listOf(mockUITextMessage(secondUserName))
+        val updatedMessages = listOf(mockUITextMessage(userName = secondUserName))
+
         val (arrangement, viewModel) = ConversationMessagesViewModelArrangement()
             .withSuccessfulViewModelInit()
             .withMessagesUpdate(originalMessages)

@@ -126,7 +126,6 @@ class ConversationMessagesViewModelArrangement {
         coEvery {
             qualifiedIdMapper.fromStringToQualifiedID("id@domain")
         } returns QualifiedID("id", "domain")
-        return this
     }
 
     fun arrange() = this to viewModel

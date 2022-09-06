@@ -151,9 +151,9 @@ class ConnectionPolicyManagerTest {
 
         fun withCurrentSession(userId: UserId) = apply {
             val authSession: AuthSession = mockk()
-            val session: AuthSession.Session = mockk()
-            every { authSession.session } returns session
-            every { session.userId } returns userId
+            val token: AuthSession.Token = mockk()
+            every { authSession.token } returns token
+            every { token.userId } returns userId
             every { sessionRepository.currentSession() } returns Either.Right(authSession)
         }
 

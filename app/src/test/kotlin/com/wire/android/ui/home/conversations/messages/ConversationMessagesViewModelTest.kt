@@ -9,7 +9,6 @@ import com.wire.kalium.logic.data.id.PlainId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
-import com.wire.android.ui.home.conversations.mockUITextMessage
 import com.wire.kalium.logic.util.fileExtension
 import io.mockk.coVerify
 import io.mockk.every
@@ -71,7 +70,7 @@ class ConversationMessagesViewModelTest {
     fun `given message sent a user, when solving the message header, then the state should contain the user name`() = runTest {
         // Given
         val selfUserName = "self user"
-        val messages = listOf(mockUITextMessage(selfUserName))
+        val messages = listOf(mockUITextMessage(userName = selfUserName))
         val (arrangement, viewModel) = ConversationMessagesViewModelArrangement()
             .withSuccessfulViewModelInit()
             .withMessagesUpdate(messages)

@@ -2,6 +2,7 @@ package com.wire.android.ui.userprofile.other
 
 import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.home.conversations.details.participants.usecase.ConversationRoleData
 import com.wire.android.ui.userprofile.common.UsernameMapper
 import com.wire.android.util.ui.UIText

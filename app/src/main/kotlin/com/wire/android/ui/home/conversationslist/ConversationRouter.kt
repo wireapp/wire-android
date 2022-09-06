@@ -9,6 +9,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.ui.common.dialogs.BlockUserDialogContent
+import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.home.HomeSnackbarState
 import com.wire.android.ui.home.conversations.details.menu.DeleteConversationGroupDialog
@@ -18,7 +19,6 @@ import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetC
 import com.wire.android.ui.home.conversationslist.bottomsheet.rememberConversationSheetState
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
-import com.wire.android.ui.userprofile.other.BlockUserDialogState
 
 @ExperimentalAnimationApi
 @ExperimentalMaterial3Api

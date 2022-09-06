@@ -1,4 +1,4 @@
-package com.wire.android.ui.userprofile.other
+package com.wire.android.ui.common.dialogs
 
 import com.wire.kalium.logic.data.user.UserId
 

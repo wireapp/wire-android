@@ -1,6 +1,6 @@
 package com.wire.android.ui.userprofile.other
 
-import com.wire.android.model.PreservedState
+import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.userprofile.group.RemoveConversationMemberState
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus

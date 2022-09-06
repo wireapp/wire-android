@@ -3,6 +3,7 @@ package com.wire.android.ui.userprofile.other
 import MutingOptionsSheetContent
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
+import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationMainSheetContent
 
 @Composable

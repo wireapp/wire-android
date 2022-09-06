@@ -25,15 +25,16 @@ import com.wire.android.ui.common.button.WireButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.ui.userprofile.group.RemoveConversationMemberState
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.stringWithStyledArgs
 import com.wire.kalium.logic.data.conversation.Conversation.Member
 
 @Composable
 fun OtherUserProfileGroup(
-    state: OtherUserProfileGroupState,
+    state: OtherUserProfileState,
     lazyListState: LazyListState = rememberLazyListState(),
-    onRemoveFromConversation: () -> Unit,
+    onRemoveFromConversation: (RemoveConversationMemberState) -> Unit,
     openChangeRoleBottomSheet: () -> Unit
 ) {
     val context = LocalContext.current
@@ -49,17 +50,26 @@ fun OtherUserProfileGroup(
                     MaterialTheme.wireTypography.body02,
                     MaterialTheme.wireColorScheme.onBackground,
                     MaterialTheme.wireColorScheme.onBackground,
-                    state.groupName
+                    state.groupState!!.groupName
                 ),
-                isSelfAdmin = state.isSelfAdmin,
-                onRemoveFromConversation = onRemoveFromConversation
+                isSelfAdmin = state.groupState.isSelfAdmin,
+                onRemoveFromConversation = {
+                    onRemoveFromConversation(
+                        RemoveConversationMemberState(
+                            conversationId = state.conversationId!!,
+                            fullName = state.fullName,
+                            userName = state.userName,
+                            userId = state.userId
+                        )
+                    )
+                }
             )
         }
         item(key = "user_group_role") {
             UserRoleInformation(
                 label = stringResource(id = R.string.user_profile_group_role),
-                value = AnnotatedString(state.role.name.asString()),
-                isSelfAdmin = state.isSelfAdmin,
+                value = AnnotatedString(state.groupState!!.role.name.asString()),
+                isSelfAdmin = state.groupState.isSelfAdmin,
                 openChangeRoleBottomSheet = openChangeRoleBottomSheet
             )
         }
@@ -147,5 +157,5 @@ val Member.Role.name
 @Composable
 @Preview
 fun OtherUserProfileGroupPreview() {
-    OtherUserProfileGroup(OtherUserProfileState.PREVIEW.groupState!!, rememberLazyListState(), {}) {}
+    OtherUserProfileGroup(OtherUserProfileState.PREVIEW, rememberLazyListState(), {}) {}
 }

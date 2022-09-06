@@ -2,6 +2,7 @@ package com.wire.android.notification
 
 import com.wire.android.common.runTestWithCancellation
 import com.wire.android.config.TestDispatcherProvider
+import com.wire.android.services.ServicesManager
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.lifecycle.ConnectionPolicyManager
@@ -247,7 +248,7 @@ class WireNotificationManagerTest {
         }
 
     @Test
-    fun givenSomeEstablishedCalls_whenAppIsNotVisible_thenOngoingCallNotificationShowed() = runTestWithCancellation {
+    fun givenSomeEstablishedCalls_whenAppIsNotVisible_thenOngoingCallServiceRun() = runTestWithCancellation {
         val (arrangement, manager) = Arrangement()
             .withIncomingCalls(listOf())
             .withMessageNotifications(listOf())
@@ -258,7 +259,7 @@ class WireNotificationManagerTest {
         manager.observeNotificationsAndCalls(flowOf(provideUserId()), this) {}
         runCurrent()
 
-        verify(exactly = 1) { arrangement.callNotificationManager.showOngoingCallNotification(any(), any()) }
+        verify(exactly = 1) { arrangement.servicesManager.startOngoingCallService(any(), any(), any()) }
     }
 
     private class Arrangement {
@@ -314,6 +315,9 @@ class WireNotificationManagerTest {
         lateinit var getSessionsUseCase: GetSessionsUseCase
 
         @MockK
+        lateinit var servicesManager: ServicesManager
+
+        @MockK
         lateinit var sessionScope: SessionScope
 
         @MockK
@@ -326,6 +330,7 @@ class WireNotificationManagerTest {
                 messageNotificationManager,
                 callNotificationManager,
                 connectionPolicyManager,
+                servicesManager,
                 TestDispatcherProvider()
             )
         }
@@ -348,6 +353,7 @@ class WireNotificationManagerTest {
             coEvery { callsScope.establishedCall } returns establishedCall
             coEvery { callNotificationManager.handleIncomingCallNotifications(any(), any()) } returns Unit
             coEvery { callNotificationManager.hideIncomingCallNotification() } returns Unit
+            coEvery { callNotificationManager.getNotificationTitle(any()) } returns "Test title"
             coEvery { messageScope.getNotifications } returns getNotificationsUseCase
             coEvery { messageScope.markMessagesAsNotified } returns markMessagesAsNotified
             coEvery { markMessagesAsNotified(any(), any()) } returns Result.Success

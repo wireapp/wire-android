@@ -10,9 +10,7 @@ import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.model.ImageAsset
-import com.wire.android.model.PreservedState
 import com.wire.android.model.SnackBarMessage
-import com.wire.android.model.toLoading
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.EXTRA_CONNECTION_IGNORED_USER_NAME
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
@@ -21,7 +19,6 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
-import com.wire.android.ui.common.dialogs.UnblockUserDialogState
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationTypeDetail
@@ -99,22 +96,14 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     qualifiedIdMapper: QualifiedIdMapper
 ) : ViewModel(), OtherUserProfileEventsHandler, OtherUserProfileBottomSheetEventsHandler, OtherUserProfileFooterEventsHandler {
 
-    var state: OtherUserProfileState by mutableStateOf(OtherUserProfileState())
+    private val userId: QualifiedID = savedStateHandle.get<String>(EXTRA_USER_ID)!!.toQualifiedID(qualifiedIdMapper)
+    private val conversationId: QualifiedID? = savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)?.toQualifiedID(qualifiedIdMapper)
 
-    var removeConversationMemberDialogState: PreservedState<RemoveConversationMemberState>?
-            by mutableStateOf(null)
-
-    var blockUserDialogState: PreservedState<BlockUserDialogState>?
-            by mutableStateOf(null)
-
-    var unblockUserDialogState: PreservedState<UnblockUserDialogState>?
-            by mutableStateOf(null)
+    var state: OtherUserProfileState by mutableStateOf(OtherUserProfileState(userId = userId))
+    var requestInProgress: Boolean by mutableStateOf(false)
 
     private val _infoMessage = MutableSharedFlow<UIText>()
     val infoMessage = _infoMessage.asSharedFlow()
-
-    private val userId: QualifiedID = savedStateHandle.get<String>(EXTRA_USER_ID)!!.toQualifiedID(qualifiedIdMapper)
-    private val conversationId: QualifiedID? = savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)?.toQualifiedID(qualifiedIdMapper)
 
     init {
         state = state.copy(isDataLoading = true)
@@ -308,29 +297,12 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         _infoMessage.emit(type.uiText)
     }
 
-    override fun showRemoveConversationMemberDialog() {
+    override fun onRemoveConversationMember(state: RemoveConversationMemberState) {
         viewModelScope.launch {
-            removeConversationMemberDialogState = PreservedState.State(
-                RemoveConversationMemberState(
-                    conversationId = conversationId!!,
-                    fullName = state.fullName,
-                    userName = state.userName,
-                    userId = userId
-                )
-            )
-        }
-    }
-
-    override fun hideRemoveConversationMemberDialog() {
-        removeConversationMemberDialogState = null
-    }
-
-    override fun onRemoveConversationMember(state: PreservedState<RemoveConversationMemberState>) {
-        viewModelScope.launch {
-            removeConversationMemberDialogState = state.toLoading()
+            requestInProgress = true
             val response = withContext(dispatchers.io()) {
                 removeMemberFromConversation(
-                    state.state.conversationId,
+                    state.conversationId,
                     userId
                 )
             }
@@ -338,7 +310,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             if (response is RemoveMemberFromConversationUseCase.Result.Failure)
                 showInfoMessage(InfoMessageType.RemoveConversationMemberError)
 
-            removeConversationMemberDialogState = null
+            requestInProgress = false
         }
     }
 
@@ -356,42 +328,26 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         }
     }
 
-    override fun onBlockUser(userId: UserId, userName: String) {
+    override fun onBlockUser(blockUserState: BlockUserDialogState) {
         viewModelScope.launch(dispatchers.io()) {
-            blockUserDialogState = blockUserDialogState?.toLoading()
+            requestInProgress = true
             when (val result = blockUser(userId)) {
                 BlockUserResult.Success -> {
                     appLogger.i("User $userId was blocked")
-                    showInfoMessage(InfoMessageType.BlockingUserOperationSuccess(userName))
+                    showInfoMessage(InfoMessageType.BlockingUserOperationSuccess(blockUserState.userName))
                 }
                 is BlockUserResult.Failure -> {
                     appLogger.e("Error while blocking user $userId ; Error ${result.coreFailure}")
                     showInfoMessage(InfoMessageType.BlockingUserOperationError)
                 }
             }
-            blockUserDialogState = null
+            requestInProgress = false
         }
-    }
-
-    override fun hideBlockUserDialog() {
-        blockUserDialogState = null
-    }
-
-    override fun showBlockUserDialog(userId: UserId, userName: String) {
-        blockUserDialogState = PreservedState.State(BlockUserDialogState(userName, userId))
-    }
-
-    override fun hideUnblockUserDialog() {
-        unblockUserDialogState = null
-    }
-
-    override fun showUnblockUserDialog(userName: String) {
-        unblockUserDialogState = PreservedState.State(UnblockUserDialogState(userName, userId))
     }
 
     override fun onUnblockUser(userId: UserId) {
         viewModelScope.launch(dispatchers.io()) {
-            unblockUserDialogState = unblockUserDialogState?.toLoading()
+            requestInProgress = true
             when (val result = unblockUser(userId)) {
                 UnblockUserResult.Success -> {
                     appLogger.i("User $userId was unblocked")
@@ -401,7 +357,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                     showInfoMessage(InfoMessageType.UnblockingUserOperationError)
                 }
             }
-            unblockUserDialogState = null
+            requestInProgress = false
         }
     }
 

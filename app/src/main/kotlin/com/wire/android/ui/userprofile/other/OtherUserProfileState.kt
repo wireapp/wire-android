@@ -9,8 +9,11 @@ import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.BotService
 import com.wire.kalium.logic.data.user.ConnectionState
+import com.wire.kalium.logic.data.user.UserId
 
 data class OtherUserProfileState(
+    val userId: UserId,
+    val conversationId: ConversationId? = null,
     val userAvatarAsset: UserAvatarAsset? = null,
     val isDataLoading: Boolean = false,
     val isAvatarLoading: Boolean = false,
@@ -59,6 +62,7 @@ data class OtherUserProfileState(
 
     companion object {
         val PREVIEW = OtherUserProfileState(
+            userId = UserId("some_user", "domain.com"),
             fullName = "name",
             userName = "username",
             teamName = "team",

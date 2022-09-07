@@ -1,5 +1,6 @@
 package com.wire.android.ui.home.conversations.details
 
+import android.content.Context
 import androidx.annotation.StringRes
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.gestures.LocalOverScrollConfiguration
@@ -64,6 +65,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun GroupConversationDetailsScreen(viewModel: GroupConversationDetailsViewModel) {
+    val context = LocalContext.current
     GroupConversationDetailsContent(
         onBackPressed = viewModel::navigateBack,
         openFullListPressed = viewModel::navigateToFullParticipantsList,
@@ -75,6 +77,7 @@ fun GroupConversationDetailsScreen(viewModel: GroupConversationDetailsViewModel)
         onDeleteGroup = viewModel::deleteGroup,
         isLoading = viewModel.requestInProgress,
         messages = viewModel.snackBarMessage,
+        context = context
     )
 }
 
@@ -95,7 +98,8 @@ private fun GroupConversationDetailsContent(
     groupOptionsState: GroupConversationOptionsState,
     groupParticipantsState: GroupConversationParticipantsState,
     isLoading: Boolean,
-    messages: SharedFlow<UIText>
+    messages: SharedFlow<UIText>,
+    context: Context = LocalContext.current
 ) {
     val scope = rememberCoroutineScope()
     val lazyListStates: List<LazyListState> = GroupConversationDetailsTabItem.values().map { rememberLazyListState() }
@@ -112,7 +116,6 @@ private fun GroupConversationDetailsContent(
     val deleteGroupDialogState = rememberVisibilityState<GroupDialogState>()
     val leaveGroupDialogState = rememberVisibilityState<GroupDialogState>()
 
-    val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
     LaunchedEffect(Unit) {
         messages.collect { snackbarHostState.showSnackbar(it.asString(context.resources)) }
@@ -227,15 +230,15 @@ private fun GroupConversationDetailsPreview() {
             openFullListPressed = {},
             onProfilePressed = {},
             onAddParticipantsPressed = {},
-            onDeleteGroup = {},
             onLeaveGroup = {},
+            onDeleteGroup = {},
             groupOptionsState = GroupConversationOptionsState(
                 conversationId = ConversationId("someValue", "someDomain"),
                 groupName = "Group name"
             ),
             groupParticipantsState = GroupConversationParticipantsState.PREVIEW,
             isLoading = false,
-            messages = MutableSharedFlow()
+            messages = MutableSharedFlow(),
         )
     }
 }

@@ -28,11 +28,13 @@ import com.wire.kalium.logic.feature.publicuser.GetAllContactsResult
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
 import com.wire.kalium.logic.feature.publicuser.search.Result
 import com.wire.kalium.logic.feature.publicuser.search.SearchKnownUsersUseCase
-import com.wire.kalium.logic.feature.publicuser.search.SearchUsersUseCase
+import com.wire.kalium.logic.feature.publicuser.search.SearchPublicUsersUseCase
 import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
+import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 
 internal class NewConversationViewModelArrangement {
     init {
@@ -41,7 +43,7 @@ internal class NewConversationViewModelArrangement {
 
         // Default empty values
         coEvery { isMLSEnabledUseCase() } returns true
-        coEvery { searchPublicUsers(any()) } returns Result.Success(userSearchResult = UserSearchResult(listOf(PUBLIC_USER)))
+        coEvery { searchPublicUsers(any()) } returns flowOf(Result.Success(userSearchResult = UserSearchResult(listOf(PUBLIC_USER))))
         coEvery { searchKnownUsers(any()) } returns Result.Success(userSearchResult = UserSearchResult(listOf(KNOWN_USER)))
         coEvery { getAllKnownUsers() } returns GetAllContactsResult.Success(listOf())
         coEvery { createGroupConversation(any(), any(), any()) } returns CreateGroupConversationUseCase.Result.Success(CONVERSATION)
@@ -76,7 +78,7 @@ internal class NewConversationViewModelArrangement {
     lateinit var navigationManager: NavigationManager
 
     @MockK
-    lateinit var searchPublicUsers: SearchUsersUseCase
+    lateinit var searchPublicUsers: SearchPublicUsersUseCase
 
     @MockK
     lateinit var searchKnownUsers: SearchKnownUsersUseCase
@@ -171,7 +173,7 @@ internal class NewConversationViewModelArrangement {
     }
 
     fun withFailurePublicSearchResponse() = apply {
-        coEvery { searchPublicUsers(any()) } returns Result.Failure.InvalidRequest
+        coEvery { searchPublicUsers(any()) } returns flowOf(Result.Failure.InvalidRequest)
     }
 
     fun withSyncFailureOnCreatingGroup() = apply {

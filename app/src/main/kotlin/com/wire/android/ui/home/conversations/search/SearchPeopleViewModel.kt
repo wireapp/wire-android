@@ -23,7 +23,8 @@ import com.wire.kalium.logic.feature.publicuser.GetAllContactsResult
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
 import com.wire.kalium.logic.feature.publicuser.search.Result
 import com.wire.kalium.logic.feature.publicuser.search.SearchKnownUsersUseCase
-import com.wire.kalium.logic.feature.publicuser.search.SearchUsersUseCase
+import com.wire.kalium.logic.feature.publicuser.search.SearchPublicUsersUseCase
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -33,7 +34,10 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.onSubscription
+import kotlinx.coroutines.flow.startWith
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -42,7 +46,7 @@ import kotlinx.coroutines.withContext
 open class SearchAllPeopleViewModel(
     private val getAllKnownUsers: GetAllContactsUseCase,
     private val searchKnownUsers: SearchKnownUsersUseCase,
-    private val searchPublicUsers: SearchUsersUseCase,
+    private val searchPublicUsers: SearchPublicUsersUseCase,
     private val contactMapper: ContactMapper,
     private val dispatcher: DispatcherProvider,
     sendConnectionRequest: SendConnectionRequestUseCase,
@@ -98,17 +102,21 @@ open class SearchAllPeopleViewModel(
             )
         }
 
-    override suspend fun searchPublicPeople(searchTerm: String): ContactSearchResult.ExternalContact =
-        when (val result = withContext(dispatcher.io()) { searchPublicUsers(searchTerm) }) {
-            is Result.Failure.Generic, Result.Failure.InvalidRequest ->
-                ContactSearchResult.ExternalContact(
-                    SearchResultState.Failure(R.string.label_general_error)
+    override suspend fun searchPublicPeople(searchTerm: String): Flow<ContactSearchResult.ExternalContact> {
+        return searchPublicUsers(searchTerm).map { result ->
+            when(result) {
+                is Result.Failure.Generic, Result.Failure.InvalidRequest ->
+                    ContactSearchResult.ExternalContact(
+                        SearchResultState.Failure(R.string.label_general_error)
+                    )
+                Result.Failure.InvalidQuery -> ContactSearchResult.ExternalContact(SearchResultState.Failure(R.string.label_no_results_found))
+                is Result.Success -> ContactSearchResult.ExternalContact(
+                    SearchResultState.Success(result.userSearchResult.result.map(contactMapper::fromOtherUser))
                 )
-            Result.Failure.InvalidQuery -> ContactSearchResult.ExternalContact(SearchResultState.Failure(R.string.label_no_results_found))
-            is Result.Success -> ContactSearchResult.ExternalContact(
-                SearchResultState.Success(result.userSearchResult.result.map(contactMapper::fromOtherUser))
-            )
+            }
         }
+            .flowOn(dispatcher.io())
+    }
 
     private fun ContactSearchResult.filterContacts(contactSearchResult: ContactSearchResult): ContactSearchResult {
         return if (searchResultState is SearchResultState.Success &&
@@ -138,17 +146,18 @@ abstract class PublicWithKnownPeopleSearchViewModel(
     private val refreshPublicResult: MutableSharedFlow<PublicRefresh> = MutableSharedFlow(0)
 
     protected val publicPeopleSearchQueryFlow = mutableSearchQueryFlow
-        .combine(refreshPublicResult.onSubscription { emit(PublicRefresh()) })
+        .combine(
+
+            refreshPublicResult.onSubscription { emit(PublicRefresh()) })
         { searchTerm, publicRefresh ->
             searchTerm to publicRefresh
         }.flatMapLatest { (searchTerm, publicRefresh) ->
-            flow {
-                if (publicRefresh.withProgress) {
-                    emit(ContactSearchResult.ExternalContact(SearchResultState.InProgress))
+            searchPublicPeople(searchTerm)
+                .onStart {
+                    if (publicRefresh.withProgress) {
+                        emit(ContactSearchResult.ExternalContact(SearchResultState.InProgress))
+                    }
                 }
-
-                emit(searchPublicPeople(searchTerm))
-            }.cancellable()
         }
 
     fun addContact(contact: Contact) {
@@ -167,7 +176,7 @@ abstract class PublicWithKnownPeopleSearchViewModel(
         }
     }
 
-    abstract suspend fun searchPublicPeople(searchTerm: String): ContactSearchResult.ExternalContact
+    abstract suspend fun searchPublicPeople(searchTerm: String): Flow<ContactSearchResult.ExternalContact>
 }
 
 data class PublicRefresh(val withProgress: Boolean = true)

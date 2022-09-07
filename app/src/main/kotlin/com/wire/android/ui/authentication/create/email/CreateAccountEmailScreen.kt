@@ -270,5 +270,6 @@ private fun TermsConditionsDialog(onDialogDismiss: () -> Unit, onContinuePressed
 @Composable
 @Preview
 private fun CreateAccountEmailScreenPreview() {
-    EmailContent(CreateAccountEmailViewState(CreateAccountFlowType.CreatePersonalAccount), {}, {}, {}, {}, {}, {}, {}, "", ServerConfig.DEFAULT)
+    EmailContent(CreateAccountEmailViewState(CreateAccountFlowType.CreatePersonalAccount), {}, {}, {}, {}, {}, {}, {}, "",
+        ServerConfig.DEFAULT)
 }

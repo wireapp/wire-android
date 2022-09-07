@@ -28,10 +28,10 @@ import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
 import com.wire.android.ui.home.conversationslist.model.BlockingState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.ui.home.conversationslist.model.getMutedStatusTextResource
+import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.user.ConnectionState
-import com.wire.kalium.logic.data.user.UserId
 
 @Composable
 internal fun ConversationMainSheetContent(
@@ -211,6 +211,7 @@ fun NotificationsOptionsItemAction(
         Text(
             text = mutedStatus.getMutedStatusTextResource(),
             style = MaterialTheme.wireTypography.body01,
+            color = MaterialTheme.wireColorScheme.secondaryText,
             overflow = TextOverflow.Ellipsis,
             maxLines = 1,
             modifier = Modifier.weight(weight = 1f, fill = false)

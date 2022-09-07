@@ -44,7 +44,9 @@ import com.wire.kalium.logic.feature.call.AnswerCallUseCase
 import com.wire.kalium.logic.feature.connection.BlockUserResult
 import com.wire.kalium.logic.feature.connection.BlockUserUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
+import com.wire.kalium.logic.feature.conversation.IsSelfUserMemberResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationsAndConnectionsUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveIsSelfUserMemberUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
@@ -74,6 +76,7 @@ class ConversationListViewModel @Inject constructor(
     private val blockUserUseCase: BlockUserUseCase,
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val userTypeMapper: UserTypeMapper,
+    private val observeIsSelfUserMember: ObserveIsSelfUserMemberUseCase
 ) : ViewModel() {
 
     var state by mutableStateOf(ConversationListState())
@@ -261,7 +264,8 @@ class ConversationListViewModel @Inject constructor(
 
     private fun List<ConversationDetails>.toConversationItemList(selfUser: SelfUser?): List<ConversationItem> =
         filter { it is Group || it is OneOne || it is Connection }
-            .map { it.toConversationItem(wireSessionImageLoader, selfUser, userTypeMapper) }
+            .map {
+                it.toConversationItem(wireSessionImageLoader, selfUser, userTypeMapper) }
 }
 
 private fun LegalHoldStatus.showLegalHoldIndicator() = this == LegalHoldStatus.ENABLED
@@ -282,7 +286,8 @@ private fun ConversationDetails.toConversationItem(
             badgeEventType = parseConversationEventType(conversation.mutedStatus, unreadMentionsCount, unreadMessagesCount),
             hasOnGoingCall = hasOngoingCall,
             isCreator = selfUser?.teamId != null
-                    && conversation.creatorId.value == selfUser.id.value
+                    && conversation.creatorId.value == selfUser.id.value,
+            isSelfUserMember = isSelfUserMember
         )
     }
     is OneOne -> {

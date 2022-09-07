@@ -203,7 +203,6 @@ class WireActivityViewModel @Inject constructor(
         handleDeepLink(intent)
 
         return when {
-            isServerConfigOnPremises() -> false
             shouldGoToLogin() || shouldGoToWelcome() -> true
 
             shouldGoToIncomingCall() -> {
@@ -225,6 +224,7 @@ class WireActivityViewModel @Inject constructor(
                 openOtherUserProfile(navigationArguments[OPEN_OTHER_USER_PROFILE_ARG] as QualifiedID)
                 false
             }
+            isServerConfigOnPremises() -> false
 
             intent == null -> false
             else -> true
@@ -294,7 +294,7 @@ class WireActivityViewModel @Inject constructor(
     }
 
     private fun isServerConfigOnPremises(): Boolean =
-        (navigationArguments[SERVER_CONFIG_ARG] as ServerConfig.Links) != ServerConfig.DEFAULT
+        (navigationArguments[SERVER_CONFIG_ARG] as? ServerConfig.Links) != ServerConfig.DEFAULT
 
     private fun shouldGoToLogin(): Boolean =
         navigationArguments[SSO_DEEPLINK_ARG] != null

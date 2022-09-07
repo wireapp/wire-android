@@ -20,11 +20,7 @@ fun rememberSearchbarState(scrollPositionProvider: (() -> Int) = { 0 }): SearchB
 
 class SearchBarState(
     isSearchActive: Boolean = false,
-    isSearchBarCollapsed: Boolean = false,
-    scrollPositionProvider: (() -> Int) = { 0 }
 ) {
-
-    var isSearchBarCollapsed by mutableStateOf(isSearchBarCollapsed)
 
     var isSearchActive by mutableStateOf(isSearchActive)
         private set
@@ -40,13 +36,11 @@ class SearchBarState(
     companion object {
         fun saver(scrollPositionProvider: (() -> Int) = { 0 }): Saver<SearchBarState, *> = Saver(
             save = {
-                listOf(it.isSearchActive, it.isSearchBarCollapsed)
+                listOf(it.isSearchActive)
             },
             restore = {
                 SearchBarState(
-                    isSearchActive = it[0],
-                    isSearchBarCollapsed = it[1],
-                    scrollPositionProvider = scrollPositionProvider
+                    isSearchActive = it[0]
                 )
             }
         )

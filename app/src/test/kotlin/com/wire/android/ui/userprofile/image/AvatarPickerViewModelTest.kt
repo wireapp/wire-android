@@ -2,7 +2,6 @@ package com.wire.android.ui.userprofile.image
 
 import android.content.Context
 import android.net.Uri
-import androidx.compose.material3.ExperimentalMaterial3Api
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.datastore.UserDataStore
@@ -10,11 +9,11 @@ import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerViewModel
 import com.wire.android.util.AvatarImageManager
-import com.wire.android.util.ImageUtil
 import com.wire.android.util.copyToTempPath
 import com.wire.android.util.resampleImageAndCopyToTempPath
+import com.wire.android.util.toByteArray
 import com.wire.kalium.logic.CoreFailure.Unknown
-import com.wire.kalium.logic.data.id.FederatedIdMapper
+import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.AssetId
 import com.wire.kalium.logic.data.user.UserAssetId
@@ -39,7 +38,7 @@ import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
-@OptIn(ExperimentalCoroutinesApi::class, ExperimentalMaterial3Api::class)
+@OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
 class AvatarPickerViewModelTest {
 
@@ -81,36 +80,6 @@ class AvatarPickerViewModelTest {
                 assertEquals(null, avatarPickerViewModel.errorMessageCode)
             }
         }
-
-    @Test
-    fun `given a valid picked image, before uploading it, it gets resampled correctly`() = runTest {
-        // Given
-        val uploadedAssetId = AssetId("some-dummy-value", "some-dummy-domain")
-        val pickedUri = mockk<Uri>()
-
-        val (arrangement, avatarPickerViewModel) = Arrangement()
-            .withSuccessfulInitialAvatarLoad()
-            .withSuccessfulAvatarUpload(uploadedAssetId)
-            .withPickedUri(pickedUri)
-            .arrange()
-
-        // When
-        avatarPickerViewModel.uploadNewPickedAvatarAndBack()
-
-        // Then
-        with(arrangement) {
-            coVerify {
-                avatarImageManager.getWritableAvatarUri(match { it == fakeKaliumFileSystem.selfUserAvatarPath() })
-                pickedUri.resampleImageAndCopyToTempPath(
-                    context,
-                    fakeKaliumFileSystem.selfUserAvatarPath(),
-                    ImageUtil.ImageSizeClass.Small,
-                    dispatcherProvider
-                )
-            }
-            assertEquals(pickedUri, avatarPickerViewModel.pictureState.avatarUri)
-        }
-    }
 
     @Test
     fun `given a valid image, when uploading the asset fails, then should emit an error`() = runTest {
@@ -185,9 +154,11 @@ class AvatarPickerViewModelTest {
         private val mockUri = mockk<Uri>()
 
         fun withSuccessfulInitialAvatarLoad(): Arrangement {
+            val avatarAssetId = "avatar-value@avatar-domain"
             MockKAnnotations.init(this, relaxUnitFun = true)
             mockkStatic(Uri::class)
             mockkStatic(Uri::resampleImageAndCopyToTempPath)
+            mockkStatic(Uri::toByteArray)
             every { Uri.parse(any()) } returns mockUri
             val fakeAvatarData = "some-dummy-avatar".toByteArray()
             val avatarPath = fakeKaliumFileSystem.selfUserAvatarPath()
@@ -198,8 +169,10 @@ class AvatarPickerViewModelTest {
             coEvery { avatarImageManager.getWritableAvatarUri(any()) } returns mockUri
             coEvery { navigationManager.navigateBack() } returns Unit
             coEvery { any<Uri>().resampleImageAndCopyToTempPath(any(), any(), any(), any()) } returns 1L
-            every { userDataStore.avatarAssetId } returns flow { emit("avatar-value@avatar-domain") }
+            coEvery { any<Uri>().toByteArray(any(), any()) } returns ByteArray(5)
+            every { userDataStore.avatarAssetId } returns flow { emit(avatarAssetId) }
             every { mockUri.copyToTempPath(any(), any()) } returns 1L
+            every { qualifiedIdMapper.fromStringToQualifiedID(any()) } returns QualifiedID("avatar-value", "avatar-domain")
 
             return this
         }
@@ -211,11 +184,6 @@ class AvatarPickerViewModelTest {
             return this
         }
 
-        fun withPickedUri(pickedUri: Uri): Arrangement {
-            viewModel.updatePickedAvatarUri(pickedUri)
-
-            return this
-        }
 
         fun withErrorUploadResponse(): Arrangement {
             coEvery { uploadUserAvatarUseCase(any(), any()) } returns UploadAvatarResult.Failure(Unknown(RuntimeException("some error")))

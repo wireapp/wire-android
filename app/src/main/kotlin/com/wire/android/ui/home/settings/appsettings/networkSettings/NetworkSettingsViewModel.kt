@@ -1,14 +1,12 @@
 package com.wire.android.ui.home.settings.appsettings.networkSettings
 
-import android.content.Context
-import android.content.Intent
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.navigation.NavigationManager
-import com.wire.android.ui.debugscreen.PersistentWebSocketService
+import com.wire.android.services.ServicesManager
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import com.wire.kalium.logic.feature.user.webSocketStatus.PersistPersistentWebSocketConnectionStatusUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -18,6 +16,7 @@ import javax.inject.Inject
 @HiltViewModel
 class NetworkSettingsViewModel
 @Inject constructor(
+    private val servicesManager: ServicesManager,
     private val navigationManager: NavigationManager,
     private val persistPersistentWebSocketConnectionStatus: PersistPersistentWebSocketConnectionStatusUseCase,
     private val observePersistentWebSocketConnectionStatus: ObservePersistentWebSocketConnectionStatusUseCase
@@ -39,13 +38,14 @@ class NetworkSettingsViewModel
             }
         }
 
-    fun setWebSocketState(isEnabled: Boolean, context: Context) {
+    fun setWebSocketState(isEnabled: Boolean) {
         persistPersistentWebSocketConnectionStatus(isEnabled)
         networkSettingsState = networkSettingsState.copy(isPersistentWebSocketConnectionEnabled = isEnabled)
         if (isEnabled) {
-            context.startService(Intent(context, PersistentWebSocketService::class.java))
+            servicesManager.startPersistentWebSocketService()
         } else {
-            context.stopService(Intent(context, PersistentWebSocketService::class.java))
+            // TODO FIXME when we'll have a multi-accounts, this will stop all the PersistedWebSockets for all accounts!!!
+            servicesManager.stopPersistentWebSocketService()
         }
     }
 }

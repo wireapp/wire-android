@@ -253,15 +253,18 @@ private fun LazyListScope.externalSuccessItem(
     onOpenUserProfile: (Contact) -> Unit,
     onAddContactClicked: (Contact) -> Unit,
 ) {
-    folderWithElements(header = searchTitle,
-        items = (if (showAllItems) searchResult else searchResult.take(DEFAULT_SEARCH_RESULT_ITEM_SIZE)).associateBy { it.id }) { contact ->
+    val itemsList = if (showAllItems) searchResult else searchResult.take(DEFAULT_SEARCH_RESULT_ITEM_SIZE)
+    folderWithElements(
+        header = searchTitle,
+        items = itemsList.associateBy { it.id }
+    ) { contact ->
         with(contact) {
             ExternalContactSearchResultItem(
                 avatarData = avatarData,
                 name = name,
                 label = label,
                 membership = membership,
-                connectionState = contact.connectionState,
+                connectionState = connectionState,
                 searchQuery = searchQuery,
                 clickable = remember { Clickable(enabled = true) { onOpenUserProfile(contact) } },
                 onAddContactClicked = { onAddContactClicked(contact) }

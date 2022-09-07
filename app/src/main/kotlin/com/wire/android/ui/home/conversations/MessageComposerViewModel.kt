@@ -105,13 +105,12 @@ class MessageComposerViewModel @Inject constructor(
     }
 
     private fun observeIfSelfIsConversationMember() = viewModelScope.launch {
-        observeIsSelfConversationMember(conversationId)
-            .collect { result ->
-                when (result) {
-                    is IsSelfUserMemberResult.Failure -> isSendingMessagesAllowed = false
-                    is IsSelfUserMemberResult.Success -> isSendingMessagesAllowed = result.isMember
-                }
+        observeIsSelfConversationMember(conversationId).collect { result ->
+            when (result) {
+                is IsSelfUserMemberResult.Failure -> isSendingMessagesAllowed = false
+                is IsSelfUserMemberResult.Success -> isSendingMessagesAllowed = result.isMember
             }
+        }
     }
 
     private fun fetchSelfUserTeam() = viewModelScope.launch {

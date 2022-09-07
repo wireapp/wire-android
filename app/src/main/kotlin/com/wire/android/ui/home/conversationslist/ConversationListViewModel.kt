@@ -75,8 +75,7 @@ class ConversationListViewModel @Inject constructor(
     private val observeSelfUser: GetSelfUserUseCase,
     private val blockUserUseCase: BlockUserUseCase,
     private val wireSessionImageLoader: WireSessionImageLoader,
-    private val userTypeMapper: UserTypeMapper,
-    private val observeIsSelfUserMember: ObserveIsSelfUserMemberUseCase
+    private val userTypeMapper: UserTypeMapper
 ) : ViewModel() {
 
     var state by mutableStateOf(ConversationListState())

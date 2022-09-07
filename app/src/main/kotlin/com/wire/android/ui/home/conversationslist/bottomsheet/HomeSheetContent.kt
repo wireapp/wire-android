@@ -22,15 +22,16 @@ import com.wire.android.ui.common.bottomsheet.MenuModalSheetContent
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.conversationColor
+import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
 import com.wire.android.ui.home.conversationslist.model.BlockingState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.ui.home.conversationslist.model.getMutedStatusTextResource
+import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.user.ConnectionState
-import com.wire.kalium.logic.data.user.UserId
 
 @Composable
 internal fun ConversationMainSheetContent(
@@ -39,7 +40,7 @@ internal fun ConversationMainSheetContent(
     moveConversationToFolder: () -> Unit,
     moveConversationToArchive: () -> Unit,
     clearConversationContent: () -> Unit,
-    blockUserClick: (UserId, String) -> Unit,
+    blockUserClick: (BlockUserDialogState) -> Unit,
     leaveGroup: (GroupDialogState) -> Unit,
     deleteGroup: (GroupDialogState) -> Unit,
     navigateToNotification: () -> Unit
@@ -143,8 +144,10 @@ internal fun ConversationMainSheetContent(
                                 title = stringResource(R.string.label_block),
                                 onItemClick = {
                                     blockUserClick(
-                                        conversationSheetContent.conversationTypeDetail.userId,
-                                        conversationSheetContent.title
+                                        BlockUserDialogState(
+                                            userName = conversationSheetContent.title,
+                                            userId = conversationSheetContent.conversationTypeDetail.userId
+                                        )
                                     )
                                 }
                             )
@@ -208,6 +211,7 @@ fun NotificationsOptionsItemAction(
         Text(
             text = mutedStatus.getMutedStatusTextResource(),
             style = MaterialTheme.wireTypography.body01,
+            color = MaterialTheme.wireColorScheme.secondaryText,
             overflow = TextOverflow.Ellipsis,
             maxLines = 1,
             modifier = Modifier.weight(weight = 1f, fill = false)

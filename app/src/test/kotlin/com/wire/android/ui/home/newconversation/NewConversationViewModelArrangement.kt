@@ -1,5 +1,6 @@
 package com.wire.android.ui.home.newconversation
 
+import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.framework.TestUser
@@ -10,6 +11,7 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.ui.WireSessionImageLoader
+import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
@@ -29,7 +31,6 @@ import com.wire.kalium.logic.feature.publicuser.search.Result
 import com.wire.kalium.logic.feature.publicuser.search.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchUsersUseCase
 import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
-import com.wire.kalium.logic.CoreFailure
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
@@ -41,9 +42,9 @@ internal class NewConversationViewModelArrangement {
 
         // Default empty values
         coEvery { isMLSEnabledUseCase() } returns true
-        coEvery { searchUsers(any()) } returns Result.Success(userSearchResult = UserSearchResult(listOf(PUBLIC_USER)))
+        coEvery { searchPublicUsers(any()) } returns Result.Success(userSearchResult = UserSearchResult(listOf(PUBLIC_USER)))
         coEvery { searchKnownUsers(any()) } returns Result.Success(userSearchResult = UserSearchResult(listOf(KNOWN_USER)))
-        coEvery { getAllContacts() } returns GetAllContactsResult.Success(listOf())
+        coEvery { getAllKnownUsers() } returns GetAllContactsResult.Success(listOf())
         coEvery { createGroupConversation(any(), any(), any()) } returns CreateGroupConversationUseCase.Result.Success(CONVERSATION)
         coEvery { contactMapper.fromOtherUser(PUBLIC_USER) } returns Contact(
             id = "publicValue",
@@ -51,7 +52,7 @@ internal class NewConversationViewModelArrangement {
             name = "publicUsername",
             avatarData = UserAvatarData(
                 asset = ImageAsset.UserAvatarAsset(wireSessionImageLoader, UserAssetId("value", "domain")),
-                availabilityStatus = UserAvailabilityStatus.NONE
+                availabilityStatus = UserAvailabilityStatus.AVAILABLE
             ),
             label = "publicHandle",
             connectionState = ConnectionState.NOT_CONNECTED,
@@ -64,7 +65,7 @@ internal class NewConversationViewModelArrangement {
             name = "knownUsername",
             avatarData = UserAvatarData(
                 asset = ImageAsset.UserAvatarAsset(wireSessionImageLoader, UserAssetId("value", "domain")),
-                availabilityStatus = UserAvailabilityStatus.NONE
+                availabilityStatus = UserAvailabilityStatus.AVAILABLE
             ),
             label = "knownHandle",
             connectionState = ConnectionState.NOT_CONNECTED,
@@ -76,13 +77,13 @@ internal class NewConversationViewModelArrangement {
     lateinit var navigationManager: NavigationManager
 
     @MockK
-    lateinit var searchUsers: SearchUsersUseCase
+    lateinit var searchPublicUsers: SearchUsersUseCase
 
     @MockK
     lateinit var searchKnownUsers: SearchKnownUsersUseCase
 
     @MockK
-    lateinit var getAllContacts: GetAllContactsUseCase
+    lateinit var getAllKnownUsers: GetAllContactsUseCase
 
     @MockK
     lateinit var createGroupConversation: CreateGroupConversationUseCase
@@ -98,6 +99,9 @@ internal class NewConversationViewModelArrangement {
 
     @MockK
     lateinit var wireSessionImageLoader: WireSessionImageLoader
+
+    @MockK
+    private lateinit var savedStateHandle: SavedStateHandle
 
     private companion object {
         val CONVERSATION_ID = ConversationId(value = "userId", domain = "domainId")
@@ -154,10 +158,11 @@ internal class NewConversationViewModelArrangement {
 
     private val viewModel by lazy {
         NewConversationViewModel(
+            savedStateHandle = savedStateHandle,
             navigationManager = navigationManager,
-            searchPublicUsers = searchUsers,
+            searchPublicUsers = searchPublicUsers,
             searchKnownUsers = searchKnownUsers,
-            getAllKnownUsers = getAllContacts,
+            getAllKnownUsers = getAllKnownUsers,
             createGroupConversation = createGroupConversation,
             contactMapper = contactMapper,
             sendConnectionRequest = sendConnectionRequestUseCase,
@@ -171,7 +176,7 @@ internal class NewConversationViewModelArrangement {
     }
 
     fun withFailurePublicSearchResponse() = apply {
-        coEvery { searchUsers(any()) } returns Result.Failure.InvalidRequest
+        coEvery { searchPublicUsers(any()) } returns Result.Failure.InvalidRequest
     }
 
     fun withSyncFailureOnCreatingGroup() = apply {

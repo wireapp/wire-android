@@ -205,11 +205,13 @@ class SharedCallingViewModelTest {
     @Test
     fun `given an active call, when the user ends call, then invoke endCall useCase`() {
         coEvery { endCall(any()) } returns Unit
+        coEvery { muteCall(any()) } returns Unit
         every { callRinger.stop() } returns Unit
 
         runTest { sharedCallingViewModel.hangUpCall() }
 
         coVerify(exactly = 1) { endCall(any()) }
+        coVerify(exactly = 1) { muteCall(any()) }
         coVerify(exactly = 1) { callRinger.stop() }
     }
 

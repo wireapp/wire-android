@@ -1,7 +1,8 @@
-package com.wire.android.ui.debugscreen
+package com.wire.android.services
 
 import android.app.Notification
 import android.app.Service
+import android.content.Context
 import android.content.Intent
 import android.os.IBinder
 import androidx.core.app.NotificationChannelCompat
@@ -126,5 +127,10 @@ class PersistentWebSocketService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         scope.cancel("PersistentWebSocketService was destroyed")
+    }
+
+    companion object {
+        fun newIntent(context: Context?): Intent =
+            Intent(context, PersistentWebSocketService::class.java)
     }
 }

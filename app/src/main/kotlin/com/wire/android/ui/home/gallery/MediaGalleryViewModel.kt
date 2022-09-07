@@ -86,14 +86,12 @@ class MediaGalleryViewModel @Inject constructor(
         }
     }
 
-    private fun getScreenTitle(conversationDetails: ConversationDetails): String? {
-        println("cyka 11 $conversationDetails")
-        return when (conversationDetails) {
+    private fun getScreenTitle(conversationDetails: ConversationDetails): String? =
+        when (conversationDetails) {
             is ConversationDetails.OneOne -> conversationDetails.otherUser.name
             is ConversationDetails.Group -> conversationDetails.conversation.name
             else -> null
         }
-    }
 
     private fun updateMediaGalleryTitle(conversationName: String?) {
         mediaGalleryViewState = mediaGalleryViewState.copy(screenTitle = conversationName)

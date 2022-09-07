@@ -1,5 +1,6 @@
 package com.wire.android.ui.home.newconversation
 
+import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.framework.TestUser
@@ -99,6 +100,9 @@ internal class NewConversationViewModelArrangement {
     @MockK
     lateinit var wireSessionImageLoader: WireSessionImageLoader
 
+    @MockK
+    private lateinit var savedStateHandle: SavedStateHandle
+
     private companion object {
         val CONVERSATION_ID = ConversationId(value = "userId", domain = "domainId")
         val CONVERSATION = Conversation(
@@ -154,6 +158,7 @@ internal class NewConversationViewModelArrangement {
 
     private val viewModel by lazy {
         NewConversationViewModel(
+            savedStateHandle = savedStateHandle,
             navigationManager = navigationManager,
             searchPublicUsers = searchPublicUsers,
             searchKnownUsers = searchKnownUsers,

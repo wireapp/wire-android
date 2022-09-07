@@ -32,7 +32,7 @@ fun EventBadgeFactory(eventType: BadgeEventType, modifier: Modifier = Modifier) 
     when (eventType) {
         BadgeEventType.MissedCall -> MissedCallBadge(modifier)
         BadgeEventType.UnreadMention -> UnreadMentionBadge(modifier)
-        is BadgeEventType.UnreadMessage -> UnreadMessageEventBadge(unreadMessageCount = eventType.unreadMessageCount, modifier)
+        is BadgeEventType.UnreadMessage -> UnreadMessageEventBadge(unreadMessageCount = eventType.unreadMessageCount)
         BadgeEventType.UnreadReply -> UnreadReplyBadge(modifier)
         BadgeEventType.ReceivedConnectionRequest -> ConnectRequestBadge(modifier)
         BadgeEventType.SentConnectRequest -> ConnectPendingRequestBadge(modifier)
@@ -111,7 +111,10 @@ private fun UnreadMessageEventBadge(unreadMessageCount: Long) {
             notificationIcon = {
                 Text(
                     modifier = Modifier
-                        .padding(dimensions().spacing8x),
+                        .padding(
+                            horizontal = 8.dp,
+                            vertical = 2.dp
+                        ),
                     text = unReadMessageCountStringify(unreadMessageCount),
                     color = MaterialTheme.wireColorScheme.onBadge,
                     style = MaterialTheme.wireTypography.label02,

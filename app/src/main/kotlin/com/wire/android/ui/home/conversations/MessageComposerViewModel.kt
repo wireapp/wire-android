@@ -17,7 +17,6 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.navigation.getBackNavArg
-import com.wire.android.navigation.getBackNavArgs
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorDeletingMessage
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorMaxAssetSize
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorMaxImageSize
@@ -149,20 +148,15 @@ class MessageComposerViewModel @Inject constructor(
             showDeleteMessageDialog(messageToDeleteId, messageToDeleteIsSelf)
         }
         if (leftGroup || groupDeletedName != null) {
-            navigateBack(savedStateHandle.getBackNavArgs())
+            //  navigateBack(savedStateHandle.getBackNavArgs())
         }
 
     }
 
-    fun onMessageChanged(message: String) {
-        conversationViewState = conversationViewState.copy(messageText = message)
-    }
-
-    fun sendMessage() {
+    fun sendMessage(message: String) {
         viewModelScope.launch {
-            sendTextMessage(conversationId, conversationViewState.messageText)
+            sendTextMessage(conversationId, message)
         }
-        conversationViewState = conversationViewState.copy(messageText = "")
     }
 
     @Suppress("MagicNumber")

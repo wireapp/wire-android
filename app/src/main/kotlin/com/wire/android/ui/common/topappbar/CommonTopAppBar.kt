@@ -34,7 +34,6 @@ import com.wire.kalium.logic.data.id.ConversationId
 
 @Composable
 fun CommonTopAppBar(commonTopAppBarViewModel: CommonTopAppBarViewModel) {
-
     with(commonTopAppBarViewModel) {
         ConnectivityStatusBar(
             commonTopAppBarViewModel.connectivityState.info,

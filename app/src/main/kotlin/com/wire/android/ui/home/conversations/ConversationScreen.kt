@@ -5,13 +5,20 @@ import android.content.Intent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ModalBottomSheetLayout
+import androidx.compose.material.ModalBottomSheetValue
+import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarResult
@@ -24,15 +31,17 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.wire.android.R
-import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.dialogs.OngoingActiveCallDialog
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topappbar.CommonTopAppBar
@@ -50,7 +59,6 @@ import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnFil
 import com.wire.android.ui.home.conversations.call.ConversationCallViewModel
 import com.wire.android.ui.home.conversations.call.ConversationCallViewState
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
-import com.wire.android.ui.home.conversations.edit.EditMessageMenuItems
 import com.wire.android.ui.home.conversations.info.ConversationInfoViewModel
 import com.wire.android.ui.home.conversations.info.ConversationInfoViewState
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
@@ -119,8 +127,7 @@ fun ConversationScreen(
         conversationCallViewState = conversationCallViewModel.conversationCallViewState,
         conversationInfoViewState = conversationInfoViewModel.conversationInfoViewState,
         conversationMessagesViewState = conversationMessagesViewModel.conversationViewState,
-        onMessageChanged = messageComposerViewModel::onMessageChanged,
-        onSendButtonClicked = messageComposerViewModel::sendMessage,
+        onSendMessage = messageComposerViewModel::sendMessage,
         onSendAttachment = messageComposerViewModel::sendAttachmentMessage,
         onDownloadAsset = conversationMessagesViewModel::downloadOrFetchAssetToInternalStorage,
         onImageFullScreenMode = messageComposerViewModel::navigateToGallery,
@@ -186,8 +193,7 @@ private fun ConversationScreen(
     conversationCallViewState: ConversationCallViewState,
     conversationInfoViewState: ConversationInfoViewState,
     conversationMessagesViewState: ConversationMessagesViewState,
-    onMessageChanged: (String) -> Unit,
-    onSendButtonClicked: () -> Unit,
+    onSendMessage: (String) -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onDownloadAsset: (String) -> Unit,
     onImageFullScreenMode: (String, Boolean) -> Unit,
@@ -208,94 +214,88 @@ private fun ConversationScreen(
 
     val connectionStateOrNull = (conversationInfoViewState.conversationDetailsData as? ConversationDetailsData.OneOne)?.connectionState
 
-    MenuModalSheetLayout(
-        sheetState = conversationScreenState.modalBottomSheetState,
-        coroutineScope = conversationScreenState.coroutineScope,
-        menuItems = EditMessageMenuItems(
-            isMyMessage = conversationScreenState.isSelectedMessageMyMessage(),
-            onCopyMessage = conversationScreenState::copyMessage,
-            onDeleteMessage = {
-                conversationScreenState.hideEditContextMenu()
-                onDeleteMessage(
-                    conversationScreenState.selectedMessage?.messageHeader!!.messageId,
-                    conversationScreenState.isSelectedMessageMyMessage()
-                )
-            }
-        ),
-        content = {
-            BoxWithConstraints {
-                val currentScreenHeight: Dp = with(LocalDensity.current) { constraints.maxHeight.toDp() }
-                val fullScreenHeight: Dp = remember { currentScreenHeight }
-
-                // when ConversationScreen is composed for the first time we do not know the height
-                // until users opens the keyboard
-                var keyboardHeight: KeyboardHeight by remember {
-                    mutableStateOf(KeyboardHeight.NotKnown)
-                }
-
-                // if the currentScreenHeight is smaller than the initial fullScreenHeight,
-                // and we don't know the keyboard height yet
-                // calculated at the first composition of the ConversationScreen, then we know the keyboard size
-                if (keyboardHeight is KeyboardHeight.NotKnown && currentScreenHeight < fullScreenHeight) {
-                    val difference = fullScreenHeight - currentScreenHeight
-                    if (difference > KeyboardHeight.DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET)
-                        keyboardHeight = KeyboardHeight.Known(difference)
-                }
-
-                Scaffold(
-                    topBar = {
-                        Column {
-                            CommonTopAppBar(commonTopAppBarViewModel = commonTopAppBarViewModel as CommonTopAppBarViewModel)
-                            ConversationScreenTopAppBar(
-                                conversationInfoViewState = conversationInfoViewState,
-                                onBackButtonClick = onBackButtonClick,
-                                onDropDownClick = onDropDownClick,
-                                isDropDownEnabled = conversationInfoViewState.conversationDetailsData !is ConversationDetailsData.None,
-                                onSearchButtonClick = { },
-                                onPhoneButtonClick = onStartCall,
-                                hasOngoingCall = conversationCallViewState.hasOngoingCall,
-                                onJoinCallButtonClick = onJoinCall,
-                                isUserBlocked = connectionStateOrNull == ConnectionState.BLOCKED
-                            )
-                        }
-                    },
-                    snackbarHost = {
-                        SwipeDismissSnackbarHost(
-                            hostState = conversationScreenState.snackBarHostState,
-                            modifier = Modifier.fillMaxWidth()
-                        )
-                    },
-                    content = { internalPadding ->
-                        Box(modifier = Modifier.padding(internalPadding)) {
-                            ConversationScreenContent(
-                                keyboardHeight = keyboardHeight,
-                                snackbarMessage = conversationViewState.snackbarMessage ?: conversationMessagesViewState.snackbarMessage,
-                                messages = conversationMessagesViewState.messages,
-                                lastUnreadMessage = conversationMessagesViewState.lastUnreadMessage,
-                                onMessageChanged = onMessageChanged,
-                                messageText = conversationViewState.messageText,
-                                onSendButtonClicked = onSendButtonClicked,
-                                onShowContextMenu = conversationScreenState::showEditContextMenu,
-                                onSendAttachment = onSendAttachment,
-                                onDownloadAsset = onDownloadAsset,
-                                onImageFullScreenMode = onImageFullScreenMode,
-                                conversationState = conversationViewState,
-                                onMessageComposerError = onSnackbarMessage,
-                                onSnackbarMessageShown = onSnackbarMessageShown,
-                                conversationScreenState = conversationScreenState,
-                                isFileSharingEnabled = isFileSharingEnabled,
-                                tempCachePath = tempCachePath,
-                                isUserBlocked = connectionStateOrNull == ConnectionState.BLOCKED,
-                                isSendingMessagesAllowed = isSendingMessagesAllowed,
-                                onOpenProfile = onOpenProfile,
-                                onUpdateConversationReadDate = onUpdateConversationReadDate
-                            )
-                        }
-                    }
-                )
-            }
+    ModalBottomSheetLayout(
+        sheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden),
+        sheetContent = {
+            Spacer(modifier = Modifier.height(8.dp))
+            Divider(
+                modifier = Modifier
+                    .width(width = dimensions().modalBottomSheetDividerWidth)
+                    .align(alignment = Alignment.CenterHorizontally),
+                thickness = 4.dp
+            )
         }
-    )
+    ) {
+        BoxWithConstraints {
+            val currentScreenHeight: Dp = with(LocalDensity.current) { constraints.maxHeight.toDp() }
+            val fullScreenHeight: Dp = remember { currentScreenHeight }
+
+            // when ConversationScreen is composed for the first time we do not know the height
+            // until users opens the keyboard
+            var keyboardHeight: KeyboardHeight by remember {
+                mutableStateOf(KeyboardHeight.NotKnown)
+            }
+
+            // if the currentScreenHeight is smaller than the initial fullScreenHeight,
+            // and we don't know the keyboard height yet
+            // calculated at the first composition of the ConversationScreen, then we know the keyboard size
+            if (keyboardHeight is KeyboardHeight.NotKnown && currentScreenHeight < fullScreenHeight) {
+                val difference = fullScreenHeight - currentScreenHeight
+                if (difference > KeyboardHeight.DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET)
+                    keyboardHeight = KeyboardHeight.Known(difference)
+            }
+
+            Scaffold(
+                topBar = {
+                    Column {
+                        CommonTopAppBar(commonTopAppBarViewModel = commonTopAppBarViewModel as CommonTopAppBarViewModel)
+                        ConversationScreenTopAppBar(
+                            conversationInfoViewState = conversationInfoViewState,
+                            onBackButtonClick = onBackButtonClick,
+                            onDropDownClick = onDropDownClick,
+                            isDropDownEnabled = conversationInfoViewState.conversationDetailsData !is ConversationDetailsData.None,
+                            onSearchButtonClick = { },
+                            onPhoneButtonClick = onStartCall,
+                            hasOngoingCall = conversationCallViewState.hasOngoingCall,
+                            onJoinCallButtonClick = onJoinCall,
+                            isUserBlocked = connectionStateOrNull == ConnectionState.BLOCKED
+                        )
+                    }
+                },
+                snackbarHost = {
+                    SwipeDismissSnackbarHost(
+                        hostState = conversationScreenState.snackBarHostState,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                },
+                content = { internalPadding ->
+                    Box(modifier = Modifier.padding(internalPadding)) {
+                        ConversationScreenContent(
+                            keyboardHeight = keyboardHeight,
+                            snackbarMessage = conversationViewState.snackbarMessage ?: conversationMessagesViewState.snackbarMessage,
+                            messages = conversationMessagesViewState.messages,
+                            lastUnreadMessage = conversationMessagesViewState.lastUnreadMessage,
+                            onSendMessage = onSendMessage,
+                            onShowContextMenu = conversationScreenState::showEditContextMenu,
+                            onSendAttachment = onSendAttachment,
+                            onDownloadAsset = onDownloadAsset,
+                            onImageFullScreenMode = onImageFullScreenMode,
+                            conversationState = conversationViewState,
+                            onMessageComposerError = onSnackbarMessage,
+                            onSnackbarMessageShown = onSnackbarMessageShown,
+                            conversationScreenState = conversationScreenState,
+                            isFileSharingEnabled = isFileSharingEnabled,
+                            tempCachePath = tempCachePath,
+                            isUserBlocked = connectionStateOrNull == ConnectionState.BLOCKED,
+                            isSendingMessagesAllowed = isSendingMessagesAllowed,
+                            onOpenProfile = onOpenProfile,
+                            onUpdateConversationReadDate = onUpdateConversationReadDate
+                        )
+                    }
+                }
+            )
+        }
+    }
 }
 
 @Suppress("LongParameterList")
@@ -305,9 +305,7 @@ private fun ConversationScreenContent(
     keyboardHeight: KeyboardHeight,
     messages: List<UIMessage>,
     lastUnreadMessage: UIMessage?,
-    onMessageChanged: (String) -> Unit,
-    messageText: String,
-    onSendButtonClicked: () -> Unit,
+    onSendMessage: (String) -> Unit,
     onShowContextMenu: (UIMessage) -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onDownloadAsset: (String) -> Unit,
@@ -352,9 +350,7 @@ private fun ConversationScreenContent(
                 onUpdateConversationReadDate = onUpdateConversationReadDate
             )
         },
-        messageText = messageText,
-        onMessageChanged = onMessageChanged,
-        onSendButtonClicked = onSendButtonClicked,
+        onSendTextMessage = onSendMessage,
         onSendAttachment = onSendAttachment,
         onMessageComposerError = onMessageComposerError,
         onMessageComposerInputStateChange = { messageComposerState ->
@@ -474,8 +470,7 @@ fun ConversationScreenPreview() {
         conversationCallViewState = ConversationCallViewState(),
         conversationInfoViewState = ConversationInfoViewState(conversationName = UIText.DynamicString("Some test conversation")),
         conversationMessagesViewState = ConversationMessagesViewState(messages = getMockedMessages()),
-        onMessageChanged = {},
-        onSendButtonClicked = {},
+        onSendMessage = {},
         onSendAttachment = {},
         onDownloadAsset = {},
         onImageFullScreenMode = { _, _ -> },

@@ -23,7 +23,6 @@ import androidx.compose.material.Surface
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -53,9 +52,7 @@ import okio.Path
 fun MessageComposer(
     keyboardHeight: KeyboardHeight,
     content: @Composable () -> Unit,
-    messageText: String,
-    onMessageChanged: (String) -> Unit,
-    onSendButtonClicked: () -> Unit,
+    onSendTextMessage: (String) -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
     onMessageComposerInputStateChange: (MessageComposerStateTransition) -> Unit,
@@ -71,24 +68,18 @@ fun MessageComposer(
             onMessageComposeInputStateChanged = onMessageComposerInputStateChange
         )
 
-        LaunchedEffect(messageText) {
-            messageComposerState.messageText = messageComposerState.messageText.copy(messageText)
-        }
-
         MessageComposer(
             content = content,
             keyboardHeight = keyboardHeight,
             messageComposerState = messageComposerState,
             messageText = messageComposerState.messageText,
             onMessageChanged = {
-                // we are setting it immediately in the UI first
                 messageComposerState.messageText = it
-                // we are hoisting the TextFieldValue text value up to the parent
-                if (messageText != it.text) {
-                    onMessageChanged(it.text)
-                }
             },
-            onSendButtonClicked = onSendButtonClicked,
+            onSendButtonClicked = {
+                onSendTextMessage(messageComposerState.messageText.text)
+                messageComposerState.messageText = TextFieldValue("")
+            },
             onSendAttachment = {
                 onSendAttachment(it)
                 messageComposerState.toggleAttachmentOptionsVisibility()

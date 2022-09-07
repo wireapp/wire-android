@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -20,6 +21,7 @@ import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.BlockedLabel
 import com.wire.android.ui.common.button.WireItemLabel
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.model.BadgeEventType
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -103,19 +105,13 @@ fun ConnectPendingRequestBadge(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun UnreadMessageEventBadge(unreadMessageCount: Long, modifier: Modifier = Modifier) {
+private fun UnreadMessageEventBadge(unreadMessageCount: Long) {
     if (unreadMessageCount > 0) {
         NotificationBadgeContainer(
             notificationIcon = {
                 Text(
                     modifier = Modifier
-                        .fillMaxHeight()
-                        .padding(
-                            start = 8.dp,
-                            top = 1.dp,
-                            bottom = 1.dp,
-                            end = 8.dp
-                        ),
+                        .padding(dimensions().spacing8x),
                     text = unReadMessageCountStringify(unreadMessageCount),
                     color = MaterialTheme.wireColorScheme.onBadge,
                     style = MaterialTheme.wireTypography.label02,
@@ -126,16 +122,14 @@ private fun UnreadMessageEventBadge(unreadMessageCount: Long, modifier: Modifier
 }
 
 @Composable
-private fun NotificationBadgeContainer(notificationIcon: @Composable (() -> Unit), modifier: Modifier = Modifier) {
+private fun NotificationBadgeContainer(notificationIcon: @Composable () -> Unit, modifier: Modifier = Modifier) {
     Box(
         modifier = modifier
             .background(
                 color = MaterialTheme.wireColorScheme.badge,
                 shape = RoundedCornerShape(MaterialTheme.wireDimensions.notificationBadgeRadius)
             )
-            .height(MaterialTheme.wireDimensions.notificationBadgeHeight)
-            .wrapContentWidth(),
-        contentAlignment = Alignment.Center
+            .wrapContentSize(Alignment.Center)
     ) { notificationIcon() }
 }
 

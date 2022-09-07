@@ -45,7 +45,7 @@ class AccountSwitchUseCase @Inject constructor(
             when(it) {
                 is GetAllSessionsResult.Failure.Generic -> null
                 GetAllSessionsResult.Failure.NoSessionFound -> null
-                is GetAllSessionsResult.Success -> it.sessions.firstOrNull { sessionList -> sessionList.session is AuthSession.Session.Valid }?.session?.userId
+                is GetAllSessionsResult.Success -> it.sessions.firstOrNull { sessionList -> sessionList.token is AuthSession.Token.Valid }?.token?.userId
             }
         }
         invoke(nextSessionId)

@@ -74,8 +74,8 @@ class WireActivityViewModel @Inject constructor(
     private val observeUserId = currentSessionFlow()
         .onEach {
             if(it is CurrentSessionResult.Success) {
-                if(it.authSession.session is AuthSession.Session.Invalid) {
-                    handleInvalidSession((it.authSession.session as AuthSession.Session.Invalid).reason)
+                if(it.authSession.token is AuthSession.Token.Invalid) {
+                    handleInvalidSession((it.authSession.token as AuthSession.Token.Invalid).reason)
                 }
             }
         }

@@ -36,7 +36,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
@@ -45,7 +44,6 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topappbar.CommonTopAppBar
-import com.wire.android.ui.common.topappbar.CommonTopAppBarBaseViewModel
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
 import com.wire.android.ui.common.topappbar.ConnectivityUIState
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorDeletingMessage
@@ -64,7 +62,6 @@ import com.wire.android.ui.home.conversations.info.ConversationInfoViewModel
 import com.wire.android.ui.home.conversations.info.ConversationInfoViewState
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewState
-import com.wire.android.ui.home.conversations.mock.getMockedMessages
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.MessageContent
 import com.wire.android.ui.home.conversations.model.MessageSource
@@ -74,15 +71,12 @@ import com.wire.android.ui.home.messagecomposer.MessageComposeInputState
 import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.util.permission.CallingAudioRequestFlow
 import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
-import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.NetworkFailure
-import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 import okio.Path
-import okio.Path.Companion.toPath
 
 @Composable
 fun ConversationScreen(
@@ -212,11 +206,8 @@ private fun ConversationScreen(
     onOpenProfile: (MessageSource, UserId) -> Unit,
     onUpdateConversationReadDate: (String) -> Unit,
     isSendingMessagesAllowed: Boolean,
-    commonTopAppBarViewModel: CommonTopAppBarBaseViewModel
-) = with(conversationViewState) {
+) {
     val conversationScreenState = rememberConversationScreenState()
-
-    val connectionStateOrNull = (conversationInfoViewState.conversationDetailsData as? ConversationDetailsData.OneOne)?.connectionState
 
     ModalBottomSheetLayout(
         sheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden),
@@ -260,12 +251,12 @@ private fun ConversationScreen(
                             conversationInfoViewState = conversationInfoViewState,
                             onBackButtonClick = onBackButtonClick,
                             onDropDownClick = onDropDownClick,
-                            isDropDownEnabled = conversationInfoViewState.conversationDetailsData !is ConversationDetailsData.None,
+                            isDropDownEnabled = conversationInfoViewState.hasUserPermissionToEdit,
                             onSearchButtonClick = { },
                             onPhoneButtonClick = onStartCall,
                             hasOngoingCall = conversationCallViewState.hasOngoingCall,
                             onJoinCallButtonClick = onJoinCall,
-                            isUserBlocked = connectionStateOrNull == ConnectionState.BLOCKED
+                            isUserBlocked = conversationInfoViewState.isUserBlocked
                         )
                     }
                 },
@@ -291,9 +282,9 @@ private fun ConversationScreen(
                             onMessageComposerError = onSnackbarMessage,
                             onSnackbarMessageShown = onSnackbarMessageShown,
                             conversationScreenState = conversationScreenState,
-                            isFileSharingEnabled = isFileSharingEnabled,
+                            isFileSharingEnabled = conversationViewState.isFileSharingEnabled,
                             tempCachePath = tempCachePath,
-                            isUserBlocked = connectionStateOrNull == ConnectionState.BLOCKED,
+                            isUserBlocked = conversationInfoViewState.isUserBlocked,
                             isSendingMessagesAllowed = isSendingMessagesAllowed,
                             onOpenProfile = onOpenProfile,
                             onUpdateConversationReadDate = onUpdateConversationReadDate

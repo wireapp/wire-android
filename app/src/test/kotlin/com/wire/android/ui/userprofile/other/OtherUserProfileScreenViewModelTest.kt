@@ -200,6 +200,7 @@ class OtherUserProfileScreenViewModelTest {
                 arrangement.navigationManager wasNot Called
             }
             assertEquals(groupState, expected)
+            assertEquals(viewModel.state.conversationId, CONVERSATION_ID)
         }
 
     @Test

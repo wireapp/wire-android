@@ -47,6 +47,7 @@ import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topappbar.CommonTopAppBar
 import com.wire.android.ui.common.topappbar.CommonTopAppBarBaseViewModel
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
+import com.wire.android.ui.common.topappbar.ConnectivityUIState
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorDeletingMessage
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorDownloadingAsset
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorMaxAssetSize
@@ -127,6 +128,8 @@ fun ConversationScreen(
         conversationCallViewState = conversationCallViewModel.conversationCallViewState,
         conversationInfoViewState = conversationInfoViewModel.conversationInfoViewState,
         conversationMessagesViewState = conversationMessagesViewModel.conversationViewState,
+        connectivityUIState = commonTopAppBarViewModel.connectivityState,
+        onOpenOngoingCallScreen = commonTopAppBarViewModel::openOngoingCallScreen,
         onSendMessage = messageComposerViewModel::sendMessage,
         onSendAttachment = messageComposerViewModel::sendAttachmentMessage,
         onDownloadAsset = conversationMessagesViewModel::downloadOrFetchAssetToInternalStorage,
@@ -142,7 +145,6 @@ fun ConversationScreen(
         onOpenProfile = conversationInfoViewModel::navigateToProfile,
         onUpdateConversationReadDate = messageComposerViewModel::updateConversationReadDate,
         isSendingMessagesAllowed = messageComposerViewModel.isSendingMessagesAllowed,
-        commonTopAppBarViewModel = commonTopAppBarViewModel
     )
 
     DeleteMessageDialog(
@@ -193,6 +195,8 @@ private fun ConversationScreen(
     conversationCallViewState: ConversationCallViewState,
     conversationInfoViewState: ConversationInfoViewState,
     conversationMessagesViewState: ConversationMessagesViewState,
+    connectivityUIState: ConnectivityUIState,
+    onOpenOngoingCallScreen: () -> Unit,
     onSendMessage: (String) -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onDownloadAsset: (String) -> Unit,
@@ -248,7 +252,10 @@ private fun ConversationScreen(
             Scaffold(
                 topBar = {
                     Column {
-                        CommonTopAppBar(commonTopAppBarViewModel = commonTopAppBarViewModel as CommonTopAppBarViewModel)
+                        CommonTopAppBar(
+                            connectivityUIState = connectivityUIState,
+                            onReturnToCallClick = onOpenOngoingCallScreen
+                        )
                         ConversationScreenTopAppBar(
                             conversationInfoViewState = conversationInfoViewState,
                             onBackButtonClick = onBackButtonClick,
@@ -462,29 +469,29 @@ fun MessageList(
     }
 }
 
-@Preview
-@Composable
-fun ConversationScreenPreview() {
-    ConversationScreen(
-        conversationViewState = ConversationViewState(),
-        conversationCallViewState = ConversationCallViewState(),
-        conversationInfoViewState = ConversationInfoViewState(conversationName = UIText.DynamicString("Some test conversation")),
-        conversationMessagesViewState = ConversationMessagesViewState(messages = getMockedMessages()),
-        onSendMessage = {},
-        onSendAttachment = {},
-        onDownloadAsset = {},
-        onImageFullScreenMode = { _, _ -> },
-        onBackButtonClick = {},
-        onDeleteMessage = { _, _ -> },
-        onStartCall = {},
-        onJoinCall = {},
-        onSnackbarMessage = {},
-        onSnackbarMessageShown = {},
-        onDropDownClick = {},
-        tempCachePath = "".toPath(),
-        onOpenProfile = { _, _ -> },
-        onUpdateConversationReadDate = {},
-        isSendingMessagesAllowed = true,
-        commonTopAppBarViewModel = object : CommonTopAppBarBaseViewModel() {}
-    )
-}
+//@Preview
+//@Composable
+//fun ConversationScreenPreview() {
+//    ConversationScreen(
+//        conversationViewState = ConversationViewState(),
+//        conversationCallViewState = ConversationCallViewState(),
+//        conversationInfoViewState = ConversationInfoViewState(conversationName = UIText.DynamicString("Some test conversation")),
+//        conversationMessagesViewState = ConversationMessagesViewState(messages = getMockedMessages()),
+//        onSendMessage = {},
+//        onSendAttachment = {},
+//        onDownloadAsset = {},
+//        onImageFullScreenMode = { _, _ -> },
+//        onBackButtonClick = {},
+//        onDeleteMessage = { _, _ -> },
+//        onStartCall = {},
+//        onJoinCall = {},
+//        onSnackbarMessage = {},
+//        onSnackbarMessageShown = {},
+//        onDropDownClick = {},
+//        tempCachePath = "".toPath(),
+//        onOpenProfile = { _, _ -> },
+//        onUpdateConversationReadDate = {},
+//        isSendingMessagesAllowed = true,
+//        commonTopAppBarViewModel = object : CommonTopAppBarBaseViewModel() {}
+//    )
+//}

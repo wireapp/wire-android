@@ -255,7 +255,8 @@ private fun ConversationScreen(
                                 onPhoneButtonClick = onStartCall,
                                 hasOngoingCall = conversationCallViewState.hasOngoingCall,
                                 onJoinCallButtonClick = onJoinCall,
-                                isUserBlocked = connectionStateOrNull == ConnectionState.BLOCKED
+                                isUserBlocked = connectionStateOrNull == ConnectionState.BLOCKED,
+                                isCallingEnabled = isSendingMessagesAllowed
                             )
                         }
                     },

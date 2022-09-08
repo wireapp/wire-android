@@ -29,6 +29,7 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
+import com.wire.android.ui.authentication.ServerTitle
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.common.WireCircularProgressIndicator
 import com.wire.android.ui.common.WireDialog
@@ -46,14 +47,15 @@ import com.wire.android.util.dialogErrorStrings
 import com.wire.kalium.logic.configuration.server.ServerConfig
 
 @Composable
-fun CreateAccountCodeScreen(viewModel: CreateAccountCodeViewModel) {
+fun CreateAccountCodeScreen(viewModel: CreateAccountCodeViewModel, serverConfig: ServerConfig.Links) {
     CodeContent(
         state = viewModel.codeState,
         onCodeChange = { viewModel.onCodeChange(it) },
         onResendCodePressed = { viewModel.resendCode() },
         onBackPressed = viewModel::goBackToPreviousStep,
         onErrorDismiss = viewModel::onCodeErrorDismiss,
-        onRemoveDeviceOpen = viewModel::onTooManyDevicesError
+        onRemoveDeviceOpen = viewModel::onTooManyDevicesError,
+        serverConfig = serverConfig
     )
 }
 
@@ -65,7 +67,8 @@ private fun CodeContent(
     onResendCodePressed: () -> Unit,
     onBackPressed: () -> Unit,
     onErrorDismiss: () -> Unit,
-    onRemoveDeviceOpen: () -> Unit
+    onRemoveDeviceOpen: () -> Unit,
+    serverConfig: ServerConfig.Links
 ) {
     val focusRequester = remember { FocusRequester() }
     val keyboardController = LocalSoftwareKeyboardController.current
@@ -73,7 +76,15 @@ private fun CodeContent(
         WireCenterAlignedTopAppBar(
             elevation = 0.dp,
             title = stringResource(id = state.type.titleResId),
-            onNavigationPressed = onBackPressed
+            onNavigationPressed = onBackPressed,
+            subtitleContent = {
+                if (serverConfig.isOnPremises) {
+                    ServerTitle(
+                        serverLinks = serverConfig,
+                        style = MaterialTheme.wireTypography.body01
+                    )
+                }
+            }
         )
     }) { internalPadding ->
         Column(
@@ -202,5 +213,5 @@ private fun CreateAccountCodeViewState.CodeError.DialogError.getResources(type: 
 @Composable
 @Preview
 private fun CreateAccountCodeScreenPreview() {
-    CodeContent(CreateAccountCodeViewState(CreateAccountFlowType.CreatePersonalAccount), {}, {}, {}, {}, {})
+    CodeContent(CreateAccountCodeViewState(CreateAccountFlowType.CreatePersonalAccount), {}, {}, {}, {}, {}, ServerConfig.DEFAULT)
 }

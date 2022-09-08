@@ -36,6 +36,7 @@ import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
+import com.wire.android.ui.authentication.ServerTitle
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
@@ -51,9 +52,10 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
+import com.wire.kalium.logic.configuration.server.ServerConfig
 
 @Composable
-fun CreateAccountEmailScreen(viewModel: CreateAccountEmailViewModel) {
+fun CreateAccountEmailScreen(viewModel: CreateAccountEmailViewModel, serverConfig: ServerConfig.Links) {
     EmailContent(
         state = viewModel.emailState,
         onEmailChange = viewModel::onEmailChange,
@@ -63,7 +65,8 @@ fun CreateAccountEmailScreen(viewModel: CreateAccountEmailViewModel) {
         onTermsDialogDismiss = viewModel::onTermsDialogDismiss,
         onTermsAccept = { viewModel.onTermsAccept() },
         onErrorDismiss = viewModel::onEmailErrorDismiss,
-        tosUrl = viewModel.tosUrl()
+        tosUrl = viewModel.tosUrl(),
+        serverConfig = serverConfig
     )
 }
 
@@ -78,13 +81,22 @@ private fun EmailContent(
     onTermsDialogDismiss: () -> Unit,
     onTermsAccept: () -> Unit,
     onErrorDismiss: () -> Unit,
-    tosUrl: String
+    tosUrl: String,
+    serverConfig: ServerConfig.Links
 ) {
     Scaffold(topBar = {
         WireCenterAlignedTopAppBar(
             elevation = 0.dp,
             title = stringResource(id = state.type.titleResId),
-            onNavigationPressed = onBackPressed
+            onNavigationPressed = onBackPressed,
+            subtitleContent = {
+                if (serverConfig.isOnPremises) {
+                    ServerTitle(
+                        serverLinks = serverConfig,
+                        style = MaterialTheme.wireTypography.body01
+                    )
+                }
+            }
         )
     }) { internalPadding ->
         Column(
@@ -258,5 +270,6 @@ private fun TermsConditionsDialog(onDialogDismiss: () -> Unit, onContinuePressed
 @Composable
 @Preview
 private fun CreateAccountEmailScreenPreview() {
-    EmailContent(CreateAccountEmailViewState(CreateAccountFlowType.CreatePersonalAccount), {}, {}, {}, {}, {}, {}, {}, "")
+    EmailContent(CreateAccountEmailViewState(CreateAccountFlowType.CreatePersonalAccount), {}, {}, {}, {}, {}, {}, {}, "",
+        ServerConfig.DEFAULT)
 }

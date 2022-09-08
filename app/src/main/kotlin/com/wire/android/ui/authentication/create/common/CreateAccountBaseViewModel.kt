@@ -24,6 +24,7 @@ import com.wire.android.ui.authentication.create.email.CreateAccountEmailViewSta
 import com.wire.android.ui.authentication.create.overview.CreateAccountOverviewViewModel
 import com.wire.android.ui.common.textfield.CodeFieldValue
 import com.wire.android.util.WillNeverOccurError
+import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
@@ -59,6 +60,8 @@ abstract class CreateAccountBaseViewModel(
     CreateAccountEmailViewModel,
     CreateAccountDetailsViewModel,
     CreateAccountCodeViewModel {
+
+    val serverConfig: ServerConfig.Links = authServerConfigProvider.authServer.value
 
     override fun tosUrl(): String = authServerConfigProvider.authServer.value.tos
 

@@ -70,6 +70,7 @@ enum class FlavourConfigs(val value: String, val configType: ConfigType) {
     LOGGING_ENABLED("logging_enabled", ConfigType.BOOLEAN),
     SAFE_LOGGING("safe_logging", ConfigType.BOOLEAN),
     PRIVATE_BUILD("private_build", ConfigType.BOOLEAN),
+    DEVELOPMENT_API_ENABLED("development_api_enabled", ConfigType.BOOLEAN),
     USER_ID("userId", ConfigType.STRING);
 
 }

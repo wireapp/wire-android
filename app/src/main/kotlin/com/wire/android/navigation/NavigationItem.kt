@@ -228,6 +228,7 @@ enum class NavigationItem(
                 commonTopAppBarViewModel = hiltViewModel()
             )
         },
+        animationConfig = NavigationAnimationConfig.NoAnimation
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
             val conversationIdString: String = arguments.filterIsInstance<ConversationId>().firstOrNull()?.toString()

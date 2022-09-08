@@ -46,8 +46,8 @@ fun ConversationScreenTopAppBar(
     onBackButtonClick: () -> Unit,
     onDropDownClick: () -> Unit,
     isDropDownEnabled: Boolean = false,
-    onSearchButtonClick: () -> Unit = {},
-    onPhoneButtonClick: () -> Unit = {},
+    onSearchButtonClick: () -> Unit,
+    onPhoneButtonClick: () -> Unit,
     hasOngoingCall: Boolean,
     isUserBlocked: Boolean,
     onJoinCallButtonClick: () -> Unit

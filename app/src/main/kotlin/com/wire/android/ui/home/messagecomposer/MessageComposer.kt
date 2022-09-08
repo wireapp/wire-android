@@ -24,6 +24,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
@@ -68,18 +69,26 @@ fun MessageComposer(
             onMessageComposeInputStateChanged = onMessageComposerInputStateChange
         )
 
+        val onSendButtonClicked = remember {
+            {
+                onSendTextMessage(messageComposerState.messageText.text)
+                messageComposerState.messageText = TextFieldValue("")
+            }
+        }
+
+        val onSendAttachmentClicked = remember {
+            { attachmentBundle: AttachmentBundle? ->
+                onSendAttachment(attachmentBundle)
+                messageComposerState.toggleAttachmentOptionsVisibility()
+            }
+        }
+
         MessageComposer(
             content = content,
             keyboardHeight = keyboardHeight,
             messageComposerState = messageComposerState,
-            onSendButtonClicked = {
-                onSendTextMessage(messageComposerState.messageText.text)
-                messageComposerState.messageText = TextFieldValue("")
-            },
-            onSendAttachment = {
-                onSendAttachment(it)
-                messageComposerState.toggleAttachmentOptionsVisibility()
-            },
+            onSendButtonClicked = onSendButtonClicked,
+            onSendAttachmentClicked = onSendAttachmentClicked,
             onMessageComposerError = onMessageComposerError,
             isFileSharingEnabled = isFileSharingEnabled,
             isUserBlocked = isUserBlocked,
@@ -103,7 +112,7 @@ private fun MessageComposer(
     keyboardHeight: KeyboardHeight,
     messageComposerState: MessageComposerInnerState,
     onSendButtonClicked: () -> Unit,
-    onSendAttachment: (AttachmentBundle?) -> Unit,
+    onSendAttachmentClicked: (AttachmentBundle?) -> Unit,
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
     isFileSharingEnabled: Boolean,
     isUserBlocked: Boolean,
@@ -246,7 +255,7 @@ private fun MessageComposer(
                 AttachmentOptions(
                     keyboardHeight,
                     messageComposerState,
-                    onSendAttachment,
+                    onSendAttachmentClicked,
                     onMessageComposerError,
                     isFileSharingEnabled,
                     tempCachePath
@@ -275,7 +284,6 @@ private fun CollapseIconButtonBox(
                 when (state) {
                     MessageComposeInputState.Active, MessageComposeInputState.Enabled -> 0f
                     MessageComposeInputState.FullScreen -> 180f
-
                 }
             }
             CollapseIconButton(

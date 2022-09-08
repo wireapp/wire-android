@@ -36,6 +36,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
@@ -62,6 +63,7 @@ import com.wire.android.ui.home.conversations.info.ConversationInfoViewModel
 import com.wire.android.ui.home.conversations.info.ConversationInfoViewState
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewState
+import com.wire.android.ui.home.conversations.mock.getMockedMessages
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.MessageContent
 import com.wire.android.ui.home.conversations.model.MessageSource
@@ -71,12 +73,14 @@ import com.wire.android.ui.home.messagecomposer.MessageComposeInputState
 import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.util.permission.CallingAudioRequestFlow
 import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
+import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 import okio.Path
+import okio.Path.Companion.toPath
 
 @Composable
 fun ConversationScreen(
@@ -460,29 +464,30 @@ fun MessageList(
     }
 }
 
-//@Preview
-//@Composable
-//fun ConversationScreenPreview() {
-//    ConversationScreen(
-//        conversationViewState = ConversationViewState(),
-//        conversationCallViewState = ConversationCallViewState(),
-//        conversationInfoViewState = ConversationInfoViewState(conversationName = UIText.DynamicString("Some test conversation")),
-//        conversationMessagesViewState = ConversationMessagesViewState(messages = getMockedMessages()),
-//        onSendMessage = {},
-//        onSendAttachment = {},
-//        onDownloadAsset = {},
-//        onImageFullScreenMode = { _, _ -> },
-//        onBackButtonClick = {},
-//        onDeleteMessage = { _, _ -> },
-//        onStartCall = {},
-//        onJoinCall = {},
-//        onSnackbarMessage = {},
-//        onSnackbarMessageShown = {},
-//        onDropDownClick = {},
-//        tempCachePath = "".toPath(),
-//        onOpenProfile = { _, _ -> },
-//        onUpdateConversationReadDate = {},
-//        isSendingMessagesAllowed = true,
-//        commonTopAppBarViewModel = object : CommonTopAppBarBaseViewModel() {}
-//    )
-//}
+@Preview
+@Composable
+fun ConversationScreenPreview() {
+    ConversationScreen(
+        conversationViewState = ConversationViewState(),
+        conversationCallViewState = ConversationCallViewState(),
+        conversationInfoViewState = ConversationInfoViewState(conversationName = UIText.DynamicString("Some test conversation")),
+        conversationMessagesViewState = ConversationMessagesViewState(messages = getMockedMessages()),
+        connectivityUIState = ConnectivityUIState(info = ConnectivityUIState.Info.None),
+        onOpenOngoingCallScreen = { },
+        onSendMessage = { },
+        onSendAttachment = { },
+        onDownloadAsset = { },
+        onImageFullScreenMode = { _, _ -> },
+        onBackButtonClick = { },
+        onDeleteMessage = { _, _ -> },
+        onStartCall = { },
+        onJoinCall = { },
+        onSnackbarMessage = { },
+        onSnackbarMessageShown = { },
+        onDropDownClick = { },
+        tempCachePath = "".toPath(),
+        onOpenProfile = { _, _ -> },
+        onUpdateConversationReadDate = { },
+        isSendingMessagesAllowed = true
+    )
+}

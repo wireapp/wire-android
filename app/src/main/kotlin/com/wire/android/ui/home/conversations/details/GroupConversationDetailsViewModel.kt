@@ -32,12 +32,14 @@ import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.team.Result
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.collect
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -64,6 +66,10 @@ class GroupConversationDetailsViewModel @Inject constructor(
     qualifiedIdMapper
 ) {
 
+    init {
+        println("cyka init")
+    }
+
     override val maxNumberOfItems: Int get() = MAX_NUMBER_OF_PARTICIPANTS
 
     private val conversationId: QualifiedID = qualifiedIdMapper.fromStringToQualifiedID(
@@ -79,51 +85,62 @@ class GroupConversationDetailsViewModel @Inject constructor(
     }
 
     private fun observeConversationDetails() {
-        viewModelScope.launch {
-            observerSelfUser().first()
-                .also { selfUser ->
-                    // TODO(QOL): refactor to one usecase that return group info and members
-                    observeConversationMembers(conversationId)
-                        .map { it.isSelfAnAdmin }
-                        .distinctUntilChanged()
-                        .also { isSelfAdminFlow ->
-                            val conversationDetailsFlow = observeConversationDetails(conversationId)
-                                .filterIsInstance<ObserveConversationDetailsUseCase.Result.Success>() // TODO handle StorageFailure
-                                .map { it.conversationDetails }
-                            combine(
-                                conversationDetailsFlow,
-                                isSelfAdminFlow,
-                                getSelfTeam()
-                            ) { conversationDetails, isSelfAnAdmin, selfTeam ->
-                                Triple(
-                                    conversationDetails,
-                                    isSelfAnAdmin,
-                                    selfTeam
-                                )
-                            }.collect { (conversationDetails, isSelfAnAdmin, selfTeam) ->
-                                with(conversationDetails) {
-                                    val isSelfInOwnerTeam =
-                                        selfTeam?.id != null && selfTeam.id == conversationDetails.conversation.teamId?.value
+        viewModelScope.launch(dispatcher.io()) {
 
-                                    if (this is ConversationDetails.Group) {
-                                        updateState(
-                                            groupOptionsState.copy(
-                                                groupName = conversation.name.orEmpty(),
-                                                protocolInfo = conversation.protocol,
-                                                isUpdatingAllowed = isSelfAnAdmin,
-                                                areAccessOptionsAvailable = conversation.isTeamGroup(),
-                                                isGuestAllowed = (conversation.isGuestAllowed() || conversation.isNonTeamMemberAllowed()),
-                                                isServicesAllowed = conversation.isServicesAllowed(),
-                                                isUpdatingGuestAllowed = isSelfAnAdmin && isSelfInOwnerTeam,
-                                                isAbleToRemoveGroup = selfUser.teamId != null
-                                                        && conversation.creatorId.value == selfUser.id.value
-                                            )
-                                        )
-                                    }
-                                }
-                            }
+            val groupDetailsFlow = observeConversationDetails(conversationId)
+                .filterIsInstance<ObserveConversationDetailsUseCase.Result.Success>()
+                .map { it.conversationDetails }
+                .filterIsInstance<ConversationDetails.Group>()
+                .distinctUntilChanged()
+                .shareIn(this, SharingStarted.WhileSubscribed(), 1)
+
+            val isSelfAdminFlow = observeConversationMembers(conversationId)
+                .map { it.isSelfAnAdmin }
+                .distinctUntilChanged()
+
+            viewModelScope.launch(dispatcher.io()) {
+                groupDetailsFlow
+                    .collect { groupDetails ->
+                        with(groupDetails) {
+                            println("cyka update 1")
+                            updateState(
+                                groupOptionsState.copy(
+                                    groupName = conversation.name.orEmpty(),
+                                    protocolInfo = conversation.protocol,
+                                    areAccessOptionsAvailable = conversation.isTeamGroup(),
+                                    isGuestAllowed = (conversation.isGuestAllowed() || conversation.isNonTeamMemberAllowed()),
+                                    isServicesAllowed = conversation.isServicesAllowed(),
+                                )
+                            )
                         }
+                    }
+            }
+
+            viewModelScope.launch(dispatcher.io()) {
+                combine(
+                    observerSelfUser().take(1),
+                    groupDetailsFlow,
+                    isSelfAdminFlow,
+                    getSelfTeam()
+                ) { selfUser, groupDetails, isSelfAnAdmin, selfTeam ->
+
+                    val isSelfInOwnerTeam =
+                        selfTeam?.id != null && selfTeam.id == groupDetails.conversation.teamId?.value
+
+                    val isAbleToRemoveGroup = (selfUser.teamId != null
+                            && groupDetails.conversation.creatorId.value == selfUser.id.value)
+
+                    println("cyka update 2")
+                    updateState(
+                        groupOptionsState.copy(
+                            isUpdatingAllowed = isSelfAnAdmin,
+                            isUpdatingGuestAllowed = isSelfAnAdmin && isSelfInOwnerTeam,
+                            isAbleToRemoveGroup = isAbleToRemoveGroup
+                        )
+                    )
                 }
+                    .collect {}
+            }
         }
     }
 
@@ -180,7 +197,6 @@ class GroupConversationDetailsViewModel @Inject constructor(
         }
         requestInProgress = false
     }
-
 
     fun onGuestUpdate(enableGuestAndNonTeamMember: Boolean) {
         groupOptionsState = groupOptionsState.copy(loadingGuestOption = true, isGuestAllowed = enableGuestAndNonTeamMember)

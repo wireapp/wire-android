@@ -1,11 +1,13 @@
 package com.wire.android.model
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.UserAssetId
 
+@Stable
 sealed class ImageAsset(private val imageLoader: WireSessionImageLoader) {
 
     data class UserAvatarAsset(

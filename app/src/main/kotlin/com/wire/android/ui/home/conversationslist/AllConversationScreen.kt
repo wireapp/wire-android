@@ -73,7 +73,9 @@ private fun AllConversationContent(
                     is ConversationFolder.Predefined -> context.getString(conversationFolder.folderNameResId)
                     is ConversationFolder.Custom -> conversationFolder.folderName
                 },
-                items = conversationList.associateBy { it.conversationId.toString() }
+                items = conversationList.associateBy {
+                    it.conversationId.toString()
+                }
             ) { generalConversation ->
                 ConversationItemFactory(
                     conversation = generalConversation,

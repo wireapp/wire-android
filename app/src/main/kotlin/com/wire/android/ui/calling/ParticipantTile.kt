@@ -1,6 +1,5 @@
 package com.wire.android.ui.calling
 
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.FrameLayout
@@ -70,63 +69,44 @@ fun ParticipantTile(
 
         ConstraintLayout {
             val (avatar, userName, muteIcon) = createRefs()
-            Column(
+
+            AvatarTile(
                 modifier = Modifier
                     .fillMaxSize()
                     .constrainAs(avatar) { },
-                verticalArrangement = Arrangement.Center,
-                horizontalAlignment = Alignment.CenterHorizontally
-            ) {
-                UserProfileAvatar(
-                    modifier = Modifier.padding(top = dimensions().spacing16x),
-                    size = avatarSize,
-                    avatarData = UserAvatarData(participantTitleState.avatar)
+                avatar = UserAvatarData(participantTitleState.avatar),
+                avatarSize = avatarSize
+            )
+
+            if (isSelfUser) {
+                SelfVideo(
+                    isCameraOn = participantTitleState.isCameraOn,
+                    onSelfUserVideoPreviewCreated = onSelfUserVideoPreviewCreated,
+                    onClearSelfUserVideoPreview = onClearSelfUserVideoPreview
+                )
+            } else {
+                OthersVideo(
+                    isCameraOn = participantTitleState.isCameraOn,
+                    isSharingScreen = participantTitleState.isSharingScreen,
+                    userId = participantTitleState.id.toString(),
+                    clientId = participantTitleState.clientId
                 )
             }
-            if (isSelfUser) {
-                if (participantTitleState.isCameraOn) {
-                    val context = LocalContext.current
-                    AndroidView(factory = {
-                        val videoPreview = VideoPreview(context).also(onSelfUserVideoPreviewCreated)
-                        videoPreview
-                    })
-                } else onClearSelfUserVideoPreview()
-            } else {
-                if (participantTitleState.isCameraOn || participantTitleState.isSharingScreen) {
-                    val context = LocalContext.current
-                    AndroidView(factory = {
-                        VideoRenderer(context, participantTitleState.id.toString(), participantTitleState.clientId, false).apply {
-                            layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
-                        }
-                    })
-                }
-            }
 
-            if (participantTitleState.isMuted) {
-                Surface(
-                    modifier = Modifier
-                        .padding(
-                            start = dimensions().spacing8x,
-                            bottom = dimensions().spacing8x
-                        )
-                        .constrainAs(muteIcon) {
-                            bottom.linkTo(parent.bottom)
-                            start.linkTo(parent.start)
-                        },
-                    color = Color.Black,
-                    shape = RoundedCornerShape(dimensions().corner6x)
-                ) {
-                    Icon(
-                        modifier = Modifier
-                            .padding(dimensions().spacing4x),
-                        imageVector = ImageVector.vectorResource(id = R.drawable.ic_participant_muted),
-                        tint = MaterialTheme.wireColorScheme.muteButtonColor,
-                        contentDescription = stringResource(R.string.content_description_calling_participant_muted)
+            MicrophoneTile(
+                modifier = Modifier
+                    .padding(
+                        start = dimensions().spacing8x,
+                        bottom = dimensions().spacing8x
                     )
-                }
-            }
+                    .constrainAs(muteIcon) {
+                        bottom.linkTo(parent.bottom)
+                        start.linkTo(parent.start)
+                    },
+                isMuted = participantTitleState.isMuted
+            )
 
-            Surface(
+            UsernameTile(
                 modifier = Modifier
                     .padding(bottom = dimensions().spacing6x)
                     .constrainAs(userName) {
@@ -135,18 +115,106 @@ fun ParticipantTile(
                         end.linkTo((parent.end))
                     }
                     .widthIn(max = onGoingCallTileUsernameMaxWidth),
-                shape = RoundedCornerShape(dimensions().corner4x),
+                name = participantTitleState.name,
                 color = if (participantTitleState.isSpeaking) MaterialTheme.wireColorScheme.primary else Color.Black
-            ) {
-                Text(
-                    color = Color.White,
-                    style = MaterialTheme.wireTypography.label01,
-                    modifier = Modifier.padding(3.dp),
-                    text = participantTitleState.name,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
+            )
+
+        }
+    }
+}
+
+@Composable
+private fun OthersVideo(
+    isCameraOn: Boolean,
+    isSharingScreen: Boolean,
+    userId: String,
+    clientId: String
+) {
+    if (isCameraOn || isSharingScreen) {
+        val context = LocalContext.current
+        AndroidView(factory = {
+            VideoRenderer(context, userId, clientId, false).apply {
+                layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
             }
+        })
+    }
+}
+
+@Composable
+private fun SelfVideo(
+    isCameraOn: Boolean,
+    onSelfUserVideoPreviewCreated: (view: View) -> Unit,
+    onClearSelfUserVideoPreview: () -> Unit
+) {
+    if (isCameraOn) {
+        val context = LocalContext.current
+        AndroidView(factory = {
+            val videoPreview = VideoPreview(context).also(onSelfUserVideoPreviewCreated)
+            videoPreview
+        })
+    } else onClearSelfUserVideoPreview()
+}
+
+
+@Composable
+private fun AvatarTile(
+    modifier: Modifier,
+    avatar: UserAvatarData,
+    avatarSize: Dp
+) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        UserProfileAvatar(
+            modifier = Modifier.padding(top = dimensions().spacing16x),
+            size = avatarSize,
+            avatarData = avatar
+        )
+    }
+}
+
+@Composable
+private fun UsernameTile(
+    modifier: Modifier,
+    name: String,
+    color: Color
+) {
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(dimensions().corner4x),
+        color = color
+    ) {
+        Text(
+            color = Color.White,
+            style = MaterialTheme.wireTypography.label01,
+            modifier = Modifier.padding(3.dp),
+            text = name,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
+}
+
+@Composable
+private fun MicrophoneTile(
+    modifier: Modifier,
+    isMuted: Boolean,
+) {
+    if (isMuted) {
+        Surface(
+            modifier = modifier,
+            color = Color.Black,
+            shape = RoundedCornerShape(dimensions().corner6x)
+        ) {
+            Icon(
+                modifier = Modifier
+                    .padding(dimensions().spacing4x),
+                imageVector = ImageVector.vectorResource(id = R.drawable.ic_participant_muted),
+                tint = MaterialTheme.wireColorScheme.muteButtonColor,
+                contentDescription = stringResource(R.string.content_description_calling_participant_muted)
+            )
         }
     }
 }

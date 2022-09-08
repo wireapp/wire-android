@@ -93,12 +93,7 @@ enum class NavigationItem(
             LoginScreen(ssoLoginResult)
         },
         animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
-    ) {
-        override fun getRouteWithArgs(arguments: List<Any>): String {
-            val userId: QualifiedID? = arguments.filterIsInstance<QualifiedID>().firstOrNull()
-            return if (userId == null) primaryRoute else "$primaryRoute?$EXTRA_USER_ID=$userId"
-        }
-    },
+    ),
 
     CreateTeam(
         primaryRoute = CREATE_TEAM,
@@ -233,6 +228,7 @@ enum class NavigationItem(
                 commonTopAppBarViewModel = hiltViewModel()
             )
         },
+        animationConfig = NavigationAnimationConfig.NoAnimation
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
             val conversationIdString: String = arguments.filterIsInstance<ConversationId>().firstOrNull()?.toString()

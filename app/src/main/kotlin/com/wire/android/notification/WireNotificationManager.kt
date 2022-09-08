@@ -8,6 +8,7 @@ import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.extension.intervalFlow
 import com.wire.android.util.lifecycle.ConnectionPolicyManager
+import com.wire.kalium.logger.obfuscateId
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.ConversationId
@@ -71,14 +72,14 @@ class WireNotificationManager @Inject constructor(
      */
     suspend fun fetchAndShowNotificationsOnce(userIdValue: String) = fetchOnceMutex.withLock {
         if (isNotCurrentUser(userIdValue)) {
-            appLogger.d("$TAG Ignoring notification for user=$userIdValue, because not current user")
+            appLogger.d("$TAG Ignoring notification for user=${userIdValue.obfuscateId()}, because not current user")
             return@withLock
         }
         val isJobRunningForUser = fetchOnceJobs[userIdValue]?.isActive ?: false
         if (isJobRunningForUser) {
-            appLogger.d("$TAG Already processing notifications for user=$userIdValue, ignoring request")
+            appLogger.d("$TAG Already processing notifications for user=${userIdValue.obfuscateId()}, ignoring request")
         } else {
-            appLogger.d("$TAG Starting to processing notifications for user=$userIdValue")
+            appLogger.d("$TAG Starting to processing notifications for user=${userIdValue.obfuscateId()}")
             fetchOnceJobs[userIdValue] = scope.launch {
                 triggerSyncForUserIfAuthenticated(userIdValue)
             }

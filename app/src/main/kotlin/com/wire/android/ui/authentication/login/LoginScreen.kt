@@ -31,6 +31,7 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
 import com.wire.android.R
+import com.wire.android.ui.authentication.ServerTitle
 import com.wire.android.ui.authentication.login.email.LoginEmailScreen
 import com.wire.android.ui.authentication.login.sso.LoginSSOScreen
 import com.wire.android.ui.common.TabItem
@@ -45,6 +46,7 @@ import com.wire.android.ui.server.ClientUpdateRequiredDialog
 import com.wire.android.ui.server.ServerVersionNotSupportedDialog
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
+import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.DialogErrorStrings
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.dialogErrorStrings
@@ -82,6 +84,14 @@ private fun LoginContent(
             WireCenterAlignedTopAppBar(
                 elevation = scrollState.rememberTopBarElevationState().value,
                 title = stringResource(R.string.login_title),
+                subtitleContent = {
+                    if (viewModel.serverConfig.isOnPremises) {
+                        ServerTitle(
+                            serverLinks = viewModel.serverConfig,
+                            style = MaterialTheme.wireTypography.body01
+                        )
+                    }
+                },
                 onNavigationPressed = onBackPressed
             ) {
                 WireTabRow(

@@ -10,7 +10,6 @@ import com.wire.android.ui.authentication.login.LoginViewModel
 import com.wire.android.util.newServerConfig
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
-import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -32,9 +31,6 @@ class LoginViewModelTest {
     private lateinit var clientScopeProviderFactory: ClientScopeProvider.Factory
 
     @MockK
-    private lateinit var getSessionsUseCase: GetSessionsUseCase
-
-    @MockK
     private lateinit var savedStateHandle: SavedStateHandle
 
     @MockK
@@ -54,9 +50,7 @@ class LoginViewModelTest {
         loginViewModel = LoginViewModel(
             savedStateHandle,
             navigationManager,
-            qualifiedIdMapper,
             clientScopeProviderFactory,
-            getSessionsUseCase,
             authServerConfigProvider
         )
     }

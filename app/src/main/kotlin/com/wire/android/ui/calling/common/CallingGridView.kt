@@ -45,7 +45,11 @@ fun GroupCallGrid(
         columns = GridCells.Fixed(NUMBER_OF_GRID_CELLS)
     ) {
 
-        items(items = participants, key = { it.id.toString() + it.clientId }) { participant ->
+        items(
+            items = participants,
+            key = { it.id.toString() + it.clientId },
+            contentType = { getContentType(it.isCameraOn, it.isSharingScreen) }
+        ) { participant ->
             // since we are getting participants by chunk of 8 items,
             // we need to check that we are on first page for self user
             val isSelfUser = pageIndex == 0 && participants.first() == participant
@@ -109,6 +113,11 @@ fun GroupCallGrid(
 private fun tilesRowsCount(participantsSize: Int): Int = with(participantsSize) {
     return@with if (this % 2 == 0) (this / 2) else ((this / 2) + 1)
 }
+
+private fun getContentType(
+    isCameraOn: Boolean,
+    isSharingScreen: Boolean
+) = if (isCameraOn || isSharingScreen) "videoRender" else null
 
 private const val NUMBER_OF_GRID_CELLS = 2
 private const val TOP_APP_BAR_AND_BOTTOM_SHEET_HEIGHT = 170

@@ -148,7 +148,7 @@ class MessageComposerViewModel @Inject constructor(
             showDeleteMessageDialog(messageToDeleteId, messageToDeleteIsSelf)
         }
         if (leftGroup || groupDeletedName != null) {
-            //  navigateBack(savedStateHandle.getBackNavArgs())
+            navigateBack(savedStateHandle.getBackNavArgs())
         }
 
     }

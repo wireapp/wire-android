@@ -19,7 +19,9 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.data.team.Team
+import com.wire.kalium.logic.feature.conversation.IsSelfUserMemberResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveIsSelfUserMemberUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
@@ -421,6 +423,9 @@ internal class GroupConversationDetailsViewModelArrangement {
     lateinit var getSelfTeamUseCase: GetSelfTeamUseCase
 
     @MockK
+    lateinit var observeIsSelfUserMember: ObserveIsSelfUserMemberUseCase
+
+    @MockK
     private lateinit var qualifiedIdMapper: QualifiedIdMapper
 
     private val conversationDetailsChannel = Channel<ConversationDetails>(capacity = Channel.UNLIMITED)
@@ -439,7 +444,8 @@ internal class GroupConversationDetailsViewModelArrangement {
             updateConversationAccessRole = updateConversationAccessRoleUseCase,
             getSelfTeam = getSelfTeamUseCase,
             savedStateHandle = savedStateHandle,
-            qualifiedIdMapper = qualifiedIdMapper
+            qualifiedIdMapper = qualifiedIdMapper,
+            observeIsSelfUserMember = observeIsSelfUserMember
         )
     }
 
@@ -459,6 +465,7 @@ internal class GroupConversationDetailsViewModelArrangement {
         coEvery {
             qualifiedIdMapper.fromStringToQualifiedID("conv_id@domain")
         } returns QualifiedID("conv_id", "domain")
+        coEvery { observeIsSelfUserMember(any()) } returns (flowOf(IsSelfUserMemberResult.Success(true)))
     }
 
     fun withSavedStateConversationId(conversationId: ConversationId) = apply {
@@ -466,7 +473,7 @@ internal class GroupConversationDetailsViewModelArrangement {
     }
 
     suspend fun withConversationDetailUpdate(conversationDetails: ConversationDetails) = apply {
-        coEvery { observeConversationDetails(any()) }returns conversationDetailsChannel.consumeAsFlow()
+        coEvery { observeConversationDetails(any()) } returns conversationDetailsChannel.consumeAsFlow()
             .map { ObserveConversationDetailsUseCase.Result.Success(it) }
         conversationDetailsChannel.send(conversationDetails)
     }

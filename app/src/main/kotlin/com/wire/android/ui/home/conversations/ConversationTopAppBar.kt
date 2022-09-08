@@ -50,7 +50,8 @@ fun ConversationScreenTopAppBar(
     onPhoneButtonClick: () -> Unit,
     hasOngoingCall: Boolean,
     isUserBlocked: Boolean,
-    onJoinCallButtonClick: () -> Unit
+    onJoinCallButtonClick: () -> Unit,
+    isCallingEnabled: Boolean = true
 ) {
     SmallTopAppBar(
         title = {
@@ -100,7 +101,8 @@ fun ConversationScreenTopAppBar(
                 hasOngoingCall = hasOngoingCall,
                 onJoinCallButtonClick = onJoinCallButtonClick,
                 onPhoneButtonClick = onPhoneButtonClick,
-                isUserBlocked = isUserBlocked
+                isUserBlocked = isUserBlocked,
+                isCallingEnabled = isCallingEnabled
             )
             Spacer(Modifier.width(MaterialTheme.wireDimensions.spacing6x))
         }, colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
@@ -140,14 +142,15 @@ private fun callControlButton(
     hasOngoingCall: Boolean,
     isUserBlocked: Boolean,
     onJoinCallButtonClick: () -> Unit,
-    onPhoneButtonClick: () -> Unit
+    onPhoneButtonClick: () -> Unit,
+    isCallingEnabled: Boolean
 ) {
     if (hasOngoingCall) {
         JoinButton(
             buttonClick = onJoinCallButtonClick,
             minHeight = MaterialTheme.wireDimensions.spacing28x
         )
-    } else {
+    } else if (isCallingEnabled) {
         WireSecondaryButton(
             onClick = onPhoneButtonClick,
             leadingIcon = {

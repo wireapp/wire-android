@@ -262,6 +262,7 @@ class WireNotificationManager @Inject constructor(
                     coreLogic.getSessionScope(userId)
                         .messages
                         .getNotifications()
+                        .cancellable()
                         // no need to do the whole work if there is no notifications
                         .filter {
                             appLogger.i("$TAG filtering notifications ${it.size}")
@@ -281,8 +282,8 @@ class WireNotificationManager @Inject constructor(
                         }
                 } ?: flowOf(null)
             }
-            .filterNotNull()
             .cancellable()
+            .filterNotNull()
             .collect { (newNotifications, userId) ->
                 appLogger.d("$TAG got ${newNotifications.size} notifications")
                 messagesNotificationManager.handleNotification(newNotifications, userId)

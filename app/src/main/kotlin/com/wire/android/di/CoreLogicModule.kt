@@ -439,14 +439,6 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun provideSearchPublicUserUseCase(
-        @KaliumCoreLogic coreLogic: CoreLogic,
-        @CurrentAccount currentAccount: UserId
-    ): SearchUserDirectoryUseCase =
-        coreLogic.getSessionScope(currentAccount).users.searchUserDirectory
-
-    @ViewModelScoped
-    @Provides
     fun provideAddAuthenticatedUserUseCase(@KaliumCoreLogic coreLogic: CoreLogic): AddAuthenticatedUserUseCase =
         coreLogic.getGlobalScope().addAuthenticatedAccount
 

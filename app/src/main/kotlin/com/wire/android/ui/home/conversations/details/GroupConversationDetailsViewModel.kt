@@ -22,7 +22,9 @@ import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
+import com.wire.kalium.logic.feature.conversation.IsSelfUserMemberResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveIsSelfUserMemberUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
@@ -30,6 +32,7 @@ import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.team.Result
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterIsInstance
@@ -51,6 +54,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
     private val observerSelfUser: GetSelfUserUseCase,
     private val deleteTeamConversation: DeleteTeamConversationUseCase,
     private val removeMemberFromConversation: RemoveMemberFromConversationUseCase,
+    private val observeIsSelfUserMember: ObserveIsSelfUserMemberUseCase,
     savedStateHandle: SavedStateHandle,
     qualifiedIdMapper: QualifiedIdMapper
 ) : GroupConversationParticipantsViewModel(
@@ -71,6 +75,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
 
     init {
         observeConversationDetails()
+        checkIsSelfUserMember()
     }
 
     private fun observeConversationDetails() {
@@ -119,6 +124,17 @@ class GroupConversationDetailsViewModel @Inject constructor(
                             }
                         }
                 }
+        }
+    }
+
+    private fun checkIsSelfUserMember() = viewModelScope.launch {
+        observeIsSelfUserMember(conversationId).collect { result ->
+            groupOptionsState = groupOptionsState.copy(
+                isSelfUserMember = when (result) {
+                    is IsSelfUserMemberResult.Success -> result.isMember
+                    is IsSelfUserMemberResult.Failure -> false
+                }
+            )
         }
     }
 
@@ -176,7 +192,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
 
     fun onServicesUpdate(enableServices: Boolean) {
         updateState(groupOptionsState.copy(loadingServicesOption = true, isServicesAllowed = enableServices))
-        when(enableServices) {
+        when (enableServices) {
             true -> updateServicesRemoteRequest(enableServices)
             false -> updateState(groupOptionsState.copy(changeServiceOptionConfirmationRequired = true))
         }

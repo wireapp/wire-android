@@ -55,6 +55,7 @@ class WireNotificationManagerTest {
     fun givenNotAuthenticatedUser_whenFetchAndShowNotificationsOnceCalled_thenNothingHappen() = runTest {
         val (arrangement, manager) = Arrangement()
             .withSession(GetAllSessionsResult.Failure.NoSessionFound)
+            .withCurrentUserSession(provideCurrentInvalidUserSession())
             .arrange()
 
         manager.fetchAndShowNotificationsOnce("user_id")

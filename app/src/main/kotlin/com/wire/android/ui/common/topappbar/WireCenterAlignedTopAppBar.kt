@@ -10,6 +10,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBarColors
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
@@ -23,6 +24,7 @@ fun WireCenterAlignedTopAppBar(
     title: String,
     titleStyle: TextStyle = MaterialTheme.wireTypography.title01,
     maxLines: Int = 2,
+    subtitleContent: @Composable ColumnScope.() -> Unit = {},
     onNavigationPressed: () -> Unit = {},
     navigationIconType: NavigationIconType? = NavigationIconType.Back,
     elevation: Dp = MaterialTheme.wireDimensions.topBarShadowElevation,
@@ -39,11 +41,14 @@ fun WireCenterAlignedTopAppBar(
         Column {
             CenterAlignedTopAppBar(
                 title = {
-                    WireTopAppBarTitle(
-                        title = title,
-                        style = titleStyle,
-                        maxLines = maxLines
-                    )
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        WireTopAppBarTitle(
+                            title = title,
+                            style = titleStyle,
+                            maxLines = maxLines
+                        )
+                        subtitleContent()
+                    }
                 },
                 navigationIcon = { navigationIconType?.let { NavigationIconButton(iconType = it) { onNavigationPressed() } } },
                 colors = colors,

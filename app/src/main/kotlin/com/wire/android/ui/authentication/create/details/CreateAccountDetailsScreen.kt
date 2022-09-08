@@ -33,6 +33,7 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
+import com.wire.android.ui.authentication.ServerTitle
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
@@ -44,11 +45,12 @@ import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.kalium.logic.configuration.server.ServerConfig
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @Composable
-fun CreateAccountDetailsScreen(viewModel: CreateAccountDetailsViewModel) {
+fun CreateAccountDetailsScreen(viewModel: CreateAccountDetailsViewModel, serverConfig: ServerConfig.Links) {
     DetailsContent(
         state = viewModel.detailsState,
         onFirstNameChange = { viewModel.onDetailsChange(it, CreateAccountDetailsViewModel.DetailsFieldType.FirstName) },
@@ -59,6 +61,7 @@ fun CreateAccountDetailsScreen(viewModel: CreateAccountDetailsViewModel) {
         onBackPressed = viewModel::goBackToPreviousStep,
         onContinuePressed = { viewModel.onDetailsContinue() },
         onErrorDismiss = viewModel::onDetailsErrorDismiss,
+        serverConfig = serverConfig
     )
 }
 
@@ -74,6 +77,7 @@ private fun DetailsContent(
     onBackPressed: () -> Unit,
     onContinuePressed: () -> Unit,
     onErrorDismiss: () -> Unit,
+    serverConfig: ServerConfig.Links
 ) {
     val scrollState = rememberScrollState()
     val coroutineScope = rememberCoroutineScope()
@@ -82,7 +86,15 @@ private fun DetailsContent(
             WireCenterAlignedTopAppBar(
                 elevation = scrollState.rememberTopBarElevationState().value,
                 title = stringResource(id = state.type.titleResId),
-                onNavigationPressed = onBackPressed
+                onNavigationPressed = onBackPressed,
+                subtitleContent = {
+                    if (serverConfig.isOnPremises) {
+                        ServerTitle(
+                            serverLinks = serverConfig,
+                            style = MaterialTheme.wireTypography.body01
+                        )
+                    }
+                }
             )
         },
     ) { internalPadding ->
@@ -244,5 +256,5 @@ private fun Modifier.bringIntoViewOnFocus(coroutineScope: CoroutineScope): Modif
 @Composable
 @Preview
 private fun CreateAccountDetailsScreenPreview() {
-    DetailsContent(CreateAccountDetailsViewState(CreateAccountFlowType.CreateTeam), {}, {}, {}, {}, {}, {}, {}, {})
+    DetailsContent(CreateAccountDetailsViewState(CreateAccountFlowType.CreateTeam), {}, {}, {}, {}, {}, {}, {}, {}, ServerConfig.DEFAULT)
 }

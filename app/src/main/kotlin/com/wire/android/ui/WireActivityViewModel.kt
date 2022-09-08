@@ -63,7 +63,8 @@ class WireActivityViewModel @Inject constructor(
     private val observeUserId = currentSessionFlow().map { result ->
         if (result is CurrentSessionResult.Success) {
             if (result.authSession.token is AuthSession.Token.Invalid) {
-                navigateToLogin(result.authSession.token.userId)
+                // TODO this will be handled in a later PR
+                navigateToLogin()
                 null
             } else result.authSession.token.userId
         } else {
@@ -81,10 +82,10 @@ class WireActivityViewModel @Inject constructor(
         }
     }
 
-    private suspend fun navigateToLogin(userId: UserId) {
+    private suspend fun navigateToLogin() {
         navigationManager.navigate(
             NavigationCommand(
-                NavigationItem.Login.getRouteWithArgs(listOf(userId)), BackStackMode.CLEAR_WHOLE
+                NavigationItem.Login.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE
             )
         )
     }

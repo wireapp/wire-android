@@ -30,9 +30,7 @@ import javax.inject.Inject
 class LoginEmailViewModel @Inject constructor(
     private val loginUseCase: LoginUseCase,
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
-    @NoSession qualifiedIdMapper: QualifiedIdMapper,
     clientScopeProviderFactory: ClientScopeProvider.Factory,
-    getSessions: GetSessionsUseCase,
     private val fetchApiVersion: FetchApiVersionUseCase,
     private val savedStateHandle: SavedStateHandle,
     navigationManager: NavigationManager,
@@ -40,9 +38,7 @@ class LoginEmailViewModel @Inject constructor(
 ) : LoginViewModel(
     savedStateHandle,
     navigationManager,
-    qualifiedIdMapper,
     clientScopeProviderFactory,
-    getSessions,
     authServerConfigProvider
 ) {
 

@@ -25,7 +25,6 @@ import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.launch
@@ -54,16 +53,7 @@ class ConversationMessagesViewModel @Inject constructor(
     )
 
     init {
-        viewModelScope.launch {
-            launch {
-                observeConversationDetailsAndMessages()
-            }
-            launch {
-                delay(10000)
-                conversationViewState =
-                    conversationViewState.copy(messages = conversationViewState.messages + conversationViewState.messages)
-            }
-        }
+        observeConversationDetailsAndMessages()
     }
 
     private fun observeConversationDetailsAndMessages() {

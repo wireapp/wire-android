@@ -60,7 +60,7 @@ fun MenuModalSheetLayout(
     sheetState: ModalBottomSheetState,
     coroutineScope: CoroutineScope,
     header: MenuModalSheetHeader = MenuModalSheetHeader.Gone,
-    menuItems: List<@Composable () -> Unit> = emptyList(),
+    menuItems: List<@Composable () -> Unit> ,
     content: @Composable () -> Unit,
 ) {
     WireModalSheetLayout(

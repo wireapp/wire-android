@@ -66,10 +66,6 @@ class GroupConversationDetailsViewModel @Inject constructor(
     qualifiedIdMapper
 ) {
 
-    init {
-        println("cyka init")
-    }
-
     override val maxNumberOfItems: Int get() = MAX_NUMBER_OF_PARTICIPANTS
 
     private val conversationId: QualifiedID = qualifiedIdMapper.fromStringToQualifiedID(
@@ -102,7 +98,6 @@ class GroupConversationDetailsViewModel @Inject constructor(
                 groupDetailsFlow
                     .collect { groupDetails ->
                         with(groupDetails) {
-                            println("cyka update 1")
                             updateState(
                                 groupOptionsState.copy(
                                     groupName = conversation.name.orEmpty(),
@@ -130,7 +125,6 @@ class GroupConversationDetailsViewModel @Inject constructor(
                     val isAbleToRemoveGroup = (selfUser.teamId != null
                             && groupDetails.conversation.creatorId.value == selfUser.id.value)
 
-                    println("cyka update 2")
                     updateState(
                         groupOptionsState.copy(
                             isUpdatingAllowed = isSelfAnAdmin,

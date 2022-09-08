@@ -17,7 +17,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -51,7 +50,8 @@ fun ConversationScreenTopAppBar(
     onPhoneButtonClick: () -> Unit,
     hasOngoingCall: Boolean,
     isUserBlocked: Boolean,
-    onJoinCallButtonClick: () -> Unit
+    onJoinCallButtonClick: () -> Unit,
+    isCallingEnabled: Boolean = true
 ) {
     SmallTopAppBar(
         title = {
@@ -101,7 +101,8 @@ fun ConversationScreenTopAppBar(
                 hasOngoingCall = hasOngoingCall,
                 onJoinCallButtonClick = onJoinCallButtonClick,
                 onPhoneButtonClick = onPhoneButtonClick,
-                isUserBlocked = isUserBlocked
+                isUserBlocked = isUserBlocked,
+                isCallingEnabled = isCallingEnabled
             )
             Spacer(Modifier.width(MaterialTheme.wireDimensions.spacing6x))
         }, colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
@@ -141,14 +142,15 @@ private fun callControlButton(
     hasOngoingCall: Boolean,
     isUserBlocked: Boolean,
     onJoinCallButtonClick: () -> Unit,
-    onPhoneButtonClick: () -> Unit
+    onPhoneButtonClick: () -> Unit,
+    isCallingEnabled: Boolean
 ) {
     if (hasOngoingCall) {
         JoinButton(
             buttonClick = onJoinCallButtonClick,
             minHeight = MaterialTheme.wireDimensions.spacing28x
         )
-    } else {
+    } else if (isCallingEnabled) {
         WireSecondaryButton(
             onClick = onPhoneButtonClick,
             leadingIcon = {

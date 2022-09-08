@@ -68,8 +68,8 @@ open class LoginViewModel @Inject constructor(
         viewModelScope.launch {
             if (userId != null)
                 getSessions.getUserSession(userId).map {
-                    if (it.session is AuthSession.Session.Invalid) {
-                        with(it.session as AuthSession.Session.Invalid) {
+                    if (it.token is AuthSession.Token.Invalid) {
+                        with(it.token as AuthSession.Token.Invalid) {
                             val loginError = when (this.reason) {
                                 LogoutReason.SELF_LOGOUT -> {
                                     getSessions.deleteInvalidSession(userId)

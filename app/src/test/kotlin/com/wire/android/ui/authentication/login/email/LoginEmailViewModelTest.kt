@@ -109,7 +109,7 @@ class LoginEmailViewModelTest {
         every { clientScopeProviderFactory.create(any()).clientScope } returns clientScope
         every { clientScope.register } returns registerClientUseCase
         every { clientScope.registerPushToken } returns registerTokenUseCase
-        every { authSession.session.userId } returns userId
+        every { authSession.token.userId } returns userId
         every { authServerConfigProvider.authServer.value } returns newServerConfig(1).links
         coEvery { fetchApiVersion(newServerConfig(1).links) } returns FetchApiVersionResult.Success(newServerConfig(1))
         loginViewModel = LoginEmailViewModel(

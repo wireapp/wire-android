@@ -144,8 +144,8 @@ class WireNotificationManager @Inject constructor(
             when (it) {
                 is GetAllSessionsResult.Success -> {
                     for (sessions in it.sessions) {
-                        if (sessions.session.userId.value == userId)
-                            return@let sessions.session.userId
+                        if (sessions.token.userId.value == userId)
+                            return@let sessions.token.userId
                     }
                     null
                 }

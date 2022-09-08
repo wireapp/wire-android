@@ -401,7 +401,7 @@ class WireActivityViewModelTest {
         }
 
         fun withSomeCurrentSession(): Arrangement {
-            coEvery { currentSessionFlow() } returns flowOf(CurrentSessionResult.Success(TEST_AUTH_SESSION))
+            coEvery { currentSessionFlow() } returns flowOf(CurrentSessionResult.Success(TEST_AUTH_Token))
             return this
         }
 
@@ -421,9 +421,9 @@ class WireActivityViewModelTest {
 
 
     companion object {
-        val TEST_AUTH_SESSION =
+        val TEST_AUTH_Token =
             AuthSession(
-                AuthSession.Session.Valid(
+                AuthSession.Token.Valid(
                     userId = UserId("user_id", "domain.de"),
                     accessToken = "access_token",
                     refreshToken = "refresh_token",

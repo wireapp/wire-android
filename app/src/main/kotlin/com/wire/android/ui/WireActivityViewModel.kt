@@ -62,10 +62,10 @@ class WireActivityViewModel @Inject constructor(
 
     private val observeUserId = currentSessionFlow().map { result ->
         if (result is CurrentSessionResult.Success) {
-            if (result.authSession.session is AuthSession.Session.Invalid) {
-                navigateToLogin(result.authSession.session.userId)
+            if (result.authSession.token is AuthSession.Token.Invalid) {
+                navigateToLogin(result.authSession.token.userId)
                 null
-            } else result.authSession.session.userId
+            } else result.authSession.token.userId
         } else {
             null
         }
@@ -219,7 +219,7 @@ class WireActivityViewModel @Inject constructor(
         getSessions().let {
             return when (it) {
                 is GetAllSessionsResult.Success -> {
-                     it.sessions.filter { it.session is AuthSession.Session.Valid }.size
+                     it.sessions.filter { it.token is AuthSession.Token.Valid }.size
                 }
                 is GetAllSessionsResult.Failure.Generic -> 0
                 GetAllSessionsResult.Failure.NoSessionFound -> 0

@@ -127,7 +127,7 @@ class SessionModule {
     fun provideCurrentSession(@KaliumCoreLogic coreLogic: CoreLogic): UserId {
         return runBlocking {
             return@runBlocking when (val result = coreLogic.getGlobalScope().session.currentSession.invoke()) {
-                is CurrentSessionResult.Success -> result.authSession.session.userId
+                is CurrentSessionResult.Success -> result.authSession.token.userId
                 else -> {
                     throw IllegalStateException("no current session was found")
                 }

@@ -34,8 +34,8 @@ fun ComposeTestRule.waitForExecution(timeoutMillis: Long = WAIT_TIMEOUT, block: 
 }
 
 const val WAIT_TIMEOUT = 9000L
-val EMAIL = System.getProperty("EMAIL").toString() // TODO: extract from adb using: `adb your-launch-command -e SOME_KEY some_value`
-val PASSWORD = System.getProperty("PASSWORD").toString() // TODO: extract from adb using: `adb your-launch-command -e SOME_KEY some_value`
-val USER_NAME = System.getProperty("USER_NAME").toString() // TODO: extract from adb using: `adb your-launch-command -e SOME_KEY some_value`
+val EMAIL = System.getProperty("EMAIL").orEmpty() // TODO: extract from adb using: `adb your-launch-command -e SOME_KEY some_value`
+val PASSWORD = System.getProperty("PASSWORD").orEmpty() // TODO: extract from adb using: `adb your-launch-command -e SOME_KEY some_value`
+val USER_NAME = System.getProperty("USER_NAME").orEmpty() // TODO: extract from adb using: `adb your-launch-command -e SOME_KEY some_value`
 val EMAIL_2 = EMAIL
 val PASSWORD_2 = PASSWORD

@@ -72,10 +72,6 @@ fun MessageComposer(
             content = content,
             keyboardHeight = keyboardHeight,
             messageComposerState = messageComposerState,
-            messageText = messageComposerState.messageText,
-            onMessageChanged = {
-                messageComposerState.messageText = it
-            },
             onSendButtonClicked = {
                 onSendTextMessage(messageComposerState.messageText.text)
                 messageComposerState.messageText = TextFieldValue("")
@@ -106,8 +102,6 @@ private fun MessageComposer(
     content: @Composable () -> Unit,
     keyboardHeight: KeyboardHeight,
     messageComposerState: MessageComposerInnerState,
-    messageText: TextFieldValue,
-    onMessageChanged: (TextFieldValue) -> Unit,
     onSendButtonClicked: () -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
@@ -213,7 +207,7 @@ private fun MessageComposer(
                             // when other we center it vertically. Once we go to Fullscreen, we set the weight to 1f
                             // so that it fills the whole Row which is = height of the whole screen - height of TopBar -
                             // - height of container with additional options
-                            MessageComposerInputRow(messageComposerState, transition, messageText, onMessageChanged)
+                            MessageComposerInputRow(transition, messageComposerState)
                         }
                     }
                 }

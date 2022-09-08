@@ -66,9 +66,6 @@ class LoginEmailViewModelTest {
     private lateinit var clientScopeProviderFactory: ClientScopeProvider.Factory
 
     @MockK
-    private lateinit var getSessionsUseCase: GetSessionsUseCase
-
-    @MockK
     private lateinit var clientScope: ClientScope
 
     @MockK
@@ -87,9 +84,6 @@ class LoginEmailViewModelTest {
     private lateinit var authSession: AuthSession
 
     @MockK
-    private lateinit var qualifiedIdMapper: QualifiedIdMapper
-
-    @MockK
     private lateinit var fetchApiVersion: FetchApiVersionUseCase
 
     @MockK
@@ -104,7 +98,6 @@ class LoginEmailViewModelTest {
         MockKAnnotations.init(this)
         mockUri()
         every { savedStateHandle.get<String>(any()) } returns ""
-        every { qualifiedIdMapper.fromStringToQualifiedID(any()) } returns userId
         every { savedStateHandle.set(any(), any<String>()) } returns Unit
         every { clientScopeProviderFactory.create(any()).clientScope } returns clientScope
         every { clientScope.register } returns registerClientUseCase
@@ -115,9 +108,7 @@ class LoginEmailViewModelTest {
         loginViewModel = LoginEmailViewModel(
             loginUseCase,
             addAuthenticatedUserUseCase,
-            qualifiedIdMapper,
             clientScopeProviderFactory,
-            getSessionsUseCase,
             fetchApiVersion,
             savedStateHandle,
             navigationManager,

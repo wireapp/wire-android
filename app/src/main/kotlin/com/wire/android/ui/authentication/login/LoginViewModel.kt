@@ -44,9 +44,7 @@ import javax.inject.Inject
 open class LoginViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
-    @NoSession qualifiedIdMapper: QualifiedIdMapper,
     private val clientScopeProviderFactory: ClientScopeProvider.Factory,
-    private val getSessions: GetSessionsUseCase,
     authServerConfigProvider: AuthServerConfigProvider
 ) : ViewModel() {
     var loginState by mutableStateOf(
@@ -58,34 +56,8 @@ open class LoginViewModel @Inject constructor(
     )
         protected set
 
-    val userId: QualifiedID? = savedStateHandle.get<String>(EXTRA_USER_ID)?.let {
-        qualifiedIdMapper.fromStringToQualifiedID(it)
-    }
-
     val serverConfig = authServerConfigProvider.authServer.value
 
-    init {
-        viewModelScope.launch {
-            if (userId != null)
-                getSessions.getUserSession(userId).map {
-                    if (it.token is AuthSession.Token.Invalid) {
-                        with(it.token as AuthSession.Token.Invalid) {
-                            val loginError = when (this.reason) {
-                                LogoutReason.SELF_LOGOUT -> {
-                                    getSessions.deleteInvalidSession(userId)
-                                    LoginError.None
-                                }
-
-                                LogoutReason.REMOVED_CLIENT -> LoginError.DialogError.InvalidSession.RemovedClient
-                                LogoutReason.DELETED_ACCOUNT -> LoginError.DialogError.InvalidSession.DeletedAccount
-                                LogoutReason.SESSION_EXPIRED -> LoginError.DialogError.InvalidSession.SessionExpired
-                            }
-                            loginState = loginState.copy(loginError = loginError)
-                        }
-                    }
-                }
-        }
-    }
 
     open fun updateSSOLoginError(error: LoginError) {
         loginState = if (error is LoginError.None) {
@@ -103,14 +75,7 @@ open class LoginViewModel @Inject constructor(
         }
     }
 
-    private fun deleteInvalidSession() {
-        if (loginState.loginError is LoginError.DialogError.InvalidSession && userId != null) {
-            getSessions.deleteInvalidSession(userId)
-        }
-    }
-
     fun onDialogDismiss() {
-        deleteInvalidSession()
         clearLoginErrors()
     }
 

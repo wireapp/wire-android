@@ -6,12 +6,14 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
+import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.di.NoSession
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.login.LoginError
 import com.wire.android.ui.authentication.login.LoginViewModel
 import com.wire.android.ui.authentication.login.toLoginError
 import com.wire.android.ui.authentication.login.updateEmailLoginEnabled
+import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
@@ -28,7 +30,7 @@ import javax.inject.Inject
 @ExperimentalMaterialApi
 @HiltViewModel
 class LoginEmailViewModel @Inject constructor(
-    private val loginUseCase: LoginUseCase,
+    @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
     @NoSession qualifiedIdMapper: QualifiedIdMapper,
     clientScopeProviderFactory: ClientScopeProvider.Factory,
@@ -64,6 +66,10 @@ class LoginEmailViewModel @Inject constructor(
                         return@launch
                     }
                 }
+            }
+
+            coreLogic.authenticationScope(){
+
             }
 
             val (authSession, ssoId) = loginUseCase(loginState.userIdentifier.text, loginState.password.text, true)

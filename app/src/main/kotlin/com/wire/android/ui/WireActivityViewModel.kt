@@ -73,21 +73,21 @@ class WireActivityViewModel @Inject constructor(
 
     private val observeUserId = currentSessionFlow()
         .onEach {
-            if(it is CurrentSessionResult.Success) {
-                if(it.authSession.token is AuthSession.Token.Invalid) {
+            if (it is CurrentSessionResult.Success) {
+                if (it.authSession.token is AuthSession.Token.Invalid) {
                     handleInvalidSession((it.authSession.token as AuthSession.Token.Invalid).reason)
                 }
             }
         }
         .map { result ->
-        if (result is CurrentSessionResult.Success) {
-            if (result.authSession.token is AuthSession.Token.Invalid) {
+            if (result is CurrentSessionResult.Success) {
+                if (result.authSession.token is AuthSession.Token.Invalid) {
+                    null
+                } else result.authSession.token.userId
+            } else {
                 null
-            } else result.authSession.token.userId
-        } else {
-            null
-        }
-    }.distinctUntilChanged().flowOn(dispatchers.io()).shareIn(viewModelScope, SharingStarted.WhileSubscribed(), 1)
+            }
+        }.distinctUntilChanged().flowOn(dispatchers.io()).shareIn(viewModelScope, SharingStarted.WhileSubscribed(), 1)
 
     init {
         viewModelScope.launch(dispatchers.io()) {
@@ -307,7 +307,16 @@ class WireActivityViewModel @Inject constructor(
 
     private fun shouldGoToOtherProfile(): Boolean = (navigationArguments[OPEN_OTHER_USER_PROFILE_ARG] as? QualifiedID) != null
 
-    private fun shouldGoToWelcome(): Boolean = runBlocking { observeUserId.first() } == null
+    // TODO: the usage of currentSessionFlow is a temporary solution, it should be replaced with a proper solution
+    private fun shouldGoToWelcome(): Boolean = runBlocking {
+        currentSessionFlow().first().let {
+            when(it) {
+                is CurrentSessionResult.Failure.Generic -> true
+                CurrentSessionResult.Failure.SessionNotFound -> true
+                is CurrentSessionResult.Success -> false
+            }
+        }
+    }
 
     fun openProfile() {
         dismissMaxAccountDialog()

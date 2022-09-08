@@ -5,20 +5,13 @@ import android.content.Intent
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.ModalBottomSheetLayout
-import androidx.compose.material.ModalBottomSheetValue
-import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarResult
@@ -31,17 +24,15 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
 import com.wire.android.R
+import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.dialogs.OngoingActiveCallDialog
-import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topappbar.CommonTopAppBar
@@ -59,6 +50,7 @@ import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnFil
 import com.wire.android.ui.home.conversations.call.ConversationCallViewModel
 import com.wire.android.ui.home.conversations.call.ConversationCallViewState
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
+import com.wire.android.ui.home.conversations.edit.EditMessageMenuItems
 import com.wire.android.ui.home.conversations.info.ConversationInfoViewModel
 import com.wire.android.ui.home.conversations.info.ConversationInfoViewState
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
@@ -212,18 +204,24 @@ private fun ConversationScreen(
     isSendingMessagesAllowed: Boolean,
 ) {
     val conversationScreenState = rememberConversationScreenState()
-
-    ModalBottomSheetLayout(
-        sheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden),
-        sheetContent = {
-            Spacer(modifier = Modifier.height(8.dp))
-            Divider(
-                modifier = Modifier
-                    .width(width = dimensions().modalBottomSheetDividerWidth)
-                    .align(alignment = Alignment.CenterHorizontally),
-                thickness = 4.dp
+    val menuModalOnDeleteMessage = remember {
+        {
+            conversationScreenState.hideEditContextMenu()
+            onDeleteMessage(
+                conversationScreenState.selectedMessage?.messageHeader!!.messageId,
+                conversationScreenState.isSelectedMessageMyMessage()
             )
         }
+    }
+
+    MenuModalSheetLayout(
+        sheetState = conversationScreenState.modalBottomSheetState,
+        coroutineScope = conversationScreenState.coroutineScope,
+        menuItems = EditMessageMenuItems(
+            isMyMessage = conversationScreenState.isSelectedMessageMyMessage(),
+            onCopyMessage = conversationScreenState::copyMessage,
+            onDeleteMessage = menuModalOnDeleteMessage
+        )
     ) {
         BoxWithConstraints {
             val currentScreenHeight: Dp = with(LocalDensity.current) { constraints.maxHeight.toDp() }

@@ -87,7 +87,7 @@ class WireNotificationManager @Inject constructor(
 
     private fun isNotCurrentUser(userId: String): Boolean {
         return when (val result = coreLogic.getGlobalScope().session.currentSession()) {
-            is CurrentSessionResult.Success -> result.authSession.session.userId.value != userId
+            is CurrentSessionResult.Success -> result.authSession.token.userId.value != userId
             else -> true // Fallback to display notifications anyway in case of unexpected error
         }
     }

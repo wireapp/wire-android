@@ -33,14 +33,11 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.data.id.ConversationId
 
 @Composable
-fun CommonTopAppBar(commonTopAppBarViewModel: CommonTopAppBarViewModel) {
-
-    with(commonTopAppBarViewModel) {
-        ConnectivityStatusBar(
-            commonTopAppBarViewModel.connectivityState.info,
-            onReturnToCallClick = ::openOngoingCallScreen
-        )
-    }
+fun CommonTopAppBar(connectivityUIState: ConnectivityUIState, onReturnToCallClick: () -> Unit) {
+    ConnectivityStatusBar(
+        connectivityInfo = connectivityUIState.info,
+        onReturnToCallClick = onReturnToCallClick
+    )
 }
 
 @Composable

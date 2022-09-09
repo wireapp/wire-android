@@ -28,10 +28,8 @@ import com.wire.android.ui.theme.wireTypography
 @ExperimentalAnimationApi
 @Composable
 fun ColumnScope.MessageComposerInputRow(
-    messageComposerState: MessageComposerInnerState,
     transition: Transition<MessageComposeInputState>,
-    messageText: TextFieldValue,
-    onMessageChanged: (TextFieldValue) -> Unit
+    messageComposerState: MessageComposerInnerState,
 ) {
     Row(
         verticalAlignment =
@@ -63,9 +61,9 @@ fun ColumnScope.MessageComposerInputRow(
         // when in active state we limit the height to max 82.dp
         // other we let it wrap the content of the height, which will be equivalent to the text
         MessageComposerInput(
-            messageText = messageText,
+            messageText = messageComposerState.messageText,
             onMessageTextChanged = { value ->
-                onMessageChanged(value)
+                messageComposerState.messageText = value
             },
             messageComposerInputState = messageComposerState.messageComposeInputState,
             onIsFocused = {

@@ -24,18 +24,20 @@ import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
-import com.wire.android.appLogger
+import com.wire.android.ui.authentication.ServerTitle
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
+import com.wire.kalium.logic.configuration.server.ServerConfig
 
 @Composable
-fun CreateAccountOverviewScreen(viewModel: CreateAccountOverviewViewModel) {
+fun CreateAccountOverviewScreen(viewModel: CreateAccountOverviewViewModel, serverConfig: ServerConfig.Links) {
     OverviewContent(
         onBackPressed = viewModel::goBackToPreviousStep,
         onContinuePressed = viewModel::onOverviewContinue,
+        serverConfig = serverConfig,
         overviewParams = CreateAccountOverviewParams(
             title = stringResource(id = viewModel.type.titleResId),
             contentTitle = viewModel.type.overviewResources.overviewContentTitleResId?.let { stringResource(id = it) } ?: "",
@@ -49,13 +51,26 @@ fun CreateAccountOverviewScreen(viewModel: CreateAccountOverviewViewModel) {
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun OverviewContent(onBackPressed: () -> Unit, onContinuePressed: () -> Unit, overviewParams: CreateAccountOverviewParams) {
+private fun OverviewContent(
+    onBackPressed: () -> Unit,
+    onContinuePressed: () -> Unit,
+    overviewParams: CreateAccountOverviewParams,
+    serverConfig: ServerConfig.Links
+) {
     Scaffold(
         topBar = {
             WireCenterAlignedTopAppBar(
                 elevation = 0.dp,
                 title = overviewParams.title,
-                onNavigationPressed = onBackPressed
+                onNavigationPressed = onBackPressed,
+                subtitleContent = {
+                    if (serverConfig.isOnPremises) {
+                        ServerTitle(
+                            serverLinks = serverConfig,
+                            style = MaterialTheme.wireTypography.body01
+                        )
+                    }
+                }
             )
         },
     ) { internalPadding ->
@@ -138,6 +153,7 @@ private fun CreateAccountOverviewScreenPreview() {
             contentIconResId = R.drawable.ic_create_personal_account,
             learnMoreText = "learn more",
             learnMoreUrl = ""
-        )
+        ),
+        ServerConfig.DEFAULT
     )
 }

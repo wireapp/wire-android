@@ -105,12 +105,14 @@ open class SearchAllPeopleViewModel(
 
     override suspend fun searchPublicPeople(searchTerm: String): Flow<ContactSearchResult.ExternalContact> {
         return searchPublicUsers(searchTerm).map { result ->
-            when(result) {
+            when (result) {
                 is Result.Failure.Generic, Result.Failure.InvalidRequest ->
                     ContactSearchResult.ExternalContact(
                         SearchResultState.Failure(R.string.label_general_error)
                     )
-                Result.Failure.InvalidQuery -> ContactSearchResult.ExternalContact(SearchResultState.Failure(R.string.label_no_results_found))
+                Result.Failure.InvalidQuery -> ContactSearchResult.ExternalContact(
+                    SearchResultState.Failure(R.string.label_no_results_found)
+                )
                 is Result.Success -> ContactSearchResult.ExternalContact(
                     SearchResultState.Success(result.userSearchResult.result.map(contactMapper::fromOtherUser))
                 )
@@ -224,11 +226,11 @@ abstract class SearchPeopleViewModel(
         mutableSearchQueryFlow
             .combine(refreshResults.onSubscription { emit(SearchUserRefresh()) }, ::Pair)
             .flatMapLatest { (searchTerm, publicRefresh) ->
-                    searchBlock(searchTerm)
-                        .onStart {
-                            if (publicRefresh.withProgress) emit(progress)
-                        }
-                .cancellable()
+                searchBlock(searchTerm)
+                    .onStart {
+                        if (publicRefresh.withProgress) emit(progress)
+                    }
+                    .cancellable()
             }
 
     var snackbarMessageState by mutableStateOf<NewConversationSnackbarState>(NewConversationSnackbarState.None)

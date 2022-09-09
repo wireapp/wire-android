@@ -41,7 +41,7 @@ fun OtherUserConnectionStatusInfo(connectionStatus: ConnectionState, membership:
                 )
             Spacer(modifier = Modifier.height(24.dp))
             val descriptionResource = when (connectionStatus) {
-                ConnectionState.PENDING -> R.string.connection_label_accepting_request_description
+                ConnectionState.PENDING, ConnectionState.IGNORED -> R.string.connection_label_accepting_request_description
                 ConnectionState.ACCEPTED -> throw IllegalStateException("Unhandled Connected ConnectionStatus")
                 else -> if (membership == Membership.None)
                     R.string.connection_label_member_not_conneted

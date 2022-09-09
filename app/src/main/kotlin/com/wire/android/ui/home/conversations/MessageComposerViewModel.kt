@@ -153,15 +153,10 @@ class MessageComposerViewModel @Inject constructor(
 
     }
 
-    fun onMessageChanged(message: String) {
-        conversationViewState = conversationViewState.copy(messageText = message)
-    }
-
-    fun sendMessage() {
+    fun sendMessage(message: String) {
         viewModelScope.launch {
-            sendTextMessage(conversationId, conversationViewState.messageText)
+            sendTextMessage(conversationId, message)
         }
-        conversationViewState = conversationViewState.copy(messageText = "")
     }
 
     @Suppress("MagicNumber")

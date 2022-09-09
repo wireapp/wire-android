@@ -13,7 +13,7 @@ import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 fun EditMessageMenuItems(
     isMyMessage: Boolean,
     onCopyMessage: () -> Unit,
-    onDeleteMessage: () -> Unit
+    onDeleteMessage: () -> Unit,
 ): List<@Composable () -> Unit> {
     return buildList {
         add {

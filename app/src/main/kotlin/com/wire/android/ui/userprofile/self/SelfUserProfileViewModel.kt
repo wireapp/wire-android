@@ -79,11 +79,9 @@ class SelfUserProfileViewModel @Inject constructor(
 
     private fun observeEstablishedCall() {
         viewModelScope.launch {
-            observeEstablishedCalls()
-                .map { it.isNotEmpty() }
+            val establishedCalls = withContext(dispatchers.io()) { observeEstablishedCalls() }
+            establishedCalls.map { it.isNotEmpty() }
                 .distinctUntilChanged()
-                .flowOn(dispatchers.io())
-                .shareIn(this, SharingStarted.WhileSubscribed(1))
                 .collect {
                     userProfileState = userProfileState.copy(isUserInCall = it)
                 }

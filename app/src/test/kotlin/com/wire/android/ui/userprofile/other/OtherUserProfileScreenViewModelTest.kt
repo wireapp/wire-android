@@ -93,7 +93,7 @@ class OtherUserProfileScreenViewModelTest {
 
             // then
             coVerify { arrangement.ignoreConnectionRequest(eq(USER_ID)) }
-            assertEquals(ConnectionState.NOT_CONNECTED, viewModel.state.connectionState)
+            assertEquals(ConnectionState.IGNORED, viewModel.state.connectionState)
         }
 
     @Test

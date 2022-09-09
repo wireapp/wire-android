@@ -118,7 +118,8 @@ class SelfUserProfileViewModel @Inject constructor(
                             fullName = name.orEmpty(),
                             userName = handle.orEmpty(),
                             teamName = selfTeam?.name,
-                            otherAccounts = otherAccounts
+                            otherAccounts = otherAccounts,
+                            avatarAsset = userProfileState.avatarAsset
                         )
                     }
                 }

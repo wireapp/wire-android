@@ -94,7 +94,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
                 .map { it.isSelfAnAdmin }
                 .distinctUntilChanged()
 
-            viewModelScope.launch(dispatcher.io()) {
+            launch {
                 groupDetailsFlow
                     .collect { groupDetails ->
                         with(groupDetails) {
@@ -111,7 +111,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
                     }
             }
 
-            viewModelScope.launch(dispatcher.io()) {
+            launch {
                 combine(
                     observerSelfUser().take(1),
                     groupDetailsFlow,

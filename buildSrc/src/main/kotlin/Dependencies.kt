@@ -52,7 +52,7 @@ object Repositories {
 object Libraries {
     object Versions {
         const val kotlin = "1.6.21"
-        const val coroutines = "1.6.1-native-mt"
+        const val coroutines = "1.6.4"
         const val jetpack = "1.1.0"
         const val constraintLayout = "1.1.3"
         const val ktx = "1.6.0"

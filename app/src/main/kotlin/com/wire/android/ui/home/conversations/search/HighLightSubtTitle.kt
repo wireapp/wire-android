@@ -24,6 +24,7 @@ import kotlinx.coroutines.launch
 fun HighlightSubtitle(
     subTitle: String,
     searchQuery: String = "",
+    suffix: String = "@"
 ) {
     val scope = rememberCoroutineScope()
 
@@ -39,7 +40,6 @@ fun HighlightSubtitle(
             )
         }
     }
-
     if (highlightIndexes.isNotEmpty()) {
         Text(
             buildAnnotatedString {
@@ -52,7 +52,7 @@ fun HighlightSubtitle(
                         fontStyle = MaterialTheme.wireTypography.subline01.fontStyle
                     )
                 ) {
-                    append("@$subTitle")
+                    append("$suffix$subTitle")
                 }
 
                 highlightIndexes
@@ -62,8 +62,8 @@ fun HighlightSubtitle(
                                 background = MaterialTheme.wireColorScheme.highLight.copy(alpha = 0.5f),
                             ),
                             // add 1 because of the "@" prefix
-                            start = highLightIndexes.startIndex + 1,
-                            end = highLightIndexes.endIndex + 1
+                            start = highLightIndexes.startIndex + suffix.length,
+                            end = highLightIndexes.endIndex + suffix.length
                         )
                     }
             },
@@ -72,7 +72,7 @@ fun HighlightSubtitle(
         )
     } else {
         Text(
-            text = "@$subTitle",
+            text = "$suffix$subTitle",
             style = MaterialTheme.wireTypography.subline01,
             color = MaterialTheme.wireColorScheme.secondaryText,
             maxLines = 1,

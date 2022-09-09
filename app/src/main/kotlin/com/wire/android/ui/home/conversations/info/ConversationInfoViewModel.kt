@@ -24,6 +24,7 @@ import com.wire.kalium.logic.StorageFailure
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
+import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -80,13 +81,14 @@ class ConversationInfoViewModel @Inject constructor(
             else -> false
         }
 
-        val conversationName = getConversationName(conversationDetails, isConversationUnavailable)
-        val conversationAvatar = getConversationAvatar(conversationDetails)
-        val conversationDetailsData = getConversationDetailsData(conversationDetails)
+        val connectionStateOrNull = (conversationInfoViewState.conversationDetailsData as? ConversationDetailsData.OneOne)?.connectionState
+
         conversationInfoViewState = conversationInfoViewState.copy(
-            conversationName = conversationName,
-            conversationAvatar = conversationAvatar,
-            conversationDetailsData = conversationDetailsData,
+            conversationName = getConversationName(conversationDetails, isConversationUnavailable),
+            conversationAvatar = getConversationAvatar(conversationDetails),
+            conversationDetailsData = getConversationDetailsData(conversationDetails),
+            isUserBlocked = connectionStateOrNull == ConnectionState.BLOCKED,
+            hasUserPermissionToEdit = conversationInfoViewState.conversationDetailsData !is ConversationDetailsData.None
         )
     }
 

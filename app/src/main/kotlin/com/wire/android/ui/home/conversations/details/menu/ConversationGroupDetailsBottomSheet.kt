@@ -38,17 +38,18 @@ fun ConversationGroupDetailsBottomSheet(
                 )
             }),
         menuItems = listOf {
-            LeaveGroupItem(
-                onLeaveGroup = {
-                    onLeaveGroup(
-                        GroupDialogState(
-                            conversationOptionsState.conversationId,
-                            conversationOptionsState.groupName
+            if (conversationOptionsState.isSelfUserMember)
+                LeaveGroupItem(
+                    onLeaveGroup = {
+                        onLeaveGroup(
+                            GroupDialogState(
+                                conversationOptionsState.conversationId,
+                                conversationOptionsState.groupName
+                            )
                         )
-                    )
-                },
-                closeBottomSheet = closeBottomSheet
-            )
+                    },
+                    closeBottomSheet = closeBottomSheet
+                )
             if (conversationOptionsState.isAbleToRemoveGroup)
                 DeleteGroupItem(
                     onDeleteGroup = {

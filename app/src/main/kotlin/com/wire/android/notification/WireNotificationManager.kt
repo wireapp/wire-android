@@ -8,6 +8,7 @@ import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.extension.intervalFlow
 import com.wire.android.util.lifecycle.ConnectionPolicyManager
+import com.wire.kalium.logger.obfuscateId
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.ConversationId
@@ -15,6 +16,7 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.notification.LocalNotificationConversation
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.Call
+import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.util.toStringDate
 import kotlinx.coroutines.CoroutineScope
@@ -69,14 +71,25 @@ class WireNotificationManager @Inject constructor(
      * @param userIdValue String value param of QualifiedID of the User that need to check Notifications for
      */
     suspend fun fetchAndShowNotificationsOnce(userIdValue: String) = fetchOnceMutex.withLock {
+        if (isNotCurrentUser(userIdValue)) {
+            appLogger.d("$TAG Ignoring notification for user=${userIdValue.obfuscateId()}, because not current user")
+            return@withLock
+        }
         val isJobRunningForUser = fetchOnceJobs[userIdValue]?.isActive ?: false
         if (isJobRunningForUser) {
-            appLogger.d("$TAG Already processing notifications for user=$userIdValue, ignoring request")
+            appLogger.d("$TAG Already processing notifications for user=${userIdValue.obfuscateId()}, ignoring request")
         } else {
-            appLogger.d("$TAG Starting to processing notifications for user=$userIdValue")
+            appLogger.d("$TAG Starting to processing notifications for user=${userIdValue.obfuscateId()}")
             fetchOnceJobs[userIdValue] = scope.launch {
                 triggerSyncForUserIfAuthenticated(userIdValue)
             }
+        }
+    }
+
+    private fun isNotCurrentUser(userId: String): Boolean {
+        return when (val result = coreLogic.getGlobalScope().session.currentSession()) {
+            is CurrentSessionResult.Success -> result.authSession.session.userId.value != userId
+            else -> true // Fallback to display notifications anyway in case of unexpected error
         }
     }
 
@@ -250,6 +263,7 @@ class WireNotificationManager @Inject constructor(
                     coreLogic.getSessionScope(userId)
                         .messages
                         .getNotifications()
+                        .cancellable()
                         // no need to do the whole work if there is no notifications
                         .filter {
                             appLogger.i("$TAG filtering notifications ${it.size}")
@@ -269,8 +283,8 @@ class WireNotificationManager @Inject constructor(
                         }
                 } ?: flowOf(null)
             }
-            .filterNotNull()
             .cancellable()
+            .filterNotNull()
             .collect { (newNotifications, userId) ->
                 appLogger.d("$TAG got ${newNotifications.size} notifications")
                 messagesNotificationManager.handleNotification(newNotifications, userId)

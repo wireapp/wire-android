@@ -12,6 +12,7 @@ import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -35,22 +36,22 @@ fun GroupConversationOptions(
     viewModel: GroupConversationDetailsViewModel = hiltViewModel(),
     lazyListState: LazyListState
 ) {
-    val state = viewModel.groupOptionsState.collectAsState()
+    val state by viewModel.groupOptionsState.collectAsState()
 
     GroupConversationSettings(
-        state = state.value,
+        state = state,
         onGuestSwitchClicked = viewModel::onGuestUpdate,
         onServiceSwitchClicked = viewModel::onServicesUpdate,
         lazyListState = lazyListState
     )
-    if (state.value.changeGuestOptionConfirmationRequired) {
+    if (state.changeGuestOptionConfirmationRequired) {
         DisableGuestConfirmationDialog(
             onConfirm = viewModel::onGuestDialogConfirm,
             onDialogDismiss = viewModel::onGuestDialogDismiss
         )
     }
 
-    if (state.value.changeServiceOptionConfirmationRequired) {
+    if (state.changeServiceOptionConfirmationRequired) {
         DisableServicesConfirmationDialog(
             onConfirm = viewModel::onServiceDialogConfirm,
             onDialogDismiss = viewModel::onServiceDialogDismiss

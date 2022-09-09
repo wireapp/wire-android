@@ -106,7 +106,7 @@ private fun GroupConversationDetailsContent(
 ) {
     val scope = rememberCoroutineScope()
     // TODO convert to asStateWithLifeCycle
-    val groupOptionsState = groupOptionsStateFlow.collectAsState()
+    val groupOptionsState by groupOptionsStateFlow.collectAsState()
     val lazyListStates: List<LazyListState> = GroupConversationDetailsTabItem.values().map { rememberLazyListState() }
     val initialPageIndex = GroupConversationDetailsTabItem.OPTIONS.ordinal
     val pagerState = rememberPagerState(initialPage = initialPageIndex)
@@ -135,7 +135,7 @@ private fun GroupConversationDetailsContent(
         coroutineScope = rememberCoroutineScope(),
         sheetContent = {
             ConversationGroupDetailsBottomSheet(
-                conversationOptionsState = groupOptionsState.value,
+                conversationOptionsState = groupOptionsState,
                 closeBottomSheet = closeBottomSheet,
                 onDeleteGroup = deleteGroupDialogState::show,
                 onLeaveGroup = leaveGroupDialogState::show

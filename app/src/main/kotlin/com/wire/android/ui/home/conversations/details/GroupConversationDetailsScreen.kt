@@ -19,6 +19,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -60,7 +61,9 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.id.ConversationId
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 @Composable
@@ -71,7 +74,7 @@ fun GroupConversationDetailsScreen(viewModel: GroupConversationDetailsViewModel)
         openFullListPressed = viewModel::navigateToFullParticipantsList,
         onProfilePressed = viewModel::openProfile,
         onAddParticipantsPressed = viewModel::navigateToAddParticants,
-        groupOptionsState = viewModel.groupOptionsState,
+        groupOptionsStateFlow = viewModel.groupOptionsState,
         groupParticipantsState = viewModel.groupParticipantsState,
         onLeaveGroup = viewModel::leaveGroup,
         onDeleteGroup = viewModel::deleteGroup,
@@ -95,13 +98,15 @@ private fun GroupConversationDetailsContent(
     onAddParticipantsPressed: () -> Unit,
     onLeaveGroup: (GroupDialogState) -> Unit,
     onDeleteGroup: (GroupDialogState) -> Unit,
-    groupOptionsState: GroupConversationOptionsState,
+    groupOptionsStateFlow: StateFlow<GroupConversationOptionsState>,
     groupParticipantsState: GroupConversationParticipantsState,
     isLoading: Boolean,
     messages: SharedFlow<UIText>,
     context: Context = LocalContext.current
 ) {
     val scope = rememberCoroutineScope()
+    // TODO convert to asStateWithLifeCycle
+    val groupOptionsState = groupOptionsStateFlow.collectAsState()
     val lazyListStates: List<LazyListState> = GroupConversationDetailsTabItem.values().map { rememberLazyListState() }
     val initialPageIndex = GroupConversationDetailsTabItem.OPTIONS.ordinal
     val pagerState = rememberPagerState(initialPage = initialPageIndex)
@@ -130,7 +135,7 @@ private fun GroupConversationDetailsContent(
         coroutineScope = rememberCoroutineScope(),
         sheetContent = {
             ConversationGroupDetailsBottomSheet(
-                conversationOptionsState = groupOptionsState,
+                conversationOptionsState = groupOptionsState.value,
                 closeBottomSheet = closeBottomSheet,
                 onDeleteGroup = deleteGroupDialogState::show,
                 onLeaveGroup = leaveGroupDialogState::show
@@ -232,10 +237,10 @@ private fun GroupConversationDetailsPreview() {
             onAddParticipantsPressed = {},
             onLeaveGroup = {},
             onDeleteGroup = {},
-            groupOptionsState = GroupConversationOptionsState(
+            groupOptionsStateFlow = MutableStateFlow(GroupConversationOptionsState(
                 conversationId = ConversationId("someValue", "someDomain"),
                 groupName = "Group name"
-            ),
+            )),
             groupParticipantsState = GroupConversationParticipantsState.PREVIEW,
             isLoading = false,
             messages = MutableSharedFlow(),

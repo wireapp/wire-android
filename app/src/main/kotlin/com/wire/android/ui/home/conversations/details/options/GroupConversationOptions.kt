@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -34,20 +35,22 @@ fun GroupConversationOptions(
     viewModel: GroupConversationDetailsViewModel = hiltViewModel(),
     lazyListState: LazyListState
 ) {
+    val state = viewModel.groupOptionsState.collectAsState()
+
     GroupConversationSettings(
-        state = viewModel.groupOptionsState,
+        state = state.value,
         onGuestSwitchClicked = viewModel::onGuestUpdate,
         onServiceSwitchClicked = viewModel::onServicesUpdate,
         lazyListState = lazyListState
     )
-    if (viewModel.groupOptionsState.changeGuestOptionConfirmationRequired) {
+    if (state.value.changeGuestOptionConfirmationRequired) {
         DisableGuestConfirmationDialog(
             onConfirm = viewModel::onGuestDialogConfirm,
             onDialogDismiss = viewModel::onGuestDialogDismiss
         )
     }
 
-    if (viewModel.groupOptionsState.changeServiceOptionConfirmationRequired) {
+    if (state.value.changeServiceOptionConfirmationRequired) {
         DisableServicesConfirmationDialog(
             onConfirm = viewModel::onServiceDialogConfirm,
             onDialogDismiss = viewModel::onServiceDialogDismiss

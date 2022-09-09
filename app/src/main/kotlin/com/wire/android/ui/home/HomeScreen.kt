@@ -2,8 +2,6 @@ package com.wire.android.ui.home
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
-import androidx.compose.animation.expandVertically
-import androidx.compose.animation.shrinkVertically
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
@@ -51,7 +49,6 @@ import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import com.wire.android.ui.home.conversationslist.ConversationListState
 import com.wire.android.ui.home.conversationslist.ConversationListViewModel
 import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
-import com.wire.android.ui.theme.wireDimensions
 
 @OptIn(
     ExperimentalAnimationApi::class,
@@ -105,7 +102,10 @@ fun HomeScreen(
                 snackbarHostState = snackbarHostState,
                 homeTopBar = { elevation ->
                     Column {
-                        CommonTopAppBar(commonTopAppBarViewModel = commonTopAppBarViewModel) // as CommonTopAppBarViewModel)
+                        CommonTopAppBar(
+                            connectivityUIState = commonTopAppBarViewModel.connectivityState,
+                            onReturnToCallClick = commonTopAppBarViewModel::openOngoingCallScreen
+                        )
                         HomeTopBar(
                             avatarAsset = homeViewModel.userAvatar.avatarAsset,
                             status = homeViewModel.userAvatar.status,

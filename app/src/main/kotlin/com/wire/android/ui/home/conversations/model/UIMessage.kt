@@ -2,6 +2,7 @@ package com.wire.android.ui.home.conversations.model
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.compose.runtime.Stable
 import com.wire.android.R
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversations.model.MessageStatus.DecryptionFailure
@@ -28,6 +29,7 @@ data class UIMessage(
     val receivingFailed: Boolean = messageHeader.messageStatus == ReceiveFailure || decryptionFailed
 }
 
+@Stable
 data class MessageHeader(
     val username: UIText,
     val membership: Membership,
@@ -62,6 +64,7 @@ sealed class MessageContent {
         val assetName: String
     ) : ClientMessage()
 
+    @Stable
     data class AssetMessage(
         val assetName: String,
         val assetExtension: String,

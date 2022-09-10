@@ -10,16 +10,11 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.sync.ConnectionPolicy
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.UserSessionScope
-import com.wire.kalium.logic.feature.auth.AuthSession
-import com.wire.kalium.logic.functional.combine
-import com.wire.kalium.logic.functional.flatMap
 import com.wire.kalium.logic.functional.fold
 import com.wire.kalium.logic.functional.map
 import com.wire.kalium.logic.functional.nullableFold
-import com.wire.kalium.logic.functional.onSuccess
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
@@ -102,7 +97,7 @@ class ConnectionPolicyManager @Inject constructor(
     }
 
     private fun isCurrentSession(userId: UserId): Boolean {
-        val isCurrentSession = coreLogic.sessionRepository.currentSession().fold({
+        val isCurrentSession = coreLogic.getGlobalScope().sessionRepository.currentSession().fold({
             // Assume so in case of failure
             true
         }, {
@@ -126,10 +121,10 @@ class ConnectionPolicyManager @Inject constructor(
     }
 
     private suspend fun allValidSessions() =
-        coreLogic.sessionRepository.allValidSessions()
+        coreLogic.getGlobalScope().sessionRepository.allValidSessions()
             .map { it.map { session -> session.userId } }.fold({ emptyList() }, { it })
 
     private fun currentSessionFlow() =
-        coreLogic.sessionRepository.currentSessionFlow()
+        coreLogic.getGlobalScope().sessionRepository.currentSessionFlow()
             .map { it.nullableFold({ null }, { currentSession -> currentSession.userId }) }
 }

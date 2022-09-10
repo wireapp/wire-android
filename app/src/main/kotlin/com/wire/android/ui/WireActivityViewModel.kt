@@ -206,13 +206,15 @@ class WireActivityViewModel @Inject constructor(
         customBackendDialogState = customBackendDialogState.copy(shouldShowDialog = false)
     }
 
-    suspend fun customBackendDialogProceedButtonClicked(serverLinks: ServerConfig.Links) {
-        dismissCustomBackendDialog()
-        authServerConfigProvider.updateAuthServer(serverLinks)
-        if (checkNumberOfSessions() == MAX_SESSION_COUNT) {
-            maxAccountDialogState = true
-        } else {
-            navigateTo(NavigationCommand(NavigationItem.Welcome.getRouteWithArgs()))
+    fun customBackendDialogProceedButtonClicked(serverLinks: ServerConfig.Links) {
+        viewModelScope.launch {
+            dismissCustomBackendDialog()
+            authServerConfigProvider.updateAuthServer(serverLinks)
+            if (checkNumberOfSessions() == MAX_SESSION_COUNT) {
+                maxAccountDialogState = true
+            } else {
+                navigateTo(NavigationCommand(NavigationItem.Welcome.getRouteWithArgs()))
+            }
         }
     }
 

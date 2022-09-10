@@ -71,10 +71,11 @@ class PersistentWebSocketService : Service() {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        // TODO: repository should not be exposed to the app
         coreLogic.sessionRepository.currentSession().fold({
             appLogger.e("error while getting the current session from persistent web socket service $it")
-        }, { authSession ->
-            coreLogic.getSessionScope(authSession.session.userId).setConnectionPolicy(ConnectionPolicy.KEEP_ALIVE)
+        }, { currentAccount ->
+            coreLogic.getSessionScope(currentAccount).setConnectionPolicy(ConnectionPolicy.KEEP_ALIVE)
 
             val observeUserId = currentSessionFlow()
                 .map { result ->

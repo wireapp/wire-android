@@ -22,7 +22,6 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AccountInfo
-import com.wire.kalium.logic.feature.auth.AuthSession
 import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
@@ -76,7 +75,8 @@ class WireActivityViewModel @Inject constructor(
         viewModelScope.launch(dispatchers.io()) {
             observePersistentWebSocketConnectionStatus().collect {
                 if (!it) {
-                    notificationManager.observeNotificationsAndCalls(observeUserId, viewModelScope) { openIncomingCall(it.conversationId) }
+                    notificationManager.observeNotificationsAndCalls(observeUserId, viewModelScope)
+                    { openIncomingCall(it.conversationId) }
                 }
             }
         }
@@ -220,7 +220,7 @@ class WireActivityViewModel @Inject constructor(
         getSessions().let {
             return when (it) {
                 is GetAllSessionsResult.Success -> {
-                     it.sessions.filterIsInstance<AccountInfo.Valid>().size
+                    it.sessions.filterIsInstance<AccountInfo.Valid>().size
                 }
                 is GetAllSessionsResult.Failure.Generic -> 0
                 GetAllSessionsResult.Failure.NoSessionFound -> 0
@@ -275,6 +275,7 @@ class WireActivityViewModel @Inject constructor(
 
     private fun shouldGoToConversation(): Boolean =
         (navigationArguments[OPEN_CONVERSATION_ID_ARG] as? ConversationId) != null
+
     private fun shouldGoToOngoingCall(): Boolean =
         (navigationArguments[ONGOING_CALL_CONVERSATION_ID_ARG] as? ConversationId) != null
 

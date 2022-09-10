@@ -75,11 +75,11 @@ class PersistentWebSocketService : Service() {
         coreLogic.sessionRepository.currentSession().fold({
             appLogger.e("error while getting the current session from persistent web socket service $it")
         }, { currentAccount ->
-            coreLogic.getSessionScope(currentAccount).setConnectionPolicy(ConnectionPolicy.KEEP_ALIVE)
+            coreLogic.getSessionScope(currentAccount.userId).setConnectionPolicy(ConnectionPolicy.KEEP_ALIVE)
 
             val observeUserId = currentSessionFlow()
                 .map { result ->
-                    if (result is CurrentSessionResult.Success) result.authSession.session.userId
+                    if (result is CurrentSessionResult.Success) result.accountInfo.userId
                     else null
                 }
                 .distinctUntilChanged()

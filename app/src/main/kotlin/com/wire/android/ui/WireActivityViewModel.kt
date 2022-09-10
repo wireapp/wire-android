@@ -21,6 +21,7 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.auth.AccountInfo
 import com.wire.kalium.logic.feature.auth.AuthSession
 import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
@@ -62,10 +63,10 @@ class WireActivityViewModel @Inject constructor(
 
     private val observeUserId = currentSessionFlow().map { result ->
         if (result is CurrentSessionResult.Success) {
-            if (result.authSession.session is AuthSession.Session.Invalid) {
-                navigateToLogin(result.authSession.session.userId)
+            if (result.accountInfo is AccountInfo.Invalid) {
+                navigateToLogin(result.accountInfo.userId)
                 null
-            } else result.authSession.session.userId
+            } else result.accountInfo.userId
         } else {
             null
         }
@@ -205,7 +206,7 @@ class WireActivityViewModel @Inject constructor(
         customBackendDialogState = customBackendDialogState.copy(shouldShowDialog = false)
     }
 
-    fun customBackendDialogProceedButtonClicked(serverLinks: ServerConfig.Links) {
+    suspend fun customBackendDialogProceedButtonClicked(serverLinks: ServerConfig.Links) {
         dismissCustomBackendDialog()
         authServerConfigProvider.updateAuthServer(serverLinks)
         if (checkNumberOfSessions() == MAX_SESSION_COUNT) {
@@ -215,11 +216,11 @@ class WireActivityViewModel @Inject constructor(
         }
     }
 
-    private fun checkNumberOfSessions(): Int {
+    private suspend fun checkNumberOfSessions(): Int {
         getSessions().let {
             return when (it) {
                 is GetAllSessionsResult.Success -> {
-                     it.sessions.filter { it.session is AuthSession.Session.Valid }.size
+                     it.sessions.filterIsInstance<AccountInfo.Valid>().size
                 }
                 is GetAllSessionsResult.Failure.Generic -> 0
                 GetAllSessionsResult.Failure.NoSessionFound -> 0
@@ -269,9 +270,11 @@ class WireActivityViewModel @Inject constructor(
     private fun shouldGoToLogin(): Boolean =
         navigationArguments[SSO_DEEPLINK_ARG] != null
 
-    private fun shouldGoToIncomingCall(): Boolean = (navigationArguments[INCOMING_CALL_CONVERSATION_ID_ARG] as? ConversationId) != null
+    private fun shouldGoToIncomingCall(): Boolean =
+        (navigationArguments[INCOMING_CALL_CONVERSATION_ID_ARG] as? ConversationId) != null
 
-    private fun shouldGoToConversation(): Boolean = (navigationArguments[OPEN_CONVERSATION_ID_ARG] as? ConversationId) != null
+    private fun shouldGoToConversation(): Boolean =
+        (navigationArguments[OPEN_CONVERSATION_ID_ARG] as? ConversationId) != null
     private fun shouldGoToOngoingCall(): Boolean =
         (navigationArguments[ONGOING_CALL_CONVERSATION_ID_ARG] as? ConversationId) != null
 

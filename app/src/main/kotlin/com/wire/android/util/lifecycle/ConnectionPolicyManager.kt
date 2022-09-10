@@ -106,7 +106,7 @@ class ConnectionPolicyManager @Inject constructor(
             // Assume so in case of failure
             true
         }, {
-            it.session.userId == userId
+            it.userId == userId
         })
         return isCurrentSession
     }
@@ -125,11 +125,11 @@ class ConnectionPolicyManager @Inject constructor(
         coreLogic.getSessionScope(userId).setConnectionPolicy(connectionPolicy)
     }
 
-    private fun allValidSessions() =
+    private suspend fun allValidSessions() =
         coreLogic.sessionRepository.allValidSessions()
-            .map { it.map { session -> session.session.userId } }.fold({ emptyList() }, { it })
+            .map { it.map { session -> session.userId } }.fold({ emptyList() }, { it })
 
     private fun currentSessionFlow() =
         coreLogic.sessionRepository.currentSessionFlow()
-            .map { it.nullableFold({ null }, { currentSession -> currentSession.session.userId }) }
+            .map { it.nullableFold({ null }, { currentSession -> currentSession.userId }) }
 }

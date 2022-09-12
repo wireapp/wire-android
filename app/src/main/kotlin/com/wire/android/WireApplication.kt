@@ -121,7 +121,10 @@ class WireApplication : Application(), Configuration.Provider {
 
     override fun onTrimMemory(level: Int) {
         super.onTrimMemory(level)
-        appLogger.w("onTrimMemory called - App info: Memory trim level=${MemoryLevel.byLevel(level)}")
+        appLogger.w(
+            "onTrimMemory called - App info: Memory trim level=${MemoryLevel.byLevel(level)}. " +
+                    "See more at https://developer.android.com/reference/kotlin/android/content/ComponentCallbacks2"
+        )
     }
 
     override fun onLowMemory() {

@@ -8,7 +8,7 @@ import androidx.annotation.DrawableRes
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.LocalOverScrollConfiguration
+import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -150,7 +150,7 @@ private fun WelcomeCarousel() {
         autoScrollCarousel(pagerState, initialPage, circularItemsList, delay.toLong())
     }
 
-    CompositionLocalProvider(LocalOverScrollConfiguration provides null) {
+    CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
         HorizontalPager(
             state = pagerState, count = circularItemsList.size, modifier = Modifier.fillMaxWidth()
         ) { page ->

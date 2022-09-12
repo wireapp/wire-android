@@ -24,7 +24,7 @@ import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import com.wire.kalium.logic.util.isGreaterThan
 import javax.inject.Inject
-import com.wire.android.ui.home.conversations.model.UIMessageContent as UIMessageContent
+import com.wire.android.ui.home.conversations.model.UIMessageContent
 
 // TODO: splits mapping into more classes
 class MessageContentMapper @Inject constructor(

@@ -1,6 +1,7 @@
 package com.wire.android.ui.home.conversations.messages
 
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.framework.TestMessage
 import com.wire.android.ui.home.conversations.DownloadedAssetDialogVisibilityState
 import com.wire.android.ui.home.conversations.mockConversationDetailsGroup
 import com.wire.android.ui.home.conversations.mockUITextMessage
@@ -24,6 +25,19 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(CoroutineTestExtension::class)
 class ConversationMessagesViewModelTest {
 
+    @Test
+    fun `given an message ID, when downloading or fetching into internal storage, then should get message details by ID`() = runTest {
+        val message = TestMessage.ASSET_MESSAGE
+        val (arrangement, viewModel) = ConversationMessagesViewModelArrangement()
+            .withSuccessfulViewModelInit()
+            .withGetMessageAssetUseCaseReturning("path".toPath(), 42L)
+            .withGetMessageByIdReturning(message)
+            .arrange()
+
+        viewModel.downloadOrFetchAssetToInternalStorage(message.id)
+
+        coVerify(exactly = 1) { arrangement.getMessageById(arrangement.conversationId, message.id) }
+    }
 
     @Test
     fun `given an asset message, when opening it, then the file manager open function gets invoked and closes the dialog`() = runTest {

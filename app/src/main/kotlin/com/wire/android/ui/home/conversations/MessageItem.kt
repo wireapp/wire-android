@@ -242,6 +242,7 @@ private fun MessageContent(
                 }
             }
         }
+        else -> {}
     }
 }
 

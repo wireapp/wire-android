@@ -35,6 +35,7 @@ fun EventBadgeFactory(eventType: BadgeEventType, modifier: Modifier = Modifier) 
         BadgeEventType.ReceivedConnectionRequest -> ConnectRequestBadge(modifier)
         BadgeEventType.SentConnectRequest -> ConnectPendingRequestBadge(modifier)
         BadgeEventType.Blocked -> BlockedLabel(modifier)
+        else -> {}
     }
 }
 

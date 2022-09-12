@@ -116,8 +116,8 @@ class WireApplication : Application(), Configuration.Provider {
     }
 
     override fun onTrimMemory(level: Int) {
-        appLogger.w("onTrimMemory called - App info: Memory trim level=${MemoryLevel.byLevel(level)}")
         super.onTrimMemory(level)
+        appLogger.w("onTrimMemory called - App info: Memory trim level=${MemoryLevel.byLevel(level)}")
     }
 
     override fun onLowMemory() {

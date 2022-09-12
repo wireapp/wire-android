@@ -19,7 +19,6 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -42,6 +41,7 @@ import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireTabRow
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.calculateCurrentTab
+import com.wire.android.ui.common.collectAsStateLifecycleAware
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.NavigationIconType
@@ -105,8 +105,7 @@ private fun GroupConversationDetailsContent(
     context: Context = LocalContext.current
 ) {
     val scope = rememberCoroutineScope()
-    // TODO convert to asStateWithLifeCycle
-    val groupOptionsState by groupOptionsStateFlow.collectAsState()
+    val groupOptionsState by groupOptionsStateFlow.collectAsStateLifecycleAware()
     val lazyListStates: List<LazyListState> = GroupConversationDetailsTabItem.values().map { rememberLazyListState() }
     val initialPageIndex = GroupConversationDetailsTabItem.OPTIONS.ordinal
     val pagerState = rememberPagerState(initialPage = initialPageIndex)
@@ -237,10 +236,12 @@ private fun GroupConversationDetailsPreview() {
             onAddParticipantsPressed = {},
             onLeaveGroup = {},
             onDeleteGroup = {},
-            groupOptionsStateFlow = MutableStateFlow(GroupConversationOptionsState(
-                conversationId = ConversationId("someValue", "someDomain"),
-                groupName = "Group name"
-            )),
+            groupOptionsStateFlow = MutableStateFlow(
+                GroupConversationOptionsState(
+                    conversationId = ConversationId("someValue", "someDomain"),
+                    groupName = "Group name"
+                )
+            ),
             groupParticipantsState = GroupConversationParticipantsState.PREVIEW,
             isLoading = false,
             messages = MutableSharedFlow(),

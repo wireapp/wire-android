@@ -11,7 +11,6 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -24,6 +23,7 @@ import com.wire.android.model.Clickable
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
+import com.wire.android.ui.common.collectAsStateLifecycleAware
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsViewModel
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.theme.wireColorScheme
@@ -36,7 +36,7 @@ fun GroupConversationOptions(
     viewModel: GroupConversationDetailsViewModel = hiltViewModel(),
     lazyListState: LazyListState
 ) {
-    val state by viewModel.groupOptionsState.collectAsState()
+    val state by viewModel.groupOptionsState.collectAsStateLifecycleAware()
 
     GroupConversationSettings(
         state = state,

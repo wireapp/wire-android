@@ -43,8 +43,12 @@ internal class NewConversationViewModelArrangement {
 
         // Default empty values
         coEvery { isMLSEnabledUseCase() } returns true
-        coEvery { searchPublicUsers(any()) } returns flowOf(SearchUsersResult.Success(userSearchResult = UserSearchResult(listOf(PUBLIC_USER))))
-        coEvery { searchKnownUsers(any()) } returns SearchUsersResult.Success(userSearchResult = UserSearchResult(listOf(KNOWN_USER)))
+        coEvery { searchPublicUsers(any()) } returns flowOf(
+            SearchUsersResult.Success(userSearchResult = UserSearchResult(listOf(PUBLIC_USER)))
+        )
+        coEvery { searchKnownUsers(any()) } returns flowOf(
+            SearchUsersResult.Success(userSearchResult = UserSearchResult(listOf(KNOWN_USER)))
+        )
         coEvery { getAllKnownUsers() } returns GetAllContactsResult.Success(listOf())
         coEvery { createGroupConversation(any(), any(), any()) } returns CreateGroupConversationUseCase.Result.Success(CONVERSATION)
         coEvery { contactMapper.fromOtherUser(PUBLIC_USER) } returns Contact(
@@ -159,7 +163,6 @@ internal class NewConversationViewModelArrangement {
 
     private val viewModel by lazy {
         NewConversationViewModel(
-            savedStateHandle = savedStateHandle,
             navigationManager = navigationManager,
             searchPublicUsers = searchPublicUsers,
             searchKnownUsers = searchKnownUsers,
@@ -173,7 +176,7 @@ internal class NewConversationViewModelArrangement {
     }
 
     fun withFailureKnownSearchResponse() = apply {
-        coEvery { searchKnownUsers(any()) } returns SearchUsersResult.Failure.InvalidRequest
+        coEvery { searchKnownUsers(any()) } returns flowOf(SearchUsersResult.Failure.InvalidRequest)
     }
 
     fun withFailurePublicSearchResponse() = apply {

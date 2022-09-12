@@ -36,6 +36,17 @@ fun OtherUserConnectionActionButton(
             text = stringResource(R.string.label_open_conversation),
             onClick = onOpenConversation,
         )
+        ConnectionState.IGNORED ->  WirePrimaryButton(
+            text = stringResource(R.string.connection_label_accept),
+            onClick = acceptConnectionRequest,
+            leadingIcon = {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_check_tick),
+                    contentDescription = stringResource(R.string.content_description_right_arrow),
+                    modifier = Modifier.padding(dimensions().spacing8x)
+                )
+            }
+        )
         ConnectionState.PENDING -> Column {
             WirePrimaryButton(
                 text = stringResource(R.string.connection_label_accept),

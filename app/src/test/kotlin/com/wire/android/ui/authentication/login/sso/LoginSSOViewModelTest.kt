@@ -102,7 +102,7 @@ class LoginSSOViewModelTest {
     fun setup() {
         MockKAnnotations.init(this)
         mockUri()
-        every { savedStateHandle.get<String>(any()) } returns ""
+        every { savedStateHandle.get<String>(any()) } returns null
         every { qualifiedIdMapper.fromStringToQualifiedID(any()) } returns userId
         every { savedStateHandle.set(any(), any<String>()) } returns Unit
         every { clientScopeProviderFactory.create(any()).clientScope } returns clientScope

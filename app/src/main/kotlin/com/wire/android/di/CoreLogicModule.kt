@@ -352,6 +352,11 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun provideGetOrRegisterClientUseCase(@CurrentAccount currentAccount: UserId, clientScopeProviderFactory: ClientScopeProvider.Factory) =
+        clientScopeProviderFactory.create(currentAccount).clientScope.getOrRegister
+
+    @ViewModelScoped
+    @Provides
     fun providePersistOtherUsersClients(@CurrentAccount currentAccount: UserId, clientScopeProviderFactory: ClientScopeProvider.Factory) =
         clientScopeProviderFactory.create(currentAccount).clientScope.persistOtherUserClients
 

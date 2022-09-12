@@ -1,9 +1,6 @@
 package com.wire.android.ui.userprofile.self
 
-import android.content.Context
-import android.content.ContextWrapper
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
@@ -53,6 +50,7 @@ import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.home.conversations.search.HighlightName
 import com.wire.android.ui.home.conversations.search.HighlightSubtitle
 import com.wire.android.ui.theme.wireDimensions
@@ -62,6 +60,8 @@ import com.wire.android.ui.userprofile.common.UserProfileInfo
 import com.wire.android.ui.userprofile.self.SelfUserProfileViewModel.ErrorCodes
 import com.wire.android.ui.userprofile.self.SelfUserProfileViewModel.ErrorCodes.DownloadUserInfoError
 import com.wire.android.ui.userprofile.self.dialog.ChangeStatusDialogContent
+import com.wire.android.ui.userprofile.self.dialog.LogoutWipeDataDialog
+import com.wire.android.ui.userprofile.self.dialog.LogoutWipeDataDialogState
 import com.wire.android.ui.userprofile.self.model.OtherAccount
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
@@ -73,7 +73,7 @@ fun SelfUserProfileScreen(viewModelSelf: SelfUserProfileViewModel = hiltViewMode
     SelfUserProfileContent(
         state = viewModelSelf.userProfileState,
         onCloseClick = viewModelSelf::navigateBack,
-        onLogoutClick = viewModelSelf::onLogoutClick,
+        logout = viewModelSelf::logout,
         onChangeUserProfilePicture = viewModelSelf::onChangeProfilePictureClicked,
         onEditClick = viewModelSelf::editProfile,
         onStatusClicked = viewModelSelf::changeStatusClick,
@@ -83,7 +83,7 @@ fun SelfUserProfileScreen(viewModelSelf: SelfUserProfileViewModel = hiltViewMode
         onNotShowRationaleAgainChange = viewModelSelf::dialogCheckBoxStateChanged,
         onMessageShown = viewModelSelf::clearErrorMessage,
         onMaxAccountReachedDialogDismissed = viewModelSelf::onMaxAccountReachedDialogDismissed,
-        onOtherAccountClick = viewModelSelf::onOtherAccountClick
+        onOtherAccountClick = viewModelSelf::switchAccount
     )
 }
 
@@ -92,7 +92,7 @@ fun SelfUserProfileScreen(viewModelSelf: SelfUserProfileViewModel = hiltViewMode
 private fun SelfUserProfileContent(
     state: SelfUserProfileState,
     onCloseClick: () -> Unit = {},
-    onLogoutClick: () -> Unit = {},
+    logout: (Boolean) -> Unit = {},
     onChangeUserProfilePicture: () -> Unit = {},
     onEditClick: () -> Unit = {},
     onStatusClicked: (UserAvailabilityStatus) -> Unit = {},
@@ -114,12 +114,15 @@ private fun SelfUserProfileContent(
         }
     }
     val scrollState = rememberScrollState()
+    val logoutWipeDataDialogState = rememberVisibilityState<LogoutWipeDataDialogState>()
 
     Scaffold(
         topBar = {
             SelfUserProfileTopBar(
                 onCloseClick = onCloseClick,
-                onLogoutClick = onLogoutClick
+                onLogoutClick = remember {
+                    { logoutWipeDataDialogState.show(logoutWipeDataDialogState.savedState ?: LogoutWipeDataDialogState()) }
+                }
             )
         },
         snackbarHost = {
@@ -205,6 +208,11 @@ private fun SelfUserProfileContent(
                     buttonText = R.string.label_ok
                 )
             }
+
+            LogoutWipeDataDialog(
+                dialogState = logoutWipeDataDialogState,
+                logout = logout
+            )
         }
     }
 }

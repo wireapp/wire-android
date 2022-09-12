@@ -15,18 +15,17 @@ import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
-import com.wire.android.ui.common.topappbar.ConnectivityUIState
 import com.wire.android.ui.userprofile.self.dialog.StatusDialogData
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.configuration.server.ServerConfig
+import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
-import com.wire.kalium.logic.feature.call.CallManager
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.session.UpdateCurrentSessionUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
@@ -154,10 +153,19 @@ class SelfUserProfileViewModel @Inject constructor(
 
     fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }
 
-    fun onLogoutClick() {
+    fun logout(wipeData: Boolean) {
         viewModelScope.launch {
-            logout()
-            dataStore.clear() // TODO this should be moved to some service that will clear all the data in the app
+            logout(reason = LogoutReason.SELF_LOGOUT, isHardLogout = wipeData)
+            if (wipeData) {
+                dataStore.clear() // TODO this should be moved to some service that will clear all the data in the app
+            }
+            userProfileState.otherAccounts.firstOrNull()?.id?.let {
+                switchAccount(it)
+            } ?: run {
+                navigationManager.navigate(
+                    NavigationCommand(NavigationItem.Login.getRouteWithArgs(listOf(getSelf().first())), BackStackMode.CLEAR_WHOLE)
+                )
+            }
         }
     }
 
@@ -234,7 +242,7 @@ class SelfUserProfileViewModel @Inject constructor(
         }
     }
 
-    fun onOtherAccountClick(userId: UserId) {
+    fun switchAccount(userId: UserId) {
         viewModelScope.launch {
             when (updateCurrentSession(userId)) {
                 is UpdateCurrentSessionUseCase.Result.Failure -> return@launch

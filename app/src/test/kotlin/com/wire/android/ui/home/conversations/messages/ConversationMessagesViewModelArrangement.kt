@@ -12,9 +12,13 @@ import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
+import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
+import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCase
+import com.wire.kalium.logic.feature.asset.UpdateDownloadStatusResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
+import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
@@ -43,6 +47,9 @@ class ConversationMessagesViewModelArrangement {
     lateinit var getMessagesForConversationUseCase: GetMessagesForConversationUseCase
 
     @MockK
+    lateinit var getMessageById: GetMessageByIdUseCase
+
+    @MockK
     lateinit var observeConversationDetails: ObserveConversationDetailsUseCase
 
     @MockK
@@ -66,6 +73,7 @@ class ConversationMessagesViewModelArrangement {
             savedStateHandle,
             observeConversationDetails,
             getMessageAsset,
+            getMessageById,
             updateAssetMessageDownloadStatus,
             fileManager,
             TestDispatcherProvider(),
@@ -83,6 +91,7 @@ class ConversationMessagesViewModelArrangement {
         } returns QualifiedID("some-dummy-value", "some.dummy.domain")
         coEvery { observeConversationDetails(any()) } returns flowOf()
         coEvery { getMessagesForConversationUseCase(any()) } returns flowOf(listOf())
+        coEvery { updateAssetMessageDownloadStatus(any(), any(), any()) } returns UpdateDownloadStatusResult.Success
     }
 
     suspend fun withSuccessfulViewModelInit() = apply {
@@ -99,6 +108,14 @@ class ConversationMessagesViewModelArrangement {
         every { fileManager.openWithExternalApp(any(), any(), any()) }.answers {
             viewModel.hideOnAssetDownloadedDialog()
         }
+    }
+
+    fun withGetMessageByIdReturning(message: Message) = apply {
+        coEvery { getMessageById(any(), any()) } returns GetMessageByIdUseCase.Result.Success(message)
+    }
+
+    fun withGetMessageAssetUseCaseReturning(decodedAssetPath: Path, assetSize: Long) = apply {
+        coEvery { getMessageAsset(any(), any()) } returns MessageAssetResult.Success(decodedAssetPath, assetSize)
     }
 
     suspend fun withMessagesUpdate(messages: List<UIMessage>) = apply {

@@ -141,10 +141,11 @@ class WireApplication : Application(), Configuration.Provider {
             TRIM_MEMORY_RUNNING_CRITICAL(15),
             TRIM_MEMORY_RUNNING_LOW(10),
             TRIM_MEMORY_RUNNING_MODERATE(5),
-            TRIM_MEMORY_UI_HIDDEN(20);
+            TRIM_MEMORY_UI_HIDDEN(20),
+            TRIM_MEMORY_UNKNOWN(-1);
 
             companion object {
-                fun byLevel(value: Int) = values().firstOrNull { it.level == value }
+                fun byLevel(value: Int) = values().firstOrNull { it.level == value } ?: TRIM_MEMORY_UNKNOWN
             }
         }
     }

@@ -1,9 +1,11 @@
 package com.wire.android.ui.home.conversations
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -15,25 +17,32 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
+import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.calling.controlButtons.JoinButton
+import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
+import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.conversationColor
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.topappbar.BackNavigationIconButton
+import com.wire.android.ui.home.conversations.info.ConversationInfoViewState
 import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 
 @Composable
 fun ConversationScreenTopAppBar(
-    title: String,
-    avatar: @Composable () -> Unit = {},
+    conversationInfoViewState: ConversationInfoViewState,
     onBackButtonClick: () -> Unit,
     onDropDownClick: () -> Unit,
     isDropDownEnabled: Boolean = false,
@@ -41,7 +50,8 @@ fun ConversationScreenTopAppBar(
     onPhoneButtonClick: () -> Unit,
     hasOngoingCall: Boolean,
     isUserBlocked: Boolean,
-    onJoinCallButtonClick: () -> Unit
+    onJoinCallButtonClick: () -> Unit,
+    isCallingEnabled: Boolean = true
 ) {
     SmallTopAppBar(
         title = {
@@ -52,10 +62,11 @@ fun ConversationScreenTopAppBar(
                     .clickable(onClick = onDropDownClick, enabled = isDropDownEnabled)
 
             ) {
-                avatar()
+                val conversationAvatar: ConversationAvatar = conversationInfoViewState.conversationAvatar
+                Avatar(conversationAvatar, conversationInfoViewState)
                 Spacer(Modifier.width(MaterialTheme.wireDimensions.spacing6x))
                 Text(
-                    text = title,
+                    text = conversationInfoViewState.conversationName.asString(),
                     style = MaterialTheme.wireTypography.title01,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
@@ -90,7 +101,8 @@ fun ConversationScreenTopAppBar(
                 hasOngoingCall = hasOngoingCall,
                 onJoinCallButtonClick = onJoinCallButtonClick,
                 onPhoneButtonClick = onPhoneButtonClick,
-                isUserBlocked = isUserBlocked
+                isUserBlocked = isUserBlocked,
+                isCallingEnabled = isCallingEnabled
             )
             Spacer(Modifier.width(MaterialTheme.wireDimensions.spacing6x))
         }, colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
@@ -103,18 +115,42 @@ fun ConversationScreenTopAppBar(
 }
 
 @Composable
+private fun Avatar(
+    conversationAvatar: ConversationAvatar,
+    conversationInfoViewState: ConversationInfoViewState
+) {
+    when (conversationAvatar) {
+        is ConversationAvatar.Group ->
+            GroupConversationAvatar(
+                color = colorsScheme().conversationColor(id = conversationAvatar.conversationId)
+            )
+
+        is ConversationAvatar.OneOne -> UserProfileAvatar(
+            UserAvatarData(
+                asset = conversationAvatar.avatarAsset,
+                availabilityStatus = conversationAvatar.status,
+                connectionState = (conversationInfoViewState.conversationDetailsData as? ConversationDetailsData.OneOne)?.connectionState
+            )
+        )
+
+        ConversationAvatar.None -> Box(modifier = Modifier.size(dimensions().userAvatarDefaultSize))
+    }
+}
+
+@Composable
 private fun callControlButton(
     hasOngoingCall: Boolean,
     isUserBlocked: Boolean,
     onJoinCallButtonClick: () -> Unit,
-    onPhoneButtonClick: () -> Unit
+    onPhoneButtonClick: () -> Unit,
+    isCallingEnabled: Boolean
 ) {
     if (hasOngoingCall) {
         JoinButton(
             buttonClick = onJoinCallButtonClick,
             minHeight = MaterialTheme.wireDimensions.spacing28x
         )
-    } else {
+    } else if (isCallingEnabled) {
         WireSecondaryButton(
             onClick = onPhoneButtonClick,
             leadingIcon = {
@@ -137,49 +173,62 @@ private fun callControlButton(
 @Composable
 fun ConversationScreenTopAppBarLongTitlePreview() {
     ConversationScreenTopAppBar(
-        "This is some very very very very very very very very very very long conversation title",
-        { GroupConversationAvatar(color = Color.Green) },
-        {},
-        {},
-        true,
-        {},
-        {},
-        false,
-        false,
-        {}
+        ConversationInfoViewState(
+            conversationName = UIText.DynamicString(
+                "This is some very very very very very very very very very very long conversation title"
+            ),
+            conversationDetailsData = ConversationDetailsData.Group(QualifiedID("", "")),
+            conversationAvatar = ConversationAvatar.OneOne(null, UserAvailabilityStatus.NONE)
+        ),
+        onBackButtonClick = {},
+        onDropDownClick = {},
+        isDropDownEnabled = true,
+        onSearchButtonClick = {},
+        onPhoneButtonClick = {},
+        hasOngoingCall = false,
+        isUserBlocked = false,
+        onJoinCallButtonClick = {}
     )
 }
 
 @Preview("Topbar with a short  conversation title")
 @Composable
 fun ConversationScreenTopAppBarShortTitlePreview() {
+    val conversationId = QualifiedID("", "")
     ConversationScreenTopAppBar(
-        "Short title",
-        { GroupConversationAvatar(color = Color.Blue) },
-        {},
-        {},
-        true,
-        {},
-        {},
-        false,
-        false,
-        {}
+        ConversationInfoViewState(
+            conversationName = UIText.DynamicString("Short title"),
+            conversationDetailsData = ConversationDetailsData.Group(conversationId),
+            conversationAvatar = ConversationAvatar.Group(conversationId)
+        ),
+        onBackButtonClick = {},
+        onDropDownClick = {},
+        isDropDownEnabled = true,
+        onSearchButtonClick = {},
+        onPhoneButtonClick = {},
+        hasOngoingCall = false,
+        isUserBlocked = false,
+        onJoinCallButtonClick = {}
     )
 }
 
 @Preview("Topbar with a short  conversation title and join group call")
 @Composable
 fun ConversationScreenTopAppBarShortTitleWithOngoingCallPreview() {
+    val conversationId = QualifiedID("", "")
     ConversationScreenTopAppBar(
-        "Short title",
-        { GroupConversationAvatar(color = Color.Blue) },
-        {},
-        {},
-        true,
-        {},
-        {},
-        true,
-        false,
-        {}
+        ConversationInfoViewState(
+            conversationName = UIText.DynamicString("Short title"),
+            conversationDetailsData = ConversationDetailsData.Group(conversationId),
+            conversationAvatar = ConversationAvatar.Group(conversationId)
+        ),
+        onBackButtonClick = {},
+        onDropDownClick = {},
+        isDropDownEnabled = true,
+        onSearchButtonClick = {},
+        onPhoneButtonClick = {},
+        hasOngoingCall = true,
+        isUserBlocked = false,
+        onJoinCallButtonClick = {}
     )
 }

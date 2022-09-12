@@ -71,4 +71,5 @@ data class ConversationSheetContent(
     val conversationId: ConversationId,
     val mutingConversationState: MutedConversationStatus,
     val conversationTypeDetail: ConversationTypeDetail,
+    val isSelfUserMember: Boolean = true
 )

@@ -44,7 +44,7 @@ import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
 import com.wire.kalium.logic.feature.publicuser.GetKnownUserUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchUserDirectoryUseCase
-import com.wire.kalium.logic.feature.publicuser.search.SearchUsersUseCase
+import com.wire.kalium.logic.feature.publicuser.search.SearchPublicUsersUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import com.wire.kalium.logic.feature.session.RegisterTokenUseCase
@@ -431,7 +431,7 @@ class UseCaseModule {
     fun provideSearchUsersUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ): SearchUsersUseCase =
+    ): SearchPublicUsersUseCase =
         coreLogic.getSessionScope(currentAccount).users.searchUsers
 
     @ViewModelScoped
@@ -441,14 +441,6 @@ class UseCaseModule {
         @CurrentAccount currentAccount: UserId
     ): SearchKnownUsersUseCase =
         coreLogic.getSessionScope(currentAccount).users.searchKnownUsers
-
-    @ViewModelScoped
-    @Provides
-    fun provideSearchPublicUserUseCase(
-        @KaliumCoreLogic coreLogic: CoreLogic,
-        @CurrentAccount currentAccount: UserId
-    ): SearchUserDirectoryUseCase =
-        coreLogic.getSessionScope(currentAccount).users.searchUserDirectory
 
     @ViewModelScoped
     @Provides

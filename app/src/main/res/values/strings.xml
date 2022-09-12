@@ -44,37 +44,37 @@
     <string name="content_description_hide_password">Hide password</string>
     <string name="content_description_search_back">Search back icon</string>
     <string name="content_description_clear_content">Clear content</string>
-    <string name="content_description_user_avatar">User avatar</string>
+    <string name="content_description_user_avatar">Profile picture</string>
     <string name="content_description_muted_conversation">Muted conversation</string>
     <string name="content_description_check">Check mark</string>
     <string name="content_description_download_icon">Download icon</string>
-    <string name="content_description_add_to_favourite">Add to favourite</string>
+    <string name="content_description_add_to_favourite">Add to favorite</string>
     <string name="content_description_move_to_folder">Move to folder</string>
     <string name="content_description_move_to_archive">Move to archive</string>
-    <string name="content_description_block_the_user">Block the user</string>
+    <string name="content_description_block_the_user">Block</string>
     <string name="content_description_leave_the_group">Leave the group</string>
     <string name="content_description_delete_the_group">Delete the group</string>
-    <string name="content_description_conversation_phone_icon">Make audio call</string>
+    <string name="content_description_conversation_phone_icon">Start audio call</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
     <string name="content_description_conversation_search_icon">Conversation search icon</string>
     <string name="content_description_conversation_enable_rich_text_mode">Enable rich text mode button</string>
     <string name="content_description_conversation_send_emoticon">Send Emoticon button</string>
     <string name="content_description_conversation_send_gif">Send GIF button</string>
-    <string name="content_description_conversation_mention_someone">Mention someone button</string>
+    <string name="content_description_conversation_mention_someone">Mention someone</string>
     <string name="content_description_new_conversation">Start a new conversation</string>
     <string name="content_description_back_button">Back button</string>
-    <string name="content_description_send_button">Send button</string>
+    <string name="content_description_send_button">Send</string>
     <string name="content_description_timed_message_button">Self deleting messages Button</string>
     <string name="content_description_close_button">Close button</string>
-    <string name="content_description_menu_button">Hamburger menu</string>
+    <string name="content_description_menu_button">Main navigation</string>
     <string name="content_description_drop_down_icon">Drop down arrow</string>
     <string name="content_description_remove_devices_screen_device_item_icon">Device item</string>
     <string name="content_description_remove_devices_screen_remove_icon">Remove device</string>
-    <string name="content_description_avatar_preview">Image preview of the avatar image</string>
+    <string name="content_description_avatar_preview">Preview of profile picture</string>
     <string name="content_description_choose_from_gallery">Choose from gallery</string>
     <string name="content_description_take_a_picture">Take a picture</string>
     <string name="content_description_right_arrow">Right arrow</string>
-    <string name="content_description_left_arrow">Left arrow</string>
+    <string name="content_description_left_arrow">Go back</string>
     <string name="content_description_mention_icon">Mention icon</string>
     <string name="content_description_attachment_item">Attach new item to conversation</string>
     <string name="content_description_copy_the_message">Copy the message</string>
@@ -84,12 +84,12 @@
     <string name="content_description_add_contact">Add contact</string>
     <string name="content_description_image_message">Image message</string>
     <string name="content_description_file_message">File message</string>
-    <string name="content_description_ping_everyone">Ping everyone</string>
+    <string name="content_description_ping_everyone">Ping</string>
     <string name="content_description_calling_hang_up_call">Hang up call</string>
     <string name="content_description_calling_accept_call">Accept call</string>
     <string name="content_description_calling_decline_call">Decline call</string>
-    <string name="content_description_calling_flip_camera_on">Flip to internal camera</string>
-    <string name="content_description_calling_flip_camera_off">Flip to outer camera</string>
+    <string name="content_description_calling_flip_camera_on">Flip to front camera</string>
+    <string name="content_description_calling_flip_camera_off">Flip to back camera</string>
     <string name="content_description_calling_participant_muted">Participant muted</string>
     <string name="content_description_calling_mute_call">Mute call</string>
     <string name="content_description_calling_unmute_call">Unmute call</string>
@@ -139,7 +139,7 @@
     <string name="api_versioning_server_version_not_supported_title">Server version not supported</string>
     <string name="api_versioning_server_version_not_supported_message">Your Wire server needs to be updated. Please notify your system administrator.</string>
     <!-- Login -->
-    <string name="login_title">Login</string>
+    <string name="login_title">Log in</string>
     <string name="login_forgot_password">Forgot password?</string>
     <string name="login_user_identifier_placeholder">jane@example.com or jane.doe</string>
     <string name="login_user_identifier_label">EMAIL OR USERNAME</string>
@@ -150,13 +150,10 @@
     <string name="login_error_invalid_user_identifier">This email or username is invalid. Please
         verify and try again.
     </string>
-    <string name="login_error_user_already_logged_in_title">Account already logged in</string>
-    <string name="login_error_user_already_logged_in_message">You are already logged in on this device.
-    </string>
+    <string name="login_error_user_already_logged_in_title">Account in use</string>
+    <string name="login_error_user_already_logged_in_message">You are already logged in with those credentials on this device.</string>
     <string name="login_sso_error_invalid_cookie_title">Invalid Cookie!</string>
-    <string name="login_sso_error_invalid_cookie_message">The session is invalid or expired! Please
-        try to login again.
-    </string>
+    <string name="login_sso_error_invalid_cookie_message">The session is invalid or expired! Please try again to log in.</string>
     <string name="login_password_placeholder">Password</string>
     <string name="login_password_label">PASSWORD</string>
     <string name="login_tab_email">EMAIL</string>
@@ -220,7 +217,7 @@
     <string name="create_account_email_terms_dialog_text">By clicking continue you are agreeing to our Terms of Use and Privacy Policy.</string>
     <string name="create_account_email_terms_dialog_view_policy">View ToU and Privacy Policy</string>
     <string name="create_account_email_already_in_use_error">The email address is already in use.</string>
-    <string name="create_account_email_blacklisted_error">The email address you provided has been blacklisted due to a permanent bounce or a complaint.</string>
+    <string name="create_account_email_blacklisted_error">Your email has been identified as not trusted, for example, due to a rejection by a spam filter.</string>
     <string name="create_account_email_invalid_error">Please enter a valid format for your email.</string>
     <string name="create_account_email_domain_blocked_error">You can´t create this account as your email domain is intentionally blocked.\nPlease ask your team admin to invite you via email.</string>
     <string name="create_account_details_first_name_placeholder">Jane</string>
@@ -248,7 +245,7 @@
     <string name="create_account_username_description">At least 2 characters, a-z, 0-9 and _</string>
     <!-- Conversations -->
     <string name="calls_label_missed_calls">MISSED CALLS</string>
-    <string name="calls_label_calls_history">CALLS HISTORY</string>
+    <string name="calls_label_calls_history">CALL HISTORY</string>
     <string name="conversation_label_new_activity">NEW ACTIVITY</string>
     <string name="conversation_label_favorites">FAVORITES</string>
     <string name="conversation_label_conversations">CONVERSATIONS</string>
@@ -316,15 +313,15 @@
     <string name="delete_group_conversation_dialog_description">The group will be removed from your conversations list on all devices. You will no longer be able to access the group and its content.</string>
     <!-- Attachment options -->
     <string name="attachment_share_file">Attach File</string>
-    <string name="attachment_share_image">Attach Image</string>
+    <string name="attachment_share_image">Attach Picture</string>
     <string name="attachment_take_photo">Take Photo</string>
     <string name="attachment_record_video">Record Video</string>
-    <string name="attachment_voice_message">Voice Message</string>
+    <string name="attachment_voice_message">Audio Message</string>
     <string name="attachment_share_location">Share Location</string>
     <!-- User Profile -->
     <string name="user_profile_title">User Profile</string>
     <string name="user_profile_close_description">Close User profile</string>
-    <string name="user_profile_logout">Logout</string>
+    <string name="user_profile_logout">Log out</string>
     <string name="user_profile_other_accs">Your Other Accounts</string>
     <string name="user_profile_status_available">Available</string>
     <string name="user_profile_status_busy">Busy</string>
@@ -364,7 +361,7 @@
     <string name="label_add_to_favourites">Add to Favorites</string>
     <string name="label_move_to_folder">Move to Folder</string>
     <string name="label_move_to_archive">Move to Archive</string>
-    <string name="label_clear_content">Clear Content...</string>
+    <string name="label_clear_content">Clear Content…</string>
     <string name="label_block">Block</string>
     <string name="label_leave_group">Leave Group</string>
     <string name="label_delete_group">Delete Group</string>
@@ -376,11 +373,11 @@
     <string name="muting_option_all_muted_title">Nothing</string>
     <string name="muting_option_all_muted_text">Receive no notifications for this conversation at all</string>
     <!--Profile image-->
-    <string name="profile_image_top_bar_label">Profile image</string>
+    <string name="profile_image_top_bar_label">Profile picture</string>
     <string name="profile_image_modal_sheet_header_title">Change Image</string>
     <string name="profile_image_choose_from_gallery_menu_item">Choose from gallery</string>
     <string name="profile_image_take_a_picture_menu_item">Take a picture</string>
-    <string name="profile_image_change_image_button_label">Change Image...</string>
+    <string name="profile_image_change_image_button_label">Change Picture…</string>
     <!--Conversation-->
     <string name="label_copy">Copy</string>
     <string name="label_edit">Edit</string>
@@ -406,7 +403,7 @@
     <string name="label_search_people_instruction">Search for users with their display name or their @username</string>
     <string name="label_learn_more_searching_user">Learn more</string>
     <string name="label_no_results_found">No results could be found. Please try again.</string>
-    <string name="label_general_error">We are sorry, something went wrong</string>
+    <string name="label_general_error">Something went wrong</string>
     <!-- Snackbar messages -->
     <string name="error_unknown_title">Something went wrong</string>
     <string name="error_unknown_message">Please try again in a moment</string>
@@ -417,14 +414,14 @@
     <string name="error_downloading_user_info">There was an error downloading the user information. Please check your Internet connection</string>
     <string name="error_uploading_user_avatar">Image could not be uploaded</string>
     <string name="error_updating_muting_setting">Notifications could not be updated</string>
-    <string name="error_conversation_sending_image">There was an error trying to send the image message. Please check your Internet connection and try again</string>
+    <string name="error_conversation_sending_image">The picture could not be sent. Please check your internet connection and try again.</string>
     <string name="error_conversation_sending_asset">There was an error trying to send that file. Please check your Internet connection and try again</string>
     <string name="error_conversation_downloading_asset">There was an error trying to download that file. Please try again</string>
     <string name="error_conversation_opening_asset_file">No app was found to open the selected file</string>
     <string name="error_conversation_deleting_message">The message could not be deleted</string>
     <string name="error_conversation_max_image_size_limit">The image you chose is too large. Please choose an image smaller than 15MB</string>
     <string name="error_conversation_max_asset_size_limit">The file you chose is too large. Please choose a file smaller than %sMB</string>
-    <string name="error_conversation_generic">There was an unknown error when trying to send the message</string>
+    <string name="error_conversation_generic">Something went wrong. The message could not be sent.</string>
     <string name="conversation_on_file_downloaded">The file %s was saved successfully to the Downloads folder</string>
     <string name="error_blocking_user">User could not be blocked</string>
     <string name="blocking_user_success">%s blocked</string>
@@ -437,7 +434,7 @@
     <string name="animation_label_messagecomposeinput_state_transistion" translatable="false">MessageComposeInputState transition</string>
     <string name="animation_label_button_rotation_degree_transistion" translatable="false">Collapse button rotation degree transition</string>
     <string name="label_open_conversation">Open Conversation</string>
-    <string name="email_label">e-mail</string>
+    <string name="email_label">Email</string>
     <string name="phone_label">phone</string>
     <!-- Notifications -->
     <string name="notification_shared_picture">Shared a picture</string>
@@ -454,7 +451,7 @@
     <string name="notification_action_open_call">Open Call</string>
     <string name="notification_action_decline_call">Decline</string>
     <string name="notification_action_hang_up_call">Hang Up</string>
-    <string name="notification_incoming_call_content">Calling...</string>
+    <string name="notification_incoming_call_content">Calling…</string>
     <string name="notification_ongoing_call_content">Ongoing call...</string>
     <string name="notification_group_call_content">%s calling...</string>
     <string name="notification_call_default_caller_name">Someone</string>
@@ -519,11 +516,11 @@
     <string name="empty_group_label">Unnamed conversation</string>
     <string name="label_show_more">Show More</string>
     <!--prohibited asset messages -->
-    <string name="prohibited_images_message">Receiving Images is Prohibited</string>
-    <string name="prohibited_videos_message">Receiving Videos is Prohibited</string>
-    <string name="prohibited_audio_message">Receiving Audio is Prohibited</string>
-    <string name="prohibited_file_message">Receiving Files is Prohibited</string>
-    <string name="team_settings_changed">Team Settings Changed</string>
+    <string name="prohibited_images_message">Receiving images is prohibited</string>
+    <string name="prohibited_videos_message">Receiving videos is prohibited</string>
+    <string name="prohibited_audio_message">Receiving audio messages is prohibited</string>
+    <string name="prohibited_file_message">Receiving files is prohibited</string>
+    <string name="team_settings_changed">Team settings changed</string>
     <string name="sharing_files_enabled">Sharing and receiving files of any type is now enabled</string>
     <string name="sharing_files_disabled">Sharing and receiving files of any type is now disabled</string>
     <!--wire dropdown-->

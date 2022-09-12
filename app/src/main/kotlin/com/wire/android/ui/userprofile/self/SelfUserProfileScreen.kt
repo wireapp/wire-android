@@ -53,6 +53,7 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.home.conversations.search.HighlightName
 import com.wire.android.ui.home.conversations.search.HighlightSubtitle
+import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.ui.userprofile.common.EditableState
@@ -333,18 +334,7 @@ private fun ProfileStatusButton(
 
 @Composable
 private fun OtherAccountsHeader() {
-    Text(
-        modifier = Modifier
-            .padding(
-                top = dimensions().spacing16x,
-                start = dimensions().spacing16x,
-                bottom = dimensions().spacing4x
-            ),
-        text = stringResource(id = R.string.user_profile_other_accs).uppercase(),
-        style = MaterialTheme.wireTypography.title03,
-        color = MaterialTheme.colorScheme.onBackground,
-        textAlign = TextAlign.Start
-    )
+    FolderHeader(stringResource(id = R.string.user_profile_other_accs))
 }
 
 @Composable
@@ -379,9 +369,7 @@ private fun OtherAccountItem(
         },
         subtitle = {
             if (account.teamName != null)
-                HighlightSubtitle(
-                    subTitle = account.teamName
-                )
+                HighlightSubtitle(subTitle = account.teamName, suffix = "")
         },
         actions = {
             Box(

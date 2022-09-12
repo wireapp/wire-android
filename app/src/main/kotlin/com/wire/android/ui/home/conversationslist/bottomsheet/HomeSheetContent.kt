@@ -28,10 +28,10 @@ import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
 import com.wire.android.ui.home.conversationslist.model.BlockingState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.ui.home.conversationslist.model.getMutedStatusTextResource
+import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.user.ConnectionState
-import com.wire.kalium.logic.data.user.UserId
 
 @Composable
 internal fun ConversationMainSheetContent(
@@ -49,7 +49,7 @@ internal fun ConversationMainSheetContent(
         header = MenuModalSheetHeader.Visible(
             title = conversationSheetContent.title,
             leadingIcon = {
-                if (conversationSheetContent.conversationTypeDetail is ConversationTypeDetail.Group) {
+                    if (conversationSheetContent.conversationTypeDetail is ConversationTypeDetail.Group) {
                     GroupConversationAvatar(
                         color = colorsScheme()
                             .conversationColor(id = conversationSheetContent.conversationTypeDetail.conversationId)
@@ -70,17 +70,18 @@ internal fun ConversationMainSheetContent(
         ),
         menuItems = listOf(
             {
-                MenuBottomSheetItem(
-                    title = stringResource(R.string.label_notifications),
-                    icon = {
-                        MenuItemIcon(
-                            id = R.drawable.ic_mute,
-                            contentDescription = stringResource(R.string.content_description_muted_conversation),
-                        )
-                    },
-                    action = { NotificationsOptionsItemAction(conversationSheetContent.mutingConversationState) },
-                    onItemClick = navigateToNotification
-                )
+                if (conversationSheetContent.isSelfUserMember)
+                    MenuBottomSheetItem(
+                        title = stringResource(R.string.label_notifications),
+                        icon = {
+                            MenuItemIcon(
+                                id = R.drawable.ic_mute,
+                                contentDescription = stringResource(R.string.content_description_muted_conversation),
+                            )
+                        },
+                        action = { NotificationsOptionsItemAction(conversationSheetContent.mutingConversationState) },
+                        onItemClick = navigateToNotification
+                    )
             },
             {
                 MenuBottomSheetItem(
@@ -153,7 +154,7 @@ internal fun ConversationMainSheetContent(
                             )
                         }
                     }
-                } else {
+                } else if (conversationSheetContent.isSelfUserMember) {
                     CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.error) {
                         MenuBottomSheetItem(
                             icon = {
@@ -211,6 +212,7 @@ fun NotificationsOptionsItemAction(
         Text(
             text = mutedStatus.getMutedStatusTextResource(),
             style = MaterialTheme.wireTypography.body01,
+            color = MaterialTheme.wireColorScheme.secondaryText,
             overflow = TextOverflow.Ellipsis,
             maxLines = 1,
             modifier = Modifier.weight(weight = 1f, fill = false)

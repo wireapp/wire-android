@@ -4,6 +4,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.mapper.ContactMapper
@@ -23,7 +24,7 @@ import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
 import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchKnownUsersUseCase
-import com.wire.kalium.logic.feature.publicuser.search.SearchUsersUseCase
+import com.wire.kalium.logic.feature.publicuser.search.SearchPublicUsersUseCase
 import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -32,16 +33,18 @@ import javax.inject.Inject
 @Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel
 class NewConversationViewModel @Inject constructor(
+    savedStateHandle: SavedStateHandle,
     private val createGroupConversation: CreateGroupConversationUseCase,
     getAllKnownUsers: GetAllContactsUseCase,
     searchKnownUsers: SearchKnownUsersUseCase,
-    searchPublicUsers: SearchUsersUseCase,
+    searchPublicUsers: SearchPublicUsersUseCase,
     contactMapper: ContactMapper,
     isMLSEnabled: IsMLSEnabledUseCase,
     dispatchers: DispatcherProvider,
     sendConnectionRequest: SendConnectionRequestUseCase,
     navigationManager: NavigationManager
 ) : SearchAllPeopleViewModel(
+    savedStateHandle = savedStateHandle,
     getAllKnownUsers = getAllKnownUsers,
     sendConnectionRequest = sendConnectionRequest,
     searchKnownUsers = searchKnownUsers,

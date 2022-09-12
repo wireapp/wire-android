@@ -41,7 +41,7 @@ fun rememberMessageComposerInnerState(
     }
 }
 
-class MessageComposerInnerState(
+data class MessageComposerInnerState(
     val fullScreenHeight: Dp,
     val attachmentInnerState: AttachmentInnerState,
     private val onMessageComposeInputStateChanged: (MessageComposerStateTransition) -> Unit

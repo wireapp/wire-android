@@ -224,7 +224,16 @@ enum class NavigationItem(
                         "{$EXTRA_CONVERSATION_ID}"
             }
         ),
-        content = { ConversationScreen(hiltSavedStateViewModel(it.navBackStackEntry), hiltViewModel()) },
+        content = {
+            ConversationScreen(
+                messageComposerViewModel = hiltSavedStateViewModel(it.navBackStackEntry),
+                conversationCallViewModel = hiltSavedStateViewModel(it.navBackStackEntry),
+                conversationInfoViewModel = hiltSavedStateViewModel(it.navBackStackEntry),
+                conversationMessagesViewModel = hiltSavedStateViewModel(it.navBackStackEntry),
+                commonTopAppBarViewModel = hiltViewModel()
+            )
+        },
+        animationConfig = NavigationAnimationConfig.NoAnimation
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
             val conversationIdString: String = arguments.filterIsInstance<ConversationId>().firstOrNull()?.toString()

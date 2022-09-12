@@ -14,7 +14,7 @@ import com.wire.kalium.logic.data.user.ConnectionState
 
 @Composable
 fun ConnectionLabel(connectionInfo: ConversationLastEvent.Connection) {
-    if (connectionInfo.connectionState == ConnectionState.PENDING) {
+    if (connectionInfo.connectionState == ConnectionState.PENDING || connectionInfo.connectionState == ConnectionState.IGNORED) {
         Text(
             text = getConnectionStringLabel(labelId = connectionInfo.connectionState.toMessageId()),
             style = MaterialTheme.wireTypography.subline01.copy(

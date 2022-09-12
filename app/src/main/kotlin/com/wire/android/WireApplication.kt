@@ -1,6 +1,7 @@
 package com.wire.android
 
 import android.app.Application
+import android.os.Build
 import androidx.work.Configuration
 import co.touchlab.kermit.platformLogWriter
 import com.datadog.android.Datadog
@@ -73,6 +74,12 @@ class WireApplication : Application(), Configuration.Provider {
         coreLogic.updateApiVersionsScheduler.schedulePeriodicApiVersionUpdate()
 
         connectionPolicyManager.startObservingAppLifecycle()
+
+        logDeviceInformation()
+    }
+
+    private fun logDeviceInformation() {
+        appLogger.d("Device info: App version=${BuildConfig.VERSION_NAME} | OS Version=${Build.VERSION.SDK_INT} | Phone Model=${Build.BRAND}/${Build.MODEL}")
     }
 
     private fun enableLoggingAndInitiateFileLogging() {
@@ -108,6 +115,11 @@ class WireApplication : Application(), Configuration.Provider {
         GlobalRum.registerIfAbsent(RumMonitor.Builder().build())
     }
 
+    override fun onTrimMemory(level: Int) {
+        appLogger.w("onTrimMemory called - App info: Memory trim level=${MemoryLevel.byLevel(level)}")
+        super.onTrimMemory(level)
+    }
+
     override fun onLowMemory() {
         super.onLowMemory()
         appLogger.w("onLowMemory called - Stopping logging, buckling the seatbelt and hoping for the best!")
@@ -116,5 +128,19 @@ class WireApplication : Application(), Configuration.Provider {
 
     private companion object {
         const val LONG_TASK_THRESH_HOLD_MS = 1000L
+
+        enum class MemoryLevel(val level: Int) {
+            TRIM_MEMORY_BACKGROUND(40),
+            TRIM_MEMORY_COMPLETE(80),
+            TRIM_MEMORY_MODERATE(60),
+            TRIM_MEMORY_RUNNING_CRITICAL(15),
+            TRIM_MEMORY_RUNNING_LOW(10),
+            TRIM_MEMORY_RUNNING_MODERATE(5),
+            TRIM_MEMORY_UI_HIDDEN(20);
+
+            companion object {
+                fun byLevel(value: Int) = values().firstOrNull { it.level == value }
+            }
+        }
     }
 }

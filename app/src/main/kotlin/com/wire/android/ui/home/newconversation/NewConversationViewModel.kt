@@ -4,7 +4,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.mapper.ContactMapper
@@ -33,7 +32,6 @@ import javax.inject.Inject
 @Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel
 class NewConversationViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
     private val createGroupConversation: CreateGroupConversationUseCase,
     getAllKnownUsers: GetAllContactsUseCase,
     searchKnownUsers: SearchKnownUsersUseCase,
@@ -44,7 +42,6 @@ class NewConversationViewModel @Inject constructor(
     sendConnectionRequest: SendConnectionRequestUseCase,
     navigationManager: NavigationManager
 ) : SearchAllPeopleViewModel(
-    savedStateHandle = savedStateHandle,
     getAllKnownUsers = getAllKnownUsers,
     sendConnectionRequest = sendConnectionRequest,
     searchKnownUsers = searchKnownUsers,

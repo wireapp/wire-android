@@ -30,7 +30,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
-import com.wire.kalium.logic.feature.publicuser.search.Result as KnownUserSearchResult
+import com.wire.kalium.logic.feature.publicuser.search.SearchUsersResult as KnownUserSearchResult
 
 @Suppress("LongParameterList")
 @HiltViewModel

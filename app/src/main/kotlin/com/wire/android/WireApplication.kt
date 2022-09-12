@@ -79,7 +79,11 @@ class WireApplication : Application(), Configuration.Provider {
     }
 
     private fun logDeviceInformation() {
-        appLogger.d("Device info: App version=${BuildConfig.VERSION_NAME} | OS Version=${Build.VERSION.SDK_INT} | Phone Model=${Build.BRAND}/${Build.MODEL}")
+        appLogger.d(
+            "Device info: App version=${BuildConfig.VERSION_NAME} " +
+                    "| OS Version=${Build.VERSION.SDK_INT} " +
+                    "| Phone Model=${Build.BRAND}/${Build.MODEL}"
+        )
     }
 
     private fun enableLoggingAndInitiateFileLogging() {
@@ -129,6 +133,7 @@ class WireApplication : Application(), Configuration.Provider {
     private companion object {
         const val LONG_TASK_THRESH_HOLD_MS = 1000L
 
+        @Suppress("MagicNumber")
         enum class MemoryLevel(val level: Int) {
             TRIM_MEMORY_BACKGROUND(40),
             TRIM_MEMORY_COMPLETE(80),

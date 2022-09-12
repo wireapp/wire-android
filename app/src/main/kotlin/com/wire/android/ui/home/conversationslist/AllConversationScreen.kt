@@ -1,13 +1,13 @@
 package com.wire.android.ui.home.conversationslist
 
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material3.Divider
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
@@ -62,7 +62,10 @@ private fun AllConversationContent(
          *  it so it wants to keep this dummy top item as the first one on list and show all other items below it.
          */
         item("empty-top-header") {
-            Spacer(modifier = Modifier.height(Dp.Hairline))
+            Divider(
+                thickness = Dp.Hairline,
+                color = Color.Transparent
+            )
         }
         conversations.forEach { (conversationFolder, conversationList) ->
             folderWithElements(
@@ -70,7 +73,9 @@ private fun AllConversationContent(
                     is ConversationFolder.Predefined -> context.getString(conversationFolder.folderNameResId)
                     is ConversationFolder.Custom -> conversationFolder.folderName
                 },
-                items = conversationList.associateBy { it.conversationId.toString() }
+                items = conversationList.associateBy {
+                    it.conversationId.toString()
+                }
             ) { generalConversation ->
                 ConversationItemFactory(
                     conversation = generalConversation,

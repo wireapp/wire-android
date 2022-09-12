@@ -5,6 +5,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
@@ -23,7 +24,8 @@ import com.wire.kalium.logic.feature.publicuser.GetAllContactsResult
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
 import com.wire.kalium.logic.feature.publicuser.search.Result
 import com.wire.kalium.logic.feature.publicuser.search.SearchKnownUsersUseCase
-import com.wire.kalium.logic.feature.publicuser.search.SearchUsersUseCase
+import com.wire.kalium.logic.feature.publicuser.search.SearchPublicUsersUseCase
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -32,17 +34,20 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.onSubscription
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
-
 @Suppress("TooManyFunctions", "LongParameterList")
 open class SearchAllPeopleViewModel(
+    val savedStateHandle: SavedStateHandle,
     private val getAllKnownUsers: GetAllContactsUseCase,
     private val searchKnownUsers: SearchKnownUsersUseCase,
-    private val searchPublicUsers: SearchUsersUseCase,
+    private val searchPublicUsers: SearchPublicUsersUseCase,
     private val contactMapper: ContactMapper,
     private val dispatcher: DispatcherProvider,
     sendConnectionRequest: SendConnectionRequestUseCase,
@@ -98,17 +103,23 @@ open class SearchAllPeopleViewModel(
             )
         }
 
-    override suspend fun searchPublicPeople(searchTerm: String): ContactSearchResult.ExternalContact =
-        when (val result = withContext(dispatcher.io()) { searchPublicUsers(searchTerm) }) {
-            is Result.Failure.Generic, Result.Failure.InvalidRequest ->
-                ContactSearchResult.ExternalContact(
-                    SearchResultState.Failure(R.string.label_general_error)
+    override suspend fun searchPublicPeople(searchTerm: String): Flow<ContactSearchResult.ExternalContact> {
+        return searchPublicUsers(searchTerm).map { result ->
+            when (result) {
+                is Result.Failure.Generic, Result.Failure.InvalidRequest ->
+                    ContactSearchResult.ExternalContact(
+                        SearchResultState.Failure(R.string.label_general_error)
+                    )
+                Result.Failure.InvalidQuery -> ContactSearchResult.ExternalContact(
+                    SearchResultState.Failure(R.string.label_no_results_found)
                 )
-            Result.Failure.InvalidQuery -> ContactSearchResult.ExternalContact(SearchResultState.Failure(R.string.label_no_results_found))
-            is Result.Success -> ContactSearchResult.ExternalContact(
-                SearchResultState.Success(result.userSearchResult.result.map(contactMapper::fromOtherUser))
-            )
+                is Result.Success -> ContactSearchResult.ExternalContact(
+                    SearchResultState.Success(result.userSearchResult.result.map(contactMapper::fromOtherUser))
+                )
+            }
         }
+            .flowOn(dispatcher.io())
+    }
 
     private fun ContactSearchResult.filterContacts(contactSearchResult: ContactSearchResult): ContactSearchResult {
         return if (searchResultState is SearchResultState.Success &&
@@ -135,20 +146,10 @@ abstract class PublicWithKnownPeopleSearchViewModel(
     navigationManager = navigationManager
 ) {
 
-    private val refreshPublicResult: MutableSharedFlow<PublicRefresh> = MutableSharedFlow(0)
-
-    protected val publicPeopleSearchQueryFlow = mutableSearchQueryFlow
-        .combine(refreshPublicResult.onSubscription { emit(PublicRefresh()) })
-        { searchTerm, publicRefresh ->
-            searchTerm to publicRefresh
-        }.flatMapLatest { (searchTerm, publicRefresh) ->
-            flow {
-                if (publicRefresh.withProgress) {
-                    emit(ContactSearchResult.ExternalContact(SearchResultState.InProgress))
-                }
-
-                emit(searchPublicPeople(searchTerm))
-            }.cancellable()
+    // boris
+    protected val publicPeopleSearchQueryFlow =
+        refreshableSearchFlow(ContactSearchResult.ExternalContact(SearchResultState.InProgress)) { searchTerm ->
+            searchPublicPeople(searchTerm)
         }
 
     fun addContact(contact: Contact) {
@@ -160,17 +161,15 @@ abstract class PublicWithKnownPeopleSearchViewModel(
                     appLogger.d(("Couldn't send a connect request to user $userId"))
                 }
                 is SendConnectionRequestResult.Success -> {
-                    refreshPublicResult.emit(PublicRefresh(withProgress = false))
+                    refreshResults.emit(SearchUserRefresh(withProgress = false))
                     snackbarMessageState = NewConversationSnackbarState.SuccessSendConnectionRequest
                 }
             }
         }
     }
 
-    abstract suspend fun searchPublicPeople(searchTerm: String): ContactSearchResult.ExternalContact
+    abstract suspend fun searchPublicPeople(searchTerm: String): Flow<ContactSearchResult.ExternalContact>
 }
-
-data class PublicRefresh(val withProgress: Boolean = true)
 
 abstract class KnownPeopleSearchViewModel(
     dispatcher: DispatcherProvider,
@@ -180,12 +179,9 @@ abstract class KnownPeopleSearchViewModel(
     navigationManager = navigationManager
 ) {
 
-    protected val knownPeopleSearchQueryFlow = mutableSearchQueryFlow
-        .flatMapLatest { searchTerm ->
-            flow {
-                emit(ContactSearchResult.InternalContact(SearchResultState.InProgress))
-                emit(searchKnownPeople(searchTerm))
-            }.cancellable()
+    protected val knownPeopleSearchQueryFlow =
+        refreshableSearchFlow(ContactSearchResult.InternalContact(SearchResultState.InProgress)) { searchTerm ->
+            flowOf(searchKnownPeople(searchTerm)) // TODO kubaz change usecase to return flow
         }
 
     abstract suspend fun searchKnownPeople(searchTerm: String): ContactSearchResult.InternalContact
@@ -198,6 +194,8 @@ abstract class SearchPeopleViewModel(
     companion object {
         const val DEFAULT_SEARCH_QUERY_DEBOUNCE = 500L
     }
+
+    protected val refreshResults: MutableSharedFlow<SearchUserRefresh> = MutableSharedFlow(0)
 
     protected val mutableSearchQueryFlow = MutableStateFlow("")
 
@@ -223,6 +221,17 @@ abstract class SearchPeopleViewModel(
     protected val searchQueryTextFieldFlow = MutableStateFlow(TextFieldValue(""))
 
     protected val selectedContactsFlow = MutableStateFlow(emptyList<Contact>())
+
+    protected fun <T : ContactSearchResult> refreshableSearchFlow(progress: T, searchBlock: suspend (String) -> Flow<T>): Flow<T> =
+        mutableSearchQueryFlow
+            .combine(refreshResults.onSubscription { emit(SearchUserRefresh()) }, ::Pair)
+            .flatMapLatest { (searchTerm, publicRefresh) ->
+                searchBlock(searchTerm)
+                    .onStart {
+                        if (publicRefresh.withProgress) emit(progress)
+                    }
+                    .cancellable()
+            }
 
     var snackbarMessageState by mutableStateOf<NewConversationSnackbarState>(NewConversationSnackbarState.None)
 
@@ -272,9 +281,17 @@ abstract class SearchPeopleViewModel(
         }
     }
 
+    fun refreshResult() {
+        viewModelScope.launch {
+            refreshResults.emit(SearchUserRefresh(withProgress = false))
+        }
+    }
+
     abstract suspend fun getInitialContacts(): SearchResult
 
 }
+
+data class SearchUserRefresh(val withProgress: Boolean = true)
 
 // Different use cases could return different type for the search, we are making sure here
 // that the type is mapped to a SearchResult that can further used in this class

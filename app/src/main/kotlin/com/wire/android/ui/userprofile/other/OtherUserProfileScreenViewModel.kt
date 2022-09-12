@@ -271,7 +271,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                     showInfoMessage(InfoMessageType.ConnectionIgnoreError)
                 }
                 is IgnoreConnectionRequestUseCaseResult.Success -> {
-                    state = state.copy(connectionState = ConnectionState.NOT_CONNECTED)
+                    state = state.copy(connectionState = ConnectionState.IGNORED)
                     navigationManager.navigateBack(
                         mapOf(
                             EXTRA_CONNECTION_IGNORED_USER_NAME to state.userName,

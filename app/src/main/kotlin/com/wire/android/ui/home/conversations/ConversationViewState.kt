@@ -3,16 +3,15 @@ package com.wire.android.ui.home.conversations
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.team.Team
-import com.wire.kalium.logic.data.user.UserAvailabilityStatus
-import okio.Path
 import com.wire.kalium.logic.data.user.ConnectionState
+import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.data.id.QualifiedID as ConversationId
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
+import okio.Path
+import com.wire.kalium.logic.data.id.QualifiedID as ConversationId
 
 data class ConversationViewState(
     val snackbarMessage: ConversationSnackbarMessages? = null,
-    val messageText: String = "",
     val userTeam: Team? = null,
     val isFileSharingEnabled: Boolean = true,
     val securityClassificationType: SecurityClassificationType = SecurityClassificationType.NONE

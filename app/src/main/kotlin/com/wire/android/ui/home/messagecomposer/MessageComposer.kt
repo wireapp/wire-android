@@ -23,8 +23,8 @@ import androidx.compose.material.Surface
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
@@ -53,9 +53,7 @@ import okio.Path
 fun MessageComposer(
     keyboardHeight: KeyboardHeight,
     content: @Composable () -> Unit,
-    messageText: String,
-    onMessageChanged: (String) -> Unit,
-    onSendButtonClicked: () -> Unit,
+    onSendTextMessage: (String) -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
     onMessageComposerInputStateChange: (MessageComposerStateTransition) -> Unit,
@@ -71,28 +69,26 @@ fun MessageComposer(
             onMessageComposeInputStateChanged = onMessageComposerInputStateChange
         )
 
-        LaunchedEffect(messageText) {
-            messageComposerState.messageText = messageComposerState.messageText.copy(messageText)
+        val onSendButtonClicked = remember {
+            {
+                onSendTextMessage(messageComposerState.messageText.text)
+                messageComposerState.messageText = TextFieldValue("")
+            }
+        }
+
+        val onSendAttachmentClicked = remember {
+            { attachmentBundle: AttachmentBundle? ->
+                onSendAttachment(attachmentBundle)
+                messageComposerState.toggleAttachmentOptionsVisibility()
+            }
         }
 
         MessageComposer(
             content = content,
             keyboardHeight = keyboardHeight,
             messageComposerState = messageComposerState,
-            messageText = messageComposerState.messageText,
-            onMessageChanged = {
-                // we are setting it immediately in the UI first
-                messageComposerState.messageText = it
-                // we are hoisting the TextFieldValue text value up to the parent
-                if (messageText != it.text) {
-                    onMessageChanged(it.text)
-                }
-            },
             onSendButtonClicked = onSendButtonClicked,
-            onSendAttachment = {
-                onSendAttachment(it)
-                messageComposerState.toggleAttachmentOptionsVisibility()
-            },
+            onSendAttachmentClicked = onSendAttachmentClicked,
             onMessageComposerError = onMessageComposerError,
             isFileSharingEnabled = isFileSharingEnabled,
             isUserBlocked = isUserBlocked,
@@ -115,10 +111,8 @@ private fun MessageComposer(
     content: @Composable () -> Unit,
     keyboardHeight: KeyboardHeight,
     messageComposerState: MessageComposerInnerState,
-    messageText: TextFieldValue,
-    onMessageChanged: (TextFieldValue) -> Unit,
     onSendButtonClicked: () -> Unit,
-    onSendAttachment: (AttachmentBundle?) -> Unit,
+    onSendAttachmentClicked: (AttachmentBundle?) -> Unit,
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
     isFileSharingEnabled: Boolean,
     isUserBlocked: Boolean,
@@ -222,7 +216,7 @@ private fun MessageComposer(
                             // when other we center it vertically. Once we go to Fullscreen, we set the weight to 1f
                             // so that it fills the whole Row which is = height of the whole screen - height of TopBar -
                             // - height of container with additional options
-                            MessageComposerInputRow(messageComposerState, transition, messageText, onMessageChanged)
+                            MessageComposerInputRow(transition, messageComposerState)
                         }
                     }
                 }
@@ -261,7 +255,7 @@ private fun MessageComposer(
                 AttachmentOptions(
                     keyboardHeight,
                     messageComposerState,
-                    onSendAttachment,
+                    onSendAttachmentClicked,
                     onMessageComposerError,
                     isFileSharingEnabled,
                     tempCachePath
@@ -290,7 +284,6 @@ private fun CollapseIconButtonBox(
                 when (state) {
                     MessageComposeInputState.Active, MessageComposeInputState.Enabled -> 0f
                     MessageComposeInputState.FullScreen -> 180f
-
                 }
             }
             CollapseIconButton(

@@ -146,18 +146,11 @@ abstract class PublicWithKnownPeopleSearchViewModel(
     navigationManager = navigationManager
 ) {
 
-    private val refreshPublicResult: MutableSharedFlow<PublicRefresh> = MutableSharedFlow(0)
-
     protected val publicPeopleSearchQueryFlow = mutableSearchQueryFlow
-        .combine(refreshPublicResult.onSubscription { emit(PublicRefresh()) })
-        { searchTerm, publicRefresh ->
-            searchTerm to publicRefresh
-        }.flatMapLatest { (searchTerm, publicRefresh) ->
+        .flatMapLatest { searchTerm ->
             searchPublicPeople(searchTerm)
                 .onStart {
-                    if (publicRefresh.withProgress) {
-                        emit(ContactSearchResult.ExternalContact(SearchResultState.InProgress))
-                    }
+                    emit(ContactSearchResult.ExternalContact(SearchResultState.InProgress))
                 }
         }
 
@@ -170,7 +163,6 @@ abstract class PublicWithKnownPeopleSearchViewModel(
                     appLogger.d(("Couldn't send a connect request to user $userId"))
                 }
                 is SendConnectionRequestResult.Success -> {
-                    refreshPublicResult.emit(PublicRefresh(withProgress = false))
                     snackbarMessageState = NewConversationSnackbarState.SuccessSendConnectionRequest
                 }
             }

@@ -36,7 +36,7 @@ fun LogoutWipeDataDialog(
                 state = WireButtonState.Default
             ),
             optionButton1Properties = WireDialogButtonProperties(
-                onClick = remember { { logout(state.shouldWipeData).also { dialogState.dismiss() } } },
+                onClick = remember(state) { { logout(state.shouldWipeData).also { dialogState.dismiss() } } },
                 text = stringResource(id = R.string.user_profile_logout),
                 type = WireDialogButtonType.Primary,
                 state = WireButtonState.Default

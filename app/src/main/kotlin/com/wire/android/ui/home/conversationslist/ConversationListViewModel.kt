@@ -56,6 +56,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Date
@@ -90,9 +91,10 @@ class ConversationListViewModel @Inject constructor(
         startObservingConversationsAndConnections()
     }
 
-    private fun startObservingConversationsAndConnections() = viewModelScope.launch(dispatcher.io()) {
-        observeConversationsAndConnections() // TODO AR-1736
+    private fun startObservingConversationsAndConnections() = viewModelScope.launch {
+        observeConversationsAndConnections()
             .combine(observeSelfUser(), ::Pair)
+            .flowOn(dispatcher.io())
             .collect { (conversationListDetails, selfUser) ->
                 with(conversationListDetails) {
                     selfUserId = selfUser.id

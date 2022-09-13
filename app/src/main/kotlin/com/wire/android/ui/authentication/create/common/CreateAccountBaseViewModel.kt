@@ -249,17 +249,20 @@ abstract class CreateAccountBaseViewModel(
                     )
             }
 
-            val (authTokens, ssoId, serverConfigId) = registerAccountUseCase(registerParam).let {
+            val registerResult = registerAccountUseCase(registerParam).let {
                 when (it) {
                     is RegisterResult.Failure -> {
                         updateCodeErrorState(it.toCodeError())
                         return@launch
                     }
-                    is RegisterResult.Success -> it.authData
+                    is RegisterResult.Success -> it
                 }
             }
             val storedUserId = addAuthenticatedUser(
-                authTokens = authTokens, ssoId = ssoId, serverConfigId = serverConfigId, replace = false
+                authTokens = registerResult.authData,
+                ssoId = registerResult.ssoID,
+                serverConfigId = registerResult.serverConfigId,
+                replace = false
             ).let {
                 when (it) {
                     is AddAuthenticatedUserUseCase.Result.Failure -> {

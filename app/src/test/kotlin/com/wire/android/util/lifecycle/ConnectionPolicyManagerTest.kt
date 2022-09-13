@@ -1,5 +1,6 @@
 package com.wire.android.util.lifecycle
 
+import android.accounts.Account
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.util.CurrentScreenManager
 import com.wire.kalium.logic.CoreLogic
@@ -7,7 +8,7 @@ import com.wire.kalium.logic.data.session.SessionRepository
 import com.wire.kalium.logic.data.sync.ConnectionPolicy
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.UserSessionScope
-import com.wire.kalium.logic.feature.auth.AuthSession
+import com.wire.kalium.logic.feature.auth.AccountInfo
 import com.wire.kalium.logic.functional.Either
 import com.wire.kalium.logic.sync.SetConnectionPolicyUseCase
 import com.wire.kalium.logic.sync.SyncManager
@@ -135,7 +136,7 @@ class ConnectionPolicyManagerTest {
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
 
-            every { coreLogic.sessionRepository } returns sessionRepository
+            every { coreLogic.getGlobalScope().sessionRepository } returns sessionRepository
             every { coreLogic.getSessionScope(USER_ID) } returns userSessionScope
             every { userSessionScope.setConnectionPolicy } returns setConnectionPolicyUseCase
             every { userSessionScope.syncManager } returns syncManager
@@ -150,10 +151,8 @@ class ConnectionPolicyManagerTest {
         }
 
         fun withCurrentSession(userId: UserId) = apply {
-            val authSession: AuthSession = mockk()
-            val session: AuthSession.Session = mockk()
-            every { authSession.session } returns session
-            every { session.userId } returns userId
+            val authSession: AccountInfo = mockk()
+            every { authSession.userId } returns userId
             every { sessionRepository.currentSession() } returns Either.Right(authSession)
         }
 

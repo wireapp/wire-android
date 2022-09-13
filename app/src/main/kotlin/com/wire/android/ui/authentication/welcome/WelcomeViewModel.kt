@@ -44,6 +44,7 @@ class WelcomeViewModel @Inject constructor(
     }
 
     private fun checkNumberOfSessions() {
+        viewModelScope.launch {
             getSessions().let {
                 when (it) {
                     is GetAllSessionsResult.Success -> {
@@ -53,6 +54,7 @@ class WelcomeViewModel @Inject constructor(
                     is GetAllSessionsResult.Failure.Generic -> {}
                     GetAllSessionsResult.Failure.NoSessionFound -> {
                         isThereActiveSession = false
+                    }
                 }
             }
         }

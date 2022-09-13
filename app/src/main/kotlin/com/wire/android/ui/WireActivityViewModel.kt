@@ -39,6 +39,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.withTimeoutOrNull
 import javax.inject.Inject
 
 @Suppress("LongParameterList", "TooManyFunctions")
@@ -100,56 +101,58 @@ class WireActivityViewModel @Inject constructor(
 
     fun handleDeepLink(intent: Intent?) {
         intent?.data?.let { deepLink ->
-            when (val result = deepLinkProcessor(deepLink)) {
-                is DeepLinkResult.CustomServerConfig -> loadServerConfig(result.url)?.let { serverLinks ->
-                    customBackendDialogState = customBackendDialogState.copy(
-                        shouldShowDialog = true, serverLinks = serverLinks
-                    )
-                    navigationArguments.put(SERVER_CONFIG_ARG, serverLinks)
-                }
-
-                is DeepLinkResult.SSOLogin -> navigationArguments.put(SSO_DEEPLINK_ARG, result)
-
-                is DeepLinkResult.IncomingCall -> {
-                    if (isLaunchedFromHistory(intent)) {
-                        //We don't need to handle deepLink, if activity was launched from history.
-                        //For example: user opened app by deepLink, then closed it by back button click,
-                        //then open the app from the "Recent Apps"
-                        appLogger.i("IncomingCall deepLink launched from the history")
-                    } else {
-                        navigationArguments.put(INCOMING_CALL_CONVERSATION_ID_ARG, result.conversationsId)
+            viewModelScope.launch {
+                when (val result = deepLinkProcessor(deepLink)) {
+                    is DeepLinkResult.CustomServerConfig -> loadServerConfig(result.url)?.let { serverLinks ->
+                        customBackendDialogState = customBackendDialogState.copy(
+                            shouldShowDialog = true, serverLinks = serverLinks
+                        )
+                        navigationArguments.put(SERVER_CONFIG_ARG, serverLinks)
                     }
-                }
 
-                is DeepLinkResult.OngoingCall -> {
-                    if (isLaunchedFromHistory(intent)) {
-                        //We don't need to handle deepLink, if activity was launched from history.
-                        //For example: user opened app by deepLink, then closed it by back button click,
-                        //then open the app from the "Recent Apps"
-                        appLogger.i("IncomingCall deepLink launched from the history")
-                    } else {
-                        navigationArguments.put(ONGOING_CALL_CONVERSATION_ID_ARG, result.conversationsId)
+                    is DeepLinkResult.SSOLogin -> navigationArguments.put(SSO_DEEPLINK_ARG, result)
+
+                    is DeepLinkResult.IncomingCall -> {
+                        if (isLaunchedFromHistory(intent)) {
+                            //We don't need to handle deepLink, if activity was launched from history.
+                            //For example: user opened app by deepLink, then closed it by back button click,
+                            //then open the app from the "Recent Apps"
+                            appLogger.i("IncomingCall deepLink launched from the history")
+                        } else {
+                            navigationArguments.put(INCOMING_CALL_CONVERSATION_ID_ARG, result.conversationsId)
+                        }
                     }
-                }
 
-                is DeepLinkResult.OpenConversation -> {
-                    if (isLaunchedFromHistory(intent)) {
-                        appLogger.i("OpenConversation deepLink launched from the history")
-                    } else {
-                        navigationArguments.put(OPEN_CONVERSATION_ID_ARG, result.conversationsId)
+                    is DeepLinkResult.OngoingCall -> {
+                        if (isLaunchedFromHistory(intent)) {
+                            //We don't need to handle deepLink, if activity was launched from history.
+                            //For example: user opened app by deepLink, then closed it by back button click,
+                            //then open the app from the "Recent Apps"
+                            appLogger.i("IncomingCall deepLink launched from the history")
+                        } else {
+                            navigationArguments.put(ONGOING_CALL_CONVERSATION_ID_ARG, result.conversationsId)
+                        }
                     }
-                }
 
-                is DeepLinkResult.OpenOtherUserProfile -> {
-                    if (isLaunchedFromHistory(intent)) {
-                        appLogger.i("OpenOtherUserProfile deepLink launched from the history")
-                    } else {
-                        navigationArguments.put(OPEN_OTHER_USER_PROFILE_ARG, result.userId)
+                    is DeepLinkResult.OpenConversation -> {
+                        if (isLaunchedFromHistory(intent)) {
+                            appLogger.i("OpenConversation deepLink launched from the history")
+                        } else {
+                            navigationArguments.put(OPEN_CONVERSATION_ID_ARG, result.conversationsId)
+                        }
                     }
-                }
 
-                DeepLinkResult.Unknown -> {
-                    appLogger.e("unknown deeplink result $result")
+                    is DeepLinkResult.OpenOtherUserProfile -> {
+                        if (isLaunchedFromHistory(intent)) {
+                            appLogger.i("OpenOtherUserProfile deepLink launched from the history")
+                        } else {
+                            navigationArguments.put(OPEN_OTHER_USER_PROFILE_ARG, result.userId)
+                        }
+                    }
+
+                    DeepLinkResult.Unknown -> {
+                        appLogger.e("unknown deeplink result $result")
+                    }
                 }
             }
         }
@@ -256,14 +259,12 @@ class WireActivityViewModel @Inject constructor(
         }
     }
 
-    private fun loadServerConfig(url: String): ServerConfig.Links? = runBlocking {
-        return@runBlocking when (val result = getServerConfigUseCase(url)) {
-            is GetServerConfigResult.Success -> result.serverConfigLinks
-            // TODO: show error message on failure
-            is GetServerConfigResult.Failure.Generic -> {
-                appLogger.e("something went wrong during handling the custom server deep link: ${result.genericFailure}")
-                null
-            }
+    private suspend fun loadServerConfig(url: String): ServerConfig.Links? = when (val result = getServerConfigUseCase(url)) {
+        is GetServerConfigResult.Success -> result.serverConfigLinks
+        // TODO: show error message on failure
+        is GetServerConfigResult.Failure.Generic -> {
+            appLogger.e("something went wrong during handling the custom server deep link: ${result.genericFailure}")
+            null
         }
     }
 

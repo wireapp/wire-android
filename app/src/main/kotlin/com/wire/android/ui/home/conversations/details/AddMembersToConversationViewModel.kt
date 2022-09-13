@@ -94,14 +94,13 @@ class AddMembersToConversationViewModel @Inject constructor(
                 selfUserIncluded = false
             )
         )
-            .flowOn(dispatchers.io())
             .map { result ->
                 when (result) {
                     is KnownUserSearchResult.Failure.Generic -> ContactSearchResult.InternalContact(
                         SearchResultState.Failure(R.string.label_general_error)
                     )
                     KnownUserSearchResult.Failure.InvalidQuery -> ContactSearchResult.InternalContact(
-                        SearchResultState.Failure(R.string.label_general_error)
+                        SearchResultState.Failure(R.string.label_no_results_found)
                     )
                     KnownUserSearchResult.Failure.InvalidRequest -> ContactSearchResult.InternalContact(
                         SearchResultState.Failure(R.string.label_general_error)

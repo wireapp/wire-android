@@ -114,11 +114,13 @@ fun GroupCallGrid(
     }
 }
 
-fun isVideoStateChangedComparedToLastList(newParticipants: List<UICallParticipant>): Boolean {
+@Suppress("ReturnCount")
+fun isVideoStateChangedComparedToLastList(newParticipants: List<UICallParticipant>) : Boolean {
     if (lastParticipants.isEmpty())
         return true
     lastParticipants.zip(newParticipants).forEach { pair ->
-        if (pair.first.isCameraOn != pair.second.isCameraOn || (pair.first.isCameraOn != pair.second.isCameraOn)) return true
+        if (pair.first.isCameraOn != pair.second.isCameraOn || (pair.first.isCameraOn != pair.second.isCameraOn))
+            return true
     }
     return false
 }

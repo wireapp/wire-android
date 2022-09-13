@@ -119,7 +119,7 @@ class WireApplication : Application(), Configuration.Provider {
         Datadog.initialize(this, credentials, configuration, TrackingConsent.GRANTED)
         
         if (android.os.Build.VERSION.SDK_INT >= 26) {
-            Datadog.setUserInfo(id = getDeviceId(this).sha256())
+            Datadog.setUserInfo(id = getDeviceId(this)?.sha256())
         }
         
         GlobalRum.registerIfAbsent(RumMonitor.Builder().build())

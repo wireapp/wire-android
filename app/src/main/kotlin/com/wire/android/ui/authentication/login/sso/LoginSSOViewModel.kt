@@ -77,7 +77,12 @@ class LoginSSOViewModel @Inject constructor(
                     is SSOLoginSessionResult.Success -> it.authTokens to it.ssoId
                 }
             }
-            val storedUserId = addAuthenticatedUser(authTokens = authTokens, ssoId = ssoId, serverConfigId = serverConfigId, replace = false).let {
+            val storedUserId = addAuthenticatedUser(
+                authTokens = authTokens,
+                ssoId = ssoId,
+                serverConfigId = serverConfigId,
+                replace = false
+            ).let {
                 when (it) {
                     is AddAuthenticatedUserUseCase.Result.Failure -> {
                         updateSSOLoginError(it.toLoginError())

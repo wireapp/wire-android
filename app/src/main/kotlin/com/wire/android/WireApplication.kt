@@ -1,6 +1,7 @@
 package com.wire.android
 
 import android.app.Application
+import android.content.ComponentCallbacks2
 import android.os.Build
 import androidx.work.Configuration
 import co.touchlab.kermit.platformLogWriter
@@ -136,15 +137,15 @@ class WireApplication : Application(), Configuration.Provider {
     private companion object {
         const val LONG_TASK_THRESH_HOLD_MS = 1000L
 
-        @Suppress("MagicNumber")
         enum class MemoryLevel(val level: Int) {
-            TRIM_MEMORY_BACKGROUND(40),
-            TRIM_MEMORY_COMPLETE(80),
-            TRIM_MEMORY_MODERATE(60),
-            TRIM_MEMORY_RUNNING_CRITICAL(15),
-            TRIM_MEMORY_RUNNING_LOW(10),
-            TRIM_MEMORY_RUNNING_MODERATE(5),
-            TRIM_MEMORY_UI_HIDDEN(20),
+            TRIM_MEMORY_BACKGROUND(ComponentCallbacks2.TRIM_MEMORY_BACKGROUND),
+            TRIM_MEMORY_COMPLETE(ComponentCallbacks2.TRIM_MEMORY_COMPLETE),
+            TRIM_MEMORY_MODERATE(ComponentCallbacks2.TRIM_MEMORY_MODERATE),
+            TRIM_MEMORY_RUNNING_CRITICAL(ComponentCallbacks2.TRIM_MEMORY_RUNNING_CRITICAL),
+            TRIM_MEMORY_RUNNING_LOW(ComponentCallbacks2.TRIM_MEMORY_RUNNING_LOW),
+            TRIM_MEMORY_RUNNING_MODERATE(ComponentCallbacks2.TRIM_MEMORY_RUNNING_MODERATE),
+            TRIM_MEMORY_UI_HIDDEN(ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN),
+            @Suppress("MagicNumber")
             TRIM_MEMORY_UNKNOWN(-1);
 
             companion object {

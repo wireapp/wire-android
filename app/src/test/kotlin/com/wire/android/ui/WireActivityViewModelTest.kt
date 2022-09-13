@@ -16,7 +16,7 @@ import com.wire.android.util.newServerConfig
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.auth.AuthSession
+import com.wire.kalium.logic.feature.auth.AccountInfo
 import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
@@ -401,7 +401,7 @@ class WireActivityViewModelTest {
         }
 
         fun withSomeCurrentSession(): Arrangement {
-            coEvery { currentSessionFlow() } returns flowOf(CurrentSessionResult.Success(TEST_AUTH_SESSION))
+            coEvery { currentSessionFlow() } returns flowOf(CurrentSessionResult.Success(TEST_ACCOUNT_INFO))
             return this
         }
 
@@ -421,16 +421,7 @@ class WireActivityViewModelTest {
 
 
     companion object {
-        val TEST_AUTH_SESSION =
-            AuthSession(
-                AuthSession.Session.Valid(
-                    userId = UserId("user_id", "domain.de"),
-                    accessToken = "access_token",
-                    refreshToken = "refresh_token",
-                    tokenType = "token_type",
-                ),
-                newServerConfig(1).links
-            )
+        val TEST_ACCOUNT_INFO = AccountInfo.Valid(UserId("user_id", "domain.de"))
 
         private fun mockedIntent(isFromHistory: Boolean = false): Intent {
             return mockk<Intent>().also {

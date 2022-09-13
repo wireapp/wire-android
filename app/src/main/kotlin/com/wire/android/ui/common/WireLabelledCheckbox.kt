@@ -1,8 +1,10 @@
 package com.wire.android.ui.common
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.selection.toggleable
 import androidx.compose.material3.Checkbox
@@ -25,6 +27,7 @@ fun WireLabelledCheckbox(
     checked: Boolean,
     onCheckClicked: ((Boolean) -> Unit),
     horizontalArrangement: Arrangement.Horizontal = Arrangement.Start,
+    contentPadding: PaddingValues = PaddingValues(dimensions().spacing0x),
     modifier: Modifier = Modifier
 ) {
     Row(
@@ -36,6 +39,7 @@ fun WireLabelledCheckbox(
                 role = Role.Checkbox,
                 onValueChange = { onCheckClicked(!checked) }
             )
+            .padding(contentPadding)
     ) {
         Checkbox(
             checked = checked,
@@ -58,8 +62,7 @@ fun WireLabelledCheckbox(
 @Composable
 fun WireCheckbox(
     checked: Boolean,
-    onCheckedChange: ((Boolean) -> Unit),
-    modifier: Modifier = Modifier
+    onCheckedChange: ((Boolean) -> Unit)
 ) {
     Checkbox(
         checked = checked,

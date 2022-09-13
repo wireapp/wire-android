@@ -65,19 +65,24 @@ class LoginSSOViewModel @Inject constructor(
     }
 
     @VisibleForTesting
-    fun establishSSOSession(cookie: String) {
+    fun establishSSOSession(cookie: String, serverConfigId: String) {
         loginState = loginState.copy(ssoLoginLoading = true, loginError = LoginError.None).updateSSOLoginEnabled()
         viewModelScope.launch {
-            val (authSession, ssoId) = getSSOLoginSessionUseCase(cookie).let {
+            val (authTokens, ssoId) = getSSOLoginSessionUseCase(cookie).let {
                 when (it) {
                     is SSOLoginSessionResult.Failure -> {
                         updateSSOLoginError(it.toLoginError())
                         return@launch
                     }
-                    is SSOLoginSessionResult.Success -> it.userSession to it.ssoId
+                    is SSOLoginSessionResult.Success -> it.authTokens to it.ssoId
                 }
             }
-            val storedUserId = addAuthenticatedUser(authSession, ssoId, false).let {
+            val storedUserId = addAuthenticatedUser(
+                authTokens = authTokens,
+                ssoId = ssoId,
+                serverConfigId = serverConfigId,
+                replace = false
+            ).let {
                 when (it) {
                     is AddAuthenticatedUserUseCase.Result.Failure -> {
                         updateSSOLoginError(it.toLoginError())
@@ -113,7 +118,7 @@ class LoginSSOViewModel @Inject constructor(
 
     fun handleSSOResult(ssoLoginResult: DeepLinkResult.SSOLogin?) = when (ssoLoginResult) {
         is DeepLinkResult.SSOLogin.Success -> {
-            establishSSOSession(ssoLoginResult.cookie)
+            establishSSOSession(ssoLoginResult.cookie, ssoLoginResult.serverConfigId)
         }
 
         is DeepLinkResult.SSOLogin.Failure -> updateSSOLoginError(LoginError.DialogError.SSOResultError(ssoLoginResult.ssoError))

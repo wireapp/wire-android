@@ -1,5 +1,6 @@
 package com.wire.android.ui.calling
 
+import android.util.Log
 import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.FrameLayout
@@ -85,12 +86,37 @@ fun ParticipantTile(
                     onClearSelfUserVideoPreview = onClearSelfUserVideoPreview
                 )
             } else {
-                OthersVideo(
-                    isCameraOn = participantTitleState.isCameraOn,
-                    isSharingScreen = participantTitleState.isSharingScreen,
-                    userId = participantTitleState.id.toString(),
-                    clientId = participantTitleState.clientId
+
+                val context = LocalContext.current
+                AndroidView(factory = {
+                    FrameLayout(it)
+                },
+                    update = {
+                        it.removeAllViews()
+
+                        if (participantTitleState.isCameraOn || participantTitleState.isSharingScreen) {
+
+                            val videoRenderer = VideoRenderer(
+                                context,
+                                participantTitleState.id.toString(),
+                                participantTitleState.clientId,
+                                false
+                            ).apply {
+                                layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+                            }
+                            it.addView(videoRenderer)
+                        }
+
+
+                    }
                 )
+
+//                OthersVideo(
+//                    isCameraOn = participantTitleState.isCameraOn,
+//                    isSharingScreen = participantTitleState.isSharingScreen,
+//                    userId = participantTitleState.id.toString(),
+//                    clientId = participantTitleState.clientId
+//                )
             }
 
             MicrophoneTile(
@@ -123,6 +149,8 @@ fun ParticipantTile(
     }
 }
 
+val views = mutableMapOf<String, VideoRenderer>()
+
 @Composable
 private fun OthersVideo(
     isCameraOn: Boolean,
@@ -130,14 +158,25 @@ private fun OthersVideo(
     userId: String,
     clientId: String
 ) {
-    if (isCameraOn || isSharingScreen) {
-        val context = LocalContext.current
-        AndroidView(factory = {
-            VideoRenderer(context, userId, clientId, false).apply {
-                layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+    val context = LocalContext.current
+    val frameLayout = FrameLayout(context)
+    Log.d("parent", "OthersVideo: ")
+    AndroidView(factory =
+    {
+        frameLayout
+    },
+        update = {
+            it.removeAllViews()
+
+            if (isCameraOn || isSharingScreen) {
+
+                val view2 = VideoRenderer(context, userId, clientId, false).apply {
+                    layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+                }
+                it.addView(view2)
             }
-        })
-    }
+        }
+    )
 }
 
 @Composable

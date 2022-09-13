@@ -223,7 +223,12 @@ fun openAssetFileWithExternalApp(assetDataPath: Path, context: Context, assetExt
 
 
 fun getDeviceId(context: Context): String? {
-    return Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
+    
+    if (android.os.Build.VERSION.SDK_INT >= 26) {
+        return Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
+    }
+    
+    return null
 }
 
 fun Context.getProviderAuthority() = "${packageName}.provider"

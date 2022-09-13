@@ -117,11 +117,7 @@ class WireApplication : Application(), Configuration.Provider {
 
         val credentials = Credentials(clientToken, environmentName, appVariantName, applicationId)
         Datadog.initialize(this, credentials, configuration, TrackingConsent.GRANTED)
-        
-        if (android.os.Build.VERSION.SDK_INT >= 26) {
-            Datadog.setUserInfo(id = getDeviceId(this)?.sha256())
-        }
-        
+        Datadog.setUserInfo(id = getDeviceId(this)
         GlobalRum.registerIfAbsent(RumMonitor.Builder().build())
     }
 

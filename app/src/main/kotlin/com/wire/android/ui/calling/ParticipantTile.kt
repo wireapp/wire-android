@@ -49,6 +49,7 @@ fun ParticipantTile(
     onGoingCallTileUsernameMaxWidth: Dp = 350.dp,
     avatarSize: Dp = dimensions().onGoingCallUserAvatarSize,
     isSelfUser: Boolean,
+    shouldRecomposeVideoRenderer: Boolean,
     onSelfUserVideoPreviewCreated: (view: View) -> Unit,
     onClearSelfUserVideoPreview: () -> Unit
 ) {
@@ -86,37 +87,41 @@ fun ParticipantTile(
                     onClearSelfUserVideoPreview = onClearSelfUserVideoPreview
                 )
             } else {
-
                 val context = LocalContext.current
                 AndroidView(factory = {
-                    FrameLayout(it)
+                    val videoRenderer = VideoRenderer(
+                        context,
+                        participantTitleState.id.toString(),
+                        participantTitleState.clientId,
+                        false
+                    ).apply {
+                        layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+                    }
+                    val frameLayout = FrameLayout(it)
+                    frameLayout.addView(videoRenderer)
+                    frameLayout
                 },
                     update = {
-                        it.removeAllViews()
+                        if (shouldRecomposeVideoRenderer) {
+                            // Needed to disconnect renderer from container, skip this will lead to same issues like video freezing
+                            it.removeAllViews()
 
-                        if (participantTitleState.isCameraOn || participantTitleState.isSharingScreen) {
+                            if (participantTitleState.isCameraOn || participantTitleState.isSharingScreen) {
 
-                            val videoRenderer = VideoRenderer(
-                                context,
-                                participantTitleState.id.toString(),
-                                participantTitleState.clientId,
-                                false
-                            ).apply {
-                                layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+                                val videoRenderer = VideoRenderer(
+                                    context,
+                                    participantTitleState.id.toString(),
+                                    participantTitleState.clientId,
+                                    false
+                                ).apply {
+                                    layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+                                }
+                                it.addView(videoRenderer)
                             }
-                            it.addView(videoRenderer)
+
                         }
-
-
                     }
                 )
-
-//                OthersVideo(
-//                    isCameraOn = participantTitleState.isCameraOn,
-//                    isSharingScreen = participantTitleState.isSharingScreen,
-//                    userId = participantTitleState.id.toString(),
-//                    clientId = participantTitleState.clientId
-//                )
             }
 
             MicrophoneTile(
@@ -147,36 +152,6 @@ fun ParticipantTile(
 
         }
     }
-}
-
-val views = mutableMapOf<String, VideoRenderer>()
-
-@Composable
-private fun OthersVideo(
-    isCameraOn: Boolean,
-    isSharingScreen: Boolean,
-    userId: String,
-    clientId: String
-) {
-    val context = LocalContext.current
-    val frameLayout = FrameLayout(context)
-    Log.d("parent", "OthersVideo: ")
-    AndroidView(factory =
-    {
-        frameLayout
-    },
-        update = {
-            it.removeAllViews()
-
-            if (isCameraOn || isSharingScreen) {
-
-                val view2 = VideoRenderer(context, userId, clientId, false).apply {
-                    layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
-                }
-                it.addView(view2)
-            }
-        }
-    )
 }
 
 @Composable
@@ -276,6 +251,7 @@ private fun ParticipantTilePreview() {
         ),
         onClearSelfUserVideoPreview = {},
         onSelfUserVideoPreviewCreated = {},
-        isSelfUser = false
+        isSelfUser = false,
+        shouldRecomposeVideoRenderer = false
     )
 }

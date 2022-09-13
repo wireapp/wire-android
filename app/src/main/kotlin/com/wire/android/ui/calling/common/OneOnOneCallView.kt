@@ -34,6 +34,9 @@ fun OneOnOneCallView(
 ) {
     val config = LocalConfiguration.current
 
+    // We use this to check if we need to recompose renderers or not, mainly used to avoid recomposition which makes the screen flickering
+    val shouldRecomposeVideoRenderer = isVideoStateChangedComparedToLastList(participants)
+
     LazyColumn(
         modifier = Modifier.padding(dimensions().spacing4x),
         verticalArrangement = Arrangement.spacedBy(MaterialTheme.wireDimensions.spacing2x)
@@ -78,8 +81,11 @@ fun OneOnOneCallView(
                 onClearSelfUserVideoPreview = {
                     if (isSelfUser)
                         onSelfClearVideoPreview()
-                }
+                },
+                shouldRecomposeVideoRenderer = shouldRecomposeVideoRenderer
             )
+            lastParticipants.clear()
+            lastParticipants.addAll(participants)
         }
     }
 

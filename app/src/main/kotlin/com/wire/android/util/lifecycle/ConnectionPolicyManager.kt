@@ -97,11 +97,11 @@ class ConnectionPolicyManager @Inject constructor(
     }
 
     private fun isCurrentSession(userId: UserId): Boolean {
-        val isCurrentSession = coreLogic.sessionRepository.currentSession().fold({
+        val isCurrentSession = coreLogic.getGlobalScope().sessionRepository.currentSession().fold({
             // Assume so in case of failure
             true
         }, {
-            it.token.userId == userId
+            it.userId == userId
         })
         return isCurrentSession
     }
@@ -120,11 +120,11 @@ class ConnectionPolicyManager @Inject constructor(
         coreLogic.getSessionScope(userId).setConnectionPolicy(connectionPolicy)
     }
 
-    private fun allValidSessions() =
-        coreLogic.sessionRepository.allValidSessions()
-            .map { it.map { session -> session.token.userId } }.fold({ emptyList() }, { it })
+    private suspend fun allValidSessions() =
+        coreLogic.getGlobalScope().sessionRepository.allValidSessions()
+            .map { it.map { session -> session.userId } }.fold({ emptyList() }, { it })
 
     private fun currentSessionFlow() =
-        coreLogic.sessionRepository.currentSessionFlow()
-            .map { it.nullableFold({ null }, { currentSession -> currentSession.token.userId }) }
+        coreLogic.getGlobalScope().sessionRepository.currentSessionFlow()
+            .map { it.nullableFold({ null }, { currentSession -> currentSession.userId }) }
 }

@@ -88,7 +88,7 @@ class WireNotificationManager @Inject constructor(
 
     private fun isNotCurrentUser(userId: String): Boolean {
         return when (val result = coreLogic.getGlobalScope().session.currentSession()) {
-            is CurrentSessionResult.Success -> result.authSession.token.userId.value != userId
+            is CurrentSessionResult.Success -> result.accountInfo.userId.value != userId
             else -> true // Fallback to display notifications anyway in case of unexpected error
         }
     }
@@ -140,13 +140,13 @@ class WireNotificationManager @Inject constructor(
      * return the userId if the user is authenticated and null otherwise
      */
     @Suppress("NestedBlockDepth")
-    private fun checkIfUserIsAuthenticated(userId: String): QualifiedID? =
+    private suspend fun checkIfUserIsAuthenticated(userId: String): QualifiedID? =
         coreLogic.globalScope { getSessions() }.let {
             when (it) {
                 is GetAllSessionsResult.Success -> {
                     for (sessions in it.sessions) {
-                        if (sessions.token.userId.value == userId)
-                            return@let sessions.token.userId
+                        if (sessions.userId.value == userId)
+                            return@let sessions.userId
                     }
                     null
                 }

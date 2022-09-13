@@ -19,6 +19,7 @@ import com.wire.android.ui.userprofile.self.dialog.StatusDialogData
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.configuration.server.ServerConfig
+import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.UserAssetId
@@ -34,10 +35,13 @@ import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import com.wire.kalium.logic.feature.user.UpdateSelfAvailabilityStatusUseCase
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -76,18 +80,25 @@ class SelfUserProfileViewModel @Inject constructor(
 
     private fun observeEstablishedCall() {
         viewModelScope.launch {
-            observeEstablishedCalls().map { it.isNotEmpty() }.distinctUntilChanged().collect {
-                userProfileState = userProfileState.copy(isUserInCall = it)
-            }
+            val establishedCalls = observeEstablishedCalls()
+            establishedCalls.map { it.isNotEmpty() }
+                .distinctUntilChanged()
+                .flowOn(dispatchers.io())
+                .collect {
+                    userProfileState = userProfileState.copy(isUserInCall = it)
+                }
         }
     }
 
     private suspend fun fetchSelfUser() {
         viewModelScope.launch {
+            val self = getSelf().flowOn(dispatchers.io()).shareIn(this, SharingStarted.WhileSubscribed(1))
+            val selfTeam = getSelfTeam().flowOn(dispatchers.io()).shareIn(this, SharingStarted.WhileSubscribed(1))
+            val validAccounts = observeValidAccounts().flowOn(dispatchers.io()).shareIn(this, SharingStarted.WhileSubscribed(1))
             combine(
-                getSelf(),
-                getSelfTeam(),
-                observeValidAccounts()
+                self,
+                selfTeam,
+                validAccounts
             ) { selfUser: SelfUser, team: Team?, list: List<Pair<SelfUser, Team?>> ->
                 Triple(
                     selfUser,
@@ -107,7 +118,8 @@ class SelfUserProfileViewModel @Inject constructor(
                             fullName = name.orEmpty(),
                             userName = handle.orEmpty(),
                             teamName = selfTeam?.name,
-                            otherAccounts = otherAccounts
+                            otherAccounts = otherAccounts,
+                            avatarAsset = userProfileState.avatarAsset
                         )
                     }
                 }
@@ -123,7 +135,6 @@ class SelfUserProfileViewModel @Inject constructor(
     }
 
     private fun updateUserAvatar(avatarAssetId: UserAssetId) {
-
         if (avatarAssetId == userProfileState.avatarAsset?.userAssetId) {
             return
         }
@@ -131,28 +142,26 @@ class SelfUserProfileViewModel @Inject constructor(
         // We try to download the user avatar on a separate thread so that we don't block the display of the user's info
         viewModelScope.launch {
             showLoadingAvatar(true)
-            withContext(dispatchers.io()) {
-                try {
-                    userProfileState = userProfileState.copy(
-                        avatarAsset = UserAvatarAsset(wireSessionImageLoader, avatarAssetId)
-                    )
-
-                    // Update avatar asset id on user data store
-                    // TODO: obtain the asset id through a useCase once we also store assets ids
-                    dataStore.updateUserAvatarAssetId(avatarAssetId.toString())
-                } catch (e: ClassCastException) {
-                    appLogger.e("There was an error while downloading the user avatar", e)
-                    // Show error snackbar if avatar download fails
-                    showErrorMessage()
-                }
+            try {
+                userProfileState = userProfileState.copy(
+                    avatarAsset = UserAvatarAsset(wireSessionImageLoader, avatarAssetId)
+                )
+                // Update avatar asset id on user data store
+                // TODO: obtain the asset id through a useCase once we also store assets ids
+                withContext(dispatchers.io()) { dataStore.updateUserAvatarAssetId(avatarAssetId.toString()) }
+            } catch (e: ClassCastException) {
+                appLogger.e("There was an error while downloading the user avatar", e)
+                // Show error snackbar if avatar download fails
+                showErrorMessage()
             }
+
             showLoadingAvatar(false)
         }
     }
 
     fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }
 
-    fun onLogoutClick() {
+    fun logout(wipeData: Boolean) {
         viewModelScope.launch {
             logout()
             dataStore.clear() // TODO this should be moved to some service that will clear all the data in the app
@@ -183,7 +192,7 @@ class SelfUserProfileViewModel @Inject constructor(
             val selfServerLinks: ServerConfig.Links =
                 when (val result = selfServerLinks()) {
                     is SelfServerConfigUseCase.Result.Failure -> return@launch
-                    is SelfServerConfigUseCase.Result.Success -> result.serverLinks
+                    is SelfServerConfigUseCase.Result.Success -> result.serverLinks.links
                 }
             authServerConfigProvider.updateAuthServer(selfServerLinks)
             navigationManager.navigate(NavigationCommand(NavigationItem.Welcome.getRouteWithArgs()))

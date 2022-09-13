@@ -67,7 +67,7 @@ open class LoginViewModel @Inject constructor(
     }
 
     fun onDialogDismiss() {
-        clearLoginErrors()
+            clearLoginErrors()
     }
 
     private fun clearLoginErrors() {
@@ -94,7 +94,7 @@ open class LoginViewModel @Inject constructor(
         capabilities: List<ClientCapability>? = null
     ): RegisterClientResult {
         val clientScope = clientScopeProviderFactory.create(userId).clientScope
-        return clientScope.register(
+        return clientScope.getOrRegister(
             RegisterClientUseCase.RegisterClientParam(
                 password = password,
                 capabilities = capabilities

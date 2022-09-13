@@ -258,7 +258,8 @@ private fun ConversationScreen(
                             onPhoneButtonClick = onStartCall,
                             hasOngoingCall = conversationCallViewState.hasOngoingCall,
                             onJoinCallButtonClick = onJoinCall,
-                            isUserBlocked = conversationInfoViewState.isUserBlocked
+                            isUserBlocked = conversationInfoViewState.isUserBlocked,
+                            isCallingEnabled = isSendingMessagesAllowed
                         )
                     }
                 },

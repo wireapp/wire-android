@@ -66,7 +66,7 @@ class GroupConversationDetailsViewModelTest {
             .arrange()
 
         // When - Then
-        assertEquals(details.conversation.name, viewModel.groupOptionsState.groupName)
+        assertEquals(details.conversation.name,  viewModel.groupOptionsState.value.groupName)
     }
 
     @Test
@@ -90,10 +90,10 @@ class GroupConversationDetailsViewModelTest {
             .arrange()
 
         // When - Then
-        assertEquals(details1.conversation.name, viewModel.groupOptionsState.groupName)
+        assertEquals(details1.conversation.name,  viewModel.groupOptionsState.value.groupName)
         // When - Then
         arrangement.withConversationDetailUpdate(details2)
-        assertEquals(details2.conversation.name, viewModel.groupOptionsState.groupName)
+        assertEquals(details2.conversation.name,  viewModel.groupOptionsState.value.groupName)
     }
 
     @Test
@@ -130,17 +130,17 @@ class GroupConversationDetailsViewModelTest {
             .arrange()
 
         // When - Then
-        assertEquals(details.conversation.name, viewModel.groupOptionsState.groupName)
-        assertEquals(conversationParticipantsData.isSelfAnAdmin, viewModel.groupOptionsState.isUpdatingAllowed)
-        assertEquals(details.conversation.name, viewModel.groupOptionsState.groupName)
-        assertEquals(details.conversation.isTeamGroup(), viewModel.groupOptionsState.areAccessOptionsAvailable)
+        assertEquals(details.conversation.name,  viewModel.groupOptionsState.value.groupName)
+        assertEquals(conversationParticipantsData.isSelfAnAdmin,  viewModel.groupOptionsState.value.isUpdatingAllowed)
+        assertEquals(details.conversation.name,  viewModel.groupOptionsState.value.groupName)
+        assertEquals(details.conversation.isTeamGroup(),  viewModel.groupOptionsState.value.areAccessOptionsAvailable)
         assertEquals(
             (details.conversation.isGuestAllowed() || details.conversation.isNonTeamMemberAllowed()),
-            viewModel.groupOptionsState.isGuestAllowed
+             viewModel.groupOptionsState.value.isGuestAllowed
         )
         assertEquals(
             conversationParticipantsData.isSelfAnAdmin && details.conversation.teamId?.value == selfTeam.id,
-            viewModel.groupOptionsState.isUpdatingGuestAllowed
+             viewModel.groupOptionsState.value.isUpdatingGuestAllowed
         )
     }
 
@@ -202,7 +202,7 @@ class GroupConversationDetailsViewModelTest {
             .arrange()
 
         viewModel.onGuestUpdate(false)
-        assertEquals(true, viewModel.groupOptionsState.changeGuestOptionConfirmationRequired)
+        assertEquals(true,  viewModel.groupOptionsState.value.changeGuestOptionConfirmationRequired)
     }
 
     @Test
@@ -229,7 +229,7 @@ class GroupConversationDetailsViewModelTest {
             .arrange()
 
         viewModel.onGuestDialogConfirm()
-        assertEquals(false, viewModel.groupOptionsState.changeGuestOptionConfirmationRequired)
+        assertEquals(false,  viewModel.groupOptionsState.value.changeGuestOptionConfirmationRequired)
         coVerify(exactly = 1) {
             arrangement.updateConversationAccessRoleUseCase(
                 conversationId = details.conversation.id,
@@ -264,7 +264,7 @@ class GroupConversationDetailsViewModelTest {
             .arrange()
 
         viewModel.onServicesUpdate(false)
-        assertEquals(true, viewModel.groupOptionsState.changeServiceOptionConfirmationRequired)
+        assertEquals(true,  viewModel.groupOptionsState.value.changeServiceOptionConfirmationRequired)
     }
 
     @Test
@@ -325,7 +325,7 @@ class GroupConversationDetailsViewModelTest {
             .arrange()
 
         viewModel.onServiceDialogConfirm()
-        assertEquals(false, viewModel.groupOptionsState.changeServiceOptionConfirmationRequired)
+        assertEquals(false,  viewModel.groupOptionsState.value.changeServiceOptionConfirmationRequired)
         coVerify(exactly = 1) {
             arrangement.updateConversationAccessRoleUseCase(
                 conversationId = details.conversation.id,
@@ -349,7 +349,7 @@ class GroupConversationDetailsViewModelTest {
             .arrange()
 
         // When - Then
-        assertEquals(true, viewModel.groupOptionsState.isUpdatingGuestAllowed)
+        assertEquals(true,  viewModel.groupOptionsState.value.isUpdatingGuestAllowed)
     }
 
     @Test
@@ -365,7 +365,7 @@ class GroupConversationDetailsViewModelTest {
             .arrange()
 
         // When - Then
-        assertEquals(false, viewModel.groupOptionsState.isUpdatingGuestAllowed)
+        assertEquals(false,  viewModel.groupOptionsState.value.isUpdatingGuestAllowed)
     }
 
     companion object {

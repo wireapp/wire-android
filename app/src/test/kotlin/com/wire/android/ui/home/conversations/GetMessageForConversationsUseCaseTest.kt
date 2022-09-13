@@ -4,7 +4,7 @@ import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.mapper.MessageMapper
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversations.model.MessageBody
-import com.wire.android.ui.home.conversations.model.MessageContent
+import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
@@ -97,7 +97,7 @@ class GetMessageForConversationsUseCaseTest {
                 with(onlyMessage) {
                     assertEquals(expectedUserName, (messageHeader.username as UIText.DynamicString).value)
 
-                    val messageBody = (messageContent as MessageContent.TextMessage).messageBody
+                    val messageBody = (messageContent as UIMessageContent.TextMessage).messageBody
                     assertEquals(expectedMessageBody, ((messageBody.message as UIText.DynamicString).value))
                 }
             }
@@ -138,7 +138,7 @@ class GetMessageForConversationsUseCaseTest {
                 every { it.messageTime } returns MessageTime("")
                 every { it.messageStatus } returns MessageStatus.Untouched
             }
-            every { it.messageContent } returns MessageContent.TextMessage(MessageBody(UIText.DynamicString(messageBody)))
+            every { it.messageContent } returns UIMessageContent.TextMessage(MessageBody(UIText.DynamicString(messageBody)))
         }
     }
 

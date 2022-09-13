@@ -26,8 +26,9 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.auth.AccountInfo
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
-import com.wire.kalium.logic.feature.auth.AuthSession
+import com.wire.kalium.logic.feature.auth.AuthTokens
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.client.RegisterClientUseCase
@@ -76,7 +77,9 @@ open class LoginViewModel @Inject constructor(
     }
 
     fun onDialogDismiss() {
-        clearLoginErrors()
+        viewModelScope.launch {
+            clearLoginErrors()
+        }
     }
 
     private fun clearLoginErrors() {
@@ -103,7 +106,7 @@ open class LoginViewModel @Inject constructor(
         capabilities: List<ClientCapability>? = null
     ): RegisterClientResult {
         val clientScope = clientScopeProviderFactory.create(userId).clientScope
-        return clientScope.register(
+        return clientScope.getOrRegister(
             RegisterClientUseCase.RegisterClientParam(
                 password = password,
                 capabilities = capabilities

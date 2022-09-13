@@ -62,7 +62,7 @@ class LoginEmailViewModel @Inject constructor(
                 }
             }
 
-            val (authSession, ssoId) = loginUseCase(loginState.userIdentifier.text, loginState.password.text, true)
+            val loginResult = loginUseCase(loginState.userIdentifier.text, loginState.password.text, true)
                 .let {
                     when (it) {
                         is AuthenticationResult.Failure -> {
@@ -70,19 +70,25 @@ class LoginEmailViewModel @Inject constructor(
                             return@launch
                         }
 
-                        is AuthenticationResult.Success -> it.userSession to it.ssoId
+                        is AuthenticationResult.Success -> it
                     }
                 }
-            val storedUserId = addAuthenticatedUser(authSession, ssoId, false).let {
-                when (it) {
-                    is AddAuthenticatedUserUseCase.Result.Failure -> {
-                        updateEmailLoginError(it.toLoginError())
-                        return@launch
-                    }
+            val storedUserId =
+                addAuthenticatedUser(
+                    authTokens = loginResult.authData,
+                    ssoId = loginResult.ssoID,
+                    serverConfigId = loginResult.serverConfigId,
+                    replace = false
+                ).let {
+                    when (it) {
+                        is AddAuthenticatedUserUseCase.Result.Failure -> {
+                            updateEmailLoginError(it.toLoginError())
+                            return@launch
+                        }
 
-                    is AddAuthenticatedUserUseCase.Result.Success -> it.userId
+                        is AddAuthenticatedUserUseCase.Result.Success -> it.userId
+                    }
                 }
-            }
             registerClient(storedUserId, loginState.password.text).let {
                 when (it) {
                     is RegisterClientResult.Failure -> {

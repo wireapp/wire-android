@@ -64,9 +64,9 @@ fun PreviewMessageWithSystemMessage() {
             onAssetMessageClicked = {},
             onImageMessageClicked = { _, _ -> },
             onAvatarClicked = { _, _ -> })
-        SystemMessageItem(MessageContent.SystemMessage.MissedCall.YouCalled(UIText.DynamicString("You")))
+        SystemMessageItem(UIMessageContent.SystemMessage.MissedCall.YouCalled(UIText.DynamicString("You")))
         SystemMessageItem(
-            MessageContent.SystemMessage.MemberAdded(
+            UIMessageContent.SystemMessage.MemberAdded(
                 UIText.DynamicString("You"),
                 listOf(UIText.DynamicString("Adam Smith"))
             )

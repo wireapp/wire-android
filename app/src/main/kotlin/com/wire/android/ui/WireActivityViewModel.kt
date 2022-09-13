@@ -10,6 +10,7 @@ import com.wire.android.BuildConfig
 import com.wire.android.appLogger
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.feature.AccountSwitchUseCase
+import com.wire.android.feature.SwitchAccountParam
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
@@ -23,8 +24,6 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.logout.LogoutReason
-import com.wire.kalium.logic.feature.auth.AuthSession
-import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AccountInfo
 import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
@@ -45,7 +44,6 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
-import kotlinx.coroutines.withTimeoutOrNull
 import javax.inject.Inject
 
 @Suppress("LongParameterList", "TooManyFunctions")
@@ -77,16 +75,18 @@ class WireActivityViewModel @Inject constructor(
     private val observeUserId = currentSessionFlow()
         .onEach {
             if (it is CurrentSessionResult.Success) {
-                if (it.authSession.token is AuthSession.Token.Invalid) {
-                    handleInvalidSession((it.authSession.token as AuthSession.Token.Invalid).reason)
+                if (it.accountInfo.isValid().not()) {
+                    handleInvalidSession((it.accountInfo as AccountInfo.Invalid).logoutReason)
                 }
             }
         }
         .map { result ->
             if (result is CurrentSessionResult.Success) {
-                if (result.authSession.token is AuthSession.Token.Invalid) {
+                if (result.accountInfo.isValid()) {
+                    result.accountInfo.userId
+                } else {
                     null
-                } else result.authSession.token.userId
+                }
             } else {
                 null
             }
@@ -106,12 +106,15 @@ class WireActivityViewModel @Inject constructor(
     private suspend fun handleInvalidSession(logoutReason: LogoutReason) {
         withContext(dispatchers.main()) {
             when (logoutReason) {
-                LogoutReason.SELF_LOGOUT -> {
+                LogoutReason.SELF_SOFT_LOGOUT, LogoutReason.SELF_HARD_LOGOUT -> {
                     // Self logout is handled from the Self user profile screen directly
                 }
-                LogoutReason.REMOVED_CLIENT -> globalAppState = globalAppState.copy(blockUserUI = CurrentSessionErrorState.RemovedClient)
-                LogoutReason.DELETED_ACCOUNT -> globalAppState = globalAppState.copy(blockUserUI = CurrentSessionErrorState.DeletedAccount)
-                LogoutReason.SESSION_EXPIRED -> globalAppState = globalAppState.copy(blockUserUI = CurrentSessionErrorState.SessionExpired)
+                LogoutReason.REMOVED_CLIENT ->
+                    globalAppState = globalAppState.copy(blockUserUI = CurrentSessionErrorState.RemovedClient)
+                LogoutReason.DELETED_ACCOUNT ->
+                    globalAppState = globalAppState.copy(blockUserUI = CurrentSessionErrorState.DeletedAccount)
+                LogoutReason.SESSION_EXPIRED ->
+                    globalAppState = globalAppState.copy(blockUserUI = CurrentSessionErrorState.SessionExpired)
             }
         }
     }
@@ -119,7 +122,7 @@ class WireActivityViewModel @Inject constructor(
     fun navigateToNextAccountOrWelcome() {
         viewModelScope.launch {
             globalAppState = globalAppState.copy(blockUserUI = null)
-            accountSwitchUseCase.switchToNextAccountOrWelcome()
+            accountSwitchUseCase(SwitchAccountParam.SwitchToNextAccountOrWelcome)
         }
     }
 
@@ -245,7 +248,7 @@ class WireActivityViewModel @Inject constructor(
         viewModelScope.launch {
             dismissCustomBackendDialog()
             authServerConfigProvider.updateAuthServer(serverLinks)
-            if (checkNumberOfSessions() == MAX_SESSION_COUNT) {
+            if (checkNumberOfSessions() == BuildConfig.MAX_ACCOUNTS) {
                 maxAccountDialogState = true
             } else {
                 navigateTo(NavigationCommand(NavigationItem.Welcome.getRouteWithArgs()))
@@ -319,7 +322,7 @@ class WireActivityViewModel @Inject constructor(
     // TODO: the usage of currentSessionFlow is a temporary solution, it should be replaced with a proper solution
     private fun shouldGoToWelcome(): Boolean = runBlocking {
         currentSessionFlow().first().let {
-            when(it) {
+            when (it) {
                 is CurrentSessionResult.Failure.Generic -> true
                 CurrentSessionResult.Failure.SessionNotFound -> true
                 is CurrentSessionResult.Success -> false

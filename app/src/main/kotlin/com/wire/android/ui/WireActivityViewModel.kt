@@ -63,12 +63,6 @@ class WireActivityViewModel @Inject constructor(
 ) : ViewModel() {
 
     private val navigationArguments = mutableMapOf<String, Any>(SERVER_CONFIG_ARG to ServerConfig.DEFAULT)
-    var customBackendDialogState: CustomBEDeeplinkDialogState by mutableStateOf(CustomBEDeeplinkDialogState())
-        private set
-
-    var maxAccountDialogState: Boolean by mutableStateOf(false)
-        private set
-
     var globalAppState: GlobalAppState by mutableStateOf(GlobalAppState())
         private set
 
@@ -138,8 +132,11 @@ class WireActivityViewModel @Inject constructor(
             viewModelScope.launch {
                 when (val result = deepLinkProcessor(deepLink)) {
                     is DeepLinkResult.CustomServerConfig -> loadServerConfig(result.url)?.let { serverLinks ->
-                        customBackendDialogState = customBackendDialogState.copy(
-                            shouldShowDialog = true, serverLinks = serverLinks
+                        globalAppState = globalAppState.copy(
+                            customBackendDialog = CustomBEDeeplinkDialogState(
+                                shouldShowDialog = true,
+                                serverLinks = serverLinks
+                            )
                         )
                         navigationArguments.put(SERVER_CONFIG_ARG, serverLinks)
                     }
@@ -241,7 +238,7 @@ class WireActivityViewModel @Inject constructor(
     }
 
     fun dismissCustomBackendDialog() {
-        customBackendDialogState = customBackendDialogState.copy(shouldShowDialog = false)
+        globalAppState = globalAppState.copy(customBackendDialog = CustomBEDeeplinkDialogState(shouldShowDialog = false))
     }
 
     fun customBackendDialogProceedButtonClicked(serverLinks: ServerConfig.Links) {
@@ -249,7 +246,7 @@ class WireActivityViewModel @Inject constructor(
             dismissCustomBackendDialog()
             authServerConfigProvider.updateAuthServer(serverLinks)
             if (checkNumberOfSessions() == BuildConfig.MAX_ACCOUNTS) {
-                maxAccountDialogState = true
+                globalAppState = globalAppState.copy(maxAccountDialog = true)
             } else {
                 navigateTo(NavigationCommand(NavigationItem.Welcome.getRouteWithArgs()))
             }
@@ -336,7 +333,7 @@ class WireActivityViewModel @Inject constructor(
     }
 
     fun dismissMaxAccountDialog() {
-        maxAccountDialogState = false
+        globalAppState = globalAppState.copy(maxAccountDialog = false)
     }
 
     companion object {

@@ -343,6 +343,9 @@
     <string name="dialog_remove_conversation_member_error">There was an error while removing member from conversation</string>
     <string name="group_role_admin">Admin</string>
     <string name="group_role_member">Member</string>
+    <!-- Logout Wipe Data Dialog -->
+    <string name="dialog_logout_wipe_data_title">Clear Data?</string>
+    <string name="dialog_logout_wipe_data_checkbox">Delete all your personal information and conversations on this device</string>
     <!-- User Profile status dialog-->
     <string name="user_profile_change_status_dialog_available_title">Set yourself to Available</string>
     <string name="user_profile_change_status_dialog_available_text">You will appear as Available to other people. You will receive notifications for incoming calls and for messages according to the Notifications setting in each conversation.</string>

@@ -11,6 +11,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -22,6 +23,7 @@ import com.wire.android.model.Clickable
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
+import com.wire.android.ui.common.collectAsStateLifecycleAware
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsViewModel
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.theme.wireColorScheme
@@ -34,20 +36,22 @@ fun GroupConversationOptions(
     viewModel: GroupConversationDetailsViewModel = hiltViewModel(),
     lazyListState: LazyListState
 ) {
+    val state by viewModel.groupOptionsState.collectAsStateLifecycleAware()
+
     GroupConversationSettings(
-        state = viewModel.groupOptionsState,
+        state = state,
         onGuestSwitchClicked = viewModel::onGuestUpdate,
         onServiceSwitchClicked = viewModel::onServicesUpdate,
         lazyListState = lazyListState
     )
-    if (viewModel.groupOptionsState.changeGuestOptionConfirmationRequired) {
+    if (state.changeGuestOptionConfirmationRequired) {
         DisableGuestConfirmationDialog(
             onConfirm = viewModel::onGuestDialogConfirm,
             onDialogDismiss = viewModel::onGuestDialogDismiss
         )
     }
 
-    if (viewModel.groupOptionsState.changeServiceOptionConfirmationRequired) {
+    if (state.changeServiceOptionConfirmationRequired) {
         DisableServicesConfirmationDialog(
             onConfirm = viewModel::onServiceDialogConfirm,
             onDialogDismiss = viewModel::onServiceDialogDismiss

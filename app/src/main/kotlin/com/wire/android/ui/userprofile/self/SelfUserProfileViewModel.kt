@@ -19,6 +19,7 @@ import com.wire.android.ui.userprofile.self.dialog.StatusDialogData
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.configuration.server.ServerConfig
+import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.UserAssetId
@@ -159,10 +160,12 @@ class SelfUserProfileViewModel @Inject constructor(
 
     fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }
 
-    fun onLogoutClick() {
+    fun logout(wipeData: Boolean) {
         viewModelScope.launch {
-            logout()
-            dataStore.clear() // TODO this should be moved to some service that will clear all the data in the app
+            logout(reason = LogoutReason.SELF_LOGOUT, isHardLogout = wipeData)
+            if (wipeData) {
+                dataStore.clear() // TODO this should be moved to some service that will clear all the data in the app
+            }
         }
     }
 
@@ -239,7 +242,7 @@ class SelfUserProfileViewModel @Inject constructor(
         }
     }
 
-    fun onOtherAccountClick(userId: UserId) {
+    fun switchAccount(userId: UserId) {
         viewModelScope.launch {
             when (updateCurrentSession(userId)) {
                 is UpdateCurrentSessionUseCase.Result.Failure -> return@launch

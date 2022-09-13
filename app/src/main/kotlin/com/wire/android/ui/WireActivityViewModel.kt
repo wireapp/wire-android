@@ -63,6 +63,7 @@ class WireActivityViewModel @Inject constructor(
     private val observeUserId = currentSessionFlow().map { result ->
         if (result is CurrentSessionResult.Success) {
             if (result.accountInfo is AccountInfo.Invalid) {
+                // TODO handle switching when logged in to multiple accounts
                 navigateToLogin(result.accountInfo.userId)
                 null
             } else result.accountInfo.userId

@@ -103,7 +103,7 @@ fun ParticipantTile(
                 },
                     update = {
                         if (shouldRecomposeVideoRenderer) {
-                            // Needed to disconnect renderer from container, skip this will lead to same issues like video freezing
+                            // Needed to disconnect renderer from container, skipping this will lead to some issues like video freezing
                             it.removeAllViews()
 
                             if (participantTitleState.isCameraOn || participantTitleState.isSharingScreen) {

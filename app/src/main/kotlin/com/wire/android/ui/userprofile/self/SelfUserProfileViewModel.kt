@@ -182,7 +182,7 @@ class SelfUserProfileViewModel @Inject constructor(
             val selfServerLinks: ServerConfig.Links =
                 when (val result = selfServerLinks()) {
                     is SelfServerConfigUseCase.Result.Failure -> return@launch
-                    is SelfServerConfigUseCase.Result.Success -> result.serverLinks
+                    is SelfServerConfigUseCase.Result.Success -> result.serverLinks.links
                 }
             authServerConfigProvider.updateAuthServer(selfServerLinks)
             navigationManager.navigate(NavigationCommand(NavigationItem.Welcome.getRouteWithArgs()))

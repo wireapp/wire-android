@@ -23,7 +23,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -33,7 +32,6 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -55,14 +53,13 @@ import com.wire.android.ui.home.conversations.search.HighlightName
 import com.wire.android.ui.home.conversations.search.HighlightSubtitle
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.theme.wireDimensions
-import com.wire.android.ui.theme.wireTypography
 import com.wire.android.ui.userprofile.common.EditableState
 import com.wire.android.ui.userprofile.common.UserProfileInfo
 import com.wire.android.ui.userprofile.self.SelfUserProfileViewModel.ErrorCodes
 import com.wire.android.ui.userprofile.self.SelfUserProfileViewModel.ErrorCodes.DownloadUserInfoError
 import com.wire.android.ui.userprofile.self.dialog.ChangeStatusDialogContent
-import com.wire.android.ui.userprofile.self.dialog.LogoutWipeDataDialog
-import com.wire.android.ui.userprofile.self.dialog.LogoutWipeDataDialogState
+import com.wire.android.ui.userprofile.self.dialog.LogoutOptionsDialog
+import com.wire.android.ui.userprofile.self.dialog.LogoutOptionsDialogState
 import com.wire.android.ui.userprofile.self.model.OtherAccount
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
@@ -115,14 +112,14 @@ private fun SelfUserProfileContent(
         }
     }
     val scrollState = rememberScrollState()
-    val logoutWipeDataDialogState = rememberVisibilityState<LogoutWipeDataDialogState>()
+    val logoutOptionsDialogState = rememberVisibilityState<LogoutOptionsDialogState>()
 
     Scaffold(
         topBar = {
             SelfUserProfileTopBar(
                 onCloseClick = onCloseClick,
                 onLogoutClick = remember {
-                    { logoutWipeDataDialogState.show(logoutWipeDataDialogState.savedState ?: LogoutWipeDataDialogState()) }
+                    { logoutOptionsDialogState.show(logoutOptionsDialogState.savedState ?: LogoutOptionsDialogState()) }
                 }
             )
         },
@@ -210,8 +207,8 @@ private fun SelfUserProfileContent(
                 )
             }
 
-            LogoutWipeDataDialog(
-                dialogState = logoutWipeDataDialogState,
+            LogoutOptionsDialog(
+                dialogState = logoutOptionsDialogState,
                 logout = logout
             )
         }

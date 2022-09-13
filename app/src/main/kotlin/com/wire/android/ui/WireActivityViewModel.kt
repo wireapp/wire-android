@@ -61,9 +61,15 @@ class WireActivityViewModel @Inject constructor(
     var maxAccountDialogState: Boolean by mutableStateOf(false)
 
     private val observeUserId = currentSessionFlow().map { result ->
-        if (result is CurrentSessionResult.Success && result.authSession.session is AuthSession.Session.Valid)
-            result.authSession.session.userId
-        else null
+        if (result is CurrentSessionResult.Success) {
+            if (result.authSession.session is AuthSession.Session.Invalid) {
+                // TODO handle switching when logged in to multiple accounts
+                navigateToLogin(result.authSession.session.userId)
+                null
+            } else result.authSession.session.userId
+        } else {
+            null
+        }
     }.distinctUntilChanged().flowOn(dispatchers.io()).shareIn(viewModelScope, SharingStarted.WhileSubscribed(), 1)
 
     init {
@@ -74,6 +80,14 @@ class WireActivityViewModel @Inject constructor(
                 }
             }
         }
+    }
+
+    private suspend fun navigateToLogin(userId: UserId) {
+        navigationManager.navigate(
+            NavigationCommand(
+                NavigationItem.Login.getRouteWithArgs(listOf(userId)), BackStackMode.CLEAR_WHOLE
+            )
+        )
     }
 
     fun navigationArguments() = navigationArguments.values.toList()

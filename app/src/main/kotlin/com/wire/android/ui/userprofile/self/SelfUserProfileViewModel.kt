@@ -162,18 +162,9 @@ class SelfUserProfileViewModel @Inject constructor(
 
     fun logout(wipeData: Boolean) {
         viewModelScope.launch {
-            val selfUserId = getSelf().first().id
-            val otherUserId = userProfileState.otherAccounts.firstOrNull()?.id
             logout(reason = LogoutReason.SELF_LOGOUT, isHardLogout = wipeData)
             if (wipeData) {
                 dataStore.clear() // TODO this should be moved to some service that will clear all the data in the app
-            }
-            otherUserId?.let {
-                switchAccount(it)
-            } ?: run {
-                navigationManager.navigate(
-                    NavigationCommand(NavigationItem.Login.getRouteWithArgs(listOf(selfUserId)), BackStackMode.CLEAR_WHOLE)
-                )
             }
         }
     }

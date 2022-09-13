@@ -21,8 +21,8 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.visbility.VisibilityState
 
 @Composable
-fun LogoutWipeDataDialog(
-    dialogState: VisibilityState<LogoutWipeDataDialogState>,
+fun LogoutOptionsDialog(
+    dialogState: VisibilityState<LogoutOptionsDialogState>,
     logout: (Boolean) -> Unit
 ) {
     VisibilityState(dialogState) { state ->

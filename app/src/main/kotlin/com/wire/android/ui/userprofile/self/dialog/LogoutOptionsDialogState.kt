@@ -1,5 +1,5 @@
 package com.wire.android.ui.userprofile.self.dialog
 
-data class LogoutWipeDataDialogState(
+data class LogoutOptionsDialogState(
     val shouldWipeData: Boolean = false
 )

@@ -29,7 +29,7 @@ import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginUseCase
 import com.wire.kalium.logic.feature.auth.sso.SSOLoginSessionResult
 import com.wire.kalium.logic.feature.client.ClientScope
 import com.wire.kalium.logic.feature.client.RegisterClientResult
-import com.wire.kalium.logic.feature.client.RegisterClientUseCase
+import com.wire.kalium.logic.feature.client.GetOrRegisterClientUseCase
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import com.wire.kalium.logic.feature.session.RegisterTokenResult
 import com.wire.kalium.logic.feature.session.RegisterTokenUseCase
@@ -75,7 +75,7 @@ class LoginSSOViewModelTest {
     private lateinit var clientScope: ClientScope
 
     @MockK
-    private lateinit var registerClientUseCase: RegisterClientUseCase
+    private lateinit var getOrRegisterClientUseCase: GetOrRegisterClientUseCase
 
     @MockK
     private lateinit var registerTokenUseCase: RegisterTokenUseCase
@@ -102,11 +102,11 @@ class LoginSSOViewModelTest {
     fun setup() {
         MockKAnnotations.init(this)
         mockUri()
-        every { savedStateHandle.get<String>(any()) } returns ""
+        every { savedStateHandle.get<String>(any()) } returns null
         every { qualifiedIdMapper.fromStringToQualifiedID(any()) } returns userId
         every { savedStateHandle.set(any(), any<String>()) } returns Unit
         every { clientScopeProviderFactory.create(any()).clientScope } returns clientScope
-        every { clientScope.register } returns registerClientUseCase
+        every { clientScope.getOrRegister } returns getOrRegisterClientUseCase
         every { clientScope.registerPushToken } returns registerTokenUseCase
         every { authServerConfigProvider.authServer.value } returns newServerConfig(1).links
 
@@ -221,7 +221,7 @@ class LoginSSOViewModelTest {
         coEvery { getSSOLoginSessionUseCase(any()) } returns SSOLoginSessionResult.Success(authSession, SSO_ID)
         coEvery { addAuthenticatedUserUseCase(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
         coEvery {
-            registerClientUseCase(any())
+            getOrRegisterClientUseCase(any())
         } returns RegisterClientResult.Success(CLIENT)
         coEvery {
             registerTokenUseCase(any(), CLIENT.id)
@@ -232,7 +232,7 @@ class LoginSSOViewModelTest {
         coVerify(exactly = 1) { navigationManager.navigate(any()) }
         coVerify(exactly = 1) { getSSOLoginSessionUseCase(any()) }
         coVerify(exactly = 1) {
-            registerClientUseCase(any())
+            getOrRegisterClientUseCase(any())
         }
         coVerify(exactly = 1) { addAuthenticatedUserUseCase(any(), any()) }
         coVerify(exactly = 1) { registerTokenUseCase(any(), CLIENT.id) }
@@ -242,7 +242,7 @@ class LoginSSOViewModelTest {
     fun `given establishSSOSession is called, when SSOLoginSessionResult return InvalidCookie, then SSOLoginResult fails`() {
         coEvery { getSSOLoginSessionUseCase(any()) } returns SSOLoginSessionResult.Failure.InvalidCookie
         coEvery { addAuthenticatedUserUseCase(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
-        coEvery { registerClientUseCase(any()) } returns RegisterClientResult.Success(CLIENT)
+        coEvery { getOrRegisterClientUseCase(any()) } returns RegisterClientResult.Success(CLIENT)
 
         runTest { loginViewModel.establishSSOSession("") }
         loginViewModel.loginState.loginError shouldBeInstanceOf LoginError.DialogError.InvalidSSOCookie::class
@@ -269,7 +269,7 @@ class LoginSSOViewModelTest {
     fun `given HandleSSOResult is called, when SSOLoginResult is success, then establishSSOSession should be called once`() {
         coEvery { getSSOLoginSessionUseCase(any()) } returns SSOLoginSessionResult.Success(authSession, SSO_ID)
         coEvery { addAuthenticatedUserUseCase(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
-        coEvery { registerClientUseCase(any()) } returns RegisterClientResult.Success(CLIENT)
+        coEvery { getOrRegisterClientUseCase(any()) } returns RegisterClientResult.Success(CLIENT)
         coEvery { registerTokenUseCase(any(), CLIENT.id) } returns RegisterTokenResult.Success
 
         runTest { loginViewModel.handleSSOResult(DeepLinkResult.SSOLogin.Success("", "")) }
@@ -292,18 +292,18 @@ class LoginSSOViewModelTest {
     }
 
     @Test
-    fun `given establishSSOSession is called, when registerClientUseCase returns TooManyClients error, then TooManyClients is passed`() {
+    fun `given establishSSOSession is called, when getOrRegister Client returns TooManyClients error, then TooManyClients is passed`() {
         coEvery { getSSOLoginSessionUseCase(any()) } returns SSOLoginSessionResult.Success(authSession, SSO_ID)
         coEvery { addAuthenticatedUserUseCase(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
         coEvery {
-            registerClientUseCase(any())
+            getOrRegisterClientUseCase(any())
         } returns RegisterClientResult.Failure.TooManyClients
 
         runTest { loginViewModel.establishSSOSession("") }
 
         loginViewModel.loginState.loginError shouldBeInstanceOf LoginError.TooManyDevicesError::class
 
-        coVerify(exactly = 1) { registerClientUseCase(any()) }
+        coVerify(exactly = 1) { getOrRegisterClientUseCase(any()) }
         coVerify(exactly = 1) { getSSOLoginSessionUseCase(any()) }
         coVerify(exactly = 1) { addAuthenticatedUserUseCase(any(), any()) }
         coVerify(exactly = 0) { loginViewModel.navigateToConvScreen() }
@@ -314,7 +314,7 @@ class LoginSSOViewModelTest {
         coEvery { getSSOLoginSessionUseCase(any()) } returns SSOLoginSessionResult.Success(authSession, SSO_ID)
         coEvery { addAuthenticatedUserUseCase(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
         coEvery {
-            registerClientUseCase(any())
+            getOrRegisterClientUseCase(any())
         } returns RegisterClientResult.Success(CLIENT)
         coEvery {
             registerTokenUseCase(any(), CLIENT.id)
@@ -327,7 +327,7 @@ class LoginSSOViewModelTest {
         coVerify(exactly = 1) { navigationManager.navigate(any()) }
         coVerify(exactly = 1) { getSSOLoginSessionUseCase(any()) }
         coVerify(exactly = 1) {
-            registerClientUseCase(any())
+            getOrRegisterClientUseCase(any())
         }
         coVerify(exactly = 1) { addAuthenticatedUserUseCase(any(), any()) }
         coVerify(exactly = 1) { registerTokenUseCase(any(), CLIENT.id) }

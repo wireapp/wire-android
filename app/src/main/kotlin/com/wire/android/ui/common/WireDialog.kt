@@ -84,7 +84,7 @@ fun WireDialog(
 @Composable
 fun WireDialog(
     title: String,
-    text: AnnotatedString,
+    text: AnnotatedString? = null,
     onDismiss: () -> Unit,
     optionButton1Properties: WireDialogButtonProperties,
     optionButton2Properties: WireDialogButtonProperties? = null,
@@ -118,7 +118,7 @@ fun WireDialog(
 @Composable
 private fun WireDialogContent(
     title: String,
-    text: AnnotatedString,
+    text: AnnotatedString? = null,
     optionButton1Properties: WireDialogButtonProperties,
     optionButton2Properties: WireDialogButtonProperties? = null,
     dismissButtonProperties: WireDialogButtonProperties? = null,
@@ -144,11 +144,13 @@ private fun WireDialogContent(
                 style = MaterialTheme.wireTypography.title02,
                 modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.dialogTextsSpacing)
             )
-            Text(
-                text = text,
-                style = MaterialTheme.wireTypography.body01,
-                modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.dialogTextsSpacing)
-            )
+            text?.let {
+                Text(
+                    text = text,
+                    style = MaterialTheme.wireTypography.body01,
+                    modifier = Modifier.padding(bottom = MaterialTheme.wireDimensions.dialogTextsSpacing)
+                )
+            }
             content?.let {
                 Box {
                     it.invoke()

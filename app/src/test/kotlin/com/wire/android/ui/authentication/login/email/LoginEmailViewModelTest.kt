@@ -26,8 +26,8 @@ import com.wire.kalium.logic.feature.auth.AuthSession
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
 import com.wire.kalium.logic.feature.auth.LoginUseCase
 import com.wire.kalium.logic.feature.client.ClientScope
+import com.wire.kalium.logic.feature.client.GetOrRegisterClientUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
-import com.wire.kalium.logic.feature.client.RegisterClientUseCase
 import com.wire.kalium.logic.feature.server.FetchApiVersionResult
 import com.wire.kalium.logic.feature.server.FetchApiVersionUseCase
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
@@ -72,7 +72,7 @@ class LoginEmailViewModelTest {
     private lateinit var clientScope: ClientScope
 
     @MockK
-    private lateinit var registerClientUseCase: RegisterClientUseCase
+    private lateinit var getOrRegisterClientUseCase: GetOrRegisterClientUseCase
 
     @MockK
     private lateinit var registerTokenUseCase: RegisterTokenUseCase
@@ -103,11 +103,11 @@ class LoginEmailViewModelTest {
     fun setup() {
         MockKAnnotations.init(this)
         mockUri()
-        every { savedStateHandle.get<String>(any()) } returns ""
+        every { savedStateHandle.get<String>(any()) } returns null
         every { qualifiedIdMapper.fromStringToQualifiedID(any()) } returns userId
         every { savedStateHandle.set(any(), any<String>()) } returns Unit
         every { clientScopeProviderFactory.create(any()).clientScope } returns clientScope
-        every { clientScope.register } returns registerClientUseCase
+        every { clientScope.getOrRegister } returns getOrRegisterClientUseCase
         every { clientScope.registerPushToken } returns registerTokenUseCase
         every { authSession.session.userId } returns userId
         every { authServerConfigProvider.authServer.value } returns newServerConfig(1).links
@@ -168,14 +168,14 @@ class LoginEmailViewModelTest {
         coEvery { loginUseCase(any(), any(), any()) } returns AuthenticationResult.Success(authSession, SSO_ID)
         coEvery { addAuthenticatedUserUseCase(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
         coEvery { navigationManager.navigate(any()) } returns Unit
-        coEvery { registerClientUseCase(any()) } returns RegisterClientResult.Success(CLIENT)
+        coEvery { getOrRegisterClientUseCase(any()) } returns RegisterClientResult.Success(CLIENT)
         coEvery { registerTokenUseCase(any(), CLIENT.id) } returns RegisterTokenResult.Success
 
         loginViewModel.onPasswordChange(TextFieldValue(password))
 
         runTest { loginViewModel.login() }
         coVerify(exactly = 1) { loginUseCase(any(), any(), any()) }
-        coVerify(exactly = 1) { registerClientUseCase(any()) }
+        coVerify(exactly = 1) { getOrRegisterClientUseCase(any()) }
         coVerify(exactly = 1) { registerTokenUseCase(any(), CLIENT.id) }
         coVerify(exactly = 1) {
             navigationManager.navigate(

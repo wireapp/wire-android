@@ -15,6 +15,7 @@ import com.wire.android.ui.authentication.login.LoginError
 import com.wire.android.util.EMPTY
 import com.wire.android.util.newServerConfig
 import com.wire.kalium.logic.NetworkFailure
+import com.wire.kalium.logic.configuration.server.CommonApiVersionType
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.client.Client
 import com.wire.kalium.logic.data.client.ClientType
@@ -22,6 +23,7 @@ import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.SsoId
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthTokens
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
@@ -85,9 +87,6 @@ class LoginEmailViewModelTest {
     private lateinit var navigationManager: NavigationManager
 
     @MockK
-    private lateinit var authSession: AuthTokens
-
-    @MockK
     private lateinit var qualifiedIdMapper: QualifiedIdMapper
 
     @MockK
@@ -95,9 +94,6 @@ class LoginEmailViewModelTest {
 
     @MockK
     private lateinit var authServerConfigProvider: AuthServerConfigProvider
-
-    @MockK
-    private lateinit var serverConfig: ServerConfig
 
     private lateinit var loginViewModel: LoginEmailViewModel
 
@@ -113,9 +109,7 @@ class LoginEmailViewModelTest {
         every { clientScopeProviderFactory.create(any()).clientScope } returns clientScope
         every { clientScope.register } returns registerClientUseCase
         every { clientScope.registerPushToken } returns registerTokenUseCase
-        every { authSession.userId } returns userId
         every { authServerConfigProvider.authServer.value } returns newServerConfig(1).links
-        every { serverConfig } returns newServerConfig(1)
         coEvery { fetchApiVersion(newServerConfig(1).links) } returns FetchApiVersionResult.Success(newServerConfig(1))
         loginViewModel = LoginEmailViewModel(
             loginUseCase,
@@ -170,7 +164,7 @@ class LoginEmailViewModelTest {
         val scheduler = TestCoroutineScheduler()
         val password = "abc"
         Dispatchers.setMain(StandardTestDispatcher(scheduler))
-        coEvery { loginUseCase(any(), any(), any()) } returns AuthenticationResult.Success(authSession, SSO_ID, serverConfig.id)
+        coEvery { loginUseCase(any(), any(), any()) } returns AuthenticationResult.Success(AUTH_TOKEN, SSO_ID, SERVER_CONFIG.id)
         coEvery { addAuthenticatedUserUseCase(any(), any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
         coEvery { navigationManager.navigate(any()) } returns Unit
         coEvery { registerClientUseCase(any()) } returns RegisterClientResult.Success(CLIENT)
@@ -235,7 +229,7 @@ class LoginEmailViewModelTest {
 
     @Test
     fun `given button is clicked, when addAuthenticatedUser returns UserAlreadyExists error, then UserAlreadyExists is passed`() {
-        coEvery { loginUseCase(any(), any(), any()) } returns AuthenticationResult.Success(authSession, SSO_ID, serverConfig.id)
+        coEvery { loginUseCase(any(), any(), any()) } returns AuthenticationResult.Success(AUTH_TOKEN, SSO_ID, SERVER_CONFIG.id)
         coEvery { addAuthenticatedUserUseCase(any(), any(), any()) } returns AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists
 
         runTest { loginViewModel.login() }
@@ -250,6 +244,31 @@ class LoginEmailViewModelTest {
             null, "label", "cookie", null, "model"
         )
         val SSO_ID: SsoId = SsoId("scim_id", null, null)
+        val AUTH_TOKEN = AuthTokens(
+            userId = UserId("user_id", "domain"),
+            accessToken = "access_token",
+            refreshToken = "refresh_token",
+            tokenType = "token_type"
+        )
+        val SERVER_CONFIG = ServerConfig(
+            id = "config",
+            links = ServerConfig.Links(
+                api = "https://server-apiBaseUrl.de",
+                accounts = "https://server-accountBaseUrl.de",
+                webSocket = "https://server-webSocketBaseUrl.de",
+                blackList = "https://server-blackListUrl.de",
+                teams = "https://server-teamsUrl.de",
+                website = "https://server-websiteUrl.de",
+                title = "server-title",
+                false
+            ),
+            metaData = ServerConfig.MetaData(
+                commonApiVersion = CommonApiVersionType.Valid(1),
+                domain = "domain.com",
+                federation = false
+            )
+        )
     }
+
 }
 

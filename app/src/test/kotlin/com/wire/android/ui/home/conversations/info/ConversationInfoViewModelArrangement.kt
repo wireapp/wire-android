@@ -1,6 +1,7 @@
 package com.wire.android.ui.home.conversations.info
 
 import androidx.lifecycle.SavedStateHandle
+import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.ui.WireSessionImageLoader
@@ -45,7 +46,8 @@ class ConversationInfoViewModelArrangement {
             savedStateHandle,
             navigationManager,
             observeConversationDetails,
-            wireSessionImageLoader
+            wireSessionImageLoader,
+            TestDispatcherProvider()
         )
     }
 

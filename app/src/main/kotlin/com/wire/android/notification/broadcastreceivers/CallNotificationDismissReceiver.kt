@@ -38,6 +38,7 @@ class CallNotificationDismissReceiver : BroadcastReceiver() {  // requires zero 
 
         val userId: QualifiedID? = intent.getStringExtra(EXTRA_RECEIVER_USER_ID)?.toQualifiedID(qualifiedIdMapper)
 
+        // TODO: use the CoroutineScope from the user session
         GlobalScope.launch(dispatcherProvider.io()) {
             val sessionScope =
                 if (userId != null) {
@@ -45,7 +46,7 @@ class CallNotificationDismissReceiver : BroadcastReceiver() {  // requires zero 
                 } else {
                     val currentSession = coreLogic.globalScope { session.currentSession() }
                     if (currentSession is CurrentSessionResult.Success) {
-                        coreLogic.getSessionScope(currentSession.authSession.session.userId)
+                        coreLogic.getSessionScope(currentSession.accountInfo.userId)
                     } else {
                         null
                     }

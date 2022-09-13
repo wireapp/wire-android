@@ -228,37 +228,23 @@ abstract class CreateAccountBaseViewModel(
         codeState = codeState.copy(loading = true)
         viewModelScope.launch {
 
-            val registerParam = when (type) {
-                CreateAccountFlowType.CreatePersonalAccount ->
-                    RegisterParam.PrivateAccount(
-                        firstName = detailsState.firstName.text.trim(),
-                        lastName = detailsState.lastName.text.trim(),
-                        password = detailsState.password.text,
-                        email = emailState.email.text.trim().lowercase(),
-                        emailActivationCode = codeState.code.text.text
-                    )
-                CreateAccountFlowType.CreateTeam ->
-                    RegisterParam.Team(
-                        firstName = detailsState.firstName.text.trim(),
-                        lastName = detailsState.lastName.text.trim(),
-                        password = detailsState.password.text,
-                        email = emailState.email.text.trim().lowercase(),
-                        emailActivationCode = codeState.code.text.text,
-                        teamName = detailsState.teamName.text.trim(),
-                        teamIcon = "default"
-                    )
-            }
+            val registerParam = registerParamFromType()
 
-            val (ssoId, session) = registerAccountUseCase(registerParam).let {
+            val registerResult = registerAccountUseCase(registerParam).let {
                 when (it) {
                     is RegisterResult.Failure -> {
                         updateCodeErrorState(it.toCodeError())
                         return@launch
                     }
-                    is RegisterResult.Success -> it.ssoId to it.userSession
+                    is RegisterResult.Success -> it
                 }
             }
-            val storedUserId = addAuthenticatedUser(session, ssoId, false).let {
+            val storedUserId = addAuthenticatedUser(
+                authTokens = registerResult.authData,
+                ssoId = registerResult.ssoID,
+                serverConfigId = registerResult.serverConfigId,
+                replace = false
+            ).let {
                 when (it) {
                     is AddAuthenticatedUserUseCase.Result.Failure -> {
                         updateCodeErrorState(it.toCodeError())
@@ -280,6 +266,27 @@ abstract class CreateAccountBaseViewModel(
                 }
             }
         }
+    }
+
+    private fun registerParamFromType() = when (type) {
+        CreateAccountFlowType.CreatePersonalAccount ->
+            RegisterParam.PrivateAccount(
+                firstName = detailsState.firstName.text.trim(),
+                lastName = detailsState.lastName.text.trim(),
+                password = detailsState.password.text,
+                email = emailState.email.text.trim().lowercase(),
+                emailActivationCode = codeState.code.text.text
+            )
+        CreateAccountFlowType.CreateTeam ->
+            RegisterParam.Team(
+                firstName = detailsState.firstName.text.trim(),
+                lastName = detailsState.lastName.text.trim(),
+                password = detailsState.password.text,
+                email = emailState.email.text.trim().lowercase(),
+                emailActivationCode = codeState.code.text.text,
+                teamName = detailsState.teamName.text.trim(),
+                teamIcon = "default"
+            )
     }
 
     private fun updateCodeErrorState(codeError: CreateAccountCodeViewState.CodeError) {

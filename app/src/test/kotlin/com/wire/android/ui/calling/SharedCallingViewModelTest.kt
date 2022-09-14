@@ -180,11 +180,9 @@ class SharedCallingViewModelTest {
     fun `given camera is turned on, when toggling video, then turn off video and speaker`() {
         sharedCallingViewModel.callState = sharedCallingViewModel.callState.copy(isCameraOn = true)
         coEvery { updateVideoState(any(), any()) } returns Unit
-        every { turnLoudSpeakerOff() } returns Unit
 
         runTest { sharedCallingViewModel.toggleVideo() }
 
-        verify(exactly = 1) { turnLoudSpeakerOff() }
         sharedCallingViewModel.callState.isCameraOn shouldBeEqualTo false
         sharedCallingViewModel.callState.isSpeakerOn shouldBeEqualTo false
     }
@@ -193,11 +191,9 @@ class SharedCallingViewModelTest {
     fun `given camera is turned off, when toggling video, then turn on video and speaker`() {
         sharedCallingViewModel.callState = sharedCallingViewModel.callState.copy(isCameraOn = false)
         coEvery { updateVideoState(any(), any()) } returns Unit
-        every { turnLoudSpeakerOn() } returns Unit
 
         runTest { sharedCallingViewModel.toggleVideo() }
 
-        verify(exactly = 1) { turnLoudSpeakerOn() }
         sharedCallingViewModel.callState.isCameraOn shouldBeEqualTo true
         sharedCallingViewModel.callState.isSpeakerOn shouldBeEqualTo true
     }

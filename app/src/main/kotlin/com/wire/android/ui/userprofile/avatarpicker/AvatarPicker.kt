@@ -86,13 +86,12 @@ private fun AvatarPickerContent(
     onCloseClick: () -> Unit,
     onSaveClick: () -> Unit
 ) {
+    val context = LocalContext.current
     val snackbarHostState = remember { SnackbarHostState() }
 
-    viewModel.errorMessageCode?.let { errorCode ->
-        val errorMessage = mapErrorCodeToString(errorCode)
-        LaunchedEffect(viewModel.errorMessageCode) {
-            snackbarHostState.showSnackbar(errorMessage)
-            viewModel.clearErrorMessage()
+    LaunchedEffect(Unit) {
+        viewModel.infoMessage.collect {
+            snackbarHostState.showSnackbar(it.asString(context.resources))
         }
     }
 
@@ -215,14 +214,6 @@ private fun AvatarPickerTopBar(onCloseClick: () -> Unit) {
         onNavigationPressed = onCloseClick,
         title = stringResource(R.string.profile_image_top_bar_label),
     )
-}
-
-@Composable
-private fun mapErrorCodeToString(errorCode: ErrorCodes): String {
-    return when (errorCode) {
-        ErrorCodes.UploadAvatarError -> stringResource(R.string.error_uploading_user_avatar)
-        ErrorCodes.NoNetworkError -> stringResource(R.string.error_no_network_message)
-    }
 }
 
 private suspend fun sanitizeAvatarImage(originalAvatarUri: Uri, avatarPath: Path, appContext: Context) {

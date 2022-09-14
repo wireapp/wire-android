@@ -1,25 +1,18 @@
 package com.wire.android.ui.home.conversations.details
 
-import android.content.Context
 import androidx.annotation.StringRes
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.ModalBottomSheetValue
-import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -27,26 +20,19 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.platform.LocalFocusManager
-import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
-import com.google.accompanist.pager.rememberPagerState
 import com.wire.android.R
 import com.wire.android.ui.common.MoreOptionIcon
 import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireTabRow
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
-import com.wire.android.ui.common.calculateCurrentTab
 import com.wire.android.ui.common.collectAsStateLifecycleAware
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
-import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
-import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.home.conversations.details.menu.ConversationGroupDetailsBottomSheet
 import com.wire.android.ui.home.conversations.details.menu.DeleteConversationGroupDialog
 import com.wire.android.ui.home.conversations.details.menu.LeaveConversationGroupDialog
@@ -64,7 +50,6 @@ import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.launch
 
 @Composable
 fun GroupConversationDetailsScreen(viewModel: GroupConversationDetailsViewModel) {
@@ -78,7 +63,7 @@ fun GroupConversationDetailsScreen(viewModel: GroupConversationDetailsViewModel)
         groupOptionsStateFlow = viewModel.groupOptionsState,
         groupParticipantsState = viewModel.groupParticipantsState,
         isLoading = viewModel.requestInProgress,
-        messages = viewModel.snackBarMessage,
+        snackbarMessages = viewModel.snackBarMessage,
     )
 }
 
@@ -99,15 +84,14 @@ private fun GroupConversationDetailsContent(
     groupOptionsStateFlow: StateFlow<GroupConversationOptionsState>,
     groupParticipantsState: GroupConversationParticipantsState,
     isLoading: Boolean,
-    messages: SharedFlow<UIText>
+    snackbarMessages: SharedFlow<UIText>
 ) {
     val groupOptionsState by groupOptionsStateFlow.collectAsStateLifecycleAware()
     val groupConversationDetailsState = rememberGroupConversationDetailsState()
 
     LaunchedEffect(Unit) {
-        messages.collect { groupConversationDetailsState.showSnackbar(it) }
+        snackbarMessages.collect { groupConversationDetailsState.showSnackbar(it) }
     }
-
 
     with(groupConversationDetailsState) {
 
@@ -228,7 +212,7 @@ private fun GroupConversationDetailsPreview() {
             ),
             groupParticipantsState = GroupConversationParticipantsState.PREVIEW,
             isLoading = false,
-            messages = MutableSharedFlow(),
+            snackbarMessages = MutableSharedFlow(),
         )
     }
 }

@@ -2,11 +2,11 @@ package com.wire.android.ui.authentication.login
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.gestures.LocalOverScrollConfiguration
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -31,6 +31,7 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
 import com.wire.android.R
+import com.wire.android.ui.authentication.ServerTitle
 import com.wire.android.ui.authentication.login.email.LoginEmailScreen
 import com.wire.android.ui.authentication.login.sso.LoginSSOScreen
 import com.wire.android.ui.common.TabItem
@@ -41,8 +42,11 @@ import com.wire.android.ui.common.WireTabRow
 import com.wire.android.ui.common.calculateCurrentTab
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.server.ClientUpdateRequiredDialog
+import com.wire.android.ui.server.ServerVersionNotSupportedDialog
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
+import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.DialogErrorStrings
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.dialogErrorStrings
@@ -80,6 +84,14 @@ private fun LoginContent(
             WireCenterAlignedTopAppBar(
                 elevation = scrollState.rememberTopBarElevationState().value,
                 title = stringResource(R.string.login_title),
+                subtitleContent = {
+                    if (viewModel.serverConfig.isOnPremises) {
+                        ServerTitle(
+                            serverLinks = viewModel.serverConfig,
+                            style = MaterialTheme.wireTypography.body01
+                        )
+                    }
+                },
                 onNavigationPressed = onBackPressed
             ) {
                 WireTabRow(
@@ -103,7 +115,16 @@ private fun LoginContent(
         if (loginState.loginError is LoginError.DialogError.InvalidSession) {
             LoginErrorDialog(loginState.loginError, viewModel::onDialogDismiss)
         }
-        CompositionLocalProvider(LocalOverScrollConfiguration provides null) {
+        if (loginState.showClientUpdateDialog) {
+            ClientUpdateRequiredDialog(
+                onClose = viewModel::dismissClientUpdateDialog,
+                onUpdate = viewModel::updateTheApp
+            )
+        }
+        if (loginState.showServerVersionNotSupportedDialog) {
+            ServerVersionNotSupportedDialog(onClose = viewModel::dismissApiVersionNotSupportedDialog)
+        }
+        CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
             HorizontalPager(
                 state = pagerState,
                 count = LoginTabItem.values().size,

@@ -102,7 +102,10 @@ fun HomeScreen(
                 snackbarHostState = snackbarHostState,
                 homeTopBar = { elevation ->
                     Column {
-                        CommonTopAppBar(commonTopAppBarViewModel = commonTopAppBarViewModel) // as CommonTopAppBarViewModel)
+                        CommonTopAppBar(
+                            connectivityUIState = commonTopAppBarViewModel.connectivityState,
+                            onReturnToCallClick = commonTopAppBarViewModel::openOngoingCallScreen
+                        )
                         HomeTopBar(
                             avatarAsset = homeViewModel.userAvatar.avatarAsset,
                             status = homeViewModel.userAvatar.status,
@@ -185,7 +188,6 @@ fun HomeContent(
                     if (currentNavigationItem.isSearchable)
                         SearchTopBar(
                             isSearchActive = false, // TODO
-                            isSearchBarCollapsed = false, // TODO
                             searchBarHint = stringResource(R.string.search_bar_hint, stringResource(id = title).lowercase()),
                             searchQuery = TextFieldValue(""), // TODO
                             onSearchQueryChanged = { /* TODO */ },

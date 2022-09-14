@@ -52,7 +52,8 @@ fun InternalContactSearchResultItem(
             Row(verticalAlignment = CenterVertically) {
                 HighlightName(
                     name = name,
-                    searchQuery = searchQuery
+                    searchQuery = searchQuery,
+                    modifier = Modifier.weight(weight = 1f, fill = false)
                 )
                 UserBadge(
                     membership = membership,
@@ -103,7 +104,8 @@ fun ExternalContactSearchResultItem(
             Row(verticalAlignment = CenterVertically) {
                 HighlightName(
                     name = name,
-                    searchQuery = searchQuery
+                    searchQuery = searchQuery,
+                    modifier = Modifier.weight(weight = 1f, fill = false)
                 )
                 UserBadge(
                     membership = membership,
@@ -122,7 +124,7 @@ fun ExternalContactSearchResultItem(
             when (connectionState) {
                 ConnectionState.NOT_CONNECTED ->
                     AddContactButton(onAddContactClicked)
-                ConnectionState.PENDING ->
+                ConnectionState.PENDING, ConnectionState.IGNORED ->
                     Box(modifier = Modifier.padding(horizontal = dimensions().spacing12x)) { ConnectRequestBadge() }
                 ConnectionState.SENT ->
                     Box(modifier = Modifier.padding(horizontal = dimensions().spacing12x)) { ConnectPendingRequestBadge() }

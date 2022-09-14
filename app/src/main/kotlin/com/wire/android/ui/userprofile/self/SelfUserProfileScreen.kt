@@ -1,17 +1,19 @@
 package com.wire.android.ui.userprofile.self
 
+import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
@@ -21,55 +23,65 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Shape
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
+import com.wire.android.model.Clickable
+import com.wire.android.ui.common.ArrowRightIcon
+import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.UserStatusIndicator
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.selectableBackground
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.common.visbility.rememberVisibilityState
+import com.wire.android.ui.home.conversations.search.HighlightName
+import com.wire.android.ui.home.conversations.search.HighlightSubtitle
+import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.theme.wireDimensions
-import com.wire.android.ui.theme.wireTypography
 import com.wire.android.ui.userprofile.common.EditableState
 import com.wire.android.ui.userprofile.common.UserProfileInfo
 import com.wire.android.ui.userprofile.self.SelfUserProfileViewModel.ErrorCodes
 import com.wire.android.ui.userprofile.self.SelfUserProfileViewModel.ErrorCodes.DownloadUserInfoError
 import com.wire.android.ui.userprofile.self.dialog.ChangeStatusDialogContent
+import com.wire.android.ui.userprofile.self.dialog.LogoutOptionsDialog
+import com.wire.android.ui.userprofile.self.dialog.LogoutOptionsDialogState
 import com.wire.android.ui.userprofile.self.model.OtherAccount
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
+import com.wire.kalium.logic.data.user.UserId
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SelfUserProfileScreen(viewModelSelf: SelfUserProfileViewModel = hiltViewModel()) {
     SelfUserProfileContent(
         state = viewModelSelf.userProfileState,
-        onCloseClick = { viewModelSelf.navigateBack() },
-        onLogoutClick = { viewModelSelf.onLogoutClick() },
-        onChangeUserProfilePicture = { viewModelSelf.onChangeProfilePictureClicked() },
-        onEditClick = { viewModelSelf.editProfile() },
-        onStatusClicked = { viewModelSelf.changeStatusClick(it) },
-        onAddAccountClick = { viewModelSelf.addAccount() },
-        dismissStatusDialog = { viewModelSelf.dismissStatusDialog() },
-        onStatusChange = { viewModelSelf.changeStatus(it) },
-        onNotShowRationaleAgainChange = { show -> viewModelSelf.dialogCheckBoxStateChanged(show) },
-        onMessageShown = { viewModelSelf.clearErrorMessage() }
+        onCloseClick = viewModelSelf::navigateBack,
+        logout = viewModelSelf::logout,
+        onChangeUserProfilePicture = viewModelSelf::onChangeProfilePictureClicked,
+        onEditClick = viewModelSelf::editProfile,
+        onStatusClicked = viewModelSelf::changeStatusClick,
+        onAddAccountClick = viewModelSelf::addAccount,
+        dismissStatusDialog = viewModelSelf::dismissStatusDialog,
+        onStatusChange = viewModelSelf::changeStatus,
+        onNotShowRationaleAgainChange = viewModelSelf::dialogCheckBoxStateChanged,
+        onMessageShown = viewModelSelf::clearErrorMessage,
+        onMaxAccountReachedDialogDismissed = viewModelSelf::onMaxAccountReachedDialogDismissed,
+        onOtherAccountClick = viewModelSelf::switchAccount
     )
 }
 
@@ -78,7 +90,7 @@ fun SelfUserProfileScreen(viewModelSelf: SelfUserProfileViewModel = hiltViewMode
 private fun SelfUserProfileContent(
     state: SelfUserProfileState,
     onCloseClick: () -> Unit = {},
-    onLogoutClick: () -> Unit = {},
+    logout: (Boolean) -> Unit = {},
     onChangeUserProfilePicture: () -> Unit = {},
     onEditClick: () -> Unit = {},
     onStatusClicked: (UserAvailabilityStatus) -> Unit = {},
@@ -86,7 +98,9 @@ private fun SelfUserProfileContent(
     dismissStatusDialog: () -> Unit = {},
     onStatusChange: (UserAvailabilityStatus) -> Unit = {},
     onNotShowRationaleAgainChange: (Boolean) -> Unit = {},
-    onMessageShown: () -> Unit = {}
+    onMessageShown: () -> Unit = {},
+    onMaxAccountReachedDialogDismissed: () -> Unit = {},
+    onOtherAccountClick: (UserId) -> Unit = {}
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -98,12 +112,15 @@ private fun SelfUserProfileContent(
         }
     }
     val scrollState = rememberScrollState()
+    val logoutOptionsDialogState = rememberVisibilityState<LogoutOptionsDialogState>()
 
     Scaffold(
         topBar = {
             SelfUserProfileTopBar(
                 onCloseClick = onCloseClick,
-                onLogoutClick = onLogoutClick
+                onLogoutClick = remember {
+                    { logoutOptionsDialogState.show(logoutOptionsDialogState.savedState ?: LogoutOptionsDialogState()) }
+                }
             )
         },
         snackbarHost = {
@@ -114,6 +131,7 @@ private fun SelfUserProfileContent(
         }
     ) { internalPadding ->
         with(state) {
+            val context = LocalContext.current
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -152,18 +170,46 @@ private fun SelfUserProfileContent(
                         }
                         items(
                             items = otherAccounts,
-                            itemContent = { account -> OtherAccountItem(account) }
+                            itemContent = { account ->
+                                OtherAccountItem(
+                                    account,
+                                    clickable = remember {
+                                        Clickable(enabled = true, onClick = {
+                                            if (state.isUserInCall) {
+                                                Toast.makeText(
+                                                    context,
+                                                    context.getString(R.string.cant_switch_account_in_call),
+                                                    Toast.LENGTH_SHORT
+                                                ).show()
+                                            } else {
+                                                onOtherAccountClick(account.id)
+                                            }
+                                        })
+                                    })
+                            }
                         )
                     }
                 }
-                // TODO: Re-enable this when we support multiple accounts
-//                NewTeamButton(onAddAccountClick)
+                NewTeamButton(onAddAccountClick)
             }
             ChangeStatusDialogContent(
                 data = statusDialogData,
                 dismiss = dismissStatusDialog,
                 onStatusChange = onStatusChange,
                 onNotShowRationaleAgainChange = onNotShowRationaleAgainChange
+            )
+
+            if (state.maxAccountsReached) {
+                MaxAccountReachedDialog(
+                    onConfirm = onMaxAccountReachedDialogDismissed,
+                    onDismiss = onMaxAccountReachedDialogDismissed,
+                    buttonText = R.string.label_ok
+                )
+            }
+
+            LogoutOptionsDialog(
+                dialogState = logoutOptionsDialogState,
+                logout = logout
             )
         }
     }
@@ -285,23 +331,12 @@ private fun ProfileStatusButton(
 
 @Composable
 private fun OtherAccountsHeader() {
-    Text(
-        modifier = Modifier
-            .padding(
-                top = dimensions().spacing16x,
-                start = dimensions().spacing16x,
-                bottom = dimensions().spacing4x
-            ),
-        text = stringResource(id = R.string.user_profile_other_accs).uppercase(),
-        style = MaterialTheme.wireTypography.title03,
-        color = MaterialTheme.colorScheme.onBackground,
-        textAlign = TextAlign.Start
-    )
+    FolderHeader(stringResource(id = R.string.user_profile_other_accs))
 }
 
 @Composable
 private fun NewTeamButton(onAddAccountClick: () -> Unit) {
-    Surface(shadowElevation = 8.dp) {
+    Surface(shadowElevation = dimensions().spacing8x) {
         WirePrimaryButton(
             modifier = Modifier
                 .background(MaterialTheme.colorScheme.background)
@@ -316,51 +351,35 @@ private fun NewTeamButton(onAddAccountClick: () -> Unit) {
 @Composable
 private fun OtherAccountItem(
     account: OtherAccount,
-    onClick: (String) -> Unit = {}
+    clickable: Clickable = Clickable(enabled = true) {}
 ) {
-    ConstraintLayout(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(dimensions().userProfileOtherAccItemHeight)
-            .padding(bottom = 1.dp)
-            .background(MaterialTheme.colorScheme.surface)
-            .selectableBackground(true) { onClick(account.id) }
-    ) {
-        val (avatar, data) = createRefs()
-
-        UserProfileAvatar(
-            modifier = Modifier
-                .constrainAs(avatar) {
-                    top.linkTo(parent.top)
-                    bottom.linkTo(parent.bottom)
-                    start.linkTo(parent.start)
-                }
-                .padding(start = dimensions().spacing8x)
-        )
-
-        Column(
-            modifier = Modifier
-                .padding(start = dimensions().spacing8x)
-                .constrainAs(data) {
-                    top.linkTo(parent.top)
-                    bottom.linkTo(parent.bottom)
-                    start.linkTo(avatar.end)
-                }
-        ) {
-
-            Text(
-                text = account.fullName,
-                style = MaterialTheme.wireTypography.body02
-            )
-
-            if (account.teamName != null) {
-                Text(
-                    text = account.teamName,
-                    style = MaterialTheme.wireTypography.subline01
+    RowItemTemplate(
+        leadingIcon = { UserProfileAvatar(account.avatarData) },
+        title = {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                HighlightName(
+                    name = account.fullName,
+                    modifier = Modifier.weight(weight = 1f, fill = false)
                 )
             }
-        }
-    }
+
+        },
+        subtitle = {
+            if (account.teamName != null)
+                HighlightSubtitle(subTitle = account.teamName, suffix = "")
+        },
+        actions = {
+            Box(
+                modifier = Modifier
+                    .wrapContentWidth()
+                    .padding(end = MaterialTheme.wireDimensions.spacing8x)
+            ) {
+                ArrowRightIcon(Modifier.align(Alignment.TopEnd))
+            }
+        },
+        clickable = clickable,
+        modifier = Modifier.padding(start = dimensions().spacing8x)
+    )
 }
 
 @Preview(widthDp = 400, heightDp = 800)
@@ -374,13 +393,8 @@ private fun SelfUserProfileScreenPreview() {
             userName = "userName_long_long_long_long_long_long_long_long_long_long",
             teamName = "Best team ever long  long  long  long  long  long  long  long  long ",
             otherAccounts = listOf(
-                OtherAccount("someId", "", "Other Name", "team A"),
-                OtherAccount("someId", "", "Other Name", "team A"),
-                OtherAccount("someId", "", "Other Name", "team A"),
-                OtherAccount("someId", "", "Other Name", "team A"),
-                OtherAccount("someId", "", "Other Name", "team A"),
-                OtherAccount("someId", "", "Other Name", "team A"),
-                OtherAccount("someId", "", "New Name")
+                OtherAccount(id = UserId("id1", "domain"), fullName = "Other Name", teamName = "team A"),
+                OtherAccount(id = UserId("id2", "domain"), fullName = "New Name")
             ),
             statusDialogData = null
         ),

@@ -24,6 +24,7 @@ import com.wire.android.ui.authentication.create.email.CreateAccountEmailViewSta
 import com.wire.android.ui.authentication.create.overview.CreateAccountOverviewViewModel
 import com.wire.android.ui.common.textfield.CodeFieldValue
 import com.wire.android.util.WillNeverOccurError
+import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
@@ -36,6 +37,8 @@ import com.wire.kalium.logic.feature.register.RegisterParam
 import com.wire.kalium.logic.feature.register.RegisterResult
 import com.wire.kalium.logic.feature.register.RequestActivationCodeResult
 import com.wire.kalium.logic.feature.register.RequestActivationCodeUseCase
+import com.wire.kalium.logic.feature.server.FetchApiVersionResult
+import com.wire.kalium.logic.feature.server.FetchApiVersionUseCase
 import com.wire.kalium.logic.feature.session.RegisterTokenResult
 import kotlinx.coroutines.launch
 
@@ -50,12 +53,15 @@ abstract class CreateAccountBaseViewModel(
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
     private val registerAccountUseCase: RegisterAccountUseCase,
     private val clientScopeProviderFactory: ClientScopeProvider.Factory,
-    private val authServerConfigProvider: AuthServerConfigProvider
+    private val authServerConfigProvider: AuthServerConfigProvider,
+    private val fetchApiVersion: FetchApiVersionUseCase
 ) : ViewModel(),
     CreateAccountOverviewViewModel,
     CreateAccountEmailViewModel,
     CreateAccountDetailsViewModel,
     CreateAccountCodeViewModel {
+
+    val serverConfig: ServerConfig.Links = authServerConfigProvider.authServer.value
 
     override fun tosUrl(): String = authServerConfigProvider.authServer.value.tos
 
@@ -102,6 +108,23 @@ abstract class CreateAccountBaseViewModel(
     final override fun onEmailContinue() {
         emailState = emailState.copy(loading = true, continueEnabled = false)
         viewModelScope.launch {
+            fetchApiVersion(authServerConfigProvider.authServer.value).let {
+                when (it) {
+                    is FetchApiVersionResult.Success -> {}
+                    is FetchApiVersionResult.Failure.UnknownServerVersion -> {
+                        emailState = emailState.copy(showServerVersionNotSupportedDialog = true)
+                        return@launch
+                    }
+                    is FetchApiVersionResult.Failure.TooNewVersion -> {
+                        emailState = emailState.copy(showClientUpdateDialog = true)
+                        return@launch
+                    }
+                    is FetchApiVersionResult.Failure.Generic -> {
+                        return@launch
+                    }
+                }
+            }
+
             val emailError =
                 if (validateEmailUseCase(emailState.email.text.trim().lowercase())) CreateAccountEmailViewState.EmailError.None
                 else CreateAccountEmailViewState.EmailError.TextFieldError.InvalidEmailError
@@ -112,6 +135,8 @@ abstract class CreateAccountBaseViewModel(
                 error = emailError
             )
             if (emailState.termsAccepted) onTermsAccept()
+        }.invokeOnCompletion {
+            emailState = emailState.copy(loading = false)
         }
     }
 
@@ -203,37 +228,23 @@ abstract class CreateAccountBaseViewModel(
         codeState = codeState.copy(loading = true)
         viewModelScope.launch {
 
-            val registerParam = when (type) {
-                CreateAccountFlowType.CreatePersonalAccount ->
-                    RegisterParam.PrivateAccount(
-                        firstName = detailsState.firstName.text.trim(),
-                        lastName = detailsState.lastName.text.trim(),
-                        password = detailsState.password.text,
-                        email = emailState.email.text.trim().lowercase(),
-                        emailActivationCode = codeState.code.text.text
-                    )
-                CreateAccountFlowType.CreateTeam ->
-                    RegisterParam.Team(
-                        firstName = detailsState.firstName.text.trim(),
-                        lastName = detailsState.lastName.text.trim(),
-                        password = detailsState.password.text,
-                        email = emailState.email.text.trim().lowercase(),
-                        emailActivationCode = codeState.code.text.text,
-                        teamName = detailsState.teamName.text.trim(),
-                        teamIcon = "default"
-                    )
-            }
+            val registerParam = registerParamFromType()
 
-            val (ssoId, session) = registerAccountUseCase(registerParam).let {
+            val registerResult = registerAccountUseCase(registerParam).let {
                 when (it) {
                     is RegisterResult.Failure -> {
                         updateCodeErrorState(it.toCodeError())
                         return@launch
                     }
-                    is RegisterResult.Success -> it.ssoId to it.userSession
+                    is RegisterResult.Success -> it
                 }
             }
-            val storedUserId = addAuthenticatedUser(session, ssoId, false).let {
+            val storedUserId = addAuthenticatedUser(
+                authTokens = registerResult.authData,
+                ssoId = registerResult.ssoID,
+                serverConfigId = registerResult.serverConfigId,
+                replace = false
+            ).let {
                 when (it) {
                     is AddAuthenticatedUserUseCase.Result.Failure -> {
                         updateCodeErrorState(it.toCodeError())
@@ -255,6 +266,27 @@ abstract class CreateAccountBaseViewModel(
                 }
             }
         }
+    }
+
+    private fun registerParamFromType() = when (type) {
+        CreateAccountFlowType.CreatePersonalAccount ->
+            RegisterParam.PrivateAccount(
+                firstName = detailsState.firstName.text.trim(),
+                lastName = detailsState.lastName.text.trim(),
+                password = detailsState.password.text,
+                email = emailState.email.text.trim().lowercase(),
+                emailActivationCode = codeState.code.text.text
+            )
+        CreateAccountFlowType.CreateTeam ->
+            RegisterParam.Team(
+                firstName = detailsState.firstName.text.trim(),
+                lastName = detailsState.lastName.text.trim(),
+                password = detailsState.password.text,
+                email = emailState.email.text.trim().lowercase(),
+                emailActivationCode = codeState.code.text.text,
+                teamName = detailsState.teamName.text.trim(),
+                teamIcon = "default"
+            )
     }
 
     private fun updateCodeErrorState(codeError: CreateAccountCodeViewState.CodeError) {
@@ -297,6 +329,18 @@ abstract class CreateAccountBaseViewModel(
         viewModelScope.launch {
             navigationManager.navigate(NavigationCommand(NavigationItem.RemoveDevices.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
         }
+    }
+
+    override fun dismissClientUpdateDialog() {
+        emailState = emailState.copy(showClientUpdateDialog = false)
+    }
+
+    override fun dismissApiVersionNotSupportedDialog() {
+        emailState = emailState.copy(showServerVersionNotSupportedDialog = false)
+    }
+
+    override fun updateTheApp() {
+        // todo : update the app after releasing on the store
     }
 }
 

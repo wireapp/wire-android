@@ -2,6 +2,7 @@ package com.wire.android.ui.home.conversations.model
 
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.compose.runtime.Stable
 import com.wire.android.R
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversations.model.MessageStatus.DecryptionFailure
@@ -20,7 +21,7 @@ data class UIMessage(
     val userAvatarData: UserAvatarData,
     val messageSource: MessageSource,
     val messageHeader: MessageHeader,
-    val messageContent: MessageContent?,
+    val messageContent: UIMessageContent?,
 ) {
     val isDeleted: Boolean = messageHeader.messageStatus == Deleted
     val sendingFailed: Boolean = messageHeader.messageStatus == SendFailure
@@ -28,6 +29,7 @@ data class UIMessage(
     val receivingFailed: Boolean = messageHeader.messageStatus == ReceiveFailure || decryptionFailed
 }
 
+@Stable
 data class MessageHeader(
     val username: UIText,
     val membership: Membership,
@@ -50,9 +52,9 @@ sealed class MessageStatus(val text: UIText) {
     object DecryptionFailure : MessageStatus(UIText.StringResource(R.string.label_message_decryption_failure_message))
 }
 
-sealed class MessageContent {
+sealed class UIMessageContent {
 
-    sealed class ClientMessage : MessageContent()
+    sealed class ClientMessage : UIMessageContent()
 
     data class TextMessage(val messageBody: MessageBody) : ClientMessage()
 
@@ -62,6 +64,7 @@ sealed class MessageContent {
         val assetName: String
     ) : ClientMessage()
 
+    @Stable
     data class AssetMessage(
         val assetName: String,
         val assetExtension: String,
@@ -70,7 +73,7 @@ sealed class MessageContent {
         val downloadStatus: Message.DownloadStatus
     ) : ClientMessage()
 
-    data class ImageMessage(val assetId: AssetId, val imgData: ByteArray?, val width: Int, val height: Int) : MessageContent() {
+    data class ImageMessage(val assetId: AssetId, val imgData: ByteArray?, val width: Int, val height: Int) : UIMessageContent() {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (javaClass != other?.javaClass) return false
@@ -89,7 +92,7 @@ sealed class MessageContent {
         @DrawableRes val iconResId: Int?,
         @StringRes open val stringResId: Int,
         val isSmallIcon: Boolean = true
-    ) : MessageContent() {
+    ) : UIMessageContent() {
 
         data class MemberAdded(
             val author: UIText,

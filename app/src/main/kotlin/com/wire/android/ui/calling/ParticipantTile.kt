@@ -1,6 +1,8 @@
 package com.wire.android.ui.calling
 
 import android.view.View
+import android.view.ViewGroup.LayoutParams.MATCH_PARENT
+import android.widget.FrameLayout
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -14,7 +16,6 @@ import androidx.compose.material.Text
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,29 +30,29 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.viewinterop.AndroidView
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.waz.avs.VideoPreview
+import com.waz.avs.VideoRenderer
 import com.wire.android.R
-import com.wire.android.model.ImageAsset
 import com.wire.android.model.UserAvatarData
+import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.kalium.logic.data.id.QualifiedID
 
 @Composable
 fun ParticipantTile(
     modifier: Modifier,
-    conversationName: ConversationName?,
-    participantAvatar: ImageAsset.UserAvatarAsset?,
+    participantTitleState: UICallParticipant,
     onGoingCallTileUsernameMaxWidth: Dp = 350.dp,
-    isMuted: Boolean,
-    isCameraOn: Boolean,
-    isActiveSpeaker: Boolean,
     avatarSize: Dp = dimensions().onGoingCallUserAvatarSize,
+    isSelfUser: Boolean,
     onSelfUserVideoPreviewCreated: (view: View) -> Unit,
     onClearSelfUserVideoPreview: () -> Unit
 ) {
     var updatedModifier = modifier
-    if (isActiveSpeaker) {
+    if (participantTitleState.isSpeaking) {
         updatedModifier = modifier
             .border(
                 width = dimensions().spacing4x,
@@ -69,59 +70,43 @@ fun ParticipantTile(
         ConstraintLayout {
             val (avatar, userName, muteIcon) = createRefs()
 
-            if (isCameraOn) {
-                val context = LocalContext.current
-                val view = remember { VideoPreview(context) }
-                //TODO fix memory leak when the app goes to background with video turned on
-                // https://issuetracker.google.com/issues/198012639
-                // The issue is marked as fixed in the issue tracker,
-                // but we are still getting it with our current compose version 1.2.0-beta01
-                AndroidView(factory = {
-                    onSelfUserVideoPreviewCreated(view)
-                    view
-                })
+            AvatarTile(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .constrainAs(avatar) { },
+                avatar = UserAvatarData(participantTitleState.avatar),
+                avatarSize = avatarSize
+            )
+
+            if (isSelfUser) {
+                SelfVideo(
+                    isCameraOn = participantTitleState.isCameraOn,
+                    onSelfUserVideoPreviewCreated = onSelfUserVideoPreviewCreated,
+                    onClearSelfUserVideoPreview = onClearSelfUserVideoPreview
+                )
             } else {
-                onClearSelfUserVideoPreview()
-                Column(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .constrainAs(avatar) { },
-                    verticalArrangement = Arrangement.Center,
-                    horizontalAlignment = Alignment.CenterHorizontally
-                ) {
-                    UserProfileAvatar(
-                        modifier = Modifier.padding(top = dimensions().spacing16x),
-                        size = avatarSize,
-                        avatarData = UserAvatarData(participantAvatar)
-                    )
-                }
+                OthersVideo(
+                    isCameraOn = participantTitleState.isCameraOn,
+                    isSharingScreen = participantTitleState.isSharingScreen,
+                    userId = participantTitleState.id.toString(),
+                    clientId = participantTitleState.clientId
+                )
             }
 
-            if (isMuted) {
-                Surface(
-                    modifier = Modifier
-                        .padding(
-                            start = dimensions().spacing8x,
-                            bottom = dimensions().spacing8x
-                        )
-                        .constrainAs(muteIcon) {
-                            bottom.linkTo(parent.bottom)
-                            start.linkTo(parent.start)
-                        },
-                    color = Color.Black,
-                    shape = RoundedCornerShape(dimensions().corner6x)
-                ) {
-                    Icon(
-                        modifier = Modifier
-                            .padding(dimensions().spacing4x),
-                        imageVector = ImageVector.vectorResource(id = R.drawable.ic_participant_muted),
-                        tint = MaterialTheme.wireColorScheme.muteButtonColor,
-                        contentDescription = stringResource(R.string.content_description_calling_participant_muted)
+            MicrophoneTile(
+                modifier = Modifier
+                    .padding(
+                        start = dimensions().spacing8x,
+                        bottom = dimensions().spacing8x
                     )
-                }
-            }
+                    .constrainAs(muteIcon) {
+                        bottom.linkTo(parent.bottom)
+                        start.linkTo(parent.start)
+                    },
+                isMuted = participantTitleState.isMuted
+            )
 
-            Surface(
+            UsernameTile(
                 modifier = Modifier
                     .padding(bottom = dimensions().spacing6x)
                     .constrainAs(userName) {
@@ -130,22 +115,106 @@ fun ParticipantTile(
                         end.linkTo((parent.end))
                     }
                     .widthIn(max = onGoingCallTileUsernameMaxWidth),
-                shape = RoundedCornerShape(dimensions().corner4x),
-                color = if (isActiveSpeaker) MaterialTheme.wireColorScheme.primary else Color.Black
-            ) {
-                Text(
-                    color = Color.White,
-                    style = MaterialTheme.wireTypography.label01,
-                    modifier = Modifier.padding(3.dp),
-                    text = when (conversationName) {
-                        is ConversationName.Known -> conversationName.name
-                        is ConversationName.Unknown -> stringResource(id = conversationName.resourceId)
-                        else -> ""
-                    },
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis
-                )
+                name = participantTitleState.name,
+                color = if (participantTitleState.isSpeaking) MaterialTheme.wireColorScheme.primary else Color.Black
+            )
+
+        }
+    }
+}
+
+@Composable
+private fun OthersVideo(
+    isCameraOn: Boolean,
+    isSharingScreen: Boolean,
+    userId: String,
+    clientId: String
+) {
+    if (isCameraOn || isSharingScreen) {
+        val context = LocalContext.current
+        AndroidView(factory = {
+            VideoRenderer(context, userId, clientId, false).apply {
+                layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
             }
+        })
+    }
+}
+
+@Composable
+private fun SelfVideo(
+    isCameraOn: Boolean,
+    onSelfUserVideoPreviewCreated: (view: View) -> Unit,
+    onClearSelfUserVideoPreview: () -> Unit
+) {
+    if (isCameraOn) {
+        val context = LocalContext.current
+        AndroidView(factory = {
+            val videoPreview = VideoPreview(context).also(onSelfUserVideoPreviewCreated)
+            videoPreview
+        })
+    } else onClearSelfUserVideoPreview()
+}
+
+
+@Composable
+private fun AvatarTile(
+    modifier: Modifier,
+    avatar: UserAvatarData,
+    avatarSize: Dp
+) {
+    Column(
+        modifier = modifier,
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        UserProfileAvatar(
+            modifier = Modifier.padding(top = dimensions().spacing16x),
+            size = avatarSize,
+            avatarData = avatar
+        )
+    }
+}
+
+@Composable
+private fun UsernameTile(
+    modifier: Modifier,
+    name: String,
+    color: Color
+) {
+    Surface(
+        modifier = modifier,
+        shape = RoundedCornerShape(dimensions().corner4x),
+        color = color
+    ) {
+        Text(
+            color = Color.White,
+            style = MaterialTheme.wireTypography.label01,
+            modifier = Modifier.padding(3.dp),
+            text = name,
+            maxLines = 1,
+            overflow = TextOverflow.Ellipsis
+        )
+    }
+}
+
+@Composable
+private fun MicrophoneTile(
+    modifier: Modifier,
+    isMuted: Boolean,
+) {
+    if (isMuted) {
+        Surface(
+            modifier = modifier,
+            color = Color.Black,
+            shape = RoundedCornerShape(dimensions().corner6x)
+        ) {
+            Icon(
+                modifier = Modifier
+                    .padding(dimensions().spacing4x),
+                imageVector = ImageVector.vectorResource(id = R.drawable.ic_participant_muted),
+                tint = MaterialTheme.wireColorScheme.muteButtonColor,
+                contentDescription = stringResource(R.string.content_description_calling_participant_muted)
+            )
         }
     }
 }
@@ -155,12 +224,19 @@ fun ParticipantTile(
 private fun ParticipantTilePreview() {
     ParticipantTile(
         modifier = Modifier.height(300.dp),
-        isMuted = false,
-        isCameraOn = false,
-        conversationName = ConversationName.Known("Known Conversation"),
+        participantTitleState = UICallParticipant(
+            id = QualifiedID("", ""),
+            clientId = "client-id",
+            name = "name",
+            isMuted = true,
+            isSpeaking = true,
+            isCameraOn = true,
+            isSharingScreen = false,
+            avatar = null,
+            membership = Membership.Admin
+        ),
         onClearSelfUserVideoPreview = {},
         onSelfUserVideoPreviewCreated = {},
-        participantAvatar = null,
-        isActiveSpeaker = false
+        isSelfUser = false
     )
 }

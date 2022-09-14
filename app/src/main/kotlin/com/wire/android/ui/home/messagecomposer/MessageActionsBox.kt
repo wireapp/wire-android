@@ -77,7 +77,7 @@ private fun RichTextEditingAction() {
     WireIconButton(
         onButtonClicked = {},
         iconResource = R.drawable.ic_rich_text,
-        contentDescription = R.string.content_description_conversation_search_icon
+        contentDescription = R.string.content_description_conversation_enable_rich_text_mode
     )
 }
 
@@ -86,7 +86,7 @@ private fun AddEmojiAction() {
     WireIconButton(
         onButtonClicked = {},
         iconResource = R.drawable.ic_emoticon,
-        contentDescription = R.string.content_description_conversation_search_icon
+        contentDescription = R.string.content_description_conversation_send_emoticon
     )
 }
 
@@ -95,7 +95,7 @@ private fun AddGifAction() {
     WireIconButton(
         onButtonClicked = {},
         iconResource = R.drawable.ic_gif,
-        contentDescription = R.string.content_description_conversation_search_icon
+        contentDescription = R.string.content_description_conversation_send_gif
     )
 }
 
@@ -104,7 +104,7 @@ private fun AddMentionAction() {
     WireIconButton(
         onButtonClicked = {},
         iconResource = R.drawable.ic_mention,
-        contentDescription = R.string.content_description_conversation_search_icon
+        contentDescription = R.string.content_description_conversation_mention_someone
     )
 }
 

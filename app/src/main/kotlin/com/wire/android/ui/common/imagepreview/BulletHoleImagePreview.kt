@@ -26,7 +26,10 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.util.toBitmap
 
 @Composable
-fun BulletHoleImagePreview(imageUri: Uri, contentDescription: String) {
+fun BulletHoleImagePreview(
+    imageUri: Uri,
+    contentDescription: String
+) {
     ConstraintLayout(
         Modifier
             .aspectRatio(1f)

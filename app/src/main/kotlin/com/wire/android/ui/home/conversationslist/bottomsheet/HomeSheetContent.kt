@@ -11,6 +11,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import com.wire.android.R
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.ArrowRightIcon
@@ -21,16 +22,17 @@ import com.wire.android.ui.common.bottomsheet.MenuModalSheetContent
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.conversationColor
+import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
 import com.wire.android.ui.home.conversationslist.model.BlockingState
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.ui.home.conversationslist.model.getMutedStatusTextResource
+import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.user.ConnectionState
-import com.wire.kalium.logic.data.user.UserId
 
 @Composable
 internal fun ConversationHomeSheetContent(
@@ -39,7 +41,7 @@ internal fun ConversationHomeSheetContent(
     moveConversationToFolder: () -> Unit,
     moveConversationToArchive: () -> Unit,
     clearConversationContent: (DialogState) -> Unit,
-    blockUserClick: (UserId, String) -> Unit,
+    blockUserClick: (BlockUserDialogState) -> Unit,
     leaveGroup: (GroupDialogState) -> Unit,
     deleteGroup: (GroupDialogState) -> Unit,
     navigateToNotification: () -> Unit
@@ -48,7 +50,7 @@ internal fun ConversationHomeSheetContent(
         header = MenuModalSheetHeader.Visible(
             title = conversationSheetContent.title,
             leadingIcon = {
-                if (conversationSheetContent.conversationTypeDetail is ConversationTypeDetail.Group) {
+                    if (conversationSheetContent.conversationTypeDetail is ConversationTypeDetail.Group) {
                     GroupConversationAvatar(
                         color = colorsScheme()
                             .conversationColor(id = conversationSheetContent.conversationTypeDetail.conversationId)
@@ -69,17 +71,18 @@ internal fun ConversationHomeSheetContent(
         ),
         menuItems = listOf(
             {
-                MenuBottomSheetItem(
-                    title = stringResource(R.string.label_notifications),
-                    icon = {
-                        MenuItemIcon(
-                            id = R.drawable.ic_mute,
-                            contentDescription = stringResource(R.string.content_description_muted_conversation),
-                        )
-                    },
-                    action = { NotificationsOptionsItemAction(conversationSheetContent.mutingConversationState) },
-                    onItemClick = navigateToNotification
-                )
+                if (conversationSheetContent.isSelfUserMember)
+                    MenuBottomSheetItem(
+                        title = stringResource(R.string.label_notifications),
+                        icon = {
+                            MenuItemIcon(
+                                id = R.drawable.ic_mute,
+                                contentDescription = stringResource(R.string.content_description_muted_conversation),
+                            )
+                        },
+                        action = { NotificationsOptionsItemAction(conversationSheetContent.mutingConversationState) },
+                        onItemClick = navigateToNotification
+                    )
             },
             {
                 MenuBottomSheetItem(
@@ -151,14 +154,16 @@ internal fun ConversationHomeSheetContent(
                                 title = stringResource(R.string.label_block),
                                 onItemClick = {
                                     blockUserClick(
-                                        conversationSheetContent.conversationTypeDetail.userId,
-                                        conversationSheetContent.title
+                                        BlockUserDialogState(
+                                            userName = conversationSheetContent.title,
+                                            userId = conversationSheetContent.conversationTypeDetail.userId
+                                        )
                                     )
                                 }
                             )
                         }
                     }
-                } else {
+                } else if (conversationSheetContent.isSelfUserMember) {
                     CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.error) {
                         MenuBottomSheetItem(
                             icon = {
@@ -209,13 +214,17 @@ internal fun ConversationHomeSheetContent(
 }
 
 @Composable
-internal fun NotificationsOptionsItemAction(
+fun NotificationsOptionsItemAction(
     mutedStatus: MutedConversationStatus
 ) {
     Row(verticalAlignment = Alignment.CenterVertically) {
         Text(
             text = mutedStatus.getMutedStatusTextResource(),
-            style = MaterialTheme.wireTypography.body01
+            style = MaterialTheme.wireTypography.body01,
+            color = MaterialTheme.wireColorScheme.secondaryText,
+            overflow = TextOverflow.Ellipsis,
+            maxLines = 1,
+            modifier = Modifier.weight(weight = 1f, fill = false)
         )
         Spacer(modifier = Modifier.size(dimensions().spacing16x))
         ArrowRightIcon()

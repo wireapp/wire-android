@@ -6,7 +6,6 @@ import android.content.Intent
 import com.wire.android.appLogger
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.di.NoSession
-import com.wire.android.notification.CallNotificationManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -45,7 +44,7 @@ class EndOngoingCallReceiver : BroadcastReceiver() {
                 } else {
                     val currentSession = coreLogic.globalScope { session.currentSession() }
                     if (currentSession is CurrentSessionResult.Success) {
-                        coreLogic.getSessionScope(currentSession.authSession.session.userId)
+                        coreLogic.getSessionScope(currentSession.accountInfo.userId)
                     } else {
                         null
                     }
@@ -55,7 +54,6 @@ class EndOngoingCallReceiver : BroadcastReceiver() {
                 it.calls.endCall(qualifiedIdMapper.fromStringToQualifiedID(conversationId))
             }
 
-            CallNotificationManager.hideOngoingCallNotification(context)
         }
     }
 

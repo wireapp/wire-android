@@ -4,6 +4,7 @@ import MutingOptionsSheetContent
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import com.wire.android.model.ImageAsset.UserAvatarAsset
+import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.home.conversationslist.model.BlockingState
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
@@ -19,7 +20,7 @@ fun ConversationSheetContent(
     moveConversationToFolder: () -> Unit,
     moveConversationToArchive: () -> Unit,
     clearConversationContent: (DialogState) -> Unit,
-    blockUser: (UserId, String) -> Unit,
+    blockUser: (BlockUserDialogState) -> Unit,
     leaveGroup: (GroupDialogState) -> Unit,
     deleteGroup: (GroupDialogState) -> Unit
 ) {
@@ -75,4 +76,5 @@ data class ConversationSheetContent(
     val conversationId: ConversationId,
     val mutingConversationState: MutedConversationStatus,
     val conversationTypeDetail: ConversationTypeDetail,
+    val isSelfUserMember: Boolean = true
 )

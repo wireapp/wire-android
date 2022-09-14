@@ -14,7 +14,6 @@ import com.wire.android.appLogger
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.di.NoSession
-import com.wire.android.di.UserSessionsUseCaseProvider
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.EXTRA_USER_ID
 import com.wire.android.navigation.NavigationCommand
@@ -27,11 +26,13 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.auth.AccountInfo
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
-import com.wire.kalium.logic.feature.auth.AuthSession
+import com.wire.kalium.logic.feature.auth.AuthTokens
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.client.RegisterClientUseCase
+import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import com.wire.kalium.logic.feature.session.RegisterTokenResult
 import com.wire.kalium.logic.functional.map
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -40,12 +41,13 @@ import javax.inject.Inject
 
 @ExperimentalMaterialApi
 @HiltViewModel
+@Suppress("TooManyFunctions")
 open class LoginViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
     @NoSession qualifiedIdMapper: QualifiedIdMapper,
     private val clientScopeProviderFactory: ClientScopeProvider.Factory,
-    private val userSessionsUseCaseFactory: UserSessionsUseCaseProvider.Factory,
+    private val getSessions: GetSessionsUseCase,
     authServerConfigProvider: AuthServerConfigProvider
 ) : ViewModel() {
     var loginState by mutableStateOf(
@@ -66,16 +68,14 @@ open class LoginViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             if (userId != null)
-                userSessionsUseCaseFactory.create().sessionsUseCase.getUserSession(userId).map {
-                    if (it.session is AuthSession.Session.Invalid) {
-                        with(it.session as AuthSession.Session.Invalid) {
-                            val loginError = when (this.reason) {
+                getSessions.getUserSession(userId).map {
+                    if (it is AccountInfo.Invalid) {
+                        with(it) {
+                            val loginError = when (this.logoutReason) {
                                 LogoutReason.SELF_LOGOUT -> {
-                                    userSessionsUseCaseFactory.create().sessionsUseCase
-                                        .deleteInvalidSession(userId)
+                                    getSessions.deleteInvalidSession(userId)
                                     LoginError.None
                                 }
-
                                 LogoutReason.REMOVED_CLIENT -> LoginError.DialogError.InvalidSession.RemovedClient
                                 LogoutReason.DELETED_ACCOUNT -> LoginError.DialogError.InvalidSession.DeletedAccount
                                 LogoutReason.SESSION_EXPIRED -> LoginError.DialogError.InvalidSession.SessionExpired
@@ -103,16 +103,17 @@ open class LoginViewModel @Inject constructor(
         }
     }
 
-    private fun deleteInvalidSession() {
+    private suspend fun deleteInvalidSession() {
         if (loginState.loginError is LoginError.DialogError.InvalidSession && userId != null) {
-            userSessionsUseCaseFactory.create().sessionsUseCase
-                .deleteInvalidSession(userId)
+            getSessions.deleteInvalidSession(userId)
         }
     }
 
     fun onDialogDismiss() {
-        deleteInvalidSession()
-        clearLoginErrors()
+        viewModelScope.launch {
+            deleteInvalidSession()
+            clearLoginErrors()
+        }
     }
 
     private fun clearLoginErrors() {
@@ -139,7 +140,7 @@ open class LoginViewModel @Inject constructor(
         capabilities: List<ClientCapability>? = null
     ): RegisterClientResult {
         val clientScope = clientScopeProviderFactory.create(userId).clientScope
-        return clientScope.register(
+        return clientScope.getOrRegister(
             RegisterClientUseCase.RegisterClientParam(
                 password = password,
                 capabilities = capabilities
@@ -172,6 +173,18 @@ open class LoginViewModel @Inject constructor(
 
     private fun navigateToRemoveDevicesScreen() = viewModelScope.launch {
         navigationManager.navigate(NavigationCommand(NavigationItem.RemoveDevices.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
+    }
+
+    fun dismissClientUpdateDialog() {
+        loginState = loginState.copy(showClientUpdateDialog = false)
+    }
+
+    fun dismissApiVersionNotSupportedDialog() {
+        loginState = loginState.copy(showServerVersionNotSupportedDialog = false)
+    }
+
+    fun updateTheApp() {
+        // todo : update the app after releasing on the store
     }
 
     companion object {

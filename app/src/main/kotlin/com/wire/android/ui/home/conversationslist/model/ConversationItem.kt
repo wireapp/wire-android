@@ -14,6 +14,7 @@ sealed class ConversationItem {
     abstract val mutedStatus: MutedConversationStatus
     abstract val isLegalHold: Boolean
     abstract val lastEvent: ConversationLastEvent
+    abstract val badgeEventType: BadgeEventType
 
     data class GroupConversation(
         val groupName: String,
@@ -21,9 +22,10 @@ sealed class ConversationItem {
         override val mutedStatus: MutedConversationStatus,
         override val isLegalHold: Boolean = false,
         override val lastEvent: ConversationLastEvent,
-        val unreadMessagesCount: Long = 0,
+        override val badgeEventType: BadgeEventType,
         val hasOnGoingCall: Boolean = false,
-        val isCreator: Boolean = false
+        val isCreator: Boolean = false,
+        val isSelfUserMember: Boolean = true
     ) : ConversationItem()
 
     data class PrivateConversation(
@@ -31,22 +33,21 @@ sealed class ConversationItem {
         val conversationInfo: ConversationInfo,
         val userId: UserId,
         val blockingState: BlockingState,
-        val connectionState: ConnectionState,
         override val conversationId: ConversationId,
         override val mutedStatus: MutedConversationStatus,
         override val isLegalHold: Boolean = false,
         override val lastEvent: ConversationLastEvent,
-        val unreadMessagesCount: Long = 0
+        override val badgeEventType: BadgeEventType,
     ) : ConversationItem()
 
     data class ConnectionConversation(
         val userAvatarData: UserAvatarData,
         val conversationInfo: ConversationInfo,
-        val connectionState: ConnectionState,
         override val conversationId: ConversationId,
         override val mutedStatus: MutedConversationStatus,
         override val isLegalHold: Boolean = false,
-        override val lastEvent: ConversationLastEvent
+        override val lastEvent: ConversationLastEvent,
+        override val badgeEventType: BadgeEventType
     ) : ConversationItem()
 }
 

@@ -5,12 +5,12 @@ import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
-import com.wire.android.di.UserSessionsUseCaseProvider
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.login.LoginViewModel
 import com.wire.android.util.newServerConfig
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
+import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -32,7 +32,7 @@ class LoginViewModelTest {
     private lateinit var clientScopeProviderFactory: ClientScopeProvider.Factory
 
     @MockK
-    private lateinit var userSessionsUseCaseFactory: UserSessionsUseCaseProvider.Factory
+    private lateinit var getSessionsUseCase: GetSessionsUseCase
 
     @MockK
     private lateinit var savedStateHandle: SavedStateHandle
@@ -48,7 +48,7 @@ class LoginViewModelTest {
     @BeforeEach
     fun setup() {
         MockKAnnotations.init(this)
-        every { savedStateHandle.get<String>(any()) } returns ""
+        every { savedStateHandle.get<String>(any()) } returns null
         every { qualifiedIdMapper.fromStringToQualifiedID(any()) } returns QualifiedID("", "")
         every { authServerConfigProvider.authServer.value } returns newServerConfig(1).links
         loginViewModel = LoginViewModel(
@@ -56,7 +56,7 @@ class LoginViewModelTest {
             navigationManager,
             qualifiedIdMapper,
             clientScopeProviderFactory,
-            userSessionsUseCaseFactory,
+            getSessionsUseCase,
             authServerConfigProvider
         )
     }

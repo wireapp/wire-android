@@ -35,7 +35,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.home.conversations.model.MessageContent.SystemMessage
+import com.wire.android.ui.home.conversations.model.UIMessageContent.SystemMessage
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.UIText
@@ -73,7 +73,7 @@ fun SystemMessageItem(message: SystemMessage) {
                         else dimensions().systemMessageIconLargeSize
                     Image(
                         painter = painterResource(id = message.iconResId),
-                        contentDescription = stringResource(R.string.content_description_system_message_icon),
+                        contentDescription = null,
                         modifier = Modifier.size(size),
                         contentScale = ContentScale.Crop
                     )

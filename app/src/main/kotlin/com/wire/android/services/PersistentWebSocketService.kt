@@ -1,7 +1,8 @@
-package com.wire.android.ui.debugscreen
+package com.wire.android.services
 
 import android.app.Notification
 import android.app.Service
+import android.content.Context
 import android.content.Intent
 import android.os.IBinder
 import androidx.core.app.NotificationChannelCompat
@@ -70,14 +71,15 @@ class PersistentWebSocketService : Service() {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        coreLogic.sessionRepository.currentSession().fold({
+        // TODO: repository should not be exposed to the app
+        coreLogic.globalScope { sessionRepository.currentSession() }.fold({
             appLogger.e("error while getting the current session from persistent web socket service $it")
-        }, { authSession ->
-            coreLogic.getSessionScope(authSession.session.userId).setConnectionPolicy(ConnectionPolicy.KEEP_ALIVE)
+        }, { currentAccount ->
+            coreLogic.getSessionScope(currentAccount.userId).setConnectionPolicy(ConnectionPolicy.KEEP_ALIVE)
 
             val observeUserId = currentSessionFlow()
                 .map { result ->
-                    if (result is CurrentSessionResult.Success) result.authSession.session.userId
+                    if (result is CurrentSessionResult.Success) result.accountInfo.userId
                     else null
                 }
                 .distinctUntilChanged()
@@ -126,5 +128,10 @@ class PersistentWebSocketService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         scope.cancel("PersistentWebSocketService was destroyed")
+    }
+
+    companion object {
+        fun newIntent(context: Context?): Intent =
+            Intent(context, PersistentWebSocketService::class.java)
     }
 }

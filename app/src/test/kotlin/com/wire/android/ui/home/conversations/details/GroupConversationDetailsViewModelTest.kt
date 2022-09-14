@@ -19,7 +19,9 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.data.team.Team
+import com.wire.kalium.logic.feature.conversation.IsSelfUserMemberResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveIsSelfUserMemberUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
@@ -64,7 +66,7 @@ class GroupConversationDetailsViewModelTest {
             .arrange()
 
         // When - Then
-        assertEquals(details.conversation.name, viewModel.groupOptionsState.groupName)
+        assertEquals(details.conversation.name,  viewModel.groupOptionsState.value.groupName)
     }
 
     @Test
@@ -88,10 +90,10 @@ class GroupConversationDetailsViewModelTest {
             .arrange()
 
         // When - Then
-        assertEquals(details1.conversation.name, viewModel.groupOptionsState.groupName)
+        assertEquals(details1.conversation.name,  viewModel.groupOptionsState.value.groupName)
         // When - Then
         arrangement.withConversationDetailUpdate(details2)
-        assertEquals(details2.conversation.name, viewModel.groupOptionsState.groupName)
+        assertEquals(details2.conversation.name,  viewModel.groupOptionsState.value.groupName)
     }
 
     @Test
@@ -128,17 +130,17 @@ class GroupConversationDetailsViewModelTest {
             .arrange()
 
         // When - Then
-        assertEquals(details.conversation.name, viewModel.groupOptionsState.groupName)
-        assertEquals(conversationParticipantsData.isSelfAnAdmin, viewModel.groupOptionsState.isUpdatingAllowed)
-        assertEquals(details.conversation.name, viewModel.groupOptionsState.groupName)
-        assertEquals(details.conversation.isTeamGroup(), viewModel.groupOptionsState.areAccessOptionsAvailable)
+        assertEquals(details.conversation.name,  viewModel.groupOptionsState.value.groupName)
+        assertEquals(conversationParticipantsData.isSelfAnAdmin,  viewModel.groupOptionsState.value.isUpdatingAllowed)
+        assertEquals(details.conversation.name,  viewModel.groupOptionsState.value.groupName)
+        assertEquals(details.conversation.isTeamGroup(),  viewModel.groupOptionsState.value.areAccessOptionsAvailable)
         assertEquals(
             (details.conversation.isGuestAllowed() || details.conversation.isNonTeamMemberAllowed()),
-            viewModel.groupOptionsState.isGuestAllowed
+             viewModel.groupOptionsState.value.isGuestAllowed
         )
         assertEquals(
             conversationParticipantsData.isSelfAnAdmin && details.conversation.teamId?.value == selfTeam.id,
-            viewModel.groupOptionsState.isUpdatingGuestAllowed
+             viewModel.groupOptionsState.value.isUpdatingGuestAllowed
         )
     }
 
@@ -200,7 +202,7 @@ class GroupConversationDetailsViewModelTest {
             .arrange()
 
         viewModel.onGuestUpdate(false)
-        assertEquals(true, viewModel.groupOptionsState.changeGuestOptionConfirmationRequired)
+        assertEquals(true,  viewModel.groupOptionsState.value.changeGuestOptionConfirmationRequired)
     }
 
     @Test
@@ -227,7 +229,7 @@ class GroupConversationDetailsViewModelTest {
             .arrange()
 
         viewModel.onGuestDialogConfirm()
-        assertEquals(false, viewModel.groupOptionsState.changeGuestOptionConfirmationRequired)
+        assertEquals(false,  viewModel.groupOptionsState.value.changeGuestOptionConfirmationRequired)
         coVerify(exactly = 1) {
             arrangement.updateConversationAccessRoleUseCase(
                 conversationId = details.conversation.id,
@@ -262,7 +264,7 @@ class GroupConversationDetailsViewModelTest {
             .arrange()
 
         viewModel.onServicesUpdate(false)
-        assertEquals(true, viewModel.groupOptionsState.changeServiceOptionConfirmationRequired)
+        assertEquals(true,  viewModel.groupOptionsState.value.changeServiceOptionConfirmationRequired)
     }
 
     @Test
@@ -323,7 +325,7 @@ class GroupConversationDetailsViewModelTest {
             .arrange()
 
         viewModel.onServiceDialogConfirm()
-        assertEquals(false, viewModel.groupOptionsState.changeServiceOptionConfirmationRequired)
+        assertEquals(false,  viewModel.groupOptionsState.value.changeServiceOptionConfirmationRequired)
         coVerify(exactly = 1) {
             arrangement.updateConversationAccessRoleUseCase(
                 conversationId = details.conversation.id,
@@ -347,7 +349,7 @@ class GroupConversationDetailsViewModelTest {
             .arrange()
 
         // When - Then
-        assertEquals(true, viewModel.groupOptionsState.isUpdatingGuestAllowed)
+        assertEquals(true,  viewModel.groupOptionsState.value.isUpdatingGuestAllowed)
     }
 
     @Test
@@ -363,7 +365,7 @@ class GroupConversationDetailsViewModelTest {
             .arrange()
 
         // When - Then
-        assertEquals(false, viewModel.groupOptionsState.isUpdatingGuestAllowed)
+        assertEquals(false,  viewModel.groupOptionsState.value.isUpdatingGuestAllowed)
     }
 
     companion object {
@@ -421,6 +423,9 @@ internal class GroupConversationDetailsViewModelArrangement {
     lateinit var getSelfTeamUseCase: GetSelfTeamUseCase
 
     @MockK
+    lateinit var observeIsSelfUserMember: ObserveIsSelfUserMemberUseCase
+
+    @MockK
     private lateinit var qualifiedIdMapper: QualifiedIdMapper
 
     private val conversationDetailsChannel = Channel<ConversationDetails>(capacity = Channel.UNLIMITED)
@@ -439,7 +444,8 @@ internal class GroupConversationDetailsViewModelArrangement {
             updateConversationAccessRole = updateConversationAccessRoleUseCase,
             getSelfTeam = getSelfTeamUseCase,
             savedStateHandle = savedStateHandle,
-            qualifiedIdMapper = qualifiedIdMapper
+            qualifiedIdMapper = qualifiedIdMapper,
+            observeIsSelfUserMember = observeIsSelfUserMember
         )
     }
 
@@ -459,6 +465,7 @@ internal class GroupConversationDetailsViewModelArrangement {
         coEvery {
             qualifiedIdMapper.fromStringToQualifiedID("conv_id@domain")
         } returns QualifiedID("conv_id", "domain")
+        coEvery { observeIsSelfUserMember(any()) } returns (flowOf(IsSelfUserMemberResult.Success(true)))
     }
 
     fun withSavedStateConversationId(conversationId: ConversationId) = apply {
@@ -466,11 +473,10 @@ internal class GroupConversationDetailsViewModelArrangement {
     }
 
     suspend fun withConversationDetailUpdate(conversationDetails: ConversationDetails) = apply {
-        coEvery { observeConversationDetails(any()) }returns conversationDetailsChannel.consumeAsFlow()
+        coEvery { observeConversationDetails(any()) } returns conversationDetailsChannel.consumeAsFlow()
             .map { ObserveConversationDetailsUseCase.Result.Success(it) }
         conversationDetailsChannel.send(conversationDetails)
     }
-
 
     suspend fun withConversationMembersUpdate(conversationParticipantsData: ConversationParticipantsData) = apply {
         coEvery { observeParticipantsForConversationUseCase(any()) } returns observeParticipantsForConversationChannel.consumeAsFlow()

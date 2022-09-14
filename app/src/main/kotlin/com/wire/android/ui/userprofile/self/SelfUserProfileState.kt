@@ -16,5 +16,7 @@ data class SelfUserProfileState @OptIn(ExperimentalMaterial3Api::class) construc
     val teamName: String? = "", // maybe teamId is better here
     val otherAccounts: List<OtherAccount> = emptyList(),
     val statusDialogData: StatusDialogData? = null, // null means no dialog to display
-    val isAvatarLoading: Boolean = false
+    val isAvatarLoading: Boolean = false,
+    val maxAccountsReached: Boolean = false,
+    val isUserInCall: Boolean = false
 )

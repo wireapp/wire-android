@@ -48,7 +48,7 @@ import com.wire.android.ui.common.LinkifyText
 import com.wire.android.ui.common.WireCircularProgressIndicator
 import com.wire.android.ui.common.clickable
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.home.conversations.ConversationViewModel
+import com.wire.android.ui.home.conversations.MessageComposerViewModel
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.getUriFromDrawable
@@ -92,7 +92,7 @@ fun MessageImage(
             )
     ) {
         val imageData: Bitmap? =
-            if (rawImgData != null && rawImgData.size < ConversationViewModel.IMAGE_SIZE_LIMIT_BYTES) rawImgData.toBitmap() else null
+            if (rawImgData != null && rawImgData.size < MessageComposerViewModel.IMAGE_SIZE_LIMIT_BYTES) rawImgData.toBitmap() else null
 
         Image(
             painter = rememberAsyncImagePainter(imageData ?: getUriFromDrawable(LocalContext.current, R.drawable.ic_gallery)),

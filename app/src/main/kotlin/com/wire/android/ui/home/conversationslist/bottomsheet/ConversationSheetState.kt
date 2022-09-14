@@ -64,7 +64,8 @@ fun rememberConversationSheetState(
                     conversationTypeDetail = ConversationTypeDetail.Group(
                         conversationId = conversationId,
                         isCreator = isCreator
-                    )
+                    ),
+                    isSelfUserMember = conversationItem.isSelfUserMember
                 )
             }
         }

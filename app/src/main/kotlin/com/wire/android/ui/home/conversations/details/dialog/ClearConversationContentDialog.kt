@@ -4,7 +4,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
-import com.wire.android.ui.common.VisibilityStateExt
+import com.wire.android.ui.common.VisibilityState
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
@@ -24,7 +24,7 @@ fun ClearConversationContentDialog(
         }
     }
 
-    VisibilityStateExt(dialogState) {
+    VisibilityState(dialogState) {
         WireDialog(
             title = "Clear content?",
             text = "This will clear the previous conversation history on all your devices. You remain in the ${it.conversationTypeDetail.label} and have access to all new ${it.conversationTypeDetail.label} activity.",

@@ -9,6 +9,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.ui.common.dialogs.BlockUserDialogContent
+import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.home.HomeSnackbarState
 import com.wire.android.ui.home.conversations.details.dialog.ClearConversationContentDialog
@@ -43,6 +44,13 @@ fun ConversationRouterHomeBridge(
     val leaveGroupDialogState = rememberVisibilityState<GroupDialogState>()
     val deleteGroupDialogState = rememberVisibilityState<GroupDialogState>()
     val clearConversationContentDialogState = rememberVisibilityState<DialogState>()
+    val blockUserDialogState = rememberVisibilityState<BlockUserDialogState>()
+
+    if (!viewModel.requestInProgress) {
+        leaveGroupDialogState.dismiss()
+        deleteGroupDialogState.dismiss()
+        blockUserDialogState.dismiss()
+    }
 
     fun openConversationBottomSheet(
         conversationItem: ConversationItem,
@@ -77,7 +85,7 @@ fun ConversationRouterHomeBridge(
                 moveConversationToFolder = viewModel::moveConversationToFolder,
                 moveConversationToArchive = viewModel::moveConversationToArchive,
                 clearConversationContent = clearConversationContentDialogState::show,
-                blockUser = viewModel::onBlockUserClicked,
+                blockUser = blockUserDialogState::show,
                 leaveGroup = leaveGroupDialogState::show,
                 deleteGroup = deleteGroupDialogState::show
             )
@@ -106,7 +114,6 @@ fun ConversationRouterHomeBridge(
         when (itemType) {
             ConversationItemType.ALL_CONVERSATIONS ->
                 AllConversationScreen(
-                    newActivities = newActivities,
                     conversations = conversations,
                     onOpenConversation = viewModel::openConversation,
                     onEditConversation = onEditConversationItem,
@@ -140,9 +147,9 @@ fun ConversationRouterHomeBridge(
     //TODO: refactor to use the mechanism as DeleteConversationGroupDialog
     // for example
     BlockUserDialogContent(
-        dialogState = viewModel.blockUserDialogState,
-        dismiss = viewModel::onDismissBlockUserDialog,
-        onBlock = viewModel::onBlockUserClicked
+        isLoading = viewModel.requestInProgress,
+        dialogState = blockUserDialogState,
+        onBlock = viewModel::blockUser
     )
 
     DeleteConversationGroupDialog(

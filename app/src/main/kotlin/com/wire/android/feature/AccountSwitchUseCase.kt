@@ -89,7 +89,7 @@ class AccountSwitchUseCase @Inject constructor(
                 // do nothing
             }
             is AccountInfo.Invalid -> coroutineScope.launch {
-                withTimeout(3000L) {
+                withTimeout(DELETE_USER_SESSION_TIMEOUT) {
                     handleInvalidSession(oldSession)
                 }
             }
@@ -105,6 +105,10 @@ class AccountSwitchUseCase @Inject constructor(
             LogoutReason.REMOVED_CLIENT,
             LogoutReason.SESSION_EXPIRED -> deleteSessionUseCase(invalidAccount.userId)
         }
+    }
+
+    private companion object {
+        const val DELETE_USER_SESSION_TIMEOUT = 3000L
     }
 }
 

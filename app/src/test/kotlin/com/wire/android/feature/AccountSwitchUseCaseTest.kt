@@ -24,54 +24,58 @@ import org.mockito.Mock
 @OptIn(ExperimentalCoroutinesApi::class)
 class AccountSwitchUseCaseTest {
 
+    @Suppress("MaxLineLength")
     @Test
-    fun `given current session is valid, when SwitchToAccount is called , then update current session and the user is navigated to the home screen`() = runTest {
-        val expectedNavigationCommand = NavigationCommand(
-            NavigationItem.Home.getRouteWithArgs(),
-            BackStackMode.CLEAR_WHOLE
-        )
+    fun `given current session is valid, when SwitchToAccount is called , then update current session and the user is navigated to the home screen`() =
+        runTest {
+            val expectedNavigationCommand = NavigationCommand(
+                NavigationItem.Home.getRouteWithArgs(),
+                BackStackMode.CLEAR_WHOLE
+            )
 
-        val (arrangement, switchAccount) =
-            Arrangement()
-                .withGetCurrentSession(CurrentSessionResult.Success(ACCOUNT_VALID_1))
-                .withUpdateCurrentSession(UpdateCurrentSessionUseCase.Result.Success)
-                .withNavigation(expectedNavigationCommand)
-                .arrange()
+            val (arrangement, switchAccount) =
+                Arrangement()
+                    .withGetCurrentSession(CurrentSessionResult.Success(ACCOUNT_VALID_1))
+                    .withUpdateCurrentSession(UpdateCurrentSessionUseCase.Result.Success)
+                    .withNavigation(expectedNavigationCommand)
+                    .arrange()
 
-        switchAccount(SwitchAccountParam.SwitchToAccount(ACCOUNT_VALID_2.userId))
+            switchAccount(SwitchAccountParam.SwitchToAccount(ACCOUNT_VALID_2.userId))
 
-        coVerify(exactly = 1) {
-            arrangement.currentSession()
-            arrangement.updateCurrentSession(any())
-            arrangement.navigationManager.navigate(expectedNavigationCommand)
-            arrangement.navigationManager.navigate(any())
+            coVerify(exactly = 1) {
+                arrangement.currentSession()
+                arrangement.updateCurrentSession(any())
+                arrangement.navigationManager.navigate(expectedNavigationCommand)
+                arrangement.navigationManager.navigate(any())
+            }
         }
-    }
 
+    @Suppress("MaxLineLength")
     @Test
-    fun `given current session is valid and there are no other sessions, when SwitchToNextAccountOrWelcome , then update current session and the user is navigated to the welcome screen`() = runTest {
-        val expectedNavigationCommand = NavigationCommand(
-            NavigationItem.Welcome.getRouteWithArgs(),
-            BackStackMode.CLEAR_WHOLE
-        )
+    fun `given current session is valid and there are no other sessions, when SwitchToNextAccountOrWelcome , then update current session and the user is navigated to the welcome screen`() =
+        runTest {
+            val expectedNavigationCommand = NavigationCommand(
+                NavigationItem.Welcome.getRouteWithArgs(),
+                BackStackMode.CLEAR_WHOLE
+            )
 
-        val (arrangement, switchAccount) =
-            Arrangement()
-                .withGetCurrentSession(CurrentSessionResult.Success(ACCOUNT_VALID_1))
-                .withUpdateCurrentSession(UpdateCurrentSessionUseCase.Result.Success)
-                .withGetAllSessions(GetAllSessionsResult.Success(emptyList()))
-                .withNavigation(expectedNavigationCommand)
-                .arrange()
+            val (arrangement, switchAccount) =
+                Arrangement()
+                    .withGetCurrentSession(CurrentSessionResult.Success(ACCOUNT_VALID_1))
+                    .withUpdateCurrentSession(UpdateCurrentSessionUseCase.Result.Success)
+                    .withGetAllSessions(GetAllSessionsResult.Success(emptyList()))
+                    .withNavigation(expectedNavigationCommand)
+                    .arrange()
 
-        switchAccount(SwitchAccountParam.SwitchToNextAccountOrWelcome)
+            switchAccount(SwitchAccountParam.SwitchToNextAccountOrWelcome)
 
-        coVerify(exactly = 1) {
-            arrangement.currentSession()
-            arrangement.updateCurrentSession(any())
-            arrangement.navigationManager.navigate(expectedNavigationCommand)
-            arrangement.navigationManager.navigate(any())
+            coVerify(exactly = 1) {
+                arrangement.currentSession()
+                arrangement.updateCurrentSession(any())
+                arrangement.navigationManager.navigate(expectedNavigationCommand)
+                arrangement.navigationManager.navigate(any())
+            }
         }
-    }
 
 
     @Test

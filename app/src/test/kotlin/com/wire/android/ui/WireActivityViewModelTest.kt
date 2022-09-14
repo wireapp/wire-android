@@ -5,6 +5,7 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.di.AuthServerConfigProvider
+import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
@@ -386,6 +387,9 @@ class WireActivityViewModelTest {
         @MockK
         private lateinit var authServerConfigProvider: AuthServerConfigProvider
 
+        @MockK
+        private lateinit var switchAccount: AccountSwitchUseCase
+
         private val viewModel by lazy {
             WireActivityViewModel(
                 dispatchers = TestDispatcherProvider(),
@@ -396,12 +400,13 @@ class WireActivityViewModelTest {
                 navigationManager = navigationManager,
                 authServerConfigProvider = authServerConfigProvider,
                 observePersistentWebSocketConnectionStatus = observePersistentWebSocketConnectionStatus,
-                getSessions = getSessionsUseCase
+                getSessions = getSessionsUseCase,
+                accountSwitch = switchAccount
             )
         }
 
         fun withSomeCurrentSession(): Arrangement {
-            coEvery { currentSessionFlow() } returns flowOf(CurrentSessionResult.Success(TEST_AUTH_SESSION))
+            coEvery { currentSessionFlow() } returns flowOf(CurrentSessionResult.Success(TEST_ACCOUNT_INFO))
             return this
         }
 

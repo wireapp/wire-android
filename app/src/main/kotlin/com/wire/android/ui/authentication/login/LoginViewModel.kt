@@ -13,28 +13,19 @@ import com.wire.android.BuildConfig
 import com.wire.android.appLogger
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
-import com.wire.android.di.NoSession
 import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.EXTRA_USER_ID
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.client.ClientCapability
 import com.wire.kalium.logic.data.conversation.ClientId
-import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.QualifiedIdMapper
-import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.auth.AccountInfo
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
-import com.wire.kalium.logic.feature.auth.AuthTokens
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.client.RegisterClientUseCase
-import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import com.wire.kalium.logic.feature.session.RegisterTokenResult
-import com.wire.kalium.logic.functional.map
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -59,7 +50,6 @@ open class LoginViewModel @Inject constructor(
 
     val serverConfig = authServerConfigProvider.authServer.value
 
-
     open fun updateSSOLoginError(error: LoginError) {
         loginState = if (error is LoginError.None) {
             loginState.copy(loginError = error)
@@ -77,9 +67,7 @@ open class LoginViewModel @Inject constructor(
     }
 
     fun onDialogDismiss() {
-        viewModelScope.launch {
             clearLoginErrors()
-        }
     }
 
     private fun clearLoginErrors() {

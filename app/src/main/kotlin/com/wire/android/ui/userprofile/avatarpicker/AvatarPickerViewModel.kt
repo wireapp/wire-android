@@ -58,6 +58,8 @@ class AvatarPickerViewModel @Inject constructor(
     val defaultAvatarPath: Path
         get() = kaliumFileSystem.selfUserAvatarPath()
 
+    val temporaryAvatarUri: Uri = avatarImageManager.getShareableTempAvatarUri(defaultAvatarPath)
+
     init {
         loadInitialAvatarState()
     }
@@ -108,8 +110,6 @@ class AvatarPickerViewModel @Inject constructor(
     }
 
     fun navigateBack() = viewModelScope.launch(dispatchers.main()) { navigationManager.navigateBack() }
-
-    fun getTemporaryAvatarUri(filePath: Path): Uri = avatarImageManager.getShareableTempAvatarUri(filePath)
 
     sealed class PictureState(open val avatarUri: Uri) {
         data class Uploading(override val avatarUri: Uri) : PictureState(avatarUri)

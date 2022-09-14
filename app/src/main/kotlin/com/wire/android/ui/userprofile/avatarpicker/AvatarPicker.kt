@@ -51,8 +51,10 @@ import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerViewModel.Pictur
 @Composable
 fun AvatarPickerScreen(viewModel: AvatarPickerViewModel) {
     val context = LocalContext.current
-    val targetAvatarPath = viewModel.defaultAvatarPath()
-    val targetAvatarUri = viewModel.getTemporaryAvatarUri(targetAvatarPath)
+
+    val targetAvatarPath = viewModel.defaultAvatarPath
+    val targetAvatarUri = viewModel.temporaryAvatarUri
+
     val scope = rememberCoroutineScope()
     val state = rememberAvatarPickerState(
         onImageSelected = { originalUri ->

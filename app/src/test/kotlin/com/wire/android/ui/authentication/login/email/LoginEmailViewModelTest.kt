@@ -114,9 +114,7 @@ class LoginEmailViewModelTest {
         loginViewModel = LoginEmailViewModel(
             loginUseCase,
             addAuthenticatedUserUseCase,
-            qualifiedIdMapper,
             clientScopeProviderFactory,
-            getSessionsUseCase,
             fetchApiVersion,
             savedStateHandle,
             navigationManager,
@@ -269,6 +267,5 @@ class LoginEmailViewModelTest {
             )
         )
     }
-
 }
 

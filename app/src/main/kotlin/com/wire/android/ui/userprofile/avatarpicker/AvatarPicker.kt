@@ -15,10 +15,8 @@ import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Scaffold
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,12 +38,12 @@ import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerViewModel.PictureState
 import com.wire.android.util.ImageUtil
 import com.wire.android.util.resampleImageAndCopyToTempPath
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import okio.Path
-import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerViewModel.PictureState
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -74,6 +72,10 @@ fun AvatarPickerScreen(viewModel: AvatarPickerViewModel) {
     )
 }
 
+// TODO: Mateusz: I think we should refactor this, it takes some values from the ViewModel, part of the logic is executed inside 
+// the UI, part of the logic is exectued inside the ViewModel, I see no reasons to handle the logic inside the UI
+// personally it was a confusing part for me to read when investing the bugs, unless there is a valid reason to move the logic to the UI
+// that I am not aware of ?
 fun onNewAvatarPicked(originalUri: Uri, targetAvatarPath: Path, scope: CoroutineScope, context: Context, viewModel: AvatarPickerViewModel) {
     scope.launch {
         sanitizeAvatarImage(originalUri, targetAvatarPath, context)
@@ -89,12 +91,9 @@ private fun AvatarPickerContent(
     onCloseClick: () -> Unit,
     onSaveClick: () -> Unit
 ) {
-    val context = LocalContext.current
-    val snackbarHostState = remember { SnackbarHostState() }
-
     LaunchedEffect(Unit) {
         viewModel.infoMessage.collect {
-            snackbarHostState.showSnackbar(it.asString(context.resources))
+            state.showSnackbar(it)
         }
     }
 
@@ -134,7 +133,7 @@ private fun AvatarPickerContent(
             topBar = { AvatarPickerTopBar(onCloseClick = onCloseClick) },
             snackbarHost = {
                 SwipeDismissSnackbarHost(
-                    hostState = snackbarHostState,
+                    hostState = state.snackbarHostState,
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -151,10 +150,7 @@ private fun AvatarPickerContent(
                 ) {
                     Box(Modifier.weight(1f)) {
                         Box(Modifier.align(Alignment.Center)) {
-                            BulletHoleImagePreview(
-                                imageUri = viewModel.pictureState.avatarUri,
-                                contentDescription = stringResource(R.string.content_description_avatar_preview)
-                            )
+                            AvatarPreview(viewModel.pictureState)
                         }
                     }
                     Divider()
@@ -169,6 +165,14 @@ private fun AvatarPickerContent(
             }
         }
     }
+}
+
+@Composable
+fun AvatarPreview(pictureState: PictureState) {
+    BulletHoleImagePreview(
+        imageUri = pictureState.avatarUri,
+        contentDescription = stringResource(R.string.content_description_avatar_preview)
+    )
 }
 
 @Composable

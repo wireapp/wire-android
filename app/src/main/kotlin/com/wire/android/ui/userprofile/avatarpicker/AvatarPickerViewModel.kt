@@ -2,11 +2,10 @@ package com.wire.android.ui.userprofile.avatarpicker
 
 import android.content.Context
 import android.net.Uri
-import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.res.stringResource
 import androidx.core.net.toUri
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -60,6 +59,8 @@ class AvatarPickerViewModel @Inject constructor(
 
     val temporaryAvatarUri: Uri = avatarImageManager.getShareableTempAvatarUri(defaultAvatarPath)
 
+    private lateinit var currentAvatarUri: Uri
+
     init {
         loadInitialAvatarState()
     }
@@ -70,7 +71,8 @@ class AvatarPickerViewModel @Inject constructor(
                 dataStore.avatarAssetId.first()?.apply {
                     val qualifiedAsset = qualifiedIdMapper.fromStringToQualifiedID(this)
                     val avatarRawPath = (getAvatarAsset(assetKey = qualifiedAsset) as PublicAssetResult.Success).assetPath
-                    val currentAvatarUri = avatarImageManager.getWritableAvatarUri(avatarRawPath)
+                    currentAvatarUri = avatarImageManager.getWritableAvatarUri(avatarRawPath)
+
                     pictureState = PictureState.Initial(currentAvatarUri)
                 }
             } catch (e: ClassCastException) {
@@ -85,23 +87,26 @@ class AvatarPickerViewModel @Inject constructor(
 
     fun uploadNewPickedAvatarAndBack() {
         val imgUri = pictureState.avatarUri
-        pictureState = PictureState.Uploading(imgUri)
 
         viewModelScope.launch {
+            pictureState = PictureState.Uploading(imgUri)
+
             val avatarPath = defaultAvatarPath
             val imageDataSize = imgUri.toByteArray(appContext, dispatchers).size.toLong()
 
-            val result = uploadUserAvatar(avatarPath, imageDataSize)
-
-            if (result is UploadAvatarResult.Success) {
-                dataStore.updateUserAvatarAssetId(result.userAssetId.toString())
-            } else {
-                when ((result as UploadAvatarResult.Failure).coreFailure) {
-                    is NetworkFailure.NoNetworkConnection -> showInfoMessage(InfoMessageType.NoNetworkError)
-                    else -> showInfoMessage(InfoMessageType.UploadAvatarError)
+            when (val result = uploadUserAvatar(avatarPath, imageDataSize)) {
+                is UploadAvatarResult.Success -> {
+                    dataStore.updateUserAvatarAssetId(result.userAssetId.toString())
+                    navigateBack()
+                }
+                is UploadAvatarResult.Failure -> {
+                    when (result.coreFailure) {
+                        is NetworkFailure.NoNetworkConnection -> showInfoMessage(InfoMessageType.NoNetworkError)
+                        else -> showInfoMessage(InfoMessageType.UploadAvatarError)
+                    }
+                    pictureState = PictureState.Initial(currentAvatarUri)
                 }
             }
-            navigateBack()
         }
     }
 
@@ -111,6 +116,7 @@ class AvatarPickerViewModel @Inject constructor(
 
     fun navigateBack() = viewModelScope.launch(dispatchers.main()) { navigationManager.navigateBack() }
 
+    @Stable
     sealed class PictureState(open val avatarUri: Uri) {
         data class Uploading(override val avatarUri: Uri) : PictureState(avatarUri)
         data class Initial(override val avatarUri: Uri) : PictureState(avatarUri)

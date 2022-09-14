@@ -46,6 +46,7 @@ import com.wire.android.util.resampleImageAndCopyToTempPath
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import okio.Path
+import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerViewModel.PictureState
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -157,11 +158,10 @@ private fun AvatarPickerContent(
                     Divider()
                     Spacer(Modifier.height(4.dp))
                     AvatarPickerActionButtons(
-                        hasPickedImage = hasPickedImage(viewModel.pictureState),
+                        pictureState = viewModel.pictureState,
                         onSaveClick = onSaveClick,
                         onCancelClick = { viewModel.loadInitialAvatarState() },
                         onChangeImage = { state.showModalBottomSheet() },
-                        isUploadingImage = isUploadingImage(viewModel.pictureState)
                     )
                 }
             }
@@ -171,37 +171,41 @@ private fun AvatarPickerContent(
 
 @Composable
 private fun AvatarPickerActionButtons(
-    isUploadingImage: Boolean,
-    hasPickedImage: Boolean,
+    pictureState: PictureState,
     onSaveClick: () -> Unit,
     onCancelClick: () -> Unit,
     onChangeImage: () -> Unit
 ) {
-    if (hasPickedImage || isUploadingImage) {
-        Row(Modifier.fillMaxWidth()) {
-            WireSecondaryButton(
-                modifier = Modifier
-                    .padding(dimensions().spacing16x)
-                    .weight(1f),
-                text = stringResource(R.string.label_cancel),
-                onClick = { onCancelClick() }
-            )
+    when (pictureState) {
+        is PictureState.Uploading, is PictureState.Picked -> {
+            val isUploading = pictureState is PictureState.Uploading
+
+            Row(Modifier.fillMaxWidth()) {
+                WireSecondaryButton(
+                    modifier = Modifier
+                        .padding(dimensions().spacing16x)
+                        .weight(1f),
+                    text = stringResource(R.string.label_cancel),
+                    onClick = onCancelClick
+                )
+                WirePrimaryButton(
+                    modifier = Modifier
+                        .padding(dimensions().spacing16x)
+                        .weight(1f),
+                    text = stringResource(R.string.label_confirm),
+                    onClick = onSaveClick,
+                    loading = isUploading,
+                    state = if (isUploading) WireButtonState.Disabled else WireButtonState.Default
+                )
+            }
+        }
+        else -> {
             WirePrimaryButton(
-                modifier = Modifier
-                    .padding(dimensions().spacing16x)
-                    .weight(1f),
-                text = stringResource(R.string.label_confirm),
-                onClick = { onSaveClick() },
-                loading = isUploadingImage,
-                state = if (isUploadingImage) WireButtonState.Disabled else WireButtonState.Default
+                modifier = Modifier.padding(dimensions().spacing16x),
+                text = stringResource(R.string.profile_image_change_image_button_label),
+                onClick = onChangeImage
             )
         }
-    } else {
-        WirePrimaryButton(
-            modifier = Modifier.padding(dimensions().spacing16x),
-            text = stringResource(R.string.profile_image_change_image_button_label),
-            onClick = { onChangeImage() }
-        )
     }
 }
 
@@ -220,10 +224,6 @@ private fun mapErrorCodeToString(errorCode: ErrorCodes): String {
         ErrorCodes.NoNetworkError -> stringResource(R.string.error_no_network_message)
     }
 }
-
-private fun hasPickedImage(state: AvatarPickerViewModel.PictureState): Boolean = state is AvatarPickerViewModel.PictureState.Picked
-
-private fun isUploadingImage(state: AvatarPickerViewModel.PictureState): Boolean = state is AvatarPickerViewModel.PictureState.Uploading
 
 private suspend fun sanitizeAvatarImage(originalAvatarUri: Uri, avatarPath: Path, appContext: Context) {
     originalAvatarUri.resampleImageAndCopyToTempPath(appContext, avatarPath, ImageUtil.ImageSizeClass.Small)

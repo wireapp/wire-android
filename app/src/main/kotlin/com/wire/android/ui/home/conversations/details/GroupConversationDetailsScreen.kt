@@ -232,4 +232,3 @@ private fun GroupConversationDetailsPreview() {
         )
     }
 }
-

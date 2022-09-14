@@ -64,7 +64,7 @@
     <string name="content_description_new_conversation">Beginnen Sie eine neue Unterhaltung</string>
     <string name="content_description_back_button">Back button</string>
     <string name="content_description_send_button">Senden</string>
-    <string name="content_description_timed_message_button">Self deleting messages Button</string>
+    <string name="content_description_timed_message_button">Self-deleting messages, button</string>
     <string name="content_description_close_button">Close button</string>
     <string name="content_description_menu_button">Hauptnavigation</string>
     <string name="content_description_drop_down_icon">Dropdown-Pfeil</string>

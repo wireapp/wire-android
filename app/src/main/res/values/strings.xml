@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_version">App version: %s</string>
-    <string name="app_name">Android Reloaded 2.0 FINAL</string>
+    <string name="app_name">Wire Beta</string>
     <string name="label_new">New</string>
     <string name="label_login">Login</string>
     <string name="label_ok">OK</string>
@@ -475,9 +475,9 @@
     <string name="calling_minimize_view">Minimize view</string>
     <string name="calling_ongoing_call_title_alert">Hang up current call ?</string>
     <string name="calling_ongoing_call_start_message_alert">A call is active in another conversation.\nCalling here will hang up the other call.</string>
-    <string name="calling_ongoing_call_start_anyway">Call Anyways</string>
+    <string name="calling_ongoing_call_start_anyway">Call Anyway</string>
     <string name="calling_ongoing_call_join_message_alert">A call is active in another conversation.\nJoining this call will hang up the other one.</string>
-    <string name="calling_ongoing_call_join_anyway">Join Anyways</string>
+    <string name="calling_ongoing_call_join_anyway">Join Anyway</string>
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">Return to call</string>
     <string name="connectivity_status_bar_connecting">Connecting</string>

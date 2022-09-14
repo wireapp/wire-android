@@ -6,8 +6,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.BuildConfig
 import com.wire.android.appLogger
 import com.wire.android.di.AuthServerConfigProvider
+import com.wire.android.feature.AccountSwitchUseCase
+import com.wire.android.feature.SwitchAccountParam
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
@@ -20,7 +23,7 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.feature.auth.AccountInfo
 import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
@@ -36,17 +39,18 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
-import kotlinx.coroutines.withTimeoutOrNull
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @Suppress("LongParameterList", "TooManyFunctions")
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class WireActivityViewModel @Inject constructor(
-    dispatchers: DispatcherProvider,
+    private val dispatchers: DispatcherProvider,
     val currentSessionFlow: CurrentSessionFlowUseCase,
     private val getServerConfigUseCase: GetServerConfigUseCase,
     private val deepLinkProcessor: DeepLinkProcessor,
@@ -54,24 +58,33 @@ class WireActivityViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val authServerConfigProvider: AuthServerConfigProvider,
     private val getSessions: GetSessionsUseCase,
-    observePersistentWebSocketConnectionStatus: ObservePersistentWebSocketConnectionStatusUseCase
+    private val accountSwitch: AccountSwitchUseCase,
+    observePersistentWebSocketConnectionStatus: ObservePersistentWebSocketConnectionStatusUseCase,
 ) : ViewModel() {
 
     private val navigationArguments = mutableMapOf<String, Any>(SERVER_CONFIG_ARG to ServerConfig.DEFAULT)
-    var customBackendDialogState: CustomBEDeeplinkDialogState by mutableStateOf(CustomBEDeeplinkDialogState())
-    var maxAccountDialogState: Boolean by mutableStateOf(false)
+    var globalAppState: GlobalAppState by mutableStateOf(GlobalAppState())
+        private set
 
-    private val observeUserId = currentSessionFlow().map { result ->
-        if (result is CurrentSessionResult.Success) {
-            if (result.accountInfo is AccountInfo.Invalid) {
-                // TODO handle switching when logged in to multiple accounts
-                navigateToLogin(result.accountInfo.userId)
-                null
-            } else result.accountInfo.userId
-        } else {
-            null
+    private val observeUserId = currentSessionFlow()
+        .onEach {
+            if (it is CurrentSessionResult.Success) {
+                if (it.accountInfo.isValid().not()) {
+                    handleInvalidSession((it.accountInfo as AccountInfo.Invalid).logoutReason)
+                }
+            }
         }
-    }.distinctUntilChanged().flowOn(dispatchers.io()).shareIn(viewModelScope, SharingStarted.WhileSubscribed(), 1)
+        .map { result ->
+            if (result is CurrentSessionResult.Success) {
+                if (result.accountInfo.isValid()) {
+                    result.accountInfo.userId
+                } else {
+                    null
+                }
+            } else {
+                null
+            }
+        }.distinctUntilChanged().flowOn(dispatchers.io()).shareIn(viewModelScope, SharingStarted.WhileSubscribed(), 1)
 
     init {
         viewModelScope.launch(dispatchers.io()) {
@@ -84,12 +97,27 @@ class WireActivityViewModel @Inject constructor(
         }
     }
 
-    private suspend fun navigateToLogin(userId: UserId) {
-        navigationManager.navigate(
-            NavigationCommand(
-                NavigationItem.Login.getRouteWithArgs(listOf(userId)), BackStackMode.CLEAR_WHOLE
-            )
-        )
+    private suspend fun handleInvalidSession(logoutReason: LogoutReason) {
+        withContext(dispatchers.main()) {
+            when (logoutReason) {
+                LogoutReason.SELF_SOFT_LOGOUT, LogoutReason.SELF_HARD_LOGOUT -> {
+                    // Self logout is handled from the Self user profile screen directly
+                }
+                LogoutReason.REMOVED_CLIENT ->
+                    globalAppState = globalAppState.copy(blockUserUI = CurrentSessionErrorState.RemovedClient)
+                LogoutReason.DELETED_ACCOUNT ->
+                    globalAppState = globalAppState.copy(blockUserUI = CurrentSessionErrorState.DeletedAccount)
+                LogoutReason.SESSION_EXPIRED ->
+                    globalAppState = globalAppState.copy(blockUserUI = CurrentSessionErrorState.SessionExpired)
+            }
+        }
+    }
+
+    fun navigateToNextAccountOrWelcome() {
+        viewModelScope.launch {
+            globalAppState = globalAppState.copy(blockUserUI = null)
+            accountSwitch(SwitchAccountParam.SwitchToNextAccountOrWelcome)
+        }
     }
 
     fun navigationArguments() = navigationArguments.values.toList()
@@ -104,8 +132,11 @@ class WireActivityViewModel @Inject constructor(
             viewModelScope.launch {
                 when (val result = deepLinkProcessor(deepLink)) {
                     is DeepLinkResult.CustomServerConfig -> loadServerConfig(result.url)?.let { serverLinks ->
-                        customBackendDialogState = customBackendDialogState.copy(
-                            shouldShowDialog = true, serverLinks = serverLinks
+                        globalAppState = globalAppState.copy(
+                            customBackendDialog = CustomBEDeeplinkDialogState(
+                                shouldShowDialog = true,
+                                serverLinks = serverLinks
+                            )
                         )
                         navigationArguments.put(SERVER_CONFIG_ARG, serverLinks)
                     }
@@ -207,15 +238,15 @@ class WireActivityViewModel @Inject constructor(
     }
 
     fun dismissCustomBackendDialog() {
-        customBackendDialogState = customBackendDialogState.copy(shouldShowDialog = false)
+        globalAppState = globalAppState.copy(customBackendDialog = CustomBEDeeplinkDialogState(shouldShowDialog = false))
     }
 
     fun customBackendDialogProceedButtonClicked(serverLinks: ServerConfig.Links) {
         viewModelScope.launch {
             dismissCustomBackendDialog()
             authServerConfigProvider.updateAuthServer(serverLinks)
-            if (checkNumberOfSessions() == MAX_SESSION_COUNT) {
-                maxAccountDialogState = true
+            if (checkNumberOfSessions() == BuildConfig.MAX_ACCOUNTS) {
+                globalAppState = globalAppState.copy(maxAccountDialog = true)
             } else {
                 navigateTo(NavigationCommand(NavigationItem.Welcome.getRouteWithArgs()))
             }
@@ -285,7 +316,16 @@ class WireActivityViewModel @Inject constructor(
 
     private fun shouldGoToOtherProfile(): Boolean = (navigationArguments[OPEN_OTHER_USER_PROFILE_ARG] as? QualifiedID) != null
 
-    private fun shouldGoToWelcome(): Boolean = runBlocking { observeUserId.first() } == null
+    // TODO: the usage of currentSessionFlow is a temporary solution, it should be replaced with a proper solution
+    private fun shouldGoToWelcome(): Boolean = runBlocking {
+        currentSessionFlow().first().let {
+            when (it) {
+                is CurrentSessionResult.Failure.Generic -> true
+                CurrentSessionResult.Failure.SessionNotFound -> true
+                is CurrentSessionResult.Success -> false
+            }
+        }
+    }
 
     fun openProfile() {
         dismissMaxAccountDialog()
@@ -293,7 +333,7 @@ class WireActivityViewModel @Inject constructor(
     }
 
     fun dismissMaxAccountDialog() {
-        maxAccountDialogState = false
+        globalAppState = globalAppState.copy(maxAccountDialog = false)
     }
 
     companion object {
@@ -303,6 +343,17 @@ class WireActivityViewModel @Inject constructor(
         private const val ONGOING_CALL_CONVERSATION_ID_ARG = "ongoing_call_conversation_id"
         private const val OPEN_CONVERSATION_ID_ARG = "open_conversation_id"
         private const val OPEN_OTHER_USER_PROFILE_ARG = "open_other_user_id"
-        private const val MAX_SESSION_COUNT = 3
     }
 }
+
+sealed class CurrentSessionErrorState {
+    object RemovedClient : CurrentSessionErrorState()
+    object DeletedAccount : CurrentSessionErrorState()
+    object SessionExpired : CurrentSessionErrorState()
+}
+
+data class GlobalAppState(
+    val customBackendDialog: CustomBEDeeplinkDialogState = CustomBEDeeplinkDialogState(),
+    val maxAccountDialog: Boolean = false,
+    val blockUserUI: CurrentSessionErrorState? = null
+)

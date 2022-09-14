@@ -41,6 +41,7 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseC
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
+import com.wire.kalium.logic.feature.message.getPaginatedFlowOfMessagesByConversation
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
 import com.wire.kalium.logic.feature.publicuser.GetKnownUserUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchKnownUsersUseCase
@@ -104,6 +105,22 @@ class CoreLogicModule {
             kaliumConfigs = kaliumConfigs
         )
     }
+
+    @Provides
+    fun provideCurrentSessionUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
+        coreLogic.getGlobalScope().session.currentSession
+
+    @Provides
+    fun deleteSessionUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
+        coreLogic.getGlobalScope().deleteSession
+
+    @Provides
+    fun provideUpdateCurrentSessionUseCase(@KaliumCoreLogic coreLogic: CoreLogic): UpdateCurrentSessionUseCase =
+        coreLogic.getGlobalScope().session.updateCurrentSession
+
+    @Provides
+    fun provideGetAllSessionsUseCase(@KaliumCoreLogic coreLogic: CoreLogic): GetSessionsUseCase =
+        coreLogic.getGlobalScope().session.allSessions
 
     @NoSession
     @Singleton
@@ -272,17 +289,6 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    // TODO: kind of redundant to CurrentSession - need to rename CurrentSession
-    fun provideCurrentSessionUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
-        coreLogic.getGlobalScope().session.currentSession
-
-    @ViewModelScoped
-    @Provides
-    fun provideGetAllSessionsUseCase(@KaliumCoreLogic coreLogic: CoreLogic): GetSessionsUseCase =
-        coreLogic.getGlobalScope().session.allSessions
-
-    @ViewModelScoped
-    @Provides
     fun provideCurrentSessionFlowUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
         coreLogic.getGlobalScope().session.currentSessionFlow
 
@@ -336,8 +342,8 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun provideGetMessagesUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
-        coreLogic.getSessionScope(currentAccount).messages.getRecentMessages
+    fun provideGetPaginatedMessagesUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).messages.getPaginatedFlowOfMessagesByConversation
 
     @ViewModelScoped
     @Provides
@@ -744,11 +750,6 @@ class UseCaseModule {
     @Provides
     fun provideObserveValidAccountsUseCase(@KaliumCoreLogic coreLogic: CoreLogic): ObserveValidAccountsUseCase =
         coreLogic.getGlobalScope().observeValidAccounts
-
-    @ViewModelScoped
-    @Provides
-    fun provideUpdateCurrentSessionUseCase(@KaliumCoreLogic coreLogic: CoreLogic): UpdateCurrentSessionUseCase =
-        coreLogic.getGlobalScope().session.updateCurrentSession
 
     @ViewModelScoped
     @Provides

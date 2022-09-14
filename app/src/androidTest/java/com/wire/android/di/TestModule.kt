@@ -46,16 +46,16 @@ class TestModule {
                     .login(EMAIL, PASSWORD, false)
 
                 if (authResult is AuthenticationResult.Success) {
-                    val (authTokens, ssoId, serverConfigId) = authResult.authData
+                    val (authTokens, ssoId, serverConfigId) = authResult
                     // persist locally the session if successful
                     sessionRepository.storeSession(serverConfigId, ssoId, authTokens)
-                    authResult.authData.first.userId
+                    authResult.authData.userId
                 } else {
                     val (authTokens, ssoId, serverConfigId) = coreLogic.getAuthenticationScope(ServerConfig.STAGING)
                         .login(EMAIL_2, PASSWORD_2, false)
                         .let {
                             when (it) {
-                                is AuthenticationResult.Success -> it.authData
+                                is AuthenticationResult.Success -> it
                                 is AuthenticationResult.Failure ->
                                     throw RuntimeException("Failed to setup testing custom injection")
                             }

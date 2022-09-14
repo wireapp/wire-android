@@ -28,8 +28,8 @@ internal fun CustomBEDeeplinkDialog(
                 MaterialTheme.wireTypography.body02,
                 colorsScheme().onBackground,
                 colorsScheme().onBackground,
-                customBackendDialogState.serverLinks.title,
-                customBackendDialogState.serverLinks.teams
+                wireActivityViewModel.globalAppState.customBackendDialog.serverLinks.title,
+                wireActivityViewModel.globalAppState.customBackendDialog.serverLinks.teams
             ),
 
             buttonsHorizontalAlignment = true,
@@ -41,7 +41,7 @@ internal fun CustomBEDeeplinkDialog(
             ),
             optionButton1Properties = WireDialogButtonProperties(
                 onClick = {
-                    customBackendDialogProceedButtonClicked(customBackendDialogState.serverLinks)
+                    customBackendDialogProceedButtonClicked(wireActivityViewModel.globalAppState.customBackendDialog.serverLinks)
                 },
                 text = stringResource(id = R.string.label_proceed),
                 type = WireDialogButtonType.Primary,

@@ -1,13 +1,12 @@
 package com.wire.android.ui.home.conversations.messages
 
-import android.content.res.Resources
 import androidx.lifecycle.SavedStateHandle
+import androidx.paging.PagingData
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
 import com.wire.android.util.FileManager
-import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
@@ -33,7 +32,7 @@ class ConversationMessagesViewModelArrangement {
 
     val conversationId: ConversationId = ConversationId("some-dummy-value", "some.dummy.domain")
 
-    private val messagesChannel = Channel<List<UIMessage>>(capacity = Channel.UNLIMITED)
+    private val messagesChannel = Channel<PagingData<UIMessage>>(capacity = Channel.UNLIMITED)
 
     val conversationDetailsChannel = Channel<ConversationDetails>(capacity = Channel.UNLIMITED)
 
@@ -61,12 +60,6 @@ class ConversationMessagesViewModelArrangement {
     @MockK
     lateinit var updateAssetMessageDownloadStatus: UpdateAssetMessageDownloadStatusUseCase
 
-    @MockK
-    lateinit var resources: Resources
-
-    @MockK
-    lateinit var uiText: UIText
-
     private val viewModel: ConversationMessagesViewModel by lazy {
         ConversationMessagesViewModel(
             qualifiedIdMapper,
@@ -90,12 +83,8 @@ class ConversationMessagesViewModelArrangement {
             qualifiedIdMapper.fromStringToQualifiedID("some-dummy-value@some.dummy.domain")
         } returns QualifiedID("some-dummy-value", "some.dummy.domain")
         coEvery { observeConversationDetails(any()) } returns flowOf()
-        coEvery { getMessagesForConversationUseCase(any()) } returns flowOf(listOf())
-        coEvery { updateAssetMessageDownloadStatus(any(), any(), any()) } returns UpdateDownloadStatusResult.Success
-    }
-
-    suspend fun withSuccessfulViewModelInit() = apply {
         coEvery { getMessagesForConversationUseCase(any()) } returns messagesChannel.consumeAsFlow()
+        coEvery { updateAssetMessageDownloadStatus(any(), any(), any()) } returns UpdateDownloadStatusResult.Success
     }
 
     fun withSuccessfulOpenAssetMessage(
@@ -118,9 +107,8 @@ class ConversationMessagesViewModelArrangement {
         coEvery { getMessageAsset(any(), any()) } returns MessageAssetResult.Success(decodedAssetPath, assetSize)
     }
 
-    suspend fun withMessagesUpdate(messages: List<UIMessage>) = apply {
-        coEvery { getMessagesForConversationUseCase(any()) } returns messagesChannel.consumeAsFlow()
-        messagesChannel.send(messages)
+    suspend fun withPaginatedMessagesReturning(pagingDataFlow: PagingData<UIMessage>) = apply {
+        messagesChannel.send(pagingDataFlow)
     }
 
     fun withSuccessfulSaveAssetMessage(

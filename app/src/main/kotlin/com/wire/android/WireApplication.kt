@@ -95,8 +95,7 @@ class WireApplication : Application(), Configuration.Provider {
         logFileWriter.start()
         appLogger.i("Logger enabled")
     }
-    
-    @Suppress("MagicNumber")
+
     private fun enableDatadog() {
 
         val clientToken = "pub98ad02250435b6082337bb79f66cbc19"
@@ -117,7 +116,7 @@ class WireApplication : Application(), Configuration.Provider {
 
         val credentials = Credentials(clientToken, environmentName, appVariantName, applicationId)
         Datadog.initialize(this, credentials, configuration, TrackingConsent.GRANTED)
-        Datadog.setUserInfo(id = getDeviceId(this))
+        Datadog.setUserInfo(id = getDeviceId(this)?.sha256())
         GlobalRum.registerIfAbsent(RumMonitor.Builder().build())
     }
 

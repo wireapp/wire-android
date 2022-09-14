@@ -117,7 +117,7 @@ class WireApplication : Application(), Configuration.Provider {
 
         val credentials = Credentials(clientToken, environmentName, appVariantName, applicationId)
         Datadog.initialize(this, credentials, configuration, TrackingConsent.GRANTED)
-        Datadog.setUserInfo(id = getDeviceId(this)
+        Datadog.setUserInfo(id = getDeviceId(this))
         GlobalRum.registerIfAbsent(RumMonitor.Builder().build())
     }
 

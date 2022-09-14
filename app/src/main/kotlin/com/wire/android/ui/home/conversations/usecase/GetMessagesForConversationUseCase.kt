@@ -10,7 +10,11 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.feature.conversation.ObserveUserListByIdUseCase
 import com.wire.kalium.logic.feature.message.GetPaginatedFlowOfMessagesByConversationUseCase
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.flow.*
+import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.mapLatest
 import javax.inject.Inject
 
 class GetMessagesForConversationUseCase @Inject constructor(
@@ -21,8 +25,16 @@ class GetMessagesForConversationUseCase @Inject constructor(
 ) {
 
     @OptIn(ExperimentalCoroutinesApi::class)
-    suspend operator fun invoke(conversationId: ConversationId): Flow<PagingData<UIMessage>> =
-        getMessages(conversationId, pagingConfig = PagingConfig(20)).map { pagingData ->
+    suspend operator fun invoke(conversationId: ConversationId): Flow<PagingData<UIMessage>> {
+        val pagingConfig = PagingConfig(
+            pageSize = PAGE_SIZE,
+            prefetchDistance = PREFETCH_DISTANCE,
+            initialLoadSize = INITIAL_LOAD_SIZE
+        )
+        return getMessages(
+            conversationId,
+            pagingConfig = pagingConfig
+        ).map { pagingData ->
             pagingData.flatMap { messageItem ->
                 observeMemberDetailsByIds(messageMapper.memberIdList(listOf(messageItem)))
                     .mapLatest {
@@ -30,5 +42,11 @@ class GetMessagesForConversationUseCase @Inject constructor(
                     }.first()
             }
         }.flowOn(dispatchers.io())
+    }
 
+    private companion object {
+        const val PAGE_SIZE = 20
+        const val INITIAL_LOAD_SIZE = 50
+        const val PREFETCH_DISTANCE = 30
+    }
 }

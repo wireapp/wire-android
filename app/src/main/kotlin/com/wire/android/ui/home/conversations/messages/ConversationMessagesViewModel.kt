@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import androidx.paging.cachedIn
 import com.wire.android.appLogger
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.SavedStateViewModel
@@ -25,7 +26,6 @@ import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseC
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.datetime.Instant
@@ -60,7 +60,7 @@ class ConversationMessagesViewModel @Inject constructor(
     private fun loadPaginatedMessages() = viewModelScope.launch {
         val paginatedMessagesFlow = getMessageForConversation(conversationId)
             .flowOn(dispatchers.io())
-            .stateIn(this)
+            .cachedIn(this)
         conversationViewState = conversationViewState.copy(messages = paginatedMessagesFlow)
     }
 
@@ -74,10 +74,10 @@ class ConversationMessagesViewModel @Inject constructor(
                         is ConversationDetails.Group -> details.lastUnreadMessage
                         else -> null
                     }
-                    val lastReadInstant = lastUnreadMessage?.let {
+                    val lastUnreadInstant = lastUnreadMessage?.let {
                         Instant.parse(lastUnreadMessage.date)
                     }
-                    conversationViewState = conversationViewState.copy(lastUnreadMessageInstant = lastReadInstant)
+                    conversationViewState = conversationViewState.copy(lastUnreadMessageInstant = lastUnreadInstant)
                 }
             }
     }

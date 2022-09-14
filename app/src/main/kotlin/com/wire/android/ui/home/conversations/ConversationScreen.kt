@@ -34,6 +34,7 @@ import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
 import com.wire.android.R
+import com.wire.android.appLogger
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.dialogs.OngoingActiveCallDialog
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
@@ -59,12 +60,12 @@ import com.wire.android.ui.home.conversations.info.ConversationInfoViewState
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewState
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
-import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.UIMessage
+import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.messagecomposer.KeyboardHeight
-import com.wire.android.ui.home.messagecomposer.MessageComposeInputState
 import com.wire.android.ui.home.messagecomposer.MessageComposer
+import com.wire.android.ui.home.messagecomposer.MessageComposerStateTransition
 import com.wire.android.util.permission.CallingAudioRequestFlow
 import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
 import com.wire.android.util.ui.UIText
@@ -76,6 +77,13 @@ import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 import okio.Path
 import okio.Path.Companion.toPath
+
+/**
+ * The maximum of number of messages the user can scroll while still having
+ * autoscroll on new messages enabled.
+ * Once the user scrolls further into older messages, we stop autoscroll.
+ */
+private const val MAXIMUM_SCROLLED_MESSAGES_UNTIL_AUTOSCROLL_STOPS = 5
 
 @Composable
 fun ConversationScreen(
@@ -325,19 +333,16 @@ private fun ConversationScreenContent(
     tempCachePath: Path,
     onUpdateConversationReadDate: (String) -> Unit
 ) {
-    val coroutineScope = rememberCoroutineScope()
-
     SnackBarMessage(snackbarMessage, conversationState, conversationScreenState, onSnackbarMessageShown)
 
-    val lazyPagingMessages = remember(messages) {
-        messages.collectAsLazyPagingItems()
-    }
+    val lazyPagingMessages = messages.collectAsLazyPagingItems()
 
-    val lazyListState = rememberSaveable(lastUnreadMessageInstant, saver = LazyListState.Saver) {
+    val lazyListState = rememberSaveable(lazyPagingMessages, saver = LazyListState.Saver) {
         // TODO: Autoscroll to last unread message
         LazyListState(0)
     }
 
+    val onMessageComposerInputStateChange: (MessageComposerStateTransition) -> Unit = remember { {} }
     MessageComposer(
         keyboardHeight = keyboardHeight,
         content = {
@@ -355,13 +360,7 @@ private fun ConversationScreenContent(
         onSendTextMessage = onSendMessage,
         onSendAttachment = onSendAttachment,
         onMessageComposerError = onMessageComposerError,
-        onMessageComposerInputStateChange = { messageComposerState ->
-            if (messageComposerState.to == MessageComposeInputState.Active &&
-                messageComposerState.from == MessageComposeInputState.Enabled
-            ) {
-                coroutineScope.launch { lazyListState.animateScrollToItem(lazyPagingMessages.itemCount) }
-            }
-        },
+        onMessageComposerInputStateChange = onMessageComposerInputStateChange,
         isFileSharingEnabled = isFileSharingEnabled,
         tempCachePath = tempCachePath,
         isUserBlocked = isUserBlocked,
@@ -424,25 +423,23 @@ fun MessageList(
     onOpenProfile: (MessageSource, UserId) -> Unit,
     onUpdateConversationReadDate: (String) -> Unit
 ) {
-    val mostRecentMessage = remember(lazyPagingMessages[0]) {
-        lazyPagingMessages[0]
-    }
-
-    // Scroll down when the unread message thing changes
-    LaunchedEffect(lastUnreadMessageInstant) {
-        // Last Unread changed, if user didn't scroll up, list scrolls down
-        if (lazyListState.firstVisibleItemIndex < 8) {
+    val mostRecentMessage = lazyPagingMessages.itemCount.takeIf { it > 0 }?.let { lazyPagingMessages[0] }
+    LaunchedEffect(mostRecentMessage) {
+        // Most recent message changed, if the user didn't scroll up, we automatically scroll down to reveal the new message
+        if (lazyListState.firstVisibleItemIndex < MAXIMUM_SCROLLED_MESSAGES_UNTIL_AUTOSCROLL_STOPS) {
             lazyListState.animateScrollToItem(0)
         }
     }
 
     LaunchedEffect(lazyListState.isScrollInProgress) {
-        if (!lazyListState.isScrollInProgress) {
+        if (!lazyListState.isScrollInProgress && lazyPagingMessages.itemCount > 0) {
             val lastVisibleMessage = lazyPagingMessages[lazyListState.firstVisibleItemIndex] ?: return@LaunchedEffect
 
             val lastVisibleMessageInstant = Instant.parse(lastVisibleMessage.messageHeader.messageTime.utcISO)
 
-            if (lastVisibleMessageInstant >= (lastUnreadMessageInstant ?: Instant.DISTANT_PAST)) {
+            // TODO: This IF condition should be in the UseCase
+            //       If there are no unread messages, then use distant future and don't update read date
+            if (lastVisibleMessageInstant > (lastUnreadMessageInstant ?: Instant.DISTANT_FUTURE)) {
                 onUpdateConversationReadDate(lastVisibleMessage.messageHeader.messageTime.utcISO)
             }
         }

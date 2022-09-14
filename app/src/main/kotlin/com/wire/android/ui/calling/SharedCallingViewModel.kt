@@ -84,7 +84,13 @@ class SharedCallingViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            val allCallsSharedFlow = allCalls().shareIn(this, started = SharingStarted.Lazily)
+            val allCallsSharedFlow = allCalls().map {
+                it.find { call ->
+                    call.conversationId == conversationId &&
+                            call.status != CallStatus.CLOSED &&
+                            call.status != CallStatus.MISSED
+                }
+            }.shareIn(this, started = SharingStarted.Lazily)
 
             launch {
                 observeConversationDetails()
@@ -178,35 +184,24 @@ class SharedCallingViewModel @Inject constructor(
         }
     }
 
-    private suspend fun initCallState(sharedFlow: SharedFlow<List<Call>>) {
-        sharedFlow.first { calls ->
-            calls.find { call ->
-                call.conversationId == conversationId &&
-                        call.status != CallStatus.CLOSED &&
-                        call.status != CallStatus.MISSED
-            }?.let { call ->
-                callState = callState.copy(
-                    callStatus = call.status,
-                    callerName = call.callerName,
-                    isCameraOn = call.isCameraOn,
-                    isMuted = call.isMuted
-                )
-            }
-            true
+    private suspend fun initCallState(sharedFlow: SharedFlow<Call?>) {
+        sharedFlow.first()?.let { call ->
+            callState = callState.copy(
+                callStatus = call.status,
+                callerName = call.callerName,
+                isCameraOn = call.isCameraOn,
+            )
         }
     }
 
-    private suspend fun observeParticipants(sharedFlow: SharedFlow<List<Call>>) {
-        sharedFlow.collect { calls ->
-            calls.find { call ->
-                call.conversationId == conversationId &&
-                        call.status != CallStatus.CLOSED &&
-                        call.status != CallStatus.MISSED
-            }?.let { call ->
+    private suspend fun observeParticipants(sharedFlow: SharedFlow<Call?>) {
+        sharedFlow.collect { call ->
+            call?.let {
                 callState = callState.copy(
-                    callStatus = call.status,
-                    callerName = call.callerName,
-                    participants = call.participants.map { uiCallParticipantMapper.toUICallParticipant(it) }
+                    isMuted = call.isMuted,
+                    callStatus = it.status,
+                    callerName = it.callerName,
+                    participants = it.participants.map { participant -> uiCallParticipantMapper.toUICallParticipant(participant) }
                 )
             }
         }

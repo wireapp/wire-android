@@ -48,7 +48,7 @@
     <string name="content_description_muted_conversation">Беззвучные беседы</string>
     <string name="content_description_check">Флажок</string>
     <string name="content_description_download_icon">Иконка загрузки</string>
-    <string name="content_description_add_to_favourite">Add to favorite</string>
+    <string name="content_description_add_to_favourite">Add to Favorites</string>
     <string name="content_description_move_to_folder">Move to folder</string>
     <string name="content_description_move_to_archive">Move to archive</string>
     <string name="content_description_block_the_user">Block</string>
@@ -269,7 +269,7 @@
     <string name="group_name_exceeded_limit_error">Group name should not exceed 64 characters
     </string>
     <string name="asset_message_tap_to_download_text">Tap to download</string>
-    <string name="asset_message_download_in_progress_text">Downloading...</string>
+    <string name="asset_message_download_in_progress_text">Downloading…</string>
     <string name="asset_message_downloaded_internally_text">Downloaded</string>
     <string name="asset_message_saved_externally_text">Saved</string>
     <string name="asset_message_failed_download_text">File not available</string>
@@ -304,10 +304,10 @@
     <string name="disable_guest_dialog_text">Current guests will be removed from the conversation. New guests will not be allowed.</string>
     <string name="disable_services_dialog_title">Disable services access?</string>
     <string name="disable_services_dialog_text">Current services will be removed from the conversation. New services will not be allowed.</string>
-    <string name="leave_group_conversation_menu_item">Leave Group...</string>
+    <string name="leave_group_conversation_menu_item">Leave Group…</string>
     <string name="leave_group_conversation_dialog_title">Leave “%s”?</string>
     <string name="leave_group_conversation_dialog_description">You will then no longer be able to send or read messages in this group on any device.</string>
-    <string name="delete_group_conversation_menu_item">Delete Group...</string>
+    <string name="delete_group_conversation_menu_item">Delete Group…</string>
     <string name="delete_group_conversation_dialog_title">Remove “%s”?</string>
     <string name="delete_group_conversation_dialog_description">The group will be removed from your conversations list on all devices. You will no longer be able to access the group and its content.</string>
     <!-- Attachment options -->
@@ -408,13 +408,13 @@
     <string name="label_general_error">Something went wrong</string>
     <!-- Snackbar messages -->
     <string name="error_unknown_title">Something went wrong</string>
-    <string name="error_unknown_message">Please try again in a moment</string>
+    <string name="error_unknown_message">Please try again</string>
     <string name="error_server_miscommunication_title">Server error</string>
-    <string name="error_server_miscommunication_message">Please try again in a moment</string>
+    <string name="error_server_miscommunication_message">Please try again</string>
     <string name="error_no_network_title">Waiting for network</string>
     <string name="error_no_network_message">Please check your Internet connection and try again</string>
     <string name="error_downloading_user_info">There was an error downloading the user information. Please check your Internet connection</string>
-    <string name="error_uploading_user_avatar">Image could not be uploaded</string>
+    <string name="error_uploading_user_avatar">Picture could not be uploaded</string>
     <string name="error_updating_muting_setting">Notifications could not be updated</string>
     <string name="error_conversation_sending_image">The picture could not be sent. Please check your internet connection and try again.</string>
     <string name="error_conversation_sending_asset">There was an error trying to send that file. Please check your Internet connection and try again</string>
@@ -435,7 +435,7 @@
     <!-- Animation label -->
     <string name="label_open_conversation">Open Conversation</string>
     <string name="email_label">Email</string>
-    <string name="phone_label">phone</string>
+    <string name="phone_label">Phone</string>
     <!-- Notifications -->
     <string name="notification_shared_picture">Shared a picture</string>
     <string name="notification_shared_file">Shared a file</string>
@@ -452,7 +452,7 @@
     <string name="notification_action_decline_call">Decline</string>
     <string name="notification_action_hang_up_call">Hang Up</string>
     <string name="notification_incoming_call_content">Calling…</string>
-    <string name="notification_ongoing_call_content">Ongoing call...</string>
+    <string name="notification_ongoing_call_content">Ongoing call…</string>
     <string name="notification_group_call_content">%s calling...</string>
     <string name="notification_call_default_caller_name">Someone</string>
     <string name="notification_call_default_group_name">Default Group Name</string>
@@ -467,13 +467,13 @@
     <string name="calling_hang_up_call">Hang up call</string>
     <string name="calling_accept_call">Accept call</string>
     <string name="calling_decline_call">Decline call</string>
-    <string name="calling_label_ringing_call">Ringing...</string>
+    <string name="calling_label_ringing_call">Ringing…</string>
     <string name="calling_label_incoming_call">Calling…</string>
     <string name="calling_label_incoming_call_someone_calling">%s is calling…</string>
     <string name="calling_label_default_caller_name">Default</string>
     <string name="calling_label_constant_bit_rate">CONSTANT BIT RATE</string>
     <string name="calling_minimize_view">Minimize view</string>
-    <string name="calling_ongoing_call_title_alert">Hang up current call ?</string>
+    <string name="calling_ongoing_call_title_alert">Hang up current call?</string>
     <string name="calling_ongoing_call_start_message_alert">A call is active in another conversation.\nCalling here will hang up the other call.</string>
     <string name="calling_ongoing_call_start_anyway">Call Anyway</string>
     <string name="calling_ongoing_call_join_message_alert">A call is active in another conversation.\nJoining this call will hang up the other one.</string>

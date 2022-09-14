@@ -10,8 +10,6 @@ import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.DownloadedAssetDialogVisibilityState
-import com.wire.android.ui.home.conversations.model.MessageContent
-import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
 import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -26,7 +24,6 @@ import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCa
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
@@ -119,7 +116,7 @@ class ConversationMessagesViewModel @Inject constructor(
                 downloadStatus == Message.DownloadStatus.IN_PROGRESS
 
         if (!isAssetDownloadedInternally)
-            // TODO: Refactor. UseCase responsible for downloading should update to IN_PROGRESS status.
+        // TODO: Refactor. UseCase responsible for downloading should update to IN_PROGRESS status.
             updateAssetMessageDownloadStatus(Message.DownloadStatus.IN_PROGRESS, conversationId, messageId)
 
         val resultData = assetDataPath(conversationId, messageId)

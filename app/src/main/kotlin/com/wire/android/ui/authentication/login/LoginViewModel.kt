@@ -26,8 +26,9 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.auth.AccountInfo
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
-import com.wire.kalium.logic.feature.auth.AuthSession
+import com.wire.kalium.logic.feature.auth.AuthTokens
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.client.RegisterClientUseCase
@@ -68,14 +69,13 @@ open class LoginViewModel @Inject constructor(
         viewModelScope.launch {
             if (userId != null)
                 getSessions.getUserSession(userId).map {
-                    if (it.session is AuthSession.Session.Invalid) {
-                        with(it.session as AuthSession.Session.Invalid) {
-                            val loginError = when (this.reason) {
+                    if (it is AccountInfo.Invalid) {
+                        with(it) {
+                            val loginError = when (this.logoutReason) {
                                 LogoutReason.SELF_LOGOUT -> {
                                     getSessions.deleteInvalidSession(userId)
                                     LoginError.None
                                 }
-
                                 LogoutReason.REMOVED_CLIENT -> LoginError.DialogError.InvalidSession.RemovedClient
                                 LogoutReason.DELETED_ACCOUNT -> LoginError.DialogError.InvalidSession.DeletedAccount
                                 LogoutReason.SESSION_EXPIRED -> LoginError.DialogError.InvalidSession.SessionExpired
@@ -103,15 +103,17 @@ open class LoginViewModel @Inject constructor(
         }
     }
 
-    private fun deleteInvalidSession() {
+    private suspend fun deleteInvalidSession() {
         if (loginState.loginError is LoginError.DialogError.InvalidSession && userId != null) {
             getSessions.deleteInvalidSession(userId)
         }
     }
 
     fun onDialogDismiss() {
-        deleteInvalidSession()
-        clearLoginErrors()
+        viewModelScope.launch {
+            deleteInvalidSession()
+            clearLoginErrors()
+        }
     }
 
     private fun clearLoginErrors() {
@@ -138,7 +140,7 @@ open class LoginViewModel @Inject constructor(
         capabilities: List<ClientCapability>? = null
     ): RegisterClientResult {
         val clientScope = clientScopeProviderFactory.create(userId).clientScope
-        return clientScope.register(
+        return clientScope.getOrRegister(
             RegisterClientUseCase.RegisterClientParam(
                 password = password,
                 capabilities = capabilities

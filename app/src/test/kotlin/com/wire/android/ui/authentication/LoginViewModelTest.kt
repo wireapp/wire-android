@@ -48,7 +48,7 @@ class LoginViewModelTest {
     @BeforeEach
     fun setup() {
         MockKAnnotations.init(this)
-        every { savedStateHandle.get<String>(any()) } returns ""
+        every { savedStateHandle.get<String>(any()) } returns null
         every { qualifiedIdMapper.fromStringToQualifiedID(any()) } returns QualifiedID("", "")
         every { authServerConfigProvider.authServer.value } returns newServerConfig(1).links
         loginViewModel = LoginViewModel(

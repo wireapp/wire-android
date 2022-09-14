@@ -78,8 +78,8 @@ import okio.Path
 import okio.Path.Companion.toPath
 
 /**
- * The maximum of number of messages the user can scroll while still having
- * autoscroll on new messages enabled.
+ * The maximum number of messages the user can scroll while still
+ * having autoscroll on new messages enabled.
  * Once the user scrolls further into older messages, we stop autoscroll.
  */
 private const val MAXIMUM_SCROLLED_MESSAGES_UNTIL_AUTOSCROLL_STOPS = 5

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_version">App version: %s</string>
-    <string name="app_name">Android Reloaded 2.0 FINAL</string>
+    <string name="app_name">Wire Beta</string>
     <string name="label_new">New</string>
     <string name="label_login">Login</string>
     <string name="label_ok">OK</string>
@@ -57,6 +57,9 @@
     <string name="content_description_conversation_phone_icon">Start audio call</string>
     <string name="content_description_welcome_wire_logo">Wire</string>
     <string name="content_description_conversation_search_icon">Conversation search icon</string>
+    <string name="content_description_conversation_enable_rich_text_mode">Enable rich text mode button</string>
+    <string name="content_description_conversation_send_emoticon">Send Emoticon button</string>
+    <string name="content_description_conversation_send_gif">Send GIF button</string>
     <string name="content_description_conversation_mention_someone">Mention someone</string>
     <string name="content_description_new_conversation">Start a new conversation</string>
     <string name="content_description_back_button">Back button</string>
@@ -73,7 +76,7 @@
     <string name="content_description_right_arrow">Right arrow</string>
     <string name="content_description_left_arrow">Go back</string>
     <string name="content_description_mention_icon">Mention icon</string>
-    <string name="content_description_attachment_item">Attachment item</string>
+    <string name="content_description_attachment_item">Attach new item to conversation</string>
     <string name="content_description_copy_the_message">Copy the message</string>
     <string name="content_description_delete_the_message">Delete the message</string>
     <string name="content_description_edit_the_message">Edit the message</string>
@@ -339,6 +342,9 @@
     <string name="dialog_remove_conversation_member_error">There was an error while removing member from conversation</string>
     <string name="group_role_admin">Admin</string>
     <string name="group_role_member">Member</string>
+    <!-- Logout Wipe Data Dialog -->
+    <string name="dialog_logout_wipe_data_title">Clear Data?</string>
+    <string name="dialog_logout_wipe_data_checkbox">Delete all your personal information and conversations on this device</string>
     <!-- User Profile status dialog-->
     <string name="user_profile_change_status_dialog_available_title">Set yourself to Available</string>
     <string name="user_profile_change_status_dialog_available_text">You will appear as Available to other people. You will receive notifications for incoming calls and for messages according to the Notifications setting in each conversation.</string>
@@ -468,9 +474,9 @@
     <string name="calling_minimize_view">Minimize view</string>
     <string name="calling_ongoing_call_title_alert">Hang up current call ?</string>
     <string name="calling_ongoing_call_start_message_alert">A call is active in another conversation.\nCalling here will hang up the other call.</string>
-    <string name="calling_ongoing_call_start_anyway">Call Anyways</string>
+    <string name="calling_ongoing_call_start_anyway">Call Anyway</string>
     <string name="calling_ongoing_call_join_message_alert">A call is active in another conversation.\nJoining this call will hang up the other one.</string>
-    <string name="calling_ongoing_call_join_anyway">Join Anyways</string>
+    <string name="calling_ongoing_call_join_anyway">Join Anyway</string>
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">Return to call</string>
     <string name="connectivity_status_bar_connecting">Connecting</string>

@@ -23,6 +23,7 @@ import com.wire.kalium.logic.data.call.VideoState
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
+import com.wire.kalium.logic.feature.call.Call
 import com.wire.kalium.logic.feature.call.CallStatus
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.GetAllCallsWithSortedParticipantsUseCase
@@ -39,9 +40,13 @@ import com.wire.kalium.logic.feature.conversation.SecurityClassificationTypeResu
 import com.wire.kalium.logic.util.PlatformView
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -79,11 +84,22 @@ class SharedCallingViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
+            val allCallsSharedFlow = allCalls().map {
+                it.find { call ->
+                    call.conversationId == conversationId &&
+                            call.status != CallStatus.CLOSED &&
+                            call.status != CallStatus.MISSED
+                }
+            }.shareIn(this, started = SharingStarted.Lazily)
+
             launch {
                 observeConversationDetails()
             }
             launch {
-                observeCallState()
+                initCallState(allCallsSharedFlow)
+            }
+            launch {
+                observeParticipants(allCallsSharedFlow)
             }
             launch {
                 observeOnSpeaker()
@@ -148,14 +164,14 @@ class SharedCallingViewModel @Inject constructor(
     }
 
     private suspend fun observeOnSpeaker() {
-        observeSpeaker().collect {
+        observeSpeaker().collectLatest {
             callState = callState.copy(isSpeakerOn = it)
         }
     }
 
     private suspend fun observeOnMute() {
         //We should only mute established calls
-          snapshotFlow { callState.isMuted to callState.callStatus }.collectLatest { (isMuted, callStatus) ->
+        snapshotFlow { callState.isMuted to callState.callStatus }.collectLatest { (isMuted, callStatus) ->
             if (callStatus == CallStatus.ESTABLISHED) {
                 isMuted?.let {
                     if (it) {
@@ -168,19 +184,24 @@ class SharedCallingViewModel @Inject constructor(
         }
     }
 
-    private suspend fun observeCallState() {
-        allCalls().collect { calls ->
-            calls.find { call ->
-                call.conversationId == conversationId &&
-                        call.status != CallStatus.CLOSED &&
-                        call.status != CallStatus.MISSED
-            }?.let { call ->
+    private suspend fun initCallState(sharedFlow: SharedFlow<Call?>) {
+        sharedFlow.first()?.let { call ->
+            callState = callState.copy(
+                callStatus = call.status,
+                callerName = call.callerName,
+                isCameraOn = call.isCameraOn,
+            )
+        }
+    }
+
+    private suspend fun observeParticipants(sharedFlow: SharedFlow<Call?>) {
+        sharedFlow.collect { call ->
+            call?.let {
                 callState = callState.copy(
-                    callStatus = call.status,
-                    callerName = call.callerName,
                     isMuted = call.isMuted,
-                    isCameraOn = call.isCameraOn,
-                    participants = call.participants.map { uiCallParticipantMapper.toUICallParticipant(it) }
+                    callStatus = it.status,
+                    callerName = it.callerName,
+                    participants = it.participants.map { participant -> uiCallParticipantMapper.toUICallParticipant(participant) }
                 )
             }
         }
@@ -229,13 +250,11 @@ class SharedCallingViewModel @Inject constructor(
         viewModelScope.launch {
             callState.isCameraOn?.let {
                 callState = if (it) {
-                    turnLoudSpeakerOff()
                     callState.copy(
                         isCameraOn = false,
                         isSpeakerOn = false
                     )
                 } else {
-                    turnLoudSpeakerOn()
                     callState.copy(
                         isCameraOn = true,
                         isSpeakerOn = true

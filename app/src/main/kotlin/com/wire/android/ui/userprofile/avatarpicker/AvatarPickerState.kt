@@ -35,13 +35,22 @@ class AvatarPickerState(
     val modalBottomSheetState: ModalBottomSheetState,
     private val avatarPickerFlow: AvatarPickerFlow,
 ) {
+
     fun showModalBottomSheet() {
         coroutineScope.launch { modalBottomSheetState.show() }
     }
 
-    fun openImageSource(imageSource: ImageSource) {
+    private fun openImageSource(imageSource: ImageSource) {
         avatarPickerFlow.launch(imageSource)
         coroutineScope.launch { modalBottomSheetState.hide() }
+    }
+
+    fun openCamera() {
+        openImageSource(ImageSource.Camera)
+    }
+
+    fun openGallery() {
+        openImageSource(ImageSource.Gallery)
     }
 }
 

@@ -40,7 +40,6 @@ import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireColorScheme
-import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerViewModel.ErrorCodes
 import com.wire.android.util.ImageUtil
 import com.wire.android.util.resampleImageAndCopyToTempPath
 import kotlinx.coroutines.CoroutineScope
@@ -59,7 +58,9 @@ fun AvatarPickerScreen(viewModel: AvatarPickerViewModel) {
         onImageSelected = { originalUri ->
             onNewAvatarPicked(originalUri, targetAvatarPath, scope, context, viewModel)
         },
-        onPictureTaken = { onNewAvatarPicked(targetAvatarUri, targetAvatarPath, scope, context, viewModel) },
+        onPictureTaken = {
+            onNewAvatarPicked(targetAvatarUri, targetAvatarPath, scope, context, viewModel)
+        },
         targetPictureFileUri = targetAvatarUri
     )
 
@@ -110,7 +111,7 @@ private fun AvatarPickerContent(
                         )
                     },
                     action = { ArrowRightIcon() },
-                    onItemClick = { state.openImageSource(ImageSource.Gallery) }
+                    onItemClick = state::openGallery
                 )
             }, {
                 MenuBottomSheetItem(
@@ -122,7 +123,7 @@ private fun AvatarPickerContent(
                         )
                     },
                     action = { ArrowRightIcon() },
-                    onItemClick = { state.openImageSource(ImageSource.Camera) }
+                    onItemClick = state::openCamera
                 )
             }
         )

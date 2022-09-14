@@ -10,12 +10,12 @@
     <string name="label_continue">Weiter</string>
     <string name="label_get_started">Loslegen</string>
     <string name="label_remove">Entfernen</string>
-    <string name="label_proceed">Proceed</string>
-    <string name="label_leave">Leave</string>
+    <string name="label_proceed">Fortfahren</string>
+    <string name="label_leave">Verlassen</string>
     <string name="label_add_device">Gerät hinzufügen</string>
     <string name="label_learn_more">Mehr erfahren</string>
-    <string name="label_removing">Removing...</string>
-    <string name="label_logging_in">Logging in...</string>
+    <string name="label_removing">Removing…</string>
+    <string name="label_logging_in">Logging in…</string>
     <string name="label_membership_guest">Gast</string>
     <string name="label_membership_external">Extern</string>
     <string name="label_membership_service">Dienst</string>
@@ -48,7 +48,7 @@
     <string name="content_description_muted_conversation">Unterhaltung ist stummgeschaltet</string>
     <string name="content_description_check">Check mark</string>
     <string name="content_description_download_icon">Download icon</string>
-    <string name="content_description_add_to_favourite">Add to favorite</string>
+    <string name="content_description_add_to_favourite">Add to Favorites</string>
     <string name="content_description_move_to_folder">In Ordner verschieben</string>
     <string name="content_description_move_to_archive">Ins Archiv verschieben</string>
     <string name="content_description_block_the_user">Blockieren</string>
@@ -120,9 +120,9 @@
     <string name="settings_general_group_title">General</string>
     <string name="settings_backups_group_title">Backups</string>
     <string name="settings_other_group_title">Other</string>
-    <string name="settings_backup_info">Create a backup to preserve your conversation history. You can use this to restore history if you lose your device or switch to a new one.\n\nChoose a strong password to protect the backup file.</string>
+    <string name="settings_backup_info">Erstellen Sie ein Backup, um den Gesprächsverlauf zu sichern. Damit können Unterhaltungen wiederhergestellt werden, falls Sie Ihr Gerät verlieren oder ein neues nutzen möchten.\n\nWählen Sie ein sicheres Passwort, um die Backup-Datei zu schützen.</string>
     <string name="settings_backup_create">Create a Backup</string>
-    <string name="settings_backup_restore">Restore from Backup</string>
+    <string name="settings_backup_restore">Backup wiederherstellen</string>
     <!-- Welcome -->
     <string name="welcome_screen_title">Willkommen</string>
     <string name="welcome_footer_text">Möchten Sie mit Freunden und Ihrer Familie chatten?</string>
@@ -130,12 +130,12 @@
     <string name="welcome_button_create_enterprise_account">Enterprise-Konto erstellen</string>
     <string name="welcome_button_create_personal_account">Privates Benutzerkonto erstellen</string>
     <string name="welcome_button_create_team">Team erstellen</string>
-    <string name="server_details_dialog_body">Backend name:\n%1$s\n\nBackend URL:\n%2$s</string>
+    <string name="server_details_dialog_body">Backend-Name:\n%1$s\n\nBackend-URL:\n%2$s</string>
     <string name="server_details_dialog_title">On-premises Backend</string>
     <!-- API Versioning Dialogs -->
     <string name="api_versioning_client_update_required_title">Aktualisierung erforderlich</string>
     <string name="api_versioning_client_update_required_message">Sie verpassen neue Funktionen. Laden Sie die neueste Version von Wire herunter, um die App weiterhin mit diesem Benutzerkonto zu verwenden.</string>
-    <string name="api_versioning_server_version_not_supported_title">Server version not supported</string>
+    <string name="api_versioning_server_version_not_supported_title">Serverversion wird nicht unterstützt</string>
     <string name="api_versioning_server_version_not_supported_message">Ihr Wire-Server muss aktualisiert werden. Bitte informieren Sie Ihren Systemadministrator.</string>
     <!-- Login -->
     <string name="login_title">Anmelden</string>
@@ -152,7 +152,7 @@
     <string name="login_error_user_already_logged_in_title">Benutzerkonto in Gebrauch</string>
     <string name="login_error_user_already_logged_in_message">Sie sind bereits mit diesen Daten auf diesem Gerät angemeldet.</string>
     <string name="login_sso_error_invalid_cookie_title">Invalid Cookie!</string>
-    <string name="login_sso_error_invalid_cookie_message">The session is invalid or expired! Please try again to log in.</string>
+    <string name="login_sso_error_invalid_cookie_message">Die Sitzung ist ungültig oder abgelaufen! Bitte versuchen Sie erneut, sich anzumelden.</string>
     <string name="login_password_placeholder">Passwort</string>
     <string name="login_password_label">PASSWORT</string>
     <string name="login_tab_email">E-MAIL-ADRESSE</string>
@@ -169,7 +169,7 @@
     <string name="removed_client_error_message">You were signed out because your device was
         removed.
     </string>
-    <string name="session_expired_error_title">Session ist abgelaufen</string>
+    <string name="session_expired_error_title">Sitzung ist abgelaufen</string>
     <string name="session_expired_error_message">The application did not communicate with the server
         for a long period of time, or your session has been remotely invalidated.
     </string>
@@ -216,7 +216,7 @@
     <string name="create_account_email_terms_dialog_text">Indem Sie auf \"Weiter\" klicken, erklären Sie sich mit unseren Nutzungsbedingungen und unserer Datenschutzerklärung einverstanden.</string>
     <string name="create_account_email_terms_dialog_view_policy">Nutzungsbedingungen und Datenschutzerklärung anzeigen</string>
     <string name="create_account_email_already_in_use_error">Die E-Mail-Adresse wird bereits verwendet.</string>
-    <string name="create_account_email_blacklisted_error">Your email has been identified as not trusted, for example, due to a rejection by a spam filter.</string>
+    <string name="create_account_email_blacklisted_error">Ihre E-Mail-Adresse wurde als nicht vertrauenswürdig identifiziert, zum Beispiel aufgrund einer Ablehnung durch einen Spam-Filter.</string>
     <string name="create_account_email_invalid_error">Please enter a valid format for your email.</string>
     <string name="create_account_email_domain_blocked_error">You can´t create this account as your email domain is intentionally blocked.\nPlease ask your team admin to invite you via email.</string>
     <string name="create_account_details_first_name_placeholder">Max</string>
@@ -269,7 +269,7 @@
     <string name="group_name_exceeded_limit_error">Group name should not exceed 64 characters
     </string>
     <string name="asset_message_tap_to_download_text">Zum Herunterladen tippen</string>
-    <string name="asset_message_download_in_progress_text">Downloading...</string>
+    <string name="asset_message_download_in_progress_text">Downloading…</string>
     <string name="asset_message_downloaded_internally_text">Heruntergeladen</string>
     <string name="asset_message_saved_externally_text">Gespeichert</string>
     <string name="asset_message_failed_download_text">Datei nicht verfügbar</string>
@@ -293,26 +293,26 @@
     <string name="conversation_details_show_all_participants">Alle Teilnehmer anzeigen (%d)</string>
     <string name="conversation_details_group_participants_title">Teilnehmer</string>
     <string name="conversation_details_group_participants_add">Teilnehmer hinzufügen</string>
-    <string name="conversation_details_is_classified">SECURITY LEVEL: VS-NfD</string>
-    <string name="conversation_details_is_not_classified">SECURITY LEVEL: UNCLASSIFIED</string>
+    <string name="conversation_details_is_classified">SICHERHEITSNIVEAU: VS-NfD</string>
+    <string name="conversation_details_is_not_classified">SICHERHEITSNIVEAU: NICHT EINGESTUFT</string>
     <string name="conversation_options_guests_label">Gäste</string>
     <string name="conversation_options_guest_description">Aktivieren Sie diese Option, um die Unterhaltung für Personen außerhalb Ihres Teams zu öffnen – auch wenn diese Wire nicht nutzen.</string>
     <string name="conversation_options_guest_not_editable_description">Sie können die Gast-Option in dieser Unterhaltung nicht deaktivieren, da sie von jemandem aus einem anderen Team erstellt wurde.</string>
     <string name="conversation_options_services_label">Dienste</string>
-    <string name="conversation_options_services_description">Turn this option ON to open this conversation to services.</string>
+    <string name="conversation_options_services_description">Aktivieren Sie diese Option, um die Unterhaltung für Dienste zu öffnen.</string>
     <string name="disable_guest_dialog_title">Gastzugang deaktivieren?</string>
     <string name="disable_guest_dialog_text">Aktuelle Gäste werden aus der Unterhaltung entfernt. Neue Gäste können nicht hinzugefügt werden.</string>
     <string name="disable_services_dialog_title">Disable services access?</string>
     <string name="disable_services_dialog_text">Current services will be removed from the conversation. New services will not be allowed.</string>
-    <string name="leave_group_conversation_menu_item">Leave Group...</string>
-    <string name="leave_group_conversation_dialog_title">Leave “%s”?</string>
-    <string name="leave_group_conversation_dialog_description">You will then no longer be able to send or read messages in this group on any device.</string>
-    <string name="delete_group_conversation_menu_item">Delete Group...</string>
-    <string name="delete_group_conversation_dialog_title">Remove “%s”?</string>
+    <string name="leave_group_conversation_menu_item">Leave Group…</string>
+    <string name="leave_group_conversation_dialog_title">\"%s\" verlassen?</string>
+    <string name="leave_group_conversation_dialog_description">Sie können dann auf keinem Gerät mehr Nachrichten in dieser Gruppe senden oder lesen.</string>
+    <string name="delete_group_conversation_menu_item">Delete Group…</string>
+    <string name="delete_group_conversation_dialog_title">\"%s\" entfernen?</string>
     <string name="delete_group_conversation_dialog_description">The group will be removed from your conversations list on all devices. You will no longer be able to access the group and its content.</string>
     <!-- Attachment options -->
     <string name="attachment_share_file">Datei hinzufügen</string>
-    <string name="attachment_share_image">Attach Picture</string>
+    <string name="attachment_share_image">Bild anhängen</string>
     <string name="attachment_take_photo">Foto aufnehmen</string>
     <string name="attachment_record_video">Video aufnehmen</string>
     <string name="attachment_voice_message">Audionachricht</string>
@@ -334,7 +334,7 @@
     <string name="user_profile_group_role">ROLLE</string>
     <string name="user_profile_role_in_group">Role in ”%s”</string>
     <string name="user_profile_role_change_error">There was an error trying to change the role. Please check your Internet connection and try again</string>
-    <string name="user_profile_unblock_user">Unblock User</string>
+    <string name="user_profile_unblock_user">Benutzer freigeben</string>
     <string name="user_profile_group_remove_button">Aus Gruppe entfernen</string>
     <!-- Remove Conversation Member Dialog -->
     <string name="dialog_remove_conversation_member_title">Remove from group?</string>
@@ -357,10 +357,10 @@
     <string name="user_profile_change_status_dialog_checkbox_text">Diesen Hinweis nicht nochmal zeigen</string>
     <!-- Conversations BottomSheet -->
     <string name="label_notifications">Benachrichtigungen</string>
-    <string name="label_add_to_favourites">Add to Favorites</string>
+    <string name="label_add_to_favourites">Zu Favoriten hinzufügen</string>
     <string name="label_move_to_folder">In Ordner verschieben</string>
     <string name="label_move_to_archive">Ins Archiv verschieben</string>
-    <string name="label_clear_content">Clear Content…</string>
+    <string name="label_clear_content">Verlauf löschen…</string>
     <string name="label_block">Blockieren</string>
     <string name="label_leave_group">Gruppe verlassen</string>
     <string name="label_delete_group">Delete Group</string>
@@ -403,25 +403,25 @@
     <string name="label_search_people_instruction">Search for users with their display name or their @username</string>
     <string name="label_learn_more_searching_user">Mehr erfahren</string>
     <string name="label_no_results_found">Keine Ergebnisse, bitte erneut versuchen.</string>
-    <string name="label_general_error">Something went wrong</string>
+    <string name="label_general_error">Ein Fehler ist aufgetreten</string>
     <!-- Snackbar messages -->
     <string name="error_unknown_title">Ein Fehler ist aufgetreten</string>
-    <string name="error_unknown_message">Please try again in a moment</string>
+    <string name="error_unknown_message">Please try again</string>
     <string name="error_server_miscommunication_title">Server error</string>
-    <string name="error_server_miscommunication_message">Please try again in a moment</string>
+    <string name="error_server_miscommunication_message">Please try again</string>
     <string name="error_no_network_title">Waiting for network</string>
     <string name="error_no_network_message">Please check your Internet connection and try again</string>
     <string name="error_downloading_user_info">There was an error downloading the user information. Please check your Internet connection</string>
-    <string name="error_uploading_user_avatar">Image could not be uploaded</string>
+    <string name="error_uploading_user_avatar">Picture could not be uploaded</string>
     <string name="error_updating_muting_setting">Notifications could not be updated</string>
-    <string name="error_conversation_sending_image">The picture could not be sent. Please check your internet connection and try again.</string>
+    <string name="error_conversation_sending_image">Das Bild konnte nicht gesendet werden. Bitte überprüfen Sie Ihre Internetverbindung und versuchen Sie es erneut.</string>
     <string name="error_conversation_sending_asset">There was an error trying to send that file. Please check your Internet connection and try again</string>
     <string name="error_conversation_downloading_asset">There was an error trying to download that file. Please try again</string>
     <string name="error_conversation_opening_asset_file">No app was found to open the selected file</string>
     <string name="error_conversation_deleting_message">Nachricht konnte nicht gelöscht werden</string>
     <string name="error_conversation_max_image_size_limit">The image you chose is too large. Please choose an image smaller than 15MB</string>
     <string name="error_conversation_max_asset_size_limit">The file you chose is too large. Please choose a file smaller than %sMB</string>
-    <string name="error_conversation_generic">Something went wrong. The message could not be sent.</string>
+    <string name="error_conversation_generic">Ein Fehler ist aufgetreten. Die Nachricht konnte nicht gesendet werden.</string>
     <string name="conversation_on_file_downloaded">Die Datei %s wurde im Download-Ordner gespeichert</string>
     <string name="error_blocking_user">Benutzer konnte nicht blockiert werden</string>
     <string name="blocking_user_success">%s blocked</string>
@@ -433,7 +433,7 @@
     <!-- Animation label -->
     <string name="label_open_conversation">Unterhaltung öffnen</string>
     <string name="email_label">E-Mail-Adresse</string>
-    <string name="phone_label">phone</string>
+    <string name="phone_label">Phone</string>
     <!-- Notifications -->
     <string name="notification_shared_picture">Hat ein Bild geteilt</string>
     <string name="notification_shared_file">Hat eine Datei geteilt</string>
@@ -441,7 +441,7 @@
     <string name="notification_missed_call">Verpasster Anruf</string>
     <string name="notification_not_supported_issue">Something not supported in notifications</string>
     <string name="notification_connection_request">Möchte Sie als Kontakt hinzufügen</string>
-    <string name="notification_conversation_deleted">Deleted the group</string>
+    <string name="notification_conversation_deleted">Hat die Gruppe gelöscht</string>
     <string name="notification_action_call">Anruf</string>
     <string name="notification_action_reply">Antworten</string>
     <string name="notification_receiver_name">Sie</string>
@@ -450,7 +450,7 @@
     <string name="notification_action_decline_call">Ablehnen</string>
     <string name="notification_action_hang_up_call">Auflegen</string>
     <string name="notification_incoming_call_content">Ruft an…</string>
-    <string name="notification_ongoing_call_content">Ongoing call...</string>
+    <string name="notification_ongoing_call_content">Ongoing call…</string>
     <string name="notification_group_call_content">%s calling...</string>
     <string name="notification_call_default_caller_name">Jemand</string>
     <string name="notification_call_default_group_name">Default Group Name</string>
@@ -465,21 +465,21 @@
     <string name="calling_hang_up_call">Auflegen</string>
     <string name="calling_accept_call">Anruf annehmen</string>
     <string name="calling_decline_call">Anruf ablehnen</string>
-    <string name="calling_label_ringing_call">Ringing...</string>
-    <string name="calling_label_incoming_call">Calling…</string>
-    <string name="calling_label_incoming_call_someone_calling">%s is calling…</string>
+    <string name="calling_label_ringing_call">Ringing…</string>
+    <string name="calling_label_incoming_call">Ruft an…</string>
+    <string name="calling_label_incoming_call_someone_calling">%s ruft an…</string>
     <string name="calling_label_default_caller_name">Default</string>
     <string name="calling_label_constant_bit_rate">KONSTANTE BITRATE</string>
     <string name="calling_minimize_view">Minimize view</string>
-    <string name="calling_ongoing_call_title_alert">Hang up current call ?</string>
+    <string name="calling_ongoing_call_title_alert">Hang up current call?</string>
     <string name="calling_ongoing_call_start_message_alert">A call is active in another conversation.\nCalling here will hang up the other call.</string>
     <string name="calling_ongoing_call_start_anyway">Trotzdem anrufen</string>
     <string name="calling_ongoing_call_join_message_alert">A call is active in another conversation.\nJoining this call will hang up the other one.</string>
-    <string name="calling_ongoing_call_join_anyway">Join Anyway</string>
+    <string name="calling_ongoing_call_join_anyway">Trotzdem beitreten</string>
     <!-- Connectivity Status Bar -->
-    <string name="connectivity_status_bar_return_to_call">Return to call</string>
+    <string name="connectivity_status_bar_return_to_call">Zurück zum Anruf</string>
     <string name="connectivity_status_bar_connecting">Connecting</string>
-    <string name="connectivity_status_bar_waiting_for_network">Waiting for network</string>
+    <string name="connectivity_status_bar_waiting_for_network">Warten auf Netzwerk</string>
     <!-- Connections -->
     <string name="connection_label_connect">Hinzufügen</string>
     <string name="connection_label_cancel_request">Kontaktanfrage abbrechen</string>
@@ -496,7 +496,7 @@
     <string name="connection_pending_message">Möchte Sie als Kontakt hinzufügen</string>
     <string name="connection_pending_label">ausstehend</string>
     <string name="connection_label_user_wants_to_conect">This user wants to connect with you.</string>
-    <string name="connection_label_accepting_request_description">If you accept their request, they will be added as a contact and you two can communicate directly.</string>
+    <string name="connection_label_accepting_request_description">Wenn Sie die Anfrage annehmen, wird die Person als Kontakt hinzugefügt und Sie können direkt miteinander kommunizieren.</string>
     <string name="connection_label_accept">Annehmen</string>
     <string name="connection_label_ignore">Ignorieren</string>
     <!-- Gallery -->
@@ -514,11 +514,11 @@
     <string name="empty_group_label">Unterhaltung ohne Namen</string>
     <string name="label_show_more">Mehr anzeigen</string>
     <!--prohibited asset messages -->
-    <string name="prohibited_images_message">Receiving images is prohibited</string>
-    <string name="prohibited_videos_message">Receiving videos is prohibited</string>
-    <string name="prohibited_audio_message">Receiving audio messages is prohibited</string>
-    <string name="prohibited_file_message">Receiving files is prohibited</string>
-    <string name="team_settings_changed">Team settings changed</string>
+    <string name="prohibited_images_message">Empfang von Bildern ist verboten</string>
+    <string name="prohibited_videos_message">Empfang von Videos ist verboten</string>
+    <string name="prohibited_audio_message">Empfang von Audiodateien ist verboten</string>
+    <string name="prohibited_file_message">Empfang von Dateien ist verboten</string>
+    <string name="team_settings_changed">Team-Einstellungen geändert</string>
     <string name="sharing_files_enabled">Das Teilen und Empfangen von Dateien jeder Art ist jetzt aktiviert</string>
     <string name="sharing_files_disabled">Das Teilen und Empfangen von Dateien jeder Art ist jetzt deaktiviert</string>
     <!--wire dropdown-->
@@ -533,7 +533,7 @@
     <string name="read_receipts_description">When this is on, people can see when their messages in this conversation are read.</string>
     <string name="disable_guests_dialoug_title">Not Allow Guests?</string>
     <string name="disable_guests_dialoug_description">Any guest user selected in the previous step will not be added to the group if you do not allow guest access.</string>
-    <string name="disable_guests_dialoug_button">Not Allow Guests</string>
+    <string name="disable_guests_dialoug_button">Keine Gäste zulassen</string>
     <!--block user dialog -->
     <string name="block_user_dialog_title">Benutzer blockieren?</string>
     <string name="block_user_dialog_body">%1$s won’t be able to contact you or add you to group conversations. You will lose access to any 1:1 conversations with them. The other user will not be notified about this.</string>

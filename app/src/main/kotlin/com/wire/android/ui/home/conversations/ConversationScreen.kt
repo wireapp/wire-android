@@ -10,7 +10,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
@@ -30,6 +29,10 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import androidx.paging.PagingData
+import androidx.paging.compose.LazyPagingItems
+import androidx.paging.compose.collectAsLazyPagingItems
+import androidx.paging.compose.items
 import com.wire.android.R
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.dialogs.OngoingActiveCallDialog
@@ -55,7 +58,6 @@ import com.wire.android.ui.home.conversations.info.ConversationInfoViewModel
 import com.wire.android.ui.home.conversations.info.ConversationInfoViewState
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewState
-import com.wire.android.ui.home.conversations.mock.getMockedMessages
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.MessageContent
 import com.wire.android.ui.home.conversations.model.MessageSource
@@ -69,6 +71,7 @@ import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
 import kotlinx.datetime.Instant
 import okio.Path
@@ -274,7 +277,7 @@ private fun ConversationScreen(
                             keyboardHeight = keyboardHeight,
                             snackbarMessage = conversationViewState.snackbarMessage ?: conversationMessagesViewState.snackbarMessage,
                             messages = conversationMessagesViewState.messages,
-                            lastUnreadMessage = conversationMessagesViewState.lastUnreadMessage,
+                            lastUnreadMessageInstant = conversationMessagesViewState.lastUnreadMessageInstant,
                             onSendMessage = onSendMessage,
                             onShowContextMenu = conversationScreenState::showEditContextMenu,
                             onSendAttachment = onSendAttachment,
@@ -303,8 +306,8 @@ private fun ConversationScreen(
 private fun ConversationScreenContent(
     snackbarMessage: ConversationSnackbarMessages?,
     keyboardHeight: KeyboardHeight,
-    messages: List<UIMessage>,
-    lastUnreadMessage: UIMessage?,
+    messages: Flow<PagingData<UIMessage>>,
+    lastUnreadMessageInstant: Instant?,
     onSendMessage: (String) -> Unit,
     onShowContextMenu: (UIMessage) -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
@@ -325,24 +328,22 @@ private fun ConversationScreenContent(
 
     SnackBarMessage(snackbarMessage, conversationState, conversationScreenState, onSnackbarMessageShown)
 
-    val lazyListState = rememberSaveable(lastUnreadMessage, saver = LazyListState.Saver) {
-        LazyListState(
-            if (lastUnreadMessage != null) messages.indexOf(lastUnreadMessage) else 0,
-            0
-        )
+    val lazyPagingMessages = remember(messages) {
+        messages.collectAsLazyPagingItems()
     }
 
-    LaunchedEffect(messages) {
-        lazyListState.animateScrollToItem(0)
+    val lazyListState = rememberSaveable(lastUnreadMessageInstant, saver = LazyListState.Saver) {
+        // TODO: Autoscroll to last unread message
+        LazyListState(0)
     }
 
     MessageComposer(
         keyboardHeight = keyboardHeight,
         content = {
             MessageList(
-                messages = messages,
-                lastUnreadMessage,
+                lazyPagingMessages = lazyPagingMessages,
                 lazyListState = lazyListState,
+                lastUnreadMessageInstant = lastUnreadMessageInstant,
                 onShowContextMenu = onShowContextMenu,
                 onDownloadAsset = onDownloadAsset,
                 onImageFullScreenMode = onImageFullScreenMode,
@@ -357,7 +358,7 @@ private fun ConversationScreenContent(
             if (messageComposerState.to == MessageComposeInputState.Active &&
                 messageComposerState.from == MessageComposeInputState.Enabled
             ) {
-                coroutineScope.launch { lazyListState.animateScrollToItem(messages.size) }
+                coroutineScope.launch { lazyListState.animateScrollToItem(lazyPagingMessages.itemCount) }
             }
         },
         isFileSharingEnabled = isFileSharingEnabled,
@@ -413,26 +414,35 @@ private fun getSnackbarMessage(messageCode: ConversationSnackbarMessages): Pair<
 
 @Composable
 fun MessageList(
-    messages: List<UIMessage>,
-    lastUnreadMessage: UIMessage?,
+    lazyPagingMessages: LazyPagingItems<UIMessage>,
     lazyListState: LazyListState,
+    lastUnreadMessageInstant: Instant?,
     onShowContextMenu: (UIMessage) -> Unit,
     onDownloadAsset: (String) -> Unit,
     onImageFullScreenMode: (String, Boolean) -> Unit,
     onOpenProfile: (MessageSource, UserId) -> Unit,
     onUpdateConversationReadDate: (String) -> Unit
 ) {
-    if (messages.isNotEmpty() && lastUnreadMessage != null) {
-        LaunchedEffect(lazyListState.isScrollInProgress) {
-            if (!lazyListState.isScrollInProgress) {
-                val lastVisibleMessage = messages[lazyListState.firstVisibleItemIndex]
+    val mostRecentMessage = remember(lazyPagingMessages[0]) {
+        lazyPagingMessages[0]
+    }
 
-                val lastVisibleMessageInstant = Instant.parse(lastVisibleMessage.messageHeader.messageTime.utcISO)
-                val lastUnreadMessageInstant = Instant.parse(lastUnreadMessage.messageHeader.messageTime.utcISO)
+    // Scroll down when the unread message thing changes
+    LaunchedEffect(lastUnreadMessageInstant) {
+        // Last Unread changed, if user didn't scroll up, list scrolls down
+        if (lazyListState.firstVisibleItemIndex < 8) {
+            lazyListState.animateScrollToItem(0)
+        }
+    }
 
-                if (lastVisibleMessageInstant >= lastUnreadMessageInstant) {
-                    onUpdateConversationReadDate(lastVisibleMessage.messageHeader.messageTime.utcISO)
-                }
+    LaunchedEffect(lazyListState.isScrollInProgress) {
+        if (!lazyListState.isScrollInProgress) {
+            val lastVisibleMessage = lazyPagingMessages[lazyListState.firstVisibleItemIndex] ?: return@LaunchedEffect
+
+            val lastVisibleMessageInstant = Instant.parse(lastVisibleMessage.messageHeader.messageTime.utcISO)
+
+            if (lastVisibleMessageInstant >= (lastUnreadMessageInstant ?: Instant.DISTANT_PAST)) {
+                onUpdateConversationReadDate(lastVisibleMessage.messageHeader.messageTime.utcISO)
             }
         }
     }
@@ -444,9 +454,13 @@ fun MessageList(
             .fillMaxHeight()
             .fillMaxWidth()
     ) {
-        items(messages, key = {
-            it.messageHeader.messageId
+        items(lazyPagingMessages, key = { uiMessage ->
+            uiMessage.messageHeader.messageId
         }) { message ->
+            if (message == null) {
+                // We can draw a placeholder here, as we fetch the next page of messages
+                return@items
+            }
             if (message.messageContent is MessageContent.SystemMessage) {
                 SystemMessageItem(message = message.messageContent)
             } else {
@@ -469,7 +483,7 @@ fun ConversationScreenPreview() {
         conversationViewState = ConversationViewState(),
         conversationCallViewState = ConversationCallViewState(),
         conversationInfoViewState = ConversationInfoViewState(conversationName = UIText.DynamicString("Some test conversation")),
-        conversationMessagesViewState = ConversationMessagesViewState(messages = getMockedMessages()),
+        conversationMessagesViewState = ConversationMessagesViewState(),
         connectivityUIState = ConnectivityUIState(info = ConnectivityUIState.Info.None),
         onOpenOngoingCallScreen = { },
         onSendMessage = { },

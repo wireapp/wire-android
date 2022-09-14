@@ -8,11 +8,9 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.SavedStateViewModel
-import com.wire.android.ui.home.conversations.ConversationAvatar
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.DownloadedAssetDialogVisibilityState
 import com.wire.android.ui.home.conversations.model.MessageContent
-import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
 import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -25,10 +23,12 @@ import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.firstOrNull
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.datetime.Instant
 import okio.Path
 import javax.inject.Inject
 
@@ -53,47 +53,33 @@ class ConversationMessagesViewModel @Inject constructor(
     )
 
     init {
-        observeConversationDetailsAndMessages()
+        loadPaginatedMessages()
+        loadLastMessageInstant()
     }
 
-    private fun observeConversationDetailsAndMessages() {
-        viewModelScope.launch {
-            observeConversationDetails(conversationId)
-                .combine(
-                    getMessageForConversation(conversationId).onEach(::updateMessagesList)
-                ) { conversationDetailsResult, uiMessages ->
-                    Pair(conversationDetailsResult, uiMessages)
-                }.collect { (conversationDetailsResult, uiMessages) ->
-                    if (conversationDetailsResult is ObserveConversationDetailsUseCase.Result.Success) {
-                        when (val details = conversationDetailsResult.conversationDetails) {
-                            // TODO: think about lastUnreadMessage being a "common" field of ConversationDetails
-                            is ConversationDetails.OneOne -> {
-                                extractLastUnreadMessage(details.lastUnreadMessage, uiMessages)
-                            }
+    private fun loadPaginatedMessages() = viewModelScope.launch {
+        val paginatedMessagesFlow = getMessageForConversation(conversationId)
+            .flowOn(dispatchers.io())
+            .stateIn(this)
+        conversationViewState = conversationViewState.copy(messages = paginatedMessagesFlow)
+    }
 
-                            is ConversationDetails.Group -> {
-                                extractLastUnreadMessage(details.lastUnreadMessage, uiMessages)
-                            }
-
-                            else -> ConversationAvatar.None
-                        }
+    private fun loadLastMessageInstant() = viewModelScope.launch {
+        observeConversationDetails(conversationId)
+            .flowOn(dispatchers.io())
+            .collect { conversationDetailsResult ->
+                if (conversationDetailsResult is ObserveConversationDetailsUseCase.Result.Success) {
+                    val lastUnreadMessage = when (val details = conversationDetailsResult.conversationDetails) {
+                        is ConversationDetails.OneOne -> details.lastUnreadMessage
+                        is ConversationDetails.Group -> details.lastUnreadMessage
+                        else -> null
                     }
+                    val lastReadInstant = lastUnreadMessage?.let {
+                        Instant.parse(lastUnreadMessage.date)
+                    }
+                    conversationViewState = conversationViewState.copy(lastUnreadMessageInstant = lastReadInstant)
                 }
-        }
-    }
-
-    private fun extractLastUnreadMessage(lastUnreadMessage: Message?, uiMessages: List<UIMessage>) {
-        if (lastUnreadMessage != null) {
-            uiMessages.firstOrNull { it.messageHeader.messageId == lastUnreadMessage.id }?.let {
-                conversationViewState = conversationViewState.copy(lastUnreadMessage = it)
             }
-        } else {
-            conversationViewState = conversationViewState.copy(lastUnreadMessage = null)
-        }
-    }
-
-    private fun updateMessagesList(messages: List<UIMessage>) {
-        conversationViewState = conversationViewState.copy(messages = messages)
     }
 
     // This will download the asset remotely to an internal temporary storage or fetch it from the local database if it had been previously

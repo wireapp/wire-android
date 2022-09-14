@@ -26,11 +26,14 @@ import com.wire.kalium.logic.feature.conversation.GetAllContactsNotInConversatio
 import com.wire.kalium.logic.feature.conversation.Result
 import com.wire.kalium.logic.feature.publicuser.search.SearchKnownUsersUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
-import com.wire.kalium.logic.feature.publicuser.search.Result as KnownUserSearchResult
+import com.wire.kalium.logic.feature.publicuser.search.SearchUsersResult as KnownUserSearchResult
 
 @Suppress("LongParameterList")
 @HiltViewModel
@@ -83,35 +86,34 @@ class AddMembersToConversationViewModel @Inject constructor(
             }
         }
 
-    override suspend fun searchKnownPeople(searchTerm: String): ContactSearchResult.InternalContact {
-        val result = withContext(dispatchers.io()) {
-            searchKnownUsers(
-                searchQuery = searchTerm,
-                searchUsersOptions = SearchUsersOptions(
-                    conversationExcluded = ConversationMemberExcludedOptions.ConversationExcluded(conversationId),
-                    selfUserIncluded = false
-                )
+    override suspend fun searchKnownPeople(searchTerm: String): Flow<ContactSearchResult.InternalContact> {
+       return searchKnownUsers(
+            searchQuery = searchTerm,
+            searchUsersOptions = SearchUsersOptions(
+                conversationExcluded = ConversationMemberExcludedOptions.ConversationExcluded(conversationId),
+                selfUserIncluded = false
             )
-        }
-
-        return when (result) {
-            is KnownUserSearchResult.Failure.Generic -> ContactSearchResult.InternalContact(
-                SearchResultState.Failure(R.string.label_general_error)
-            )
-            KnownUserSearchResult.Failure.InvalidQuery -> ContactSearchResult.InternalContact(
-                SearchResultState.Failure(R.string.label_general_error)
-            )
-            KnownUserSearchResult.Failure.InvalidRequest -> ContactSearchResult.InternalContact(
-                SearchResultState.Failure(R.string.label_general_error)
-            )
-            is KnownUserSearchResult.Success -> ContactSearchResult.InternalContact(
-                SearchResultState.Success(
-                    result.userSearchResult.result.map(
-                        contactMapper::fromOtherUser
+        )
+            .map { result ->
+                when (result) {
+                    is KnownUserSearchResult.Failure.Generic -> ContactSearchResult.InternalContact(
+                        SearchResultState.Failure(R.string.label_general_error)
                     )
-                )
-            )
-        }
+                    KnownUserSearchResult.Failure.InvalidQuery -> ContactSearchResult.InternalContact(
+                        SearchResultState.Failure(R.string.label_no_results_found)
+                    )
+                    KnownUserSearchResult.Failure.InvalidRequest -> ContactSearchResult.InternalContact(
+                        SearchResultState.Failure(R.string.label_general_error)
+                    )
+                    is KnownUserSearchResult.Success -> ContactSearchResult.InternalContact(
+                        SearchResultState.Success(
+                            result.userSearchResult.result.map(
+                                contactMapper::fromOtherUser
+                            )
+                        )
+                    )
+                }
+            }
     }
 
     fun addMembersToConversation() {

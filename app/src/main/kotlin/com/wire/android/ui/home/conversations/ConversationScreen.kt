@@ -59,7 +59,7 @@ import com.wire.android.ui.home.conversations.info.ConversationInfoViewState
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewState
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
-import com.wire.android.ui.home.conversations.model.MessageContent
+import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.messagecomposer.KeyboardHeight
@@ -261,7 +261,8 @@ private fun ConversationScreen(
                             onPhoneButtonClick = onStartCall,
                             hasOngoingCall = conversationCallViewState.hasOngoingCall,
                             onJoinCallButtonClick = onJoinCall,
-                            isUserBlocked = conversationInfoViewState.isUserBlocked
+                            isUserBlocked = conversationInfoViewState.isUserBlocked,
+                            isCallingEnabled = isSendingMessagesAllowed
                         )
                     }
                 },
@@ -461,7 +462,7 @@ fun MessageList(
                 // We can draw a placeholder here, as we fetch the next page of messages
                 return@items
             }
-            if (message.messageContent is MessageContent.SystemMessage) {
+            if (message.messageContent is UIMessageContent.SystemMessage) {
                 SystemMessageItem(message = message.messageContent)
             } else {
                 MessageItem(

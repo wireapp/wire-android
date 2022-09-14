@@ -11,6 +11,7 @@ import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.DownloadedAssetDialogVisibilityState
 import com.wire.android.ui.home.conversations.model.MessageContent
+import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
 import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -18,10 +19,12 @@ import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.message.Message
+import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
+import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.flowOn
@@ -32,7 +35,6 @@ import kotlinx.datetime.Instant
 import okio.Path
 import javax.inject.Inject
 
-
 @HiltViewModel
 @Suppress("LongParameterList")
 class ConversationMessagesViewModel @Inject constructor(
@@ -40,6 +42,7 @@ class ConversationMessagesViewModel @Inject constructor(
     override val savedStateHandle: SavedStateHandle,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val getMessageAsset: GetMessageAssetUseCase,
+    private val getMessageByIdUseCase: GetMessageByIdUseCase,
     private val updateAssetMessageDownloadStatus: UpdateAssetMessageDownloadStatusUseCase,
     private val fileManager: FileManager,
     private val dispatchers: DispatcherProvider,
@@ -97,20 +100,26 @@ class ConversationMessagesViewModel @Inject constructor(
     }
 
     private suspend fun attemptDownloadOfAsset(messageId: String) {
-        val assetMessage = conversationViewState.messages.firstOrNull {
-            it.messageHeader.messageId == messageId && it.messageContent is MessageContent.AssetMessage
+        val messageDataResult = getMessageByIdUseCase(conversationId, messageId)
+        if (messageDataResult !is GetMessageByIdUseCase.Result.Success) {
+            appLogger.w("Failed when fetching details of message to download asset: $messageDataResult")
+            return
         }
+        val message = messageDataResult.message
+        val messageContent = message.content
 
-        val messageContent = assetMessage?.messageContent
-        val (isAssetDownloadedInternally, assetName, assetSize) = (messageContent as MessageContent.AssetMessage).run {
-            Triple(
-                (downloadStatus == Message.DownloadStatus.SAVED_INTERNALLY || downloadStatus == Message.DownloadStatus.IN_PROGRESS),
-                assetName,
-                assetSizeInBytes
-            )
+        if (messageContent !is MessageContent.Asset) {
+            // This _should_ not even happen, tho. Unless UI is buggy. So... do we crash?! Better not.
+            appLogger.w("Attempting to download assets of a non-asset message. Ignoring user input.")
+            return
         }
+        val assetContent = messageContent.value
+        val downloadStatus = assetContent.downloadStatus
+        val isAssetDownloadedInternally = downloadStatus == Message.DownloadStatus.SAVED_INTERNALLY ||
+                downloadStatus == Message.DownloadStatus.IN_PROGRESS
 
         if (!isAssetDownloadedInternally)
+            // TODO: Refactor. UseCase responsible for downloading should update to IN_PROGRESS status.
             updateAssetMessageDownloadStatus(Message.DownloadStatus.IN_PROGRESS, conversationId, messageId)
 
         val resultData = assetDataPath(conversationId, messageId)
@@ -121,7 +130,7 @@ class ConversationMessagesViewModel @Inject constructor(
         )
 
         if (resultData != null) {
-            showOnAssetDownloadedDialog(assetName, resultData, assetSize, messageId)
+            showOnAssetDownloadedDialog(assetContent.name ?: "", resultData, assetContent.sizeInBytes, messageId)
         }
     }
 

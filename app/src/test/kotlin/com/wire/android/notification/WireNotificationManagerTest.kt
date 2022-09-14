@@ -77,7 +77,7 @@ class WireNotificationManagerTest {
         manager.fetchAndShowNotificationsOnce("user_id")
 
         verify(atLeast = 1) { arrangement.coreLogic.getSessionScope(any()) }
-        coVerify(exactly = 1) { arrangement.connectionPolicyManager.handleConnectionOnPushNotification(TEST_AUTH_SESSION.userId) }
+        coVerify(exactly = 1) { arrangement.connectionPolicyManager.handleConnectionOnPushNotification(TEST_AUTH_TOKEN.userId) }
         verify(exactly = 0) { arrangement.messageNotificationManager.handleNotification(listOf(), any()) }
         verify(exactly = 1) { arrangement.callNotificationManager.handleIncomingCallNotifications(listOf(), any()) }
     }
@@ -213,7 +213,7 @@ class WireNotificationManagerTest {
     @Test
     fun givenASingleUserId_whenCallingFetchAndShowOnceMultipleTimes_thenConversationNotificationDateUpdated() =
         runTestWithCancellation {
-            val userId = TEST_AUTH_SESSION.userId
+            val userId = TEST_AUTH_TOKEN.userId
             val (arrangement, manager) = Arrangement()
                 .withMessageNotifications(listOf())
                 .withSession(GetAllSessionsResult.Success(listOf(TEST_AUTH_TOKEN)))

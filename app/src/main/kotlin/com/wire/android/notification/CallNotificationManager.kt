@@ -1,7 +1,6 @@
 package com.wire.android.notification
 
 import android.app.Notification
-import android.app.PendingIntent
 import android.content.ContentResolver
 import android.content.Context
 import android.media.AudioAttributes
@@ -92,8 +91,8 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
             .setContentTitle(title)
             .setContentText(content)
             .setSound(soundUri, STREAM_MUSIC)
-            .addAction(getDeclineCallAction(conversationIdString, userIdString))
-            .addAction(getOpenIncomingCallAction(conversationIdString))
+            .addAction(getDeclineCallAction(context, conversationIdString, userIdString))
+            .addAction(getOpenIncomingCallAction(context, conversationIdString))
             .setOngoing(true)
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
@@ -119,8 +118,8 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
             .setSmallIcon(R.drawable.notification_icon_small)
             .setAutoCancel(true)
             .setOngoing(true)
-            .addAction(getHangUpCallAction(conversationId, userId))
-            .addAction(getOpenOngoingCallAction(conversationId))
+            .addAction(getHangUpCallAction(context, conversationId, userId))
+            .addAction(getOpenOngoingCallAction(context, conversationId))
             .setContentIntent(openOngoingCallPendingIntent(context, conversationId))
             .build()
 
@@ -143,31 +142,6 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
                 call.callerTeamName?.let { "$name @$it" } ?: name
             }
         }
-
-    // Actions
-    private fun getOpenIncomingCallAction(conversationId: String) = getAction(
-        context.getString(R.string.notification_action_open_call),
-        openIncomingCallPendingIntent(context, conversationId)
-    )
-
-    private fun getDeclineCallAction(conversationId: String, userId: String) = getAction(
-        context.getString(R.string.notification_action_decline_call),
-        declineCallPendingIntent(context, conversationId, userId)
-    )
-
-    private fun getOpenOngoingCallAction(conversationId: String) = getAction(
-        context.getString(R.string.notification_action_open_call),
-        openOngoingCallPendingIntent(context, conversationId)
-    )
-
-    private fun getHangUpCallAction(conversationId: String, userId: String) = getAction(
-        context.getString(R.string.notification_action_hang_up_call),
-        endOngoingCallPendingIntent(context, conversationId, userId)
-    )
-
-    private fun getAction(title: String, intent: PendingIntent) = NotificationCompat.Action
-        .Builder(null, title, intent)
-        .build()
 
     companion object {
         private const val TAG = "CallNotificationManager"

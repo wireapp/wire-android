@@ -68,19 +68,17 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun GroupConversationDetailsScreen(viewModel: GroupConversationDetailsViewModel) {
-    val context = LocalContext.current
     GroupConversationDetailsContent(
         onBackPressed = viewModel::navigateBack,
         openFullListPressed = viewModel::navigateToFullParticipantsList,
         onProfilePressed = viewModel::openProfile,
         onAddParticipantsPressed = viewModel::navigateToAddParticants,
-        groupOptionsStateFlow = viewModel.groupOptionsState,
-        groupParticipantsState = viewModel.groupParticipantsState,
         onLeaveGroup = viewModel::leaveGroup,
         onDeleteGroup = viewModel::deleteGroup,
+        groupOptionsStateFlow = viewModel.groupOptionsState,
+        groupParticipantsState = viewModel.groupParticipantsState,
         isLoading = viewModel.requestInProgress,
         messages = viewModel.snackBarMessage,
-        context = context
     )
 }
 
@@ -101,123 +99,102 @@ private fun GroupConversationDetailsContent(
     groupOptionsStateFlow: StateFlow<GroupConversationOptionsState>,
     groupParticipantsState: GroupConversationParticipantsState,
     isLoading: Boolean,
-    messages: SharedFlow<UIText>,
-    context: Context = LocalContext.current
+    messages: SharedFlow<UIText>
 ) {
-    val scope = rememberCoroutineScope()
     val groupOptionsState by groupOptionsStateFlow.collectAsStateLifecycleAware()
-    val lazyListStates: List<LazyListState> = GroupConversationDetailsTabItem.values().map { rememberLazyListState() }
-    val initialPageIndex = GroupConversationDetailsTabItem.OPTIONS.ordinal
-    val pagerState = rememberPagerState(initialPage = initialPageIndex)
-    val maxAppBarElevation = MaterialTheme.wireDimensions.topBarShadowElevation
-    val currentTabState by remember { derivedStateOf { pagerState.calculateCurrentTab() } }
-    val elevationState by remember { derivedStateOf { lazyListStates[currentTabState].topBarElevation(maxAppBarElevation) } }
+    val groupConversationDetailsState = rememberGroupConversationDetailsState()
 
-    val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
-    val openBottomSheet: () -> Unit = remember { { scope.launch { sheetState.show() } } }
-    val closeBottomSheet: () -> Unit = remember { { scope.launch { sheetState.hide() } } }
-
-    val deleteGroupDialogState = rememberVisibilityState<GroupDialogState>()
-    val leaveGroupDialogState = rememberVisibilityState<GroupDialogState>()
-
-    val snackbarHostState = remember { SnackbarHostState() }
     LaunchedEffect(Unit) {
-        messages.collect { snackbarHostState.showSnackbar(it.asString(context.resources)) }
+        messages.collect { groupConversationDetailsState.showSnackbar(it) }
     }
 
-    if (!isLoading) {
-        deleteGroupDialogState.dismiss()
-        leaveGroupDialogState.dismiss()
-    }
-    WireModalSheetLayout(
-        sheetState = sheetState,
-        coroutineScope = rememberCoroutineScope(),
-        sheetContent = {
-            ConversationGroupDetailsBottomSheet(
-                conversationOptionsState = groupOptionsState,
-                closeBottomSheet = closeBottomSheet,
-                onDeleteGroup = deleteGroupDialogState::show,
-                onLeaveGroup = leaveGroupDialogState::show
-            )
-        }
-    ) {
-        Scaffold(
-            topBar = {
-                WireCenterAlignedTopAppBar(
-                    elevation = elevationState,
-                    title = stringResource(R.string.conversation_details_title),
-                    navigationIconType = NavigationIconType.Close,
-                    onNavigationPressed = onBackPressed,
-                    actions = {
-                        MoreOptionIcon(openBottomSheet)
-                    }
-                ) {
-                    WireTabRow(
-                        tabs = GroupConversationDetailsTabItem.values().toList(),
-                        selectedTabIndex = currentTabState,
-                        onTabChange = { scope.launch { pagerState.animateScrollToPage(it) } },
-                        modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing16x),
-                        divider = {} // no divider
-                    )
-                }
-            },
-            modifier = Modifier.fillMaxHeight(),
-            snackbarHost = {
-                SwipeDismissSnackbarHost(
-                    hostState = snackbarHostState,
-                    modifier = Modifier.fillMaxWidth()
+    with(groupConversationDetailsState) {
+        WireModalSheetLayout(
+            sheetState = modalBottomSheetState,
+            coroutineScope = rememberCoroutineScope(),
+            sheetContent = {
+                ConversationGroupDetailsBottomSheet(
+                    conversationOptionsState = groupOptionsState,
+                    closeBottomSheet = ::closeBottomSheet,
+                    onDeleteGroup = ::openDeleteConversationDialog,
+                    onLeaveGroup = ::openLeaveConversationGroupDialog
                 )
-            },
-        ) { internalPadding ->
-            var focusedTabIndex: Int by remember { mutableStateOf(initialPageIndex) }
-            val keyboardController = LocalSoftwareKeyboardController.current
-            val focusManager = LocalFocusManager.current
-
-            CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
-                HorizontalPager(
-                    state = pagerState,
-                    count = GroupConversationDetailsTabItem.values().size,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(internalPadding)
-                ) { pageIndex ->
-                    when (GroupConversationDetailsTabItem.values()[pageIndex]) {
-                        GroupConversationDetailsTabItem.OPTIONS -> GroupConversationOptions(
-                            lazyListState = lazyListStates[pageIndex]
-                        )
-                        GroupConversationDetailsTabItem.PARTICIPANTS -> GroupConversationParticipants(
-                            groupParticipantsState = groupParticipantsState,
-                            openFullListPressed = openFullListPressed,
-                            onAddParticipantsPressed = onAddParticipantsPressed,
-                            onProfilePressed = onProfilePressed,
-                            lazyListState = lazyListStates[pageIndex]
+            }
+        ) {
+            Scaffold(
+                topBar = {
+                    WireCenterAlignedTopAppBar(
+                        elevation = elevationState,
+                        title = stringResource(R.string.conversation_details_title),
+                        navigationIconType = NavigationIconType.Close,
+                        onNavigationPressed = onBackPressed,
+                        actions = {
+                            MoreOptionIcon(::openBottomSheet)
+                        }
+                    ) {
+                        WireTabRow(
+                            tabs = GroupConversationDetailsTabItem.values().toList(),
+                            selectedTabIndex = currentTabState,
+                            onTabChange = ::scrollToPage,
+                            modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing16x),
+                            divider = {} // no divider
                         )
                     }
-                }
+                },
+                modifier = Modifier.fillMaxHeight(),
+                snackbarHost = {
+                    SwipeDismissSnackbarHost(
+                        hostState = snackbarHostState,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                },
+            ) { internalPadding ->
+                var focusedTabIndex: Int by remember { mutableStateOf(GroupConversationDetailsTabItem.OPTIONS.ordinal) }
 
-                LaunchedEffect(pagerState.isScrollInProgress, focusedTabIndex, pagerState.currentPage) {
-                    if (!pagerState.isScrollInProgress && focusedTabIndex != pagerState.currentPage) {
-                        keyboardController?.hide()
-                        focusManager.clearFocus()
-                        focusedTabIndex = pagerState.currentPage
+                CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
+                    HorizontalPager(
+                        state = pagerState,
+                        count = GroupConversationDetailsTabItem.values().size,
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(internalPadding)
+                    ) { pageIndex ->
+                        when (GroupConversationDetailsTabItem.values()[pageIndex]) {
+                            GroupConversationDetailsTabItem.OPTIONS -> GroupConversationOptions(
+                                lazyListState = lazyListStates[pageIndex]
+                            )
+                            GroupConversationDetailsTabItem.PARTICIPANTS -> GroupConversationParticipants(
+                                groupParticipantsState = groupParticipantsState,
+                                openFullListPressed = openFullListPressed,
+                                onAddParticipantsPressed = onAddParticipantsPressed,
+                                onProfilePressed = onProfilePressed,
+                                lazyListState = lazyListStates[pageIndex]
+                            )
+                        }
+                    }
+
+                    LaunchedEffect(pagerState.isScrollInProgress, focusedTabIndex, pagerState.currentPage) {
+                        if (!pagerState.isScrollInProgress && focusedTabIndex != pagerState.currentPage) {
+                            hideKeyboard()
+                            focusedTabIndex = pagerState.currentPage
+                        }
                     }
                 }
             }
         }
+
+        DeleteConversationGroupDialog(
+            isLoading = isLoading,
+            dialogState = deleteGroupDialogState,
+            onDeleteGroup = onDeleteGroup
+        )
+
+        LeaveConversationGroupDialog(
+            dialogState = leaveGroupDialogState,
+            isLoading = isLoading,
+            onLeaveGroup = onLeaveGroup
+        )
     }
-
-    DeleteConversationGroupDialog(
-        isLoading = isLoading,
-        dialogState = deleteGroupDialogState,
-        onDeleteGroup = onDeleteGroup
-    )
-
-    LeaveConversationGroupDialog(
-        dialogState = leaveGroupDialogState,
-        isLoading = isLoading,
-        onLeaveGroup = onLeaveGroup
-    )
-
 }
 
 enum class GroupConversationDetailsTabItem(@StringRes override val titleResId: Int) : TabItem {

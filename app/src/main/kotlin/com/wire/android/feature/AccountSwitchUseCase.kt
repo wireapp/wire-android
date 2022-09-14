@@ -16,6 +16,7 @@ import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import com.wire.kalium.logic.feature.session.UpdateCurrentSessionUseCase
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withTimeout
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -27,7 +28,7 @@ class AccountSwitchUseCase @Inject constructor(
     private val getSessions: GetSessionsUseCase,
     private val getCurrentSession: CurrentSessionUseCase,
     private val deleteSessionUseCase: DeleteSessionUseCase,
-    @ApplicationScope private val coroutineScope: CoroutineScope,
+    @ApplicationScope private val coroutineScope: CoroutineScope
 ) {
 
     val currentAccount
@@ -62,11 +63,7 @@ class AccountSwitchUseCase @Inject constructor(
     }
 
     private suspend fun switch(userId: UserId?, current: AccountInfo?) {
-        val navigationDistention = if (userId == null) {
-            NavigationItem.Welcome
-        } else {
-            NavigationItem.Home
-        }.getRouteWithArgs()
+        val navigationDistention = (userId?.let { NavigationItem.Home } ?: NavigationItem.Welcome).getRouteWithArgs()
 
         when (updateCurrentSession(userId)) {
             is UpdateCurrentSessionUseCase.Result.Success -> {
@@ -92,7 +89,9 @@ class AccountSwitchUseCase @Inject constructor(
                 // do nothing
             }
             is AccountInfo.Invalid -> coroutineScope.launch {
-                handleInvalidSession(oldSession)
+                withTimeout(3000L) {
+                    handleInvalidSession(oldSession)
+                }
             }
         }
     }

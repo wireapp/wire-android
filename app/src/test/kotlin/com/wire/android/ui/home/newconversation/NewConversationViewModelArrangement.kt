@@ -27,14 +27,13 @@ import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
 import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsResult
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
-import com.wire.kalium.logic.feature.publicuser.search.Result
+import com.wire.kalium.logic.feature.publicuser.search.SearchUsersResult
 import com.wire.kalium.logic.feature.publicuser.search.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchPublicUsersUseCase
 import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOf
 
 internal class NewConversationViewModelArrangement {
@@ -44,8 +43,12 @@ internal class NewConversationViewModelArrangement {
 
         // Default empty values
         coEvery { isMLSEnabledUseCase() } returns true
-        coEvery { searchPublicUsers(any()) } returns flowOf(Result.Success(userSearchResult = UserSearchResult(listOf(PUBLIC_USER))))
-        coEvery { searchKnownUsers(any()) } returns Result.Success(userSearchResult = UserSearchResult(listOf(KNOWN_USER)))
+        coEvery { searchPublicUsers(any()) } returns flowOf(
+            SearchUsersResult.Success(userSearchResult = UserSearchResult(listOf(PUBLIC_USER)))
+        )
+        coEvery { searchKnownUsers(any()) } returns flowOf(
+            SearchUsersResult.Success(userSearchResult = UserSearchResult(listOf(KNOWN_USER)))
+        )
         coEvery { getAllKnownUsers() } returns GetAllContactsResult.Success(listOf())
         coEvery { createGroupConversation(any(), any(), any()) } returns CreateGroupConversationUseCase.Result.Success(CONVERSATION)
         coEvery { contactMapper.fromOtherUser(PUBLIC_USER) } returns Contact(
@@ -160,7 +163,6 @@ internal class NewConversationViewModelArrangement {
 
     private val viewModel by lazy {
         NewConversationViewModel(
-            savedStateHandle = savedStateHandle,
             navigationManager = navigationManager,
             searchPublicUsers = searchPublicUsers,
             searchKnownUsers = searchKnownUsers,
@@ -174,11 +176,11 @@ internal class NewConversationViewModelArrangement {
     }
 
     fun withFailureKnownSearchResponse() = apply {
-        coEvery { searchKnownUsers(any()) } returns Result.Failure.InvalidRequest
+        coEvery { searchKnownUsers(any()) } returns flowOf(SearchUsersResult.Failure.InvalidRequest)
     }
 
     fun withFailurePublicSearchResponse() = apply {
-        coEvery { searchPublicUsers(any()) } returns flowOf(Result.Failure.InvalidRequest)
+        coEvery { searchPublicUsers(any()) } returns flowOf(SearchUsersResult.Failure.InvalidRequest)
     }
 
     fun withSyncFailureOnCreatingGroup() = apply {

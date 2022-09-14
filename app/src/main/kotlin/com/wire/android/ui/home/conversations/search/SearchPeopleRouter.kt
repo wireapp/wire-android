@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -55,13 +54,6 @@ fun SearchPeopleRouter(
     onGroupSelectionSubmitAction: () -> Unit,
     searchAllPeopleViewModel: SearchAllPeopleViewModel,
 ) {
-
-    LaunchedEffect(searchAllPeopleViewModel.savedStateHandle) {
-        // to have an updated result if something changed
-        // after user came back from some other screen
-        searchAllPeopleViewModel.refreshResult()
-    }
-
     SearchPeopleContent(
         searchPeopleState = searchAllPeopleViewModel.state,
         searchTitle = stringResource(id = R.string.label_new_conversation),

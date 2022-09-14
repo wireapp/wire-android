@@ -24,14 +24,14 @@ import javax.inject.Singleton
 class AccountSwitchUseCase @Inject constructor(
     private val updateCurrentSession: UpdateCurrentSessionUseCase,
     private val navigationManager: NavigationManager,
-    private val getSessionsUseCase: GetSessionsUseCase,
-    private val getCurrentSessionUseCase: CurrentSessionUseCase,
+    private val getSessions: GetSessionsUseCase,
+    private val getCurrentSession: CurrentSessionUseCase,
     private val deleteSessionUseCase: DeleteSessionUseCase,
     @ApplicationScope private val coroutineScope: CoroutineScope,
 ) {
 
     val currentAccount
-        get() = when (val result = getCurrentSessionUseCase()) {
+        get() = when (val result = getCurrentSession()) {
             is CurrentSessionResult.Failure.Generic -> null
             CurrentSessionResult.Failure.SessionNotFound -> null
             is CurrentSessionResult.Success -> result.accountInfo
@@ -47,7 +47,7 @@ class AccountSwitchUseCase @Inject constructor(
 
     private suspend fun switchToNextAccountOrWelcome(current: AccountInfo?) {
 
-        val nextSessionId: UserId? = getSessionsUseCase().let {
+        val nextSessionId: UserId? = getSessions().let {
             when (it) {
                 is GetAllSessionsResult.Failure.Generic -> null
                 GetAllSessionsResult.Failure.NoSessionFound -> null

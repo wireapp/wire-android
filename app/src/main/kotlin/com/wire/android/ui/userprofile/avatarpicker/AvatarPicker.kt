@@ -66,8 +66,8 @@ fun AvatarPickerScreen(viewModel: AvatarPickerViewModel) {
     AvatarPickerContent(
         viewModel = viewModel,
         state = state,
-        onCloseClick = { viewModel.navigateBack() },
-        onSaveClick = { viewModel.uploadNewPickedAvatarAndBack() }
+        onCloseClick = viewModel::navigateBack,
+        onSaveClick = viewModel::uploadNewPickedAvatarAndBack
     )
 }
 

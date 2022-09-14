@@ -160,8 +160,8 @@ private fun AvatarPickerContent(
                     AvatarPickerActionButtons(
                         pictureState = viewModel.pictureState,
                         onSaveClick = onSaveClick,
-                        onCancelClick = { viewModel.loadInitialAvatarState() },
-                        onChangeImage = { state.showModalBottomSheet() },
+                        onCancelClick = viewModel::loadInitialAvatarState,
+                        onChangeImage = state::showModalBottomSheet,
                     )
                 }
             }

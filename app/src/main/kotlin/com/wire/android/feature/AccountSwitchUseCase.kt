@@ -27,7 +27,7 @@ class AccountSwitchUseCase @Inject constructor(
     private val navigationManager: NavigationManager,
     private val getSessions: GetSessionsUseCase,
     private val getCurrentSession: CurrentSessionUseCase,
-    private val deleteSessionUseCase: DeleteSessionUseCase,
+    private val deleteSession: DeleteSessionUseCase,
     @ApplicationScope private val coroutineScope: CoroutineScope
 ) {
 
@@ -103,7 +103,7 @@ class AccountSwitchUseCase @Inject constructor(
             }
             LogoutReason.DELETED_ACCOUNT,
             LogoutReason.REMOVED_CLIENT,
-            LogoutReason.SESSION_EXPIRED -> deleteSessionUseCase(invalidAccount.userId)
+            LogoutReason.SESSION_EXPIRED -> deleteSession(invalidAccount.userId)
         }
     }
 

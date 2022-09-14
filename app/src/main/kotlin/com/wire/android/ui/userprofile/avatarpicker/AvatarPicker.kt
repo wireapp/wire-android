@@ -42,7 +42,11 @@ import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerViewModel.Pictur
 import com.wire.android.util.ImageUtil
 import com.wire.android.util.resampleImageAndCopyToTempPath
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import okhttp3.Dispatcher
 import okio.Path
 
 @OptIn(ExperimentalMaterialApi::class)
@@ -78,8 +82,10 @@ fun AvatarPickerScreen(viewModel: AvatarPickerViewModel) {
 // that I am not aware of ?
 fun onNewAvatarPicked(originalUri: Uri, targetAvatarPath: Path, scope: CoroutineScope, context: Context, viewModel: AvatarPickerViewModel) {
     scope.launch {
+        withContext(Dispatchers.Main) {
+            viewModel.updatePickedAvatarUri(targetAvatarPath.toFile().toUri())
+        }
         sanitizeAvatarImage(originalUri, targetAvatarPath, context)
-        viewModel.updatePickedAvatarUri(targetAvatarPath.toFile().toUri())
     }
 }
 

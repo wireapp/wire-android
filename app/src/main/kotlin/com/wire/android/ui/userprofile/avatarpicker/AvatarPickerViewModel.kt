@@ -55,6 +55,9 @@ class AvatarPickerViewModel @Inject constructor(
     private val _infoMessage = MutableSharedFlow<UIText>()
     val infoMessage = _infoMessage.asSharedFlow()
 
+    val defaultAvatarPath: Path
+        get() = kaliumFileSystem.selfUserAvatarPath()
+
     init {
         loadInitialAvatarState()
     }
@@ -83,19 +86,20 @@ class AvatarPickerViewModel @Inject constructor(
         pictureState = PictureState.Uploading(imgUri)
 
         viewModelScope.launch {
-            val avatarPath = defaultAvatarPath()
+            val avatarPath = defaultAvatarPath
             val imageDataSize = imgUri.toByteArray(appContext, dispatchers).size.toLong()
 
             val result = uploadUserAvatar(avatarPath, imageDataSize)
+
             if (result is UploadAvatarResult.Success) {
                 dataStore.updateUserAvatarAssetId(result.userAssetId.toString())
-                navigateBack()
             } else {
                 when ((result as UploadAvatarResult.Failure).coreFailure) {
                     is NetworkFailure.NoNetworkConnection -> showInfoMessage(InfoMessageType.NoNetworkError)
                     else -> showInfoMessage(InfoMessageType.UploadAvatarError)
                 }
             }
+            navigateBack()
         }
     }
 
@@ -105,11 +109,7 @@ class AvatarPickerViewModel @Inject constructor(
 
     fun navigateBack() = viewModelScope.launch(dispatchers.main()) { navigationManager.navigateBack() }
 
-    fun defaultAvatarPath(): Path = kaliumFileSystem.selfUserAvatarPath()
-
-    fun getTemporaryAvatarUri(filePath: Path): Uri {
-        return avatarImageManager.getShareableTempAvatarUri(filePath)
-    }
+    fun getTemporaryAvatarUri(filePath: Path): Uri = avatarImageManager.getShareableTempAvatarUri(filePath)
 
     sealed class PictureState(open val avatarUri: Uri) {
         data class Uploading(override val avatarUri: Uri) : PictureState(avatarUri)

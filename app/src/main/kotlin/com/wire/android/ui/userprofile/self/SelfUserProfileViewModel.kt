@@ -9,9 +9,10 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.datastore.UserDataStore
 import com.wire.android.di.AuthServerConfigProvider
+import com.wire.android.feature.AccountSwitchUseCase
+import com.wire.android.feature.SwitchAccountParam
 import com.wire.android.mapper.OtherAccountMapper
 import com.wire.android.model.ImageAsset.UserAvatarAsset
-import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
@@ -27,7 +28,6 @@ import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
-import com.wire.kalium.logic.feature.session.UpdateCurrentSessionUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.ObserveValidAccountsUseCase
@@ -64,8 +64,8 @@ class SelfUserProfileViewModel @Inject constructor(
     private val selfServerLinks: SelfServerConfigUseCase,
     private val kaliumConfigs: KaliumConfigs,
     private val otherAccountMapper: OtherAccountMapper,
-    private val updateCurrentSession: UpdateCurrentSessionUseCase,
-    private val observeEstablishedCalls: ObserveEstablishedCallsUseCase
+    private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
+    private val accountSwitch: AccountSwitchUseCase
 ) : ViewModel() {
 
     var userProfileState by mutableStateOf(SelfUserProfileState())
@@ -80,9 +80,10 @@ class SelfUserProfileViewModel @Inject constructor(
 
     private fun observeEstablishedCall() {
         viewModelScope.launch {
-            val establishedCalls = withContext(dispatchers.io()) { observeEstablishedCalls() }
+            val establishedCalls = observeEstablishedCalls()
             establishedCalls.map { it.isNotEmpty() }
                 .distinctUntilChanged()
+                .flowOn(dispatchers.io())
                 .collect {
                     userProfileState = userProfileState.copy(isUserInCall = it)
                 }
@@ -162,10 +163,16 @@ class SelfUserProfileViewModel @Inject constructor(
 
     fun logout(wipeData: Boolean) {
         viewModelScope.launch {
-            logout(reason = LogoutReason.SELF_LOGOUT, isHardLogout = wipeData)
-            if (wipeData) {
-                dataStore.clear() // TODO this should be moved to some service that will clear all the data in the app
-            }
+            val logoutReason = if (wipeData) LogoutReason.SELF_HARD_LOGOUT else LogoutReason.SELF_SOFT_LOGOUT
+            logout(logoutReason)
+            dataStore.clear() // TODO this should be moved to some service that will clear all the data in the app
+            accountSwitch(SwitchAccountParam.SwitchToNextAccountOrWelcome)
+        }
+    }
+
+    fun switchAccount(userId: UserId) {
+        viewModelScope.launch {
+            accountSwitch(SwitchAccountParam.SwitchToAccount(userId))
         }
     }
 
@@ -238,20 +245,6 @@ class SelfUserProfileViewModel @Inject constructor(
         userProfileState.statusDialogData.let { dialogState ->
             if (dialogState?.isCheckBoxChecked == true) {
                 viewModelScope.launch { dataStore.dontShowStatusRationaleAgain(status) }
-            }
-        }
-    }
-
-    fun switchAccount(userId: UserId) {
-        viewModelScope.launch {
-            when (updateCurrentSession(userId)) {
-                is UpdateCurrentSessionUseCase.Result.Failure -> return@launch
-                UpdateCurrentSessionUseCase.Result.Success -> navigationManager.navigate(
-                    NavigationCommand(
-                        NavigationItem.Home.getRouteWithArgs(),
-                        backStackMode = BackStackMode.CLEAR_WHOLE
-                    )
-                )
             }
         }
     }

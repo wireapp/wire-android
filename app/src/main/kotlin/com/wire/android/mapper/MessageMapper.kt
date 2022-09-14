@@ -14,7 +14,6 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.time.ISOFormatter
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
-import com.wire.android.util.uiMessageDateTime
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.user.OtherUser
@@ -22,11 +21,11 @@ import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.User
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class MessageMapper @Inject constructor(
-    private val dispatcherProvider: DispatcherProvider,
     private val userTypeMapper: UserTypeMapper,
     private val messageContentMapper: MessageContentMapper,
     private val isoFormatter: ISOFormatter,
@@ -45,8 +44,8 @@ class MessageMapper @Inject constructor(
     suspend fun toUIMessages(
         userList: List<User>,
         messages: List<Message>
-    ): List<UIMessage> = withContext(dispatcherProvider.io()) {
-        messages.map { message ->
+    ): List<UIMessage> {
+        return messages.map { message ->
             val sender = userList.findUser(message.senderUserId)
             val content = messageContentMapper.fromMessage(
                 message = message,

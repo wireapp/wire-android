@@ -161,11 +161,11 @@ class MessageContentMapperTest {
             Message.DownloadStatus.NOT_DOWNLOADED
         )
         // When - Then
-        val resultContentOther = mapper.toAsset(QualifiedID("id", "domain"), "message-id", unknownImageFormatMessage)
+        val resultContentOther = mapper.toUIMessageContent(QualifiedID("id", "domain"), "message-id", unknownImageFormatMessage)
         coVerify(exactly = 0) { arrangement.getMessageAssetUseCase.invoke(any(), any()) }
         assert(resultContentOther is AssetMessage && resultContentOther.assetId.value == unknownImageFormatMessage.remoteData.assetId)
         // When - Then
-        val resultContentImage = mapper.toAsset(QualifiedID("id", "domain"), "message-id", correctJPGImage)
+        val resultContentImage = mapper.toUIMessageContent(QualifiedID("id", "domain"), "message-id", correctJPGImage)
         coVerify(exactly = 1) { arrangement.getMessageAssetUseCase.invoke(any(), any()) }
         assert(resultContentImage is ImageMessage && resultContentImage.assetId.value == correctJPGImage.remoteData.assetId)
     }
@@ -184,7 +184,7 @@ class MessageContentMapperTest {
         )
 
         // When
-        val resultContentImage = mapper.toAsset(QualifiedID("id", "domain"), "message-id", contentImage)
+        val resultContentImage = mapper.toUIMessageContent(QualifiedID("id", "domain"), "message-id", contentImage)
 
         // Then
         coVerify(inverse = true) { arrangement.getMessageAssetUseCase.invoke(any(), any()) }
@@ -216,8 +216,8 @@ class MessageContentMapperTest {
         )
 
         // When
-        val resultContentImage1 = mapper.toAsset(QualifiedID("id", "domain"), "message-id", contentImage1)
-        val resultContentImage2 = mapper.toAsset(QualifiedID("id", "domain"), "message-id", contentImage2)
+        val resultContentImage1 = mapper.toUIMessageContent(QualifiedID("id", "domain"), "message-id", contentImage1)
+        val resultContentImage2 = mapper.toUIMessageContent(QualifiedID("id", "domain"), "message-id", contentImage2)
 
         // Then
         assert(resultContentImage1 is AssetMessage)

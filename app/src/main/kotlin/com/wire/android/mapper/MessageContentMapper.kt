@@ -4,6 +4,7 @@ import androidx.annotation.StringRes
 import com.wire.android.R
 import com.wire.android.ui.home.conversations.findUser
 import com.wire.android.ui.home.conversations.model.MessageBody
+import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.asset.isValidImage
@@ -23,6 +24,12 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import com.wire.kalium.logic.util.isGreaterThan
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import okhttp3.internal.wait
 import javax.inject.Inject
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 
@@ -30,8 +37,11 @@ import com.wire.android.ui.home.conversations.model.UIMessageContent
 class MessageContentMapper @Inject constructor(
     private val getMessageAsset: GetMessageAssetUseCase,
     private val messageResourceProvider: MessageResourceProvider,
-    private val kaliumFileSystem: KaliumFileSystem
+    private val kaliumFileSystem: KaliumFileSystem,
+    private val dispatcherProvider: DispatcherProvider
 ) {
+
+    private val scope = CoroutineScope(SupervisorJob() + dispatcherProvider.default())
 
     suspend fun fromMessage(
         message: Message,
@@ -105,7 +115,11 @@ class MessageContentMapper @Inject constructor(
     private suspend fun mapRegularMessage(
         message: Message.Regular,
     ) = when (val content = message.content) {
-        is Asset -> toAsset(conversationId = message.conversationId, messageId = message.id, assetContent = content.value)
+        is Asset -> {
+            val assetMessageData = AssetMessageData(content.value)
+            val assetMessage = toUIMessageContent(assetMessageData, message, scope)
+            assetMessage
+        }
         is MessageContent.RestrictedAsset -> toRestrictedAsset(content.mimeType, content.sizeInBytes, content.name)
         else -> toText(content)
     }
@@ -121,24 +135,29 @@ class MessageContentMapper @Inject constructor(
         }
     ).let { messageBody -> UIMessageContent.TextMessage(messageBody = messageBody) }
 
-    suspend fun toAsset(
-        conversationId: QualifiedID,
-        messageId: String,
-        assetContent: AssetContent
-    ) = with(assetContent) {
-        val (imgWidth, imgHeight) = when (val md = metadata) {
-            is AssetContent.AssetMetadata.Image -> md.width to md.height
-            else -> 0 to 0
-        }
-        if (remoteData.assetId.isNotEmpty()) {
+    suspend fun toUIMessageContent(assetMessageData: AssetMessageData, message: Message, scope: CoroutineScope) =
+        with(assetMessageData.assetMessageContent) {
+
             when {
                 // If it's an image, we download it right away
-                isValidImage(mimeType) && imgWidth.isGreaterThan(0) && imgHeight.isGreaterThan(0) -> UIMessageContent.ImageMessage(
-                    assetId = AssetId(remoteData.assetId, remoteData.assetDomain.orEmpty()),
-                    imgData = imageRawData(conversationId, messageId),
-                    width = imgWidth,
-                    height = imgHeight
-                )
+                assetMessageData.isValidImage() -> {
+                    var imageRawData: ByteArray? = null
+                    val job = scope.launch(dispatcherProvider.io()) {
+                        val imageData = imageRawData(message.conversationId, message.id)
+                        withContext(Dispatchers.Main) { imageRawData = imageData }
+                    }
+
+                    // We need to wait until the image is fetched
+                    job.join()
+
+                    UIMessageContent.ImageMessage(
+                        assetId = AssetId(remoteData.assetId, remoteData.assetDomain.orEmpty()),
+                        imgData = imageRawData,
+                        width = assetMessageData.imgWidth,
+                        height = assetMessageData.imgHeight,
+                        uploadStatus = uploadStatus
+                    )
+                }
 
                 // It's a generic Asset Message so let's not download it yet
                 else -> {
@@ -147,19 +166,15 @@ class MessageContentMapper @Inject constructor(
                         assetExtension = name?.split(".")?.last() ?: "",
                         assetId = AssetId(remoteData.assetId, remoteData.assetDomain.orEmpty()),
                         assetSizeInBytes = sizeInBytes,
+                        uploadStatus = uploadStatus,
                         downloadStatus = downloadStatus
                     )
-                    // On the first asset message received, the asset ID is null, so we filter it out until the second updates it
                 }
             }
-        } else null
-    }
+        }
 
     private suspend fun imageRawData(conversationId: QualifiedID, messageId: String): ByteArray? =
-        imageDataPath(
-            conversationId = conversationId,
-            messageId = messageId
-        )?.let { kaliumFileSystem.readByteArray(it) }
+        imageDataPath(conversationId, messageId)?.let { kaliumFileSystem.readByteArray(it) }
 
     private fun toRestrictedAsset(
         mimeType: String,
@@ -199,6 +214,22 @@ class MessageContentMapper @Inject constructor(
     enum class SelfNameType {
         ResourceLowercase, ResourceTitleCase, NameOrDeleted
     }
+}
+
+class AssetMessageData(val assetMessageContent: AssetContent) {
+    val imgWidth
+        get() = when (val md = assetMessageContent.metadata) {
+            is AssetContent.AssetMetadata.Image -> md.width
+            else -> 0
+        }
+
+    val imgHeight
+        get() = when (val md = assetMessageContent.metadata) {
+            is AssetContent.AssetMetadata.Image -> md.height
+            else -> 0
+        }
+
+    fun isValidImage(): Boolean = isValidImage(assetMessageContent.mimeType) && imgWidth.isGreaterThan(0) && imgHeight.isGreaterThan(0)
 }
 
 // TODO: should we keep it here ?

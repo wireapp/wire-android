@@ -7,7 +7,9 @@ import com.wire.android.ui.home.conversations.MessageItem
 import com.wire.android.ui.home.conversations.SystemMessageItem
 import com.wire.android.ui.home.conversations.mock.mockAssetMessage
 import com.wire.android.ui.home.conversations.mock.mockMessageWithText
+import com.wire.android.ui.home.conversations.mock.mockedImageUIMessage
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.message.Message
 
 @Preview(showBackground = true)
 @Composable
@@ -46,7 +48,42 @@ fun PreviewDeletedMessage() {
 @Composable
 fun PreviewAssetMessage() {
     MessageItem(
-        message = mockAssetMessage,
+        message = mockAssetMessage(),
+        onLongClicked = {},
+        onAssetMessageClicked = {},
+        onImageMessageClicked = { _, _ -> },
+        onAvatarClicked = { _, _ -> }
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewImageMessageUploaded() {
+    MessageItem(
+        message = mockedImageUIMessage(Message.UploadStatus.UPLOADED),
+        onLongClicked = {},
+        onAssetMessageClicked = {},
+        onImageMessageClicked = { _, _ -> },
+        onAvatarClicked = { _, _ -> }
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewImageMessageUploading() {
+    MessageItem(
+        message = mockedImageUIMessage(Message.UploadStatus.UPLOAD_IN_PROGRESS),
+        onLongClicked = {},
+        onAssetMessageClicked = {},
+        onImageMessageClicked = { _, _ -> },
+        onAvatarClicked = { _, _ -> }
+    )
+}
+@Preview(showBackground = true)
+@Composable
+fun PreviewImageMessageFailedUpload() {
+    MessageItem(
+        message = mockedImageUIMessage(Message.UploadStatus.FAILED_UPLOAD),
         onLongClicked = {},
         onAssetMessageClicked = {},
         onImageMessageClicked = { _, _ -> },

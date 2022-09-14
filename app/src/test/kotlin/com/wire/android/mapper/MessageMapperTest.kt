@@ -128,7 +128,7 @@ class MessageMapperTest {
         private lateinit var wireSessionImageLoader: WireSessionImageLoader
 
         private val messageMapper by lazy {
-            MessageMapper(TestDispatcherProvider(), userTypeMapper, messageContentMapper, isoFormatter, wireSessionImageLoader)
+            MessageMapper(userTypeMapper, messageContentMapper, isoFormatter, wireSessionImageLoader)
         }
 
         init {

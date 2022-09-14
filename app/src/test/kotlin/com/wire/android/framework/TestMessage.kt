@@ -2,7 +2,7 @@ package com.wire.android.framework
 
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversations.model.MessageBody
-import com.wire.android.ui.home.conversations.model.MessageContent.TextMessage
+import com.wire.android.ui.home.conversations.model.UIMessageContent.TextMessage
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
@@ -40,6 +40,16 @@ object TestMessage {
     )
     val ASSET_IMAGE_CONTENT = AssetContent(
         0L, "name", "image/jpg", AssetContent.AssetMetadata.Image(100, 100), DUMMY_ASSET_REMOTE_DATA, Message.DownloadStatus.NOT_DOWNLOADED
+    )
+    val ASSET_MESSAGE = Message.Regular(
+        id = "messageID",
+        content = MessageContent.Asset(ASSET_IMAGE_CONTENT),
+        conversationId = ConversationId("convo-id", "convo.domain"),
+        date = "some-date",
+        senderUserId = UserId("user-id", "domain"),
+        senderClientId = ClientId("client-id"),
+        status = Message.Status.SENT,
+        editStatus = Message.EditStatus.NotEdited
     )
     val MEMBER_REMOVED_MESSAGE = Message.System(
         id = "messageID",

@@ -18,7 +18,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
 import com.wire.android.R
 import com.wire.android.ui.home.conversations.model.UIMessage
-import com.wire.android.ui.home.conversations.model.MessageContent
+import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.MessageSource
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -70,7 +70,7 @@ class ConversationScreenState(
 
     fun copyMessage() {
         selectedMessage?.messageContent.let { messageContent ->
-            if (messageContent is MessageContent.TextMessage) {
+            if (messageContent is UIMessageContent.TextMessage) {
                 clipboardManager.setText(AnnotatedString(messageContent.messageBody.message.asString(context.resources)))
                 coroutineScope.launch {
                     modalBottomSheetState.animateTo(ModalBottomSheetValue.Hidden)

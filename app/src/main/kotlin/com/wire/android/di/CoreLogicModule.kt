@@ -40,10 +40,10 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusU
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
+import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
 import com.wire.kalium.logic.feature.publicuser.GetKnownUserUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchKnownUsersUseCase
-import com.wire.kalium.logic.feature.publicuser.search.SearchUserDirectoryUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchPublicUsersUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
@@ -77,7 +77,6 @@ annotation class KaliumCoreLogic
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
 annotation class CurrentSessionFlowService
-
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
@@ -128,7 +127,7 @@ class SessionModule {
     fun provideCurrentSession(@KaliumCoreLogic coreLogic: CoreLogic): UserId {
         return runBlocking {
             return@runBlocking when (val result = coreLogic.getGlobalScope().session.currentSession.invoke()) {
-                is CurrentSessionResult.Success -> result.authSession.session.userId
+                is CurrentSessionResult.Success -> result.accountInfo.userId
                 else -> {
                     throw IllegalStateException("no current session was found")
                 }
@@ -352,6 +351,11 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun provideGetOrRegisterClientUseCase(@CurrentAccount currentAccount: UserId, clientScopeProviderFactory: ClientScopeProvider.Factory) =
+        clientScopeProviderFactory.create(currentAccount).clientScope.getOrRegister
+
+    @ViewModelScoped
+    @Provides
     fun providePersistOtherUsersClients(@CurrentAccount currentAccount: UserId, clientScopeProviderFactory: ClientScopeProvider.Factory) =
         clientScopeProviderFactory.create(currentAccount).clientScope.persistOtherUserClients
 
@@ -420,6 +424,13 @@ class UseCaseModule {
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
     ): GetMessageAssetUseCase = coreLogic.getSessionScope(currentAccount).messages.getAssetMessage
+
+    @ViewModelScoped
+    @Provides
+    fun provideGetMessageByIdUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): GetMessageByIdUseCase = coreLogic.getSessionScope(currentAccount).messages.getMessageById
 
     @ViewModelScoped
     @Provides

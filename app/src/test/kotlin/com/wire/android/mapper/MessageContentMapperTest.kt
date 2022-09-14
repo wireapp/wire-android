@@ -5,9 +5,9 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.framework.TestMessage
 import com.wire.android.framework.TestUser
-import com.wire.android.ui.home.conversations.model.MessageContent.AssetMessage
-import com.wire.android.ui.home.conversations.model.MessageContent.ImageMessage
-import com.wire.android.ui.home.conversations.model.MessageContent.SystemMessage
+import com.wire.android.ui.home.conversations.model.UIMessageContent.AssetMessage
+import com.wire.android.ui.home.conversations.model.UIMessageContent.ImageMessage
+import com.wire.android.ui.home.conversations.model.UIMessageContent.SystemMessage
 import com.wire.android.ui.home.conversations.name
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.Conversation.Member

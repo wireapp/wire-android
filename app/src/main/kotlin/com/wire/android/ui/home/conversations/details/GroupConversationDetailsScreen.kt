@@ -108,7 +108,14 @@ private fun GroupConversationDetailsContent(
         messages.collect { groupConversationDetailsState.showSnackbar(it) }
     }
 
+
     with(groupConversationDetailsState) {
+
+        if (!isLoading) {
+            deleteGroupDialogState.dismiss()
+            leaveGroupDialogState.dismiss()
+        }
+
         WireModalSheetLayout(
             sheetState = modalBottomSheetState,
             coroutineScope = rememberCoroutineScope(),

@@ -17,6 +17,7 @@ import com.wire.android.util.DataDogLogger
 import com.wire.android.util.LogFileWriter
 import com.wire.android.util.extension.isGoogleServicesAvailable
 import com.wire.android.util.getDeviceId
+import com.wire.android.util.sha256
 import com.wire.android.util.lifecycle.ConnectionPolicyManager
 import com.wire.kalium.logger.KaliumLogLevel
 import com.wire.kalium.logger.KaliumLogger

@@ -21,7 +21,6 @@ import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.User
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 

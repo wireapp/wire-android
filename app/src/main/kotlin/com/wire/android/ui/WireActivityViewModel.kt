@@ -58,7 +58,7 @@ class WireActivityViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val authServerConfigProvider: AuthServerConfigProvider,
     private val getSessions: GetSessionsUseCase,
-    private val accountSwitchUseCase: AccountSwitchUseCase,
+    private val accountSwitch: AccountSwitchUseCase,
     observePersistentWebSocketConnectionStatus: ObservePersistentWebSocketConnectionStatusUseCase,
 ) : ViewModel() {
 
@@ -116,7 +116,7 @@ class WireActivityViewModel @Inject constructor(
     fun navigateToNextAccountOrWelcome() {
         viewModelScope.launch {
             globalAppState = globalAppState.copy(blockUserUI = null)
-            accountSwitchUseCase(SwitchAccountParam.SwitchToNextAccountOrWelcome)
+            accountSwitch(SwitchAccountParam.SwitchToNextAccountOrWelcome)
         }
     }
 

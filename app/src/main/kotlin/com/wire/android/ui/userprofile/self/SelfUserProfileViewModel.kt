@@ -65,7 +65,7 @@ class SelfUserProfileViewModel @Inject constructor(
     private val kaliumConfigs: KaliumConfigs,
     private val otherAccountMapper: OtherAccountMapper,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
-    private val accountSwitchUseCase: AccountSwitchUseCase
+    private val accountSwitch: AccountSwitchUseCase
 ) : ViewModel() {
 
     var userProfileState by mutableStateOf(SelfUserProfileState())
@@ -165,15 +165,14 @@ class SelfUserProfileViewModel @Inject constructor(
         viewModelScope.launch {
             val logoutReason = if (wipeData) LogoutReason.SELF_HARD_LOGOUT else LogoutReason.SELF_SOFT_LOGOUT
             logout(logoutReason)
-
             dataStore.clear() // TODO this should be moved to some service that will clear all the data in the app
-            accountSwitchUseCase(SwitchAccountParam.SwitchToNextAccountOrWelcome)
+            accountSwitch(SwitchAccountParam.SwitchToNextAccountOrWelcome)
         }
     }
 
     fun switchAccount(userId: UserId) {
         viewModelScope.launch {
-            accountSwitchUseCase(SwitchAccountParam.SwitchToAccount(userId))
+            accountSwitch(SwitchAccountParam.SwitchToAccount(userId))
         }
     }
 

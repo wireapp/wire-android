@@ -22,7 +22,7 @@ import javax.inject.Singleton
 @Suppress("LongParameterList")
 @Singleton
 class AccountSwitchUseCase @Inject constructor(
-    private val updateCurrentSessionUseCase: UpdateCurrentSessionUseCase,
+    private val updateCurrentSession: UpdateCurrentSessionUseCase,
     private val navigationManager: NavigationManager,
     private val getSessionsUseCase: GetSessionsUseCase,
     private val getCurrentSessionUseCase: CurrentSessionUseCase,
@@ -68,7 +68,7 @@ class AccountSwitchUseCase @Inject constructor(
             NavigationItem.Home
         }.getRouteWithArgs()
 
-        when (updateCurrentSessionUseCase(userId)) {
+        when (updateCurrentSession(userId)) {
             is UpdateCurrentSessionUseCase.Result.Success -> {
                 navigationManager.navigate(
                     NavigationCommand(
@@ -99,11 +99,12 @@ class AccountSwitchUseCase @Inject constructor(
 
     private suspend fun handleInvalidSession(invalidAccount: AccountInfo.Invalid) {
         when (invalidAccount.logoutReason) {
-            // TODO: deregister native push token
-            is LogoutReason.Automatic -> deleteSessionUseCase(invalidAccount.userId)
-            is LogoutReason.SelfInitiated, LogoutReason.SELF_HARD_LOGOUT -> {
+            LogoutReason.SELF_SOFT_LOGOUT, LogoutReason.SELF_HARD_LOGOUT -> {
                 // do nothing the logout use case will handle this
             }
+            LogoutReason.DELETED_ACCOUNT,
+            LogoutReason.REMOVED_CLIENT,
+            LogoutReason.SESSION_EXPIRED -> deleteSessionUseCase(invalidAccount.userId)
         }
     }
 }
@@ -112,4 +113,3 @@ sealed class SwitchAccountParam {
     object SwitchToNextAccountOrWelcome : SwitchAccountParam()
     data class SwitchToAccount(val userId: UserId) : SwitchAccountParam()
 }
-

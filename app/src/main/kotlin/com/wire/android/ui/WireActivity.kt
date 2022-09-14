@@ -85,8 +85,12 @@ class WireActivity : AppCompatActivity() {
                 }
                 setUpNavigation(navController, scope)
 
-                handleCustomBackendDialog(viewModel.customBackendDialogState.shouldShowDialog)
-                maxAccountDialog(viewModel::openProfile, viewModel::dismissMaxAccountDialog, viewModel.maxAccountDialogState)
+                handleCustomBackendDialog(viewModel.globalAppState.customBackendDialog.shouldShowDialog)
+                maxAccountDialog(
+                    viewModel::openProfile,
+                    viewModel::dismissMaxAccountDialog,
+                    viewModel.globalAppState.maxAccountDialog
+                )
                 AccountLongedOutDialog(viewModel.globalAppState.blockUserUI, viewModel::navigateToNextAccountOrWelcome)
             }
         }

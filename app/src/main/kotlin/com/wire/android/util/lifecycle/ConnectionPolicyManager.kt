@@ -5,6 +5,8 @@ import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logger.KaliumLogger.Companion.ApplicationFlow.SYNC
+import com.wire.kalium.logger.obfuscateDomain
+import com.wire.kalium.logger.obfuscateId
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.sync.ConnectionPolicy
@@ -64,7 +66,7 @@ class ConnectionPolicyManager @Inject constructor(
      * this will downgrade the policy back to [ConnectionPolicy.DISCONNECT_AFTER_PENDING_EVENTS].
      */
     suspend fun handleConnectionOnPushNotification(userId: UserId) {
-        logger.d("Handling connection policy for push notification of user=$userId")
+        logger.d("Handling connection policy for push notification of user=${userId.value.obfuscateId()}@${userId.domain.obfuscateDomain()}")
         coreLogic.getSessionScope(userId).run {
             logger.d("Forcing KEEP_ALIVE policy")
             // Force KEEP_ALIVE policy, so we gather pending events and become online

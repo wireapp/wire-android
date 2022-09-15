@@ -82,10 +82,10 @@ fun AvatarPickerScreen(viewModel: AvatarPickerViewModel) {
 // that I am not aware of ?
 fun onNewAvatarPicked(originalUri: Uri, targetAvatarPath: Path, scope: CoroutineScope, context: Context, viewModel: AvatarPickerViewModel) {
     scope.launch {
+        sanitizeAvatarImage(originalUri, targetAvatarPath, context)
         withContext(Dispatchers.Main) {
             viewModel.updatePickedAvatarUri(targetAvatarPath.toFile().toUri())
         }
-        sanitizeAvatarImage(originalUri, targetAvatarPath, context)
     }
 }
 

@@ -5,7 +5,6 @@ import android.app.PendingIntent
 import android.content.ContentResolver
 import android.content.Context
 import android.media.AudioAttributes
-import android.media.AudioManager.STREAM_MUSIC
 import android.net.Uri
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
@@ -61,9 +60,10 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
             .build()
 
         val notificationChannel = NotificationChannelCompat
-            .Builder(NotificationConstants.INCOMING_CALL_CHANNEL_ID, NotificationManagerCompat.IMPORTANCE_MAX)
+            .Builder(NotificationConstants.INCOMING_CALL_CHANNEL_ID, NotificationManagerCompat.IMPORTANCE_HIGH)
             .setName(NotificationConstants.INCOMING_CALL_CHANNEL_NAME)
             .setSound(soundUri, audioAttributes)
+            .setShowBadge(false)
             .setVibrationEnabled(true)
             .build()
 
@@ -90,25 +90,24 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
         val content = getNotificationBody(call)
 
         val notification = NotificationCompat.Builder(context, NotificationConstants.INCOMING_CALL_CHANNEL_ID)
-            .setContentTitle(title)
-            .setContentText(content)
-            .setSound(soundUri, STREAM_MUSIC)
-            .addAction(getDeclineCallAction(conversationIdString, userIdString))
-            .addAction(getOpenIncomingCallAction(conversationIdString))
-            .setOngoing(true)
             .setPriority(NotificationCompat.PRIORITY_MAX)
             .setCategory(NotificationCompat.CATEGORY_CALL)
-            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setSmallIcon(R.drawable.notification_icon_small)
-            .setContentIntent(fullScreenIncomingCallPendingIntent(context, conversationIdString))
-            .setFullScreenIntent(fullScreenIncomingCallPendingIntent(context, conversationIdString), true)
-            .setDeleteIntent(declineCallPendingIntent(context, conversationIdString, userIdString))
+            .setContentTitle(title)
+            .setContentText(content)
             .setAutoCancel(true)
+            .setOngoing(true)
             .setTimeoutAfter(INCOMING_CALL_TIMEOUT)
+            .setFullScreenIntent(fullScreenIncomingCallPendingIntent(context, conversationIdString), true)
+            .addAction(getDeclineCallAction(conversationIdString, userIdString))
+            .addAction(getOpenIncomingCallAction(conversationIdString))
+            .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
+            .setContentIntent(fullScreenIncomingCallPendingIntent(context, conversationIdString))
+            .setDeleteIntent(declineCallPendingIntent(context, conversationIdString, userIdString))
             .build()
 
         // Added FLAG_INSISTENT so the ringing sound repeats itself until an action is done.
-        notification.flags = Notification.FLAG_INSISTENT
+        notification.flags += Notification.FLAG_INSISTENT
 
         return notification
     }

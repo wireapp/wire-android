@@ -238,7 +238,7 @@ class SharedCallingViewModel @Inject constructor(
         viewModelScope.launch {
             callState.isMuted?.let {
                 callState = if (it) {
-                    muteCall(conversationId)
+                    unMuteCall(conversationId)
                     callState.copy(isMuted = false)
                 } else {
                     muteCall(conversationId)

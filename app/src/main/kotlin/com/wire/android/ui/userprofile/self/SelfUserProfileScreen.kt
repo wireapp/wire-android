@@ -81,7 +81,8 @@ fun SelfUserProfileScreen(viewModelSelf: SelfUserProfileViewModel = hiltViewMode
         onNotShowRationaleAgainChange = viewModelSelf::dialogCheckBoxStateChanged,
         onMessageShown = viewModelSelf::clearErrorMessage,
         onMaxAccountReachedDialogDismissed = viewModelSelf::onMaxAccountReachedDialogDismissed,
-        onOtherAccountClick = viewModelSelf::switchAccount
+        onOtherAccountClick = viewModelSelf::switchAccount,
+        isUserInCall = viewModelSelf::isUserInCall,
     )
 }
 
@@ -100,7 +101,8 @@ private fun SelfUserProfileContent(
     onNotShowRationaleAgainChange: (Boolean) -> Unit = {},
     onMessageShown: () -> Unit = {},
     onMaxAccountReachedDialogDismissed: () -> Unit = {},
-    onOtherAccountClick: (UserId) -> Unit = {}
+    onOtherAccountClick: (UserId) -> Unit = {},
+    isUserInCall: () -> Boolean,
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -175,7 +177,7 @@ private fun SelfUserProfileContent(
                                     account,
                                     clickable = remember {
                                         Clickable(enabled = true, onClick = {
-                                            if (state.isUserInCall) {
+                                            if (isUserInCall()) {
                                                 Toast.makeText(
                                                     context,
                                                     context.getString(R.string.cant_switch_account_in_call),
@@ -398,6 +400,7 @@ private fun SelfUserProfileScreenPreview() {
             ),
             statusDialogData = null
         ),
+        isUserInCall = { false }
     )
 }
 

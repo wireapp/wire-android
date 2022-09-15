@@ -93,6 +93,7 @@ fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltView
         footerEventsHandler = viewModel,
         bottomSheetEventsHandler = viewModel
     )
+
     LaunchedEffect(Unit) {
         viewModel.infoMessage.collect {
             closeBottomSheet()

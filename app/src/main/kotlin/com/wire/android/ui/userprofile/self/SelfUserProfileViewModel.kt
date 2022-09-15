@@ -176,7 +176,8 @@ class SelfUserProfileViewModel @Inject constructor(
                 establishedCallsList.value.forEach { call ->
                     endCall(call.conversationId)
                 }
-            }
+            }.join()
+
             val logoutReason = if (wipeData) LogoutReason.SELF_HARD_LOGOUT else LogoutReason.SELF_SOFT_LOGOUT
             logout(logoutReason)
             dataStore.clear() // TODO this should be moved to some service that will clear all the data in the app

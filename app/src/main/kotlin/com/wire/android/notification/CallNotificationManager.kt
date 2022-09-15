@@ -64,6 +64,7 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
             .Builder(NotificationConstants.INCOMING_CALL_CHANNEL_ID, NotificationManagerCompat.IMPORTANCE_MAX)
             .setName(NotificationConstants.INCOMING_CALL_CHANNEL_NAME)
             .setSound(soundUri, audioAttributes)
+            .setVibrationEnabled(true)
             .build()
 
         notificationManager.createNotificationChannel(notificationChannel)
@@ -96,12 +97,14 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
             .addAction(getOpenIncomingCallAction(conversationIdString))
             .setOngoing(true)
             .setPriority(NotificationCompat.PRIORITY_MAX)
+            .setCategory(NotificationCompat.CATEGORY_CALL)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
             .setSmallIcon(R.drawable.notification_icon_small)
             .setContentIntent(fullScreenIncomingCallPendingIntent(context, conversationIdString))
             .setFullScreenIntent(fullScreenIncomingCallPendingIntent(context, conversationIdString), true)
             .setDeleteIntent(declineCallPendingIntent(context, conversationIdString, userIdString))
             .setAutoCancel(true)
+            .setTimeoutAfter(INCOMING_CALL_TIMEOUT)
             .build()
 
         // Added FLAG_INSISTENT so the ringing sound repeats itself until an action is done.
@@ -171,6 +174,8 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
 
     companion object {
         private const val TAG = "CallNotificationManager"
+
+        private const val INCOMING_CALL_TIMEOUT: Long = 30 * 1000
 
         fun hideIncomingCallNotification(context: Context) {
             NotificationManagerCompat.from(context).cancel(NotificationConstants.CALL_INCOMING_NOTIFICATION_ID)

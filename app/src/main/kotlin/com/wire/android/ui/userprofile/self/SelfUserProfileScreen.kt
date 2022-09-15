@@ -192,7 +192,7 @@ private fun SelfUserProfileContent(
                         )
                     }
                 }
-                NewTeamButton(onAddAccountClick)
+                NewTeamButton(onAddAccountClick, isUserInCall)
             }
             ChangeStatusDialogContent(
                 data = statusDialogData,
@@ -337,7 +337,8 @@ private fun OtherAccountsHeader() {
 }
 
 @Composable
-private fun NewTeamButton(onAddAccountClick: () -> Unit) {
+private fun NewTeamButton(onAddAccountClick: () -> Unit, isUserIdCall: () -> Boolean) {
+    val context = LocalContext.current
     Surface(shadowElevation = dimensions().spacing8x) {
         WirePrimaryButton(
             modifier = Modifier
@@ -345,7 +346,19 @@ private fun NewTeamButton(onAddAccountClick: () -> Unit) {
                 .padding(dimensions().spacing16x)
                 .testTag("New Team or Account"),
             text = stringResource(R.string.user_profile_new_account_text),
-            onClick = onAddAccountClick
+            onClick = remember {
+                {
+                    if (isUserIdCall()) {
+                        onAddAccountClick()
+                    } else {
+                        Toast.makeText(
+                            context,
+                            context.getString(R.string.cant_switch_account_in_call),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+            }
         )
     }
 }

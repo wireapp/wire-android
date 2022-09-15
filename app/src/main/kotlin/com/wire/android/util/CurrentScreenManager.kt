@@ -31,7 +31,8 @@ import javax.inject.Singleton
 
 @ExperimentalCoroutinesApi
 @Singleton
-class CurrentScreenManager @Inject constructor(@ApplicationContext val context: Context) : DefaultLifecycleObserver, NavController.OnDestinationChangedListener {
+class CurrentScreenManager @Inject constructor(@ApplicationContext val context: Context) : DefaultLifecycleObserver,
+    NavController.OnDestinationChangedListener {
 
     private val currentScreenState = MutableStateFlow<CurrentScreen>(CurrentScreen.SomeOther)
     private val isAppVisibleFlow = MutableStateFlow(false)

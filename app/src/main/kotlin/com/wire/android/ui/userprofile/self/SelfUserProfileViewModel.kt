@@ -40,12 +40,14 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -76,7 +78,7 @@ class SelfUserProfileViewModel @Inject constructor(
     var userProfileState by mutableStateOf(SelfUserProfileState())
         private set
 
-    private val establishedCallsList: MutableStateFlow<List<Call>> = MutableStateFlow(emptyList())
+    private lateinit var establishedCallsList: StateFlow<List<Call>>
 
     init {
         viewModelScope.launch {
@@ -87,11 +89,9 @@ class SelfUserProfileViewModel @Inject constructor(
 
     private fun observeEstablishedCall() {
         viewModelScope.launch {
-            observeEstablishedCalls()
+            establishedCallsList = observeEstablishedCalls()
                 .flowOn(dispatchers.io())
-                .collect {
-                    establishedCallsList.emit(it)
-                }
+                .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
         }
     }
 

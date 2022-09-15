@@ -2,8 +2,12 @@ package com.wire.android.mapper
 
 import android.content.res.Resources
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.framework.TestMessage
+import com.wire.android.framework.TestMessage.ASSET_MESSAGE
+import com.wire.android.framework.TestMessage.IMAGE_ASSET_MESSAGE_DATA_TEST
+import com.wire.android.framework.TestMessage.buildAssetMessage
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.home.conversations.model.UIMessageContent.AssetMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent.ImageMessage
@@ -26,6 +30,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import okio.Path
@@ -144,12 +149,13 @@ class MessageContentMapperTest {
         val (arrangement, mapper) = Arrangement()
             .withSuccessfulGetMessageAssetResult(dummyPath, 1)
             .arrange()
-        val unknownImageFormatMessage = AssetContent(
+        val unknownImageFormatMessageContent = AssetContent(
             0L,
             "name1",
             "image/xrz",
             AssetMetadata.Image(100, 100),
             TestMessage.DUMMY_ASSET_REMOTE_DATA.copy(assetId = "image-id"),
+            Message.UploadStatus.NOT_UPLOADED,
             Message.DownloadStatus.NOT_DOWNLOADED
         )
         val correctJPGImage = AssetContent(
@@ -158,16 +164,24 @@ class MessageContentMapperTest {
             "image/jpg",
             AssetMetadata.Image(100, 100),
             TestMessage.DUMMY_ASSET_REMOTE_DATA.copy(assetId = "image-id2"),
+            Message.UploadStatus.NOT_UPLOADED,
             Message.DownloadStatus.NOT_DOWNLOADED
         )
-        // When - Then
-        val resultContentOther = mapper.toUIMessageContent(QualifiedID("id", "domain"), "message-id", unknownImageFormatMessage)
-        coVerify(exactly = 0) { arrangement.getMessageAssetUseCase.invoke(any(), any()) }
-        assert(resultContentOther is AssetMessage && resultContentOther.assetId.value == unknownImageFormatMessage.remoteData.assetId)
-        // When - Then
-        val resultContentImage = mapper.toUIMessageContent(QualifiedID("id", "domain"), "message-id", correctJPGImage)
-        coVerify(exactly = 1) { arrangement.getMessageAssetUseCase.invoke(any(), any()) }
-        assert(resultContentImage is ImageMessage && resultContentImage.assetId.value == correctJPGImage.remoteData.assetId)
+
+        val testMessage1 = buildAssetMessage(unknownImageFormatMessageContent)
+        val testMessage2 = buildAssetMessage(correctJPGImage)
+
+        with(arrangement) {
+            // When - Then
+            val resultContentOther = mapper.toUIMessageContent(AssetMessageData(unknownImageFormatMessageContent), testMessage1, scope)
+            coVerify(exactly = 0) { arrangement.getMessageAssetUseCase.invoke(any(), any()) }
+            assert(resultContentOther is AssetMessage && resultContentOther.assetId.value == unknownImageFormatMessageContent.remoteData.assetId)
+
+            // When - Then
+            val resultContentImage = mapper.toUIMessageContent(AssetMessageData(correctJPGImage), testMessage2, scope)
+            coVerify(exactly = 1) { arrangement.getMessageAssetUseCase.invoke(any(), any()) }
+            assert(resultContentImage is ImageMessage && resultContentImage.assetId.value == correctJPGImage.remoteData.assetId)
+        }
     }
 
     @Test
@@ -180,11 +194,13 @@ class MessageContentMapperTest {
             "image/svg",
             AssetMetadata.Image(100, 100),
             TestMessage.DUMMY_ASSET_REMOTE_DATA.copy(assetId = "image-id"),
+            Message.UploadStatus.NOT_UPLOADED,
             Message.DownloadStatus.NOT_DOWNLOADED
         )
+        val testMessage = buildAssetMessage(contentImage)
 
         // When
-        val resultContentImage = mapper.toUIMessageContent(QualifiedID("id", "domain"), "message-id", contentImage)
+        val resultContentImage = mapper.toUIMessageContent(AssetMessageData(contentImage), testMessage, arrangement.scope)
 
         // Then
         coVerify(inverse = true) { arrangement.getMessageAssetUseCase.invoke(any(), any()) }
@@ -204,6 +220,7 @@ class MessageContentMapperTest {
             "image/png",
             AssetMetadata.Image(0, 0),
             TestMessage.DUMMY_ASSET_REMOTE_DATA.copy(assetId = "image-id"),
+            Message.UploadStatus.NOT_UPLOADED,
             Message.DownloadStatus.NOT_DOWNLOADED
         )
         val contentImage2 = AssetContent(
@@ -212,19 +229,24 @@ class MessageContentMapperTest {
             "image/png",
             AssetMetadata.Image(100, 100),
             TestMessage.DUMMY_ASSET_REMOTE_DATA.copy(assetId = "image-id2"),
+            Message.UploadStatus.NOT_UPLOADED,
             Message.DownloadStatus.NOT_DOWNLOADED
         )
+        val testMessage1 = buildAssetMessage(contentImage1)
+        val testMessage2 = buildAssetMessage(contentImage2)
 
         // When
-        val resultContentImage1 = mapper.toUIMessageContent(QualifiedID("id", "domain"), "message-id", contentImage1)
-        val resultContentImage2 = mapper.toUIMessageContent(QualifiedID("id", "domain"), "message-id", contentImage2)
+        with(arrangement) {
+            val resultContentImage1 = mapper.toUIMessageContent(AssetMessageData(contentImage1), testMessage1, scope)
+            val resultContentImage2 = mapper.toUIMessageContent(AssetMessageData(contentImage2), testMessage2, scope)
 
-        // Then
-        assert(resultContentImage1 is AssetMessage)
-        assert(resultContentImage2 is ImageMessage)
+            // Then
+            assert(resultContentImage1 is AssetMessage)
+            assert(resultContentImage2 is ImageMessage)
 
-        // Only the image with valid metadata is downloaded
-        coVerify(exactly = 1) { arrangement.getMessageAssetUseCase.invoke(any(), any()) }
+            // Only the image with valid metadata is downloaded
+            coVerify(exactly = 1) { arrangement.getMessageAssetUseCase.invoke(any(), any()) }
+        }
     }
 
     @Test
@@ -261,8 +283,11 @@ class MessageContentMapperTest {
         @MockK
         lateinit var resources: Resources
 
+        @MockK
+        lateinit var scope: CoroutineScope
+
         private val messageContentMapper by lazy {
-            MessageContentMapper(getMessageAssetUseCase, messageResourceProvider, fakeKaliumFileSystem)
+            MessageContentMapper(getMessageAssetUseCase, messageResourceProvider, fakeKaliumFileSystem, TestDispatcherProvider())
         }
 
         init {

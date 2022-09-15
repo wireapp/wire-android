@@ -137,7 +137,6 @@ class MessageContentMapper @Inject constructor(
 
     suspend fun toUIMessageContent(assetMessageData: AssetMessageData, message: Message, scope: CoroutineScope) =
         with(assetMessageData.assetMessageContent) {
-
             when {
                 // If it's an image, we download it right away
                 assetMessageData.isValidImage() -> {

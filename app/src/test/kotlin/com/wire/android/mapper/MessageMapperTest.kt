@@ -1,7 +1,6 @@
 package com.wire.android.mapper
 
 import com.wire.android.config.CoroutineTestExtension
-import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.framework.TestMessage
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.home.conversations.model.MessageBody

@@ -29,7 +29,7 @@ internal fun CustomBEDeeplinkDialog(
                 colorsScheme().onBackground,
                 colorsScheme().onBackground,
                 wireActivityViewModel.globalAppState.customBackendDialog.serverLinks.title,
-                wireActivityViewModel.globalAppState.customBackendDialog.serverLinks.teams
+                wireActivityViewModel.globalAppState.customBackendDialog.serverLinks.api
             ),
 
             buttonsHorizontalAlignment = true,

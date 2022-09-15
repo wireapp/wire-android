@@ -153,16 +153,18 @@ class SharedCallingViewModelTest {
 
         runTest { sharedCallingViewModel.toggleMute() }
 
+        coVerify(exactly = 1) { muteCall(any()) }
         sharedCallingViewModel.callState.isMuted shouldBeEqualTo true
     }
 
     @Test
     fun `given a muted call, when toggling microphone, then un-mute the call`() {
         sharedCallingViewModel.callState = sharedCallingViewModel.callState.copy(isMuted = true)
-        coEvery { unMuteCall(conversationId) } returns Unit
+        coEvery { unMuteCall(any()) } returns Unit
 
         runTest { sharedCallingViewModel.toggleMute() }
 
+        coVerify(exactly = 1) { unMuteCall(any()) }
         sharedCallingViewModel.callState.isMuted shouldBeEqualTo false
     }
 

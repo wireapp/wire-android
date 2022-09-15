@@ -65,6 +65,7 @@ class OtherUserProfileScreenViewModelTest {
             val (arrangement, viewModel) = OtherUserProfileViewModelArrangement()
                 .withSendConnectionRequest(SendConnectionRequestResult.Failure(Unknown(RuntimeException("some error"))))
                 .arrange()
+
             viewModel.infoMessage.test {
 
                 // when

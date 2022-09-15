@@ -66,7 +66,8 @@ class ConnectionPolicyManager @Inject constructor(
      * this will downgrade the policy back to [ConnectionPolicy.DISCONNECT_AFTER_PENDING_EVENTS].
      */
     suspend fun handleConnectionOnPushNotification(userId: UserId) {
-        logger.d("Handling connection policy for push notification of user=${userId.value.obfuscateId()}@${userId.domain.obfuscateDomain()}")
+        logger.d("Handling connection policy for push notification of " +
+                "user=${userId.value.obfuscateId()}@${userId.domain.obfuscateDomain()}")
         coreLogic.getSessionScope(userId).run {
             logger.d("Forcing KEEP_ALIVE policy")
             // Force KEEP_ALIVE policy, so we gather pending events and become online

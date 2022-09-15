@@ -33,20 +33,16 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginSSOViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
-    @NoSession qualifiedIdMapper: QualifiedIdMapper,
     private val ssoInitiateLoginUseCase: SSOInitiateLoginUseCase,
     private val getSSOLoginSessionUseCase: GetSSOLoginSessionUseCase,
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
     clientScopeProviderFactory: ClientScopeProvider.Factory,
-    getSessions: GetSessionsUseCase,
     navigationManager: NavigationManager,
     authServerConfigProvider: AuthServerConfigProvider,
 ) : LoginViewModel(
     savedStateHandle,
     navigationManager,
-    qualifiedIdMapper,
     clientScopeProviderFactory,
-    getSessions,
     authServerConfigProvider
 ) {
 

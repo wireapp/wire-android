@@ -6,6 +6,7 @@ import android.content.ContentResolver
 import android.content.Context
 import android.media.AudioAttributes
 import android.net.Uri
+import android.os.Build
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -56,7 +57,7 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
     private fun createIncomingCallsNotificationChannel() {
         val audioAttributes = AudioAttributes.Builder()
             .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-            .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
+            .setUsage(getAudioAttributeUsage())
             .build()
 
         val notificationChannel = NotificationChannelCompat
@@ -69,6 +70,9 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
 
         notificationManager.createNotificationChannel(notificationChannel)
     }
+
+    private fun getAudioAttributeUsage() =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) AudioAttributes.USAGE_NOTIFICATION_RINGTONE else AudioAttributes.USAGE_MEDIA
 
     fun createOngoingNotificationChannel() {
         val notificationChannel = NotificationChannelCompat

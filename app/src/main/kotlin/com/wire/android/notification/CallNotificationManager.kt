@@ -57,7 +57,7 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
     private fun createIncomingCallsNotificationChannel() {
         val audioAttributes = AudioAttributes.Builder()
             .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-            .setUsage(getAudioAttributeUsage())
+            .setUsage(getAudioAttributeUsageByOsLevel())
             .build()
 
         val notificationChannel = NotificationChannelCompat
@@ -71,7 +71,11 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
         notificationManager.createNotificationChannel(notificationChannel)
     }
 
-    private fun getAudioAttributeUsage() =
+    /**
+     * Tricky bug: No documentation whatsoever, but these values affect how the system cancels or not the vibration of the notification
+     * on different Android OS levels, probably channel creation related.
+     */
+    private fun getAudioAttributeUsageByOsLevel() =
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) AudioAttributes.USAGE_NOTIFICATION_RINGTONE else AudioAttributes.USAGE_MEDIA
 
     fun createOngoingNotificationChannel() {

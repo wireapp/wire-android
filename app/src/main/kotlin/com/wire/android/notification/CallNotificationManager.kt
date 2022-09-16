@@ -76,7 +76,7 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
      * on different Android OS levels, probably channel creation related.
      */
     private fun getAudioAttributeUsageByOsLevel() =
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) AudioAttributes.USAGE_NOTIFICATION_RINGTONE else AudioAttributes.USAGE_MEDIA
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) AudioAttributes.USAGE_NOTIFICATION_RINGTONE else AudioAttributes.USAGE_MEDIA
 
     fun createOngoingNotificationChannel() {
         val notificationChannel = NotificationChannelCompat

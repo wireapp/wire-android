@@ -46,7 +46,7 @@ class CurrentScreenManager @Inject constructor(@ApplicationContext val context: 
         }
         .distinctUntilChanged()
         .onEach {
-            appLogger.i("${TAG}: observeCurrentScreen [$it]")
+            appLogger.i("${TAG}: observeCurrentScreen [${it.javaClass.simpleName}]")
         }
         .stateIn(scope)
 

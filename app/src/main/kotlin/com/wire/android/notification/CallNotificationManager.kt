@@ -22,7 +22,7 @@ import javax.inject.Singleton
 class CallNotificationManager @Inject constructor(private val context: Context) {
 
     private val notificationManager = NotificationManagerCompat.from(context)
-    private val soundUri = Uri.parse("${ContentResolver.SCHEME_ANDROID_RESOURCE}://${context.packageName}/raw/ringing_from_them")
+    private val soundUri by lazy { Uri.parse("${ContentResolver.SCHEME_ANDROID_RESOURCE}://${context.packageName}/raw/ringing_from_them") }
 
     init {
         appLogger.i("${TAG}: initialized")
@@ -56,7 +56,7 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
     private fun createIncomingCallsNotificationChannel() {
         val audioAttributes = AudioAttributes.Builder()
             .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-            .setUsage(AudioAttributes.USAGE_MEDIA)
+            .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
             .build()
 
         val notificationChannel = NotificationChannelCompat

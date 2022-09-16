@@ -72,9 +72,6 @@ class LoginSSOViewModelTest {
     private lateinit var clientScopeProviderFactory: ClientScopeProvider.Factory
 
     @MockK
-    private lateinit var getSessionsUseCase: GetSessionsUseCase
-
-    @MockK
     private lateinit var clientScope: ClientScope
 
     @MockK
@@ -90,9 +87,6 @@ class LoginSSOViewModelTest {
     private lateinit var authServerConfigProvider: AuthServerConfigProvider
 
     @MockK
-    private lateinit var qualifiedIdMapper: QualifiedIdMapper
-
-    @MockK
     private lateinit var navigationManager: NavigationManager
     private lateinit var loginViewModel: LoginSSOViewModel
 
@@ -103,7 +97,6 @@ class LoginSSOViewModelTest {
         MockKAnnotations.init(this)
         mockUri()
         every { savedStateHandle.get<String>(any()) } returns null
-        every { qualifiedIdMapper.fromStringToQualifiedID(any()) } returns userId
         every { savedStateHandle.set(any(), any<String>()) } returns Unit
         every { clientScopeProviderFactory.create(any()).clientScope } returns clientScope
         every { clientScope.getOrRegister } returns getOrRegisterClientUseCase
@@ -112,12 +105,10 @@ class LoginSSOViewModelTest {
 
         loginViewModel = LoginSSOViewModel(
             savedStateHandle,
-            qualifiedIdMapper,
             ssoInitiateLoginUseCase,
             getSSOLoginSessionUseCase,
             addAuthenticatedUserUseCase,
             clientScopeProviderFactory,
-            getSessionsUseCase,
             navigationManager,
             authServerConfigProvider
         )

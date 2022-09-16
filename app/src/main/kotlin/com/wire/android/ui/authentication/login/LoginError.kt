@@ -16,13 +16,6 @@ sealed class LoginError {
         object InvalidCodeError : DialogError()
         object UserAlreadyExists : DialogError()
         object PasswordNeededToRegisterClient : DialogError()
-        sealed class InvalidSession : DialogError() {
-            object RemovedClient : InvalidSession()
-            object DeletedAccount : InvalidSession()
-            object SessionExpired : InvalidSession()
-
-        }
-
         data class SSOResultError constructor(val result: SSOFailureCodes) :
             DialogError()
     }

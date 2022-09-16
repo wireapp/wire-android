@@ -15,10 +15,8 @@ import androidx.compose.material.Divider
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.Scaffold
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -40,40 +38,54 @@ import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireColorScheme
-import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerViewModel.ErrorCodes
+import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerViewModel.PictureState
 import com.wire.android.util.ImageUtil
 import com.wire.android.util.resampleImageAndCopyToTempPath
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import okhttp3.Dispatcher
 import okio.Path
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun AvatarPickerScreen(viewModel: AvatarPickerViewModel) {
     val context = LocalContext.current
-    val targetAvatarPath = viewModel.defaultAvatarPath()
-    val targetAvatarUri = viewModel.getTemporaryAvatarUri(targetAvatarPath)
+
+    val targetAvatarPath = viewModel.defaultAvatarPath
+    val targetAvatarUri = viewModel.temporaryAvatarUri
+
     val scope = rememberCoroutineScope()
     val state = rememberAvatarPickerState(
         onImageSelected = { originalUri ->
             onNewAvatarPicked(originalUri, targetAvatarPath, scope, context, viewModel)
         },
-        onPictureTaken = { onNewAvatarPicked(targetAvatarUri, targetAvatarPath, scope, context, viewModel) },
+        onPictureTaken = {
+            onNewAvatarPicked(targetAvatarUri, targetAvatarPath, scope, context, viewModel)
+        },
         targetPictureFileUri = targetAvatarUri
     )
 
     AvatarPickerContent(
         viewModel = viewModel,
         state = state,
-        onCloseClick = { viewModel.navigateBack() },
-        onSaveClick = { viewModel.uploadNewPickedAvatarAndBack() }
+        onCloseClick = viewModel::navigateBack,
+        onSaveClick = viewModel::uploadNewPickedAvatarAndBack
     )
 }
 
+// TODO: Mateusz: I think we should refactor this, it takes some values from the ViewModel, part of the logic is executed inside 
+// the UI, part of the logic is exectued inside the ViewModel, I see no reasons to handle the logic inside the UI
+// personally it was a confusing part for me to read when investing the bugs, unless there is a valid reason to move the logic to the UI
+// that I am not aware of ?
 fun onNewAvatarPicked(originalUri: Uri, targetAvatarPath: Path, scope: CoroutineScope, context: Context, viewModel: AvatarPickerViewModel) {
     scope.launch {
         sanitizeAvatarImage(originalUri, targetAvatarPath, context)
-        viewModel.updatePickedAvatarUri(targetAvatarPath.toFile().toUri())
+        withContext(Dispatchers.Main) {
+            viewModel.updatePickedAvatarUri(targetAvatarPath.toFile().toUri())
+        }
     }
 }
 
@@ -85,13 +97,9 @@ private fun AvatarPickerContent(
     onCloseClick: () -> Unit,
     onSaveClick: () -> Unit
 ) {
-    val snackbarHostState = remember { SnackbarHostState() }
-
-    viewModel.errorMessageCode?.let { errorCode ->
-        val errorMessage = mapErrorCodeToString(errorCode)
-        LaunchedEffect(viewModel.errorMessageCode) {
-            snackbarHostState.showSnackbar(errorMessage)
-            viewModel.clearErrorMessage()
+    LaunchedEffect(Unit) {
+        viewModel.infoMessage.collect {
+            state.showSnackbar(it)
         }
     }
 
@@ -110,7 +118,7 @@ private fun AvatarPickerContent(
                         )
                     },
                     action = { ArrowRightIcon() },
-                    onItemClick = { state.openImageSource(ImageSource.Gallery) }
+                    onItemClick = state::openGallery
                 )
             }, {
                 MenuBottomSheetItem(
@@ -122,7 +130,7 @@ private fun AvatarPickerContent(
                         )
                     },
                     action = { ArrowRightIcon() },
-                    onItemClick = { state.openImageSource(ImageSource.Camera) }
+                    onItemClick = state::openCamera
                 )
             }
         )
@@ -131,7 +139,7 @@ private fun AvatarPickerContent(
             topBar = { AvatarPickerTopBar(onCloseClick = onCloseClick) },
             snackbarHost = {
                 SwipeDismissSnackbarHost(
-                    hostState = snackbarHostState,
+                    hostState = state.snackbarHostState,
                     modifier = Modifier.fillMaxWidth()
                 )
             }
@@ -148,20 +156,16 @@ private fun AvatarPickerContent(
                 ) {
                     Box(Modifier.weight(1f)) {
                         Box(Modifier.align(Alignment.Center)) {
-                            BulletHoleImagePreview(
-                                imageUri = viewModel.pictureState.avatarUri,
-                                contentDescription = stringResource(R.string.content_description_avatar_preview)
-                            )
+                            AvatarPreview(viewModel.pictureState)
                         }
                     }
                     Divider()
                     Spacer(Modifier.height(4.dp))
                     AvatarPickerActionButtons(
-                        hasPickedImage = hasPickedImage(viewModel.pictureState),
+                        pictureState = viewModel.pictureState,
                         onSaveClick = onSaveClick,
-                        onCancelClick = { viewModel.loadInitialAvatarState() },
-                        onChangeImage = { state.showModalBottomSheet() },
-                        isUploadingImage = isUploadingImage(viewModel.pictureState)
+                        onCancelClick = viewModel::loadInitialAvatarState,
+                        onChangeImage = state::showModalBottomSheet,
                     )
                 }
             }
@@ -170,38 +174,50 @@ private fun AvatarPickerContent(
 }
 
 @Composable
+fun AvatarPreview(pictureState: PictureState) {
+    BulletHoleImagePreview(
+        imageUri = pictureState.avatarUri,
+        contentDescription = stringResource(R.string.content_description_avatar_preview)
+    )
+}
+
+@Composable
 private fun AvatarPickerActionButtons(
-    isUploadingImage: Boolean,
-    hasPickedImage: Boolean,
+    pictureState: PictureState,
     onSaveClick: () -> Unit,
     onCancelClick: () -> Unit,
     onChangeImage: () -> Unit
 ) {
-    if (hasPickedImage || isUploadingImage) {
-        Row(Modifier.fillMaxWidth()) {
-            WireSecondaryButton(
-                modifier = Modifier
-                    .padding(dimensions().spacing16x)
-                    .weight(1f),
-                text = stringResource(R.string.label_cancel),
-                onClick = { onCancelClick() }
-            )
+    when (pictureState) {
+        is PictureState.Uploading, is PictureState.Picked -> {
+            val isUploading = pictureState is PictureState.Uploading
+
+            Row(Modifier.fillMaxWidth()) {
+                WireSecondaryButton(
+                    modifier = Modifier
+                        .padding(dimensions().spacing16x)
+                        .weight(1f),
+                    text = stringResource(R.string.label_cancel),
+                    onClick = onCancelClick
+                )
+                WirePrimaryButton(
+                    modifier = Modifier
+                        .padding(dimensions().spacing16x)
+                        .weight(1f),
+                    text = stringResource(R.string.label_confirm),
+                    onClick = onSaveClick,
+                    loading = isUploading,
+                    state = if (isUploading) WireButtonState.Disabled else WireButtonState.Default
+                )
+            }
+        }
+        else -> {
             WirePrimaryButton(
-                modifier = Modifier
-                    .padding(dimensions().spacing16x)
-                    .weight(1f),
-                text = stringResource(R.string.label_confirm),
-                onClick = { onSaveClick() },
-                loading = isUploadingImage,
-                state = if (isUploadingImage) WireButtonState.Disabled else WireButtonState.Default
+                modifier = Modifier.padding(dimensions().spacing16x),
+                text = stringResource(R.string.profile_image_change_image_button_label),
+                onClick = onChangeImage
             )
         }
-    } else {
-        WirePrimaryButton(
-            modifier = Modifier.padding(dimensions().spacing16x),
-            text = stringResource(R.string.profile_image_change_image_button_label),
-            onClick = { onChangeImage() }
-        )
     }
 }
 
@@ -212,18 +228,6 @@ private fun AvatarPickerTopBar(onCloseClick: () -> Unit) {
         title = stringResource(R.string.profile_image_top_bar_label),
     )
 }
-
-@Composable
-private fun mapErrorCodeToString(errorCode: ErrorCodes): String {
-    return when (errorCode) {
-        ErrorCodes.UploadAvatarError -> stringResource(R.string.error_uploading_user_avatar)
-        ErrorCodes.NoNetworkError -> stringResource(R.string.error_no_network_message)
-    }
-}
-
-private fun hasPickedImage(state: AvatarPickerViewModel.PictureState): Boolean = state is AvatarPickerViewModel.PictureState.Picked
-
-private fun isUploadingImage(state: AvatarPickerViewModel.PictureState): Boolean = state is AvatarPickerViewModel.PictureState.Uploading
 
 private suspend fun sanitizeAvatarImage(originalAvatarUri: Uri, avatarPath: Path, appContext: Context) {
     originalAvatarUri.resampleImageAndCopyToTempPath(appContext, avatarPath, ImageUtil.ImageSizeClass.Small)

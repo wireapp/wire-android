@@ -18,6 +18,7 @@ import com.wire.kalium.logic.functional.nullableFold
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -34,6 +35,7 @@ import javax.inject.Singleton
  * When the app is initialised without displaying any UI all sessions are
  * set to [ConnectionPolicy.DISCONNECT_AFTER_PENDING_EVENTS].
  */
+@OptIn(ExperimentalCoroutinesApi::class)
 @Singleton
 class ConnectionPolicyManager @Inject constructor(
     private val currentScreenManager: CurrentScreenManager,
@@ -86,12 +88,12 @@ class ConnectionPolicyManager @Inject constructor(
      * the [ConnectionPolicy.KEEP_ALIVE] policy.
      * Otherwise, we downgrade to [ConnectionPolicy.DISCONNECT_AFTER_PENDING_EVENTS].
      */
-    private fun UserSessionScope.downgradePolicyIfNeeded(
+    private suspend fun UserSessionScope.downgradePolicyIfNeeded(
         userId: UserId
     ) {
         val isCurrentSession = isCurrentSession(userId)
-        val hasInitialisedUI = currentScreenManager.appWasVisibleAtLeastOnceFlow().value
-        logger.d("isCurrentSession = $isCurrentSession; hasInitialisedUI = $isCurrentSession")
+        val hasInitialisedUI = currentScreenManager.appWasVisibleAtLeastOnceFlow().first()
+        logger.d("isCurrentSession = $isCurrentSession; hasInitialisedUI = $hasInitialisedUI")
         val shouldKeepLivePolicy = isCurrentSession && hasInitialisedUI
         if (!shouldKeepLivePolicy) {
             logger.d("Downgrading policy as conditions to KEEP_ALIVE are not met")

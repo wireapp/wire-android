@@ -99,7 +99,7 @@ class AccountSwitchUseCase @Inject constructor(
     private suspend fun handleInvalidSession(invalidAccount: AccountInfo.Invalid) {
         when (invalidAccount.logoutReason) {
             LogoutReason.SELF_SOFT_LOGOUT, LogoutReason.SELF_HARD_LOGOUT -> {
-                // do nothing the logout use case will handle this
+                deleteSession(invalidAccount.userId)
             }
             LogoutReason.DELETED_ACCOUNT,
             LogoutReason.REMOVED_CLIENT,

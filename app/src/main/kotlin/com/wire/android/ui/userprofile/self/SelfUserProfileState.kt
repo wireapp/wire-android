@@ -18,5 +18,4 @@ data class SelfUserProfileState @OptIn(ExperimentalMaterial3Api::class) construc
     val statusDialogData: StatusDialogData? = null, // null means no dialog to display
     val isAvatarLoading: Boolean = false,
     val maxAccountsReached: Boolean = false,
-    val isUserInCall: Boolean = false
 )

@@ -27,6 +27,8 @@ import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
+import com.wire.kalium.logic.feature.call.Call
+import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
@@ -35,13 +37,17 @@ import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import com.wire.kalium.logic.feature.user.UpdateSelfAvailabilityStatusUseCase
 import com.wire.kalium.logic.featureFlags.KaliumConfigs
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -65,11 +71,14 @@ class SelfUserProfileViewModel @Inject constructor(
     private val kaliumConfigs: KaliumConfigs,
     private val otherAccountMapper: OtherAccountMapper,
     private val observeEstablishedCalls: ObserveEstablishedCallsUseCase,
-    private val accountSwitch: AccountSwitchUseCase
+    private val accountSwitch: AccountSwitchUseCase,
+    private val endCall: EndCallUseCase
 ) : ViewModel() {
 
     var userProfileState by mutableStateOf(SelfUserProfileState())
         private set
+
+    private lateinit var establishedCallsList: StateFlow<List<Call>>
 
     init {
         viewModelScope.launch {
@@ -80,21 +89,20 @@ class SelfUserProfileViewModel @Inject constructor(
 
     private fun observeEstablishedCall() {
         viewModelScope.launch {
-            val establishedCalls = observeEstablishedCalls()
-            establishedCalls.map { it.isNotEmpty() }
-                .distinctUntilChanged()
+            establishedCallsList = observeEstablishedCalls()
                 .flowOn(dispatchers.io())
-                .collect {
-                    userProfileState = userProfileState.copy(isUserInCall = it)
-                }
+                .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
         }
     }
+
+    fun isUserInCall(): Boolean = establishedCallsList.value.isNotEmpty()
 
     private suspend fun fetchSelfUser() {
         viewModelScope.launch {
             val self = getSelf().flowOn(dispatchers.io()).shareIn(this, SharingStarted.WhileSubscribed(1))
             val selfTeam = getSelfTeam().flowOn(dispatchers.io()).shareIn(this, SharingStarted.WhileSubscribed(1))
-            val validAccounts = observeValidAccounts().flowOn(dispatchers.io()).shareIn(this, SharingStarted.WhileSubscribed(1))
+            val validAccounts =
+                observeValidAccounts().flowOn(dispatchers.io()).shareIn(this, SharingStarted.WhileSubscribed(1))
             combine(
                 self,
                 selfTeam,
@@ -103,7 +111,8 @@ class SelfUserProfileViewModel @Inject constructor(
                 Triple(
                     selfUser,
                     team,
-                    list.filter { it.first.id != selfUser.id }.map { (selfUser, team) -> otherAccountMapper.toOtherAccount(selfUser, team) }
+                    list.filter { it.first.id != selfUser.id }
+                        .map { (selfUser, team) -> otherAccountMapper.toOtherAccount(selfUser, team) }
                 )
             }
                 .distinctUntilChanged()
@@ -163,6 +172,12 @@ class SelfUserProfileViewModel @Inject constructor(
 
     fun logout(wipeData: Boolean) {
         viewModelScope.launch {
+            launch {
+                establishedCallsList.value.forEach { call ->
+                    endCall(call.conversationId)
+                }
+            }.join()
+
             val logoutReason = if (wipeData) LogoutReason.SELF_HARD_LOGOUT else LogoutReason.SELF_SOFT_LOGOUT
             logout(logoutReason)
             dataStore.clear() // TODO this should be moved to some service that will clear all the data in the app

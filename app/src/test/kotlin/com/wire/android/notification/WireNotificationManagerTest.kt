@@ -17,7 +17,7 @@ import com.wire.kalium.logic.data.notification.LocalNotificationMessage
 import com.wire.kalium.logic.data.notification.LocalNotificationMessageAuthor
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.UserSessionScope
-import com.wire.kalium.logic.feature.auth.AuthSession
+import com.wire.kalium.logic.feature.auth.AccountInfo
 import com.wire.kalium.logic.feature.call.Call
 import com.wire.kalium.logic.feature.call.CallStatus
 import com.wire.kalium.logic.feature.call.CallsScope
@@ -68,7 +68,7 @@ class WireNotificationManagerTest {
     @Test
     fun givenAuthenticatedUser_whenFetchAndShowNotificationsOnceCalled_thenConnectionPolicyManagerIsCalled() = runTest {
         val (arrangement, manager) = Arrangement()
-            .withSession(GetAllSessionsResult.Success(listOf(TEST_AUTH_SESSION)))
+            .withSession(GetAllSessionsResult.Success(listOf(TEST_AUTH_TOKEN)))
             .withCurrentUserSession(provideCurrentValidUserSession())
             .withMessageNotifications(listOf())
             .withIncomingCalls(listOf())
@@ -77,7 +77,7 @@ class WireNotificationManagerTest {
         manager.fetchAndShowNotificationsOnce("user_id")
 
         verify(atLeast = 1) { arrangement.coreLogic.getSessionScope(any()) }
-        coVerify(exactly = 1) { arrangement.connectionPolicyManager.handleConnectionOnPushNotification(TEST_AUTH_SESSION.session.userId) }
+        coVerify(exactly = 1) { arrangement.connectionPolicyManager.handleConnectionOnPushNotification(TEST_AUTH_TOKEN.userId) }
         verify(exactly = 0) { arrangement.messageNotificationManager.handleNotification(listOf(), any()) }
         verify(exactly = 1) { arrangement.callNotificationManager.handleIncomingCallNotifications(listOf(), any()) }
     }
@@ -213,10 +213,10 @@ class WireNotificationManagerTest {
     @Test
     fun givenASingleUserId_whenCallingFetchAndShowOnceMultipleTimes_thenConversationNotificationDateUpdated() =
         runTestWithCancellation {
-            val userId = TEST_AUTH_SESSION.session.userId
+            val userId = TEST_AUTH_TOKEN.userId
             val (arrangement, manager) = Arrangement()
                 .withMessageNotifications(listOf())
-                .withSession(GetAllSessionsResult.Success(listOf(TEST_AUTH_SESSION)))
+                .withSession(GetAllSessionsResult.Success(listOf(TEST_AUTH_TOKEN)))
                 .withCurrentUserSession(provideCurrentValidUserSession())
                 .withIncomingCalls(listOf())
                 .withCurrentScreen(CurrentScreen.InBackground)
@@ -232,12 +232,12 @@ class WireNotificationManagerTest {
     @Test
     fun givenASingleUserId_whenNotificationReceivedAndNotCurrentUser_shouldSkipNotification() =
         runTestWithCancellation {
-            val otherAuthSession = provideAuthSession("other_id")
-            val userId = otherAuthSession.session.userId
+            val otherAuthSession = provideAccountInfo("other_id")
+            val userId = otherAuthSession.userId
             val (arrangement, manager) = Arrangement()
                 .withMessageNotifications(listOf())
-                .withSession(GetAllSessionsResult.Success(listOf(TEST_AUTH_SESSION)))
-                .withCurrentUserSession(provideCurrentValidUserSession(TEST_AUTH_SESSION))
+                .withSession(GetAllSessionsResult.Success(listOf(TEST_AUTH_TOKEN)))
+                .withCurrentUserSession(provideCurrentValidUserSession(TEST_AUTH_TOKEN))
                 .withIncomingCalls(listOf())
                 .withCurrentScreen(CurrentScreen.InBackground)
                 .arrange()
@@ -399,17 +399,11 @@ class WireNotificationManagerTest {
 
     companion object {
         private val TEST_SERVER_CONFIG: ServerConfig = newServerConfig(1)
-        private val TEST_AUTH_SESSION = provideAuthSession()
+        private val TEST_AUTH_TOKEN = provideAccountInfo()
 
-        private fun provideAuthSession(userId: String = "user_id"): AuthSession {
-            return AuthSession(
-                AuthSession.Session.Valid(
-                    userId = UserId(userId, "domain.de"),
-                    accessToken = "access_token",
-                    refreshToken = "refresh_token",
-                    tokenType = "token_type"
-                ),
-                TEST_SERVER_CONFIG.links
+        private fun provideAccountInfo(userId: String = "user_id"): AccountInfo {
+            return AccountInfo.Valid(
+                userId = UserId(userId, "domain.de")
             )
         }
 
@@ -450,7 +444,7 @@ class WireNotificationManagerTest {
         private fun appVisibleFlow() = MutableStateFlow(true)
         private fun appInvisibleFlow() = MutableStateFlow(false)
 
-        private fun provideCurrentValidUserSession(authSession: AuthSession = TEST_AUTH_SESSION) =
+        private fun provideCurrentValidUserSession(authSession: AccountInfo = TEST_AUTH_TOKEN) =
             CurrentSessionResult.Success(authSession)
 
         private fun provideCurrentInvalidUserSession() = CurrentSessionResult.Failure.SessionNotFound

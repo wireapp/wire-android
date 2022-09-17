@@ -1,6 +1,8 @@
 package com.wire.android
 
 import android.app.Application
+import android.content.ComponentCallbacks2
+import android.os.Build
 import androidx.work.Configuration
 import co.touchlab.kermit.platformLogWriter
 import com.datadog.android.Datadog
@@ -15,6 +17,7 @@ import com.wire.android.util.DataDogLogger
 import com.wire.android.util.LogFileWriter
 import com.wire.android.util.extension.isGoogleServicesAvailable
 import com.wire.android.util.getDeviceId
+import com.wire.android.util.sha256
 import com.wire.android.util.lifecycle.ConnectionPolicyManager
 import com.wire.kalium.logger.KaliumLogLevel
 import com.wire.kalium.logger.KaliumLogger
@@ -73,6 +76,16 @@ class WireApplication : Application(), Configuration.Provider {
         coreLogic.updateApiVersionsScheduler.schedulePeriodicApiVersionUpdate()
 
         connectionPolicyManager.startObservingAppLifecycle()
+
+        logDeviceInformation()
+    }
+
+    private fun logDeviceInformation() {
+        appLogger.d(
+            "Device info: App version=${BuildConfig.VERSION_NAME} " +
+                    "| OS Version=${Build.VERSION.SDK_INT} " +
+                    "| Phone Model=${Build.BRAND}/${Build.MODEL}"
+        )
     }
 
     private fun enableLoggingAndInitiateFileLogging() {
@@ -104,8 +117,16 @@ class WireApplication : Application(), Configuration.Provider {
 
         val credentials = Credentials(clientToken, environmentName, appVariantName, applicationId)
         Datadog.initialize(this, credentials, configuration, TrackingConsent.GRANTED)
-        Datadog.setUserInfo(id = getDeviceId(this))
+        Datadog.setUserInfo(id = getDeviceId(this)?.sha256())
         GlobalRum.registerIfAbsent(RumMonitor.Builder().build())
+    }
+
+    override fun onTrimMemory(level: Int) {
+        super.onTrimMemory(level)
+        appLogger.w(
+            "onTrimMemory called - App info: Memory trim level=${MemoryLevel.byLevel(level)}. " +
+                    "See more at https://developer.android.com/reference/kotlin/android/content/ComponentCallbacks2"
+        )
     }
 
     override fun onLowMemory() {
@@ -116,5 +137,21 @@ class WireApplication : Application(), Configuration.Provider {
 
     private companion object {
         const val LONG_TASK_THRESH_HOLD_MS = 1000L
+
+        enum class MemoryLevel(val level: Int) {
+            TRIM_MEMORY_BACKGROUND(ComponentCallbacks2.TRIM_MEMORY_BACKGROUND),
+            TRIM_MEMORY_COMPLETE(ComponentCallbacks2.TRIM_MEMORY_COMPLETE),
+            TRIM_MEMORY_MODERATE(ComponentCallbacks2.TRIM_MEMORY_MODERATE),
+            TRIM_MEMORY_RUNNING_CRITICAL(ComponentCallbacks2.TRIM_MEMORY_RUNNING_CRITICAL),
+            TRIM_MEMORY_RUNNING_LOW(ComponentCallbacks2.TRIM_MEMORY_RUNNING_LOW),
+            TRIM_MEMORY_RUNNING_MODERATE(ComponentCallbacks2.TRIM_MEMORY_RUNNING_MODERATE),
+            TRIM_MEMORY_UI_HIDDEN(ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN),
+            @Suppress("MagicNumber")
+            TRIM_MEMORY_UNKNOWN(-1);
+
+            companion object {
+                fun byLevel(value: Int) = values().firstOrNull { it.level == value } ?: TRIM_MEMORY_UNKNOWN
+            }
+        }
     }
 }

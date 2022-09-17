@@ -38,7 +38,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.model.ImageMessageParams
 import com.wire.android.ui.home.conversations.model.MessageAsset
 import com.wire.android.ui.home.conversations.model.MessageBody
-import com.wire.android.ui.home.conversations.model.MessageContent
+import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageImage
 import com.wire.android.ui.home.conversations.model.MessageSource
@@ -201,32 +201,32 @@ private fun Username(username: String, modifier: Modifier = Modifier) {
 
 @Composable
 private fun MessageContent(
-    messageContent: MessageContent?,
+    messageContent: UIMessageContent?,
     onAssetClick: Clickable,
     onImageClick: Clickable,
     onLongClick: (() -> Unit)? = null
 ) {
     when (messageContent) {
-        is MessageContent.ImageMessage -> MessageImage(
+        is UIMessageContent.ImageMessage -> MessageImage(
             rawImgData = messageContent.imgData,
             imgParams = ImageMessageParams(messageContent.width, messageContent.height),
             onImageClick = onImageClick
         )
-        is MessageContent.TextMessage -> MessageBody(
+        is UIMessageContent.TextMessage -> MessageBody(
             messageBody = messageContent.messageBody,
             onLongClick = onLongClick
         )
-        is MessageContent.AssetMessage -> MessageAsset(
+        is UIMessageContent.AssetMessage -> MessageAsset(
             assetName = messageContent.assetName,
             assetExtension = messageContent.assetExtension,
             assetSizeInBytes = messageContent.assetSizeInBytes,
             assetDownloadStatus = messageContent.downloadStatus,
             onAssetClick = onAssetClick
         )
-        is MessageContent.SystemMessage.MemberAdded -> {}
-        is MessageContent.SystemMessage.MemberLeft -> {}
-        is MessageContent.SystemMessage.MemberRemoved -> {}
-        is MessageContent.RestrictedAsset -> {
+        is UIMessageContent.SystemMessage.MemberAdded -> {}
+        is UIMessageContent.SystemMessage.MemberLeft -> {}
+        is UIMessageContent.SystemMessage.MemberRemoved -> {}
+        is UIMessageContent.RestrictedAsset -> {
             when {
                 messageContent.mimeType.contains("image/") -> {
                     RestrictedAssetMessage(R.drawable.ic_gallery, stringResource(id = R.string.prohibited_images_message))

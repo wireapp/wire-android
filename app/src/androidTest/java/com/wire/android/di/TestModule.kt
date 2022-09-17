@@ -6,8 +6,9 @@ import com.wire.android.utils.PASSWORD
 import com.wire.android.utils.PASSWORD_2
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.configuration.server.ServerConfig
+import com.wire.kalium.logic.data.session.SessionRepository
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.auth.AuthSession
+import com.wire.kalium.logic.feature.auth.AccountInfo
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
 import com.wire.kalium.logic.functional.Either
 import dagger.Module
@@ -35,38 +36,41 @@ class TestModule {
     @Provides
     fun currentSessionProvider(@KaliumCoreLogic coreLogic: CoreLogic): UserId {
         return runBlocking {
-            val result = restoreSession(coreLogic)
+            val sessionRepository = coreLogic.getGlobalScope().sessionRepository
+            val result = restoreSession(sessionRepository)
             if (result != null) {
-                result.session.userId
+                result.userId
             } else {
                 // execute manual login
                 val authResult = coreLogic.getAuthenticationScope(ServerConfig.STAGING)
                     .login(EMAIL, PASSWORD, false)
 
                 if (authResult is AuthenticationResult.Success) {
+                    val (authTokens, ssoId, serverConfigId) = authResult
                     // persist locally the session if successful
-                    coreLogic.sessionRepository.storeSession(authResult.userSession, authResult.ssoId)
-                    authResult.userSession.session.userId
+                    sessionRepository.storeSession(serverConfigId, ssoId, authTokens)
+                    authResult.authData.userId
                 } else {
-                    val authResultRetry = coreLogic.getAuthenticationScope(ServerConfig.STAGING)
+                    val (authTokens, ssoId, serverConfigId) = coreLogic.getAuthenticationScope(ServerConfig.STAGING)
                         .login(EMAIL_2, PASSWORD_2, false)
-                    if (authResultRetry is AuthenticationResult.Success) {
-                        coreLogic.sessionRepository.storeSession(authResultRetry.userSession, authResultRetry.ssoId)
-                        authResultRetry.userSession.session.userId
-                    } else {
-                        throw RuntimeException("Failed to setup testing custom injection")
-                    }
+                        .let {
+                            when (it) {
+                                is AuthenticationResult.Success -> it
+                                is AuthenticationResult.Failure ->
+                                    throw RuntimeException("Failed to setup testing custom injection")
+                            }
+                        }
+                    sessionRepository.storeSession(serverConfigId, ssoId, authTokens)
+                    authTokens.userId
                 }
             }
         }
     }
 }
 
-private fun restoreSession(coreLogic: CoreLogic): AuthSession? {
-    return coreLogic.authenticationScope(ServerConfig.STAGING) {
-        when (val currentSessionResult = coreLogic.sessionRepository.currentSession()) {
-            is Either.Right -> currentSessionResult.value
-            else -> null
-        }
+private fun restoreSession(sessionRepository: SessionRepository): AccountInfo? {
+    return when (val currentSessionResult = sessionRepository.currentSession()) {
+        is Either.Right -> currentSessionResult.value
+        else -> null
     }
 }

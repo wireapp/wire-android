@@ -1,5 +1,6 @@
 package com.wire.android.ui.userprofile.self
 
+import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -68,6 +69,7 @@ import com.wire.kalium.logic.data.user.UserId
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SelfUserProfileScreen(viewModelSelf: SelfUserProfileViewModel = hiltViewModel()) {
+    val context = LocalContext.current
     SelfUserProfileContent(
         state = viewModelSelf.userProfileState,
         onCloseClick = viewModelSelf::navigateBack,
@@ -83,6 +85,7 @@ fun SelfUserProfileScreen(viewModelSelf: SelfUserProfileViewModel = hiltViewMode
         onMaxAccountReachedDialogDismissed = viewModelSelf::onMaxAccountReachedDialogDismissed,
         onOtherAccountClick = viewModelSelf::switchAccount,
         isUserInCall = viewModelSelf::isUserInCall,
+        context = context
     )
 }
 
@@ -103,6 +106,7 @@ private fun SelfUserProfileContent(
     onMaxAccountReachedDialogDismissed: () -> Unit = {},
     onOtherAccountClick: (UserId) -> Unit = {},
     isUserInCall: () -> Boolean,
+    context: Context
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -192,7 +196,7 @@ private fun SelfUserProfileContent(
                         )
                     }
                 }
-                NewTeamButton(onAddAccountClick, isUserInCall)
+                NewTeamButton(onAddAccountClick, isUserInCall, context)
             }
             ChangeStatusDialogContent(
                 data = statusDialogData,
@@ -337,8 +341,11 @@ private fun OtherAccountsHeader() {
 }
 
 @Composable
-private fun NewTeamButton(onAddAccountClick: () -> Unit, isUserIdCall: () -> Boolean) {
-    val context = LocalContext.current
+private fun NewTeamButton(
+    onAddAccountClick: () -> Unit,
+    isUserIdCall: () -> Boolean,
+    context: Context
+) {
     Surface(shadowElevation = dimensions().spacing8x) {
         WirePrimaryButton(
             modifier = Modifier
@@ -413,7 +420,8 @@ private fun SelfUserProfileScreenPreview() {
             ),
             statusDialogData = null
         ),
-        isUserInCall = { false }
+        isUserInCall = { false },
+        context = LocalContext.current
     )
 }
 

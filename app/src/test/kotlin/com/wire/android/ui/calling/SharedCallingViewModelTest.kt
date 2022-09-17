@@ -2,6 +2,7 @@ package com.wire.android.ui.calling
 
 import android.view.View
 import androidx.lifecycle.SavedStateHandle
+import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.mapper.UICallParticipantMapper
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.media.CallRinger
@@ -132,7 +133,8 @@ class SharedCallingViewModelTest {
             userTypeMapper = userTypeMapper,
             currentScreenManager = currentScreenManager,
             qualifiedIdMapper = qualifiedIdMapper,
-            getConversationClassifiedType = getConversationClassifiedType
+            getConversationClassifiedType = getConversationClassifiedType,
+            dispatchers = TestDispatcherProvider()
         )
     }
 

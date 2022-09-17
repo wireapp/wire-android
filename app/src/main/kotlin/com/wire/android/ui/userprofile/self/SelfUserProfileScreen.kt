@@ -356,13 +356,13 @@ private fun NewTeamButton(
             onClick = remember {
                 {
                     if (isUserIdCall()) {
-                        onAddAccountClick()
-                    } else {
                         Toast.makeText(
                             context,
                             context.getString(R.string.cant_switch_account_in_call),
                             Toast.LENGTH_SHORT
                         ).show()
+                    } else {
+                        onAddAccountClick()
                     }
                 }
             }

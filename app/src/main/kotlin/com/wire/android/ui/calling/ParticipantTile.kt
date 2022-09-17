@@ -41,6 +41,22 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.data.id.QualifiedID
 
+// used to display the blue border around the tile to mention taht someone is talking
+@Composable
+fun TileModifier(modifier: Modifier, isSpeaking: Boolean): Modifier {
+    var updatedModifier = modifier
+    if (isSpeaking) {
+        updatedModifier = modifier
+            .border(
+                width = dimensions().spacing4x,
+                color = MaterialTheme.wireColorScheme.primary,
+                shape = RoundedCornerShape(dimensions().corner8x)
+            )
+            .padding(dimensions().spacing6x)
+    }
+    return updatedModifier
+}
+
 @Composable
 fun ParticipantTile(
     modifier: Modifier,
@@ -52,18 +68,8 @@ fun ParticipantTile(
     onSelfUserVideoPreviewCreated: (view: View) -> Unit,
     onClearSelfUserVideoPreview: () -> Unit
 ) {
-    var updatedModifier = modifier
-    if (participantTitleState.isSpeaking) {
-        updatedModifier = modifier
-            .border(
-                width = dimensions().spacing4x,
-                color = MaterialTheme.wireColorScheme.primary,
-                shape = RoundedCornerShape(dimensions().corner8x)
-            )
-            .padding(dimensions().spacing6x)
-    }
     Surface(
-        modifier = updatedModifier.padding(top = 0.dp),
+        modifier = TileModifier(modifier, participantTitleState.isSpeaking),
         color = MaterialTheme.wireColorScheme.ongoingCallBackground,
         shape = RoundedCornerShape(dimensions().corner6x)
     ) {
@@ -147,7 +153,7 @@ fun ParticipantTile(
                     }
                     .widthIn(max = onGoingCallTileUsernameMaxWidth),
                 name = participantTitleState.name,
-                color = if (participantTitleState.isSpeaking) MaterialTheme.wireColorScheme.primary else Color.Black
+                isSpeaking = participantTitleState.isSpeaking
             )
 
         }
@@ -193,8 +199,10 @@ private fun AvatarTile(
 private fun UsernameTile(
     modifier: Modifier,
     name: String,
-    color: Color
+    isSpeaking: Boolean
 ) {
+    val color = if (isSpeaking) MaterialTheme.wireColorScheme.primary else Color.Black
+
     Surface(
         modifier = modifier,
         shape = RoundedCornerShape(dimensions().corner4x),

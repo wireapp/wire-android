@@ -76,17 +76,7 @@ class ConnectionPolicyManager @Inject constructor(
             setConnectionPolicy(ConnectionPolicy.KEEP_ALIVE)
             // Wait until the client is live and pending events are processed
             logger.d("$TAG Waiting until live")
-            val isSlowSyncing = syncManager.isSlowSyncOngoing()
-            if(isSlowSyncing) {
-                syncManager.waitUntilLiveOrFailure().fold({
-                    logger.e("$TAG SyncManager failure $it")
-                    syncManager.waitUntilLive()
-                }, {
-                    logger.d("$TAG SyncManager live")
-                })
-            } else {
-                syncManager.waitUntilLive()
-            }
+            syncManager.waitUntilLive()
             logger.d("$TAG Checking if downgrading policy is needed")
             downgradePolicyIfNeeded(userId)
         }

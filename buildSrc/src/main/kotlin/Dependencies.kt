@@ -67,7 +67,7 @@ object Libraries {
         const val composeMaterial3 = "1.0.0-alpha11"
         const val composeActivity = "1.4.0"
         const val composeNavigation = "2.4.2"
-        const val accompanist = "0.24.7-alpha" // https://github.com/google/accompanist/issues/1162
+        const val accompanist = "0.25.0"
         const val composeConstraint = "1.0.0"
         const val hilt = "2.38.1"
         const val lifecycle = "2.4.0"
@@ -75,6 +75,8 @@ object Libraries {
         const val composeHiltNavigation = "1.0.0-alpha03"
         const val browser = "1.3.0"
         const val dataStore = "1.0.0"
+        const val paging3 = "3.1.1"
+        const val paging3Compose = "1.0.0-alpha15"
         const val splashscreen = "1.0.0-beta01"
         const val coil = "2.0.0-rc02"
         const val exif = "1.3.3"
@@ -141,13 +143,20 @@ object Libraries {
         const val coroutinesCore    = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines}"
         const val coroutinesAndroid = "org.jetbrains.kotlinx:kotlinx-coroutines-android:${Versions.coroutines}"
     }
+
     object Firebase {
         const val firebaseBOM = "com.google.firebase:firebase-bom:${Versions.firebaseBOM}"
         const val firebaseCloudMessaging = "com.google.firebase:firebase-messaging-ktx"
     }
+
+    object Paging {
+        const val runtime = "androidx.paging:paging-runtime:${Versions.paging3}"
+        const val compose = "androidx.paging:paging-compose:${Versions.paging3Compose}"
+    }
 }
 
 object TestLibraries {
+
     private object Versions {
         const val androidCore = "1.4.0"
         const val junit4 = "4.13"

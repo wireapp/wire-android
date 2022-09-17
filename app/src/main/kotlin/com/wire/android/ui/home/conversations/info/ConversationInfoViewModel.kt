@@ -17,6 +17,7 @@ import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.ui.home.conversations.ConversationAvatar
 import com.wire.android.ui.home.conversations.ConversationDetailsData
 import com.wire.android.ui.home.conversations.model.MessageSource
+import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.android.util.ui.toUIText
@@ -38,6 +39,7 @@ class ConversationInfoViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val wireSessionImageLoader: WireSessionImageLoader,
+    private val dispatchers: DispatcherProvider
 ) : SavedStateViewModel(savedStateHandle) {
 
     var conversationInfoViewState by mutableStateOf(ConversationInfoViewState())
@@ -83,12 +85,13 @@ class ConversationInfoViewModel @Inject constructor(
 
         val connectionStateOrNull = (conversationInfoViewState.conversationDetailsData as? ConversationDetailsData.OneOne)?.connectionState
 
+        val detailsData = getConversationDetailsData(conversationDetails)
         conversationInfoViewState = conversationInfoViewState.copy(
             conversationName = getConversationName(conversationDetails, isConversationUnavailable),
             conversationAvatar = getConversationAvatar(conversationDetails),
-            conversationDetailsData = getConversationDetailsData(conversationDetails),
+            conversationDetailsData = detailsData,
             isUserBlocked = connectionStateOrNull == ConnectionState.BLOCKED,
-            hasUserPermissionToEdit = conversationInfoViewState.conversationDetailsData !is ConversationDetailsData.None
+            hasUserPermissionToEdit = detailsData !is ConversationDetailsData.None
         )
     }
 
@@ -130,7 +133,7 @@ class ConversationInfoViewModel @Inject constructor(
             else UIText.StringResource(R.string.member_name_deleted_label)
     }
 
-    fun navigateToDetails() = viewModelScope.launch {
+    fun navigateToDetails() = viewModelScope.launch(dispatchers.io()) {
         when (val data = conversationInfoViewState.conversationDetailsData) {
             is ConversationDetailsData.OneOne -> navigationManager.navigate(
                 command = NavigationCommand(

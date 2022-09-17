@@ -12,7 +12,7 @@ import kotlin.reflect.KClass
  * Convenience function to obtain a ViewModel instance from the AndroidComposeTestRule
  */
 inline fun <reified VM : ViewModel, R : TestRule, A : ComponentActivity>
-        AndroidComposeTestRule<R, A>.getViewModel(viewModel: KClass<VM>): VM {
+AndroidComposeTestRule<R, A>.getViewModel(viewModel: KClass<VM>): VM {
     println("Getting test instance of ViewModel: $viewModel")
     return this.activity.viewModels<VM>().value
 }

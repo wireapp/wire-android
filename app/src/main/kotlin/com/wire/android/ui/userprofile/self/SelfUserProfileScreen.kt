@@ -1,9 +1,7 @@
 package com.wire.android.ui.userprofile.self
 
 import android.content.Context
-import android.content.ContextWrapper
 import android.widget.Toast
-import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
@@ -26,7 +24,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
@@ -36,7 +33,6 @@ import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -53,16 +49,18 @@ import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.home.conversations.search.HighlightName
 import com.wire.android.ui.home.conversations.search.HighlightSubtitle
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.theme.wireDimensions
-import com.wire.android.ui.theme.wireTypography
 import com.wire.android.ui.userprofile.common.EditableState
 import com.wire.android.ui.userprofile.common.UserProfileInfo
 import com.wire.android.ui.userprofile.self.SelfUserProfileViewModel.ErrorCodes
 import com.wire.android.ui.userprofile.self.SelfUserProfileViewModel.ErrorCodes.DownloadUserInfoError
 import com.wire.android.ui.userprofile.self.dialog.ChangeStatusDialogContent
+import com.wire.android.ui.userprofile.self.dialog.LogoutOptionsDialog
+import com.wire.android.ui.userprofile.self.dialog.LogoutOptionsDialogState
 import com.wire.android.ui.userprofile.self.model.OtherAccount
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
@@ -71,10 +69,11 @@ import com.wire.kalium.logic.data.user.UserId
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SelfUserProfileScreen(viewModelSelf: SelfUserProfileViewModel = hiltViewModel()) {
+    val context = LocalContext.current
     SelfUserProfileContent(
         state = viewModelSelf.userProfileState,
         onCloseClick = viewModelSelf::navigateBack,
-        onLogoutClick = viewModelSelf::onLogoutClick,
+        logout = viewModelSelf::logout,
         onChangeUserProfilePicture = viewModelSelf::onChangeProfilePictureClicked,
         onEditClick = viewModelSelf::editProfile,
         onStatusClicked = viewModelSelf::changeStatusClick,
@@ -84,7 +83,9 @@ fun SelfUserProfileScreen(viewModelSelf: SelfUserProfileViewModel = hiltViewMode
         onNotShowRationaleAgainChange = viewModelSelf::dialogCheckBoxStateChanged,
         onMessageShown = viewModelSelf::clearErrorMessage,
         onMaxAccountReachedDialogDismissed = viewModelSelf::onMaxAccountReachedDialogDismissed,
-        onOtherAccountClick = viewModelSelf::onOtherAccountClick
+        onOtherAccountClick = viewModelSelf::switchAccount,
+        isUserInCall = viewModelSelf::isUserInCall,
+        context = context
     )
 }
 
@@ -93,7 +94,7 @@ fun SelfUserProfileScreen(viewModelSelf: SelfUserProfileViewModel = hiltViewMode
 private fun SelfUserProfileContent(
     state: SelfUserProfileState,
     onCloseClick: () -> Unit = {},
-    onLogoutClick: () -> Unit = {},
+    logout: (Boolean) -> Unit = {},
     onChangeUserProfilePicture: () -> Unit = {},
     onEditClick: () -> Unit = {},
     onStatusClicked: (UserAvailabilityStatus) -> Unit = {},
@@ -103,7 +104,9 @@ private fun SelfUserProfileContent(
     onNotShowRationaleAgainChange: (Boolean) -> Unit = {},
     onMessageShown: () -> Unit = {},
     onMaxAccountReachedDialogDismissed: () -> Unit = {},
-    onOtherAccountClick: (UserId) -> Unit = {}
+    onOtherAccountClick: (UserId) -> Unit = {},
+    isUserInCall: () -> Boolean,
+    context: Context
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -115,12 +118,15 @@ private fun SelfUserProfileContent(
         }
     }
     val scrollState = rememberScrollState()
+    val logoutOptionsDialogState = rememberVisibilityState<LogoutOptionsDialogState>()
 
     Scaffold(
         topBar = {
             SelfUserProfileTopBar(
                 onCloseClick = onCloseClick,
-                onLogoutClick = onLogoutClick
+                onLogoutClick = remember {
+                    { logoutOptionsDialogState.show(logoutOptionsDialogState.savedState ?: LogoutOptionsDialogState()) }
+                }
             )
         },
         snackbarHost = {
@@ -175,7 +181,7 @@ private fun SelfUserProfileContent(
                                     account,
                                     clickable = remember {
                                         Clickable(enabled = true, onClick = {
-                                            if (state.isUserInCall) {
+                                            if (isUserInCall()) {
                                                 Toast.makeText(
                                                     context,
                                                     context.getString(R.string.cant_switch_account_in_call),
@@ -190,7 +196,7 @@ private fun SelfUserProfileContent(
                         )
                     }
                 }
-                NewTeamButton(onAddAccountClick)
+                NewTeamButton(onAddAccountClick, isUserInCall, context)
             }
             ChangeStatusDialogContent(
                 data = statusDialogData,
@@ -206,6 +212,11 @@ private fun SelfUserProfileContent(
                     buttonText = R.string.label_ok
                 )
             }
+
+            LogoutOptionsDialog(
+                dialogState = logoutOptionsDialogState,
+                logout = logout
+            )
         }
     }
 }
@@ -330,7 +341,11 @@ private fun OtherAccountsHeader() {
 }
 
 @Composable
-private fun NewTeamButton(onAddAccountClick: () -> Unit) {
+private fun NewTeamButton(
+    onAddAccountClick: () -> Unit,
+    isUserIdCall: () -> Boolean,
+    context: Context
+) {
     Surface(shadowElevation = dimensions().spacing8x) {
         WirePrimaryButton(
             modifier = Modifier
@@ -338,7 +353,19 @@ private fun NewTeamButton(onAddAccountClick: () -> Unit) {
                 .padding(dimensions().spacing16x)
                 .testTag("New Team or Account"),
             text = stringResource(R.string.user_profile_new_account_text),
-            onClick = onAddAccountClick
+            onClick = remember {
+                {
+                    if (isUserIdCall()) {
+                        onAddAccountClick()
+                    } else {
+                        Toast.makeText(
+                            context,
+                            context.getString(R.string.cant_switch_account_in_call),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    }
+                }
+            }
         )
     }
 }
@@ -393,6 +420,8 @@ private fun SelfUserProfileScreenPreview() {
             ),
             statusDialogData = null
         ),
+        isUserInCall = { false },
+        context = LocalContext.current
     )
 }
 

@@ -13,27 +13,19 @@ import com.wire.android.BuildConfig
 import com.wire.android.appLogger
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
-import com.wire.android.di.NoSession
 import com.wire.android.navigation.BackStackMode
-import com.wire.android.navigation.EXTRA_USER_ID
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.client.ClientCapability
 import com.wire.kalium.logic.data.conversation.ClientId
-import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.QualifiedIdMapper
-import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
-import com.wire.kalium.logic.feature.auth.AuthSession
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.client.RegisterClientUseCase
-import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import com.wire.kalium.logic.feature.session.RegisterTokenResult
-import com.wire.kalium.logic.functional.map
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -44,9 +36,7 @@ import javax.inject.Inject
 open class LoginViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
-    @NoSession qualifiedIdMapper: QualifiedIdMapper,
     private val clientScopeProviderFactory: ClientScopeProvider.Factory,
-    private val getSessions: GetSessionsUseCase,
     authServerConfigProvider: AuthServerConfigProvider
 ) : ViewModel() {
     var loginState by mutableStateOf(
@@ -58,34 +48,7 @@ open class LoginViewModel @Inject constructor(
     )
         protected set
 
-    val userId: QualifiedID? = savedStateHandle.get<String>(EXTRA_USER_ID)?.let {
-        qualifiedIdMapper.fromStringToQualifiedID(it)
-    }
-
     val serverConfig = authServerConfigProvider.authServer.value
-
-    init {
-        viewModelScope.launch {
-            if (userId != null)
-                getSessions.getUserSession(userId).map {
-                    if (it.session is AuthSession.Session.Invalid) {
-                        with(it.session as AuthSession.Session.Invalid) {
-                            val loginError = when (this.reason) {
-                                LogoutReason.SELF_LOGOUT -> {
-                                    getSessions.deleteInvalidSession(userId)
-                                    LoginError.None
-                                }
-
-                                LogoutReason.REMOVED_CLIENT -> LoginError.DialogError.InvalidSession.RemovedClient
-                                LogoutReason.DELETED_ACCOUNT -> LoginError.DialogError.InvalidSession.DeletedAccount
-                                LogoutReason.SESSION_EXPIRED -> LoginError.DialogError.InvalidSession.SessionExpired
-                            }
-                            loginState = loginState.copy(loginError = loginError)
-                        }
-                    }
-                }
-        }
-    }
 
     open fun updateSSOLoginError(error: LoginError) {
         loginState = if (error is LoginError.None) {
@@ -103,15 +66,8 @@ open class LoginViewModel @Inject constructor(
         }
     }
 
-    private fun deleteInvalidSession() {
-        if (loginState.loginError is LoginError.DialogError.InvalidSession && userId != null) {
-            getSessions.deleteInvalidSession(userId)
-        }
-    }
-
     fun onDialogDismiss() {
-        deleteInvalidSession()
-        clearLoginErrors()
+            clearLoginErrors()
     }
 
     private fun clearLoginErrors() {
@@ -138,7 +94,7 @@ open class LoginViewModel @Inject constructor(
         capabilities: List<ClientCapability>? = null
     ): RegisterClientResult {
         val clientScope = clientScopeProviderFactory.create(userId).clientScope
-        return clientScope.register(
+        return clientScope.getOrRegister(
             RegisterClientUseCase.RegisterClientParam(
                 password = password,
                 capabilities = capabilities

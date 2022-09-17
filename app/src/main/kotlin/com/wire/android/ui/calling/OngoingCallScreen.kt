@@ -5,7 +5,9 @@ import android.widget.Toast
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -14,6 +16,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.BottomSheetScaffold
 import androidx.compose.material.BottomSheetValue
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.Text
 import androidx.compose.material.rememberBottomSheetScaffoldState
 import androidx.compose.material.rememberBottomSheetState
 import androidx.compose.material3.MaterialTheme
@@ -25,6 +28,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.R
 import com.wire.android.ui.calling.common.VerticalCallingPager
 import com.wire.android.ui.calling.controlButtons.CameraButton
 import com.wire.android.ui.calling.controlButtons.CameraFlipButton
@@ -33,9 +37,11 @@ import com.wire.android.ui.calling.controlButtons.MicrophoneButton
 import com.wire.android.ui.calling.controlButtons.SpeakerButton
 import com.wire.android.ui.calling.model.UICallParticipant
 import com.wire.android.ui.common.SecurityClassificationBanner
+import com.wire.android.ui.common.WireCircularProgressIndicator
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
@@ -46,24 +52,24 @@ fun OngoingCallScreen(
     sharedCallingViewModel: SharedCallingViewModel = hiltViewModel()
 ) {
 
-    with(sharedCallingViewModel) {
+    with(sharedCallingViewModel.callState) {
         OngoingCallContent(
-            callState.conversationName,
-            callState.participants,
-            callState.isMuted ?: true,
-            callState.isCameraOn ?: false,
-            callState.isSpeakerOn,
-            callState.securityClassificationType,
-            ::toggleSpeaker,
-            ::toggleMute,
-            ::hangUpCall,
-            ::toggleVideo,
-            ::setVideoPreview,
-            ::clearVideoPreview,
-            ::navigateBack
+            conversationName,
+            participants,
+            isMuted ?: true,
+            isCameraOn ?: false,
+            isSpeakerOn,
+            securityClassificationType,
+            sharedCallingViewModel::toggleSpeaker,
+            sharedCallingViewModel::toggleMute,
+            sharedCallingViewModel::hangUpCall,
+            sharedCallingViewModel::toggleVideo,
+            sharedCallingViewModel::setVideoPreview,
+            sharedCallingViewModel::clearVideoPreview,
+            sharedCallingViewModel::navigateBack
         )
-        callState.isCameraOn?.let {
-            BackHandler(enabled = it) { navigateBack() }
+        isCameraOn?.let {
+            BackHandler(enabled = it, sharedCallingViewModel::navigateBack)
         }
     }
 }
@@ -118,18 +124,36 @@ private fun OngoingCallContent(
             )
         },
     ) {
-        Box(
-            modifier = Modifier.padding(
-                bottom = 95.dp
-            )
-        ) {
-            VerticalCallingPager(
-                participants = participants,
-                isSelfUserCameraOn = isCameraOn,
-                isSelfUserMuted = isMuted,
-                onSelfVideoPreviewCreated = setVideoPreview,
-                onSelfClearVideoPreview = clearVideoPreview
-            )
+        if (participants.isEmpty()) {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.Center,
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+                WireCircularProgressIndicator(
+                    progressColor = MaterialTheme.wireColorScheme.onSurface,
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                    size = dimensions().spacing32x
+                )
+                Text(
+                    text = stringResource(id = R.string.connectivity_status_bar_connecting),
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                )
+            }
+        } else {
+            Box(
+                modifier = Modifier.padding(
+                    bottom = 95.dp
+                )
+            ) {
+                VerticalCallingPager(
+                    participants = participants,
+                    isSelfUserCameraOn = isCameraOn,
+                    isSelfUserMuted = isMuted,
+                    onSelfVideoPreviewCreated = setVideoPreview,
+                    onSelfClearVideoPreview = clearVideoPreview
+                )
+            }
         }
     }
 }

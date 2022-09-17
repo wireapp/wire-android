@@ -11,7 +11,7 @@ import coil.request.ImageResult
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversations.model.MessageBody
-import com.wire.android.ui.home.conversations.model.MessageContent
+import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
@@ -36,7 +36,7 @@ val mockMessageWithText = UIMessage(
         messageId = "",
         connectionState = ConnectionState.ACCEPTED
     ),
-    messageContent = MessageContent.TextMessage(
+    messageContent = UIMessageContent.TextMessage(
         messageBody = MessageBody(
             UIText.DynamicString(
                 "This is some test message that is very very" +
@@ -74,7 +74,7 @@ val mockAssetMessage = UIMessage(
         messageId = "",
         connectionState = ConnectionState.ACCEPTED
     ),
-    messageContent = MessageContent.AssetMessage(
+    messageContent = UIMessageContent.AssetMessage(
         assetName = "This is some test asset message",
         assetExtension = "ZIP",
         assetId = UserAssetId("asset", "domain"),
@@ -85,7 +85,7 @@ val mockAssetMessage = UIMessage(
 )
 
 @Suppress("MagicNumber")
-val mockedImg = MessageContent.ImageMessage(UserAssetId("a", "domain"), ByteArray(16), 0, 0)
+val mockedImg = UIMessageContent.ImageMessage(UserAssetId("a", "domain"), ByteArray(16), 0, 0)
 
 @Suppress("LongMethod", "MagicNumber")
 fun getMockedMessages(): List<UIMessage> = listOf(
@@ -100,7 +100,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             messageId = "1",
             connectionState = ConnectionState.ACCEPTED
         ),
-        messageContent = MessageContent.TextMessage(
+        messageContent = UIMessageContent.TextMessage(
             messageBody = MessageBody(
                 UIText.DynamicString(
                     "This is some test message that is very very" +
@@ -165,7 +165,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             messageId = "5",
             connectionState = ConnectionState.ACCEPTED
         ),
-        messageContent = MessageContent.TextMessage(
+        messageContent = UIMessageContent.TextMessage(
             messageBody = MessageBody(
                 UIText.DynamicString(
                     "This is some test message that is very very" +
@@ -202,7 +202,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             messageId = "7",
             connectionState = ConnectionState.ACCEPTED
         ),
-        messageContent = MessageContent.TextMessage(
+        messageContent = UIMessageContent.TextMessage(
             messageBody = MessageBody(
                 UIText.DynamicString(
                     "This is some test message that is very very" +

@@ -21,7 +21,7 @@ data class UIMessage(
     val userAvatarData: UserAvatarData,
     val messageSource: MessageSource,
     val messageHeader: MessageHeader,
-    val messageContent: MessageContent?,
+    val messageContent: UIMessageContent?,
 ) {
     val isDeleted: Boolean = messageHeader.messageStatus == Deleted
     val sendingFailed: Boolean = messageHeader.messageStatus == SendFailure
@@ -52,9 +52,9 @@ sealed class MessageStatus(val text: UIText) {
     object DecryptionFailure : MessageStatus(UIText.StringResource(R.string.label_message_decryption_failure_message))
 }
 
-sealed class MessageContent {
+sealed class UIMessageContent {
 
-    sealed class ClientMessage : MessageContent()
+    sealed class ClientMessage : UIMessageContent()
 
     data class TextMessage(val messageBody: MessageBody) : ClientMessage()
 
@@ -73,7 +73,7 @@ sealed class MessageContent {
         val downloadStatus: Message.DownloadStatus
     ) : ClientMessage()
 
-    data class ImageMessage(val assetId: AssetId, val imgData: ByteArray?, val width: Int, val height: Int) : MessageContent() {
+    data class ImageMessage(val assetId: AssetId, val imgData: ByteArray?, val width: Int, val height: Int) : UIMessageContent() {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (javaClass != other?.javaClass) return false
@@ -92,7 +92,7 @@ sealed class MessageContent {
         @DrawableRes val iconResId: Int?,
         @StringRes open val stringResId: Int,
         val isSmallIcon: Boolean = true
-    ) : MessageContent() {
+    ) : UIMessageContent() {
 
         data class MemberAdded(
             val author: UIText,

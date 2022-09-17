@@ -68,16 +68,26 @@ class ConnectionPolicyManager @Inject constructor(
      * this will downgrade the policy back to [ConnectionPolicy.DISCONNECT_AFTER_PENDING_EVENTS].
      */
     suspend fun handleConnectionOnPushNotification(userId: UserId) {
-        logger.d("Handling connection policy for push notification of " +
+        logger.d("$TAG Handling connection policy for push notification of " +
                 "user=${userId.value.obfuscateId()}@${userId.domain.obfuscateDomain()}")
         coreLogic.getSessionScope(userId).run {
-            logger.d("Forcing KEEP_ALIVE policy")
+            logger.d("$TAG Forcing KEEP_ALIVE policy")
             // Force KEEP_ALIVE policy, so we gather pending events and become online
             setConnectionPolicy(ConnectionPolicy.KEEP_ALIVE)
             // Wait until the client is live and pending events are processed
-            logger.d("Waiting until live")
-            syncManager.waitUntilLive()
-            logger.d("Checking if downgrading policy is needed")
+            logger.d("$TAG Waiting until live")
+            val isSlowSyncing = syncManager.isSlowSyncOngoing()
+            if(isSlowSyncing) {
+                syncManager.waitUntilLiveOrFailure().fold({
+                    logger.e("$TAG SyncManager failure $it")
+                    syncManager.waitUntilLive()
+                }, {
+                    logger.d("$TAG SyncManager live")
+                })
+            } else {
+                syncManager.waitUntilLive()
+            }
+            logger.d("$TAG Checking if downgrading policy is needed")
             downgradePolicyIfNeeded(userId)
         }
     }
@@ -93,10 +103,10 @@ class ConnectionPolicyManager @Inject constructor(
     ) {
         val isCurrentSession = isCurrentSession(userId)
         val hasInitialisedUI = currentScreenManager.appWasVisibleAtLeastOnceFlow().first()
-        logger.d("isCurrentSession = $isCurrentSession; hasInitialisedUI = $hasInitialisedUI")
+        logger.d("$TAG isCurrentSession = $isCurrentSession; hasInitialisedUI = $hasInitialisedUI")
         val shouldKeepLivePolicy = isCurrentSession && hasInitialisedUI
         if (!shouldKeepLivePolicy) {
-            logger.d("Downgrading policy as conditions to KEEP_ALIVE are not met")
+            logger.d("$TAG Downgrading policy as conditions to KEEP_ALIVE are not met")
             setConnectionPolicy(ConnectionPolicy.DISCONNECT_AFTER_PENDING_EVENTS)
         }
     }
@@ -132,4 +142,8 @@ class ConnectionPolicyManager @Inject constructor(
     private fun currentSessionFlow() =
         coreLogic.getGlobalScope().sessionRepository.currentSessionFlow()
             .map { it.nullableFold({ null }, { currentSession -> currentSession.userId }) }
+
+    companion object {
+        private const val TAG = "ConnectionPolicyManager"
+    }
 }

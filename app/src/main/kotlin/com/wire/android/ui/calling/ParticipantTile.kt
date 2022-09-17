@@ -1,6 +1,5 @@
 package com.wire.android.ui.calling
 
-import android.util.Log
 import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.FrameLayout

@@ -438,7 +438,7 @@ fun MessageList(
 
             // TODO: This IF condition should be in the UseCase
             //       If there are no unread messages, then use distant future and don't update read date
-            if (lastVisibleMessageInstant > (lastUnreadMessageInstant ?: Instant.DISTANT_FUTURE)) {
+            if (lastVisibleMessageInstant >= (lastUnreadMessageInstant ?: Instant.DISTANT_FUTURE)) {
                 onUpdateConversationReadDate(lastVisibleMessage.messageHeader.messageTime.utcISO)
             }
         }

@@ -88,25 +88,26 @@ fun ParticipantTile(
                 )
             } else {
                 val context = LocalContext.current
-                AndroidView(factory = {
-                    val videoRenderer = VideoRenderer(
-                        context,
-                        participantTitleState.id.toString(),
-                        participantTitleState.clientId,
-                        false
-                    ).apply {
-                        layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
-                    }
-                    val frameLayout = FrameLayout(it)
-                    frameLayout.addView(videoRenderer)
-                    frameLayout
-                },
-                    update = {
-                        if (shouldRecomposeVideoRenderer) {
-                            // Needed to disconnect renderer from container, skipping this will lead to some issues like video freezing
-                            it.removeAllViews()
+                if (participantTitleState.isCameraOn || participantTitleState.isSharingScreen) {
 
-                            if (participantTitleState.isCameraOn || participantTitleState.isSharingScreen) {
+                    AndroidView(factory = {
+                        val videoRenderer = VideoRenderer(
+                            context,
+                            participantTitleState.id.toString(),
+                            participantTitleState.clientId,
+                            false
+                        ).apply {
+                            layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+                        }
+                        val frameLayout = FrameLayout(it)
+                        frameLayout.addView(videoRenderer)
+                        frameLayout
+                    },
+                        update = {
+                            if (shouldRecomposeVideoRenderer) {
+                                // Needed to disconnect renderer from container, skipping this will lead to some issues like video freezing
+                                it.removeAllViews()
+
 
                                 val videoRenderer = VideoRenderer(
                                     context,
@@ -117,11 +118,11 @@ fun ParticipantTile(
                                     layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
                                 }
                                 it.addView(videoRenderer)
-                            }
 
+                            }
                         }
-                    }
-                )
+                    )
+                }
             }
 
             MicrophoneTile(

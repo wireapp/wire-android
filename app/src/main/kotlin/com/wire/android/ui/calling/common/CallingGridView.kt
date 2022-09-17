@@ -119,7 +119,7 @@ fun isVideoStateChangedComparedToLastList(newParticipants: List<UICallParticipan
     if (lastParticipants.isEmpty())
         return true
     lastParticipants.zip(newParticipants).forEach { pair ->
-        if (pair.first.isCameraOn != pair.second.isCameraOn || (pair.first.isCameraOn != pair.second.isCameraOn))
+        if (pair.first.isCameraOn != pair.second.isCameraOn || (pair.first.isSharingScreen != pair.second.isSharingScreen))
             return true
     }
     return false

@@ -2,7 +2,7 @@ const val appId = "com.wire.android"
 
 object AndroidSdk {
     const val min = 24
-    const val compile = 32
+    const val compile = 33
     const val target = compile
 }
 
@@ -51,7 +51,7 @@ object Repositories {
 
 object Libraries {
     object Versions {
-        const val kotlin = "1.7.0"
+        const val kotlin = "1.7.10"
         const val coroutines = "1.6.1-native-mt"
         const val jetpack = "1.1.0"
         const val constraintLayout = "1.1.3"
@@ -62,7 +62,7 @@ object Libraries {
         const val desugaring = "1.1.5"
         const val workManager = "2.7.1"
         const val fragment = "1.5.0"
-        const val compose = "1.2.0"
+        const val compose = "1.3.0-alpha03"
         const val composeMaterial = compose
         const val composeMaterial3 = "1.0.0-alpha11"
         const val composeActivity = "1.4.0"

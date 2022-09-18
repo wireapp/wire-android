@@ -54,7 +54,7 @@ class OtherUserProfileScreenViewModelTest {
                 // then
                 coVerify { arrangement.sendConnectionRequest(eq(USER_ID)) }
                 assertEquals(ConnectionState.SENT, viewModel.state.connectionState)
-                assertEquals(InfoMessageType.SuccessConnectionSentRequest.uiText, awaitItem())
+                assertEquals(OtherUserProfileInfoMessageType.SuccessConnectionSentRequest.uiText, awaitItem())
             }
         }
 
@@ -77,7 +77,7 @@ class OtherUserProfileScreenViewModelTest {
                     arrangement.sendConnectionRequest(eq(USER_ID))
                     arrangement.navigationManager wasNot Called
                 }
-                assertEquals(InfoMessageType.ConnectionRequestError.uiText, awaitItem())
+                assertEquals(OtherUserProfileInfoMessageType.ConnectionRequestError.uiText, awaitItem())
             }
         }
 
@@ -113,7 +113,7 @@ class OtherUserProfileScreenViewModelTest {
                 // then
                 coVerify { arrangement.cancelConnectionRequest(eq(USER_ID)) }
                 assertEquals(ConnectionState.NOT_CONNECTED, viewModel.state.connectionState)
-                assertEquals(InfoMessageType.SuccessConnectionCancelRequest.uiText, awaitItem())
+                assertEquals(OtherUserProfileInfoMessageType.SuccessConnectionCancelRequest.uiText, awaitItem())
             }
         }
 
@@ -133,7 +133,7 @@ class OtherUserProfileScreenViewModelTest {
                 // then
                 coVerify { arrangement.acceptConnectionRequest(eq(USER_ID)) }
                 assertEquals(ConnectionState.ACCEPTED, viewModel.state.connectionState)
-                assertEquals(InfoMessageType.SuccessConnectionAcceptRequest.uiText, awaitItem())
+                assertEquals(OtherUserProfileInfoMessageType.SuccessConnectionAcceptRequest.uiText, awaitItem())
             }
         }
 
@@ -265,7 +265,7 @@ class OtherUserProfileScreenViewModelTest {
                     arrangement.updateConversationMemberRoleUseCase(CONVERSATION_ID, USER_ID, newRole)
                     arrangement.navigationManager wasNot Called
                 }
-                assertEquals(InfoMessageType.ChangeGroupRoleError.uiText, awaitItem())
+                assertEquals(OtherUserProfileInfoMessageType.ChangeGroupRoleError.uiText, awaitItem())
             }
         }
 
@@ -288,7 +288,7 @@ class OtherUserProfileScreenViewModelTest {
                 )
                 // then
                 coVerify { arrangement.blockUser(eq(USER_ID)) }
-                assertEquals(InfoMessageType.BlockingUserOperationError.uiText, awaitItem())
+                assertEquals(OtherUserProfileInfoMessageType.BlockingUserOperationError.uiText, awaitItem())
                 assertEquals(false, viewModel.requestInProgress)
             }
         }
@@ -316,7 +316,7 @@ class OtherUserProfileScreenViewModelTest {
                 coVerify { arrangement.blockUser(eq(USER_ID)) }
                 assertEquals(
                     (awaitItem() as UIText.StringResource).resId,
-                    (InfoMessageType.BlockingUserOperationSuccess(userName).uiText as UIText.StringResource).resId
+                    (OtherUserProfileInfoMessageType.BlockingUserOperationSuccess(userName).uiText as UIText.StringResource).resId
                 )
                 assertEquals(false, viewModel.requestInProgress)
             }

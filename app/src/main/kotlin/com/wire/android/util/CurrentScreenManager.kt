@@ -45,9 +45,6 @@ class CurrentScreenManager @Inject constructor(@ApplicationContext val context: 
             else flowOf(CurrentScreen.InBackground)
         }
         .distinctUntilChanged()
-        .onEach {
-            appLogger.i("${TAG}: observeCurrentScreen [${it.javaClass.simpleName}]")
-        }
         .stateIn(scope)
 
     /**

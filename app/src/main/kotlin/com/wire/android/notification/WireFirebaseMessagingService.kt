@@ -36,7 +36,7 @@ class WireFirebaseMessagingService : FirebaseMessagingService() {
 
     override fun onMessageReceived(message: RemoteMessage) {
         super.onMessageReceived(message)
-        appLogger.i("$TAG: notification received, priority ${message.priority}, ${message.originalPriority}")
+        appLogger.i("$TAG: notification received, priority ${message.priority}, org: ${message.originalPriority}")
         var userIdValue = ""
         for (items in message.data) {
             if (items.key == "user") {

@@ -92,22 +92,22 @@ class WireNotificationManagerTest {
         runCurrent()
 
         verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
-//        verify(exactly = 1) { arrangement.callNotificationManager.hideIncomingCallNotification() } TODO FIXME
+        verify(exactly = 1) { arrangement.callNotificationManager.hideIncomingCallNotification() }
     }
 
-//    @Test
-//    fun givenNoIncomingCalls_whenObserveCalled_thenCallNotificationHides() = runTestWithCancellation {
-//        val (arrangement, manager) = Arrangement()
-//            .withIncomingCalls(listOf())
-//            .withMessageNotifications(listOf())
-//            .withCurrentScreen(CurrentScreen.SomeOther)
-//            .arrange()
-//
-//        manager.observeNotificationsAndCalls(flowOf(provideUserId()), this) {}
-//        runCurrent()
-//
-//        verify(exactly = 1) { arrangement.callNotificationManager.hideIncomingCallNotification() } FIXME
-//    }
+    @Test
+    fun givenNoIncomingCalls_whenObserveCalled_thenCallNotificationHides() = runTestWithCancellation {
+        val (arrangement, manager) = Arrangement()
+            .withIncomingCalls(listOf())
+            .withMessageNotifications(listOf())
+            .withCurrentScreen(CurrentScreen.SomeOther)
+            .arrange()
+
+        manager.observeNotificationsAndCalls(flowOf(provideUserId()), this) {}
+        runCurrent()
+
+        verify(exactly = 1) { arrangement.callNotificationManager.hideIncomingCallNotification() }
+    }
 
     @Test
     fun givenSomeIncomingCalls_whenAppIsNotVisible_thenCallNotificationHidden() = runTestWithCancellation {
@@ -141,12 +141,10 @@ class WireNotificationManagerTest {
     }
 
     @Test
-    fun givenSomeNotifications_whenNoUserLoggedIn_thenMessageNotificationNotShowed() = runTestWithCancellation {
+    fun givenSomeNotifications_whenAppIsInForegroundAndNoUserLoggedIn_thenMessageNotificationNotShowed() = runTestWithCancellation {
         val (arrangement, manager) = Arrangement()
             .withIncomingCalls(listOf(provideCall()))
-            .withMessageNotifications(
-                listOf(provideLocalNotificationConversation(messages = listOf(provideLocalNotificationMessage())))
-            )
+            .withMessageNotifications(listOf(provideLocalNotificationConversation(messages = listOf(provideLocalNotificationMessage()))))
             .withCurrentScreen(CurrentScreen.SomeOther)
             .arrange()
 
@@ -155,7 +153,23 @@ class WireNotificationManagerTest {
 
         verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
         verify(exactly = 0) { arrangement.messageNotificationManager.handleNotification(listOf(), any()) }
-//        verify(exactly = 1) { arrangement.callNotificationManager.hideIncomingCallNotification() } TODO FIXME
+        verify(exactly = 1) { arrangement.callNotificationManager.hideAllNotifications() }
+    }
+
+    @Test
+    fun givenSomeNotifications_whenAppIsInBackgroundAndNoUserLoggedIn_thenMessageNotificationNotShowed() = runTestWithCancellation {
+        val (arrangement, manager) = Arrangement()
+            .withIncomingCalls(listOf(provideCall()))
+            .withMessageNotifications(listOf(provideLocalNotificationConversation(messages = listOf(provideLocalNotificationMessage()))))
+            .withCurrentScreen(CurrentScreen.InBackground)
+            .arrange()
+
+        manager.observeNotificationsAndCalls(flowOf(null), this) {}
+        runCurrent()
+
+        verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
+        verify(exactly = 0) { arrangement.messageNotificationManager.handleNotification(listOf(), any()) }
+        verify(exactly = 1) { arrangement.callNotificationManager.hideAllNotifications() }
     }
 
     @Test

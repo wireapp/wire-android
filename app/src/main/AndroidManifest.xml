@@ -22,7 +22,6 @@
 
     <!-- Allows showing incoming call when device is sleeping -->
     <uses-permission android:name="android.permission.WAKE_LOCK" />
-    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
 
     <!-- Needed to specify that we are using OpenGL ES 2.0 API-->
     <uses-feature

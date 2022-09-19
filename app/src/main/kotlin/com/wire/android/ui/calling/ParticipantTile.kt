@@ -43,18 +43,15 @@ import com.wire.kalium.logic.data.id.QualifiedID
 
 // used to display the blue border around the tile to mention that someone is talking
 @Composable
-fun TileModifier(modifier: Modifier, isSpeaking: Boolean): Modifier {
-    var updatedModifier = modifier
-    if (isSpeaking) {
-        updatedModifier = modifier
-            .border(
-                width = dimensions().spacing4x,
-                color = MaterialTheme.wireColorScheme.primary,
-                shape = RoundedCornerShape(dimensions().corner8x)
-            )
-            .padding(dimensions().spacing6x)
-    }
-    return updatedModifier
+fun TileModifier(modifier: Modifier, isSpeaking: Boolean) = if (isSpeaking) {
+    modifier.border(
+        width = dimensions().spacing4x,
+        color = MaterialTheme.wireColorScheme.primary,
+        shape = RoundedCornerShape(dimensions().corner8x)
+    )
+        .padding(dimensions().spacing6x)
+} else {
+    modifier
 }
 
 @Composable

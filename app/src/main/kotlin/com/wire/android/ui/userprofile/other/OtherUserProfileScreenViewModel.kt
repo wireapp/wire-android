@@ -68,7 +68,7 @@ import com.wire.kalium.logic.feature.connection.UnblockUserResult
 import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.CreateConversationResult
-import com.wire.kalium.logic.feature.conversation.GetConversationUseCase
+import com.wire.kalium.logic.feature.conversation.GetOneToOneConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleResult
@@ -78,13 +78,12 @@ import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
 import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import java.util.Date
-import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.Date
+import javax.inject.Inject
 
 @Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel
@@ -97,7 +96,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val blockUser: BlockUserUseCase,
     private val unblockUser: UnblockUserUseCase,
     private val getOrCreateOneToOneConversation: GetOrCreateOneToOneConversationUseCase,
-    private val getConversation: GetConversationUseCase,
+    private val getConversation: GetOneToOneConversationUseCase,
     private val observeUserInfo: ObserveUserInfoUseCase,
     private val sendConnectionRequest: SendConnectionRequestUseCase,
     private val cancelConnectionRequest: CancelConnectionRequestUseCase,
@@ -181,12 +180,12 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         if (otherUser.connectionStatus != ConnectionState.ACCEPTED) return
 
         viewModelScope.launch {
-            when (val conversationResult = getConversation(userId).first()) {
-                is GetConversationUseCase.Result.Failure -> {
+            when (val conversationResult = getConversation(userId)) {
+                is GetOneToOneConversationUseCase.Result.Failure -> {
                     appLogger.d("Couldn't not getOrCreateOneToOneConversation for user id: $userId")
                     showInfoMessage(LoadDirectConversationError)
                 }
-                is GetConversationUseCase.Result.Success -> {
+                is GetOneToOneConversationUseCase.Result.Success -> {
                     observeSelfUser().collect { selfUser ->
                         state = state.copy(
                             conversationSheetContent = ConversationSheetContent(

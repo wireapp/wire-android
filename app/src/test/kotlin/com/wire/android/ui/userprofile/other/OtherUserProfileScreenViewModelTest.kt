@@ -25,6 +25,7 @@ import com.wire.kalium.logic.feature.connection.CancelConnectionRequestUseCaseRe
 import com.wire.kalium.logic.feature.connection.IgnoreConnectionRequestUseCaseResult
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestResult
 import com.wire.kalium.logic.feature.conversation.CreateConversationResult
+import com.wire.kalium.logic.feature.conversation.GetOneToOneConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleResult
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
 import io.mockk.Called
@@ -341,11 +342,12 @@ class OtherUserProfileScreenViewModelTest {
             .withUserInfo(
                 GetUserInfoResult.Success(OTHER_USER.copy(connectionStatus = ConnectionState.ACCEPTED), TEAM)
             )
+            .withGetConversationDetails(GetOneToOneConversationUseCase.Result.Success(CONVERSATION))
             .arrange()
 
         // then
         coVerify {
-            arrangement.getOrCreateOneToOneConversation(USER_ID)
+            arrangement.getConversationUseCase(USER_ID)
         }
     }
 
@@ -357,11 +359,12 @@ class OtherUserProfileScreenViewModelTest {
                 GetUserInfoResult.Success(OTHER_USER.copy(connectionStatus = ConnectionState.ACCEPTED), TEAM)
             )
             .withGetOneToOneConversation(CreateConversationResult.Failure(Unknown(RuntimeException("some error"))))
+            .withGetConversationDetails(GetOneToOneConversationUseCase.Result.Failure)
             .arrange()
 
         // then
         coVerify {
-            arrangement.getOrCreateOneToOneConversation(USER_ID)
+            arrangement.getConversationUseCase(USER_ID)
         }
 
         assertEquals(false, viewModel.state.isDataLoading)

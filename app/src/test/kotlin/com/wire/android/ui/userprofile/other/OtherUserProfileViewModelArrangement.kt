@@ -27,7 +27,7 @@ import com.wire.kalium.logic.feature.connection.SendConnectionRequestResult
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
 import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
 import com.wire.kalium.logic.feature.conversation.CreateConversationResult
-import com.wire.kalium.logic.feature.conversation.GetConversationUseCase
+import com.wire.kalium.logic.feature.conversation.GetOneToOneConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleResult
@@ -104,7 +104,7 @@ internal class OtherUserProfileViewModelArrangement {
     lateinit var persistOtherUserClientsUseCase: PersistOtherUserClientsUseCase
 
     @MockK
-    lateinit var getConversationUseCase: GetConversationUseCase
+    lateinit var getConversationUseCase: GetOneToOneConversationUseCase
 
     private val viewModel by lazy {
         OtherUserProfileScreenViewModel(
@@ -193,6 +193,10 @@ internal class OtherUserProfileViewModelArrangement {
 
     suspend fun withUserInfo(result: GetUserInfoResult) = apply {
         coEvery { observeUserInfo(any()) } returns flowOf(result)
+    }
+
+    fun withGetConversationDetails(result: GetOneToOneConversationUseCase.Result) = apply {
+        coEvery { getConversationUseCase(any()) } returns result
     }
 
     fun arrange() = this to viewModel

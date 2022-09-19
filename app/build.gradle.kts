@@ -197,6 +197,8 @@ dependencies {
     androidTestUtil(TestLibraries.testOrchestrator)
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
 
+    implementation("androidx.hilt:hilt-work:1.0.0")
+
     // Development dependencies
     debugImplementation(DevLibraries.leakCanary)
 

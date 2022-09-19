@@ -2,8 +2,12 @@ package com.wire.android
 
 import android.app.Application
 import android.content.ComponentCallbacks2
+import android.content.Context
 import android.os.Build
 import androidx.work.Configuration
+import androidx.work.ListenableWorker
+import androidx.work.WorkerFactory
+import androidx.work.WorkerParameters
 import co.touchlab.kermit.platformLogWriter
 import com.datadog.android.Datadog
 import com.datadog.android.DatadogSite
@@ -13,17 +17,18 @@ import com.datadog.android.rum.GlobalRum
 import com.datadog.android.rum.RumMonitor
 import com.google.firebase.FirebaseApp
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.notification.WireNotificationManager
+import com.wire.android.ui.ExampleWorker
 import com.wire.android.util.DataDogLogger
 import com.wire.android.util.LogFileWriter
 import com.wire.android.util.extension.isGoogleServicesAvailable
 import com.wire.android.util.getDeviceId
-import com.wire.android.util.sha256
 import com.wire.android.util.lifecycle.ConnectionPolicyManager
+import com.wire.android.util.sha256
 import com.wire.kalium.logger.KaliumLogLevel
 import com.wire.kalium.logger.KaliumLogger
 import com.wire.kalium.logic.CoreLogger
 import com.wire.kalium.logic.CoreLogic
-import com.wire.kalium.logic.sync.WrapperWorkerFactory
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
 
@@ -40,6 +45,14 @@ var appLogger = KaliumLogger(
     platformLogWriter()
 )
 
+
+class TesWorker(private val wireNotificationManager: WireNotificationManager) : WorkerFactory() {
+    override fun createWorker(appContext: Context, workerClassName: String, workerParameters: WorkerParameters): ListenableWorker? {
+        return ExampleWorker(appContext, workerParameters, wireNotificationManager)
+    }
+
+}
+
 @HiltAndroidApp
 class WireApplication : Application(), Configuration.Provider {
 
@@ -53,10 +66,12 @@ class WireApplication : Application(), Configuration.Provider {
     @Inject
     lateinit var connectionPolicyManager: ConnectionPolicyManager
 
+    @Inject
+    lateinit var wireNotificationManager: WireNotificationManager
+
     override fun getWorkManagerConfiguration(): Configuration {
-        val myWorkerFactory = WrapperWorkerFactory(coreLogic)
         return Configuration.Builder()
-            .setWorkerFactory(myWorkerFactory)
+            .setWorkerFactory(TesWorker(wireNotificationManager))
             .build()
     }
 
@@ -146,6 +161,7 @@ class WireApplication : Application(), Configuration.Provider {
             TRIM_MEMORY_RUNNING_LOW(ComponentCallbacks2.TRIM_MEMORY_RUNNING_LOW),
             TRIM_MEMORY_RUNNING_MODERATE(ComponentCallbacks2.TRIM_MEMORY_RUNNING_MODERATE),
             TRIM_MEMORY_UI_HIDDEN(ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN),
+
             @Suppress("MagicNumber")
             TRIM_MEMORY_UNKNOWN(-1);
 

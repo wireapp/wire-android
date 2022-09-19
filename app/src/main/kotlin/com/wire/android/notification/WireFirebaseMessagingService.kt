@@ -1,9 +1,14 @@
 package com.wire.android.notification
 
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.OutOfQuotaPolicy
+import androidx.work.WorkManager
+import androidx.work.workDataOf
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.wire.android.appLogger
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.ui.ExampleWorker
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.feature.notificationToken.SaveNotificationTokenUseCase
@@ -44,9 +49,23 @@ class WireFirebaseMessagingService : FirebaseMessagingService() {
                 break
             }
         }
+
         scope.launch {
-            wireNotificationManager.fetchAndShowNotificationsOnce(userIdValue)
+            wireNotificationManager.test(userIdValue).collect {
+                val request = OneTimeWorkRequestBuilder<ExampleWorker>()
+                    .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+                    .setInputData(workDataOf("TEST" to userIdValue))
+                    .build()
+
+                WorkManager.getInstance(applicationContext)
+                    .enqueue(request)
+            }
         }
+
+
+//        scope.launch {
+//            wireNotificationManager.fetchAndShowNotificationsOnce(userIdValue)
+//        }
 
         appLogger.i("$TAG: onMessageReceived End")
     }

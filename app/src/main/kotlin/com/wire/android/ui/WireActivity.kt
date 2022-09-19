@@ -1,8 +1,10 @@
 package com.wire.android.ui
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.annotation.StringRes
@@ -17,8 +19,17 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.core.app.NotificationChannelCompat
+import androidx.core.app.NotificationManagerCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
+import androidx.hilt.work.HiltWorker
 import androidx.navigation.NavHostController
+import androidx.work.CoroutineWorker
+import androidx.work.ForegroundInfo
+import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.OutOfQuotaPolicy
+import androidx.work.WorkManager
+import androidx.work.WorkerParameters
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.wire.android.R
 import com.wire.android.appLogger
@@ -26,6 +37,8 @@ import com.wire.android.navigation.NavigationGraph
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.navigateToItem
 import com.wire.android.navigation.popWithArguments
+import com.wire.android.notification.NotificationConstants
+import com.wire.android.notification.WireNotificationManager
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
@@ -34,12 +47,47 @@ import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.userprofile.self.MaxAccountReachedDialog
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.ui.updateScreenSettings
+import dagger.assisted.Assisted
+import dagger.assisted.AssistedInject
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
+
+
+@HiltWorker
+class ExampleWorker @AssistedInject constructor(
+    @Assisted appContext: Context,
+    @Assisted workerParams: WorkerParameters,
+    private val wireNotificationManager: WireNotificationManager
+) : CoroutineWorker(appContext, workerParams) {
+
+    private val notificationManager : NotificationManagerCompat = NotificationManagerCompat.from(appContext)
+    override suspend fun doWork(): Result {
+        return Result.success()
+    }
+
+    override suspend fun getForegroundInfo(): ForegroundInfo {
+        createNotificationChannel()
+
+        wireNotificationManager.test(inputData.getString("TEST"))
+
+        Log.d("TEST","get notification ${inputData.getString("TEST")}")
+        return super.getForegroundInfo()
+    }
+
+    private fun createNotificationChannel() {
+        val notificationChannel = NotificationChannelCompat
+            .Builder(NotificationConstants.MESSAGE_CHANNEL_ID, NotificationManagerCompat.IMPORTANCE_MAX)
+            .setName(NotificationConstants.MESSAGE_CHANNEL_NAME)
+            .build()
+
+        notificationManager.createNotificationChannel(notificationChannel)
+    }
+
+}
 
 @OptIn(
     ExperimentalMaterial3Api::class,
@@ -62,6 +110,13 @@ class WireActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
+        val request = OneTimeWorkRequestBuilder<ExampleWorker>()
+            .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+            .build()
+
+        WorkManager.getInstance(applicationContext)
+            .enqueue(request)
+
         lifecycle.addObserver(currentScreenManager)
         viewModel.handleDeepLink(intent)
         setComposableContent()

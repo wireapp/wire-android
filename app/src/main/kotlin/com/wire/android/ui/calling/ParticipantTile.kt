@@ -41,7 +41,7 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.data.id.QualifiedID
 
-// used to display the blue border around the tile to mention taht someone is talking
+// used to display the blue border around the tile to mention that someone is talking
 @Composable
 fun TileModifier(modifier: Modifier, isSpeaking: Boolean): Modifier {
     var updatedModifier = modifier

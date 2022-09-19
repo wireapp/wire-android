@@ -365,6 +365,7 @@ class OtherUserProfileScreenViewModelTest {
         // then
         coVerify {
             arrangement.getConversationUseCase(USER_ID)
+            arrangement.getOrCreateOneToOneConversation(USER_ID) wasNot Called
         }
 
         assertEquals(false, viewModel.state.isDataLoading)

@@ -13,7 +13,6 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
-import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -59,14 +58,14 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.getUriFromDrawable
 import com.wire.android.util.toBitmap
 import com.wire.kalium.logic.data.message.Message
-import com.wire.kalium.logic.data.message.Message.UploadStatus.FAILED_UPLOAD
-import com.wire.kalium.logic.data.message.Message.UploadStatus.UPLOAD_IN_PROGRESS
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.DOWNLOAD_IN_PROGRESS
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.FAILED_DOWNLOAD
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.NOT_DOWNLOADED
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.SAVED_EXTERNALLY
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.SAVED_INTERNALLY
+import com.wire.kalium.logic.data.message.Message.UploadStatus.FAILED_UPLOAD
 import com.wire.kalium.logic.data.message.Message.UploadStatus.UPLOADED
+import com.wire.kalium.logic.data.message.Message.UploadStatus.UPLOAD_IN_PROGRESS
 import kotlin.math.roundToInt
 
 // TODO: Here we actually need to implement some logic that will distinguish MentionLabel with Body of the message,
@@ -407,12 +406,10 @@ fun getDownloadStatusText(assetDownloadStatus: Message.DownloadStatus, assetUplo
     }
 
 @Suppress("MagicNumber")
-private fun provideAssetDescription(assetExtension: String, assetSizeInBytes: Long): String {
-    return when {
-        assetSizeInBytes < 1000 -> "${assetExtension.uppercase()} ($assetSizeInBytes B)"
-        assetSizeInBytes in 1000..999999 -> "${assetExtension.uppercase()} (${assetSizeInBytes / 1000} KB)"
-        else -> "${assetExtension.uppercase()} (${((assetSizeInBytes / 1000000f) * 100.0).roundToInt() / 100.0} MB)" // 2 decimals round off
-    }
+private fun provideAssetDescription(assetExtension: String, assetSizeInBytes: Long): String = when {
+    assetSizeInBytes < 1000 -> "${assetExtension.uppercase()} ($assetSizeInBytes B)"
+    assetSizeInBytes in 1000..999999 -> "${assetExtension.uppercase()} (${assetSizeInBytes / 1000} KB)"
+    else -> "${assetExtension.uppercase()} (${((assetSizeInBytes / 1000000f) * 100.0).roundToInt() / 100.0} MB)" // 2 decimals round off
 }
 
 // TODO:we should provide the SpanStyle by LocalProvider to our Theme, later on

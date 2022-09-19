@@ -48,6 +48,7 @@ fun ParticipantTile(
     onGoingCallTileUsernameMaxWidth: Dp = 350.dp,
     avatarSize: Dp = dimensions().onGoingCallUserAvatarSize,
     isSelfUser: Boolean,
+    shouldRecomposeVideoRenderer: Boolean,
     onSelfUserVideoPreviewCreated: (view: View) -> Unit,
     onClearSelfUserVideoPreview: () -> Unit
 ) {
@@ -85,12 +86,42 @@ fun ParticipantTile(
                     onClearSelfUserVideoPreview = onClearSelfUserVideoPreview
                 )
             } else {
-                OthersVideo(
-                    isCameraOn = participantTitleState.isCameraOn,
-                    isSharingScreen = participantTitleState.isSharingScreen,
-                    userId = participantTitleState.id.toString(),
-                    clientId = participantTitleState.clientId
-                )
+                val context = LocalContext.current
+                if (participantTitleState.isCameraOn || participantTitleState.isSharingScreen) {
+
+                    AndroidView(factory = {
+                        val videoRenderer = VideoRenderer(
+                            context,
+                            participantTitleState.id.toString(),
+                            participantTitleState.clientId,
+                            false
+                        ).apply {
+                            layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+                        }
+                        val frameLayout = FrameLayout(it)
+                        frameLayout.addView(videoRenderer)
+                        frameLayout
+                    },
+                        update = {
+                            if (shouldRecomposeVideoRenderer) {
+                                // Needed to disconnect renderer from container, skipping this will lead to some issues like video freezing
+                                it.removeAllViews()
+
+
+                                val videoRenderer = VideoRenderer(
+                                    context,
+                                    participantTitleState.id.toString(),
+                                    participantTitleState.clientId,
+                                    false
+                                ).apply {
+                                    layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
+                                }
+                                it.addView(videoRenderer)
+
+                            }
+                        }
+                    )
+                }
             }
 
             MicrophoneTile(
@@ -120,23 +151,6 @@ fun ParticipantTile(
             )
 
         }
-    }
-}
-
-@Composable
-private fun OthersVideo(
-    isCameraOn: Boolean,
-    isSharingScreen: Boolean,
-    userId: String,
-    clientId: String
-) {
-    if (isCameraOn || isSharingScreen) {
-        val context = LocalContext.current
-        AndroidView(factory = {
-            VideoRenderer(context, userId, clientId, false).apply {
-                layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
-            }
-        })
     }
 }
 
@@ -237,6 +251,7 @@ private fun ParticipantTilePreview() {
         ),
         onClearSelfUserVideoPreview = {},
         onSelfUserVideoPreviewCreated = {},
-        isSelfUser = false
+        isSelfUser = false,
+        shouldRecomposeVideoRenderer = false
     )
 }

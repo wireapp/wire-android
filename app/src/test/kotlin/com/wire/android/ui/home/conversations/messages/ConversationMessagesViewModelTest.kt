@@ -1,5 +1,8 @@
 package com.wire.android.ui.home.conversations.messages
 
+import androidx.paging.PagingData
+import androidx.paging.map
+import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.framework.TestMessage
 import com.wire.android.ui.home.conversations.DownloadedAssetDialogVisibilityState
@@ -12,12 +15,14 @@ import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.util.fileExtension
 import io.mockk.coVerify
-import io.mockk.every
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
+import kotlinx.datetime.Instant
 import okio.Path.Companion.toPath
-import org.amshove.kluent.internal.assertEquals
+import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeNull
+import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -29,7 +34,6 @@ class ConversationMessagesViewModelTest {
     fun `given an message ID, when downloading or fetching into internal storage, then should get message details by ID`() = runTest {
         val message = TestMessage.ASSET_MESSAGE
         val (arrangement, viewModel) = ConversationMessagesViewModelArrangement()
-            .withSuccessfulViewModelInit()
             .withGetMessageAssetUseCaseReturning("path".toPath(), 42L)
             .withGetMessageByIdReturning(message)
             .arrange()
@@ -46,7 +50,6 @@ class ConversationMessagesViewModelTest {
         val assetName = "mocked-asset-name.zip"
         val assetDataPath = "asset-data-path".toPath()
         val (arrangement, viewModel) = ConversationMessagesViewModelArrangement()
-            .withSuccessfulViewModelInit()
             .withSuccessfulOpenAssetMessage(assetName, assetDataPath, 1L, messageId)
             .arrange()
 
@@ -79,73 +82,38 @@ class ConversationMessagesViewModelTest {
             assert(viewModel.conversationViewState.downloadedAssetDialogState == DownloadedAssetDialogVisibilityState.Hidden)
         }
 
-
     @Test
-    fun `given message sent a user, when solving the message header, then the state should contain the user name`() = runTest {
+    fun `given the PagingData is updated, when getting paging flow, then the update is propagated in the state`() = runTest {
         // Given
-        val selfUserName = "self user"
-        val messages = listOf(mockUITextMessage(userName = selfUserName))
-        val (arrangement, viewModel) = ConversationMessagesViewModelArrangement()
-            .withSuccessfulViewModelInit()
-            .withMessagesUpdate(messages)
-            .arrange()
+        val firstMessage = mockUITextMessage(userName = "firstUserName")
+        val originalPagingData = PagingData.from(listOf(firstMessage))
+        val secondMessage = mockUITextMessage(userName = "secondUserName")
+        val updatedPagingData = PagingData.from(listOf(secondMessage))
 
-        // When - Then
-        assertEquals(
-            selfUserName,
-            viewModel.conversationViewState.messages.first().messageHeader.username.asString(arrangement.resources)
-        )
-    }
+        val (arrangement, viewModel) = ConversationMessagesViewModelArrangement().arrange()
 
-    @Test
-    fun `given the sender is updated, when solving the message header, then the update is propagated in the state`() = runTest {
-        // Given
-        val firstUserName = "other user"
-        val originalMessages = listOf(mockUITextMessage(userName = firstUserName))
-        val secondUserName = "User changed their name"
-        val updatedMessages = listOf(mockUITextMessage(userName = secondUserName))
-
-        val (arrangement, viewModel) = ConversationMessagesViewModelArrangement()
-            .withSuccessfulViewModelInit()
-            .withMessagesUpdate(originalMessages)
-            .arrange()
-
-        // When - Then
-        every { arrangement.uiText.asString(any()) } returns (firstUserName)
-        assertEquals(
-            firstUserName,
-            viewModel.conversationViewState.messages.first().messageHeader.username.asString(arrangement.resources)
-        )
-
-        // When - Then
-        every { arrangement.uiText.asString(any()) } returns (secondUserName)
-        arrangement
-            .withMessagesUpdate(updatedMessages)
-            .arrange()
-
-        assertEquals(
-            secondUserName,
-            viewModel.conversationViewState.messages.first().messageHeader.username.asString(arrangement.resources)
-        )
+        viewModel.conversationViewState.messages.test {
+            arrangement.withPaginatedMessagesReturning(originalPagingData)
+            awaitItem().map { it shouldBeEqualTo firstMessage }
+            arrangement.withPaginatedMessagesReturning(updatedPagingData)
+            awaitItem().map { it shouldBeEqualTo secondMessage }
+        }
     }
 
     @Test
     fun `given group conversation, when lastUnreadMessage is cleared, then correctly propagate it up to state`() =
         runTest {
             val groupDetails: ConversationDetails.Group = mockConversationDetailsGroup("Conversation Name Goes Here")
-            val uiMessage = mockUITextMessage("commonId")
 
             val (arrangement, viewModel) = ConversationMessagesViewModelArrangement()
-                .withSuccessfulViewModelInit()
                 .withConversationDetailUpdate(groupDetails)
-                .withMessagesUpdate(listOf(uiMessage))
                 .arrange()
 
             val sendMessage = Message.Regular(
                 id = "commonId",
                 content = MessageContent.Text("some Text"),
                 conversationId = QualifiedID("someValue", "someId"),
-                date = "someDate",
+                date = Instant.fromEpochSeconds(1000L, 0).toString(),
                 senderUserId = QualifiedID("someValue", "someId"),
                 status = Message.Status.SENT,
                 visibility = Message.Visibility.VISIBLE,
@@ -157,33 +125,30 @@ class ConversationMessagesViewModelTest {
                 groupDetails.copy(lastUnreadMessage = sendMessage)
             )
 
-            assert(viewModel.conversationViewState.lastUnreadMessage != null)
-            assert(viewModel.conversationViewState.lastUnreadMessage!!.messageHeader.messageId == sendMessage.id)
+            viewModel.conversationViewState.lastUnreadMessageInstant.shouldNotBeNull()
+            viewModel.conversationViewState.lastUnreadMessageInstant.toString() shouldBeEqualTo sendMessage.date
 
             arrangement.conversationDetailsChannel.send(
                 groupDetails.copy(lastUnreadMessage = null)
             )
 
-            assert(viewModel.conversationViewState.lastUnreadMessage == null)
+            viewModel.conversationViewState.lastUnreadMessageInstant.shouldBeNull()
         }
 
     @Test
     fun `given group conversation, when new lastUnreadMessage arrive, then correctly propagate it up to state`() =
         runTest {
             val groupDetails: ConversationDetails.Group = mockConversationDetailsGroup("Conversation Name Goes Here")
-            val uiMessage = mockUITextMessage("commonId")
 
             val (arrangement, viewModel) = ConversationMessagesViewModelArrangement()
-                .withSuccessfulViewModelInit()
                 .withConversationDetailUpdate(groupDetails)
-                .withMessagesUpdate(listOf(uiMessage))
                 .arrange()
 
             val sendMessage = Message.Regular(
                 id = "commonId",
                 content = MessageContent.Text("some Text"),
                 conversationId = QualifiedID("someValue", "someId"),
-                date = "someDate",
+                date = Instant.fromEpochSeconds(1000L, 0).toString(),
                 senderUserId = QualifiedID("someValue", "someId"),
                 status = Message.Status.SENT,
                 visibility = Message.Visibility.VISIBLE,
@@ -195,13 +160,13 @@ class ConversationMessagesViewModelTest {
                 groupDetails.copy(lastUnreadMessage = null)
             )
 
-            assert(viewModel.conversationViewState.lastUnreadMessage == null)
+            viewModel.conversationViewState.lastUnreadMessageInstant.shouldBeNull()
 
             arrangement.conversationDetailsChannel.send(
                 groupDetails.copy(lastUnreadMessage = sendMessage)
             )
 
-            assert(viewModel.conversationViewState.lastUnreadMessage != null)
-            assert(viewModel.conversationViewState.lastUnreadMessage!!.messageHeader.messageId == sendMessage.id)
+            viewModel.conversationViewState.lastUnreadMessageInstant.shouldNotBeNull()
+            viewModel.conversationViewState.lastUnreadMessageInstant.toString() shouldBeEqualTo sendMessage.date
         }
 }

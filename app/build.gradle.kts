@@ -143,6 +143,9 @@ dependencies {
     implementation(Libraries.accompanistIndicator)
     implementation(Libraries.composeRuntimeLiveData)
 
+    implementation(Libraries.Paging.runtime)
+    implementation(Libraries.Paging.compose)
+
     // Compose iterative code, layout inspector, etc.
     debugImplementation(Libraries.composeTooling)
 

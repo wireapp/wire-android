@@ -44,7 +44,7 @@ class WelcomeViewModel @Inject constructor(
     }
 
     private fun checkNumberOfSessions() {
-        runBlocking {
+        viewModelScope.launch {
             getSessions().let {
                 when (it) {
                     is GetAllSessionsResult.Success -> {

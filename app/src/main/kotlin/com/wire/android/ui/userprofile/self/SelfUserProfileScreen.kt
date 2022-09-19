@@ -1,5 +1,6 @@
 package com.wire.android.ui.userprofile.self
 
+import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -68,6 +69,7 @@ import com.wire.kalium.logic.data.user.UserId
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SelfUserProfileScreen(viewModelSelf: SelfUserProfileViewModel = hiltViewModel()) {
+    val context = LocalContext.current
     SelfUserProfileContent(
         state = viewModelSelf.userProfileState,
         onCloseClick = viewModelSelf::navigateBack,
@@ -81,7 +83,9 @@ fun SelfUserProfileScreen(viewModelSelf: SelfUserProfileViewModel = hiltViewMode
         onNotShowRationaleAgainChange = viewModelSelf::dialogCheckBoxStateChanged,
         onMessageShown = viewModelSelf::clearErrorMessage,
         onMaxAccountReachedDialogDismissed = viewModelSelf::onMaxAccountReachedDialogDismissed,
-        onOtherAccountClick = viewModelSelf::switchAccount
+        onOtherAccountClick = viewModelSelf::switchAccount,
+        isUserInCall = viewModelSelf::isUserInCall,
+        context = context
     )
 }
 
@@ -100,7 +104,9 @@ private fun SelfUserProfileContent(
     onNotShowRationaleAgainChange: (Boolean) -> Unit = {},
     onMessageShown: () -> Unit = {},
     onMaxAccountReachedDialogDismissed: () -> Unit = {},
-    onOtherAccountClick: (UserId) -> Unit = {}
+    onOtherAccountClick: (UserId) -> Unit = {},
+    isUserInCall: () -> Boolean,
+    context: Context
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -175,7 +181,7 @@ private fun SelfUserProfileContent(
                                     account,
                                     clickable = remember {
                                         Clickable(enabled = true, onClick = {
-                                            if (state.isUserInCall) {
+                                            if (isUserInCall()) {
                                                 Toast.makeText(
                                                     context,
                                                     context.getString(R.string.cant_switch_account_in_call),
@@ -190,7 +196,7 @@ private fun SelfUserProfileContent(
                         )
                     }
                 }
-                NewTeamButton(onAddAccountClick)
+                NewTeamButton(onAddAccountClick, isUserInCall, context)
             }
             ChangeStatusDialogContent(
                 data = statusDialogData,
@@ -335,7 +341,11 @@ private fun OtherAccountsHeader() {
 }
 
 @Composable
-private fun NewTeamButton(onAddAccountClick: () -> Unit) {
+private fun NewTeamButton(
+    onAddAccountClick: () -> Unit,
+    isUserIdCall: () -> Boolean,
+    context: Context
+) {
     Surface(shadowElevation = dimensions().spacing8x) {
         WirePrimaryButton(
             modifier = Modifier
@@ -343,7 +353,19 @@ private fun NewTeamButton(onAddAccountClick: () -> Unit) {
                 .padding(dimensions().spacing16x)
                 .testTag("New Team or Account"),
             text = stringResource(R.string.user_profile_new_account_text),
-            onClick = onAddAccountClick
+            onClick = remember {
+                {
+                    if (isUserIdCall()) {
+                        Toast.makeText(
+                            context,
+                            context.getString(R.string.cant_switch_account_in_call),
+                            Toast.LENGTH_SHORT
+                        ).show()
+                    } else {
+                        onAddAccountClick()
+                    }
+                }
+            }
         )
     }
 }
@@ -398,6 +420,8 @@ private fun SelfUserProfileScreenPreview() {
             ),
             statusDialogData = null
         ),
+        isUserInCall = { false },
+        context = LocalContext.current
     )
 }
 

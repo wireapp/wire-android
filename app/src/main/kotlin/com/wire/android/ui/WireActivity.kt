@@ -5,23 +5,30 @@ import android.content.Intent
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.annotation.StringRes
 import androidx.appcompat.app.AppCompatActivity
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.res.stringResource
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavHostController
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.wire.android.R
+import com.wire.android.appLogger
 import com.wire.android.navigation.NavigationGraph
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.navigateToItem
 import com.wire.android.navigation.popWithArguments
+import com.wire.android.ui.common.WireDialog
+import com.wire.android.ui.common.WireDialogButtonProperties
+import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.dialogs.CustomBEDeeplinkDialog
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.userprofile.self.MaxAccountReachedDialog
@@ -78,8 +85,13 @@ class WireActivity : AppCompatActivity() {
                 }
                 setUpNavigation(navController, scope)
 
-                handleCustomBackendDialog(viewModel.customBackendDialogState.shouldShowDialog)
-                maxAccountDialog(viewModel::openProfile, viewModel::dismissMaxAccountDialog, viewModel.maxAccountDialogState)
+                handleCustomBackendDialog(viewModel.globalAppState.customBackendDialog.shouldShowDialog)
+                maxAccountDialog(
+                    viewModel::openProfile,
+                    viewModel::dismissMaxAccountDialog,
+                    viewModel.globalAppState.maxAccountDialog
+                )
+                AccountLongedOutDialog(viewModel.globalAppState.blockUserUI, viewModel::navigateToNextAccountOrWelcome)
             }
         }
     }
@@ -98,6 +110,35 @@ class WireActivity : AppCompatActivity() {
                 onConfirm = onConfirm,
                 onDismiss = onDismiss,
                 buttonText = R.string.max_account_reached_dialog_button_open_profile
+            )
+        }
+    }
+
+    @Composable
+    fun AccountLongedOutDialog(reason: CurrentSessionErrorState?, navigateAway: () -> Unit) {
+        appLogger.e("AccountLongedOutDialog: $reason")
+        reason?.let {
+            val (@StringRes title: Int, @StringRes text: Int) = when (reason) {
+                CurrentSessionErrorState.SessionExpired -> {
+                    R.string.session_expired_error_title to R.string.session_expired_error_message
+                }
+                CurrentSessionErrorState.RemovedClient -> {
+                    R.string.removed_client_error_title to R.string.removed_client_error_message
+                }
+                CurrentSessionErrorState.DeletedAccount -> {
+                    R.string.deleted_user_error_title to R.string.deleted_user_error_message
+                }
+            }
+
+            WireDialog(
+                title = stringResource(id = title),
+                text = stringResource(id = text),
+                onDismiss = remember { { } },
+                optionButton1Properties = WireDialogButtonProperties(
+                    text = stringResource(R.string.label_ok),
+                    onClick = navigateAway,
+                    type = WireDialogButtonType.Primary
+                )
             )
         }
     }

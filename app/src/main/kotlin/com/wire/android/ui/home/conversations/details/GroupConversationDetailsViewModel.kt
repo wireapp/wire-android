@@ -37,6 +37,7 @@ import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.team.Result
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -44,12 +45,12 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.filterIsInstance
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
 @Suppress("TooManyFunctions", "LongParameterList")
 @HiltViewModel
@@ -92,13 +93,13 @@ class GroupConversationDetailsViewModel @Inject constructor(
     }
 
     private fun observeConversationDetails() {
-        viewModelScope.launch(dispatcher.io()) {
-
+        viewModelScope.launch {
             val groupDetailsFlow = observeConversationDetails(conversationId)
                 .filterIsInstance<ObserveConversationDetailsUseCase.Result.Success>()
                 .map { it.conversationDetails }
                 .filterIsInstance<ConversationDetails.Group>()
                 .distinctUntilChanged()
+                .flowOn(dispatcher.io())
                 .shareIn(this, SharingStarted.WhileSubscribed(), 1)
 
             val isSelfAdminFlow = observeConversationMembers(conversationId)
@@ -133,8 +134,10 @@ class GroupConversationDetailsViewModel @Inject constructor(
                     val isSelfInOwnerTeam =
                         selfTeam?.id != null && selfTeam.id == groupDetails.conversation.teamId?.value
 
-                    val isAbleToRemoveGroup = (selfUser.teamId != null
-                            && groupDetails.conversation.creatorId.value == selfUser.id.value)
+                    val isAbleToRemoveGroup = (
+                        selfUser.teamId != null &&
+                            groupDetails.conversation.creatorId.value == selfUser.id.value
+                        )
 
                     updateState(
                         groupOptionsState.value.copy(
@@ -143,14 +146,14 @@ class GroupConversationDetailsViewModel @Inject constructor(
                             isAbleToRemoveGroup = isAbleToRemoveGroup,
                         )
                     )
-                }
-                    .collect {}
+                }.collect {}
             }
         }
     }
 
-    private fun checkIsSelfUserMember() = viewModelScope.launch(dispatcher.io()) {
-        observeIsSelfUserMember(conversationId).collect { result ->
+    private fun checkIsSelfUserMember() = viewModelScope.launch {
+        val isSelfUserMember = withContext(dispatcher.io()) { observeIsSelfUserMember(conversationId) }
+        isSelfUserMember.collect { result ->
             updateState(
                 groupOptionsState.value.copy(
                     isSelfUserMember = when (result) {
@@ -285,16 +288,22 @@ class GroupConversationDetailsViewModel @Inject constructor(
 
     private fun updateGuestRemoteRequest(enableGuestAndNonTeamMember: Boolean) {
         viewModelScope.launch {
-            updateConversationAccess(enableGuestAndNonTeamMember, groupOptionsState.value.isServicesAllowed, conversationId).also {
-                when (it) {
-                    is UpdateConversationAccessRoleUseCase.Result.Failure -> updateState(
-                        groupOptionsState.value.copy(
-                            isGuestAllowed = !enableGuestAndNonTeamMember,
-                            error = GroupConversationOptionsState.Error.UpdateGuestError(it.cause)
-                        )
+            val result = withContext(dispatcher.io()) {
+                updateConversationAccess(
+                    enableGuestAndNonTeamMember,
+                    groupOptionsState.value.isServicesAllowed,
+                    conversationId
+                )
+            }
+
+            when (result) {
+                is UpdateConversationAccessRoleUseCase.Result.Failure -> updateState(
+                    groupOptionsState.value.copy(
+                        isGuestAllowed = !enableGuestAndNonTeamMember,
+                        error = GroupConversationOptionsState.Error.UpdateGuestError(result.cause)
                     )
-                    UpdateConversationAccessRoleUseCase.Result.Success -> Unit
-                }
+                )
+                UpdateConversationAccessRoleUseCase.Result.Success -> Unit
             }
 
             updateState(groupOptionsState.value.copy(loadingGuestOption = false))
@@ -303,20 +312,22 @@ class GroupConversationDetailsViewModel @Inject constructor(
 
     private fun updateServicesRemoteRequest(enableServices: Boolean) {
         viewModelScope.launch {
-            updateConversationAccess(
-                enableGuestAndNonTeamMember = groupOptionsState.value.isGuestAllowed,
-                enableServices = enableServices,
-                conversationId = conversationId
-            ).also {
-                when (it) {
-                    is UpdateConversationAccessRoleUseCase.Result.Failure -> updateState(
-                        groupOptionsState.value.copy(
-                            isServicesAllowed = !enableServices,
-                            error = GroupConversationOptionsState.Error.UpdateServicesError(it.cause)
-                        )
+            val result = withContext(dispatcher.io()) {
+                updateConversationAccess(
+                    enableGuestAndNonTeamMember = groupOptionsState.value.isGuestAllowed,
+                    enableServices = enableServices,
+                    conversationId = conversationId
+                )
+            }
+
+            when (result) {
+                is UpdateConversationAccessRoleUseCase.Result.Failure -> updateState(
+                    groupOptionsState.value.copy(
+                        isServicesAllowed = !enableServices,
+                        error = GroupConversationOptionsState.Error.UpdateServicesError(result.cause)
                     )
-                    UpdateConversationAccessRoleUseCase.Result.Success -> Unit
-                }
+                )
+                UpdateConversationAccessRoleUseCase.Result.Success -> Unit
             }
 
             updateState(groupOptionsState.value.copy(loadingServicesOption = false))

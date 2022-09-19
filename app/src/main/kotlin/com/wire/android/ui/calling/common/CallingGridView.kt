@@ -25,6 +25,8 @@ import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.kalium.logic.data.id.QualifiedID
 
+val lastParticipants = mutableListOf<UICallParticipant>()
+
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun GroupCallGrid(
@@ -37,6 +39,8 @@ fun GroupCallGrid(
 ) {
     val config = LocalConfiguration.current
 
+    // We use this to check if we need to recompose renderers or not, mainly used to avoid recomposition which makes the screen flickering
+    val shouldRecomposeVideoRenderer = isVideoStateChangedComparedToLastList(participants)
     LazyVerticalGrid(
         userScrollEnabled = false,
         contentPadding = PaddingValues(MaterialTheme.wireDimensions.spacing4x),
@@ -101,10 +105,24 @@ fun GroupCallGrid(
                     if (isSelfUser) {
                         onSelfClearVideoPreview()
                     }
-                }
+                },
+                shouldRecomposeVideoRenderer = shouldRecomposeVideoRenderer
             )
         }
+        lastParticipants.clear()
+        lastParticipants.addAll(participants)
     }
+}
+
+@Suppress("ReturnCount")
+fun isVideoStateChangedComparedToLastList(newParticipants: List<UICallParticipant>) : Boolean {
+    if (lastParticipants.isEmpty())
+        return true
+    lastParticipants.zip(newParticipants).forEach { pair ->
+        if (pair.first.isCameraOn != pair.second.isCameraOn || (pair.first.isSharingScreen != pair.second.isSharingScreen))
+            return true
+    }
+    return false
 }
 
 /**

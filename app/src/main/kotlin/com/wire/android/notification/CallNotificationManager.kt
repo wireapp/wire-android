@@ -4,8 +4,8 @@ import android.app.Notification
 import android.content.ContentResolver
 import android.content.Context
 import android.media.AudioAttributes
-import android.media.AudioManager.STREAM_MUSIC
 import android.net.Uri
+import android.os.Build
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
@@ -22,7 +22,7 @@ import javax.inject.Singleton
 class CallNotificationManager @Inject constructor(private val context: Context) {
 
     private val notificationManager = NotificationManagerCompat.from(context)
-    private val soundUri = Uri.parse("${ContentResolver.SCHEME_ANDROID_RESOURCE}://${context.packageName}/raw/ringing_from_them")
+    private val soundUri by lazy { Uri.parse("${ContentResolver.SCHEME_ANDROID_RESOURCE}://${context.packageName}/raw/ringing_from_them") }
 
     init {
         appLogger.i("${TAG}: initialized")
@@ -56,17 +56,26 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
     private fun createIncomingCallsNotificationChannel() {
         val audioAttributes = AudioAttributes.Builder()
             .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
-            .setUsage(AudioAttributes.USAGE_MEDIA)
+            .setUsage(getAudioAttributeUsageByOsLevel())
             .build()
 
         val notificationChannel = NotificationChannelCompat
-            .Builder(NotificationConstants.INCOMING_CALL_CHANNEL_ID, NotificationManagerCompat.IMPORTANCE_MAX)
+            .Builder(NotificationConstants.INCOMING_CALL_CHANNEL_ID, NotificationManagerCompat.IMPORTANCE_HIGH)
             .setName(NotificationConstants.INCOMING_CALL_CHANNEL_NAME)
             .setSound(soundUri, audioAttributes)
+            .setShowBadge(false)
+            .setVibrationEnabled(true)
             .build()
 
         notificationManager.createNotificationChannel(notificationChannel)
     }
+
+    /**
+     * Tricky bug: No documentation whatsoever, but these values affect how the system cancels or not the vibration of the notification
+     * on different Android OS levels, probably channel creation related.
+     */
+    private fun getAudioAttributeUsageByOsLevel() =
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) AudioAttributes.USAGE_NOTIFICATION_RINGTONE else AudioAttributes.USAGE_MEDIA
 
     fun createOngoingNotificationChannel() {
         val notificationChannel = NotificationChannelCompat
@@ -88,23 +97,24 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
         val content = getNotificationBody(call)
 
         val notification = NotificationCompat.Builder(context, NotificationConstants.INCOMING_CALL_CHANNEL_ID)
+            .setPriority(NotificationCompat.PRIORITY_MAX)
+            .setCategory(NotificationCompat.CATEGORY_CALL)
+            .setSmallIcon(R.drawable.notification_icon_small)
             .setContentTitle(title)
             .setContentText(content)
-            .setSound(soundUri, STREAM_MUSIC)
+            .setAutoCancel(true)
+            .setOngoing(true)
+            .setTimeoutAfter(INCOMING_CALL_TIMEOUT)
+            .setFullScreenIntent(fullScreenIncomingCallPendingIntent(context, conversationIdString), true)
             .addAction(getDeclineCallAction(context, conversationIdString, userIdString))
             .addAction(getOpenIncomingCallAction(context, conversationIdString))
-            .setOngoing(true)
-            .setPriority(NotificationCompat.PRIORITY_MAX)
             .setVisibility(NotificationCompat.VISIBILITY_PUBLIC)
-            .setSmallIcon(R.drawable.notification_icon_small)
             .setContentIntent(fullScreenIncomingCallPendingIntent(context, conversationIdString))
-            .setFullScreenIntent(fullScreenIncomingCallPendingIntent(context, conversationIdString), true)
             .setDeleteIntent(declineCallPendingIntent(context, conversationIdString, userIdString))
-            .setAutoCancel(true)
             .build()
 
         // Added FLAG_INSISTENT so the ringing sound repeats itself until an action is done.
-        notification.flags = Notification.FLAG_INSISTENT
+        notification.flags += Notification.FLAG_INSISTENT
 
         return notification
     }
@@ -145,6 +155,7 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
 
     companion object {
         private const val TAG = "CallNotificationManager"
+        private const val INCOMING_CALL_TIMEOUT: Long = 30 * 1000
 
         fun hideIncomingCallNotification(context: Context) {
             NotificationManagerCompat.from(context).cancel(NotificationConstants.CALL_INCOMING_NOTIFICATION_ID)

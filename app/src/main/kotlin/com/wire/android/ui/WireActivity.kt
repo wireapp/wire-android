@@ -1,9 +1,11 @@
 package com.wire.android.ui
 
 import android.annotation.SuppressLint
+import android.app.Notification
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
+import android.service.notification.StatusBarNotification
 import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -20,6 +22,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.core.app.NotificationChannelCompat
+import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.hilt.work.HiltWorker
@@ -38,6 +41,8 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.navigateToItem
 import com.wire.android.navigation.popWithArguments
 import com.wire.android.notification.NotificationConstants
+import com.wire.android.notification.NotificationConstants.getConversationNotificationId
+import com.wire.android.notification.NotificationConversation
 import com.wire.android.notification.WireNotificationManager
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
@@ -64,30 +69,40 @@ class ExampleWorker @AssistedInject constructor(
     private val wireNotificationManager: WireNotificationManager
 ) : CoroutineWorker(appContext, workerParams) {
 
-    private val notificationManager : NotificationManagerCompat = NotificationManagerCompat.from(appContext)
+    private val notificationManager = NotificationManagerCompat.from(appContext)
     override suspend fun doWork(): Result {
+        inputData.getString("TEST")?.let { userId ->
+            wireNotificationManager.fetchAndShowNotificationsOnce(userId)
+        }
+
         return Result.success()
     }
 
     override suspend fun getForegroundInfo(): ForegroundInfo {
         createNotificationChannel()
 
-        wireNotificationManager.test(inputData.getString("TEST"))
+        val notification = NotificationCompat.Builder(applicationContext, "SOME ID")
+            .setSmallIcon(R.drawable.ic_launcher_foreground)
+            .setGroupSummary(true)
+            .setAutoCancel(true)
+            .setDefaults(NotificationCompat.DEFAULT_ALL)
+            .setPriority(NotificationCompat.PRIORITY_MAX)
+            .build()
 
-        Log.d("TEST","get notification ${inputData.getString("TEST")}")
-        return super.getForegroundInfo()
+        return ForegroundInfo(1, notification)
     }
 
     private fun createNotificationChannel() {
         val notificationChannel = NotificationChannelCompat
-            .Builder(NotificationConstants.MESSAGE_CHANNEL_ID, NotificationManagerCompat.IMPORTANCE_MAX)
-            .setName(NotificationConstants.MESSAGE_CHANNEL_NAME)
+            .Builder("SOME ID", NotificationManagerCompat.IMPORTANCE_MAX)
+            .setName("SOME NAME")
             .build()
 
         notificationManager.createNotificationChannel(notificationChannel)
     }
 
 }
+
 
 @OptIn(
     ExperimentalMaterial3Api::class,

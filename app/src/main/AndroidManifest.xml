@@ -96,12 +96,18 @@
                     android:resource="@xml/provider_paths" />
         </provider>
 
-        <receiver android:name=".notification.broadcastreceivers.NotificationReplyReceiver" />
-        <receiver android:name=".notification.broadcastreceivers.CallNotificationDismissReceiver" />
-        <receiver android:name=".notification.broadcastreceivers.EndOngoingCallReceiver" />
+        <receiver
+                android:name=".notification.broadcastreceivers.NotificationReplyReceiver"
+                android:exported="false" />
+        <receiver
+                android:name=".notification.broadcastreceivers.CallNotificationDismissReceiver"
+                android:exported="false" />
+        <receiver
+                android:name=".notification.broadcastreceivers.EndOngoingCallReceiver"
+                android:exported="false" />
 
         <service
-                android:name=".notification.WireFirebaseMessagingService"
+                android:name=".services.WireFirebaseMessagingService"
                 android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />

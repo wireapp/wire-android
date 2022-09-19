@@ -16,6 +16,7 @@ import androidx.compose.material.Text
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -41,17 +42,19 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.data.id.QualifiedID
 
-// used to display the blue border around the tile to mention that someone is talking
 @Composable
-fun TileModifier(modifier: Modifier, isSpeaking: Boolean) = if (isSpeaking) {
-    modifier.border(
-        width = dimensions().spacing4x,
-        color = MaterialTheme.wireColorScheme.primary,
-        shape = RoundedCornerShape(dimensions().corner8x)
-    )
-        .padding(dimensions().spacing6x)
-} else {
-    modifier
+fun TileModifier(modifier: Modifier, isSpeaking: Boolean): Modifier {
+    var updatedModifier = modifier
+    if (isSpeaking) {
+        updatedModifier = modifier
+            .border(
+                width = dimensions().spacing4x,
+                color = MaterialTheme.wireColorScheme.primary,
+                shape = RoundedCornerShape(dimensions().corner8x)
+            )
+            .padding(dimensions().spacing6x)
+    }
+    return updatedModifier
 }
 
 @Composable
@@ -91,9 +94,8 @@ fun ParticipantTile(
             } else {
                 val context = LocalContext.current
                 if (participantTitleState.isCameraOn || participantTitleState.isSharingScreen) {
-
-                    AndroidView(factory = {
-                        val videoRenderer = VideoRenderer(
+                    val videoRenderer = remember {
+                        VideoRenderer(
                             context,
                             participantTitleState.id.toString(),
                             participantTitleState.clientId,
@@ -101,6 +103,8 @@ fun ParticipantTile(
                         ).apply {
                             layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
                         }
+                    }
+                    AndroidView(factory = {
                         val frameLayout = FrameLayout(it)
                         frameLayout.addView(videoRenderer)
                         frameLayout
@@ -110,17 +114,7 @@ fun ParticipantTile(
                                 // Needed to disconnect renderer from container, skipping this will lead to some issues like video freezing
                                 it.removeAllViews()
 
-
-                                val videoRenderer = VideoRenderer(
-                                    context,
-                                    participantTitleState.id.toString(),
-                                    participantTitleState.clientId,
-                                    false
-                                ).apply {
-                                    layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
-                                }
                                 it.addView(videoRenderer)
-
                             }
                         }
                     )
@@ -152,7 +146,6 @@ fun ParticipantTile(
                 name = participantTitleState.name,
                 isSpeaking = participantTitleState.isSpeaking
             )
-
         }
     }
 }

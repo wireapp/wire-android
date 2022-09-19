@@ -5,8 +5,6 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.framework.FakeKaliumFileSystem
 import com.wire.android.framework.TestMessage
-import com.wire.android.framework.TestMessage.ASSET_MESSAGE
-import com.wire.android.framework.TestMessage.IMAGE_ASSET_MESSAGE_DATA_TEST
 import com.wire.android.framework.TestMessage.buildAssetMessage
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.home.conversations.model.UIMessageContent.AssetMessage
@@ -16,7 +14,6 @@ import com.wire.android.ui.home.conversations.name
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.Conversation.Member
 import com.wire.kalium.logic.data.conversation.MemberDetails
-import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.AssetContent.AssetMetadata
 import com.wire.kalium.logic.data.message.Message
@@ -32,6 +29,7 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.test.runTest
 import okio.Path
 import okio.Path.Companion.toPath
@@ -149,7 +147,7 @@ class MessageContentMapperTest {
         val (arrangement, mapper) = Arrangement()
             .withSuccessfulGetMessageAssetResult(dummyPath, 1)
             .arrange()
-        val unknownImageFormatMessageContent = AssetContent(
+        val unknownImageMessageContent = AssetContent(
             0L,
             "name1",
             "image/xrz",
@@ -168,14 +166,14 @@ class MessageContentMapperTest {
             Message.DownloadStatus.NOT_DOWNLOADED
         )
 
-        val testMessage1 = buildAssetMessage(unknownImageFormatMessageContent)
+        val testMessage1 = buildAssetMessage(unknownImageMessageContent)
         val testMessage2 = buildAssetMessage(correctJPGImage)
 
         with(arrangement) {
             // When - Then
-            val resultContentOther = mapper.toUIMessageContent(AssetMessageData(unknownImageFormatMessageContent), testMessage1, scope)
+            val resultContentOther = mapper.toUIMessageContent(AssetMessageData(unknownImageMessageContent), testMessage1, scope)
             coVerify(exactly = 0) { arrangement.getMessageAssetUseCase.invoke(any(), any()) }
-            assert(resultContentOther is AssetMessage && resultContentOther.assetId.value == unknownImageFormatMessageContent.remoteData.assetId)
+            assert(resultContentOther is AssetMessage && resultContentOther.assetId.value == unknownImageMessageContent.remoteData.assetId)
 
             // When - Then
             val resultContentImage = mapper.toUIMessageContent(AssetMessageData(correctJPGImage), testMessage2, scope)
@@ -283,11 +281,12 @@ class MessageContentMapperTest {
         @MockK
         lateinit var resources: Resources
 
-        @MockK
-        lateinit var scope: CoroutineScope
+        val testDispatcher = TestDispatcherProvider()
+
+        val scope = CoroutineScope(SupervisorJob() + testDispatcher.default())
 
         private val messageContentMapper by lazy {
-            MessageContentMapper(getMessageAssetUseCase, messageResourceProvider, fakeKaliumFileSystem, TestDispatcherProvider())
+            MessageContentMapper(getMessageAssetUseCase, messageResourceProvider, fakeKaliumFileSystem, testDispatcher)
         }
 
         init {

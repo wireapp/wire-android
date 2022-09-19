@@ -400,7 +400,8 @@ fun getDownloadStatusText(assetDownloadStatus: Message.DownloadStatus, assetUplo
         assetDownloadStatus == NOT_DOWNLOADED -> stringResource(R.string.asset_message_tap_to_download_text)
         assetDownloadStatus == SAVED_INTERNALLY -> stringResource(R.string.asset_message_downloaded_internally_text)
         assetDownloadStatus == DOWNLOAD_IN_PROGRESS -> stringResource(R.string.asset_message_download_in_progress_text)
-        assetDownloadStatus == SAVED_EXTERNALLY || assetUploadStatus == UPLOADED -> stringResource(R.string.asset_message_saved_externally_text)
+        assetDownloadStatus == SAVED_EXTERNALLY
+                || assetUploadStatus == UPLOADED -> stringResource(R.string.asset_message_saved_externally_text)
         assetDownloadStatus == FAILED_DOWNLOAD -> stringResource(R.string.asset_message_failed_download_text)
         else -> ""
     }

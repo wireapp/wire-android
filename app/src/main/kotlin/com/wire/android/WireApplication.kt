@@ -25,6 +25,7 @@ import com.wire.kalium.logic.CoreLogger
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.sync.WrapperWorkerFactory
 import dagger.hilt.android.HiltAndroidApp
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 /**
@@ -68,7 +69,7 @@ class WireApplication : Application(), Configuration.Provider {
 
         enableDatadog()
 
-        if (BuildConfig.PRIVATE_BUILD || coreLogic.getGlobalScope().isLoggingEnabled()) {
+        if (BuildConfig.PRIVATE_BUILD || runBlocking { coreLogic.getGlobalScope().isLoggingEnabled() }) {
             enableLoggingAndInitiateFileLogging()
         }
 

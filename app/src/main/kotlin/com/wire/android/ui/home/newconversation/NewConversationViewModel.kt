@@ -54,9 +54,15 @@ class NewConversationViewModel @Inject constructor(
         const val GROUP_NAME_MAX_COUNT = 64
     }
 
-    var newGroupState: NewGroupState by mutableStateOf(NewGroupState(mlsEnabled = isMLSEnabled()))
+    var newGroupState: NewGroupState by mutableStateOf(NewGroupState())
 
     var groupOptionsState: GroupOptionState by mutableStateOf(GroupOptionState())
+
+    init {
+        viewModelScope.launch {
+            newGroupState = newGroupState.copy(mlsEnabled = isMLSEnabled())
+        }
+    }
 
     fun onGroupNameChange(newText: TextFieldValue) {
         when {

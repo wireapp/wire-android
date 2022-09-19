@@ -39,7 +39,9 @@ class NetworkSettingsViewModel
         }
 
     fun setWebSocketState(isEnabled: Boolean) {
-        persistPersistentWebSocketConnectionStatus(isEnabled)
+        viewModelScope.launch {
+            persistPersistentWebSocketConnectionStatus(isEnabled)
+        }
         networkSettingsState = networkSettingsState.copy(isPersistentWebSocketConnectionEnabled = isEnabled)
         if (isEnabled) {
             servicesManager.startPersistentWebSocketService()

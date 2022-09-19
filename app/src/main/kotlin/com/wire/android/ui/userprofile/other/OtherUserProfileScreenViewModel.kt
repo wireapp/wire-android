@@ -150,7 +150,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                             ?.let { pic -> ImageAsset.UserAvatarAsset(wireSessionImageLoader, pic) }
 
                         // TODO yamil: remove this block from here. we should loaded on user click
-                        // observeConversationSheetContentIfNeeded(otherUser, userAvatarAsset)
+                        observeConversationSheetContentIfNeeded(otherUser, userAvatarAsset)
                         observeGroupStateIfNeeded()
 
                         state = state.copy(

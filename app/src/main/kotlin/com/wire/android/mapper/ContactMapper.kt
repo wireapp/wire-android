@@ -22,7 +22,7 @@ class ContactMapper
                 name = name.orEmpty(),
                 label = mapUserLabel(otherUser),
                 avatarData = UserAvatarData(
-                    asset = completePicture?.let { ImageAsset.UserAvatarAsset(wireSessionImageLoader, it) },
+                    asset = previewPicture?.let { ImageAsset.UserAvatarAsset(wireSessionImageLoader, it) },
                     connectionState = connectionStatus
                 ),
                 membership = userTypeMapper.toMembership(userType),

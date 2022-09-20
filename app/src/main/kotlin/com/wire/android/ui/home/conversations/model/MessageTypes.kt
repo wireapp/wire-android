@@ -91,6 +91,7 @@ fun MessageImage(
                 onLongClick = onImageClick.onLongClick,
             )
     ) {
+        // TODO: We should not use rawImgData, but use something like the current ImageLoader instead.
         val imageData: Bitmap? =
             if (rawImgData != null && rawImgData.size < MessageComposerViewModel.IMAGE_SIZE_LIMIT_BYTES) rawImgData.toBitmap() else null
 

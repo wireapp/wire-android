@@ -1,4 +1,4 @@
-package com.wire.android.notification
+package com.wire.android.services
 
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.OutOfQuotaPolicy
@@ -8,6 +8,7 @@ import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.wire.android.appLogger
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.notification.WireNotificationManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.workmanager.worker.NotificationFetchWorker
 import com.wire.kalium.logic.CoreLogic

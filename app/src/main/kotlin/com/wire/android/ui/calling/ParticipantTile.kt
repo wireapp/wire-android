@@ -3,7 +3,7 @@ package com.wire.android.ui.calling
 import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT
 import android.widget.FrameLayout
-import androidx.compose.foundation.border
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -16,9 +16,12 @@ import androidx.compose.material.Text
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -52,18 +55,8 @@ fun ParticipantTile(
     onSelfUserVideoPreviewCreated: (view: View) -> Unit,
     onClearSelfUserVideoPreview: () -> Unit
 ) {
-    var updatedModifier = modifier
-    if (participantTitleState.isSpeaking) {
-        updatedModifier = modifier
-            .border(
-                width = dimensions().spacing4x,
-                color = MaterialTheme.wireColorScheme.primary,
-                shape = RoundedCornerShape(dimensions().corner8x)
-            )
-            .padding(dimensions().spacing6x)
-    }
     Surface(
-        modifier = updatedModifier.padding(top = 0.dp),
+        modifier = modifier,
         color = MaterialTheme.wireColorScheme.ongoingCallBackground,
         shape = RoundedCornerShape(dimensions().corner6x)
     ) {
@@ -88,9 +81,8 @@ fun ParticipantTile(
             } else {
                 val context = LocalContext.current
                 if (participantTitleState.isCameraOn || participantTitleState.isSharingScreen) {
-
-                    AndroidView(factory = {
-                        val videoRenderer = VideoRenderer(
+                    val videoRenderer = remember {
+                        VideoRenderer(
                             context,
                             participantTitleState.id.toString(),
                             participantTitleState.clientId,
@@ -98,6 +90,8 @@ fun ParticipantTile(
                         ).apply {
                             layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
                         }
+                    }
+                    AndroidView(factory = {
                         val frameLayout = FrameLayout(it)
                         frameLayout.addView(videoRenderer)
                         frameLayout
@@ -107,17 +101,7 @@ fun ParticipantTile(
                                 // Needed to disconnect renderer from container, skipping this will lead to some issues like video freezing
                                 it.removeAllViews()
 
-
-                                val videoRenderer = VideoRenderer(
-                                    context,
-                                    participantTitleState.id.toString(),
-                                    participantTitleState.clientId,
-                                    false
-                                ).apply {
-                                    layoutParams = FrameLayout.LayoutParams(MATCH_PARENT, MATCH_PARENT)
-                                }
                                 it.addView(videoRenderer)
-
                             }
                         }
                     )
@@ -147,9 +131,31 @@ fun ParticipantTile(
                     }
                     .widthIn(max = onGoingCallTileUsernameMaxWidth),
                 name = participantTitleState.name,
-                color = if (participantTitleState.isSpeaking) MaterialTheme.wireColorScheme.primary else Color.Black
+                isSpeaking = participantTitleState.isSpeaking
             )
+        }
+        TileBorder(participantTitleState.isSpeaking)
+    }
+}
 
+@Composable
+fun TileBorder(isSpeaking: Boolean) {
+    if (isSpeaking) {
+        val color = MaterialTheme.wireColorScheme.primary
+        val strokeWidth = dimensions().corner8x
+        val cornerRadius = dimensions().corner10x
+
+        Canvas(modifier = Modifier.fillMaxSize()) {
+            val canvasQuadrantSize = size
+            drawRoundRect(
+                color = color,
+                size = canvasQuadrantSize,
+                style = Stroke(width = strokeWidth.toPx()),
+                cornerRadius = CornerRadius(
+                    x = cornerRadius.toPx(),
+                    y = cornerRadius.toPx()
+                )
+            )
         }
     }
 }
@@ -193,8 +199,10 @@ private fun AvatarTile(
 private fun UsernameTile(
     modifier: Modifier,
     name: String,
-    color: Color
+    isSpeaking: Boolean
 ) {
+    val color = if (isSpeaking) MaterialTheme.wireColorScheme.primary else Color.Black
+
     Surface(
         modifier = modifier,
         shape = RoundedCornerShape(dimensions().corner4x),

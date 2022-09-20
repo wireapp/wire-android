@@ -41,11 +41,10 @@ class NotificationFetchWorker
 
         val notification = NotificationCompat.Builder(applicationContext, NotificationConstants.MESSAGE_CHANNEL_ID)
             .setSmallIcon(R.drawable.notification_icon_small)
-            .setGroupSummary(true)
             .setAutoCancel(true)
+            .setSilent(true)
             .setContentTitle(applicationContext.getString(R.string.label_fetching_your_messages))
-            .setDefaults(NotificationCompat.DEFAULT_ALL)
-            .setPriority(NotificationCompat.PRIORITY_MAX)
+            .setPriority(NotificationCompat.PRIORITY_MIN)
             .build()
 
         return ForegroundInfo(1, notification)

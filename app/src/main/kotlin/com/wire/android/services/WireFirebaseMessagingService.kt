@@ -51,7 +51,7 @@ class WireFirebaseMessagingService : FirebaseMessagingService() {
 
     private fun enqueueNotificationFetchWorker(userId: String) {
         val request = OneTimeWorkRequestBuilder<NotificationFetchWorker>()
-            .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+            .setExpedited(OutOfQuotaPolicy.DROP_WORK_REQUEST)
             .setInputData(workDataOf(NotificationFetchWorker.USER_ID_INPUT_DATA to userId))
             .build()
 

@@ -8,8 +8,8 @@ import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.wire.android.appLogger
 import com.wire.android.di.KaliumCoreLogic
-import com.wire.android.ui.ExampleWorker
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.android.workmanager.worker.NotificationFetchWorker
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.feature.notificationToken.SaveNotificationTokenUseCase
 import dagger.hilt.android.AndroidEntryPoint
@@ -42,7 +42,25 @@ class WireFirebaseMessagingService : FirebaseMessagingService() {
     override fun onMessageReceived(message: RemoteMessage) {
         super.onMessageReceived(message)
         appLogger.i("$TAG: notification received")
+
+        enqueueNotificationFetchWorker(extractUserId(message))
+
+        appLogger.i("$TAG: onMessageReceived End")
+    }
+
+    private fun enqueueNotificationFetchWorker(userId: String) {
+        val request = OneTimeWorkRequestBuilder<NotificationFetchWorker>()
+            .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+            .setInputData(workDataOf(NotificationFetchWorker.USER_ID_INPUT_DATA to userId))
+            .build()
+
+        WorkManager.getInstance(applicationContext)
+            .enqueue(request)
+    }
+
+    private fun extractUserId(message: RemoteMessage): String {
         var userIdValue = ""
+
         for (items in message.data) {
             if (items.key == "user") {
                 userIdValue = items.value
@@ -50,30 +68,7 @@ class WireFirebaseMessagingService : FirebaseMessagingService() {
             }
         }
 
-        scope.launch {
-            wireNotificationManager.test(userIdValue).collect {
-                val request = OneTimeWorkRequestBuilder<ExampleWorker>()
-                    .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
-                    .setInputData(workDataOf("TEST" to userIdValue))
-                    .build()
-
-                WorkManager.getInstance(applicationContext)
-                    .enqueue(request)
-            }
-        }
-
-
-//        scope.launch {
-//            wireNotificationManager.fetchAndShowNotificationsOnce(userIdValue)
-//        }
-
-        appLogger.i("$TAG: onMessageReceived End")
-    }
-
-    override fun onDestroy() {
-        scope.cancel("WireFirebaseMessagingService was destroyed")
-        appLogger.i("$TAG: onDestroy")
-        super.onDestroy()
+        return userIdValue
     }
 
     override fun onNewToken(p0: String) {
@@ -94,6 +89,12 @@ class WireFirebaseMessagingService : FirebaseMessagingService() {
                 }
             }
         }
+    }
+
+    override fun onDestroy() {
+        scope.cancel("WireFirebaseMessagingService was destroyed")
+        appLogger.i("$TAG: onDestroy")
+        super.onDestroy()
     }
 
     companion object {

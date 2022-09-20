@@ -2,12 +2,8 @@ package com.wire.android
 
 import android.app.Application
 import android.content.ComponentCallbacks2
-import android.content.Context
 import android.os.Build
 import androidx.work.Configuration
-import androidx.work.ListenableWorker
-import androidx.work.WorkerFactory
-import androidx.work.WorkerParameters
 import co.touchlab.kermit.platformLogWriter
 import com.datadog.android.Datadog
 import com.datadog.android.DatadogSite
@@ -17,20 +13,20 @@ import com.datadog.android.rum.GlobalRum
 import com.datadog.android.rum.RumMonitor
 import com.google.firebase.FirebaseApp
 import com.wire.android.di.KaliumCoreLogic
-import com.wire.android.notification.WireNotificationManager
-import com.wire.android.ui.ExampleWorker
 import com.wire.android.util.DataDogLogger
 import com.wire.android.util.LogFileWriter
 import com.wire.android.util.extension.isGoogleServicesAvailable
 import com.wire.android.util.getDeviceId
 import com.wire.android.util.lifecycle.ConnectionPolicyManager
 import com.wire.android.util.sha256
+import com.wire.android.workmanager.WireWorkerFactory
 import com.wire.kalium.logger.KaliumLogLevel
 import com.wire.kalium.logger.KaliumLogger
 import com.wire.kalium.logic.CoreLogger
 import com.wire.kalium.logic.CoreLogic
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
+
 
 /**
  * Indicates whether the build is private (dev || internal) or public
@@ -46,13 +42,6 @@ var appLogger = KaliumLogger(
 )
 
 
-class TesWorker(private val wireNotificationManager: WireNotificationManager) : WorkerFactory() {
-    override fun createWorker(appContext: Context, workerClassName: String, workerParameters: WorkerParameters): ListenableWorker? {
-        return ExampleWorker(appContext, workerParameters, wireNotificationManager)
-    }
-
-}
-
 @HiltAndroidApp
 class WireApplication : Application(), Configuration.Provider {
 
@@ -67,11 +56,11 @@ class WireApplication : Application(), Configuration.Provider {
     lateinit var connectionPolicyManager: ConnectionPolicyManager
 
     @Inject
-    lateinit var wireNotificationManager: WireNotificationManager
+    lateinit var wireWorkerFactory: WireWorkerFactory
 
     override fun getWorkManagerConfiguration(): Configuration {
         return Configuration.Builder()
-            .setWorkerFactory(TesWorker(wireNotificationManager))
+            .setWorkerFactory(wireWorkerFactory)
             .build()
     }
 

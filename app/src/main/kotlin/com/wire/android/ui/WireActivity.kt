@@ -1,12 +1,9 @@
 package com.wire.android.ui
 
 import android.annotation.SuppressLint
-import android.app.Notification
 import android.content.Context
 import android.content.Intent
 import android.os.Bundle
-import android.service.notification.StatusBarNotification
-import android.util.Log
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
 import androidx.annotation.StringRes
@@ -29,9 +26,6 @@ import androidx.hilt.work.HiltWorker
 import androidx.navigation.NavHostController
 import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
-import androidx.work.OneTimeWorkRequestBuilder
-import androidx.work.OutOfQuotaPolicy
-import androidx.work.WorkManager
 import androidx.work.WorkerParameters
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.wire.android.R
@@ -41,8 +35,6 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.navigateToItem
 import com.wire.android.navigation.popWithArguments
 import com.wire.android.notification.NotificationConstants
-import com.wire.android.notification.NotificationConstants.getConversationNotificationId
-import com.wire.android.notification.NotificationConversation
 import com.wire.android.notification.WireNotificationManager
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
@@ -57,52 +49,10 @@ import dagger.assisted.AssistedInject
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import javax.inject.Inject
-
-
-@HiltWorker
-class ExampleWorker @AssistedInject constructor(
-    @Assisted appContext: Context,
-    @Assisted workerParams: WorkerParameters,
-    private val wireNotificationManager: WireNotificationManager
-) : CoroutineWorker(appContext, workerParams) {
-
-    private val notificationManager = NotificationManagerCompat.from(appContext)
-    override suspend fun doWork(): Result {
-        inputData.getString("TEST")?.let { userId ->
-            wireNotificationManager.fetchAndShowNotificationsOnce(userId)
-        }
-
-        return Result.success()
-    }
-
-    override suspend fun getForegroundInfo(): ForegroundInfo {
-        createNotificationChannel()
-
-        val notification = NotificationCompat.Builder(applicationContext, "SOME ID")
-            .setSmallIcon(R.drawable.ic_launcher_foreground)
-            .setGroupSummary(true)
-            .setAutoCancel(true)
-            .setDefaults(NotificationCompat.DEFAULT_ALL)
-            .setPriority(NotificationCompat.PRIORITY_MAX)
-            .build()
-
-        return ForegroundInfo(1, notification)
-    }
-
-    private fun createNotificationChannel() {
-        val notificationChannel = NotificationChannelCompat
-            .Builder("SOME ID", NotificationManagerCompat.IMPORTANCE_MAX)
-            .setName("SOME NAME")
-            .build()
-
-        notificationManager.createNotificationChannel(notificationChannel)
-    }
-
-}
-
 
 @OptIn(
     ExperimentalMaterial3Api::class,
@@ -125,13 +75,6 @@ class WireActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
-        val request = OneTimeWorkRequestBuilder<ExampleWorker>()
-            .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
-            .build()
-
-        WorkManager.getInstance(applicationContext)
-            .enqueue(request)
-
         lifecycle.addObserver(currentScreenManager)
         viewModel.handleDeepLink(intent)
         setComposableContent()

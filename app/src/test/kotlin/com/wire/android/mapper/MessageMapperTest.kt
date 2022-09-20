@@ -1,6 +1,7 @@
 package com.wire.android.mapper
 
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.framework.TestMessage
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.home.conversations.model.MessageBody
@@ -21,6 +22,7 @@ import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.TestDispatcher
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.Test
@@ -127,7 +129,7 @@ class MessageMapperTest {
         private lateinit var wireSessionImageLoader: WireSessionImageLoader
 
         private val messageMapper by lazy {
-            MessageMapper(userTypeMapper, messageContentMapper, isoFormatter, wireSessionImageLoader)
+            MessageMapper(TestDispatcherProvider(), userTypeMapper, messageContentMapper, isoFormatter, wireSessionImageLoader)
         }
 
         init {

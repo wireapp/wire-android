@@ -410,6 +410,7 @@ fun getDownloadStatusText(assetDownloadStatus: Message.DownloadStatus, assetUplo
         else -> ""
     }
 
+@Suppress("MagicNumber")
 private fun provideAssetDescription(assetExtension: String, assetSizeInBytes: Long): String {
     val oneKB = 1024L
     val oneMB = oneKB * oneKB

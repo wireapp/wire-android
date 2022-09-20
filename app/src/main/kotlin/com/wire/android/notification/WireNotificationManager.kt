@@ -92,42 +92,6 @@ class WireNotificationManager @Inject constructor(
             else -> true // Fallback to display notifications anyway in case of unexpected error
         }
     }
-    suspend fun test(
-        userIdValue: String
-    ): Flow<MessagesNotificationsData> {
-        return flowOf(checkIfUserIsAuthenticated(userIdValue))
-            .flatMapLatest { userId ->
-                userId?.let {
-                    coreLogic.getSessionScope(it)
-                        .messages
-                        .getNotifications()
-                        .cancellable()
-                        // no need to do the whole work if there is no notifications
-                        .filter {
-                            appLogger.i("$TAG filtering notifications ${it.size}")
-                            it.isNotEmpty()
-                        }
-                        .map { newNotifications ->
-                            // we don't want to display notifications for the Conversation that user currently in.
-
-                            // combining all the data that is necessary for Notifications into small data class,
-                            // just to make it more readable than
-                            // Pair<List<LocalNotificationConversation>, QualifiedID?>
-                            MessagesNotificationsData(newNotifications, it)
-                        }
-                } ?: flowOf(null)
-            }
-            .cancellable()
-            .filterNotNull()
-//                    .collect { (newNotifications, userId) ->
-//                        appLogger.d("$TAG got ${newNotifications.size} notifications")
-//                        messagesNotificationManager.handleNotification(newNotifications, userId)
-//                        markMessagesAsNotified(userId, null)
-//                        markConnectionAsNotified(userId, null)
-//                    }
-
-        appLogger.d("$TAG checked the notifications once, canceling observing.")
-    }
 
 
     private suspend fun triggerSyncForUserIfAuthenticated(userIdValue: String) {

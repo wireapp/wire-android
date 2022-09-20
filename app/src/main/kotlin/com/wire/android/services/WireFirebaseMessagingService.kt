@@ -8,29 +8,23 @@ import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.wire.android.appLogger
 import com.wire.android.di.KaliumCoreLogic
-import com.wire.android.notification.WireNotificationManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.workmanager.worker.NotificationFetchWorker
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.feature.notificationToken.SaveNotificationTokenUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @AndroidEntryPoint
-@OptIn(ExperimentalCoroutinesApi::class)
 class WireFirebaseMessagingService : FirebaseMessagingService() {
 
     @Inject
     @KaliumCoreLogic
     lateinit var coreLogic: CoreLogic
-
-    @Inject
-    lateinit var wireNotificationManager: WireNotificationManager
 
     @Inject
     lateinit var dispatcherProvider: DispatcherProvider
@@ -51,12 +45,15 @@ class WireFirebaseMessagingService : FirebaseMessagingService() {
 
     private fun enqueueNotificationFetchWorker(userId: String) {
         val request = OneTimeWorkRequestBuilder<NotificationFetchWorker>()
-            .setExpedited(OutOfQuotaPolicy.DROP_WORK_REQUEST)
+            .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
             .setInputData(workDataOf(NotificationFetchWorker.USER_ID_INPUT_DATA to userId))
+            .addTag("TEST_TAG")
             .build()
 
-        WorkManager.getInstance(applicationContext)
-            .enqueue(request)
+        val workManager = WorkManager.getInstance(applicationContext)
+
+        workManager.cancelAllWorkByTag("TEST_TAG")
+        workManager.enqueue(request)
     }
 
     private fun extractUserId(message: RemoteMessage): String {
@@ -93,7 +90,7 @@ class WireFirebaseMessagingService : FirebaseMessagingService() {
     }
 
     override fun onDestroy() {
-        scope.cancel("WireFirebaseMessagingService was destroyed")
+        scope.cancel()
         appLogger.i("$TAG: onDestroy")
         super.onDestroy()
     }

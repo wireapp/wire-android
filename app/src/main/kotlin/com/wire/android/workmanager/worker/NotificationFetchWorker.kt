@@ -39,10 +39,12 @@ class NotificationFetchWorker
     override suspend fun getForegroundInfo(): ForegroundInfo {
         createNotificationChannel()
 
-        val notification = NotificationCompat.Builder(applicationContext, NotificationConstants.MESSAGE_CHANNEL_ID)
+        val notification = NotificationCompat.Builder(applicationContext, NotificationConstants.OTHER_CHANNEL_ID)
             .setSmallIcon(R.drawable.notification_icon_small)
             .setAutoCancel(true)
             .setSilent(true)
+            .setCategory(NotificationCompat.CATEGORY_SERVICE)
+            .setProgress(0, 0, true)
             .setContentTitle(applicationContext.getString(R.string.label_fetching_your_messages))
             .setPriority(NotificationCompat.PRIORITY_MIN)
             .build()
@@ -52,8 +54,8 @@ class NotificationFetchWorker
 
     private fun createNotificationChannel() {
         val notificationChannel = NotificationChannelCompat
-            .Builder(NotificationConstants.MESSAGE_CHANNEL_ID, NotificationManagerCompat.IMPORTANCE_MAX)
-            .setName(NotificationConstants.MESSAGE_CHANNEL_NAME)
+            .Builder(NotificationConstants.OTHER_CHANNEL_ID, NotificationManagerCompat.IMPORTANCE_MAX)
+            .setName(NotificationConstants.OTHER_CHANNEL_NAME)
             .build()
 
         notificationManager.createNotificationChannel(notificationChannel)

@@ -72,8 +72,7 @@ class WireNotificationManager @Inject constructor(
      * @param userIdValue String value param of QualifiedID of the User that need to check Notifications for
      */
     suspend fun fetchAndShowNotificationsOnce(userIdValue: String) = fetchOnceMutex.withLock {
-        /** uncomment to show notification counter for testing purposes */
-//        firebaseNotificationManager.showNotification()
+        firebaseNotificationManager.handleNotification()
         if (isNotCurrentUser(userIdValue)) {
             appLogger.d("$TAG Ignoring notification for user=${userIdValue.obfuscateId()}, because not current user")
             return@withLock

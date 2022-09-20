@@ -17,11 +17,16 @@ class FirebaseNotificationManager @Inject constructor(private val context: Conte
 
     var count: Int = 0;
 
-    fun showNotification() {
+    /** Change to true to show notification counter for testing purposes */
+    private val showNotification = false
+
+    fun handleNotification() {
         count += 1;
-        appLogger.i("$TAG: showing notification $count")
-        createNotificationChannel()
-        notificationManager.notify("firebase${count}".hashCode(), getNotification(count))
+        appLogger.i("$TAG: Received notification $count")
+        if(showNotification) {
+            createNotificationChannel()
+            notificationManager.notify("firebase${count}".hashCode(), getNotification(count))
+        }
     }
 
     private fun createNotificationChannel() {

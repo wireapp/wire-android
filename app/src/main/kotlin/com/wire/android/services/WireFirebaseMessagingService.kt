@@ -5,6 +5,7 @@ import com.google.firebase.messaging.RemoteMessage
 import com.wire.android.appLogger
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.notification.WireNotificationManager
+import com.wire.android.util.NetworkUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.feature.notificationToken.SaveNotificationTokenUseCase
@@ -14,6 +15,7 @@ import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import java.util.Locale
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -28,6 +30,9 @@ class WireFirebaseMessagingService : FirebaseMessagingService() {
     lateinit var wireNotificationManager: WireNotificationManager
 
     @Inject
+    lateinit var networkUtil: NetworkUtil
+
+    @Inject
     lateinit var dispatcherProvider: DispatcherProvider
 
     private val scope by lazy {
@@ -37,7 +42,17 @@ class WireFirebaseMessagingService : FirebaseMessagingService() {
 
     override fun onMessageReceived(message: RemoteMessage) {
         super.onMessageReceived(message)
-        appLogger.i("$TAG: notification received, priority ${message.priority}, org: ${message.originalPriority}")
+        appLogger.i(
+            String.format(
+                Locale.US,
+                "$TAG: onMessageReceived(), ID: %s, Delay: %d, Priority: %d, Original Priority: %d, Network: %s",
+                message.messageId,
+                System.currentTimeMillis() - message.sentTime,
+                message.priority,
+                message.originalPriority,
+                networkUtil.getNetworkStatus()
+            )
+        )
         var userIdValue = ""
         for (items in message.data) {
             if (items.key == "user") {

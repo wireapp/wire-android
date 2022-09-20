@@ -374,7 +374,7 @@ class WireNotificationManagerTest {
             coEvery { callsScope.establishedCall } returns establishedCall
             coEvery { callNotificationManager.handleIncomingCallNotifications(any(), any()) } returns Unit
             coEvery { callNotificationManager.hideIncomingCallNotification() } returns Unit
-            coEvery { firebaseNotificationManager.showNotification() } returns Unit
+            coEvery { firebaseNotificationManager.handleNotification() } returns Unit
             coEvery { callNotificationManager.getNotificationTitle(any()) } returns "Test title"
             coEvery { messageScope.getNotifications } returns getNotificationsUseCase
             coEvery { messageScope.markMessagesAsNotified } returns markMessagesAsNotified

@@ -84,7 +84,6 @@ class DebugScreenViewModel
 
 
     fun setLoggingEnabledState(isEnabled: Boolean) {
-        viewModelScope.launch {
             enableLogging(isEnabled)
             state = state.copy(isLoggingEnabled = isEnabled)
             if (isEnabled) {
@@ -100,7 +99,6 @@ class DebugScreenViewModel
                     logWriters = arrayOf(DataDogLogger, platformLogWriter())
                 )
             }
-        }
     }
 
     fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }

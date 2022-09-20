@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
@@ -29,6 +30,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
@@ -36,6 +38,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.text.SpanStyle
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.Dp
@@ -50,15 +53,19 @@ import com.wire.android.ui.common.clickable
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.MessageComposerViewModel
 import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.getUriFromDrawable
 import com.wire.android.util.toBitmap
 import com.wire.kalium.logic.data.message.Message
-import com.wire.kalium.logic.data.message.Message.DownloadStatus.FAILED
-import com.wire.kalium.logic.data.message.Message.DownloadStatus.IN_PROGRESS
+import com.wire.kalium.logic.data.message.Message.DownloadStatus.DOWNLOAD_IN_PROGRESS
+import com.wire.kalium.logic.data.message.Message.DownloadStatus.FAILED_DOWNLOAD
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.NOT_DOWNLOADED
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.SAVED_EXTERNALLY
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.SAVED_INTERNALLY
+import com.wire.kalium.logic.data.message.Message.UploadStatus.FAILED_UPLOAD
+import com.wire.kalium.logic.data.message.Message.UploadStatus.UPLOADED
+import com.wire.kalium.logic.data.message.Message.UploadStatus.UPLOAD_IN_PROGRESS
 import kotlin.math.roundToInt
 
 // TODO: Here we actually need to implement some logic that will distinguish MentionLabel with Body of the message,
@@ -80,30 +87,93 @@ internal fun MessageBody(messageBody: MessageBody, onLongClick: (() -> Unit)? = 
 fun MessageImage(
     rawImgData: ByteArray?,
     imgParams: ImageMessageParams,
+    assetUploadStatus: Message.UploadStatus,
     onImageClick: Clickable,
 ) {
+    val imageData: Bitmap? = if (rawImgData != null && rawImgData.size < MessageComposerViewModel.IMAGE_SIZE_LIMIT_BYTES)
+        rawImgData.toBitmap() else null
     Box(
         Modifier
             .clip(shape = RoundedCornerShape(dimensions().messageAssetBorderRadius))
+            .background(
+                color = MaterialTheme.wireColorScheme.onPrimary,
+                shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
+            )
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.wireColorScheme.secondaryButtonDisabledOutline,
+                shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
+            )
+            .wrapContentSize()
             .combinedClickable(
                 enabled = onImageClick.enabled,
                 onClick = onImageClick.onClick,
                 onLongClick = onImageClick.onLongClick,
             )
     ) {
-        // TODO: We should not use rawImgData, but use something like the current ImageLoader instead.
-        val imageData: Bitmap? =
-            if (rawImgData != null && rawImgData.size < MessageComposerViewModel.IMAGE_SIZE_LIMIT_BYTES) rawImgData.toBitmap() else null
-
-        Image(
-            painter = rememberAsyncImagePainter(imageData ?: getUriFromDrawable(LocalContext.current, R.drawable.ic_gallery)),
-            alignment = Alignment.CenterStart,
-            contentDescription = stringResource(R.string.content_description_image_message),
-            modifier = Modifier
-                .width(if (imageData != null) imgParams.normalizedWidth else dimensions().spacing24x)
-                .height(if (imageData != null) imgParams.normalizedHeight else dimensions().spacing24x),
-            contentScale = ContentScale.Crop
-        )
+        when (assetUploadStatus) {
+            // Default states, we try to draw the image
+            Message.UploadStatus.NOT_UPLOADED -> {}
+            Message.UploadStatus.UPLOADED -> {
+                Image(
+                    painter = rememberAsyncImagePainter(imageData ?: getUriFromDrawable(LocalContext.current, R.drawable.ic_gallery)),
+                    contentDescription = stringResource(R.string.content_description_image_message),
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .width(if (imageData != null) imgParams.normalizedWidth else dimensions().spacing24x)
+                        .height(if (imageData != null) imgParams.normalizedHeight else dimensions().spacing24x),
+                    alignment = Alignment.CenterStart,
+                    contentScale = ContentScale.Crop
+                )
+            }
+            // Trying to upload the asset
+            Message.UploadStatus.UPLOAD_IN_PROGRESS -> {
+                Column(
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .width(imgParams.normalizedWidth)
+                        .height(imgParams.normalizedHeight)
+                ) {
+                    WireCircularProgressIndicator(
+                        progressColor = MaterialTheme.wireColorScheme.primary,
+                        size = MaterialTheme.wireDimensions.spacing24x
+                    )
+                    Text(
+                        text = stringResource(id = R.string.asset_message_upload_in_progress_text),
+                        style = MaterialTheme.wireTypography.body01.copy(color = MaterialTheme.wireColorScheme.secondaryText),
+                        overflow = TextOverflow.Ellipsis,
+                        maxLines = 1
+                    )
+                }
+            }
+            Message.UploadStatus.FAILED_UPLOAD -> {
+                Column(
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier
+                        .align(Alignment.Center)
+                        .size(dimensions().spacing200x)
+                ) {
+                    Image(
+                        painter = rememberAsyncImagePainter(getUriFromDrawable(LocalContext.current, R.drawable.ic_gallery)),
+                        contentDescription = null,
+                        modifier = Modifier
+                            .width(dimensions().spacing24x)
+                            .height(dimensions().spacing24x),
+                        alignment = Alignment.CenterStart,
+                        colorFilter = ColorFilter.tint(Color.Red),
+                        contentScale = ContentScale.Crop
+                    )
+                    Text(
+                        text = stringResource(id = R.string.error_uploading_image_message),
+                        textAlign = TextAlign.Center,
+                        style = MaterialTheme.wireTypography.body01.copy(color = MaterialTheme.wireColorScheme.error)
+                    )
+                }
+            }
+        }
     }
 }
 
@@ -115,7 +185,9 @@ fun RestrictedAssetMessage(assetTypeIcon: Int, restrictedAssetMessage: String) {
         border = BorderStroke(dimensions().spacing1x, MaterialTheme.wireColorScheme.divider)
     ) {
         Column(
-            modifier = Modifier.fillMaxWidth().height(dimensions().messageImageMaxWidth),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(dimensions().messageImageMaxWidth),
             verticalArrangement = Arrangement.Center,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
@@ -221,6 +293,7 @@ internal fun MessageAsset(
     assetExtension: String,
     assetSizeInBytes: Long,
     onAssetClick: Clickable,
+    assetUploadStatus: Message.UploadStatus,
     assetDownloadStatus: Message.DownloadStatus
 ) {
     val assetDescription = provideAssetDescription(assetExtension, assetSizeInBytes)
@@ -286,13 +359,13 @@ internal fun MessageAsset(
                 ) {
                     Text(
                         modifier = Modifier.padding(end = dimensions().spacing4x),
-                        text = getDownloadStatusText(assetDownloadStatus),
+                        text = getDownloadStatusText(assetDownloadStatus, assetUploadStatus),
                         color = MaterialTheme.wireColorScheme.run {
-                            if (assetDownloadStatus == FAILED) error else secondaryText
+                            if (assetDownloadStatus == FAILED_DOWNLOAD || assetUploadStatus == FAILED_UPLOAD) error else secondaryText
                         },
                         style = MaterialTheme.wireTypography.subline01
                     )
-                    DownloadStatusIcon(assetDownloadStatus)
+                    DownloadStatusIcon(assetDownloadStatus, assetUploadStatus)
                 }
             }
         }
@@ -300,19 +373,20 @@ internal fun MessageAsset(
 }
 
 @Composable
-private fun DownloadStatusIcon(assetDownloadStatus: Message.DownloadStatus) {
-    return when (assetDownloadStatus) {
-        IN_PROGRESS -> WireCircularProgressIndicator(
+private fun DownloadStatusIcon(assetDownloadStatus: Message.DownloadStatus, assetUploadStatus: Message.UploadStatus) {
+    return when {
+        assetUploadStatus == UPLOAD_IN_PROGRESS || assetDownloadStatus == DOWNLOAD_IN_PROGRESS -> WireCircularProgressIndicator(
             progressColor = MaterialTheme.wireColorScheme.secondaryText,
             size = dimensions().spacing16x
         )
-        SAVED_INTERNALLY -> Icon(
+        assetUploadStatus == FAILED_UPLOAD -> {}
+        assetDownloadStatus == SAVED_INTERNALLY -> Icon(
             painter = painterResource(id = R.drawable.ic_download),
             contentDescription = stringResource(R.string.content_description_download_icon),
             modifier = Modifier.size(dimensions().wireIconButtonSize),
             tint = MaterialTheme.wireColorScheme.secondaryText
         )
-        SAVED_EXTERNALLY -> Icon(
+        assetDownloadStatus == SAVED_EXTERNALLY -> Icon(
             painter = painterResource(id = R.drawable.ic_check_tick),
             contentDescription = stringResource(R.string.content_description_check),
             modifier = Modifier.size(dimensions().wireIconButtonSize),
@@ -323,21 +397,27 @@ private fun DownloadStatusIcon(assetDownloadStatus: Message.DownloadStatus) {
 }
 
 @Composable
-fun getDownloadStatusText(assetDownloadStatus: Message.DownloadStatus): String =
-    when (assetDownloadStatus) {
-        NOT_DOWNLOADED -> stringResource(R.string.asset_message_tap_to_download_text)
-        SAVED_INTERNALLY -> stringResource(R.string.asset_message_downloaded_internally_text)
-        IN_PROGRESS -> stringResource(R.string.asset_message_download_in_progress_text)
-        SAVED_EXTERNALLY -> stringResource(R.string.asset_message_saved_externally_text)
-        FAILED -> stringResource(R.string.asset_message_failed_download_text)
+fun getDownloadStatusText(assetDownloadStatus: Message.DownloadStatus, assetUploadStatus: Message.UploadStatus): String =
+    when {
+        assetUploadStatus == UPLOAD_IN_PROGRESS -> stringResource(R.string.asset_message_upload_in_progress_text)
+        assetUploadStatus == FAILED_UPLOAD -> stringResource(R.string.asset_message_failed_upload_text)
+        assetDownloadStatus == NOT_DOWNLOADED -> stringResource(R.string.asset_message_tap_to_download_text)
+        assetDownloadStatus == SAVED_INTERNALLY -> stringResource(R.string.asset_message_downloaded_internally_text)
+        assetDownloadStatus == DOWNLOAD_IN_PROGRESS -> stringResource(R.string.asset_message_download_in_progress_text)
+        assetDownloadStatus == SAVED_EXTERNALLY
+                || assetUploadStatus == UPLOADED -> stringResource(R.string.asset_message_saved_externally_text)
+        assetDownloadStatus == FAILED_DOWNLOAD -> stringResource(R.string.asset_message_failed_download_text)
+        else -> ""
     }
 
 @Suppress("MagicNumber")
 private fun provideAssetDescription(assetExtension: String, assetSizeInBytes: Long): String {
+    val oneKB = 1024L
+    val oneMB = oneKB * oneKB
     return when {
-        assetSizeInBytes < 1000 -> "${assetExtension.uppercase()} ($assetSizeInBytes B)"
-        assetSizeInBytes in 1000..999999 -> "${assetExtension.uppercase()} (${assetSizeInBytes / 1000} KB)"
-        else -> "${assetExtension.uppercase()} (${((assetSizeInBytes / 1000000f) * 100.0).roundToInt() / 100.0} MB)" // 2 decimals round off
+        assetSizeInBytes < oneKB -> "${assetExtension.uppercase()} ($assetSizeInBytes B)"
+        assetSizeInBytes in oneKB..oneMB -> "${assetExtension.uppercase()} (${assetSizeInBytes / oneKB} KB)"
+        else -> "${assetExtension.uppercase()} (${((assetSizeInBytes / oneMB) * 100.0).roundToInt() / 100.0} MB)" // 2 decimals round off
     }
 }
 

@@ -60,7 +60,7 @@ val mockImageLoader = WireSessionImageLoader(object : ImageLoader {
     override fun shutdown() = TODO("Not yet implemented")
 })
 
-val mockAssetMessage = UIMessage(
+fun mockAssetMessage(uploadStatus: Message.UploadStatus = Message.UploadStatus.UPLOADED) = UIMessage(
     userAvatarData = UserAvatarData(
         UserAvatarAsset(mockImageLoader, UserAssetId("a", "domain")),
         UserAvailabilityStatus.AVAILABLE
@@ -69,7 +69,7 @@ val mockAssetMessage = UIMessage(
         username = UIText.DynamicString("John Doe"),
         membership = Membership.Guest,
         isLegalHold = true,
-        messageTime = MessageTime( "12.23pm"),
+        messageTime = MessageTime("12.23pm"),
         messageStatus = MessageStatus.Untouched,
         messageId = "",
         connectionState = ConnectionState.ACCEPTED
@@ -79,13 +79,31 @@ val mockAssetMessage = UIMessage(
         assetExtension = "ZIP",
         assetId = UserAssetId("asset", "domain"),
         assetSizeInBytes = 21957335,
+        uploadStatus = uploadStatus,
         downloadStatus = Message.DownloadStatus.NOT_DOWNLOADED
     ),
     messageSource = MessageSource.Self
 )
 
 @Suppress("MagicNumber")
-val mockedImg = UIMessageContent.ImageMessage(UserAssetId("a", "domain"), ByteArray(16), 0, 0)
+fun mockedImg(uploadStatus: Message.UploadStatus = Message.UploadStatus.UPLOADED) = UIMessageContent.ImageMessage(
+    UserAssetId("a", "domain"), null, 0, 0, uploadStatus = uploadStatus
+)
+@Suppress("MagicNumber")
+fun mockedImageUIMessage(uploadStatus: Message.UploadStatus = Message.UploadStatus.UPLOADED) = UIMessage(
+    userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
+    messageHeader = MessageHeader(
+        username = UIText.DynamicString("John Doe"),
+        membership = Membership.External,
+        isLegalHold = false,
+        messageTime = MessageTime("12.23pm"),
+        messageStatus = MessageStatus.Edited("May 31, 2022 12.24pm"),
+        messageId = "4",
+        connectionState = ConnectionState.ACCEPTED
+    ),
+    messageContent = mockedImg(uploadStatus),
+    messageSource = MessageSource.Self
+)
 
 @Suppress("LongMethod", "MagicNumber")
 fun getMockedMessages(): List<UIMessage> = listOf(
@@ -95,7 +113,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             username = UIText.DynamicString("John Doe"),
             membership = Membership.Guest,
             isLegalHold = true,
-            messageTime = MessageTime(  "12.23pm"),
+            messageTime = MessageTime("12.23pm"),
             messageStatus = MessageStatus.Untouched,
             messageId = "1",
             connectionState = ConnectionState.ACCEPTED
@@ -118,12 +136,12 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             username = UIText.DynamicString("John Doe"),
             membership = Membership.Guest,
             isLegalHold = true,
-            messageTime = MessageTime(  "12.23pm"),
+            messageTime = MessageTime("12.23pm"),
             messageStatus = MessageStatus.Deleted,
             messageId = "2",
             connectionState = ConnectionState.ACCEPTED
         ),
-        messageContent = mockedImg,
+        messageContent = mockedImg(),
         messageSource = MessageSource.Self
     ),
     UIMessage(
@@ -132,12 +150,12 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             username = UIText.DynamicString("John Doe"),
             membership = Membership.External,
             isLegalHold = false,
-            messageTime = MessageTime(  "12.23pm"),
+            messageTime = MessageTime("12.23pm"),
             messageStatus = MessageStatus.Edited("May 31, 2022 12.24pm"),
             messageId = "3",
             connectionState = ConnectionState.ACCEPTED
         ),
-        messageContent = mockedImg,
+        messageContent = mockedImg(),
         messageSource = MessageSource.Self
     ),
     UIMessage(
@@ -146,12 +164,12 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             username = UIText.DynamicString("John Doe"),
             membership = Membership.External,
             isLegalHold = false,
-            messageTime = MessageTime( "12.23pm"),
+            messageTime = MessageTime("12.23pm"),
             messageStatus = MessageStatus.Edited("May 31, 2022 12.24pm"),
             messageId = "4",
             connectionState = ConnectionState.ACCEPTED
         ),
-        messageContent = mockedImg,
+        messageContent = mockedImg(),
         messageSource = MessageSource.Self
     ),
     UIMessage(
@@ -160,7 +178,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             username = UIText.DynamicString("John Doe"),
             membership = Membership.External,
             isLegalHold = false,
-            messageTime = MessageTime( "12.23pm"),
+            messageTime = MessageTime("12.23pm"),
             messageStatus = MessageStatus.Deleted,
             messageId = "5",
             connectionState = ConnectionState.ACCEPTED
@@ -183,12 +201,12 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             username = UIText.DynamicString("John Doe"),
             membership = Membership.External,
             isLegalHold = false,
-            messageTime = MessageTime( "12.23pm"),
+            messageTime = MessageTime("12.23pm"),
             messageStatus = MessageStatus.Edited("May 31, 2022 12.24pm"),
             messageId = "6",
             connectionState = ConnectionState.ACCEPTED
         ),
-        messageContent = mockedImg,
+        messageContent = mockedImg(),
         messageSource = MessageSource.Self
     ),
     UIMessage(
@@ -197,7 +215,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             username = UIText.DynamicString("John Doe"),
             membership = Membership.External,
             isLegalHold = false,
-            messageTime = MessageTime( "12.23pm"),
+            messageTime = MessageTime("12.23pm"),
             messageStatus = MessageStatus.Edited("May 31, 2022 12.24pm"),
             messageId = "7",
             connectionState = ConnectionState.ACCEPTED

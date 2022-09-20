@@ -37,17 +37,13 @@ class DebugScreenViewModel
     private val currentClientIdUseCase: ObserveCurrentClientIdUseCase,
     isLoggingEnabledUseCase: IsLoggingEnabledUseCase
 ) : ViewModel() {
-    var state by mutableStateOf(DebugScreenState())
+    var state by mutableStateOf(DebugScreenState(isLoggingEnabled = isLoggingEnabledUseCase()))
 
     fun logFilePath(): String = logFileWriter.activeLoggingFile.absolutePath
 
     init {
-        viewModelScope.launch {
-            state = state.copy(isLoggingEnabled = isLoggingEnabledUseCase())
-        }
         observeMlsMetadata()
         observeCurrentClientId()
-
     }
 
     private fun observeCurrentClientId() {
@@ -84,21 +80,15 @@ class DebugScreenViewModel
 
 
     fun setLoggingEnabledState(isEnabled: Boolean) {
-            enableLogging(isEnabled)
-            state = state.copy(isLoggingEnabled = isEnabled)
-            if (isEnabled) {
-                logFileWriter.start()
-                CoreLogger.setLoggingLevel(
-                    level = KaliumLogLevel.VERBOSE,
-                    logWriters = arrayOf(DataDogLogger, platformLogWriter())
-                )
-            } else {
-                logFileWriter.stop()
-                CoreLogger.setLoggingLevel(
-                    level = KaliumLogLevel.DISABLED,
-                    logWriters = arrayOf(DataDogLogger, platformLogWriter())
-                )
-            }
+        enableLogging(isEnabled)
+        state = state.copy(isLoggingEnabled = isEnabled)
+        if (isEnabled) {
+            logFileWriter.start()
+            CoreLogger.setLoggingLevel(level = KaliumLogLevel.VERBOSE, logWriters = arrayOf(DataDogLogger, platformLogWriter()))
+        } else {
+            logFileWriter.stop()
+            CoreLogger.setLoggingLevel(level = KaliumLogLevel.DISABLED, logWriters = arrayOf(DataDogLogger, platformLogWriter()))
+        }
     }
 
     fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }

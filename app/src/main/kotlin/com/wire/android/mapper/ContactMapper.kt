@@ -2,7 +2,6 @@ package com.wire.android.mapper
 
 import com.wire.android.model.ImageAsset
 import com.wire.android.model.UserAvatarData
-import com.wire.android.ui.home.conversations.previewAsset
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.userprofile.common.UsernameMapper.mapUserLabel
 import com.wire.android.util.ui.WireSessionImageLoader

@@ -93,7 +93,6 @@ class WireNotificationManager @Inject constructor(
         }
     }
 
-
     private suspend fun triggerSyncForUserIfAuthenticated(userIdValue: String) {
         checkIfUserIsAuthenticated(userId = userIdValue)?.let { userId ->
             appLogger.d("$TAG checking the notifications once")
@@ -101,6 +100,7 @@ class WireNotificationManager @Inject constructor(
             val observeMessagesJob = scope.launch {
                 observeMessageNotifications(flowOf(userId), MutableStateFlow(CurrentScreen.InBackground))
             }
+
             appLogger.d("$TAG start syncing")
             connectionPolicyManager.handleConnectionOnPushNotification(userId)
 

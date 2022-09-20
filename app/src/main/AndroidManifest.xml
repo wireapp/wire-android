@@ -129,7 +129,7 @@
         <service
                 android:name=".services.OngoingCallService"
                 android:exported="false"
-                android:foregroundServiceType="microphone" />
+                android:foregroundServiceType="phoneCall" />
 
         <!-- If you want to disable android.startup completely. -->
         <provider

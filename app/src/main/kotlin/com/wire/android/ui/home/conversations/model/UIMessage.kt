@@ -70,16 +70,24 @@ sealed class UIMessageContent {
         val assetExtension: String,
         val assetId: AssetId,
         val assetSizeInBytes: Long,
+        val uploadStatus: Message.UploadStatus,
         val downloadStatus: Message.DownloadStatus
     ) : ClientMessage()
 
-    data class ImageMessage(val assetId: AssetId, val imgData: ByteArray?, val width: Int, val height: Int) : UIMessageContent() {
+    data class ImageMessage(
+        val assetId: AssetId,
+        var imgData: ByteArray?,
+        val width: Int,
+        val height: Int,
+        val uploadStatus: Message.UploadStatus
+    ) : UIMessageContent() {
         override fun equals(other: Any?): Boolean {
             if (this === other) return true
             if (javaClass != other?.javaClass) return false
             other as ImageMessage
             if (assetId != other.assetId) return false
             if (!imgData.contentEquals(other.imgData)) return false
+            if (uploadStatus != other.uploadStatus) return false
             return true
         }
 
@@ -127,6 +135,6 @@ enum class MessageSource {
     Self, OtherUser
 }
 
-data class MessageTime(val utcISO : String){
+data class MessageTime(val utcISO: String) {
     val formattedDate = utcISO.uiMessageDateTime() ?: ""
 }

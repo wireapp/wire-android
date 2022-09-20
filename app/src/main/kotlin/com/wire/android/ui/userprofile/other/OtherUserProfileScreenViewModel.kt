@@ -31,7 +31,6 @@ import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.Con
 import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.ConnectionCancelError
 import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.ConnectionIgnoreError
 import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.ConnectionRequestError
-import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.LoadDirectConversationError
 import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.LoadUserInformationError
 import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.MutingOperationError
 import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.RemoveConversationMemberError
@@ -171,9 +170,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         }
     }
 
-    /**
-     * This could be loaded on demand not on init.
-     */
+    // TODO This could be loaded on demand not on init.
     private fun observeConversationSheetContentIfNeeded(otherUser: OtherUser, userAvatarAsset: ImageAsset.UserAvatarAsset?) {
         // if we are not connected with that user -> we don't have a direct conversation ->
         // -> no need to load data for ConversationBottomSheet
@@ -183,7 +180,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             when (val conversationResult = getConversation(userId)) {
                 is GetOneToOneConversationUseCase.Result.Failure -> {
                     appLogger.d("Couldn't not getOrCreateOneToOneConversation for user id: $userId")
-                    showInfoMessage(LoadDirectConversationError)
+                    return@launch
                 }
                 is GetOneToOneConversationUseCase.Result.Success -> {
                     observeSelfUser().collect { selfUser ->

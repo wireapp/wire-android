@@ -148,7 +148,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                         val userAvatarAsset = otherUser.completePicture
                             ?.let { pic -> ImageAsset.UserAvatarAsset(wireSessionImageLoader, pic) }
 
-                        // TODO yamil: remove this block from here. we should loaded on user click
+                        // TODO yamil: this block could be removed from here. we should loaded on user click
                         observeConversationSheetContentIfNeeded(otherUser, userAvatarAsset)
                         observeGroupStateIfNeeded()
 
@@ -172,7 +172,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     }
 
     /**
-     * This should be loaded on demand not on init.
+     * This could be loaded on demand not on init.
      */
     private fun observeConversationSheetContentIfNeeded(otherUser: OtherUser, userAvatarAsset: ImageAsset.UserAvatarAsset?) {
         // if we are not connected with that user -> we don't have a direct conversation ->

@@ -111,7 +111,7 @@ fun MessageImage(
                 onLongClick = onImageClick.onLongClick,
             )
     ) {
-        when (assetUploadStatus) {
+        when     (assetUploadStatus) {
             // Default states, we try to draw the image
             Message.UploadStatus.NOT_UPLOADED -> {}
             Message.UploadStatus.UPLOADED -> {

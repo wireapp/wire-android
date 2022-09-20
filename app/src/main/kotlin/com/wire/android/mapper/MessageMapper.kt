@@ -26,6 +26,7 @@ import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class MessageMapper @Inject constructor(
+    private val dispatcherProvider: DispatcherProvider,
     private val userTypeMapper: UserTypeMapper,
     private val messageContentMapper: MessageContentMapper,
     private val isoFormatter: ISOFormatter,
@@ -44,8 +45,8 @@ class MessageMapper @Inject constructor(
     suspend fun toUIMessages(
         userList: List<User>,
         messages: List<Message>
-    ): List<UIMessage> {
-        return messages.map { message ->
+    ): List<UIMessage> = withContext(dispatcherProvider.io()) {
+        messages.mapNotNull { message ->
             val sender = userList.findUser(message.senderUserId)
             val content = messageContentMapper.fromMessage(
                 message = message,
@@ -60,7 +61,7 @@ class MessageMapper @Inject constructor(
                     messageHeader = provideMessageHeader(sender, message),
                     userAvatarData = getUserAvatarData(sender)
                 )
-        }.filterNotNull()
+        }
     }
 
     private fun provideMessageHeader(sender: User?, message: Message): MessageHeader = MessageHeader(

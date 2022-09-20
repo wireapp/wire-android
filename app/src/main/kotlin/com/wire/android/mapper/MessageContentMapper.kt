@@ -4,6 +4,7 @@ import androidx.annotation.StringRes
 import com.wire.android.R
 import com.wire.android.ui.home.conversations.findUser
 import com.wire.android.ui.home.conversations.model.MessageBody
+import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
@@ -25,13 +26,9 @@ import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import com.wire.kalium.logic.util.isGreaterThan
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import okhttp3.internal.wait
 import javax.inject.Inject
-import com.wire.android.ui.home.conversations.model.UIMessageContent
 
 // TODO: splits mapping into more classes
 class MessageContentMapper @Inject constructor(
@@ -40,8 +37,6 @@ class MessageContentMapper @Inject constructor(
     private val kaliumFileSystem: KaliumFileSystem,
     private val dispatcherProvider: DispatcherProvider
 ) {
-
-    private val scope = CoroutineScope(SupervisorJob() + dispatcherProvider.default())
 
     suspend fun fromMessage(
         message: Message,
@@ -117,8 +112,7 @@ class MessageContentMapper @Inject constructor(
     ) = when (val content = message.content) {
         is Asset -> {
             val assetMessageData = AssetMessageData(content.value)
-            val assetMessage = toUIMessageContent(assetMessageData, message, scope)
-            assetMessage
+            toUIMessageContent(assetMessageData, message)
         }
         is MessageContent.RestrictedAsset -> toRestrictedAsset(content.mimeType, content.sizeInBytes, content.name)
         else -> toText(content)
@@ -135,27 +129,23 @@ class MessageContentMapper @Inject constructor(
         }
     ).let { messageBody -> UIMessageContent.TextMessage(messageBody = messageBody) }
 
-    suspend fun toUIMessageContent(assetMessageData: AssetMessageData, message: Message, scope: CoroutineScope) =
+    suspend fun toUIMessageContent(assetMessageData: AssetMessageData, message: Message) =
         with(assetMessageData.assetMessageContent) {
             when {
                 // If it's an image, we download it right away
                 assetMessageData.isValidImage() -> {
-                    var imageRawData: ByteArray? = null
-                    val job = scope.launch(dispatcherProvider.io()) {
-                        val imageData = imageRawData(message.conversationId, message.id)
-                        withContext(Dispatchers.Main) { imageRawData = imageData }
+                    val imageData = withContext(dispatcherProvider.io()) {
+                        imageRawData(message.conversationId, message.id)
                     }
-
-                    // We need to wait until the image is fetched
-                    job.join()
-
-                    UIMessageContent.ImageMessage(
-                        assetId = AssetId(remoteData.assetId, remoteData.assetDomain.orEmpty()),
-                        imgData = imageRawData,
-                        width = assetMessageData.imgWidth,
-                        height = assetMessageData.imgHeight,
-                        uploadStatus = uploadStatus
-                    )
+                    withContext(dispatcherProvider.main()) {
+                        UIMessageContent.ImageMessage(
+                            assetId = AssetId(remoteData.assetId, remoteData.assetDomain.orEmpty()),
+                            imgData = imageData,
+                            width = assetMessageData.imgWidth,
+                            height = assetMessageData.imgHeight,
+                            uploadStatus = uploadStatus
+                        )
+                    }
                 }
 
                 // It's a generic Asset Message so let's not download it yet

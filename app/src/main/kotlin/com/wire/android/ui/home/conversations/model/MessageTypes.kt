@@ -22,7 +22,6 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -54,6 +53,7 @@ import com.wire.android.ui.common.clickable
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.MessageComposerViewModel
 import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.getUriFromDrawable
 import com.wire.android.util.toBitmap
@@ -133,9 +133,13 @@ fun MessageImage(
                     horizontalAlignment = Alignment.CenterHorizontally,
                     modifier = Modifier
                         .align(Alignment.Center)
-                        .size(dimensions().spacing200x)
+                        .width(imgParams.normalizedWidth)
+                        .height(imgParams.normalizedHeight)
                 ) {
-                    CircularProgressIndicator()
+                    WireCircularProgressIndicator(
+                        progressColor = MaterialTheme.wireColorScheme.primary,
+                        size = MaterialTheme.wireDimensions.spacing24x
+                    )
                     Text(
                         text = stringResource(id = R.string.asset_message_upload_in_progress_text),
                         style = MaterialTheme.wireTypography.body01.copy(color = MaterialTheme.wireColorScheme.secondaryText),
@@ -165,7 +169,7 @@ fun MessageImage(
                     Text(
                         text = stringResource(id = R.string.error_uploading_image_message),
                         textAlign = TextAlign.Center,
-                        style = MaterialTheme.wireTypography.body01.copy(color = MaterialTheme.wireColorScheme.error),
+                        style = MaterialTheme.wireTypography.body01.copy(color = MaterialTheme.wireColorScheme.error)
                     )
                 }
             }
@@ -406,11 +410,14 @@ fun getDownloadStatusText(assetDownloadStatus: Message.DownloadStatus, assetUplo
         else -> ""
     }
 
-@Suppress("MagicNumber")
-private fun provideAssetDescription(assetExtension: String, assetSizeInBytes: Long): String = when {
-    assetSizeInBytes < 1000 -> "${assetExtension.uppercase()} ($assetSizeInBytes B)"
-    assetSizeInBytes in 1000..999999 -> "${assetExtension.uppercase()} (${assetSizeInBytes / 1000} KB)"
-    else -> "${assetExtension.uppercase()} (${((assetSizeInBytes / 1000000f) * 100.0).roundToInt() / 100.0} MB)" // 2 decimals round off
+private fun provideAssetDescription(assetExtension: String, assetSizeInBytes: Long): String {
+    val oneKB = 1024L
+    val oneMB = oneKB * oneKB
+    return when {
+        assetSizeInBytes < oneKB -> "${assetExtension.uppercase()} ($assetSizeInBytes B)"
+        assetSizeInBytes in oneKB..oneMB -> "${assetExtension.uppercase()} (${assetSizeInBytes / oneKB} KB)"
+        else -> "${assetExtension.uppercase()} (${((assetSizeInBytes / oneMB) * 100.0).roundToInt() / 100.0} MB)" // 2 decimals round off
+    }
 }
 
 // TODO:we should provide the SpanStyle by LocalProvider to our Theme, later on

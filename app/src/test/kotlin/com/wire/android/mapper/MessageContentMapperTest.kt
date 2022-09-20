@@ -34,6 +34,7 @@ import kotlinx.coroutines.test.runTest
 import okio.Path
 import okio.Path.Companion.toPath
 import okio.buffer
+import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -55,11 +56,11 @@ class MessageContentMapperTest {
         val deleted = mapper.toSystemMessageMemberName(deletedMemberDetails.user, MessageContentMapper.SelfNameType.NameOrDeleted)
         val otherName = mapper.toSystemMessageMemberName(otherMemberDetails.user, MessageContentMapper.SelfNameType.NameOrDeleted)
         // Then
-        assert(selfName is UIText.DynamicString && selfName.value == selfMemberDetails.name)
-        assert(selfResLower is UIText.StringResource && selfResLower.resId == arrangement.messageResourceProvider.memberNameYouLowercase)
-        assert(selfResTitle is UIText.StringResource && selfResTitle.resId == arrangement.messageResourceProvider.memberNameYouTitlecase)
-        assert(deleted is UIText.StringResource && deleted.resId == arrangement.messageResourceProvider.memberNameDeleted)
-        assert(otherName is UIText.DynamicString && otherName.value == otherMemberDetails.name)
+        assertTrue(selfName is UIText.DynamicString && selfName.value == selfMemberDetails.name)
+        assertTrue(selfResLower is UIText.StringResource && selfResLower.resId == arrangement.messageResourceProvider.memberNameYouLowercase)
+        assertTrue(selfResTitle is UIText.StringResource && selfResTitle.resId == arrangement.messageResourceProvider.memberNameYouTitlecase)
+        assertTrue(deleted is UIText.StringResource && deleted.resId == arrangement.messageResourceProvider.memberNameDeleted)
+        assertTrue(otherName is UIText.DynamicString && otherName.value == otherMemberDetails.name)
     }
 
     @Test
@@ -72,13 +73,13 @@ class MessageContentMapperTest {
         val resultText = mapper.toText(textContent)
         val resultNonText = mapper.toText(nonTextContent)
         with(resultText) {
-            assert(
+            assertTrue(
                 messageBody.message is UIText.DynamicString &&
                         (messageBody.message as UIText.DynamicString).value == textContent.value
             )
         }
         with(resultNonText) {
-            assert(
+            assertTrue(
                 messageBody.message is UIText.StringResource &&
                         (messageBody.message as UIText.StringResource).resId == arrangement.messageResourceProvider.sentAMessageWithContent
             )
@@ -111,30 +112,30 @@ class MessageContentMapperTest {
         val resultMyMissedCall = mapper.fromMessage(missedCallMessage, listOf(selfCaller.user))
         val resultOtherMissedCall = mapper.fromMessage(missedCallMessage, listOf(otherCaller.user))
         // Then
-        assert(
+        assertTrue(
             resultContentLeft is SystemMessage.MemberLeft &&
                     resultContentLeft.author.asString(arrangement.resources) == member1.name
         )
-        assert(
+        assertTrue(
             resultContentRemoved is SystemMessage.MemberRemoved &&
                     resultContentRemoved.author.asString(arrangement.resources) == member1.name &&
                     resultContentRemoved.memberNames.size == 1 &&
                     resultContentRemoved.memberNames[0].asString(arrangement.resources) == member2.name
 
         )
-        assert(
+        assertTrue(
             resultContentAdded is SystemMessage.MemberAdded &&
                     resultContentAdded.author.asString(arrangement.resources) == member1.name &&
                     resultContentAdded.memberNames.size == 2 &&
                     resultContentAdded.memberNames[0].asString(arrangement.resources) == member2.name &&
                     resultContentAdded.memberNames[1].asString(arrangement.resources) == member3.name
         )
-        assert(resultContentAddedSelf == null)
-        assert(
+        assertTrue(resultContentAddedSelf == null)
+        assertTrue(
             resultOtherMissedCall is SystemMessage.MissedCall &&
                     resultOtherMissedCall.author.asString(arrangement.resources) == TestUser.OTHER_USER.name
         )
-        assert(
+        assertTrue(
             resultMyMissedCall is SystemMessage.MissedCall &&
                     (resultMyMissedCall.author as UIText.StringResource).resId == arrangement.messageResourceProvider.memberNameYouTitlecase
         )
@@ -173,12 +174,12 @@ class MessageContentMapperTest {
             // When - Then
             val resultContentOther = mapper.toUIMessageContent(AssetMessageData(unknownImageMessageContent), testMessage1, scope)
             coVerify(exactly = 0) { arrangement.getMessageAssetUseCase.invoke(any(), any()) }
-            assert(resultContentOther is AssetMessage && resultContentOther.assetId.value == unknownImageMessageContent.remoteData.assetId)
+            assertTrue(resultContentOther is AssetMessage && resultContentOther.assetId.value == unknownImageMessageContent.remoteData.assetId)
 
             // When - Then
             val resultContentImage = mapper.toUIMessageContent(AssetMessageData(correctJPGImage), testMessage2, scope)
             coVerify(exactly = 1) { arrangement.getMessageAssetUseCase.invoke(any(), any()) }
-            assert(resultContentImage is ImageMessage && resultContentImage.assetId.value == correctJPGImage.remoteData.assetId)
+            assertTrue(resultContentImage is ImageMessage && resultContentImage.assetId.value == correctJPGImage.remoteData.assetId)
         }
     }
 
@@ -202,7 +203,7 @@ class MessageContentMapperTest {
 
         // Then
         coVerify(inverse = true) { arrangement.getMessageAssetUseCase.invoke(any(), any()) }
-        assert(resultContentImage is AssetMessage)
+        assertTrue(resultContentImage is AssetMessage)
     }
 
     @Test
@@ -239,8 +240,8 @@ class MessageContentMapperTest {
             val resultContentImage2 = mapper.toUIMessageContent(AssetMessageData(contentImage2), testMessage2, scope)
 
             // Then
-            assert(resultContentImage1 is AssetMessage)
-            assert(resultContentImage2 is ImageMessage)
+            assertTrue(resultContentImage1 is AssetMessage)
+            assertTrue(resultContentImage2 is ImageMessage)
 
             // Only the image with valid metadata is downloaded
             coVerify(exactly = 1) { arrangement.getMessageAssetUseCase.invoke(any(), any()) }
@@ -265,9 +266,9 @@ class MessageContentMapperTest {
         val resultContentDeleted = mapper.fromMessage(deletedMessage, listOf())
         val resultContentHidden = mapper.fromMessage(hiddenMessage, listOf())
         // Then
-        assert(resultContentVisible != null)
-        assert(resultContentDeleted == null)
-        assert(resultContentHidden == null)
+        assertTrue(resultContentVisible != null)
+        assertTrue(resultContentDeleted == null)
+        assertTrue(resultContentHidden == null)
     }
 
     private class Arrangement {

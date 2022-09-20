@@ -15,8 +15,8 @@ sealed class ImageAsset(private val imageLoader: WireSessionImageLoader) {
      */
     abstract val uniqueKey: String
 
-    class UserAvatarAsset(
-        imageLoader: WireSessionImageLoader,
+    data class UserAvatarAsset(
+        private val imageLoader: WireSessionImageLoader,
         val userAssetId: UserAssetId
     ) : ImageAsset(imageLoader) {
         override val uniqueKey: String

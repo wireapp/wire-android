@@ -131,7 +131,6 @@ internal class AssetImageFetcherTest {
             getPrivateAsset = getPrivateAsset,
             resources = resources,
             drawableResultWrapper = drawableResultWrapper,
-            kaliumFileSystem = fakeKaliumFileSystem
         )
     }
 

@@ -68,7 +68,8 @@ class CreateAccountUsernameViewModelTest {
     @Test
     fun `given forbidden character, when entering username, then forbidden character is ignored`() {
         coEvery { validateUserHandleUseCase.invoke("a1_") } returns ValidateUserHandleResult.Valid("a1_")
-        coEvery { validateUserHandleUseCase.invoke("a1_$") } returns ValidateUserHandleResult.Invalid.InvalidCharacters("a1_")
+        coEvery { validateUserHandleUseCase.invoke("a1_$") } returns
+                ValidateUserHandleResult.Invalid.InvalidCharacters("a1_", listOf())
         createAccountUsernameViewModel.onUsernameChange(TextFieldValue("a1_"))
         createAccountUsernameViewModel.state.username.text shouldBeEqualTo "a1_"
         createAccountUsernameViewModel.onUsernameChange(TextFieldValue("a1_$"))

@@ -1,5 +1,6 @@
 package com.wire.android.services
 
+import androidx.work.ExistingWorkPolicy
 import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.OutOfQuotaPolicy
 import androidx.work.WorkManager
@@ -47,13 +48,15 @@ class WireFirebaseMessagingService : FirebaseMessagingService() {
         val request = OneTimeWorkRequestBuilder<NotificationFetchWorker>()
             .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
             .setInputData(workDataOf(NotificationFetchWorker.USER_ID_INPUT_DATA to userId))
-            .addTag("TEST_TAG")
             .build()
 
         val workManager = WorkManager.getInstance(applicationContext)
 
-        workManager.cancelAllWorkByTag("TEST_TAG")
-        workManager.enqueue(request)
+        workManager.enqueueUniqueWork(
+            userId,
+            ExistingWorkPolicy.REPLACE,
+            request
+        )
     }
 
     private fun extractUserId(message: RemoteMessage): String {

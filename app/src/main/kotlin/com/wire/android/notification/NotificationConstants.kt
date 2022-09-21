@@ -2,6 +2,7 @@ package com.wire.android.notification
 
 import com.wire.kalium.logic.data.id.ConversationId
 
+//TODO: The names need to be localisable
 object NotificationConstants {
     const val INCOMING_CALL_CHANNEL_ID = "com.wire.android.notification_incoming_call_channel"
     const val INCOMING_CALL_CHANNEL_NAME = "Incoming calls"
@@ -16,8 +17,8 @@ object NotificationConstants {
     const val MESSAGE_GROUP_KEY = "wire_reloaded_notification_group"
     const val KEY_TEXT_REPLY = "key_text_notification_reply"
 
-    const val OTHER_CHANNEL_ID = "com.wire.android.other_channel"
-    const val OTHER_CHANNEL_NAME = "Others Channel"
+    const val OTHER_CHANNEL_ID = "com.wire.android.message_synchronization"
+    const val OTHER_CHANNEL_NAME = "Message Synchronization"
 
     //Notification IDs (has to be unique!)
     val MESSAGE_SUMMARY_ID = "wire_messages_summary_notification".hashCode()

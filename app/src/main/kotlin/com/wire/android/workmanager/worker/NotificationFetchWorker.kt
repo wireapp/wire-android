@@ -54,7 +54,7 @@ class NotificationFetchWorker
 
     private fun createNotificationChannel() {
         val notificationChannel = NotificationChannelCompat
-            .Builder(NotificationConstants.OTHER_CHANNEL_ID, NotificationManagerCompat.IMPORTANCE_MAX)
+            .Builder(NotificationConstants.OTHER_CHANNEL_ID, NotificationManagerCompat.IMPORTANCE_MIN)
             .setName(NotificationConstants.OTHER_CHANNEL_NAME)
             .build()
 

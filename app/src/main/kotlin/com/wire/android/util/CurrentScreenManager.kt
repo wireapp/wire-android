@@ -21,6 +21,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
@@ -30,15 +31,19 @@ import javax.inject.Singleton
 
 @ExperimentalCoroutinesApi
 @Singleton
-class CurrentScreenManager @Inject constructor(@ApplicationContext val context: Context) : DefaultLifecycleObserver,
+class CurrentScreenManager @Inject constructor(
+    @ApplicationContext val context: Context,
+    screenStateObserver: ScreenStateObserver
+) : DefaultLifecycleObserver,
     NavController.OnDestinationChangedListener {
 
     private val currentScreenState = MutableStateFlow<CurrentScreen>(CurrentScreen.SomeOther)
     private val isOnForegroundFlow = MutableStateFlow(false)
-    private val wasAppEverVisibleFlow = MutableStateFlow(false)
-    private var isScreenUnLocked = true
+    private val isAppVisibleFlow = screenStateObserver.screenStateFlow.combine(isOnForegroundFlow) { isScreenOn, isOnForeground ->
+        isOnForeground && isScreenOn
+    }
 
-    suspend fun observeCurrentScreen(scope: CoroutineScope): StateFlow<CurrentScreen> = isOnForegroundFlow
+    suspend fun observeCurrentScreen(scope: CoroutineScope): StateFlow<CurrentScreen> = isAppVisibleFlow
         .flatMapLatest { isAppVisible ->
             if (isAppVisible) currentScreenState
             else flowOf(CurrentScreen.InBackground)
@@ -54,15 +59,12 @@ class CurrentScreenManager @Inject constructor(@ApplicationContext val context: 
     override fun onResume(owner: LifecycleOwner) {
         super.onResume(owner)
         appLogger.i("${TAG}: onResume called")
-        isOnForegroundFlow.value = isScreenUnLocked
-        wasAppEverVisibleFlow.value = true
+        isOnForegroundFlow.value = true
     }
 
     override fun onPause(owner: LifecycleOwner) {
         super.onPause(owner)
-        val pm: PowerManager? = context.getSystemService(Context.POWER_SERVICE) as PowerManager?
-        isScreenUnLocked = pm?.isInteractive ?: true
-        appLogger.i("${TAG}: onPause called, isScreenUnlocked $isScreenUnLocked")
+        appLogger.i("${TAG}: onPause called")
         isOnForegroundFlow.value = false
     }
 

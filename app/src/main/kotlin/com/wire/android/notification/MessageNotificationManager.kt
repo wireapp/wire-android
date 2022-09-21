@@ -4,6 +4,7 @@ import android.app.Notification
 import android.app.NotificationManager
 import android.content.Context
 import android.graphics.Typeface
+import android.graphics.drawable.BitmapDrawable
 import android.service.notification.StatusBarNotification
 import android.text.Spannable
 import android.text.style.StyleSpan
@@ -12,7 +13,6 @@ import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import androidx.core.app.Person
-import androidx.core.app.RemoteInput
 import androidx.core.graphics.drawable.IconCompat
 import androidx.core.text.toSpannable
 import com.wire.android.R
@@ -27,16 +27,16 @@ import javax.inject.Singleton
 
 @Suppress("TooManyFunctions")
 @Singleton
-class MessageNotificationManager @Inject constructor(private val context: Context) {
-
-    private val notificationManager = NotificationManagerCompat.from(context)
-    private val oldNotificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
+class MessageNotificationManager
+@Inject constructor(
+    private val context: Context,
+    private val notificationManagerCompat: NotificationManagerCompat,
+    private val notificationManager: NotificationManager
+) {
     fun handleNotification(newNotifications: List<LocalNotificationConversation>, userId: QualifiedID?) {
-
         if (newNotifications.isEmpty()) return
 
-        val activeNotifications: Array<StatusBarNotification> = oldNotificationManager.activeNotifications ?: arrayOf()
+        val activeNotifications: Array<StatusBarNotification> = notificationManager.activeNotifications ?: arrayOf()
         val userIdString = userId?.toString()
 
         createNotificationChannel()
@@ -52,7 +52,7 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
         val notificationId = getConversationNotificationId(conversationsId)
 
         if (isThereAnyOtherWireNotification(notificationId)) {
-            notificationManager.cancel(notificationId)
+            notificationManagerCompat.cancel(notificationId)
         } else {
             hideAllNotifications()
         }
@@ -60,7 +60,7 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
 
     fun hideAllNotifications() {
         // removing groupSummary removes all the notifications in a group
-        notificationManager.cancel(NotificationConstants.MESSAGE_SUMMARY_ID)
+        notificationManagerCompat.cancel(NotificationConstants.MESSAGE_SUMMARY_ID)
     }
 
     private fun createNotificationChannel() {
@@ -69,7 +69,7 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
             .setName(NotificationConstants.MESSAGE_CHANNEL_NAME)
             .build()
 
-        notificationManager.createNotificationChannel(notificationChannel)
+        notificationManagerCompat.createNotificationChannel(notificationChannel)
     }
 
     private fun showSummaryIfNeeded(activeNotifications: Array<StatusBarNotification>) {
@@ -87,7 +87,7 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
         val notificationId = getConversationNotificationId(conversation.id)
         getConversationNotification(conversation, userId, activeNotifications)?.let { notification ->
             appLogger.i("$TAG adding ConversationNotification")
-            notificationManager.notify(notificationId, notification)
+            notificationManagerCompat.notify(notificationId, notification)
         }
     }
 
@@ -117,16 +117,7 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
 
         val updatedMessageStyle = getUpdatedMessageStyle(conversation, activeNotifications) ?: return null
 
-        return NotificationCompat.Builder(context, NotificationConstants.MESSAGE_CHANNEL_ID).apply {
-            setDefaults(NotificationCompat.DEFAULT_ALL)
-
-            priority = NotificationCompat.PRIORITY_MAX
-            setCategory(NotificationCompat.CATEGORY_MESSAGE)
-
-            setSmallIcon(R.drawable.notification_icon_small)
-            setGroup(NotificationConstants.MESSAGE_GROUP_KEY)
-            setAutoCancel(true)
-
+        return setUpNotificationBuilder(context).apply {
             conversation.messages
                 .firstOrNull()
                 .let {
@@ -139,8 +130,8 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
                         }
                         else -> {
                             setContentIntent(messagePendingIntent(context, conversation.id))
-                            addAction(getActionCall(conversation.id))
-                            addAction(getActionReply(conversation.id, userId))
+                            addAction(getActionCall(context, conversation.id))
+                            addAction(getActionReply(context, conversation.id, userId))
                         }
                     }
                 }
@@ -176,7 +167,7 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
             }
 
         if (messagesToAdd.isEmpty()) {
-            // there is nothing to add to the notification
+            // there is nothing to add to this notification
             return null
         }
 
@@ -186,7 +177,7 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
 
         val notificationStyle = NotificationCompat.MessagingStyle(receiver)
 
-        notificationStyle.conversationTitle = if (conversation.isOneToOneConversation) null else conversation.name
+        notificationStyle.conversationTitle = getConversationTitle(conversation)
         notificationStyle.isGroupConversation = !conversation.isOneToOneConversation
 
         activeMessages?.forEach { notificationMessage ->
@@ -200,21 +191,14 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
         return notificationStyle
     }
 
-    private fun getActionReply(conversationId: String, userId: String?): NotificationCompat.Action {
-        val resultPendingIntent = replyMessagePendingIntent(context, conversationId, userId)
-
-        val remoteInput = RemoteInput.Builder(NotificationConstants.KEY_TEXT_REPLY).build()
-
-        return NotificationCompat.Action.Builder(null, context.getString(R.string.notification_action_reply), resultPendingIntent)
-            .addRemoteInput(remoteInput)
-            .build()
-    }
-
-    private fun getActionCall(conversationId: String) = NotificationCompat.Action(
-        null,
-        context.getString(R.string.notification_action_call),
-        callMessagePendingIntent(context, conversationId)
-    )
+    private fun getConversationTitle(conversation: NotificationConversation): String? =
+        conversation.messages.firstOrNull().let { firstMessage ->
+            when {
+                firstMessage is NotificationMessage.ConnectionRequest -> firstMessage.author.name
+                conversation.isOneToOneConversation -> null
+                else -> conversation.name
+            }
+        }
 
     private fun italicTextFromResId(@StringRes stringResId: Int) =
         context.getString(stringResId).toSpannable()
@@ -236,8 +220,8 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
             is NotificationMessage.ConnectionRequest -> italicTextFromResId(R.string.notification_connection_request)
             is NotificationMessage.ConversationDeleted -> italicTextFromResId(R.string.notification_conversation_deleted)
         }
-
         return NotificationCompat.MessagingStyle.Message(message, time, sender)
+
     }
 
     /**
@@ -245,7 +229,7 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
      * and notification with id [exceptNotificationId]
      */
     private fun isThereAnyOtherWireNotification(exceptNotificationId: Int): Boolean {
-        return oldNotificationManager.activeNotifications
+        return notificationManager.activeNotifications
             ?.any {
                 it.groupKey.endsWith(NotificationConstants.MESSAGE_GROUP_KEY)
                         && it.id != exceptNotificationId
@@ -256,5 +240,72 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
 
     companion object {
         private const val TAG = "MessageNotificationManager"
+
+        /**
+         * Update notification by adding [replyText] to the end of messages list with "You" as sender.
+         * Do nothing if there is no notification for [conversationId] conversation,
+         * or that notification is not in [NotificationCompat.MessagingStyle].
+         * @param context Context
+         * @param conversationId String ConversationId that reply was sent in.
+         * @param userId String UserId of the user that is replied.
+         * @param replyText String text the user replied to the conversation.
+         * If it's null then just update the notification to remove send reply loading.
+         */
+        fun updateNotificationAfterQuickReply(
+            context: Context,
+            conversationId: String,
+            userId: String,
+            replyText: String?
+        ) {
+            val conversationNotificationId = getConversationNotificationId(conversationId)
+
+            val currentNotification = (context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
+                .activeNotifications
+                .find { it.id == conversationNotificationId }
+                ?.notification
+                ?: return // if there is no notification for this conversation, then there is nothing to update
+
+            val messagesStyle = NotificationCompat.MessagingStyle.extractMessagingStyleFromNotification(currentNotification)
+                ?: return // if notification is not in MessagingStyle, then we can't update it
+
+            val sender = Person.Builder()
+                .setName(context.getString(R.string.notification_receiver_name))
+                .build()
+
+            replyText?.let {
+                val replyMessage = NotificationCompat.MessagingStyle.Message(replyText, System.currentTimeMillis(), sender)
+                messagesStyle.addMessage(replyMessage)
+            }
+
+            val notification = setUpNotificationBuilder(context).apply {
+                setContentIntent(messagePendingIntent(context, conversationId))
+                addAction(getActionCall(context, conversationId))
+                addAction(getActionReply(context, conversationId, userId))
+
+                setWhen(System.currentTimeMillis())
+
+                setLargeIcon((currentNotification.getLargeIcon()?.loadDrawable(context) as BitmapDrawable?)?.bitmap)
+
+                setStyle(messagesStyle)
+            }.build()
+
+            NotificationManagerCompat.from(context).notify(conversationNotificationId, notification)
+        }
+
+        /**
+         * Create NotificationBuilder and set all the parameters that are common for any MessageNotification
+         * @return resulted [NotificationCompat.Builder] so we can set other specific parameters and build it.
+         */
+        private fun setUpNotificationBuilder(context: Context) =
+            NotificationCompat.Builder(context, NotificationConstants.MESSAGE_CHANNEL_ID).apply {
+                setDefaults(NotificationCompat.DEFAULT_ALL)
+
+                priority = NotificationCompat.PRIORITY_MAX
+                setCategory(NotificationCompat.CATEGORY_MESSAGE)
+
+                setSmallIcon(R.drawable.notification_icon_small)
+                setGroup(NotificationConstants.MESSAGE_GROUP_KEY)
+                setAutoCancel(true)
+            }
     }
 }

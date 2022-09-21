@@ -70,6 +70,7 @@ object Libraries {
         const val accompanist = "0.25.0"
         const val composeConstraint = "1.0.0"
         const val hilt = "2.38.1"
+        const val hiltWork = "1.0.0"
         const val lifecycle = "2.4.0"
         const val visibilityModifiers = "1.1.0"
         const val composeHiltNavigation = "1.0.0-alpha03"
@@ -78,7 +79,7 @@ object Libraries {
         const val paging3 = "3.1.1"
         const val paging3Compose = "1.0.0-alpha15"
         const val splashscreen = "1.0.0-beta01"
-        const val coil = "2.0.0-rc02"
+        const val coil = "2.2.1"
         const val exif = "1.3.3"
         const val firebaseBOM = "29.3.1"
         const val dataDog = "1.13.0"
@@ -128,6 +129,7 @@ object Libraries {
         const val gradlePlugin = "com.google.dagger:hilt-android-gradle-plugin:${Versions.hilt}"
         const val navigationCompose = "androidx.hilt:hilt-navigation-compose:${Versions.composeHiltNavigation}"
         const val hiltTest = "com.google.dagger:hilt-android-testing:${Versions.hilt}"
+        const val hiltWork = "androidx.hilt:hilt-work:${Versions.hiltWork}"
     }
 
     object Lifecycle {

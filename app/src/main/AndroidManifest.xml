@@ -96,12 +96,18 @@
                     android:resource="@xml/provider_paths" />
         </provider>
 
-        <receiver android:name=".notification.broadcastreceivers.NotificationReplyReceiver" />
-        <receiver android:name=".notification.broadcastreceivers.CallNotificationDismissReceiver" />
-        <receiver android:name=".notification.broadcastreceivers.EndOngoingCallReceiver" />
+        <receiver
+                android:name=".notification.broadcastreceivers.NotificationReplyReceiver"
+                android:exported="false" />
+        <receiver
+                android:name=".notification.broadcastreceivers.CallNotificationDismissReceiver"
+                android:exported="false" />
+        <receiver
+                android:name=".notification.broadcastreceivers.EndOngoingCallReceiver"
+                android:exported="false" />
 
         <service
-                android:name=".notification.WireFirebaseMessagingService"
+                android:name=".services.WireFirebaseMessagingService"
                 android:exported="false">
             <intent-filter>
                 <action android:name="com.google.firebase.MESSAGING_EVENT" />
@@ -123,7 +129,26 @@
         <service
                 android:name=".services.OngoingCallService"
                 android:exported="false"
-                android:foregroundServiceType="microphone" />
+                android:foregroundServiceType="phoneCall" />
+
+        <!-- If you want to disable android.startup completely. -->
+        <provider
+                android:name="androidx.startup.InitializationProvider"
+                android:authorities="${applicationId}.androidx-startup"
+                tools:node="remove">
+        </provider>
+
+        <provider
+                android:name="androidx.startup.InitializationProvider"
+                android:authorities="${applicationId}.androidx-startup"
+                android:exported="false"
+                tools:node="merge">
+            <!-- If you are using androidx.startup to initialize other components -->
+            <meta-data
+                    android:name="androidx.work.WorkManagerInitializer"
+                    android:value="androidx.startup"
+                    tools:node="remove" />
+        </provider>
 
     </application>
 

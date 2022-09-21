@@ -7,8 +7,8 @@ import androidx.annotation.ArrayRes
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.LocalOverscrollConfiguration
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -255,6 +255,8 @@ private fun WelcomeFooter(modifier: Modifier, onPrivateAccountClick: () -> Unit)
                     interactionSource = remember { MutableInteractionSource() }, indication = null, onClick = onPrivateAccountClick
                 )
         )
+
+        Spacer(modifier = Modifier.height(MaterialTheme.wireDimensions.welcomeVerticalPadding))
     }
 }
 

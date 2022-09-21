@@ -117,6 +117,8 @@ data class WireDimensions(
     val spacing64x: Dp,
     val spacing72x: Dp,
     val spacing80x: Dp,
+    val spacing100x: Dp,
+    val spacing200x: Dp,
     // Corners
     val corner2x: Dp,
     val corner4x: Dp,
@@ -248,6 +250,8 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     spacing64x = 64.dp,
     spacing72x = 72.dp,
     spacing80x = 80.dp,
+    spacing100x = 100.dp,
+    spacing200x = 200.dp,
     corner2x = 2.dp,
     corner4x = 4.dp,
     corner6x = 6.dp,

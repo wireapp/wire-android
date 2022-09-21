@@ -100,6 +100,7 @@ class WireNotificationManager @Inject constructor(
             val observeMessagesJob = scope.launch {
                 observeMessageNotifications(flowOf(userId), MutableStateFlow(CurrentScreen.InBackground))
             }
+
             appLogger.d("$TAG start syncing")
             connectionPolicyManager.handleConnectionOnPushNotification(userId)
 
@@ -382,7 +383,7 @@ class WireNotificationManager @Inject constructor(
         }
     }
 
-    private data class MessagesNotificationsData(
+    data class MessagesNotificationsData(
         val newNotifications: List<LocalNotificationConversation>,
         val userId: QualifiedID?
     )

@@ -49,10 +49,10 @@ class ConnectionPolicyManager @Inject constructor(
     @OptIn(ExperimentalCoroutinesApi::class)
     fun startObservingAppLifecycle() {
         CoroutineScope(dispatcherProvider.default()).launch {
-            currentScreenManager.appWasVisibleAtLeastOnceFlow()
-                .combine(currentSessionFlow()) { wasVisible, currentSession -> wasVisible to currentSession }
-                .collect { (wasVisible, currentSession) ->
-                    setPolicyForSessions(allValidSessions(), currentSession, wasVisible)
+            currentScreenManager.isAppOnForegroundFlow()
+                .combine(currentSessionFlow()) { isOnForeground, currentSession -> isOnForeground to currentSession }
+                .collect { (isOnForeground, currentSession) ->
+                    setPolicyForSessions(allValidSessions(), currentSession, isOnForeground)
                 }
         }
     }
@@ -90,9 +90,9 @@ class ConnectionPolicyManager @Inject constructor(
         userId: UserId
     ) {
         val isCurrentSession = isCurrentSession(userId)
-        val hasInitialisedUI = currentScreenManager.appWasVisibleAtLeastOnceFlow().value
+        val isAppOnForeground = currentScreenManager.isAppOnForegroundFlow().value
         logger.d("isCurrentSession = $isCurrentSession; hasInitialisedUI = $isCurrentSession")
-        val shouldKeepLivePolicy = isCurrentSession && hasInitialisedUI
+        val shouldKeepLivePolicy = isCurrentSession && isAppOnForeground
         if (!shouldKeepLivePolicy) {
             logger.d("Downgrading policy as conditions to KEEP_ALIVE are not met")
             setConnectionPolicy(ConnectionPolicy.DISCONNECT_AFTER_PENDING_EVENTS)

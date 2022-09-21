@@ -1,7 +1,9 @@
 package com.wire.android.di
 
+import android.app.NotificationManager
 import android.content.Context
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.core.app.NotificationManagerCompat
 import com.wire.android.mapper.MessageResourceProvider
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.deeplink.DeepLinkProcessor
@@ -36,4 +38,13 @@ object AppModule {
 
     @Provides
     fun provideMessageResourceProvider(): MessageResourceProvider = MessageResourceProvider()
+
+    @Provides
+    fun provideNotificationManagerCompat(appContext: Context): NotificationManagerCompat =
+        NotificationManagerCompat.from(appContext)
+
+    @Provides
+    fun provideNotificationManager(appContext: Context): NotificationManager =
+        appContext.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
+
 }

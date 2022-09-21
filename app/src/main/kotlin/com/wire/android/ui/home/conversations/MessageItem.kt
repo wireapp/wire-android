@@ -244,6 +244,7 @@ private fun MessageContent(
                 }
             }
         }
+        is UIMessageContent.SystemMessage.RenamedConversation -> {}
     }
 }
 

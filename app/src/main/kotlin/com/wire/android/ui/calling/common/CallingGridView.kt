@@ -116,12 +116,13 @@ fun GroupCallGrid(
 
 @Suppress("ReturnCount")
 fun isVideoStateChangedComparedToLastList(newParticipants: List<UICallParticipant>, pageIndex: Int) : Boolean {
-    if (lastParticipants[pageIndex]?.isEmpty() == true)
+    if (lastParticipants[pageIndex].isNullOrEmpty())
         return true
-    val s = lastParticipants[pageIndex]
-    lastParticipants[pageIndex]?.zip(newParticipants)?.forEach { pair ->
-        if (pair.first.isCameraOn != pair.second.isCameraOn || (pair.first.isSharingScreen != pair.second.isSharingScreen))
-            return true
+    if(lastParticipants[pageIndex]?.size == newParticipants.size) {
+        lastParticipants[pageIndex]?.zip(newParticipants)?.forEach { pair ->
+            if (pair.first.isCameraOn != pair.second.isCameraOn || (pair.first.isSharingScreen != pair.second.isSharingScreen))
+                return true
+        }
     }
     return false
 }

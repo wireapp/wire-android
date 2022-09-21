@@ -24,7 +24,6 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -35,11 +34,11 @@ class CurrentScreenManager @Inject constructor(@ApplicationContext val context: 
     NavController.OnDestinationChangedListener {
 
     private val currentScreenState = MutableStateFlow<CurrentScreen>(CurrentScreen.SomeOther)
-    private val isAppVisibleFlow = MutableStateFlow(false)
+    private val isOnForegroundFlow = MutableStateFlow(false)
     private val wasAppEverVisibleFlow = MutableStateFlow(false)
     private var isScreenUnLocked = true
 
-    suspend fun observeCurrentScreen(scope: CoroutineScope): StateFlow<CurrentScreen> = isAppVisibleFlow
+    suspend fun observeCurrentScreen(scope: CoroutineScope): StateFlow<CurrentScreen> = isOnForegroundFlow
         .flatMapLatest { isAppVisible ->
             if (isAppVisible) currentScreenState
             else flowOf(CurrentScreen.InBackground)
@@ -50,12 +49,12 @@ class CurrentScreenManager @Inject constructor(@ApplicationContext val context: 
     /**
      * Informs if the UI was visible at least once since the app started
      */
-    fun isAppOnForegroundFlow(): StateFlow<Boolean> = isAppVisibleFlow
+    fun isAppOnForegroundFlow(): StateFlow<Boolean> = isOnForegroundFlow
 
     override fun onResume(owner: LifecycleOwner) {
         super.onResume(owner)
         appLogger.i("${TAG}: onResume called")
-        isAppVisibleFlow.value = true && isScreenUnLocked
+        isOnForegroundFlow.value = isScreenUnLocked
         wasAppEverVisibleFlow.value = true
     }
 
@@ -63,13 +62,13 @@ class CurrentScreenManager @Inject constructor(@ApplicationContext val context: 
         super.onPause(owner)
         val pm: PowerManager? = context.getSystemService(Context.POWER_SERVICE) as PowerManager?
         isScreenUnLocked = pm?.isInteractive ?: true
-        appLogger.i("${TAG}: onPause called")
-        isAppVisibleFlow.value = false
+        appLogger.i("${TAG}: onPause called, isScreenUnlocked $isScreenUnLocked")
+        isOnForegroundFlow.value = false
     }
 
     override fun onDestinationChanged(controller: NavController, destination: NavDestination, arguments: Bundle?) {
         val currentItem = controller.getCurrentNavigationItem()
-        currentScreenState.value = CurrentScreen.fromNavigationItem(currentItem, arguments, isAppVisibleFlow.value)
+        currentScreenState.value = CurrentScreen.fromNavigationItem(currentItem, arguments, isOnForegroundFlow.value)
     }
 
     companion object {

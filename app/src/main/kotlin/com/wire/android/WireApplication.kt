@@ -17,15 +17,16 @@ import com.wire.android.util.DataDogLogger
 import com.wire.android.util.LogFileWriter
 import com.wire.android.util.extension.isGoogleServicesAvailable
 import com.wire.android.util.getDeviceId
-import com.wire.android.util.sha256
 import com.wire.android.util.lifecycle.ConnectionPolicyManager
+import com.wire.android.util.sha256
+import com.wire.android.workmanager.WireWorkerFactory
 import com.wire.kalium.logger.KaliumLogLevel
 import com.wire.kalium.logger.KaliumLogger
 import com.wire.kalium.logic.CoreLogger
 import com.wire.kalium.logic.CoreLogic
-import com.wire.kalium.logic.sync.WrapperWorkerFactory
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
+
 
 /**
  * Indicates whether the build is private (dev || internal) or public
@@ -40,6 +41,7 @@ var appLogger = KaliumLogger(
     platformLogWriter()
 )
 
+
 @HiltAndroidApp
 class WireApplication : Application(), Configuration.Provider {
 
@@ -53,10 +55,12 @@ class WireApplication : Application(), Configuration.Provider {
     @Inject
     lateinit var connectionPolicyManager: ConnectionPolicyManager
 
+    @Inject
+    lateinit var wireWorkerFactory: WireWorkerFactory
+
     override fun getWorkManagerConfiguration(): Configuration {
-        val myWorkerFactory = WrapperWorkerFactory(coreLogic)
         return Configuration.Builder()
-            .setWorkerFactory(myWorkerFactory)
+            .setWorkerFactory(wireWorkerFactory)
             .build()
     }
 
@@ -146,6 +150,7 @@ class WireApplication : Application(), Configuration.Provider {
             TRIM_MEMORY_RUNNING_LOW(ComponentCallbacks2.TRIM_MEMORY_RUNNING_LOW),
             TRIM_MEMORY_RUNNING_MODERATE(ComponentCallbacks2.TRIM_MEMORY_RUNNING_MODERATE),
             TRIM_MEMORY_UI_HIDDEN(ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN),
+
             @Suppress("MagicNumber")
             TRIM_MEMORY_UNKNOWN(-1);
 

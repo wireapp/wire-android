@@ -1,4 +1,5 @@
 import com.android.build.api.dsl.AndroidSourceSet
+
 plugins {
     // Application Specific plugins
     id(BuildPlugins.androidApplication)
@@ -196,6 +197,8 @@ dependencies {
     kaptAndroidTest(Libraries.Hilt.compiler)
     androidTestUtil(TestLibraries.testOrchestrator)
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
+
+    implementation(Libraries.Hilt.hiltWork)
 
     // Development dependencies
     debugImplementation(DevLibraries.leakCanary)

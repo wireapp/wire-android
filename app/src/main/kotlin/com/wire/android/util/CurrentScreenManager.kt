@@ -50,7 +50,7 @@ class CurrentScreenManager @Inject constructor(@ApplicationContext val context: 
     /**
      * Informs if the UI was visible at least once since the app started
      */
-    fun appWasVisibleAtLeastOnceFlow(): StateFlow<Boolean> = wasAppEverVisibleFlow
+    fun isAppOnForegroundFlow(): StateFlow<Boolean> = isAppVisibleFlow
 
     override fun onResume(owner: LifecycleOwner) {
         super.onResume(owner)

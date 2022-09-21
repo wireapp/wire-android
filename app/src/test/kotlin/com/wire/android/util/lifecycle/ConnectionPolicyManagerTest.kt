@@ -1,6 +1,5 @@
 package com.wire.android.util.lifecycle
 
-import android.accounts.Account
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.util.CurrentScreenManager
 import com.wire.kalium.logic.CoreLogic
@@ -30,7 +29,7 @@ class ConnectionPolicyManagerTest {
 
         val (arrangement, connectionPolicyManager) = Arrangement()
             .withCurrentSession(user)
-            .withUiInitialized()
+            .withAppInTheForeground()
             .arrange()
 
         connectionPolicyManager.handleConnectionOnPushNotification(user)
@@ -44,7 +43,7 @@ class ConnectionPolicyManagerTest {
 
         val (arrangement, connectionPolicyManager) = Arrangement()
             .withCurrentSession(user)
-            .withUiInitialized()
+            .withAppInTheForeground()
             .arrange()
 
         connectionPolicyManager.handleConnectionOnPushNotification(user)
@@ -61,7 +60,7 @@ class ConnectionPolicyManagerTest {
 
         val (arrangement, connectionPolicyManager) = Arrangement()
             .withCurrentSession(user)
-            .withUiNotInitialized()
+            .withAppInTheBackground()
             .arrange()
 
         connectionPolicyManager.handleConnectionOnPushNotification(user)
@@ -79,7 +78,7 @@ class ConnectionPolicyManagerTest {
 
         val (arrangement, connectionPolicyManager) = Arrangement()
             .withCurrentSession(USER_ID_2)
-            .withUiInitialized()
+            .withAppInTheForeground()
             .arrange()
 
         connectionPolicyManager.handleConnectionOnPushNotification(user)
@@ -97,7 +96,7 @@ class ConnectionPolicyManagerTest {
 
         val (arrangement, connectionPolicyManager) = Arrangement()
             .withCurrentSession(USER_ID_2)
-            .withUiNotInitialized()
+            .withAppInTheBackground()
             .arrange()
 
         connectionPolicyManager.handleConnectionOnPushNotification(user)
@@ -142,12 +141,12 @@ class ConnectionPolicyManagerTest {
             every { userSessionScope.syncManager } returns syncManager
         }
 
-        fun withUiNotInitialized() = apply {
-            every { currentScreenManager.appWasVisibleAtLeastOnceFlow() } returns MutableStateFlow(false)
+        fun withAppInTheBackground() = apply {
+            every { currentScreenManager.isAppOnForegroundFlow() } returns MutableStateFlow(false)
         }
 
-        fun withUiInitialized() = apply {
-            every { currentScreenManager.appWasVisibleAtLeastOnceFlow() } returns MutableStateFlow(true)
+        fun withAppInTheForeground() = apply {
+            every { currentScreenManager.isAppOnForegroundFlow() } returns MutableStateFlow(true)
         }
 
         fun withCurrentSession(userId: UserId) = apply {

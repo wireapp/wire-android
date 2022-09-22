@@ -23,6 +23,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -36,12 +37,16 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withTimeout
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.time.Duration.Companion.seconds
 
 @ExperimentalCoroutinesApi
 @Suppress("TooManyFunctions", "LongParameterList")
@@ -105,7 +110,13 @@ class WireNotificationManager @Inject constructor(
             connectionPolicyManager.handleConnectionOnPushNotification(userId)
 
             appLogger.d("$TAG checking calls once")
-            fetchAndShowCallNotificationsOnce(userId)
+            try {
+                withTimeout(8.seconds) {
+                    fetchAndShowCallNotificationsOnce(userId)
+                }
+            } catch (timeout: TimeoutCancellationException) {
+                appLogger.e("$TAG Fetching call notifications was stopped due to timeout", timeout)
+            }
 
             appLogger.d("$TAG checked the notifications once, canceling observing.")
             observeMessagesJob.cancel("$TAG checked the notifications once, canceling observing.")
@@ -118,18 +129,34 @@ class WireNotificationManager @Inject constructor(
         //      but we don't get it from the first GetIncomingCallsUseCase() call.
         //      To cover that case we have this `intervalFlow().take(CHECK_INCOMING_CALLS_TRIES)`
         //      to try get incoming calls 6 times, if it returns nothing we assume there is no incoming call
+        var periodicCheckCount = 0
+        val tag = "$TAG.fetchAndShowCallNotificationsOnce"
         intervalFlow(CHECK_INCOMING_CALLS_PERIOD_MS)
+            .cancellable()
+            .onCompletion {
+                if (it != null) {
+                    appLogger.e("$tag; Completed fetching calls with exception", it)
+                } else {
+                    appLogger.d("$tag; Completed fetching calls normally")
+                }
+            }
+            .onEach {
+                periodicCheckCount++
+                appLogger.d("$tag; Periodic check on call notifications: $periodicCheckCount")
+            }
             .map {
+                appLogger.d("$tag; Getting incoming calls for")
                 coreLogic.getSessionScope(userId)
                     .calls
                     .getIncomingCalls()
-                    .first()
+                    .first().also {
+                        appLogger.d("$tag; Incoming calls result list size = ${it.size}")
+                    }
             }
             .take(CHECK_INCOMING_CALLS_TRIES)
             .distinctUntilChanged()
-            .cancellable()
             .collect { callsList ->
-                appLogger.i("$TAG interval checking incoming calls ${callsList.size}")
+                appLogger.d("$tag; Collecting call list. Terminal operation.")
                 callNotificationManager.handleIncomingCallNotifications(callsList, userId)
             }
     }

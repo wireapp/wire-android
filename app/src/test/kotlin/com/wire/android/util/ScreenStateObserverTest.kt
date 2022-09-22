@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalCoroutinesApi::class)
-
 package com.wire.android.util
 
 import android.content.Context
@@ -8,9 +6,8 @@ import android.os.PowerManager
 import app.cash.turbine.test
 import io.mockk.MockKAnnotations
 import io.mockk.every
-import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
-import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.shouldBeEqualTo
 import org.junit.jupiter.api.BeforeEach
@@ -24,53 +21,95 @@ class ScreenStateObserverTest {
     }
 
     @Test
-    suspend fun `given a intent action screen off, screenStateObserver should return false`() = runTest {
+    fun `given screen is initially on, when observing screen state, then initial value should be emit true`() = runTest {
         val (arrangement, screenStateObserver) =
             Arrangement()
-                .withRegisteredReceiver(Intent.ACTION_SCREEN_OFF)
-                .withScreenLocked()
+                .withScreenInitiallyOn()
                 .arrange()
 
-
         screenStateObserver.screenStateFlow.test {
-            awaitItem()
+            awaitItem() shouldBeEqualTo true
             val intent = Intent(Intent.ACTION_SCREEN_OFF)
             screenStateObserver.onReceive(arrangement.context, intent)
-            awaitItem() shouldBeEqualTo false
         }
     }
 
     @Test
-    suspend fun `given a intent action screen on, screenStateObserver should return true`() = runTest {
+    fun `given screen is initially off, when observing screen state, then initial value should be emit false`() = runTest {
         val (arrangement, screenStateObserver) =
             Arrangement()
-                .withRegisteredReceiver(Intent.ACTION_SCREEN_ON)
-                .withScreenLocked()
+                .withScreenInitiallyOn()
                 .arrange()
 
+        screenStateObserver.screenStateFlow.test {
+            awaitItem() shouldBeEqualTo true
+            val intent = Intent(Intent.ACTION_SCREEN_OFF)
+            screenStateObserver.onReceive(arrangement.context, intent)
+        }
+    }
+
+    @Test
+    fun `given a intent action screen on, when observing screen state, should emit true`() = runTest {
+        val (arrangement, screenStateObserver) =
+            Arrangement()
+                .withScreenInitiallyOff()
+                .arrange()
 
         screenStateObserver.screenStateFlow.test {
-            awaitItem()
-            val intent = Intent(Intent.ACTION_SCREEN_ON)
+            awaitItem() // Ignore initial state
+            val intent = createIntent(Intent.ACTION_SCREEN_ON)
+            println("INTENT WITH ACTION ${intent.action}")
             screenStateObserver.onReceive(arrangement.context, intent)
+            advanceUntilIdle()
             awaitItem() shouldBeEqualTo true
         }
     }
 
+    @Test
+    fun `given a intent action screen off, when observing screen state, should emit false`() = runTest {
+        val (arrangement, screenStateObserver) =
+            Arrangement()
+                .withScreenInitiallyOn()
+                .arrange()
+
+        screenStateObserver.screenStateFlow.test {
+            awaitItem() // Ignore initial state
+            val intent = createIntent(Intent.ACTION_SCREEN_OFF)
+            println("INTENT WITH ACTION ${intent.action}")
+            screenStateObserver.onReceive(arrangement.context, intent)
+            advanceUntilIdle()
+            awaitItem() shouldBeEqualTo false
+        }
+    }
+
+    private fun createIntent(action: String) = mockk<Intent>().also {
+        every { it.action } returns action
+    }
+
     private class Arrangement {
 
-        val context: Context = mockk();
+        val context: Context = mockk()
 
-        var screenStateObserver: ScreenStateObserver = ScreenStateObserver(
-            context = context
-        )
+        val powerManager: PowerManager = mockk()
 
-        fun withRegisteredReceiver(actionIntent: String) = apply {
-            every { context.registerReceiver(any(), any()) } returns Intent(actionIntent)
+        init {
+            // Intent result is not used by ScreenStateObserver
+            every { context.getSystemService(Context.POWER_SERVICE) } returns powerManager
+            every { context.registerReceiver(any(), any()) } returns Intent()
         }
 
-        fun withScreenLocked() = apply {
-            every { (context.getSystemService(any()) as PowerManager).isInteractive } returns false
+        val screenStateObserver: ScreenStateObserver by lazy {
+            ScreenStateObserver(
+                context = context
+            )
+        }
+
+        fun withScreenInitiallyOff() = apply {
+            every { powerManager.isInteractive } returns false
+        }
+
+        fun withScreenInitiallyOn() = apply {
+            every { powerManager.isInteractive } returns true
         }
 
         fun arrange() = this to screenStateObserver

@@ -75,7 +75,6 @@ class WireFirebaseMessagingService : FirebaseMessagingService() {
 
     override fun onNewToken(p0: String) {
         super.onNewToken(p0)
-        println("cyka new token came $p0")
         scope.launch {
             coreLogic.globalScope {
                 saveNotificationToken(p0, "GCM", BuildConfig.SENDER_ID)

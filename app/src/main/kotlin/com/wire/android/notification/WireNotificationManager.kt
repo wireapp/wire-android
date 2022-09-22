@@ -148,8 +148,8 @@ class WireNotificationManager @Inject constructor(
                 appLogger.d("$tag; Getting incoming calls for")
                 coreLogic.getSessionScope(userId)
                     .calls
-                    .getIncomingCalls()
-                    .first().also {
+                    .getIncomingCallsOnce()
+                    .also {
                         appLogger.d("$tag; Incoming calls result list size = ${it.size}")
                     }
             }

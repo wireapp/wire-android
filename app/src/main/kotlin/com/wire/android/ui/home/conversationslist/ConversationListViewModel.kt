@@ -245,7 +245,7 @@ class ConversationListViewModel @Inject constructor(
             when (it.type) {
                 Conversation.Type.SELF -> TODO()
                 Conversation.Type.ONE_ON_ONE -> ConversationItem.PrivateConversation(
-                    name = if (it.name != null) it.name.orEmpty() else "DELETED",
+                    name = it.name.orEmpty(),
                     userAvatarData = UserAvatarData(
                         it.previewAssetId?.let { UserAvatarAsset(wireSessionImageLoader, it) },
                         it.userAvailabilityStatus ?: UserAvailabilityStatus.NONE,
@@ -270,7 +270,7 @@ class ConversationListViewModel @Inject constructor(
                 Conversation.Type.GROUP
 
                 -> ConversationItem.GroupConversation(
-                    name = if (it.name != null) it.name.orEmpty() else "DELETED",
+                    name = it.name.orEmpty(),
                     conversationId = it.id,
                     mutedStatus = MutedConversationStatus.AllAllowed,
                     isLegalHold = it.legalHoldStatus.showLegalHoldIndicator(),
@@ -282,7 +282,7 @@ class ConversationListViewModel @Inject constructor(
                 )
 
                 Conversation.Type.CONNECTION_PENDING -> ConversationItem.ConnectionConversation(
-                    name = if (it.name != null) it.name.orEmpty() else "DELETED",
+                    name = it.name.orEmpty(),
                     userAvatarData = UserAvatarData(
                         it.previewAssetId?.let { UserAvatarAsset(wireSessionImageLoader, it) },
                         it.userAvailabilityStatus ?: UserAvailabilityStatus.NONE,
@@ -308,81 +308,6 @@ class ConversationListViewModel @Inject constructor(
 }
 
 private fun LegalHoldStatus.showLegalHoldIndicator() = this == LegalHoldStatus.ENABLED
-
-@Suppress("LongMethod")
-private fun ConversationDetails.toConversationItem(
-    wireSessionImageLoader: WireSessionImageLoader,
-    userTypeMapper: UserTypeMapper
-): ConversationItem = when (this) {
-    is Group -> {
-        ConversationItem.GroupConversation(
-            title = "",
-            groupName = conversation.name.orEmpty(),
-            conversationId = conversation.id,
-            mutedStatus = conversation.mutedStatus,
-            isLegalHold = legalHoldStatus.showLegalHoldIndicator(),
-            lastEvent = ConversationLastEvent.None, // TODO implement unread events
-            badgeEventType = parseConversationEventType(conversation.mutedStatus, unreadMentionsCount, unreadMessagesCount),
-            hasOnGoingCall = hasOngoingCall,
-            isCreator = conversation.isCreator,
-            isSelfUserMember = conversation.isSelfUserMember
-        )
-    }
-
-    is OneOne -> {
-        ConversationItem.PrivateConversation(
-            title = "",
-            userAvatarData = UserAvatarData(
-                otherUser.previewPicture?.let { UserAvatarAsset(wireSessionImageLoader, it) },
-                otherUser.availabilityStatus,
-                otherUser.connectionStatus
-            ),
-            conversationInfo = ConversationInfo(
-                name = otherUser.name.orEmpty(),
-                membership = userTypeMapper.toMembership(userType),
-                unavailable = otherUser.isUnavailableUser
-            ),
-            conversationId = conversation.id,
-            mutedStatus = conversation.mutedStatus,
-            isLegalHold = legalHoldStatus.showLegalHoldIndicator(),
-            lastEvent = ConversationLastEvent.None, // TODO implement unread events
-            badgeEventType = parsePrivateConversationEventType(
-                connectionState, parseConversationEventType(conversation.mutedStatus, unreadMentionsCount, unreadMessagesCount)
-            ),
-            userId = otherUser.id,
-            blockingState = otherUser.BlockState
-        )
-    }
-
-    is Connection -> {
-        ConversationItem.ConnectionConversation(
-            title = "",
-            userAvatarData = UserAvatarData(
-                otherUser?.previewPicture?.let { UserAvatarAsset(wireSessionImageLoader, it) },
-                otherUser?.availabilityStatus ?: UserAvailabilityStatus.NONE
-            ),
-            conversationInfo = ConversationInfo(
-                name = otherUser?.name.orEmpty(),
-                membership = userTypeMapper.toMembership(userType)
-            ),
-            lastEvent = ConversationLastEvent.Connection(
-                connection.status,
-                connection.qualifiedToId
-            ),
-            badgeEventType = parseConnectionEventType(connection.status),
-            conversationId = conversation.id,
-            mutedStatus = conversation.mutedStatus
-        )
-    }
-
-    is Self -> {
-        throw IllegalArgumentException("Self conversations should not be visible to the user.")
-    }
-
-    else -> {
-        throw IllegalArgumentException("$this conversations should not be visible to the user.")
-    }
-}
 
 private fun parseConnectionEventType(connectionState: ConnectionState) =
     if (connectionState == ConnectionState.SENT) BadgeEventType.SentConnectRequest else BadgeEventType.ReceivedConnectionRequest

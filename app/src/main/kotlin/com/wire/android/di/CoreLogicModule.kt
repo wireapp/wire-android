@@ -260,6 +260,11 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun provideObserveConversationUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).conversations.getOneToOneConversation
+
+    @ViewModelScoped
+    @Provides
     fun provideGetServerConfigUserCase(@KaliumCoreLogic coreLogic: CoreLogic) =
         coreLogic.getGlobalScope().fetchServerConfigFromDeepLink
 

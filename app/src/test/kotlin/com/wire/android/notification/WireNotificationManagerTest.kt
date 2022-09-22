@@ -21,7 +21,7 @@ import com.wire.kalium.logic.feature.auth.AccountInfo
 import com.wire.kalium.logic.feature.call.Call
 import com.wire.kalium.logic.feature.call.CallStatus
 import com.wire.kalium.logic.feature.call.CallsScope
-import com.wire.kalium.logic.feature.call.usecase.GetIncomingCallsUseCase
+import com.wire.kalium.logic.feature.call.usecase.GetIncomingCallsOnceUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.connection.MarkConnectionRequestAsNotifiedUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationScope
@@ -307,7 +307,7 @@ class WireNotificationManagerTest {
         lateinit var markConnectionRequestAsNotified: MarkConnectionRequestAsNotifiedUseCase
 
         @MockK
-        lateinit var getIncomingCallsUseCase: GetIncomingCallsUseCase
+        lateinit var getIncomingCallsUseCase: GetIncomingCallsOnceUseCase
 
         @MockK
         lateinit var establishedCall: ObserveEstablishedCallsUseCase
@@ -350,7 +350,7 @@ class WireNotificationManagerTest {
             coEvery { coreLogic.getSessionScope(any()) } returns userSessionScope
             coEvery { coreLogic.getGlobalScope() } returns globalKaliumScope
             coEvery { messageNotificationManager.handleNotification(any(), any()) } returns Unit
-            coEvery { callsScope.getIncomingCalls } returns getIncomingCallsUseCase
+            coEvery { callsScope.getIncomingCallsOnce } returns getIncomingCallsUseCase
             coEvery { callsScope.establishedCall } returns establishedCall
             coEvery { callNotificationManager.handleIncomingCallNotifications(any(), any()) } returns Unit
             coEvery { callNotificationManager.hideIncomingCallNotification() } returns Unit
@@ -380,7 +380,7 @@ class WireNotificationManagerTest {
         }
 
         fun withIncomingCalls(calls: List<Call>): Arrangement {
-            coEvery { getIncomingCallsUseCase() } returns flowOf(calls)
+            coEvery { getIncomingCallsUseCase() } returns calls
             return this
         }
 

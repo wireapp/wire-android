@@ -2,12 +2,13 @@ package com.wire.android.services
 
 import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
+import com.wire.android.BuildConfig
 import com.wire.android.appLogger
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.notification.WireNotificationManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
-import com.wire.kalium.logic.feature.notificationToken.SaveNotificationTokenUseCase
+import com.wire.kalium.logic.feature.notificationToken.Result
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -60,19 +61,16 @@ class WireFirebaseMessagingService : FirebaseMessagingService() {
 
     override fun onNewToken(p0: String) {
         super.onNewToken(p0)
+        println("cyka new token came $p0")
         scope.launch {
             coreLogic.globalScope {
-                saveNotificationToken(p0, "GCM")
+                saveNotificationToken(p0, "GCM", BuildConfig.SENDER_ID)
             }.let { result ->
                 when (result) {
-                    is SaveNotificationTokenUseCase.Result.Failure.Generic -> {
+                    is Result.Failure.Generic ->
                         appLogger.e("$TAG: token registration has an issue : ${result.failure} ")
-
-                    }
-
-                    SaveNotificationTokenUseCase.Result.Success -> {
+                    Result.Success ->
                         appLogger.i("$TAG: token registered successfully")
-                    }
                 }
             }
         }

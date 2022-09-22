@@ -19,13 +19,13 @@ class ScreenStateObserver @Inject constructor(@ApplicationContext val context: C
     val screenStateFlow = _screenStateFlow.asStateFlow()
 
     init {
-        val pm: PowerManager? = context.getSystemService(Context.POWER_SERVICE) as PowerManager?
-        _screenStateFlow.value = pm?.isInteractive ?: true
+//        val pm: PowerManager? = context.getSystemService(Context.POWER_SERVICE) as PowerManager?
+//        _screenStateFlow.value = pm?.isInteractive ?: true
 
-        context.registerReceiver(this, IntentFilter().apply {
-            addAction(Intent.ACTION_SCREEN_OFF)
-            addAction(Intent.ACTION_SCREEN_ON)
-        })
+//        context.registerReceiver(this, IntentFilter().apply {
+//            addAction(Intent.ACTION_SCREEN_OFF)
+//            addAction(Intent.ACTION_SCREEN_ON)
+//        })
     }
 
     override fun onReceive(p0: Context?, p1: Intent?) {
@@ -35,10 +35,7 @@ class ScreenStateObserver @Inject constructor(@ApplicationContext val context: C
         if(p1?.action == Intent.ACTION_SCREEN_ON) {
             _screenStateFlow.value = true
         }
-        val pm: PowerManager? = context.getSystemService(Context.POWER_SERVICE) as PowerManager?
-        val isScreenUnlocked = pm?.isInteractive ?: true
-
-        appLogger.i("$TAG ${p1?.action}, isScreenUnlocked $isScreenUnlocked")
+        appLogger.i("$TAG ${p1?.action}")
     }
 
     companion object {

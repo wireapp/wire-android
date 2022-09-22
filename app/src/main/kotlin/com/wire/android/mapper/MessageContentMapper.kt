@@ -57,6 +57,7 @@ class MessageContentMapper @Inject constructor(
     ) = when (val content = message.content) {
         is MemberChange -> mapMemberChangeMessage(content, message.senderUserId, members)
         is MessageContent.MissedCall -> mapMissedCallMessage(message.senderUserId, members)
+        is MessageContent.ConversationRenamed -> mapConversationRenamedMessage(message.senderUserId, content, members)
     }
 
     private fun mapMissedCallMessage(
@@ -73,6 +74,19 @@ class MessageContentMapper @Inject constructor(
         } else {
             UIMessageContent.SystemMessage.MissedCall.OtherCalled(authorName)
         }
+    }
+
+    private fun mapConversationRenamedMessage(
+        senderUserId: UserId,
+        content: MessageContent.ConversationRenamed,
+        userList: List<User>
+    ): UIMessageContent.SystemMessage {
+        val sender = userList.findUser(userId = senderUserId)
+        val authorName = toSystemMessageMemberName(
+            user = sender,
+            type = SelfNameType.ResourceTitleCase
+        )
+        return UIMessageContent.SystemMessage.RenamedConversation(authorName, content)
     }
 
     fun mapMemberChangeMessage(

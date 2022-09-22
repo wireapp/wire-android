@@ -54,7 +54,7 @@ class WireFirebaseMessagingService : FirebaseMessagingService() {
 
         workManager.enqueueUniqueWork(
             userId,
-            ExistingWorkPolicy.REPLACE,
+            ExistingWorkPolicy.KEEP,
             request
         )
     }

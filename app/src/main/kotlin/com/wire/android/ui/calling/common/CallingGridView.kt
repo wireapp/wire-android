@@ -25,7 +25,7 @@ import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.kalium.logic.data.id.QualifiedID
 
-val lastParticipants = mutableListOf<UICallParticipant>()
+val lastParticipants = mutableMapOf<Int, List<UICallParticipant>>()
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -40,7 +40,7 @@ fun GroupCallGrid(
     val config = LocalConfiguration.current
 
     // We use this to check if we need to recompose renderers or not, mainly used to avoid recomposition which makes the screen flickering
-    val shouldRecomposeVideoRenderer = isVideoStateChangedComparedToLastList(participants)
+    val shouldRecomposeVideoRenderer = isVideoStateChangedComparedToLastList(participants, pageIndex)
     LazyVerticalGrid(
         userScrollEnabled = false,
         contentPadding = PaddingValues(MaterialTheme.wireDimensions.spacing4x),
@@ -51,7 +51,7 @@ fun GroupCallGrid(
 
         items(
             items = participants,
-            key = { it.id.toString() + it.clientId },
+            key = { it.id.toString() + it.clientId + pageIndex },
             contentType = { getContentType(it.isCameraOn, it.isSharingScreen) }
         ) { participant ->
             // since we are getting participants by chunk of 8 items,
@@ -109,18 +109,20 @@ fun GroupCallGrid(
                 shouldRecomposeVideoRenderer = shouldRecomposeVideoRenderer
             )
         }
-        lastParticipants.clear()
-        lastParticipants.addAll(participants)
+        lastParticipants.remove(pageIndex)
+        lastParticipants[pageIndex] = participants
     }
 }
 
 @Suppress("ReturnCount")
-fun isVideoStateChangedComparedToLastList(newParticipants: List<UICallParticipant>) : Boolean {
-    if (lastParticipants.isEmpty())
+fun isVideoStateChangedComparedToLastList(newParticipants: List<UICallParticipant>, pageIndex: Int) : Boolean {
+    if (lastParticipants[pageIndex].isNullOrEmpty())
         return true
-    lastParticipants.zip(newParticipants).forEach { pair ->
-        if (pair.first.isCameraOn != pair.second.isCameraOn || (pair.first.isSharingScreen != pair.second.isSharingScreen))
-            return true
+    if(lastParticipants[pageIndex]?.size == newParticipants.size) {
+        lastParticipants[pageIndex]?.zip(newParticipants)?.forEach { pair ->
+            if (pair.first.isCameraOn != pair.second.isCameraOn || (pair.first.isSharingScreen != pair.second.isSharingScreen))
+                return true
+        }
     }
     return false
 }

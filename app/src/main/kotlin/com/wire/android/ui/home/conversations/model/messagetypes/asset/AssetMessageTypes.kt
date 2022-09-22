@@ -113,7 +113,9 @@ internal fun MessageAsset(
                         modifier = Modifier.padding(end = dimensions().spacing4x),
                         text = getDownloadStatusText(assetDownloadStatus, assetUploadStatus),
                         color = MaterialTheme.wireColorScheme.run {
-                            if (assetDownloadStatus == Message.DownloadStatus.FAILED_DOWNLOAD || assetUploadStatus == Message.UploadStatus.FAILED_UPLOAD) error else secondaryText
+                            if (assetDownloadStatus == Message.DownloadStatus.FAILED_DOWNLOAD ||
+                                assetUploadStatus == Message.UploadStatus.FAILED_UPLOAD
+                            ) error else secondaryText
                         },
                         style = MaterialTheme.wireTypography.subline01
                     )
@@ -237,7 +239,8 @@ fun RestrictedGenericFileMessage(fileName: String, fileSize: Long) {
 @Composable
 private fun DownloadStatusIcon(assetDownloadStatus: Message.DownloadStatus, assetUploadStatus: Message.UploadStatus) {
     return when {
-        assetUploadStatus == Message.UploadStatus.UPLOAD_IN_PROGRESS || assetDownloadStatus == Message.DownloadStatus.DOWNLOAD_IN_PROGRESS -> WireCircularProgressIndicator(
+        assetUploadStatus == Message.UploadStatus.UPLOAD_IN_PROGRESS ||
+                assetDownloadStatus == Message.DownloadStatus.DOWNLOAD_IN_PROGRESS -> WireCircularProgressIndicator(
             progressColor = MaterialTheme.wireColorScheme.secondaryText,
             size = dimensions().spacing16x
         )

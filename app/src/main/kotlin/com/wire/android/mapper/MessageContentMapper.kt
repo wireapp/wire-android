@@ -141,38 +141,39 @@ class MessageContentMapper @Inject constructor(
         }
     ).let { messageBody -> UIMessageContent.TextMessage(messageBody = messageBody) }
 
-    suspend fun toUIMessageContent(assetMessageContentMetadata: AssetMessageContentMetadata, message: Message) = with(assetMessageContentMetadata.assetMessageContent) {
-        when {
-            // If it's an image, we download it right away
-            assetMessageContentMetadata.isValidImage() -> {
-                val imageData = withContext(dispatcherProvider.io()) {
-                    imageRawData(message.conversationId, message.id)
+    suspend fun toUIMessageContent(assetMessageContentMetadata: AssetMessageContentMetadata, message: Message) =
+        with(assetMessageContentMetadata.assetMessageContent) {
+            when {
+                // If it's an image, we download it right away
+                assetMessageContentMetadata.isValidImage() -> {
+                    val imageData = withContext(dispatcherProvider.io()) {
+                        imageRawData(message.conversationId, message.id)
+                    }
+                    withContext(dispatcherProvider.main()) {
+                        UIMessageContent.ImageMessage(
+                            assetId = AssetId(remoteData.assetId, remoteData.assetDomain.orEmpty()),
+                            imgData = imageData,
+                            width = assetMessageContentMetadata.imgWidth,
+                            height = assetMessageContentMetadata.imgHeight,
+                            uploadStatus = uploadStatus,
+                            downloadStatus = downloadStatus
+                        )
+                    }
                 }
-                withContext(dispatcherProvider.main()) {
-                    UIMessageContent.ImageMessage(
+
+                // It's a generic Asset Message so let's not download it yet
+                else -> {
+                    UIMessageContent.AssetMessage(
+                        assetName = name ?: "",
+                        assetExtension = name?.split(".")?.last() ?: "",
                         assetId = AssetId(remoteData.assetId, remoteData.assetDomain.orEmpty()),
-                        imgData = imageData,
-                        width = assetMessageContentMetadata.imgWidth,
-                        height = assetMessageContentMetadata.imgHeight,
+                        assetSizeInBytes = sizeInBytes,
                         uploadStatus = uploadStatus,
                         downloadStatus = downloadStatus
                     )
                 }
             }
-
-            // It's a generic Asset Message so let's not download it yet
-            else -> {
-                UIMessageContent.AssetMessage(
-                    assetName = name ?: "",
-                    assetExtension = name?.split(".")?.last() ?: "",
-                    assetId = AssetId(remoteData.assetId, remoteData.assetDomain.orEmpty()),
-                    assetSizeInBytes = sizeInBytes,
-                    uploadStatus = uploadStatus,
-                    downloadStatus = downloadStatus
-                )
-            }
         }
-    }
 
     private suspend fun imageRawData(conversationId: QualifiedID, messageId: String): ByteArray? =
         imageDataPath(conversationId, messageId)?.let { kaliumFileSystem.readByteArray(it) }

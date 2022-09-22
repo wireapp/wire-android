@@ -18,6 +18,7 @@ import com.wire.kalium.logic.functional.nullableFold
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -34,6 +35,7 @@ import javax.inject.Singleton
  * When the app is initialised without displaying any UI all sessions are
  * set to [ConnectionPolicy.DISCONNECT_AFTER_PENDING_EVENTS].
  */
+@OptIn(ExperimentalCoroutinesApi::class)
 @Singleton
 class ConnectionPolicyManager @Inject constructor(
     private val currentScreenManager: CurrentScreenManager,
@@ -66,16 +68,16 @@ class ConnectionPolicyManager @Inject constructor(
      * this will downgrade the policy back to [ConnectionPolicy.DISCONNECT_AFTER_PENDING_EVENTS].
      */
     suspend fun handleConnectionOnPushNotification(userId: UserId) {
-        logger.d("Handling connection policy for push notification of " +
+        logger.d("$TAG Handling connection policy for push notification of " +
                 "user=${userId.value.obfuscateId()}@${userId.domain.obfuscateDomain()}")
         coreLogic.getSessionScope(userId).run {
-            logger.d("Forcing KEEP_ALIVE policy")
+            logger.d("$TAG Forcing KEEP_ALIVE policy")
             // Force KEEP_ALIVE policy, so we gather pending events and become online
             setConnectionPolicy(ConnectionPolicy.KEEP_ALIVE)
             // Wait until the client is live and pending events are processed
-            logger.d("Waiting until live")
+            logger.d("$TAG Waiting until live")
             syncManager.waitUntilLive()
-            logger.d("Checking if downgrading policy is needed")
+            logger.d("$TAG Checking if downgrading policy is needed")
             downgradePolicyIfNeeded(userId)
         }
     }
@@ -86,15 +88,15 @@ class ConnectionPolicyManager @Inject constructor(
      * the [ConnectionPolicy.KEEP_ALIVE] policy.
      * Otherwise, we downgrade to [ConnectionPolicy.DISCONNECT_AFTER_PENDING_EVENTS].
      */
-    private fun UserSessionScope.downgradePolicyIfNeeded(
+    private suspend fun UserSessionScope.downgradePolicyIfNeeded(
         userId: UserId
     ) {
         val isCurrentSession = isCurrentSession(userId)
-        val isAppOnForeground = currentScreenManager.isAppOnForegroundFlow().value
+        val isAppOnForeground = currentScreenManager.isAppOnForegroundFlow().first()
         logger.d("isCurrentSession = $isCurrentSession; hasInitialisedUI = $isCurrentSession")
         val shouldKeepLivePolicy = isCurrentSession && isAppOnForeground
         if (!shouldKeepLivePolicy) {
-            logger.d("Downgrading policy as conditions to KEEP_ALIVE are not met")
+            logger.d("$TAG Downgrading policy as conditions to KEEP_ALIVE are not met")
             setConnectionPolicy(ConnectionPolicy.DISCONNECT_AFTER_PENDING_EVENTS)
         }
     }
@@ -130,4 +132,8 @@ class ConnectionPolicyManager @Inject constructor(
     private fun currentSessionFlow() =
         coreLogic.getGlobalScope().sessionRepository.currentSessionFlow()
             .map { it.nullableFold({ null }, { currentSession -> currentSession.userId }) }
+
+    companion object {
+        private const val TAG = "ConnectionPolicyManager"
+    }
 }

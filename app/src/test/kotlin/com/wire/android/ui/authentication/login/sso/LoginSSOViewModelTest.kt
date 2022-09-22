@@ -34,8 +34,6 @@ import com.wire.kalium.logic.feature.client.ClientScope
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.client.GetOrRegisterClientUseCase
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
-import com.wire.kalium.logic.feature.session.RegisterTokenResult
-import com.wire.kalium.logic.feature.session.RegisterTokenUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -78,9 +76,6 @@ class LoginSSOViewModelTest {
     private lateinit var getOrRegisterClientUseCase: GetOrRegisterClientUseCase
 
     @MockK
-    private lateinit var registerTokenUseCase: RegisterTokenUseCase
-
-    @MockK
     private lateinit var getSSOLoginSessionUseCase: GetSSOLoginSessionUseCase
 
     @MockK
@@ -100,7 +95,6 @@ class LoginSSOViewModelTest {
         every { savedStateHandle.set(any(), any<String>()) } returns Unit
         every { clientScopeProviderFactory.create(any()).clientScope } returns clientScope
         every { clientScope.getOrRegister } returns getOrRegisterClientUseCase
-        every { clientScope.registerPushToken } returns registerTokenUseCase
         every { authServerConfigProvider.authServer.value } returns newServerConfig(1).links
 
         loginViewModel = LoginSSOViewModel(
@@ -214,9 +208,6 @@ class LoginSSOViewModelTest {
         coEvery {
             getOrRegisterClientUseCase(any())
         } returns RegisterClientResult.Success(CLIENT)
-        coEvery {
-            registerTokenUseCase(any(), CLIENT.id)
-        } returns RegisterTokenResult.Failure.PushTokenRegister
 
         runTest { loginViewModel.establishSSOSession("", serverConfigId = SERVER_CONFIG.id) }
 
@@ -226,7 +217,6 @@ class LoginSSOViewModelTest {
             getOrRegisterClientUseCase(any())
         }
         coVerify(exactly = 1) { addAuthenticatedUserUseCase(any(), any(), any()) }
-        coVerify(exactly = 1) { registerTokenUseCase(any(), CLIENT.id) }
     }
 
     @Test
@@ -241,7 +231,6 @@ class LoginSSOViewModelTest {
         coVerify(exactly = 0) { loginViewModel.registerClient(any(), null) }
         coVerify(exactly = 0) { addAuthenticatedUserUseCase(any(), any(), any()) }
         coVerify(exactly = 0) { loginViewModel.navigateToConvScreen() }
-        coVerify(exactly = 0) { registerTokenUseCase(any(), CLIENT.id) }
     }
 
     @Test
@@ -261,7 +250,6 @@ class LoginSSOViewModelTest {
         coEvery { getSSOLoginSessionUseCase(any()) } returns SSOLoginSessionResult.Success(AUTH_TOKEN, SSO_ID)
         coEvery { addAuthenticatedUserUseCase(any(), any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
         coEvery { getOrRegisterClientUseCase(any()) } returns RegisterClientResult.Success(CLIENT)
-        coEvery { registerTokenUseCase(any(), CLIENT.id) } returns RegisterTokenResult.Success
 
         runTest { loginViewModel.handleSSOResult(DeepLinkResult.SSOLogin.Success("", "")) }
         coVerify(exactly = 1) { loginViewModel.navigateToConvScreen() }
@@ -279,7 +267,6 @@ class LoginSSOViewModelTest {
         coVerify(exactly = 0) { loginViewModel.registerClient(any(), null) }
         coVerify(exactly = 1) { addAuthenticatedUserUseCase(any(), any(), any()) }
         coVerify(exactly = 0) { loginViewModel.navigateToConvScreen() }
-        coVerify(exactly = 0) { registerTokenUseCase(any(), CLIENT.id) }
     }
 
     @Test
@@ -307,9 +294,6 @@ class LoginSSOViewModelTest {
         coEvery {
             getOrRegisterClientUseCase(any())
         } returns RegisterClientResult.Success(CLIENT)
-        coEvery {
-            registerTokenUseCase(any(), CLIENT.id)
-        } returns RegisterTokenResult.Failure.PushTokenRegister
 
         runTest { loginViewModel.establishSSOSession("", serverConfigId = SERVER_CONFIG.id) }
 
@@ -321,7 +305,6 @@ class LoginSSOViewModelTest {
             getOrRegisterClientUseCase(any())
         }
         coVerify(exactly = 1) { addAuthenticatedUserUseCase(any(), any(), any()) }
-        coVerify(exactly = 1) { registerTokenUseCase(any(), CLIENT.id) }
     }
 
     companion object {

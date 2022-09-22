@@ -396,6 +396,7 @@
         <item quantity="other">%1$d more</item>
     </plurals>
     <string name="label_system_message_blocked_user">%1$s blocked this user</string>
+    <string name="label_system_message_renamed_the_conversation">%1$s renamed the conversation\n%2$s</string>
     <!--Search Contact-->
     <string name="label_contacts">CONTACTS</string>
     <string name="label_new_group">New Group</string>

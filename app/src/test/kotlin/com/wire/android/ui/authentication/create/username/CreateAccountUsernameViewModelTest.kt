@@ -10,10 +10,10 @@ import com.wire.android.navigation.NavigationItemDestinationsRoutes
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.NetworkFailure
-import com.wire.kalium.logic.feature.user.SetUserHandleUseCase
+import com.wire.kalium.logic.feature.auth.ValidateUserHandleResult
 import com.wire.kalium.logic.feature.auth.ValidateUserHandleUseCase
 import com.wire.kalium.logic.feature.user.SetUserHandleResult
-import com.wire.kalium.logic.feature.auth.ValidateUserHandleResult
+import com.wire.kalium.logic.feature.user.SetUserHandleUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -36,9 +36,14 @@ import org.junit.jupiter.api.extension.ExtendWith
 @ExtendWith(CoroutineTestExtension::class)
 class CreateAccountUsernameViewModelTest {
 
-    @MockK private lateinit var navigationManager: NavigationManager
-    @MockK private lateinit var validateUserHandleUseCase: ValidateUserHandleUseCase
-    @MockK private lateinit var setUserHandleUseCase: SetUserHandleUseCase
+    @MockK
+    private lateinit var navigationManager: NavigationManager
+
+    @MockK
+    private lateinit var validateUserHandleUseCase: ValidateUserHandleUseCase
+
+    @MockK
+    private lateinit var setUserHandleUseCase: SetUserHandleUseCase
 
     private lateinit var createAccountUsernameViewModel: CreateAccountUsernameViewModel
 
@@ -70,6 +75,10 @@ class CreateAccountUsernameViewModelTest {
         coEvery { validateUserHandleUseCase.invoke("a1_") } returns ValidateUserHandleResult.Valid("a1_")
         coEvery { validateUserHandleUseCase.invoke("a1_$") } returns
                 ValidateUserHandleResult.Invalid.InvalidCharacters("a1_", listOf())
+        coEvery { validateUserHandleUseCase.invoke("a1_$") } returns ValidateUserHandleResult.Invalid.InvalidCharacters(
+            "a1_",
+            "@".toList()
+        )
         createAccountUsernameViewModel.onUsernameChange(TextFieldValue("a1_"))
         createAccountUsernameViewModel.state.username.text shouldBeEqualTo "a1_"
         createAccountUsernameViewModel.onUsernameChange(TextFieldValue("a1_$"))

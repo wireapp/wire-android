@@ -4,12 +4,13 @@ import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversationslist.common.UserInfoLabel
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.data.user.type.UserType
 
 sealed class ConversationItem {
+    abstract val name: String
     abstract val conversationId: ConversationId
     abstract val mutedStatus: MutedConversationStatus
     abstract val isLegalHold: Boolean
@@ -17,7 +18,7 @@ sealed class ConversationItem {
     abstract val badgeEventType: BadgeEventType
 
     data class GroupConversation(
-        val groupName: String,
+        override val name: String,
         override val conversationId: ConversationId,
         override val mutedStatus: MutedConversationStatus,
         override val isLegalHold: Boolean = false,
@@ -29,6 +30,7 @@ sealed class ConversationItem {
     ) : ConversationItem()
 
     data class PrivateConversation(
+        override val name: String,
         val userAvatarData: UserAvatarData,
         val conversationInfo: ConversationInfo,
         val userId: UserId,
@@ -41,6 +43,7 @@ sealed class ConversationItem {
     ) : ConversationItem()
 
     data class ConnectionConversation(
+        override val name: String,
         val userAvatarData: UserAvatarData,
         val conversationInfo: ConversationInfo,
         override val conversationId: ConversationId,
@@ -63,12 +66,13 @@ enum class BlockingState {
     NOT_BLOCKED
 }
 
-fun OtherUser.getBlockingState(selfTeamId: TeamId?): BlockingState =
-    when {
-        connectionStatus == ConnectionState.BLOCKED -> BlockingState.BLOCKED
-        teamId == selfTeamId -> BlockingState.CAN_NOT_BE_BLOCKED
-        else -> BlockingState.NOT_BLOCKED
-    }
+val OtherUser.BlockState: BlockingState
+    get() =
+        when {
+            connectionStatus == ConnectionState.BLOCKED -> BlockingState.BLOCKED
+            userType == UserType.INTERNAL -> BlockingState.CAN_NOT_BE_BLOCKED
+            else -> BlockingState.NOT_BLOCKED
+        }
 
 fun ConversationItem.PrivateConversation.toUserInfoLabel() =
     UserInfoLabel(

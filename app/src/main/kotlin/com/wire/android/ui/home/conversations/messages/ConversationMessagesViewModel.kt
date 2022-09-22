@@ -91,7 +91,7 @@ class ConversationMessagesViewModel @Inject constructor(
             } catch (e: OutOfMemoryError) {
                 appLogger.e("There was an OutOfMemory error while downloading the asset")
                 onSnackbarMessage(ConversationSnackbarMessages.ErrorDownloadingAsset)
-                updateAssetMessageDownloadStatus(Message.DownloadStatus.FAILED, conversationId, messageId)
+                updateAssetMessageDownloadStatus(Message.DownloadStatus.FAILED_DOWNLOAD, conversationId, messageId)
             }
         }
     }
@@ -113,15 +113,15 @@ class ConversationMessagesViewModel @Inject constructor(
         val assetContent = messageContent.value
         val downloadStatus = assetContent.downloadStatus
         val isAssetDownloadedInternally = downloadStatus == Message.DownloadStatus.SAVED_INTERNALLY ||
-                downloadStatus == Message.DownloadStatus.IN_PROGRESS
+                downloadStatus == Message.DownloadStatus.DOWNLOAD_IN_PROGRESS
 
         if (!isAssetDownloadedInternally)
         // TODO: Refactor. UseCase responsible for downloading should update to IN_PROGRESS status.
-            updateAssetMessageDownloadStatus(Message.DownloadStatus.IN_PROGRESS, conversationId, messageId)
+            updateAssetMessageDownloadStatus(Message.DownloadStatus.DOWNLOAD_IN_PROGRESS, conversationId, messageId)
 
         val resultData = assetDataPath(conversationId, messageId)
         updateAssetMessageDownloadStatus(
-            if (resultData != null) Message.DownloadStatus.SAVED_INTERNALLY else Message.DownloadStatus.FAILED,
+            if (resultData != null) Message.DownloadStatus.SAVED_INTERNALLY else Message.DownloadStatus.FAILED_DOWNLOAD,
             conversationId,
             messageId
         )

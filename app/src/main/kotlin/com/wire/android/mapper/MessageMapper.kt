@@ -14,7 +14,6 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.time.ISOFormatter
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
-import com.wire.android.util.uiMessageDateTime
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.user.OtherUser
@@ -46,7 +45,7 @@ class MessageMapper @Inject constructor(
         userList: List<User>,
         messages: List<Message>
     ): List<UIMessage> = withContext(dispatcherProvider.io()) {
-        messages.map { message ->
+        messages.mapNotNull { message ->
             val sender = userList.findUser(message.senderUserId)
             val content = messageContentMapper.fromMessage(
                 message = message,
@@ -61,7 +60,7 @@ class MessageMapper @Inject constructor(
                     messageHeader = provideMessageHeader(sender, message),
                     userAvatarData = getUserAvatarData(sender)
                 )
-        }.filterNotNull()
+        }
     }
 
     private fun provideMessageHeader(sender: User?, message: Message): MessageHeader = MessageHeader(

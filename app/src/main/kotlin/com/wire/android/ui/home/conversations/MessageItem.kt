@@ -210,6 +210,7 @@ private fun MessageContent(
         is UIMessageContent.ImageMessage -> MessageImage(
             rawImgData = messageContent.imgData,
             imgParams = ImageMessageParams(messageContent.width, messageContent.height),
+            assetUploadStatus = messageContent.uploadStatus,
             onImageClick = onImageClick
         )
         is UIMessageContent.TextMessage -> MessageBody(
@@ -220,6 +221,7 @@ private fun MessageContent(
             assetName = messageContent.assetName,
             assetExtension = messageContent.assetExtension,
             assetSizeInBytes = messageContent.assetSizeInBytes,
+            assetUploadStatus = messageContent.uploadStatus,
             assetDownloadStatus = messageContent.downloadStatus,
             onAssetClick = onAssetClick
         )

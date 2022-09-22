@@ -13,6 +13,7 @@ import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.uiMessageDateTime
 import com.wire.kalium.logic.data.message.Message
+import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.user.AssetId
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
@@ -99,7 +100,8 @@ sealed class UIMessageContent {
     sealed class SystemMessage(
         @DrawableRes val iconResId: Int?,
         @StringRes open val stringResId: Int,
-        val isSmallIcon: Boolean = true
+        val isSmallIcon: Boolean = true,
+        val additionalContent: String = ""
     ) : UIMessageContent() {
 
         data class MemberAdded(
@@ -124,6 +126,9 @@ sealed class UIMessageContent {
             data class YouCalled(override val author: UIText) : MissedCall(author, R.string.label_system_message_you_called)
             data class OtherCalled(override val author: UIText) : MissedCall(author, R.string.label_system_message_other_called)
         }
+
+        data class RenamedConversation(val author: UIText, val content: MessageContent.ConversationRenamed) :
+            SystemMessage(R.drawable.ic_edit, R.string.label_system_message_renamed_the_conversation, true, content.conversationName)
     }
 }
 

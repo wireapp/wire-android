@@ -180,7 +180,6 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                     appLogger.d("Couldn't not getOrCreateOneToOneConversation for user id: $userId")
                     return@launch
                 }
-
                 is GetOneToOneConversationUseCase.Result.Success -> {
                     state = state.copy(
                         conversationSheetContent = ConversationSheetContent(
@@ -241,7 +240,6 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                     appLogger.d(("Couldn't send a connect request to user $userId"))
                     showInfoMessage(ConnectionRequestError)
                 }
-
                 is SendConnectionRequestResult.Success -> {
                     state = state.copy(connectionState = ConnectionState.SENT)
                     showInfoMessage(SuccessConnectionSentRequest)
@@ -257,7 +255,6 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                     appLogger.d(("Couldn't cancel a connect request to user $userId"))
                     showInfoMessage(ConnectionCancelError)
                 }
-
                 is CancelConnectionRequestUseCaseResult.Success -> {
                     state = state.copy(connectionState = ConnectionState.NOT_CONNECTED)
                     showInfoMessage(SuccessConnectionCancelRequest)
@@ -273,7 +270,6 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                     appLogger.d(("Couldn't accept a connect request to user $userId"))
                     showInfoMessage(ConnectionAcceptError)
                 }
-
                 is AcceptConnectionRequestUseCaseResult.Success -> {
                     state = state.copy(connectionState = ConnectionState.ACCEPTED)
                     showInfoMessage(SuccessConnectionAcceptRequest)
@@ -289,7 +285,6 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                     appLogger.d(("Couldn't ignore a connect request to user $userId"))
                     showInfoMessage(ConnectionIgnoreError)
                 }
-
                 is IgnoreConnectionRequestUseCaseResult.Success -> {
                     state = state.copy(connectionState = ConnectionState.IGNORED)
                     navigationManager.navigateBack(
@@ -356,7 +351,6 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                     appLogger.i("User $userId was blocked")
                     showInfoMessage(BlockingUserOperationSuccess(blockUserState.userName))
                 }
-
                 is BlockUserResult.Failure -> {
                     appLogger.e("Error while blocking user $userId ; Error ${result.coreFailure}")
                     showInfoMessage(BlockingUserOperationError)
@@ -373,7 +367,6 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                 UnblockUserResult.Success -> {
                     appLogger.i("User $userId was unblocked")
                 }
-
                 is UnblockUserResult.Failure -> {
                     appLogger.e("Error while unblocking user $userId ; Error ${result.coreFailure}")
                     showInfoMessage(UnblockingUserOperationError)
@@ -423,11 +416,9 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                     is GetOtherUserClientsResult.Failure.UserNotFound -> {
                         appLogger.e("User or Domain not found while fetching user clients ")
                     }
-
                     is GetOtherUserClientsResult.Failure.Generic -> {
                         appLogger.e("Error while fetching the user clients : ${it.genericFailure}")
                     }
-
                     is GetOtherUserClientsResult.Success -> {
                         state = state.copy(otherUserClients = it.otherUserClients)
                     }

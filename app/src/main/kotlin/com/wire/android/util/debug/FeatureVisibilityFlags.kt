@@ -2,7 +2,8 @@ package com.wire.android.util.debug
 
 import androidx.compose.runtime.staticCompositionLocalOf
 
-//As a Beta user I don’t want to press on buttons that don’t have functions yet because then I will think something is not working in the app.
+//As a Beta user I don’t want to press on buttons that don’t have functions yet,
+// because then I will think something is not working in the app.
 //
 //ACCEPTANCE CRITERIA
 //

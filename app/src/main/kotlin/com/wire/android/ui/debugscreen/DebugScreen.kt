@@ -1,6 +1,5 @@
 package com.wire.android.ui.debugscreen
 
-import android.content.Context
 import android.widget.Toast
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
@@ -110,16 +109,16 @@ fun TopBar(title: String, navigateBack: () -> Unit) {
         onNavigationPressed = navigateBack
     )
 }
-//
-//@Composable
-//fun ListWithHeader(
-//    headerTitle: String, content: @Composable () -> Unit = {}
-//) {
-//    Column {
-//        FolderHeader(headerTitle)
-//        content()
-//    }
-//}
+
+@Composable
+fun ListWithHeader(
+    headerTitle: String, content: @Composable () -> Unit = {}
+) {
+    Column {
+        FolderHeader(headerTitle)
+        content()
+    }
+}
 
 @Composable
 fun TextRowItem(text: String, @DrawableRes trailingIcon: Int? = null, onIconClick: () -> Unit = {}) {
@@ -160,7 +159,7 @@ fun LoggingSection(
 ) {
     val context = LocalContext.current
     val clipboardManager = LocalClipboardManager.current
-    val absolutePath = context.cacheDir?.absolutePath ?: ""
+
     SwitchRowItem(
         text = "Enable Logging", checked = isLoggingEnabled
     ) { state: Boolean ->
@@ -217,5 +216,5 @@ fun SwitchRowItem(
 @Preview(showBackground = false)
 @Composable
 fun debugScreenPreview() {
-    DebugContent(DebugScreenState(isLoggingEnabled = true), { _: Boolean -> }, { "" }, {}, {})
+    DebugContent(DebugScreenState(isLoggingEnabled = true), { }, { "" }, {}, {})
 }

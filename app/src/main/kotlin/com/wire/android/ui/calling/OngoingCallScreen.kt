@@ -66,7 +66,8 @@ fun OngoingCallScreen(
             sharedCallingViewModel::toggleVideo,
             sharedCallingViewModel::setVideoPreview,
             sharedCallingViewModel::clearVideoPreview,
-            sharedCallingViewModel::navigateBack
+            sharedCallingViewModel::navigateBack,
+            ongoingCallViewModel::requestVideoStreams
         )
         isCameraOn?.let {
             BackHandler(enabled = it, sharedCallingViewModel::navigateBack)
@@ -89,7 +90,8 @@ private fun OngoingCallContent(
     toggleVideo: () -> Unit,
     setVideoPreview: (view: View) -> Unit,
     clearVideoPreview: () -> Unit,
-    navigateBack: () -> Unit
+    navigateBack: () -> Unit,
+    requestVideoStreams: (participants: List<UICallParticipant>) -> Unit
 ) {
     val sheetState = rememberBottomSheetState(
         initialValue = if (classificationType == SecurityClassificationType.NONE) BottomSheetValue.Collapsed else BottomSheetValue.Expanded
@@ -151,7 +153,8 @@ private fun OngoingCallContent(
                     isSelfUserCameraOn = isCameraOn,
                     isSelfUserMuted = isMuted,
                     onSelfVideoPreviewCreated = setVideoPreview,
-                    onSelfClearVideoPreview = clearVideoPreview
+                    onSelfClearVideoPreview = clearVideoPreview,
+                    requestVideoStreams = requestVideoStreams
                 )
             }
         }

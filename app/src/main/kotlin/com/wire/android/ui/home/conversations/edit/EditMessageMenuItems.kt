@@ -11,24 +11,27 @@ import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 
 @Composable
 fun EditMessageMenuItems(
-    isMyMessage: Boolean,
+    isCopyable: Boolean,
+    isEditable: Boolean,
     onCopyMessage: () -> Unit,
     onDeleteMessage: () -> Unit,
 ): List<@Composable () -> Unit> {
     return buildList {
         add {
-            MenuBottomSheetItem(
-                icon = {
-                    MenuItemIcon(
-                        id = R.drawable.ic_copy,
-                        contentDescription = stringResource(R.string.content_description_block_the_user),
-                    )
-                },
-                title = stringResource(R.string.label_copy),
-                onItemClick = onCopyMessage
-            )
+            if (isCopyable) {
+                MenuBottomSheetItem(
+                    icon = {
+                        MenuItemIcon(
+                            id = R.drawable.ic_copy,
+                            contentDescription = stringResource(R.string.content_description_copy_the_message),
+                        )
+                    },
+                    title = stringResource(R.string.label_copy),
+                    onItemClick = onCopyMessage
+                )
+            }
         }
-        if (isMyMessage)
+        if (isEditable) {
             add {
                 MenuBottomSheetItem(
                     icon = {
@@ -40,6 +43,7 @@ fun EditMessageMenuItems(
                     title = stringResource(R.string.label_edit),
                 )
             }
+        }
         add {
             CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.error) {
                 MenuBottomSheetItem(

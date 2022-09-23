@@ -65,6 +65,7 @@ import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.messagecomposer.KeyboardHeight
 import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.ui.home.messagecomposer.MessageComposerStateTransition
+import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.permission.CallingAudioRequestFlow
 import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
 import com.wire.android.util.ui.UIText
@@ -219,16 +220,19 @@ private fun ConversationScreen(
             conversationScreenState.hideEditContextMenu()
             onDeleteMessage(
                 conversationScreenState.selectedMessage?.messageHeader!!.messageId,
-                conversationScreenState.isSelectedMessageMyMessage()
+                conversationScreenState.isMyMessage
             )
         }
     }
+
+    val localFeatureVisibilityFlags = LocalFeatureVisibilityFlags.current
 
     MenuModalSheetLayout(
         sheetState = conversationScreenState.modalBottomSheetState,
         coroutineScope = conversationScreenState.coroutineScope,
         menuItems = EditMessageMenuItems(
-            isMyMessage = conversationScreenState.isSelectedMessageMyMessage(),
+            isCopyable = conversationScreenState.isTextMessage,
+            isEditable = conversationScreenState.isMyMessage && localFeatureVisibilityFlags.MessageEditIcon,
             onCopyMessage = conversationScreenState::copyMessage,
             onDeleteMessage = menuModalOnDeleteMessage
         )

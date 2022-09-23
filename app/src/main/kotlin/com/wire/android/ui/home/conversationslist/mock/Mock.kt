@@ -29,7 +29,6 @@ val mockLongMentionInfo = ConversationLastEvent.Mention(
 
 val mockConversations1 = listOf(
     ConversationItem.PrivateConversation(
-        name = "test name",
         userAvatarData = UserAvatarData(),
         conversationInfo = ConversationInfo(
             name = "some test value",
@@ -44,7 +43,6 @@ val mockConversations1 = listOf(
         badgeEventType = BadgeEventType.UnreadMessage(1)
     ),
     ConversationItem.PrivateConversation(
-        name = "test name",
         userAvatarData = UserAvatarData(),
         conversationInfo = ConversationInfo(
             name = "some test value",
@@ -59,7 +57,6 @@ val mockConversations1 = listOf(
         badgeEventType = BadgeEventType.None
     ),
     ConversationItem.PrivateConversation(
-        name = "test name",
         userAvatarData = UserAvatarData(),
         conversationInfo = ConversationInfo(
             name = "some test value",
@@ -81,7 +78,6 @@ fun mockCallConversation(
         CallEvent.NoAnswerCall
     )
 ): ConversationItem.PrivateConversation = ConversationItem.PrivateConversation(
-    name = "test name",
     userAvatarData = UserAvatarData(),
     conversationInfo = ConversationInfo(
         name = "some test value",
@@ -102,7 +98,7 @@ fun mockCallGroupConversation(
         CallEvent.NoAnswerCall
     )
 ): ConversationItem.GroupConversation = ConversationItem.GroupConversation(
-    name = "Some group name",
+    groupName = "Some group name",
     conversationId = ConversationId("someId", "someDomain"),
     mutedStatus = MutedConversationStatus.AllAllowed,
     isLegalHold = true,
@@ -111,7 +107,6 @@ fun mockCallGroupConversation(
 )
 
 val mockConversation = ConversationItem.PrivateConversation(
-    name = "test name",
     userAvatarData = UserAvatarData(),
     conversationInfo = ConversationInfo(
         name = "some test valueeeeeeeeeeeeeeeeeeeeeeeeeeeeeeeee",
@@ -127,7 +122,7 @@ val mockConversation = ConversationItem.PrivateConversation(
 )
 
 val mockGroupConversation = ConversationItem.GroupConversation(
-    name = "Some group name",
+    groupName = "Some group name",
     conversationId = ConversationId("someId", "someDomain"),
     mutedStatus = MutedConversationStatus.AllAllowed,
     isLegalHold = true,
@@ -136,7 +131,6 @@ val mockGroupConversation = ConversationItem.GroupConversation(
 )
 
 val mockMentionPrivateConversation = ConversationItem.PrivateConversation(
-    name = "test name",
     userAvatarData = UserAvatarData(),
     conversationInfo = ConversationInfo(
         name = "some very long naaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaame",
@@ -152,7 +146,6 @@ val mockMentionPrivateConversation = ConversationItem.PrivateConversation(
 )
 
 val mockGeneralConversation = ConversationItem.PrivateConversation(
-    name = "test name",
     userAvatarData = UserAvatarData(),
     conversationInfo = ConversationInfo(
         name = "some very long naaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaame",
@@ -168,7 +161,6 @@ val mockGeneralConversation = ConversationItem.PrivateConversation(
 )
 
 val mockGeneralConversationPending = ConversationItem.ConnectionConversation(
-    name = "test name",
     conversationId = ConversationId("someId", "someDomain"),
     mutedStatus = MutedConversationStatus.AllAllowed,
     isLegalHold = true,
@@ -195,7 +187,7 @@ val conversationMockData = mapOf(
 )
 
 val mockMentionShortGroupConversation = ConversationItem.GroupConversation(
-    name = "Some group name",
+    groupName = "Some group name",
     conversationId = ConversationId("someId", "someDomain"),
     mutedStatus = MutedConversationStatus.AllAllowed,
     isLegalHold = true,
@@ -204,7 +196,7 @@ val mockMentionShortGroupConversation = ConversationItem.GroupConversation(
 )
 
 val mockMentionGroupLongConversation = ConversationItem.GroupConversation(
-    name = "Some group name",
+    groupName = "Some group name",
     conversationId = ConversationId("someId", "someDomain"),
     mutedStatus = MutedConversationStatus.AllAllowed,
     isLegalHold = true,

@@ -10,7 +10,6 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
 
 sealed class ConversationItem {
-    abstract val name: String
     abstract val conversationId: ConversationId
     abstract val mutedStatus: MutedConversationStatus
     abstract val isLegalHold: Boolean
@@ -18,7 +17,7 @@ sealed class ConversationItem {
     abstract val badgeEventType: BadgeEventType
 
     data class GroupConversation(
-        override val name: String,
+        val groupName: String,
         override val conversationId: ConversationId,
         override val mutedStatus: MutedConversationStatus,
         override val isLegalHold: Boolean = false,
@@ -30,7 +29,6 @@ sealed class ConversationItem {
     ) : ConversationItem()
 
     data class PrivateConversation(
-        override val name: String,
         val userAvatarData: UserAvatarData,
         val conversationInfo: ConversationInfo,
         val userId: UserId,
@@ -43,7 +41,6 @@ sealed class ConversationItem {
     ) : ConversationItem()
 
     data class ConnectionConversation(
-        override val name: String,
         val userAvatarData: UserAvatarData,
         val conversationInfo: ConversationInfo,
         override val conversationId: ConversationId,

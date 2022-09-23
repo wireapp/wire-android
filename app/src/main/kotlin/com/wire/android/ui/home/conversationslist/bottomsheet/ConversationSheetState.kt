@@ -46,7 +46,7 @@ fun rememberConversationSheetState(
             with(conversationItem) {
                 ConversationSheetContent(
                     conversationId = conversationId,
-                    title = name.ifEmpty { stringResource(id = R.string.member_name_deleted_label) },
+                    title = groupName.ifEmpty { stringResource(id = R.string.member_name_deleted_label) },
                     mutingConversationState = mutedStatus,
                     conversationTypeDetail = ConversationTypeDetail.Group(
                         conversationId = conversationId,

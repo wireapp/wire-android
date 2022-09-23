@@ -42,23 +42,31 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.test.advanceTimeBy
+import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runCurrent
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
+import kotlin.time.Duration.Companion.minutes
 
 @OptIn(ExperimentalCoroutinesApi::class)
 class WireNotificationManagerTest {
 
+    private val dispatcherProvider = TestDispatcherProvider()
+
     @Test
-    fun givenNotAuthenticatedUser_whenFetchAndShowNotificationsOnceCalled_thenNothingHappen() = runTest {
+    fun givenNotAuthenticatedUser_whenFetchAndShowNotificationsOnceCalled_thenNothingHappen() = runTest(dispatcherProvider.main()) {
         val (arrangement, manager) = Arrangement()
             .withSession(GetAllSessionsResult.Failure.NoSessionFound)
             .withCurrentUserSession(provideCurrentInvalidUserSession())
             .arrange()
 
         manager.fetchAndShowNotificationsOnce("user_id")
+        advanceUntilIdle()
 
         verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
         verify(exactly = 0) { arrangement.messageNotificationManager.handleNotification(any(), any()) }
@@ -66,21 +74,23 @@ class WireNotificationManagerTest {
     }
 
     @Test
-    fun givenAuthenticatedUser_whenFetchAndShowNotificationsOnceCalled_thenConnectionPolicyManagerIsCalled() = runTest {
-        val (arrangement, manager) = Arrangement()
-            .withSession(GetAllSessionsResult.Success(listOf(TEST_AUTH_TOKEN)))
-            .withCurrentUserSession(provideCurrentValidUserSession())
-            .withMessageNotifications(listOf())
-            .withIncomingCalls(listOf())
-            .arrange()
+    fun givenAuthenticatedUser_whenFetchAndShowNotificationsOnceCalled_thenConnectionPolicyManagerIsCalled() =
+        runTest(dispatcherProvider.main()) {
+            val (arrangement, manager) = Arrangement()
+                .withSession(GetAllSessionsResult.Success(listOf(TEST_AUTH_TOKEN)))
+                .withCurrentUserSession(provideCurrentValidUserSession())
+                .withMessageNotifications(listOf())
+                .withIncomingCalls(listOf())
+                .arrange()
 
-        manager.fetchAndShowNotificationsOnce("user_id")
+            manager.fetchAndShowNotificationsOnce("user_id")
+            advanceUntilIdle()
 
-        verify(atLeast = 1) { arrangement.coreLogic.getSessionScope(any()) }
-        coVerify(exactly = 1) { arrangement.connectionPolicyManager.handleConnectionOnPushNotification(TEST_AUTH_TOKEN.userId) }
-        verify(exactly = 0) { arrangement.messageNotificationManager.handleNotification(listOf(), any()) }
-        verify(exactly = 1) { arrangement.callNotificationManager.handleIncomingCallNotifications(listOf(), any()) }
-    }
+            verify(atLeast = 1) { arrangement.coreLogic.getSessionScope(any()) }
+            coVerify(exactly = 1) { arrangement.connectionPolicyManager.handleConnectionOnPushNotification(TEST_AUTH_TOKEN.userId) }
+            verify(exactly = 0) { arrangement.messageNotificationManager.handleNotification(listOf(), any()) }
+            verify(exactly = 1) { arrangement.callNotificationManager.handleIncomingCallNotifications(listOf(), any()) }
+        }
 
     @Test
     fun givenNotAuthenticatedUser_whenObserveCalled_thenNothingHappenAndCallNotificationHides() = runTestWithCancellation {
@@ -89,7 +99,7 @@ class WireNotificationManagerTest {
             .arrange()
 
         manager.observeNotificationsAndCalls(flowOf(null), this) {}
-        runCurrent()
+        advanceUntilIdle()
 
         verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
         verify(exactly = 1) { arrangement.callNotificationManager.hideIncomingCallNotification() }
@@ -227,8 +237,8 @@ class WireNotificationManagerTest {
         }
 
     @Test
-    fun givenASingleUserId_whenCallingFetchAndShowOnceMultipleTimes_thenConversationNotificationDateUpdated() =
-        runTestWithCancellation {
+    fun givenASingleUserId_whenCallingFetchAndShowOnceInParallel_thenPushNotificationIsHandledOnlyOnce() =
+        runTest(dispatcherProvider.main()) {
             val userId = TEST_AUTH_TOKEN.userId
             val (arrangement, manager) = Arrangement()
                 .withMessageNotifications(listOf())
@@ -238,16 +248,35 @@ class WireNotificationManagerTest {
                 .withCurrentScreen(CurrentScreen.InBackground)
                 .arrange()
 
-            manager.fetchAndShowNotificationsOnce(userId.value)
-            manager.fetchAndShowNotificationsOnce(userId.value)
-            runCurrent()
+            coEvery { arrangement.connectionPolicyManager.handleConnectionOnPushNotification(userId) } coAnswers {
+                // Push handling is taking 10 minutes
+                delay(10.minutes)
+            }
+            launch {
+                // We call fetchAndShow now
+                manager.fetchAndShowNotificationsOnce(userId.value)
+            }
+            launch {
+                // After 5 minutes we call fetchAndShow again
+                delay(5.minutes)
+                manager.fetchAndShowNotificationsOnce(userId.value)
+            }
+            // After first call, should have handled push once
+            advanceTimeBy(1.minutes.inWholeMilliseconds)
+            coVerify(exactly = 1) { arrangement.connectionPolicyManager.handleConnectionOnPushNotification(userId) }
 
+            // After second call, should have handled push once
+            advanceTimeBy(6.minutes.inWholeMilliseconds)
+            coVerify(exactly = 1) { arrangement.connectionPolicyManager.handleConnectionOnPushNotification(userId) }
+
+            // After everything ends, should have handled push once
+            advanceUntilIdle()
             coVerify(exactly = 1) { arrangement.connectionPolicyManager.handleConnectionOnPushNotification(userId) }
         }
 
     @Test
     fun givenASingleUserId_whenNotificationReceivedAndNotCurrentUser_shouldSkipNotification() =
-        runTestWithCancellation {
+        runTest(dispatcherProvider.main()) {
             val otherAuthSession = provideAccountInfo("other_id")
             val userId = otherAuthSession.userId
             val (arrangement, manager) = Arrangement()
@@ -259,7 +288,7 @@ class WireNotificationManagerTest {
                 .arrange()
 
             manager.fetchAndShowNotificationsOnce(userId.value)
-            runCurrent()
+            advanceUntilIdle()
 
             coVerify(exactly = 0) { arrangement.connectionPolicyManager.handleConnectionOnPushNotification(userId) }
         }
@@ -279,7 +308,7 @@ class WireNotificationManagerTest {
         verify(exactly = 1) { arrangement.servicesManager.startOngoingCallService(any(), any(), any()) }
     }
 
-    private class Arrangement {
+    private inner class Arrangement {
         @MockK
         lateinit var coreLogic: CoreLogic
 
@@ -348,7 +377,7 @@ class WireNotificationManagerTest {
                 callNotificationManager,
                 connectionPolicyManager,
                 servicesManager,
-                TestDispatcherProvider()
+                dispatcherProvider
             )
         }
 

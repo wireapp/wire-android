@@ -30,6 +30,7 @@ import com.wire.android.ui.home.messagecomposer.AttachmentInnerState
 import com.wire.android.ui.home.messagecomposer.AttachmentState
 import com.wire.android.ui.home.messagecomposer.KeyboardHeight
 import com.wire.android.ui.home.messagecomposer.MessageComposerInnerState
+import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.getTempWritableImageUri
 import com.wire.android.util.getTempWritableVideoUri
 import com.wire.android.util.permission.UseCameraRequestFlow
@@ -191,17 +192,56 @@ private fun buildAttachmentOptionItems(
     val shareCurrentLocationFlow = ShareCurrentLocationFlow()
     val recordAudioFlow = RecordAudioFlow()
 
-    return listOf(
-        AttachmentOptionItem(isFileSharingEnabled, R.string.attachment_share_file, R.drawable.ic_attach_file) { fileFlow.launch() },
-        AttachmentOptionItem(isFileSharingEnabled, R.string.attachment_share_image, R.drawable.ic_gallery) { galleryFlow.launch() },
-        AttachmentOptionItem(isFileSharingEnabled, R.string.attachment_take_photo, R.drawable.ic_camera) { cameraFlow.launch() },
-        AttachmentOptionItem(isFileSharingEnabled, R.string.attachment_record_video, R.drawable.ic_video) { captureVideoFlow.launch() },
-        AttachmentOptionItem(isFileSharingEnabled, R.string.attachment_voice_message, R.drawable.ic_mic_on) { recordAudioFlow.launch() },
-        AttachmentOptionItem(
-            text = R.string.attachment_share_location,
-            icon = R.drawable.ic_location
-        ) { shareCurrentLocationFlow.launch() }
-    )
+    return buildList {
+        val localFeatureVisibilityFlags = LocalFeatureVisibilityFlags.current
+
+        with(localFeatureVisibilityFlags) {
+            add(
+                AttachmentOptionItem(
+                    isFileSharingEnabled,
+                    R.string.attachment_share_file,
+                    R.drawable.ic_attach_file
+                ) { fileFlow.launch() }
+            )
+            add(
+                AttachmentOptionItem(
+                    isFileSharingEnabled,
+                    R.string.attachment_share_image,
+                    R.drawable.ic_gallery
+                ) { galleryFlow.launch() }
+            )
+            add(
+                AttachmentOptionItem(
+                    isFileSharingEnabled,
+                    R.string.attachment_take_photo,
+                    R.drawable.ic_camera
+                ) { cameraFlow.launch() }
+            )
+            add(
+                AttachmentOptionItem(
+                    isFileSharingEnabled,
+                    R.string.attachment_record_video,
+                    R.drawable.ic_video
+                ) { captureVideoFlow.launch() }
+            )
+            if (AudioMessagesIcon) {
+                add(
+                    AttachmentOptionItem(
+                        isFileSharingEnabled,
+                        R.string.attachment_voice_message,
+                        R.drawable.ic_mic_on
+                    ) { recordAudioFlow.launch() })
+            }
+            if (ShareLocationIcon) {
+                add(
+                    AttachmentOptionItem(
+                        text = R.string.attachment_share_location,
+                        icon = R.drawable.ic_location
+                    ) { shareCurrentLocationFlow.launch() }
+                )
+            }
+        }
+    }
 }
 
 private data class AttachmentOptionItem(

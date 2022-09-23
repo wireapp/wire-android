@@ -9,6 +9,7 @@ import com.google.firebase.messaging.FirebaseMessagingService
 import com.google.firebase.messaging.RemoteMessage
 import com.wire.android.appLogger
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.util.NetworkUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.workmanager.worker.NotificationFetchWorker
 import com.wire.kalium.logic.CoreLogic
@@ -18,6 +19,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import java.util.Locale
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -26,6 +28,9 @@ class WireFirebaseMessagingService : FirebaseMessagingService() {
     @Inject
     @KaliumCoreLogic
     lateinit var coreLogic: CoreLogic
+
+    @Inject
+    lateinit var networkUtil: NetworkUtil
 
     @Inject
     lateinit var dispatcherProvider: DispatcherProvider
@@ -37,8 +42,17 @@ class WireFirebaseMessagingService : FirebaseMessagingService() {
 
     override fun onMessageReceived(message: RemoteMessage) {
         super.onMessageReceived(message)
-        appLogger.i("$TAG: notification received")
-
+        appLogger.i(
+            String.format(
+                Locale.US,
+                "$TAG: onMessageReceived(), ID: %s, Delay: %d, Priority: %d, Original Priority: %d, Network: %s",
+                message.messageId,
+                System.currentTimeMillis() - message.sentTime,
+                message.priority,
+                message.originalPriority,
+                networkUtil.getNetworkStatus()
+            )
+        )
         enqueueNotificationFetchWorker(extractUserId(message))
 
         appLogger.i("$TAG: onMessageReceived End")

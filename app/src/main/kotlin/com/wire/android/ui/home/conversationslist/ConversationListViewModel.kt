@@ -117,14 +117,14 @@ class ConversationListViewModel @Inject constructor(
             when (it.conversation.mutedStatus) {
                 MutedConversationStatus.AllAllowed ->
                     when (it) {
-                        is Group -> it.unreadMessagesCount > 0
-                        is OneOne -> it.unreadMessagesCount > 0
+                        is Group -> it.unreadMessagesCount > 0 && it.lastUnreadMessage?.senderUserId != selfUser?.id
+                        is OneOne -> it.unreadMessagesCount > 0 && it.lastUnreadMessage?.senderUserId != selfUser?.id
                         else -> false  // TODO should connection requests also be listed on "new activities"?
                     }
                 MutedConversationStatus.OnlyMentionsAllowed ->
                     when (it) {
-                        is Group -> it.unreadMentionsCount > 0
-                        is OneOne -> it.unreadMentionsCount > 0
+                        is Group -> it.unreadMentionsCount > 0 && it.lastUnreadMessage?.senderUserId != selfUser?.id
+                        is OneOne -> it.unreadMentionsCount > 0 && it.lastUnreadMessage?.senderUserId != selfUser?.id
                         else -> false
                     }
                 else -> false
@@ -266,7 +266,8 @@ class ConversationListViewModel @Inject constructor(
     private fun List<ConversationDetails>.toConversationItemList(selfUser: SelfUser?): List<ConversationItem> =
         filter { it is Group || it is OneOne || it is Connection }
             .map {
-                it.toConversationItem(wireSessionImageLoader, selfUser, userTypeMapper) }
+                it.toConversationItem(wireSessionImageLoader, selfUser, userTypeMapper)
+            }
 }
 
 private fun LegalHoldStatus.showLegalHoldIndicator() = this == LegalHoldStatus.ENABLED
@@ -284,7 +285,12 @@ private fun ConversationDetails.toConversationItem(
             mutedStatus = conversation.mutedStatus,
             isLegalHold = legalHoldStatus.showLegalHoldIndicator(),
             lastEvent = ConversationLastEvent.None, // TODO implement unread events
-            badgeEventType = parseConversationEventType(conversation.mutedStatus, unreadMentionsCount, unreadMessagesCount),
+            badgeEventType = parseConversationEventType(
+                conversation.mutedStatus,
+                unreadMentionsCount,
+                unreadMessagesCount,
+                selfUser?.id == lastUnreadMessage?.senderUserId
+            ),
             hasOnGoingCall = hasOngoingCall,
             isCreator = selfUser?.teamId != null
                     && conversation.creatorId.value == selfUser.id.value,
@@ -308,7 +314,13 @@ private fun ConversationDetails.toConversationItem(
             isLegalHold = legalHoldStatus.showLegalHoldIndicator(),
             lastEvent = ConversationLastEvent.None, // TODO implement unread events
             badgeEventType = parsePrivateConversationEventType(
-                connectionState, parseConversationEventType(conversation.mutedStatus, unreadMentionsCount, unreadMessagesCount)
+                connectionState,
+                parseConversationEventType(
+                    conversation.mutedStatus,
+                    unreadMentionsCount,
+                    unreadMessagesCount,
+                    selfUser?.id == lastUnreadMessage?.senderUserId
+                )
             ),
             userId = otherUser.id,
             blockingState = otherUser.getBlockingState(selfUser?.teamId)
@@ -351,15 +363,16 @@ private fun parsePrivateConversationEventType(connectionState: ConnectionState, 
 private fun parseConversationEventType(
     mutedStatus: MutedConversationStatus,
     unreadMentionsCount: Long,
-    unreadMessagesCount: Long
+    unreadMessagesCount: Long,
+    isSelfUser: Boolean
 ): BadgeEventType = when (mutedStatus) {
     MutedConversationStatus.AllMuted -> BadgeEventType.None
     MutedConversationStatus.OnlyMentionsAllowed ->
-        if (unreadMentionsCount > 0) BadgeEventType.UnreadMention
+        if (unreadMentionsCount > 0 && !isSelfUser) BadgeEventType.UnreadMention
         else BadgeEventType.None
     else -> when {
-        unreadMentionsCount > 0 -> BadgeEventType.UnreadMention
-        unreadMessagesCount > 0 -> BadgeEventType.UnreadMessage(unreadMessagesCount)
+        unreadMentionsCount > 0 && !isSelfUser -> BadgeEventType.UnreadMention
+        unreadMessagesCount > 0 && !isSelfUser -> BadgeEventType.UnreadMessage(unreadMessagesCount)
         else -> BadgeEventType.None
     }
 }

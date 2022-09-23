@@ -4,6 +4,10 @@ import com.wire.kalium.logic.data.id.ConversationId
 
 //TODO: The names need to be localisable
 object NotificationConstants {
+    const val FIREBASE_CHANNEL_ID = "com.wire.android.notification_firebase_channel"
+    const val FIREBASE_CHANNEL_NAME = "Notifications Channel"
+    const val FIREBASE_GROUP_KEY = "wire_reloaded_notification_firebase_group"
+
     const val INCOMING_CALL_CHANNEL_ID = "com.wire.android.notification_incoming_call_channel"
     const val INCOMING_CALL_CHANNEL_NAME = "Incoming calls"
     const val ONGOING_CALL_CHANNEL_ID = "com.wire.android.notification_ongoing_call_channel"

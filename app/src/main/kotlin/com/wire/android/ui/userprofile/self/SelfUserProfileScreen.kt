@@ -69,7 +69,6 @@ import com.wire.kalium.logic.data.user.UserId
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SelfUserProfileScreen(viewModelSelf: SelfUserProfileViewModel = hiltViewModel()) {
-    val context = LocalContext.current
     SelfUserProfileContent(
         state = viewModelSelf.userProfileState,
         onCloseClick = viewModelSelf::navigateBack,
@@ -84,8 +83,7 @@ fun SelfUserProfileScreen(viewModelSelf: SelfUserProfileViewModel = hiltViewMode
         onMessageShown = viewModelSelf::clearErrorMessage,
         onMaxAccountReachedDialogDismissed = viewModelSelf::onMaxAccountReachedDialogDismissed,
         onOtherAccountClick = viewModelSelf::switchAccount,
-        isUserInCall = viewModelSelf::isUserInCall,
-        context = context
+        isUserInCall = viewModelSelf::isUserInCall
     )
 }
 
@@ -106,7 +104,6 @@ private fun SelfUserProfileContent(
     onMaxAccountReachedDialogDismissed: () -> Unit = {},
     onOtherAccountClick: (UserId) -> Unit = {},
     isUserInCall: () -> Boolean,
-    context: Context
 ) {
     val snackbarHostState = remember { SnackbarHostState() }
 
@@ -420,8 +417,7 @@ private fun SelfUserProfileScreenPreview() {
             ),
             statusDialogData = null
         ),
-        isUserInCall = { false },
-        context = LocalContext.current
+        isUserInCall = { false }
     )
 }
 

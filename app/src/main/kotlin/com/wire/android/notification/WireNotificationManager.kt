@@ -250,9 +250,11 @@ class WireNotificationManager @Inject constructor(
         observeUserId: Flow<UserId?>,
         doIfCallCameAndAppVisible: (Call) -> Unit
     ) {
+        appLogger.d("$TAG observe incoming calls")
         observeUserId
             .flatMapLatest { userId ->
                 if (userId == null) {
+                    appLogger.d("$TAG userId is empty for incoming calls")
                     flowOf(listOf())
                 } else {
                     coreLogic.getSessionScope(userId)
@@ -268,7 +270,6 @@ class WireNotificationManager @Inject constructor(
                     }
                     callNotificationManager.hideIncomingCallNotification()
                 } else {
-                    appLogger.d("$TAG got ${calls.size} calls while app is in background")
                     callNotificationManager.handleIncomingCallNotifications(calls, userId)
                 }
             }

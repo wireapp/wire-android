@@ -141,7 +141,7 @@ class WireNotificationManagerTest {
     }
 
     @Test
-    fun givenSomeNotifications_whenNoUserLoggedIn_thenMessageNotificationNotShowed() = runTestWithCancellation {
+    fun givenSomeNotifications_whenAppIsInForegroundAndNoUserLoggedIn_thenMessageNotificationNotShowed() = runTestWithCancellation {
         val (arrangement, manager) = Arrangement()
             .withIncomingCalls(listOf(provideCall()))
             .withMessageNotifications(listOf(provideLocalNotificationConversation(messages = listOf(provideLocalNotificationMessage()))))
@@ -153,7 +153,23 @@ class WireNotificationManagerTest {
 
         verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
         verify(exactly = 0) { arrangement.messageNotificationManager.handleNotification(listOf(), any()) }
-        verify(exactly = 1) { arrangement.callNotificationManager.hideIncomingCallNotification() }
+        verify(exactly = 1) { arrangement.callNotificationManager.hideAllNotifications() }
+    }
+
+    @Test
+    fun givenSomeNotifications_whenAppIsInBackgroundAndNoUserLoggedIn_thenMessageNotificationNotShowed() = runTestWithCancellation {
+        val (arrangement, manager) = Arrangement()
+            .withIncomingCalls(listOf(provideCall()))
+            .withMessageNotifications(listOf(provideLocalNotificationConversation(messages = listOf(provideLocalNotificationMessage()))))
+            .withCurrentScreen(CurrentScreen.InBackground)
+            .arrange()
+
+        manager.observeNotificationsAndCalls(flowOf(null), this) {}
+        runCurrent()
+
+        verify(exactly = 0) { arrangement.coreLogic.getSessionScope(any()) }
+        verify(exactly = 0) { arrangement.messageNotificationManager.handleNotification(listOf(), any()) }
+        verify(exactly = 1) { arrangement.callNotificationManager.hideAllNotifications() }
     }
 
     @Test

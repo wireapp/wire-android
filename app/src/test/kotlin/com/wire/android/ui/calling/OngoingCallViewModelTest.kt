@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import com.wire.android.navigation.NavigationManager
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
+import com.wire.kalium.logic.feature.call.usecase.RequestVideoStreamsUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
@@ -29,6 +30,9 @@ class OngoingCallViewModelTest {
     private lateinit var establishedCall: ObserveEstablishedCallsUseCase
 
     @MockK
+    private lateinit var requestVideoStreams: RequestVideoStreamsUseCase
+
+    @MockK
     private lateinit var qualifiedIdMapper: QualifiedIdMapper
 
     private lateinit var ongoingCallViewModel: OngoingCallViewModel
@@ -46,7 +50,8 @@ class OngoingCallViewModelTest {
             savedStateHandle = savedStateHandle,
             qualifiedIdMapper = qualifiedIdMapper,
             navigationManager = navigationManager,
-            establishedCall = establishedCall
+            establishedCall = establishedCall,
+            requestVideoStreams= requestVideoStreams
         )
     }
 

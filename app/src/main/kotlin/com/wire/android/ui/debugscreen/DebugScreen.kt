@@ -43,6 +43,7 @@ import com.wire.android.util.startMultipleFileSharingIntent
 @Composable
 fun DebugScreen() {
     val debugScreenViewModel: DebugScreenViewModel = hiltViewModel()
+
     DebugContent(
         state = debugScreenViewModel.state,
         setLoggingEnabledState = debugScreenViewModel::setLoggingEnabledState,
@@ -59,11 +60,12 @@ fun DebugContent(
     setLoggingEnabledState: (Boolean) -> Unit,
     logFilePath: () -> String,
     deleteAllLogs: () -> Unit,
-    navigateBack: () -> Unit,
-    lazyListState: LazyListState = rememberLazyListState()
+    navigateBack: () -> Unit
 ) {
+    val lazyListState: LazyListState = rememberLazyListState()
     val context = LocalContext.current
     val clipboardManager = LocalClipboardManager.current
+
     Scaffold(
         topBar = { TopBar(title = "Debug", navigateBack = navigateBack) }
     ) { internalPadding ->
@@ -108,16 +110,16 @@ fun TopBar(title: String, navigateBack: () -> Unit) {
         onNavigationPressed = navigateBack
     )
 }
-
-@Composable
-fun ListWithHeader(
-    headerTitle: String, content: @Composable () -> Unit = {}
-) {
-    Column {
-        FolderHeader(headerTitle)
-        content()
-    }
-}
+//
+//@Composable
+//fun ListWithHeader(
+//    headerTitle: String, content: @Composable () -> Unit = {}
+//) {
+//    Column {
+//        FolderHeader(headerTitle)
+//        content()
+//    }
+//}
 
 @Composable
 fun TextRowItem(text: String, @DrawableRes trailingIcon: Int? = null, onIconClick: () -> Unit = {}) {

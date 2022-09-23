@@ -86,9 +86,13 @@ fun mockAssetMessage(uploadStatus: Message.UploadStatus = Message.UploadStatus.U
 )
 
 @Suppress("MagicNumber")
-fun mockedImg(uploadStatus: Message.UploadStatus = Message.UploadStatus.UPLOADED) = UIMessageContent.ImageMessage(
-    UserAssetId("a", "domain"), null, 0, 0, uploadStatus = uploadStatus
+fun mockedImg(
+    uploadStatus: Message.UploadStatus = Message.UploadStatus.UPLOADED,
+    downloadStatus: Message.DownloadStatus = Message.DownloadStatus.SAVED_INTERNALLY
+) = UIMessageContent.ImageMessage(
+    UserAssetId("a", "domain"), null, 0, 0, uploadStatus = uploadStatus, downloadStatus = downloadStatus
 )
+
 @Suppress("MagicNumber")
 fun mockedImageUIMessage(uploadStatus: Message.UploadStatus = Message.UploadStatus.UPLOADED) = UIMessage(
     userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),

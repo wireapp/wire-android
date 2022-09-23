@@ -109,12 +109,14 @@ class ConversationListViewModel @Inject constructor(
                         is OneOne -> it.unreadMessagesCount > 0
                         else -> false  // TODO should connection requests also be listed on "new activities"?
                     }
+
                 MutedConversationStatus.OnlyMentionsAllowed ->
                     when (it) {
                         is Group -> it.unreadMentionsCount > 0
                         is OneOne -> it.unreadMentionsCount > 0
                         else -> false
                     }
+
                 else -> false
             }
         }
@@ -124,6 +126,7 @@ class ConversationListViewModel @Inject constructor(
             ConversationFolder.Predefined.Conversations to remainingConversations.toConversationItemList()
         )
     }
+
     fun openConversation(conversationId: ConversationId) {
         viewModelScope.launch {
             navigationManager.navigate(
@@ -255,81 +258,80 @@ class ConversationListViewModel @Inject constructor(
             .map {
                 it.toConversationItem(wireSessionImageLoader, userTypeMapper)
             }
+}
 
-    private fun LegalHoldStatus.showLegalHoldIndicator() = this == LegalHoldStatus.ENABLED
+private fun LegalHoldStatus.showLegalHoldIndicator() = this == LegalHoldStatus.ENABLED
 
-    @Suppress("LongMethod")
-    private fun ConversationDetails.toConversationItem(
-        wireSessionImageLoader: WireSessionImageLoader,
-        userTypeMapper: UserTypeMapper
-    ): ConversationItem = when (this) {
-        is Group -> {
-            ConversationItem.GroupConversation(
-                groupName = conversation.name.orEmpty(),
-                conversationId = conversation.id,
-                mutedStatus = conversation.mutedStatus,
-                isLegalHold = legalHoldStatus.showLegalHoldIndicator(),
-                lastEvent = ConversationLastEvent.None, // TODO implement unread events
-                badgeEventType = parseConversationEventType(conversation.mutedStatus, unreadMentionsCount, unreadMessagesCount),
-                hasOnGoingCall = hasOngoingCall,
-                isCreator = isSelfCreated,
-                isSelfUserMember = isSelfUserMember
-            )
-        }
-
-        is OneOne -> {
-            ConversationItem.PrivateConversation(
-                userAvatarData = UserAvatarData(
-                    otherUser.previewPicture?.let { UserAvatarAsset(wireSessionImageLoader, it) },
-                    otherUser.availabilityStatus,
-                    otherUser.connectionStatus
-                ),
-                conversationInfo = ConversationInfo(
-                    name = otherUser.name.orEmpty(),
-                    membership = userTypeMapper.toMembership(userType),
-                    unavailable = otherUser.isUnavailableUser
-                ),
-                conversationId = conversation.id,
-                mutedStatus = conversation.mutedStatus,
-                isLegalHold = legalHoldStatus.showLegalHoldIndicator(),
-                lastEvent = ConversationLastEvent.None, // TODO implement unread events
-                badgeEventType = parsePrivateConversationEventType(
-                    connectionState, parseConversationEventType(conversation.mutedStatus, unreadMentionsCount, unreadMessagesCount)
-                ),
-                userId = otherUser.id,
-                blockingState = otherUser.BlockState
-            )
-        }
-
-        is Connection -> {
-            ConversationItem.ConnectionConversation(
-                userAvatarData = UserAvatarData(
-                    otherUser?.previewPicture?.let { UserAvatarAsset(wireSessionImageLoader, it) },
-                    otherUser?.availabilityStatus ?: UserAvailabilityStatus.NONE
-                ),
-                conversationInfo = ConversationInfo(
-                    name = otherUser?.name.orEmpty(),
-                    membership = userTypeMapper.toMembership(userType)
-                ),
-                lastEvent = ConversationLastEvent.Connection(
-                    connection.status,
-                    connection.qualifiedToId
-                ),
-                badgeEventType = parseConnectionEventType(connection.status),
-                conversationId = conversation.id,
-                mutedStatus = conversation.mutedStatus
-            )
-        }
-
-        is Self -> {
-            throw IllegalArgumentException("Self conversations should not be visible to the user.")
-        }
-
-        else -> {
-            throw IllegalArgumentException("$this conversations should not be visible to the user.")
-        }
+@Suppress("LongMethod")
+private fun ConversationDetails.toConversationItem(
+    wireSessionImageLoader: WireSessionImageLoader,
+    userTypeMapper: UserTypeMapper
+): ConversationItem = when (this) {
+    is Group -> {
+        ConversationItem.GroupConversation(
+            groupName = conversation.name.orEmpty(),
+            conversationId = conversation.id,
+            mutedStatus = conversation.mutedStatus,
+            isLegalHold = legalHoldStatus.showLegalHoldIndicator(),
+            lastEvent = ConversationLastEvent.None, // TODO implement unread events
+            badgeEventType = parseConversationEventType(conversation.mutedStatus, unreadMentionsCount, unreadMessagesCount),
+            hasOnGoingCall = hasOngoingCall,
+            isCreator = isSelfCreated,
+            isSelfUserMember = isSelfUserMember
+        )
     }
 
+    is OneOne -> {
+        ConversationItem.PrivateConversation(
+            userAvatarData = UserAvatarData(
+                otherUser.previewPicture?.let { UserAvatarAsset(wireSessionImageLoader, it) },
+                otherUser.availabilityStatus,
+                otherUser.connectionStatus
+            ),
+            conversationInfo = ConversationInfo(
+                name = otherUser.name.orEmpty(),
+                membership = userTypeMapper.toMembership(userType),
+                unavailable = otherUser.isUnavailableUser
+            ),
+            conversationId = conversation.id,
+            mutedStatus = conversation.mutedStatus,
+            isLegalHold = legalHoldStatus.showLegalHoldIndicator(),
+            lastEvent = ConversationLastEvent.None, // TODO implement unread events
+            badgeEventType = parsePrivateConversationEventType(
+                connectionState, parseConversationEventType(conversation.mutedStatus, unreadMentionsCount, unreadMessagesCount)
+            ),
+            userId = otherUser.id,
+            blockingState = otherUser.BlockState
+        )
+    }
+
+    is Connection -> {
+        ConversationItem.ConnectionConversation(
+            userAvatarData = UserAvatarData(
+                otherUser?.previewPicture?.let { UserAvatarAsset(wireSessionImageLoader, it) },
+                otherUser?.availabilityStatus ?: UserAvailabilityStatus.NONE
+            ),
+            conversationInfo = ConversationInfo(
+                name = otherUser?.name.orEmpty(),
+                membership = userTypeMapper.toMembership(userType)
+            ),
+            lastEvent = ConversationLastEvent.Connection(
+                connection.status,
+                connection.qualifiedToId
+            ),
+            badgeEventType = parseConnectionEventType(connection.status),
+            conversationId = conversation.id,
+            mutedStatus = conversation.mutedStatus
+        )
+    }
+
+    is Self -> {
+        throw IllegalArgumentException("Self conversations should not be visible to the user.")
+    }
+
+    else -> {
+        throw IllegalArgumentException("$this conversations should not be visible to the user.")
+    }
 }
 
 private fun parseConnectionEventType(connectionState: ConnectionState) =

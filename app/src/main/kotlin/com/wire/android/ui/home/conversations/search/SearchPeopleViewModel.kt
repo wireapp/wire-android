@@ -71,8 +71,8 @@ open class SearchAllPeopleViewModel(
                     initialContacts = initialContacts,
                     searchQuery = searchQuery,
                     searchResult = mapOf(
-                        SearchResultTitle(R.string.label_public_wire) to publicResult.filterContacts(knownResult),
-                        SearchResultTitle(R.string.label_contacts) to knownResult
+                        SearchResultTitle(R.string.label_contacts) to knownResult,
+                        SearchResultTitle(R.string.label_public_wire) to publicResult.filterContacts(knownResult)
                     ),
                     noneSearchSucceed = publicResult.searchResultState is SearchResultState.Failure
                             && knownResult.searchResultState is SearchResultState.Failure,

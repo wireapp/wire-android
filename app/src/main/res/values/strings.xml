@@ -396,6 +396,7 @@
         <item quantity="other">%1$d more</item>
     </plurals>
     <string name="label_system_message_blocked_user">%1$s blocked this user</string>
+    <string name="label_system_message_renamed_the_conversation">%1$s renamed the conversation\n%2$s</string>
     <!--Search Contact-->
     <string name="label_contacts">CONTACTS</string>
     <string name="label_new_group">New Group</string>
@@ -416,6 +417,7 @@
     <string name="error_downloading_user_info">There was an error downloading the user information. Please check your Internet connection</string>
     <string name="error_uploading_user_avatar">Picture could not be uploaded</string>
     <string name="error_uploading_image_message">Image upload failed</string>
+    <string name="error_downloading_image_message">Image download failed</string>
     <string name="error_updating_muting_setting">Notifications could not be updated</string>
     <string name="error_conversation_sending_image">The picture could not be sent. Please check your internet connection and try again.</string>
     <string name="error_conversation_sending_asset">There was an error trying to send that file. Please check your Internet connection and try again</string>

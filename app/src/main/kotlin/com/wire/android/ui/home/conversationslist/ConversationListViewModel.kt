@@ -109,14 +109,12 @@ class ConversationListViewModel @Inject constructor(
                         is OneOne -> it.unreadMessagesCount > 0
                         else -> false  // TODO should connection requests also be listed on "new activities"?
                     }
-
                 MutedConversationStatus.OnlyMentionsAllowed ->
                     when (it) {
                         is Group -> it.unreadMentionsCount > 0
                         is OneOne -> it.unreadMentionsCount > 0
                         else -> false
                     }
-
                 else -> false
             }
         }
@@ -210,7 +208,6 @@ class ConversationListViewModel @Inject constructor(
                     appLogger.d("User ${blockUserState.userId} was blocked")
                     HomeSnackbarState.BlockingUserOperationSuccess(blockUserState.userName)
                 }
-
                 is BlockUserResult.Failure -> {
                     appLogger.d("Error while blocking user ${blockUserState.userId} ; Error ${result.coreFailure}")
                     HomeSnackbarState.BlockingUserOperationError
@@ -232,7 +229,6 @@ class ConversationListViewModel @Inject constructor(
             when (response) {
                 is RemoveMemberFromConversationUseCase.Result.Failure ->
                     snackBarState.emit(HomeSnackbarState.LeaveConversationError)
-
                 RemoveMemberFromConversationUseCase.Result.Success -> {
                     snackBarState.emit(HomeSnackbarState.LeftConversationSuccess)
                 }
@@ -280,7 +276,6 @@ private fun ConversationDetails.toConversationItem(
             isSelfUserMember = isSelfUserMember
         )
     }
-
     is OneOne -> {
         ConversationItem.PrivateConversation(
             userAvatarData = UserAvatarData(
@@ -304,7 +299,6 @@ private fun ConversationDetails.toConversationItem(
             blockingState = otherUser.BlockState
         )
     }
-
     is Connection -> {
         ConversationItem.ConnectionConversation(
             userAvatarData = UserAvatarData(
@@ -324,11 +318,9 @@ private fun ConversationDetails.toConversationItem(
             mutedStatus = conversation.mutedStatus
         )
     }
-
     is Self -> {
         throw IllegalArgumentException("Self conversations should not be visible to the user.")
     }
-
     else -> {
         throw IllegalArgumentException("$this conversations should not be visible to the user.")
     }
@@ -350,7 +342,6 @@ private fun parseConversationEventType(
     MutedConversationStatus.OnlyMentionsAllowed ->
         if (unreadMentionsCount > 0) BadgeEventType.UnreadMention
         else BadgeEventType.None
-
     else -> when {
         unreadMentionsCount > 0 -> BadgeEventType.UnreadMention
         unreadMessagesCount > 0 -> BadgeEventType.UnreadMessage(unreadMessagesCount)

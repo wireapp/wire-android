@@ -36,6 +36,7 @@ import com.wire.android.ui.home.conversations.info.ConversationInfoViewState
 import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
@@ -81,21 +82,26 @@ fun ConversationScreenTopAppBar(
         },
         navigationIcon = { BackNavigationIconButton(onBackButtonClick = onBackButtonClick) },
         actions = {
-            WireSecondaryButton(
-                onClick = onSearchButtonClick,
-                leadingIcon = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_search),
-                        contentDescription = stringResource(R.string.content_description_conversation_search_icon),
-                        tint = MaterialTheme.colorScheme.onBackground
-                    )
-                },
-                fillMaxWidth = false,
-                minHeight = MaterialTheme.wireDimensions.spacing32x,
-                minWidth = MaterialTheme.wireDimensions.spacing40x,
-                shape = RoundedCornerShape(size = MaterialTheme.wireDimensions.corner12x),
-                contentPadding = PaddingValues(0.dp)
-            )
+            val featureVisibilityFlags = LocalFeatureVisibilityFlags.current
+
+            if (featureVisibilityFlags.ConversationSearchIcon) {
+                WireSecondaryButton(
+                    onClick = onSearchButtonClick,
+                    leadingIcon = {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_search),
+                            contentDescription = stringResource(R.string.content_description_conversation_search_icon),
+                            tint = MaterialTheme.colorScheme.onBackground
+                        )
+                    },
+                    fillMaxWidth = false,
+                    minHeight = MaterialTheme.wireDimensions.spacing32x,
+                    minWidth = MaterialTheme.wireDimensions.spacing40x,
+                    shape = RoundedCornerShape(size = MaterialTheme.wireDimensions.corner12x),
+                    contentPadding = PaddingValues(0.dp)
+                )
+            }
+
             Spacer(Modifier.width(MaterialTheme.wireDimensions.spacing6x))
             callControlButton(
                 hasOngoingCall = hasOngoingCall,

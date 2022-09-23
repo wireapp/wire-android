@@ -371,7 +371,7 @@ class OtherUserProfileScreenViewModelTest {
         assertEquals(false, viewModel.state.isDataLoading)
         assertEquals(OTHER_USER.name.orEmpty(), viewModel.state.fullName)
         assertEquals(UsernameMapper.mapUserLabel(OTHER_USER), viewModel.state.userName)
-        assertEquals(TEAM.name.orEmpty(), viewModel.state.teamName)
+        assertEquals(TEAM.name, viewModel.state.teamName)
         assertEquals(OTHER_USER.email.orEmpty(), viewModel.state.email)
         assertEquals(OTHER_USER.phone.orEmpty(), viewModel.state.phone)
         assertEquals(ConnectionState.ACCEPTED, viewModel.state.connectionState)
@@ -397,7 +397,7 @@ class OtherUserProfileScreenViewModelTest {
             null,
             false
         )
-        val TEAM = Team("some_id", null)
+        val TEAM = Team("some_id", "some_name", "some_icon")
         val CONVERSATION = Conversation(
             id = CONVERSATION_ID,
             name = "some_name",

@@ -1,6 +1,6 @@
 package com.wire.android.framework
 
-import com.wire.android.mapper.AssetMessageData
+import com.wire.android.mapper.AssetMessageContentMetadata
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.UIMessageContent.TextMessage
@@ -77,7 +77,7 @@ object TestMessage {
         senderUserId = UserId("user-id", "domain"),
         status = Message.Status.SENT
     )
-    val IMAGE_ASSET_MESSAGE_DATA_TEST = AssetMessageData(
+    val IMAGE_ASSET_MESSAGE_DATA_TEST = AssetMessageContentMetadata(
         AssetContent(
             100L,
             "dummy_data.tiff",

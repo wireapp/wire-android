@@ -397,7 +397,7 @@ class OtherUserProfileScreenViewModelTest {
             null,
             false
         )
-        val TEAM = Team("some_id", null)
+        val TEAM = Team("some_id", "team name", "icon")
         val CONVERSATION = Conversation(
             id = CONVERSATION_ID,
             name = "some_name",

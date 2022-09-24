@@ -11,5 +11,6 @@ data class ConversationListState(
     val allMentions: List<ConversationItem> = emptyList(),
     val newActivityCount: Long = 0,
     val missedCallsCount: Long = 0,
-    val unreadMentionsCount: Long = 0
+    val unreadMentionsCount: Long = 0,
+    val shouldShowEmptyState: Boolean = false
 )

@@ -27,10 +27,12 @@ fun ConversationSheetContent(
         ConversationOptionNavigation.Home -> {
             ConversationMainSheetContent(
                 conversationSheetContent = conversationSheetState.conversationSheetContent!!,
-                addConversationToFavourites = addConversationToFavourites,
-                moveConversationToFolder = moveConversationToFolder,
-                moveConversationToArchive = moveConversationToArchive,
-                clearConversationContent = clearConversationContent,
+// TODO(profile): enable when implemented
+//
+//                addConversationToFavourites = addConversationToFavourites,
+//                moveConversationToFolder = moveConversationToFolder,
+//                moveConversationToArchive = moveConversationToArchive,
+//                clearConversationContent = clearConversationContent,
                 blockUserClick = blockUser,
                 leaveGroup = leaveGroup,
                 deleteGroup = deleteGroup,

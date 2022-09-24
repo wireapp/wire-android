@@ -584,4 +584,6 @@
     <string name="label_client_id">Client ID: %1$s</string>
     <string name="label_key_packages_count">Key-packages count: %1$s</string>
     <string name="label_mls_client_id">MLS-client ID: %1$s</string>
+    <string name="conversation_empty_list_description">Connect with others or create a new group to start collaborating!</string>
+    <string name="conversation_empty_list_title">Welcome 👋</string>
 </resources>

@@ -261,17 +261,9 @@ class SharedCallingViewModel @Inject constructor(
     fun toggleVideo() {
         viewModelScope.launch {
             callState.isCameraOn?.let {
-                callState = if (it) {
-                    callState.copy(
-                        isCameraOn = false,
-                        isSpeakerOn = false
-                    )
-                } else {
-                    callState.copy(
-                        isCameraOn = true,
-                        isSpeakerOn = true
-                    )
-                }
+                callState = callState.copy(
+                    isCameraOn = !it
+                )
             }
         }
     }

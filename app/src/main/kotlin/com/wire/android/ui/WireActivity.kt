@@ -11,6 +11,7 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -33,6 +34,8 @@ import com.wire.android.ui.common.dialogs.CustomBEDeeplinkDialog
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.userprofile.self.MaxAccountReachedDialog
 import com.wire.android.util.CurrentScreenManager
+import com.wire.android.util.debug.FeatureVisibilityFlags
+import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.ui.updateScreenSettings
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -76,22 +79,24 @@ class WireActivity : AppCompatActivity() {
 
     private fun setComposableContent() {
         setContent {
-            WireTheme {
-                val scope = rememberCoroutineScope()
-                val navController = rememberAnimatedNavController()
-                val startDestination = viewModel.startNavigationRoute()
-                Scaffold {
-                    NavigationGraph(navController = navController, startDestination, viewModel.navigationArguments())
-                }
-                setUpNavigation(navController, scope)
+            CompositionLocalProvider(LocalFeatureVisibilityFlags provides FeatureVisibilityFlags) {
+                WireTheme {
+                    val scope = rememberCoroutineScope()
+                    val navController = rememberAnimatedNavController()
+                    val startDestination = viewModel.startNavigationRoute()
+                    Scaffold {
+                        NavigationGraph(navController = navController, startDestination, viewModel.navigationArguments())
+                    }
+                    setUpNavigation(navController, scope)
 
-                handleCustomBackendDialog(viewModel.globalAppState.customBackendDialog.shouldShowDialog)
-                maxAccountDialog(
-                    viewModel::openProfile,
-                    viewModel::dismissMaxAccountDialog,
-                    viewModel.globalAppState.maxAccountDialog
-                )
-                AccountLongedOutDialog(viewModel.globalAppState.blockUserUI, viewModel::navigateToNextAccountOrWelcome)
+                    handleCustomBackendDialog(viewModel.globalAppState.customBackendDialog.shouldShowDialog)
+                    maxAccountDialog(
+                        viewModel::openProfile,
+                        viewModel::dismissMaxAccountDialog,
+                        viewModel.globalAppState.maxAccountDialog
+                    )
+                    AccountLongedOutDialog(viewModel.globalAppState.blockUserUI, viewModel::navigateToNextAccountOrWelcome)
+                }
             }
         }
     }
@@ -174,3 +179,5 @@ class WireActivity : AppCompatActivity() {
         }
     }
 }
+
+

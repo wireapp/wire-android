@@ -78,7 +78,8 @@ fun DebugContent(
         ) {
             MlsOptions(
                 keyPackagesCount = debugScreenState.keyPackagesCount,
-                mlsClientId = debugScreenState.mslClientId
+                mlsClientId = debugScreenState.mslClientId,
+                mlsErrorMessage = debugScreenState.mlsErrorMessage
             )
 
             LogOptions(
@@ -101,18 +102,27 @@ fun DebugContent(
 @Composable
 private fun MlsOptions(
     keyPackagesCount: Int,
-    mlsClientId: String
+    mlsClientId: String,
+    mlsErrorMessage: String
 ) {
-    Column {
-        FolderHeader(
-            name = stringResource(R.string.label_mls_option_title)
-        )
+    if (mlsErrorMessage.isNotEmpty()) {
         SettingsItem(
-            title = stringResource(R.string.label_key_packages_count, keyPackagesCount)
+            title = mlsErrorMessage
         )
-        SettingsItem(
-            title = stringResource(R.string.label_mls_client_id, mlsClientId)
-        )
+    } else {
+        Column {
+            FolderHeader(
+                name = stringResource(R.string.label_mls_option_title)
+            )
+
+            SettingsItem(
+                title = stringResource(R.string.label_key_packages_count, keyPackagesCount)
+            )
+
+            SettingsItem(
+                title = stringResource(R.string.label_mls_client_id, mlsClientId)
+            )
+        }
     }
 }
 
@@ -127,10 +137,12 @@ private fun LogOptions(
 ) {
     Column {
         FolderHeader(stringResource(R.string.label_logs_option_title))
+
         EnableLoggingSwitch(
             isEnabled = isLoggingEnabled,
             onCheckedChange = onLoggingEnabledChange
         )
+
         SettingsItem(
             title = stringResource(R.string.label_share_logs),
             trailingIcon = android.R.drawable.ic_menu_share,
@@ -139,6 +151,7 @@ private fun LogOptions(
                 onClick = onShareLogs
             )
         )
+
         SettingsItem(
             stringResource(R.string.label_delete_logs),
             trailingIcon = android.R.drawable.ic_delete,
@@ -147,6 +160,7 @@ private fun LogOptions(
                 onClick = onDeleteLogs
             )
         )
+
         if (deviceId != null) {
             SettingsItem(
                 stringResource(R.string.label_client_id, deviceId),

@@ -25,7 +25,8 @@ data class DebugScreenState(
     val isLoggingEnabled: Boolean = false,
     val currentClientId: String = String.EMPTY,
     val keyPackagesCount: Int = 0,
-    val mslClientId: String = String.EMPTY
+    val mslClientId: String = String.EMPTY,
+    val mlsErrorMessage: String = String.EMPTY
 )
 
 @HiltViewModel
@@ -71,10 +72,10 @@ class DebugScreenViewModel
                         )
                     }
                     is MLSKeyPackageCountResult.Failure.NetworkCallFailure -> {
-//                        state = state.copy(mlsData = listOf("Network Error!"))
+                        state = state.copy(mlsErrorMessage = "Network Error!")
                     }
                     is MLSKeyPackageCountResult.Failure.FetchClientIdFailure -> {
-//                        state = state.copy(mlsData = listOf("ClientId Fetch Error!"))
+                        state = state.copy(mlsErrorMessage = "ClientId Fetch Error!")
                     }
                     is MLSKeyPackageCountResult.Failure.Generic -> {}
                 }

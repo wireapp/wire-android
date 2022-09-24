@@ -44,9 +44,7 @@ import com.wire.kalium.logic.feature.call.AnswerCallUseCase
 import com.wire.kalium.logic.feature.connection.BlockUserResult
 import com.wire.kalium.logic.feature.connection.BlockUserUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
-import com.wire.kalium.logic.feature.conversation.IsSelfUserMemberResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationsAndConnectionsUseCase
-import com.wire.kalium.logic.feature.conversation.ObserveIsSelfUserMemberUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
@@ -100,6 +98,7 @@ class ConversationListViewModel @Inject constructor(
                     selfUserId = selfUser.id
                     state = ConversationListState(
                         conversations = conversationList.toConversationsFoldersMap(selfUser),
+                        shouldShowEmptyState = conversationList.none { it !is Self },
                         missedCalls = mockMissedCalls, // TODO: needs to be implemented
                         callHistory = mockCallHistory, // TODO: needs to be implemented
                         unreadMentions = mockUnreadMentionList, // TODO: needs to be implemented
@@ -266,7 +265,8 @@ class ConversationListViewModel @Inject constructor(
     private fun List<ConversationDetails>.toConversationItemList(selfUser: SelfUser?): List<ConversationItem> =
         filter { it is Group || it is OneOne || it is Connection }
             .map {
-                it.toConversationItem(wireSessionImageLoader, selfUser, userTypeMapper) }
+                it.toConversationItem(wireSessionImageLoader, selfUser, userTypeMapper)
+            }
 }
 
 private fun LegalHoldStatus.showLegalHoldIndicator() = this == LegalHoldStatus.ENABLED

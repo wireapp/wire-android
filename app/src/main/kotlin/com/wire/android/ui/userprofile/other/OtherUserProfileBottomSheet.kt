@@ -18,10 +18,12 @@ fun OtherUserProfileBottomSheetContent(
             val conversationId = bottomSheetState.conversationData.conversationId
             ConversationMainSheetContent(
                 conversationSheetContent = bottomSheetState.conversationData,
-                addConversationToFavourites = { eventsHandler.onAddConversationToFavourites(conversationId) },
-                moveConversationToFolder = { eventsHandler.onMoveConversationToFolder(conversationId) },
-                moveConversationToArchive = { eventsHandler.onMoveConversationToArchive(conversationId) },
-                clearConversationContent = { eventsHandler.onClearConversationContent(conversationId) },
+// TODO(profile): enable when implemented
+//
+//                addConversationToFavourites = { eventsHandler.onAddConversationToFavourites(conversationId) },
+//                moveConversationToFolder = { eventsHandler.onMoveConversationToFolder(conversationId) },
+//                moveConversationToArchive = { eventsHandler.onMoveConversationToArchive(conversationId) },
+//                clearConversationContent = { eventsHandler.onClearConversationContent(conversationId) },
                 blockUserClick = blockUser,
                 leaveGroup = { },
                 deleteGroup = { },

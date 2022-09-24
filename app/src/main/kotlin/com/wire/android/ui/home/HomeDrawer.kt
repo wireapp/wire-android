@@ -44,7 +44,6 @@ import com.wire.android.ui.common.selectableBackground
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
-import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -99,9 +98,7 @@ fun HomeDrawer(
         Spacer(modifier = Modifier.weight(1f))
 
         val bottomItems = buildList {
-            if (LocalFeatureVisibilityFlags.current.Settings) {
-                add(Settings)
-            }
+            add(Settings)
             add(Support)
             add(Debug)
         }

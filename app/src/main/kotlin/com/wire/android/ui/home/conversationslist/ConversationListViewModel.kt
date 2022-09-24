@@ -43,7 +43,7 @@ import com.wire.kalium.logic.feature.connection.BlockUserResult
 import com.wire.kalium.logic.feature.connection.BlockUserUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.LeaveConversationUseCase
-import com.wire.kalium.logic.feature.conversation.ObserveConversationViewUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
@@ -64,7 +64,7 @@ class ConversationListViewModel @Inject constructor(
     private val dispatcher: DispatcherProvider,
     private val updateConversationMutedStatus: UpdateConversationMutedStatusUseCase,
     private val answerCall: AnswerCallUseCase,
-    private val observeConversationViewUseCase: ObserveConversationViewUseCase,
+    private val observeConversationListDetailsUseCase: ObserveConversationListDetailsUseCase,
     private val leaveConversation: LeaveConversationUseCase,
     private val deleteTeamConversation: DeleteTeamConversationUseCase,
     private val blockUserUseCase: BlockUserUseCase,
@@ -84,7 +84,7 @@ class ConversationListViewModel @Inject constructor(
     }
 
     private fun startObservingConversationsAndConnections() = viewModelScope.launch {
-        observeConversationViewUseCase()
+        observeConversationListDetailsUseCase()
             .flowOn(dispatcher.io())
             .collect { conversationListDetails ->
                 state = ConversationListState(

@@ -15,8 +15,6 @@ import com.wire.kalium.logic.data.client.ClientType
 import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.client.RegisterClientUseCase
-import com.wire.kalium.logic.feature.session.RegisterTokenResult
-import com.wire.kalium.logic.feature.session.RegisterTokenUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -47,9 +45,6 @@ class RegisterDeviceViewModelTest {
     private lateinit var registerClientUseCase: RegisterClientUseCase
 
     @MockK
-    private lateinit var registerTokenUseCase: RegisterTokenUseCase
-
-    @MockK
     private lateinit var isPasswordRequiredUseCase: IsPasswordRequiredUseCase
 
     private lateinit var registerDeviceViewModel: RegisterDeviceViewModel
@@ -63,7 +58,6 @@ class RegisterDeviceViewModelTest {
             RegisterDeviceViewModel(
                 navigationManager,
                 registerClientUseCase,
-                registerTokenUseCase,
                 isPasswordRequiredUseCase
             )
     }
@@ -106,9 +100,6 @@ class RegisterDeviceViewModelTest {
                 any()
             )
         } returns RegisterClientResult.Success(CLIENT)
-        coEvery {
-            registerTokenUseCase(any(), CLIENT.id)
-        } returns RegisterTokenResult.Failure.PushTokenRegister
 
         coEvery { navigationManager.navigate(any()) } returns Unit
         registerDeviceViewModel.onPasswordChange(TextFieldValue(password))
@@ -118,7 +109,6 @@ class RegisterDeviceViewModelTest {
         coVerify(exactly = 1) {
             registerClientUseCase(any())
         }
-        coVerify(exactly = 1) { registerTokenUseCase(any(), CLIENT.id) }
         coVerify(exactly = 1) {
             navigationManager.navigate(NavigationCommand(NavigationItemDestinationsRoutes.HOME, BackStackMode.CLEAR_WHOLE))
         }

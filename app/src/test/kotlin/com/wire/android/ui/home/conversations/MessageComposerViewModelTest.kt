@@ -225,7 +225,7 @@ class MessageComposerViewModelTest {
     @Test
     fun `given that a team user sends an asset message larger than 25MB, when invoked, then sendAssetMessageUseCase is called`() = runTest {
         // Given
-        val userTeam = Team("mocked-team-id", "mocked-team-name", "mocked-team-icon")
+        val userTeam = Team("mocked-team-id", "mocked-team-name", "icon")
         val (arrangement, viewModel) = ConversationsViewModelArrangement()
             .withSuccessfulViewModelInit()
             .withSuccessfulSendAttachmentMessage()

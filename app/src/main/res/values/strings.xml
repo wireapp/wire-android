@@ -247,7 +247,6 @@
     <string name="calls_label_missed_calls">MISSED CALLS</string>
     <string name="calls_label_calls_history">CALL HISTORY</string>
     <string name="conversation_label_new_activity">NEW ACTIVITY</string>
-    <string name="conversation_label_pending_connections">PENDING CONNECTIONS</string>
     <string name="conversation_label_favorites">FAVORITES</string>
     <string name="conversation_label_conversations">CONVERSATIONS</string>
     <string name="mention_label_unread_mentions">UNREAD MENTIONS</string>

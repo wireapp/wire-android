@@ -119,15 +119,13 @@ class ConversationListViewModel @Inject constructor(
                     }
 
                 else -> false
-            }
+            } || it is Connection
         }
-        val pendingConnections = this.filterIsInstance<Connection>()
 
-        val remainingConversations = this - unreadConversations.toSet() - pendingConnections
+        val remainingConversations = this - unreadConversations.toSet()
         return mapOf(
             ConversationFolder.Predefined.NewActivities to unreadConversations.toConversationItemList(),
-            ConversationFolder.Predefined.Conversations to remainingConversations.toConversationItemList(),
-            ConversationFolder.Predefined.Connections to pendingConnections.toConversationItemList()
+            ConversationFolder.Predefined.Conversations to remainingConversations.toConversationItemList()
         )
     }
 

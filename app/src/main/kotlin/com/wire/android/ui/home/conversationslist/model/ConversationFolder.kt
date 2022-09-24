@@ -8,7 +8,6 @@ sealed class ConversationFolder {
         object Conversations: Predefined(R.string.conversation_label_conversations)
         object Favorites: Predefined(R.string.conversation_label_favorites)
         object NewActivities: Predefined(R.string.conversation_label_new_activity)
-        object Connections: Predefined(R.string.conversation_label_pending_connections)
     }
     data class Custom(val folderName: String): ConversationFolder()
 }

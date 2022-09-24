@@ -98,8 +98,7 @@ class ConversationListViewModel @Inject constructor(
                     selfUserId = selfUser.id
                     state = ConversationListState(
                         conversations = conversationList.toConversationsFoldersMap(selfUser),
-                        // we are not checking for isEmpty because the SELF user always added to the conversation list
-                        shouldShowEmptyState = conversationList.size == 1,
+                        shouldShowEmptyState = conversationList.none { it !is Self },
                         missedCalls = mockMissedCalls, // TODO: needs to be implemented
                         callHistory = mockCallHistory, // TODO: needs to be implemented
                         unreadMentions = mockUnreadMentionList, // TODO: needs to be implemented

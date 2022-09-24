@@ -25,7 +25,7 @@ import com.wire.kalium.logic.feature.connection.BlockUserUseCase
 import com.wire.kalium.logic.feature.connection.BlockUserResult
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.LeaveConversationUseCase
-import com.wire.kalium.logic.feature.conversation.ObserveConversationViewUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
@@ -54,7 +54,7 @@ class ConversationListViewModelTest {
     lateinit var updateConversationMutedStatus: UpdateConversationMutedStatusUseCase
 
     @MockK
-    lateinit var observeConversationViewUseCase: ObserveConversationViewUseCase
+    lateinit var observeConversationListDetailsUseCase: ObserveConversationListDetailsUseCase
 
     @MockK
     lateinit var leaveConversation: LeaveConversationUseCase
@@ -85,7 +85,7 @@ class ConversationListViewModelTest {
                 TestDispatcherProvider(),
                 updateConversationMutedStatus,
                 joinCall,
-                observeConversationViewUseCase,
+                observeConversationListDetailsUseCase,
                 leaveConversation,
                 deleteTeamConversationUseCase,
                 blockUser,
@@ -93,7 +93,7 @@ class ConversationListViewModelTest {
                 UserTypeMapper(),
             )
 
-        coEvery { observeConversationViewUseCase() } returns flowOf(listOf())
+        coEvery { observeConversationListDetailsUseCase() } returns flowOf(listOf())
     }
 
     @Test

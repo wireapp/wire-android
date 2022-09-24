@@ -386,6 +386,11 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun provideRequestVideoStreamsUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).calls.requestVideoStreams
+
+    @ViewModelScoped
+    @Provides
     fun provideIsLastCallClosedUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).calls.isLastCallClosed
 

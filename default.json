@@ -9,7 +9,8 @@
         "logging_enabled": false,
         "safe_logging": false,
         "private_build": false,
-        "development_api_enabled": false
+        "development_api_enabled": false,
+        "mls_support_enabled": false
     },
     "dev": {
         "applicationId": "com.waz.zclient.dev",
@@ -34,7 +35,8 @@
         "logging_enabled": true,
         "safe_logging": true,
         "private_build": false,
-        "development_api_enabled": false
+        "development_api_enabled": false,
+        "mls_support_enabled": false
     },
     "internal": {
         "applicationId": "com.wire.internal",
@@ -47,7 +49,8 @@
         "logging_enabled": true,
         "safe_logging": true,
         "private_build": true,
-        "development_api_enabled": false
+        "development_api_enabled": false,
+        "mls_support_enabled": false
     },
     "experimental": {
         "applicationId": "com.wire.x",
@@ -60,7 +63,8 @@
         "logging_enabled": true,
         "safe_logging": true,
         "private_build": true,
-        "development_api_enabled": false
+        "development_api_enabled": false,
+        "mls_support_enabled": false
     },
     "fdroid": {
         "applicationId": "com.wire",
@@ -73,7 +77,8 @@
         "safe_logging": true,
         "keep_websocket_on": true,
         "private_build": false,
-        "development_api_enabled": false
+        "development_api_enabled": false,
+        "mls_support_enabled": false
     },
     "maxAccounts": 3,
     "backendUrl": "https://prod-nginz-https.wire.com",
@@ -114,5 +119,6 @@
     "countly_app_key": "79c8fc20713e0e877aa8d320ea078530604d3ea6",
     "force_constant_bitrate_calls": false,
     "web_link_preview": true,
-    "keep_websocket_on": false
+    "keep_websocket_on": false,
+    "mls_support_enabled": true
 }

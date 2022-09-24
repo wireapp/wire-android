@@ -121,7 +121,7 @@ fun NewGroupScreenContent(
                     }
 
                 }
-                if (mlsEnabled || BuildConfig.PRIVATE_BUILD) {
+                if (mlsEnabled || (BuildConfig.PRIVATE_BUILD && BuildConfig.MLS_SUPPORT_ENABLED)) {
                     WireDropDown(
                         items =
                         ConversationOptions.Protocol.values().map { it.name },

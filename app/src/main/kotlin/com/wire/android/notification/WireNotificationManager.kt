@@ -20,6 +20,7 @@ import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.util.toStringDate
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
@@ -70,25 +71,43 @@ class WireNotificationManager @Inject constructor(
      * and display notifications for new events.
      * Can be used in Services (e.g., after receiving FCM push).
      *
-     * This function is asynchronous and thread-safe.
-     * It ignores successive calls with the same [userIdValue]
-     * until the first call is finished processing.
+     * This function is synchronized and won't allow parallel
+     * executions for the same [userIdValue].
+     * Successive calls with the same [userIdValue]
+     * will join the first execution and return together.
      * @param userIdValue String value param of QualifiedID of the User that need to check Notifications for
      */
-    suspend fun fetchAndShowNotificationsOnce(userIdValue: String) = fetchOnceMutex.withLock {
-        if (isNotCurrentUser(userIdValue)) {
-            appLogger.d("$TAG Ignoring notification for user=${userIdValue.obfuscateId()}, because not current user")
-            return@withLock
-        }
-        val isJobRunningForUser = fetchOnceJobs[userIdValue]?.isActive ?: false
-        if (isJobRunningForUser) {
-            appLogger.d("$TAG Already processing notifications for user=${userIdValue.obfuscateId()}, ignoring request")
-        } else {
-            appLogger.d("$TAG Starting to processing notifications for user=${userIdValue.obfuscateId()}")
-            fetchOnceJobs[userIdValue] = scope.launch {
-                triggerSyncForUserIfAuthenticated(userIdValue)
+    suspend fun fetchAndShowNotificationsOnce(userIdValue: String) {
+        val jobForUser = fetchOnceMutex.withLock {
+            // Use the lock to create a new coroutine if needed
+            if (isNotCurrentUser(userIdValue)) {
+                appLogger.d("$TAG Ignoring notification for user=${userIdValue.obfuscateId()}, because not current user")
+                return@withLock null
+            }
+            val currentJobForUser = fetchOnceJobs[userIdValue]
+            val isJobRunningForUser = currentJobForUser?.run {
+                // Coroutine started, or didn't start yet, and it's waiting to be started
+                isActive || !isCompleted
+            } ?: false
+            if (isJobRunningForUser) {
+                // Return the currently existing job if it's active
+                appLogger.d(
+                    "$TAG Already processing notifications for user=${userIdValue.obfuscateId()}, and joining original execution"
+                )
+                currentJobForUser
+            } else {
+                // Create a new job for this user
+                appLogger.d("$TAG Starting to processing notifications for user=${userIdValue.obfuscateId()}")
+                val newJob = scope.launch(start = CoroutineStart.LAZY) {
+                    triggerSyncForUserIfAuthenticated(userIdValue)
+                }
+                fetchOnceJobs[userIdValue] = newJob
+                newJob
             }
         }
+        // Join the job for the user, waiting for its completion
+        jobForUser?.start()
+        jobForUser?.join()
     }
 
     private fun isNotCurrentUser(userId: String): Boolean {
@@ -250,9 +269,11 @@ class WireNotificationManager @Inject constructor(
         observeUserId: Flow<UserId?>,
         doIfCallCameAndAppVisible: (Call) -> Unit
     ) {
+        appLogger.d("$TAG observe incoming calls")
         observeUserId
             .flatMapLatest { userId ->
                 if (userId == null) {
+                    appLogger.d("$TAG userId is empty for incoming calls")
                     flowOf(listOf())
                 } else {
                     coreLogic.getSessionScope(userId)
@@ -268,7 +289,6 @@ class WireNotificationManager @Inject constructor(
                     }
                     callNotificationManager.hideIncomingCallNotification()
                 } else {
-                    appLogger.d("$TAG got ${calls.size} calls while app is in background")
                     callNotificationManager.handleIncomingCallNotifications(calls, userId)
                 }
             }

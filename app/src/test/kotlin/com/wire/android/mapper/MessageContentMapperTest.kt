@@ -27,9 +27,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
-import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.test.runTest
 import okio.Path
 import okio.Path.Companion.toPath
@@ -174,13 +172,13 @@ class MessageContentMapperTest {
 
         with(arrangement) {
             // When - Then
-            val resultContentOther = mapper.toUIMessageContent(AssetMessageData(unknownImageMessageContent), testMessage1)
+            val resultContentOther = mapper.toUIMessageContent(AssetMessageContentMetadata(unknownImageMessageContent), testMessage1)
             coVerify(exactly = 0) { arrangement.getMessageAssetUseCase.invoke(any(), any()) }
             assertTrue(resultContentOther is AssetMessage
                     && resultContentOther.assetId.value == unknownImageMessageContent.remoteData.assetId)
 
             // When - Then
-            val resultContentImage = mapper.toUIMessageContent(AssetMessageData(correctJPGImage), testMessage2)
+            val resultContentImage = mapper.toUIMessageContent(AssetMessageContentMetadata(correctJPGImage), testMessage2)
             coVerify(exactly = 1) { arrangement.getMessageAssetUseCase.invoke(any(), any()) }
             assertTrue(resultContentImage is ImageMessage && resultContentImage.assetId.value == correctJPGImage.remoteData.assetId)
         }
@@ -202,7 +200,7 @@ class MessageContentMapperTest {
         val testMessage = buildAssetMessage(contentImage)
 
         // When
-        val resultContentImage = mapper.toUIMessageContent(AssetMessageData(contentImage), testMessage)
+        val resultContentImage = mapper.toUIMessageContent(AssetMessageContentMetadata(contentImage), testMessage)
 
         // Then
         coVerify(inverse = true) { arrangement.getMessageAssetUseCase.invoke(any(), any()) }
@@ -239,8 +237,8 @@ class MessageContentMapperTest {
 
         // When
         with(arrangement) {
-            val resultContentImage1 = mapper.toUIMessageContent(AssetMessageData(contentImage1), testMessage1)
-            val resultContentImage2 = mapper.toUIMessageContent(AssetMessageData(contentImage2), testMessage2)
+            val resultContentImage1 = mapper.toUIMessageContent(AssetMessageContentMetadata(contentImage1), testMessage1)
+            val resultContentImage2 = mapper.toUIMessageContent(AssetMessageContentMetadata(contentImage2), testMessage2)
 
             // Then
             assertTrue(resultContentImage1 is AssetMessage)

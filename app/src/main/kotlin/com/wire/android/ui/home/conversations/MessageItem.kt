@@ -35,17 +35,17 @@ import com.wire.android.ui.common.LegalHoldIndicator
 import com.wire.android.ui.common.UserBadge
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.home.conversations.model.ImageMessageParams
-import com.wire.android.ui.home.conversations.model.MessageAsset
 import com.wire.android.ui.home.conversations.model.MessageBody
-import com.wire.android.ui.home.conversations.model.UIMessageContent
+import com.wire.android.ui.home.conversations.model.MessageGenericAsset
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageImage
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
-import com.wire.android.ui.home.conversations.model.RestrictedAssetMessage
-import com.wire.android.ui.home.conversations.model.RestrictedFileMessage
 import com.wire.android.ui.home.conversations.model.UIMessage
+import com.wire.android.ui.home.conversations.model.UIMessageContent
+import com.wire.android.ui.home.conversations.model.messagetypes.asset.RestrictedAssetMessage
+import com.wire.android.ui.home.conversations.model.messagetypes.asset.RestrictedGenericFileMessage
+import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageParams
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
@@ -210,14 +210,15 @@ private fun MessageContent(
         is UIMessageContent.ImageMessage -> MessageImage(
             rawImgData = messageContent.imgData,
             imgParams = ImageMessageParams(messageContent.width, messageContent.height),
-            assetUploadStatus = messageContent.uploadStatus,
+            uploadStatus = messageContent.uploadStatus,
+            downloadStatus = messageContent.downloadStatus,
             onImageClick = onImageClick
         )
         is UIMessageContent.TextMessage -> MessageBody(
             messageBody = messageContent.messageBody,
             onLongClick = onLongClick
         )
-        is UIMessageContent.AssetMessage -> MessageAsset(
+        is UIMessageContent.AssetMessage -> MessageGenericAsset(
             assetName = messageContent.assetName,
             assetExtension = messageContent.assetExtension,
             assetSizeInBytes = messageContent.assetSizeInBytes,
@@ -240,7 +241,7 @@ private fun MessageContent(
                     RestrictedAssetMessage(R.drawable.ic_speaker_on, stringResource(id = R.string.prohibited_audio_message))
                 }
                 else -> {
-                    RestrictedFileMessage(messageContent.assetName, messageContent.assetSizeInBytes)
+                    RestrictedGenericFileMessage(messageContent.assetName, messageContent.assetSizeInBytes)
                 }
             }
         }

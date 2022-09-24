@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig
 import com.wire.android.appLogger
 import com.wire.android.di.AuthServerConfigProvider
+import com.wire.android.di.ObserveSyncStateUseCaseProvider
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.SwitchAccountParam
 import com.wire.android.navigation.BackStackMode
@@ -24,6 +25,7 @@ import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.logout.LogoutReason
+import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.feature.auth.AccountInfo
 import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
@@ -34,9 +36,13 @@ import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onEach
@@ -60,6 +66,7 @@ class WireActivityViewModel @Inject constructor(
     private val getSessions: GetSessionsUseCase,
     private val accountSwitch: AccountSwitchUseCase,
     observePersistentWebSocketConnectionStatus: ObservePersistentWebSocketConnectionStatusUseCase,
+    private val observeSyncStateUseCaseProviderFactory: ObserveSyncStateUseCaseProvider.Factory
 ) : ViewModel() {
 
     private val navigationArguments = mutableMapOf<String, Any>(SERVER_CONFIG_ARG to ServerConfig.DEFAULT)
@@ -86,6 +93,10 @@ class WireActivityViewModel @Inject constructor(
             }
         }.distinctUntilChanged().flowOn(dispatchers.io()).shareIn(viewModelScope, SharingStarted.WhileSubscribed(), 1)
 
+
+    private val _observeSyncFlowState: MutableStateFlow<SyncState?> = MutableStateFlow(null)
+    val observeSyncFlowState: StateFlow<SyncState?> = _observeSyncFlowState
+
     init {
         viewModelScope.launch(dispatchers.io()) {
             observePersistentWebSocketConnectionStatus().collect {
@@ -94,6 +105,14 @@ class WireActivityViewModel @Inject constructor(
                     { openIncomingCall(it.conversationId) }
                 }
             }
+        }
+        viewModelScope.launch(dispatchers.io()) {
+            observeUserId
+                .flatMapLatest {
+                    it?.let { observeSyncStateUseCaseProviderFactory.create(it).observeSyncState() } ?: flowOf(null)
+                }
+                .distinctUntilChanged()
+                .collect { _observeSyncFlowState.emit(it) }
         }
     }
 

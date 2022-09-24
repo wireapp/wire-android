@@ -34,8 +34,6 @@ import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.server.FetchApiVersionResult
 import com.wire.kalium.logic.feature.server.FetchApiVersionUseCase
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
-import com.wire.kalium.logic.feature.session.RegisterTokenResult
-import com.wire.kalium.logic.feature.session.RegisterTokenUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -78,9 +76,6 @@ class LoginEmailViewModelTest {
     private lateinit var getOrRegisterClientUseCase: GetOrRegisterClientUseCase
 
     @MockK
-    private lateinit var registerTokenUseCase: RegisterTokenUseCase
-
-    @MockK
     private lateinit var savedStateHandle: SavedStateHandle
 
     @MockK
@@ -108,7 +103,6 @@ class LoginEmailViewModelTest {
         every { savedStateHandle.set(any(), any<String>()) } returns Unit
         every { clientScopeProviderFactory.create(any()).clientScope } returns clientScope
         every { clientScope.getOrRegister } returns getOrRegisterClientUseCase
-        every { clientScope.registerPushToken } returns registerTokenUseCase
         every { authServerConfigProvider.authServer.value } returns newServerConfig(1).links
         coEvery { fetchApiVersion(newServerConfig(1).links) } returns FetchApiVersionResult.Success(newServerConfig(1))
         loginViewModel = LoginEmailViewModel(
@@ -166,14 +160,12 @@ class LoginEmailViewModelTest {
         coEvery { addAuthenticatedUserUseCase(any(), any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
         coEvery { navigationManager.navigate(any()) } returns Unit
         coEvery { getOrRegisterClientUseCase(any()) } returns RegisterClientResult.Success(CLIENT)
-        coEvery { registerTokenUseCase(any(), CLIENT.id) } returns RegisterTokenResult.Success
 
         loginViewModel.onPasswordChange(TextFieldValue(password))
 
         runTest { loginViewModel.login() }
         coVerify(exactly = 1) { loginUseCase(any(), any(), any()) }
         coVerify(exactly = 1) { getOrRegisterClientUseCase(any()) }
-        coVerify(exactly = 1) { registerTokenUseCase(any(), CLIENT.id) }
         coVerify(exactly = 1) {
             navigationManager.navigate(
                 NavigationCommand(

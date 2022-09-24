@@ -4,10 +4,10 @@ import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversationslist.common.UserInfoLabel
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.data.user.type.UserType
 
 sealed class ConversationItem {
     abstract val conversationId: ConversationId
@@ -63,12 +63,13 @@ enum class BlockingState {
     NOT_BLOCKED
 }
 
-fun OtherUser.getBlockingState(selfTeamId: TeamId?): BlockingState =
-    when {
-        connectionStatus == ConnectionState.BLOCKED -> BlockingState.BLOCKED
-        teamId == selfTeamId -> BlockingState.CAN_NOT_BE_BLOCKED
-        else -> BlockingState.NOT_BLOCKED
-    }
+val OtherUser.BlockState: BlockingState
+    get() =
+        when {
+            connectionStatus == ConnectionState.BLOCKED -> BlockingState.BLOCKED
+            userType == UserType.INTERNAL -> BlockingState.CAN_NOT_BE_BLOCKED
+            else -> BlockingState.NOT_BLOCKED
+        }
 
 fun ConversationItem.PrivateConversation.toUserInfoLabel() =
     UserInfoLabel(

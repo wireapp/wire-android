@@ -32,6 +32,7 @@ import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetAllContactsNotInConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetSecurityClassificationTypeUseCase
+import com.wire.kalium.logic.feature.conversation.LeaveConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveUserListByIdUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
@@ -253,23 +254,13 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun provideObserveConversationListDetailsUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+    fun provideObserveConversationListDetails(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).conversations.observeConversationListDetails
 
     @ViewModelScoped
     @Provides
     fun provideObserveConversationUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).conversations.getOneToOneConversation
-
-    @ViewModelScoped
-    @Provides
-    fun provideObserveConnectionListUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
-        coreLogic.getSessionScope(currentAccount).conversations.observeConnectionList
-
-    @ViewModelScoped
-    @Provides
-    fun provideObserveConversationsAndConnectionsUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
-        coreLogic.getSessionScope(currentAccount).conversations.observeConversationsAndConnectionListUseCase
 
     @ViewModelScoped
     @Provides
@@ -594,6 +585,14 @@ class UseCaseModule {
         @CurrentAccount currentAccount: UserId
     ): RemoveMemberFromConversationUseCase =
         coreLogic.getSessionScope(currentAccount).conversations.removeMemberFromConversation
+
+    @ViewModelScoped
+    @Provides
+    fun provideLeaveConversationUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): LeaveConversationUseCase =
+        coreLogic.getSessionScope(currentAccount).conversations.leaveConversation
 
     @ViewModelScoped
     @Provides

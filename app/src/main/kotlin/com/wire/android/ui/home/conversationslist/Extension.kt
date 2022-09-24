@@ -17,6 +17,7 @@ inline fun <T, K : Any> LazyListScope.folderWithElements(
     crossinline factory: @Composable (T) -> Unit
 ) {
     val list = items.entries.toList()
+
     if (items.isNotEmpty()) {
         item(key = "header:$header") {
             FolderHeader(

@@ -221,11 +221,10 @@ fun openAssetFileWithExternalApp(assetDataPath: Path, context: Context, assetExt
     }
 }
 
-
 @Suppress("MagicNumber")
 fun getDeviceId(context: Context): String? {
     
-    if (android.os.Build.VERSION.SDK_INT >= 26) {
+    if (Build.VERSION.SDK_INT >= 26) {
         return Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
     }
     

@@ -1,5 +1,8 @@
 package com.wire.android.ui.home.settings
 
+import androidx.annotation.DrawableRes
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -8,19 +11,22 @@ import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ChevronRight
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.navigation.isExternalRoute
-import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.RowItemTemplate
+import com.wire.android.ui.common.clickable
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.folderWithElements
 import com.wire.android.ui.theme.wireColorScheme
@@ -98,28 +104,45 @@ private fun LazyListScope.folderWithElements(
         items = items.associateBy { it.id }
     ) { settingsItem ->
         SettingsItem(
-            item = settingsItem,
-            clickable = remember { Clickable(enabled = true) { onItemClicked(settingsItem) } }
+            title = settingsItem.title.asString(),
+            onRowPressed = remember { Clickable(enabled = true) { onItemClicked(settingsItem) } }
         )
     }
 }
 
 @Composable
-private fun SettingsItem(item: SettingsItem, clickable: Clickable) {
+fun SettingsItem(
+    title: String,
+    @DrawableRes trailingIcon: Int? = null,
+    onRowPressed: Clickable = Clickable(false),
+    onIconPressed: Clickable = Clickable(false)
+) {
     RowItemTemplate(
         title = {
-            Text(
-                style = MaterialTheme.wireTypography.body01,
-                color = MaterialTheme.wireColorScheme.onBackground,
-                text = item.title.asString(),
-                modifier = Modifier.padding(start = dimensions().spacing8x)
-            )
+            Row {
+                Text(
+                    style = MaterialTheme.wireTypography.body01,
+                    color = MaterialTheme.wireColorScheme.onBackground,
+                    text = title,
+                    modifier = Modifier.padding(start = dimensions().spacing8x)
+                )
+            }
         },
-        actions = Icons.Filled.ChevronRight.Icon(),
-        clickable = clickable
+        actions = {
+            trailingIcon?.let {
+                Icon(
+                    painter = painterResource(id = trailingIcon),
+                    contentDescription = "",
+                    tint = MaterialTheme.wireColorScheme.onSecondaryButtonEnabled,
+                    modifier = Modifier
+                        .defaultMinSize(80.dp)
+                        .clickable(onIconPressed)
+                )
+            } ?: Icons.Filled.ChevronRight
+        },
+        clickable = onRowPressed
     )
 }
-
 
 @Preview(showBackground = false)
 @Composable

@@ -192,13 +192,7 @@ class MessageNotificationManager
     }
 
     private fun getConversationTitle(conversation: NotificationConversation): String? =
-        conversation.messages.firstOrNull().let { firstMessage ->
-            when {
-                firstMessage is NotificationMessage.ConnectionRequest -> firstMessage.author.name
-                conversation.isOneToOneConversation -> null
-                else -> conversation.name
-            }
-        }
+        if (conversation.isOneToOneConversation) null else conversation.name
 
     private fun italicTextFromResId(@StringRes stringResId: Int) =
         context.getString(stringResId).toSpannable()

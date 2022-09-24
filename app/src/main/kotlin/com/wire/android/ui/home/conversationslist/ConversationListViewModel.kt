@@ -89,6 +89,7 @@ class ConversationListViewModel @Inject constructor(
             .collect { conversationListDetails ->
                 state = ConversationListState(
                     conversations = conversationListDetails.toConversationsFoldersMap(),
+                    shouldShowEmptyState = conversationListDetails.none { it !is Self },
                     callHistory = mockCallHistory, // TODO: needs to be implemented
                     unreadMentions = mockUnreadMentionList, // TODO: needs to be implemented
                     allMentions = mockAllMentionList, // TODO: needs to be implemented

@@ -296,14 +296,15 @@ private fun MessageSendFailureWarning() {
                 style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.error)
             )
             Spacer(Modifier.width(dimensions().spacing4x))
-            Text(
-                modifier = Modifier.fillMaxWidth(),
-                style = LocalTextStyle.current.copy(
-                    color = MaterialTheme.wireColorScheme.onTertiaryButtonSelected,
-                    textDecoration = TextDecoration.Underline
-                ),
-                text = stringResource(R.string.label_try_again),
-            )
+//      todo to uncomment this after we have the functionality of resend the message
+//              Text(
+//                modifier = Modifier.fillMaxWidth(),
+//                style = LocalTextStyle.current.copy(
+//                    color = MaterialTheme.wireColorScheme.onTertiaryButtonSelected,
+//                    textDecoration = TextDecoration.Underline
+//                ),
+//                text = stringResource(R.string.label_try_again),
+//            )
         }
     }
 }

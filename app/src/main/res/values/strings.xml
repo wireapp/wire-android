@@ -573,4 +573,6 @@
     <string name="custom_backend_dialog_title">Redirect to an on-premises backend?</string>
     <string name="custom_backend_dialog_body">If you proceed, your client will be redirected to the following on-premises backend:\n\nBackend name:\n%1$s\n\nBackend URL:\n%2$s</string>
     <string name="label_fetching_your_messages">Receiving new messages</string>
+    <string name="conversation_empty_list_description">Connect with others or create a new group to start collaborating!</string>
+    <string name="conversation_empty_list_title">Welcome 👋</string>
 </resources>

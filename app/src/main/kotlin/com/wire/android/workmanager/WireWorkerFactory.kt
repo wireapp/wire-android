@@ -22,16 +22,19 @@ class WireWorkerFactory @Inject constructor(
 ) : WorkerFactory() {
 
     override fun createWorker(appContext: Context, workerClassName: String, workerParameters: WorkerParameters): ListenableWorker? {
-        val kaliumWorker = WrapperWorkerFactory(
+        return WrapperWorkerFactory(
             coreLogic, WireForegroundNotificationDetailsProvider
         ).createWorker(appContext, workerClassName, workerParameters)
-
-        return kaliumWorker ?: NotificationFetchWorker(
-            appContext,
-            workerParameters,
-            wireNotificationManager,
-            notificationManagerCompat
-        )
+            ?: if (workerClassName == NotificationFetchWorker::class.java.canonicalName) {
+                NotificationFetchWorker(
+                    appContext,
+                    workerParameters,
+                    wireNotificationManager,
+                    notificationManagerCompat
+                )
+            } else {
+                null
+            }
     }
 
 }

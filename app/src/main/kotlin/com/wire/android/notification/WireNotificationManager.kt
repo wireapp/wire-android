@@ -64,7 +64,6 @@ class WireNotificationManager @Inject constructor(
 
     private val scope = CoroutineScope(SupervisorJob() + dispatcherProvider.default())
     private val fetchOnceMutex = Mutex()
-    private val fetchOnceJobs = hashMapOf<String, Job>()
 
     /**
      * Become online, process all the Pending events,
@@ -78,36 +77,15 @@ class WireNotificationManager @Inject constructor(
      * @param userIdValue String value param of QualifiedID of the User that need to check Notifications for
      */
     suspend fun fetchAndShowNotificationsOnce(userIdValue: String) {
-        val jobForUser = fetchOnceMutex.withLock {
-            // Use the lock to create a new coroutine if needed
+        fetchOnceMutex.withLock {
             if (isNotCurrentUser(userIdValue)) {
                 appLogger.d("$TAG Ignoring notification for user=${userIdValue.obfuscateId()}, because not current user")
                 return@withLock null
             }
-            val currentJobForUser = fetchOnceJobs[userIdValue]
-            val isJobRunningForUser = currentJobForUser?.run {
-                // Coroutine started, or didn't start yet, and it's waiting to be started
-                isActive || !isCompleted
-            } ?: false
-            if (isJobRunningForUser) {
-                // Return the currently existing job if it's active
-                appLogger.d(
-                    "$TAG Already processing notifications for user=${userIdValue.obfuscateId()}, and joining original execution"
-                )
-                currentJobForUser
-            } else {
-                // Create a new job for this user
-                appLogger.d("$TAG Starting to processing notifications for user=${userIdValue.obfuscateId()}")
-                val newJob = scope.launch(start = CoroutineStart.LAZY) {
-                    triggerSyncForUserIfAuthenticated(userIdValue)
-                }
-                fetchOnceJobs[userIdValue] = newJob
-                newJob
-            }
+
+            appLogger.d("$TAG Starting to processing notifications for user=${userIdValue.obfuscateId()}")
+            triggerSyncForUserIfAuthenticated(userIdValue)
         }
-        // Join the job for the user, waiting for its completion
-        jobForUser?.start()
-        jobForUser?.join()
     }
 
     private fun isNotCurrentUser(userId: String): Boolean {

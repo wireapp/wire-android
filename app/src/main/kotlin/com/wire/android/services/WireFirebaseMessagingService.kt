@@ -55,7 +55,6 @@ class WireFirebaseMessagingService : FirebaseMessagingService() {
             )
         )
         enqueueNotificationFetchWorker(extractUserId(message))
-
         appLogger.i("$TAG: onMessageReceived End")
     }
 

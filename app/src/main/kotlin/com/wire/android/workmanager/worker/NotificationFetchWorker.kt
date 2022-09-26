@@ -9,6 +9,7 @@ import androidx.work.CoroutineWorker
 import androidx.work.ForegroundInfo
 import androidx.work.WorkerParameters
 import com.wire.android.R
+import com.wire.android.appLogger
 import com.wire.android.notification.NotificationConstants
 import com.wire.android.notification.WireNotificationManager
 import dagger.assisted.Assisted
@@ -26,13 +27,21 @@ class NotificationFetchWorker
 ) : CoroutineWorker(appContext, workerParams) {
     companion object {
         const val USER_ID_INPUT_DATA = "worker_user_id_input_data"
+        const val TAG = "notification_fetch_worker"
     }
 
     override suspend fun doWork(): Result {
-        inputData.getString(USER_ID_INPUT_DATA)?.let { userId ->
-            wireNotificationManager.fetchAndShowNotificationsOnce(userId)
+        try {
+            inputData.getString(USER_ID_INPUT_DATA)?.let { userId ->
+                appLogger.d("$TAG Starting the NotificationFetchWorker")
+                wireNotificationManager.fetchAndShowNotificationsOnce(userId)
+            }
+        } catch (exception: Exception) {
+            appLogger.d("$TAG NotificationFetchWorker failed with exception: $exception")
+            return Result.failure()
         }
 
+        appLogger.d("$TAG NotificationFetchWorker finished successfully")
         return Result.success()
     }
 

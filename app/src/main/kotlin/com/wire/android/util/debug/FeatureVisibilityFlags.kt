@@ -23,10 +23,10 @@ import androidx.compose.runtime.staticCompositionLocalOf
 //long press on images → edit
 //long press on images → copy
 
-
 // Those flags can be removed once we set all flags to true :)
 object FeatureVisibilityFlags {
-    const val Settings = false
+    const val AppSettings = false
+    const val BackUpSettings = false
     const val AudioMessagesIcon = false
     const val ShareLocationIcon = false
     const val RichTextIcon = false

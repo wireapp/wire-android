@@ -1,6 +1,5 @@
 package com.wire.android.ui.debugscreen
 
-import android.content.Context
 import android.widget.Toast
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
@@ -43,6 +42,7 @@ import com.wire.android.util.startMultipleFileSharingIntent
 @Composable
 fun DebugScreen() {
     val debugScreenViewModel: DebugScreenViewModel = hiltViewModel()
+
     DebugContent(
         state = debugScreenViewModel.state,
         setLoggingEnabledState = debugScreenViewModel::setLoggingEnabledState,
@@ -59,11 +59,12 @@ fun DebugContent(
     setLoggingEnabledState: (Boolean) -> Unit,
     logFilePath: () -> String,
     deleteAllLogs: () -> Unit,
-    navigateBack: () -> Unit,
-    lazyListState: LazyListState = rememberLazyListState()
+    navigateBack: () -> Unit
 ) {
+    val lazyListState: LazyListState = rememberLazyListState()
     val context = LocalContext.current
     val clipboardManager = LocalClipboardManager.current
+
     Scaffold(
         topBar = { TopBar(title = "Debug", navigateBack = navigateBack) }
     ) { internalPadding ->
@@ -158,7 +159,7 @@ fun LoggingSection(
 ) {
     val context = LocalContext.current
     val clipboardManager = LocalClipboardManager.current
-    val absolutePath = context.cacheDir?.absolutePath ?: ""
+
     SwitchRowItem(
         text = "Enable Logging", checked = isLoggingEnabled
     ) { state: Boolean ->
@@ -215,5 +216,5 @@ fun SwitchRowItem(
 @Preview(showBackground = false)
 @Composable
 fun debugScreenPreview() {
-    DebugContent(DebugScreenState(isLoggingEnabled = true), { _: Boolean -> }, { "" }, {}, {})
+    DebugContent(DebugScreenState(isLoggingEnabled = true), { }, { "" }, {}, {})
 }

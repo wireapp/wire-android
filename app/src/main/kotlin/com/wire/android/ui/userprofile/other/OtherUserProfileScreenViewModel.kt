@@ -21,7 +21,7 @@ import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationTypeDetail
-import com.wire.android.ui.home.conversationslist.model.getBlockingState
+import com.wire.android.ui.home.conversationslist.model.BlockState
 import com.wire.android.ui.userprofile.common.UsernameMapper.mapUserLabel
 import com.wire.android.ui.userprofile.group.RemoveConversationMemberState
 import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.BlockingUserOperationError
@@ -73,7 +73,6 @@ import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUs
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleResult
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
-import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
 import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -90,7 +89,6 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
     private val dispatchers: DispatcherProvider,
-    private val observeSelfUser: GetSelfUserUseCase,
     private val updateConversationMutedStatus: UpdateConversationMutedStatusUseCase,
     private val blockUser: BlockUserUseCase,
     private val unblockUser: UnblockUserUseCase,
@@ -183,20 +181,18 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                     return@launch
                 }
                 is GetOneToOneConversationUseCase.Result.Success -> {
-                    observeSelfUser().collect { selfUser ->
-                        state = state.copy(
-                            conversationSheetContent = ConversationSheetContent(
-                                title = otherUser.name.orEmpty(),
-                                conversationId = conversationResult.conversation.id,
-                                mutingConversationState = conversationResult.conversation.mutedStatus,
-                                conversationTypeDetail = ConversationTypeDetail.Private(
-                                    userAvatarAsset,
-                                    userId,
-                                    otherUser.getBlockingState(selfUser.teamId)
-                                )
+                    state = state.copy(
+                        conversationSheetContent = ConversationSheetContent(
+                            title = otherUser.name.orEmpty(),
+                            conversationId = conversationResult.conversation.id,
+                            mutingConversationState = conversationResult.conversation.mutedStatus,
+                            conversationTypeDetail = ConversationTypeDetail.Private(
+                                userAvatarAsset,
+                                userId,
+                                otherUser.BlockState
                             )
                         )
-                    }
+                    )
                 }
             }
         }

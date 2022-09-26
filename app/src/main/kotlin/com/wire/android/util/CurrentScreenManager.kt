@@ -2,7 +2,6 @@ package com.wire.android.util
 
 import android.content.Context
 import android.os.Bundle
-import android.os.PowerManager
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavController
@@ -62,9 +61,9 @@ class CurrentScreenManager @Inject constructor(
         isOnForegroundFlow.value = true
     }
 
-    override fun onPause(owner: LifecycleOwner) {
-        super.onPause(owner)
-        appLogger.i("${TAG}: onPause called")
+    override fun onStop(owner: LifecycleOwner) {
+        super.onStop(owner)
+        appLogger.i("${TAG}: onStop called")
         isOnForegroundFlow.value = false
     }
 

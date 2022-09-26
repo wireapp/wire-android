@@ -116,7 +116,8 @@ fun ConversationRouterHomeBridge(
                     onEditConversation = onEditConversationItem,
                     onOpenUserProfile = viewModel::openUserProfile,
                     onOpenConversationNotificationsSettings = onEditNotifications,
-                    onJoinCall = viewModel::joinOngoingCall
+                    onJoinCall = viewModel::joinOngoingCall,
+                    shouldShowEmptyState= shouldShowEmptyState
                 )
             ConversationItemType.CALLS ->
                 CallsScreen(

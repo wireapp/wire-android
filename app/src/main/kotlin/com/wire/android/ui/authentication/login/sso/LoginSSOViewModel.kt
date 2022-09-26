@@ -91,7 +91,6 @@ class LoginSSOViewModel @Inject constructor(
             registerClient(storedUserId, null).let {
                 when (it) {
                     is RegisterClientResult.Success -> {
-                        registerPushToken(storedUserId, it.client.id)
                         navigateToConvScreen()
                     }
                     is RegisterClientResult.Failure -> {

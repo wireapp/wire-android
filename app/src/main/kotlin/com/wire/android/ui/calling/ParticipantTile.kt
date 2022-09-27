@@ -51,7 +51,6 @@ fun ParticipantTile(
     onGoingCallTileUsernameMaxWidth: Dp = 350.dp,
     avatarSize: Dp = dimensions().onGoingCallUserAvatarSize,
     isSelfUser: Boolean,
-    shouldRecomposeVideoRenderer: Boolean,
     onSelfUserVideoPreviewCreated: (view: View) -> Unit,
     onClearSelfUserVideoPreview: () -> Unit
 ) {
@@ -95,15 +94,7 @@ fun ParticipantTile(
                         val frameLayout = FrameLayout(it)
                         frameLayout.addView(videoRenderer)
                         frameLayout
-                    },
-                        update = {
-                            if (shouldRecomposeVideoRenderer) {
-                                // Needed to disconnect renderer from container, skipping this will lead to some issues like video freezing
-                                it.removeAllViews()
-
-                                it.addView(videoRenderer)
-                            }
-                        }
+                    }
                     )
                 }
             }
@@ -259,7 +250,6 @@ private fun ParticipantTilePreview() {
         ),
         onClearSelfUserVideoPreview = {},
         onSelfUserVideoPreviewCreated = {},
-        isSelfUser = false,
-        shouldRecomposeVideoRenderer = false
+        isSelfUser = false
     )
 }

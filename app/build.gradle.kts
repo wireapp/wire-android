@@ -143,6 +143,7 @@ dependencies {
     implementation(Libraries.accompanistNavAnimation)
     implementation(Libraries.accompanistIndicator)
     implementation(Libraries.composeRuntimeLiveData)
+    implementation(Libraries.accompanistFlowLayout)
 
     implementation(Libraries.Paging.runtime)
     implementation(Libraries.Paging.compose)

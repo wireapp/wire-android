@@ -8,11 +8,14 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -24,11 +27,15 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.google.accompanist.flowlayout.FlowRow
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.LegalHoldIndicator
@@ -58,10 +65,11 @@ fun MessageItem(
     onLongClicked: (UIMessage) -> Unit,
     onAssetMessageClicked: (String) -> Unit,
     onImageMessageClicked: (String, Boolean) -> Unit,
-    onAvatarClicked: (MessageSource, UserId) -> Unit
+    onAvatarClicked: (MessageSource, UserId) -> Unit,
 ) {
     with(message) {
         val fullAvatarOuterPadding = dimensions().userAvatarClickablePadding + dimensions().userAvatarStatusBorderSize
+        Column {  }
         Row(
             Modifier
                 .customizeMessageBackground(message)
@@ -121,6 +129,7 @@ fun MessageItem(
                             onImageClick = currentOnImageClick,
                             onLongClick = onLongClick
                         )
+                        MessageFooter(messageHeader)
                     } else {
                         // Decryption failed for this message
                         MessageDecryptionFailure()
@@ -171,6 +180,66 @@ private fun MessageHeader(messageHeader: MessageHeader) {
                 )
             }
             MessageStatusLabel(messageStatus = messageStatus)
+        }
+    }
+}
+
+@Composable
+private fun MessageFooter(messageHeader: MessageHeader) {
+    with(messageHeader) {
+            FlowRow(
+                mainAxisSpacing = 4.dp,
+                crossAxisSpacing = 6.dp,
+                modifier = Modifier.padding(vertical = 4.dp)
+            ) {
+                (0..20).forEach {
+                    Pill("${arrayOf("🤯", "🌺", "🥷", "✂️", "👍").random()}", "$it", it%2 == 0)
+            }
+        }
+    }
+}
+
+@Composable
+private fun Pill(emoji: String, count: String, isOwn: Boolean) {
+
+    val strokeColor = if (isOwn) {
+        MaterialTheme.wireColorScheme.secondaryButtonSelectedOutline
+    } else {
+        MaterialTheme.wireColorScheme.primaryButtonDisabled
+    }
+
+    val backgroundColor = if (isOwn) {
+        MaterialTheme.wireColorScheme.secondaryButtonSelected
+    } else {
+        MaterialTheme.wireColorScheme.surface
+    }
+
+    val textColor = if (isOwn) {
+        MaterialTheme.wireColorScheme.primary
+    } else {
+        MaterialTheme.wireColorScheme.labelText
+    }
+
+    Box(
+        modifier = Modifier
+            .clip(RoundedCornerShape(12.dp))
+            .border(BorderStroke(1.dp, strokeColor), shape = RoundedCornerShape(12.dp))
+            .background(backgroundColor)
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            modifier = Modifier
+                .padding(start = 8.dp, end = 8.dp, top = 4.dp, bottom = 4.dp)) {
+            Text(
+                emoji,
+                style = TextStyle(fontSize = 12.sp)
+            )
+            Text(
+                count,
+                modifier = Modifier.padding(start = 4.dp, end = 0.dp, top = 0.dp, bottom = 0.dp),
+                style = MaterialTheme.wireTypography.label02,
+                color = textColor
+            )
         }
     }
 }

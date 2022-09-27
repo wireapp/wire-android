@@ -126,8 +126,8 @@ fun ConversationListEmptyStateScreen() {
                 top = dimensions().spacing100x
             ),
             text = stringResource(R.string.conversation_empty_list_title),
-            style = MaterialTheme.wireTypography.body02,
-            color = MaterialTheme.wireColorScheme.labelText,
+            style = MaterialTheme.wireTypography.title01,
+            color = MaterialTheme.wireColorScheme.onSurface,
         )
 
         Text(
@@ -135,7 +135,7 @@ fun ConversationListEmptyStateScreen() {
             text = stringResource(R.string.conversation_empty_list_description),
             style = MaterialTheme.wireTypography.body01,
             textAlign = TextAlign.Center,
-            color = MaterialTheme.wireColorScheme.labelText,
+            color = MaterialTheme.wireColorScheme.onSurface,
         )
         Image(
             modifier = Modifier.padding(start = dimensions().spacing100x),

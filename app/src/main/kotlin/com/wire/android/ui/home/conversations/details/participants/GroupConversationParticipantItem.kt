@@ -44,17 +44,19 @@ fun GroupConversationParticipantItem(
                     searchQuery = searchQuery,
                     modifier = Modifier.weight(weight = 1f, fill = false)
                 )
-                Text(
-                    text = stringResource(R.string.conversation_participant_you_label),
-                    style = MaterialTheme.wireTypography.title02.copy(
-                        color = MaterialTheme.wireColorScheme.secondaryText
-                    ),
-                    modifier = Modifier
-                        .padding(
-                            start = dimensions().spacing4x,
-                            end = dimensions().spacing4x
-                        )
-                )
+                if (uiParticipant.isSelf) {
+                    Text(
+                        text = stringResource(R.string.conversation_participant_you_label),
+                        style = MaterialTheme.wireTypography.title02.copy(
+                            color = MaterialTheme.wireColorScheme.secondaryText
+                        ),
+                        modifier = Modifier
+                            .padding(
+                                start = dimensions().spacing4x,
+                                end = dimensions().spacing4x
+                            )
+                    )
+                }
                 UserBadge(
                     membership = uiParticipant.membership,
                     connectionState = uiParticipant.connectionState,

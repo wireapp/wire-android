@@ -8,23 +8,18 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.IntrinsicSize
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LocalMinimumTouchTargetEnforcement
@@ -56,6 +51,7 @@ import com.wire.android.ui.common.UserBadge
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.model.MessageBody
+import com.wire.android.ui.home.conversations.model.MessageFooter
 import com.wire.android.ui.home.conversations.model.MessageGenericAsset
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageImage
@@ -79,6 +75,7 @@ fun MessageItem(
     onAssetMessageClicked: (String) -> Unit,
     onImageMessageClicked: (String, Boolean) -> Unit,
     onAvatarClicked: (MessageSource, UserId) -> Unit,
+    onReactionClicked: (String, String) -> Unit
 ) {
     with(message) {
         val fullAvatarOuterPadding = dimensions().userAvatarClickablePadding + dimensions().userAvatarStatusBorderSize
@@ -142,7 +139,10 @@ fun MessageItem(
                             onImageClick = currentOnImageClick,
                             onLongClick = onLongClick
                         )
-                        MessageFooter(reactions = arrayListOf())
+                        MessageFooter(
+                            messageFooter,
+                            onReactionClicked
+                        )
                     } else {
                         // Decryption failed for this message
                         MessageDecryptionFailure()
@@ -167,7 +167,9 @@ private fun Modifier.customizeMessageBackground(
 }
 
 @Composable
-private fun MessageHeader(messageHeader: MessageHeader) {
+private fun MessageHeader(
+    messageHeader: MessageHeader,
+) {
     with(messageHeader) {
         Column {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -198,23 +200,26 @@ private fun MessageHeader(messageHeader: MessageHeader) {
 }
 
 @Composable
-private fun MessageFooter(reactions: ArrayList<Any>) {
-    with(reactions) {
-            FlowRow(
-                mainAxisSpacing = 4.dp,
-                crossAxisSpacing = 6.dp,
-                modifier = Modifier.padding(vertical = 4.dp)
-            ) {
-                (0..20).forEach {
-                    Pill(
-                        "${arrayOf("🤯", "🌺", "🥷", "✂️", "👍").random()}",
-                        "$it",
-                        it%2 == 0,
-                        onTap = {
-                            appLogger.i("Tapped")
-                        }
-                    )
-            }
+private fun MessageFooter(
+    messageFooter: MessageFooter,
+    onReactionClicked: (String, String) -> Unit
+) {
+    FlowRow(
+        mainAxisSpacing = 4.dp,
+        crossAxisSpacing = 6.dp,
+        modifier = Modifier.padding(vertical = 4.dp)
+    ) {
+        messageFooter.reactions.forEach {
+            val reaction = it.key
+            val count = it.value
+            Pill(
+                emoji = reaction,
+                count = "$count",
+                isOwn = messageFooter.ownReactions.contains(reaction),
+                onTap = {
+                    onReactionClicked(messageFooter.messageId, reaction)
+                }
+            )
         }
     }
 }

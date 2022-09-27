@@ -357,7 +357,8 @@ private fun ConversationScreenContent(
                 onDownloadAsset = onDownloadAsset,
                 onImageFullScreenMode = onImageFullScreenMode,
                 onOpenProfile = onOpenProfile,
-                onUpdateConversationReadDate = onUpdateConversationReadDate
+                onUpdateConversationReadDate = onUpdateConversationReadDate,
+                onReactionClicked = {_, _, -> }
             )
         },
         onSendTextMessage = onSendMessage,
@@ -424,7 +425,8 @@ fun MessageList(
     onDownloadAsset: (String) -> Unit,
     onImageFullScreenMode: (String, Boolean) -> Unit,
     onOpenProfile: (MessageSource, UserId) -> Unit,
-    onUpdateConversationReadDate: (String) -> Unit
+    onUpdateConversationReadDate: (String) -> Unit,
+    onReactionClicked: (String, String) -> Unit
 ) {
     val mostRecentMessage = lazyPagingMessages.itemCount.takeIf { it > 0 }?.let { lazyPagingMessages[0] }
     LaunchedEffect(mostRecentMessage) {
@@ -470,7 +472,8 @@ fun MessageList(
                     onLongClicked = onShowContextMenu,
                     onAssetMessageClicked = onDownloadAsset,
                     onImageMessageClicked = onImageFullScreenMode,
-                    onAvatarClicked = onOpenProfile
+                    onAvatarClicked = onOpenProfile,
+                    onReactionClicked = { _ , _ -> TODO() }
                 )
             }
         }

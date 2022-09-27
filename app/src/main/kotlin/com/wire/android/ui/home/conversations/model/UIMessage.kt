@@ -23,6 +23,7 @@ data class UIMessage(
     val messageSource: MessageSource,
     val messageHeader: MessageHeader,
     val messageContent: UIMessageContent?,
+    val messageFooter: MessageFooter
 ) {
     val isDeleted: Boolean = messageHeader.messageStatus == Deleted
     val sendingFailed: Boolean = messageHeader.messageStatus == SendFailure
@@ -40,6 +41,13 @@ data class MessageHeader(
     val messageId: String,
     val userId: UserId? = null,
     val connectionState: ConnectionState?
+)
+
+@Stable
+data class MessageFooter(
+    val messageId: String,
+    val reactions: Map<String, Int>,
+    val ownReactions: ArrayList<String>,
 )
 
 sealed class MessageStatus(val text: UIText) {

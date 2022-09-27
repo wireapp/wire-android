@@ -3,6 +3,7 @@ package com.wire.android.mapper
 import com.wire.android.R
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversations.findUser
+import com.wire.android.ui.home.conversations.model.MessageFooter
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
@@ -58,6 +59,7 @@ class MessageMapper @Inject constructor(
                     messageContent = content,
                     messageSource = if (sender is SelfUser) MessageSource.Self else MessageSource.OtherUser,
                     messageHeader = provideMessageHeader(sender, message),
+                    messageFooter = MessageFooter(message.id, reactions = mapOf<String, Int>("🦄" to 2, "👍" to 1), ownReactions = arrayListOf("👍")),
                     userAvatarData = getUserAvatarData(sender)
                 )
         }

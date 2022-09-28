@@ -52,6 +52,13 @@ class MessageMapper @Inject constructor(
                 message = message,
                 userList = userList
             )
+
+            val footer = if(message is Message.Regular) {
+                MessageFooter(message.id, message.reactions.totalReactions, message.reactions.selfUserReactions)
+            } else {
+                MessageFooter(message.id)
+            }
+
             if (message is Message.System && content == null)
                 null // system messages doesn't have header so without the content there is nothing to be displayed
             else
@@ -59,7 +66,7 @@ class MessageMapper @Inject constructor(
                     messageContent = content,
                     messageSource = if (sender is SelfUser) MessageSource.Self else MessageSource.OtherUser,
                     messageHeader = provideMessageHeader(sender, message),
-                    messageFooter = MessageFooter(message.id, reactions = mapOf<String, Int>("🦄" to 2, "👍" to 1), ownReactions = arrayListOf("👍")),
+                    messageFooter = footer,
                     userAvatarData = getUserAvatarData(sender)
                 )
         }

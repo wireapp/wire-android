@@ -26,7 +26,7 @@ import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 
-val mockFooter = MessageFooter("", mapOf("👍" to 1), arrayListOf("👍"))
+val mockFooter = MessageFooter("", mapOf("👍" to 1), setOf("👍"))
 
 val mockMessageWithText = UIMessage(
     userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),

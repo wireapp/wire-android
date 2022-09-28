@@ -46,8 +46,8 @@ data class MessageHeader(
 @Stable
 data class MessageFooter(
     val messageId: String,
-    val reactions: Map<String, Int>,
-    val ownReactions: ArrayList<String>,
+    val reactions: Map<String, Int> = emptyMap(),
+    val ownReactions: Set<String> = emptySet(),
 )
 
 sealed class MessageStatus(val text: UIText) {

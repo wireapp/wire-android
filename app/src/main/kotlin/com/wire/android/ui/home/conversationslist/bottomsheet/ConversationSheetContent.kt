@@ -24,7 +24,7 @@ fun ConversationSheetContent(
     deleteGroup: (GroupDialogState) -> Unit
 ) {
     when (conversationSheetState.currentOptionNavigation) {
-        ConversationOptionNavigation.Home -> {
+        ConversationNavigationOptions.Home -> {
             ConversationMainSheetContent(
                 conversationSheetContent = conversationSheetState.conversationSheetContent!!,
 // TODO(profile): enable when implemented
@@ -39,7 +39,7 @@ fun ConversationSheetContent(
                 navigateToNotification = conversationSheetState::toMutingNotificationOption
             )
         }
-        ConversationOptionNavigation.MutingNotificationOption -> {
+        ConversationNavigationOptions.MutingOptionsNotification -> {
             MutingOptionsSheetContent(
                 mutingConversationState = conversationSheetState.conversationSheetContent!!.mutingConversationState,
                 onMuteConversation = onMutingConversationStatusChange,
@@ -48,14 +48,19 @@ fun ConversationSheetContent(
         }
     }
 
-    BackHandler(conversationSheetState.currentOptionNavigation is ConversationOptionNavigation.MutingNotificationOption) {
+    BackHandler(conversationSheetState.currentOptionNavigation is ConversationNavigationOptions.MutingOptionsNotification) {
         conversationSheetState.toHome()
     }
 }
 
-sealed class ConversationOptionNavigation {
-    object Home : ConversationOptionNavigation()
-    object MutingNotificationOption : ConversationOptionNavigation()
+
+sealed interface ConversationNavigationOptions {
+    object Home : ConversationNavigationOptions, OtherUserNavigationOption
+    object MutingOptionsNotification : ConversationNavigationOptions, OtherUserNavigationOption
+}
+
+sealed interface OtherUserNavigationOption {
+    object ChangeRole : OtherUserNavigationOption
 }
 
 sealed class ConversationTypeDetail {
@@ -65,6 +70,7 @@ sealed class ConversationTypeDetail {
         val userId: UserId,
         val blockingState: BlockingState
     ) : ConversationTypeDetail()
+
     data class Connection(val avatarAsset: UserAvatarAsset?) : ConversationTypeDetail()
 }
 

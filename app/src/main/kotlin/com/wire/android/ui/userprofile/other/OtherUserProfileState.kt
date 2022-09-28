@@ -32,25 +32,25 @@ data class OtherUserProfileState(
     val otherUserClients: List<OtherUserClient> = listOf()
 ) {
     fun setBottomSheetStateToConversation(): OtherUserProfileState =
-        conversationSheetContent?.let { copy(bottomSheetContentState = BottomSheetContent.Conversation(it)) } ?: this
+        conversationSheetContent?.let { copy(bottomSheetContentState = OtherUserBottomSheetContent.Conversation(it)) } ?: this
 
     fun setBottomSheetStateToMuteOptions(): OtherUserProfileState =
-        conversationSheetContent?.let { copy(bottomSheetContentState = BottomSheetContent.Mute(it)) } ?: this
+        conversationSheetContent?.let { copy(bottomSheetContentState = OtherUserBottomSheetContent.Mute(it)) } ?: this
 
     fun setBottomSheetStateToChangeRole(): OtherUserProfileState =
-        groupInfoAvailiblity?.let { copy(bottomSheetContentState = BottomSheetContent.ChangeRole(it)) } ?: this
+        groupInfoAvailiblity?.let { copy(bottomSheetContentState = OtherUserBottomSheetContent.ChangeRole(it)) } ?: this
 
     fun updateMuteStatus(status: MutedConversationStatus): OtherUserProfileState {
         return conversationSheetContent?.let {
             val newConversationSheetContent = conversationSheetContent.copy(mutingConversationState = status)
             val newBottomSheetContentState = when (bottomSheetContentState) {
-                is BottomSheetContent.Mute -> bottomSheetContentState.copy(
+                is OtherUserBottomSheetContent.Mute -> bottomSheetContentState.copy(
                     conversationData = bottomSheetContentState.conversationData.copy(mutingConversationState = status)
                 )
-                is BottomSheetContent.Conversation -> bottomSheetContentState.copy(
+                is OtherUserBottomSheetContent.Conversation -> bottomSheetContentState.copy(
                     conversationData = bottomSheetContentState.conversationData.copy(mutingConversationState = status)
                 )
-                is BottomSheetContent.ChangeRole -> bottomSheetContentState
+                is OtherUserBottomSheetContent.ChangeRole -> bottomSheetContentState
                 null -> null
             }
             copy(conversationSheetContent = newConversationSheetContent, bottomSheetContentState = newBottomSheetContentState)

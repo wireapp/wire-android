@@ -14,7 +14,7 @@ import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.home.HomeSnackbarState
 import com.wire.android.ui.home.conversations.details.menu.DeleteConversationGroupDialog
 import com.wire.android.ui.home.conversations.details.menu.LeaveConversationGroupDialog
-import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationOptionNavigation
+import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationNavigationOptions
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
 import com.wire.android.ui.home.conversationslist.bottomsheet.rememberConversationSheetState
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
@@ -51,12 +51,12 @@ fun ConversationRouterHomeBridge(
 
     fun openConversationBottomSheet(
         conversationItem: ConversationItem,
-        conversationOptionNavigation: ConversationOptionNavigation = ConversationOptionNavigation.Home
+        conversationNavigationOptions: ConversationNavigationOptions = ConversationNavigationOptions.Home
     ) {
         onHomeBottomSheetContentChanged {
             val conversationState = rememberConversationSheetState(
                 conversationItem = conversationItem,
-                conversationOptionNavigation = conversationOptionNavigation
+                conversationNavigationOptions = conversationNavigationOptions
             )
             // if we reopen the BottomSheet of the previous conversation for example:
             // when the user swipes down the BottomSheet manually when having mute option open
@@ -65,7 +65,7 @@ fun ConversationRouterHomeBridge(
             // conversationOptionNavigation is equal to ConversationOptionNavigation.MutingNotificationOption
             conversationState.conversationId?.let { conversationId ->
                 if (conversationId == conversationItem.conversationId &&
-                    conversationOptionNavigation != ConversationOptionNavigation.MutingNotificationOption
+                    conversationNavigationOptions != ConversationNavigationOptions.MutingOptionsNotification
                 ) {
                     conversationState.toHome()
                 }
@@ -102,7 +102,7 @@ fun ConversationRouterHomeBridge(
         { conversationItem ->
             openConversationBottomSheet(
                 conversationItem = conversationItem,
-                conversationOptionNavigation = ConversationOptionNavigation.MutingNotificationOption
+                conversationNavigationOptions = ConversationNavigationOptions.MutingOptionsNotification
             )
         }
     }

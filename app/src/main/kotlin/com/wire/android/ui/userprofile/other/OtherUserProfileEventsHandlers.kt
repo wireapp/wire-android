@@ -15,7 +15,7 @@ interface OtherUserProfileEventsHandler {
     fun setBottomSheetStateToChangeRole()
     fun onRemoveConversationMember(state: RemoveConversationMemberState)
     fun onUnblockUser(userId: UserId)
-    fun getOtherUserClients()
+    fun fetchOtherUserClients()
 
     companion object {
         @Suppress("TooManyFunctions")
@@ -24,7 +24,7 @@ interface OtherUserProfileEventsHandler {
             override fun setBottomSheetStateToChangeRole() {}
             override fun onRemoveConversationMember(state: RemoveConversationMemberState) {}
             override fun onUnblockUser(userId: UserId) {}
-            override fun getOtherUserClients() {}
+            override fun fetchOtherUserClients() {}
             override fun navigateBack(): Job {
                 TODO()
             }

@@ -187,14 +187,14 @@ class OtherUserProfileScreenViewModelTest {
     fun `given a group conversationId, when loading the data, then return group state`() =
         runTest {
             // given
-            val expected = OtherUserProfileGroupState("some_name", Member.Role.Member, false, CONVERSATION_ID)
+            val expected = OtherUserProfileGroupInfo("some_name", Member.Role.Member, false, CONVERSATION_ID)
             val (arrangement, viewModel) = OtherUserProfileViewModelArrangement()
                 .withConversationIdInSavedState(CONVERSATION_ID.toString())
                 .withGetOneToOneConversation(CreateConversationResult.Success(CONVERSATION))
                 .arrange()
 
             // when
-            val groupState = viewModel.state.groupState
+            val groupState = viewModel.state.groupInfoAvailiblity
 
             // then
             coVerify {
@@ -214,7 +214,7 @@ class OtherUserProfileScreenViewModelTest {
                 .arrange()
 
             // when
-            val groupState = viewModel.state.groupState
+            val groupState = viewModel.state.groupInfoAvailiblity
 
             // then
             coVerify {
@@ -368,7 +368,7 @@ class OtherUserProfileScreenViewModelTest {
             arrangement.getOrCreateOneToOneConversation(USER_ID) wasNot Called
         }
 
-        assertEquals(false, viewModel.state.isDataLoading)
+        assertEquals(false, viewModel.state.isLoading)
         assertEquals(OTHER_USER.name.orEmpty(), viewModel.state.fullName)
         assertEquals(UsernameMapper.mapUserLabel(OTHER_USER), viewModel.state.userName)
         assertEquals(TEAM.name.orEmpty(), viewModel.state.teamName)

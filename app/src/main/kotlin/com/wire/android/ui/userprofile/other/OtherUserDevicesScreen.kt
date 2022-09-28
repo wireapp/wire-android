@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.itemsIndexed
-import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -22,48 +21,49 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.CustomTabsHelper
 import com.wire.android.util.ui.LinkText
 import com.wire.android.util.ui.LinkTextData
+import com.wire.kalium.logic.data.client.OtherUserClient
 import com.wire.kalium.logic.data.conversation.ClientId
 
 @Composable
 fun OtherUserDevicesScreen(
-    lazyListState: LazyListState = rememberLazyListState(),
-    state: OtherUserProfileState
+    lazyListState: LazyListState,
+    fullName : String,
+    otherUserClients: List<OtherUserClient>
 ) {
     val context = LocalContext.current
     val supportUrl = BuildConfig.SUPPORT_URL + stringResource(id = R.string.url_why_verify_conversation)
-    with(state) {
-        LazyColumn(
-            state = lazyListState,
-            modifier = Modifier
-                .fillMaxSize()
-                .background(color = MaterialTheme.wireColorScheme.surface)
-        ) {
-            item {
-                LinkText(
-                    linkTextData = listOf(
-                        LinkTextData(
-                            text = stringResource(R.string.other_user_devices_decription, fullName),
-                        ),
-                        LinkTextData(
-                            text = stringResource(id = R.string.label_learn_more),
-                            tag = "learn_more",
-                            annotation = supportUrl,
-                            onClick = {
-                                CustomTabsHelper.launchUrl(context, supportUrl)
-                            },
-                        )
-                    ),
-                    modifier = Modifier
-                        .padding(
-                            all = dimensions().spacing16x,
-                        )
-                )
-            }
 
-            itemsIndexed(otherUserClients) { index, item ->
-                RemoveDeviceItem(Device(item.deviceType.name, ClientId(item.id), ""), false, null)
-                if (index < otherUserClients.lastIndex) Divider()
-            }
+    LazyColumn(
+        state = lazyListState,
+        modifier = Modifier
+            .fillMaxSize()
+            .background(color = MaterialTheme.wireColorScheme.surface)
+    ) {
+        item {
+            LinkText(
+                linkTextData = listOf(
+                    LinkTextData(
+                        text = stringResource(R.string.other_user_devices_decription, fullName),
+                    ),
+                    LinkTextData(
+                        text = stringResource(id = R.string.label_learn_more),
+                        tag = "learn_more",
+                        annotation = supportUrl,
+                        onClick = {
+                            CustomTabsHelper.launchUrl(context, supportUrl)
+                        },
+                    )
+                ),
+                modifier = Modifier
+                    .padding(
+                        all = dimensions().spacing16x,
+                    )
+            )
+        }
+
+        itemsIndexed(otherUserClients) { index, item ->
+            RemoveDeviceItem(Device(item.deviceType.name, ClientId(item.id), ""), false, null)
+            if (index < otherUserClients.lastIndex) Divider()
         }
     }
 }

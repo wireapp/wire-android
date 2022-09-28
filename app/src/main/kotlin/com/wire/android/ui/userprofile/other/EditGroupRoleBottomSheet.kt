@@ -14,7 +14,7 @@ import com.wire.kalium.logic.data.conversation.Conversation.Member
 
 @Composable
 fun EditGroupRoleBottomSheet(
-    groupState: OtherUserProfileGroupState,
+    groupState: OtherUserProfileGroupInfo,
     changeMemberRole: (Member.Role) -> Unit,
     closeChangeRoleBottomSheet: () -> Unit
 ) {

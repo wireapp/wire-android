@@ -129,7 +129,9 @@ fun rememberOtherUserProfilePagerState(showGroupOption: Boolean): OtherUserProfi
 
     val topBarMaxBarElevation = MaterialTheme.wireDimensions.topBarShadowElevation
     val tabBarElevationState by remember(tabItems, tabItemsLazyListState, currentTabState) {
-        derivedStateOf { tabItemsLazyListState[tabItems[currentTabState]]?.topBarElevation(topBarMaxBarElevation) ?: 0.dp }
+        derivedStateOf {
+            tabItemsLazyListState[tabItems[currentTabState]]?.topBarElevation(topBarMaxBarElevation) ?: 0.dp
+        }
     }
 
     return remember(currentTabState, tabItems, tabBarElevationState) {

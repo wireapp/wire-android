@@ -1,14 +1,34 @@
 package com.wire.android.ui.home.conversations.edit
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.width
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LocalContentColor
+import androidx.compose.material3.LocalMinimumTouchTargetEnforcement
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import com.wire.android.R
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.MenuItemIcon
+import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.theme.wireTypography
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditMessageMenuItems(
     isCopyable: Boolean,
@@ -17,6 +37,37 @@ fun EditMessageMenuItems(
     onDeleteMessage: () -> Unit,
 ): List<@Composable () -> Unit> {
     return buildList {
+        add {
+            Column() {
+                Row() {
+                    Spacer(modifier = Modifier.width(8.dp))
+                    Text("REACTIONS", style = MaterialTheme.wireTypography.label01)
+                }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    listOf("👍", "❤️", "🚀", "🤯", "😄", "🤣", "👎").forEach {
+                        CompositionLocalProvider(
+                            LocalMinimumTouchTargetEnforcement provides false
+                        ) {
+                            Button(
+                                onClick = {},
+                                modifier = Modifier.defaultMinSize(minWidth = 1.dp, minHeight = 1.dp),
+                                contentPadding = PaddingValues(8.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    containerColor = MaterialTheme.wireColorScheme.surface,
+                                    contentColor = MaterialTheme.wireColorScheme.secondaryButtonSelectedOutline
+                                )
+                            ) {
+                                Text("$it", style = TextStyle(fontSize = 28.sp))
+                            }
+                        }
+                    }
+                }
+            }
+
+        }
         add {
             if (isCopyable) {
                 MenuBottomSheetItem(

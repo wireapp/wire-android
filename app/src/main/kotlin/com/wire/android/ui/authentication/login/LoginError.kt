@@ -18,6 +18,8 @@ sealed class LoginError {
         object PasswordNeededToRegisterClient : DialogError()
         data class SSOResultError constructor(val result: SSOFailureCodes) :
             DialogError()
+        object ServerVersionNotSupported: DialogError()
+        object ClientUpdateRequired: DialogError()
     }
 
     object TooManyDevicesError : LoginError()

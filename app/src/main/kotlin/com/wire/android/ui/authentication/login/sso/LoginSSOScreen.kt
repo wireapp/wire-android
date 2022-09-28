@@ -15,6 +15,7 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
@@ -31,6 +32,7 @@ import com.wire.android.ui.authentication.login.LoginError
 import com.wire.android.ui.authentication.login.LoginErrorDialog
 import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.common.button.WireButtonState
+import com.wire.android.ui.common.collectAsStateLifecycleAware
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
@@ -52,12 +54,15 @@ fun LoginSSOScreen(
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val loginSSOViewModel: LoginSSOViewModel = hiltViewModel()
+
+    val loginState by loginSSOViewModel.loginStateFlow.collectAsStateLifecycleAware()
+
     LaunchedEffect(ssoLoginResult) {
         loginSSOViewModel.handleSSOResult(ssoLoginResult)
     }
     LoginSSOContent(
         scrollState = scrollState,
-        loginState = loginSSOViewModel.loginState,
+        loginState = loginState,
         onCodeChange = loginSSOViewModel::onSSOCodeChange,
         onDialogDismiss = loginSSOViewModel::onDialogDismiss,
         onRemoveDeviceOpen = loginSSOViewModel::onTooManyDevicesError,
@@ -106,7 +111,7 @@ private fun LoginSSOContent(
         ) { scope.launch { onLoginButtonClick() } }
     }
     if (loginState.loginError is LoginError.DialogError) {
-        LoginErrorDialog(loginState.loginError, onDialogDismiss, ssoLoginResult)
+        LoginErrorDialog(loginState.loginError, onDialogDismiss, {}, ssoLoginResult)
     } else if (loginState.loginError is LoginError.TooManyDevicesError) {
         onRemoveDeviceOpen()
     }

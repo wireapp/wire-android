@@ -18,6 +18,7 @@ import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.server.FetchApiVersionResult
 import com.wire.kalium.logic.feature.server.FetchApiVersionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -40,17 +41,18 @@ class LoginEmailViewModel @Inject constructor(
 ) {
 
     fun login() {
-        loginState = loginState.copy(emailLoginLoading = true, loginError = LoginError.None).updateEmailLoginEnabled()
+        updateLoginState(loginStateFlow.value.copy(emailLoginLoading = true, loginError = LoginError.None).updateEmailLoginEnabled())
+
         viewModelScope.launch {
             fetchApiVersion(serverConfig).let {
                 when (it) {
                     is FetchApiVersionResult.Success -> {}
                     is FetchApiVersionResult.Failure.UnknownServerVersion -> {
-                        loginState = loginState.copy(showServerVersionNotSupportedDialog = true)
+                        updateLoginState(loginStateFlow.value.copy(loginError = LoginError.DialogError.ServerVersionNotSupported))
                         return@launch
                     }
                     is FetchApiVersionResult.Failure.TooNewVersion -> {
-                        loginState = loginState.copy(showClientUpdateDialog = true)
+                        updateLoginState(loginStateFlow.value.copy(loginError = LoginError.DialogError.ClientUpdateRequired))
                         return@launch
                     }
                     is FetchApiVersionResult.Failure.Generic -> {
@@ -59,7 +61,7 @@ class LoginEmailViewModel @Inject constructor(
                 }
             }
 
-            val loginResult = loginUseCase(loginState.userIdentifier.text, loginState.password.text, true)
+            val loginResult = loginUseCase(loginStateFlow.value.userIdentifier.text, loginStateFlow.value.password.text, true)
                 .let {
                     when (it) {
                         is AuthenticationResult.Failure -> {
@@ -86,7 +88,9 @@ class LoginEmailViewModel @Inject constructor(
                         is AddAuthenticatedUserUseCase.Result.Success -> it.userId
                     }
                 }
-            registerClient(storedUserId, loginState.password.text).let {
+
+            delay(5000)
+            registerClient(storedUserId, loginStateFlow.value.password.text).let {
                 when (it) {
                     is RegisterClientResult.Failure -> {
                         updateEmailLoginError(it.toLoginError())
@@ -103,14 +107,15 @@ class LoginEmailViewModel @Inject constructor(
 
     fun onUserIdentifierChange(newText: TextFieldValue) {
         // in case an error is showing e.g. inline error is should be cleared
-        if (loginState.loginError is LoginError.TextFieldError && newText != loginState.userIdentifier) {
+        if (loginStateFlow.value.loginError is LoginError.TextFieldError && newText != loginStateFlow.value.userIdentifier) {
             clearEmailLoginError()
         }
-        loginState = loginState.copy(userIdentifier = newText).updateEmailLoginEnabled()
-        savedStateHandle.set(USER_IDENTIFIER_SAVED_STATE_KEY, newText.text)
+
+        updateLoginState(loginStateFlow.value.copy(userIdentifier = newText).updateEmailLoginEnabled())
+        savedStateHandle[USER_IDENTIFIER_SAVED_STATE_KEY] = newText.text
     }
 
     fun onPasswordChange(newText: TextFieldValue) {
-        loginState = loginState.copy(password = newText).updateEmailLoginEnabled()
+        updateLoginState(loginStateFlow.value.copy(password = newText).updateEmailLoginEnabled())
     }
 }

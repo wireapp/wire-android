@@ -7,7 +7,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
-import com.wire.android.di.NoSession
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.login.LoginError
 import com.wire.android.ui.authentication.login.LoginViewModel
@@ -15,14 +14,12 @@ import com.wire.android.ui.authentication.login.toLoginError
 import com.wire.android.ui.authentication.login.updateSSOLoginEnabled
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.kalium.logic.CoreFailure
-import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.sso.GetSSOLoginSessionUseCase
 import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginResult
 import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginUseCase
 import com.wire.kalium.logic.feature.auth.sso.SSOLoginSessionResult
 import com.wire.kalium.logic.feature.client.RegisterClientResult
-import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.launch
@@ -49,9 +46,9 @@ class LoginSSOViewModel @Inject constructor(
     var openWebUrl = MutableSharedFlow<String>()
 
     fun login() {
-        loginState = loginState.copy(ssoLoginLoading = true, loginError = LoginError.None).updateSSOLoginEnabled()
+        updateLoginState(loginStateFlow.value.copy(ssoLoginLoading = true, loginError = LoginError.None).updateSSOLoginEnabled())
         viewModelScope.launch {
-            ssoInitiateLoginUseCase(SSOInitiateLoginUseCase.Param.WithRedirect(loginState.ssoCode.text)).let { result ->
+            ssoInitiateLoginUseCase(SSOInitiateLoginUseCase.Param.WithRedirect(loginStateFlow.value.ssoCode.text)).let { result ->
                 when (result) {
                     is SSOInitiateLoginResult.Failure -> updateSSOLoginError(result.toLoginSSOError())
                     is SSOInitiateLoginResult.Success -> openWebUrl(result.requestUrl)
@@ -62,7 +59,7 @@ class LoginSSOViewModel @Inject constructor(
 
     @VisibleForTesting
     fun establishSSOSession(cookie: String, serverConfigId: String) {
-        loginState = loginState.copy(ssoLoginLoading = true, loginError = LoginError.None).updateSSOLoginEnabled()
+        updateLoginState(loginStateFlow.value.copy(ssoLoginLoading = true, loginError = LoginError.None).updateSSOLoginEnabled())
         viewModelScope.launch {
             val (authTokens, ssoId) = getSSOLoginSessionUseCase(cookie).let {
                 when (it) {
@@ -104,10 +101,11 @@ class LoginSSOViewModel @Inject constructor(
 
     fun onSSOCodeChange(newText: TextFieldValue) {
         // in case an error is showing e.g. inline error is should be cleared
-        if (loginState.loginError is LoginError.TextFieldError && newText != loginState.ssoCode) {
+        if (loginStateFlow.value.loginError is LoginError.TextFieldError && newText != loginStateFlow.value.ssoCode) {
             clearSSOLoginError()
         }
-        loginState = loginState.copy(ssoCode = newText).updateSSOLoginEnabled()
+//        loginState = loginState.copy(ssoCode = newText).updateSSOLoginEnabled()
+        updateLoginState(loginStateFlow.value.copy(ssoCode = newText).updateSSOLoginEnabled())
         savedStateHandle.set(SSO_CODE_SAVED_STATE_KEY, newText.text)
     }
 
@@ -122,7 +120,7 @@ class LoginSSOViewModel @Inject constructor(
 
     private fun openWebUrl(url: String) {
         viewModelScope.launch {
-            loginState = loginState.copy(ssoLoginLoading = false, loginError = LoginError.None).updateSSOLoginEnabled()
+            updateLoginState(loginStateFlow.value.copy(ssoLoginLoading = false, loginError = LoginError.None).updateSSOLoginEnabled())
             openWebUrl.emit(url)
         }
     }

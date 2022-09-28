@@ -89,7 +89,6 @@ class LoginEmailViewModel @Inject constructor(
                     }
                 }
 
-            delay(5000)
             registerClient(storedUserId, loginStateFlow.value.password.text).let {
                 when (it) {
                     is RegisterClientResult.Failure -> {

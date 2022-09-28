@@ -137,6 +137,7 @@ fun ConversationScreen(
         onImageFullScreenMode = messageComposerViewModel::navigateToGallery,
         onBackButtonClick = messageComposerViewModel::navigateBack,
         onDeleteMessage = messageComposerViewModel::showDeleteMessageDialog,
+        onReactionClick = conversationMessagesViewModel::toggleReaction,
         onStartCall = { startCallIfPossible(conversationCallViewModel, showDialog, startCallAudioPermissionCheck, coroutineScope) },
         onJoinCall = conversationCallViewModel::joinOngoingCall,
         onSnackbarMessage = messageComposerViewModel::onSnackbarMessage,
@@ -204,6 +205,7 @@ private fun ConversationScreen(
     onImageFullScreenMode: (String, Boolean) -> Unit,
     onBackButtonClick: () -> Unit,
     onDeleteMessage: (String, Boolean) -> Unit,
+    onReactionClick: (messageId: String, reactionEmoji: String) -> Unit,
     onStartCall: () -> Unit,
     onJoinCall: () -> Unit,
     onSnackbarMessage: (ConversationSnackbarMessages) -> Unit,
@@ -215,12 +217,23 @@ private fun ConversationScreen(
     isSendingMessagesAllowed: Boolean,
 ) {
     val conversationScreenState = rememberConversationScreenState()
+
     val menuModalOnDeleteMessage = remember {
         {
             conversationScreenState.hideEditContextMenu()
             onDeleteMessage(
                 conversationScreenState.selectedMessage?.messageHeader!!.messageId,
                 conversationScreenState.isMyMessage
+            )
+        }
+    }
+
+    val menuModalOnReactionClick = remember {
+        { emoji: String ->
+            conversationScreenState.hideEditContextMenu()
+            onReactionClick(
+                conversationScreenState.selectedMessage?.messageHeader!!.messageId,
+                emoji
             )
         }
     }
@@ -234,7 +247,8 @@ private fun ConversationScreen(
             isCopyable = conversationScreenState.isTextMessage,
             isEditable = conversationScreenState.isMyMessage && localFeatureVisibilityFlags.MessageEditIcon,
             onCopyMessage = conversationScreenState::copyMessage,
-            onDeleteMessage = menuModalOnDeleteMessage
+            onDeleteMessage = menuModalOnDeleteMessage,
+            onReactionClick = menuModalOnReactionClick
         )
     ) {
         BoxWithConstraints {
@@ -294,6 +308,7 @@ private fun ConversationScreen(
                             onShowContextMenu = conversationScreenState::showEditContextMenu,
                             onSendAttachment = onSendAttachment,
                             onDownloadAsset = onDownloadAsset,
+                            onReactionClicked = onReactionClick,
                             onImageFullScreenMode = onImageFullScreenMode,
                             conversationState = conversationViewState,
                             onMessageComposerError = onSnackbarMessage,
@@ -324,6 +339,7 @@ private fun ConversationScreenContent(
     onShowContextMenu: (UIMessage) -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onDownloadAsset: (String) -> Unit,
+    onReactionClicked: (String, String) -> Unit,
     onImageFullScreenMode: (String, Boolean) -> Unit,
     onOpenProfile: (MessageSource, UserId) -> Unit,
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
@@ -358,7 +374,7 @@ private fun ConversationScreenContent(
                 onImageFullScreenMode = onImageFullScreenMode,
                 onOpenProfile = onOpenProfile,
                 onUpdateConversationReadDate = onUpdateConversationReadDate,
-                onReactionClicked = {_, _, -> }
+                onReactionClicked = onReactionClicked
             )
         },
         onSendTextMessage = onSendMessage,
@@ -473,7 +489,7 @@ fun MessageList(
                     onAssetMessageClicked = onDownloadAsset,
                     onImageMessageClicked = onImageFullScreenMode,
                     onAvatarClicked = onOpenProfile,
-                    onReactionClicked = { _ , _ -> TODO() }
+                    onReactionClicked = onReactionClicked
                 )
             }
         }
@@ -493,6 +509,7 @@ fun ConversationScreenPreview() {
         onSendMessage = { },
         onSendAttachment = { },
         onDownloadAsset = { },
+        onReactionClick = {_,_ -> },
         onImageFullScreenMode = { _, _ -> },
         onBackButtonClick = { },
         onDeleteMessage = { _, _ -> },

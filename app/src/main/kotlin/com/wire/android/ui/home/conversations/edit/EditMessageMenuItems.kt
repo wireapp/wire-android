@@ -35,6 +35,7 @@ fun EditMessageMenuItems(
     isEditable: Boolean,
     onCopyMessage: () -> Unit,
     onDeleteMessage: () -> Unit,
+    onReactionClick: (emoji: String) -> Unit,
 ): List<@Composable () -> Unit> {
     return buildList {
         add {
@@ -47,12 +48,16 @@ fun EditMessageMenuItems(
                     modifier = Modifier.fillMaxWidth(),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    listOf("👍", "❤️", "🚀", "🤯", "😄", "🤣", "👎").forEach {
+                    listOf("👍", "❤️", "🚀", "🤯", "😄", "🤣", "👎").forEach { emoji ->
                         CompositionLocalProvider(
                             LocalMinimumTouchTargetEnforcement provides false
                         ) {
                             Button(
-                                onClick = {},
+                                onClick = {
+                                    val correctedEmoji = if (emoji == "❤️") "❤"
+                                    else emoji
+                                    onReactionClick(correctedEmoji)
+                                },
                                 modifier = Modifier.defaultMinSize(minWidth = 1.dp, minHeight = 1.dp),
                                 contentPadding = PaddingValues(8.dp),
                                 colors = ButtonDefaults.buttonColors(
@@ -60,7 +65,7 @@ fun EditMessageMenuItems(
                                     contentColor = MaterialTheme.wireColorScheme.secondaryButtonSelectedOutline
                                 )
                             ) {
-                                Text("$it", style = TextStyle(fontSize = 28.sp))
+                                Text(emoji, style = TextStyle(fontSize = 28.sp))
                             }
                         }
                     }

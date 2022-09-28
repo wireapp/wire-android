@@ -42,6 +42,7 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseC
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
+import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
 import com.wire.kalium.logic.feature.message.getPaginatedFlowOfMessagesByConversation
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
 import com.wire.kalium.logic.feature.publicuser.GetKnownUserUseCase
@@ -416,6 +417,13 @@ class UseCaseModule {
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
     ): SendTextMessageUseCase = coreLogic.getSessionScope(currentAccount).messages.sendTextMessage
+
+    @ViewModelScoped
+    @Provides
+    fun provideToggleReactionUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): ToggleReactionUseCase = coreLogic.getSessionScope(currentAccount).messages.toggleReaction
 
     @ViewModelScoped
     @Provides

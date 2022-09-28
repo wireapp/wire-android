@@ -214,7 +214,7 @@ private fun MessageFooter(
             val count = it.value
             Pill(
                 emoji = reaction,
-                count = "$count",
+                count = count,
                 isOwn = messageFooter.ownReactions.contains(reaction),
                 onTap = {
                     onReactionClicked(messageFooter.messageId, reaction)
@@ -228,11 +228,10 @@ private fun MessageFooter(
 @Composable
 private fun Pill(
     emoji: String,
-    count: String,
+    count: Int,
     isOwn: Boolean,
     onTap: () -> Unit
 ) {
-    val count =  remember { mutableStateOf(count.toInt()) }
 
     val strokeColor = if (isOwn) {
         MaterialTheme.wireColorScheme.secondaryButtonSelectedOutline
@@ -256,7 +255,7 @@ private fun Pill(
         LocalMinimumTouchTargetEnforcement provides false
     ) {
         OutlinedButton(
-            onClick = { count.value += 1 },
+            onClick = onTap,
             border = BorderStroke(1.dp, strokeColor),
             shape =  RoundedCornerShape(12.dp),
             colors = ButtonDefaults.outlinedButtonColors(containerColor = backgroundColor),
@@ -269,7 +268,7 @@ private fun Pill(
                 style = TextStyle(fontSize = 12.sp)
             )
             Text(
-                count.value.toString(),
+                count.toString(),
                 modifier = Modifier.padding(start = 4.dp, end = 0.dp, top = 0.dp, bottom = 0.dp),
                 style = MaterialTheme.wireTypography.label02,
                 color = textColor

@@ -55,12 +55,14 @@ fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltView
 
     OtherProfileScreenContent(
         screenState = screenState,
-        state = viewModel.state,
-        requestInProgress = viewModel.requestInProgress,
-        eventsHandler = viewModel,
-        footerEventsHandler = viewModel,
-        bottomSheetEventsHandler = viewModel
+        viewModelState = viewModel.state,
+        eventsHandler = viewModel as OtherUserProfileEventsHandler,
+        footerEventsHandler = viewModel as OtherUserProfileFooterEventsHandler
     )
+
+    if (!viewModel.requestInProgress) {
+        screenState.dismissDialogs()
+    }
 
     LaunchedEffect(Unit) {
         viewModel.infoMessage.collect {
@@ -77,9 +79,10 @@ fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltView
             // and then it moves to the bottom.
             // It happens cause when `sheetState.show()` is called, it calculates animation offset by the old BS height (which was big)
             // To avoid such case we clear BS content on every closing
-            if (!isVisible) viewModel.clearBottomSheetState()
+//            if (!isVisible) viewModel.clearBottomSheetState()
         }
     }
+
 }
 
 @SuppressLint("UnusedCrossfadeTargetStateParameter", "LongParameterList")
@@ -91,31 +94,16 @@ fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltView
 @Composable
 fun OtherProfileScreenContent(
     screenState: OtherUserProfileScreenState,
-    state: OtherUserProfileState,
-    requestInProgress: Boolean,
+    viewModelState: OtherUserProfileState,
     eventsHandler: OtherUserProfileEventsHandler,
-    footerEventsHandler: OtherUserProfileFooterEventsHandler,
-    bottomSheetEventsHandler: OtherUserProfileBottomSheetEventsHandler,
+    footerEventsHandler: OtherUserProfileFooterEventsHandler
 ) {
-    if (!requestInProgress) {
-        screenState.dismissDialogs()
-    }
-
-    with(state) {
+    with(viewModelState) {
         with(screenState) {
-            WireModalSheetLayout(
-                sheetState = sheetState,
-                coroutineScope = coroutineScope,
-                sheetContent = {
-                    OtherUserProfileBottomSheetContent(
-                        bottomSheetState = state.bottomSheetContentState,
-                        eventsHandler = bottomSheetEventsHandler,
-                        blockUser = blockUserDialogState::show,
-                        closeBottomSheet = ::closeBottomSheet,
-                    )
-                }
-            ) {
-                val otherProfilePagerState = rememberOtherUserProfilePagerState(groupInfoAvailiblity is GroupInfoAvailibility.Available)
+            val screenContent = @Composable {
+                val otherProfilePagerState = rememberOtherUserProfilePagerState(
+                    showGroupOption = groupInfoAvailiblity is GroupInfoAvailibility.Available
+                )
 
                 CollapsingTopBarScaffold(
                     snackbarHost = {
@@ -126,7 +114,7 @@ fun OtherProfileScreenContent(
                     },
                     topBarHeader = { elevation ->
                         TopBarHeader(
-                            state = state,
+                            state = viewModelState,
                             elevation = elevation,
                             onNavigateBack = eventsHandler::navigateBack,
                             openConversationBottomSheet = {
@@ -134,11 +122,11 @@ fun OtherProfileScreenContent(
                                 openBottomSheet()
                             })
                     },
-                    topBarCollapsing = { TopBarCollapsing(state) },
+                    topBarCollapsing = { TopBarCollapsing(viewModelState) },
                     topBarFooter = {
                         with(otherProfilePagerState) {
                             TopBarFooter(
-                                state = state,
+                                state = viewModelState,
                                 pagerState = pagerState,
                                 tabBarElevation = tabBarElevationState,
                                 tabItems = tabItems,
@@ -150,7 +138,7 @@ fun OtherProfileScreenContent(
                     content = {
                         with(otherProfilePagerState) {
                             Content(
-                                state = state,
+                                state = viewModelState,
                                 pagerState = pagerState,
                                 tabItems = tabItems,
                                 details = {
@@ -163,7 +151,7 @@ fun OtherProfileScreenContent(
                                 },
                                 group = {
                                     OtherUserProfileGroup(
-                                        state = state,
+                                        state = viewModelState,
                                         lazyListState = tabItemsLazyListState[OtherUserProfileTabItem.GROUP]!!,
                                         onRemoveFromConversation = removeMemberDialogState::show,
                                         openChangeRoleBottomSheet = {
@@ -188,7 +176,7 @@ fun OtherProfileScreenContent(
                     },
                     bottomBar = {
                         ContentFooter(
-                            state,
+                            viewModelState,
                             otherProfilePagerState.topBarMaxBarElevation,
                             footerEventsHandler,
                             unblockUserDialogState::show
@@ -196,6 +184,22 @@ fun OtherProfileScreenContent(
                     },
                     isSwipeable = connectionState == ConnectionState.ACCEPTED
                 )
+            }
+
+            if (connectionState in listOf(ConnectionState.ACCEPTED, ConnectionState.BLOCKED)) {
+                WireModalSheetLayout(
+                    sheetState = sheetState,
+                    coroutineScope = coroutineScope,
+                    sheetContent = {
+                        OtherUserProfileBottomSheetContent(
+
+                        )
+                    }
+                ) {
+                    screenContent()
+                }
+            } else {
+                screenContent()
             }
 
             BlockUserDialogContent(
@@ -236,7 +240,6 @@ private fun TopBarHeader(
     )
 }
 
-@SuppressLint("UnusedCrossfadeTargetStateParameter")
 @Composable
 private fun TopBarCollapsing(state: OtherUserProfileState) {
     Crossfade(targetState = state.isLoading) { isLoading ->

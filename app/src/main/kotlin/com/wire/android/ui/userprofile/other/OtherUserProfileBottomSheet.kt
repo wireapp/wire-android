@@ -2,7 +2,14 @@ package com.wire.android.ui.userprofile.other
 
 import MutingOptionsSheetContent
 import androidx.activity.compose.BackHandler
+import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ModalBottomSheetState
+import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
+import androidx.compose.runtime.remember
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -31,13 +38,14 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import java.util.Date
 
+
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun OtherUserProfileBottomSheetContent(
-    bottomSheetState: BottomSheetContent?,
-    eventsHandler: OtherUserProfileBottomSheetEventsHandler,
-    blockUser: (BlockUserDialogState) -> Unit,
-    closeBottomSheet: () -> Unit
+
 ) {
+    val viewModel: OtherUserProfileBottomSheetViewModel = hiltViewModel()
+
     when (bottomSheetState) {
         is BottomSheetContent.Conversation -> {
             val conversationId = bottomSheetState.conversationData.conversationId
@@ -185,8 +193,3 @@ class OtherUserProfileBottomSheetViewModel(
 data class OtherUserProfileBottomSheetState(
     val otherUserProfileBottomSheetContent: OtherUserProfileBottomSheetContent
 )
-
-sealed class OtherUserProfileBottomSheetContent {
-    object Initial : OtherUserProfileBottomSheetContent()
-
-}

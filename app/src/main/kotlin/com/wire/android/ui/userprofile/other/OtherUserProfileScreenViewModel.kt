@@ -119,9 +119,12 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     val infoMessage = _infoMessage.asSharedFlow()
 
     init {
-        state = state.copy(isDataLoading = true, isAvatarLoading = true)
+        state = state.copy(
+            isDataLoading = true,
+            isAvatarLoading = true
+        )
 
-        observeUserInfoAndUpdateViewState()
+        observeUserInfo()
         persistClients()
     }
 
@@ -131,9 +134,10 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         }
     }
 
-    private fun observeUserInfoAndUpdateViewState() {
+    private fun observeUserInfo() {
         viewModelScope.launch {
             val userInfoResult = withContext(dispatchers.io()) { observeUserInfo(userId) }
+
             userInfoResult.collect { getInfoResult ->
                 when (getInfoResult) {
                     is GetUserInfoResult.Failure -> {
@@ -150,8 +154,6 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                         observeGroupStateIfNeeded()
 
                         state = state.copy(
-                            isDataLoading = false,
-                            isAvatarLoading = false,
                             userAvatarAsset = userAvatarAsset,
                             fullName = otherUser.name.orEmpty(),
                             userName = mapUserLabel(otherUser),
@@ -161,6 +163,11 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                             connectionState = otherUser.connectionStatus,
                             membership = userTypeMapper.toMembership(otherUser.userType),
                             botService = otherUser.botService,
+                        )
+
+                        state = state.copy(
+                            isDataLoading = false,
+                            isAvatarLoading = false
                         )
                     }
                 }

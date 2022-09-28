@@ -11,12 +11,13 @@ import com.wire.kalium.logic.data.user.BotService
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
 
+
 data class OtherUserProfileState(
     val userId: UserId,
     val conversationId: ConversationId? = null,
     val userAvatarAsset: UserAvatarAsset? = null,
-    val isDataLoading: Boolean = false,
-    val isAvatarLoading: Boolean = false,
+    val isDataLoading: Boolean = true,
+    val isAvatarLoading: Boolean = true,
     val fullName: String = "",
     val userName: String = "",
     val teamName: String = "",

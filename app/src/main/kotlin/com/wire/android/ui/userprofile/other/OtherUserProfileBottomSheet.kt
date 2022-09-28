@@ -3,6 +3,7 @@ package com.wire.android.ui.userprofile.other
 import androidx.activity.compose.BackHandler
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -39,9 +40,29 @@ import java.util.Date
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun OtherUserProfileBottomSheetContent(
-    otherUserNavigationOptions: OtherUserNavigationOptions
+fun OtherUserProfileBottomSheet(
+    otherUserProfileBottomSheetState: OtherUserProfileBottomSheetState
 ) {
+
+    when (otherUserProfileBottomSheetState) {
+        OtherUserProfileBottomSheetState.NotRequested -> {}
+        is OtherUserProfileBottomSheetState.Requested -> {
+        }
+    }
+
+
+}
+
+@Composable
+fun OtherUSerProfileBottomSheetContent(
+    otherUserNavigationOptions: OtherUserNavigationOptions,
+) {
+    val otherUserProfileScreenViewModel: OtherUserProfileScreenViewModel = hiltViewModel()
+
+    LaunchedEffect(Unit) {
+        otherUserProfileScreenViewModel.getAdditionalConversationDetails()
+    }
+
     when (otherUserNavigationOptions) {
         is ConversationNavigationOptions.Home, ConversationNavigationOptions.MutingOptionsNotification -> {
             ConversationSheetState(conversationNavigationOptions = otherUserNavigationOptions)
@@ -53,7 +74,6 @@ fun OtherUserProfileBottomSheetContent(
                 closeChangeRoleBottomSheet = closeBottomSheet
 //            )
         }
-
 //        is OtherUserBottomSheetContent.Conversation -> {
 //            val conversationId = bottomSheetState.conversationData.conversationId
 //            ConversationMainSheetContent(
@@ -84,14 +104,19 @@ fun OtherUserProfileBottomSheetContent(
 //                changeMemberRole = eventsHandler::onChangeMemberRole,
 //                closeChangeRoleBottomSheet = closeBottomSheet
 //            )
-        ConversationNavigationOptions.Loading -> {
 
-        }
     }
 
     BackHandler(bottomSheetState != null) {
         if (bottomSheetState is OtherUserBottomSheetContent.Mute) eventsHandler.setBottomSheetStateToConversation()
         else closeBottomSheet()
     }
+
 }
 
+
+sealed class OtherUserProfileBottomSheetState {
+    object NotRequested : OtherUserProfileBottomSheetState()
+
+    data class Requested(val otherUserNavigationOption: OtherUserNavigationOption) : OtherUserProfileBottomSheetState()
+}

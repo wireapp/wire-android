@@ -191,8 +191,9 @@ fun OtherProfileScreenContent(
                     sheetState = sheetState,
                     coroutineScope = coroutineScope,
                     sheetContent = {
-                        OtherUserProfileBottomSheetContent(
-
+                        OtherUserProfileBottomSheet(
+                            if (conversationDetailOnDemand is ConversationDetailOnDemand.NotRequested) OtherUserProfileBottomSheetState.NotRequested)
+                            else OtherUserProfileBottomSheetState.Requested()
                         )
                     }
                 ) {

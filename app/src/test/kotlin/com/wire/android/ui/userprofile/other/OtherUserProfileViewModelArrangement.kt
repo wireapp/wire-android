@@ -111,7 +111,6 @@ internal class OtherUserProfileViewModelArrangement {
             savedStateHandle,
             navigationManager,
             TestDispatcherProvider(),
-            observeSelfUser,
             updateConversationMutedStatus,
             blockUser,
             unblockUser,

@@ -296,6 +296,7 @@
     <string name="conversation_details_show_all_participants">Show all participants (%d)</string>
     <string name="conversation_details_group_participants_title">Group Participants</string>
     <string name="conversation_details_group_participants_add">Add participants</string>
+    <string name="conversation_participant_you_label">(You)</string>
     <string name="conversation_details_is_classified">SECURITY LEVEL: VS-NfD</string>
     <string name="conversation_details_is_not_classified">SECURITY LEVEL: UNCLASSIFIED</string>
     <string name="conversation_options_guests_label">Guests</string>
@@ -572,4 +573,6 @@
     <string name="custom_backend_dialog_title">Redirect to an on-premises backend?</string>
     <string name="custom_backend_dialog_body">If you proceed, your client will be redirected to the following on-premises backend:\n\nBackend name:\n%1$s\n\nBackend URL:\n%2$s</string>
     <string name="label_fetching_your_messages">Receiving new messages</string>
+    <string name="conversation_empty_list_description">Connect with others or create a new group to start collaborating!</string>
+    <string name="conversation_empty_list_title">Welcome 👋</string>
 </resources>

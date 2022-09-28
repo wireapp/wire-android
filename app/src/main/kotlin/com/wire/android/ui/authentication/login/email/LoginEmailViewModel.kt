@@ -94,7 +94,6 @@ class LoginEmailViewModel @Inject constructor(
                     }
 
                     is RegisterClientResult.Success -> {
-                        registerPushToken(storedUserId, it.client.id)
                         navigateToConvScreen()
                     }
                 }

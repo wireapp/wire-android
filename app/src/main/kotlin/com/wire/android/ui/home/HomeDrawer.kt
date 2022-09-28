@@ -28,13 +28,11 @@ import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.navigation.HomeNavigationItem
-import com.wire.android.navigation.HomeNavigationItem.Conversations
 import com.wire.android.navigation.HomeNavigationItem.Settings
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationItem.Debug
@@ -46,7 +44,6 @@ import com.wire.android.ui.common.selectableBackground
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
-import com.wire.android.util.EMPTY
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -100,7 +97,12 @@ fun HomeDrawer(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        val bottomItems = listOf(Settings, Support, Debug)
+        val bottomItems = buildList {
+            add(Settings)
+            add(Support)
+            add(Debug)
+        }
+
         bottomItems.forEach { item ->
             DrawerItem(
                 data = item.getDrawerData(),

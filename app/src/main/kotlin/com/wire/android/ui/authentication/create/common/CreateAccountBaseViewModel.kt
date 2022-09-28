@@ -39,7 +39,6 @@ import com.wire.kalium.logic.feature.register.RequestActivationCodeResult
 import com.wire.kalium.logic.feature.register.RequestActivationCodeUseCase
 import com.wire.kalium.logic.feature.server.FetchApiVersionResult
 import com.wire.kalium.logic.feature.server.FetchApiVersionUseCase
-import com.wire.kalium.logic.feature.session.RegisterTokenResult
 import kotlinx.coroutines.launch
 
 @Suppress("TooManyFunctions", "LongParameterList")
@@ -260,7 +259,6 @@ abstract class CreateAccountBaseViewModel(
                         return@launch
                     }
                     is RegisterClientResult.Success -> {
-                        registerPushToken(storedUserId, it.client.id)
                         onCodeSuccess()
                     }
                 }
@@ -305,20 +303,6 @@ abstract class CreateAccountBaseViewModel(
                 capabilities = null
             )
         )
-
-    private suspend fun registerPushToken(userId: UserId, clientId: ClientId) {
-        clientScopeProviderFactory.create(userId).clientScope.registerPushToken(BuildConfig.SENDER_ID, clientId)
-            .let { registerTokenResult ->
-                when (registerTokenResult) {
-                    is RegisterTokenResult.Success ->
-                        appLogger.i("PushToken Registered Successfully")
-                    is RegisterTokenResult.Failure ->
-                        //TODO: handle failure in settings to allow the user to retry tokenRegistration
-                        appLogger.i("PushToken Registration Failed: $registerTokenResult")
-                }
-            }
-    }
-
 
     abstract fun onCodeSuccess()
     final override fun onTooManyDevicesError() {

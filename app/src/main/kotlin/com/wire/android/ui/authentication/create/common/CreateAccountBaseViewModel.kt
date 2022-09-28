@@ -7,8 +7,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.BuildConfig
-import com.wire.android.appLogger
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.navigation.BackStackMode
@@ -25,18 +23,16 @@ import com.wire.android.ui.authentication.create.overview.CreateAccountOverviewV
 import com.wire.android.ui.common.textfield.CodeFieldValue
 import com.wire.android.util.WillNeverOccurError
 import com.wire.kalium.logic.configuration.server.ServerConfig
-import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
 import com.wire.kalium.logic.feature.auth.ValidatePasswordUseCase
+import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.client.RegisterClientUseCase.RegisterClientParam
-import com.wire.kalium.logic.feature.register.RegisterAccountUseCase
 import com.wire.kalium.logic.feature.register.RegisterParam
 import com.wire.kalium.logic.feature.register.RegisterResult
 import com.wire.kalium.logic.feature.register.RequestActivationCodeResult
-import com.wire.kalium.logic.feature.register.RequestActivationCodeUseCase
 import com.wire.kalium.logic.feature.server.FetchApiVersionResult
 import com.wire.kalium.logic.feature.server.FetchApiVersionUseCase
 import kotlinx.coroutines.launch
@@ -48,9 +44,8 @@ abstract class CreateAccountBaseViewModel(
     private val navigationManager: NavigationManager,
     private val validateEmailUseCase: ValidateEmailUseCase,
     private val validatePasswordUseCase: ValidatePasswordUseCase,
-    private val requestActivationCodeUseCase: RequestActivationCodeUseCase,
+    private val authScope: AutoVersionAuthScopeUseCase,
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
-    private val registerAccountUseCase: RegisterAccountUseCase,
     private val clientScopeProviderFactory: ClientScopeProvider.Factory,
     private val authServerConfigProvider: AuthServerConfigProvider,
     private val fetchApiVersion: FetchApiVersionUseCase
@@ -142,7 +137,25 @@ abstract class CreateAccountBaseViewModel(
     final override fun onTermsAccept() {
         emailState = emailState.copy(loading = true, continueEnabled = false, termsDialogVisible = false, termsAccepted = true)
         viewModelScope.launch {
-            val emailError = requestActivationCodeUseCase(emailState.email.text.trim().lowercase()).toEmailError()
+            val authScope = authScope().let {
+                when (it) {
+                    is AutoVersionAuthScopeUseCase.Result.Success -> it.authenticationScope
+
+                    is AutoVersionAuthScopeUseCase.Result.Failure.UnknownServerVersion -> {
+                        // TODO: show dialog
+                        return@launch
+                    }
+                    is AutoVersionAuthScopeUseCase.Result.Failure.TooNewVersion -> {
+                        // TODO: show dialog
+                        return@launch
+                    }
+                    is AutoVersionAuthScopeUseCase.Result.Failure.Generic -> {
+                        return@launch
+                    }
+                }
+            }
+
+            val emailError = authScope.registerScope.requestActivationCode(emailState.email.text.trim().lowercase()).toEmailError()
             emailState = emailState.copy(loading = false, continueEnabled = true, error = emailError)
             if (emailError is CreateAccountEmailViewState.EmailError.None) onTermsSuccess()
         }
@@ -218,7 +231,25 @@ abstract class CreateAccountBaseViewModel(
     final override fun resendCode() {
         codeState = codeState.copy(loading = true)
         viewModelScope.launch {
-            val codeError = requestActivationCodeUseCase(emailState.email.text.trim().lowercase()).toCodeError()
+            val authScope = authScope().let {
+                when (it) {
+                    is AutoVersionAuthScopeUseCase.Result.Success -> it.authenticationScope
+
+                    is AutoVersionAuthScopeUseCase.Result.Failure.UnknownServerVersion -> {
+                        // TODO: show dialog
+                        return@launch
+                    }
+                    is AutoVersionAuthScopeUseCase.Result.Failure.TooNewVersion -> {
+                        // TODO: show dialog
+                        return@launch
+                    }
+                    is AutoVersionAuthScopeUseCase.Result.Failure.Generic -> {
+                        return@launch
+                    }
+                }
+            }
+
+            val codeError = authScope.registerScope.requestActivationCode(emailState.email.text.trim().lowercase()).toCodeError()
             codeState = codeState.copy(loading = false, error = codeError)
         }
     }
@@ -226,10 +257,27 @@ abstract class CreateAccountBaseViewModel(
     private fun onCodeContinue() {
         codeState = codeState.copy(loading = true)
         viewModelScope.launch {
+            val authScope = authScope().let {
+                when (it) {
+                    is AutoVersionAuthScopeUseCase.Result.Success -> it.authenticationScope
+
+                    is AutoVersionAuthScopeUseCase.Result.Failure.UnknownServerVersion -> {
+                        // TODO: show dialog
+                        return@launch
+                    }
+                    is AutoVersionAuthScopeUseCase.Result.Failure.TooNewVersion -> {
+                        // TODO: show dialog
+                        return@launch
+                    }
+                    is AutoVersionAuthScopeUseCase.Result.Failure.Generic -> {
+                        return@launch
+                    }
+                }
+            }
 
             val registerParam = registerParamFromType()
 
-            val registerResult = registerAccountUseCase(registerParam).let {
+            val registerResult = authScope.registerScope.register(registerParam).let {
                 when (it) {
                     is RegisterResult.Failure -> {
                         updateCodeErrorState(it.toCodeError())

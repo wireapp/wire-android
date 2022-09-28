@@ -42,7 +42,7 @@ fun EditMessageMenuItems(
             Column() {
                 Row() {
                     Spacer(modifier = Modifier.width(8.dp))
-                    Text("REACTIONS", style = MaterialTheme.wireTypography.label01)
+                    Text(stringResource(R.string.label_reactions).uppercase(), style = MaterialTheme.wireTypography.label01)
                 }
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -54,6 +54,8 @@ fun EditMessageMenuItems(
                         ) {
                             Button(
                                 onClick = {
+                                    // So we display the pretty emoji,
+                                    // but we match the ugly one sent from other platforms
                                     val correctedEmoji = if (emoji == "❤️") "❤"
                                     else emoji
                                     onReactionClick(correctedEmoji)

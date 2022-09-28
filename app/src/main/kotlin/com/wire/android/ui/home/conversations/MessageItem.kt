@@ -257,7 +257,7 @@ private fun Pill(
         OutlinedButton(
             onClick = onTap,
             border = BorderStroke(1.dp, strokeColor),
-            shape =  RoundedCornerShape(12.dp),
+            shape = RoundedCornerShape(12.dp),
             colors = ButtonDefaults.outlinedButtonColors(containerColor = backgroundColor),
             contentPadding = PaddingValues(start = 8.dp, end = 8.dp, top = 4.dp, bottom = 4.dp),
             modifier = Modifier

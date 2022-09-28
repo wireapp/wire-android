@@ -19,6 +19,9 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
+import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
+import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationTypeDetail
+import com.wire.android.ui.home.conversationslist.model.BlockState
 import com.wire.android.ui.userprofile.common.UsernameMapper.mapUserLabel
 import com.wire.android.ui.userprofile.group.RemoveConversationMemberState
 import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.BlockingUserOperationError
@@ -58,6 +61,7 @@ import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
 import com.wire.kalium.logic.feature.connection.UnblockUserResult
 import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
 import com.wire.kalium.logic.feature.conversation.CreateConversationResult
+import com.wire.kalium.logic.feature.conversation.GetOneToOneConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
@@ -96,7 +100,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val getOtherUserClients: GetOtherUserClientsUseCase,
     private val persistOtherUserClients: PersistOtherUserClientsUseCase,
     qualifiedIdMapper: QualifiedIdMapper
-) : ViewModel(), OtherUserProfileEventsHandler, OtherUserProfileFooterEventsHandler {
+) : ViewModel(), OtherUserProfileEventsHandler, OtherUserProfileFooterEventsHandler, OtherUserProfileBottomSheetEventsHandler {
 
     private val userId: QualifiedID = savedStateHandle.get<String>(EXTRA_USER_ID)!!.toQualifiedID(qualifiedIdMapper)
 
@@ -127,11 +131,10 @@ class OtherUserProfileScreenViewModel @Inject constructor(
 
     private fun observeUserInfo() {
         viewModelScope.launch {
-            observeUserInfo(userId)
-                .zip(observeGroupInfo(), ::Pair)
+            observeUserInfo(userId).zip(observeGroupInfo(), ::Pair)
                 .flowOn(dispatchers.io())
                 .onStart { state = state.copy(isLoading = true) }
-                .collect { (userInfoResult, groupInfoAvailibility) ->
+                .collect { (userInfoResult, groupInfoAvailability) ->
                     when (userInfoResult) {
                         GetUserInfoResult.Failure -> {
                             appLogger.d("Couldn't not find the user with provided id: $userId")
@@ -159,11 +162,36 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                                 connectionState = otherUser.connectionStatus,
                                 membership = userTypeMapper.toMembership(otherUser.userType),
                                 botService = otherUser.botService,
-                                groupInfoAvailiblity = groupInfoAvailibility,
+                                groupInfoAvailability = groupInfoAvailability,
                             )
                         }
                     }
                 }
+        }
+    }
+
+    fun getAdditionalConversationDetails() {
+        viewModelScope.launch {
+            when (val conversationResult = getConversation(userId)) {
+                is GetOneToOneConversationUseCase.Result.Failure -> {
+                    appLogger.d("Couldn't not getOrCreateOneToOneConversation for user id: $userId")
+                    return@launch
+                }
+                is GetOneToOneConversationUseCase.Result.Success -> {
+                    state = state.copy(
+                        conversationDetailOnDemand = ConversationDetailOnDemand.Requested(
+                            title = state.otherUser.name.orEmpty(),
+                            conversationId = conversationResult.conversation.id,
+                            mutingConversationState = conversationResult.conversation.mutedStatus,
+                            conversationTypeDetail = ConversationTypeDetail.Private(
+                                state.userAvatarAsset,
+                                userId,
+                                state.otherUser.BlockState
+                            )
+                        )
+                    )
+                }
+            }
         }
     }
 

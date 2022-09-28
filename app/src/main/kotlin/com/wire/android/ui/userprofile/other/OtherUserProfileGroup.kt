@@ -50,9 +50,9 @@ fun OtherUserProfileGroup(
                     MaterialTheme.wireTypography.body02,
                     MaterialTheme.wireColorScheme.onBackground,
                     MaterialTheme.wireColorScheme.onBackground,
-                    state.groupInfoAvailiblity!!.groupName
+                    state.groupInfoAvailability!!.groupName
                 ),
-                isSelfAdmin = state.groupInfoAvailiblity.isSelfAdmin,
+                isSelfAdmin = state.groupInfoAvailability.isSelfAdmin,
                 onRemoveFromConversation = {
                     onRemoveFromConversation(
                         RemoveConversationMemberState(
@@ -68,8 +68,8 @@ fun OtherUserProfileGroup(
         item(key = "user_group_role") {
             UserRoleInformation(
                 label = stringResource(id = R.string.user_profile_group_role),
-                value = AnnotatedString(state.groupInfoAvailiblity!!.role.name.asString()),
-                isSelfAdmin = state.groupInfoAvailiblity.isSelfAdmin,
+                value = AnnotatedString(state.groupInfoAvailability!!.role.name.asString()),
+                isSelfAdmin = state.groupInfoAvailability.isSelfAdmin,
                 openChangeRoleBottomSheet = openChangeRoleBottomSheet
             )
         }

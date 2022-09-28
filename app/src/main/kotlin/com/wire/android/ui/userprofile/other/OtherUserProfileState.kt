@@ -2,6 +2,7 @@ package com.wire.android.ui.userprofile.other
 
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
+import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationTypeDetail
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.kalium.logic.data.client.OtherUserClient
 import com.wire.kalium.logic.data.conversation.Conversation.Member
@@ -24,11 +25,9 @@ data class OtherUserProfileState(
     val phone: String = "",
     val connectionState: ConnectionState = ConnectionState.NOT_CONNECTED,
     val membership: Membership = Membership.None,
-    val groupInfoAvailiblity: GroupInfoAvailibility = GroupInfoAvailibility.NotAvailable,
+    val groupInfoAvailability: GroupInfoAvailibility = GroupInfoAvailibility.NotAvailable,
+    val conversationDetailOnDemand: ConversationDetailOnDemand = ConversationDetailOnDemand.NotRequested,
     val botService: BotService? = null,
-
-//    private val conversationSheetContent: ConversationSheetContent? = null,
-//    val bottomSheetContentState: BottomSheetContent? = null,
     val otherUserClients: List<OtherUserClient> = listOf()
 ) {
     fun setBottomSheetStateToConversation(): OtherUserProfileState =
@@ -38,7 +37,7 @@ data class OtherUserProfileState(
         conversationSheetContent?.let { copy(bottomSheetContentState = OtherUserBottomSheetContent.Mute(it)) } ?: this
 
     fun setBottomSheetStateToChangeRole(): OtherUserProfileState =
-        groupInfoAvailiblity?.let { copy(bottomSheetContentState = OtherUserBottomSheetContent.ChangeRole(it)) } ?: this
+        groupInfoAvailability?.let { copy(bottomSheetContentState = OtherUserBottomSheetContent.ChangeRole(it)) } ?: this
 
     fun updateMuteStatus(status: MutedConversationStatus): OtherUserProfileState {
         return conversationSheetContent?.let {
@@ -67,7 +66,7 @@ data class OtherUserProfileState(
             userName = "username",
             teamName = "team",
             email = "email",
-            groupInfoAvailiblity = OtherUserProfileGroupInfo(
+            groupInfoAvailability = OtherUserProfileGroupInfo(
                 "group name", Member.Role.Member, true, ConversationId("some_user", "domain.com")
             )
         )
@@ -90,4 +89,15 @@ data class OtherUserProfileGroupInfo(
 sealed class GroupInfoAvailibility {
     object NotAvailable : GroupInfoAvailibility()
     data class Available(val otherUserProfileGroupInfo: OtherUserProfileGroupInfo) : GroupInfoAvailibility()
+}
+
+sealed class ConversationDetailOnDemand {
+    object NotRequested : ConversationDetailOnDemand()
+    data class Requested(
+        val title: String,
+        val conversationId: ConversationId,
+        val mutingConversationState: MutedConversationStatus,
+        val conversationTypeDetail: ConversationTypeDetail,
+        val isSelfUserMember: Boolean = true
+    ) : ConversationDetailOnDemand()
 }

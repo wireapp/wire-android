@@ -194,7 +194,7 @@ class OtherUserProfileScreenViewModelTest {
                 .arrange()
 
             // when
-            val groupState = viewModel.state.groupInfoAvailiblity
+            val groupState = viewModel.state.groupInfoAvailability
 
             // then
             coVerify {
@@ -214,7 +214,7 @@ class OtherUserProfileScreenViewModelTest {
                 .arrange()
 
             // when
-            val groupState = viewModel.state.groupInfoAvailiblity
+            val groupState = viewModel.state.groupInfoAvailability
 
             // then
             coVerify {

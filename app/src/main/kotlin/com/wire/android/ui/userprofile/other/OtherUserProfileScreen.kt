@@ -102,7 +102,7 @@ fun OtherProfileScreenContent(
         with(screenState) {
             val screenContent = @Composable {
                 val otherProfilePagerState = rememberOtherUserProfilePagerState(
-                    showGroupOption = groupInfoAvailiblity is GroupInfoAvailibility.Available
+                    showGroupOption = groupInfoAvailability is GroupInfoAvailibility.Available
                 )
 
                 CollapsingTopBarScaffold(

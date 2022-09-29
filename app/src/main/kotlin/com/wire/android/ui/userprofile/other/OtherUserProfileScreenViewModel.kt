@@ -22,11 +22,11 @@ import com.wire.android.ui.home.conversations.details.participants.usecase.Obser
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationTypeDetail
 import com.wire.android.ui.home.conversationslist.model.BlockState
-import com.wire.android.ui.userprofile.common.UsernameMapper.mapUserLabel
+import com.wire.android.ui.userprofile.common.UsernameMapper.toUserLabel
 import com.wire.android.ui.userprofile.group.RemoveConversationMemberState
 import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.BlockingUserOperationError
 import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.BlockingUserOperationSuccess
- import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.ConnectionAcceptError
+import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.ConnectionAcceptError
 import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.ConnectionCancelError
 import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.ConnectionIgnoreError
 import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.ConnectionRequestError
@@ -115,7 +115,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val userId: QualifiedID = savedStateHandle.get<String>(EXTRA_USER_ID)!!.toQualifiedID(qualifiedIdMapper)
     private val conversationId: QualifiedID? = savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)?.toQualifiedID(qualifiedIdMapper)
 
-    var otherUser: OtherUser? = null
+    private var otherUser: OtherUser? = null
 
     var state: OtherUserProfileState by mutableStateOf(
         OtherUserProfileState(
@@ -168,7 +168,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                                         isLoading = false,
                                         userAvatarAsset = userAvatarAsset,
                                         fullName = name.orEmpty(),
-                                        userName = mapUserLabel(this),
+                                        userName = toUserLabel(),
                                         teamName = userInfoResult.team?.name.orEmpty(),
                                         email = email.orEmpty(),
                                         phone = phone.orEmpty(),
@@ -392,19 +392,15 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         _infoMessage.emit(type.uiText)
     }
 
-    override fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }
-
-
     override fun onMutingConversationStatusChange(status: MutedConversationStatus) {
-        conversationId?.let {
+        state.conversationSheetContent?.conversationId?.let { conversationId ->
             viewModelScope.launch {
                 when (updateConversationMutedStatus(conversationId, status, Date().time)) {
                     ConversationUpdateStatusResult.Failure -> showInfoMessage(OtherUserProfileInfoMessageType.MutingOperationError)
                     ConversationUpdateStatusResult.Success -> {
-                        state =
-                            state.copy(
-                                conversationSheetContent = state.conversationSheetContent!!.copy(mutingConversationState = status)
-                            )
+                        state = state.copy(
+                            conversationSheetContent = state.conversationSheetContent!!.copy(mutingConversationState = status)
+                        )
                         appLogger.i("MutedStatus changed for conversation: $conversationId to $status")
                     }
                 }
@@ -412,19 +408,25 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         }
     }
 
+    @Suppress("EmptyFunctionBlock")
     override fun onAddConversationToFavourites() {
 
     }
 
+    @Suppress("EmptyFunctionBlock")
     override fun onMoveConversationToFolder() {
 
     }
 
+    @Suppress("EmptyFunctionBlock")
     override fun onMoveConversationToArchive() {
 
     }
 
+    @Suppress("EmptyFunctionBlock")
     override fun onClearConversationContent() {
 
     }
+
+    override fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }
 }

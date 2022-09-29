@@ -43,10 +43,10 @@ data class OtherUserProfileState(
 }
 
 data class OtherUserProfileGroupInfo(
+    val conversationId: ConversationId,
     val groupName: String,
     val role: Member.Role,
-    val isSelfAdmin: Boolean,
-    val conversationId: ConversationId
+    val isSelfAdmin: Boolean
 )
 
 sealed class GroupInfoAvailibility {

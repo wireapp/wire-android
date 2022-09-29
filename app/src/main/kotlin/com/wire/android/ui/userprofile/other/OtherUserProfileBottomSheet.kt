@@ -39,13 +39,13 @@ fun OtherUserProfileBottomSheet(
                         ConversationSheetContent(
                             conversationSheetState = conversationSheetState.conversationSheetState,
                             onMutingConversationStatusChange = onMutingConversationStatusChange,
+                            blockUser = blockUser,
+                            leaveGroup = leaveGroup,
+                            deleteGroup = deleteGroup,
                             addConversationToFavourites = { },
                             moveConversationToFolder = { },
                             moveConversationToArchive = { },
-                            clearConversationContent = { },
-                            blockUser = { },
-                            leaveGroup = { },
-                            deleteGroup = { }
+                            clearConversationContent = { }
                         )
                     }
                     ConversationSheetContentState.Loading -> {}
@@ -69,11 +69,13 @@ fun OtherUserProfileBottomSheet(
     // and then it moves to the bottom.
     // It happens cause when `sheetState.show()` is called, it calculates animation offset by the old BS height (which was big)
     // To avoid such case we clear BS content on every closing
-    LaunchedEffect(otherUserBottomSheetContentState.modalBottomSheetState.isVisible) {
-        if (!otherUserBottomSheetContentState.modalBottomSheetState.isVisible
-            && !otherUserBottomSheetContentState.modalBottomSheetState.isAnimationRunning
-        ) {
-            otherUserBottomSheetContentState.resetState()
+    with(otherUserBottomSheetContentState) {
+        LaunchedEffect(modalBottomSheetState.isVisible) {
+            if (!modalBottomSheetState.isVisible
+                && !modalBottomSheetState.isAnimationRunning
+            ) {
+                resetState()
+            }
         }
     }
 }

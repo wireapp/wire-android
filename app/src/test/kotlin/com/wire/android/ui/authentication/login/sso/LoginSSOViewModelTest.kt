@@ -21,19 +21,19 @@ import com.wire.kalium.logic.data.client.Client
 import com.wire.kalium.logic.data.client.ClientType
 import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.SsoId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthTokens
+import com.wire.kalium.logic.feature.auth.AuthenticationScope
+import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.auth.sso.GetSSOLoginSessionUseCase
 import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginResult
 import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginUseCase
 import com.wire.kalium.logic.feature.auth.sso.SSOLoginSessionResult
 import com.wire.kalium.logic.feature.client.ClientScope
-import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.client.GetOrRegisterClientUseCase
-import com.wire.kalium.logic.feature.session.GetSessionsUseCase
+import com.wire.kalium.logic.feature.client.RegisterClientResult
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -82,6 +82,12 @@ class LoginSSOViewModelTest {
     private lateinit var authServerConfigProvider: AuthServerConfigProvider
 
     @MockK
+    private lateinit var autoVersionAuthScopeUseCase: AutoVersionAuthScopeUseCase
+
+    @MockK
+    private lateinit var authenticationScope: AuthenticationScope
+
+    @MockK
     private lateinit var navigationManager: NavigationManager
     private lateinit var loginViewModel: LoginSSOViewModel
 
@@ -96,11 +102,15 @@ class LoginSSOViewModelTest {
         every { clientScopeProviderFactory.create(any()).clientScope } returns clientScope
         every { clientScope.getOrRegister } returns getOrRegisterClientUseCase
         every { authServerConfigProvider.authServer.value } returns newServerConfig(1).links
+        coEvery { autoVersionAuthScopeUseCase() } returns AutoVersionAuthScopeUseCase.Result.Success(authenticationScope)
+        every { authenticationScope.ssoLoginScope.initiate } returns ssoInitiateLoginUseCase
+        every { authenticationScope.ssoLoginScope.getLoginSession } returns getSSOLoginSessionUseCase
+
+
 
         loginViewModel = LoginSSOViewModel(
             savedStateHandle,
-            ssoInitiateLoginUseCase,
-            getSSOLoginSessionUseCase,
+            autoVersionAuthScopeUseCase,
             addAuthenticatedUserUseCase,
             clientScopeProviderFactory,
             navigationManager,

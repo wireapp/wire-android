@@ -122,7 +122,7 @@ class ConnectionPolicyManager @Inject constructor(
         } else {
             ConnectionPolicy.DISCONNECT_AFTER_PENDING_EVENTS
         }
-        coreLogic.getSessionScope(userId).setConnectionPolicy(connectionPolicy)
+//        coreLogic.getSessionScope(userId).setConnectionPolicy(connectionPolicy)
     }
 
     private suspend fun allValidSessions() =

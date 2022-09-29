@@ -95,7 +95,7 @@ class LoginSSOViewModel @Inject constructor(
                     }
                 }
             }
-            val (authTokens, ssoId) = authScope.ssoLoginScope.getLoginSessionGet(cookie).let {
+            val (authTokens, ssoId) = authScope.ssoLoginScope.getLoginSession(cookie).let {
                 when (it) {
                     is SSOLoginSessionResult.Failure -> {
                         updateSSOLoginError(it.toLoginError())

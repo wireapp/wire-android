@@ -74,6 +74,7 @@ class LoginSSOViewModel @Inject constructor(
         }
     }
 
+    @Suppress("ComplexMethod")
     @VisibleForTesting
     fun establishSSOSession(cookie: String, serverConfigId: String) {
         loginState = loginState.copy(ssoLoginLoading = true, loginError = LoginError.None).updateSSOLoginEnabled()
@@ -118,7 +119,6 @@ class LoginSSOViewModel @Inject constructor(
                     is AddAuthenticatedUserUseCase.Result.Success -> it.userId
                 }
             }
-            // TODO: show password dialog if BE required password for SSO
             registerClient(storedUserId, null).let {
                 when (it) {
                     is RegisterClientResult.Success -> {

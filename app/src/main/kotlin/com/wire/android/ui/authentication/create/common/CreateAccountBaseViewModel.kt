@@ -254,6 +254,7 @@ abstract class CreateAccountBaseViewModel(
         }
     }
 
+    @Suppress("ComplexMethod")
     private fun onCodeContinue() {
         codeState = codeState.copy(loading = true)
         viewModelScope.launch {

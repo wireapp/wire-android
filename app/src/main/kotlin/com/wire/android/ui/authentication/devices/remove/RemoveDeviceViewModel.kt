@@ -123,7 +123,7 @@ class RemoveDeviceViewModel @Inject constructor(
             DeleteClientResult.Success -> {
                 // this delay is only a work around because the backend is not updating the list of clients immediately
                 // TODO: remove the delay once the server side bug is fixed
-                delay(500L)
+                delay(REGISTER_CLIENT_AFTER_DELETE_DELAY)
                 registerClient(password)
             }
         }
@@ -157,4 +157,8 @@ class RemoveDeviceViewModel @Inject constructor(
 
     private suspend fun navigateToConvScreen() =
         navigationManager.navigate(NavigationCommand(NavigationItem.Home.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
+
+    private companion object {
+        const val REGISTER_CLIENT_AFTER_DELETE_DELAY = 500L
+    }
 }

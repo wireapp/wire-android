@@ -12,6 +12,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationNavigationOptions
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetState
 
@@ -105,7 +106,8 @@ class OtherUserBottomSheetContentState(
 
     var otherUserProfileSheetNavigation: OtherUserProfileSheetNavigation by mutableStateOf(
         OtherUserProfileSheetNavigation.Conversation(
-            conversationSheetContentState
+            conversationSheetState = conversationSheetContentState,
+            conversationNavigationOptions = ConversationNavigationOptions.Home
         )
     )
 
@@ -114,13 +116,18 @@ class OtherUserBottomSheetContentState(
             requestConversationDetailsOnDemand()
         }
 
-        otherUserProfileSheetNavigation = OtherUserProfileSheetNavigation.Conversation(conversationSheetContentState)
+        otherUserProfileSheetNavigation = OtherUserProfileSheetNavigation.Conversation(
+            conversationSheetState = conversationSheetContentState,
+            conversationNavigationOptions = ConversationNavigationOptions.Home
+        )
 
         modalBottomSheetState.show()
     }
 
     suspend fun showChangeRoleOption() {
-        otherUserProfileSheetNavigation = OtherUserProfileSheetNavigation.RoleChange(groupInfoAvailability)
+        otherUserProfileSheetNavigation = OtherUserProfileSheetNavigation.RoleChange(
+            groupInfoAvailability = groupInfoAvailability
+        )
 
         modalBottomSheetState.show()
     }
@@ -138,7 +145,11 @@ class OtherUserBottomSheetContentState(
 }
 
 sealed class OtherUserProfileSheetNavigation {
-    data class Conversation(val conversationSheetState: ConversationSheetContentState) : OtherUserProfileSheetNavigation()
+    data class Conversation(
+        val conversationSheetState: ConversationSheetContentState,
+        val conversationNavigationOptions: ConversationNavigationOptions
+    ) : OtherUserProfileSheetNavigation()
+
     data class RoleChange(val groupInfoAvailability: GroupInfoAvailibility) : OtherUserProfileSheetNavigation()
 
 }

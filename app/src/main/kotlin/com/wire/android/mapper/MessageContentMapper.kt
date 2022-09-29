@@ -24,6 +24,7 @@ import com.wire.kalium.logic.data.user.User
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
+import com.wire.kalium.logic.sync.receiver.hasValidRemoteData
 import com.wire.kalium.logic.util.isGreaterThan
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
@@ -147,7 +148,9 @@ class MessageContentMapper @Inject constructor(
                 // If it's an image, we download it right away
                 assetMessageContentMetadata.isValidImage() -> {
                     val imageData = withContext(dispatcherProvider.io()) {
-                        imageRawData(message.conversationId, message.id)
+                        if (shouldDownloadImage(assetMessageContentMetadata))
+                            imageRawData(message.conversationId, message.id)
+                        else null
                     }
                     withContext(dispatcherProvider.main()) {
                         UIMessageContent.ImageMessage(
@@ -173,6 +176,13 @@ class MessageContentMapper @Inject constructor(
                     )
                 }
             }
+        }
+
+    private fun shouldDownloadImage(assetMessageContentMetadata: AssetMessageContentMetadata) =
+        when {
+            assetMessageContentMetadata.assetMessageContent.downloadStatus == Message.DownloadStatus.DOWNLOAD_IN_PROGRESS -> false
+            assetMessageContentMetadata.assetMessageContent.hasValidRemoteData().not() -> false
+            else -> true
         }
 
     private suspend fun imageRawData(conversationId: QualifiedID, messageId: String): ByteArray? =

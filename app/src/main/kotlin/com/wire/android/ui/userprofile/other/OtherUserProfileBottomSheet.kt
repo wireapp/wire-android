@@ -12,13 +12,24 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationNavigationOptions
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetState
+import com.wire.android.ui.home.conversationslist.model.GroupDialogState
+import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 
 @Composable
 fun OtherUserProfileBottomSheet(
-    otherUserBottomSheetContentState: OtherUserBottomSheetContentState
+    otherUserBottomSheetContentState: OtherUserBottomSheetContentState,
+    onMutingConversationStatusChange: (MutedConversationStatus) -> Unit = {},
+    addConversationToFavourites: () -> Unit = {},
+    moveConversationToFolder: () -> Unit = {},
+    moveConversationToArchive: () -> Unit = {},
+    clearConversationContent: () -> Unit = {},
+    blockUser: (BlockUserDialogState) -> Unit = {},
+    leaveGroup: (GroupDialogState) -> Unit = {},
+    deleteGroup: (GroupDialogState) -> Unit = {}
 ) {
     when (val otherUserProfileSheetNavigation = otherUserBottomSheetContentState.otherUserProfileSheetNavigation) {
         is OtherUserProfileSheetNavigation.Conversation -> {
@@ -27,7 +38,7 @@ fun OtherUserProfileBottomSheet(
                     is ConversationSheetContentState.Loaded -> {
                         ConversationSheetContent(
                             conversationSheetState = conversationSheetState.conversationSheetState,
-                            onMutingConversationStatusChange = { },
+                            onMutingConversationStatusChange = onMutingConversationStatusChange,
                             addConversationToFavourites = { },
                             moveConversationToFolder = { },
                             moveConversationToArchive = { },

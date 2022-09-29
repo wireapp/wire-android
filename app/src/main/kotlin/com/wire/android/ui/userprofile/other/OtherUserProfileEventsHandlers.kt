@@ -4,7 +4,6 @@ import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.userprofile.group.RemoveConversationMemberState
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
-import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.Job
 
@@ -12,16 +11,13 @@ import kotlinx.coroutines.Job
 interface OtherUserProfileEventsHandler {
     fun navigateBack(): Job
     fun onBlockUser(blockUserState: BlockUserDialogState)
-    fun setBottomSheetStateToChangeRole()
     fun onRemoveConversationMember(state: RemoveConversationMemberState)
     fun onUnblockUser(userId: UserId)
     fun fetchOtherUserClients()
-
     companion object {
         @Suppress("TooManyFunctions")
         val PREVIEW = object : OtherUserProfileEventsHandler {
             override fun onBlockUser(blockUserState: BlockUserDialogState) {}
-            override fun setBottomSheetStateToChangeRole() {}
             override fun onRemoveConversationMember(state: RemoveConversationMemberState) {}
             override fun onUnblockUser(userId: UserId) {}
             override fun fetchOtherUserClients() {}
@@ -55,25 +51,23 @@ interface OtherUserProfileFooterEventsHandler {
 @Suppress("TooManyFunctions")
 interface OtherUserProfileBottomSheetEventsHandler {
     fun onChangeMemberRole(role: Conversation.Member.Role)
-    fun onMutingConversationStatusChange(conversationId: ConversationId?, status: MutedConversationStatus)
-    fun onAddConversationToFavourites(conversationId: ConversationId)
-    fun onMoveConversationToFolder(conversationId: ConversationId)
-    fun onMoveConversationToArchive(conversationId: ConversationId)
-    fun onClearConversationContent(conversationId: ConversationId)
-    fun setBottomSheetStateToConversation()
-    fun setBottomSheetStateToMuteOptions()
-
-    companion object {
-        @Suppress("TooManyFunctions")
-        val PREVIEW = object : OtherUserProfileBottomSheetEventsHandler {
-            override fun onChangeMemberRole(role: Conversation.Member.Role) {}
-            override fun onMutingConversationStatusChange(conversationId: ConversationId?, status: MutedConversationStatus) {}
-            override fun onAddConversationToFavourites(conversationId: ConversationId) {}
-            override fun onMoveConversationToFolder(conversationId: ConversationId) {}
-            override fun onMoveConversationToArchive(conversationId: ConversationId) {}
-            override fun onClearConversationContent(conversationId: ConversationId) {}
-            override fun setBottomSheetStateToConversation() {}
-            override fun setBottomSheetStateToMuteOptions() {}
-        }
-    }
+    fun onMutingConversationStatusChange(status: MutedConversationStatus)
+    fun onAddConversationToFavourites()
+    fun onMoveConversationToFolder()
+    fun onMoveConversationToArchive()
+    fun onClearConversationContent()
+//
+//    companion object {
+//        @Suppress("TooManyFunctions")
+//        val PREVIEW = object : OtherUserProfileBottomSheetEventsHandler {
+//            override fun onChangeMemberRole(role: Conversation.Member.Role) {}
+//            override fun onMutingConversationStatusChange(conversationId: ConversationId?, status: MutedConversationStatus) {}
+//            override fun onAddConversationToFavourites(conversationId: ConversationId) {}
+//            override fun onMoveConversationToFolder(conversationId: ConversationId) {}
+//            override fun onMoveConversationToArchive(conversationId: ConversationId) {}
+//            override fun onClearConversationContent(conversationId: ConversationId) {}
+//            override fun setBottomSheetStateToConversation() {}
+//            override fun setBottomSheetStateToMuteOptions() {}
+//        }
+//    }
 }

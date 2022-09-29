@@ -44,7 +44,6 @@ import com.wire.kalium.logic.data.user.ConnectionState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltViewModel()) {
     val otherUserBottomSheetContentState = rememberOtherUserBottomSheetContentState(
@@ -72,7 +71,8 @@ fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltView
         screenState = screenState,
         viewModelState = viewModel.state,
         eventsHandler = viewModel as OtherUserProfileEventsHandler,
-        footerEventsHandler = viewModel as OtherUserProfileFooterEventsHandler
+        footerEventsHandler = viewModel as OtherUserProfileFooterEventsHandler,
+        otherUserProfileBottomSheetEventsHandler = viewModel as OtherUserProfileBottomSheetEventsHandler
     )
 }
 
@@ -87,7 +87,8 @@ fun OtherProfileScreenContent(
     screenState: OtherUserProfileScreenState,
     viewModelState: OtherUserProfileState,
     eventsHandler: OtherUserProfileEventsHandler,
-    footerEventsHandler: OtherUserProfileFooterEventsHandler
+    footerEventsHandler: OtherUserProfileFooterEventsHandler,
+    otherUserProfileBottomSheetEventsHandler: OtherUserProfileBottomSheetEventsHandler
 ) {
     with(viewModelState) {
         with(screenState) {
@@ -96,7 +97,8 @@ fun OtherProfileScreenContent(
                 coroutineScope = coroutineScope,
                 sheetContent = {
                     OtherUserProfileBottomSheet(
-                        otherUserBottomSheetContentState
+                        otherUserBottomSheetContentState,
+                        otherUserProfileBottomSheetEventsHandler::onMutingConversationStatusChange
                     )
                 }
             ) {

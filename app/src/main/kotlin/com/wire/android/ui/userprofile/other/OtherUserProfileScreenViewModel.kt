@@ -26,7 +26,7 @@ import com.wire.android.ui.userprofile.common.UsernameMapper.mapUserLabel
 import com.wire.android.ui.userprofile.group.RemoveConversationMemberState
 import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.BlockingUserOperationError
 import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.BlockingUserOperationSuccess
-import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.ConnectionAcceptError
+ import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.ConnectionAcceptError
 import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.ConnectionCancelError
 import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.ConnectionIgnoreError
 import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.ConnectionRequestError
@@ -41,7 +41,6 @@ import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
-import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.toQualifiedID
@@ -63,10 +62,12 @@ import com.wire.kalium.logic.feature.connection.SendConnectionRequestResult
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
 import com.wire.kalium.logic.feature.connection.UnblockUserResult
 import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
+import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.CreateConversationResult
 import com.wire.kalium.logic.feature.conversation.GetOneToOneConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
+import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleResult
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
@@ -82,6 +83,7 @@ import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.zip
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.Date
 import javax.inject.Inject
 
 @Suppress("LongParameterList", "TooManyFunctions")
@@ -184,7 +186,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     }
 
     fun getAdditionalConversationDetails() {
-        if(state.conversationSheetContent == null) {
+        if (state.conversationSheetContent == null) {
             viewModelScope.launch {
                 when (val conversationResult = getConversation(userId)) {
                     is GetOneToOneConversationUseCase.Result.Failure -> {
@@ -272,6 +274,17 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         }
     }
 
+    override fun onChangeMemberRole(role: Conversation.Member.Role) {
+        viewModelScope.launch {
+            if (conversationId != null) {
+                updateMemberRole(conversationId, userId, role).also {
+                    if (it is UpdateConversationMemberRoleResult.Failure)
+                        showInfoMessage(OtherUserProfileInfoMessageType.ChangeGroupRoleError)
+                }
+            }
+        }
+    }
+
     override fun onAcceptConnectionRequest() {
         viewModelScope.launch {
             when (acceptConnectionRequest(userId)) {
@@ -340,10 +353,6 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         }
     }
 
-    override fun setBottomSheetStateToChangeRole() {
-        TODO("Not yet implemented")
-    }
-
     override fun onUnblockUser(userId: UserId) {
         viewModelScope.launch(dispatchers.io()) {
             requestInProgress = true
@@ -384,35 +393,38 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     }
 
     override fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }
-    override fun onChangeMemberRole(role: Conversation.Member.Role) {
+
+
+    override fun onMutingConversationStatusChange(status: MutedConversationStatus) {
+        conversationId?.let {
+            viewModelScope.launch {
+                when (updateConversationMutedStatus(conversationId, status, Date().time)) {
+                    ConversationUpdateStatusResult.Failure -> showInfoMessage(OtherUserProfileInfoMessageType.MutingOperationError)
+                    ConversationUpdateStatusResult.Success -> {
+                        state =
+                            state.copy(
+                                conversationSheetContent = state.conversationSheetContent!!.copy(mutingConversationState = status)
+                            )
+                        appLogger.i("MutedStatus changed for conversation: $conversationId to $status")
+                    }
+                }
+            }
+        }
+    }
+
+    override fun onAddConversationToFavourites() {
 
     }
 
-    override fun onMutingConversationStatusChange(conversationId: ConversationId?, status: MutedConversationStatus) {
+    override fun onMoveConversationToFolder() {
 
     }
 
-    override fun onAddConversationToFavourites(conversationId: ConversationId) {
+    override fun onMoveConversationToArchive() {
 
     }
 
-    override fun onMoveConversationToFolder(conversationId: ConversationId) {
-
-    }
-
-    override fun onMoveConversationToArchive(conversationId: ConversationId) {
-
-    }
-
-    override fun onClearConversationContent(conversationId: ConversationId) {
-
-    }
-
-    override fun setBottomSheetStateToConversation() {
-
-    }
-
-    override fun setBottomSheetStateToMuteOptions() {
+    override fun onClearConversationContent() {
 
     }
 }

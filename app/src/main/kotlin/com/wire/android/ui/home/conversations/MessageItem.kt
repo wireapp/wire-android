@@ -209,17 +209,19 @@ private fun MessageFooter(
         crossAxisSpacing = 6.dp,
         modifier = Modifier.padding(vertical = 4.dp)
     ) {
-        messageFooter.reactions.forEach {
-            val reaction = it.key
-            val count = it.value
-            Pill(
-                emoji = reaction,
-                count = count,
-                isOwn = messageFooter.ownReactions.contains(reaction),
-                onTap = {
-                    onReactionClicked(messageFooter.messageId, reaction)
-                }
-            )
+        messageFooter.reactions.entries
+            .sortedBy { it.key }
+            .forEach {
+                val reaction = it.key
+                val count = it.value
+                Pill(
+                    emoji = reaction,
+                    count = count,
+                    isOwn = messageFooter.ownReactions.contains(reaction),
+                    onTap = {
+                        onReactionClicked(messageFooter.messageId, reaction)
+                    }
+                )
         }
     }
 }

@@ -130,10 +130,8 @@ fun OtherProfileScreenContent(
                         TopBarHeader(
                             state = viewModelState,
                             elevation = elevation,
-                            onNavigateBack = eventsHandler::navigateBack,
-                            openConversationBottomSheet = {
-                                showConversationOption()
-                            }
+                            openConversationBottomSheet = ::showConversationOption,
+                            onNavigateBack = eventsHandler::navigateBack
                         )
                     },
                     topBarCollapsing = { TopBarCollapsing(viewModelState) },
@@ -169,9 +167,7 @@ fun OtherProfileScreenContent(
                                             otherUserProfileGroupInfo = groupInfoAvailability.otherUserProfileGroupInfo,
                                             lazyListState = tabItemsLazyListState[OtherUserProfileTabItem.GROUP]!!,
                                             onRemoveFromConversation = removeMemberDialogState::show,
-                                            openChangeRoleBottomSheet = {
-                                                showChangeRoleOption()
-                                            }
+                                            openChangeRoleBottomSheet = ::showChangeRoleOption
                                         )
                                     }
                                 },

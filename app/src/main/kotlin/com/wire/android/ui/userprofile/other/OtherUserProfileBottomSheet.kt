@@ -5,7 +5,6 @@ import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -14,7 +13,9 @@ import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetC
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetState
 
 @Composable
-fun OtherUserProfileBottomSheet(otherUserBottomSheetContentState: OtherUserBottomSheetContentState) {
+fun OtherUserProfileBottomSheet(
+    otherUserBottomSheetContentState: OtherUserBottomSheetContentState
+) {
     when (val otherUserProfileSheetNavigation = otherUserBottomSheetContentState.otherUserProfileSheetNavigation) {
         is OtherUserProfileSheetNavigation.Conversation -> {
             when (otherUserProfileSheetNavigation.conversationSheetState) {
@@ -47,7 +48,6 @@ fun rememberOtherUserBottomSheetContentState(
         OtherUserBottomSheetContentState(
             modalBottomSheetState = modalBottomSheetState,
             groupInfoAvailability = groupInfoAvailability,
-            requestOnDemand = requestOnConversationDetails,
             conversationSheetContent = if (conversationSheetContent == null) {
                 ConversationSheetContentState.Loading
             } else {
@@ -56,25 +56,9 @@ fun rememberOtherUserBottomSheetContentState(
                         conversationSheetContent = conversationSheetContent
                     )
                 )
-            }
+            },
+            requestConversationDetailsOnDemand = requestOnConversationDetails
         )
-    }
-
-    LaunchedEffect(otherUserBottomSheetContentState.conversationSheetContent) {
-        if (otherUserBottomSheetContentState.conversationSheetContent is ConversationSheetContentState.Loaded) {
-            val currentOtherUserProfileSheetNavigation = otherUserBottomSheetContentState.otherUserProfileSheetNavigation
-
-            if (currentOtherUserProfileSheetNavigation is OtherUserProfileSheetNavigation.Conversation) {
-                otherUserBottomSheetContentState.otherUserProfileSheetNavigation =
-                    OtherUserProfileSheetNavigation.Conversation(
-                        conversationSheetState = ConversationSheetContentState.Loaded(
-                            conversationSheetState = ConversationSheetState(
-                                otherUserBottomSheetContentState.conversationSheetContent.conversationSheetState.conversationSheetContent
-                            )
-                        )
-                    )
-            }
-        }
     }
 
     return otherUserBottomSheetContentState
@@ -83,9 +67,9 @@ fun rememberOtherUserBottomSheetContentState(
 @OptIn(ExperimentalMaterialApi::class)
 class OtherUserBottomSheetContentState(
     val modalBottomSheetState: ModalBottomSheetState,
-    val groupInfoAvailability: GroupInfoAvailibility = GroupInfoAvailibility.NotAvailable,
-    val requestOnDemand: () -> Unit,
-    val conversationSheetContent: ConversationSheetContentState = ConversationSheetContentState.Loading
+    val groupInfoAvailability: GroupInfoAvailibility,
+    val conversationSheetContent: ConversationSheetContentState,
+    val requestConversationDetailsOnDemand: () -> Unit
 ) {
 
     var otherUserProfileSheetNavigation: OtherUserProfileSheetNavigation by mutableStateOf(
@@ -96,18 +80,18 @@ class OtherUserBottomSheetContentState(
 
     suspend fun showConversationOption() {
         if (conversationSheetContent is ConversationSheetContentState.Loading) {
-            requestOnDemand()
+            requestConversationDetailsOnDemand()
         }
 
-        modalBottomSheetState.hide()
-
         otherUserProfileSheetNavigation = OtherUserProfileSheetNavigation.Conversation(conversationSheetContent)
+
+        modalBottomSheetState.show()
     }
 
     suspend fun showChangeRoleOption() {
-        modalBottomSheetState.show()
-
         otherUserProfileSheetNavigation = OtherUserProfileSheetNavigation.RoleChange(groupInfoAvailability)
+
+        modalBottomSheetState.show()
     }
 
     suspend fun hide() {

@@ -90,7 +90,6 @@ class ConversationListViewModel @Inject constructor(
 
     private fun startObservingConversationsAndConnections() = viewModelScope.launch {
         observeConversationListDetailsUseCase()
-            .distinctUntilChanged()
             .flowOn(dispatcher.io())
             .collect { conversationListDetails ->
                 state = ConversationListState(

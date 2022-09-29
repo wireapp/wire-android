@@ -41,6 +41,8 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.AnswerCallUseCase
 import com.wire.kalium.logic.feature.connection.BlockUserResult
 import com.wire.kalium.logic.feature.connection.BlockUserUseCase
+import com.wire.kalium.logic.feature.connection.UnblockUserResult
+import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.LeaveConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
@@ -50,6 +52,7 @@ import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
 import com.wire.kalium.logic.feature.team.Result
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -68,6 +71,7 @@ class ConversationListViewModel @Inject constructor(
     private val leaveConversation: LeaveConversationUseCase,
     private val deleteTeamConversation: DeleteTeamConversationUseCase,
     private val blockUserUseCase: BlockUserUseCase,
+    private val unblockUserUseCase: UnblockUserUseCase,
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val userTypeMapper: UserTypeMapper
 ) : ViewModel() {
@@ -76,6 +80,7 @@ class ConversationListViewModel @Inject constructor(
         private set
 
     val snackBarState = MutableSharedFlow<HomeSnackbarState>()
+    val closeBottomSheet = MutableSharedFlow<Unit>()
 
     var requestInProgress: Boolean by mutableStateOf(false)
 
@@ -85,6 +90,7 @@ class ConversationListViewModel @Inject constructor(
 
     private fun startObservingConversationsAndConnections() = viewModelScope.launch {
         observeConversationListDetailsUseCase()
+            .distinctUntilChanged()
             .flowOn(dispatcher.io())
             .collect { conversationListDetails ->
                 state = ConversationListState(
@@ -219,8 +225,25 @@ class ConversationListViewModel @Inject constructor(
                 }
             }
             snackBarState.emit(state)
+            requestInProgress = false
         }
-        requestInProgress = false
+    }
+
+    fun unblockUser(userId: UserId) {
+        viewModelScope.launch(dispatcher.io()) {
+            requestInProgress = true
+            when (val result = unblockUserUseCase(userId)) {
+                UnblockUserResult.Success -> {
+                    appLogger.i("User $userId was unblocked")
+                    closeBottomSheet.emit(Unit)
+                }
+                is UnblockUserResult.Failure -> {
+                    appLogger.e("Error while unblocking user $userId ; Error ${result.coreFailure}")
+                    snackBarState.emit(HomeSnackbarState.UnblockingUserOperationError)
+                }
+            }
+            requestInProgress = false
+        }
     }
 
     fun leaveGroup(leaveGroupState: GroupDialogState) {
@@ -251,8 +274,8 @@ class ConversationListViewModel @Inject constructor(
                 Result.Failure.NoTeamFailure -> snackBarState.emit(HomeSnackbarState.DeleteConversationGroupError)
                 Result.Success -> snackBarState.emit(HomeSnackbarState.DeletedConversationGroupSuccess(groupDialogState.conversationName))
             }
+            requestInProgress = false
         }
-        requestInProgress = false
     }
 
     private fun List<ConversationDetails>.toConversationItemList(): List<ConversationItem> =
@@ -300,7 +323,7 @@ private fun ConversationDetails.toConversationItem(
             isLegalHold = legalHoldStatus.showLegalHoldIndicator(),
             lastEvent = ConversationLastEvent.None, // TODO implement unread events
             badgeEventType = parsePrivateConversationEventType(
-                connectionState, parseConversationEventType(conversation.mutedStatus, unreadMentionsCount, unreadMessagesCount)
+                otherUser.connectionStatus, parseConversationEventType(conversation.mutedStatus, unreadMentionsCount, unreadMessagesCount)
             ),
             userId = otherUser.id,
             blockingState = otherUser.BlockState

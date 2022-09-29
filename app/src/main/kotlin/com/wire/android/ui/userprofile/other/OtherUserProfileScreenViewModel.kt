@@ -118,6 +118,9 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val _infoMessage = MutableSharedFlow<UIText>()
     val infoMessage = _infoMessage.asSharedFlow()
 
+    private val _closeBottomSheet = MutableSharedFlow<Unit>()
+    val closeBottomSheet = _closeBottomSheet.asSharedFlow()
+
     init {
         state = state.copy(isDataLoading = true, isAvatarLoading = true)
 
@@ -170,9 +173,10 @@ class OtherUserProfileScreenViewModel @Inject constructor(
 
     // TODO This could be loaded on demand not on init.
     private fun observeConversationSheetContentIfNeeded(otherUser: OtherUser, userAvatarAsset: ImageAsset.UserAvatarAsset?) {
-        // if we are not connected with that user -> we don't have a direct conversation ->
+        // if we are not connected with that user, or that user is not already blocked ->
+        // -> we don't have a direct conversation ->
         // -> no need to load data for ConversationBottomSheet
-        if (otherUser.connectionStatus != ConnectionState.ACCEPTED) return
+        if (otherUser.connectionStatus != ConnectionState.ACCEPTED && otherUser.connectionStatus != ConnectionState.BLOCKED) return
 
         viewModelScope.launch {
             when (val conversationResult = getConversation(userId)) {
@@ -309,6 +313,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     }
 
     private suspend fun showInfoMessage(type: SnackBarMessage) {
+        _closeBottomSheet.emit(Unit)
         _infoMessage.emit(type.uiText)
     }
 
@@ -366,6 +371,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             when (val result = unblockUser(userId)) {
                 UnblockUserResult.Success -> {
                     appLogger.i("User $userId was unblocked")
+                    _closeBottomSheet.emit(Unit)
                 }
                 is UnblockUserResult.Failure -> {
                     appLogger.e("Error while unblocking user $userId ; Error ${result.coreFailure}")

@@ -108,6 +108,7 @@ sealed class HomeSnackbarState {
     object MutingOperationError : HomeSnackbarState()
     object BlockingUserOperationError : HomeSnackbarState()
     class BlockingUserOperationSuccess(val userName: String) : HomeSnackbarState()
+    object UnblockingUserOperationError : HomeSnackbarState()
     class DeletedConversationGroupSuccess(val groupName: String) : HomeSnackbarState()
     object DeleteConversationGroupError : HomeSnackbarState()
     object LeftConversationSuccess : HomeSnackbarState()

@@ -23,7 +23,6 @@ import javax.inject.Inject
 @ExperimentalMaterialApi
 @HiltViewModel
 class LoginEmailViewModel @Inject constructor(
-//    private val loginUseCase: LoginUseCase,
     private val authScope: AutoVersionAuthScopeUseCase,
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
     clientScopeProviderFactory: ClientScopeProvider.Factory,

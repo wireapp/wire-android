@@ -81,8 +81,16 @@ data class OtherUserProfileScreenState(
         coroutineScope.launch { snackbarHostState.showSnackbar(context.getString(R.string.label_value_copied, text)) }
     }
 
-    fun openBottomSheet() {
-        coroutineScope.launch { otherUserBottomSheetContentState.show() }
+    fun showConversationOption() {
+        coroutineScope.launch {
+            otherUserBottomSheetContentState.showConversationOption()
+        }
+    }
+
+    fun showChangeRoleOption() {
+        coroutineScope.launch {
+            otherUserBottomSheetContentState.showChangeRoleOption()
+        }
     }
 
     fun closeBottomSheet() {

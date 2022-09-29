@@ -130,8 +130,7 @@ fun OtherProfileScreenContent(
                             elevation = elevation,
                             onNavigateBack = eventsHandler::navigateBack,
                             openConversationBottomSheet = {
-//                                bottomSheetEventsHandler.setBottomSheetStateToConversation()
-//                                openBottomSheet()
+                                showConversationOption()
                             }
                         )
                     },
@@ -169,8 +168,7 @@ fun OtherProfileScreenContent(
                                             lazyListState = tabItemsLazyListState[OtherUserProfileTabItem.GROUP]!!,
                                             onRemoveFromConversation = removeMemberDialogState::show,
                                             openChangeRoleBottomSheet = {
-                                                eventsHandler.setBottomSheetStateToChangeRole()
-                                                openBottomSheet()
+                                                showChangeRoleOption()
                                             }
                                         )
                                     }

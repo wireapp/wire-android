@@ -16,9 +16,14 @@ import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 @Composable
 fun OtherUserProfileBottomSheet(otherUserBottomSheetContentState: OtherUserBottomSheetContentState) {
     when (val test = otherUserBottomSheetContentState.test) {
-        is Test.Conversation -> ConversationSheetContent(
-            test.conversationSheetState
-        )
+        is Test.Conversation -> {
+            when (test.conversationSheetState) {
+                is Dupa.Loaded -> {
+                    ConversationSheetContent(conversationSheetState = test.conversationSheetState.conversationSheetContent)
+                }
+                Dupa.Loading -> {}
+            }
+        }
         is Test.RoleChange -> {
             if (test.groupInfoAvailibility is GroupInfoAvailibility.Available) {
                 EditGroupRoleBottomSheet(
@@ -43,17 +48,22 @@ fun rememberOtherUserBottomSheetContentState(
         OtherUserBottomSheetContentState(
             modalBottomSheetState,
             requestOnDemand,
-            conversationSheetContent,
+            if (conversationSheetContent == null) Dupa.Loading else Dupa.Loaded(ConversationSheetState(conversationSheetContent)),
             groupInfoAvailibility
         )
     }
+}
+
+sealed class Dupa {
+    object Loading : Dupa()
+    data class Loaded(val conversationSheetContent: ConversationSheetState) : Dupa()
 }
 
 @OptIn(ExperimentalMaterialApi::class)
 class OtherUserBottomSheetContentState(
     val modalBottomSheetState: ModalBottomSheetState,
     val requestOnDemand: () -> Unit,
-    val conversationSheetContent: ConversationSheetContent? = null,
+    val conversationSheetContent: Dupa = Dupa.Loading,
     val groupInfoAvailibility: GroupInfoAvailibility = GroupInfoAvailibility.NotAvailable
 ) {
 
@@ -62,7 +72,7 @@ class OtherUserBottomSheetContentState(
     suspend fun showConversationOption() {
         show()
 
-        test = Test.Conversation(ConversationSheetState(conversationSheetContent))
+        test = Test.Conversation(conversationSheetContent)
     }
 
     suspend fun showChangeRoleOption() {
@@ -72,7 +82,7 @@ class OtherUserBottomSheetContentState(
     }
 
     suspend fun show() {
-        if (conversationSheetContent == null) {
+        if (conversationSheetContent is Dupa.Loading) {
             requestOnDemand()
         }
 
@@ -84,21 +94,40 @@ class OtherUserBottomSheetContentState(
     }
 
     fun muteConversation(mutedConversationStatus: MutedConversationStatus) {
-        (test as? Test.Conversation)?.conversationSheetState?.muteConversation(mutedConversationStatus)
+        val currentTest = test
+
+        if (currentTest is Test.Conversation) {
+            if (currentTest.conversationSheetState is Dupa.Loaded) {
+                currentTest.conversationSheetState.conversationSheetContent.muteConversation(mutedConversationStatus)
+            }
+        }
+
     }
 
     fun toMutingNotificationOption() {
-        (test as? Test.Conversation)?.conversationSheetState?.toMutingNotificationOption()
+        val currentTest = test
+
+        if (currentTest is Test.Conversation) {
+            if (currentTest.conversationSheetState is Dupa.Loaded) {
+                currentTest.conversationSheetState.conversationSheetContent.toMutingNotificationOption()
+            }
+        }
     }
 
     fun toHome() {
-        (test as? Test.Conversation)?.conversationSheetState?.toHome()
+        val currentTest = test
+
+        if (currentTest is Test.Conversation) {
+            if (currentTest.conversationSheetState is Dupa.Loaded) {
+                currentTest.conversationSheetState.conversationSheetContent.toHome()
+            }
+        }
     }
 
 }
 
 sealed class Test {
-    data class Conversation(val conversationSheetState: ConversationSheetState) : Test()
+    data class Conversation(val conversationSheetState: Dupa) : Test()
     data class RoleChange(val groupInfoAvailibility: GroupInfoAvailibility) : Test()
 
     object Loading : Test()

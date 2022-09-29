@@ -26,51 +26,22 @@ data class OtherUserProfileState(
     val connectionState: ConnectionState = ConnectionState.NOT_CONNECTED,
     val membership: Membership = Membership.None,
     val groupInfoAvailability: GroupInfoAvailibility = GroupInfoAvailibility.NotAvailable,
-    val conversationDetailOnDemand: ConversationDetailOnDemand = ConversationDetailOnDemand.NotRequested,
+    val conversationSheetContent: ConversationSheetContent? = null,
     val botService: BotService? = null,
     val otherUserClients: List<OtherUserClient> = listOf()
 ) {
-    fun setBottomSheetStateToConversation(): OtherUserProfileState =
-        conversationSheetContent?.let { copy(bottomSheetContentState = OtherUserBottomSheetContent.Conversation(it)) } ?: this
-
-    fun setBottomSheetStateToMuteOptions(): OtherUserProfileState =
-        conversationSheetContent?.let { copy(bottomSheetContentState = OtherUserBottomSheetContent.Mute(it)) } ?: this
-
-    fun setBottomSheetStateToChangeRole(): OtherUserProfileState =
-        groupInfoAvailability?.let { copy(bottomSheetContentState = OtherUserBottomSheetContent.ChangeRole(it)) } ?: this
-
-    fun updateMuteStatus(status: MutedConversationStatus): OtherUserProfileState {
-        return conversationSheetContent?.let {
-            val newConversationSheetContent = conversationSheetContent.copy(mutingConversationState = status)
-            val newBottomSheetContentState = when (bottomSheetContentState) {
-                is OtherUserBottomSheetContent.Mute -> bottomSheetContentState.copy(
-                    conversationData = bottomSheetContentState.conversationData.copy(mutingConversationState = status)
-                )
-                is OtherUserBottomSheetContent.Conversation -> bottomSheetContentState.copy(
-                    conversationData = bottomSheetContentState.conversationData.copy(mutingConversationState = status)
-                )
-                is OtherUserBottomSheetContent.ChangeRole -> bottomSheetContentState
-                null -> null
-            }
-            copy(conversationSheetContent = newConversationSheetContent, bottomSheetContentState = newBottomSheetContentState)
-        } ?: this
-    }
-
-    fun clearBottomSheetState(): OtherUserProfileState =
-        copy(bottomSheetContentState = null)
-
-    companion object {
-        val PREVIEW = OtherUserProfileState(
-            userId = UserId("some_user", "domain.com"),
-            fullName = "name",
-            userName = "username",
-            teamName = "team",
-            email = "email",
-            groupInfoAvailability = OtherUserProfileGroupInfo(
-                "group name", Member.Role.Member, true, ConversationId("some_user", "domain.com")
-            )
-        )
-    }
+//    companion object {
+//        val PREVIEW = OtherUserProfileState(
+//            userId = UserId("some_user", "domain.com"),
+//            fullName = "name",
+//            userName = "username",
+//            teamName = "team",
+//            email = "email",
+//            groupInfoAvailability = OtherUserProfileGroupInfo(
+//                "group name", Member.Role.Member, true, ConversationId("some_user", "domain.com")
+//            )
+//        )
+//    }
 }
 
 sealed class BottomSheetContent {

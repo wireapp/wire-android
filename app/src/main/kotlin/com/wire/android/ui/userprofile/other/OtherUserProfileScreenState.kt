@@ -4,7 +4,6 @@ import android.content.Context
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.MaterialTheme
@@ -38,7 +37,9 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun rememberOtherUserProfileScreenState(): OtherUserProfileScreenState {
+fun rememberOtherUserProfileScreenState(
+    otherUserBottomSheetContentState: OtherUserBottomSheetContentState
+): OtherUserProfileScreenState {
     val context = LocalContext.current
     val clipBoardManager = LocalClipboardManager.current
 
@@ -56,7 +57,7 @@ fun rememberOtherUserProfileScreenState(): OtherUserProfileScreenState {
             context = context,
             clipBoardManager = clipBoardManager,
             coroutineScope = coroutineScope,
-            sheetState = sheetState,
+            otherUserBottomSheetContentState = otherUserBottomSheetContentState,
             snackbarHostState = snackBarHostState,
             blockUserDialogState = blockUserDialogState,
             unblockUserDialogState = unblockUserDialogState,
@@ -65,12 +66,11 @@ fun rememberOtherUserProfileScreenState(): OtherUserProfileScreenState {
     }
 }
 
-@OptIn(ExperimentalMaterialApi::class)
 data class OtherUserProfileScreenState(
     private val context: Context,
     private val clipBoardManager: ClipboardManager,
     val coroutineScope: CoroutineScope,
-    val sheetState: ModalBottomSheetState,
+    val otherUserBottomSheetContentState: OtherUserBottomSheetContentState,
     val snackbarHostState: SnackbarHostState,
     val blockUserDialogState: VisibilityState<BlockUserDialogState>,
     val unblockUserDialogState: VisibilityState<UnblockUserDialogState>,
@@ -82,11 +82,11 @@ data class OtherUserProfileScreenState(
     }
 
     fun openBottomSheet() {
-        coroutineScope.launch { sheetState.show() }
+        coroutineScope.launch { otherUserBottomSheetContentState.show() }
     }
 
     fun closeBottomSheet() {
-        coroutineScope.launch { sheetState.hide() }
+        coroutineScope.launch { otherUserBottomSheetContentState.hide() }
     }
 
     fun showSnackbar(uiText: UIText) {

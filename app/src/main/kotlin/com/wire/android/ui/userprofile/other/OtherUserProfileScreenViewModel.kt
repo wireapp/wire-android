@@ -21,7 +21,7 @@ import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationTypeDetail
-import com.wire.android.ui.home.conversationslist.model.BlockState
+import com.wire.android.ui.home.conversationslist.model.BlockingState
 import com.wire.android.ui.userprofile.common.UsernameMapper.mapUserLabel
 import com.wire.android.ui.userprofile.group.RemoveConversationMemberState
 import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.BlockingUserOperationError
@@ -40,6 +40,8 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.Conversation
+import com.wire.kalium.logic.data.conversation.MutedConversationStatus
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.toQualifiedID
@@ -64,6 +66,8 @@ import com.wire.kalium.logic.feature.conversation.CreateConversationResult
 import com.wire.kalium.logic.feature.conversation.GetOneToOneConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
+import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUseCase
+import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
 import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -87,12 +91,15 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val dispatchers: DispatcherProvider,
     private val blockUser: BlockUserUseCase,
     private val unblockUser: UnblockUserUseCase,
+    private val getConversation: GetOneToOneConversationUseCase,
     private val getOrCreateOneToOneConversation: GetOrCreateOneToOneConversationUseCase,
     private val observeUserInfo: ObserveUserInfoUseCase,
+    private val updateConversationMutedStatus: UpdateConversationMutedStatusUseCase,
     private val sendConnectionRequest: SendConnectionRequestUseCase,
     private val cancelConnectionRequest: CancelConnectionRequestUseCase,
     private val acceptConnectionRequest: AcceptConnectionRequestUseCase,
     private val ignoreConnectionRequest: IgnoreConnectionRequestUseCase,
+    private val updateMemberRole: UpdateConversationMemberRoleUseCase,
     private val userTypeMapper: UserTypeMapper,
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val observeConversationRoleForUser: ObserveConversationRoleForUserUseCase,
@@ -179,14 +186,14 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                 }
                 is GetOneToOneConversationUseCase.Result.Success -> {
                     state = state.copy(
-                        conversationDetailOnDemand = ConversationDetailOnDemand.Requested(
-                            title = state.otherUser.name.orEmpty(),
+                        conversationSheetContent = ConversationSheetContent(
+                            title = "Test",
                             conversationId = conversationResult.conversation.id,
                             mutingConversationState = conversationResult.conversation.mutedStatus,
                             conversationTypeDetail = ConversationTypeDetail.Private(
                                 state.userAvatarAsset,
                                 userId,
-                                state.otherUser.BlockState
+                                BlockingState.NOT_BLOCKED
                             )
                         )
                     )
@@ -370,4 +377,35 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     }
 
     override fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }
+    override fun onChangeMemberRole(role: Conversation.Member.Role) {
+
+    }
+
+    override fun onMutingConversationStatusChange(conversationId: ConversationId?, status: MutedConversationStatus) {
+
+    }
+
+    override fun onAddConversationToFavourites(conversationId: ConversationId) {
+
+    }
+
+    override fun onMoveConversationToFolder(conversationId: ConversationId) {
+
+    }
+
+    override fun onMoveConversationToArchive(conversationId: ConversationId) {
+
+    }
+
+    override fun onClearConversationContent(conversationId: ConversationId) {
+
+    }
+
+    override fun setBottomSheetStateToConversation() {
+
+    }
+
+    override fun setBottomSheetStateToMuteOptions() {
+
+    }
 }

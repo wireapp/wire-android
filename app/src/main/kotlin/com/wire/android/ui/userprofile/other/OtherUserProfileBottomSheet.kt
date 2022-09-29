@@ -1,122 +1,167 @@
 package com.wire.android.ui.userprofile.other
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.ModalBottomSheetState
+import androidx.compose.material.ModalBottomSheetValue
+import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import com.wire.android.appLogger
-import com.wire.android.model.ImageAsset
-import com.wire.android.navigation.EXTRA_CONVERSATION_ID
-import com.wire.android.navigation.EXTRA_USER_ID
-import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationNavigationOptions
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetState
-import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationTypeDetail
-import com.wire.android.ui.home.conversationslist.bottomsheet.OtherUserNavigationOption
-import com.wire.android.ui.home.conversationslist.bottomsheet.OtherUserNavigationOptions
-import com.wire.android.ui.home.conversationslist.bottomsheet.Test
-import com.wire.android.ui.home.conversationslist.bottomsheet.rememberConversationSheetState
-import com.wire.android.ui.home.conversationslist.model.BlockState
-import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
-import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.QualifiedIdMapper
-import com.wire.kalium.logic.data.id.toQualifiedID
-import com.wire.kalium.logic.data.user.ConnectionState
-import com.wire.kalium.logic.data.user.OtherUser
-import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
-import com.wire.kalium.logic.feature.conversation.GetOneToOneConversationUseCase
-import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleResult
-import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleUseCase
-import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.launch
-import java.util.Date
 
+@Composable
+fun OtherUserProfileBottomSheet(otherUserBottomSheetContentState: OtherUserBottomSheetContentState) {
+    when (val test = otherUserBottomSheetContentState.test) {
+        is Test.Conversation -> ConversationSheetContent(
+            test.conversationSheetState
+        )
+        is Test.RoleChange -> {
+            if (test.groupInfoAvailibility is GroupInfoAvailibility.Available) {
+                EditGroupRoleBottomSheet(
+                    groupState = test.groupInfoAvailibility.otherUserProfileGroupInfo,
+                )
+            }
+        }
+        Test.Loading -> {}
+    }
+}
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun OtherUserProfileBottomSheet(
-    otherUserProfileBottomSheetState: OtherUserProfileBottomSheetState
+fun rememberOtherUserBottomSheetContentState(
+    requestOnDemand: () -> Unit,
+    conversationSheetContent: ConversationSheetContent?,
+    groupInfoAvailibility: GroupInfoAvailibility
+): OtherUserBottomSheetContentState {
+    val modalBottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
+
+    return remember(conversationSheetContent, groupInfoAvailibility) {
+        OtherUserBottomSheetContentState(
+            modalBottomSheetState,
+            requestOnDemand,
+            conversationSheetContent,
+            groupInfoAvailibility
+        )
+    }
+}
+
+@OptIn(ExperimentalMaterialApi::class)
+class OtherUserBottomSheetContentState(
+    val modalBottomSheetState: ModalBottomSheetState,
+    val requestOnDemand: () -> Unit,
+    val conversationSheetContent: ConversationSheetContent? = null,
+    val groupInfoAvailibility: GroupInfoAvailibility = GroupInfoAvailibility.NotAvailable
 ) {
 
-    when (otherUserProfileBottomSheetState) {
-        OtherUserProfileBottomSheetState.NotRequested -> {}
-        is OtherUserProfileBottomSheetState.Requested -> {
-        }
+    var test: Test by mutableStateOf(Test.Loading)
+
+    suspend fun showConversationOption() {
+        show()
+
+        test = Test.Conversation(ConversationSheetState(conversationSheetContent))
     }
 
+    suspend fun showChangeRoleOption() {
+        show()
+
+        test = Test.RoleChange(groupInfoAvailibility)
+    }
+
+    suspend fun show() {
+        if (conversationSheetContent == null) {
+            requestOnDemand()
+        }
+
+        modalBottomSheetState.show()
+    }
+
+    suspend fun hide() {
+        modalBottomSheetState.hide()
+    }
+
+    fun muteConversation(mutedConversationStatus: MutedConversationStatus) {
+        (test as? Test.Conversation)?.conversationSheetState?.muteConversation(mutedConversationStatus)
+    }
+
+    fun toMutingNotificationOption() {
+        (test as? Test.Conversation)?.conversationSheetState?.toMutingNotificationOption()
+    }
+
+    fun toHome() {
+        (test as? Test.Conversation)?.conversationSheetState?.toHome()
+    }
 
 }
 
-@Composable
-fun OtherUSerProfileBottomSheetContent(
-    otherUserNavigationOptions: OtherUserNavigationOptions,
-) {
-    val otherUserProfileScreenViewModel: OtherUserProfileScreenViewModel = hiltViewModel()
+sealed class Test {
+    data class Conversation(val conversationSheetState: ConversationSheetState) : Test()
+    data class RoleChange(val groupInfoAvailibility: GroupInfoAvailibility) : Test()
 
-    LaunchedEffect(Unit) {
-        otherUserProfileScreenViewModel.getAdditionalConversationDetails()
-    }
+    object Loading : Test()
+}
 
-    when (otherUserNavigationOptions) {
-        is ConversationNavigationOptions.Home, ConversationNavigationOptions.MutingOptionsNotification -> {
-            ConversationSheetState(conversationNavigationOptions = otherUserNavigationOptions)
-        }
-        is OtherUserNavigationOption.ChangeRole -> {
-            EditGroupRoleBottomSheet(
-                groupState = bottomSheetState.otherUserProfileGroupInfo,
-                changeMemberRole = eventsHandler::onChangeMemberRole,
-                closeChangeRoleBottomSheet = closeBottomSheet
-//            )
-        }
-//        is OtherUserBottomSheetContent.Conversation -> {
-//            val conversationId = bottomSheetState.conversationData.conversationId
-//            ConversationMainSheetContent(
-//                conversationSheetContent = bottomSheetState.conversationData,
-//// TODO(profile): enable when implemented
+//@Composable
+//fun OtherUSerProfileBottomSheetContent(
+//    otherUserNavigationOptions: OtherUserNavigationOptions,
+//) {
+////    val otherUserProfileScreenViewModel: OtherUserProfileScreenViewModel = hiltViewModel()
 ////
-////                addConversationToFavourites = { eventsHandler.onAddConversationToFavourites(conversationId) },
-////                moveConversationToFolder = { eventsHandler.onMoveConversationToFolder(conversationId) },
-////                moveConversationToArchive = { eventsHandler.onMoveConversationToArchive(conversationId) },
-////                clearConversationContent = { eventsHandler.onClearConversationContent(conversationId) },
-//                blockUserClick = blockUser,
-//                leaveGroup = { },
-//                deleteGroup = { },
-//                navigateToNotification = eventsHandler::setBottomSheetStateToMuteOptions
-//            )
+////    LaunchedEffect(Unit) {
+////        otherUserProfileScreenViewModel.getAdditionalConversationDetails()
+////    }
+//
+//    when (otherUserNavigationOptions) {
+//        is ConversationNavigationOptions.Home, ConversationNavigationOptions.MutingOptionsNotification -> {
+//            ConversationSheetState(conversationNavigationOptions = otherUserNavigationOptions)
 //        }
-//        is OtherUserBottomSheetContent.Mute ->
-//            MutingOptionsSheetContent(
-//                mutingConversationState = bottomSheetState.conversationData.mutingConversationState,
-//                onMuteConversation = {
-//                    eventsHandler.onMutingConversationStatusChange(bottomSheetState.conversationData.conversationId, it)
-//                },
-//                onBackClick = eventsHandler::setBottomSheetStateToConversation
-//            )
-//        is OtherUserBottomSheetContent.ChangeRole ->
+//        is OtherUserNavigationOption.ChangeRole -> {
 //            EditGroupRoleBottomSheet(
 //                groupState = bottomSheetState.otherUserProfileGroupInfo,
 //                changeMemberRole = eventsHandler::onChangeMemberRole,
 //                closeChangeRoleBottomSheet = closeBottomSheet
-//            )
+////            )
+//        }
+////        is OtherUserBottomSheetContent.Conversation -> {
+////            val conversationId = bottomSheetState.conversationData.conversationId
+////            ConversationMainSheetContent(
+////                conversationSheetContent = bottomSheetState.conversationData,
+////// TODO(profile): enable when implemented
+//////
+//////                addConversationToFavourites = { eventsHandler.onAddConversationToFavourites(conversationId) },
+//////                moveConversationToFolder = { eventsHandler.onMoveConversationToFolder(conversationId) },
+//////                moveConversationToArchive = { eventsHandler.onMoveConversationToArchive(conversationId) },
+//////                clearConversationContent = { eventsHandler.onClearConversationContent(conversationId) },
+////                blockUserClick = blockUser,
+////                leaveGroup = { },
+////                deleteGroup = { },
+////                navigateToNotification = eventsHandler::setBottomSheetStateToMuteOptions
+////            )
+////        }
+////        is OtherUserBottomSheetContent.Mute ->
+////            MutingOptionsSheetContent(
+////                mutingConversationState = bottomSheetState.conversationData.mutingConversationState,
+////                onMuteConversation = {
+////                    eventsHandler.onMutingConversationStatusChange(bottomSheetState.conversationData.conversationId, it)
+////                },
+////                onBackClick = eventsHandler::setBottomSheetStateToConversation
+////            )
+////        is OtherUserBottomSheetContent.ChangeRole ->
+////            EditGroupRoleBottomSheet(
+////                groupState = bottomSheetState.otherUserProfileGroupInfo,
+////                changeMemberRole = eventsHandler::onChangeMemberRole,
+////                closeChangeRoleBottomSheet = closeBottomSheet
+////            )
+//
+//    }
+//
+//    BackHandler(bottomSheetState != null) {
+//        if (bottomSheetState is OtherUserBottomSheetContent.Mute) eventsHandler.setBottomSheetStateToConversation()
+//        else closeBottomSheet()
+//    }
+//
+//}
 
-    }
-
-    BackHandler(bottomSheetState != null) {
-        if (bottomSheetState is OtherUserBottomSheetContent.Mute) eventsHandler.setBottomSheetStateToConversation()
-        else closeBottomSheet()
-    }
-
-}
-
-
-sealed class OtherUserProfileBottomSheetState {
-    object NotRequested : OtherUserProfileBottomSheetState()
-
-    data class Requested(val otherUserNavigationOption: OtherUserNavigationOption) : OtherUserProfileBottomSheetState()
-}

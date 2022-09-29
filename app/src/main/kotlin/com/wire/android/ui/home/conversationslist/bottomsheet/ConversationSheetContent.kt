@@ -14,14 +14,14 @@ import com.wire.kalium.logic.data.user.UserId
 @Composable
 fun ConversationSheetContent(
     conversationSheetState: ConversationSheetState,
-    onMutingConversationStatusChange: (MutedConversationStatus) -> Unit,
-    addConversationToFavourites: () -> Unit,
-    moveConversationToFolder: () -> Unit,
-    moveConversationToArchive: () -> Unit,
-    clearConversationContent: () -> Unit,
-    blockUser: (BlockUserDialogState) -> Unit,
-    leaveGroup: (GroupDialogState) -> Unit,
-    deleteGroup: (GroupDialogState) -> Unit
+    onMutingConversationStatusChange: (MutedConversationStatus) -> Unit = {},
+    addConversationToFavourites: () -> Unit = {},
+    moveConversationToFolder: () -> Unit = {},
+    moveConversationToArchive: () -> Unit = {},
+    clearConversationContent: () -> Unit = {},
+    blockUser: (BlockUserDialogState) -> Unit = {},
+    leaveGroup: (GroupDialogState) -> Unit = {},
+    deleteGroup: (GroupDialogState) -> Unit = {}
 ) {
     when (conversationSheetState.currentOptionNavigation) {
         ConversationNavigationOptions.Home -> {

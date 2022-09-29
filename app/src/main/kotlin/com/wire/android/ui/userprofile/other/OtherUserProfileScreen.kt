@@ -33,8 +33,6 @@ import com.wire.android.ui.common.MoreOptionIcon
 import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireTabRow
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
-import com.wire.android.ui.common.dialogs.BlockUserDialogContent
-import com.wire.android.ui.common.dialogs.UnblockUserDialogContent
 import com.wire.android.ui.common.dialogs.UnblockUserDialogState
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
@@ -51,7 +49,13 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterialApi::class, InternalCoroutinesApi::class)
 @Composable
 fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltViewModel()) {
-    val screenState = rememberOtherUserProfileScreenState()
+    val screenState = rememberOtherUserProfileScreenState(
+        otherUserBottomSheetContentState = rememberOtherUserBottomSheetContentState(
+            requestOnDemand = viewModel::getAdditionalConversationDetails,
+            conversationSheetContent = viewModel.state.conversationSheetContent,
+            groupInfoAvailibility = viewModel.state.groupInfoAvailability
+        )
+    )
 
     OtherProfileScreenContent(
         screenState = screenState,
@@ -72,7 +76,7 @@ fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltView
     }
 
     LaunchedEffect(Unit) {
-        snapshotFlow { screenState.sheetState.isVisible }.collect { isVisible ->
+        snapshotFlow { screenState.otherUserBottomSheetContentState.modalBottomSheetState.isVisible }.collect { isVisible ->
             // without clearing BottomSheet after every closing there could be strange UI behaviour.
             // Example: open some big BottomSheet (ConversationBS), close it, then open small BS (ChangeRoleBS) ->
             // in that case user will see ChangeRoleBS at the center of the screen (just for few milliseconds)
@@ -100,7 +104,15 @@ fun OtherProfileScreenContent(
 ) {
     with(viewModelState) {
         with(screenState) {
-            val screenContent = @Composable {
+            WireModalSheetLayout(
+                sheetState = otherUserBottomSheetContentState.modalBottomSheetState,
+                coroutineScope = coroutineScope,
+                sheetContent = {
+                    OtherUserProfileBottomSheet(
+                        otherUserBottomSheetContentState
+                    )
+                }
+            ) {
                 val otherProfilePagerState = rememberOtherUserProfilePagerState(
                     showGroupOption = groupInfoAvailability is GroupInfoAvailibility.Available
                 )
@@ -118,9 +130,10 @@ fun OtherProfileScreenContent(
                             elevation = elevation,
                             onNavigateBack = eventsHandler::navigateBack,
                             openConversationBottomSheet = {
-                                bottomSheetEventsHandler.setBottomSheetStateToConversation()
-                                openBottomSheet()
-                            })
+//                                bottomSheetEventsHandler.setBottomSheetStateToConversation()
+//                                openBottomSheet()
+                            }
+                        )
                     },
                     topBarCollapsing = { TopBarCollapsing(viewModelState) },
                     topBarFooter = {
@@ -150,15 +163,17 @@ fun OtherProfileScreenContent(
                                     )
                                 },
                                 group = {
-                                    OtherUserProfileGroup(
-                                        state = viewModelState,
-                                        lazyListState = tabItemsLazyListState[OtherUserProfileTabItem.GROUP]!!,
-                                        onRemoveFromConversation = removeMemberDialogState::show,
-                                        openChangeRoleBottomSheet = {
-                                            eventsHandler.setBottomSheetStateToChangeRole()
-                                            openBottomSheet()
-                                        }
-                                    )
+                                    if (groupInfoAvailability is GroupInfoAvailibility.Available) {
+                                        OtherUserProfileGroup(
+                                            otherUserProfileGroupInfo = groupInfoAvailability.otherUserProfileGroupInfo,
+                                            lazyListState = tabItemsLazyListState[OtherUserProfileTabItem.GROUP]!!,
+                                            onRemoveFromConversation = removeMemberDialogState::show,
+                                            openChangeRoleBottomSheet = {
+                                                eventsHandler.setBottomSheetStateToChangeRole()
+                                                openBottomSheet()
+                                            }
+                                        )
+                                    }
                                 },
                                 devices = {
                                     LaunchedEffect(Unit) {
@@ -176,48 +191,31 @@ fun OtherProfileScreenContent(
                     },
                     bottomBar = {
                         ContentFooter(
-                            viewModelState,
-                            otherProfilePagerState.topBarMaxBarElevation,
-                            footerEventsHandler,
-                            unblockUserDialogState::show
+                            state = viewModelState,
+                            maxBarElevation = otherProfilePagerState.topBarMaxBarElevation,
+                            onUnblockUser = unblockUserDialogState::show,
+                            footerEventsHandler = footerEventsHandler
                         )
                     },
                     isSwipeable = connectionState == ConnectionState.ACCEPTED
                 )
             }
-
-            if (connectionState in listOf(ConnectionState.ACCEPTED, ConnectionState.BLOCKED)) {
-                WireModalSheetLayout(
-                    sheetState = sheetState,
-                    coroutineScope = coroutineScope,
-                    sheetContent = {
-                        OtherUserProfileBottomSheet(
-                            if (conversationDetailOnDemand is ConversationDetailOnDemand.NotRequested) OtherUserProfileBottomSheetState.NotRequested)
-                            else OtherUserProfileBottomSheetState.Requested()
-                        )
-                    }
-                ) {
-                    screenContent()
-                }
-            } else {
-                screenContent()
-            }
-
-            BlockUserDialogContent(
-                dialogState = blockUserDialogState,
-                onBlock = eventsHandler::onBlockUser,
-                isLoading = requestInProgress,
-            )
-            UnblockUserDialogContent(
-                dialogState = unblockUserDialogState,
-                onUnblock = eventsHandler::onUnblockUser,
-                isLoading = requestInProgress,
-            )
-            RemoveConversationMemberDialog(
-                dialogState = removeMemberDialogState,
-                onRemoveConversationMember = eventsHandler::onRemoveConversationMember,
-                isLoading = requestInProgress,
-            )
+//
+//            BlockUserDialogContent(
+//                dialogState = blockUserDialogState,
+//                onBlock = eventsHandler::onBlockUser,
+//                isLoading = requestInProgress,
+//            )
+//            UnblockUserDialogContent(
+//                dialogState = unblockUserDialogState,
+//                onUnblock = eventsHandler::onUnblockUser,
+//                isLoading = requestInProgress,
+//            )
+//            RemoveConversationMemberDialog(
+//                dialogState = removeMemberDialogState,
+//                onRemoveConversationMember = eventsHandler::onRemoveConversationMember,
+//                isLoading = requestInProgress,
+//            )
         }
     }
 }

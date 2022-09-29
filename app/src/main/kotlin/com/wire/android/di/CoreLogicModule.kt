@@ -747,5 +747,5 @@ class UseCaseModule {
         @KaliumCoreLogic coreLogic: CoreLogic,
         authServerConfigProvider: AuthServerConfigProvider
     ): AutoVersionAuthScopeUseCase  =
-        coreLogic.autoVersionAuthenticationScope(authServerConfigProvider.authServer.value)
+        coreLogic.versionedAuthenticationScope(authServerConfigProvider.authServer.value)
 }

@@ -188,7 +188,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     fun getAdditionalConversationDetails() {
         if (state.conversationSheetContent == null) {
             viewModelScope.launch {
-                when (val conversationResult = getConversation(userId)) {
+                when (val conversationResult = withContext(dispatchers.io()) { getConversation(userId) }) {
                     is GetOneToOneConversationUseCase.Result.Failure -> {
                         appLogger.d("Couldn't not getOrCreateOneToOneConversation for user id: $userId")
                     }

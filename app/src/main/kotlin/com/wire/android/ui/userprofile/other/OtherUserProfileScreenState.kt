@@ -3,7 +3,6 @@ package com.wire.android.ui.userprofile.other
 import android.content.Context
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
@@ -33,7 +32,6 @@ import com.wire.android.util.ui.UIText
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun rememberOtherUserProfileScreenState(
     otherUserBottomSheetContentState: OtherUserBottomSheetContentState

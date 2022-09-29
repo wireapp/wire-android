@@ -49,14 +49,14 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterialApi::class, InternalCoroutinesApi::class)
 @Composable
 fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltViewModel()) {
-    val cipa = rememberOtherUserBottomSheetContentState(
-        requestOnDemand = viewModel::getAdditionalConversationDetails,
+    val otherUserBottomSheetContentState = rememberOtherUserBottomSheetContentState(
+        requestOnConversationDetails = viewModel::getAdditionalConversationDetails,
         conversationSheetContent = viewModel.state.conversationSheetContent,
-        groupInfoAvailibility = viewModel.state.groupInfoAvailability
+        groupInfoAvailability = viewModel.state.groupInfoAvailability
     )
 
     val screenState = rememberOtherUserProfileScreenState(
-        cipa
+        otherUserBottomSheetContentState = otherUserBottomSheetContentState
     )
 
     OtherProfileScreenContent(

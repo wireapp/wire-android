@@ -2,11 +2,9 @@ package com.wire.android.ui.userprofile.other
 
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
-import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationTypeDetail
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.kalium.logic.data.client.OtherUserClient
 import com.wire.kalium.logic.data.conversation.Conversation.Member
-import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.BotService
 import com.wire.kalium.logic.data.user.ConnectionState
@@ -44,12 +42,6 @@ data class OtherUserProfileState(
 //    }
 }
 
-sealed class BottomSheetContent {
-    data class Conversation(val conversationData: ConversationSheetContent) : BottomSheetContent()
-    data class Mute(val conversationData: ConversationSheetContent) : BottomSheetContent()
-    data class ChangeRole(val otherUserProfileGroupInfo: OtherUserProfileGroupInfo) : BottomSheetContent()
-}
-
 data class OtherUserProfileGroupInfo(
     val groupName: String,
     val role: Member.Role,
@@ -60,15 +52,4 @@ data class OtherUserProfileGroupInfo(
 sealed class GroupInfoAvailibility {
     object NotAvailable : GroupInfoAvailibility()
     data class Available(val otherUserProfileGroupInfo: OtherUserProfileGroupInfo) : GroupInfoAvailibility()
-}
-
-sealed class ConversationDetailOnDemand {
-    object NotRequested : ConversationDetailOnDemand()
-    data class Requested(
-        val title: String,
-        val conversationId: ConversationId,
-        val mutingConversationState: MutedConversationStatus,
-        val conversationTypeDetail: ConversationTypeDetail,
-        val isSelfUserMember: Boolean = true
-    ) : ConversationDetailOnDemand()
 }

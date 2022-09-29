@@ -8,6 +8,7 @@ import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -17,19 +18,21 @@ import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationNaviga
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 
 @Composable
 fun OtherUserProfileBottomSheet(
     otherUserBottomSheetContentState: OtherUserBottomSheetContentState,
     onMutingConversationStatusChange: (MutedConversationStatus) -> Unit = {},
+    changeMemberRole: (Conversation.Member.Role) -> Unit = {},
+    blockUser: (BlockUserDialogState) -> Unit = {},
+    leaveGroup: (GroupDialogState) -> Unit = {},
+    deleteGroup: (GroupDialogState) -> Unit = {},
     addConversationToFavourites: () -> Unit = {},
     moveConversationToFolder: () -> Unit = {},
     moveConversationToArchive: () -> Unit = {},
-    clearConversationContent: () -> Unit = {},
-    blockUser: (BlockUserDialogState) -> Unit = {},
-    leaveGroup: (GroupDialogState) -> Unit = {},
-    deleteGroup: (GroupDialogState) -> Unit = {}
+    clearConversationContent: () -> Unit = {}
 ) {
     when (val otherUserProfileSheetNavigation = otherUserBottomSheetContentState.otherUserProfileSheetNavigation) {
         is OtherUserProfileSheetNavigation.Conversation -> {
@@ -57,6 +60,7 @@ fun OtherUserProfileBottomSheet(
                 if (groupInfoAvailability is GroupInfoAvailibility.Available) {
                     EditGroupRoleBottomSheet(
                         groupState = groupInfoAvailability.otherUserProfileGroupInfo,
+                        changeMemberRole = changeMemberRole
                     )
                 }
             }
@@ -92,8 +96,8 @@ fun rememberOtherUserBottomSheetContentState(
     val otherUserBottomSheetContentState = remember(conversationSheetContent, groupInfoAvailability) {
         OtherUserBottomSheetContentState(
             modalBottomSheetState = modalBottomSheetState,
-            groupInfoAvailability = groupInfoAvailability,
-            conversationSheetContent = conversationSheetContent,
+            initialGroupInfoAvailability = groupInfoAvailability,
+            initialConversationSheetContent = conversationSheetContent,
             requestConversationDetailsOnDemand = requestOnConversationDetails
         )
     }
@@ -103,34 +107,55 @@ fun rememberOtherUserBottomSheetContentState(
 
 @OptIn(ExperimentalMaterialApi::class)
 class OtherUserBottomSheetContentState(
+    initialConversationSheetContent: ConversationSheetContent?,
+    initialGroupInfoAvailability: GroupInfoAvailibility,
     val modalBottomSheetState: ModalBottomSheetState,
-    val groupInfoAvailability: GroupInfoAvailibility,
-    private val conversationSheetContent: ConversationSheetContent?,
     val requestConversationDetailsOnDemand: () -> Unit
 ) {
 
-    var otherUserProfileSheetNavigation: OtherUserProfileSheetNavigation by mutableStateOf(
-        OtherUserProfileSheetNavigation.Conversation(
-            if (conversationSheetContent == null) {
-                ConversationSheetContentState.Loading
-            } else {
-                ConversationSheetContentState.Loaded(
-                    ConversationSheetState(conversationSheetContent, ConversationNavigationOptions.Home)
+    private val dupa by mutableStateOf(
+        initialGroupInfoAvailability
+    )
+
+    private val cipa by mutableStateOf(
+        initialConversationSheetContent
+    )
+
+    val otherUserProfileSheetNavigation: OtherUserProfileSheetNavigation by derivedStateOf {
+        when (_otherUserProfileSheetNavigation) {
+            is OtherUserProfileSheetNavigation.Conversation -> {
+                OtherUserProfileSheetNavigation.Conversation(
+                    if (initialConversationSheetContent == null) {
+                        ConversationSheetContentState.Loading
+                    } else {
+                        ConversationSheetContentState.Loaded(
+                            ConversationSheetState(cipa, ConversationNavigationOptions.Home)
+                        )
+                    }
                 )
             }
+            is OtherUserProfileSheetNavigation.RoleChange -> {
+                OtherUserProfileSheetNavigation.RoleChange(dupa)
+            }
+        }
+    }
+
+    private var _otherUserProfileSheetNavigation: OtherUserProfileSheetNavigation by mutableStateOf(
+        OtherUserProfileSheetNavigation.Conversation(
+            ConversationSheetContentState.Loading
         )
     )
 
     suspend fun showConversationOption() {
-        if (conversationSheetContent == null) {
+        if (cipa == null) {
             requestConversationDetailsOnDemand()
         }
 
-        if (conversationSheetContent != null) {
-            otherUserProfileSheetNavigation = OtherUserProfileSheetNavigation.Conversation(
+        if (cipa != null) {
+            _otherUserProfileSheetNavigation = OtherUserProfileSheetNavigation.Conversation(
                 conversationSheetState = ConversationSheetContentState.Loaded(
                     ConversationSheetState(
-                        conversationSheetContent = conversationSheetContent,
+                        conversationSheetContent = cipa,
                         conversationNavigationOptions = ConversationNavigationOptions.Home
                     )
                 )
@@ -141,8 +166,8 @@ class OtherUserBottomSheetContentState(
     }
 
     suspend fun showChangeRoleOption() {
-        otherUserProfileSheetNavigation = OtherUserProfileSheetNavigation.RoleChange(
-            groupInfoAvailability = groupInfoAvailability
+        _otherUserProfileSheetNavigation = OtherUserProfileSheetNavigation.RoleChange(
+            groupInfoAvailability = dupa
         )
 
         modalBottomSheetState.show()
@@ -153,7 +178,7 @@ class OtherUserBottomSheetContentState(
     }
 
     fun resetState() {
-        otherUserProfileSheetNavigation = OtherUserProfileSheetNavigation.Conversation(
+        _otherUserProfileSheetNavigation = OtherUserProfileSheetNavigation.Conversation(
             ConversationSheetContentState.Loading
         )
     }

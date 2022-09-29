@@ -97,8 +97,9 @@ fun OtherProfileScreenContent(
                 coroutineScope = coroutineScope,
                 sheetContent = {
                     OtherUserProfileBottomSheet(
-                        otherUserBottomSheetContentState,
-                        otherUserProfileBottomSheetEventsHandler::onMutingConversationStatusChange
+                        otherUserBottomSheetContentState = otherUserBottomSheetContentState,
+                        onMutingConversationStatusChange = otherUserProfileBottomSheetEventsHandler::onMutingConversationStatusChange,
+                        changeMemberRole = otherUserProfileBottomSheetEventsHandler::onChangeMemberRole
                     )
                 }
             ) {

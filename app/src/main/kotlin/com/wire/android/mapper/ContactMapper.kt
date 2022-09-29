@@ -13,14 +13,13 @@ class ContactMapper
     private val userTypeMapper: UserTypeMapper,
     private val wireSessionImageLoader: WireSessionImageLoader
 ) {
-
     fun fromOtherUser(otherUser: OtherUser): Contact {
         with(otherUser) {
             return Contact(
                 id = id.value,
                 domain = id.domain,
                 name = name.orEmpty(),
-                label = toUserLabel(otherUser),
+                label = toUserLabel(),
                 avatarData = UserAvatarData(
                     asset = previewPicture?.let { ImageAsset.UserAvatarAsset(wireSessionImageLoader, it) },
                     connectionState = connectionStatus

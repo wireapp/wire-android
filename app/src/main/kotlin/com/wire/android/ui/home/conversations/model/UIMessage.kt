@@ -4,6 +4,7 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Stable
 import com.wire.android.R
+import com.wire.android.model.ImageAsset
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversations.model.MessageStatus.DecryptionFailure
 import com.wire.android.ui.home.conversations.model.MessageStatus.Deleted
@@ -77,27 +78,12 @@ sealed class UIMessageContent {
 
     data class ImageMessage(
         val assetId: AssetId,
-        var imgData: ByteArray?,
+        val asset: ImageAsset.PrivateAsset?,
         val width: Int,
         val height: Int,
         val uploadStatus: Message.UploadStatus,
         val downloadStatus: Message.DownloadStatus
-    ) : UIMessageContent() {
-        override fun equals(other: Any?): Boolean {
-            if (this === other) return true
-            if (javaClass != other?.javaClass) return false
-            other as ImageMessage
-            if (assetId != other.assetId) return false
-            if (!imgData.contentEquals(other.imgData)) return false
-            if (uploadStatus != other.uploadStatus) return false
-            if (downloadStatus != other.downloadStatus) return false
-            return true
-        }
-
-        override fun hashCode(): Int {
-            return imgData.contentHashCode()
-        }
-    }
+    ) : UIMessageContent()
 
     sealed class SystemMessage(
         @DrawableRes val iconResId: Int?,

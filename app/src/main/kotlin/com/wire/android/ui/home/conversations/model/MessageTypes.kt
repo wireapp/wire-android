@@ -1,6 +1,5 @@
 package com.wire.android.ui.home.conversations.model
 
-import android.graphics.Bitmap
 import android.text.util.Linkify
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -16,9 +15,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.unit.dp
 import com.wire.android.model.Clickable
+import com.wire.android.model.ImageAsset
 import com.wire.android.ui.common.LinkifyText
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.home.conversations.MessageComposerViewModel
 import com.wire.android.ui.home.conversations.model.messagetypes.asset.MessageAsset
 import com.wire.android.ui.home.conversations.model.messagetypes.image.DisplayableImageMessage
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageFailed
@@ -26,7 +25,6 @@ import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMess
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageParams
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.toBitmap
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.DOWNLOAD_IN_PROGRESS
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.FAILED_DOWNLOAD
@@ -34,7 +32,7 @@ import com.wire.kalium.logic.data.message.Message.UploadStatus.FAILED_UPLOAD
 import com.wire.kalium.logic.data.message.Message.UploadStatus.UPLOAD_IN_PROGRESS
 
 // TODO: Here we actually need to implement some logic that will distinguish MentionLabel with Body of the message,
-// waiting for the backend to implement mapping logic for the MessageBody
+//       waiting for the backend to implement mapping logic for the MessageBody
 @Composable
 internal fun MessageBody(messageBody: MessageBody, onLongClick: (() -> Unit)? = null) {
     LinkifyText(
@@ -50,14 +48,12 @@ internal fun MessageBody(messageBody: MessageBody, onLongClick: (() -> Unit)? = 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun MessageImage(
-    rawImgData: ByteArray?,
+    asset: ImageAsset.PrivateAsset?,
     imgParams: ImageMessageParams,
     uploadStatus: Message.UploadStatus,
     downloadStatus: Message.DownloadStatus,
     onImageClick: Clickable,
 ) {
-    val imageData: Bitmap? = if (rawImgData != null && rawImgData.size < MessageComposerViewModel.IMAGE_SIZE_LIMIT_BYTES)
-        rawImgData.toBitmap() else null
     Box(
         Modifier
             .clip(shape = RoundedCornerShape(dimensions().messageAssetBorderRadius))
@@ -77,9 +73,10 @@ fun MessageImage(
                 onLongClick = onImageClick.onLongClick,
             )
     ) {
+        if (asset != null) {
+            DisplayableImageMessage(asset, imgParams)
+        }
         when {
-            imageData != null -> DisplayableImageMessage(imageData, imgParams)
-
             // Trying to upload the asset
             uploadStatus == UPLOAD_IN_PROGRESS || downloadStatus == DOWNLOAD_IN_PROGRESS -> {
                 ImageMessageInProgress(imgParams, downloadStatus == DOWNLOAD_IN_PROGRESS)

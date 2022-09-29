@@ -13,6 +13,7 @@ import com.wire.kalium.logic.data.sync.ConnectionPolicy
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.UserSessionScope
 import com.wire.kalium.logic.functional.fold
+import com.wire.kalium.logic.functional.isLeft
 import com.wire.kalium.logic.functional.map
 import com.wire.kalium.logic.functional.nullableFold
 import kotlinx.coroutines.CoroutineScope
@@ -76,7 +77,9 @@ class ConnectionPolicyManager @Inject constructor(
             setConnectionPolicy(ConnectionPolicy.KEEP_ALIVE)
             // Wait until the client is live and pending events are processed
             logger.d("$TAG Waiting until live")
-            syncManager.waitUntilLive()
+            if (syncManager.waitUntilLiveOrFailure().isLeft()) {
+                logger.w("$TAG Failed waiting until live")
+            }
             logger.d("$TAG Checking if downgrading policy is needed")
             downgradePolicyIfNeeded(userId)
         }
@@ -111,7 +114,7 @@ class ConnectionPolicyManager @Inject constructor(
         return isCurrentSession
     }
 
-    private fun setPolicyForSessions(
+    private suspend fun setPolicyForSessions(
         userIdList: List<QualifiedID>,
         currentSessionUserId: QualifiedID?,
         wasUIInitialized: Boolean

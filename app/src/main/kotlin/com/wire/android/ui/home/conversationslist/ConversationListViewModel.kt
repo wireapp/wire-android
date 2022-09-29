@@ -119,7 +119,7 @@ class ConversationListViewModel @Inject constructor(
                     }
 
                 else -> false
-            } || it is Connection
+            } || (it is Connection && it.connection.status == ConnectionState.PENDING)
         }
 
         val remainingConversations = this - unreadConversations.toSet()

@@ -32,6 +32,7 @@ import com.wire.android.navigation.NavigationItemDestinationsRoutes.ONGOING_CALL
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.OTHER_USER_PROFILE
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.REGISTER_DEVICE
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.REMOVE_DEVICES
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.REPORT_BUG
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.SELF_USER_PROFILE
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.WELCOME
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
@@ -174,6 +175,11 @@ enum class NavigationItem(
 
     Support(
         primaryRoute = BuildConfig.SUPPORT_URL,
+        content = { },
+    ),
+
+    ReportBug(
+        primaryRoute = REPORT_BUG,
         content = { },
     ),
 
@@ -369,6 +375,7 @@ object NavigationItemDestinationsRoutes {
     const val APP_SETTINGS = "app_settings_screen"
     const val BACKUP_AND_RESTORE = "backup_and_restore_screen"
     const val DEBUG = "debug_screen"
+    const val REPORT_BUG = "report_bug"
     const val REMOVE_DEVICES = "remove_devices_screen"
     const val REGISTER_DEVICE = "register_device_screen"
     const val IMAGE_PICKER = "image_picker_screen"

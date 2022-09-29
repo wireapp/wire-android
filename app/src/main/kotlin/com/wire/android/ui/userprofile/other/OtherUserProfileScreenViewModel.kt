@@ -184,24 +184,26 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     }
 
     fun getAdditionalConversationDetails() {
-        viewModelScope.launch {
-            when (val conversationResult = getConversation(userId)) {
-                is GetOneToOneConversationUseCase.Result.Failure -> {
-                    appLogger.d("Couldn't not getOrCreateOneToOneConversation for user id: $userId")
-                }
-                is GetOneToOneConversationUseCase.Result.Success -> {
-                    state = state.copy(
-                        conversationSheetContent = ConversationSheetContent(
-                            title = otherUser!!.name.orEmpty(),
-                            conversationId = conversationResult.conversation.id,
-                            mutingConversationState = conversationResult.conversation.mutedStatus,
-                            conversationTypeDetail = ConversationTypeDetail.Private(
-                                state.userAvatarAsset,
-                                userId,
-                                otherUser!!.BlockState
+        if(state.conversationSheetContent == null) {
+            viewModelScope.launch {
+                when (val conversationResult = getConversation(userId)) {
+                    is GetOneToOneConversationUseCase.Result.Failure -> {
+                        appLogger.d("Couldn't not getOrCreateOneToOneConversation for user id: $userId")
+                    }
+                    is GetOneToOneConversationUseCase.Result.Success -> {
+                        state = state.copy(
+                            conversationSheetContent = ConversationSheetContent(
+                                title = otherUser!!.name.orEmpty(),
+                                conversationId = conversationResult.conversation.id,
+                                mutingConversationState = conversationResult.conversation.mutedStatus,
+                                conversationTypeDetail = ConversationTypeDetail.Private(
+                                    state.userAvatarAsset,
+                                    userId,
+                                    otherUser!!.BlockState
+                                )
                             )
                         )
-                    )
+                    }
                 }
             }
         }

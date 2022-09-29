@@ -27,7 +27,7 @@ fun OtherUserProfileBottomSheet(
                     is ConversationSheetContentState.Loaded -> {
                         ConversationSheetContent(
                             conversationSheetState = conversationSheetState.conversationSheetState,
-                            onMutingConversationStatusChange = {},
+                            onMutingConversationStatusChange = { },
                             addConversationToFavourites = { },
                             moveConversationToFolder = { },
                             moveConversationToArchive = { },
@@ -80,15 +80,7 @@ fun rememberOtherUserBottomSheetContentState(
         OtherUserBottomSheetContentState(
             modalBottomSheetState = modalBottomSheetState,
             groupInfoAvailability = groupInfoAvailability,
-            conversationSheetContentState = if (conversationSheetContent == null) {
-                ConversationSheetContentState.Loading
-            } else {
-                ConversationSheetContentState.Loaded(
-                    conversationSheetState = ConversationSheetState(
-                        conversationSheetContent = conversationSheetContent
-                    )
-                )
-            },
+            conversationSheetContent = conversationSheetContent,
             requestConversationDetailsOnDemand = requestOnConversationDetails
         )
     }
@@ -100,26 +92,37 @@ fun rememberOtherUserBottomSheetContentState(
 class OtherUserBottomSheetContentState(
     val modalBottomSheetState: ModalBottomSheetState,
     val groupInfoAvailability: GroupInfoAvailibility,
-    val conversationSheetContentState: ConversationSheetContentState,
+    private val conversationSheetContent: ConversationSheetContent?,
     val requestConversationDetailsOnDemand: () -> Unit
 ) {
 
     var otherUserProfileSheetNavigation: OtherUserProfileSheetNavigation by mutableStateOf(
         OtherUserProfileSheetNavigation.Conversation(
-            conversationSheetState = conversationSheetContentState,
-            conversationNavigationOptions = ConversationNavigationOptions.Home
+            if (conversationSheetContent == null) {
+                ConversationSheetContentState.Loading
+            } else {
+                ConversationSheetContentState.Loaded(
+                    ConversationSheetState(conversationSheetContent, ConversationNavigationOptions.Home)
+                )
+            }
         )
     )
 
     suspend fun showConversationOption() {
-        if (conversationSheetContentState is ConversationSheetContentState.Loading) {
+        if (conversationSheetContent == null) {
             requestConversationDetailsOnDemand()
         }
 
-        otherUserProfileSheetNavigation = OtherUserProfileSheetNavigation.Conversation(
-            conversationSheetState = conversationSheetContentState,
-            conversationNavigationOptions = ConversationNavigationOptions.Home
-        )
+        if (conversationSheetContent != null) {
+            otherUserProfileSheetNavigation = OtherUserProfileSheetNavigation.Conversation(
+                conversationSheetState = ConversationSheetContentState.Loaded(
+                    ConversationSheetState(
+                        conversationSheetContent = conversationSheetContent,
+                        conversationNavigationOptions = ConversationNavigationOptions.Home
+                    )
+                )
+            )
+        }
 
         modalBottomSheetState.show()
     }
@@ -146,8 +149,7 @@ class OtherUserBottomSheetContentState(
 
 sealed class OtherUserProfileSheetNavigation {
     data class Conversation(
-        val conversationSheetState: ConversationSheetContentState,
-        val conversationNavigationOptions: ConversationNavigationOptions
+        val conversationSheetState: ConversationSheetContentState
     ) : OtherUserProfileSheetNavigation()
 
     data class RoleChange(val groupInfoAvailability: GroupInfoAvailibility) : OtherUserProfileSheetNavigation()

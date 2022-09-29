@@ -38,6 +38,7 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -75,7 +76,10 @@ class PersistentWebSocketService : Service() {
         coreLogic.globalScope { sessionRepository.currentSession() }.fold({
             appLogger.e("error while getting the current session from persistent web socket service $it")
         }, { currentAccount ->
-            coreLogic.getSessionScope(currentAccount.userId).setConnectionPolicy(ConnectionPolicy.KEEP_ALIVE)
+            runBlocking {
+                coreLogic.getSessionScope(currentAccount.userId)
+                    .setConnectionPolicy(ConnectionPolicy.KEEP_ALIVE)
+            }
 
             val observeUserId = currentSessionFlow()
                 .map { result ->
@@ -85,7 +89,6 @@ class PersistentWebSocketService : Service() {
                 .distinctUntilChanged()
                 .flowOn(dispatcherProvider.io())
                 .shareIn(scope, SharingStarted.WhileSubscribed(), 1)
-
 
             scope.launch {
                 notificationManager.observeNotificationsAndCalls(observeUserId, scope) {

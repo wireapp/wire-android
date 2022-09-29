@@ -75,19 +75,18 @@ class PersistentWebSocketService : Service() {
         coreLogic.globalScope { sessionRepository.currentSession() }.fold({
             appLogger.e("error while getting the current session from persistent web socket service $it")
         }, { currentAccount ->
-            coreLogic.getSessionScope(currentAccount.userId).setConnectionPolicy(ConnectionPolicy.KEEP_ALIVE)
-
-            val observeUserId = currentSessionFlow()
-                .map { result ->
-                    if (result is CurrentSessionResult.Success) result.accountInfo.userId
-                    else null
-                }
-                .distinctUntilChanged()
-                .flowOn(dispatcherProvider.io())
-                .shareIn(scope, SharingStarted.WhileSubscribed(), 1)
-
-
             scope.launch {
+                coreLogic.getSessionScope(currentAccount.userId).setConnectionPolicy(ConnectionPolicy.KEEP_ALIVE)
+
+                val observeUserId = currentSessionFlow()
+                    .map { result ->
+                        if (result is CurrentSessionResult.Success) result.accountInfo.userId
+                        else null
+                    }
+                    .distinctUntilChanged()
+                    .flowOn(dispatcherProvider.io())
+                    .shareIn(scope, SharingStarted.WhileSubscribed(), 1)
+
                 notificationManager.observeNotificationsAndCalls(observeUserId, scope) {
                     openIncomingCall(it.conversationId)
                 }

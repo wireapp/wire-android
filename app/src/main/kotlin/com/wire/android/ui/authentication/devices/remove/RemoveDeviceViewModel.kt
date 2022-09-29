@@ -21,6 +21,7 @@ import com.wire.kalium.logic.feature.client.SelfClientsResult
 import com.wire.kalium.logic.feature.client.SelfClientsUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -119,7 +120,12 @@ class RemoveDeviceViewModel @Inject constructor(
             }
             DeleteClientResult.Failure.InvalidCredentials -> state = state.copy(error = RemoveDeviceError.InvalidCredentialsError)
             DeleteClientResult.Failure.PasswordAuthRequired -> showDeleteClientDialog(device)
-            DeleteClientResult.Success -> registerClient(password)
+            DeleteClientResult.Success -> {
+                // this delay is only a work around because the backend is not updating the list of clients immediately
+                // TODO: remove the delay once the server side bug is fixed
+                delay(500L)
+                registerClient(password)
+            }
         }
     }
 

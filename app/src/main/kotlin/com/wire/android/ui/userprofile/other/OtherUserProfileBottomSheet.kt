@@ -5,6 +5,7 @@ import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -31,7 +32,6 @@ fun OtherUserProfileBottomSheet(otherUserBottomSheetContentState: OtherUserBotto
                 )
             }
         }
-        Test.Loading -> {}
     }
 }
 
@@ -42,9 +42,9 @@ fun rememberOtherUserBottomSheetContentState(
     conversationSheetContent: ConversationSheetContent?,
     groupInfoAvailibility: GroupInfoAvailibility
 ): OtherUserBottomSheetContentState {
-    val modalBottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
+    val modalBottomSheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
 
-    return remember(conversationSheetContent, groupInfoAvailibility) {
+    val test = remember(conversationSheetContent, groupInfoAvailibility) {
         OtherUserBottomSheetContentState(
             modalBottomSheetState,
             requestOnDemand,
@@ -52,6 +52,19 @@ fun rememberOtherUserBottomSheetContentState(
             groupInfoAvailibility
         )
     }
+
+    LaunchedEffect(test.conversationSheetContent) {
+        if (test.conversationSheetContent is Dupa.Loaded) {
+            val currentTest = test.test
+
+            if (currentTest is Test.Conversation) {
+                test.test =
+                    Test.Conversation(Dupa.Loaded(ConversationSheetState(test.conversationSheetContent.conversationSheetContent.conversationSheetContent)))
+            }
+        }
+    }
+
+    return test
 }
 
 sealed class Dupa {
@@ -67,7 +80,7 @@ class OtherUserBottomSheetContentState(
     val groupInfoAvailibility: GroupInfoAvailibility = GroupInfoAvailibility.NotAvailable
 ) {
 
-    var test: Test by mutableStateOf(Test.Loading)
+    var test: Test by mutableStateOf(Test.Conversation(conversationSheetContent))
 
     suspend fun showConversationOption() {
         show()
@@ -130,7 +143,6 @@ sealed class Test {
     data class Conversation(val conversationSheetState: Dupa) : Test()
     data class RoleChange(val groupInfoAvailibility: GroupInfoAvailibility) : Test()
 
-    object Loading : Test()
 }
 
 //@Composable

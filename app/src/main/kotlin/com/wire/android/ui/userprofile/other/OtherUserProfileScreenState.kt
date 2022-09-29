@@ -4,8 +4,6 @@ import android.content.Context
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.ModalBottomSheetValue
-import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
@@ -44,7 +42,6 @@ fun rememberOtherUserProfileScreenState(
     val clipBoardManager = LocalClipboardManager.current
 
     val coroutineScope = rememberCoroutineScope()
-    val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
 
     val snackBarHostState: SnackbarHostState = remember { SnackbarHostState() }
 
@@ -52,7 +49,7 @@ fun rememberOtherUserProfileScreenState(
     val unblockUserDialogState = rememberVisibilityState<UnblockUserDialogState>()
     val removeMemberDialogState = rememberVisibilityState<RemoveConversationMemberState>()
 
-    return remember {
+    return remember(otherUserBottomSheetContentState) {
         OtherUserProfileScreenState(
             context = context,
             clipBoardManager = clipBoardManager,

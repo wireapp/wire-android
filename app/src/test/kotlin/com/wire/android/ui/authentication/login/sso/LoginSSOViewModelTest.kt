@@ -106,8 +106,6 @@ class LoginSSOViewModelTest {
         every { authenticationScope.ssoLoginScope.initiate } returns ssoInitiateLoginUseCase
         every { authenticationScope.ssoLoginScope.getLoginSession } returns getSSOLoginSessionUseCase
 
-
-
         loginViewModel = LoginSSOViewModel(
             savedStateHandle,
             autoVersionAuthScopeUseCase,

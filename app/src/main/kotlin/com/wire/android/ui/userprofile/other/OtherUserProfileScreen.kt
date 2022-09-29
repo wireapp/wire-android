@@ -19,7 +19,6 @@ import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.Dp
@@ -43,10 +42,9 @@ import com.wire.android.ui.userprofile.common.EditableState
 import com.wire.android.ui.userprofile.common.UserProfileInfo
 import com.wire.kalium.logic.data.user.ConnectionState
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterialApi::class, InternalCoroutinesApi::class)
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltViewModel()) {
     val otherUserBottomSheetContentState = rememberOtherUserBottomSheetContentState(
@@ -57,13 +55,6 @@ fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltView
 
     val screenState = rememberOtherUserProfileScreenState(
         otherUserBottomSheetContentState = otherUserBottomSheetContentState
-    )
-
-    OtherProfileScreenContent(
-        screenState = screenState,
-        viewModelState = viewModel.state,
-        eventsHandler = viewModel as OtherUserProfileEventsHandler,
-        footerEventsHandler = viewModel as OtherUserProfileFooterEventsHandler
     )
 
     if (!viewModel.requestInProgress) {
@@ -77,18 +68,12 @@ fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltView
         }
     }
 
-    LaunchedEffect(Unit) {
-        snapshotFlow { screenState.otherUserBottomSheetContentState.modalBottomSheetState.isVisible }.collect { isVisible ->
-            // without clearing BottomSheet after every closing there could be strange UI behaviour.
-            // Example: open some big BottomSheet (ConversationBS), close it, then open small BS (ChangeRoleBS) ->
-            // in that case user will see ChangeRoleBS at the center of the screen (just for few milliseconds)
-            // and then it moves to the bottom.
-            // It happens cause when `sheetState.show()` is called, it calculates animation offset by the old BS height (which was big)
-            // To avoid such case we clear BS content on every closing
-//            if (!isVisible) viewModel.clearBottomSheetState()
-        }
-    }
-
+    OtherProfileScreenContent(
+        screenState = screenState,
+        viewModelState = viewModel.state,
+        eventsHandler = viewModel as OtherUserProfileEventsHandler,
+        footerEventsHandler = viewModel as OtherUserProfileFooterEventsHandler
+    )
 }
 
 @SuppressLint("UnusedCrossfadeTargetStateParameter", "LongParameterList")

@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterialApi::class)
+
 package com.wire.android.ui.userprofile.other
 
 import androidx.compose.material.ExperimentalMaterialApi
@@ -5,6 +7,7 @@ import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -18,19 +21,47 @@ fun OtherUserProfileBottomSheet(
 ) {
     when (val otherUserProfileSheetNavigation = otherUserBottomSheetContentState.otherUserProfileSheetNavigation) {
         is OtherUserProfileSheetNavigation.Conversation -> {
-            when (otherUserProfileSheetNavigation.conversationSheetState) {
-                is ConversationSheetContentState.Loaded -> {
-                    ConversationSheetContent(conversationSheetState = otherUserProfileSheetNavigation.conversationSheetState.conversationSheetState)
+            with(otherUserProfileSheetNavigation) {
+                when (conversationSheetState) {
+                    is ConversationSheetContentState.Loaded -> {
+                        ConversationSheetContent(
+                            conversationSheetState = conversationSheetState.conversationSheetState,
+                            onMutingConversationStatusChange = {},
+                            addConversationToFavourites = { },
+                            moveConversationToFolder = { },
+                            moveConversationToArchive = { },
+                            clearConversationContent = { },
+                            blockUser = { },
+                            leaveGroup = { },
+                            deleteGroup = { }
+                        )
+                    }
+                    ConversationSheetContentState.Loading -> {}
                 }
-                ConversationSheetContentState.Loading -> {}
             }
         }
         is OtherUserProfileSheetNavigation.RoleChange -> {
-            if (otherUserProfileSheetNavigation.groupInfoAvailability is GroupInfoAvailibility.Available) {
-                EditGroupRoleBottomSheet(
-                    groupState = otherUserProfileSheetNavigation.groupInfoAvailability.otherUserProfileGroupInfo,
-                )
+            with(otherUserProfileSheetNavigation) {
+                if (groupInfoAvailability is GroupInfoAvailibility.Available) {
+                    EditGroupRoleBottomSheet(
+                        groupState = groupInfoAvailability.otherUserProfileGroupInfo,
+                    )
+                }
             }
+        }
+    }
+
+    // without clearing BottomSheet after every closing there could be strange UI behaviour.
+    // Example: open some big BottomSheet (ConversationBS), close it, then open small BS (ChangeRoleBS) ->
+    // in that case user will see ChangeRoleBS at the center of the screen (just for few milliseconds)
+    // and then it moves to the bottom.
+    // It happens cause when `sheetState.show()` is called, it calculates animation offset by the old BS height (which was big)
+    // To avoid such case we clear BS content on every closing
+    LaunchedEffect(otherUserBottomSheetContentState.modalBottomSheetState.isVisible) {
+        if (!otherUserBottomSheetContentState.modalBottomSheetState.isVisible
+            && !otherUserBottomSheetContentState.modalBottomSheetState.isAnimationRunning
+        ) {
+            otherUserBottomSheetContentState.resetState()
         }
     }
 }
@@ -48,7 +79,7 @@ fun rememberOtherUserBottomSheetContentState(
         OtherUserBottomSheetContentState(
             modalBottomSheetState = modalBottomSheetState,
             groupInfoAvailability = groupInfoAvailability,
-            conversationSheetContent = if (conversationSheetContent == null) {
+            conversationSheetContentState = if (conversationSheetContent == null) {
                 ConversationSheetContentState.Loading
             } else {
                 ConversationSheetContentState.Loaded(
@@ -68,22 +99,22 @@ fun rememberOtherUserBottomSheetContentState(
 class OtherUserBottomSheetContentState(
     val modalBottomSheetState: ModalBottomSheetState,
     val groupInfoAvailability: GroupInfoAvailibility,
-    val conversationSheetContent: ConversationSheetContentState,
+    val conversationSheetContentState: ConversationSheetContentState,
     val requestConversationDetailsOnDemand: () -> Unit
 ) {
 
     var otherUserProfileSheetNavigation: OtherUserProfileSheetNavigation by mutableStateOf(
         OtherUserProfileSheetNavigation.Conversation(
-            conversationSheetContent
+            conversationSheetContentState
         )
     )
 
     suspend fun showConversationOption() {
-        if (conversationSheetContent is ConversationSheetContentState.Loading) {
+        if (conversationSheetContentState is ConversationSheetContentState.Loading) {
             requestConversationDetailsOnDemand()
         }
 
-        otherUserProfileSheetNavigation = OtherUserProfileSheetNavigation.Conversation(conversationSheetContent)
+        otherUserProfileSheetNavigation = OtherUserProfileSheetNavigation.Conversation(conversationSheetContentState)
 
         modalBottomSheetState.show()
     }
@@ -96,6 +127,12 @@ class OtherUserBottomSheetContentState(
 
     suspend fun hide() {
         modalBottomSheetState.hide()
+    }
+
+    fun resetState() {
+        otherUserProfileSheetNavigation = OtherUserProfileSheetNavigation.Conversation(
+            ConversationSheetContentState.Loading
+        )
     }
 
 }

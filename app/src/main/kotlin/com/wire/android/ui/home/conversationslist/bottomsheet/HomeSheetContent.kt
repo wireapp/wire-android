@@ -85,56 +85,54 @@ internal fun ConversationMainSheetContent(
                         onItemClick = navigateToNotification
                     )
             },
-// TODO(profile): enable when implemented
-//
-//            {
-//                MenuBottomSheetItem(
-//                    title = stringResource(R.string.label_add_to_favourites),
-//                    icon = {
-//                        MenuItemIcon(
-//                            id = R.drawable.ic_favourite,
-//                            contentDescription = stringResource(R.string.content_description_add_to_favourite),
-//                        )
-//                    },
-//                    onItemClick = addConversationToFavourites
-//                )
-//            },
-//            {
-//                MenuBottomSheetItem(
-//                    icon = {
-//                        MenuItemIcon(
-//                            id = R.drawable.ic_folder,
-//                            contentDescription = stringResource(R.string.content_description_move_to_folder),
-//                        )
-//                    },
-//                    title = stringResource(R.string.label_move_to_folder),
-//                    onItemClick = moveConversationToFolder
-//                )
-//            },
-//            {
-//                MenuBottomSheetItem(
-//                    icon = {
-//                        MenuItemIcon(
-//                            id = R.drawable.ic_archive,
-//                            contentDescription = stringResource(R.string.content_description_move_to_archive),
-//                        )
-//                    },
-//                    title = stringResource(R.string.label_move_to_archive),
-//                    onItemClick = moveConversationToArchive
-//                )
-//            },
-//            {
-//                MenuBottomSheetItem(
-//                    icon = {
-//                        MenuItemIcon(
-//                            id = R.drawable.ic_erase,
-//                            contentDescription = stringResource(R.string.content_description_clear_content),
-//                        )
-//                    },
-//                    title = stringResource(R.string.label_clear_content),
-//                    onItemClick = clearConversationContent
-//                )
-//            },
+            {
+                MenuBottomSheetItem(
+                    title = stringResource(R.string.label_add_to_favourites),
+                    icon = {
+                        MenuItemIcon(
+                            id = R.drawable.ic_favourite,
+                            contentDescription = stringResource(R.string.content_description_add_to_favourite),
+                        )
+                    },
+                    onItemClick = {  }
+                )
+            },
+            {
+                MenuBottomSheetItem(
+                    icon = {
+                        MenuItemIcon(
+                            id = R.drawable.ic_folder,
+                            contentDescription = stringResource(R.string.content_description_move_to_folder),
+                        )
+                    },
+                    title = stringResource(R.string.label_move_to_folder),
+                    onItemClick = {  }
+                )
+            },
+            {
+                MenuBottomSheetItem(
+                    icon = {
+                        MenuItemIcon(
+                            id = R.drawable.ic_archive,
+                            contentDescription = stringResource(R.string.content_description_move_to_archive),
+                        )
+                    },
+                    title = stringResource(R.string.label_move_to_archive),
+                    onItemClick = {  }
+                )
+            },
+            {
+                MenuBottomSheetItem(
+                    icon = {
+                        MenuItemIcon(
+                            id = R.drawable.ic_erase,
+                            contentDescription = stringResource(R.string.content_description_clear_content),
+                        )
+                    },
+                    title = stringResource(R.string.label_clear_content),
+                    onItemClick = {  }
+                )
+            },
             {
                 if (conversationSheetContent.conversationTypeDetail is ConversationTypeDetail.Private) {
                     if (conversationSheetContent.conversationTypeDetail.blockingState == BlockingState.NOT_BLOCKED) {

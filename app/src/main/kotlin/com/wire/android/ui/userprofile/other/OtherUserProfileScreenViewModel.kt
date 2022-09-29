@@ -21,7 +21,7 @@ import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationTypeDetail
-import com.wire.android.ui.home.conversationslist.model.BlockingState
+import com.wire.android.ui.home.conversationslist.model.BlockState
 import com.wire.android.ui.userprofile.common.UsernameMapper.mapUserLabel
 import com.wire.android.ui.userprofile.group.RemoveConversationMemberState
 import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.BlockingUserOperationError
@@ -46,6 +46,7 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.toQualifiedID
 import com.wire.kalium.logic.data.user.ConnectionState
+import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.client.GetOtherUserClientsResult
 import com.wire.kalium.logic.feature.client.GetOtherUserClientsUseCase
@@ -110,8 +111,9 @@ class OtherUserProfileScreenViewModel @Inject constructor(
 ) : ViewModel(), OtherUserProfileEventsHandler, OtherUserProfileFooterEventsHandler, OtherUserProfileBottomSheetEventsHandler {
 
     private val userId: QualifiedID = savedStateHandle.get<String>(EXTRA_USER_ID)!!.toQualifiedID(qualifiedIdMapper)
-
     private val conversationId: QualifiedID? = savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)?.toQualifiedID(qualifiedIdMapper)
+
+    var otherUser: OtherUser? = null
 
     var state: OtherUserProfileState by mutableStateOf(
         OtherUserProfileState(
@@ -148,29 +150,33 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                             showInfoMessage(LoadUserInformationError)
                         }
                         is GetUserInfoResult.Success -> {
-                            val otherUser = userInfoResult.otherUser
+                            otherUser = userInfoResult.otherUser
 
-                            val userAvatarAsset = otherUser.completePicture
-                                ?.let { userAssetId ->
-                                    ImageAsset.UserAvatarAsset(
-                                        imageLoader = wireSessionImageLoader,
-                                        userAssetId = userAssetId
+                            otherUser?.let {
+                                with(it) {
+                                    val userAvatarAsset = completePicture
+                                        ?.let { userAssetId ->
+                                            ImageAsset.UserAvatarAsset(
+                                                imageLoader = wireSessionImageLoader,
+                                                userAssetId = userAssetId
+                                            )
+                                        }
+
+                                    state = state.copy(
+                                        isLoading = false,
+                                        userAvatarAsset = userAvatarAsset,
+                                        fullName = name.orEmpty(),
+                                        userName = mapUserLabel(this),
+                                        teamName = userInfoResult.team?.name.orEmpty(),
+                                        email = email.orEmpty(),
+                                        phone = phone.orEmpty(),
+                                        connectionState = connectionStatus,
+                                        membership = userTypeMapper.toMembership(userType),
+                                        botService = botService,
+                                        groupInfoAvailability = groupInfoAvailability,
                                     )
                                 }
-
-                            state = state.copy(
-                                isLoading = false,
-                                userAvatarAsset = userAvatarAsset,
-                                fullName = otherUser.name.orEmpty(),
-                                userName = mapUserLabel(otherUser),
-                                teamName = userInfoResult.team?.name.orEmpty(),
-                                email = otherUser.email.orEmpty(),
-                                phone = otherUser.phone.orEmpty(),
-                                connectionState = otherUser.connectionStatus,
-                                membership = userTypeMapper.toMembership(otherUser.userType),
-                                botService = otherUser.botService,
-                                groupInfoAvailability = groupInfoAvailability,
-                            )
+                            }
                         }
                     }
                 }
@@ -182,18 +188,17 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             when (val conversationResult = getConversation(userId)) {
                 is GetOneToOneConversationUseCase.Result.Failure -> {
                     appLogger.d("Couldn't not getOrCreateOneToOneConversation for user id: $userId")
-                    return@launch
                 }
                 is GetOneToOneConversationUseCase.Result.Success -> {
                     state = state.copy(
                         conversationSheetContent = ConversationSheetContent(
-                            title = "Test",
+                            title = otherUser!!.name.orEmpty(),
                             conversationId = conversationResult.conversation.id,
                             mutingConversationState = conversationResult.conversation.mutedStatus,
                             conversationTypeDetail = ConversationTypeDetail.Private(
                                 state.userAvatarAsset,
                                 userId,
-                                BlockingState.NOT_BLOCKED
+                                otherUser!!.BlockState
                             )
                         )
                     )

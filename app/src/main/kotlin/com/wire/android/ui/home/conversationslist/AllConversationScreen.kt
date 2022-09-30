@@ -42,6 +42,7 @@ fun AllConversationScreen(
     shouldShowEmptyState: Boolean
 ) {
     val lazyListState = rememberLazyListState()
+
     if (shouldShowEmptyState) {
         ConversationListEmptyStateScreen()
     } else {

@@ -72,7 +72,8 @@ class ConversationListViewModel @Inject constructor(
     private val userTypeMapper: UserTypeMapper
 ) : ViewModel() {
 
-    var state by mutableStateOf(ConversationListState())
+    var conversationListState
+    by mutableStateOf(ConversationListState())
         private set
 
     val snackBarState = MutableSharedFlow<HomeSnackbarState>()
@@ -87,7 +88,7 @@ class ConversationListViewModel @Inject constructor(
         observeConversationListDetailsUseCase()
             .flowOn(dispatcher.io())
             .collect { conversationListDetails ->
-                state = ConversationListState(
+                conversationListState = ConversationListState(
                     conversations = conversationListDetails.toConversationsFoldersMap(),
                     shouldShowEmptyState = conversationListDetails.none { it !is Self },
                     callHistory = mockCallHistory, // TODO: needs to be implemented

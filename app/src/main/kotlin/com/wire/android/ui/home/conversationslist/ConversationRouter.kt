@@ -107,7 +107,7 @@ fun ConversationRouterHomeBridge(
         }
     }
 
-    with(viewModel.state) {
+    with(viewModel.conversationListState) {
         when (itemType) {
             ConversationItemType.ALL_CONVERSATIONS ->
                 AllConversationScreen(

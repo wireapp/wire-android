@@ -8,18 +8,19 @@ import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
-import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationNavigationOptions
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
+import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @Composable
 fun OtherUserProfileBottomSheet(
@@ -34,13 +35,15 @@ fun OtherUserProfileBottomSheet(
     moveConversationToArchive: () -> Unit = { },
     clearConversationContent: () -> Unit = { }
 ) {
-    when (val otherUserProfileSheetNavigation = otherUserBottomSheetContentState.otherUserProfileSheetNavigation) {
-        is OtherUserProfileSheetNavigation.Conversation -> {
-            with(otherUserProfileSheetNavigation) {
-                when (conversationSheetState) {
-                    is ConversationSheetContentState.Loaded -> {
+    with(otherUserBottomSheetContentState) {
+        with(otherUserProfileSheetNavigationState) {
+            when (otherUserProfileSheetNavigation) {
+                is OtherUserProfileSheetNavigation.Conversation -> {
+                    val currentConversationSheetContentState = conversationSheetContentState
+
+                    if (currentConversationSheetContentState is ConversationSheetContentState.Loaded) {
                         ConversationSheetContent(
-                            conversationSheetState = conversationSheetState.conversationSheetState,
+                            conversationSheetState = ConversationSheetState(currentConversationSheetContentState.conversationSheetContent),
                             onMutingConversationStatusChange = onMutingConversationStatusChange,
                             blockUser = blockUser,
                             leaveGroup = leaveGroup,
@@ -50,30 +53,34 @@ fun OtherUserProfileBottomSheet(
                             moveConversationToArchive = { },
                             clearConversationContent = { }
                         )
+                    } else {
+                        { }
                     }
-                    ConversationSheetContentState.Loading -> {}
                 }
-            }
-        }
-        is OtherUserProfileSheetNavigation.RoleChange -> {
-            with(otherUserProfileSheetNavigation) {
-                if (groupInfoAvailability is GroupInfoAvailibility.Available) {
-                    EditGroupRoleBottomSheet(
-                        groupState = groupInfoAvailability.otherUserProfileGroupInfo,
-                        changeMemberRole = changeMemberRole
-                    )
-                }
-            }
-        }
-    }
+                is OtherUserProfileSheetNavigation.RoleChange -> {
+                    val currentGroupInfoAvailability = groupInfoAvailability
 
-    // without clearing BottomSheet after every closing there could be strange UI behaviour.
-    // Example: open some big BottomSheet (ConversationBS), close it, then open small BS (ChangeRoleBS) ->
-    // in that case user will see ChangeRoleBS at the center of the screen (just for few milliseconds)
-    // and then it moves to the bottom.
-    // It happens cause when `sheetState.show()` is called, it calculates animation offset by the old BS height (which was big)
-    // To avoid such case we clear BS content on every closing
-    with(otherUserBottomSheetContentState) {
+                    if (currentGroupInfoAvailability is GroupInfoAvailibility.Available) {
+                        EditGroupRoleBottomSheet(
+                            groupState = currentGroupInfoAvailability.otherUserProfileGroupInfo,
+                            changeMemberRole = changeMemberRole
+                        )
+                    } else {
+                        { }
+                    }
+                }
+                is OtherUserProfileSheetNavigation.Empty -> {
+
+                }
+            }
+        }
+
+        // without clearing BottomSheet after every closing there could be strange UI behaviour.
+        // Example: open some big BottomSheet (ConversationBS), close it, then open small BS (ChangeRoleBS) ->
+        // in that case user will see ChangeRoleBS at the center of the screen (just for few milliseconds)
+        // and then it moves to the bottom.
+        // It happens cause when `sheetState.show()` is called, it calculates animation offset by the old BS height (which was big)
+        // To avoid such case we clear BS content on every closing
         LaunchedEffect(modalBottomSheetState.isVisible) {
             if (!modalBottomSheetState.isVisible
                 && !modalBottomSheetState.isAnimationRunning
@@ -95,20 +102,26 @@ fun rememberOtherUserBottomSheetContentState(
 
     val otherUserProfileSheetNavigationState = remember {
         OtherUserProfileSheetNavigationState(
-            OtherUserProfileSheetNavigation.Conversation(
-                conversationSheetState = ConversationSheetContentState.Loading
-            )
+            OtherUserProfileSheetNavigation.Conversation
         )
     }
 
-    val otherUserBottomSheetContentState = remember(conversationSheetContent, groupInfoAvailability) {
+    val otherUserBottomSheetContentState = remember {
         OtherUserBottomSheetContentState(
-            groupInfoAvailability = groupInfoAvailability,
-            conversationSheetContent = conversationSheetContent,
             otherUserProfileSheetNavigationState = otherUserProfileSheetNavigationState,
             modalBottomSheetState = modalBottomSheetState,
             requestConversationDetailsOnDemand = requestOnConversationDetails
         )
+    }
+
+    LaunchedEffect(conversationSheetContent) {
+        if (conversationSheetContent != null) {
+            otherUserProfileSheetNavigationState.updateConversationSheetContent(conversationSheetContent)
+        }
+    }
+
+    LaunchedEffect(groupInfoAvailability) {
+        otherUserProfileSheetNavigationState.updateGroupInfoAvailability(groupInfoAvailability)
     }
 
     return otherUserBottomSheetContentState
@@ -120,62 +133,47 @@ class OtherUserProfileSheetNavigationState(initialValue: OtherUserProfileSheetNa
         initialValue
     )
 
+    var conversationSheetContentState: ConversationSheetContentState by mutableStateOf(
+        ConversationSheetContentState.Loading
+    )
+
+    var groupInfoAvailability: GroupInfoAvailibility by mutableStateOf(
+        GroupInfoAvailibility.NotAvailable
+    )
+
+    fun updateConversationSheetContent(conversationSheetContent: ConversationSheetContent) {
+        this.conversationSheetContentState = ConversationSheetContentState.Loaded(conversationSheetContent)
+    }
+
+    fun updateGroupInfoAvailability(groupInfoAvailability: GroupInfoAvailibility) {
+        this.groupInfoAvailability = groupInfoAvailability
+    }
+
 }
 
 @OptIn(ExperimentalMaterialApi::class)
 class OtherUserBottomSheetContentState(
-    private val conversationSheetContent: ConversationSheetContent?,
-    private val groupInfoAvailability: GroupInfoAvailibility,
     val otherUserProfileSheetNavigationState: OtherUserProfileSheetNavigationState,
     val modalBottomSheetState: ModalBottomSheetState,
     val requestConversationDetailsOnDemand: () -> Unit
 ) {
-
-    val otherUserProfileSheetNavigation: OtherUserProfileSheetNavigation by derivedStateOf {
-        when (otherUserProfileSheetNavigationState.otherUserProfileSheetNavigation) {
-            is OtherUserProfileSheetNavigation.Conversation -> {
-                OtherUserProfileSheetNavigation.Conversation(
-                    if (conversationSheetContent == null) {
-                        ConversationSheetContentState.Loading
-                    } else {
-                        ConversationSheetContentState.Loaded(
-                            ConversationSheetState(
-                                conversationSheetContent = conversationSheetContent,
-                                conversationNavigationOptions = ConversationNavigationOptions.Home
-                            )
-                        )
-                    }
-                )
-            }
-            is OtherUserProfileSheetNavigation.RoleChange -> {
-                OtherUserProfileSheetNavigation.RoleChange(groupInfoAvailability = groupInfoAvailability)
-            }
-        }
-    }
-
     suspend fun showConversationOption() {
-        if (conversationSheetContent == null) {
-            requestConversationDetailsOnDemand()
-        }
+        coroutineScope {
+            if (otherUserProfileSheetNavigationState.conversationSheetContentState is ConversationSheetContentState.Loading) {
+                launch {
+                    delay(3000)
+                    requestConversationDetailsOnDemand()
+                }
+            }
 
-        if (conversationSheetContent != null) {
-            otherUserProfileSheetNavigationState.otherUserProfileSheetNavigation = OtherUserProfileSheetNavigation.Conversation(
-                conversationSheetState = ConversationSheetContentState.Loaded(
-                    ConversationSheetState(
-                        conversationSheetContent = conversationSheetContent,
-                        conversationNavigationOptions = ConversationNavigationOptions.Home
-                    )
-                )
-            )
-        }
+            otherUserProfileSheetNavigationState.otherUserProfileSheetNavigation = OtherUserProfileSheetNavigation.Conversation
 
-        modalBottomSheetState.show()
+            modalBottomSheetState.show()
+        }
     }
 
     suspend fun showChangeRoleOption() {
-        otherUserProfileSheetNavigationState.otherUserProfileSheetNavigation = OtherUserProfileSheetNavigation.RoleChange(
-            groupInfoAvailability = groupInfoAvailability
-        )
+        otherUserProfileSheetNavigationState.otherUserProfileSheetNavigation = OtherUserProfileSheetNavigation.RoleChange
 
         modalBottomSheetState.show()
     }
@@ -185,23 +183,19 @@ class OtherUserBottomSheetContentState(
     }
 
     fun resetState() {
-        otherUserProfileSheetNavigationState.otherUserProfileSheetNavigation = OtherUserProfileSheetNavigation.Conversation(
-            conversationSheetState = ConversationSheetContentState.Loading
-        )
+        otherUserProfileSheetNavigationState.otherUserProfileSheetNavigation = OtherUserProfileSheetNavigation.Empty
     }
 
 }
 
 sealed class OtherUserProfileSheetNavigation {
-    data class Conversation(
-        val conversationSheetState: ConversationSheetContentState
-    ) : OtherUserProfileSheetNavigation()
-
-    data class RoleChange(val groupInfoAvailability: GroupInfoAvailibility) : OtherUserProfileSheetNavigation()
+    object Conversation : OtherUserProfileSheetNavigation()
+    object RoleChange : OtherUserProfileSheetNavigation()
+    object Empty : OtherUserProfileSheetNavigation()
 
 }
 
 sealed class ConversationSheetContentState {
     object Loading : ConversationSheetContentState()
-    data class Loaded(val conversationSheetState: ConversationSheetState) : ConversationSheetContentState()
+    data class Loaded(val conversationSheetContent: ConversationSheetContent) : ConversationSheetContentState()
 }

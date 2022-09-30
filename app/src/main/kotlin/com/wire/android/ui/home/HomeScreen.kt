@@ -109,6 +109,7 @@ fun HomeScreen(
         onNewConversationClick = conversationListViewModel::openNewConversation,
         onSelfUserClick = homeViewModel::navigateToSelfUserProfile,
         onHamburgerMenuClick = homeScreenState::openDrawer,
+        onSearchQueryChanged = homeViewModel::searchConversation,
         navigateToItem = homeViewModel::navigateTo
     )
 }
@@ -125,6 +126,7 @@ fun HomeContent(
     onReturnToCallClick: () -> Unit,
     onNewConversationClick: () -> Unit,
     onSelfUserClick: () -> Unit,
+    onSearchQueryChanged: (TextFieldValue) -> Unit,
     navigateToItem: (NavigationItem) -> Unit
 ) {
     with(homeScreenState) {

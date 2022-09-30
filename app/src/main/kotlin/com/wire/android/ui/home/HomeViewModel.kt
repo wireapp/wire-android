@@ -4,6 +4,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.model.ImageAsset.UserAvatarAsset
@@ -16,6 +17,7 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.navigation.getBackNavArg
+import com.wire.android.ui.home.conversations.search.SearchPeopleViewModel
 import com.wire.android.util.EMPTY
 import com.wire.android.util.LogFileWriter
 import com.wire.android.util.ui.WireSessionImageLoader
@@ -23,6 +25,9 @@ import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -46,12 +51,15 @@ class HomeViewModel @Inject constructor(
     )
         private set
 
+
+    private val mutableSearchQueryFlow = MutableStateFlow("")
+    private val searchQueryFlow = mutableSearchQueryFlow
+        .asStateFlow()
+        .debounce(SearchPeopleViewModel.DEFAULT_SEARCH_QUERY_DEBOUNCE)
+
     init {
         loadUserAvatar()
     }
-
-    // TODO(localization): localize if needed
-
 
     fun checkRequirements() {
         viewModelScope.launch {
@@ -99,6 +107,16 @@ class HomeViewModel @Inject constructor(
             }
         }
     }
+//
+//    fun searchConversation(searchQuery: TextFieldValue) {
+//        val textQueryChanged = searchQueryTextFieldFlow.value.text != searchQuery.text
+//        // we set the state with a searchQuery, immediately to update the UI first
+//        viewModelScope.launch {
+//            searchQueryTextFieldFlow.emit(searchQuery)
+//
+//            if (textQueryChanged) mutableSearchQueryFlow.emit(searchQuery.text)
+//        }
+//    }
 
     fun navigateTo(item: NavigationItem) {
         viewModelScope.launch {

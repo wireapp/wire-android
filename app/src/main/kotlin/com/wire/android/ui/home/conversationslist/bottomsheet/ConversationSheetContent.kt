@@ -53,17 +53,10 @@ fun ConversationSheetContent(
     }
 }
 
-sealed class OtherUserNavigationOptions : ConversationNavigationOptions, OtherUserNavigationOption
 
 sealed interface ConversationNavigationOptions {
-    object Loading : OtherUserNavigationOptions(), ConversationNavigationOptions
-    object Home : OtherUserNavigationOptions(), ConversationNavigationOptions
-    object MutingOptionsNotification : OtherUserNavigationOptions(), ConversationNavigationOptions
-}
-
-sealed interface OtherUserNavigationOption {
-    object ChangeRole : OtherUserNavigationOptions()
-
+    object Home : ConversationNavigationOptions
+    object MutingOptionsNotification : ConversationNavigationOptions
 }
 
 sealed class ConversationTypeDetail {

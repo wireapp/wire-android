@@ -18,9 +18,6 @@ import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetS
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
-import kotlinx.coroutines.coroutineScope
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.launch
 
 @Composable
 fun OtherUserProfileBottomSheet(
@@ -70,7 +67,7 @@ fun OtherUserProfileBottomSheet(
                     }
                 }
                 is OtherUserProfileSheetNavigation.Empty -> {
-
+                    { }
                 }
             }
         }
@@ -98,11 +95,13 @@ fun rememberOtherUserBottomSheetContentState(
     conversationSheetContent: ConversationSheetContent?,
     groupInfoAvailability: GroupInfoAvailibility
 ): OtherUserBottomSheetContentState {
-    val modalBottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
+    val modalBottomSheetState = rememberModalBottomSheetState(
+        initialValue = ModalBottomSheetValue.Hidden
+    )
 
     val otherUserProfileSheetNavigationState = remember {
         OtherUserProfileSheetNavigationState(
-            OtherUserProfileSheetNavigation.Conversation
+            initialValue = OtherUserProfileSheetNavigation.Empty
         )
     }
 
@@ -158,19 +157,15 @@ class OtherUserBottomSheetContentState(
     val requestConversationDetailsOnDemand: () -> Unit
 ) {
     suspend fun showConversationOption() {
-        coroutineScope {
-            if (otherUserProfileSheetNavigationState.conversationSheetContentState is ConversationSheetContentState.Loading) {
-                launch {
-                    delay(3000)
-                    requestConversationDetailsOnDemand()
-                }
-            }
-
-            otherUserProfileSheetNavigationState.otherUserProfileSheetNavigation = OtherUserProfileSheetNavigation.Conversation
-
-            modalBottomSheetState.show()
+        if (otherUserProfileSheetNavigationState.conversationSheetContentState is ConversationSheetContentState.Loading) {
+            requestConversationDetailsOnDemand()
         }
+
+        otherUserProfileSheetNavigationState.otherUserProfileSheetNavigation = OtherUserProfileSheetNavigation.Conversation
+
+        modalBottomSheetState.show()
     }
+
 
     suspend fun showChangeRoleOption() {
         otherUserProfileSheetNavigationState.otherUserProfileSheetNavigation = OtherUserProfileSheetNavigation.RoleChange

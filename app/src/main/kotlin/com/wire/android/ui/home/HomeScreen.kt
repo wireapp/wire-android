@@ -1,9 +1,8 @@
 package com.wire.android.ui.home
 
-import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.Crossfade
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
@@ -18,7 +17,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.RectangleShape
@@ -45,6 +43,7 @@ import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topappbar.CommonTopAppBar
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
 import com.wire.android.ui.common.topappbar.ConnectivityUIState
+import com.wire.android.ui.common.topappbar.search.SearchBarState
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import com.wire.android.ui.common.topappbar.search.rememberSearchbarState
 import com.wire.android.ui.home.conversationslist.ConversationListState
@@ -99,10 +98,11 @@ fun HomeScreen(
     }
 
     HomeContent(
-        currentNavigationItem = homeScreenState.currentNavigationItem,
         connectivityState = commonTopAppBarViewModel.connectivityState,
         homeState = homeViewModel.homeState,
         homeScreenState = homeScreenState,
+        searchBarState = rememberSearchbarState(),
+        conversationListState = conversationListViewModel.conversationListState,
         onReturnToCallClick = commonTopAppBarViewModel::openOngoingCallScreen,
         onNewConversationClick = conversationListViewModel::openNewConversation,
         onSelfUserClick = homeViewModel::navigateToSelfUserProfile,
@@ -114,62 +114,61 @@ fun HomeScreen(
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
 fun HomeContent(
-    currentNavigationItem: HomeNavigationItem,
     connectivityState: ConnectivityUIState,
     homeState: HomeState,
     homeScreenState: HomeScreenState,
+    searchBarState: SearchBarState,
+    conversationListState: ConversationListState,
     onHamburgerMenuClick: () -> Unit,
     onReturnToCallClick: () -> Unit,
     onNewConversationClick: () -> Unit,
     onSelfUserClick: () -> Unit,
     navigateToItem: (NavigationItem) -> Unit
 ) {
-    val searchBarState = rememberSearchbarState()
-
     with(homeScreenState) {
-        ModalDrawer(
-            drawerBackgroundColor = MaterialTheme.colorScheme.surface,
-            drawerElevation = 0.dp,
-            drawerShape = RectangleShape,
-            drawerState = drawerState,
-            drawerContent = {
-                HomeDrawer(
-                    //TODO: logFilePath does not belong in the UI logic
-                    logFilePath = homeState.logFilePath,
-                    currentRoute = currentNavigationItem.route,
-                    navigateToHomeItem = homeScreenState::navigateTo,
-                    navigateToItem = navigateToItem,
-                    onCloseDrawer = homeScreenState::closeDrawer
-                )
-            },
-            gesturesEnabled = drawerState.isOpen,
-            content = {
-                Crossfade(searchBarState.isSearchActive) { isSearchActive ->
+        with(homeState) {
+            ModalDrawer(
+                drawerBackgroundColor = MaterialTheme.colorScheme.surface,
+                drawerElevation = 0.dp,
+                drawerShape = RectangleShape,
+                drawerState = drawerState,
+                drawerContent = {
+                    HomeDrawer(
+                        //TODO: logFilePath does not belong in the UI logic
+                        logFilePath = logFilePath,
+                        currentRoute = currentNavigationItem.route,
+                        navigateToHomeItem = ::navigateTo,
+                        navigateToItem = navigateToItem,
+                        onCloseDrawer = ::closeDrawer
+                    )
+                },
+                gesturesEnabled = drawerState.isOpen,
+                content = {
                     with(currentNavigationItem) {
                         WireModalSheetLayout(
-                            sheetState = homeScreenState.bottomSheetState,
-                            coroutineScope = rememberCoroutineScope(),
+                            sheetState = bottomSheetState,
+                            coroutineScope = coroutineScope,
                             // we want to render "nothing" instead of doing a if/else check
                             // on homeBottomSheetContent and wrap homeContent() into WireModalSheetLayout
                             // or render it without WireModalSheetLayout to avoid
                             // recomposing the homeContent() when homeBottomSheetContent
                             // changes from null to "something"
-                            sheetContent = homeScreenState.homeBottomSheetContent ?: { }
+                            sheetContent = homeBottomSheetContent ?: { }
                         ) {
                             CollapsingTopBarScaffold(
                                 snapOnFling = false,
                                 keepElevationWhenCollapsed = true,
                                 topBarHeader = { elevation ->
-                                    if (!isSearchActive) {
-                                        Column {
-                                            CommonTopAppBar(
-                                                connectivityUIState = connectivityState,
-                                                onReturnToCallClick = onReturnToCallClick
-                                            )
+                                    Column(modifier = Modifier.animateContentSize()) {
+                                        CommonTopAppBar(
+                                            connectivityUIState = connectivityState,
+                                            onReturnToCallClick = onReturnToCallClick
+                                        )
+                                        AnimatedVisibility(visible = !searchBarState.isSearchActive) {
                                             HomeTopBar(
-                                                avatarAsset = homeState.avatarAsset,
-                                                status = homeState.status,
-                                                title = stringResource(id = homeScreenState.currentNavigationItem.title),
+                                                avatarAsset = avatarAsset,
+                                                status = status,
+                                                title = stringResource(currentNavigationItem.title),
                                                 elevation = elevation,
                                                 onHamburgerMenuClick = onHamburgerMenuClick,
                                                 onNavigateToSelfUserProfile = onSelfUserClick
@@ -179,7 +178,7 @@ fun HomeContent(
                                 },
                                 snackbarHost = {
                                     SwipeDismissSnackbarHost(
-                                        hostState = homeScreenState.snackBarHostState,
+                                        hostState = snackBarHostState,
                                         modifier = Modifier.fillMaxWidth()
                                     )
                                 },
@@ -193,13 +192,13 @@ fun HomeContent(
                                             ),
                                             searchQuery = TextFieldValue(""), // TODO
                                             onSearchQueryChanged = { /* TODO */ },
-                                            onInputClicked = { searchBarState.openSearch() },
-                                            onCloseSearchClicked = { searchBarState.closeSearch() },
+                                            onInputClicked = searchBarState::openSearch,
+                                            onCloseSearchClicked = searchBarState::closeSearch,
                                         )
                                 },
                                 content = {
                                     NavHost(
-                                        navController = homeScreenState.navController,
+                                        navController = navController,
                                         // For now we only support Conversations screen
                                         startDestination = HomeNavigationItem.Conversations.route
                                     ) {
@@ -213,7 +212,7 @@ fun HomeContent(
                                     }
                                 },
                                 floatingActionButton = {
-                                    if (currentNavigationItem.withNewConversationFab && !isSearchActive) {
+                                    AnimatedVisibility(currentNavigationItem.withNewConversationFab && !searchBarState.isSearchActive) {
                                         FloatingActionButton(
                                             text = stringResource(R.string.label_new),
                                             icon = {
@@ -239,9 +238,9 @@ fun HomeContent(
                                     ) {
                                         WireBottomNavigationBar(
                                             items = HomeNavigationItem.bottomTabItems.toBottomNavigationItems(
-
+                                                ConversationListState = conversationListState
                                             ),
-                                            navController = homeScreenState.navController
+                                            navController = navController
                                         )
                                     }
                                 }
@@ -249,8 +248,8 @@ fun HomeContent(
                         }
                     }
                 }
-            }
-        )
+            )
+        }
     }
 }
 

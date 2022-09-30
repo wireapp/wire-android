@@ -93,11 +93,21 @@ fun rememberOtherUserBottomSheetContentState(
 ): OtherUserBottomSheetContentState {
     val modalBottomSheetState = rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
 
+    val dupa = remember {
+        Dupa(
+            OtherUserProfileSheetNavigation.Conversation(
+                ConversationSheetContentState.Loading
+            )
+        )
+    }
+
     val otherUserBottomSheetContentState = remember(conversationSheetContent, groupInfoAvailability) {
         OtherUserBottomSheetContentState(
-            modalBottomSheetState = modalBottomSheetState,
+            dupa,
             initialGroupInfoAvailability = groupInfoAvailability,
             initialConversationSheetContent = conversationSheetContent,
+//            otherUserProfileSheetNavigation = otherUserProfileSheetNavigation.test,
+            modalBottomSheetState = modalBottomSheetState,
             requestConversationDetailsOnDemand = requestOnConversationDetails
         )
     }
@@ -105,15 +115,25 @@ fun rememberOtherUserBottomSheetContentState(
     return otherUserBottomSheetContentState
 }
 
+class Dupa(initialValue: OtherUserProfileSheetNavigation) {
+
+    var test by mutableStateOf(
+        initialValue
+    )
+
+}
+
 @OptIn(ExperimentalMaterialApi::class)
 class OtherUserBottomSheetContentState(
+    val dupa: Dupa,
     initialConversationSheetContent: ConversationSheetContent?,
     initialGroupInfoAvailability: GroupInfoAvailibility,
+//    otherUserProfileSheetNavigation: OtherUserProfileSheetNavigation,
     val modalBottomSheetState: ModalBottomSheetState,
     val requestConversationDetailsOnDemand: () -> Unit
 ) {
 
-    private val dupa by mutableStateOf(
+    private val cipeczka by mutableStateOf(
         initialGroupInfoAvailability
     )
 
@@ -122,7 +142,7 @@ class OtherUserBottomSheetContentState(
     )
 
     val otherUserProfileSheetNavigation: OtherUserProfileSheetNavigation by derivedStateOf {
-        when (_otherUserProfileSheetNavigation) {
+        when (dupa.test) {
             is OtherUserProfileSheetNavigation.Conversation -> {
                 OtherUserProfileSheetNavigation.Conversation(
                     if (initialConversationSheetContent == null) {
@@ -135,16 +155,14 @@ class OtherUserBottomSheetContentState(
                 )
             }
             is OtherUserProfileSheetNavigation.RoleChange -> {
-                OtherUserProfileSheetNavigation.RoleChange(dupa)
+                OtherUserProfileSheetNavigation.RoleChange(cipeczka)
             }
         }
     }
 
-    private var _otherUserProfileSheetNavigation: OtherUserProfileSheetNavigation by mutableStateOf(
-        OtherUserProfileSheetNavigation.Conversation(
-            ConversationSheetContentState.Loading
-        )
-    )
+//    private var _otherUserProfileSheetNavigation: OtherUserProfileSheetNavigation by mutableStateOf(
+//        otherUserProfileSheetNavigation
+//    )
 
     suspend fun showConversationOption() {
         if (cipa == null) {
@@ -152,7 +170,7 @@ class OtherUserBottomSheetContentState(
         }
 
         if (cipa != null) {
-            _otherUserProfileSheetNavigation = OtherUserProfileSheetNavigation.Conversation(
+            dupa.test = OtherUserProfileSheetNavigation.Conversation(
                 conversationSheetState = ConversationSheetContentState.Loaded(
                     ConversationSheetState(
                         conversationSheetContent = cipa,
@@ -166,8 +184,8 @@ class OtherUserBottomSheetContentState(
     }
 
     suspend fun showChangeRoleOption() {
-        _otherUserProfileSheetNavigation = OtherUserProfileSheetNavigation.RoleChange(
-            groupInfoAvailability = dupa
+        dupa.test = OtherUserProfileSheetNavigation.RoleChange(
+            groupInfoAvailability = cipeczka
         )
 
         modalBottomSheetState.show()
@@ -178,7 +196,7 @@ class OtherUserBottomSheetContentState(
     }
 
     fun resetState() {
-        _otherUserProfileSheetNavigation = OtherUserProfileSheetNavigation.Conversation(
+        dupa.test = OtherUserProfileSheetNavigation.Conversation(
             ConversationSheetContentState.Loading
         )
     }

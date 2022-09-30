@@ -124,20 +124,12 @@ class OtherUserProfileSheetNavigationState(initialValue: OtherUserProfileSheetNa
 
 @OptIn(ExperimentalMaterialApi::class)
 class OtherUserBottomSheetContentState(
-    conversationSheetContent: ConversationSheetContent?,
-    groupInfoAvailability: GroupInfoAvailibility,
+    private val conversationSheetContent: ConversationSheetContent?,
+    private val groupInfoAvailability: GroupInfoAvailibility,
     val otherUserProfileSheetNavigationState: OtherUserProfileSheetNavigationState,
     val modalBottomSheetState: ModalBottomSheetState,
     val requestConversationDetailsOnDemand: () -> Unit
 ) {
-
-    private val groupInfoAvailability by mutableStateOf(
-        groupInfoAvailability
-    )
-
-    private val conversationSheetContent by mutableStateOf(
-        conversationSheetContent
-    )
 
     val otherUserProfileSheetNavigation: OtherUserProfileSheetNavigation by derivedStateOf {
         when (otherUserProfileSheetNavigationState.otherUserProfileSheetNavigation) {

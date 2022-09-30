@@ -104,7 +104,10 @@ fun OtherProfileScreenContent(
                     OtherUserProfileBottomSheet(
                         otherUserBottomSheetContentState = otherUserBottomSheetContentState,
                         onMutingConversationStatusChange = otherUserProfileBottomSheetEventsHandler::onMutingConversationStatusChange,
-                        changeMemberRole = otherUserProfileBottomSheetEventsHandler::onChangeMemberRole
+                        changeMemberRole = otherUserProfileBottomSheetEventsHandler::onChangeMemberRole,
+                        blockUser = { },
+                        leaveGroup = { },
+                        deleteGroup = { }
                     )
                 }
             ) {

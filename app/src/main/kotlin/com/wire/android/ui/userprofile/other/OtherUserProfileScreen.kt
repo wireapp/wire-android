@@ -32,6 +32,8 @@ import com.wire.android.ui.common.MoreOptionIcon
 import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireTabRow
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
+import com.wire.android.ui.common.dialogs.BlockUserDialogContent
+import com.wire.android.ui.common.dialogs.UnblockUserDialogContent
 import com.wire.android.ui.common.dialogs.UnblockUserDialogState
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
@@ -57,10 +59,10 @@ fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltView
     )
 
     val otherUserProfilePagerState = rememberOtherUserProfilePagerState(
-        showGroupOption = viewModel.state.groupInfoAvailability is GroupInfoAvailibility.Available
+        showGroupOption = viewModel.state.groupInfoAvailability is GroupInfoAvailability.Available
     )
 
-    if (!viewModel.requestInProgress) {
+    if (!viewModel.state.requestInProgress) {
         screenState.dismissDialogs()
     }
 
@@ -154,7 +156,7 @@ fun OtherProfileScreenContent(
                                     )
                                 },
                                 group = {
-                                    if (groupInfoAvailability is GroupInfoAvailibility.Available) {
+                                    if (groupInfoAvailability is GroupInfoAvailability.Available) {
                                         OtherUserProfileGroup(
                                             otherUserProfileGroupInfo = groupInfoAvailability.otherUserProfileGroupInfo,
                                             lazyListState = tabItemsLazyListState[OtherUserProfileTabItem.GROUP]!!,
@@ -188,22 +190,24 @@ fun OtherProfileScreenContent(
                     isSwipeable = connectionState == ConnectionState.ACCEPTED
                 )
             }
-//
-//            BlockUserDialogContent(
-//                dialogState = blockUserDialogState,
-//                onBlock = eventsHandler::onBlockUser,
-//                isLoading = requestInProgress,
-//            )
-//            UnblockUserDialogContent(
-//                dialogState = unblockUserDialogState,
-//                onUnblock = eventsHandler::onUnblockUser,
-//                isLoading = requestInProgress,
-//            )
-//            RemoveConversationMemberDialog(
-//                dialogState = removeMemberDialogState,
-//                onRemoveConversationMember = eventsHandler::onRemoveConversationMember,
-//                isLoading = requestInProgress,
-//            )
+
+            BlockUserDialogContent(
+                dialogState = blockUserDialogState,
+                onBlock = eventsHandler::onBlockUser,
+                isLoading = requestInProgress,
+            )
+
+            UnblockUserDialogContent(
+                dialogState = unblockUserDialogState,
+                onUnblock = eventsHandler::onUnblockUser,
+                isLoading = requestInProgress,
+            )
+
+            RemoveConversationMemberDialog(
+                dialogState = removeMemberDialogState,
+                onRemoveConversationMember = eventsHandler::onRemoveConversationMember,
+                isLoading = requestInProgress,
+            )
         }
     }
 }

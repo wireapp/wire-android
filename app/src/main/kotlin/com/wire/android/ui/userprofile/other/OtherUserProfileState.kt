@@ -15,6 +15,7 @@ data class OtherUserProfileState(
     val userId: UserId,
     val conversationId: ConversationId? = null,
     val userAvatarAsset: UserAvatarAsset? = null,
+    val requestInProgress : Boolean = false,
     val isLoading: Boolean = true,
     val fullName: String = "",
     val userName: String = "",
@@ -23,7 +24,7 @@ data class OtherUserProfileState(
     val phone: String = "",
     val connectionState: ConnectionState = ConnectionState.NOT_CONNECTED,
     val membership: Membership = Membership.None,
-    val groupInfoAvailability: GroupInfoAvailibility = GroupInfoAvailibility.NotAvailable,
+    val groupInfoAvailability: GroupInfoAvailability = GroupInfoAvailability.NotAvailable,
     val conversationSheetContent: ConversationSheetContent? = null,
     val botService: BotService? = null,
     val otherUserClients: List<OtherUserClient> = listOf()
@@ -48,8 +49,7 @@ data class OtherUserProfileGroupInfo(
     val role: Member.Role,
     val isSelfAdmin: Boolean
 )
-
-sealed class GroupInfoAvailibility {
-    object NotAvailable : GroupInfoAvailibility()
-    data class Available(val otherUserProfileGroupInfo: OtherUserProfileGroupInfo) : GroupInfoAvailibility()
+sealed class GroupInfoAvailability {
+    object NotAvailable : GroupInfoAvailability()
+    data class Available(val otherUserProfileGroupInfo: OtherUserProfileGroupInfo) : GroupInfoAvailability()
 }

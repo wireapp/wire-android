@@ -124,8 +124,6 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         )
     )
 
-    var requestInProgress: Boolean by mutableStateOf(false)
-
     private val _infoMessage = MutableSharedFlow<UIText>()
     val infoMessage = _infoMessage.asSharedFlow()
 
@@ -211,12 +209,12 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         }
     }
 
-    private suspend fun observeGroupInfo(): Flow<GroupInfoAvailibility> {
+    private suspend fun observeGroupInfo(): Flow<GroupInfoAvailability> {
         return conversationId?.let {
             observeConversationRoleForUser(it, userId)
                 .map { conversationRoleData ->
                     conversationRoleData.userRole?.let { userRole ->
-                        GroupInfoAvailibility.Available(
+                        GroupInfoAvailability.Available(
                             OtherUserProfileGroupInfo(
                                 groupName = conversationRoleData.conversationName,
                                 role = userRole,
@@ -224,9 +222,9 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                                 conversationId = conversationRoleData.conversationId
                             )
                         )
-                    } ?: GroupInfoAvailibility.NotAvailable
+                    } ?: GroupInfoAvailability.NotAvailable
                 }
-        } ?: flowOf(GroupInfoAvailibility.NotAvailable)
+        } ?: flowOf(GroupInfoAvailability.NotAvailable)
     }
 
     override fun onOpenConversation() {
@@ -319,12 +317,12 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         }
     }
 
-    override fun onRemoveConversationMember(state: RemoveConversationMemberState) {
+    override fun onRemoveConversationMember(removeConversationMemberState: RemoveConversationMemberState) {
         viewModelScope.launch {
-            requestInProgress = true
+            state = state.copy(requestInProgress = true)
             val response = withContext(dispatchers.io()) {
                 removeMemberFromConversation(
-                    state.conversationId,
+                    removeConversationMemberState.conversationId,
                     userId
                 )
             }
@@ -332,14 +330,14 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             if (response is RemoveMemberFromConversationUseCase.Result.Failure)
                 showInfoMessage(RemoveConversationMemberError)
 
-            requestInProgress = false
+            state = state.copy(requestInProgress = false)
         }
     }
 
     override fun onBlockUser(blockUserState: BlockUserDialogState) {
-        viewModelScope.launch(dispatchers.io()) {
-            requestInProgress = true
-            when (val result = blockUser(userId)) {
+        viewModelScope.launch {
+            state = state.copy(requestInProgress = true)
+            when (val result = withContext(dispatchers.io()) { blockUser(userId) }) {
                 BlockUserResult.Success -> {
                     appLogger.i("User $userId was blocked")
                     showInfoMessage(BlockingUserOperationSuccess(blockUserState.userName))
@@ -349,14 +347,14 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                     showInfoMessage(BlockingUserOperationError)
                 }
             }
-            requestInProgress = false
+            state = state.copy(requestInProgress = false)
         }
     }
 
     override fun onUnblockUser(userId: UserId) {
-        viewModelScope.launch(dispatchers.io()) {
-            requestInProgress = true
-            when (val result = unblockUser(userId)) {
+        viewModelScope.launch {
+            state = state.copy(requestInProgress = true)
+            when (val result = withContext(dispatchers.io()) { unblockUser(userId) }) {
                 UnblockUserResult.Success -> {
                     appLogger.i("User $userId was unblocked")
                 }
@@ -365,24 +363,21 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                     showInfoMessage(UnblockingUserOperationError)
                 }
             }
-            requestInProgress = false
+            state = state.copy(requestInProgress = false)
         }
     }
 
     override fun fetchOtherUserClients() {
         viewModelScope.launch {
-            val result = withContext(dispatchers.io()) { getOtherUserClients(userId) }
-            result.let {
-                when (it) {
-                    is GetOtherUserClientsResult.Failure.UserNotFound -> {
-                        appLogger.e("User or Domain not found while fetching user clients ")
-                    }
-                    is GetOtherUserClientsResult.Failure.Generic -> {
-                        appLogger.e("Error while fetching the user clients : ${it.genericFailure}")
-                    }
-                    is GetOtherUserClientsResult.Success -> {
-                        state = state.copy(otherUserClients = it.otherUserClients)
-                    }
+            when (val result = withContext(dispatchers.io()) { getOtherUserClients(userId) }) {
+                is GetOtherUserClientsResult.Failure.UserNotFound -> {
+                    appLogger.e("User or Domain not found while fetching user clients ")
+                }
+                is GetOtherUserClientsResult.Failure.Generic -> {
+                    appLogger.e("Error while fetching the user clients : ${result.genericFailure}")
+                }
+                is GetOtherUserClientsResult.Success -> {
+                    state = state.copy(otherUserClients = result.otherUserClients)
                 }
             }
         }

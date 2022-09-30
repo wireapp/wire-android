@@ -57,7 +57,7 @@ fun OtherUserProfileBottomSheet(
                 is OtherUserProfileSheetNavigation.RoleChange -> {
                     val currentGroupInfoAvailability = groupInfoAvailability
 
-                    if (currentGroupInfoAvailability is GroupInfoAvailibility.Available) {
+                    if (currentGroupInfoAvailability is GroupInfoAvailability.Available) {
                         EditGroupRoleBottomSheet(
                             groupState = currentGroupInfoAvailability.otherUserProfileGroupInfo,
                             changeMemberRole = changeMemberRole
@@ -93,7 +93,7 @@ fun OtherUserProfileBottomSheet(
 fun rememberOtherUserBottomSheetContentState(
     requestOnConversationDetails: () -> Unit,
     conversationSheetContent: ConversationSheetContent?,
-    groupInfoAvailability: GroupInfoAvailibility
+    groupInfoAvailability: GroupInfoAvailability
 ): OtherUserBottomSheetContentState {
     val modalBottomSheetState = rememberModalBottomSheetState(
         initialValue = ModalBottomSheetValue.Hidden
@@ -136,15 +136,15 @@ class OtherUserProfileSheetNavigationState(initialValue: OtherUserProfileSheetNa
         ConversationSheetContentState.Loading
     )
 
-    var groupInfoAvailability: GroupInfoAvailibility by mutableStateOf(
-        GroupInfoAvailibility.NotAvailable
+    var groupInfoAvailability: GroupInfoAvailability by mutableStateOf(
+        GroupInfoAvailability.NotAvailable
     )
 
     fun updateConversationSheetContent(conversationSheetContent: ConversationSheetContent) {
         this.conversationSheetContentState = ConversationSheetContentState.Loaded(conversationSheetContent)
     }
 
-    fun updateGroupInfoAvailability(groupInfoAvailability: GroupInfoAvailibility) {
+    fun updateGroupInfoAvailability(groupInfoAvailability: GroupInfoAvailability) {
         this.groupInfoAvailability = groupInfoAvailability
     }
 

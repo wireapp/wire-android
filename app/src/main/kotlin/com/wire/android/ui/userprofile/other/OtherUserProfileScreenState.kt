@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -109,6 +110,7 @@ data class OtherUserProfilePagerState(
     val tabBarElevationState: Dp,
     val tabItems: List<OtherUserProfileTabItem>,
     val currentTabState: Int,
+    @Stable
     val tabItemsLazyListState: Map<OtherUserProfileTabItem, LazyListState>,
     val topBarMaxBarElevation: Dp
 )

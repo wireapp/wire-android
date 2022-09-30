@@ -76,11 +76,11 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.flow.zip
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Date
@@ -142,7 +142,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
 
     private fun observeUserInfo() {
         viewModelScope.launch {
-            observeUserInfo(userId).zip(observeGroupInfo(), ::Pair)
+            observeUserInfo(userId).combine(observeGroupInfo(), ::Pair)
                 .flowOn(dispatchers.io())
                 .onStart { state = state.copy(isLoading = true) }
                 .collect { (userInfoResult, groupInfoAvailability) ->

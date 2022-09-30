@@ -138,6 +138,11 @@
     <string name="api_versioning_client_update_required_message">You are missing out on new features. Update to the latest version of Wire to continue using the app with this account.</string>
     <string name="api_versioning_server_version_not_supported_title">Server version not supported</string>
     <string name="api_versioning_server_version_not_supported_message">Your Wire server needs to be updated. Please notify your system administrator.</string>
+    <!-- Migration -->
+    <string name="migration_title">Setting up Wire</string>
+    <string name="migration_message">Please wait while we set up the app for you</string>
+    <string name="migration_cancel_title">Cancel migration</string>
+    <string name="migration_cancel_message">Are you sure you want to close the application and cancel the ongoing migration?</string>
     <!-- Login -->
     <string name="login_title">Log in</string>
     <string name="login_forgot_password">Forgot password?</string>

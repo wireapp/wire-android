@@ -1,6 +1,7 @@
 package com.wire.android.di
 
 import android.content.Context
+import androidx.work.WorkManager
 import com.wire.android.util.DeviceLabel
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
@@ -132,6 +133,10 @@ class CoreLogicModule {
     @Provides
     fun provideObservePersistentWebSocketConnectionStatusUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
         coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus
+
+    @Singleton
+    @Provides
+    fun provideWorkManager(@ApplicationContext applicationContext: Context) = WorkManager.getInstance(applicationContext)
 }
 
 @Module

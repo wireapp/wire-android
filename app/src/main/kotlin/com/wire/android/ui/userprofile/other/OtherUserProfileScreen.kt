@@ -56,6 +56,10 @@ fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltView
         otherUserBottomSheetContentState = otherUserBottomSheetContentState
     )
 
+    val otherUserProfilePagerState = rememberOtherUserProfilePagerState(
+        showGroupOption = viewModel.state.groupInfoAvailability is GroupInfoAvailibility.Available
+    )
+
     if (!viewModel.requestInProgress) {
         screenState.dismissDialogs()
     }
@@ -70,6 +74,7 @@ fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltView
     OtherProfileScreenContent(
         screenState = screenState,
         viewModelState = viewModel.state,
+        otherUserProfilePagerState = otherUserProfilePagerState,
         eventsHandler = viewModel as OtherUserProfileEventsHandler,
         footerEventsHandler = viewModel as OtherUserProfileFooterEventsHandler,
         otherUserProfileBottomSheetEventsHandler = viewModel as OtherUserProfileBottomSheetEventsHandler
@@ -79,13 +84,13 @@ fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltView
 @SuppressLint("UnusedCrossfadeTargetStateParameter", "LongParameterList")
 @OptIn(
     ExperimentalMaterialApi::class,
-    ExperimentalPagerApi::class,
-    ExperimentalMaterial3Api::class,
+    ExperimentalMaterial3Api::class, ExperimentalPagerApi::class,
 )
 @Composable
 fun OtherProfileScreenContent(
     screenState: OtherUserProfileScreenState,
     viewModelState: OtherUserProfileState,
+    otherUserProfilePagerState: OtherUserProfilePagerState,
     eventsHandler: OtherUserProfileEventsHandler,
     footerEventsHandler: OtherUserProfileFooterEventsHandler,
     otherUserProfileBottomSheetEventsHandler: OtherUserProfileBottomSheetEventsHandler
@@ -103,10 +108,6 @@ fun OtherProfileScreenContent(
                     )
                 }
             ) {
-                val otherProfilePagerState = rememberOtherUserProfilePagerState(
-                    showGroupOption = groupInfoAvailability is GroupInfoAvailibility.Available
-                )
-
                 CollapsingTopBarScaffold(
                     snackbarHost = {
                         SwipeDismissSnackbarHost(
@@ -124,7 +125,7 @@ fun OtherProfileScreenContent(
                     },
                     topBarCollapsing = { TopBarCollapsing(viewModelState) },
                     topBarFooter = {
-                        with(otherProfilePagerState) {
+                        with(otherUserProfilePagerState) {
                             TopBarFooter(
                                 state = viewModelState,
                                 pagerState = pagerState,
@@ -136,7 +137,7 @@ fun OtherProfileScreenContent(
                         }
                     },
                     content = {
-                        with(otherProfilePagerState) {
+                        with(otherUserProfilePagerState) {
                             Content(
                                 state = viewModelState,
                                 pagerState = pagerState,
@@ -176,7 +177,7 @@ fun OtherProfileScreenContent(
                     bottomBar = {
                         ContentFooter(
                             state = viewModelState,
-                            maxBarElevation = otherProfilePagerState.topBarMaxBarElevation,
+                            maxBarElevation = otherUserProfilePagerState.topBarMaxBarElevation,
                             onUnblockUser = unblockUserDialogState::show,
                             footerEventsHandler = footerEventsHandler
                         )

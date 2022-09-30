@@ -3,6 +3,8 @@ package com.wire.android.ui.home
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
@@ -191,7 +193,7 @@ fun HomeContent(
                                                 stringResource(id = title).lowercase()
                                             ),
                                             searchQuery = TextFieldValue(""), // TODO
-                                            onSearchQueryChanged = { /* TODO */ },
+                                            onSearchQueryChanged = onSearchQueryChanged,
                                             onInputClicked = searchBarState::openSearch,
                                             onCloseSearchClicked = searchBarState::closeSearch,
                                         )
@@ -212,7 +214,11 @@ fun HomeContent(
                                     }
                                 },
                                 floatingActionButton = {
-                                    AnimatedVisibility(currentNavigationItem.withNewConversationFab && !searchBarState.isSearchActive) {
+                                    AnimatedVisibility(
+                                        visible = currentNavigationItem.withNewConversationFab && !searchBarState.isSearchActive,
+                                        enter = fadeIn(),
+                                        exit = fadeOut(),
+                                    ) {
                                         FloatingActionButton(
                                             text = stringResource(R.string.label_new),
                                             icon = {

@@ -12,6 +12,7 @@ import com.wire.kalium.logic.functional.Either
 import com.wire.kalium.logic.sync.SetConnectionPolicyUseCase
 import com.wire.kalium.logic.sync.SyncManager
 import io.mockk.MockKAnnotations
+import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.coVerifyOrder
 import io.mockk.every
@@ -50,7 +51,7 @@ class ConnectionPolicyManagerTest {
 
         coVerify(exactly = 1) {
             arrangement.setConnectionPolicyUseCase.invoke(ConnectionPolicy.KEEP_ALIVE)
-            arrangement.syncManager.waitUntilLive()
+            arrangement.syncManager.waitUntilLiveOrFailure()
         }
     }
 
@@ -67,7 +68,7 @@ class ConnectionPolicyManagerTest {
 
         coVerify(exactly = 1) {
             arrangement.setConnectionPolicyUseCase.invoke(ConnectionPolicy.KEEP_ALIVE)
-            arrangement.syncManager.waitUntilLive()
+            arrangement.syncManager.waitUntilLiveOrFailure()
             arrangement.setConnectionPolicyUseCase.invoke(ConnectionPolicy.DISCONNECT_AFTER_PENDING_EVENTS)
         }
     }
@@ -85,7 +86,7 @@ class ConnectionPolicyManagerTest {
 
         coVerify(exactly = 1) {
             arrangement.setConnectionPolicyUseCase.invoke(ConnectionPolicy.KEEP_ALIVE)
-            arrangement.syncManager.waitUntilLive()
+            arrangement.syncManager.waitUntilLiveOrFailure()
             arrangement.setConnectionPolicyUseCase.invoke(ConnectionPolicy.DISCONNECT_AFTER_PENDING_EVENTS)
         }
     }
@@ -103,7 +104,7 @@ class ConnectionPolicyManagerTest {
 
         coVerifyOrder {
             arrangement.setConnectionPolicyUseCase.invoke(ConnectionPolicy.KEEP_ALIVE)
-            arrangement.syncManager.waitUntilLive()
+            arrangement.syncManager.waitUntilLiveOrFailure()
             arrangement.setConnectionPolicyUseCase.invoke(ConnectionPolicy.DISCONNECT_AFTER_PENDING_EVENTS)
         }
     }
@@ -139,6 +140,7 @@ class ConnectionPolicyManagerTest {
             every { coreLogic.getSessionScope(USER_ID) } returns userSessionScope
             every { userSessionScope.setConnectionPolicy } returns setConnectionPolicyUseCase
             every { userSessionScope.syncManager } returns syncManager
+            coEvery { syncManager.waitUntilLiveOrFailure() } returns Either.Right(Unit)
         }
 
         fun withAppInTheBackground() = apply {

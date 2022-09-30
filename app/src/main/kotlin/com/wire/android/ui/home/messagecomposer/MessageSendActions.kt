@@ -32,9 +32,9 @@ fun SendActions(
 ) {
     Box(modifier) {
         Row(Modifier.padding(end = dimensions().spacing8x)) {
-            if (messageComposerState.sendButtonEnabled) {
-                ScheduleMessageButton()
-            }
+//            if (messageComposerState.sendButtonEnabled) {
+//                ScheduleMessageButton()
+//            }
             transition.AnimatedVisibility(
                 visible = { messageComposerState.messageComposeInputState != MessageComposeInputState.Enabled },
                 enter = fadeIn(),

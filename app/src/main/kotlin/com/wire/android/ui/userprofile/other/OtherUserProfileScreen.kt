@@ -42,6 +42,7 @@ import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.userprofile.common.EditableState
 import com.wire.android.ui.userprofile.common.UserProfileInfo
+import com.wire.android.ui.userprofile.group.RemoveConversationMemberState
 import com.wire.kalium.logic.data.user.ConnectionState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
@@ -107,9 +108,7 @@ fun OtherProfileScreenContent(
                         otherUserBottomSheetContentState = otherUserBottomSheetContentState,
                         onMutingConversationStatusChange = otherUserProfileBottomSheetEventsHandler::onMutingConversationStatusChange,
                         changeMemberRole = otherUserProfileBottomSheetEventsHandler::onChangeMemberRole,
-                        blockUser = { },
-                        leaveGroup = { },
-                        deleteGroup = { }
+                        blockUser = ::showBlockUserDialog,
                     )
                 }
             ) {
@@ -160,7 +159,16 @@ fun OtherProfileScreenContent(
                                         OtherUserProfileGroup(
                                             otherUserProfileGroupInfo = groupInfoAvailability.otherUserProfileGroupInfo,
                                             lazyListState = tabItemsLazyListState[OtherUserProfileTabItem.GROUP]!!,
-                                            onRemoveFromConversation = removeMemberDialogState::show,
+                                            onRemoveFromConversation = {
+                                                removeMemberDialogVisibilityState.show(
+                                                    RemoveConversationMemberState(
+                                                        conversationId = viewModelState.conversationId!!,
+                                                        fullName = viewModelState.fullName,
+                                                        userName = viewModelState.userName,
+                                                        userId = viewModelState.userId
+                                                    )
+                                                )
+                                            },
                                             openChangeRoleBottomSheet = ::showChangeRoleOption
                                         )
                                     }
@@ -183,7 +191,7 @@ fun OtherProfileScreenContent(
                         ContentFooter(
                             state = viewModelState,
                             maxBarElevation = otherUserProfilePagerState.topBarMaxBarElevation,
-                            onUnblockUser = unblockUserDialogState::show,
+                            onUnblockUser = unblockUserDialogVisibilityState::show,
                             footerEventsHandler = footerEventsHandler
                         )
                     },
@@ -192,19 +200,19 @@ fun OtherProfileScreenContent(
             }
 
             BlockUserDialogContent(
-                dialogState = blockUserDialogState,
+                dialogState = blockUserDialogVisiblityState,
                 onBlock = eventsHandler::onBlockUser,
                 isLoading = requestInProgress,
             )
 
             UnblockUserDialogContent(
-                dialogState = unblockUserDialogState,
+                dialogState = unblockUserDialogVisibilityState,
                 onUnblock = eventsHandler::onUnblockUser,
                 isLoading = requestInProgress,
             )
 
             RemoveConversationMemberDialog(
-                dialogState = removeMemberDialogState,
+                dialogState = removeMemberDialogVisibilityState,
                 onRemoveConversationMember = eventsHandler::onRemoveConversationMember,
                 isLoading = requestInProgress,
             )

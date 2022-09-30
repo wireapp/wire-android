@@ -25,12 +25,7 @@ fun OtherUserProfileBottomSheet(
     onMutingConversationStatusChange: (MutedConversationStatus) -> Unit,
     changeMemberRole: (Conversation.Member.Role) -> Unit,
     blockUser: (BlockUserDialogState) -> Unit,
-    leaveGroup: (GroupDialogState) -> Unit,
-    deleteGroup: (GroupDialogState) -> Unit,
-    addConversationToFavourites: () -> Unit = { },
-    moveConversationToFolder: () -> Unit = { },
-    moveConversationToArchive: () -> Unit = { },
-    clearConversationContent: () -> Unit = { }
+    deleteGroup: (GroupDialogState) -> Unit = { }
 ) {
     with(otherUserBottomSheetContentState) {
         with(otherUserProfileSheetNavigationState) {
@@ -43,12 +38,7 @@ fun OtherUserProfileBottomSheet(
                             conversationSheetState = ConversationSheetState(currentConversationSheetContentState.conversationSheetContent),
                             onMutingConversationStatusChange = onMutingConversationStatusChange,
                             blockUser = blockUser,
-                            leaveGroup = leaveGroup,
-                            deleteGroup = deleteGroup,
-                            addConversationToFavourites = { },
-                            moveConversationToFolder = { },
-                            moveConversationToArchive = { },
-                            clearConversationContent = { }
+                            deleteGroup = deleteGroup
                         )
                     } else {
                         { }

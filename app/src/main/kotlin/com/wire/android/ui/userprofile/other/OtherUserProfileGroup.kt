@@ -24,7 +24,6 @@ import com.wire.android.ui.common.button.WireIconButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.ui.userprofile.group.RemoveConversationMemberState
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.stringWithStyledArgs
 import com.wire.kalium.logic.data.conversation.Conversation.Member
@@ -33,10 +32,11 @@ import com.wire.kalium.logic.data.conversation.Conversation.Member
 fun OtherUserProfileGroup(
     lazyListState: LazyListState = rememberLazyListState(),
     otherUserProfileGroupInfo: OtherUserProfileGroupInfo,
-    onRemoveFromConversation: (RemoveConversationMemberState) -> Unit,
+    onRemoveFromConversation: () -> Unit,
     openChangeRoleBottomSheet: () -> Unit
 ) {
     val context = LocalContext.current
+
     LazyColumn(
         state = lazyListState,
         modifier = Modifier.fillMaxSize()
@@ -52,16 +52,7 @@ fun OtherUserProfileGroup(
                     otherUserProfileGroupInfo.groupName
                 ),
                 isSelfAdmin = otherUserProfileGroupInfo.isSelfAdmin,
-                onRemoveFromConversation = {
-//                    onRemoveFromConversation(
-//                        RemoveConversationMemberState(
-//                            conversationId = state.conversationId!!,
-//                            fullName = state.fullName,
-//                            userName = state.userName,
-//                            userId = state.userId
-//                        )
-//                    )
-                }
+                onRemoveFromConversation = onRemoveFromConversation
             )
         }
         item(key = "user_group_role") {

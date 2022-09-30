@@ -55,9 +55,9 @@ fun rememberOtherUserProfileScreenState(
             coroutineScope = coroutineScope,
             otherUserBottomSheetContentState = otherUserBottomSheetContentState,
             snackbarHostState = snackBarHostState,
-            blockUserDialogState = blockUserDialogState,
-            unblockUserDialogState = unblockUserDialogState,
-            removeMemberDialogState = removeMemberDialogState
+            blockUserDialogVisiblityState = blockUserDialogState,
+            unblockUserDialogVisibilityState = unblockUserDialogState,
+            removeMemberDialogVisibilityState = removeMemberDialogState
         )
     }
 }
@@ -68,9 +68,9 @@ data class OtherUserProfileScreenState(
     val coroutineScope: CoroutineScope,
     val otherUserBottomSheetContentState: OtherUserBottomSheetContentState,
     val snackbarHostState: SnackbarHostState,
-    val blockUserDialogState: VisibilityState<BlockUserDialogState>,
-    val unblockUserDialogState: VisibilityState<UnblockUserDialogState>,
-    val removeMemberDialogState: VisibilityState<RemoveConversationMemberState>
+    val blockUserDialogVisiblityState: VisibilityState<BlockUserDialogState>,
+    val unblockUserDialogVisibilityState: VisibilityState<UnblockUserDialogState>,
+    val removeMemberDialogVisibilityState: VisibilityState<RemoveConversationMemberState>
 ) {
     fun copy(text: String) {
         clipBoardManager.setText(AnnotatedString(text))
@@ -97,10 +97,14 @@ data class OtherUserProfileScreenState(
         coroutineScope.launch { snackbarHostState.showSnackbar(uiText.asString(context.resources)) }
     }
 
+    fun showBlockUserDialog(blockUserDialogState: BlockUserDialogState){
+        blockUserDialogVisiblityState.show(blockUserDialogState)
+    }
+
     fun dismissDialogs() {
-        blockUserDialogState.dismiss()
-        unblockUserDialogState.dismiss()
-        removeMemberDialogState.dismiss()
+        blockUserDialogVisiblityState.dismiss()
+        unblockUserDialogVisibilityState.dismiss()
+        removeMemberDialogVisibilityState.dismiss()
     }
 }
 

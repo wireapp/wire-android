@@ -6,10 +6,8 @@ import com.wire.android.model.ImageAsset
 import com.wire.android.ui.home.conversations.findUser
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.UIMessageContent
-import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
-import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.asset.isValidImage
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.AssetContent
@@ -26,6 +24,7 @@ import com.wire.kalium.logic.data.user.User
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
+import com.wire.kalium.logic.sync.receiver.hasValidRemoteData
 import com.wire.kalium.logic.util.isGreaterThan
 import javax.inject.Inject
 
@@ -36,7 +35,7 @@ class MessageContentMapper @Inject constructor(
     private val wireSessionImageLoader: WireSessionImageLoader
 ) {
 
-    suspend fun fromMessage(
+    fun fromMessage(
         message: Message,
         userList: List<User>
     ): UIMessageContent? {
@@ -119,7 +118,7 @@ class MessageContentMapper @Inject constructor(
         }
     }
 
-    private suspend fun mapRegularMessage(
+    private fun mapRegularMessage(
         message: Message.Regular,
         sender: User?
     ) = when (val content = message.content) {
@@ -142,16 +141,20 @@ class MessageContentMapper @Inject constructor(
         }
     ).let { messageBody -> UIMessageContent.TextMessage(messageBody = messageBody) }
 
-    fun toUIMessageContent(assetMessageContentMetadata: AssetMessageContentMetadata,
-                                   message: Message,
-                                   sender: User?) =
+    fun toUIMessageContent(assetMessageContentMetadata: AssetMessageContentMetadata, message: Message, sender: User?) =
         with(assetMessageContentMetadata.assetMessageContent) {
             when {
-                // If it's an image, we download it right away
+                // If it's an image, we delegate the download it right away to coil
                 assetMessageContentMetadata.isValidImage() -> {
+                    val shouldDownloadImage = shouldDownloadImage(assetMessageContentMetadata)
                     UIMessageContent.ImageMessage(
                         assetId = AssetId(remoteData.assetId, remoteData.assetDomain.orEmpty()),
-                        asset = ImageAsset.PrivateAsset(wireSessionImageLoader, message.conversationId, message.id, sender is SelfUser),
+                        asset = if (shouldDownloadImage) ImageAsset.PrivateAsset(
+                            wireSessionImageLoader,
+                            message.conversationId,
+                            message.id,
+                            sender is SelfUser
+                        ) else null,
                         width = assetMessageContentMetadata.imgWidth,
                         height = assetMessageContentMetadata.imgHeight,
                         uploadStatus = uploadStatus,
@@ -172,6 +175,14 @@ class MessageContentMapper @Inject constructor(
                 }
             }
         }
+
+    private fun shouldDownloadImage(assetMessageContentMetadata: AssetMessageContentMetadata) =
+        when {
+            assetMessageContentMetadata.assetMessageContent.downloadStatus == Message.DownloadStatus.DOWNLOAD_IN_PROGRESS -> false
+            assetMessageContentMetadata.assetMessageContent.hasValidRemoteData().not() -> false
+            else -> true
+        }
+
     private fun toRestrictedAsset(
         mimeType: String,
         assetSize: Long,

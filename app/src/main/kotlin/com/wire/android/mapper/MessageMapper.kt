@@ -41,27 +41,23 @@ class MessageMapper @Inject constructor(
         )
     }.distinct()
 
-    suspend fun toUIMessages(
-        userList: List<User>,
-        messages: List<Message>
-    ): List<UIMessage> = withContext(dispatcherProvider.io()) {
-        messages.mapNotNull { message ->
-            val sender = userList.findUser(message.senderUserId)
-            val content = messageContentMapper.fromMessage(
-                message = message,
-                userList = userList
+    fun toUIMessages(userList: List<User>, messages: List<Message>): List<UIMessage> = messages.mapNotNull { message ->
+        val sender = userList.findUser(message.senderUserId)
+        val content = messageContentMapper.fromMessage(
+            message = message,
+            userList = userList
+        )
+        if (message is Message.System && content == null)
+            null // system messages doesn't have header so without the content there is nothing to be displayed
+        else
+            UIMessage(
+                messageContent = content,
+                messageSource = if (sender is SelfUser) MessageSource.Self else MessageSource.OtherUser,
+                messageHeader = provideMessageHeader(sender, message),
+                userAvatarData = getUserAvatarData(sender)
             )
-            if (message is Message.System && content == null)
-                null // system messages doesn't have header so without the content there is nothing to be displayed
-            else
-                UIMessage(
-                    messageContent = content,
-                    messageSource = if (sender is SelfUser) MessageSource.Self else MessageSource.OtherUser,
-                    messageHeader = provideMessageHeader(sender, message),
-                    userAvatarData = getUserAvatarData(sender)
-                )
-        }
     }
+
 
     private fun provideMessageHeader(sender: User?, message: Message): MessageHeader = MessageHeader(
         // TODO: Designs for deleted users?

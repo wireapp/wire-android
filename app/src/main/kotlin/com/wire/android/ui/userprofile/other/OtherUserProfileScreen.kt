@@ -21,6 +21,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
@@ -39,6 +40,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.home.conversationslist.model.Membership
+import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.userprofile.common.EditableState
 import com.wire.android.ui.userprofile.common.UserProfileInfo
@@ -49,6 +51,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltViewModel()) {
+
     val otherUserBottomSheetContentState = rememberOtherUserBottomSheetContentState(
         requestOnConversationDetails = viewModel::getAdditionalConversationDetails,
         conversationSheetContent = viewModel.state.conversationSheetContent,
@@ -62,6 +65,7 @@ fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltView
     val otherUserProfilePagerState = rememberOtherUserProfilePagerState(
         showGroupOption = viewModel.state.groupInfoAvailability is GroupInfoAvailability.Available
     )
+
 
     if (!viewModel.state.requestInProgress) {
         screenState.dismissDialogs()
@@ -311,15 +315,18 @@ private fun Content(
                             OtherUserProfileTabItem.DETAILS -> {
                                 details()
                             }
+
                             OtherUserProfileTabItem.GROUP -> {
                                 group()
                             }
+
                             OtherUserProfileTabItem.DEVICES -> {
                                 devices()
                             }
                         }
                     }
                 }
+
             state.connectionState == ConnectionState.BLOCKED -> Box {} // no content visible for blocked users
             else -> {
                 OtherUserConnectionStatusInfo(state.connectionState, state.membership)
@@ -366,33 +373,65 @@ enum class OtherUserProfileTabItem(@StringRes override val titleResId: Int) : Ta
     DETAILS(R.string.user_profile_details_tab),
     DEVICES(R.string.user_profile_devices_tab);
 }
-//
-//@OptIn(ExperimentalMaterialApi::class)
-//@Composable
-//@Preview(name = "Connected")
-//fun OtherProfileScreenContentPreview() {
-//    WireTheme(isPreview = true) {
-//        OtherProfileScreenContent(
-//            rememberCoroutineScope(),
-//            OtherUserProfileState.PREVIEW.copy(connectionState = ConnectionState.ACCEPTED), false,
-//            rememberModalBottomSheetState(ModalBottomSheetValue.Hidden),
-//            {}, {}, OtherUserProfileEventsHandler.PREVIEW,
-//            OtherUserProfileFooterEventsHandler.PREVIEW, OtherUserProfileBottomSheetEventsHandler.PREVIEW
-//        )
-//    }
-//}
-//
-//@OptIn(ExperimentalMaterialApi::class)
-//@Composable
-//@Preview(name = "Not Connected")
-//fun OtherProfileScreenContentNotConnectedPreview() {
-//    WireTheme(isPreview = true) {
-//        OtherProfileScreenContent(
-//            rememberCoroutineScope(),
-//            OtherUserProfileState.PREVIEW.copy(connectionState = ConnectionState.CANCELLED), false,
-//            rememberModalBottomSheetState(ModalBottomSheetValue.Hidden),
-//            {}, {}, OtherUserProfileEventsHandler.PREVIEW,
-//            OtherUserProfileFooterEventsHandler.PREVIEW, OtherUserProfileBottomSheetEventsHandler.PREVIEW
-//        )
-//    }
-//}
+
+@Composable
+@Preview(name = "Connected")
+fun OtherProfileScreenContentPreview() {
+    WireTheme(isPreview = true) {
+        val otherUserProfileState = OtherUserProfileState.PREVIEW.copy(connectionState = ConnectionState.ACCEPTED)
+
+        val otherUserBottomSheetContentState = rememberOtherUserBottomSheetContentState(
+            requestOnConversationDetails = { },
+            conversationSheetContent = otherUserProfileState.conversationSheetContent,
+            groupInfoAvailability = otherUserProfileState.groupInfoAvailability
+        )
+
+        val screenState = rememberOtherUserProfileScreenState(
+            otherUserBottomSheetContentState = otherUserBottomSheetContentState
+        )
+
+        val otherUserProfilePagerState = rememberOtherUserProfilePagerState(
+            showGroupOption = true
+        )
+
+        OtherProfileScreenContent(
+            screenState = screenState,
+            viewModelState = otherUserProfileState,
+            otherUserProfilePagerState = otherUserProfilePagerState,
+            eventsHandler = OtherUserProfileEventsHandler.PREVIEW,
+            footerEventsHandler = OtherUserProfileFooterEventsHandler.PREVIEW,
+            otherUserProfileBottomSheetEventsHandler = OtherUserProfileBottomSheetEventsHandler.PREVIEW
+        )
+    }
+}
+
+@Composable
+@Preview(name = "Not Connected")
+fun OtherProfileScreenContentNotConnectedPreview() {
+    WireTheme(isPreview = true) {
+        val otherUserProfileState = OtherUserProfileState.PREVIEW.copy(connectionState = ConnectionState.CANCELLED)
+
+        val otherUserBottomSheetContentState = rememberOtherUserBottomSheetContentState(
+            requestOnConversationDetails = { },
+            conversationSheetContent = otherUserProfileState.conversationSheetContent,
+            groupInfoAvailability = otherUserProfileState.groupInfoAvailability
+        )
+
+        val screenState = rememberOtherUserProfileScreenState(
+            otherUserBottomSheetContentState = otherUserBottomSheetContentState
+        )
+
+        val otherUserProfilePagerState = rememberOtherUserProfilePagerState(
+            showGroupOption = true
+        )
+
+        OtherProfileScreenContent(
+            screenState = screenState,
+            viewModelState = otherUserProfileState,
+            otherUserProfilePagerState = otherUserProfilePagerState,
+            eventsHandler = OtherUserProfileEventsHandler.PREVIEW,
+            footerEventsHandler = OtherUserProfileFooterEventsHandler.PREVIEW,
+            otherUserProfileBottomSheetEventsHandler = OtherUserProfileBottomSheetEventsHandler.PREVIEW
+        )
+    }
+}

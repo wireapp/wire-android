@@ -15,7 +15,7 @@ data class OtherUserProfileState(
     val userId: UserId,
     val conversationId: ConversationId? = null,
     val userAvatarAsset: UserAvatarAsset? = null,
-    val requestInProgress : Boolean = false,
+    val requestInProgress: Boolean = false,
     val isLoading: Boolean = true,
     val fullName: String = "",
     val userName: String = "",
@@ -29,18 +29,20 @@ data class OtherUserProfileState(
     val botService: BotService? = null,
     val otherUserClients: List<OtherUserClient> = listOf()
 ) {
-//    companion object {
-//        val PREVIEW = OtherUserProfileState(
-//            userId = UserId("some_user", "domain.com"),
-//            fullName = "name",
-//            userName = "username",
-//            teamName = "team",
-//            email = "email",
-//            groupInfoAvailability = OtherUserProfileGroupInfo(
-//                "group name", Member.Role.Member, true, ConversationId("some_user", "domain.com")
-//            )
-//        )
-//    }
+    companion object {
+        val PREVIEW = OtherUserProfileState(
+            userId = UserId("some_user", "domain.com"),
+            fullName = "name",
+            userName = "username",
+            teamName = "team",
+            email = "email",
+            groupInfoAvailability = GroupInfoAvailability.Available(
+                OtherUserProfileGroupInfo(
+                    ConversationId("someValue", "someDomain"), "group name", Member.Role.Member, true
+                )
+            )
+        )
+    }
 }
 
 data class OtherUserProfileGroupInfo(
@@ -49,6 +51,7 @@ data class OtherUserProfileGroupInfo(
     val role: Member.Role,
     val isSelfAdmin: Boolean
 )
+
 sealed class GroupInfoAvailability {
     object NotAvailable : GroupInfoAvailability()
     data class Available(val otherUserProfileGroupInfo: OtherUserProfileGroupInfo) : GroupInfoAvailability()

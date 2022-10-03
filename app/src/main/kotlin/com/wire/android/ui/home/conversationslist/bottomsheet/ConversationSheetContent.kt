@@ -14,17 +14,17 @@ import com.wire.kalium.logic.data.user.UserId
 @Composable
 fun ConversationSheetContent(
     conversationSheetState: ConversationSheetState,
-    onMutingConversationStatusChange: (MutedConversationStatus) -> Unit,
-    addConversationToFavourites: () -> Unit,
-    moveConversationToFolder: () -> Unit,
-    moveConversationToArchive: () -> Unit,
-    clearConversationContent: () -> Unit,
-    blockUser: (BlockUserDialogState) -> Unit,
-    leaveGroup: (GroupDialogState) -> Unit,
-    deleteGroup: (GroupDialogState) -> Unit
+    onMutingConversationStatusChange: (MutedConversationStatus) -> Unit = {},
+    addConversationToFavourites: () -> Unit = {},
+    moveConversationToFolder: () -> Unit = {},
+    moveConversationToArchive: () -> Unit = {},
+    clearConversationContent: () -> Unit = {},
+    blockUser: (BlockUserDialogState) -> Unit = {},
+    leaveGroup: (GroupDialogState) -> Unit = {},
+    deleteGroup: (GroupDialogState) -> Unit = {}
 ) {
     when (conversationSheetState.currentOptionNavigation) {
-        ConversationOptionNavigation.Home -> {
+        ConversationNavigationOptions.Home -> {
             ConversationMainSheetContent(
                 conversationSheetContent = conversationSheetState.conversationSheetContent!!,
 // TODO(profile): enable when implemented
@@ -39,7 +39,7 @@ fun ConversationSheetContent(
                 navigateToNotification = conversationSheetState::toMutingNotificationOption
             )
         }
-        ConversationOptionNavigation.MutingNotificationOption -> {
+        ConversationNavigationOptions.MutingOptionsNotification -> {
             MutingOptionsSheetContent(
                 mutingConversationState = conversationSheetState.conversationSheetContent!!.mutingConversationState,
                 onMuteConversation = onMutingConversationStatusChange,
@@ -48,14 +48,22 @@ fun ConversationSheetContent(
         }
     }
 
-    BackHandler(conversationSheetState.currentOptionNavigation is ConversationOptionNavigation.MutingNotificationOption) {
+    BackHandler(conversationSheetState.currentOptionNavigation is ConversationNavigationOptions.MutingOptionsNotification) {
         conversationSheetState.toHome()
     }
 }
 
-sealed class ConversationOptionNavigation {
-    object Home : ConversationOptionNavigation()
-    object MutingNotificationOption : ConversationOptionNavigation()
+sealed class OtherUserNavigationOptions : ConversationNavigationOptions, OtherUserNavigationOption
+
+sealed interface ConversationNavigationOptions {
+    object Loading : OtherUserNavigationOptions(), ConversationNavigationOptions
+    object Home : OtherUserNavigationOptions(), ConversationNavigationOptions
+    object MutingOptionsNotification : OtherUserNavigationOptions(), ConversationNavigationOptions
+}
+
+sealed interface OtherUserNavigationOption {
+    object ChangeRole : OtherUserNavigationOptions()
+
 }
 
 sealed class ConversationTypeDetail {
@@ -65,6 +73,7 @@ sealed class ConversationTypeDetail {
         val userId: UserId,
         val blockingState: BlockingState
     ) : ConversationTypeDetail()
+
     data class Connection(val avatarAsset: UserAvatarAsset?) : ConversationTypeDetail()
 }
 

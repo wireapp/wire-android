@@ -13,12 +13,12 @@ import com.wire.kalium.logic.data.id.ConversationId
 
 class ConversationSheetState(
     conversationSheetContent: ConversationSheetContent? = null,
-    conversationOptionNavigation: ConversationOptionNavigation = ConversationOptionNavigation.Home
+    conversationNavigationOptions: ConversationNavigationOptions = ConversationNavigationOptions.Home
 ) {
 
     var conversationSheetContent: ConversationSheetContent? by mutableStateOf(conversationSheetContent)
 
-    var currentOptionNavigation: ConversationOptionNavigation by mutableStateOf(conversationOptionNavigation)
+    var currentOptionNavigation: ConversationNavigationOptions by mutableStateOf(conversationNavigationOptions)
 
     val conversationId: ConversationId?
         get() = conversationSheetContent?.conversationId
@@ -28,18 +28,18 @@ class ConversationSheetState(
     }
 
     fun toMutingNotificationOption() {
-        currentOptionNavigation = ConversationOptionNavigation.MutingNotificationOption
+        currentOptionNavigation = ConversationNavigationOptions.MutingOptionsNotification
     }
 
     fun toHome() {
-        currentOptionNavigation = ConversationOptionNavigation.Home
+        currentOptionNavigation = ConversationNavigationOptions.Home
     }
 }
 
 @Composable
 fun rememberConversationSheetState(
     conversationItem: ConversationItem,
-    conversationOptionNavigation: ConversationOptionNavigation
+    conversationNavigationOptions: ConversationNavigationOptions
 ): ConversationSheetState {
     val conversationSheetContent: ConversationSheetContent = when (conversationItem) {
         is ConversationItem.GroupConversation -> {
@@ -86,10 +86,10 @@ fun rememberConversationSheetState(
         }
     }
 
-    return remember(conversationItem, conversationOptionNavigation) {
+    return remember(conversationItem, conversationNavigationOptions) {
         ConversationSheetState(
             conversationSheetContent = conversationSheetContent,
-            conversationOptionNavigation = conversationOptionNavigation
+            conversationNavigationOptions = conversationNavigationOptions
         )
     }
 }

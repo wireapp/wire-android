@@ -5,7 +5,6 @@ import com.wire.kalium.logic.data.user.type.UserType
 import javax.inject.Inject
 
 class UserTypeMapper @Inject constructor() {
-
     fun toMembership(userType: UserType) = when (userType) {
         UserType.GUEST -> Membership.Guest
         UserType.FEDERATED -> Membership.Federated

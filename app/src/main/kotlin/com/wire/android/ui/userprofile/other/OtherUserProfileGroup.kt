@@ -15,13 +15,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.RowItemTemplate
-import com.wire.android.ui.common.button.WireIconButton
 import com.wire.android.ui.common.SurfaceBackgroundWrapper
 import com.wire.android.ui.common.button.WireButton
+import com.wire.android.ui.common.button.WireIconButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
@@ -32,8 +31,8 @@ import com.wire.kalium.logic.data.conversation.Conversation.Member
 
 @Composable
 fun OtherUserProfileGroup(
-    state: OtherUserProfileState,
     lazyListState: LazyListState = rememberLazyListState(),
+    otherUserProfileGroupInfo: OtherUserProfileGroupInfo,
     onRemoveFromConversation: (RemoveConversationMemberState) -> Unit,
     openChangeRoleBottomSheet: () -> Unit
 ) {
@@ -50,26 +49,26 @@ fun OtherUserProfileGroup(
                     MaterialTheme.wireTypography.body02,
                     MaterialTheme.wireColorScheme.onBackground,
                     MaterialTheme.wireColorScheme.onBackground,
-                    state.groupState!!.groupName
+                    otherUserProfileGroupInfo.groupName
                 ),
-                isSelfAdmin = state.groupState.isSelfAdmin,
+                isSelfAdmin = otherUserProfileGroupInfo.isSelfAdmin,
                 onRemoveFromConversation = {
-                    onRemoveFromConversation(
-                        RemoveConversationMemberState(
-                            conversationId = state.conversationId!!,
-                            fullName = state.fullName,
-                            userName = state.userName,
-                            userId = state.userId
-                        )
-                    )
+//                    onRemoveFromConversation(
+//                        RemoveConversationMemberState(
+//                            conversationId = state.conversationId!!,
+//                            fullName = state.fullName,
+//                            userName = state.userName,
+//                            userId = state.userId
+//                        )
+//                    )
                 }
             )
         }
         item(key = "user_group_role") {
             UserRoleInformation(
                 label = stringResource(id = R.string.user_profile_group_role),
-                value = AnnotatedString(state.groupState!!.role.name.asString()),
-                isSelfAdmin = state.groupState.isSelfAdmin,
+                value = AnnotatedString(otherUserProfileGroupInfo.role.name.asString()),
+                isSelfAdmin = otherUserProfileGroupInfo.isSelfAdmin,
                 openChangeRoleBottomSheet = openChangeRoleBottomSheet
             )
         }
@@ -153,9 +152,9 @@ val Member.Role.name
         Member.Role.Member -> UIText.StringResource(R.string.group_role_member)
         is Member.Role.Unknown -> UIText.DynamicString(name)
     }
-
-@Composable
-@Preview
-fun OtherUserProfileGroupPreview() {
-    OtherUserProfileGroup(OtherUserProfileState.PREVIEW, rememberLazyListState(), {}) {}
-}
+//
+//@Composable
+//@Preview
+//fun OtherUserProfileGroupPreview() {
+//    OtherUserProfileGroup(OtherUserProfileState.PREVIEW, rememberLazyListState(), {}) {}
+//}

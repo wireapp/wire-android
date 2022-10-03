@@ -21,7 +21,6 @@ import com.wire.android.notification.NotificationConstants
 import com.wire.kalium.logic.CoreLogic
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.util.concurrent.TimeUnit
@@ -36,7 +35,7 @@ class MigrationWorker
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result {
-        delay(5000) // TODO implement later
+        // TODO implement later
         return Result.success()
     }
 

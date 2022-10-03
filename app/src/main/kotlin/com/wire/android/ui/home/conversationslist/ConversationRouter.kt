@@ -7,6 +7,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.ui.common.dialogs.BlockUserDialogContent
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
@@ -34,7 +35,8 @@ fun ConversationRouterHomeBridge(
     onHomeBottomSheetContentChanged: (@Composable ColumnScope.() -> Unit) -> Unit,
     onOpenBottomSheet: () -> Unit,
     onCloseBottomSheet: () -> Unit,
-    onSnackBarStateChanged: (HomeSnackbarState) -> Unit
+    onSnackBarStateChanged: (HomeSnackbarState) -> Unit,
+    searchQueryProvider: () -> TextFieldValue
 ) {
     val viewModel: ConversationListViewModel = hiltViewModel()
 
@@ -45,12 +47,17 @@ fun ConversationRouterHomeBridge(
         viewModel.closeBottomSheet.collect { onCloseBottomSheet() }
     }
 
+    LaunchedEffect(searchQueryProvider()) {
+        viewModel.searchConversation(searchQueryProvider())
+    }
+
     val leaveGroupDialogState = rememberVisibilityState<GroupDialogState>()
     val deleteGroupDialogState = rememberVisibilityState<GroupDialogState>()
     val blockUserDialogState = rememberVisibilityState<BlockUserDialogState>()
     val unblockUserDialogState = rememberVisibilityState<UnblockUserDialogState>()
 
     val requestInProgress = viewModel.requestInProgress
+
     if (!requestInProgress) {
         leaveGroupDialogState.dismiss()
         deleteGroupDialogState.dismiss()
@@ -127,8 +134,9 @@ fun ConversationRouterHomeBridge(
                     onOpenUserProfile = viewModel::openUserProfile,
                     onOpenConversationNotificationsSettings = onEditNotifications,
                     onJoinCall = viewModel::joinOngoingCall,
-                    shouldShowEmptyState= shouldShowEmptyState
+                    shouldShowEmptyState = shouldShowEmptyState
                 )
+
             ConversationItemType.CALLS ->
                 CallsScreen(
                     missedCalls = missedCalls,
@@ -139,6 +147,7 @@ fun ConversationRouterHomeBridge(
                     openConversationNotificationsSettings = onEditNotifications,
                     onJoinCall = viewModel::joinOngoingCall
                 )
+
             ConversationItemType.MENTIONS ->
                 MentionScreen(
                     unreadMentions = unreadMentions,

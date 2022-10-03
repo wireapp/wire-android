@@ -89,8 +89,3 @@ data class OtherUserProfileGroupState(
     val conversationId: ConversationId
 )
 
-sealed class GroupInfoAvailability {
-    object NotAvailable : GroupInfoAvailability()
-
-    data class Available
-}

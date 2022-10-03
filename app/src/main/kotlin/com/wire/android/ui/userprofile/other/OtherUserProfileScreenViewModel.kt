@@ -141,7 +141,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                 when (getInfoResult) {
                     is GetUserInfoResult.Failure -> {
                         appLogger.d("Couldn't not find the user with provided id: $userId")
-                        showInfoMessage(LoadUserInformationError)
+                        closeBottomSheetAndShowInfoMessage(LoadUserInformationError)
                     }
                     is GetUserInfoResult.Success -> {
                         val otherUser = getInfoResult.otherUser
@@ -242,11 +242,11 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             when (sendConnectionRequest(userId)) {
                 is SendConnectionRequestResult.Failure -> {
                     appLogger.d(("Couldn't send a connect request to user $userId"))
-                    showInfoMessage(ConnectionRequestError)
+                    closeBottomSheetAndShowInfoMessage(ConnectionRequestError)
                 }
                 is SendConnectionRequestResult.Success -> {
                     state = state.copy(connectionState = ConnectionState.SENT)
-                    showInfoMessage(SuccessConnectionSentRequest)
+                    closeBottomSheetAndShowInfoMessage(SuccessConnectionSentRequest)
                 }
             }
         }
@@ -257,11 +257,11 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             when (cancelConnectionRequest(userId)) {
                 is CancelConnectionRequestUseCaseResult.Failure -> {
                     appLogger.d(("Couldn't cancel a connect request to user $userId"))
-                    showInfoMessage(ConnectionCancelError)
+                    closeBottomSheetAndShowInfoMessage(ConnectionCancelError)
                 }
                 is CancelConnectionRequestUseCaseResult.Success -> {
                     state = state.copy(connectionState = ConnectionState.NOT_CONNECTED)
-                    showInfoMessage(SuccessConnectionCancelRequest)
+                    closeBottomSheetAndShowInfoMessage(SuccessConnectionCancelRequest)
                 }
             }
         }
@@ -272,11 +272,11 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             when (acceptConnectionRequest(userId)) {
                 is AcceptConnectionRequestUseCaseResult.Failure -> {
                     appLogger.d(("Couldn't accept a connect request to user $userId"))
-                    showInfoMessage(ConnectionAcceptError)
+                    closeBottomSheetAndShowInfoMessage(ConnectionAcceptError)
                 }
                 is AcceptConnectionRequestUseCaseResult.Success -> {
                     state = state.copy(connectionState = ConnectionState.ACCEPTED)
-                    showInfoMessage(SuccessConnectionAcceptRequest)
+                    closeBottomSheetAndShowInfoMessage(SuccessConnectionAcceptRequest)
                 }
             }
         }
@@ -287,7 +287,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             when (ignoreConnectionRequest(userId)) {
                 is IgnoreConnectionRequestUseCaseResult.Failure -> {
                     appLogger.d(("Couldn't ignore a connect request to user $userId"))
-                    showInfoMessage(ConnectionIgnoreError)
+                    closeBottomSheetAndShowInfoMessage(ConnectionIgnoreError)
                 }
                 is IgnoreConnectionRequestUseCaseResult.Success -> {
                     state = state.copy(connectionState = ConnectionState.IGNORED)
@@ -306,13 +306,13 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             if (conversationId != null) {
                 updateMemberRole(conversationId, userId, role).also {
                     if (it is UpdateConversationMemberRoleResult.Failure)
-                        showInfoMessage(ChangeGroupRoleError)
+                        closeBottomSheetAndShowInfoMessage(ChangeGroupRoleError)
                 }
             }
         }
     }
 
-    private suspend fun showInfoMessage(type: SnackBarMessage) {
+    private suspend fun closeBottomSheetAndShowInfoMessage(type: SnackBarMessage) {
         _closeBottomSheet.emit(Unit)
         _infoMessage.emit(type.uiText)
     }
@@ -328,7 +328,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             }
 
             if (response is RemoveMemberFromConversationUseCase.Result.Failure)
-                showInfoMessage(RemoveConversationMemberError)
+                closeBottomSheetAndShowInfoMessage(RemoveConversationMemberError)
 
             requestInProgress = false
         }
@@ -338,7 +338,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         conversationId?.let {
             viewModelScope.launch {
                 when (updateConversationMutedStatus(conversationId, status, Date().time)) {
-                    ConversationUpdateStatusResult.Failure -> showInfoMessage(MutingOperationError)
+                    ConversationUpdateStatusResult.Failure -> closeBottomSheetAndShowInfoMessage(MutingOperationError)
                     ConversationUpdateStatusResult.Success -> {
                         state = state.updateMuteStatus(status)
                         appLogger.i("MutedStatus changed for conversation: $conversationId to $status")
@@ -354,11 +354,11 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             when (val result = blockUser(userId)) {
                 BlockUserResult.Success -> {
                     appLogger.i("User $userId was blocked")
-                    showInfoMessage(BlockingUserOperationSuccess(blockUserState.userName))
+                    closeBottomSheetAndShowInfoMessage(BlockingUserOperationSuccess(blockUserState.userName))
                 }
                 is BlockUserResult.Failure -> {
                     appLogger.e("Error while blocking user $userId ; Error ${result.coreFailure}")
-                    showInfoMessage(BlockingUserOperationError)
+                    closeBottomSheetAndShowInfoMessage(BlockingUserOperationError)
                 }
             }
             requestInProgress = false
@@ -375,7 +375,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                 }
                 is UnblockUserResult.Failure -> {
                     appLogger.e("Error while unblocking user $userId ; Error ${result.coreFailure}")
-                    showInfoMessage(UnblockingUserOperationError)
+                    closeBottomSheetAndShowInfoMessage(UnblockingUserOperationError)
                 }
             }
             requestInProgress = false

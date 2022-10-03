@@ -225,8 +225,10 @@ enum class NavigationItem(
                 conversationCallViewModel = hiltSavedStateViewModel(it.navBackStackEntry),
                 conversationInfoViewModel = hiltSavedStateViewModel(it.navBackStackEntry),
                 conversationMessagesViewModel = hiltSavedStateViewModel(it.navBackStackEntry),
-                commonTopAppBarViewModel = hiltViewModel()
-            )
+                commonTopAppBarViewModel = hiltViewModel(),
+                conversationBannerViewModel = hiltSavedStateViewModel(it.navBackStackEntry),
+
+                )
         },
         animationConfig = NavigationAnimationConfig.NoAnimation
     ) {

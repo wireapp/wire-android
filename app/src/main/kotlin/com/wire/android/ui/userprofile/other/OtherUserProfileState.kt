@@ -47,9 +47,11 @@ data class OtherUserProfileState(
                 is BottomSheetContent.Mute -> bottomSheetContentState.copy(
                     conversationData = bottomSheetContentState.conversationData.copy(mutingConversationState = status)
                 )
+
                 is BottomSheetContent.Conversation -> bottomSheetContentState.copy(
                     conversationData = bottomSheetContentState.conversationData.copy(mutingConversationState = status)
                 )
+
                 is BottomSheetContent.ChangeRole -> bottomSheetContentState
                 null -> null
             }
@@ -86,3 +88,9 @@ data class OtherUserProfileGroupState(
     val isSelfAdmin: Boolean,
     val conversationId: ConversationId
 )
+
+sealed class GroupInfoAvailability {
+    object NotAvailable : GroupInfoAvailability()
+
+    data class Available
+}

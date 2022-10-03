@@ -52,6 +52,7 @@
     <string name="content_description_move_to_folder">Move to folder</string>
     <string name="content_description_move_to_archive">Move to archive</string>
     <string name="content_description_block_the_user">Block</string>
+    <string name="content_description_unblock_the_user">Unblock</string>
     <string name="content_description_leave_the_group">Leave the group</string>
     <string name="content_description_delete_the_group">Delete the group</string>
     <string name="content_description_conversation_phone_icon">Start audio call</string>
@@ -296,6 +297,7 @@
     <string name="conversation_details_show_all_participants">Show all participants (%d)</string>
     <string name="conversation_details_group_participants_title">Group Participants</string>
     <string name="conversation_details_group_participants_add">Add participants</string>
+    <string name="conversation_participant_you_label">(You)</string>
     <string name="conversation_details_is_classified">SECURITY LEVEL: VS-NfD</string>
     <string name="conversation_details_is_not_classified">SECURITY LEVEL: UNCLASSIFIED</string>
     <string name="conversation_options_guests_label">Guests</string>
@@ -365,6 +367,7 @@
     <string name="label_move_to_archive">Move to Archive</string>
     <string name="label_clear_content">Clear Content…</string>
     <string name="label_block">Block</string>
+    <string name="label_unblock">Unblock</string>
     <string name="label_leave_group">Leave Group</string>
     <string name="label_delete_group">Delete Group</string>
     <!-- Muting options BottomSheet -->
@@ -385,6 +388,24 @@
     <string name="label_edit">Edit</string>
     <string name="label_delete">Delete</string>
     <string name="info_message_copied">Message copied</string>
+    <string name="conversation_banner_federated_externals_guests_services_present">Federated users, Externals, guests and services are present</string>
+
+    <string name="conversation_banner_federated_externals_guests_present">Federated users, Externals and guests are present</string>
+    <string name="conversation_banner_federated_externals_services_present">Federated users, Externals and services are present</string>
+
+    <string name="conversation_banner_federated_guests_services_present">Federated users, guests and services are present</string>
+    <string name="conversation_banner_federated_services_present">Federated users and services are present</string>
+    <string name="conversation_banner_federated_guests_present">Federated users and guests are present</string>
+    <string name="conversation_banner_federated_externals_present">Federated users and Externals are present</string>
+    <string name="conversation_banner_externals_guests_services_present">Externals, guests and services are present</string>
+    <string name="conversation_banner_externals_services_present">Externals and services are present</string>
+    <string name="conversation_banner_externals_guests_present">Externals and guests are present</string>
+    <string name="conversation_banner_guests_services_present">Guests and services are present</string>
+    <string name="conversation_banner_federated_present">Federated users are present</string>
+    <string name="conversation_banner_guests_present">Guests are present</string>
+    <string name="conversation_banner_externals_present">Externals are present</string>
+    <string name="conversation_banner_services_active">Services are active</string>
+
     <!-- System messages -->
     <string name="label_system_message_added">%1$s added %2$s to the conversation</string>
     <string name="label_system_message_removed">%1$s removed %2$s from the conversation</string>

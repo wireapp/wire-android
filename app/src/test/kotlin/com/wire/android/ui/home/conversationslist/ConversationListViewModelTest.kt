@@ -21,8 +21,10 @@ import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.AnswerCallUseCase
-import com.wire.kalium.logic.feature.connection.BlockUserUseCase
 import com.wire.kalium.logic.feature.connection.BlockUserResult
+import com.wire.kalium.logic.feature.connection.BlockUserUseCase
+import com.wire.kalium.logic.feature.connection.UnblockUserResult
+import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.LeaveConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
@@ -72,6 +74,9 @@ class ConversationListViewModelTest {
     lateinit var blockUser: BlockUserUseCase
 
     @MockK
+    lateinit var unblockUser: UnblockUserUseCase
+
+    @MockK
     private lateinit var wireSessionImageLoader: WireSessionImageLoader
 
     @BeforeEach
@@ -89,6 +94,7 @@ class ConversationListViewModelTest {
                 leaveConversation,
                 deleteTeamConversationUseCase,
                 blockUser,
+                unblockUser,
                 wireSessionImageLoader,
                 UserTypeMapper(),
             )
@@ -160,6 +166,14 @@ class ConversationListViewModelTest {
         )
 
         coVerify(exactly = 1) { blockUser(userId) }
+    }
+
+    @Test
+    fun `given a valid conversation muting state, when calling unblock user, then should call BlockUserUseCase`() = runTest {
+        coEvery { unblockUser(any()) } returns UnblockUserResult.Success
+        conversationListViewModel.unblockUser(userId)
+
+        coVerify(exactly = 1) { unblockUser(userId) }
     }
 
     companion object {

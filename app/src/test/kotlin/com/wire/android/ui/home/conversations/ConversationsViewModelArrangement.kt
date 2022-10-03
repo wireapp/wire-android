@@ -191,7 +191,6 @@ internal fun withMockConversationDetailsOneOnOne(
         every { connectionStatus } returns connectionState
         every { isUnavailableUser } returns unavailable
     },
-    connectionState = ConnectionState.PENDING,
     legalHoldStatus = LegalHoldStatus.DISABLED,
     userType = UserType.INTERNAL,
     unreadMessagesCount = 0L,

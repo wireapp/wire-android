@@ -19,6 +19,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
@@ -43,6 +44,9 @@ class HomeScreenState(
     var snackbarState: HomeSnackbarState by mutableStateOf(HomeSnackbarState.None) // TODO replace with Flow
         private set
 
+    var searchQuery: TextFieldValue by mutableStateOf(TextFieldValue(""))
+        private set
+
     fun setSnackBarState(state: HomeSnackbarState) {
         snackbarState = state
         if (state != HomeSnackbarState.None) closeBottomSheet()
@@ -58,7 +62,7 @@ class HomeScreenState(
         }
     }
 
-    private fun closeBottomSheet() {
+    fun closeBottomSheet() {
         coroutineScope.launch {
             if (bottomSheetState.isVisible) bottomSheetState.animateTo(ModalBottomSheetValue.Hidden)
         }
@@ -78,6 +82,10 @@ class HomeScreenState(
         coroutineScope.launch {
             drawerState.open()
         }
+    }
+
+    fun searchQueryChanged(searchQuery: TextFieldValue) {
+        this.searchQuery = searchQuery
     }
 
     fun navigateTo(homeNavigationItem: HomeNavigationItem) {

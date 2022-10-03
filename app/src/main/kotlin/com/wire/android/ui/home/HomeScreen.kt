@@ -109,7 +109,7 @@ fun HomeScreen(
         onNewConversationClick = conversationListViewModel::openNewConversation,
         onSelfUserClick = homeViewModel::navigateToSelfUserProfile,
         onHamburgerMenuClick = homeScreenState::openDrawer,
-        onSearchQueryChanged = {  },
+        onSearchQueryChanged = homeScreenState::searchQueryChanged,
         navigateToItem = homeViewModel::navigateTo
     )
 }
@@ -194,7 +194,7 @@ fun HomeContent(
                                                 R.string.search_bar_hint,
                                                 stringResource(id = title).lowercase()
                                             ),
-                                            searchQuery = TextFieldValue(""), // TODO
+                                            searchQuery = homeScreenState.searchQuery,
                                             onSearchQueryChanged = onSearchQueryChanged,
                                             onInputClicked = searchBarState::openSearch,
                                             onCloseSearchClicked = searchBarState::closeSearch,
@@ -271,14 +271,17 @@ private fun handleSnackBarMessage(
         val message = when (messageType) {
             is HomeSnackbarState.SuccessConnectionIgnoreRequest ->
                 stringResource(id = R.string.connection_request_ignored, messageType.userName)
+
             is HomeSnackbarState.BlockingUserOperationSuccess ->
                 stringResource(id = R.string.blocking_user_success, messageType.userName)
+
             HomeSnackbarState.MutingOperationError -> stringResource(id = R.string.error_updating_muting_setting)
             HomeSnackbarState.BlockingUserOperationError -> stringResource(id = R.string.error_blocking_user)
             HomeSnackbarState.UnblockingUserOperationError -> stringResource(id = R.string.error_unblocking_user)
             HomeSnackbarState.None -> ""
             is HomeSnackbarState.DeletedConversationGroupSuccess ->
                 stringResource(id = R.string.conversation_group_removed_success, messageType.groupName)
+
             HomeSnackbarState.LeftConversationSuccess -> stringResource(id = R.string.left_conversation_group_success)
             HomeSnackbarState.LeaveConversationError -> stringResource(id = R.string.leave_group_conversation_error)
             HomeSnackbarState.DeleteConversationGroupError -> stringResource(id = R.string.delete_group_conversation_error)

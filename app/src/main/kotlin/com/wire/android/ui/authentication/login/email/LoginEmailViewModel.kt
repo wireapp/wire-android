@@ -13,10 +13,8 @@ import com.wire.android.ui.authentication.login.toLoginError
 import com.wire.android.ui.authentication.login.updateEmailLoginEnabled
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
-import com.wire.kalium.logic.feature.auth.LoginUseCase
+import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
-import com.wire.kalium.logic.feature.server.FetchApiVersionResult
-import com.wire.kalium.logic.feature.server.FetchApiVersionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -25,10 +23,9 @@ import javax.inject.Inject
 @ExperimentalMaterialApi
 @HiltViewModel
 class LoginEmailViewModel @Inject constructor(
-    private val loginUseCase: LoginUseCase,
+    private val authScope: AutoVersionAuthScopeUseCase,
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
     clientScopeProviderFactory: ClientScopeProvider.Factory,
-    private val fetchApiVersion: FetchApiVersionUseCase,
     private val savedStateHandle: SavedStateHandle,
     navigationManager: NavigationManager,
     authServerConfigProvider: AuthServerConfigProvider,
@@ -42,24 +39,25 @@ class LoginEmailViewModel @Inject constructor(
     fun login() {
         loginState = loginState.copy(emailLoginLoading = true, loginError = LoginError.None).updateEmailLoginEnabled()
         viewModelScope.launch {
-            fetchApiVersion(serverConfig).let {
+            val authScope = authScope().let {
                 when (it) {
-                    is FetchApiVersionResult.Success -> {}
-                    is FetchApiVersionResult.Failure.UnknownServerVersion -> {
+                    is AutoVersionAuthScopeUseCase.Result.Success -> it.authenticationScope
+
+                    is AutoVersionAuthScopeUseCase.Result.Failure.UnknownServerVersion -> {
                         loginState = loginState.copy(showServerVersionNotSupportedDialog = true)
                         return@launch
                     }
-                    is FetchApiVersionResult.Failure.TooNewVersion -> {
+                    is AutoVersionAuthScopeUseCase.Result.Failure.TooNewVersion -> {
                         loginState = loginState.copy(showClientUpdateDialog = true)
                         return@launch
                     }
-                    is FetchApiVersionResult.Failure.Generic -> {
+                    is AutoVersionAuthScopeUseCase.Result.Failure.Generic -> {
                         return@launch
                     }
                 }
             }
 
-            val loginResult = loginUseCase(loginState.userIdentifier.text, loginState.password.text, true)
+            val loginResult = authScope.login(loginState.userIdentifier.text, loginState.password.text, true)
                 .let {
                     when (it) {
                         is AuthenticationResult.Failure -> {

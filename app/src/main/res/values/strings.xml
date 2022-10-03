@@ -388,6 +388,24 @@
     <string name="label_edit">Edit</string>
     <string name="label_delete">Delete</string>
     <string name="info_message_copied">Message copied</string>
+    <string name="conversation_banner_federated_externals_guests_services_present">Federated users, Externals, guests and services are present</string>
+
+    <string name="conversation_banner_federated_externals_guests_present">Federated users, Externals and guests are present</string>
+    <string name="conversation_banner_federated_externals_services_present">Federated users, Externals and services are present</string>
+
+    <string name="conversation_banner_federated_guests_services_present">Federated users, guests and services are present</string>
+    <string name="conversation_banner_federated_services_present">Federated users and services are present</string>
+    <string name="conversation_banner_federated_guests_present">Federated users and guests are present</string>
+    <string name="conversation_banner_federated_externals_present">Federated users and Externals are present</string>
+    <string name="conversation_banner_externals_guests_services_present">Externals, guests and services are present</string>
+    <string name="conversation_banner_externals_services_present">Externals and services are present</string>
+    <string name="conversation_banner_externals_guests_present">Externals and guests are present</string>
+    <string name="conversation_banner_guests_services_present">Guests and services are present</string>
+    <string name="conversation_banner_federated_present">Federated users are present</string>
+    <string name="conversation_banner_guests_present">Guests are present</string>
+    <string name="conversation_banner_externals_present">Externals are present</string>
+    <string name="conversation_banner_services_active">Services are active</string>
+
     <!-- System messages -->
     <string name="label_system_message_added">%1$s added %2$s to the conversation</string>
     <string name="label_system_message_removed">%1$s removed %2$s from the conversation</string>

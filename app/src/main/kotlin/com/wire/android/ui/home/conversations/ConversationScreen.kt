@@ -50,6 +50,8 @@ import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.Error
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorSendingAsset
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorSendingImage
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnFileDownloaded
+import com.wire.android.ui.home.conversations.banner.ConversationBanner
+import com.wire.android.ui.home.conversations.banner.ConversationBannerViewModel
 import com.wire.android.ui.home.conversations.call.ConversationCallViewModel
 import com.wire.android.ui.home.conversations.call.ConversationCallViewState
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
@@ -91,6 +93,7 @@ fun ConversationScreen(
     conversationCallViewModel: ConversationCallViewModel,
     conversationInfoViewModel: ConversationInfoViewModel,
     conversationMessagesViewModel: ConversationMessagesViewModel,
+    conversationBannerViewModel: ConversationBannerViewModel,
     commonTopAppBarViewModel: CommonTopAppBarViewModel
 ) {
     val coroutineScope = rememberCoroutineScope()
@@ -129,6 +132,7 @@ fun ConversationScreen(
         conversationCallViewState = conversationCallViewModel.conversationCallViewState,
         conversationInfoViewState = conversationInfoViewModel.conversationInfoViewState,
         conversationMessagesViewState = conversationMessagesViewModel.conversationViewState,
+        bannerMessage = conversationBannerViewModel.bannerState,
         connectivityUIState = commonTopAppBarViewModel.connectivityState,
         onOpenOngoingCallScreen = commonTopAppBarViewModel::openOngoingCallScreen,
         onSendMessage = messageComposerViewModel::sendMessage,
@@ -196,6 +200,7 @@ private fun ConversationScreen(
     conversationCallViewState: ConversationCallViewState,
     conversationInfoViewState: ConversationInfoViewState,
     conversationMessagesViewState: ConversationMessagesViewState,
+    bannerMessage: UIText?,
     connectivityUIState: ConnectivityUIState,
     onOpenOngoingCallScreen: () -> Unit,
     onSendMessage: (String) -> Unit,
@@ -261,7 +266,7 @@ private fun ConversationScreen(
                     Column {
                         CommonTopAppBar(
                             connectivityUIState = connectivityUIState,
-                            onReturnToCallClick = onOpenOngoingCallScreen
+                            onReturnToCallClick = onOpenOngoingCallScreen,
                         )
                         ConversationScreenTopAppBar(
                             conversationInfoViewState = conversationInfoViewState,
@@ -275,6 +280,7 @@ private fun ConversationScreen(
                             isUserBlocked = conversationInfoViewState.isUserBlocked,
                             isCallingEnabled = isSendingMessagesAllowed
                         )
+                        ConversationBanner(bannerMessage)
                     }
                 },
                 snackbarHost = {
@@ -486,6 +492,7 @@ fun ConversationScreenPreview() {
         conversationInfoViewState = ConversationInfoViewState(conversationName = UIText.DynamicString("Some test conversation")),
         conversationMessagesViewState = ConversationMessagesViewState(),
         connectivityUIState = ConnectivityUIState(info = ConnectivityUIState.Info.None),
+        bannerMessage = null,
         onOpenOngoingCallScreen = { },
         onSendMessage = { },
         onSendAttachment = { },

@@ -109,7 +109,7 @@ fun HomeScreen(
         onNewConversationClick = conversationListViewModel::openNewConversation,
         onSelfUserClick = homeViewModel::navigateToSelfUserProfile,
         onHamburgerMenuClick = homeScreenState::openDrawer,
-        onSearchQueryChanged = homeViewModel::searchConversation,
+        onSearchQueryChanged = {  },
         navigateToItem = homeViewModel::navigateTo
     )
 }

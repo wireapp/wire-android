@@ -26,6 +26,7 @@ import com.wire.android.navigation.NavigationItemDestinationsRoutes.INCOMING_CAL
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.INITIATING_CALL
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.LOGIN
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.MEDIA_GALLERY
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.MIGRATION
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.NETWORK_SETTINGS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.NEW_CONVERSATION
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.ONGOING_CALL
@@ -58,6 +59,7 @@ import com.wire.android.ui.home.newconversation.NewConversationRouter
 import com.wire.android.ui.home.settings.appsettings.AppSettingsScreen
 import com.wire.android.ui.home.settings.appsettings.networkSettings.NetworkSettingsScreen
 import com.wire.android.ui.home.settings.backup.BackupAndRestoreScreen
+import com.wire.android.ui.migration.MigrationScreen
 import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerScreen
 import com.wire.android.ui.userprofile.other.OtherUserProfileScreen
 import com.wire.android.ui.userprofile.self.SelfUserProfileScreen
@@ -84,6 +86,11 @@ enum class NavigationItem(
         primaryRoute = WELCOME,
         content = { WelcomeScreen() },
         animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
+    ),
+
+    Migration(
+        primaryRoute = MIGRATION,
+        content = { MigrationScreen() },
     ),
 
     Login(
@@ -362,6 +369,7 @@ enum class NavigationItem(
 
 object NavigationItemDestinationsRoutes {
     const val WELCOME = "welcome_screen"
+    const val MIGRATION = "migration_screen"
     const val LOGIN = "login_screen"
     const val CREATE_TEAM = "create_team_screen"
     const val CREATE_PERSONAL_ACCOUNT = "create_personal_account_screen"

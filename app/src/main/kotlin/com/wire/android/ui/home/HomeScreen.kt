@@ -53,7 +53,6 @@ import com.wire.android.ui.home.conversationslist.ConversationListViewModel
 import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
 
 @OptIn(
-    ExperimentalAnimationApi::class,
     ExperimentalMaterialApi::class,
     ExperimentalMaterial3Api::class
 )

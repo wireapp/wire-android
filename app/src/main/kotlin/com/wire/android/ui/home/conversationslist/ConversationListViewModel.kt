@@ -17,6 +17,7 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.home.HomeSnackbarState
+import com.wire.android.ui.home.conversations.search.SearchPeopleViewModel
 import com.wire.android.ui.home.conversationslist.mock.mockAllMentionList
 import com.wire.android.ui.home.conversationslist.mock.mockCallHistory
 import com.wire.android.ui.home.conversationslist.mock.mockUnreadMentionList
@@ -52,8 +53,14 @@ import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUs
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
 import com.wire.kalium.logic.feature.team.Result
+import com.wire.kalium.logic.functional.combine
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.flatMapLatest
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -78,7 +85,7 @@ class ConversationListViewModel @Inject constructor(
 ) : ViewModel() {
 
     var conversationListState
-    by mutableStateOf(ConversationListState())
+            by mutableStateOf(ConversationListState())
         private set
 
     val snackBarState = MutableSharedFlow<HomeSnackbarState>()
@@ -86,26 +93,40 @@ class ConversationListViewModel @Inject constructor(
 
     var requestInProgress: Boolean by mutableStateOf(false)
 
+    private val mutableSearchQueryFlow = MutableStateFlow("")
+
+    private val searchQueryFlow = mutableSearchQueryFlow
+        .asStateFlow()
+        .debounce(SearchPeopleViewModel.DEFAULT_SEARCH_QUERY_DEBOUNCE)
+
     init {
-        startObservingConversationsAndConnections()
-    }
+        viewModelScope.launch {
+            searchQueryFlow.combine(observeConversationListDetailsUseCase())
+                .flatMapLatest { (searchQuery, conversationDetails) ->
+                    flow {
+                        if (searchQuery.isEmpty()) {
+                            emit(conversationDetails)
+                        } else {
+                            val matchingConversations = conversationDetails.filter { details ->
+                                details.conversation.name?.contains(searchQuery) ?: false
+                            }
 
-    private fun startObservingConversationsAndConnections() = viewModelScope.launch {
-        observeConversationListDetailsUseCase()
-            .flowOn(dispatcher.io())
-            .collect { conversationListDetails ->
-                conversationListState = ConversationListState(
-                    conversations = conversationListDetails.toConversationsFoldersMap(),
-                    shouldShowEmptyState = conversationListDetails.none { it !is Self },
-                    callHistory = mockCallHistory, // TODO: needs to be implemented
-                    unreadMentions = mockUnreadMentionList, // TODO: needs to be implemented
-                    allMentions = mockAllMentionList, // TODO: needs to be implemented
-                    newActivityCount = 0L,
-                    unreadMentionsCount = 0L, // TODO: needs to be implemented on Kalium side
-                    missedCallsCount = 0L // TODO: needs to be implemented on Kalium side
-                )
-
-            }
+                            emit(matchingConversations)
+                        }
+                    }
+                }.collect { conversationListDetails ->
+                    conversationListState = ConversationListState(
+                        conversations = conversationListDetails.toConversationsFoldersMap(),
+                        shouldShowEmptyState = conversationListDetails.none { it !is Self },
+                        callHistory = mockCallHistory, // TODO: needs to be implemented
+                        unreadMentions = mockUnreadMentionList, // TODO: needs to be implemented
+                        allMentions = mockAllMentionList, // TODO: needs to be implemented
+                        newActivityCount = 0L,
+                        unreadMentionsCount = 0L, // TODO: needs to be implemented on Kalium side
+                        missedCallsCount = 0L // TODO: needs to be implemented on Kalium side
+                    )
+                }
+        }
     }
 
     private fun List<ConversationDetails>.toConversationsFoldersMap(): Map<ConversationFolder, List<ConversationItem>> {
@@ -130,6 +151,7 @@ class ConversationListViewModel @Inject constructor(
         }
 
         val remainingConversations = this - unreadConversations.toSet()
+
         return mapOf(
             ConversationFolder.Predefined.NewActivities to unreadConversations.toConversationItemList(),
             ConversationFolder.Predefined.Conversations to remainingConversations.toConversationItemList()
@@ -238,6 +260,7 @@ class ConversationListViewModel @Inject constructor(
                     appLogger.i("User $userId was unblocked")
                     closeBottomSheet.emit(Unit)
                 }
+
                 is UnblockUserResult.Failure -> {
                     appLogger.e("Error while unblocking user $userId ; Error ${result.coreFailure}")
                     snackBarState.emit(HomeSnackbarState.UnblockingUserOperationError)
@@ -286,7 +309,9 @@ class ConversationListViewModel @Inject constructor(
             }
 
     fun searchConversation(searchQuery: TextFieldValue) {
-        Log.d("TEST","test $searchQuery")
+        viewModelScope.launch {
+            mutableSearchQueryFlow.emit(searchQuery.text)
+        }
     }
 }
 

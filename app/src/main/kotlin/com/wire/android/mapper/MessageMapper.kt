@@ -8,6 +8,7 @@ import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.MessageTime
 import com.wire.android.ui.home.conversations.model.UIMessage
+import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.previewAsset
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -21,7 +22,6 @@ import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.User
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 class MessageMapper @Inject constructor(
@@ -49,7 +49,9 @@ class MessageMapper @Inject constructor(
         )
         // System messages don't have header so without the content there is nothing to be displayed.
         // Also hidden messages should not be displayed.
-        if (message is Message.System && content == null || message.visibility == Message.Visibility.HIDDEN)
+        if (message is Message.System && content == null || message.visibility == Message.Visibility.HIDDEN ||
+            content is UIMessageContent.PreviewAssetMessage
+        )
             null
         else
             UIMessage(

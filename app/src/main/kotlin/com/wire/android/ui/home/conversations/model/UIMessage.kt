@@ -58,6 +58,8 @@ sealed class UIMessageContent {
 
     sealed class ClientMessage : UIMessageContent()
 
+    object PreviewAssetMessage : UIMessageContent()
+
     data class TextMessage(val messageBody: MessageBody) : ClientMessage()
 
     data class RestrictedAsset(

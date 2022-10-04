@@ -137,20 +137,22 @@ class MessageContentMapper @Inject constructor(
         }
     ).let { messageBody -> UIMessageContent.TextMessage(messageBody = messageBody) }
 
-    fun toUIMessageContent(assetMessageContentMetadata: AssetMessageContentMetadata, message: Message, sender: User?) =
+    fun toUIMessageContent(assetMessageContentMetadata: AssetMessageContentMetadata, message: Message, sender: User?): UIMessageContent =
         with(assetMessageContentMetadata.assetMessageContent) {
             when {
+                assetMessageContentMetadata.isValidImage() && !assetMessageContentMetadata.assetMessageContent.hasValidRemoteData() ->
+                    UIMessageContent.PreviewAssetMessage
+
                 // If it's an image, we delegate the download it right away to coil
                 assetMessageContentMetadata.isValidImage() -> {
-                    val shouldDownloadImage = shouldDownloadImage(assetMessageContentMetadata)
                     UIMessageContent.ImageMessage(
                         assetId = AssetId(remoteData.assetId, remoteData.assetDomain.orEmpty()),
-                        asset = if (shouldDownloadImage) ImageAsset.PrivateAsset(
+                        asset = ImageAsset.PrivateAsset(
                             wireSessionImageLoader,
                             message.conversationId,
                             message.id,
                             sender is SelfUser
-                        ) else null,
+                        ),
                         width = assetMessageContentMetadata.imgWidth,
                         height = assetMessageContentMetadata.imgHeight,
                         uploadStatus = uploadStatus,
@@ -170,13 +172,6 @@ class MessageContentMapper @Inject constructor(
                     )
                 }
             }
-        }
-
-    private fun shouldDownloadImage(assetMessageContentMetadata: AssetMessageContentMetadata) =
-        when {
-            assetMessageContentMetadata.assetMessageContent.downloadStatus == Message.DownloadStatus.DOWNLOAD_IN_PROGRESS -> false
-            assetMessageContentMetadata.assetMessageContent.hasValidRemoteData().not() -> false
-            else -> true
         }
 
     private fun toRestrictedAsset(

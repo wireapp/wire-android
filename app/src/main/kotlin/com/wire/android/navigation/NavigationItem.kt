@@ -18,6 +18,7 @@ import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_ACCOU
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_PERSONAL_ACCOUNT
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_TEAM
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.DEBUG
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.DEVICES
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.GROUP_CONVERSATION_ALL_PARTICIPANTS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.GROUP_CONVERSATION_DETAILS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.HOME
@@ -58,6 +59,7 @@ import com.wire.android.ui.home.newconversation.NewConversationRouter
 import com.wire.android.ui.home.settings.appsettings.AppSettingsScreen
 import com.wire.android.ui.home.settings.appsettings.networkSettings.NetworkSettingsScreen
 import com.wire.android.ui.home.settings.backup.BackupAndRestoreScreen
+import com.wire.android.ui.settings.devices.DevicesScreen
 import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerScreen
 import com.wire.android.ui.userprofile.other.OtherUserProfileScreen
 import com.wire.android.ui.userprofile.self.SelfUserProfileScreen
@@ -156,6 +158,11 @@ enum class NavigationItem(
     AppSettings(
         primaryRoute = APP_SETTINGS,
         content = { AppSettingsScreen() },
+    ),
+
+    Devices(
+        primaryRoute = DEVICES,
+        content = { DevicesScreen() }
     ),
 
     BackupAndRestore(
@@ -375,6 +382,7 @@ object NavigationItemDestinationsRoutes {
     const val GROUP_CONVERSATION_ALL_PARTICIPANTS = "group_conversation_all_participants_screen"
     const val ADD_CONVERSATION_PARTICIPANTS = "add_conversation_participants"
     const val APP_SETTINGS = "app_settings_screen"
+    const val DEVICES = "devices_screen"
     const val BACKUP_AND_RESTORE = "backup_and_restore_screen"
     const val DEBUG = "debug_screen"
     const val REPORT_BUG = "report_bug"

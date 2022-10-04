@@ -300,7 +300,7 @@ private fun ConversationDetails.toConversationItem(
             isLegalHold = legalHoldStatus.showLegalHoldIndicator(),
             lastEvent = ConversationLastEvent.None, // TODO implement unread events
             badgeEventType = parsePrivateConversationEventType(
-                connectionState, parseConversationEventType(conversation.mutedStatus, unreadMentionsCount, unreadMessagesCount)
+                otherUser.connectionStatus, parseConversationEventType(conversation.mutedStatus, unreadMentionsCount, unreadMessagesCount) // TODO kubaz check
             ),
             userId = otherUser.id,
             blockingState = otherUser.BlockState

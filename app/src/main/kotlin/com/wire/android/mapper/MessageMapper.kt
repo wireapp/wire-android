@@ -50,9 +50,9 @@ class MessageMapper @Inject constructor(
         )
         // System messages don't have header so without the content there is nothing to be displayed.
         // Also hidden messages should not be displayed, as well preview images
-        val shouldDisplay =
+        val shouldNotDisplay =
             message is Message.System && content == null || message.visibility == HIDDEN || content is UIMessageContent.PreviewAssetMessage
-        if (shouldDisplay) {
+        if (shouldNotDisplay) {
             null
         } else {
             UIMessage(

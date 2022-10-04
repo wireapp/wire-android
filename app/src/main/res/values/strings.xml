@@ -52,6 +52,7 @@
     <string name="content_description_move_to_folder">Move to folder</string>
     <string name="content_description_move_to_archive">Move to archive</string>
     <string name="content_description_block_the_user">Block</string>
+    <string name="content_description_unblock_the_user">Unblock</string>
     <string name="content_description_leave_the_group">Leave the group</string>
     <string name="content_description_delete_the_group">Delete the group</string>
     <string name="content_description_conversation_phone_icon">Start audio call</string>
@@ -138,6 +139,11 @@
     <string name="api_versioning_client_update_required_message">You are missing out on new features. Update to the latest version of Wire to continue using the app with this account.</string>
     <string name="api_versioning_server_version_not_supported_title">Server version not supported</string>
     <string name="api_versioning_server_version_not_supported_message">Your Wire server needs to be updated. Please notify your system administrator.</string>
+    <!-- Migration -->
+    <string name="migration_title">Setting up Wire</string>
+    <string name="migration_message">Please wait while we set up the app for you</string>
+    <string name="migration_cancel_title">Cancel migration</string>
+    <string name="migration_cancel_message">Are you sure you want to close the application and cancel the ongoing migration?</string>
     <!-- Login -->
     <string name="login_title">Log in</string>
     <string name="login_forgot_password">Forgot password?</string>
@@ -296,6 +302,7 @@
     <string name="conversation_details_show_all_participants">Show all participants (%d)</string>
     <string name="conversation_details_group_participants_title">Group Participants</string>
     <string name="conversation_details_group_participants_add">Add participants</string>
+    <string name="conversation_participant_you_label">(You)</string>
     <string name="conversation_details_is_classified">SECURITY LEVEL: VS-NfD</string>
     <string name="conversation_details_is_not_classified">SECURITY LEVEL: UNCLASSIFIED</string>
     <string name="conversation_options_guests_label">Guests</string>
@@ -365,6 +372,7 @@
     <string name="label_move_to_archive">Move to Archive</string>
     <string name="label_clear_content">Clear Content…</string>
     <string name="label_block">Block</string>
+    <string name="label_unblock">Unblock</string>
     <string name="label_leave_group">Leave Group</string>
     <string name="label_delete_group">Delete Group</string>
     <!-- Muting options BottomSheet -->

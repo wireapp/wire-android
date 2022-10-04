@@ -1,6 +1,5 @@
 package com.wire.android.ui.home.conversationslist
 
-import android.util.Log
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -61,7 +60,6 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Date
@@ -104,20 +102,23 @@ class ConversationListViewModel @Inject constructor(
             searchQueryFlow.combine(observeConversationListDetailsUseCase())
                 .flatMapLatest { (searchQuery, conversationDetails) ->
                     flow {
+                        val isSearching = searchQuery.isNotEmpty()
+
                         if (searchQuery.isEmpty()) {
-                            emit(conversationDetails)
+                            emit(conversationDetails to isSearching)
                         } else {
                             val matchingConversations = conversationDetails.filter { details ->
                                 details.conversation.name?.contains(searchQuery) ?: false
                             }
 
-                            emit(matchingConversations)
+                            emit(matchingConversations to isSearching)
                         }
                     }
-                }.collect { conversationListDetails ->
+                }.collect { (conversationListDetails, isSearching) ->
                     conversationListState = ConversationListState(
                         conversations = conversationListDetails.toConversationsFoldersMap(),
-                        shouldShowEmptyState = conversationListDetails.none { it !is Self },
+                        emptyState = !isSearching && conversationListDetails.none { it !is Self },
+                        emptySearchResult = isSearching && conversationListDetails.isEmpty(),
                         callHistory = mockCallHistory, // TODO: needs to be implemented
                         unreadMentions = mockUnreadMentionList, // TODO: needs to be implemented
                         allMentions = mockAllMentionList, // TODO: needs to be implemented
@@ -212,27 +213,6 @@ class ConversationListViewModel @Inject constructor(
             )
         }
     }
-
-    // TODO: needs to be implemented
-    @Suppress("EmptyFunctionBlock")
-    fun addConversationToFavourites(id: String = "") {
-    }
-
-    // TODO: needs to be implemented
-    @Suppress("EmptyFunctionBlock")
-    fun moveConversationToFolder(id: String = "") {
-    }
-
-    // TODO: needs to be implemented
-    @Suppress("EmptyFunctionBlock")
-    fun moveConversationToArchive(id: String = "") {
-    }
-
-    // TODO: needs to be implemented
-    @Suppress("EmptyFunctionBlock")
-    fun clearConversationContent(id: String = "") {
-    }
-
     fun blockUser(blockUserState: BlockUserDialogState) {
         viewModelScope.launch(dispatcher.io()) {
             requestInProgress = true
@@ -313,7 +293,29 @@ class ConversationListViewModel @Inject constructor(
             mutableSearchQueryFlow.emit(searchQuery.text)
         }
     }
+
+    // TODO: needs to be implemented
+    @Suppress("EmptyFunctionBlock")
+    fun addConversationToFavourites(id: String = "") {
+    }
+
+    // TODO: needs to be implemented
+    @Suppress("EmptyFunctionBlock")
+    fun moveConversationToFolder(id: String = "") {
+    }
+
+    // TODO: needs to be implemented
+    @Suppress("EmptyFunctionBlock")
+    fun moveConversationToArchive(id: String = "") {
+    }
+
+    // TODO: needs to be implemented
+    @Suppress("EmptyFunctionBlock")
+    fun clearConversationContent(id: String = "") {
+    }
+
 }
+
 
 private fun LegalHoldStatus.showLegalHoldIndicator() = this == LegalHoldStatus.ENABLED
 

@@ -25,6 +25,8 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.wire.android.navigation.HomeNavigationItem
 import com.wire.android.navigation.navigateToItemInHome
+import com.wire.android.ui.common.topappbar.search.SearchBarState
+import com.wire.android.ui.common.topappbar.search.rememberSearchbarState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -35,7 +37,8 @@ class HomeScreenState(
     val drawerState: DrawerState,
     val bottomSheetState: ModalBottomSheetState,
     val currentNavigationItem: HomeNavigationItem,
-    val snackBarHostState: SnackbarHostState
+    val snackBarHostState: SnackbarHostState,
+    val searchBarState : SearchBarState
 ) {
 
     var homeBottomSheetContent: @Composable (ColumnScope.() -> Unit)? by mutableStateOf(null)
@@ -43,10 +46,6 @@ class HomeScreenState(
 
     var snackbarState: HomeSnackbarState by mutableStateOf(HomeSnackbarState.None) // TODO replace with Flow
         private set
-
-    var searchQuery: TextFieldValue by mutableStateOf(TextFieldValue(""))
-        private set
-
     fun setSnackBarState(state: HomeSnackbarState) {
         snackbarState = state
         if (state != HomeSnackbarState.None) closeBottomSheet()
@@ -85,7 +84,7 @@ class HomeScreenState(
     }
 
     fun searchQueryChanged(searchQuery: TextFieldValue) {
-        this.searchQuery = searchQuery
+        searchBarState.searchQuery = searchQuery
     }
 
     fun navigateTo(homeNavigationItem: HomeNavigationItem) {
@@ -106,6 +105,8 @@ fun rememberHomeScreenState(
     val currentRoute = navBackStackEntry?.destination?.route
     val currentNavigationItem = HomeNavigationItem.values().firstOrNull { it.route == currentRoute } ?: HomeNavigationItem.Conversations
 
+    val searchBarState = rememberSearchbarState()
+
     val homeState = remember(
         currentNavigationItem
     ) {
@@ -115,7 +116,8 @@ fun rememberHomeScreenState(
             drawerState,
             bottomSheetState,
             currentNavigationItem,
-            snackBarHostState
+            snackBarHostState,
+            searchBarState
         )
     }
 

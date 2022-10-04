@@ -151,7 +151,6 @@ fun ConversationScreen(
         onUpdateConversationReadDate = messageComposerViewModel::updateConversationReadDate,
         isSendingMessagesAllowed = messageComposerViewModel.isSendingMessagesAllowed,
     )
-
     DeleteMessageDialog(
         state = messageComposerViewModel.deleteMessageDialogsState,
         actions = messageComposerViewModel.deleteMessageHelper

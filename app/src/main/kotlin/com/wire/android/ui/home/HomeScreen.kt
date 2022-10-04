@@ -1,5 +1,6 @@
 package com.wire.android.ui.home
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.animateContentSize
@@ -25,7 +26,6 @@ import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -45,9 +45,7 @@ import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topappbar.CommonTopAppBar
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
 import com.wire.android.ui.common.topappbar.ConnectivityUIState
-import com.wire.android.ui.common.topappbar.search.SearchBarState
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
-import com.wire.android.ui.common.topappbar.search.rememberSearchbarState
 import com.wire.android.ui.home.conversationslist.ConversationListState
 import com.wire.android.ui.home.conversationslist.ConversationListViewModel
 import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
@@ -102,15 +100,16 @@ fun HomeScreen(
         connectivityState = commonTopAppBarViewModel.connectivityState,
         homeState = homeViewModel.homeState,
         homeScreenState = homeScreenState,
-        searchBarState = rememberSearchbarState(),
         conversationListState = conversationListViewModel.conversationListState,
         onReturnToCallClick = commonTopAppBarViewModel::openOngoingCallScreen,
         onNewConversationClick = conversationListViewModel::openNewConversation,
         onSelfUserClick = homeViewModel::navigateToSelfUserProfile,
-        onHamburgerMenuClick = homeScreenState::openDrawer,
-        onSearchQueryChanged = homeScreenState::searchQueryChanged,
         navigateToItem = homeViewModel::navigateTo
     )
+
+    BackHandler(homeScreenState.searchBarState.isSearchActive) {
+        homeScreenState.searchBarState.closeSearch()
+    }
 }
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
@@ -119,13 +118,10 @@ fun HomeContent(
     connectivityState: ConnectivityUIState,
     homeState: HomeState,
     homeScreenState: HomeScreenState,
-    searchBarState: SearchBarState,
     conversationListState: ConversationListState,
-    onHamburgerMenuClick: () -> Unit,
     onReturnToCallClick: () -> Unit,
     onNewConversationClick: () -> Unit,
     onSelfUserClick: () -> Unit,
-    onSearchQueryChanged: (TextFieldValue) -> Unit,
     navigateToItem: (NavigationItem) -> Unit
 ) {
     with(homeScreenState) {
@@ -173,7 +169,7 @@ fun HomeContent(
                                                 status = status,
                                                 title = stringResource(currentNavigationItem.title),
                                                 elevation = elevation,
-                                                onHamburgerMenuClick = onHamburgerMenuClick,
+                                                onHamburgerMenuClick = ::openDrawer,
                                                 onNavigateToSelfUserProfile = onSelfUserClick
                                             )
                                         }
@@ -193,8 +189,8 @@ fun HomeContent(
                                                 R.string.search_bar_hint,
                                                 stringResource(id = title).lowercase()
                                             ),
-                                            searchQuery = homeScreenState.searchQuery,
-                                            onSearchQueryChanged = onSearchQueryChanged,
+                                            searchQuery = searchBarState.searchQuery,
+                                            onSearchQueryChanged = searchBarState::searchQueryChanged,
                                             onInputClicked = searchBarState::openSearch,
                                             onCloseSearchClicked = searchBarState::closeSearch,
                                         )

@@ -4,7 +4,9 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.foundation.lazy.rememberLazyListState
@@ -19,10 +21,12 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.wire.android.R
+import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversationslist.common.ConversationItemFactory
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
@@ -38,24 +42,29 @@ fun AllConversationScreen(
     onEditConversation: (ConversationItem) -> Unit,
     onOpenUserProfile: (UserId) -> Unit,
     onOpenConversationNotificationsSettings: (ConversationItem) -> Unit,
+    onOpenNewConversation : () -> Unit,
     onJoinCall: (ConversationId) -> Unit,
-    shouldShowEmptyState: Boolean
+    emptyState: Boolean,
+    emptySearchResult: Boolean
 ) {
     val lazyListState = rememberLazyListState()
 
-    if (shouldShowEmptyState) {
-        ConversationListEmptyStateScreen()
+    if (!emptySearchResult) {
+        if (emptyState) {
+            ConversationListEmptyStateScreen()
+        } else {
+            AllConversationContent(
+                lazyListState = lazyListState,
+                conversations = conversations,
+                onOpenConversation = onOpenConversation,
+                onEditConversation = onEditConversation,
+                onOpenUserProfile = onOpenUserProfile,
+                onOpenConversationNotificationsSettings = onOpenConversationNotificationsSettings,
+                onJoinCall = onJoinCall
+            )
+        }
     } else {
-        AllConversationContent(
-            lazyListState = lazyListState,
-            conversations = conversations,
-            onOpenConversation = onOpenConversation,
-            onEditConversation = onEditConversation,
-            onOpenUserProfile = onOpenUserProfile,
-            onOpenConversationNotificationsSettings = onOpenConversationNotificationsSettings,
-            onJoinCall = onJoinCall
-        )
-
+        EmptySearchResult(onOpenNewConversation)
     }
 }
 
@@ -70,6 +79,7 @@ private fun AllConversationContent(
     onJoinCall: (ConversationId) -> Unit
 ) {
     val context = LocalContext.current
+
     LazyColumn(
         state = lazyListState,
         modifier = Modifier.fillMaxSize()
@@ -130,7 +140,6 @@ fun ConversationListEmptyStateScreen() {
             style = MaterialTheme.wireTypography.title01,
             color = MaterialTheme.wireColorScheme.onSurface,
         )
-
         Text(
             modifier = Modifier.padding(bottom = dimensions().spacing8x),
             text = stringResource(R.string.conversation_empty_list_description),
@@ -148,14 +157,51 @@ fun ConversationListEmptyStateScreen() {
     }
 }
 
-@Preview
 @Composable
-fun ComposablePreview() {
-    AllConversationScreen(mapOf(), {}, {}, {}, {}, {}, false)
+private fun EmptySearchResult(onNewConversationCLick: () -> Unit) {
+    Column(
+        horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier
+            .fillMaxWidth()
+            .wrapContentHeight()
+    ) {
+        VerticalSpace.x8()
+        Column(
+            horizontalAlignment = Alignment.CenterHorizontally, modifier = Modifier
+                .padding(horizontal = dimensions().spacing48x)
+                .wrapContentHeight()
+        ) {
+            Text(
+                "No conversations could be found.",
+                style = MaterialTheme.wireTypography.body01,
+                color = MaterialTheme.wireColorScheme.secondaryText,
+                textAlign = TextAlign.Center
+            )
+            VerticalSpace.x16()
+            Text(
+                "Connect with new users or start a new conversation:",
+                style = MaterialTheme.wireTypography.body01,
+                color = MaterialTheme.wireColorScheme.secondaryText,
+                textAlign = TextAlign.Center
+            )
+        }
+        VerticalSpace.x16()
+        WirePrimaryButton(
+            text = "New converastion",
+            fillMaxWidth = false,
+            minHeight = 32.dp,
+            onClick = onNewConversationCLick
+        )
+    }
 }
 
-@Preview
-@Composable
-fun ConversationListEmptyStateScreenPreview() {
-    AllConversationScreen(mapOf(), {}, {}, {}, {}, {}, true)
-}
+//@Preview
+//@Composable
+//fun ComposablePreview() {
+//    AllConversationScreen(mapOf(), {}, {}, {}, {}, {}, false, emptySearchResult)
+//}
+//
+//@Preview
+//@Composable
+//fun ConversationListEmptyStateScreenPreview() {
+//    AllConversationScreen(mapOf(), {}, {}, {}, {}, {}, true, emptySearchResult)
+//}

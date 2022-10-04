@@ -115,6 +115,7 @@ fun ConversationRouterHomeBridge(
             )
         }
     }
+
     val onEditNotifications: (ConversationItem) -> Unit = remember {
         { conversationItem ->
             openConversationBottomSheet(
@@ -133,8 +134,10 @@ fun ConversationRouterHomeBridge(
                     onEditConversation = onEditConversationItem,
                     onOpenUserProfile = viewModel::openUserProfile,
                     onOpenConversationNotificationsSettings = onEditNotifications,
+                    onOpenNewConversation = viewModel::openNewConversation,
                     onJoinCall = viewModel::joinOngoingCall,
-                    shouldShowEmptyState = shouldShowEmptyState
+                    emptyState = emptyState,
+                    emptySearchResult = emptySearchResult
                 )
 
             ConversationItemType.CALLS ->

@@ -17,11 +17,11 @@ import androidx.work.WorkManager
 import androidx.work.WorkRequest.MIN_BACKOFF_MILLIS
 import androidx.work.WorkerParameters
 import com.wire.android.R
+import com.wire.android.migration.MigrationManager
 import com.wire.android.notification.NotificationConstants
-import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.functional.fold
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
 import java.util.concurrent.TimeUnit
@@ -31,13 +31,15 @@ class MigrationWorker
 @AssistedInject constructor(
     @Assisted appContext: Context,
     @Assisted workerParams: WorkerParameters,
-    private val coreLogic: CoreLogic,
+    private val migrationManager: MigrationManager,
     private val notificationManager: NotificationManagerCompat
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result {
-        delay(5000) // TODO implement later
-        return Result.success()
+        return migrationManager.migrate().fold(
+            { Result.retry() },  // TODO maybe `failure` instead and handle it somehow?
+            { Result.success() }
+        )
     }
 
     override suspend fun getForegroundInfo(): ForegroundInfo {

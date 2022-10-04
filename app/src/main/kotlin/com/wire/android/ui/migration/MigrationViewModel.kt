@@ -10,6 +10,7 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.workmanager.worker.MigrationWorker
+import com.wire.android.workmanager.worker.enqueueMigrationWorker
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -31,7 +32,7 @@ class MigrationViewModel @Inject constructor(
     }
 
     private suspend fun enqueueMigrationAndListenForStateChanges() {
-        MigrationWorker.enqueue(workManager).collect { state ->
+        workManager.enqueueMigrationWorker().collect { state ->
             if (state == WorkInfo.State.SUCCEEDED)
                 navigateAfterMigration()
         }

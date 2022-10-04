@@ -70,14 +70,14 @@ class MigrationWorker
 
     companion object {
         const val NAME = "migration"
-
-        fun enqueue(workManager: WorkManager): Flow<WorkInfo.State> {
-            val request = OneTimeWorkRequestBuilder<MigrationWorker>()
-                .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
-                .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, MIN_BACKOFF_MILLIS, TimeUnit.MILLISECONDS)
-                .build()
-            workManager.enqueueUniqueWork(NAME, ExistingWorkPolicy.KEEP, request)
-            return workManager.getWorkInfosForUniqueWorkLiveData(NAME).asFlow().map { it.first().state }
-        }
     }
+}
+
+fun WorkManager.enqueueMigrationWorker(): Flow<WorkInfo.State> {
+    val request = OneTimeWorkRequestBuilder<MigrationWorker>()
+        .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
+        .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, MIN_BACKOFF_MILLIS, TimeUnit.MILLISECONDS)
+        .build()
+    enqueueUniqueWork(MigrationWorker.NAME, ExistingWorkPolicy.KEEP, request)
+    return getWorkInfosForUniqueWorkLiveData(MigrationWorker.NAME).asFlow().map { it.first().state }
 }

@@ -19,7 +19,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.text.input.TextFieldValue
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.currentBackStackEntryAsState
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
@@ -82,11 +81,6 @@ class HomeScreenState(
             drawerState.open()
         }
     }
-
-    fun searchQueryChanged(searchQuery: TextFieldValue) {
-        searchBarState.searchQuery = searchQuery
-    }
-
     fun navigateTo(homeNavigationItem: HomeNavigationItem) {
         navigateToItemInHome(navController, homeNavigationItem)
     }

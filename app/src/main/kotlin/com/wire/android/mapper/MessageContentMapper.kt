@@ -9,7 +9,6 @@ import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.asset.isValidImage
-import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
@@ -22,15 +21,12 @@ import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.User
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
-import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import com.wire.kalium.logic.sync.receiver.hasValidRemoteData
 import com.wire.kalium.logic.util.isGreaterThan
 import javax.inject.Inject
 
 // TODO: splits mapping into more classes
 class MessageContentMapper @Inject constructor(
-    private val getMessageAsset: GetMessageAssetUseCase,
     private val messageResourceProvider: MessageResourceProvider,
     private val wireSessionImageLoader: WireSessionImageLoader
 ) {
@@ -205,17 +201,6 @@ class MessageContentMapper @Inject constructor(
         }
         else -> UIText.StringResource(messageResourceProvider.memberNameDeleted)
     }
-
-    private suspend fun imageDataPath(conversationId: QualifiedID, messageId: String) =
-        getMessageAsset(
-            conversationId = conversationId,
-            messageId = messageId
-        ).run {
-            when (this) {
-                is MessageAssetResult.Success -> decodedAssetPath
-                else -> null
-            }
-        }
 
     // TODO: should we keep it here ?
     enum class SelfNameType {

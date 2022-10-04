@@ -73,10 +73,9 @@ fun MessageImage(
                 onLongClick = onImageClick.onLongClick,
             )
     ) {
-        if (asset != null) {
-            DisplayableImageMessage(asset, imgParams)
-        }
         when {
+            asset != null -> DisplayableImageMessage(asset, imgParams)
+
             // Trying to upload the asset
             uploadStatus == UPLOAD_IN_PROGRESS || downloadStatus == DOWNLOAD_IN_PROGRESS -> {
                 ImageMessageInProgress(imgParams, downloadStatus == DOWNLOAD_IN_PROGRESS)

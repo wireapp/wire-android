@@ -47,8 +47,10 @@ class MessageMapper @Inject constructor(
             message = message,
             userList = userList
         )
-        if (message is Message.System && content == null)
-            null // system messages doesn't have header so without the content there is nothing to be displayed
+        // System messages don't have header so without the content there is nothing to be displayed.
+        // Also hidden messages should not be displayed.
+        if (message is Message.System && content == null || message.visibility == Message.Visibility.HIDDEN)
+            null
         else
             UIMessage(
                 messageContent = content,

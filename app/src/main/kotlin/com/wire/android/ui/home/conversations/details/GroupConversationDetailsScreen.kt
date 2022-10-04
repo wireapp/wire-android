@@ -25,6 +25,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -47,8 +48,9 @@ import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
-import com.wire.android.ui.home.conversations.details.menu.ConversationGroupDetailsBottomSheet
 import com.wire.android.ui.home.conversations.details.menu.DeleteConversationGroupDialog
+import com.wire.android.ui.home.conversations.details.menu.GroupConversationDetailsBottomSheetContent
+import com.wire.android.ui.home.conversations.details.menu.GroupConversationDetailsBottomSheetEventsHandler
 import com.wire.android.ui.home.conversations.details.menu.LeaveConversationGroupDialog
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptions
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsState
@@ -70,6 +72,8 @@ import kotlinx.coroutines.launch
 fun GroupConversationDetailsScreen(viewModel: GroupConversationDetailsViewModel) {
     val context = LocalContext.current
     GroupConversationDetailsContent(
+        bottomSheetEventsHandler = viewModel,
+        clearBottomSheetState = viewModel::clearBottomSheetState,
         onBackPressed = viewModel::navigateBack,
         openFullListPressed = viewModel::navigateToFullParticipantsList,
         onProfilePressed = viewModel::openProfile,
@@ -92,6 +96,8 @@ fun GroupConversationDetailsScreen(viewModel: GroupConversationDetailsViewModel)
 )
 @Composable
 private fun GroupConversationDetailsContent(
+    bottomSheetEventsHandler: GroupConversationDetailsBottomSheetEventsHandler,
+    clearBottomSheetState: () -> Unit,
     onBackPressed: () -> Unit,
     openFullListPressed: () -> Unit,
     onProfilePressed: (UIParticipant) -> Unit,
@@ -125,6 +131,18 @@ private fun GroupConversationDetailsContent(
         messages.collect { snackbarHostState.showSnackbar(it.asString(context.resources)) }
     }
 
+    LaunchedEffect(Unit) {
+        snapshotFlow { sheetState.isVisible }.collect { isVisible ->
+            // without clearing BottomSheet after every closing there could be strange UI behaviour.
+            // Example: open some big BottomSheet (ChangeMuteState), close it, then open smaller BS (ConversationBS) ->
+            // in that case user will see ChangeRoleBS at the center of the screen (just for few milliseconds)
+            // and then it moves to the bottom.
+            // It happens cause when `sheetState.show()` is called, it calculates animation offset by the old BS height (which was big)
+            // To avoid such case we clear BS content on every closing
+            if (!isVisible) clearBottomSheetState()
+        }
+    }
+
     if (!isLoading) {
         deleteGroupDialogState.dismiss()
         leaveGroupDialogState.dismiss()
@@ -133,11 +151,12 @@ private fun GroupConversationDetailsContent(
         sheetState = sheetState,
         coroutineScope = rememberCoroutineScope(),
         sheetContent = {
-            ConversationGroupDetailsBottomSheet(
-                conversationOptionsState = groupOptionsState,
-                closeBottomSheet = closeBottomSheet,
-                onDeleteGroup = deleteGroupDialogState::show,
-                onLeaveGroup = leaveGroupDialogState::show
+            GroupConversationDetailsBottomSheetContent(
+                bottomSheetState = groupOptionsState.bottomSheetContentState,
+                eventsHandler = bottomSheetEventsHandler,
+                deleteGroup = deleteGroupDialogState::show,
+                leaveGroup = leaveGroupDialogState::show,
+                closeBottomSheet = closeBottomSheet
             )
         }
     ) {
@@ -149,7 +168,10 @@ private fun GroupConversationDetailsContent(
                     navigationIconType = NavigationIconType.Close,
                     onNavigationPressed = onBackPressed,
                     actions = {
-                        MoreOptionIcon(openBottomSheet)
+                        MoreOptionIcon(onButtonClicked = {
+                            bottomSheetEventsHandler.setBottomSheetStateToConversation()
+                            openBottomSheet()
+                        })
                     }
                 ) {
                     WireTabRow(
@@ -230,6 +252,8 @@ enum class GroupConversationDetailsTabItem(@StringRes override val titleResId: I
 private fun GroupConversationDetailsPreview() {
     WireTheme(isPreview = true) {
         GroupConversationDetailsContent(
+            bottomSheetEventsHandler = GroupConversationDetailsBottomSheetEventsHandler.PREVIEW,
+            clearBottomSheetState = {},
             onBackPressed = {},
             openFullListPressed = {},
             onProfilePressed = {},

@@ -36,6 +36,7 @@ import com.wire.kalium.logic.data.conversation.LegalHoldStatus
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.ConnectionState
+import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.AnswerCallUseCase
@@ -50,10 +51,12 @@ import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUs
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
 import com.wire.kalium.logic.feature.team.Result
+import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Date
@@ -67,7 +70,8 @@ class ConversationListViewModel @Inject constructor(
     private val dispatcher: DispatcherProvider,
     private val updateConversationMutedStatus: UpdateConversationMutedStatusUseCase,
     private val answerCall: AnswerCallUseCase,
-    private val observeConversationListDetailsUseCase: ObserveConversationListDetailsUseCase,
+    private val observeConversationListDetails: ObserveConversationListDetailsUseCase,
+    private val observerSelfUser: GetSelfUserUseCase,
     private val leaveConversation: LeaveConversationUseCase,
     private val deleteTeamConversation: DeleteTeamConversationUseCase,
     private val blockUserUseCase: BlockUserUseCase,
@@ -89,11 +93,11 @@ class ConversationListViewModel @Inject constructor(
     }
 
     private fun startObservingConversationsAndConnections() = viewModelScope.launch {
-        observeConversationListDetailsUseCase()
+        combine(observeConversationListDetails(), observerSelfUser().take(1), ::Pair)
             .flowOn(dispatcher.io())
-            .collect { conversationListDetails ->
+            .collect { (conversationListDetails, selfUser) ->
                 state = ConversationListState(
-                    conversations = conversationListDetails.toConversationsFoldersMap(),
+                    conversations = conversationListDetails.toConversationsFoldersMap(selfUser),
                     shouldShowEmptyState = conversationListDetails.none { it !is Self },
                     callHistory = mockCallHistory, // TODO: needs to be implemented
                     unreadMentions = mockUnreadMentionList, // TODO: needs to be implemented
@@ -106,7 +110,7 @@ class ConversationListViewModel @Inject constructor(
             }
     }
 
-    private fun List<ConversationDetails>.toConversationsFoldersMap(): Map<ConversationFolder, List<ConversationItem>> {
+    private fun List<ConversationDetails>.toConversationsFoldersMap(selfUser: SelfUser): Map<ConversationFolder, List<ConversationItem>> {
         val unreadConversations = this.filter {
             when (it.conversation.mutedStatus) {
                 MutedConversationStatus.AllAllowed ->
@@ -129,8 +133,8 @@ class ConversationListViewModel @Inject constructor(
 
         val remainingConversations = this - unreadConversations.toSet()
         return mapOf(
-            ConversationFolder.Predefined.NewActivities to unreadConversations.toConversationItemList(),
-            ConversationFolder.Predefined.Conversations to remainingConversations.toConversationItemList()
+            ConversationFolder.Predefined.NewActivities to unreadConversations.toConversationItemList(selfUser),
+            ConversationFolder.Predefined.Conversations to remainingConversations.toConversationItemList(selfUser)
         )
     }
 
@@ -277,10 +281,10 @@ class ConversationListViewModel @Inject constructor(
         }
     }
 
-    private fun List<ConversationDetails>.toConversationItemList(): List<ConversationItem> =
+    private fun List<ConversationDetails>.toConversationItemList(selfUser: SelfUser): List<ConversationItem> =
         filter { it is Group || it is OneOne || it is Connection }
             .map {
-                it.toConversationItem(wireSessionImageLoader, userTypeMapper)
+                it.toConversationItem(wireSessionImageLoader, userTypeMapper, selfUser)
             }
 }
 
@@ -289,9 +293,11 @@ private fun LegalHoldStatus.showLegalHoldIndicator() = this == LegalHoldStatus.E
 @Suppress("LongMethod")
 private fun ConversationDetails.toConversationItem(
     wireSessionImageLoader: WireSessionImageLoader,
-    userTypeMapper: UserTypeMapper
+    userTypeMapper: UserTypeMapper,
+    selfUser: SelfUser
 ): ConversationItem = when (this) {
     is Group -> {
+        val isSelfCreated = (selfUser.teamId != null && conversation.creatorId.value == selfUser.id.value)
         ConversationItem.GroupConversation(
             groupName = conversation.name.orEmpty(),
             conversationId = conversation.id,

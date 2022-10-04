@@ -5,34 +5,40 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.wire.android.appLogger
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.EXTRA_GROUP_DELETED_NAME
 import com.wire.android.navigation.EXTRA_LEFT_GROUP
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.home.conversations.details.menu.GroupConversationDetailsBottomSheetEventsHandler
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsState
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipantsViewModel
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
+import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
+import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationTypeDetail
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.uiText
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.conversation.ConversationDetails
+import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
+import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.IsSelfUserMemberResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveIsSelfUserMemberUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
+import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.team.Result
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -46,6 +52,8 @@ import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import java.util.Date
+import javax.inject.Inject
 
 @Suppress("TooManyFunctions", "LongParameterList")
 @HiltViewModel
@@ -60,6 +68,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
     private val deleteTeamConversation: DeleteTeamConversationUseCase,
     private val removeMemberFromConversation: RemoveMemberFromConversationUseCase,
     private val observeIsSelfUserMember: ObserveIsSelfUserMemberUseCase,
+    private val updateConversationMutedStatus: UpdateConversationMutedStatusUseCase,
     savedStateHandle: SavedStateHandle,
     qualifiedIdMapper: QualifiedIdMapper
 ) : GroupConversationParticipantsViewModel(
@@ -67,7 +76,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
     navigationManager,
     observeConversationMembers,
     qualifiedIdMapper
-) {
+), GroupConversationDetailsBottomSheetEventsHandler {
 
     override val maxNumberOfItems: Int get() = MAX_NUMBER_OF_PARTICIPANTS
 
@@ -83,7 +92,6 @@ class GroupConversationDetailsViewModel @Inject constructor(
 
     init {
         observeConversationDetails()
-        checkIsSelfUserMember()
     }
 
     private fun observeConversationDetails() {
@@ -94,6 +102,16 @@ class GroupConversationDetailsViewModel @Inject constructor(
                 .filterIsInstance<ConversationDetails.Group>()
                 .distinctUntilChanged()
                 .flowOn(dispatcher.io())
+                .shareIn(this, SharingStarted.WhileSubscribed(), 1)
+
+            val isSelfUserMemberFlow = observeIsSelfUserMember(conversationId)
+                .flowOn(dispatcher.io())
+                .map { result ->
+                    when (result) {
+                        is IsSelfUserMemberResult.Success -> result.isMember
+                        is IsSelfUserMemberResult.Failure -> false
+                    }
+                }
                 .shareIn(this, SharingStarted.WhileSubscribed(), 1)
 
             val isSelfAdminFlow = observeConversationMembers(conversationId)
@@ -122,40 +140,31 @@ class GroupConversationDetailsViewModel @Inject constructor(
                     observerSelfUser().take(1),
                     groupDetailsFlow,
                     isSelfAdminFlow,
-                    getSelfTeam()
-                ) { selfUser, groupDetails, isSelfAnAdmin, selfTeam ->
+                    getSelfTeam(),
+                    isSelfUserMemberFlow
+                ) { selfUser, groupDetails, isSelfAnAdmin, selfTeam, isSelfUserMember ->
 
                     val isSelfInOwnerTeam =
                         selfTeam?.id != null && selfTeam.id == groupDetails.conversation.teamId?.value
 
-                    val isAbleToRemoveGroup = (
-                        selfUser.teamId != null &&
-                            groupDetails.conversation.creatorId.value == selfUser.id.value
-                        )
+                    val isAbleToRemoveGroup = (selfUser.teamId != null && groupDetails.conversation.creatorId.value == selfUser.id.value)
 
+                    val conversationSheetContent = ConversationSheetContent(
+                        title = groupDetails.conversation.name.orEmpty(),
+                        conversationId = conversationId,
+                        mutingConversationState = groupDetails.conversation.mutedStatus,
+                        conversationTypeDetail = ConversationTypeDetail.Group(conversationId, isAbleToRemoveGroup),
+                        isSelfUserMember = isSelfUserMember
+                    )
                     updateState(
                         groupOptionsState.value.copy(
+                            conversationSheetContent = conversationSheetContent,
                             isUpdatingAllowed = isSelfAnAdmin,
                             isUpdatingGuestAllowed = isSelfAnAdmin && isSelfInOwnerTeam,
-                            isAbleToRemoveGroup = isAbleToRemoveGroup,
                         )
                     )
                 }.collect {}
             }
-        }
-    }
-
-    private fun checkIsSelfUserMember() = viewModelScope.launch {
-        val isSelfUserMember = withContext(dispatcher.io()) { observeIsSelfUserMember(conversationId) }
-        isSelfUserMember.collect { result ->
-            updateState(
-                groupOptionsState.value.copy(
-                    isSelfUserMember = when (result) {
-                        is IsSelfUserMemberResult.Success -> result.isMember
-                        is IsSelfUserMemberResult.Failure -> false
-                    }
-                )
-            )
         }
     }
 
@@ -337,6 +346,54 @@ class GroupConversationDetailsViewModel @Inject constructor(
                 destination = NavigationItem.AddConversationParticipants.getRouteWithArgs(listOf(conversationId))
             )
         )
+    }
+
+    fun clearBottomSheetState() {
+        viewModelScope.launch {
+            updateState(groupOptionsState.value.clearBottomSheetState())
+        }
+    }
+
+    override fun onMutingConversationStatusChange(conversationId: ConversationId?, status: MutedConversationStatus) {
+        conversationId?.let {
+            viewModelScope.launch {
+                when (updateConversationMutedStatus(conversationId, status, Date().time)) {
+                    ConversationUpdateStatusResult.Failure -> {} // TODO show snackbar
+                    ConversationUpdateStatusResult.Success -> {
+                        updateState(groupOptionsState.value.updateMuteStatus(status))
+                        appLogger.i("MutedStatus changed for conversation: $conversationId to $status")
+                    }
+                }
+            }
+        }
+    }
+
+    @Suppress("EmptyFunctionBlock")
+    override fun onAddConversationToFavourites(conversationId: ConversationId) {
+    }
+
+    @Suppress("EmptyFunctionBlock")
+    override fun onMoveConversationToFolder(conversationId: ConversationId) {
+    }
+
+    @Suppress("EmptyFunctionBlock")
+    override fun onMoveConversationToArchive(conversationId: ConversationId) {
+    }
+
+    @Suppress("EmptyFunctionBlock")
+    override fun onClearConversationContent(conversationId: ConversationId) {
+    }
+
+    override fun setBottomSheetStateToConversation() {
+        viewModelScope.launch {
+            updateState(groupOptionsState.value.setBottomSheetStateToConversation())
+        }
+    }
+
+    override fun setBottomSheetStateToMuteOptions() {
+        viewModelScope.launch {
+            updateState(groupOptionsState.value.setBottomSheetStateToMuteOptions())
+        }
     }
 
     companion object {

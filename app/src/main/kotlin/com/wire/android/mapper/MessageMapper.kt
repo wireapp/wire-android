@@ -16,6 +16,7 @@ import com.wire.android.util.time.ISOFormatter
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.message.Message
+import com.wire.kalium.logic.data.message.Message.Visibility.HIDDEN
 import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.SelfUser
@@ -48,20 +49,20 @@ class MessageMapper @Inject constructor(
             userList = userList
         )
         // System messages don't have header so without the content there is nothing to be displayed.
-        // Also hidden messages should not be displayed.
-        if (message is Message.System && content == null || message.visibility == Message.Visibility.HIDDEN ||
-            content is UIMessageContent.PreviewAssetMessage
-        )
+        // Also hidden messages should not be displayed, as well preview images
+        val shouldDisplay =
+            message is Message.System && content == null || message.visibility == HIDDEN || content is UIMessageContent.PreviewAssetMessage
+        if (shouldDisplay) {
             null
-        else
+        } else {
             UIMessage(
                 messageContent = content,
                 messageSource = if (sender is SelfUser) MessageSource.Self else MessageSource.OtherUser,
                 messageHeader = provideMessageHeader(sender, message),
                 userAvatarData = getUserAvatarData(sender)
             )
+        }
     }
-
 
     private fun provideMessageHeader(sender: User?, message: Message): MessageHeader = MessageHeader(
         // TODO: Designs for deleted users?

@@ -61,7 +61,7 @@ internal fun MessageAsset(
                 color = MaterialTheme.wireColorScheme.secondaryButtonDisabledOutline,
                 shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
             )
-            .clickable(onAssetClick)
+            .clickable(if (assetDownloadStatus == Message.DownloadStatus.DOWNLOAD_IN_PROGRESS) null else onAssetClick)
             .padding(dimensions().spacing8x)
     ) {
         Column {
@@ -126,7 +126,6 @@ internal fun MessageAsset(
     }
 }
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RestrictedAssetMessage(assetTypeIcon: Int, restrictedAssetMessage: String) {
@@ -181,7 +180,8 @@ fun RestrictedGenericFileMessage(fileName: String, fileSize: Long) {
                 .padding(dimensions().spacing8x),
         ) {
             val (
-                name, icon, size, message) = createRefs()
+                name, icon, size, message
+            ) = createRefs()
             Text(
                 text = assetName,
                 style = MaterialTheme.wireTypography.body02,
@@ -203,7 +203,6 @@ fun RestrictedGenericFileMessage(fileName: String, fileSize: Long) {
                         top.linkTo(name.bottom)
                         bottom.linkTo(parent.bottom)
                         start.linkTo(parent.start)
-
                     },
                 painter = painterResource(
                     id = R.drawable.ic_file
@@ -213,14 +212,16 @@ fun RestrictedGenericFileMessage(fileName: String, fileSize: Long) {
                 colorFilter = ColorFilter.tint(MaterialTheme.wireColorScheme.secondaryText),
             )
 
-            Text(text = assetDescription,
+            Text(
+                text = assetDescription,
                 style = MaterialTheme.wireTypography.body01,
                 modifier = Modifier
                     .padding(start = dimensions().spacing4x)
                     .constrainAs(size) {
                         start.linkTo(icon.end)
                         top.linkTo(name.bottom)
-                    })
+                    }
+            )
 
             Text(
                 text = stringResource(id = R.string.prohibited_file_message),
@@ -240,7 +241,7 @@ fun RestrictedGenericFileMessage(fileName: String, fileSize: Long) {
 private fun DownloadStatusIcon(assetDownloadStatus: Message.DownloadStatus, assetUploadStatus: Message.UploadStatus) {
     return when {
         assetUploadStatus == Message.UploadStatus.UPLOAD_IN_PROGRESS ||
-                assetDownloadStatus == Message.DownloadStatus.DOWNLOAD_IN_PROGRESS -> WireCircularProgressIndicator(
+            assetDownloadStatus == Message.DownloadStatus.DOWNLOAD_IN_PROGRESS -> WireCircularProgressIndicator(
             progressColor = MaterialTheme.wireColorScheme.secondaryText,
             size = dimensions().spacing16x
         )
@@ -270,8 +271,8 @@ fun getDownloadStatusText(assetDownloadStatus: Message.DownloadStatus, assetUplo
         assetDownloadStatus == Message.DownloadStatus.SAVED_INTERNALLY -> stringResource(R.string.asset_message_downloaded_internally_text)
         assetDownloadStatus == Message.DownloadStatus.DOWNLOAD_IN_PROGRESS ->
             stringResource(R.string.asset_message_download_in_progress_text)
-        assetDownloadStatus == Message.DownloadStatus.SAVED_EXTERNALLY
-                || assetUploadStatus == Message.UploadStatus.UPLOADED -> stringResource(R.string.asset_message_saved_externally_text)
+        assetDownloadStatus == Message.DownloadStatus.SAVED_EXTERNALLY ||
+            assetUploadStatus == Message.UploadStatus.UPLOADED -> stringResource(R.string.asset_message_saved_externally_text)
         assetDownloadStatus == Message.DownloadStatus.FAILED_DOWNLOAD -> stringResource(R.string.asset_message_failed_download_text)
         else -> ""
     }

@@ -96,8 +96,12 @@ fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltView
 
     LaunchedEffect(Unit) {
         viewModel.infoMessage.collect {
-            closeBottomSheet()
             snackbarHostState.showSnackbar(it.asString(context.resources))
+        }
+    }
+    LaunchedEffect(Unit) {
+        viewModel.closeBottomSheet.collect {
+            closeBottomSheet()
         }
     }
 
@@ -172,6 +176,7 @@ fun OtherProfileScreenContent(
                 bottomSheetState = state.bottomSheetContentState,
                 eventsHandler = bottomSheetEventsHandler,
                 blockUser = blockUserDialogState::show,
+                unblockUser = unblockUserDialogState::show,
                 closeBottomSheet = closeBottomSheet,
             )
         }

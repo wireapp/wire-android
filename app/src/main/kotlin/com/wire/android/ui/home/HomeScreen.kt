@@ -245,6 +245,7 @@ private fun handleSnackBarMessage(
                 stringResource(id = R.string.blocking_user_success, messageType.userName)
             HomeSnackbarState.MutingOperationError -> stringResource(id = R.string.error_updating_muting_setting)
             HomeSnackbarState.BlockingUserOperationError -> stringResource(id = R.string.error_blocking_user)
+            HomeSnackbarState.UnblockingUserOperationError -> stringResource(id = R.string.error_unblocking_user)
             HomeSnackbarState.None -> ""
             is HomeSnackbarState.DeletedConversationGroupSuccess ->
                 stringResource(id = R.string.conversation_group_removed_success, messageType.groupName)

@@ -85,6 +85,7 @@ enum class HomeNavigationItem(
                     itemType = ConversationItemType.ALL_CONVERSATIONS,
                     onHomeBottomSheetContentChanged = homeState::changeBottomSheetContent,
                     onOpenBottomSheet = homeState::openBottomSheet,
+                    onCloseBottomSheet = homeState::closeBottomSheet,
                     onSnackBarStateChanged = homeState::setSnackBarState
                 )
             }
@@ -103,6 +104,7 @@ enum class HomeNavigationItem(
                     itemType = ConversationItemType.CALLS,
                     onHomeBottomSheetContentChanged = homeState::changeBottomSheetContent,
                     onOpenBottomSheet = homeState::openBottomSheet,
+                    onCloseBottomSheet = homeState::closeBottomSheet,
                     onSnackBarStateChanged = homeState::setSnackBarState
                 )
             }
@@ -121,6 +123,7 @@ enum class HomeNavigationItem(
                     itemType = ConversationItemType.MENTIONS,
                     onHomeBottomSheetContentChanged = homeState::changeBottomSheetContent,
                     onOpenBottomSheet = homeState::openBottomSheet,
+                    onCloseBottomSheet = homeState::closeBottomSheet,
                     onSnackBarStateChanged = homeState::setSnackBarState
                 )
             }

@@ -142,6 +142,7 @@ class WireActivityViewModel @Inject constructor(
     fun navigationArguments() = navigationArguments.values.toList()
 
     fun startNavigationRoute(): String = when {
+        shouldGoToMigration() -> NavigationItem.Migration.getRouteWithArgs()
         shouldGoToWelcome() -> NavigationItem.Welcome.getRouteWithArgs()
         else -> NavigationItem.Home.getRouteWithArgs()
     }
@@ -228,7 +229,7 @@ class WireActivityViewModel @Inject constructor(
         handleDeepLink(intent)
 
         return when {
-            shouldGoToLogin() || shouldGoToWelcome() -> true
+            shouldGoToLogin() || shouldGoToWelcome() || shouldGoToMigration() -> true
 
             shouldGoToIncomingCall() -> {
                 openIncomingCall(navigationArguments[INCOMING_CALL_CONVERSATION_ID_ARG] as ConversationId)
@@ -344,6 +345,10 @@ class WireActivityViewModel @Inject constructor(
                 is CurrentSessionResult.Success -> false
             }
         }
+    }
+
+    private fun shouldGoToMigration(): Boolean = runBlocking {
+        false // TODO implement later
     }
 
     fun openProfile() {

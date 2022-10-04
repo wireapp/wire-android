@@ -208,7 +208,7 @@ private fun MessageContent(
 ) {
     when (messageContent) {
         is UIMessageContent.ImageMessage -> MessageImage(
-            rawImgData = messageContent.imgData,
+            asset = messageContent.asset,
             imgParams = ImageMessageParams(messageContent.width, messageContent.height),
             uploadStatus = messageContent.uploadStatus,
             downloadStatus = messageContent.downloadStatus,

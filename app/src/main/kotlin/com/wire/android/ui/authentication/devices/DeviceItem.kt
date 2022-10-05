@@ -1,5 +1,6 @@
-package com.wire.android.ui.authentication.devices.remove
+package com.wire.android.ui.authentication.devices
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -16,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.platform.testTag
@@ -35,13 +37,22 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.formatMediumDateTime
 
 @Composable
-fun RemoveDeviceItem(device: Device, placeholder: Boolean, onRemoveDeviceClick: ((Device) -> Unit)?) {
-    RemoveDeviceItemContent(device = device, placeholder = placeholder, onRemoveDeviceClick = onRemoveDeviceClick)
+fun DeviceItem(device: Device, placeholder: Boolean, onRemoveDeviceClick: ((Device) -> Unit)? = null, background: Color? = null) {
+    DeviceItemContent(device = device, placeholder = placeholder, onRemoveDeviceClick = onRemoveDeviceClick, background = background)
 }
 
 @Composable
-private fun RemoveDeviceItemContent(device: Device, placeholder: Boolean, onRemoveDeviceClick: ((Device) -> Unit)?) {
-    Row(verticalAlignment = Alignment.Top) {
+private fun DeviceItemContent(
+    device: Device,
+    placeholder: Boolean,
+    background: Color? = null,
+    onRemoveDeviceClick: ((Device) -> Unit)?
+) {
+    Row(verticalAlignment = Alignment.Top, modifier = Modifier.apply {
+        if(background != null) {
+            background(color = background)
+        }
+    }) {
         Row(
             modifier = Modifier
                 .padding(MaterialTheme.wireDimensions.removeDeviceItemPadding)
@@ -57,7 +68,7 @@ private fun RemoveDeviceItemContent(device: Device, placeholder: Boolean, onRemo
                 modifier = Modifier
                     .padding(start = MaterialTheme.wireDimensions.removeDeviceItemPadding)
                     .weight(1f),
-            ) { RemoveDeviceItemTexts(device, placeholder, onRemoveDeviceClick != null) }
+            ) { DeviceItemTexts(device, placeholder) }
         }
         val (buttonTopPadding, buttonEndPadding) = getMinTouchMargins(minSize = MaterialTheme.wireDimensions.buttonSmallMinSize)
             .let {
@@ -90,7 +101,7 @@ private fun RemoveDeviceItemContent(device: Device, placeholder: Boolean, onRemo
 }
 
 @Composable
-private fun RemoveDeviceItemTexts(device: Device, placeholder: Boolean, isRemoveDeviceScreen: Boolean) {
+private fun DeviceItemTexts(device: Device, placeholder: Boolean) {
     Text(
         style = MaterialTheme.wireTypography.body02,
         color = MaterialTheme.wireColorScheme.onBackground,
@@ -100,7 +111,7 @@ private fun RemoveDeviceItemTexts(device: Device, placeholder: Boolean, isRemove
             .shimmerPlaceholder(visible = placeholder)
     )
     Spacer(modifier = Modifier.height(MaterialTheme.wireDimensions.removeDeviceItemTitleVerticalPadding))
-    val details: String = if (isRemoveDeviceScreen) {
+    val details: String = if (device.registrationTime.isNotBlank()) {
         stringResource(
             R.string.remove_device_id_and_time_label,
             device.clientId.value.chunked(2).joinToString(separator = " "),
@@ -124,10 +135,10 @@ private fun RemoveDeviceItemTexts(device: Device, placeholder: Boolean, isRemove
 
 @Preview(showBackground = true)
 @Composable
-private fun RemoveDeviceItemPreview() {
+private fun DeviceItemPreview() {
     Box(modifier = Modifier.fillMaxWidth()) {
-        RemoveDeviceItem(
-            device = Device(), placeholder = false
-        ) {}
+        DeviceItem(
+            device = Device(), placeholder = false, {}, null
+        )
     }
 }

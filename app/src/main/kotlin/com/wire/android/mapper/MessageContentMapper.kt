@@ -2,14 +2,13 @@ package com.wire.android.mapper
 
 import androidx.annotation.StringRes
 import com.wire.android.R
+import com.wire.android.model.ImageAsset
 import com.wire.android.ui.home.conversations.findUser
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.UIMessageContent
-import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
-import com.wire.kalium.logic.data.asset.KaliumFileSystem
+import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.asset.isValidImage
-import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
@@ -22,28 +21,24 @@ import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.User
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
-import com.wire.kalium.logic.feature.asset.MessageAssetResult
+import com.wire.kalium.logic.sync.receiver.hasValidRemoteData
 import com.wire.kalium.logic.util.isGreaterThan
-import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 // TODO: splits mapping into more classes
 class MessageContentMapper @Inject constructor(
-    private val getMessageAsset: GetMessageAssetUseCase,
     private val messageResourceProvider: MessageResourceProvider,
-    private val kaliumFileSystem: KaliumFileSystem,
-    private val dispatcherProvider: DispatcherProvider
+    private val wireSessionImageLoader: WireSessionImageLoader
 ) {
 
-    suspend fun fromMessage(
+    fun fromMessage(
         message: Message,
         userList: List<User>
     ): UIMessageContent? {
         return when (message.visibility) {
             Message.Visibility.VISIBLE ->
                 return when (message) {
-                    is Message.Regular -> mapRegularMessage(message)
+                    is Message.Regular -> mapRegularMessage(message, userList.findUser(message.senderUserId))
                     is Message.System -> mapSystemMessage(message, userList)
                 }
             Message.Visibility.DELETED, // for deleted, there is a state label displayed only
@@ -119,12 +114,13 @@ class MessageContentMapper @Inject constructor(
         }
     }
 
-    private suspend fun mapRegularMessage(
+    private fun mapRegularMessage(
         message: Message.Regular,
+        sender: User?
     ) = when (val content = message.content) {
         is Asset -> {
             val assetMessageContentMetadata = AssetMessageContentMetadata(content.value)
-            toUIMessageContent(assetMessageContentMetadata, message)
+            toUIMessageContent(assetMessageContentMetadata, message, sender)
         }
         is MessageContent.RestrictedAsset -> toRestrictedAsset(content.mimeType, content.sizeInBytes, content.name)
         else -> toText(content)
@@ -141,24 +137,27 @@ class MessageContentMapper @Inject constructor(
         }
     ).let { messageBody -> UIMessageContent.TextMessage(messageBody = messageBody) }
 
-    suspend fun toUIMessageContent(assetMessageContentMetadata: AssetMessageContentMetadata, message: Message) =
+    fun toUIMessageContent(assetMessageContentMetadata: AssetMessageContentMetadata, message: Message, sender: User?): UIMessageContent =
         with(assetMessageContentMetadata.assetMessageContent) {
             when {
-                // If it's an image, we download it right away
+                assetMessageContentMetadata.isValidImage() && !assetMessageContentMetadata.assetMessageContent.hasValidRemoteData() ->
+                    UIMessageContent.PreviewAssetMessage
+
+                // If it's an image, we delegate the download it right away to coil
                 assetMessageContentMetadata.isValidImage() -> {
-                    val imageData = withContext(dispatcherProvider.io()) {
-                        imageRawData(message.conversationId, message.id)
-                    }
-                    withContext(dispatcherProvider.main()) {
-                        UIMessageContent.ImageMessage(
-                            assetId = AssetId(remoteData.assetId, remoteData.assetDomain.orEmpty()),
-                            imgData = imageData,
-                            width = assetMessageContentMetadata.imgWidth,
-                            height = assetMessageContentMetadata.imgHeight,
-                            uploadStatus = uploadStatus,
-                            downloadStatus = downloadStatus
-                        )
-                    }
+                    UIMessageContent.ImageMessage(
+                        assetId = AssetId(remoteData.assetId, remoteData.assetDomain.orEmpty()),
+                        asset = ImageAsset.PrivateAsset(
+                            wireSessionImageLoader,
+                            message.conversationId,
+                            message.id,
+                            sender is SelfUser
+                        ),
+                        width = assetMessageContentMetadata.imgWidth,
+                        height = assetMessageContentMetadata.imgHeight,
+                        uploadStatus = uploadStatus,
+                        downloadStatus = downloadStatus
+                    )
                 }
 
                 // It's a generic Asset Message so let's not download it yet
@@ -174,9 +173,6 @@ class MessageContentMapper @Inject constructor(
                 }
             }
         }
-
-    private suspend fun imageRawData(conversationId: QualifiedID, messageId: String): ByteArray? =
-        imageDataPath(conversationId, messageId)?.let { kaliumFileSystem.readByteArray(it) }
 
     private fun toRestrictedAsset(
         mimeType: String,
@@ -200,17 +196,6 @@ class MessageContentMapper @Inject constructor(
         }
         else -> UIText.StringResource(messageResourceProvider.memberNameDeleted)
     }
-
-    private suspend fun imageDataPath(conversationId: QualifiedID, messageId: String) =
-        getMessageAsset(
-            conversationId = conversationId,
-            messageId = messageId
-        ).run {
-            when (this) {
-                is MessageAssetResult.Success -> decodedAssetPath
-                else -> null
-            }
-        }
 
     // TODO: should we keep it here ?
     enum class SelfNameType {

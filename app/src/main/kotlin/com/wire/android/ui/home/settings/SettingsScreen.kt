@@ -60,12 +60,14 @@ fun SettingsScreenContent(
             state = lazyListState,
             modifier = Modifier.fillMaxSize()
         ) {
+
             folderWithElements(
                 header = context.getString(R.string.settings_general_group_title),
                 items = buildList {
                     if (AppSettings) {
                         add(SettingsItem.AppSettings)
                     }
+                    add(SettingsItem.ManageDevices)
                     add(SettingsItem.NetworkSettings)
                 },
                 onItemClicked = onItemClicked

@@ -29,6 +29,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
+import com.wire.android.ui.authentication.devices.DeviceItem
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.common.SurfaceBackgroundWrapper
 import com.wire.android.ui.common.WireDialog
@@ -116,7 +117,7 @@ private fun RemoveDeviceItemsList(
             modifier = Modifier.fillMaxWidth()
         ) {
             itemsIndexed(items) { index, device ->
-                RemoveDeviceItem(device, placeholders, onItemClicked)
+                DeviceItem(device, placeholders, onItemClicked)
                 if (index < items.lastIndex) Divider()
             }
         }

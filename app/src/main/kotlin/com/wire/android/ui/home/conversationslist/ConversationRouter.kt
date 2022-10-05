@@ -21,6 +21,7 @@ import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetC
 import com.wire.android.ui.home.conversationslist.bottomsheet.rememberConversationSheetState
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
+import com.wire.android.ui.home.conversationslist.search.SearchConversationScreen
 
 @ExperimentalAnimationApi
 @ExperimentalMaterial3Api
@@ -127,8 +128,9 @@ fun ConversationRouterHomeBridge(
                     onOpenUserProfile = viewModel::openUserProfile,
                     onOpenConversationNotificationsSettings = onEditNotifications,
                     onJoinCall = viewModel::joinOngoingCall,
-                    shouldShowEmptyState= shouldShowEmptyState
+                    shouldShowEmptyState = shouldShowEmptyState
                 )
+
             ConversationItemType.CALLS ->
                 CallsScreen(
                     missedCalls = missedCalls,
@@ -139,6 +141,7 @@ fun ConversationRouterHomeBridge(
                     openConversationNotificationsSettings = onEditNotifications,
                     onJoinCall = viewModel::joinOngoingCall
                 )
+
             ConversationItemType.MENTIONS ->
                 MentionScreen(
                     unreadMentions = unreadMentions,
@@ -149,6 +152,12 @@ fun ConversationRouterHomeBridge(
                     openConversationNotificationsSettings = onEditNotifications,
                     onJoinCall = viewModel::joinOngoingCall
                 )
+
+            ConversationItemType.SEARCH -> {
+                SearchConversationScreen(
+                    conversations = conversations,
+                )
+            }
         }
     }
 
@@ -178,5 +187,5 @@ fun ConversationRouterHomeBridge(
 }
 
 enum class ConversationItemType {
-    ALL_CONVERSATIONS, CALLS, MENTIONS;
+    ALL_CONVERSATIONS, CALLS, MENTIONS, SEARCH;
 }

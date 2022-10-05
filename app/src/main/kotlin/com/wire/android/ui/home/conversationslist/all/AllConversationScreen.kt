@@ -1,4 +1,4 @@
-package com.wire.android.ui.home.conversationslist
+package com.wire.android.ui.home.conversationslist.all
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -19,11 +19,11 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import com.wire.android.R
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.common.ConversationItemFactory
+import com.wire.android.ui.home.conversationslist.folderWithElements
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.theme.wireColorScheme
@@ -34,15 +34,16 @@ import com.wire.kalium.logic.data.user.UserId
 @Composable
 fun AllConversationScreen(
     conversations: Map<ConversationFolder, List<ConversationItem>>,
+    hasNoConversations: Boolean,
     onOpenConversation: (ConversationId) -> Unit,
     onEditConversation: (ConversationItem) -> Unit,
     onOpenUserProfile: (UserId) -> Unit,
     onOpenConversationNotificationsSettings: (ConversationItem) -> Unit,
-    onJoinCall: (ConversationId) -> Unit,
-    shouldShowEmptyState: Boolean
+    onJoinCall: (ConversationId) -> Unit
 ) {
     val lazyListState = rememberLazyListState()
-    if (shouldShowEmptyState) {
+
+    if (hasNoConversations) {
         ConversationListEmptyStateScreen()
     } else {
         AllConversationContent(
@@ -54,7 +55,6 @@ fun AllConversationScreen(
             onOpenConversationNotificationsSettings = onOpenConversationNotificationsSettings,
             onJoinCall = onJoinCall
         )
-
     }
 }
 
@@ -69,6 +69,7 @@ private fun AllConversationContent(
     onJoinCall: (ConversationId) -> Unit
 ) {
     val context = LocalContext.current
+
     LazyColumn(
         state = lazyListState,
         modifier = Modifier.fillMaxSize()
@@ -129,7 +130,6 @@ fun ConversationListEmptyStateScreen() {
             style = MaterialTheme.wireTypography.title01,
             color = MaterialTheme.wireColorScheme.onSurface,
         )
-
         Text(
             modifier = Modifier.padding(bottom = dimensions().spacing8x),
             text = stringResource(R.string.conversation_empty_list_description),
@@ -147,14 +147,15 @@ fun ConversationListEmptyStateScreen() {
     }
 }
 
-@Preview
-@Composable
-fun ComposablePreview() {
-    AllConversationScreen(mapOf(), {}, {}, {}, {}, {}, false)
-}
 
-@Preview
-@Composable
-fun ConversationListEmptyStateScreenPreview() {
-    AllConversationScreen(mapOf(), {}, {}, {}, {}, {}, true)
-}
+//@Preview
+//@Composable
+//fun ComposablePreview() {
+//    AllConversationScreen(mapOf(), {}, {}, {}, {}, {}, false, emptySearchResult)
+//}
+//
+//@Preview
+//@Composable
+//fun ConversationListEmptyStateScreenPreview() {
+//    AllConversationScreen(mapOf(), {}, {}, {}, {}, {}, true, emptySearchResult)
+//}

@@ -19,6 +19,11 @@ object VerticalSpace {
     }
 
     @Composable
+    fun x24() {
+        Spacer(Modifier.height(dimensions().spacing16x))
+    }
+    
+    @Composable
     fun x32() {
         Spacer(Modifier.height(dimensions().spacing32x))
     }

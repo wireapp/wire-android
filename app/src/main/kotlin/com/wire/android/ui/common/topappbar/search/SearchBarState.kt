@@ -6,11 +6,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.input.TextFieldValue
 
 @Composable
-fun rememberSearchbarState(scrollPositionProvider: (() -> Int) = { 0 }): SearchBarState {
+fun rememberSearchbarState(): SearchBarState {
     val searchBarState = rememberSaveable(
-        saver = SearchBarState.saver(scrollPositionProvider)
+        saver = SearchBarState.saver()
     ) {
         SearchBarState()
     }
@@ -20,10 +21,13 @@ fun rememberSearchbarState(scrollPositionProvider: (() -> Int) = { 0 }): SearchB
 
 class SearchBarState(
     isSearchActive: Boolean = false,
+    searchQuery: TextFieldValue = TextFieldValue("")
 ) {
 
     var isSearchActive by mutableStateOf(isSearchActive)
         private set
+
+    var searchQuery by mutableStateOf(searchQuery)
 
     fun closeSearch() {
         isSearchActive = false
@@ -33,14 +37,19 @@ class SearchBarState(
         isSearchActive = true
     }
 
+    fun searchQueryChanged(searchQuery: TextFieldValue) {
+        this.searchQuery = searchQuery
+    }
+
     companion object {
-        fun saver(scrollPositionProvider: (() -> Int) = { 0 }): Saver<SearchBarState, *> = Saver(
+        fun saver(): Saver<SearchBarState, *> = Saver(
             save = {
-                listOf(it.isSearchActive)
+                listOf(it.isSearchActive, it.searchQuery)
             },
             restore = {
                 SearchBarState(
-                    isSearchActive = it[0]
+                    isSearchActive = it[0] as Boolean,
+                    searchQuery = it[1] as TextFieldValue
                 )
             }
         )

@@ -1,15 +1,11 @@
 package com.wire.android.ui.home
 
-import android.os.Build
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.wire.android.BuildConfig
-import com.wire.android.R
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.EXTRA_CONNECTION_IGNORED_USER_NAME
@@ -20,18 +16,19 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.navigation.getBackNavArg
+import com.wire.android.ui.home.conversations.search.SearchPeopleViewModel
+import com.wire.android.util.EMPTY
 import com.wire.android.util.LogFileWriter
-import com.wire.android.util.getDeviceId
-import com.wire.android.util.sha256
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
-import java.text.DateFormat
-import java.util.Date
 import javax.inject.Inject
 
 @Suppress("LongParameterList")
@@ -43,39 +40,25 @@ class HomeViewModel @Inject constructor(
     private val getSelf: GetSelfUserUseCase,
     private val needsToRegisterClient: NeedsToRegisterClientUseCase,
     private val wireSessionImageLoader: WireSessionImageLoader,
-    private val logFileWriter: LogFileWriter
+    logFileWriter: LogFileWriter
 ) : SavedStateViewModel(savedStateHandle) {
 
-    var userAvatar by mutableStateOf(SelfUserData())
+    var homeState by mutableStateOf(
+        HomeState(
+            logFilePath = logFileWriter.activeLoggingFile.absolutePath
+        )
+    )
         private set
+
+
+    private val mutableSearchQueryFlow = MutableStateFlow("")
+    private val searchQueryFlow = mutableSearchQueryFlow
+        .asStateFlow()
+        .debounce(SearchPeopleViewModel.DEFAULT_SEARCH_QUERY_DEBOUNCE)
 
     init {
         loadUserAvatar()
     }
-
-    fun logFilePath(): String = logFileWriter.activeLoggingFile.absolutePath
-
-    // TODO(localization): localize if needed
-    fun reportBugEmailTemplate(deviceHash: String? = "unavailable"): String = """
-        --- DO NOT EDIT---
-        App Version: ${BuildConfig.VERSION_NAME}
-        Device Hash: $deviceHash
-        Device: ${Build.MANUFACTURER} - ${Build.MODEL}
-        SDK: ${Build.VERSION.RELEASE}
-        Date: ${Date()}
-        ------------------
-
-        Please fill in the following
-
-        - Date & Time of when the issue occurred:
-
-
-        - What happened:
-
-
-        - Steps to reproduce (if relevant):
-        
-    """.trimIndent()
 
     fun checkRequirements() {
         viewModelScope.launch {
@@ -116,24 +99,37 @@ class HomeViewModel @Inject constructor(
     private fun loadUserAvatar() {
         viewModelScope.launch {
             getSelf().collect { selfUser ->
-                userAvatar = SelfUserData(
+                homeState = HomeState(
                     selfUser.previewPicture?.let { UserAvatarAsset(wireSessionImageLoader, it) },
                     selfUser.availabilityStatus
                 )
             }
         }
     }
+//
+//    fun searchConversation(searchQuery: TextFieldValue) {
+//        val textQueryChanged = searchQueryTextFieldFlow.value.text != searchQuery.text
+//        // we set the state with a searchQuery, immediately to update the UI first
+//        viewModelScope.launch {
+//            searchQueryTextFieldFlow.emit(searchQuery)
+//
+//            if (textQueryChanged) mutableSearchQueryFlow.emit(searchQuery.text)
+//        }
+//    }
 
-    suspend fun navigateTo(item: NavigationItem) {
-        navigationManager.navigate(NavigationCommand(destination = item.getRouteWithArgs()))
+    fun navigateTo(item: NavigationItem) {
+        viewModelScope.launch {
+            navigationManager.navigate(NavigationCommand(destination = item.getRouteWithArgs()))
+        }
     }
 
-    fun navigateToUserProfile() = viewModelScope.launch { navigateTo(NavigationItem.SelfUserProfile) }
+    fun navigateToSelfUserProfile() = viewModelScope.launch { navigateTo(NavigationItem.SelfUserProfile) }
 }
 
-data class SelfUserData(
+data class HomeState(
     val avatarAsset: UserAvatarAsset? = null,
-    val status: UserAvailabilityStatus = UserAvailabilityStatus.NONE
+    val status: UserAvailabilityStatus = UserAvailabilityStatus.NONE,
+    val logFilePath: String = String.EMPTY
 )
 
 // TODO change to extend [SnackBarMessage]

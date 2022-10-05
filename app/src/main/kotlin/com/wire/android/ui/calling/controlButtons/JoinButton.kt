@@ -13,7 +13,7 @@ import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.textfield.WirePrimaryButton
+import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow

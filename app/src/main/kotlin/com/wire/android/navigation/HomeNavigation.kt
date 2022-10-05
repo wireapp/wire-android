@@ -8,38 +8,14 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
 import com.wire.android.R
 import com.wire.android.ui.common.WireBottomNavigationItemData
-import com.wire.android.ui.home.HomeUIState
+import com.wire.android.ui.home.HomeScreenState
 import com.wire.android.ui.home.archive.ArchiveScreen
 import com.wire.android.ui.home.conversationslist.ConversationItemType
 import com.wire.android.ui.home.conversationslist.ConversationRouterHomeBridge
 import com.wire.android.ui.home.settings.SettingsScreen
 import com.wire.android.ui.home.vault.VaultScreen
-
-@OptIn(
-    ExperimentalAnimationApi::class,
-    ExperimentalMaterialApi::class,
-    ExperimentalMaterial3Api::class
-)
-@Composable
-fun HomeNavigationGraph(homeUIState: HomeUIState, navController: NavHostController, startDestination: HomeNavigationItem) {
-    NavHost(
-        navController = navController,
-        startDestination = startDestination.route
-    ) {
-        HomeNavigationItem.values()
-            .forEach { item ->
-                composable(
-                    route = item.route,
-                    content = item.content(homeUIState)
-                )
-            }
-    }
-}
 
 @ExperimentalAnimationApi
 @ExperimentalMaterialApi
@@ -70,23 +46,24 @@ enum class HomeNavigationItem(
     @DrawableRes val icon: Int,
     val isSearchable: Boolean = false,
     val withNewConversationFab: Boolean = false,
-    val content: (HomeUIState) -> (@Composable (NavBackStackEntry) -> Unit)
+    val content: (HomeScreenState) -> (@Composable (NavBackStackEntry) -> Unit)
 ) {
     Conversations(
         route = HomeDestinationsRoutes.conversations,
         title = R.string.conversations_screen_title,
         tabName = R.string.conversations_all_tab_title,
         icon = R.drawable.ic_conversation,
-        isSearchable = false, // TODO
+        isSearchable = true, // TODO
         withNewConversationFab = true,
         content = { homeState ->
             {
                 ConversationRouterHomeBridge(
-                    itemType = ConversationItemType.ALL_CONVERSATIONS,
+                    conversationItemType = ConversationItemType.ALL_CONVERSATIONS,
                     onHomeBottomSheetContentChanged = homeState::changeBottomSheetContent,
                     onOpenBottomSheet = homeState::openBottomSheet,
                     onCloseBottomSheet = homeState::closeBottomSheet,
-                    onSnackBarStateChanged = homeState::setSnackBarState
+                    onSnackBarStateChanged = homeState::setSnackBarState,
+                    searchBarState = homeState.searchBarState
                 )
             }
         }
@@ -96,16 +73,17 @@ enum class HomeNavigationItem(
         route = HomeDestinationsRoutes.calls,
         title = R.string.conversations_calls_tab_title,
         icon = R.drawable.ic_call,
-        isSearchable = false, // TODO
+        isSearchable = true,
         withNewConversationFab = true,
         content = { homeState ->
             {
                 ConversationRouterHomeBridge(
-                    itemType = ConversationItemType.CALLS,
+                    conversationItemType = ConversationItemType.CALLS,
                     onHomeBottomSheetContentChanged = homeState::changeBottomSheetContent,
                     onOpenBottomSheet = homeState::openBottomSheet,
                     onCloseBottomSheet = homeState::closeBottomSheet,
-                    onSnackBarStateChanged = homeState::setSnackBarState
+                    onSnackBarStateChanged = homeState::setSnackBarState,
+                    searchBarState = homeState.searchBarState
                 )
             }
         }
@@ -115,16 +93,17 @@ enum class HomeNavigationItem(
         route = HomeDestinationsRoutes.mentions,
         title = R.string.conversations_mentions_tab_title,
         icon = R.drawable.ic_mention,
-        isSearchable = false, // TODO
+        isSearchable = true,
         withNewConversationFab = true,
         content = { homeState ->
             {
                 ConversationRouterHomeBridge(
-                    itemType = ConversationItemType.MENTIONS,
+                    conversationItemType = ConversationItemType.MENTIONS,
                     onHomeBottomSheetContentChanged = homeState::changeBottomSheetContent,
                     onOpenBottomSheet = homeState::openBottomSheet,
                     onCloseBottomSheet = homeState::closeBottomSheet,
-                    onSnackBarStateChanged = homeState::setSnackBarState
+                    onSnackBarStateChanged = homeState::setSnackBarState,
+                    searchBarState = homeState.searchBarState
                 )
             }
         }

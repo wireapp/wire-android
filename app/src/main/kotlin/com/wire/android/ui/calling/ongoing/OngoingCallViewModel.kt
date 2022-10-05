@@ -1,4 +1,4 @@
-package com.wire.android.ui.calling
+package com.wire.android.ui.calling.ongoing
 
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -51,7 +51,7 @@ class OngoingCallViewModel @Inject constructor(
 
     fun requestVideoStreams(participants: List<UICallParticipant>) {
         viewModelScope.launch {
-            val clients : List<CallClient> = participants.map {
+            val clients: List<CallClient> = participants.map {
                 CallClient(it.id.toString(), it.clientId)
             }
             requestVideoStreams(conversationId, clients)

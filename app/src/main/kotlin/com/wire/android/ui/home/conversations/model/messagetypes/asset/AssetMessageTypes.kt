@@ -61,7 +61,7 @@ internal fun MessageAsset(
                 color = MaterialTheme.wireColorScheme.secondaryButtonDisabledOutline,
                 shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
             )
-            .clickable(if (assetDownloadStatus == Message.DownloadStatus.DOWNLOAD_IN_PROGRESS) null else onAssetClick)
+            .clickable(if (canNotClick(assetDownloadStatus, assetUploadStatus)) null else onAssetClick)
             .padding(dimensions().spacing8x)
     ) {
         Column {
@@ -241,7 +241,7 @@ fun RestrictedGenericFileMessage(fileName: String, fileSize: Long) {
 private fun DownloadStatusIcon(assetDownloadStatus: Message.DownloadStatus, assetUploadStatus: Message.UploadStatus) {
     return when {
         assetUploadStatus == Message.UploadStatus.UPLOAD_IN_PROGRESS ||
-            assetDownloadStatus == Message.DownloadStatus.DOWNLOAD_IN_PROGRESS -> WireCircularProgressIndicator(
+                assetDownloadStatus == Message.DownloadStatus.DOWNLOAD_IN_PROGRESS -> WireCircularProgressIndicator(
             progressColor = MaterialTheme.wireColorScheme.secondaryText,
             size = dimensions().spacing16x
         )
@@ -272,10 +272,14 @@ fun getDownloadStatusText(assetDownloadStatus: Message.DownloadStatus, assetUplo
         assetDownloadStatus == Message.DownloadStatus.DOWNLOAD_IN_PROGRESS ->
             stringResource(R.string.asset_message_download_in_progress_text)
         assetDownloadStatus == Message.DownloadStatus.SAVED_EXTERNALLY ||
-            assetUploadStatus == Message.UploadStatus.UPLOADED -> stringResource(R.string.asset_message_saved_externally_text)
+                assetUploadStatus == Message.UploadStatus.UPLOADED -> stringResource(R.string.asset_message_saved_externally_text)
         assetDownloadStatus == Message.DownloadStatus.FAILED_DOWNLOAD -> stringResource(R.string.asset_message_failed_download_text)
         else -> ""
     }
+
+@Composable
+private fun canNotClick(assetDownloadStatus: Message.DownloadStatus, assetUploadStatus: Message.UploadStatus) =
+    assetDownloadStatus == Message.DownloadStatus.DOWNLOAD_IN_PROGRESS || assetUploadStatus == Message.UploadStatus.UPLOAD_IN_PROGRESS
 
 @Suppress("MagicNumber")
 private fun provideAssetDescription(assetExtension: String, assetSizeInBytes: Long): String {

@@ -26,12 +26,11 @@ enum class SettingsItem(val id: String, val title: UIText, val navigationItem: N
         title = UIText.StringResource(R.string.settings_network_settings_label),
         navigationItem = NavigationItem.NetworkSettings
     ),
-//    ManageDevices(
-//        id = "manage_devices",
-//        title = UIText.StringResource(R.string.settings_manage_devices_label),
-//        navigationItem =
-//    ),
-
+    ManageDevices(
+        id = "manage_devices",
+        title = UIText.StringResource(R.string.settings_manage_devices_label),
+        navigationItem = NavigationItem.SelfDevices
+    ),
 
     BackupAndRestore(
         id = "backups_backup_and_restore",

@@ -10,7 +10,6 @@ import androidx.compose.ui.unit.dp
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 
-
 @Composable
 fun FolderHeader(name: String, modifier: Modifier = Modifier) {
     Text(

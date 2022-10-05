@@ -1,10 +1,7 @@
-<?xml version="1.0" ?>
+<?xml version='1.0' encoding='UTF-8'?>
 <SmellBaseline>
-  <ManuallySuppressedIssues></ManuallySuppressedIssues>
+  <ManuallySuppressedIssues/>
   <CurrentIssues>
-    <ID>LongParameterList:AssetImageFetcher.kt$AssetImageFetcher$( val data: ImageAsset, val getPublicAsset: GetAvatarAssetUseCase, val getPrivateAsset: GetMessageAssetUseCase, val resources: Resources, val drawableResultWrapper: DrawableResultWrapper = DrawableResultWrapper(resources), val kaliumFileSystem: KaliumFileSystem, val imageLoader: ImageLoader )</ID>
-    <ID>LongParameterList:AvatarPickerViewModel.kt$AvatarPickerViewModel$( private val navigationManager: NavigationManager, private val dataStore: UserDataStore, private val getAvatarAsset: GetAvatarAssetUseCase, private val uploadUserAvatar: UploadUserAvatarUseCase, private val avatarImageManager: AvatarImageManager, private val dispatchers: DispatcherProvider, private val kaliumFileSystem: KaliumFileSystem )</ID>
-    <ID>MaxLineLength:ConversationViewState.kt$DownloadedAssetDialogVisibilityState$Displayed : DownloadedAssetDialogVisibilityState</ID>
-    <ID>WildcardImport:AttachmentOptions.kt$import com.wire.android.util.permission.*</ID>
+    <ID>ComplexCondition:MessageMapper.kt$MessageMapper$message is Message.System &amp;&amp; content == null || message.visibility == Message.Visibility.HIDDEN || content is UIMessageContent.PreviewAssetMessage</ID>
   </CurrentIssues>
 </SmellBaseline>

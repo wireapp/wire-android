@@ -62,7 +62,13 @@ fun SettingsScreenContent(
         ) {
 
             folderWithElements(
-                header = context.getString(R.string.settings_general_group_title),
+                header = context.getString(R.string.settings_account_settings_label),
+                items = buildList { add(SettingsItem.YourAccount) },
+                onItemClicked = onItemClicked
+            )
+
+            folderWithElements(
+                header = context.getString(R.string.app_settings_screen_title),
                 items = buildList {
                     if (AppSettings) {
                         add(SettingsItem.AppSettings)

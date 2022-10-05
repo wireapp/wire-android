@@ -575,10 +575,11 @@
     <!--Settings -->
     <string name="url_why_verify_conversation">/hc/en-us/articles/207859815-Why-should-I-verify-my-conversations</string>
     <string name="settings_general_label">General</string>
+    <string name="settings_account_settings_label">Account Settings</string>
     <string name="settings_devices_label">Devices</string>
     <string name="settings_backups_label">Backups</string>
     <string name="settings_others_label">OTHERS</string>
-    <string name="settings_your_account_label">Your Account</string>
+    <string name="settings_your_account_label">Account Details</string>
     <string name="settings_app_settings_label">App Settings</string>
     <string name="settings_privacy_settings_label">Privacy Settings</string>
     <string name="settings_network_settings_label">Network Settings</string>

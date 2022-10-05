@@ -8,7 +8,7 @@ import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
-import com.wire.kalium.logic.data.asset.isValidImage
+import com.wire.kalium.logic.data.asset.isDisplayableMimeType
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.Message
@@ -145,7 +145,7 @@ class MessageContentMapper @Inject constructor(
         with(assetMessageContentMetadata.assetMessageContent) {
             when {
                 // If it's an image, we download it right away
-                assetMessageContentMetadata.isValidImage() -> {
+                assetMessageContentMetadata.isDisplayableImage() -> {
                     val imageData = withContext(dispatcherProvider.io()) {
                         imageRawData(message.conversationId, message.id)
                     }
@@ -231,7 +231,8 @@ class AssetMessageContentMetadata(val assetMessageContent: AssetContent) {
             else -> 0
         }
 
-    fun isValidImage(): Boolean = isValidImage(assetMessageContent.mimeType) && imgWidth.isGreaterThan(0) && imgHeight.isGreaterThan(0)
+    fun isDisplayableImage(): Boolean = isDisplayableMimeType(assetMessageContent.mimeType) &&
+            imgWidth.isGreaterThan(0) && imgHeight.isGreaterThan(0)
 }
 
 // TODO: should we keep it here ?

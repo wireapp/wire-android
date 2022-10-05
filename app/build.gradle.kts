@@ -113,6 +113,7 @@ dependencies {
 
     // Image handling
     implementation(Libraries.coil)
+    implementation(Libraries.coilGif)
     implementation(Libraries.coilCompose)
 
     /** lifecycle **/

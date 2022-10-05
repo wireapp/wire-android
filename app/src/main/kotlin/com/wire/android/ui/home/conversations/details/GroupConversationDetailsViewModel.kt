@@ -119,23 +119,6 @@ class GroupConversationDetailsViewModel @Inject constructor(
                 .distinctUntilChanged()
 
             launch {
-                groupDetailsFlow
-                    .collect { groupDetails ->
-                        with(groupDetails) {
-                            updateState(
-                                groupOptionsState.value.copy(
-                                    groupName = conversation.name.orEmpty(),
-                                    protocolInfo = conversation.protocol,
-                                    areAccessOptionsAvailable = conversation.isTeamGroup(),
-                                    isGuestAllowed = (conversation.isGuestAllowed() || conversation.isNonTeamMemberAllowed()),
-                                    isServicesAllowed = conversation.isServicesAllowed(),
-                                )
-                            )
-                        }
-                    }
-            }
-
-            launch {
                 combine(
                     observerSelfUser().take(1),
                     groupDetailsFlow,
@@ -156,8 +139,15 @@ class GroupConversationDetailsViewModel @Inject constructor(
                         conversationTypeDetail = ConversationTypeDetail.Group(conversationId, isAbleToRemoveGroup),
                         isSelfUserMember = isSelfUserMember
                     )
+                    val isGuestAllowed = groupDetails.conversation.isGuestAllowed() || groupDetails.conversation.isNonTeamMemberAllowed()
+
                     updateState(
                         groupOptionsState.value.copy(
+                            groupName = groupDetails.conversation.name.orEmpty(),
+                            protocolInfo = groupDetails.conversation.protocol,
+                            areAccessOptionsAvailable = groupDetails.conversation.isTeamGroup(),
+                            isGuestAllowed = isGuestAllowed,
+                            isServicesAllowed = groupDetails.conversation.isServicesAllowed(),
                             conversationSheetContent = conversationSheetContent,
                             isUpdatingAllowed = isSelfAnAdmin,
                             isUpdatingGuestAllowed = isSelfAnAdmin && isSelfInOwnerTeam,

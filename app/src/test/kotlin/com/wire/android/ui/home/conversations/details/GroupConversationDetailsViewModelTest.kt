@@ -19,11 +19,13 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.data.team.Team
+import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.IsSelfUserMemberResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveIsSelfUserMemberUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
+import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
@@ -426,6 +428,9 @@ internal class GroupConversationDetailsViewModelArrangement {
     lateinit var observeIsSelfUserMember: ObserveIsSelfUserMemberUseCase
 
     @MockK
+    lateinit var updateConversationMutedStatus: UpdateConversationMutedStatusUseCase
+
+    @MockK
     private lateinit var qualifiedIdMapper: QualifiedIdMapper
 
     private val conversationDetailsChannel = Channel<ConversationDetails>(capacity = Channel.UNLIMITED)
@@ -445,7 +450,8 @@ internal class GroupConversationDetailsViewModelArrangement {
             getSelfTeam = getSelfTeamUseCase,
             savedStateHandle = savedStateHandle,
             qualifiedIdMapper = qualifiedIdMapper,
-            observeIsSelfUserMember = observeIsSelfUserMember
+            observeIsSelfUserMember = observeIsSelfUserMember,
+            updateConversationMutedStatus = updateConversationMutedStatus
         )
     }
 
@@ -466,6 +472,7 @@ internal class GroupConversationDetailsViewModelArrangement {
             qualifiedIdMapper.fromStringToQualifiedID("conv_id@domain")
         } returns QualifiedID("conv_id", "domain")
         coEvery { observeIsSelfUserMember(any()) } returns (flowOf(IsSelfUserMemberResult.Success(true)))
+        coEvery { updateConversationMutedStatus(any(), any(), any()) } returns ConversationUpdateStatusResult.Success
     }
 
     fun withSavedStateConversationId(conversationId: ConversationId) = apply {

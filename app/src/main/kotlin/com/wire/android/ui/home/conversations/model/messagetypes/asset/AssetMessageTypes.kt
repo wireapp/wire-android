@@ -61,7 +61,7 @@ internal fun MessageAsset(
                 color = MaterialTheme.wireColorScheme.secondaryButtonDisabledOutline,
                 shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
             )
-            .clickable(if (canNotClick(assetDownloadStatus, assetUploadStatus)) null else onAssetClick)
+            .clickable(if (isNotClickable(assetDownloadStatus, assetUploadStatus)) null else onAssetClick)
             .padding(dimensions().spacing8x)
     ) {
         Column {
@@ -278,7 +278,7 @@ fun getDownloadStatusText(assetDownloadStatus: Message.DownloadStatus, assetUplo
     }
 
 @Composable
-private fun canNotClick(assetDownloadStatus: Message.DownloadStatus, assetUploadStatus: Message.UploadStatus) =
+private fun isNotClickable(assetDownloadStatus: Message.DownloadStatus, assetUploadStatus: Message.UploadStatus) =
     assetDownloadStatus == Message.DownloadStatus.DOWNLOAD_IN_PROGRESS || assetUploadStatus == Message.UploadStatus.UPLOAD_IN_PROGRESS
 
 @Suppress("MagicNumber")

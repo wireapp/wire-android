@@ -13,7 +13,7 @@ enum class SettingsItem(val id: String, val title: UIText, val navigationItem: N
     YourAccount(
         id = "your_account_settings",
         title = UIText.StringResource(R.string.settings_your_account_label),
-        navigationItem = NavigationItem.NetworkSettings
+        navigationItem = NavigationItem.MyAccount
     ),
 //    Privacy(
 //        id = "privacy_settings",

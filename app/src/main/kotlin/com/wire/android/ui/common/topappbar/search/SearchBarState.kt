@@ -44,12 +44,12 @@ class SearchBarState(
     companion object {
         fun saver(): Saver<SearchBarState, *> = Saver(
             save = {
-                listOf(it.isSearchActive, it.searchQuery)
+                listOf(it.isSearchActive, it.searchQuery.text)
             },
             restore = {
                 SearchBarState(
                     isSearchActive = it[0] as Boolean,
-                    searchQuery = it[1] as TextFieldValue
+                    searchQuery = TextFieldValue(it[1] as String)
                 )
             }
         )

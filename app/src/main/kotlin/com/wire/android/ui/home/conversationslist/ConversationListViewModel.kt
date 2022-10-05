@@ -141,7 +141,7 @@ class ConversationListViewModel @Inject constructor(
     }
 
     private fun List<ConversationDetails>.toConversationsFoldersMap(): Map<ConversationFolder, List<ConversationItem>> {
-        val unreadConversations = this.filter {
+        val unreadConversations = filter {
             when (it.conversation.mutedStatus) {
                 MutedConversationStatus.AllAllowed ->
                     when (it) {

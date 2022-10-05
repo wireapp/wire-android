@@ -16,9 +16,10 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.Dp
-import androidx.compose.ui.unit.dp
+import com.wire.android.R
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
@@ -104,14 +105,14 @@ private fun EmptySearchResult(onNewConversationCLick: () -> Unit) {
                 .wrapContentHeight()
         ) {
             Text(
-                "No conversations could be found.",
+                text = stringResource(R.string.label_no_conversation_found),
                 style = MaterialTheme.wireTypography.body01,
                 color = MaterialTheme.wireColorScheme.secondaryText,
                 textAlign = TextAlign.Center
             )
             VerticalSpace.x16()
             Text(
-                "Connect with new users or start a new conversation:",
+                text = stringResource(R.string.label_connect_with_new_users),
                 style = MaterialTheme.wireTypography.body01,
                 color = MaterialTheme.wireColorScheme.secondaryText,
                 textAlign = TextAlign.Center
@@ -119,9 +120,9 @@ private fun EmptySearchResult(onNewConversationCLick: () -> Unit) {
         }
         VerticalSpace.x16()
         WirePrimaryButton(
-            text = "New converastion",
+            text = stringResource(R.string.label_new_conversation),
             fillMaxWidth = false,
-            minHeight = 32.dp,
+            minHeight = dimensions().spacing32x,
             onClick = onNewConversationCLick
         )
     }

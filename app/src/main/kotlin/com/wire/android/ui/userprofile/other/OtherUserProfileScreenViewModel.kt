@@ -157,7 +157,6 @@ class OtherUserProfileScreenViewModel @Inject constructor(
 
                             // TODO yamil: this block could be removed from here. we should loaded on user click
                             observeConversationSheetContentIfNeeded(otherUser, userAvatarAsset)
-                            observeGroupStateIfNeeded()
 
                             state = state.copy(
                                 isDataLoading = false,

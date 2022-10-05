@@ -25,14 +25,14 @@ import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
-import com.wire.android.ui.settings.devices.model.DevicesState
+import com.wire.android.ui.settings.devices.model.SelfDevicesState
 import com.wire.android.ui.theme.wireColorScheme
 
 @Composable
-fun DevicesScreen(viewModel: DevicesViewModel = hiltViewModel()) {
+fun SelfDevicesScreen(viewModel: SelfDevicesViewModel = hiltViewModel()) {
     val snackbarHostState = remember { SnackbarHostState() }
 
-    DevicesScreenContent(
+    SelfDevicesScreenContent(
         snackbarHostState = snackbarHostState,
         state = viewModel.state,
         onNavigateBack = viewModel::navigateBack
@@ -43,10 +43,10 @@ fun DevicesScreen(viewModel: DevicesViewModel = hiltViewModel()) {
     ExperimentalMaterial3Api::class,
 )
 @Composable
-fun DevicesScreenContent(
+fun SelfDevicesScreenContent(
     snackbarHostState: SnackbarHostState = remember { SnackbarHostState() },
     onNavigateBack: () -> Unit = {},
-    state: DevicesState,
+    state: SelfDevicesState,
 ) {
     val lazyListState = rememberLazyListState()
     val context = LocalContext.current
@@ -84,9 +84,9 @@ fun DevicesScreenContent(
                                         .fillMaxWidth()
                                         .background(color = headerColor)
                                 )
+                                DeviceItem(currentDevice, placeholder = false)
+                                Divider()
                             }
-                            item { DeviceItem(currentDevice, placeholder = false) }
-                            item { Divider() }
                         }
                         item {
                             FolderHeader(
@@ -95,8 +95,8 @@ fun DevicesScreenContent(
                                     .fillMaxWidth()
                                     .background(color = headerColor)
                             )
+                            Divider()
                         }
-                        item { Divider() }
                         itemsIndexed(state.deviceList) { index, item ->
                             DeviceItem(item, placeholder = false)
                             if (index < state.deviceList.lastIndex) Divider()

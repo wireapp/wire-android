@@ -76,8 +76,13 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusU
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
 import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.flowOf
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Date
@@ -136,38 +141,40 @@ class OtherUserProfileScreenViewModel @Inject constructor(
 
     private fun observeUserInfoAndUpdateViewState() {
         viewModelScope.launch {
-            val userInfoResult = withContext(dispatchers.io()) { observeUserInfo(userId) }
-            userInfoResult.collect { getInfoResult ->
-                when (getInfoResult) {
-                    is GetUserInfoResult.Failure -> {
-                        appLogger.d("Couldn't not find the user with provided id: $userId")
-                        closeBottomSheetAndShowInfoMessage(LoadUserInformationError)
-                    }
-                    is GetUserInfoResult.Success -> {
-                        val otherUser = getInfoResult.otherUser
-                        val userAvatarAsset = otherUser.completePicture
-                            ?.let { pic -> ImageAsset.UserAvatarAsset(wireSessionImageLoader, pic) }
+            observeUserInfo(userId)
+                .combine(observeGroupInfo(), ::Pair)
+                .flowOn(dispatchers.io()).collect { (userResult, groupInfo) ->
+                    when (userResult) {
+                        is GetUserInfoResult.Failure -> {
+                            appLogger.d("Couldn't not find the user with provided id: $userId")
+                            closeBottomSheetAndShowInfoMessage(LoadUserInformationError)
+                        }
 
-                        // TODO yamil: this block could be removed from here. we should loaded on user click
-                        observeConversationSheetContentIfNeeded(otherUser, userAvatarAsset)
-                        observeGroupStateIfNeeded()
+                        is GetUserInfoResult.Success -> {
+                            val otherUser = userResult.otherUser
+                            val userAvatarAsset = otherUser.completePicture
+                                ?.let { pic -> ImageAsset.UserAvatarAsset(wireSessionImageLoader, pic) }
 
-                        state = state.copy(
-                            isDataLoading = false,
-                            isAvatarLoading = false,
-                            userAvatarAsset = userAvatarAsset,
-                            fullName = otherUser.name.orEmpty(),
-                            userName = mapUserLabel(otherUser),
-                            teamName = getInfoResult.team?.name.orEmpty(),
-                            email = otherUser.email.orEmpty(),
-                            phone = otherUser.phone.orEmpty(),
-                            connectionState = otherUser.connectionStatus,
-                            membership = userTypeMapper.toMembership(otherUser.userType),
-                            botService = otherUser.botService,
-                        )
+                            // TODO yamil: this block could be removed from here. we should loaded on user click
+                            observeConversationSheetContentIfNeeded(otherUser, userAvatarAsset)
+
+                            state = state.copy(
+                                isDataLoading = false,
+                                isAvatarLoading = false,
+                                userAvatarAsset = userAvatarAsset,
+                                fullName = otherUser.name.orEmpty(),
+                                userName = mapUserLabel(otherUser),
+                                teamName = userResult.team?.name.orEmpty(),
+                                email = otherUser.email.orEmpty(),
+                                phone = otherUser.phone.orEmpty(),
+                                connectionState = otherUser.connectionStatus,
+                                membership = userTypeMapper.toMembership(otherUser.userType),
+                                groupState = groupInfo,
+                                botService = otherUser.botService,
+                            )
+                        }
                     }
                 }
-            }
         }
     }
 
@@ -184,6 +191,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                     appLogger.d("Couldn't not getOrCreateOneToOneConversation for user id: $userId")
                     return@launch
                 }
+
                 is GetOneToOneConversationUseCase.Result.Success -> {
                     state = state.copy(
                         conversationSheetContent = ConversationSheetContent(
@@ -202,24 +210,20 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         }
     }
 
-    private fun observeGroupStateIfNeeded() {
-        conversationId?.let {
-            viewModelScope.launch {
-                val result = withContext(dispatchers.io()) { observeConversationRoleForUser(it, userId) }
-                result.collect { conversationRoleData ->
-                    state = state.copy(
-                        groupState = conversationRoleData.userRole?.let { userRole ->
-                            OtherUserProfileGroupState(
-                                groupName = conversationRoleData.conversationName,
-                                role = userRole,
-                                isSelfAdmin = conversationRoleData.selfRole is Conversation.Member.Role.Admin,
-                                conversationId = conversationRoleData.conversationId
-                            )
-                        }
-                    )
+    private suspend fun observeGroupInfo(): Flow<OtherUserProfileGroupState?> {
+        return conversationId?.let {
+            observeConversationRoleForUser(it, userId)
+                .map { conversationRoleData ->
+                    conversationRoleData.userRole?.let { userRole ->
+                        OtherUserProfileGroupState(
+                            groupName = conversationRoleData.conversationName,
+                            role = userRole,
+                            isSelfAdmin = conversationRoleData.selfRole is Conversation.Member.Role.Admin,
+                            conversationId = conversationRoleData.conversationId
+                        )
+                    }
                 }
-            }
-        }
+        } ?: flowOf(null)
     }
 
     override fun onOpenConversation() {
@@ -244,6 +248,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                     appLogger.d(("Couldn't send a connect request to user $userId"))
                     closeBottomSheetAndShowInfoMessage(ConnectionRequestError)
                 }
+
                 is SendConnectionRequestResult.Success -> {
                     state = state.copy(connectionState = ConnectionState.SENT)
                     closeBottomSheetAndShowInfoMessage(SuccessConnectionSentRequest)
@@ -259,6 +264,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                     appLogger.d(("Couldn't cancel a connect request to user $userId"))
                     closeBottomSheetAndShowInfoMessage(ConnectionCancelError)
                 }
+
                 is CancelConnectionRequestUseCaseResult.Success -> {
                     state = state.copy(connectionState = ConnectionState.NOT_CONNECTED)
                     closeBottomSheetAndShowInfoMessage(SuccessConnectionCancelRequest)
@@ -274,6 +280,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                     appLogger.d(("Couldn't accept a connect request to user $userId"))
                     closeBottomSheetAndShowInfoMessage(ConnectionAcceptError)
                 }
+
                 is AcceptConnectionRequestUseCaseResult.Success -> {
                     state = state.copy(connectionState = ConnectionState.ACCEPTED)
                     closeBottomSheetAndShowInfoMessage(SuccessConnectionAcceptRequest)
@@ -289,6 +296,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                     appLogger.d(("Couldn't ignore a connect request to user $userId"))
                     closeBottomSheetAndShowInfoMessage(ConnectionIgnoreError)
                 }
+
                 is IgnoreConnectionRequestUseCaseResult.Success -> {
                     state = state.copy(connectionState = ConnectionState.IGNORED)
                     navigationManager.navigateBack(
@@ -356,6 +364,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                     appLogger.i("User $userId was blocked")
                     closeBottomSheetAndShowInfoMessage(BlockingUserOperationSuccess(blockUserState.userName))
                 }
+
                 is BlockUserResult.Failure -> {
                     appLogger.e("Error while blocking user $userId ; Error ${result.coreFailure}")
                     closeBottomSheetAndShowInfoMessage(BlockingUserOperationError)
@@ -373,6 +382,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                     appLogger.i("User $userId was unblocked")
                     _closeBottomSheet.emit(Unit)
                 }
+
                 is UnblockUserResult.Failure -> {
                     appLogger.e("Error while unblocking user $userId ; Error ${result.coreFailure}")
                     closeBottomSheetAndShowInfoMessage(UnblockingUserOperationError)
@@ -422,9 +432,11 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                     is GetOtherUserClientsResult.Failure.UserNotFound -> {
                         appLogger.e("User or Domain not found while fetching user clients ")
                     }
+
                     is GetOtherUserClientsResult.Failure.Generic -> {
                         appLogger.e("Error while fetching the user clients : ${it.genericFailure}")
                     }
+
                     is GetOtherUserClientsResult.Success -> {
                         state = state.copy(otherUserClients = it.otherUserClients)
                     }

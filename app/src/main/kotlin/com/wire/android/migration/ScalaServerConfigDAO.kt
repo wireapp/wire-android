@@ -1,8 +1,7 @@
 package com.wire.android.migration
 
 import com.wire.kalium.logic.configuration.server.ServerConfig
-import kotlinx.serialization.SerialName
-import kotlinx.serialization.Serializable
+import kotlinx.serialization.SerializationException
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
 import javax.inject.Inject
@@ -10,8 +9,13 @@ import javax.inject.Singleton
 
 @Singleton
 class ScalaServerConfigDAO @Inject constructor(private val scalaBackendPreferences: ScalaBackendPreferences) {
-
-    private fun versionInfo(): VersionInfo? = scalaBackendPreferences.apiVersion?.let { Json.decodeFromString(it) }
+    private fun versionInfo(): ServerConfig.VersionInfo? = scalaBackendPreferences.apiVersion?.let {
+        try {
+            Json.decodeFromString(it)
+        } catch (e: SerializationException) {
+            null
+        }
+    }
 
     private fun links(): ServerConfig.Links? {
         val apiBaseUrl: String? = scalaBackendPreferences.baseUrl
@@ -31,7 +35,7 @@ class ScalaServerConfigDAO @Inject constructor(private val scalaBackendPreferenc
     val scalaServerConfig: ScalaServerConfig
         get() {
             val links: ServerConfig.Links? = links()
-            val versionInfo: VersionInfo? = versionInfo()
+            val versionInfo: ServerConfig.VersionInfo? = versionInfo()
             val customConfigUrl: String? = scalaBackendPreferences.customConfigUrl
 
             return when {
@@ -43,15 +47,8 @@ class ScalaServerConfigDAO @Inject constructor(private val scalaBackendPreferenc
         }
 }
 
-@Serializable
-data class VersionInfo(
-    @SerialName("domain") val domain: String?,
-    @SerialName("federation") val federation: Boolean,
-    @SerialName("supported") val supported: List<Int>
-)
-
 sealed class ScalaServerConfig {
-    data class Full(val links: ServerConfig.Links, val versionInfo: VersionInfo) : ScalaServerConfig()
+    data class Full(val links: ServerConfig.Links, val versionInfo: ServerConfig.VersionInfo) : ScalaServerConfig()
     data class Links(val links: ServerConfig.Links) : ScalaServerConfig()
     data class ConfigUrl(val customConfigUrl: String) : ScalaServerConfig()
     object NoData : ScalaServerConfig()

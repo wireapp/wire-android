@@ -18,11 +18,14 @@ import androidx.work.WorkRequest.MIN_BACKOFF_MILLIS
 import androidx.work.WorkerParameters
 import com.wire.android.R
 import com.wire.android.migration.MigrationManager
+import com.wire.android.migration.MigrationResult
+import com.wire.android.migration.getMigrationFailure
+import com.wire.android.migration.toData
 import com.wire.android.notification.NotificationConstants
-import com.wire.kalium.logic.functional.fold
 import dagger.assisted.Assisted
 import dagger.assisted.AssistedInject
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.map
 import java.util.concurrent.TimeUnit
 
@@ -35,11 +38,11 @@ class MigrationWorker
     private val notificationManager: NotificationManagerCompat
 ) : CoroutineWorker(appContext, workerParams) {
 
-    override suspend fun doWork(): Result {
-        return migrationManager.migrate().fold(
-            { Result.retry() },  // TODO maybe `failure` instead and handle it somehow?
-            { Result.success() }
-        )
+    override suspend fun doWork(): Result = migrationManager.migrate().let {
+        when (it) {
+            MigrationResult.Success -> Result.success()
+            is MigrationResult.Failure -> Result.failure(it.type.toData())
+        }
     }
 
     override suspend fun getForegroundInfo(): ForegroundInfo {
@@ -73,11 +76,19 @@ class MigrationWorker
     }
 }
 
-fun WorkManager.enqueueMigrationWorker(): Flow<WorkInfo.State> {
+fun WorkManager.enqueueMigrationWorker(): Flow<MigrationResult> {
     val request = OneTimeWorkRequestBuilder<MigrationWorker>()
         .setExpedited(OutOfQuotaPolicy.RUN_AS_NON_EXPEDITED_WORK_REQUEST)
         .setBackoffCriteria(BackoffPolicy.EXPONENTIAL, MIN_BACKOFF_MILLIS, TimeUnit.MILLISECONDS)
         .build()
     enqueueUniqueWork(MigrationWorker.NAME, ExistingWorkPolicy.KEEP, request)
-    return getWorkInfosForUniqueWorkLiveData(MigrationWorker.NAME).asFlow().map { it.first().state }
+    return getWorkInfosForUniqueWorkLiveData(MigrationWorker.NAME).asFlow().map {
+        it.first().let { workInfo ->
+            when (workInfo.state) {
+                WorkInfo.State.SUCCEEDED -> MigrationResult.Success
+                WorkInfo.State.FAILED -> MigrationResult.Failure(workInfo.outputData.getMigrationFailure())
+                else -> null
+            }
+        }
+    }.filterNotNull()
 }

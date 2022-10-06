@@ -4,31 +4,22 @@ import android.content.Context
 import androidx.work.Data
 import androidx.work.workDataOf
 import com.wire.android.datastore.GlobalDataStore
-import com.wire.android.di.KaliumCoreLogic
-import com.wire.kalium.logic.CoreFailure
-import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.StorageFailure
-import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.failure.ServerConfigFailure
-import com.wire.kalium.logic.feature.server.FetchApiVersionResult
-import com.wire.kalium.logic.feature.server.GetServerConfigResult
-import com.wire.kalium.logic.feature.server.StoreServerConfigResult
 import com.wire.kalium.logic.functional.Either
 import com.wire.kalium.logic.functional.flatMap
 import com.wire.kalium.logic.functional.fold
 import com.wire.kalium.logic.functional.mapLeft
 import dagger.hilt.android.qualifiers.ApplicationContext
-import io.github.esentsov.PackagePrivate
 import javax.inject.Inject
 import javax.inject.Singleton
 
 @Singleton
 class MigrationManager @Inject constructor(
-    @KaliumCoreLogic private val coreLogic: CoreLogic,
     @ApplicationContext private val applicationContext: Context,
     private val globalDataStore: GlobalDataStore,
-    private val scalaServerConfigDAO: ScalaServerConfigDAO,
+    private val migrateServerConfigUseCase: MigrateServerConfigUseCase
 ) {
 
     private fun isScalaDBPresent(): Boolean = applicationContext.getDatabasePath(SCALA_DB_NAME).let { it.isFile && it.exists() }
@@ -42,39 +33,8 @@ class MigrationManager @Inject constructor(
         else -> globalDataStore.setMigrationCompleted().let { false }
     }
 
-    private suspend fun ServerConfig.Links.fetchApiVersionAndStore(): Either<CoreFailure, ServerConfig> =
-        coreLogic.getGlobalScope().fetchApiVersion(this).let { // it also already stores the fetched config
-            when (it) {
-                is FetchApiVersionResult.Success -> Either.Right(it.serverConfig)
-                FetchApiVersionResult.Failure.TooNewVersion -> Either.Left(ServerConfigFailure.NewServerVersion)
-                FetchApiVersionResult.Failure.UnknownServerVersion -> Either.Left(ServerConfigFailure.UnknownServerVersion)
-                is FetchApiVersionResult.Failure.Generic -> Either.Left(it.genericFailure)
-            }
-        }
-
-    @PackagePrivate
-    internal suspend fun migrateServerConfig(): Either<CoreFailure, ServerConfig> =
-        when (val scalaServerConfig = scalaServerConfigDAO.scalaServerConfig) {
-            is ScalaServerConfig.Full -> // TODO what to do when versionInfo.domain is null?
-                coreLogic.getGlobalScope().storeServerConfig(scalaServerConfig.links, scalaServerConfig.versionInfo).let {
-                    when (it) {
-                        is StoreServerConfigResult.Success -> Either.Right(it.serverConfig)
-                        is StoreServerConfigResult.Failure.Generic -> Either.Left(it.genericFailure)
-                    }
-                }
-            is ScalaServerConfig.Links -> scalaServerConfig.links.fetchApiVersionAndStore()
-            is ScalaServerConfig.ConfigUrl ->
-                coreLogic.getGlobalScope().fetchServerConfigFromDeepLink(scalaServerConfig.customConfigUrl).let {
-                    when (it) {
-                        is GetServerConfigResult.Success -> it.serverConfigLinks.fetchApiVersionAndStore()
-                        is GetServerConfigResult.Failure.Generic -> Either.Left(it.genericFailure)
-                    }
-                }
-            ScalaServerConfig.NoData -> Either.Left(StorageFailure.DataNotFound)
-        }
-
     suspend fun migrate(): MigrationResult {
-        return migrateServerConfig()
+        return migrateServerConfigUseCase()
             .flatMap {
                 // TODO implement next migration steps and setMigrationCompleted()
                 Either.Right(Unit)

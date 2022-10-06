@@ -3,18 +3,6 @@ package com.wire.android.migration
 import android.content.Context
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.datastore.GlobalDataStore
-import com.wire.android.util.newServerConfig
-import com.wire.kalium.logic.CoreLogic
-import com.wire.kalium.logic.GlobalKaliumScope
-import com.wire.kalium.logic.StorageFailure
-import com.wire.kalium.logic.configuration.server.ServerConfig
-import com.wire.kalium.logic.feature.server.FetchApiVersionResult
-import com.wire.kalium.logic.feature.server.GetServerConfigResult
-import com.wire.kalium.logic.feature.server.StoreServerConfigResult
-import com.wire.kalium.logic.functional.Either
-import com.wire.kalium.logic.functional.isLeft
-import com.wire.kalium.logic.functional.isRight
-import io.mockk.Called
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -22,118 +10,80 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
-import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+import java.io.File
 
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
 class MigrationManagerTest {
 
     @Test
-    fun givenFullDataAndSuccessfulRequests_whenRetrievingServerConfig_thenSaveWithSuccess() = runTest {
-        val expected = Arrangement.serverConfig
-        val versionInfo = Arrangement.versionInfo
-        val (arrangement, manager) = Arrangement()
-            .withScalaServerConfig(ScalaServerConfig.Full(expected.links, versionInfo))
-            .withStoreServerConfigResult(StoreServerConfigResult.Success(expected))
+    fun givenDBFileExistsAndMigrationCompleted_whenCheckingWhetherToMigrate_thenReturnFalse() = runTest {
+        val (_, manager) = Arrangement()
+            .withDBFileExists(true)
+            .withMigrationCompleted(true)
             .arrange()
-        val result = manager.migrateServerConfig()
-        coVerify(exactly = 1) { arrangement.globalKaliumScope.storeServerConfig(expected.links, versionInfo) }
-        coVerify { arrangement.globalKaliumScope.fetchApiVersion(any()) wasNot Called }
-        assert(result.isRight())
-        assertEquals(expected, (result as Either.Right).value)
+        assert(!manager.shouldMigrate())
+    }
+    @Test
+    fun givenDBFileNotExistsAndMigrationCompleted_whenCheckingWhetherToMigrate_thenReturnFalse() = runTest {
+        val (_, manager) = Arrangement()
+            .withDBFileExists(false)
+            .withMigrationCompleted(true)
+            .arrange()
+        assert(!manager.shouldMigrate())
+    }
+    @Test
+    fun givenDBFileExistsAndMigrationNotCompleted_whenCheckingWhetherToMigrate_thenReturnTrue() = runTest {
+        val (_, manager) = Arrangement()
+            .withDBFileExists(true)
+            .withMigrationCompleted(false)
+            .arrange()
+        assert(manager.shouldMigrate())
     }
 
     @Test
-    fun givenLinksDataAndSuccessfulRequests_whenRetrievingServerConfig_thenMakeProperRequestsAndSaveWithSuccess() = runTest {
-        val expected = Arrangement.serverConfig
+    fun givenDBFileNotExistsAndMigrationNotCompleted_whenCheckingWhetherToMigrate_thenSetMigrationCompletedAndReturnFalse() = runTest {
         val (arrangement, manager) = Arrangement()
-            .withScalaServerConfig(ScalaServerConfig.Links(expected.links))
-            .withFetchApiVersionResult(FetchApiVersionResult.Success(expected))
+            .withDBFileExists(false)
+            .withMigrationCompleted(false)
             .arrange()
-        val result = manager.migrateServerConfig()
-        coVerify(exactly = 1) { arrangement.globalKaliumScope.fetchApiVersion(expected.links) }
-        assert(result.isRight())
-        assertEquals(expected, (result as Either.Right).value)
-    }
-
-    @Test
-    fun givenConfigUrlDataAndSuccessfulRequests_whenRetrievingServerConfig_thenMakeProperRequestsAndSaveWithSuccess() = runTest {
-        val customConfigUrl = Arrangement.customConfigUrl
-        val expected = Arrangement.serverConfig
-        val (arrangement, manager) = Arrangement()
-            .withScalaServerConfig(ScalaServerConfig.ConfigUrl(customConfigUrl))
-            .withFetchServerConfigFromDeepLinkResult(GetServerConfigResult.Success(expected.links))
-            .withFetchApiVersionResult(FetchApiVersionResult.Success(expected))
-            .arrange()
-        val result = manager.migrateServerConfig()
-        coVerify(exactly = 1) { arrangement.globalKaliumScope.fetchServerConfigFromDeepLink(customConfigUrl) }
-        coVerify(exactly = 1) { arrangement.globalKaliumScope.fetchApiVersion(expected.links) }
-        assert(result.isRight())
-        assertEquals(expected, (result as Either.Right).value)
-    }
-
-    @Test
-    fun givenNoData_whenRetrievingServerConfig_thenDoNotSaveAndReturnNoData() = runTest {
-        val (arrangement, manager) = Arrangement()
-            .withScalaServerConfig(ScalaServerConfig.NoData)
-            .arrange()
-        val result = manager.migrateServerConfig()
-        coVerify { arrangement.globalKaliumScope.storeServerConfig(any(), any()) wasNot Called }
-        assert(result.isLeft())
-        assertEquals(StorageFailure.DataNotFound, (result as Either.Left).value)
+        assert(!manager.shouldMigrate())
+        coVerify(exactly = 1) { arrangement.globalDataStore.setMigrationCompleted() }
     }
 
     private class Arrangement() {
 
         @MockK
-        lateinit var coreLogic: CoreLogic
-
-        @MockK
         lateinit var applicationContext: Context
-
         @MockK
         lateinit var globalDataStore: GlobalDataStore
-
         @MockK
-        lateinit var scalaServerConfigDAO: ScalaServerConfigDAO
-
+        lateinit var migrateServerConfigUseCase: MigrateServerConfigUseCase
         @MockK
-        lateinit var globalKaliumScope: GlobalKaliumScope
+        lateinit var dbFile: File
 
         private val manager: MigrationManager by lazy {
-            MigrationManager(coreLogic, applicationContext, globalDataStore, scalaServerConfigDAO)
+            MigrationManager(applicationContext, globalDataStore, migrateServerConfigUseCase)
         }
 
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
-            every { coreLogic.getGlobalScope() } returns globalKaliumScope
+            every { applicationContext.getDatabasePath(any()) } returns dbFile
         }
 
-        fun withScalaServerConfig(scalaServerConfig: ScalaServerConfig): Arrangement {
-            every { scalaServerConfigDAO.scalaServerConfig } returns scalaServerConfig
+        fun withDBFileExists(exists: Boolean): Arrangement {
+            every { dbFile.isFile } returns exists
+            every { dbFile.exists() } returns exists
             return this
         }
-        fun withStoreServerConfigResult(result : StoreServerConfigResult): Arrangement {
-            coEvery { globalKaliumScope.storeServerConfig(any(), any()) } returns result
-            return this
-        }
-        fun withFetchServerConfigFromDeepLinkResult(result : GetServerConfigResult): Arrangement {
-            coEvery { globalKaliumScope.fetchServerConfigFromDeepLink(any()) } returns result
-            return this
-        }
-        fun withFetchApiVersionResult(result : FetchApiVersionResult): Arrangement {
-            coEvery { globalKaliumScope.fetchApiVersion(any()) } returns result
+
+        fun withMigrationCompleted(completed: Boolean): Arrangement {
+            coEvery { globalDataStore.isMigrationCompleted() } returns completed
             return this
         }
 
         fun arrange() = this to manager
-
-        companion object {
-            const val customConfigUrl = "customConfigUrl"
-            val serverConfig = newServerConfig(1)
-            val versionInfo = ServerConfig.VersionInfo(true, listOf(0, 1, 2), "wire.com", listOf(2))
-        }
     }
 }

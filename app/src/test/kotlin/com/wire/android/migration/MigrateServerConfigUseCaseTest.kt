@@ -83,8 +83,7 @@ class MigrateServerConfigUseCaseTest {
         assertEquals(StorageFailure.DataNotFound, (result as Either.Left).value)
     }
 
-    private class Arrangement() {
-
+    private class Arrangement {
         @MockK
         lateinit var coreLogic: CoreLogic
         @MockK

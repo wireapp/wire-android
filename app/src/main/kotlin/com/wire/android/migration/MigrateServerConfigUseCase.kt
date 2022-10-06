@@ -22,26 +22,28 @@ class MigrateServerConfigUseCase @Inject constructor(
     suspend operator fun invoke(): Either<CoreFailure, ServerConfig> =
         when (val scalaServerConfig = scalaServerConfigDAO.scalaServerConfig) {
             is ScalaServerConfig.Full -> // TODO what to do when versionInfo.domain is null?
-                coreLogic.getGlobalScope().storeServerConfig(scalaServerConfig.links, scalaServerConfig.versionInfo).let {
-                    when (it) {
-                        is StoreServerConfigResult.Success ->
-                            when (it.serverConfig.metaData.commonApiVersion) {
-                                is CommonApiVersionType.Valid -> Either.Right(it.serverConfig) // if valid just return success
-                                else -> scalaServerConfig.links.fetchApiVersionAndStore() // else try to fetch and update the info
-                            }
-                        is StoreServerConfigResult.Failure.Generic -> Either.Left(it.genericFailure)
-                    }
-                }
-            is ScalaServerConfig.Links -> scalaServerConfig.links.fetchApiVersionAndStore()
+                coreLogic.getGlobalScope().storeServerConfig(scalaServerConfig.links, scalaServerConfig.versionInfo).handleResult()
+            is ScalaServerConfig.Links ->
+                scalaServerConfig.links.fetchApiVersionAndStore()
             is ScalaServerConfig.ConfigUrl ->
-                coreLogic.getGlobalScope().fetchServerConfigFromDeepLink(scalaServerConfig.customConfigUrl).let {
-                    when (it) {
-                        is GetServerConfigResult.Success -> it.serverConfigLinks.fetchApiVersionAndStore()
-                        is GetServerConfigResult.Failure.Generic -> Either.Left(it.genericFailure)
-                    }
-                }
-            ScalaServerConfig.NoData -> Either.Left(StorageFailure.DataNotFound)
+                coreLogic.getGlobalScope().fetchServerConfigFromDeepLink(scalaServerConfig.customConfigUrl).handleResult()
+            ScalaServerConfig.NoData ->
+                Either.Left(StorageFailure.DataNotFound)
         }
+
+    private suspend fun StoreServerConfigResult.handleResult() = when (this) {
+        is StoreServerConfigResult.Success ->
+            when (serverConfig.metaData.commonApiVersion) {
+                is CommonApiVersionType.Valid -> Either.Right(serverConfig) // if valid just return success
+                else -> serverConfig.links.fetchApiVersionAndStore() // else try to fetch and update the info
+            }
+        is StoreServerConfigResult.Failure.Generic -> Either.Left(genericFailure)
+    }
+
+    private suspend fun GetServerConfigResult.handleResult() = when(this) {
+        is GetServerConfigResult.Success -> serverConfigLinks.fetchApiVersionAndStore()
+        is GetServerConfigResult.Failure.Generic -> Either.Left(genericFailure)
+    }
 
     private suspend fun ServerConfig.Links.fetchApiVersionAndStore(): Either<CoreFailure, ServerConfig> =
         coreLogic.getGlobalScope().fetchApiVersion(this).let { // it also already stores the fetched config

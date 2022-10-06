@@ -53,8 +53,7 @@ class MigrationManagerTest {
         coVerify(exactly = 1) { arrangement.globalDataStore.setMigrationCompleted() }
     }
 
-    private class Arrangement() {
-
+    private class Arrangement {
         @MockK
         lateinit var applicationContext: Context
         @MockK

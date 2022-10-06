@@ -7,8 +7,8 @@ import com.wire.android.ui.home.conversations.findUser
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.asset.isDisplayableMimeType
 import com.wire.android.util.ui.WireSessionImageLoader
-import com.wire.kalium.logic.data.asset.isValidImage
 import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
@@ -140,11 +140,11 @@ class MessageContentMapper @Inject constructor(
     fun toUIMessageContent(assetMessageContentMetadata: AssetMessageContentMetadata, message: Message, sender: User?): UIMessageContent =
         with(assetMessageContentMetadata.assetMessageContent) {
             when {
-                assetMessageContentMetadata.isValidImage() && !assetMessageContentMetadata.assetMessageContent.hasValidRemoteData() ->
+                assetMessageContentMetadata.isDisplayableImage() && !assetMessageContentMetadata.assetMessageContent.hasValidRemoteData() ->
                     UIMessageContent.PreviewAssetMessage
 
                 // If it's an image, we delegate the download it right away to coil
-                assetMessageContentMetadata.isValidImage() -> {
+                assetMessageContentMetadata.isDisplayableImage() -> {
                     UIMessageContent.ImageMessage(
                         assetId = AssetId(remoteData.assetId, remoteData.assetDomain.orEmpty()),
                         asset = ImageAsset.PrivateAsset(
@@ -216,7 +216,8 @@ class AssetMessageContentMetadata(val assetMessageContent: AssetContent) {
             else -> 0
         }
 
-    fun isValidImage(): Boolean = isValidImage(assetMessageContent.mimeType) && imgWidth.isGreaterThan(0) && imgHeight.isGreaterThan(0)
+    fun isDisplayableImage(): Boolean = isDisplayableMimeType(assetMessageContent.mimeType) &&
+            imgWidth.isGreaterThan(0) && imgHeight.isGreaterThan(0)
 }
 
 // TODO: should we keep it here ?

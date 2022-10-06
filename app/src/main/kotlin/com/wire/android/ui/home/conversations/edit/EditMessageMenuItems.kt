@@ -28,7 +28,6 @@ import com.wire.android.ui.common.bottomsheet.MenuItemIcon
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun EditMessageMenuItems(
     isCopyable: Boolean,
@@ -38,43 +37,7 @@ fun EditMessageMenuItems(
     onReactionClick: (emoji: String) -> Unit,
 ): List<@Composable () -> Unit> {
     return buildList {
-        add {
-            Column() {
-                Row() {
-                    Spacer(modifier = Modifier.width(8.dp))
-                    Text(stringResource(R.string.label_reactions).uppercase(), style = MaterialTheme.wireTypography.label01)
-                }
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                ) {
-                    listOf("👍", "❤️", "🚀", "🤯", "😄", "🤣", "👎").forEach { emoji ->
-                        CompositionLocalProvider(
-                            LocalMinimumTouchTargetEnforcement provides false
-                        ) {
-                            Button(
-                                onClick = {
-                                    // So we display the pretty emoji,
-                                    // but we match the ugly one sent from other platforms
-                                    val correctedEmoji = if (emoji == "❤️") "❤"
-                                    else emoji
-                                    onReactionClick(correctedEmoji)
-                                },
-                                modifier = Modifier.defaultMinSize(minWidth = 1.dp, minHeight = 1.dp),
-                                contentPadding = PaddingValues(8.dp),
-                                colors = ButtonDefaults.buttonColors(
-                                    containerColor = MaterialTheme.wireColorScheme.surface,
-                                    contentColor = MaterialTheme.wireColorScheme.secondaryButtonSelectedOutline
-                                )
-                            ) {
-                                Text(emoji, style = TextStyle(fontSize = 28.sp))
-                            }
-                        }
-                    }
-                }
-            }
-
-        }
+        add { ReactionOptions(onReactionClick) }
         add {
             if (isCopyable) {
                 MenuBottomSheetItem(
@@ -114,6 +77,46 @@ fun EditMessageMenuItems(
                     title = stringResource(R.string.label_delete),
                     onItemClick = onDeleteMessage
                 )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+private fun ReactionOptions(
+    onReactionClick: (emoji: String) -> Unit
+) {
+    Column {
+        Row {
+            Spacer(modifier = Modifier.width(8.dp))
+            Text(stringResource(R.string.label_reactions).uppercase(), style = MaterialTheme.wireTypography.label01)
+        }
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            listOf("👍", "❤️", "🚀", "🤯", "😄", "🤣", "👎").forEach { emoji ->
+                CompositionLocalProvider(
+                    LocalMinimumTouchTargetEnforcement provides false
+                ) {
+                    Button(
+                        onClick = {
+                            // So we display the pretty emoji,
+                            // but we match the ugly one sent from other platforms
+                            val correctedEmoji = if (emoji == "❤️") "❤"
+                            else emoji
+                            onReactionClick(correctedEmoji)
+                        },
+                        modifier = Modifier.defaultMinSize(minWidth = 1.dp, minHeight = 1.dp),
+                        contentPadding = PaddingValues(8.dp),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = MaterialTheme.wireColorScheme.surface,
+                            contentColor = MaterialTheme.wireColorScheme.secondaryButtonSelectedOutline
+                        )
+                    ) {
+                        Text(emoji, style = TextStyle(fontSize = 28.sp))
+                    }
+                }
             }
         }
     }

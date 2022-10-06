@@ -41,12 +41,12 @@ fun MyAccountScreen(viewModel: MyAccountViewModel = hiltViewModel()) {
 
 @Stable
 private fun mapToUISections(state: MyAccountState): List<AccountDetailsItem> {
-    return listOf(
+    return listOfNotNull(
         AccountDetailsItem.DisplayName(state.fullName),
-        state.userName.isNotBlank().let { AccountDetailsItem.Username("@${state.userName}") },
-        AccountDetailsItem.Email(state.email),
-        state.teamName.isNotBlank().let { AccountDetailsItem.Team(state.teamName) },
-        state.domain.isNotBlank().let { AccountDetailsItem.Domain(state.domain) }
+        state.userName.isNotBlank().let { if (it) AccountDetailsItem.Username("@${state.userName}") else null },
+        state.email.isNotBlank().let { if (it) AccountDetailsItem.Email(state.email) else null },
+        state.teamName.isNotBlank().let { if (it) AccountDetailsItem.Team(state.teamName) else null },
+        state.domain.isNotBlank().let { if (it) AccountDetailsItem.Domain(state.domain) else null }
     )
 }
 

@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
+import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.data.user.SelfUser
@@ -28,6 +29,7 @@ class MyAccountViewModel @Inject constructor(
     private val getSelfTeam: GetSelfTeamUseCase,
     private val serverConfig: SelfServerConfigUseCase,
     private val isPasswordRequired: IsPasswordRequiredUseCase,
+    private val navigationManager: NavigationManager,
     private val dispatchers: DispatcherProvider,
 ) : ViewModel() {
 
@@ -80,6 +82,8 @@ class MyAccountViewModel @Inject constructor(
                 }
         }
     }
+
+    fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }
 
     companion object {
         const val PATH_SUFFIX_FORGOT_URL = "/forgot/"

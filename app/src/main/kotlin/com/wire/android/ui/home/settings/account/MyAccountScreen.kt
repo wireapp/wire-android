@@ -10,6 +10,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -30,10 +31,15 @@ import com.wire.android.util.CustomTabsHelper
 @Composable
 fun MyAccountScreen(viewModel: MyAccountViewModel = hiltViewModel()) {
     with(viewModel.myAccountState) {
-        MyAccountContent(mapToUISections(this), this.changePasswordUrl)
+        MyAccountContent(
+            accountDetailItems = mapToUISections(this),
+            forgotPasswordUrl = this.changePasswordUrl,
+            onNavigateBack = viewModel::navigateBack,
+        )
     }
 }
 
+@Stable
 private fun mapToUISections(state: MyAccountState): List<AccountDetailsItem> {
     return listOf(
         AccountDetailsItem.DisplayName(state.fullName),
@@ -48,13 +54,14 @@ private fun mapToUISections(state: MyAccountState): List<AccountDetailsItem> {
 @Composable
 fun MyAccountContent(
     accountDetailItems: List<AccountDetailsItem> = emptyList(),
-    forgotPasswordUrl: String?
+    forgotPasswordUrl: String?,
+    onNavigateBack: () -> Unit = {},
 ) {
     val context = LocalContext.current
     Scaffold(
         topBar = {
             WireCenterAlignedTopAppBar(
-                onNavigationPressed = {},
+                onNavigationPressed = onNavigateBack,
                 elevation = 0.dp,
                 title = stringResource(id = R.string.settings_your_account_label)
             )

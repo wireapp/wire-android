@@ -4,7 +4,6 @@ import com.wire.android.R
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversations.findUser
 import com.wire.android.ui.home.conversations.model.MessageFooter
-import com.wire.android.ui.home.conversations.model.MessageFooter
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus

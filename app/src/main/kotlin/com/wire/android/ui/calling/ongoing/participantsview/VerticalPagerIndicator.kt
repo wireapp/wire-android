@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.wire.android.ui.calling.common
+package com.wire.android.ui.calling.ongoing.participantsview
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border

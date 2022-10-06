@@ -1,4 +1,4 @@
-package com.wire.android.ui.calling.controlButtons
+package com.wire.android.ui.calling.controlbuttons
 
 import android.content.Context
 import androidx.activity.compose.ManagedActivityResultLauncher

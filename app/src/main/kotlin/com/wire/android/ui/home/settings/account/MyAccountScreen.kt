@@ -81,7 +81,7 @@ fun MyAccountContent(
                 .padding(internalPadding)
         ) {
             folderWithElements(
-                header = context.getString(R.string.settings_account_settings_label),
+                header = context.getString(R.string.settings_myaccount_title),
                 items = accountDetailItems.associateBy { it.title.toString() },
                 factory = { item ->
                     RowItemTemplate(

@@ -588,6 +588,7 @@
     <string name="settings_keep_connection_to_websocket">Keep Connection to Websocket</string>
     <string name="settings_service_is_running">service is running</string>
     <!--Settings, My Account -->
+    <string name="settings_myaccount_title">Account Data</string>
     <string name="settings_myaccount_display_name">DISPLAY NAME</string>
     <string name="settings_myaccount_username">USERNAME</string>
     <string name="settings_myaccount_email">EMAIL</string>

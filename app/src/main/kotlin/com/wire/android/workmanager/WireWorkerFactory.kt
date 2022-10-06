@@ -6,6 +6,7 @@ import androidx.work.ListenableWorker
 import androidx.work.WorkerFactory
 import androidx.work.WorkerParameters
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.migration.MigrationManager
 import com.wire.android.notification.WireNotificationManager
 import com.wire.android.workmanager.worker.MigrationWorker
 import com.wire.android.workmanager.worker.NotificationFetchWorker
@@ -19,6 +20,7 @@ import javax.inject.Inject
 class WireWorkerFactory @Inject constructor(
     private val notificationManagerCompat: NotificationManagerCompat,
     private val wireNotificationManager: WireNotificationManager,
+    private val migrationManager: MigrationManager,
     @KaliumCoreLogic
     private val coreLogic: CoreLogic
 ) : WorkerFactory() {
@@ -31,7 +33,7 @@ class WireWorkerFactory @Inject constructor(
             NotificationFetchWorker::class.java.canonicalName ->
                 NotificationFetchWorker(appContext, workerParameters, wireNotificationManager, notificationManagerCompat)
             MigrationWorker::class.java.canonicalName ->
-                MigrationWorker(appContext, workerParameters, coreLogic, notificationManagerCompat)
+                MigrationWorker(appContext, workerParameters, migrationManager, notificationManagerCompat)
             else -> null
         }
     }

@@ -11,6 +11,7 @@ import com.wire.android.appLogger
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.SwitchAccountParam
+import com.wire.android.migration.MigrationManager
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
@@ -59,7 +60,8 @@ class WireActivityViewModel @Inject constructor(
     private val authServerConfigProvider: AuthServerConfigProvider,
     private val getSessions: GetSessionsUseCase,
     private val accountSwitch: AccountSwitchUseCase,
-    observePersistentWebSocketConnectionStatus: ObservePersistentWebSocketConnectionStatusUseCase,
+    private val observePersistentWebSocketConnectionStatus: ObservePersistentWebSocketConnectionStatusUseCase,
+    private val migrationManager: MigrationManager,
 ) : ViewModel() {
 
     private val navigationArguments = mutableMapOf<String, Any>(SERVER_CONFIG_ARG to ServerConfig.DEFAULT)
@@ -329,7 +331,7 @@ class WireActivityViewModel @Inject constructor(
     }
 
     private fun shouldGoToMigration(): Boolean = runBlocking {
-        false // TODO implement later
+        migrationManager.shouldMigrate()
     }
 
     fun openProfile() {

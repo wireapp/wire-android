@@ -10,6 +10,7 @@ plugins {
     id(BuildPlugins.hilt)
     id(BuildPlugins.junit5)
     kotlin(BuildPlugins.kapt)
+    kotlin(BuildPlugins.serialization) version Libraries.Versions.kotlin
 
     // Internal Script plugins
     id(ScriptPlugins.variants)
@@ -111,6 +112,7 @@ dependencies {
     implementation(Libraries.dataStore)
     implementation(Libraries.splashscreen)
     implementation(Libraries.exifInterface)
+    implementation(Libraries.Kotlin.serialization)
 
     // Image handling
     implementation(Libraries.coil)

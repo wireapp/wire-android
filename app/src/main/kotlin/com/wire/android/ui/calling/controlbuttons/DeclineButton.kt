@@ -1,4 +1,4 @@
-package com.wire.android.ui.calling.controlButtons
+package com.wire.android.ui.calling.controlbuttons
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.height
@@ -8,11 +8,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.ui.common.dimensions
 
 @Composable
-fun AcceptButton(buttonClicked: () -> Unit) {
+fun DeclineButton(buttonClicked: () -> Unit) {
     IconButton(
         modifier = Modifier
             .height(dimensions().initiatingCallHangUpButtonSize)
@@ -21,9 +22,15 @@ fun AcceptButton(buttonClicked: () -> Unit) {
     ) {
         Image(
             painter = painterResource(
-                id = R.drawable.ic_accept
+                id = R.drawable.ic_decline
             ),
-            contentDescription = stringResource(id = R.string.content_description_calling_accept_call)
+            contentDescription = stringResource(id = R.string.content_description_calling_decline_call)
         )
     }
+}
+
+@Preview
+@Composable
+fun ComposableDeclineButtonPreview() {
+    DeclineButton(buttonClicked = { })
 }

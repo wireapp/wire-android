@@ -26,9 +26,9 @@ import com.wire.android.ui.calling.CallState
 import com.wire.android.ui.calling.SharedCallingViewModel
 import com.wire.android.ui.calling.common.CallVideoPreview
 import com.wire.android.ui.calling.common.CallerDetails
-import com.wire.android.ui.calling.controlButtons.AcceptButton
-import com.wire.android.ui.calling.controlButtons.CallOptionsControls
-import com.wire.android.ui.calling.controlButtons.DeclineButton
+import com.wire.android.ui.calling.controlbuttons.AcceptButton
+import com.wire.android.ui.calling.controlbuttons.CallOptionsControls
+import com.wire.android.ui.calling.controlbuttons.DeclineButton
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType

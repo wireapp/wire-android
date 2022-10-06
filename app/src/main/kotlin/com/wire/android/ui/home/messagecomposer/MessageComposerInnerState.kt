@@ -19,7 +19,7 @@ import com.wire.android.util.getFileName
 import com.wire.android.util.getMimeType
 import com.wire.android.util.orDefault
 import com.wire.android.util.resampleImageAndCopyToTempPath
-import com.wire.kalium.logic.data.asset.isValidImage
+import com.wire.kalium.logic.data.asset.isDisplayableMimeType
 import okio.Path
 import okio.Path.Companion.toPath
 import java.io.IOException
@@ -123,7 +123,7 @@ class AttachmentInnerState(val context: Context) {
             val fullTempAssetPath = "$tempCachePath/${UUID.randomUUID()}".toPath()
             val assetFileName = context.getFileName(attachmentUri) ?: throw IOException("The selected asset has an invalid name")
             val mimeType = attachmentUri.getMimeType(context).orDefault(DEFAULT_FILE_MIME_TYPE)
-            val attachmentType = if (isValidImage(mimeType)) AttachmentType.IMAGE else AttachmentType.GENERIC_FILE
+            val attachmentType = if (isDisplayableMimeType(mimeType)) AttachmentType.IMAGE else AttachmentType.GENERIC_FILE
             val assetSize = if (attachmentType == AttachmentType.IMAGE)
                 attachmentUri.resampleImageAndCopyToTempPath(context, fullTempAssetPath)
             else attachmentUri.copyToTempPath(context, fullTempAssetPath)

@@ -168,9 +168,10 @@ class MessageComposerViewModel @Inject constructor(
                         AttachmentType.IMAGE -> {
                             if (dataSize > IMAGE_SIZE_LIMIT_BYTES) onSnackbarMessage(ErrorMaxImageSize)
                             else {
-                                val (imgWidth, imgHeight) = ImageUtil.extractImageWidthAndHeight(
-                                    kaliumFileSystem.source(attachmentBundle.dataPath).buffer().inputStream()
-                                )
+                                val (imgWidth, imgHeight) =
+                                    ImageUtil.extractImageWidthAndHeight(
+                                        kaliumFileSystem.source(attachmentBundle.dataPath).buffer().inputStream(), mimeType
+                                    )
                                 val result = sendAssetMessage(
                                     conversationId = conversationId,
                                     assetDataPath = dataPath,

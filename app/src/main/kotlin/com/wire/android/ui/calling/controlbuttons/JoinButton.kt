@@ -1,4 +1,4 @@
-package com.wire.android.ui.calling.controlButtons
+package com.wire.android.ui.calling.controlbuttons
 
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.padding

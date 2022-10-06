@@ -2,8 +2,8 @@ package com.wire.android.ui.migration
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.work.WorkInfo
 import androidx.work.WorkManager
+import com.wire.android.migration.MigrationResult
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
@@ -31,9 +31,13 @@ class MigrationViewModel @Inject constructor(
     }
 
     private suspend fun enqueueMigrationAndListenForStateChanges() {
-        workManager.enqueueMigrationWorker().collect { state ->
-            if (state == WorkInfo.State.SUCCEEDED)
-                navigateAfterMigration()
+        workManager.enqueueMigrationWorker().collect {
+            when (it) {
+                is MigrationResult.Success -> navigateAfterMigration()
+                is MigrationResult.Failure -> {
+                    val failureType = it.type // TODO maybe show info and retry button in some cases?
+                }
+            }
         }
     }
 

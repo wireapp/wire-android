@@ -33,6 +33,7 @@ object BuildPlugins {
     const val hilt = "dagger.hilt.android.plugin"
     const val junit5 = "de.mannodermaus.android-junit5"
     const val gms = "com.google.gms.google-services"
+    const val serialization = "plugin.serialization"
 }
 
 object ScriptPlugins {
@@ -84,6 +85,7 @@ object Libraries {
         const val firebaseBOM = "29.3.1"
         const val dataDog = "1.13.0"
         const val ktxDateTime = "0.3.2"
+        const val ktxSerialization = "1.3.2"
     }
 
     // AndroidX Dependencies
@@ -145,6 +147,7 @@ object Libraries {
         const val stdLib            = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${Versions.kotlin}"
         const val coroutinesCore    = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines}"
         const val coroutinesAndroid = "org.jetbrains.kotlinx:kotlinx-coroutines-android:${Versions.coroutines}"
+        const val serialization     = "org.jetbrains.kotlinx:kotlinx-serialization-json:${Versions.ktxSerialization}"
     }
 
     object Firebase {

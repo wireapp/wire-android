@@ -61,7 +61,7 @@ class MyAccountViewModel @Inject constructor(
         when (val result = withContext(dispatchers.io()) { serverConfig() }) {
             is SelfServerConfigUseCase.Result.Failure -> appLogger.e("Error when fetching the accounts url for change password")
             is SelfServerConfigUseCase.Result.Success -> myAccountState =
-                myAccountState.copy(changePasswordUrl = result.serverLinks.links.forgotPassword + PATH_SUFFIX_FORGOT_URL)
+                myAccountState.copy(changePasswordUrl = result.serverLinks.links.forgotPassword)
         }
     }
 
@@ -84,9 +84,4 @@ class MyAccountViewModel @Inject constructor(
     }
 
     fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }
-
-    companion object {
-        const val PATH_SUFFIX_FORGOT_URL = "/forgot/"
-    }
-
 }

@@ -121,6 +121,7 @@ object Libraries {
     const val browser                   = "androidx.browser:browser:${Versions.browser}"
     const val splashscreen              = "androidx.core:core-splashscreen:${Versions.splashscreen}"
     const val coil                      = "io.coil-kt:coil:${Versions.coil}"
+    const val coilGif                   = "io.coil-kt:coil-gif:${Versions.coil}"
     const val coilCompose               = "io.coil-kt:coil-compose:${Versions.coil}"
     const val dataDog                   = "com.datadoghq:dd-sdk-android:${Versions.dataDog}"
 

@@ -18,6 +18,7 @@ import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_ACCOU
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_PERSONAL_ACCOUNT
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_TEAM
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.DEBUG
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.SELF_DEVICES
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.GROUP_CONVERSATION_ALL_PARTICIPANTS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.GROUP_CONVERSATION_DETAILS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.HOME
@@ -26,6 +27,7 @@ import com.wire.android.navigation.NavigationItemDestinationsRoutes.INCOMING_CAL
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.INITIATING_CALL
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.LOGIN
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.MEDIA_GALLERY
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.MIGRATION
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.NETWORK_SETTINGS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.NEW_CONVERSATION
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.ONGOING_CALL
@@ -44,7 +46,7 @@ import com.wire.android.ui.authentication.devices.register.RegisterDeviceScreen
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceScreen
 import com.wire.android.ui.authentication.login.LoginScreen
 import com.wire.android.ui.authentication.welcome.WelcomeScreen
-import com.wire.android.ui.calling.OngoingCallScreen
+import com.wire.android.ui.calling.ongoing.OngoingCallScreen
 import com.wire.android.ui.calling.incoming.IncomingCallScreen
 import com.wire.android.ui.calling.initiating.InitiatingCallScreen
 import com.wire.android.ui.debugscreen.DebugScreen
@@ -58,6 +60,8 @@ import com.wire.android.ui.home.newconversation.NewConversationRouter
 import com.wire.android.ui.home.settings.appsettings.AppSettingsScreen
 import com.wire.android.ui.home.settings.appsettings.networkSettings.NetworkSettingsScreen
 import com.wire.android.ui.home.settings.backup.BackupAndRestoreScreen
+import com.wire.android.ui.migration.MigrationScreen
+import com.wire.android.ui.settings.devices.SelfDevicesScreen
 import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerScreen
 import com.wire.android.ui.userprofile.other.OtherUserProfileScreen
 import com.wire.android.ui.userprofile.self.SelfUserProfileScreen
@@ -84,6 +88,11 @@ enum class NavigationItem(
         primaryRoute = WELCOME,
         content = { WelcomeScreen() },
         animationConfig = NavigationAnimationConfig.CustomAnimation(smoothSlideInFromRight(), smoothSlideOutFromLeft())
+    ),
+
+    Migration(
+        primaryRoute = MIGRATION,
+        content = { MigrationScreen() },
     ),
 
     Login(
@@ -156,6 +165,11 @@ enum class NavigationItem(
     AppSettings(
         primaryRoute = APP_SETTINGS,
         content = { AppSettingsScreen() },
+    ),
+
+    SelfDevices(
+        primaryRoute = SELF_DEVICES,
+        content = { SelfDevicesScreen() }
     ),
 
     BackupAndRestore(
@@ -231,8 +245,10 @@ enum class NavigationItem(
                 conversationCallViewModel = hiltSavedStateViewModel(it.navBackStackEntry),
                 conversationInfoViewModel = hiltSavedStateViewModel(it.navBackStackEntry),
                 conversationMessagesViewModel = hiltSavedStateViewModel(it.navBackStackEntry),
-                commonTopAppBarViewModel = hiltViewModel()
-            )
+                commonTopAppBarViewModel = hiltViewModel(),
+                conversationBannerViewModel = hiltSavedStateViewModel(it.navBackStackEntry),
+
+                )
         },
         animationConfig = NavigationAnimationConfig.NoAnimation
     ) {
@@ -360,6 +376,7 @@ enum class NavigationItem(
 
 object NavigationItemDestinationsRoutes {
     const val WELCOME = "welcome_screen"
+    const val MIGRATION = "migration_screen"
     const val LOGIN = "login_screen"
     const val CREATE_TEAM = "create_team_screen"
     const val CREATE_PERSONAL_ACCOUNT = "create_personal_account_screen"
@@ -373,6 +390,7 @@ object NavigationItemDestinationsRoutes {
     const val GROUP_CONVERSATION_ALL_PARTICIPANTS = "group_conversation_all_participants_screen"
     const val ADD_CONVERSATION_PARTICIPANTS = "add_conversation_participants"
     const val APP_SETTINGS = "app_settings_screen"
+    const val SELF_DEVICES = "self_devices_screen"
     const val BACKUP_AND_RESTORE = "backup_and_restore_screen"
     const val DEBUG = "debug_screen"
     const val REPORT_BUG = "report_bug"

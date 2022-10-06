@@ -78,19 +78,18 @@ class ConversationInfoViewModel @Inject constructor(
     }
 
     private fun handleConversationDetails(conversationDetails: ConversationDetails) {
-        val isConversationUnavailable = when (conversationDetails) {
-            is ConversationDetails.OneOne -> conversationDetails.otherUser.isUnavailableUser
-            else -> false
+        val (isConversationUnavailable, isUserBlocked) = when (conversationDetails) {
+            is ConversationDetails.OneOne -> conversationDetails.otherUser
+                .run { isUnavailableUser to (connectionStatus == ConnectionState.BLOCKED) }
+            else -> false to false
         }
-
-        val connectionStateOrNull = (conversationInfoViewState.conversationDetailsData as? ConversationDetailsData.OneOne)?.connectionState
 
         val detailsData = getConversationDetailsData(conversationDetails)
         conversationInfoViewState = conversationInfoViewState.copy(
             conversationName = getConversationName(conversationDetails, isConversationUnavailable),
             conversationAvatar = getConversationAvatar(conversationDetails),
             conversationDetailsData = detailsData,
-            isUserBlocked = connectionStateOrNull == ConnectionState.BLOCKED,
+            isUserBlocked = isUserBlocked,
             hasUserPermissionToEdit = detailsData !is ConversationDetailsData.None
         )
     }

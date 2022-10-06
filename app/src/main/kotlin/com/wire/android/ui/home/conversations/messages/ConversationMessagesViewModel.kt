@@ -113,20 +113,7 @@ class ConversationMessagesViewModel @Inject constructor(
             return
         }
         val assetContent = messageContent.value
-        val downloadStatus = assetContent.downloadStatus
-        val isAssetDownloadedInternally = downloadStatus == Message.DownloadStatus.SAVED_INTERNALLY ||
-                downloadStatus == Message.DownloadStatus.DOWNLOAD_IN_PROGRESS
-
-        if (!isAssetDownloadedInternally)
-        // TODO: Refactor. UseCase responsible for downloading should update to IN_PROGRESS status.
-            updateAssetMessageDownloadStatus(Message.DownloadStatus.DOWNLOAD_IN_PROGRESS, conversationId, messageId)
-
         val resultData = assetDataPath(conversationId, messageId)
-        updateAssetMessageDownloadStatus(
-            if (resultData != null) Message.DownloadStatus.SAVED_INTERNALLY else Message.DownloadStatus.FAILED_DOWNLOAD,
-            conversationId,
-            messageId
-        )
 
         if (resultData != null) {
             showOnAssetDownloadedDialog(assetContent.name ?: "", resultData, assetContent.sizeInBytes, messageId)

@@ -15,8 +15,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import com.wire.android.BuildConfig
 import com.wire.android.R
+import com.wire.android.ui.authentication.devices.DeviceItem
 import com.wire.android.ui.authentication.devices.model.Device
-import com.wire.android.ui.authentication.devices.remove.RemoveDeviceItem
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.CustomTabsHelper
@@ -61,7 +61,7 @@ fun OtherUserDevicesScreen(
             }
 
             itemsIndexed(otherUserClients) { index, item ->
-                RemoveDeviceItem(Device(item.deviceType.name, ClientId(item.id), ""), false, null)
+                DeviceItem(Device(item.deviceType.name, ClientId(item.id), ), false, null)
                 if (index < otherUserClients.lastIndex) Divider()
             }
         }

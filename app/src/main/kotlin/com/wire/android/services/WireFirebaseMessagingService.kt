@@ -68,7 +68,7 @@ class WireFirebaseMessagingService : FirebaseMessagingService() {
         val workManager = WorkManager.getInstance(applicationContext)
 
         workManager.enqueueUniqueWork(
-            userId,
+            NotificationFetchWorker.WORK_NAME_PREFIX_PER_USER + userId,
             ExistingWorkPolicy.KEEP,
             request
         )

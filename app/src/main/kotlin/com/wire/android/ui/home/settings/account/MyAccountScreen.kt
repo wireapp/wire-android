@@ -1,35 +1,120 @@
 package com.wire.android.ui.home.settings.account
 
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ChevronRight
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
+import com.wire.android.ui.common.Icon
+import com.wire.android.ui.common.RowItemTemplate
+import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.home.conversationslist.folderWithElements
+import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.CustomTabsHelper
+
+@Composable
+fun MyAccountScreen(viewModel: MyAccountViewModel = hiltViewModel()) {
+    with(viewModel.myAccountState) {
+        MyAccountContent(mapToUISections(this), this.changePasswordUrl)
+    }
+}
+
+private fun mapToUISections(state: MyAccountState): List<AccountDetailsItem> {
+    return listOf(
+        AccountDetailsItem.DisplayName(state.fullName),
+        state.userName.isNotBlank().let { AccountDetailsItem.Username("@${state.userName}") },
+        AccountDetailsItem.Email(state.email),
+        state.teamName.isNotBlank().let { AccountDetailsItem.Team(state.teamName) },
+        state.domain.isNotBlank().let { AccountDetailsItem.Domain(state.domain) }
+    )
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun MyAccountScreen() {
-    Scaffold(topBar = {
-        WireCenterAlignedTopAppBar(
-            onNavigationPressed = {},
-            elevation = 0.dp,
-            title = stringResource(id = R.string.settings_your_account_label)
-        )
-    }) { internalPadding ->
-        Column(
+fun MyAccountContent(
+    accountDetailItems: List<AccountDetailsItem> = emptyList(),
+    forgotPasswordUrl: String?
+) {
+    val context = LocalContext.current
+    Scaffold(
+        topBar = {
+            WireCenterAlignedTopAppBar(
+                onNavigationPressed = {},
+                elevation = 0.dp,
+                title = stringResource(id = R.string.settings_your_account_label)
+            )
+        }, bottomBar = {
+            if (forgotPasswordUrl?.isNotBlank() == true) {
+                WirePrimaryButton(
+                    text = stringResource(R.string.settings_myaccount_reset_password),
+                    onClick = { CustomTabsHelper.launchUrl(context, forgotPasswordUrl) },
+                    modifier = Modifier.padding(dimensions().spacing16x)
+                )
+            }
+        }
+    ) { internalPadding ->
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(internalPadding)
         ) {
-            Text(text = "holis!")
+            folderWithElements(
+                header = context.getString(R.string.settings_account_settings_label),
+                items = accountDetailItems.associateBy { it.title.toString() },
+                factory = { item ->
+                    RowItemTemplate(
+                        title = {
+                            Text(
+                                style = MaterialTheme.wireTypography.label01,
+                                color = MaterialTheme.wireColorScheme.secondaryText,
+                                text = item.title.asString(),
+                                modifier = Modifier.padding(start = dimensions().spacing8x)
+                            )
+                            Text(
+                                style = MaterialTheme.wireTypography.body01,
+                                color = MaterialTheme.wireColorScheme.onBackground,
+                                text = item.text,
+                                modifier = Modifier.padding(start = dimensions().spacing8x)
+                            )
+                        },
+                        actions = {
+                            if (item.clickable.enabled) {
+                                Icons.Filled.ChevronRight.Icon().invoke()
+                            }
+                        },
+                        clickable = item.clickable
+                    )
+                }
+            )
         }
     }
 }
 
+@Preview(showBackground = true)
+@Composable
+fun MyAccountScreenPreview() {
+    MyAccountContent(
+        listOf(
+            AccountDetailsItem.DisplayName("Bob"),
+            AccountDetailsItem.Username("@bob_wire"),
+            AccountDetailsItem.Email("bob@wire.com"),
+            AccountDetailsItem.Team("Wire"),
+        ),
+        "http://wire.com"
+    )
+}

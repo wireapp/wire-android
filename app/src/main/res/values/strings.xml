@@ -587,6 +587,13 @@
     <string name="settings_about_this_app_label">About this App</string>
     <string name="settings_keep_connection_to_websocket">Keep Connection to Websocket</string>
     <string name="settings_service_is_running">service is running</string>
+    <!--Settings, My Account -->
+    <string name="settings_myaccount_display_name">DISPLAY NAME</string>
+    <string name="settings_myaccount_username">USERNAME</string>
+    <string name="settings_myaccount_email">EMAIL</string>
+    <string name="settings_myaccount_team">TEAM</string>
+    <string name="settings_myaccount_domain">DOMAIN</string>
+    <string name="settings_myaccount_reset_password">Reset Password</string>
 
     <!--Devices -->
     <string name="devices_title">Your Devices</string>

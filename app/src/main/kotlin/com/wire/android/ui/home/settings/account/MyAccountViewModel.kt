@@ -46,7 +46,7 @@ class MyAccountViewModel @Inject constructor(
     private suspend fun loadPasswordChangeContextIfPossible() {
         viewModelScope.launch {
             when (val result = withContext(dispatchers.io()) { isPasswordRequired() }) {
-                is IsPasswordRequiredUseCase.Result.Failure -> appLogger.e("Error when fetching the accounts url for change password")
+                is IsPasswordRequiredUseCase.Result.Failure -> appLogger.e("Error when fetching if user can change password")
                 is IsPasswordRequiredUseCase.Result.Success -> {
                     when (result.value) {
                         true -> fetchChangePasswordUrl()

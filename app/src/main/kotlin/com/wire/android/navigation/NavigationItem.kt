@@ -46,7 +46,7 @@ import com.wire.android.ui.authentication.devices.register.RegisterDeviceScreen
 import com.wire.android.ui.authentication.devices.remove.RemoveDeviceScreen
 import com.wire.android.ui.authentication.login.LoginScreen
 import com.wire.android.ui.authentication.welcome.WelcomeScreen
-import com.wire.android.ui.calling.OngoingCallScreen
+import com.wire.android.ui.calling.ongoing.OngoingCallScreen
 import com.wire.android.ui.calling.incoming.IncomingCallScreen
 import com.wire.android.ui.calling.initiating.InitiatingCallScreen
 import com.wire.android.ui.debugscreen.DebugScreen

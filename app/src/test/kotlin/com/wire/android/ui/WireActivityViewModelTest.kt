@@ -18,7 +18,6 @@ import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.newServerConfig
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AccountInfo
 import com.wire.kalium.logic.feature.server.GetServerConfigResult
@@ -417,7 +416,7 @@ class WireActivityViewModelTest {
                 observePersistentWebSocketConnectionStatus = observePersistentWebSocketConnectionStatus,
                 getSessions = getSessionsUseCase,
                 accountSwitch = switchAccount,
-                migrationManager = migrationManager
+                migrationManager = migrationManager,
                 observeSyncStateUseCaseProviderFactory = observeSyncStateUseCaseProviderFactory
             )
         }

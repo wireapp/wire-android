@@ -59,7 +59,10 @@ fun ConversationSheetContent(
         }
     }
 
-    BackHandler(isBottomSheetVisible() && conversationSheetState.currentOptionNavigation is ConversationOptionNavigation.MutingNotificationOption) {
+    BackHandler(
+        conversationSheetState.currentOptionNavigation is ConversationOptionNavigation.MutingNotificationOption
+                && isBottomSheetVisible()
+    ) {
         conversationSheetState.toHome()
     }
 }

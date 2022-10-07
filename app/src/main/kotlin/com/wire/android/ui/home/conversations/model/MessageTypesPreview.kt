@@ -26,7 +26,8 @@ fun PreviewMessage() {
         onLongClicked = {},
         onAssetMessageClicked = {},
         onImageMessageClicked = { _, _ -> },
-        onAvatarClicked = { _, _ -> }
+        onAvatarClicked = { _, _ -> },
+        onReactionClicked = { _, _ -> }
     )
 }
 
@@ -40,7 +41,8 @@ fun PreviewDeletedMessage() {
         onLongClicked = {},
         onAssetMessageClicked = {},
         onImageMessageClicked = { _, _ -> },
-        onAvatarClicked = { _, _ -> }
+        onAvatarClicked = { _, _ -> },
+        onReactionClicked = { _, _ -> }
     )
 }
 
@@ -52,7 +54,8 @@ fun PreviewAssetMessage() {
         onLongClicked = {},
         onAssetMessageClicked = {},
         onImageMessageClicked = { _, _ -> },
-        onAvatarClicked = { _, _ -> }
+        onAvatarClicked = { _, _ -> },
+        onReactionClicked = { _, _ -> }
     )
 }
 
@@ -64,7 +67,8 @@ fun PreviewImageMessageUploaded() {
         onLongClicked = {},
         onAssetMessageClicked = {},
         onImageMessageClicked = { _, _ -> },
-        onAvatarClicked = { _, _ -> }
+        onAvatarClicked = { _, _ -> },
+        onReactionClicked = { _, _ -> }
     )
 }
 
@@ -76,7 +80,8 @@ fun PreviewImageMessageUploading() {
         onLongClicked = {},
         onAssetMessageClicked = {},
         onImageMessageClicked = { _, _ -> },
-        onAvatarClicked = { _, _ -> }
+        onAvatarClicked = { _, _ -> },
+        onReactionClicked = { _, _ -> }
     )
 }
 @Preview(showBackground = true)
@@ -87,7 +92,8 @@ fun PreviewImageMessageFailedUpload() {
         onLongClicked = {},
         onAssetMessageClicked = {},
         onImageMessageClicked = { _, _ -> },
-        onAvatarClicked = { _, _ -> }
+        onAvatarClicked = { _, _ -> },
+        onReactionClicked = { _, _ -> }
     )
 }
 
@@ -100,7 +106,9 @@ fun PreviewMessageWithSystemMessage() {
             onLongClicked = {},
             onAssetMessageClicked = {},
             onImageMessageClicked = { _, _ -> },
-            onAvatarClicked = { _, _ -> })
+            onAvatarClicked = { _, _ -> },
+            onReactionClicked = { _, _ -> }
+        )
         SystemMessageItem(UIMessageContent.SystemMessage.MissedCall.YouCalled(UIText.DynamicString("You")))
         SystemMessageItem(
             UIMessageContent.SystemMessage.MemberAdded(

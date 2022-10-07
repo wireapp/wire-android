@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.wire.android.ui.home.conversations
 
 import androidx.compose.foundation.BorderStroke
@@ -8,34 +10,48 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.LocalMinimumTouchTargetEnforcement
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import com.google.accompanist.flowlayout.FlowRow
 import com.wire.android.R
+import com.wire.android.appLogger
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.LegalHoldIndicator
 import com.wire.android.ui.common.UserBadge
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.model.MessageBody
+import com.wire.android.ui.home.conversations.model.MessageFooter
 import com.wire.android.ui.home.conversations.model.MessageGenericAsset
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageImage
@@ -58,10 +74,12 @@ fun MessageItem(
     onLongClicked: (UIMessage) -> Unit,
     onAssetMessageClicked: (String) -> Unit,
     onImageMessageClicked: (String, Boolean) -> Unit,
-    onAvatarClicked: (MessageSource, UserId) -> Unit
+    onAvatarClicked: (MessageSource, UserId) -> Unit,
+    onReactionClicked: (String, String) -> Unit
 ) {
     with(message) {
         val fullAvatarOuterPadding = dimensions().userAvatarClickablePadding + dimensions().userAvatarStatusBorderSize
+        Column {  }
         Row(
             Modifier
                 .customizeMessageBackground(message)
@@ -121,6 +139,10 @@ fun MessageItem(
                             onImageClick = currentOnImageClick,
                             onLongClick = onLongClick
                         )
+                        MessageFooter(
+                            messageFooter,
+                            onReactionClicked
+                        )
                     } else {
                         // Decryption failed for this message
                         MessageDecryptionFailure()
@@ -145,7 +167,9 @@ private fun Modifier.customizeMessageBackground(
 }
 
 @Composable
-private fun MessageHeader(messageHeader: MessageHeader) {
+private fun MessageHeader(
+    messageHeader: MessageHeader,
+) {
     with(messageHeader) {
         Column {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -171,6 +195,86 @@ private fun MessageHeader(messageHeader: MessageHeader) {
                 )
             }
             MessageStatusLabel(messageStatus = messageStatus)
+        }
+    }
+}
+
+@Composable
+private fun MessageFooter(
+    messageFooter: MessageFooter,
+    onReactionClicked: (String, String) -> Unit
+) {
+    FlowRow(
+        mainAxisSpacing = 4.dp,
+        crossAxisSpacing = 6.dp,
+        modifier = Modifier.padding(vertical = 4.dp)
+    ) {
+        messageFooter.reactions.entries
+            .sortedBy { it.key }
+            .forEach {
+                val reaction = it.key
+                val count = it.value
+                Pill(
+                    emoji = reaction,
+                    count = count,
+                    isOwn = messageFooter.ownReactions.contains(reaction),
+                    onTap = {
+                        onReactionClicked(messageFooter.messageId, reaction)
+                    }
+                )
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun Pill(
+    emoji: String,
+    count: Int,
+    isOwn: Boolean,
+    onTap: () -> Unit
+) {
+
+    val strokeColor = if (isOwn) {
+        MaterialTheme.wireColorScheme.secondaryButtonSelectedOutline
+    } else {
+        MaterialTheme.wireColorScheme.primaryButtonDisabled
+    }
+
+    val backgroundColor = if (isOwn) {
+        MaterialTheme.wireColorScheme.secondaryButtonSelected
+    } else {
+        MaterialTheme.wireColorScheme.surface
+    }
+
+    val textColor = if (isOwn) {
+        MaterialTheme.wireColorScheme.primary
+    } else {
+        MaterialTheme.wireColorScheme.labelText
+    }
+
+    CompositionLocalProvider(
+        LocalMinimumTouchTargetEnforcement provides false
+    ) {
+        OutlinedButton(
+            onClick = onTap,
+            border = BorderStroke(1.dp, strokeColor),
+            shape = RoundedCornerShape(12.dp),
+            colors = ButtonDefaults.outlinedButtonColors(containerColor = backgroundColor),
+            contentPadding = PaddingValues(start = 8.dp, end = 8.dp, top = 4.dp, bottom = 4.dp),
+            modifier = Modifier
+                .defaultMinSize(minWidth = 1.dp, minHeight = 1.dp)
+        ) {
+            Text(
+                emoji,
+                style = TextStyle(fontSize = 12.sp)
+            )
+            Text(
+                count.toString(),
+                modifier = Modifier.padding(start = 4.dp, end = 0.dp, top = 0.dp, bottom = 0.dp),
+                style = MaterialTheme.wireTypography.label02,
+                color = textColor
+            )
         }
     }
 }
@@ -208,7 +312,7 @@ private fun MessageContent(
 ) {
     when (messageContent) {
         is UIMessageContent.ImageMessage -> MessageImage(
-            rawImgData = messageContent.imgData,
+            asset = messageContent.asset,
             imgParams = ImageMessageParams(messageContent.width, messageContent.height),
             uploadStatus = messageContent.uploadStatus,
             downloadStatus = messageContent.downloadStatus,

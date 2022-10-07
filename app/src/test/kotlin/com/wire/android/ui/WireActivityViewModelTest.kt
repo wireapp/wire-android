@@ -7,6 +7,7 @@ import com.wire.android.config.mockUri
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ObserveSyncStateUseCaseProvider
 import com.wire.android.feature.AccountSwitchUseCase
+import com.wire.android.migration.MigrationManager
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
@@ -365,6 +366,7 @@ class WireActivityViewModelTest {
             coEvery { navigationManager.navigate(any()) } returns Unit
             coEvery { observePersistentWebSocketConnectionStatus() } returns flowOf(true)
             coEvery { getSessionsUseCase.invoke() }
+            coEvery { migrationManager.shouldMigrate() } returns false
         }
 
         @MockK
@@ -395,6 +397,9 @@ class WireActivityViewModelTest {
         private lateinit var switchAccount: AccountSwitchUseCase
 
         @MockK
+        private lateinit var migrationManager: MigrationManager
+
+        @MockK
         private lateinit var observeSyncStateUseCase: ObserveSyncStateUseCase
 
         @MockK
@@ -412,6 +417,7 @@ class WireActivityViewModelTest {
                 observePersistentWebSocketConnectionStatus = observePersistentWebSocketConnectionStatus,
                 getSessions = getSessionsUseCase,
                 accountSwitch = switchAccount,
+                migrationManager = migrationManager
                 observeSyncStateUseCaseProviderFactory = observeSyncStateUseCaseProviderFactory
             )
         }

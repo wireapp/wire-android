@@ -1,4 +1,4 @@
-package com.wire.android.ui.calling.common
+package com.wire.android.ui.calling.ongoing.participantsview
 
 import android.view.View
 import androidx.compose.foundation.layout.Box
@@ -21,6 +21,8 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.VerticalPager
 import com.google.accompanist.pager.rememberPagerState
 import com.wire.android.ui.calling.model.UICallParticipant
+import com.wire.android.ui.calling.ongoing.participantsview.gridview.GroupCallGrid
+import com.wire.android.ui.calling.ongoing.participantsview.horizentalview.OneOnOneCallView
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireDimensions

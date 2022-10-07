@@ -1,4 +1,4 @@
-package com.wire.android.ui.calling
+package com.wire.android.ui.calling.ongoing
 
 import android.view.View
 import android.widget.Toast
@@ -29,13 +29,15 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
-import com.wire.android.ui.calling.common.VerticalCallingPager
-import com.wire.android.ui.calling.controlButtons.CameraButton
-import com.wire.android.ui.calling.controlButtons.CameraFlipButton
-import com.wire.android.ui.calling.controlButtons.HangUpButton
-import com.wire.android.ui.calling.controlButtons.MicrophoneButton
-import com.wire.android.ui.calling.controlButtons.SpeakerButton
+import com.wire.android.ui.calling.ConversationName
+import com.wire.android.ui.calling.SharedCallingViewModel
+import com.wire.android.ui.calling.controlbuttons.CameraButton
+import com.wire.android.ui.calling.controlbuttons.CameraFlipButton
+import com.wire.android.ui.calling.controlbuttons.HangUpButton
+import com.wire.android.ui.calling.controlbuttons.MicrophoneButton
+import com.wire.android.ui.calling.controlbuttons.SpeakerButton
 import com.wire.android.ui.calling.model.UICallParticipant
+import com.wire.android.ui.calling.ongoing.participantsview.VerticalCallingPager
 import com.wire.android.ui.common.SecurityClassificationBanner
 import com.wire.android.ui.common.WireCircularProgressIndicator
 import com.wire.android.ui.common.dimensions

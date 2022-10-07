@@ -17,15 +17,14 @@ import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.home.HomeSnackbarState
 import com.wire.android.ui.home.conversationslist.mock.mockAllMentionList
 import com.wire.android.ui.home.conversationslist.mock.mockCallHistory
-import com.wire.android.ui.home.conversationslist.mock.mockMissedCalls
 import com.wire.android.ui.home.conversationslist.mock.mockUnreadMentionList
 import com.wire.android.ui.home.conversationslist.model.BadgeEventType
+import com.wire.android.ui.home.conversationslist.model.BlockState
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.ConversationLastEvent
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
-import com.wire.android.ui.home.conversationslist.model.getBlockingState
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.ConversationDetails
@@ -37,23 +36,24 @@ import com.wire.kalium.logic.data.conversation.LegalHoldStatus
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.ConnectionState
-import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.AnswerCallUseCase
 import com.wire.kalium.logic.feature.connection.BlockUserResult
 import com.wire.kalium.logic.feature.connection.BlockUserUseCase
+import com.wire.kalium.logic.feature.connection.UnblockUserResult
+import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
-import com.wire.kalium.logic.feature.conversation.ObserveConversationsAndConnectionsUseCase
+import com.wire.kalium.logic.feature.conversation.LeaveConversationUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
 import com.wire.kalium.logic.feature.team.Result
-import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Date
@@ -67,20 +67,20 @@ class ConversationListViewModel @Inject constructor(
     private val dispatcher: DispatcherProvider,
     private val updateConversationMutedStatus: UpdateConversationMutedStatusUseCase,
     private val answerCall: AnswerCallUseCase,
-    private val observeConversationsAndConnections: ObserveConversationsAndConnectionsUseCase,
-    private val removeMemberFromConversation: RemoveMemberFromConversationUseCase,
+    private val observeConversationListDetailsUseCase: ObserveConversationListDetailsUseCase,
+    private val leaveConversation: LeaveConversationUseCase,
     private val deleteTeamConversation: DeleteTeamConversationUseCase,
-    private val observeSelfUser: GetSelfUserUseCase,
     private val blockUserUseCase: BlockUserUseCase,
+    private val unblockUserUseCase: UnblockUserUseCase,
     private val wireSessionImageLoader: WireSessionImageLoader,
-    private val userTypeMapper: UserTypeMapper,
+    private val userTypeMapper: UserTypeMapper
 ) : ViewModel() {
 
     var state by mutableStateOf(ConversationListState())
         private set
 
     val snackBarState = MutableSharedFlow<HomeSnackbarState>()
-    lateinit var selfUserId: UserId
+    val closeBottomSheet = MutableSharedFlow<Unit>()
 
     var requestInProgress: Boolean by mutableStateOf(false)
 
@@ -88,27 +88,25 @@ class ConversationListViewModel @Inject constructor(
         startObservingConversationsAndConnections()
     }
 
-    private fun startObservingConversationsAndConnections() = viewModelScope.launch(dispatcher.io()) {
-        observeConversationsAndConnections() // TODO AR-1736
-            .combine(observeSelfUser(), ::Pair)
-            .collect { (conversationListDetails, selfUser) ->
-                with(conversationListDetails) {
-                    selfUserId = selfUser.id
-                    state = ConversationListState(
-                        conversations = conversationList.toConversationsFoldersMap(selfUser),
-                        missedCalls = mockMissedCalls, // TODO: needs to be implemented
-                        callHistory = mockCallHistory, // TODO: needs to be implemented
-                        unreadMentions = mockUnreadMentionList, // TODO: needs to be implemented
-                        allMentions = mockAllMentionList, // TODO: needs to be implemented
-                        newActivityCount = unreadConversationsCount,
-                        unreadMentionsCount = mentionsCount, // TODO: needs to be implemented on Kalium side
-                        missedCallsCount = missedCallsCount // TODO: needs to be implemented on Kalium side
-                    )
-                }
+    private fun startObservingConversationsAndConnections() = viewModelScope.launch {
+        observeConversationListDetailsUseCase()
+            .flowOn(dispatcher.io())
+            .collect { conversationListDetails ->
+                state = ConversationListState(
+                    conversations = conversationListDetails.toConversationsFoldersMap(),
+                    shouldShowEmptyState = conversationListDetails.none { it !is Self },
+                    callHistory = mockCallHistory, // TODO: needs to be implemented
+                    unreadMentions = mockUnreadMentionList, // TODO: needs to be implemented
+                    allMentions = mockAllMentionList, // TODO: needs to be implemented
+                    newActivityCount = 0L,
+                    unreadMentionsCount = 0L, // TODO: needs to be implemented on Kalium side
+                    missedCallsCount = 0L // TODO: needs to be implemented on Kalium side
+                )
+
             }
     }
 
-    private fun List<ConversationDetails>.toConversationsFoldersMap(selfUser: SelfUser?): Map<ConversationFolder, List<ConversationItem>> {
+    private fun List<ConversationDetails>.toConversationsFoldersMap(): Map<ConversationFolder, List<ConversationItem>> {
         val unreadConversations = this.filter {
             when (it.conversation.mutedStatus) {
                 MutedConversationStatus.AllAllowed ->
@@ -117,19 +115,24 @@ class ConversationListViewModel @Inject constructor(
                         is OneOne -> it.unreadMessagesCount > 0
                         else -> false  // TODO should connection requests also be listed on "new activities"?
                     }
+
                 MutedConversationStatus.OnlyMentionsAllowed ->
                     when (it) {
                         is Group -> it.unreadMentionsCount > 0
                         is OneOne -> it.unreadMentionsCount > 0
                         else -> false
                     }
+
                 else -> false
             }
+                    || (it is Connection && it.connection.status == ConnectionState.PENDING)
+                    || (it is Group && it.hasOngoingCall)
         }
+
         val remainingConversations = this - unreadConversations.toSet()
         return mapOf(
-            ConversationFolder.Predefined.NewActivities to unreadConversations.toConversationItemList(selfUser),
-            ConversationFolder.Predefined.Conversations to remainingConversations.toConversationItemList(selfUser)
+            ConversationFolder.Predefined.NewActivities to unreadConversations.toConversationItemList(),
+            ConversationFolder.Predefined.Conversations to remainingConversations.toConversationItemList()
         )
     }
 
@@ -216,29 +219,46 @@ class ConversationListViewModel @Inject constructor(
                     appLogger.d("User ${blockUserState.userId} was blocked")
                     HomeSnackbarState.BlockingUserOperationSuccess(blockUserState.userName)
                 }
+
                 is BlockUserResult.Failure -> {
                     appLogger.d("Error while blocking user ${blockUserState.userId} ; Error ${result.coreFailure}")
                     HomeSnackbarState.BlockingUserOperationError
                 }
             }
             snackBarState.emit(state)
+            requestInProgress = false
         }
-        requestInProgress = false
+    }
+
+    fun unblockUser(userId: UserId) {
+        viewModelScope.launch(dispatcher.io()) {
+            requestInProgress = true
+            when (val result = unblockUserUseCase(userId)) {
+                UnblockUserResult.Success -> {
+                    appLogger.i("User $userId was unblocked")
+                    closeBottomSheet.emit(Unit)
+                }
+                is UnblockUserResult.Failure -> {
+                    appLogger.e("Error while unblocking user $userId ; Error ${result.coreFailure}")
+                    snackBarState.emit(HomeSnackbarState.UnblockingUserOperationError)
+                }
+            }
+            requestInProgress = false
+        }
     }
 
     fun leaveGroup(leaveGroupState: GroupDialogState) {
         viewModelScope.launch {
             requestInProgress = true
             val response = withContext(dispatcher.io()) {
-                val selfUser = observeSelfUser().first()
-                removeMemberFromConversation(
-                    leaveGroupState.conversationId,
-                    selfUser.id
+                leaveConversation(
+                    leaveGroupState.conversationId
                 )
             }
             when (response) {
                 is RemoveMemberFromConversationUseCase.Result.Failure ->
                     snackBarState.emit(HomeSnackbarState.LeaveConversationError)
+
                 RemoveMemberFromConversationUseCase.Result.Success -> {
                     snackBarState.emit(HomeSnackbarState.LeftConversationSuccess)
                 }
@@ -255,13 +275,15 @@ class ConversationListViewModel @Inject constructor(
                 Result.Failure.NoTeamFailure -> snackBarState.emit(HomeSnackbarState.DeleteConversationGroupError)
                 Result.Success -> snackBarState.emit(HomeSnackbarState.DeletedConversationGroupSuccess(groupDialogState.conversationName))
             }
+            requestInProgress = false
         }
-        requestInProgress = false
     }
 
-    private fun List<ConversationDetails>.toConversationItemList(selfUser: SelfUser?): List<ConversationItem> =
+    private fun List<ConversationDetails>.toConversationItemList(): List<ConversationItem> =
         filter { it is Group || it is OneOne || it is Connection }
-            .map { it.toConversationItem(wireSessionImageLoader, selfUser, userTypeMapper) }
+            .map {
+                it.toConversationItem(wireSessionImageLoader, userTypeMapper)
+            }
 }
 
 private fun LegalHoldStatus.showLegalHoldIndicator() = this == LegalHoldStatus.ENABLED
@@ -269,7 +291,6 @@ private fun LegalHoldStatus.showLegalHoldIndicator() = this == LegalHoldStatus.E
 @Suppress("LongMethod")
 private fun ConversationDetails.toConversationItem(
     wireSessionImageLoader: WireSessionImageLoader,
-    selfUser: SelfUser?,
     userTypeMapper: UserTypeMapper
 ): ConversationItem = when (this) {
     is Group -> {
@@ -281,10 +302,11 @@ private fun ConversationDetails.toConversationItem(
             lastEvent = ConversationLastEvent.None, // TODO implement unread events
             badgeEventType = parseConversationEventType(conversation.mutedStatus, unreadMentionsCount, unreadMessagesCount),
             hasOnGoingCall = hasOngoingCall,
-            isCreator = selfUser?.teamId != null
-                    && conversation.creatorId.value == selfUser.id.value
+            isCreator = isSelfCreated,
+            isSelfUserMember = isSelfUserMember
         )
     }
+
     is OneOne -> {
         ConversationItem.PrivateConversation(
             userAvatarData = UserAvatarData(
@@ -302,12 +324,13 @@ private fun ConversationDetails.toConversationItem(
             isLegalHold = legalHoldStatus.showLegalHoldIndicator(),
             lastEvent = ConversationLastEvent.None, // TODO implement unread events
             badgeEventType = parsePrivateConversationEventType(
-                connectionState, parseConversationEventType(conversation.mutedStatus, unreadMentionsCount, unreadMessagesCount)
+                otherUser.connectionStatus, parseConversationEventType(conversation.mutedStatus, unreadMentionsCount, unreadMessagesCount)
             ),
             userId = otherUser.id,
-            blockingState = otherUser.getBlockingState(selfUser?.teamId)
+            blockingState = otherUser.BlockState
         )
     }
+
     is Connection -> {
         ConversationItem.ConnectionConversation(
             userAvatarData = UserAvatarData(
@@ -327,9 +350,11 @@ private fun ConversationDetails.toConversationItem(
             mutedStatus = conversation.mutedStatus
         )
     }
+
     is Self -> {
         throw IllegalArgumentException("Self conversations should not be visible to the user.")
     }
+
     else -> {
         throw IllegalArgumentException("$this conversations should not be visible to the user.")
     }
@@ -351,6 +376,7 @@ private fun parseConversationEventType(
     MutedConversationStatus.OnlyMentionsAllowed ->
         if (unreadMentionsCount > 0) BadgeEventType.UnreadMention
         else BadgeEventType.None
+
     else -> when {
         unreadMentionsCount > 0 -> BadgeEventType.UnreadMention
         unreadMessagesCount > 0 -> BadgeEventType.UnreadMessage(unreadMessagesCount)

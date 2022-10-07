@@ -23,6 +23,7 @@ import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.conversationColor
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
+import com.wire.android.ui.common.dialogs.UnblockUserDialogState
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
 import com.wire.android.ui.home.conversationslist.model.BlockingState
@@ -36,11 +37,14 @@ import com.wire.kalium.logic.data.user.ConnectionState
 @Composable
 internal fun ConversationMainSheetContent(
     conversationSheetContent: ConversationSheetContent,
-    addConversationToFavourites: () -> Unit,
-    moveConversationToFolder: () -> Unit,
-    moveConversationToArchive: () -> Unit,
-    clearConversationContent: () -> Unit,
+// TODO(profile): enable when implemented
+//
+//    addConversationToFavourites: () -> Unit,
+//    moveConversationToFolder: () -> Unit,
+//    moveConversationToArchive: () -> Unit,
+//    clearConversationContent: () -> Unit,
     blockUserClick: (BlockUserDialogState) -> Unit,
+    unblockUserClick: (UnblockUserDialogState) -> Unit,
     leaveGroup: (GroupDialogState) -> Unit,
     deleteGroup: (GroupDialogState) -> Unit,
     navigateToNotification: () -> Unit
@@ -70,66 +74,69 @@ internal fun ConversationMainSheetContent(
         ),
         menuItems = listOf(
             {
-                MenuBottomSheetItem(
-                    title = stringResource(R.string.label_notifications),
-                    icon = {
-                        MenuItemIcon(
-                            id = R.drawable.ic_mute,
-                            contentDescription = stringResource(R.string.content_description_muted_conversation),
-                        )
-                    },
-                    action = { NotificationsOptionsItemAction(conversationSheetContent.mutingConversationState) },
-                    onItemClick = navigateToNotification
-                )
+                if (conversationSheetContent.isSelfUserMember)
+                    MenuBottomSheetItem(
+                        title = stringResource(R.string.label_notifications),
+                        icon = {
+                            MenuItemIcon(
+                                id = R.drawable.ic_mute,
+                                contentDescription = stringResource(R.string.content_description_muted_conversation),
+                            )
+                        },
+                        action = { NotificationsOptionsItemAction(conversationSheetContent.mutingConversationState) },
+                        onItemClick = navigateToNotification
+                    )
             },
-            {
-                MenuBottomSheetItem(
-                    title = stringResource(R.string.label_add_to_favourites),
-                    icon = {
-                        MenuItemIcon(
-                            id = R.drawable.ic_favourite,
-                            contentDescription = stringResource(R.string.content_description_add_to_favourite),
-                        )
-                    },
-                    onItemClick = addConversationToFavourites
-                )
-            },
-            {
-                MenuBottomSheetItem(
-                    icon = {
-                        MenuItemIcon(
-                            id = R.drawable.ic_folder,
-                            contentDescription = stringResource(R.string.content_description_move_to_folder),
-                        )
-                    },
-                    title = stringResource(R.string.label_move_to_folder),
-                    onItemClick = moveConversationToFolder
-                )
-            },
-            {
-                MenuBottomSheetItem(
-                    icon = {
-                        MenuItemIcon(
-                            id = R.drawable.ic_archive,
-                            contentDescription = stringResource(R.string.content_description_move_to_archive),
-                        )
-                    },
-                    title = stringResource(R.string.label_move_to_archive),
-                    onItemClick = moveConversationToArchive
-                )
-            },
-            {
-                MenuBottomSheetItem(
-                    icon = {
-                        MenuItemIcon(
-                            id = R.drawable.ic_erase,
-                            contentDescription = stringResource(R.string.content_description_clear_content),
-                        )
-                    },
-                    title = stringResource(R.string.label_clear_content),
-                    onItemClick = clearConversationContent
-                )
-            },
+// TODO(profile): enable when implemented
+//
+//            {
+//                MenuBottomSheetItem(
+//                    title = stringResource(R.string.label_add_to_favourites),
+//                    icon = {
+//                        MenuItemIcon(
+//                            id = R.drawable.ic_favourite,
+//                            contentDescription = stringResource(R.string.content_description_add_to_favourite),
+//                        )
+//                    },
+//                    onItemClick = addConversationToFavourites
+//                )
+//            },
+//            {
+//                MenuBottomSheetItem(
+//                    icon = {
+//                        MenuItemIcon(
+//                            id = R.drawable.ic_folder,
+//                            contentDescription = stringResource(R.string.content_description_move_to_folder),
+//                        )
+//                    },
+//                    title = stringResource(R.string.label_move_to_folder),
+//                    onItemClick = moveConversationToFolder
+//                )
+//            },
+//            {
+//                MenuBottomSheetItem(
+//                    icon = {
+//                        MenuItemIcon(
+//                            id = R.drawable.ic_archive,
+//                            contentDescription = stringResource(R.string.content_description_move_to_archive),
+//                        )
+//                    },
+//                    title = stringResource(R.string.label_move_to_archive),
+//                    onItemClick = moveConversationToArchive
+//                )
+//            },
+//            {
+//                MenuBottomSheetItem(
+//                    icon = {
+//                        MenuItemIcon(
+//                            id = R.drawable.ic_erase,
+//                            contentDescription = stringResource(R.string.content_description_clear_content),
+//                        )
+//                    },
+//                    title = stringResource(R.string.label_clear_content),
+//                    onItemClick = clearConversationContent
+//                )
+//            },
             {
                 if (conversationSheetContent.conversationTypeDetail is ConversationTypeDetail.Private) {
                     if (conversationSheetContent.conversationTypeDetail.blockingState == BlockingState.NOT_BLOCKED) {
@@ -152,8 +159,28 @@ internal fun ConversationMainSheetContent(
                                 }
                             )
                         }
+                    } else if (conversationSheetContent.conversationTypeDetail.blockingState == BlockingState.BLOCKED) {
+                        CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.onBackground) {
+                            MenuBottomSheetItem(
+                                icon = {
+                                    MenuItemIcon(
+                                        id = R.drawable.ic_block,
+                                        contentDescription = stringResource(R.string.content_description_unblock_the_user)
+                                    )
+                                },
+                                title = stringResource(R.string.label_unblock),
+                                onItemClick = {
+                                    unblockUserClick(
+                                        UnblockUserDialogState(
+                                            userName = conversationSheetContent.title,
+                                            userId = conversationSheetContent.conversationTypeDetail.userId
+                                        )
+                                    )
+                                }
+                            )
+                        }
                     }
-                } else {
+                } else if (conversationSheetContent.isSelfUserMember) {
                     CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.error) {
                         MenuBottomSheetItem(
                             icon = {

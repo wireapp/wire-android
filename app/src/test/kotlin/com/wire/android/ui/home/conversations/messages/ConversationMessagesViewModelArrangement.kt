@@ -1,20 +1,24 @@
 package com.wire.android.ui.home.conversations.messages
 
-import android.content.res.Resources
 import androidx.lifecycle.SavedStateHandle
+import androidx.paging.PagingData
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
 import com.wire.android.util.FileManager
-import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
+import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
+import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCase
+import com.wire.kalium.logic.feature.asset.UpdateDownloadStatusResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
+import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
+import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
@@ -29,7 +33,7 @@ class ConversationMessagesViewModelArrangement {
 
     val conversationId: ConversationId = ConversationId("some-dummy-value", "some.dummy.domain")
 
-    private val messagesChannel = Channel<List<UIMessage>>(capacity = Channel.UNLIMITED)
+    private val messagesChannel = Channel<PagingData<UIMessage>>(capacity = Channel.UNLIMITED)
 
     val conversationDetailsChannel = Channel<ConversationDetails>(capacity = Channel.UNLIMITED)
 
@@ -41,6 +45,9 @@ class ConversationMessagesViewModelArrangement {
 
     @MockK
     lateinit var getMessagesForConversationUseCase: GetMessagesForConversationUseCase
+
+    @MockK
+    lateinit var getMessageById: GetMessageByIdUseCase
 
     @MockK
     lateinit var observeConversationDetails: ObserveConversationDetailsUseCase
@@ -55,10 +62,7 @@ class ConversationMessagesViewModelArrangement {
     lateinit var updateAssetMessageDownloadStatus: UpdateAssetMessageDownloadStatusUseCase
 
     @MockK
-    lateinit var resources: Resources
-
-    @MockK
-    lateinit var uiText: UIText
+    lateinit var toggleReaction: ToggleReactionUseCase
 
     private val viewModel: ConversationMessagesViewModel by lazy {
         ConversationMessagesViewModel(
@@ -66,10 +70,12 @@ class ConversationMessagesViewModelArrangement {
             savedStateHandle,
             observeConversationDetails,
             getMessageAsset,
+            getMessageById,
             updateAssetMessageDownloadStatus,
             fileManager,
             TestDispatcherProvider(),
-            getMessagesForConversationUseCase
+            getMessagesForConversationUseCase,
+            toggleReaction
         )
     }
 
@@ -82,11 +88,8 @@ class ConversationMessagesViewModelArrangement {
             qualifiedIdMapper.fromStringToQualifiedID("some-dummy-value@some.dummy.domain")
         } returns QualifiedID("some-dummy-value", "some.dummy.domain")
         coEvery { observeConversationDetails(any()) } returns flowOf()
-        coEvery { getMessagesForConversationUseCase(any()) } returns flowOf(listOf())
-    }
-
-    suspend fun withSuccessfulViewModelInit() = apply {
         coEvery { getMessagesForConversationUseCase(any()) } returns messagesChannel.consumeAsFlow()
+        coEvery { updateAssetMessageDownloadStatus(any(), any(), any()) } returns UpdateDownloadStatusResult.Success
     }
 
     fun withSuccessfulOpenAssetMessage(
@@ -101,9 +104,16 @@ class ConversationMessagesViewModelArrangement {
         }
     }
 
-    suspend fun withMessagesUpdate(messages: List<UIMessage>) = apply {
-        coEvery { getMessagesForConversationUseCase(any()) } returns messagesChannel.consumeAsFlow()
-        messagesChannel.send(messages)
+    fun withGetMessageByIdReturning(message: Message) = apply {
+        coEvery { getMessageById(any(), any()) } returns GetMessageByIdUseCase.Result.Success(message)
+    }
+
+    fun withGetMessageAssetUseCaseReturning(decodedAssetPath: Path, assetSize: Long) = apply {
+        coEvery { getMessageAsset(any(), any()) } returns MessageAssetResult.Success(decodedAssetPath, assetSize)
+    }
+
+    suspend fun withPaginatedMessagesReturning(pagingDataFlow: PagingData<UIMessage>) = apply {
+        messagesChannel.send(pagingDataFlow)
     }
 
     fun withSuccessfulSaveAssetMessage(

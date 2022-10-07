@@ -15,24 +15,25 @@ import com.wire.android.util.deeplink.SSOFailureCodes
 import com.wire.android.util.newServerConfig
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.NetworkFailure
+import com.wire.kalium.logic.configuration.server.CommonApiVersionType
+import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.client.Client
 import com.wire.kalium.logic.data.client.ClientType
 import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.SsoId
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
-import com.wire.kalium.logic.feature.auth.AuthSession
+import com.wire.kalium.logic.feature.auth.AuthTokens
+import com.wire.kalium.logic.feature.auth.AuthenticationScope
+import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.auth.sso.GetSSOLoginSessionUseCase
 import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginResult
 import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginUseCase
 import com.wire.kalium.logic.feature.auth.sso.SSOLoginSessionResult
 import com.wire.kalium.logic.feature.client.ClientScope
+import com.wire.kalium.logic.feature.client.GetOrRegisterClientUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
-import com.wire.kalium.logic.feature.client.RegisterClientUseCase
-import com.wire.kalium.logic.feature.session.GetSessionsUseCase
-import com.wire.kalium.logic.feature.session.RegisterTokenResult
-import com.wire.kalium.logic.feature.session.RegisterTokenUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -69,28 +70,22 @@ class LoginSSOViewModelTest {
     private lateinit var clientScopeProviderFactory: ClientScopeProvider.Factory
 
     @MockK
-    private lateinit var getSessionsUseCase: GetSessionsUseCase
-
-    @MockK
     private lateinit var clientScope: ClientScope
 
     @MockK
-    private lateinit var registerClientUseCase: RegisterClientUseCase
-
-    @MockK
-    private lateinit var registerTokenUseCase: RegisterTokenUseCase
+    private lateinit var getOrRegisterClientUseCase: GetOrRegisterClientUseCase
 
     @MockK
     private lateinit var getSSOLoginSessionUseCase: GetSSOLoginSessionUseCase
 
     @MockK
-    private lateinit var authSession: AuthSession
-
-    @MockK
     private lateinit var authServerConfigProvider: AuthServerConfigProvider
 
     @MockK
-    private lateinit var qualifiedIdMapper: QualifiedIdMapper
+    private lateinit var autoVersionAuthScopeUseCase: AutoVersionAuthScopeUseCase
+
+    @MockK
+    private lateinit var authenticationScope: AuthenticationScope
 
     @MockK
     private lateinit var navigationManager: NavigationManager
@@ -102,22 +97,20 @@ class LoginSSOViewModelTest {
     fun setup() {
         MockKAnnotations.init(this)
         mockUri()
-        every { savedStateHandle.get<String>(any()) } returns ""
-        every { qualifiedIdMapper.fromStringToQualifiedID(any()) } returns userId
+        every { savedStateHandle.get<String>(any()) } returns null
         every { savedStateHandle.set(any(), any<String>()) } returns Unit
         every { clientScopeProviderFactory.create(any()).clientScope } returns clientScope
-        every { clientScope.register } returns registerClientUseCase
-        every { clientScope.registerPushToken } returns registerTokenUseCase
+        every { clientScope.getOrRegister } returns getOrRegisterClientUseCase
         every { authServerConfigProvider.authServer.value } returns newServerConfig(1).links
+        coEvery { autoVersionAuthScopeUseCase() } returns AutoVersionAuthScopeUseCase.Result.Success(authenticationScope)
+        every { authenticationScope.ssoLoginScope.initiate } returns ssoInitiateLoginUseCase
+        every { authenticationScope.ssoLoginScope.getLoginSession } returns getSSOLoginSessionUseCase
 
         loginViewModel = LoginSSOViewModel(
             savedStateHandle,
-            qualifiedIdMapper,
-            ssoInitiateLoginUseCase,
-            getSSOLoginSessionUseCase,
+            autoVersionAuthScopeUseCase,
             addAuthenticatedUserUseCase,
             clientScopeProviderFactory,
-            getSessionsUseCase,
             navigationManager,
             authServerConfigProvider
         )
@@ -218,39 +211,34 @@ class LoginSSOViewModelTest {
 
     @Test
     fun `given establishSSOSession is called, when SSOLogin Success, then SSOLoginResult is passed`() {
-        coEvery { getSSOLoginSessionUseCase(any()) } returns SSOLoginSessionResult.Success(authSession, SSO_ID)
-        coEvery { addAuthenticatedUserUseCase(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
+        coEvery { getSSOLoginSessionUseCase(any()) } returns SSOLoginSessionResult.Success(AUTH_TOKEN, SSO_ID)
+        coEvery { addAuthenticatedUserUseCase(any(), any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
         coEvery {
-            registerClientUseCase(any())
+            getOrRegisterClientUseCase(any())
         } returns RegisterClientResult.Success(CLIENT)
-        coEvery {
-            registerTokenUseCase(any(), CLIENT.id)
-        } returns RegisterTokenResult.Failure.PushTokenRegister
 
-        runTest { loginViewModel.establishSSOSession("") }
+        runTest { loginViewModel.establishSSOSession("", serverConfigId = SERVER_CONFIG.id) }
 
         coVerify(exactly = 1) { navigationManager.navigate(any()) }
         coVerify(exactly = 1) { getSSOLoginSessionUseCase(any()) }
         coVerify(exactly = 1) {
-            registerClientUseCase(any())
+            getOrRegisterClientUseCase(any())
         }
-        coVerify(exactly = 1) { addAuthenticatedUserUseCase(any(), any()) }
-        coVerify(exactly = 1) { registerTokenUseCase(any(), CLIENT.id) }
+        coVerify(exactly = 1) { addAuthenticatedUserUseCase(any(), any(), any()) }
     }
 
     @Test
     fun `given establishSSOSession is called, when SSOLoginSessionResult return InvalidCookie, then SSOLoginResult fails`() {
         coEvery { getSSOLoginSessionUseCase(any()) } returns SSOLoginSessionResult.Failure.InvalidCookie
-        coEvery { addAuthenticatedUserUseCase(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
-        coEvery { registerClientUseCase(any()) } returns RegisterClientResult.Success(CLIENT)
+        coEvery { addAuthenticatedUserUseCase(any(), any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
+        coEvery { getOrRegisterClientUseCase(any()) } returns RegisterClientResult.Success(CLIENT)
 
-        runTest { loginViewModel.establishSSOSession("") }
+        runTest { loginViewModel.establishSSOSession("", serverConfigId = SERVER_CONFIG.id) }
         loginViewModel.loginState.loginError shouldBeInstanceOf LoginError.DialogError.InvalidSSOCookie::class
         coVerify(exactly = 1) { getSSOLoginSessionUseCase(any()) }
         coVerify(exactly = 0) { loginViewModel.registerClient(any(), null) }
-        coVerify(exactly = 0) { addAuthenticatedUserUseCase(any(), any()) }
+        coVerify(exactly = 0) { addAuthenticatedUserUseCase(any(), any(), any()) }
         coVerify(exactly = 0) { loginViewModel.navigateToConvScreen() }
-        coVerify(exactly = 0) { registerTokenUseCase(any(), CLIENT.id) }
     }
 
     @Test
@@ -267,10 +255,9 @@ class LoginSSOViewModelTest {
 
     @Test
     fun `given HandleSSOResult is called, when SSOLoginResult is success, then establishSSOSession should be called once`() {
-        coEvery { getSSOLoginSessionUseCase(any()) } returns SSOLoginSessionResult.Success(authSession, SSO_ID)
-        coEvery { addAuthenticatedUserUseCase(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
-        coEvery { registerClientUseCase(any()) } returns RegisterClientResult.Success(CLIENT)
-        coEvery { registerTokenUseCase(any(), CLIENT.id) } returns RegisterTokenResult.Success
+        coEvery { getSSOLoginSessionUseCase(any()) } returns SSOLoginSessionResult.Success(AUTH_TOKEN, SSO_ID)
+        coEvery { addAuthenticatedUserUseCase(any(), any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
+        coEvery { getOrRegisterClientUseCase(any()) } returns RegisterClientResult.Success(CLIENT)
 
         runTest { loginViewModel.handleSSOResult(DeepLinkResult.SSOLogin.Success("", "")) }
         coVerify(exactly = 1) { loginViewModel.navigateToConvScreen() }
@@ -278,59 +265,54 @@ class LoginSSOViewModelTest {
 
     @Test
     fun `given establishSSOSession called, when addAuthenticatedUser returns UserAlreadyExists error, then UserAlreadyExists is passed`() {
-        coEvery { getSSOLoginSessionUseCase(any()) } returns SSOLoginSessionResult.Success(authSession, SSO_ID)
-        coEvery { addAuthenticatedUserUseCase(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists
+        coEvery { getSSOLoginSessionUseCase(any()) } returns SSOLoginSessionResult.Success(AUTH_TOKEN, SSO_ID)
+        coEvery { addAuthenticatedUserUseCase(any(), any(), any()) } returns AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists
 
-        runTest { loginViewModel.establishSSOSession("") }
+        runTest { loginViewModel.establishSSOSession("", serverConfigId = SERVER_CONFIG.id) }
 
         loginViewModel.loginState.loginError shouldBeInstanceOf LoginError.DialogError.UserAlreadyExists::class
         coVerify(exactly = 1) { getSSOLoginSessionUseCase(any()) }
         coVerify(exactly = 0) { loginViewModel.registerClient(any(), null) }
-        coVerify(exactly = 1) { addAuthenticatedUserUseCase(any(), any()) }
+        coVerify(exactly = 1) { addAuthenticatedUserUseCase(any(), any(), any()) }
         coVerify(exactly = 0) { loginViewModel.navigateToConvScreen() }
-        coVerify(exactly = 0) { registerTokenUseCase(any(), CLIENT.id) }
     }
 
     @Test
-    fun `given establishSSOSession is called, when registerClientUseCase returns TooManyClients error, then TooManyClients is passed`() {
-        coEvery { getSSOLoginSessionUseCase(any()) } returns SSOLoginSessionResult.Success(authSession, SSO_ID)
-        coEvery { addAuthenticatedUserUseCase(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
+    fun `given establishSSOSession is called, when getOrRegister Client returns TooManyClients error, then TooManyClients is passed`() {
+        coEvery { getSSOLoginSessionUseCase(any()) } returns SSOLoginSessionResult.Success(AUTH_TOKEN, SSO_ID)
+        coEvery { addAuthenticatedUserUseCase(any(), any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
         coEvery {
-            registerClientUseCase(any())
+            getOrRegisterClientUseCase(any())
         } returns RegisterClientResult.Failure.TooManyClients
 
-        runTest { loginViewModel.establishSSOSession("") }
+        runTest { loginViewModel.establishSSOSession("", serverConfigId = SERVER_CONFIG.id) }
 
         loginViewModel.loginState.loginError shouldBeInstanceOf LoginError.TooManyDevicesError::class
 
-        coVerify(exactly = 1) { registerClientUseCase(any()) }
+        coVerify(exactly = 1) { getOrRegisterClientUseCase(any()) }
         coVerify(exactly = 1) { getSSOLoginSessionUseCase(any()) }
-        coVerify(exactly = 1) { addAuthenticatedUserUseCase(any(), any()) }
+        coVerify(exactly = 1) { addAuthenticatedUserUseCase(any(), any(), any()) }
         coVerify(exactly = 0) { loginViewModel.navigateToConvScreen() }
     }
 
     @Test
     fun `given establishSSOSession is called, when registerTokenUseCase returns PushTokenFailure error, then LoginError is None`() {
-        coEvery { getSSOLoginSessionUseCase(any()) } returns SSOLoginSessionResult.Success(authSession, SSO_ID)
-        coEvery { addAuthenticatedUserUseCase(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
+        coEvery { getSSOLoginSessionUseCase(any()) } returns SSOLoginSessionResult.Success(AUTH_TOKEN, SSO_ID)
+        coEvery { addAuthenticatedUserUseCase(any(), any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
         coEvery {
-            registerClientUseCase(any())
+            getOrRegisterClientUseCase(any())
         } returns RegisterClientResult.Success(CLIENT)
-        coEvery {
-            registerTokenUseCase(any(), CLIENT.id)
-        } returns RegisterTokenResult.Failure.PushTokenRegister
 
-        runTest { loginViewModel.establishSSOSession("") }
+        runTest { loginViewModel.establishSSOSession("", serverConfigId = SERVER_CONFIG.id) }
 
         loginViewModel.loginState.loginError shouldBeInstanceOf LoginError.None::class
 
         coVerify(exactly = 1) { navigationManager.navigate(any()) }
         coVerify(exactly = 1) { getSSOLoginSessionUseCase(any()) }
         coVerify(exactly = 1) {
-            registerClientUseCase(any())
+            getOrRegisterClientUseCase(any())
         }
-        coVerify(exactly = 1) { addAuthenticatedUserUseCase(any(), any()) }
-        coVerify(exactly = 1) { registerTokenUseCase(any(), CLIENT.id) }
+        coVerify(exactly = 1) { addAuthenticatedUserUseCase(any(), any(), any()) }
     }
 
     companion object {
@@ -340,5 +322,29 @@ class LoginSSOViewModelTest {
             null, "label", "cookie", null, "model"
         )
         val SSO_ID: SsoId = SsoId("scim_id", null, null)
+        val AUTH_TOKEN = AuthTokens(
+            userId = UserId("user_id", "domain"),
+            accessToken = "access_token",
+            refreshToken = "refresh_token",
+            tokenType = "token_type"
+        )
+        val SERVER_CONFIG = ServerConfig(
+            id = "config",
+            links = ServerConfig.Links(
+                api = "https://server-apiBaseUrl.de",
+                accounts = "https://server-accountBaseUrl.de",
+                webSocket = "https://server-webSocketBaseUrl.de",
+                blackList = "https://server-blackListUrl.de",
+                teams = "https://server-teamsUrl.de",
+                website = "https://server-websiteUrl.de",
+                title = "server-title",
+                false
+            ),
+            metaData = ServerConfig.MetaData(
+                commonApiVersion = CommonApiVersionType.Valid(1),
+                domain = "domain.com",
+                federation = false
+            )
+        )
     }
 }

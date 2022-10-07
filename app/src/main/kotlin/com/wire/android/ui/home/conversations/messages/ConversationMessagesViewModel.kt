@@ -5,14 +5,12 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import androidx.paging.cachedIn
 import com.wire.android.appLogger
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.SavedStateViewModel
-import com.wire.android.ui.home.conversations.ConversationAvatar
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.DownloadedAssetDialogVisibilityState
-import com.wire.android.ui.home.conversations.model.MessageContent
-import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
 import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -20,18 +18,20 @@ import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.message.Message
+import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
+import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
+import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlinx.datetime.Instant
 import okio.Path
 import javax.inject.Inject
-
 
 @HiltViewModel
 @Suppress("LongParameterList")
@@ -40,10 +40,12 @@ class ConversationMessagesViewModel @Inject constructor(
     override val savedStateHandle: SavedStateHandle,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val getMessageAsset: GetMessageAssetUseCase,
+    private val getMessageByIdUseCase: GetMessageByIdUseCase,
     private val updateAssetMessageDownloadStatus: UpdateAssetMessageDownloadStatusUseCase,
     private val fileManager: FileManager,
     private val dispatchers: DispatcherProvider,
     private val getMessageForConversation: GetMessagesForConversationUseCase,
+    private val toggleReaction: ToggleReactionUseCase
 ) : SavedStateViewModel(savedStateHandle) {
 
     var conversationViewState by mutableStateOf(ConversationMessagesViewState())
@@ -53,47 +55,33 @@ class ConversationMessagesViewModel @Inject constructor(
     )
 
     init {
-        observeConversationDetailsAndMessages()
+        loadPaginatedMessages()
+        loadLastMessageInstant()
     }
 
-    private fun observeConversationDetailsAndMessages() {
-        viewModelScope.launch {
-            observeConversationDetails(conversationId)
-                .combine(
-                    getMessageForConversation(conversationId).onEach(::updateMessagesList)
-                ) { conversationDetailsResult, uiMessages ->
-                    Pair(conversationDetailsResult, uiMessages)
-                }.collect { (conversationDetailsResult, uiMessages) ->
-                    if (conversationDetailsResult is ObserveConversationDetailsUseCase.Result.Success) {
-                        when (val details = conversationDetailsResult.conversationDetails) {
-                            // TODO: think about lastUnreadMessage being a "common" field of ConversationDetails
-                            is ConversationDetails.OneOne -> {
-                                extractLastUnreadMessage(details.lastUnreadMessage, uiMessages)
-                            }
+    private fun loadPaginatedMessages() = viewModelScope.launch {
+        val paginatedMessagesFlow = getMessageForConversation(conversationId)
+            .flowOn(dispatchers.io())
+            .cachedIn(this)
+        conversationViewState = conversationViewState.copy(messages = paginatedMessagesFlow)
+    }
 
-                            is ConversationDetails.Group -> {
-                                extractLastUnreadMessage(details.lastUnreadMessage, uiMessages)
-                            }
-
-                            else -> ConversationAvatar.None
-                        }
+    private fun loadLastMessageInstant() = viewModelScope.launch {
+        observeConversationDetails(conversationId)
+            .flowOn(dispatchers.io())
+            .collect { conversationDetailsResult ->
+                if (conversationDetailsResult is ObserveConversationDetailsUseCase.Result.Success) {
+                    val lastUnreadMessage = when (val details = conversationDetailsResult.conversationDetails) {
+                        is ConversationDetails.OneOne -> details.lastUnreadMessage
+                        is ConversationDetails.Group -> details.lastUnreadMessage
+                        else -> null
                     }
+                    val lastUnreadInstant = lastUnreadMessage?.let {
+                        Instant.parse(lastUnreadMessage.date)
+                    }
+                    conversationViewState = conversationViewState.copy(lastUnreadMessageInstant = lastUnreadInstant)
                 }
-        }
-    }
-
-    private fun extractLastUnreadMessage(lastUnreadMessage: Message?, uiMessages: List<UIMessage>) {
-        if (lastUnreadMessage != null) {
-            uiMessages.firstOrNull { it.messageHeader.messageId == lastUnreadMessage.id }?.let {
-                conversationViewState = conversationViewState.copy(lastUnreadMessage = it)
             }
-        } else {
-            conversationViewState = conversationViewState.copy(lastUnreadMessage = null)
-        }
-    }
-
-    private fun updateMessagesList(messages: List<UIMessage>) {
-        conversationViewState = conversationViewState.copy(messages = messages)
     }
 
     // This will download the asset remotely to an internal temporary storage or fetch it from the local database if it had been previously
@@ -105,37 +93,30 @@ class ConversationMessagesViewModel @Inject constructor(
             } catch (e: OutOfMemoryError) {
                 appLogger.e("There was an OutOfMemory error while downloading the asset")
                 onSnackbarMessage(ConversationSnackbarMessages.ErrorDownloadingAsset)
-                updateAssetMessageDownloadStatus(Message.DownloadStatus.FAILED, conversationId, messageId)
+                updateAssetMessageDownloadStatus(Message.DownloadStatus.FAILED_DOWNLOAD, conversationId, messageId)
             }
         }
     }
 
     private suspend fun attemptDownloadOfAsset(messageId: String) {
-        val assetMessage = conversationViewState.messages.firstOrNull {
-            it.messageHeader.messageId == messageId && it.messageContent is MessageContent.AssetMessage
+        val messageDataResult = getMessageByIdUseCase(conversationId, messageId)
+        if (messageDataResult !is GetMessageByIdUseCase.Result.Success) {
+            appLogger.w("Failed when fetching details of message to download asset: $messageDataResult")
+            return
         }
+        val message = messageDataResult.message
+        val messageContent = message.content
 
-        val messageContent = assetMessage?.messageContent
-        val (isAssetDownloadedInternally, assetName, assetSize) = (messageContent as MessageContent.AssetMessage).run {
-            Triple(
-                (downloadStatus == Message.DownloadStatus.SAVED_INTERNALLY || downloadStatus == Message.DownloadStatus.IN_PROGRESS),
-                assetName,
-                assetSizeInBytes
-            )
+        if (messageContent !is MessageContent.Asset) {
+            // This _should_ not even happen, tho. Unless UI is buggy. So... do we crash?! Better not.
+            appLogger.w("Attempting to download assets of a non-asset message. Ignoring user input.")
+            return
         }
-
-        if (!isAssetDownloadedInternally)
-            updateAssetMessageDownloadStatus(Message.DownloadStatus.IN_PROGRESS, conversationId, messageId)
-
+        val assetContent = messageContent.value
         val resultData = assetDataPath(conversationId, messageId)
-        updateAssetMessageDownloadStatus(
-            if (resultData != null) Message.DownloadStatus.SAVED_INTERNALLY else Message.DownloadStatus.FAILED,
-            conversationId,
-            messageId
-        )
 
         if (resultData != null) {
-            showOnAssetDownloadedDialog(assetName, resultData, assetSize, messageId)
+            showOnAssetDownloadedDialog(assetContent.name ?: "", resultData, assetContent.sizeInBytes, messageId)
         }
     }
 
@@ -182,6 +163,13 @@ class ConversationMessagesViewModel @Inject constructor(
         conversationViewState = conversationViewState.copy(downloadedAssetDialogState = DownloadedAssetDialogVisibilityState.Hidden)
     }
 
+    fun toggleReaction(messageId: String, reactionEmoji: String) {
+        viewModelScope.launch {
+            toggleReaction(conversationId, messageId, reactionEmoji)
+        }
+    }
+
+    // region Private
     private suspend fun assetDataPath(conversationId: QualifiedID, messageId: String): Path? {
         getMessageAsset(
             conversationId = conversationId,
@@ -202,4 +190,5 @@ class ConversationMessagesViewModel @Inject constructor(
         onSnackbarMessage(ConversationSnackbarMessages.OnFileDownloaded(assetName))
     }
 
+    // endregion
 }

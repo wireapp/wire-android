@@ -23,6 +23,7 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     ENABLE_BLACK_LIST("enableBlacklist", ConfigType.BOOLEAN),
     FILE_RESTRICTION_ENABLED("file_restriction_enabled", ConfigType.BOOLEAN),
     FILE_RESTRICTION_LIST("file_restriction_list", ConfigType.STRING),
+    MLS_SUPPORT_ENABLED("mls_support_enabled", ConfigType.BOOLEAN),
     FIREBASE_APP_ID("firebaseAppId", ConfigType.STRING),
     FIREBASE_PUSH_SENDER_ID("firebasePushSenderId", ConfigType.STRING),
     FORCE_APP_LOCK("force_app_lock", ConfigType.BOOLEAN),
@@ -70,6 +71,7 @@ enum class FlavourConfigs(val value: String, val configType: ConfigType) {
     LOGGING_ENABLED("logging_enabled", ConfigType.BOOLEAN),
     SAFE_LOGGING("safe_logging", ConfigType.BOOLEAN),
     PRIVATE_BUILD("private_build", ConfigType.BOOLEAN),
+    DEVELOPMENT_API_ENABLED("development_api_enabled", ConfigType.BOOLEAN),
     USER_ID("userId", ConfigType.STRING);
 
 }

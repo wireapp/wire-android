@@ -105,13 +105,12 @@ class MessageComposerViewModel @Inject constructor(
     }
 
     private fun observeIfSelfIsConversationMember() = viewModelScope.launch {
-        observeIsSelfConversationMember(conversationId)
-            .collect { result ->
-                when (result) {
-                    is IsSelfUserMemberResult.Failure -> isSendingMessagesAllowed = false
-                    is IsSelfUserMemberResult.Success -> isSendingMessagesAllowed = result.isMember
-                }
+        observeIsSelfConversationMember(conversationId).collect { result ->
+            when (result) {
+                is IsSelfUserMemberResult.Failure -> isSendingMessagesAllowed = false
+                is IsSelfUserMemberResult.Success -> isSendingMessagesAllowed = result.isMember
             }
+        }
     }
 
     private fun fetchSelfUserTeam() = viewModelScope.launch {
@@ -154,15 +153,10 @@ class MessageComposerViewModel @Inject constructor(
 
     }
 
-    fun onMessageChanged(message: String) {
-        conversationViewState = conversationViewState.copy(messageText = message)
-    }
-
-    fun sendMessage() {
+    fun sendMessage(message: String) {
         viewModelScope.launch {
-            sendTextMessage(conversationId, conversationViewState.messageText)
+            sendTextMessage(conversationId, message)
         }
-        conversationViewState = conversationViewState.copy(messageText = "")
     }
 
     @Suppress("MagicNumber")
@@ -174,9 +168,10 @@ class MessageComposerViewModel @Inject constructor(
                         AttachmentType.IMAGE -> {
                             if (dataSize > IMAGE_SIZE_LIMIT_BYTES) onSnackbarMessage(ErrorMaxImageSize)
                             else {
-                                val (imgWidth, imgHeight) = ImageUtil.extractImageWidthAndHeight(
-                                    kaliumFileSystem.source(attachmentBundle.dataPath).buffer().inputStream()
-                                )
+                                val (imgWidth, imgHeight) =
+                                    ImageUtil.extractImageWidthAndHeight(
+                                        kaliumFileSystem.source(attachmentBundle.dataPath).buffer().inputStream(), mimeType
+                                    )
                                 val result = sendAssetMessage(
                                     conversationId = conversationId,
                                     assetDataPath = dataPath,

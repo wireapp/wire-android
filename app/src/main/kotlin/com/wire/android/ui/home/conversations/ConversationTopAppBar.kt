@@ -17,7 +17,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -25,7 +24,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.model.UserAvatarData
-import com.wire.android.ui.calling.controlButtons.JoinButton
+import com.wire.android.ui.calling.controlbuttons.JoinButton
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
@@ -37,6 +36,7 @@ import com.wire.android.ui.home.conversations.info.ConversationInfoViewState
 import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
@@ -51,7 +51,8 @@ fun ConversationScreenTopAppBar(
     onPhoneButtonClick: () -> Unit,
     hasOngoingCall: Boolean,
     isUserBlocked: Boolean,
-    onJoinCallButtonClick: () -> Unit
+    onJoinCallButtonClick: () -> Unit,
+    isCallingEnabled: Boolean = true
 ) {
     SmallTopAppBar(
         title = {
@@ -81,27 +82,33 @@ fun ConversationScreenTopAppBar(
         },
         navigationIcon = { BackNavigationIconButton(onBackButtonClick = onBackButtonClick) },
         actions = {
-            WireSecondaryButton(
-                onClick = onSearchButtonClick,
-                leadingIcon = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_search),
-                        contentDescription = stringResource(R.string.content_description_conversation_search_icon),
-                        tint = MaterialTheme.colorScheme.onBackground
-                    )
-                },
-                fillMaxWidth = false,
-                minHeight = MaterialTheme.wireDimensions.spacing32x,
-                minWidth = MaterialTheme.wireDimensions.spacing40x,
-                shape = RoundedCornerShape(size = MaterialTheme.wireDimensions.corner12x),
-                contentPadding = PaddingValues(0.dp)
-            )
+            val featureVisibilityFlags = LocalFeatureVisibilityFlags.current
+
+            if (featureVisibilityFlags.ConversationSearchIcon) {
+                WireSecondaryButton(
+                    onClick = onSearchButtonClick,
+                    leadingIcon = {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_search),
+                            contentDescription = stringResource(R.string.content_description_conversation_search_icon),
+                            tint = MaterialTheme.colorScheme.onBackground
+                        )
+                    },
+                    fillMaxWidth = false,
+                    minHeight = MaterialTheme.wireDimensions.spacing32x,
+                    minWidth = MaterialTheme.wireDimensions.spacing40x,
+                    shape = RoundedCornerShape(size = MaterialTheme.wireDimensions.corner12x),
+                    contentPadding = PaddingValues(0.dp)
+                )
+            }
+
             Spacer(Modifier.width(MaterialTheme.wireDimensions.spacing6x))
             callControlButton(
                 hasOngoingCall = hasOngoingCall,
                 onJoinCallButtonClick = onJoinCallButtonClick,
                 onPhoneButtonClick = onPhoneButtonClick,
-                isUserBlocked = isUserBlocked
+                isUserBlocked = isUserBlocked,
+                isCallingEnabled = isCallingEnabled
             )
             Spacer(Modifier.width(MaterialTheme.wireDimensions.spacing6x))
         }, colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
@@ -141,14 +148,15 @@ private fun callControlButton(
     hasOngoingCall: Boolean,
     isUserBlocked: Boolean,
     onJoinCallButtonClick: () -> Unit,
-    onPhoneButtonClick: () -> Unit
+    onPhoneButtonClick: () -> Unit,
+    isCallingEnabled: Boolean
 ) {
     if (hasOngoingCall) {
         JoinButton(
             buttonClick = onJoinCallButtonClick,
             minHeight = MaterialTheme.wireDimensions.spacing28x
         )
-    } else {
+    } else if (isCallingEnabled) {
         WireSecondaryButton(
             onClick = onPhoneButtonClick,
             leadingIcon = {

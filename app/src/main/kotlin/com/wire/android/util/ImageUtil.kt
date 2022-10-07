@@ -14,7 +14,6 @@ import kotlin.math.ceil
 import kotlin.math.round
 import kotlin.math.sqrt
 
-const val DEFAULT_IMAGE_MIME_TYPE = "image/jpeg"
 const val DEFAULT_FILE_MIME_TYPE = "file/*"
 
 object ImageUtil {
@@ -30,11 +29,18 @@ object ImageUtil {
     /**
      * Attempts to read the width and height of an image represented by the input parameter
      */
-    fun extractImageWidthAndHeight(imageDataInputStream: InputStream): Pair<Int, Int> {
-        val exifInterface = ExifInterface(imageDataInputStream)
-        val exifWidth: Int = exifInterface.getAttributeInt(ExifInterface.TAG_IMAGE_WIDTH, 0)
-        val exifHeight: Int = exifInterface.getAttributeInt(ExifInterface.TAG_IMAGE_LENGTH, 0)
-        return exifWidth to exifHeight
+    fun extractImageWidthAndHeight(imageDataInputStream: InputStream, mimeType: String): Pair<Int, Int> {
+        val isAnimated = mimeType.contains("gif") || mimeType.contains("webp")
+        if (isAnimated) {
+            BitmapFactory.decodeStream(imageDataInputStream).let { bitmap ->
+                return bitmap.width to bitmap.height
+            }
+        } else {
+            val exifInterface = ExifInterface(imageDataInputStream)
+            val exifWidth: Int = exifInterface.getAttributeInt(ExifInterface.TAG_IMAGE_WIDTH, 0)
+            val exifHeight: Int = exifInterface.getAttributeInt(ExifInterface.TAG_IMAGE_LENGTH, 0)
+            return exifWidth to exifHeight
+        }
     }
 
     /**

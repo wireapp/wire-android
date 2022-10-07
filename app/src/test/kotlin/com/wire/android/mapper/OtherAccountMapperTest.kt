@@ -19,7 +19,7 @@ class OtherAccountMapperTest {
         val (arrangement, mapper) = Arrangement().arrange()
         // Given
         val data: List<Pair<SelfUser, Team?>> = listOf(
-            testSelfUser(0) to Team("0", "team_name"),
+            testSelfUser(0) to Team("0", "team_name", "icon"),
             testSelfUser(1) to null
         )
         // When

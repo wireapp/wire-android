@@ -20,6 +20,7 @@ import androidx.compose.ui.focus.FocusManager
 import com.wire.android.R
 import com.wire.android.ui.common.button.WireIconButton
 import com.wire.android.ui.common.dimensions
+import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 
 @ExperimentalAnimationApi
 @Composable
@@ -53,6 +54,8 @@ private fun MessageComposeActions(
     messageComposerState: MessageComposerInnerState,
     focusManager: FocusManager
 ) {
+    val localFeatureVisibilityFlags = LocalFeatureVisibilityFlags.current
+
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceEvenly,
@@ -60,15 +63,22 @@ private fun MessageComposeActions(
             .fillMaxWidth()
             .height(dimensions().spacing56x)
     ) {
-        AdditionalOptionButton(messageComposerState.attachmentOptionsDisplayed) {
-            focusManager.clearFocus()
-            messageComposerState.toggleAttachmentOptionsVisibility()
+        with(localFeatureVisibilityFlags) {
+            AdditionalOptionButton(messageComposerState.attachmentOptionsDisplayed) {
+                focusManager.clearFocus()
+                messageComposerState.toggleAttachmentOptionsVisibility()
+            }
+            if (RichTextIcon)
+                RichTextEditingAction()
+            if (EmojiIcon)
+                AddEmojiAction()
+            if (GifIcon)
+                AddGifAction()
+            if (MentionIcon)
+                AddMentionAction()
+            if (PingIcon)
+                PingAction()
         }
-        RichTextEditingAction()
-        AddEmojiAction()
-        AddGifAction()
-        AddMentionAction()
-        TakePictureAction()
     }
 }
 
@@ -109,7 +119,7 @@ private fun AddMentionAction() {
 }
 
 @Composable
-private fun TakePictureAction() {
+private fun PingAction() {
     WireIconButton(
         onButtonClicked = {},
         iconResource = R.drawable.ic_ping,

@@ -7,11 +7,12 @@ import com.wire.kalium.logic.data.session.SessionRepository
 import com.wire.kalium.logic.data.sync.ConnectionPolicy
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.UserSessionScope
-import com.wire.kalium.logic.feature.auth.AuthSession
+import com.wire.kalium.logic.feature.auth.AccountInfo
 import com.wire.kalium.logic.functional.Either
 import com.wire.kalium.logic.sync.SetConnectionPolicyUseCase
 import com.wire.kalium.logic.sync.SyncManager
 import io.mockk.MockKAnnotations
+import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.coVerifyOrder
 import io.mockk.every
@@ -29,7 +30,7 @@ class ConnectionPolicyManagerTest {
 
         val (arrangement, connectionPolicyManager) = Arrangement()
             .withCurrentSession(user)
-            .withUiInitialized()
+            .withAppInTheForeground()
             .arrange()
 
         connectionPolicyManager.handleConnectionOnPushNotification(user)
@@ -43,14 +44,14 @@ class ConnectionPolicyManagerTest {
 
         val (arrangement, connectionPolicyManager) = Arrangement()
             .withCurrentSession(user)
-            .withUiInitialized()
+            .withAppInTheForeground()
             .arrange()
 
         connectionPolicyManager.handleConnectionOnPushNotification(user)
 
         coVerify(exactly = 1) {
             arrangement.setConnectionPolicyUseCase.invoke(ConnectionPolicy.KEEP_ALIVE)
-            arrangement.syncManager.waitUntilLive()
+            arrangement.syncManager.waitUntilLiveOrFailure()
         }
     }
 
@@ -60,14 +61,14 @@ class ConnectionPolicyManagerTest {
 
         val (arrangement, connectionPolicyManager) = Arrangement()
             .withCurrentSession(user)
-            .withUiNotInitialized()
+            .withAppInTheBackground()
             .arrange()
 
         connectionPolicyManager.handleConnectionOnPushNotification(user)
 
         coVerify(exactly = 1) {
             arrangement.setConnectionPolicyUseCase.invoke(ConnectionPolicy.KEEP_ALIVE)
-            arrangement.syncManager.waitUntilLive()
+            arrangement.syncManager.waitUntilLiveOrFailure()
             arrangement.setConnectionPolicyUseCase.invoke(ConnectionPolicy.DISCONNECT_AFTER_PENDING_EVENTS)
         }
     }
@@ -78,14 +79,14 @@ class ConnectionPolicyManagerTest {
 
         val (arrangement, connectionPolicyManager) = Arrangement()
             .withCurrentSession(USER_ID_2)
-            .withUiInitialized()
+            .withAppInTheForeground()
             .arrange()
 
         connectionPolicyManager.handleConnectionOnPushNotification(user)
 
         coVerify(exactly = 1) {
             arrangement.setConnectionPolicyUseCase.invoke(ConnectionPolicy.KEEP_ALIVE)
-            arrangement.syncManager.waitUntilLive()
+            arrangement.syncManager.waitUntilLiveOrFailure()
             arrangement.setConnectionPolicyUseCase.invoke(ConnectionPolicy.DISCONNECT_AFTER_PENDING_EVENTS)
         }
     }
@@ -96,14 +97,14 @@ class ConnectionPolicyManagerTest {
 
         val (arrangement, connectionPolicyManager) = Arrangement()
             .withCurrentSession(USER_ID_2)
-            .withUiNotInitialized()
+            .withAppInTheBackground()
             .arrange()
 
         connectionPolicyManager.handleConnectionOnPushNotification(user)
 
         coVerifyOrder {
             arrangement.setConnectionPolicyUseCase.invoke(ConnectionPolicy.KEEP_ALIVE)
-            arrangement.syncManager.waitUntilLive()
+            arrangement.syncManager.waitUntilLiveOrFailure()
             arrangement.setConnectionPolicyUseCase.invoke(ConnectionPolicy.DISCONNECT_AFTER_PENDING_EVENTS)
         }
     }
@@ -135,25 +136,24 @@ class ConnectionPolicyManagerTest {
         init {
             MockKAnnotations.init(this, relaxUnitFun = true)
 
-            every { coreLogic.sessionRepository } returns sessionRepository
+            every { coreLogic.getGlobalScope().sessionRepository } returns sessionRepository
             every { coreLogic.getSessionScope(USER_ID) } returns userSessionScope
             every { userSessionScope.setConnectionPolicy } returns setConnectionPolicyUseCase
             every { userSessionScope.syncManager } returns syncManager
+            coEvery { syncManager.waitUntilLiveOrFailure() } returns Either.Right(Unit)
         }
 
-        fun withUiNotInitialized() = apply {
-            every { currentScreenManager.appWasVisibleAtLeastOnceFlow() } returns MutableStateFlow(false)
+        fun withAppInTheBackground() = apply {
+            every { currentScreenManager.isAppOnForegroundFlow() } returns MutableStateFlow(false)
         }
 
-        fun withUiInitialized() = apply {
-            every { currentScreenManager.appWasVisibleAtLeastOnceFlow() } returns MutableStateFlow(true)
+        fun withAppInTheForeground() = apply {
+            every { currentScreenManager.isAppOnForegroundFlow() } returns MutableStateFlow(true)
         }
 
         fun withCurrentSession(userId: UserId) = apply {
-            val authSession: AuthSession = mockk()
-            val session: AuthSession.Session = mockk()
-            every { authSession.session } returns session
-            every { session.userId } returns userId
+            val authSession: AccountInfo = mockk()
+            every { authSession.userId } returns userId
             every { sessionRepository.currentSession() } returns Either.Right(authSession)
         }
 

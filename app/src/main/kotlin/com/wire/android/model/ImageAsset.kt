@@ -1,17 +1,27 @@
 package com.wire.android.model
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.UserAssetId
 
+@Stable
 sealed class ImageAsset(private val imageLoader: WireSessionImageLoader) {
+    /**
+     * Value that uniquely identifies this Asset,
+     * can be used for caching purposes, for example.
+     */
+    abstract val uniqueKey: String
 
     data class UserAvatarAsset(
         private val imageLoader: WireSessionImageLoader,
         val userAssetId: UserAssetId
-    ) : ImageAsset(imageLoader)
+    ) : ImageAsset(imageLoader) {
+        override val uniqueKey: String
+            get() = userAssetId.toString()
+    }
 
     data class PrivateAsset(
         private val imageLoader: WireSessionImageLoader,
@@ -20,6 +30,8 @@ sealed class ImageAsset(private val imageLoader: WireSessionImageLoader) {
         val isSelfAsset: Boolean
     ) : ImageAsset(imageLoader) {
         override fun toString(): String = "$conversationId:$messageId:$isSelfAsset"
+        override val uniqueKey: String
+            get() = toString()
     }
 
     @Composable

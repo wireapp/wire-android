@@ -3,9 +3,11 @@ package com.wire.android.ui.home.settings.account
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.navigation.NavigationManager
+import com.wire.kalium.logic.StorageFailure
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
+import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase.Result.Success
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import io.mockk.Called
 import io.mockk.MockKAnnotations
@@ -23,9 +25,20 @@ import org.junit.jupiter.api.extension.ExtendWith
 class MyAccountViewModelTest {
 
     @Test
+    fun `when trying to compute if the user requires password, and fails then should not load forgot password url context`() = runTest {
+        val (arrangement, _) = Arrangement()
+            .withUserRequiresPasswordResult(IsPasswordRequiredUseCase.Result.Failure(StorageFailure.DataNotFound))
+            .arrange()
+
+        verify {
+            arrangement.selfServerConfigUseCase wasNot Called
+        }
+    }
+
+    @Test
     fun `when user does not requires password, then should not load forgot password url context`() = runTest {
-        val (arrangement, viewModel) = Arrangement()
-            .withUserRequiresPassword(false)
+        val (arrangement, _) = Arrangement()
+            .withUserRequiresPasswordResult(Success(false))
             .arrange()
 
         verify {
@@ -35,8 +48,8 @@ class MyAccountViewModelTest {
 
     @Test
     fun `when user requires a password, then should load forgot password url context`() = runTest {
-        val (arrangement, viewModel) = Arrangement()
-            .withUserRequiresPassword(true)
+        val (arrangement, _) = Arrangement()
+            .withUserRequiresPasswordResult(Success(true))
             .arrange()
 
         coVerify { arrangement.selfServerConfigUseCase() }
@@ -73,8 +86,8 @@ class MyAccountViewModelTest {
             MockKAnnotations.init(this, relaxUnitFun = true)
         }
 
-        fun withUserRequiresPassword(requiresPassword: Boolean = true) = apply {
-            coEvery { isPasswordRequiredUseCase() } returns IsPasswordRequiredUseCase.Result.Success(requiresPassword)
+        fun withUserRequiresPasswordResult(result: IsPasswordRequiredUseCase.Result = Success(true)) = apply {
+            coEvery { isPasswordRequiredUseCase() } returns result
         }
 
         fun arrange() = this to viewModel

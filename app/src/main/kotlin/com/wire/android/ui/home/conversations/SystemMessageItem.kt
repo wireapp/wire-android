@@ -35,7 +35,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.home.conversations.model.MessageContent.SystemMessage
+import com.wire.android.ui.home.conversations.model.UIMessageContent.SystemMessage
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.ui.UIText
@@ -64,7 +64,7 @@ fun SystemMessageItem(message: SystemMessage) {
                 Box(
                     modifier = Modifier.size(
                         width = dimensions().systemMessageIconLargeSize,
-                        height =  dimensions().spacing20x
+                        height = dimensions().spacing20x
                     ),
                     contentAlignment = Alignment.Center
                 ) {
@@ -171,6 +171,7 @@ private val SystemMessage.expandable
         is SystemMessage.MemberRemoved -> this.memberNames.size > EXPANDABLE_THRESHOLD
         is SystemMessage.MemberLeft -> false
         is SystemMessage.MissedCall -> false
+        is SystemMessage.RenamedConversation -> false
     }
 
 private fun List<String>.toUserNamesListString(res: Resources) = when {
@@ -210,6 +211,7 @@ fun SystemMessage.annotatedString(
             )
         is SystemMessage.MemberLeft -> arrayOf(author.asString(res))
         is SystemMessage.MissedCall -> arrayOf(author.asString(res))
+        is SystemMessage.RenamedConversation -> arrayOf(author.asString(res), additionalContent)
     }
     return res.stringWithStyledArgs(stringResId, normalStyle, boldStyle, normalColor, boldColor, *args)
 }

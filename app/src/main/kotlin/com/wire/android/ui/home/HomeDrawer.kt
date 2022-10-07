@@ -1,5 +1,6 @@
 package com.wire.android.ui.home
 
+import android.content.Intent
 import androidx.activity.compose.BackHandler
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
@@ -26,18 +27,17 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.navigation.HomeNavigationItem
-import com.wire.android.navigation.HomeNavigationItem.Conversations
 import com.wire.android.navigation.HomeNavigationItem.Settings
 import com.wire.android.navigation.NavigationItem
-import com.wire.android.navigation.NavigationItem.Debug
+import com.wire.android.navigation.NavigationItem.ReportBug
 import com.wire.android.navigation.NavigationItem.Support
 import com.wire.android.navigation.isExternalRoute
 import com.wire.android.navigation.navigateToItemInHome
@@ -46,9 +46,13 @@ import com.wire.android.ui.common.selectableBackground
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
-import com.wire.android.util.EMPTY
+import com.wire.android.util.getDeviceId
+import com.wire.android.util.getUrisOfFilesInDirectory
+import com.wire.android.util.multipleFileSharingIntent
+import com.wire.android.util.sha256
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
+import java.io.File
 
 @ExperimentalMaterialApi
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
@@ -61,6 +65,9 @@ fun HomeDrawer(
     scope: CoroutineScope,
     viewModel: HomeViewModel
 ) {
+
+    val context = LocalContext.current
+
     BackHandler(enabled = drawerState.isOpen) {
         scope.launch {
             drawerState.close()
@@ -100,7 +107,11 @@ fun HomeDrawer(
 
         Spacer(modifier = Modifier.weight(1f))
 
-        val bottomItems = listOf(Settings, Support, Debug)
+        val bottomItems = buildList {
+            add(Settings)
+            add(Support)
+        }
+
         bottomItems.forEach { item ->
             DrawerItem(
                 data = item.getDrawerData(),
@@ -108,6 +119,22 @@ fun HomeDrawer(
                 onItemClick = remember { { navigateAndCloseDrawer(item) } }
             )
         }
+
+        DrawerItem(
+            data = ReportBug.getDrawerData(),
+            selected = false,
+            onItemClick = {
+
+                val dir = File(viewModel.logFilePath()).parentFile
+                val logsUris = context.getUrisOfFilesInDirectory(dir)
+                val intent = context.multipleFileSharingIntent(logsUris)
+                intent.putExtra(Intent.EXTRA_EMAIL, arrayOf("wire-newandroid@wearezeta.zendesk.com"))
+                intent.putExtra(Intent.EXTRA_SUBJECT, "Bug Report - Wire Beta")
+                intent.putExtra(Intent.EXTRA_TEXT, viewModel.reportBugEmailTemplate(context.getDeviceId()?.sha256()))
+                intent.type = "message/rfc822"
+
+                context.startActivity(Intent.createChooser(intent,"Choose an Email client : "))
+        })
 
         Text(
             text = stringResource(R.string.app_version, BuildConfig.VERSION_NAME),
@@ -157,7 +184,7 @@ private fun Any.getDrawerData(): DrawerItemData =
     when (this) {
         is HomeNavigationItem -> DrawerItemData(this.title, this.icon)
         Support -> DrawerItemData(R.string.support_screen_title, R.drawable.ic_support)
-        Debug -> DrawerItemData(R.string.debug_screen_title, R.drawable.ic_bug)
+        ReportBug -> DrawerItemData(R.string.report_bug_screen_title, R.drawable.ic_bug)
         else -> DrawerItemData(null, null)
     }
 

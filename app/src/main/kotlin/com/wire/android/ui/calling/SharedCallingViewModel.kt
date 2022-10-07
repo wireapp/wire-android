@@ -17,12 +17,14 @@ import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.CurrentScreen
 import com.wire.android.util.CurrentScreenManager
+import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.call.ConversationType
 import com.wire.kalium.logic.data.call.VideoState
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
+import com.wire.kalium.logic.feature.call.Call
 import com.wire.kalium.logic.feature.call.CallStatus
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.GetAllCallsWithSortedParticipantsUseCase
@@ -38,11 +40,18 @@ import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseC
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationTypeResult
 import com.wire.kalium.logic.util.PlatformView
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.filterIsInstance
+import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
 @Suppress("LongParameterList", "TooManyFunctions")
@@ -67,6 +76,7 @@ class SharedCallingViewModel @Inject constructor(
     private val userTypeMapper: UserTypeMapper,
     private val currentScreenManager: CurrentScreenManager,
     private val getConversationClassifiedType: GetSecurityClassificationTypeUseCase,
+    private val dispatchers: DispatcherProvider,
 ) : ViewModel() {
 
     var callState by mutableStateOf(CallState())
@@ -79,14 +89,25 @@ class SharedCallingViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
+            val allCallsSharedFlow = allCalls().map {
+                it.find { call ->
+                    call.conversationId == conversationId &&
+                            call.status != CallStatus.CLOSED &&
+                            call.status != CallStatus.MISSED
+                }
+            }.flowOn(dispatchers.io()).shareIn(this, started = SharingStarted.Lazily)
+
             launch {
-                observeConversationDetails()
+                observeConversationDetails(this)
             }
             launch {
-                observeCallState()
+                initCallState(allCallsSharedFlow)
             }
             launch {
-                observeOnSpeaker()
+                observeParticipants(allCallsSharedFlow)
+            }
+            launch {
+                observeOnSpeaker(this)
             }
             launch {
                 observeOnMute()
@@ -120,10 +141,12 @@ class SharedCallingViewModel @Inject constructor(
         }
     }
 
-    private suspend fun observeConversationDetails() {
+    private suspend fun observeConversationDetails(coroutineScope: CoroutineScope) {
         conversationDetails(conversationId = conversationId)
             .filterIsInstance<ObserveConversationDetailsUseCase.Result.Success>() // TODO handle StorageFailure
             .map { it.conversationDetails }
+            .flowOn(dispatchers.io())
+            .shareIn(coroutineScope, SharingStarted.WhileSubscribed(1))
             .collect { details ->
                 callState = when (details) {
                     is ConversationDetails.Group -> {
@@ -147,15 +170,18 @@ class SharedCallingViewModel @Inject constructor(
             }
     }
 
-    private suspend fun observeOnSpeaker() {
-        observeSpeaker().collect {
-            callState = callState.copy(isSpeakerOn = it)
-        }
+    private suspend fun observeOnSpeaker(coroutineScope: CoroutineScope) {
+        observeSpeaker()
+            .flowOn(dispatchers.io())
+            .shareIn(coroutineScope, SharingStarted.WhileSubscribed(1))
+            .collectLatest {
+                callState = callState.copy(isSpeakerOn = it)
+            }
     }
 
     private suspend fun observeOnMute() {
         //We should only mute established calls
-          snapshotFlow { callState.isMuted to callState.callStatus }.collectLatest { (isMuted, callStatus) ->
+        snapshotFlow { callState.isMuted to callState.callStatus }.collectLatest { (isMuted, callStatus) ->
             if (callStatus == CallStatus.ESTABLISHED) {
                 isMuted?.let {
                     if (it) {
@@ -168,19 +194,24 @@ class SharedCallingViewModel @Inject constructor(
         }
     }
 
-    private suspend fun observeCallState() {
-        allCalls().collect { calls ->
-            calls.find { call ->
-                call.conversationId == conversationId &&
-                        call.status != CallStatus.CLOSED &&
-                        call.status != CallStatus.MISSED
-            }?.let { call ->
+    private suspend fun initCallState(sharedFlow: SharedFlow<Call?>) {
+        sharedFlow.first()?.let { call ->
+            callState = callState.copy(
+                callStatus = call.status,
+                callerName = call.callerName,
+                isCameraOn = call.isCameraOn,
+            )
+        }
+    }
+
+    private suspend fun observeParticipants(sharedFlow: SharedFlow<Call?>) {
+        sharedFlow.collect { call ->
+            call?.let {
                 callState = callState.copy(
-                    callStatus = call.status,
-                    callerName = call.callerName,
                     isMuted = call.isMuted,
-                    isCameraOn = call.isCameraOn,
-                    participants = call.participants.map { uiCallParticipantMapper.toUICallParticipant(it) }
+                    callStatus = it.status,
+                    callerName = it.callerName,
+                    participants = it.participants.map { participant -> uiCallParticipantMapper.toUICallParticipant(participant) }
                 )
             }
         }
@@ -217,8 +248,10 @@ class SharedCallingViewModel @Inject constructor(
         viewModelScope.launch {
             callState.isMuted?.let {
                 callState = if (it) {
+                    unMuteCall(conversationId)
                     callState.copy(isMuted = false)
                 } else {
+                    muteCall(conversationId)
                     callState.copy(isMuted = true)
                 }
             }
@@ -228,19 +261,9 @@ class SharedCallingViewModel @Inject constructor(
     fun toggleVideo() {
         viewModelScope.launch {
             callState.isCameraOn?.let {
-                callState = if (it) {
-                    turnLoudSpeakerOff()
-                    callState.copy(
-                        isCameraOn = false,
-                        isSpeakerOn = false
-                    )
-                } else {
-                    turnLoudSpeakerOn()
-                    callState.copy(
-                        isCameraOn = true,
-                        isSpeakerOn = true
-                    )
-                }
+                callState = callState.copy(
+                    isCameraOn = !it
+                )
             }
         }
     }
@@ -254,9 +277,11 @@ class SharedCallingViewModel @Inject constructor(
 
     fun setVideoPreview(view: View?) {
         viewModelScope.launch {
-            setVideoPreview(conversationId, PlatformView(null))
-            setVideoPreview(conversationId, PlatformView(view))
-            updateVideoState(conversationId, VideoState.STARTED)
+            withContext(dispatchers.default()) {
+                setVideoPreview(conversationId, PlatformView(null))
+                setVideoPreview(conversationId, PlatformView(view))
+                updateVideoState(conversationId, VideoState.STARTED)
+            }
         }
     }
 

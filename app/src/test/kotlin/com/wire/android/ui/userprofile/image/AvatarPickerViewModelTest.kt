@@ -2,6 +2,7 @@ package com.wire.android.ui.userprofile.image
 
 import android.content.Context
 import android.net.Uri
+import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.datastore.UserDataStore
@@ -67,17 +68,20 @@ class AvatarPickerViewModelTest {
                 .withSuccessfulAvatarUpload(uploadedAssetId)
                 .arrange()
 
-            // When
-            avatarPickerViewModel.uploadNewPickedAvatarAndBack()
+            avatarPickerViewModel.infoMessage.test {
+                // When
+                avatarPickerViewModel.uploadNewPickedAvatarAndBack()
 
-            // Then
-            coVerify {
-                with(arrangement) {
-                    uploadUserAvatarUseCase(any(), any())
-                    userDataStore.updateUserAvatarAssetId(uploadedAssetId.toString())
-                    avatarPickerViewModel.navigateBack()
+                // Then
+                coVerify {
+                    with(arrangement) {
+                        uploadUserAvatarUseCase(any(), any())
+                        userDataStore.updateUserAvatarAssetId(uploadedAssetId.toString())
+                        avatarPickerViewModel.navigateBack()
+                    }
                 }
-                assertEquals(null, avatarPickerViewModel.errorMessageCode)
+
+                expectNoEvents()
             }
         }
 
@@ -89,33 +93,20 @@ class AvatarPickerViewModelTest {
             .withErrorUploadResponse()
             .arrange()
 
-        // When
-        avatarPickerViewModel.uploadNewPickedAvatarAndBack()
+        avatarPickerViewModel.infoMessage.test {
+            // When
+            avatarPickerViewModel.uploadNewPickedAvatarAndBack()
 
-        // Then
-        with(arrangement) {
-            coVerify {
-                uploadUserAvatarUseCase(any(), any())
-                avatarImageManager.getWritableAvatarUri(any()) wasNot Called
+            // Then
+            with(arrangement) {
+                coVerify {
+                    uploadUserAvatarUseCase(any(), any())
+                    avatarImageManager.getWritableAvatarUri(any()) wasNot Called
+                }
             }
-            assertNotNull(avatarPickerViewModel.errorMessageCode)
+
+            assertEquals(AvatarPickerViewModel.InfoMessageType.UploadAvatarError.uiText, awaitItem())
         }
-    }
-
-    @Test
-    fun `given there is an error, when calling clear messages, then should clean the error messages codes`() = runTest {
-        // Given
-        val (_, avatarPickerViewModel) = Arrangement()
-            .withSuccessfulInitialAvatarLoad()
-            .withErrorUploadResponse()
-            .arrange()
-
-        // When
-        avatarPickerViewModel.uploadNewPickedAvatarAndBack()
-        avatarPickerViewModel.clearErrorMessage()
-
-        // Then
-        assertEquals(null, avatarPickerViewModel.errorMessageCode)
     }
 
     private class Arrangement {
@@ -167,6 +158,7 @@ class AvatarPickerViewModelTest {
             }
             coEvery { getAvatarAsset(any()) } returns PublicAssetResult.Success(avatarPath)
             coEvery { avatarImageManager.getWritableAvatarUri(any()) } returns mockUri
+            coEvery { avatarImageManager.getShareableTempAvatarUri(any()) } returns mockUri
             coEvery { navigationManager.navigateBack() } returns Unit
             coEvery { any<Uri>().resampleImageAndCopyToTempPath(any(), any(), any(), any()) } returns 1L
             coEvery { any<Uri>().toByteArray(any(), any()) } returns ByteArray(5)
@@ -183,7 +175,6 @@ class AvatarPickerViewModelTest {
 
             return this
         }
-
 
         fun withErrorUploadResponse(): Arrangement {
             coEvery { uploadUserAvatarUseCase(any(), any()) } returns UploadAvatarResult.Failure(Unknown(RuntimeException("some error")))

@@ -1,8 +1,9 @@
 package com.wire.android.ui.home.conversations.details
 
+import android.content.Context
 import androidx.annotation.StringRes
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.gestures.LocalOverScrollConfiguration
+import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -40,6 +41,8 @@ import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireTabRow
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.calculateCurrentTab
+import com.wire.android.ui.common.collectAsStateLifecycleAware
+import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
@@ -55,29 +58,30 @@ import com.wire.android.ui.home.conversations.details.participants.model.UIParti
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
+import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.id.ConversationId
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 @Composable
 fun GroupConversationDetailsScreen(viewModel: GroupConversationDetailsViewModel) {
-    val snackbarHostState = remember { SnackbarHostState() }
     val context = LocalContext.current
-
     GroupConversationDetailsContent(
         onBackPressed = viewModel::navigateBack,
         openFullListPressed = viewModel::navigateToFullParticipantsList,
         onProfilePressed = viewModel::openProfile,
         onAddParticipantsPressed = viewModel::navigateToAddParticants,
-        groupOptionsState = viewModel.groupOptionsState,
+        groupOptionsStateFlow = viewModel.groupOptionsState,
         groupParticipantsState = viewModel.groupParticipantsState,
         onLeaveGroup = viewModel::leaveGroup,
         onDeleteGroup = viewModel::deleteGroup,
-        isLoading = viewModel.requestInProgress
+        isLoading = viewModel.requestInProgress,
+        messages = viewModel.snackBarMessage,
+        context = context
     )
-
-    LaunchedEffect(Unit) {
-        viewModel.snackBarMessage.collect { snackbarHostState.showSnackbar(it.asString(context.resources)) }
-    }
 }
 
 @OptIn(
@@ -94,11 +98,14 @@ private fun GroupConversationDetailsContent(
     onAddParticipantsPressed: () -> Unit,
     onLeaveGroup: (GroupDialogState) -> Unit,
     onDeleteGroup: (GroupDialogState) -> Unit,
-    groupOptionsState: GroupConversationOptionsState,
+    groupOptionsStateFlow: StateFlow<GroupConversationOptionsState>,
     groupParticipantsState: GroupConversationParticipantsState,
     isLoading: Boolean,
+    messages: SharedFlow<UIText>,
+    context: Context = LocalContext.current
 ) {
     val scope = rememberCoroutineScope()
+    val groupOptionsState by groupOptionsStateFlow.collectAsStateLifecycleAware()
     val lazyListStates: List<LazyListState> = GroupConversationDetailsTabItem.values().map { rememberLazyListState() }
     val initialPageIndex = GroupConversationDetailsTabItem.OPTIONS.ordinal
     val pagerState = rememberPagerState(initialPage = initialPageIndex)
@@ -112,6 +119,11 @@ private fun GroupConversationDetailsContent(
 
     val deleteGroupDialogState = rememberVisibilityState<GroupDialogState>()
     val leaveGroupDialogState = rememberVisibilityState<GroupDialogState>()
+
+    val snackbarHostState = remember { SnackbarHostState() }
+    LaunchedEffect(Unit) {
+        messages.collect { snackbarHostState.showSnackbar(it.asString(context.resources)) }
+    }
 
     if (!isLoading) {
         deleteGroupDialogState.dismiss()
@@ -150,12 +162,18 @@ private fun GroupConversationDetailsContent(
                 }
             },
             modifier = Modifier.fillMaxHeight(),
+            snackbarHost = {
+                SwipeDismissSnackbarHost(
+                    hostState = snackbarHostState,
+                    modifier = Modifier.fillMaxWidth()
+                )
+            },
         ) { internalPadding ->
             var focusedTabIndex: Int by remember { mutableStateOf(initialPageIndex) }
             val keyboardController = LocalSoftwareKeyboardController.current
             val focusManager = LocalFocusManager.current
 
-            CompositionLocalProvider(LocalOverScrollConfiguration provides null) {
+            CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
                 HorizontalPager(
                     state = pagerState,
                     count = GroupConversationDetailsTabItem.values().size,
@@ -216,14 +234,17 @@ private fun GroupConversationDetailsPreview() {
             openFullListPressed = {},
             onProfilePressed = {},
             onAddParticipantsPressed = {},
-            onDeleteGroup = {},
             onLeaveGroup = {},
-            groupOptionsState = GroupConversationOptionsState(
-                conversationId = ConversationId("someValue", "someDomain"),
-                groupName = "Group name"
+            onDeleteGroup = {},
+            groupOptionsStateFlow = MutableStateFlow(
+                GroupConversationOptionsState(
+                    conversationId = ConversationId("someValue", "someDomain"),
+                    groupName = "Group name"
+                )
             ),
             groupParticipantsState = GroupConversationParticipantsState.PREVIEW,
-            isLoading = false
+            isLoading = false,
+            messages = MutableSharedFlow(),
         )
     }
 }

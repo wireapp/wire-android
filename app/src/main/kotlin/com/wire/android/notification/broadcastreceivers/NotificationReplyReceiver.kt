@@ -6,12 +6,14 @@ import android.content.Intent
 import androidx.core.app.RemoteInput
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.di.NoSession
+import com.wire.android.notification.MessageNotificationManager
 import com.wire.android.notification.NotificationConstants
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
+import com.wire.kalium.logic.functional.fold
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -36,16 +38,24 @@ class NotificationReplyReceiver : BroadcastReceiver() { // requires zero argumen
 
         if (remoteInput != null && conversationId != null && userId != null) {
             val replyText = remoteInput.getCharSequence(NotificationConstants.KEY_TEXT_REPLY).toString()
+            val qualifiedUserId = qualifiedIdMapper.fromStringToQualifiedID(userId)
+            val qualifiedConversationId = qualifiedIdMapper.fromStringToQualifiedID(conversationId)
 
-            GlobalScope.launch(dispatcherProvider.io()) {
-                val qualifiedUserId = qualifiedIdMapper.fromStringToQualifiedID(userId)
-                val qualifiedConversationId = qualifiedIdMapper.fromStringToQualifiedID(conversationId)
-                coreLogic.getSessionScope(qualifiedUserId)
-                    .messages
-                    .sendTextMessage(qualifiedConversationId, replyText)
+            with(coreLogic.getSessionScope(qualifiedUserId)) {
+                // TODO better to move dispatcher logic into UseCase
+                CoroutineScope(coroutineContext + dispatcherProvider.io()).launch {
+                    messages.sendTextMessage(qualifiedConversationId, replyText)
+                        .fold(
+                            { updateNotification(context, conversationId, userId, null) },
+                            { updateNotification(context, conversationId, userId, replyText) }
+                        )
+                }
             }
         }
     }
+
+    private fun updateNotification(context: Context, conversationId: String, userId: String, replyText: String?) =
+        MessageNotificationManager.updateNotificationAfterQuickReply(context, conversationId, userId, replyText)
 
     companion object {
         private const val EXTRA_CONVERSATION_ID = "conversation_id_extra"

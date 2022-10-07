@@ -16,17 +16,18 @@ import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.ConversationLastEvent
 import com.wire.android.ui.home.conversationslist.model.Membership
-import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.AnswerCallUseCase
-import com.wire.kalium.logic.feature.connection.BlockUserUseCase
 import com.wire.kalium.logic.feature.connection.BlockUserResult
-import com.wire.kalium.logic.feature.conversation.ConversationListDetails
+import com.wire.kalium.logic.feature.connection.BlockUserUseCase
+import com.wire.kalium.logic.feature.connection.UnblockUserResult
+import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
-import com.wire.kalium.logic.feature.conversation.ObserveConversationsAndConnectionsUseCase
+import com.wire.kalium.logic.feature.conversation.LeaveConversationUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
@@ -55,10 +56,10 @@ class ConversationListViewModelTest {
     lateinit var updateConversationMutedStatus: UpdateConversationMutedStatusUseCase
 
     @MockK
-    lateinit var observeConversationsAndConnections: ObserveConversationsAndConnectionsUseCase
+    lateinit var observeConversationListDetailsUseCase: ObserveConversationListDetailsUseCase
 
     @MockK
-    lateinit var removeMemberFromConversationUseCase: RemoveMemberFromConversationUseCase
+    lateinit var leaveConversation: LeaveConversationUseCase
 
     @MockK
     lateinit var deleteTeamConversationUseCase: DeleteTeamConversationUseCase
@@ -71,6 +72,9 @@ class ConversationListViewModelTest {
 
     @MockK
     lateinit var blockUser: BlockUserUseCase
+
+    @MockK
+    lateinit var unblockUser: UnblockUserUseCase
 
     @MockK
     private lateinit var wireSessionImageLoader: WireSessionImageLoader
@@ -86,16 +90,16 @@ class ConversationListViewModelTest {
                 TestDispatcherProvider(),
                 updateConversationMutedStatus,
                 joinCall,
-                observeConversationsAndConnections,
-                removeMemberFromConversationUseCase,
+                observeConversationListDetailsUseCase,
+                leaveConversation,
                 deleteTeamConversationUseCase,
-                getSelf,
                 blockUser,
+                unblockUser,
                 wireSessionImageLoader,
                 UserTypeMapper(),
             )
 
-        coEvery { observeConversationsAndConnections() } returns flowOf(ConversationListDetails(listOf(), 0L, 0L, 0L))
+        coEvery { observeConversationListDetailsUseCase() } returns flowOf(listOf())
     }
 
     @Test
@@ -162,6 +166,14 @@ class ConversationListViewModelTest {
         )
 
         coVerify(exactly = 1) { blockUser(userId) }
+    }
+
+    @Test
+    fun `given a valid conversation muting state, when calling unblock user, then should call BlockUserUseCase`() = runTest {
+        coEvery { unblockUser(any()) } returns UnblockUserResult.Success
+        conversationListViewModel.unblockUser(userId)
+
+        coVerify(exactly = 1) { unblockUser(userId) }
     }
 
     companion object {

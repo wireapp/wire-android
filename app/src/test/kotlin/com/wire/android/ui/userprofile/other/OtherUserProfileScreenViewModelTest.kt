@@ -25,6 +25,7 @@ import com.wire.kalium.logic.feature.connection.CancelConnectionRequestUseCaseRe
 import com.wire.kalium.logic.feature.connection.IgnoreConnectionRequestUseCaseResult
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestResult
 import com.wire.kalium.logic.feature.conversation.CreateConversationResult
+import com.wire.kalium.logic.feature.conversation.GetOneToOneConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMemberRoleResult
 import com.wire.kalium.logic.feature.user.GetUserInfoResult
 import io.mockk.Called
@@ -54,7 +55,7 @@ class OtherUserProfileScreenViewModelTest {
                 // then
                 coVerify { arrangement.sendConnectionRequest(eq(USER_ID)) }
                 assertEquals(ConnectionState.SENT, viewModel.state.connectionState)
-                assertEquals(InfoMessageType.SuccessConnectionSentRequest.uiText, awaitItem())
+                assertEquals(OtherUserProfileInfoMessageType.SuccessConnectionSentRequest.uiText, awaitItem())
             }
         }
 
@@ -65,6 +66,7 @@ class OtherUserProfileScreenViewModelTest {
             val (arrangement, viewModel) = OtherUserProfileViewModelArrangement()
                 .withSendConnectionRequest(SendConnectionRequestResult.Failure(Unknown(RuntimeException("some error"))))
                 .arrange()
+
             viewModel.infoMessage.test {
 
                 // when
@@ -76,7 +78,7 @@ class OtherUserProfileScreenViewModelTest {
                     arrangement.sendConnectionRequest(eq(USER_ID))
                     arrangement.navigationManager wasNot Called
                 }
-                assertEquals(InfoMessageType.ConnectionRequestError.uiText, awaitItem())
+                assertEquals(OtherUserProfileInfoMessageType.ConnectionRequestError.uiText, awaitItem())
             }
         }
 
@@ -93,7 +95,7 @@ class OtherUserProfileScreenViewModelTest {
 
             // then
             coVerify { arrangement.ignoreConnectionRequest(eq(USER_ID)) }
-            assertEquals(ConnectionState.NOT_CONNECTED, viewModel.state.connectionState)
+            assertEquals(ConnectionState.IGNORED, viewModel.state.connectionState)
         }
 
     @Test
@@ -112,7 +114,7 @@ class OtherUserProfileScreenViewModelTest {
                 // then
                 coVerify { arrangement.cancelConnectionRequest(eq(USER_ID)) }
                 assertEquals(ConnectionState.NOT_CONNECTED, viewModel.state.connectionState)
-                assertEquals(InfoMessageType.SuccessConnectionCancelRequest.uiText, awaitItem())
+                assertEquals(OtherUserProfileInfoMessageType.SuccessConnectionCancelRequest.uiText, awaitItem())
             }
         }
 
@@ -132,7 +134,7 @@ class OtherUserProfileScreenViewModelTest {
                 // then
                 coVerify { arrangement.acceptConnectionRequest(eq(USER_ID)) }
                 assertEquals(ConnectionState.ACCEPTED, viewModel.state.connectionState)
-                assertEquals(InfoMessageType.SuccessConnectionAcceptRequest.uiText, awaitItem())
+                assertEquals(OtherUserProfileInfoMessageType.SuccessConnectionAcceptRequest.uiText, awaitItem())
             }
         }
 
@@ -264,7 +266,7 @@ class OtherUserProfileScreenViewModelTest {
                     arrangement.updateConversationMemberRoleUseCase(CONVERSATION_ID, USER_ID, newRole)
                     arrangement.navigationManager wasNot Called
                 }
-                assertEquals(InfoMessageType.ChangeGroupRoleError.uiText, awaitItem())
+                assertEquals(OtherUserProfileInfoMessageType.ChangeGroupRoleError.uiText, awaitItem())
             }
         }
 
@@ -287,7 +289,7 @@ class OtherUserProfileScreenViewModelTest {
                 )
                 // then
                 coVerify { arrangement.blockUser(eq(USER_ID)) }
-                assertEquals(InfoMessageType.BlockingUserOperationError.uiText, awaitItem())
+                assertEquals(OtherUserProfileInfoMessageType.BlockingUserOperationError.uiText, awaitItem())
                 assertEquals(false, viewModel.requestInProgress)
             }
         }
@@ -315,7 +317,7 @@ class OtherUserProfileScreenViewModelTest {
                 coVerify { arrangement.blockUser(eq(USER_ID)) }
                 assertEquals(
                     (awaitItem() as UIText.StringResource).resId,
-                    (InfoMessageType.BlockingUserOperationSuccess(userName).uiText as UIText.StringResource).resId
+                    (OtherUserProfileInfoMessageType.BlockingUserOperationSuccess(userName).uiText as UIText.StringResource).resId
                 )
                 assertEquals(false, viewModel.requestInProgress)
             }
@@ -340,11 +342,12 @@ class OtherUserProfileScreenViewModelTest {
             .withUserInfo(
                 GetUserInfoResult.Success(OTHER_USER.copy(connectionStatus = ConnectionState.ACCEPTED), TEAM)
             )
+            .withGetConversationDetails(GetOneToOneConversationUseCase.Result.Success(CONVERSATION))
             .arrange()
 
         // then
         coVerify {
-            arrangement.getOrCreateOneToOneConversation(USER_ID)
+            arrangement.getConversationUseCase(USER_ID)
         }
     }
 
@@ -356,11 +359,13 @@ class OtherUserProfileScreenViewModelTest {
                 GetUserInfoResult.Success(OTHER_USER.copy(connectionStatus = ConnectionState.ACCEPTED), TEAM)
             )
             .withGetOneToOneConversation(CreateConversationResult.Failure(Unknown(RuntimeException("some error"))))
+            .withGetConversationDetails(GetOneToOneConversationUseCase.Result.Failure)
             .arrange()
 
         // then
         coVerify {
-            arrangement.getOrCreateOneToOneConversation(USER_ID)
+            arrangement.getConversationUseCase(USER_ID)
+            arrangement.getOrCreateOneToOneConversation(USER_ID) wasNot Called
         }
 
         assertEquals(false, viewModel.state.isDataLoading)
@@ -392,7 +397,7 @@ class OtherUserProfileScreenViewModelTest {
             null,
             false
         )
-        val TEAM = Team("some_id", null)
+        val TEAM = Team("some_id", "name", "icon")
         val CONVERSATION = Conversation(
             id = CONVERSATION_ID,
             name = "some_name",

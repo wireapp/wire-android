@@ -21,9 +21,11 @@ import com.wire.kalium.logic.feature.connection.SendConnectionRequestResult
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsResult
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
-import com.wire.kalium.logic.feature.publicuser.search.Result
+import com.wire.kalium.logic.feature.publicuser.search.SearchUsersResult
 import com.wire.kalium.logic.feature.publicuser.search.SearchKnownUsersUseCase
-import com.wire.kalium.logic.feature.publicuser.search.SearchUsersUseCase
+import com.wire.kalium.logic.feature.publicuser.search.SearchPublicUsersUseCase
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -33,16 +35,17 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onStart
 import kotlinx.coroutines.flow.onSubscription
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-
 
 @Suppress("TooManyFunctions", "LongParameterList")
 open class SearchAllPeopleViewModel(
     private val getAllKnownUsers: GetAllContactsUseCase,
     private val searchKnownUsers: SearchKnownUsersUseCase,
-    private val searchPublicUsers: SearchUsersUseCase,
+    private val searchPublicUsers: SearchPublicUsersUseCase,
     private val contactMapper: ContactMapper,
     private val dispatcher: DispatcherProvider,
     sendConnectionRequest: SendConnectionRequestUseCase,
@@ -68,8 +71,8 @@ open class SearchAllPeopleViewModel(
                     initialContacts = initialContacts,
                     searchQuery = searchQuery,
                     searchResult = mapOf(
-                        SearchResultTitle(R.string.label_public_wire) to publicResult.filterContacts(knownResult),
-                        SearchResultTitle(R.string.label_contacts) to knownResult
+                        SearchResultTitle(R.string.label_contacts) to knownResult,
+                        SearchResultTitle(R.string.label_public_wire) to publicResult.filterContacts(knownResult)
                     ),
                     noneSearchSucceed = publicResult.searchResultState is SearchResultState.Failure
                             && knownResult.searchResultState is SearchResultState.Failure,
@@ -87,28 +90,36 @@ open class SearchAllPeopleViewModel(
             is GetAllContactsResult.Success -> SearchResult.Success(result.allContacts.map(contactMapper::fromOtherUser))
         }
 
-    override suspend fun searchKnownPeople(searchTerm: String): ContactSearchResult.InternalContact =
-        when (val result: Result = withContext(dispatcher.io()) { searchKnownUsers(searchTerm) }) {
-            is Result.Failure.Generic, Result.Failure.InvalidRequest ->
-                ContactSearchResult.InternalContact(SearchResultState.Failure(R.string.label_general_error))
-            Result.Failure.InvalidQuery ->
-                ContactSearchResult.InternalContact(SearchResultState.Failure(R.string.label_no_results_found))
-            is Result.Success -> ContactSearchResult.InternalContact(
-                SearchResultState.Success(result.userSearchResult.result.map(contactMapper::fromOtherUser))
-            )
+    override suspend fun searchKnownPeople(searchTerm: String): Flow<ContactSearchResult.InternalContact> =
+        searchKnownUsers(searchTerm).flowOn(dispatcher.io()).map { result ->
+            when (result) {
+                is SearchUsersResult.Failure.Generic, SearchUsersResult.Failure.InvalidRequest ->
+                    ContactSearchResult.InternalContact(SearchResultState.Failure(R.string.label_general_error))
+                SearchUsersResult.Failure.InvalidQuery ->
+                    ContactSearchResult.InternalContact(SearchResultState.Failure(R.string.label_no_results_found))
+                is SearchUsersResult.Success -> ContactSearchResult.InternalContact(
+                    SearchResultState.Success(result.userSearchResult.result.map(contactMapper::fromOtherUser))
+                )
+            }
         }
 
-    override suspend fun searchPublicPeople(searchTerm: String): ContactSearchResult.ExternalContact =
-        when (val result = withContext(dispatcher.io()) { searchPublicUsers(searchTerm) }) {
-            is Result.Failure.Generic, Result.Failure.InvalidRequest ->
-                ContactSearchResult.ExternalContact(
-                    SearchResultState.Failure(R.string.label_general_error)
+    override suspend fun searchPublicPeople(searchTerm: String): Flow<ContactSearchResult.ExternalContact> {
+        return searchPublicUsers(searchTerm).map { result ->
+            when (result) {
+                is SearchUsersResult.Failure.Generic, SearchUsersResult.Failure.InvalidRequest ->
+                    ContactSearchResult.ExternalContact(
+                        SearchResultState.Failure(R.string.label_general_error)
+                    )
+                SearchUsersResult.Failure.InvalidQuery -> ContactSearchResult.ExternalContact(
+                    SearchResultState.Failure(R.string.label_no_results_found)
                 )
-            Result.Failure.InvalidQuery -> ContactSearchResult.ExternalContact(SearchResultState.Failure(R.string.label_no_results_found))
-            is Result.Success -> ContactSearchResult.ExternalContact(
-                SearchResultState.Success(result.userSearchResult.result.map(contactMapper::fromOtherUser))
-            )
+                is SearchUsersResult.Success -> ContactSearchResult.ExternalContact(
+                    SearchResultState.Success(result.userSearchResult.result.map(contactMapper::fromOtherUser))
+                )
+            }
         }
+            .flowOn(dispatcher.io())
+    }
 
     private fun ContactSearchResult.filterContacts(contactSearchResult: ContactSearchResult): ContactSearchResult {
         return if (searchResultState is SearchResultState.Success &&
@@ -135,20 +146,12 @@ abstract class PublicWithKnownPeopleSearchViewModel(
     navigationManager = navigationManager
 ) {
 
-    private val refreshPublicResult: MutableSharedFlow<PublicRefresh> = MutableSharedFlow(0)
-
     protected val publicPeopleSearchQueryFlow = mutableSearchQueryFlow
-        .combine(refreshPublicResult.onSubscription { emit(PublicRefresh()) })
-        { searchTerm, publicRefresh ->
-            searchTerm to publicRefresh
-        }.flatMapLatest { (searchTerm, publicRefresh) ->
-            flow {
-                if (publicRefresh.withProgress) {
+        .flatMapLatest { searchTerm ->
+            searchPublicPeople(searchTerm)
+                .onStart {
                     emit(ContactSearchResult.ExternalContact(SearchResultState.InProgress))
                 }
-
-                emit(searchPublicPeople(searchTerm))
-            }.cancellable()
         }
 
     fun addContact(contact: Contact) {
@@ -160,18 +163,18 @@ abstract class PublicWithKnownPeopleSearchViewModel(
                     appLogger.d(("Couldn't send a connect request to user $userId"))
                 }
                 is SendConnectionRequestResult.Success -> {
-                    refreshPublicResult.emit(PublicRefresh(withProgress = false))
                     snackbarMessageState = NewConversationSnackbarState.SuccessSendConnectionRequest
                 }
             }
         }
     }
 
-    abstract suspend fun searchPublicPeople(searchTerm: String): ContactSearchResult.ExternalContact
+    abstract suspend fun searchPublicPeople(searchTerm: String): Flow<ContactSearchResult.ExternalContact>
 }
 
 data class PublicRefresh(val withProgress: Boolean = true)
 
+@OptIn(ExperimentalCoroutinesApi::class)
 abstract class KnownPeopleSearchViewModel(
     dispatcher: DispatcherProvider,
     navigationManager: NavigationManager
@@ -182,13 +185,13 @@ abstract class KnownPeopleSearchViewModel(
 
     protected val knownPeopleSearchQueryFlow = mutableSearchQueryFlow
         .flatMapLatest { searchTerm ->
-            flow {
-                emit(ContactSearchResult.InternalContact(SearchResultState.InProgress))
-                emit(searchKnownPeople(searchTerm))
-            }.cancellable()
+            searchKnownPeople(searchTerm)
+                .onStart {
+                    emit(ContactSearchResult.InternalContact(SearchResultState.InProgress))
+                }
         }
 
-    abstract suspend fun searchKnownPeople(searchTerm: String): ContactSearchResult.InternalContact
+    abstract suspend fun searchKnownPeople(searchTerm: String): Flow<ContactSearchResult.InternalContact>
 }
 
 abstract class SearchPeopleViewModel(

@@ -2,11 +2,11 @@ package com.wire.android.ui.authentication.login
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.gestures.LocalOverScrollConfiguration
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -31,6 +31,7 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
 import com.wire.android.R
+import com.wire.android.ui.authentication.ServerTitle
 import com.wire.android.ui.authentication.login.email.LoginEmailScreen
 import com.wire.android.ui.authentication.login.sso.LoginSSOScreen
 import com.wire.android.ui.common.TabItem
@@ -45,6 +46,7 @@ import com.wire.android.ui.server.ClientUpdateRequiredDialog
 import com.wire.android.ui.server.ServerVersionNotSupportedDialog
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
+import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.DialogErrorStrings
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.dialogErrorStrings
@@ -82,6 +84,14 @@ private fun LoginContent(
             WireCenterAlignedTopAppBar(
                 elevation = scrollState.rememberTopBarElevationState().value,
                 title = stringResource(R.string.login_title),
+                subtitleContent = {
+                    if (viewModel.serverConfig.isOnPremises) {
+                        ServerTitle(
+                            serverLinks = viewModel.serverConfig,
+                            style = MaterialTheme.wireTypography.body01
+                        )
+                    }
+                },
                 onNavigationPressed = onBackPressed
             ) {
                 WireTabRow(
@@ -102,9 +112,6 @@ private fun LoginContent(
         var focusedTabIndex: Int by remember { mutableStateOf(initialPageIndex) }
         val keyboardController = LocalSoftwareKeyboardController.current
         val focusManager = LocalFocusManager.current
-        if (loginState.loginError is LoginError.DialogError.InvalidSession) {
-            LoginErrorDialog(loginState.loginError, viewModel::onDialogDismiss)
-        }
         if (loginState.showClientUpdateDialog) {
             ClientUpdateRequiredDialog(
                 onClose = viewModel::dismissClientUpdateDialog,
@@ -114,7 +121,7 @@ private fun LoginContent(
         if (loginState.showServerVersionNotSupportedDialog) {
             ServerVersionNotSupportedDialog(onClose = viewModel::dismissApiVersionNotSupportedDialog)
         }
-        CompositionLocalProvider(LocalOverScrollConfiguration provides null) {
+        CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
             HorizontalPager(
                 state = pagerState,
                 count = LoginTabItem.values().size,
@@ -153,22 +160,6 @@ fun LoginErrorDialog(
             stringResource(id = R.string.login_error_user_already_logged_in_title),
             stringResource(id = R.string.login_error_user_already_logged_in_message)
         )
-
-        is LoginError.DialogError.InvalidSession.SessionExpired -> DialogErrorStrings(
-            stringResource(id = R.string.session_expired_error_title),
-            stringResource(id = R.string.session_expired_error_message)
-        )
-
-        is LoginError.DialogError.InvalidSession.DeletedAccount -> DialogErrorStrings(
-            stringResource(id = R.string.deleted_user_error_title),
-            stringResource(id = R.string.deleted_user_error_message)
-        )
-
-        is LoginError.DialogError.InvalidSession.RemovedClient -> DialogErrorStrings(
-            stringResource(id = R.string.removed_client_error_title),
-            stringResource(id = R.string.removed_client_error_message)
-        )
-
 
         is LoginError.DialogError.GenericError ->
             error.coreFailure.dialogErrorStrings(LocalContext.current.resources)

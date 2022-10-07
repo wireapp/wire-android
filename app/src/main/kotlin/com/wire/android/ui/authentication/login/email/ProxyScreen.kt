@@ -26,7 +26,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.ui.authentication.login.LoginError
-import com.wire.android.ui.authentication.login.LoginErrorDialog
 import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextField
@@ -95,11 +94,11 @@ private fun ProxyContent(
 
     }
 
-    if (loginState.loginError is LoginError.DialogError && loginState.loginError !is LoginError.DialogError.InvalidSession) {
-        LoginErrorDialog(loginState.loginError, onDialogDismiss)
-    } else if (loginState.loginError is LoginError.TooManyDevicesError) {
-        onRemoveDeviceOpen()
-    }
+//    if (loginState.loginError is LoginError.DialogError && loginState.loginError !is LoginError.DialogError.InvalidSession) {
+//        LoginErrorDialog(loginState.loginError, onDialogDismiss)
+//    } else if (loginState.loginError is LoginError.TooManyDevicesError) {
+//        onRemoveDeviceOpen()
+//    }
 }
 
 @Composable

@@ -10,6 +10,8 @@ import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.ui.common.dialogs.BlockUserDialogContent
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
+import com.wire.android.ui.common.dialogs.UnblockUserDialogContent
+import com.wire.android.ui.common.dialogs.UnblockUserDialogState
 import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.home.HomeSnackbarState
 import com.wire.android.ui.home.conversations.details.menu.DeleteConversationGroupDialog
@@ -31,6 +33,7 @@ fun ConversationRouterHomeBridge(
     itemType: ConversationItemType,
     onHomeBottomSheetContentChanged: (@Composable ColumnScope.() -> Unit) -> Unit,
     onOpenBottomSheet: () -> Unit,
+    onCloseBottomSheet: () -> Unit,
     onSnackBarStateChanged: (HomeSnackbarState) -> Unit
 ) {
     val viewModel: ConversationListViewModel = hiltViewModel()
@@ -38,15 +41,21 @@ fun ConversationRouterHomeBridge(
     LaunchedEffect(Unit) {
         viewModel.snackBarState.collect { onSnackBarStateChanged(it) }
     }
+    LaunchedEffect(Unit) {
+        viewModel.closeBottomSheet.collect { onCloseBottomSheet() }
+    }
 
     val leaveGroupDialogState = rememberVisibilityState<GroupDialogState>()
     val deleteGroupDialogState = rememberVisibilityState<GroupDialogState>()
     val blockUserDialogState = rememberVisibilityState<BlockUserDialogState>()
+    val unblockUserDialogState = rememberVisibilityState<UnblockUserDialogState>()
 
-    if (!viewModel.requestInProgress) {
+    val requestInProgress = viewModel.requestInProgress
+    if (!requestInProgress) {
         leaveGroupDialogState.dismiss()
         deleteGroupDialogState.dismiss()
         blockUserDialogState.dismiss()
+        unblockUserDialogState.dismiss()
     }
 
     fun openConversationBottomSheet(
@@ -83,6 +92,7 @@ fun ConversationRouterHomeBridge(
                 moveConversationToArchive = viewModel::moveConversationToArchive,
                 clearConversationContent = viewModel::clearConversationContent,
                 blockUser = blockUserDialogState::show,
+                unblockUser = unblockUserDialogState::show,
                 leaveGroup = leaveGroupDialogState::show,
                 deleteGroup = deleteGroupDialogState::show
             )
@@ -116,7 +126,8 @@ fun ConversationRouterHomeBridge(
                     onEditConversation = onEditConversationItem,
                     onOpenUserProfile = viewModel::openUserProfile,
                     onOpenConversationNotificationsSettings = onEditNotifications,
-                    onJoinCall = viewModel::joinOngoingCall
+                    onJoinCall = viewModel::joinOngoingCall,
+                    shouldShowEmptyState= shouldShowEmptyState
                 )
             ConversationItemType.CALLS ->
                 CallsScreen(
@@ -142,21 +153,27 @@ fun ConversationRouterHomeBridge(
     }
 
     BlockUserDialogContent(
-        isLoading = viewModel.requestInProgress,
+        isLoading = requestInProgress,
         dialogState = blockUserDialogState,
         onBlock = viewModel::blockUser
     )
 
     DeleteConversationGroupDialog(
-        isLoading = viewModel.requestInProgress,
+        isLoading = requestInProgress,
         dialogState = deleteGroupDialogState,
         onDeleteGroup = viewModel::deleteGroup
     )
 
     LeaveConversationGroupDialog(
         dialogState = leaveGroupDialogState,
-        isLoading = viewModel.requestInProgress,
+        isLoading = requestInProgress,
         onLeaveGroup = viewModel::leaveGroup
+    )
+
+    UnblockUserDialogContent(
+        dialogState = unblockUserDialogState,
+        onUnblock = viewModel::unblockUser,
+        isLoading = requestInProgress,
     )
 }
 

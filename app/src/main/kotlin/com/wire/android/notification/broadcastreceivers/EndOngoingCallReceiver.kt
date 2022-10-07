@@ -44,7 +44,7 @@ class EndOngoingCallReceiver : BroadcastReceiver() {
                 } else {
                     val currentSession = coreLogic.globalScope { session.currentSession() }
                     if (currentSession is CurrentSessionResult.Success) {
-                        coreLogic.getSessionScope(currentSession.authSession.session.userId)
+                        coreLogic.getSessionScope(currentSession.accountInfo.userId)
                     } else {
                         null
                     }

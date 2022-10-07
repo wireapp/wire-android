@@ -26,6 +26,7 @@ import com.wire.android.ui.home.conversationslist.folderWithElements
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
+import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 
 @Composable
 fun SettingsScreen(
@@ -51,28 +52,41 @@ fun SettingsScreenContent(
     onItemClicked: (SettingsItem) -> Unit
 ) {
     val context = LocalContext.current
-    LazyColumn(
-        state = lazyListState,
-        modifier = Modifier.fillMaxSize()
-    ) {
 
-        folderWithElements(
-            header = context.getString(R.string.settings_general_group_title),
-            items = listOf(SettingsItem.AppSettings, SettingsItem.NetworkSettings),
-            onItemClicked = onItemClicked
-        )
+    val featureVisibilityFlags = LocalFeatureVisibilityFlags.current
 
-        folderWithElements(
-            header = context.getString(R.string.settings_backups_group_title),
-            items = listOf(SettingsItem.BackupAndRestore),
-            onItemClicked = onItemClicked
-        )
+    with(featureVisibilityFlags) {
+        LazyColumn(
+            state = lazyListState,
+            modifier = Modifier.fillMaxSize()
+        ) {
 
-        folderWithElements(
-            header = context.getString(R.string.settings_other_group_title),
-            items = listOf(SettingsItem.Support, SettingsItem.DebugSettings),
-            onItemClicked = onItemClicked
-        )
+            folderWithElements(
+                header = context.getString(R.string.settings_general_group_title),
+                items = buildList {
+                    if (AppSettings) {
+                        add(SettingsItem.AppSettings)
+                    }
+                    add(SettingsItem.ManageDevices)
+                    add(SettingsItem.NetworkSettings)
+                },
+                onItemClicked = onItemClicked
+            )
+
+            if (BackUpSettings) {
+                folderWithElements(
+                    header = context.getString(R.string.settings_backups_group_title),
+                    items = listOf(SettingsItem.BackupAndRestore),
+                    onItemClicked = onItemClicked
+                )
+            }
+
+            folderWithElements(
+                header = context.getString(R.string.settings_other_group_title),
+                items = listOf(SettingsItem.Support, SettingsItem.DebugSettings),
+                onItemClicked = onItemClicked
+            )
+        }
     }
 }
 

@@ -17,9 +17,9 @@ import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.AnnotatedString
 import com.wire.android.R
-import com.wire.android.ui.home.conversations.model.UIMessage
-import com.wire.android.ui.home.conversations.model.MessageContent
 import com.wire.android.ui.home.conversations.model.MessageSource
+import com.wire.android.ui.home.conversations.model.UIMessage
+import com.wire.android.ui.home.conversations.model.UIMessageContent
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
@@ -56,7 +56,11 @@ class ConversationScreenState(
 
     var selectedMessage by mutableStateOf<UIMessage?>(null)
 
-    fun isSelectedMessageMyMessage() = selectedMessage?.messageSource == MessageSource.Self
+    val isMyMessage
+        get() = selectedMessage?.messageSource == MessageSource.Self
+
+    val isTextMessage
+        get() = selectedMessage?.messageContent is UIMessageContent.TextMessage
 
     fun showEditContextMenu(message: UIMessage) {
         selectedMessage = message
@@ -64,13 +68,13 @@ class ConversationScreenState(
         coroutineScope.launch { modalBottomSheetState.animateTo(ModalBottomSheetValue.Expanded) }
     }
 
-    fun hideEditContextMenu(){
+    fun hideEditContextMenu() {
         coroutineScope.launch { modalBottomSheetState.animateTo(ModalBottomSheetValue.Hidden) }
     }
 
     fun copyMessage() {
         selectedMessage?.messageContent.let { messageContent ->
-            if (messageContent is MessageContent.TextMessage) {
+            if (messageContent is UIMessageContent.TextMessage) {
                 clipboardManager.setText(AnnotatedString(messageContent.messageBody.message.asString(context.resources)))
                 coroutineScope.launch {
                     modalBottomSheetState.animateTo(ModalBottomSheetValue.Hidden)

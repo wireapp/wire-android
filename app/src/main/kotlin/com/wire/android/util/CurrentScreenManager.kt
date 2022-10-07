@@ -1,10 +1,12 @@
 package com.wire.android.util
 
+import android.content.Context
 import android.os.Bundle
 import androidx.lifecycle.DefaultLifecycleObserver
 import androidx.lifecycle.LifecycleOwner
 import androidx.navigation.NavController
 import androidx.navigation.NavDestination
+import com.wire.android.appLogger
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.EXTRA_USER_ID
 import com.wire.android.navigation.NavigationItem
@@ -13,10 +15,13 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
 import com.wire.kalium.logic.data.id.toQualifiedID
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
@@ -25,38 +30,51 @@ import javax.inject.Singleton
 
 @ExperimentalCoroutinesApi
 @Singleton
-class CurrentScreenManager @Inject constructor() : DefaultLifecycleObserver, NavController.OnDestinationChangedListener {
+class CurrentScreenManager @Inject constructor(
+    @ApplicationContext val context: Context,
+    screenStateObserver: ScreenStateObserver
+) : DefaultLifecycleObserver,
+    NavController.OnDestinationChangedListener {
 
     private val currentScreenState = MutableStateFlow<CurrentScreen>(CurrentScreen.SomeOther)
-    private val isAppVisibleFlow = MutableStateFlow(false)
-    private val wasAppEverVisibleFlow = MutableStateFlow(false)
+    private val isOnForegroundFlow = MutableStateFlow(false)
+    private val isAppVisibleFlow = screenStateObserver.screenStateFlow.combine(isOnForegroundFlow) { isScreenOn, isOnForeground ->
+        isOnForeground && isScreenOn
+    }
 
     suspend fun observeCurrentScreen(scope: CoroutineScope): StateFlow<CurrentScreen> = isAppVisibleFlow
         .flatMapLatest { isAppVisible ->
             if (isAppVisible) currentScreenState
             else flowOf(CurrentScreen.InBackground)
         }
+        .distinctUntilChanged()
         .stateIn(scope)
 
     /**
      * Informs if the UI was visible at least once since the app started
      */
-    fun appWasVisibleAtLeastOnceFlow(): StateFlow<Boolean> = wasAppEverVisibleFlow
+    fun isAppOnForegroundFlow(): StateFlow<Boolean> = isOnForegroundFlow
 
     override fun onResume(owner: LifecycleOwner) {
         super.onResume(owner)
-        isAppVisibleFlow.value = true
-        wasAppEverVisibleFlow.value = true
+        appLogger.i("${TAG}: onResume called")
+        isOnForegroundFlow.value = true
     }
 
-    override fun onPause(owner: LifecycleOwner) {
-        super.onPause(owner)
-        isAppVisibleFlow.value = false
+    override fun onStop(owner: LifecycleOwner) {
+        super.onStop(owner)
+        appLogger.i("${TAG}: onStop called")
+        isOnForegroundFlow.value = false
     }
 
     override fun onDestinationChanged(controller: NavController, destination: NavDestination, arguments: Bundle?) {
         val currentItem = controller.getCurrentNavigationItem()
-        currentScreenState.value = CurrentScreen.fromNavigationItem(currentItem, arguments)
+        currentScreenState.value = CurrentScreen.fromNavigationItem(currentItem, arguments, isOnForegroundFlow.value)
+    }
+
+    companion object {
+        private const val TAG = "CurrentScreenManager"
+
     }
 }
 
@@ -87,8 +105,11 @@ sealed class CurrentScreen {
         val qualifiedIdMapper = QualifiedIdMapperImpl(null)
 
         @Suppress("ComplexMethod")
-        fun fromNavigationItem(currentItem: NavigationItem?, arguments: Bundle?): CurrentScreen =
-            when (currentItem) {
+        fun fromNavigationItem(currentItem: NavigationItem?, arguments: Bundle?, isAppVisible: Boolean): CurrentScreen {
+            if (!isAppVisible) {
+                return InBackground
+            }
+            return when (currentItem) {
                 NavigationItem.Home -> Home
                 NavigationItem.Conversation -> {
                     arguments?.getString(EXTRA_CONVERSATION_ID)
@@ -116,5 +137,6 @@ sealed class CurrentScreen {
                 }
                 else -> SomeOther
             }
+        }
     }
 }

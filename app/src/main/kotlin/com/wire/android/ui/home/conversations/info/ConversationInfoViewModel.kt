@@ -17,6 +17,7 @@ import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.ui.home.conversations.ConversationAvatar
 import com.wire.android.ui.home.conversations.ConversationDetailsData
 import com.wire.android.ui.home.conversations.model.MessageSource
+import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.android.util.ui.toUIText
@@ -24,6 +25,7 @@ import com.wire.kalium.logic.StorageFailure
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
+import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -37,6 +39,7 @@ class ConversationInfoViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val wireSessionImageLoader: WireSessionImageLoader,
+    private val dispatchers: DispatcherProvider
 ) : SavedStateViewModel(savedStateHandle) {
 
     var conversationInfoViewState by mutableStateOf(ConversationInfoViewState())
@@ -75,18 +78,19 @@ class ConversationInfoViewModel @Inject constructor(
     }
 
     private fun handleConversationDetails(conversationDetails: ConversationDetails) {
-        val isConversationUnavailable = when (conversationDetails) {
-            is ConversationDetails.OneOne -> conversationDetails.otherUser.isUnavailableUser
-            else -> false
+        val (isConversationUnavailable, isUserBlocked) = when (conversationDetails) {
+            is ConversationDetails.OneOne -> conversationDetails.otherUser
+                .run { isUnavailableUser to (connectionStatus == ConnectionState.BLOCKED) }
+            else -> false to false
         }
 
-        val conversationName = getConversationName(conversationDetails, isConversationUnavailable)
-        val conversationAvatar = getConversationAvatar(conversationDetails)
-        val conversationDetailsData = getConversationDetailsData(conversationDetails)
+        val detailsData = getConversationDetailsData(conversationDetails)
         conversationInfoViewState = conversationInfoViewState.copy(
-            conversationName = conversationName,
-            conversationAvatar = conversationAvatar,
-            conversationDetailsData = conversationDetailsData,
+            conversationName = getConversationName(conversationDetails, isConversationUnavailable),
+            conversationAvatar = getConversationAvatar(conversationDetails),
+            conversationDetailsData = detailsData,
+            isUserBlocked = isUserBlocked,
+            hasUserPermissionToEdit = detailsData !is ConversationDetailsData.None
         )
     }
 
@@ -128,7 +132,7 @@ class ConversationInfoViewModel @Inject constructor(
             else UIText.StringResource(R.string.member_name_deleted_label)
     }
 
-    fun navigateToDetails() = viewModelScope.launch {
+    fun navigateToDetails() = viewModelScope.launch(dispatchers.io()) {
         when (val data = conversationInfoViewState.conversationDetailsData) {
             is ConversationDetailsData.OneOne -> navigationManager.navigate(
                 command = NavigationCommand(

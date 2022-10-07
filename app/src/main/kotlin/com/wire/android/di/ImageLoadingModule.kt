@@ -2,7 +2,6 @@ package com.wire.android.di
 
 import android.content.Context
 import com.wire.android.util.ui.WireSessionImageLoader
-import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import dagger.Module
@@ -24,8 +23,7 @@ class ImageLoadingModule {
         @ApplicationContext context: Context,
         getAvatarAsset: GetAvatarAssetUseCase,
         getMessageAsset: GetMessageAssetUseCase,
-        kaliumFileSystem: KaliumFileSystem
-    ): WireSessionImageLoader.Factory = WireSessionImageLoader.Factory(context, getAvatarAsset, getMessageAsset, kaliumFileSystem)
+    ): WireSessionImageLoader.Factory = WireSessionImageLoader.Factory(context, getAvatarAsset, getMessageAsset)
 
     // For better performance/caching. We shouldn't create many of these ImageLoaders.
     @Provides

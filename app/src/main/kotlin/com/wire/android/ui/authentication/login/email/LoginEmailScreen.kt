@@ -70,8 +70,7 @@ fun LoginEmailScreen(
         onRemoveDeviceOpen = loginEmailViewModel::onTooManyDevicesError,
         onLoginButtonClick = suspend { loginEmailViewModel.login() },
         forgotPasswordUrl = loginEmailViewModel.serverConfig.forgotPassword,
-        scope = scope,
-        serverTitle = loginEmailViewModel.serverConfig.title
+        scope = scope
     )
 }
 
@@ -85,9 +84,7 @@ private fun LoginEmailContent(
     onRemoveDeviceOpen: () -> Unit,
     onLoginButtonClick: suspend () -> Unit,
     forgotPasswordUrl: String,
-    scope: CoroutineScope,
-    // todo: temporary to show to pointing server
-    serverTitle: String
+    scope: CoroutineScope
 ) {
     Column(
         modifier = Modifier
@@ -105,8 +102,7 @@ private fun LoginEmailContent(
             error = when (loginState.loginError) {
                 LoginError.TextFieldError.InvalidValue -> stringResource(R.string.login_error_invalid_user_identifier)
                 else -> null
-            },
-            serverTitle = serverTitle
+            }
         )
         PasswordInput(
             modifier = Modifier
@@ -134,7 +130,7 @@ private fun LoginEmailContent(
         }
     }
 
-    if (loginState.loginError is LoginError.DialogError && loginState.loginError !is LoginError.DialogError.InvalidSession) {
+    if (loginState.loginError is LoginError.DialogError) {
         LoginErrorDialog(loginState.loginError, onDialogDismiss)
     } else if (loginState.loginError is LoginError.TooManyDevicesError) {
         onRemoveDeviceOpen()
@@ -147,14 +143,12 @@ private fun UserIdentifierInput(
     userIdentifier: TextFieldValue,
     error: String?,
     onUserIdentifierChange: (TextFieldValue) -> Unit,
-    // todo: temporary to show to pointing server
-    serverTitle: String
 ) {
     WireTextField(
         value = userIdentifier,
         onValueChange = onUserIdentifierChange,
         placeholderText = stringResource(R.string.login_user_identifier_placeholder),
-        labelText = stringResource(R.string.login_user_identifier_label) + " on $serverTitle",
+        labelText = stringResource(R.string.login_user_identifier_label),
         state = if (error != null) WireTextFieldState.Error(error) else WireTextFieldState.Default,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
         modifier = modifier.testTag("emailField")
@@ -235,8 +229,7 @@ private fun LoginEmailScreenPreview() {
             onRemoveDeviceOpen = { },
             onLoginButtonClick = suspend { },
             forgotPasswordUrl = "",
-            scope = scope,
-            serverTitle = "Test Server"
+            scope = scope
         )
     }
 }

@@ -1,14 +1,18 @@
 package com.wire.android.util.ui
 
 import android.content.Context
+import android.os.Build.VERSION.SDK_INT
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.platform.LocalContext
 import coil.Coil
 import coil.ImageLoader
 import coil.compose.rememberAsyncImagePainter
+import coil.decode.GifDecoder
+import coil.decode.ImageDecoderDecoder
+import coil.request.ImageRequest
 import com.wire.android.model.ImageAsset
-import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 
@@ -28,13 +32,18 @@ class WireSessionImageLoader(private val coilImageLoader: ImageLoader) {
     fun paint(
         asset: ImageAsset?,
         fallbackData: Any? = null
-    ): Painter = rememberAsyncImagePainter(asset ?: fallbackData, imageLoader = coilImageLoader)
+    ): Painter = rememberAsyncImagePainter(
+        model = ImageRequest.Builder(LocalContext.current)
+            .memoryCacheKey(asset?.uniqueKey)
+            .data(asset ?: fallbackData)
+            .build(),
+        imageLoader = coilImageLoader
+    )
 
     class Factory(
         context: Context,
         private val getAvatarAsset: GetAvatarAssetUseCase,
         private val getPrivateAsset: GetMessageAssetUseCase,
-        private val kaliumFileSystem: KaliumFileSystem
     ) {
         private val defaultImageLoader = Coil.imageLoader(context)
         private val resources = context.resources
@@ -42,7 +51,12 @@ class WireSessionImageLoader(private val coilImageLoader: ImageLoader) {
         fun newImageLoader(): WireSessionImageLoader = WireSessionImageLoader(
             defaultImageLoader.newBuilder()
                 .components {
-                    add(AssetImageFetcher.Factory(getAvatarAsset, getPrivateAsset, resources, kaliumFileSystem))
+                    add(AssetImageFetcher.Factory(getAvatarAsset, getPrivateAsset, resources))
+                    if (SDK_INT >= 28) {
+                        add(ImageDecoderDecoder.Factory())
+                    } else {
+                        add(GifDecoder.Factory())
+                    }
                 }.build()
         )
     }

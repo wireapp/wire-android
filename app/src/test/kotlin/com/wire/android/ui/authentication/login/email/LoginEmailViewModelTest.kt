@@ -15,24 +15,24 @@ import com.wire.android.ui.authentication.login.LoginError
 import com.wire.android.util.EMPTY
 import com.wire.android.util.newServerConfig
 import com.wire.kalium.logic.NetworkFailure
+import com.wire.kalium.logic.configuration.server.CommonApiVersionType
+import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.client.Client
 import com.wire.kalium.logic.data.client.ClientType
 import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.SsoId
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
-import com.wire.kalium.logic.feature.auth.AuthSession
+import com.wire.kalium.logic.feature.auth.AuthTokens
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
+import com.wire.kalium.logic.feature.auth.AuthenticationScope
 import com.wire.kalium.logic.feature.auth.LoginUseCase
+import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.client.ClientScope
+import com.wire.kalium.logic.feature.client.GetOrRegisterClientUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
-import com.wire.kalium.logic.feature.client.RegisterClientUseCase
-import com.wire.kalium.logic.feature.server.FetchApiVersionResult
-import com.wire.kalium.logic.feature.server.FetchApiVersionUseCase
-import com.wire.kalium.logic.feature.session.GetSessionsUseCase
-import com.wire.kalium.logic.feature.session.RegisterTokenResult
-import com.wire.kalium.logic.feature.session.RegisterTokenUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -66,16 +66,10 @@ class LoginEmailViewModelTest {
     private lateinit var clientScopeProviderFactory: ClientScopeProvider.Factory
 
     @MockK
-    private lateinit var getSessionsUseCase: GetSessionsUseCase
-
-    @MockK
     private lateinit var clientScope: ClientScope
 
     @MockK
-    private lateinit var registerClientUseCase: RegisterClientUseCase
-
-    @MockK
-    private lateinit var registerTokenUseCase: RegisterTokenUseCase
+    private lateinit var getOrRegisterClientUseCase: GetOrRegisterClientUseCase
 
     @MockK
     private lateinit var savedStateHandle: SavedStateHandle
@@ -84,16 +78,16 @@ class LoginEmailViewModelTest {
     private lateinit var navigationManager: NavigationManager
 
     @MockK
-    private lateinit var authSession: AuthSession
-
-    @MockK
     private lateinit var qualifiedIdMapper: QualifiedIdMapper
 
     @MockK
-    private lateinit var fetchApiVersion: FetchApiVersionUseCase
+    private lateinit var autoVersionAuthScopeUseCase: AutoVersionAuthScopeUseCase
 
     @MockK
     private lateinit var authServerConfigProvider: AuthServerConfigProvider
+
+    @MockK
+    private lateinit var authenticationScope: AuthenticationScope
 
     private lateinit var loginViewModel: LoginEmailViewModel
 
@@ -103,22 +97,18 @@ class LoginEmailViewModelTest {
     fun setup() {
         MockKAnnotations.init(this)
         mockUri()
-        every { savedStateHandle.get<String>(any()) } returns ""
+        every { savedStateHandle.get<String>(any()) } returns null
         every { qualifiedIdMapper.fromStringToQualifiedID(any()) } returns userId
         every { savedStateHandle.set(any(), any<String>()) } returns Unit
         every { clientScopeProviderFactory.create(any()).clientScope } returns clientScope
-        every { clientScope.register } returns registerClientUseCase
-        every { clientScope.registerPushToken } returns registerTokenUseCase
-        every { authSession.session.userId } returns userId
+        every { clientScope.getOrRegister } returns getOrRegisterClientUseCase
         every { authServerConfigProvider.authServer.value } returns newServerConfig(1).links
-        coEvery { fetchApiVersion(newServerConfig(1).links) } returns FetchApiVersionResult.Success(newServerConfig(1))
+        coEvery { autoVersionAuthScopeUseCase() } returns AutoVersionAuthScopeUseCase.Result.Success(authenticationScope)
+        every { authenticationScope.login } returns loginUseCase
         loginViewModel = LoginEmailViewModel(
-            loginUseCase,
+            autoVersionAuthScopeUseCase,
             addAuthenticatedUserUseCase,
-            qualifiedIdMapper,
             clientScopeProviderFactory,
-            getSessionsUseCase,
-            fetchApiVersion,
             savedStateHandle,
             navigationManager,
             authServerConfigProvider
@@ -146,7 +136,7 @@ class LoginEmailViewModelTest {
         val scheduler = TestCoroutineScheduler()
         Dispatchers.setMain(StandardTestDispatcher(scheduler))
         coEvery { loginUseCase(any(), any(), any()) } returns AuthenticationResult.Failure.InvalidCredentials
-        coEvery { addAuthenticatedUserUseCase(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
+        coEvery { addAuthenticatedUserUseCase(any(), any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
 
         loginViewModel.onPasswordChange(TextFieldValue("abc"))
         loginViewModel.onUserIdentifierChange(TextFieldValue("abc"))
@@ -165,18 +155,16 @@ class LoginEmailViewModelTest {
         val scheduler = TestCoroutineScheduler()
         val password = "abc"
         Dispatchers.setMain(StandardTestDispatcher(scheduler))
-        coEvery { loginUseCase(any(), any(), any()) } returns AuthenticationResult.Success(authSession, SSO_ID)
-        coEvery { addAuthenticatedUserUseCase(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
+        coEvery { loginUseCase(any(), any(), any()) } returns AuthenticationResult.Success(AUTH_TOKEN, SSO_ID, SERVER_CONFIG.id)
+        coEvery { addAuthenticatedUserUseCase(any(), any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
         coEvery { navigationManager.navigate(any()) } returns Unit
-        coEvery { registerClientUseCase(any()) } returns RegisterClientResult.Success(CLIENT)
-        coEvery { registerTokenUseCase(any(), CLIENT.id) } returns RegisterTokenResult.Success
+        coEvery { getOrRegisterClientUseCase(any()) } returns RegisterClientResult.Success(CLIENT)
 
         loginViewModel.onPasswordChange(TextFieldValue(password))
 
         runTest { loginViewModel.login() }
         coVerify(exactly = 1) { loginUseCase(any(), any(), any()) }
-        coVerify(exactly = 1) { registerClientUseCase(any()) }
-        coVerify(exactly = 1) { registerTokenUseCase(any(), CLIENT.id) }
+        coVerify(exactly = 1) { getOrRegisterClientUseCase(any()) }
         coVerify(exactly = 1) {
             navigationManager.navigate(
                 NavigationCommand(
@@ -230,8 +218,8 @@ class LoginEmailViewModelTest {
 
     @Test
     fun `given button is clicked, when addAuthenticatedUser returns UserAlreadyExists error, then UserAlreadyExists is passed`() {
-        coEvery { loginUseCase(any(), any(), any()) } returns AuthenticationResult.Success(authSession, SSO_ID)
-        coEvery { addAuthenticatedUserUseCase(any(), any()) } returns AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists
+        coEvery { loginUseCase(any(), any(), any()) } returns AuthenticationResult.Success(AUTH_TOKEN, SSO_ID, SERVER_CONFIG.id)
+        coEvery { addAuthenticatedUserUseCase(any(), any(), any()) } returns AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists
 
         runTest { loginViewModel.login() }
 
@@ -245,6 +233,30 @@ class LoginEmailViewModelTest {
             null, "label", "cookie", null, "model"
         )
         val SSO_ID: SsoId = SsoId("scim_id", null, null)
+        val AUTH_TOKEN = AuthTokens(
+            userId = UserId("user_id", "domain"),
+            accessToken = "access_token",
+            refreshToken = "refresh_token",
+            tokenType = "token_type"
+        )
+        val SERVER_CONFIG = ServerConfig(
+            id = "config",
+            links = ServerConfig.Links(
+                api = "https://server-apiBaseUrl.de",
+                accounts = "https://server-accountBaseUrl.de",
+                webSocket = "https://server-webSocketBaseUrl.de",
+                blackList = "https://server-blackListUrl.de",
+                teams = "https://server-teamsUrl.de",
+                website = "https://server-websiteUrl.de",
+                title = "server-title",
+                false
+            ),
+            metaData = ServerConfig.MetaData(
+                commonApiVersion = CommonApiVersionType.Valid(1),
+                domain = "domain.com",
+                federation = false
+            )
+        )
     }
 }
 

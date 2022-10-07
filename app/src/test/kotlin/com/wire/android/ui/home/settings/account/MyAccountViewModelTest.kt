@@ -52,7 +52,15 @@ class MyAccountViewModelTest {
             .withUserRequiresPasswordResult(Success(true))
             .arrange()
 
-        coVerify { arrangement.selfServerConfigUseCase() }
+        coVerify(exactly = 1) { arrangement.selfServerConfigUseCase() }
+    }
+
+    @Test
+    fun `when navigating back requested, then should delegate call to manager navigateBack`() = runTest {
+        val (arrangement, viewModel) = Arrangement().arrange()
+        viewModel.navigateBack()
+
+        coVerify(exactly = 1) { arrangement.navigationManager.navigateBack() }
     }
 
     private class Arrangement {

@@ -21,25 +21,20 @@ import com.wire.kalium.logic.feature.connection.SendConnectionRequestResult
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsResult
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
-import com.wire.kalium.logic.feature.publicuser.search.SearchUsersResult
 import com.wire.kalium.logic.feature.publicuser.search.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchPublicUsersUseCase
+import com.wire.kalium.logic.feature.publicuser.search.SearchUsersResult
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
-import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.cancellable
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.onStart
-import kotlinx.coroutines.flow.onSubscription
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 @Suppress("TooManyFunctions", "LongParameterList")
 open class SearchAllPeopleViewModel(
@@ -61,7 +56,7 @@ open class SearchAllPeopleViewModel(
     init {
         viewModelScope.launch {
             combine(
-                initialContactResultFlow,
+                initialContactResultFlow(),
                 publicPeopleSearchQueryFlow,
                 knownPeopleSearchQueryFlow,
                 searchQueryTextFieldFlow,
@@ -84,11 +79,14 @@ open class SearchAllPeopleViewModel(
         }
     }
 
-    override suspend fun getInitialContacts(): SearchResult =
-        when (val result = getAllKnownUsers()) {
-            is GetAllContactsResult.Failure -> SearchResult.Failure(R.string.label_general_error)
-            is GetAllContactsResult.Success -> SearchResult.Success(result.allContacts.map(contactMapper::fromOtherUser))
+    override suspend fun getInitialContacts(): Flow<SearchResult> = getAllKnownUsers()
+        .map { result ->
+            when (result) {
+                is GetAllContactsResult.Failure -> SearchResult.Failure(R.string.label_general_error)
+                is GetAllContactsResult.Success -> SearchResult.Success(result.allContacts.map(contactMapper::fromOtherUser))
+            }
         }
+        .flowOn(dispatcher.io())
 
     override suspend fun searchKnownPeople(searchTerm: String): Flow<ContactSearchResult.InternalContact> =
         searchKnownUsers(searchTerm).flowOn(dispatcher.io()).map { result ->
@@ -208,20 +206,17 @@ abstract class SearchPeopleViewModel(
         .asStateFlow()
         .debounce(DEFAULT_SEARCH_QUERY_DEBOUNCE)
 
-    protected val initialContactResultFlow = flow {
-        when (val result = getInitialContacts()) {
-            is SearchResult.Failure -> {
-                emit(
+    suspend fun initialContactResultFlow() =
+        getInitialContacts().map { result ->
+            when (result) {
+                is SearchResult.Failure -> {
                     SearchResultState.Failure(result.failureString)
-                )
-            }
-            is SearchResult.Success -> {
-                emit(
+                }
+                is SearchResult.Success -> {
                     SearchResultState.Success(result.contacts)
-                )
+                }
             }
         }
-    }.flowOn(dispatcher.io())
 
     protected val searchQueryTextFieldFlow = MutableStateFlow(TextFieldValue(""))
 
@@ -275,7 +270,7 @@ abstract class SearchPeopleViewModel(
         }
     }
 
-    abstract suspend fun getInitialContacts(): SearchResult
+    abstract suspend fun getInitialContacts(): Flow<SearchResult>
 
 }
 

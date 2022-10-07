@@ -60,7 +60,7 @@ class AddMembersToConversationViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             combine(
-                initialContactResultFlow,
+                initialContactResultFlow(),
                 knownPeopleSearchQueryFlow,
                 searchQueryTextFieldFlow,
                 selectedContactsFlow
@@ -78,11 +78,13 @@ class AddMembersToConversationViewModel @Inject constructor(
         }
     }
 
-    override suspend fun getInitialContacts(): SearchResult =
+    override suspend fun getInitialContacts(): Flow<SearchResult> =
         withContext(dispatchers.io()) {
-            when (val result = getAllContactsNotInConversation(conversationId)) {
-                is Result.Failure -> SearchResult.Failure(R.string.label_general_error)
-                is Result.Success -> SearchResult.Success(result.contactsNotInConversation.map(contactMapper::fromOtherUser))
+            getAllContactsNotInConversation(conversationId).map { result ->
+                when (result) {
+                    is Result.Failure -> SearchResult.Failure(R.string.label_general_error)
+                    is Result.Success -> SearchResult.Success(result.contactsNotInConversation.map(contactMapper::fromOtherUser))
+                }
             }
         }
 

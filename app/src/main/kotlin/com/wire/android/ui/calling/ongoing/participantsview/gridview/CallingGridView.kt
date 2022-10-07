@@ -65,7 +65,7 @@ fun GroupCallGrid(
             else participant.isMuted
 
             // if we have more than 6 participants then we reduce avatar size
-            val userAvatarSize = if (participants.size <= 6) dimensions().onGoingCallUserAvatarSize
+            val userAvatarSize = if (participants.size <= 6 || config.screenHeightDp > MIN_SCREEN_HEIGHT) dimensions().onGoingCallUserAvatarSize
             else dimensions().onGoingCallUserAvatarMinimizedSize
             val usernameString = when (val conversationName = getConversationName(participant.name)) {
                 is ConversationName.Known -> conversationName.name
@@ -121,6 +121,7 @@ private fun getContentType(
 
 private const val NUMBER_OF_GRID_CELLS = 2
 private const val TOP_APP_BAR_AND_BOTTOM_SHEET_HEIGHT = 170
+private const val MIN_SCREEN_HEIGHT = 800
 
 @Preview
 @Composable

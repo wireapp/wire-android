@@ -4,8 +4,14 @@ import android.content.Context
 import android.database.sqlite.SQLiteDatabase
 import com.wire.android.migration.util.ScalaDBNameProvider
 import com.wire.android.migration.util.openDatabaseIfExists
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class ScalaAppDataBaseProvider(private val applicationContext: Context) {
+@Singleton
+class ScalaAppDataBaseProvider @Inject constructor(
+    @ApplicationContext private val applicationContext: Context
+) {
 
     private var _db: ScalaGlobalDatabase? = null
     val db

@@ -4,12 +4,12 @@ import android.content.Context
 import androidx.work.Data
 import androidx.work.workDataOf
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.migration.feature.MigrateActiveAccountsUseCase
 import com.wire.android.migration.feature.MigrateServerConfigUseCase
 import com.wire.android.migration.util.ScalaDBNameProvider
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.StorageFailure
 import com.wire.kalium.logic.failure.ServerConfigFailure
-import com.wire.kalium.logic.functional.Either
 import com.wire.kalium.logic.functional.flatMap
 import com.wire.kalium.logic.functional.fold
 import com.wire.kalium.logic.functional.mapLeft
@@ -21,7 +21,8 @@ import javax.inject.Singleton
 class MigrationManager @Inject constructor(
     @ApplicationContext private val applicationContext: Context,
     private val globalDataStore: GlobalDataStore,
-    private val migrateServerConfigUseCase: MigrateServerConfigUseCase
+    private val migrateServerConfig: MigrateServerConfigUseCase,
+    private val migrateActiveAccounts: MigrateActiveAccountsUseCase
 ) {
 
     private fun isScalaDBPresent(): Boolean =
@@ -37,10 +38,9 @@ class MigrationManager @Inject constructor(
     }
 
     suspend fun migrate(): MigrationResult {
-        return migrateServerConfigUseCase()
+        return migrateServerConfig()
             .flatMap {
-                // TODO implement next migration steps and setMigrationCompleted()
-                Either.Right(Unit)
+                migrateActiveAccounts(it)
             }
             .mapLeft {
                 when (it) {

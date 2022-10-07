@@ -122,45 +122,35 @@ class LoginEmailViewModelTest {
     fun `given empty strings, when entering credentials, then button is disabled`() {
         loginViewModel.onPasswordChange(TextFieldValue(String.EMPTY))
         loginViewModel.onUserIdentifierChange(TextFieldValue(String.EMPTY))
-        loginViewModel.loginStateFlow.value.emailLoginEnabled shouldBeEqualTo false
-        loginViewModel.loginStateFlow.value.emailLoginLoading shouldBeEqualTo false
+        loginViewModel.loginState.emailLoginEnabled shouldBeEqualTo false
+        loginViewModel.loginState.emailLoginLoading shouldBeEqualTo false
     }
 
     @Test
     fun `given non-empty strings, when entering credentials, then button is enabled`() {
         loginViewModel.onPasswordChange(TextFieldValue("abc"))
         loginViewModel.onUserIdentifierChange(TextFieldValue("abc"))
-        loginViewModel.loginStateFlow.value.emailLoginEnabled shouldBeEqualTo true
-        loginViewModel.loginStateFlow.value.emailLoginLoading shouldBeEqualTo false
+        loginViewModel.loginState.emailLoginEnabled shouldBeEqualTo true
+        loginViewModel.loginState.emailLoginLoading shouldBeEqualTo false
     }
 
     @Test
-    fun `given button is clicked, when logging in, then show loading`() = runTest {
+    fun `given button is clicked, when logging in, then show loading`() {
         val scheduler = TestCoroutineScheduler()
         Dispatchers.setMain(StandardTestDispatcher(scheduler))
         coEvery { loginUseCase(any(), any(), any()) } returns AuthenticationResult.Failure.InvalidCredentials
         coEvery { addAuthenticatedUserUseCase(any(), any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
 
-        loginViewModel.loginStateFlow.test {
-            awaitItem()
-            loginViewModel.onPasswordChange(TextFieldValue("abc"))
-            scheduler.advanceUntilIdle()
-            loginViewModel.onUserIdentifierChange(TextFieldValue("abc"))
-            scheduler.advanceUntilIdle()
-            awaitItem()
-            val await1 = awaitItem()
-            await1.emailLoginEnabled shouldBeEqualTo true
-            await1.emailLoginLoading shouldBeEqualTo false
-            loginViewModel.login()
-            scheduler.advanceUntilIdle()
-            val await2 = awaitItem()
-            await2.emailLoginEnabled shouldBeEqualTo false
-            await2.emailLoginLoading shouldBeEqualTo true
-            scheduler.advanceUntilIdle()
-            val await3 = awaitItem()
-            await3.emailLoginEnabled shouldBeEqualTo true
-            await3.emailLoginLoading shouldBeEqualTo false
-        }
+        loginViewModel.onPasswordChange(TextFieldValue("abc"))
+        loginViewModel.onUserIdentifierChange(TextFieldValue("abc"))
+        loginViewModel.loginState.emailLoginEnabled shouldBeEqualTo true
+        loginViewModel.loginState.emailLoginLoading shouldBeEqualTo false
+        loginViewModel.login()
+        loginViewModel.loginState.emailLoginEnabled shouldBeEqualTo false
+        loginViewModel.loginState.emailLoginLoading shouldBeEqualTo true
+        scheduler.advanceUntilIdle()
+        loginViewModel.loginState.emailLoginEnabled shouldBeEqualTo true
+        loginViewModel.loginState.emailLoginLoading shouldBeEqualTo false
     }
 
     @Test
@@ -194,7 +184,7 @@ class LoginEmailViewModelTest {
 
         runTest { loginViewModel.login() }
 
-        loginViewModel.loginStateFlow.value.loginError shouldBeInstanceOf LoginError.TextFieldError.InvalidValue::class
+        loginViewModel.loginState.loginError shouldBeInstanceOf LoginError.TextFieldError.InvalidValue::class
     }
 
     @Test
@@ -203,7 +193,7 @@ class LoginEmailViewModelTest {
 
         runTest { loginViewModel.login() }
 
-        loginViewModel.loginStateFlow.value.loginError shouldBeInstanceOf LoginError.DialogError.InvalidCredentialsError::class
+        loginViewModel.loginState.loginError shouldBeInstanceOf LoginError.DialogError.InvalidCredentialsError::class
     }
 
     @Test
@@ -214,8 +204,8 @@ class LoginEmailViewModelTest {
 
         runTest { loginViewModel.login() }
 
-        loginViewModel.loginStateFlow.value.loginError shouldBeInstanceOf LoginError.DialogError.GenericError::class
-        (loginViewModel.loginStateFlow.value.loginError as LoginError.DialogError.GenericError).coreFailure shouldBe networkFailure
+        loginViewModel.loginState.loginError shouldBeInstanceOf LoginError.DialogError.GenericError::class
+        (loginViewModel.loginState.loginError as LoginError.DialogError.GenericError).coreFailure shouldBe networkFailure
     }
 
     @Test
@@ -224,9 +214,9 @@ class LoginEmailViewModelTest {
 
         runTest { loginViewModel.login() }
 
-        loginViewModel.loginStateFlow.value.loginError shouldBeInstanceOf LoginError.DialogError.InvalidCredentialsError::class
+        loginViewModel.loginState.loginError shouldBeInstanceOf LoginError.DialogError.InvalidCredentialsError::class
         loginViewModel.onDialogDismiss()
-        loginViewModel.loginStateFlow.value.loginError shouldBe LoginError.None
+        loginViewModel.loginState.loginError shouldBe LoginError.None
     }
 
     @Test
@@ -236,7 +226,7 @@ class LoginEmailViewModelTest {
 
         runTest { loginViewModel.login() }
 
-        loginViewModel.loginStateFlow.value.loginError shouldBeInstanceOf LoginError.DialogError.UserAlreadyExists::class
+        loginViewModel.loginState.loginError shouldBeInstanceOf LoginError.DialogError.UserAlreadyExists::class
     }
 
     companion object {

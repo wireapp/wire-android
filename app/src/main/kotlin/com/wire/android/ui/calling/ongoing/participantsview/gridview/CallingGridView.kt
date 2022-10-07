@@ -65,7 +65,8 @@ fun GroupCallGrid(
             else participant.isMuted
 
             // if we have more than 6 participants then we reduce avatar size
-            val userAvatarSize = if (participants.size <= 6 || config.screenHeightDp > MIN_SCREEN_HEIGHT) dimensions().onGoingCallUserAvatarSize
+            val userAvatarSize = if (participants.size <= 6 || config.screenHeightDp > MIN_SCREEN_HEIGHT)
+                dimensions().onGoingCallUserAvatarSize
             else dimensions().onGoingCallUserAvatarMinimizedSize
             val usernameString = when (val conversationName = getConversationName(participant.name)) {
                 is ConversationName.Known -> conversationName.name

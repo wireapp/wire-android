@@ -24,6 +24,7 @@ import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
+import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
@@ -44,6 +45,7 @@ class ConversationMessagesViewModel @Inject constructor(
     private val fileManager: FileManager,
     private val dispatchers: DispatcherProvider,
     private val getMessageForConversation: GetMessagesForConversationUseCase,
+    private val toggleReaction: ToggleReactionUseCase
 ) : SavedStateViewModel(savedStateHandle) {
 
     var conversationViewState by mutableStateOf(ConversationMessagesViewState())
@@ -161,6 +163,13 @@ class ConversationMessagesViewModel @Inject constructor(
         conversationViewState = conversationViewState.copy(downloadedAssetDialogState = DownloadedAssetDialogVisibilityState.Hidden)
     }
 
+    fun toggleReaction(messageId: String, reactionEmoji: String) {
+        viewModelScope.launch {
+            toggleReaction(conversationId, messageId, reactionEmoji)
+        }
+    }
+
+    // region Private
     private suspend fun assetDataPath(conversationId: QualifiedID, messageId: String): Path? {
         getMessageAsset(
             conversationId = conversationId,
@@ -181,4 +190,5 @@ class ConversationMessagesViewModel @Inject constructor(
         onSnackbarMessage(ConversationSnackbarMessages.OnFileDownloaded(assetName))
     }
 
+    // endregion
 }

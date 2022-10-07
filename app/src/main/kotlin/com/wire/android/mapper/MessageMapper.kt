@@ -3,6 +3,7 @@ package com.wire.android.mapper
 import com.wire.android.R
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversations.findUser
+import com.wire.android.ui.home.conversations.model.MessageFooter
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
@@ -48,6 +49,13 @@ class MessageMapper @Inject constructor(
             message = message,
             userList = userList
         )
+
+        val footer = if(message is Message.Regular) {
+            MessageFooter(message.id, message.reactions.totalReactions, message.reactions.selfUserReactions)
+        } else {
+            MessageFooter(message.id)
+        }
+
         // System messages don't have header so without the content there is nothing to be displayed.
         // Also hidden messages should not be displayed, as well preview images
         val shouldNotDisplay =
@@ -59,6 +67,7 @@ class MessageMapper @Inject constructor(
                 messageContent = content,
                 messageSource = if (sender is SelfUser) MessageSource.Self else MessageSource.OtherUser,
                 messageHeader = provideMessageHeader(sender, message),
+                messageFooter = footer,
                 userAvatarData = getUserAvatarData(sender)
             )
         }

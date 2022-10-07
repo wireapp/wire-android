@@ -1,6 +1,9 @@
 package com.wire.android.migration
 
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.migration.feature.MigrateServerConfigUseCase
+import com.wire.android.migration.prefrences.ScalaServerConfig
+import com.wire.android.migration.prefrences.ScalaServerConfigDAO
 import com.wire.android.util.newServerConfig
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.GlobalKaliumScope

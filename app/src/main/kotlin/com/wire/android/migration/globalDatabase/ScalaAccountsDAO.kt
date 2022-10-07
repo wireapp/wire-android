@@ -1,8 +1,8 @@
-package com.wire.android.scalaMigration.globalDatabase
+package com.wire.android.migration.globalDatabase
 
 import android.annotation.SuppressLint
-import com.wire.android.scalaMigration.util.getStringOrNull
-import com.wire.android.scalaMigration.util.orNullIfNegative
+import com.wire.android.migration.util.getStringOrNull
+import com.wire.android.migration.util.orNullIfNegative
 import java.sql.SQLException
 
 class ScalaAccountsDAO(private val db: ScalaGlobalDatabase) {

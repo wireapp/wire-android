@@ -1,4 +1,4 @@
-package com.wire.android.scalaMigration.util
+package com.wire.android.migration.util
 
 import android.content.Context
 import android.content.Context.MODE_PRIVATE

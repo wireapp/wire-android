@@ -96,7 +96,6 @@ configurations {
 
 dependencies {
     implementation("com.wire.kalium:kalium-logic")
-    implementation(project(mapOf("path" to ":scalaMigraiton")))
 
     // Application dependencies
     implementation(Libraries.Kotlin.stdLib)

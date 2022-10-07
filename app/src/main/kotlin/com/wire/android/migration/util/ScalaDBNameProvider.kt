@@ -1,4 +1,4 @@
-package com.wire.android.scalaMigration.util
+package com.wire.android.migration.util
 
 import com.wire.kalium.logic.data.user.UserId
 

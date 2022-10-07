@@ -1,4 +1,4 @@
-package com.wire.android.migration
+package com.wire.android.migration.prefrences
 
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import kotlinx.serialization.SerializationException

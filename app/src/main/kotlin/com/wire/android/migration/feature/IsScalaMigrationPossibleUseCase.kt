@@ -1,7 +1,7 @@
-package com.wire.android.scalaMigration.feature
+package com.wire.android.migration.feature
 
 import android.content.Context
-import com.wire.android.scalaMigration.util.ScalaDBNameProvider
+import com.wire.android.migration.util.ScalaDBNameProvider
 
 class IsScalaMigrationPossibleUseCase(
     private val applicationContext: Context

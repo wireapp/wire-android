@@ -4,6 +4,8 @@ import android.content.Context
 import androidx.work.Data
 import androidx.work.workDataOf
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.migration.feature.MigrateServerConfigUseCase
+import com.wire.android.migration.util.ScalaDBNameProvider
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.StorageFailure
 import com.wire.kalium.logic.failure.ServerConfigFailure
@@ -22,7 +24,8 @@ class MigrationManager @Inject constructor(
     private val migrateServerConfigUseCase: MigrateServerConfigUseCase
 ) {
 
-    private fun isScalaDBPresent(): Boolean = applicationContext.getDatabasePath(SCALA_DB_NAME).let { it.isFile && it.exists() }
+    private fun isScalaDBPresent(): Boolean =
+        applicationContext.getDatabasePath(ScalaDBNameProvider.globalDB()).let { it.isFile && it.exists() }
 
     suspend fun shouldMigrate(): Boolean = when {
         // already migrated
@@ -49,10 +52,6 @@ class MigrationManager @Inject constructor(
                 }
             }
             .fold({ MigrationResult.Failure(it) }, { MigrationResult.Success })
-    }
-
-    companion object {
-        private const val SCALA_DB_NAME = "ZGlobal.db"
     }
 }
 

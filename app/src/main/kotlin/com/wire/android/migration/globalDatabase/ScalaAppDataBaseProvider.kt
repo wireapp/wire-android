@@ -1,9 +1,9 @@
-package com.wire.android.scalaMigration.globalDatabase
+package com.wire.android.migration.globalDatabase
 
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
-import com.wire.android.scalaMigration.util.ScalaDBNameProvider
-import com.wire.android.scalaMigration.util.openDatabaseIfExists
+import com.wire.android.migration.util.ScalaDBNameProvider
+import com.wire.android.migration.util.openDatabaseIfExists
 
 class ScalaAppDataBaseProvider(private val applicationContext: Context) {
 

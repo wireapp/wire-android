@@ -1,4 +1,4 @@
-package com.wire.android.scalaMigration.globalDatabase
+package com.wire.android.migration.globalDatabase
 
 import org.json.JSONException
 import org.json.JSONObject

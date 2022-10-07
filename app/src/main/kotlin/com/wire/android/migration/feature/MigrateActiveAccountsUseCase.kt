@@ -1,8 +1,8 @@
-package com.wire.android.scalaMigration.feature
+package com.wire.android.migration.feature
 
-import com.wire.android.scalaMigration.MigrationMapper
-import com.wire.android.scalaMigration.globalDatabase.ScalaAccountsDAO
-import com.wire.android.scalaMigration.globalDatabase.ScalaActiveAccountsEntity
+import com.wire.android.migration.MigrationMapper
+import com.wire.android.migration.globalDatabase.ScalaAccountsDAO
+import com.wire.android.migration.globalDatabase.ScalaActiveAccountsEntity
 import com.wire.kalium.logic.configuration.server.ServerConfig
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase

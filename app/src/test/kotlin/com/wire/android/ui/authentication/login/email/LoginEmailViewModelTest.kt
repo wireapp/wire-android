@@ -3,7 +3,6 @@ package com.wire.android.ui.authentication.login.email
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
-import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.mockUri
 import com.wire.android.di.AuthServerConfigProvider
@@ -13,8 +12,6 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItemDestinationsRoutes
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.login.LoginError
-import com.wire.android.ui.authentication.login.LoginState
-import com.wire.android.ui.authentication.login.LoginViewModel
 import com.wire.android.util.EMPTY
 import com.wire.android.util.newServerConfig
 import com.wire.kalium.logic.NetworkFailure
@@ -47,13 +44,13 @@ import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.runTest
 import kotlinx.coroutines.test.setMain
-import org.amshove.kluent.internal.assertEquals
 import org.amshove.kluent.shouldBe
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)

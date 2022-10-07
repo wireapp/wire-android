@@ -128,7 +128,9 @@ class ConversationListViewModel @Inject constructor(
                     }
 
                 else -> false
-            } || (it is Connection && it.connection.status == ConnectionState.PENDING)
+            }
+                    || (it is Connection && it.connection.status == ConnectionState.PENDING)
+                    || (it is Group && it.hasOngoingCall)
         }
 
         val remainingConversations = this - unreadConversations.toSet()

@@ -18,6 +18,7 @@ import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCa
 import com.wire.kalium.logic.feature.asset.UpdateDownloadStatusResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
+import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
@@ -60,6 +61,9 @@ class ConversationMessagesViewModelArrangement {
     @MockK
     lateinit var updateAssetMessageDownloadStatus: UpdateAssetMessageDownloadStatusUseCase
 
+    @MockK
+    lateinit var toggleReaction: ToggleReactionUseCase
+
     private val viewModel: ConversationMessagesViewModel by lazy {
         ConversationMessagesViewModel(
             qualifiedIdMapper,
@@ -70,7 +74,8 @@ class ConversationMessagesViewModelArrangement {
             updateAssetMessageDownloadStatus,
             fileManager,
             TestDispatcherProvider(),
-            getMessagesForConversationUseCase
+            getMessagesForConversationUseCase,
+            toggleReaction
         )
     }
 

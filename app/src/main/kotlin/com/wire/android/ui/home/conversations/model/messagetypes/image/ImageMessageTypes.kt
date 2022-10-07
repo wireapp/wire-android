@@ -1,6 +1,5 @@
 package com.wire.android.ui.home.conversations.model.messagetypes.image
 
-import android.graphics.Bitmap
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -22,6 +21,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import coil.compose.rememberAsyncImagePainter
 import com.wire.android.R
+import com.wire.android.model.ImageAsset
 import com.wire.android.ui.common.WireCircularProgressIndicator
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireColorScheme
@@ -30,13 +30,13 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.getUriFromDrawable
 
 @Composable
-fun DisplayableImageMessage(imageData: Bitmap?, imgParams: ImageMessageParams) {
+fun DisplayableImageMessage(imageData: ImageAsset.PrivateAsset, imgParams: ImageMessageParams) {
     Image(
-        painter = rememberAsyncImagePainter(imageData ?: getUriFromDrawable(LocalContext.current, R.drawable.ic_gallery)),
+        painter = imageData.paint(),
         contentDescription = stringResource(R.string.content_description_image_message),
         modifier = Modifier
-            .width(if (imageData != null) imgParams.normalizedWidth else dimensions().spacing24x)
-            .height(if (imageData != null) imgParams.normalizedHeight else dimensions().spacing24x),
+            .width(imgParams.normalizedWidth)
+            .height(imgParams.normalizedHeight),
         alignment = Alignment.Center,
         contentScale = ContentScale.Crop
     )

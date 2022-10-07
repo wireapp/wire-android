@@ -1,4 +1,4 @@
-package com.wire.android.ui.calling
+package com.wire.android.ui.calling.ongoing.participantsview
 
 import android.view.View
 import android.view.ViewGroup.LayoutParams.MATCH_PARENT

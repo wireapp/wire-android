@@ -10,11 +10,11 @@ enum class SettingsItem(val id: String, val title: UIText, val navigationItem: N
         title = UIText.StringResource(R.string.app_settings_screen_title),
         navigationItem = NavigationItem.AppSettings
     ),
-//    YourAccount(
-//        id = "your_account_settings",
-//        title = UIText.StringResource(R.string.settings_your_account_label),
-//        navigationItem =
-//    ),
+    YourAccount(
+        id = "your_account_settings",
+        title = UIText.StringResource(R.string.settings_your_account_label),
+        navigationItem = NavigationItem.MyAccount
+    ),
 //    Privacy(
 //        id = "privacy_settings",
 //        title = UIText.StringResource(R.string.settings_privacy_settings_label),

@@ -62,7 +62,18 @@ fun SettingsScreenContent(
         ) {
 
             folderWithElements(
-                header = context.getString(R.string.settings_general_group_title),
+                header = context.getString(R.string.settings_account_settings_label),
+                items = buildList {
+                    add(SettingsItem.YourAccount)
+                    if (BackUpSettings) {
+                        add(SettingsItem.BackupAndRestore)
+                    }
+                },
+                onItemClicked = onItemClicked
+            )
+
+            folderWithElements(
+                header = context.getString(R.string.app_settings_screen_title),
                 items = buildList {
                     if (AppSettings) {
                         add(SettingsItem.AppSettings)
@@ -72,14 +83,6 @@ fun SettingsScreenContent(
                 },
                 onItemClicked = onItemClicked
             )
-
-            if (BackUpSettings) {
-                folderWithElements(
-                    header = context.getString(R.string.settings_backups_group_title),
-                    items = listOf(SettingsItem.BackupAndRestore),
-                    onItemClicked = onItemClicked
-                )
-            }
 
             folderWithElements(
                 header = context.getString(R.string.settings_other_group_title),

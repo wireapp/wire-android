@@ -11,6 +11,7 @@ import com.wire.android.appLogger
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.feature.SwitchAccountParam
+import com.wire.android.migration.MigrationManager
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
@@ -59,7 +60,8 @@ class WireActivityViewModel @Inject constructor(
     private val authServerConfigProvider: AuthServerConfigProvider,
     private val getSessions: GetSessionsUseCase,
     private val accountSwitch: AccountSwitchUseCase,
-    observePersistentWebSocketConnectionStatus: ObservePersistentWebSocketConnectionStatusUseCase,
+    private val observePersistentWebSocketConnectionStatus: ObservePersistentWebSocketConnectionStatusUseCase,
+    private val migrationManager: MigrationManager,
 ) : ViewModel() {
 
     private val navigationArguments = mutableMapOf<String, Any>(SERVER_CONFIG_ARG to ServerConfig.DEFAULT)
@@ -123,6 +125,7 @@ class WireActivityViewModel @Inject constructor(
     fun navigationArguments() = navigationArguments.values.toList()
 
     fun startNavigationRoute(): String = when {
+        shouldGoToMigration() -> NavigationItem.Migration.getRouteWithArgs()
         shouldGoToWelcome() -> NavigationItem.Welcome.getRouteWithArgs()
         else -> NavigationItem.Home.getRouteWithArgs()
     }
@@ -209,7 +212,7 @@ class WireActivityViewModel @Inject constructor(
         handleDeepLink(intent)
 
         return when {
-            shouldGoToLogin() || shouldGoToWelcome() -> true
+            shouldGoToLogin() || shouldGoToWelcome() || shouldGoToMigration() -> true
 
             shouldGoToIncomingCall() -> {
                 openIncomingCall(navigationArguments[INCOMING_CALL_CONVERSATION_ID_ARG] as ConversationId)
@@ -325,6 +328,10 @@ class WireActivityViewModel @Inject constructor(
                 is CurrentSessionResult.Success -> false
             }
         }
+    }
+
+    private fun shouldGoToMigration(): Boolean = runBlocking {
+        migrationManager.shouldMigrate()
     }
 
     fun openProfile() {

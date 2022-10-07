@@ -26,6 +26,7 @@ class NotificationFetchWorker
 ) : CoroutineWorker(appContext, workerParams) {
     companion object {
         const val USER_ID_INPUT_DATA = "worker_user_id_input_data"
+        const val WORK_NAME_PREFIX_PER_USER = "message-sync-"
     }
 
     override suspend fun doWork(): Result {
@@ -39,7 +40,7 @@ class NotificationFetchWorker
     override suspend fun getForegroundInfo(): ForegroundInfo {
         createNotificationChannel()
 
-        val notification = NotificationCompat.Builder(applicationContext, NotificationConstants.OTHER_CHANNEL_ID)
+        val notification = NotificationCompat.Builder(applicationContext, NotificationConstants.MESSAGE_SYNC_CHANNEL_ID)
             .setSmallIcon(R.drawable.notification_icon_small)
             .setAutoCancel(true)
             .setSilent(true)
@@ -49,13 +50,13 @@ class NotificationFetchWorker
             .setPriority(NotificationCompat.PRIORITY_MIN)
             .build()
 
-        return ForegroundInfo(1, notification)
+        return ForegroundInfo(NotificationConstants.MESSAGE_SYNC_NOTIFICATION_ID, notification)
     }
 
     private fun createNotificationChannel() {
         val notificationChannel = NotificationChannelCompat
-            .Builder(NotificationConstants.OTHER_CHANNEL_ID, NotificationManagerCompat.IMPORTANCE_MIN)
-            .setName(NotificationConstants.OTHER_CHANNEL_NAME)
+            .Builder(NotificationConstants.MESSAGE_SYNC_CHANNEL_ID, NotificationManagerCompat.IMPORTANCE_MIN)
+            .setName(NotificationConstants.MESSAGE_SYNC_CHANNEL_NAME)
             .build()
 
         notificationManager.createNotificationChannel(notificationChannel)

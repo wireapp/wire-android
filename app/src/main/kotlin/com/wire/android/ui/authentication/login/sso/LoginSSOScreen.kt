@@ -55,7 +55,7 @@ fun LoginSSOScreen(
     val context = LocalContext.current
     val loginSSOViewModel: LoginSSOViewModel = hiltViewModel()
 
-    val loginState by loginSSOViewModel.loginStateFlow.collectAsStateLifecycleAware()
+    val loginState: LoginState = loginSSOViewModel.loginState
 
     LaunchedEffect(ssoLoginResult) {
         loginSSOViewModel.handleSSOResult(ssoLoginResult)

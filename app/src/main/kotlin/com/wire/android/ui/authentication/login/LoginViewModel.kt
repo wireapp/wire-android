@@ -2,6 +2,9 @@ package com.wire.android.ui.authentication.login
 
 import androidx.annotation.VisibleForTesting
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
@@ -20,8 +23,6 @@ import com.wire.kalium.logic.feature.auth.AuthenticationResult
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.client.RegisterClientUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -34,37 +35,31 @@ open class LoginViewModel @Inject constructor(
     private val clientScopeProviderFactory: ClientScopeProvider.Factory,
     authServerConfigProvider: AuthServerConfigProvider
 ) : ViewModel() {
-    private val _loginStateFlow = MutableStateFlow(
+    var loginState by mutableStateOf(
         LoginState(
             ssoCode = TextFieldValue(savedStateHandle[SSO_CODE_SAVED_STATE_KEY] ?: String.EMPTY),
             userIdentifier = TextFieldValue(savedStateHandle[USER_IDENTIFIER_SAVED_STATE_KEY] ?: String.EMPTY),
             password = TextFieldValue(String.EMPTY)
         )
     )
-    val loginStateFlow: StateFlow<LoginState> = _loginStateFlow
-
-    protected fun updateLoginState(newState: LoginState) {
-        viewModelScope.launch { _loginStateFlow.emit(newState) }
-    }
+        protected set
 
     val serverConfig = authServerConfigProvider.authServer.value
 
     open fun updateSSOLoginError(error: LoginError) {
-        val newState = if (error is LoginError.None) {
-            loginStateFlow.value.copy(loginError = error)
+        loginState = if (error is LoginError.None) {
+            loginState.copy(loginError = error)
         } else {
-            loginStateFlow.value.copy(ssoLoginLoading = false, loginError = error).updateSSOLoginEnabled()
+            loginState.copy(ssoLoginLoading = false, loginError = error).updateSSOLoginEnabled()
         }
-        updateLoginState(newState)
     }
 
     open fun updateEmailLoginError(error: LoginError) {
-        val newState = if (error is LoginError.None) {
-            loginStateFlow.value.copy(loginError = error)
+        loginState = if (error is LoginError.None) {
+            loginState.copy(loginError = error)
         } else {
-            loginStateFlow.value.copy(emailLoginLoading = false, loginError = error).updateEmailLoginEnabled()
+            loginState.copy(emailLoginLoading = false, loginError = error).updateEmailLoginEnabled()
         }
-        updateLoginState(newState)
     }
 
     fun onDialogDismiss() {

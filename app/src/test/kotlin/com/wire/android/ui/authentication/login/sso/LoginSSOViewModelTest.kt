@@ -26,6 +26,8 @@ import com.wire.kalium.logic.data.user.SsoId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthTokens
+import com.wire.kalium.logic.feature.auth.AuthenticationScope
+import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.auth.sso.GetSSOLoginSessionUseCase
 import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginResult
 import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginUseCase
@@ -80,6 +82,12 @@ class LoginSSOViewModelTest {
     private lateinit var authServerConfigProvider: AuthServerConfigProvider
 
     @MockK
+    private lateinit var autoVersionAuthScopeUseCase: AutoVersionAuthScopeUseCase
+
+    @MockK
+    private lateinit var authenticationScope: AuthenticationScope
+
+    @MockK
     private lateinit var navigationManager: NavigationManager
     private lateinit var loginViewModel: LoginSSOViewModel
 
@@ -94,11 +102,13 @@ class LoginSSOViewModelTest {
         every { clientScopeProviderFactory.create(any()).clientScope } returns clientScope
         every { clientScope.getOrRegister } returns getOrRegisterClientUseCase
         every { authServerConfigProvider.authServer.value } returns newServerConfig(1).links
+        coEvery { autoVersionAuthScopeUseCase() } returns AutoVersionAuthScopeUseCase.Result.Success(authenticationScope)
+        every { authenticationScope.ssoLoginScope.initiate } returns ssoInitiateLoginUseCase
+        every { authenticationScope.ssoLoginScope.getLoginSession } returns getSSOLoginSessionUseCase
 
         loginViewModel = LoginSSOViewModel(
             savedStateHandle,
-            ssoInitiateLoginUseCase,
-            getSSOLoginSessionUseCase,
+            autoVersionAuthScopeUseCase,
             addAuthenticatedUserUseCase,
             clientScopeProviderFactory,
             navigationManager,

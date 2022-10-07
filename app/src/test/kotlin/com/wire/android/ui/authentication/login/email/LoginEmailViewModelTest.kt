@@ -30,13 +30,12 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthTokens
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
+import com.wire.kalium.logic.feature.auth.AuthenticationScope
 import com.wire.kalium.logic.feature.auth.LoginUseCase
+import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.client.ClientScope
 import com.wire.kalium.logic.feature.client.GetOrRegisterClientUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
-import com.wire.kalium.logic.feature.server.FetchApiVersionResult
-import com.wire.kalium.logic.feature.server.FetchApiVersionUseCase
-import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -70,9 +69,6 @@ class LoginEmailViewModelTest {
     private lateinit var clientScopeProviderFactory: ClientScopeProvider.Factory
 
     @MockK
-    private lateinit var getSessionsUseCase: GetSessionsUseCase
-
-    @MockK
     private lateinit var clientScope: ClientScope
 
     @MockK
@@ -88,10 +84,13 @@ class LoginEmailViewModelTest {
     private lateinit var qualifiedIdMapper: QualifiedIdMapper
 
     @MockK
-    private lateinit var fetchApiVersion: FetchApiVersionUseCase
+    private lateinit var autoVersionAuthScopeUseCase: AutoVersionAuthScopeUseCase
 
     @MockK
     private lateinit var authServerConfigProvider: AuthServerConfigProvider
+
+    @MockK
+    private lateinit var authenticationScope: AuthenticationScope
 
     private lateinit var loginViewModel: LoginEmailViewModel
 
@@ -107,12 +106,12 @@ class LoginEmailViewModelTest {
         every { clientScopeProviderFactory.create(any()).clientScope } returns clientScope
         every { clientScope.getOrRegister } returns getOrRegisterClientUseCase
         every { authServerConfigProvider.authServer.value } returns newServerConfig(1).links
-        coEvery { fetchApiVersion(newServerConfig(1).links) } returns FetchApiVersionResult.Success(newServerConfig(1))
+        coEvery { autoVersionAuthScopeUseCase() } returns AutoVersionAuthScopeUseCase.Result.Success(authenticationScope)
+        every { authenticationScope.login } returns loginUseCase
         loginViewModel = LoginEmailViewModel(
-            loginUseCase,
+            autoVersionAuthScopeUseCase,
             addAuthenticatedUserUseCase,
             clientScopeProviderFactory,
-            fetchApiVersion,
             savedStateHandle,
             navigationManager,
             authServerConfigProvider

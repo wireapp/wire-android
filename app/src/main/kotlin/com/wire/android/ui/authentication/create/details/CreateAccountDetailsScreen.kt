@@ -217,7 +217,7 @@ private fun PasswordTextFields(
         labelMandatoryIcon = true,
         descriptionText = stringResource(R.string.create_account_details_password_description),
         imeAction = ImeAction.Next,
-        autofillTypes = listOf(AutofillType.Password, AutofillType.NewPassword),
+        autofillTypes = listOf(),
         modifier = Modifier
             .padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
             .bringIntoViewOnFocus(coroutineScope)
@@ -232,7 +232,7 @@ private fun PasswordTextFields(
         labelMandatoryIcon = true,
         imeAction = ImeAction.Done,
         keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
-        autofillTypes = listOf(AutofillType.Password, AutofillType.NewPassword),
+        autofillTypes = listOf(),
         modifier = Modifier
             .padding(
                 horizontal = MaterialTheme.wireDimensions.spacing16x,

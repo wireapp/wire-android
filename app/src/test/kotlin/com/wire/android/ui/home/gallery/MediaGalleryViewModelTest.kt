@@ -295,7 +295,6 @@ class MediaGalleryViewModelTest {
                 null,
                 false
             ),
-            connectionState = ConnectionState.ACCEPTED,
             legalHoldStatus = LegalHoldStatus.DISABLED,
             userType = UserType.INTERNAL,
             unreadMessagesCount = 0L,

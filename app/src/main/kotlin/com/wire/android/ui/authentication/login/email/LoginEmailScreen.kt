@@ -62,7 +62,7 @@ fun LoginEmailScreen(
 ) {
     val scope = rememberCoroutineScope()
     val loginEmailViewModel: LoginEmailViewModel = hiltViewModel()
-    val loginEmailState by loginEmailViewModel.loginStateFlow.collectAsStateLifecycleAware()
+    val loginEmailState: LoginState = loginEmailViewModel.loginState
 
     clearAutofillTree()
 

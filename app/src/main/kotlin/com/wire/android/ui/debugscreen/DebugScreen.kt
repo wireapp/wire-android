@@ -1,5 +1,6 @@
 package com.wire.android.ui.debugscreen
 
+import android.content.Intent
 import android.widget.Toast
 import androidx.annotation.DrawableRes
 import androidx.compose.foundation.background
@@ -19,6 +20,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
 import androidx.compose.ui.platform.LocalContext
@@ -37,7 +39,10 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.home.conversationslist.common.FolderHeader
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.getDeviceId
-import com.wire.android.util.startMultipleFileSharingIntent
+import com.wire.android.util.getMimeType
+import com.wire.android.util.getUrisOfFilesInDirectory
+import com.wire.android.util.multipleFileSharingIntent
+import java.io.File
 
 @Composable
 fun DebugScreen() {
@@ -90,7 +95,7 @@ fun DebugContent(
                         state.currentClientId,
                         trailingIcon = R.drawable.ic_copy
                     ) {
-                        getDeviceId(context)?.let { AnnotatedString(it) }?.let {
+                        context.getDeviceId()?.let { AnnotatedString(it) }?.let {
                             clipboardManager.setText(it)
                             Toast.makeText(context, "Text Copied to clipboard", Toast.LENGTH_SHORT).show()
                         }
@@ -144,6 +149,7 @@ fun TextRowItem(text: String, @DrawableRes trailingIcon: Int? = null, onIconClic
                 tint = MaterialTheme.wireColorScheme.onSecondaryButtonEnabled,
                 modifier = Modifier
                     .defaultMinSize(80.dp)
+                    .align(Alignment.CenterVertically)
                     .clickable { onIconClick() }
             )
         }
@@ -168,7 +174,18 @@ fun LoggingSection(
     TextRowItem(
         "Share Logs",
         trailingIcon = android.R.drawable.ic_menu_share
-    ) { context.startMultipleFileSharingIntent(logFilePath()) }
+    ) {
+        val dir = File(logFilePath()).parentFile
+        val fileUris = context.getUrisOfFilesInDirectory(dir)
+        val intent = context.multipleFileSharingIntent(fileUris)
+        // The first log file is simply text, not compressed. Get its mime type separately
+        // and set it as the mime type for the intent.
+        intent.type = fileUris.firstOrNull()?.getMimeType(context) ?: "text/plain"
+        // Get all other mime types and add them
+        val mimeTypes = fileUris.drop(1).mapNotNull{ it.getMimeType(context) }
+        intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes.toTypedArray())
+        context.startActivity(intent)
+    }
 
     TextRowItem(
         "Delete All Logs",
@@ -176,10 +193,10 @@ fun LoggingSection(
     ) { deleteAllLogs() }
 
     TextRowItem(
-        "Device id : ${getDeviceId(context)}",
+        "Device id : ${context.getDeviceId()}",
         trailingIcon = R.drawable.ic_copy
     ) {
-        getDeviceId(context)?.let { AnnotatedString(it) }?.let {
+        context.getDeviceId()?.let { AnnotatedString(it) }?.let {
             clipboardManager.setText(it)
             Toast.makeText(context, "Text Copied to clipboard", Toast.LENGTH_SHORT).show()
         }

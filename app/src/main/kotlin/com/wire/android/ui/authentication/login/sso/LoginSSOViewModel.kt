@@ -15,7 +15,7 @@ import com.wire.android.ui.authentication.login.updateSSOLoginEnabled
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
-import com.wire.kalium.logic.feature.auth.sso.GetSSOLoginSessionUseCase
+import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginResult
 import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginUseCase
 import com.wire.kalium.logic.feature.auth.sso.SSOLoginSessionResult
@@ -30,8 +30,7 @@ import javax.inject.Inject
 @HiltViewModel
 class LoginSSOViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
-    private val ssoInitiateLoginUseCase: SSOInitiateLoginUseCase,
-    private val getSSOLoginSessionUseCase: GetSSOLoginSessionUseCase,
+    private val authScope: AutoVersionAuthScopeUseCase,
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
     clientScopeProviderFactory: ClientScopeProvider.Factory,
     navigationManager: NavigationManager,
@@ -46,9 +45,27 @@ class LoginSSOViewModel @Inject constructor(
     var openWebUrl = MutableSharedFlow<String>()
 
     fun login() {
-        updateLoginState(loginStateFlow.value.copy(ssoLoginLoading = true, loginError = LoginError.None).updateSSOLoginEnabled())
+        loginState = loginState.copy(ssoLoginLoading = true, loginError = LoginError.None).updateSSOLoginEnabled()
         viewModelScope.launch {
-            ssoInitiateLoginUseCase(SSOInitiateLoginUseCase.Param.WithRedirect(loginStateFlow.value.ssoCode.text)).let { result ->
+            val authScope = authScope().let {
+                when (it) {
+                    is AutoVersionAuthScopeUseCase.Result.Success -> it.authenticationScope
+
+                    is AutoVersionAuthScopeUseCase.Result.Failure.UnknownServerVersion -> {
+                        loginState = loginState.copy(loginError = LoginError.DialogError.ServerVersionNotSupported)
+                        return@launch
+                    }
+                    is AutoVersionAuthScopeUseCase.Result.Failure.TooNewVersion -> {
+                        loginState = loginState.copy(loginError = LoginError.DialogError.ClientUpdateRequired)
+                        return@launch
+                    }
+                    is AutoVersionAuthScopeUseCase.Result.Failure.Generic -> {
+                        return@launch
+                    }
+                }
+            }
+
+            authScope.ssoLoginScope.initiate(SSOInitiateLoginUseCase.Param.WithRedirect(loginState.ssoCode.text)).let { result ->
                 when (result) {
                     is SSOInitiateLoginResult.Failure -> updateSSOLoginError(result.toLoginSSOError())
                     is SSOInitiateLoginResult.Success -> openWebUrl(result.requestUrl)
@@ -57,11 +74,29 @@ class LoginSSOViewModel @Inject constructor(
         }
     }
 
+    @Suppress("ComplexMethod")
     @VisibleForTesting
     fun establishSSOSession(cookie: String, serverConfigId: String) {
-        updateLoginState(loginStateFlow.value.copy(ssoLoginLoading = true, loginError = LoginError.None).updateSSOLoginEnabled())
+        loginState = loginState.copy(ssoLoginLoading = true, loginError = LoginError.None).updateSSOLoginEnabled()
         viewModelScope.launch {
-            val (authTokens, ssoId) = getSSOLoginSessionUseCase(cookie).let {
+            val authScope = authScope().let {
+                when (it) {
+                    is AutoVersionAuthScopeUseCase.Result.Success -> it.authenticationScope
+
+                    is AutoVersionAuthScopeUseCase.Result.Failure.UnknownServerVersion -> {
+                        loginState = loginState.copy(loginError = LoginError.DialogError.ServerVersionNotSupported)
+                        return@launch
+                    }
+                    is AutoVersionAuthScopeUseCase.Result.Failure.TooNewVersion -> {
+                        loginState = loginState.copy(loginError = LoginError.DialogError.ClientUpdateRequired)
+                        return@launch
+                    }
+                    is AutoVersionAuthScopeUseCase.Result.Failure.Generic -> {
+                        return@launch
+                    }
+                }
+            }
+            val (authTokens, ssoId) = authScope.ssoLoginScope.getLoginSession(cookie).let {
                 when (it) {
                     is SSOLoginSessionResult.Failure -> {
                         updateSSOLoginError(it.toLoginError())
@@ -84,7 +119,6 @@ class LoginSSOViewModel @Inject constructor(
                     is AddAuthenticatedUserUseCase.Result.Success -> it.userId
                 }
             }
-            // TODO: show password dialog if BE required password for SSO
             registerClient(storedUserId, null).let {
                 when (it) {
                     is RegisterClientResult.Success -> {
@@ -101,11 +135,10 @@ class LoginSSOViewModel @Inject constructor(
 
     fun onSSOCodeChange(newText: TextFieldValue) {
         // in case an error is showing e.g. inline error is should be cleared
-        if (loginStateFlow.value.loginError is LoginError.TextFieldError && newText != loginStateFlow.value.ssoCode) {
+        if (loginState.loginError is LoginError.TextFieldError && newText != loginState.ssoCode) {
             clearSSOLoginError()
         }
-//        loginState = loginState.copy(ssoCode = newText).updateSSOLoginEnabled()
-        updateLoginState(loginStateFlow.value.copy(ssoCode = newText).updateSSOLoginEnabled())
+        loginState = loginState.copy(ssoCode = newText).updateSSOLoginEnabled()
         savedStateHandle.set(SSO_CODE_SAVED_STATE_KEY, newText.text)
     }
 
@@ -120,7 +153,7 @@ class LoginSSOViewModel @Inject constructor(
 
     private fun openWebUrl(url: String) {
         viewModelScope.launch {
-            updateLoginState(loginStateFlow.value.copy(ssoLoginLoading = false, loginError = LoginError.None).updateSSOLoginEnabled())
+            loginState = loginState.copy(ssoLoginLoading = false, loginError = LoginError.None).updateSSOLoginEnabled()
             openWebUrl.emit(url)
         }
     }

@@ -20,11 +20,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.unit.TextUnit
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.wire.android.R
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.MenuItemIcon
+import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 
@@ -84,11 +86,12 @@ fun EditMessageMenuItems(
 
 @OptIn(ExperimentalMaterial3Api::class)
 private fun ReactionOptions(
-    onReactionClick: (emoji: String) -> Unit
+    onReactionClick: (emoji: String) -> Unit,
+    emojiFontSize: TextUnit = 28.sp
 ) {
     Column {
         Row {
-            Spacer(modifier = Modifier.width(8.dp))
+            Spacer(modifier = Modifier.width(dimensions().spacing8x))
             Text(stringResource(R.string.label_reactions).uppercase(), style = MaterialTheme.wireTypography.label01)
         }
         Row(
@@ -108,13 +111,13 @@ private fun ReactionOptions(
                             onReactionClick(correctedEmoji)
                         },
                         modifier = Modifier.defaultMinSize(minWidth = 1.dp, minHeight = 1.dp),
-                        contentPadding = PaddingValues(8.dp),
+                        contentPadding = PaddingValues(dimensions().spacing8x),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.wireColorScheme.surface,
                             contentColor = MaterialTheme.wireColorScheme.secondaryButtonSelectedOutline
                         )
                     ) {
-                        Text(emoji, style = TextStyle(fontSize = 28.sp))
+                        Text(emoji, style = TextStyle(fontSize = emojiFontSize))
                     }
                 }
             }

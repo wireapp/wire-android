@@ -39,7 +39,6 @@ import com.wire.android.ui.common.LegalHoldIndicator
 import com.wire.android.ui.common.UserBadge
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.home.conversations.messages.Pill
 import com.wire.android.ui.home.conversations.messages.ReactionPill
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.MessageFooter

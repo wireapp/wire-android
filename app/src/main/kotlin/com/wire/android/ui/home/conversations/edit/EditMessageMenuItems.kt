@@ -85,6 +85,7 @@ fun EditMessageMenuItems(
 }
 
 @OptIn(ExperimentalMaterial3Api::class)
+@Composable
 private fun ReactionOptions(
     onReactionClick: (emoji: String) -> Unit,
     emojiFontSize: TextUnit = 28.sp

@@ -64,12 +64,15 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.userprofile.common.EditableState
 import com.wire.android.ui.userprofile.common.UserProfileInfo
 import com.wire.android.ui.userprofile.group.RemoveConversationMemberState
+import com.wire.android.ui.userprofile.other.bottomsheet.OtherUserProfileBottomSheetContent
+import com.wire.android.ui.userprofile.other.bottomsheet.rememberOtherUserProfileSheetState
 import com.wire.kalium.logic.data.user.ConnectionState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterialApi::class, InternalCoroutinesApi::class)
+@OptIn(ExperimentalMaterialApi::class)
 @Composable
 fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltViewModel()) {
     val snackbarHostState = remember { SnackbarHostState() }
@@ -104,18 +107,6 @@ fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltView
             closeBottomSheet()
         }
     }
-
-    LaunchedEffect(Unit) {
-        snapshotFlow { sheetState.isVisible }.collect { isVisible ->
-            // without clearing BottomSheet after every closing there could be strange UI behaviour.
-            // Example: open some big BottomSheet (ConversationBS), close it, then open small BS (ChangeRoleBS) ->
-            // in that case user will see ChangeRoleBS at the center of the screen (just for few milliseconds)
-            // and then it moves to the bottom.
-            // It happens cause when `sheetState.show()` is called, it calculates animation offset by the old BS height (which was big)
-            // To avoid such case we clear BS content on every closing
-            if (!isVisible) viewModel.clearBottomSheetState()
-        }
-    }
 }
 
 @SuppressLint("UnusedCrossfadeTargetStateParameter", "LongParameterList")
@@ -123,6 +114,7 @@ fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltView
     ExperimentalMaterialApi::class,
     ExperimentalPagerApi::class,
     ExperimentalMaterial3Api::class,
+    InternalCoroutinesApi::class,
 )
 @Composable
 fun OtherProfileScreenContent(
@@ -141,6 +133,20 @@ fun OtherProfileScreenContent(
     val blockUserDialogState = rememberVisibilityState<BlockUserDialogState>()
     val unblockUserDialogState = rememberVisibilityState<UnblockUserDialogState>()
     val removeMemberDialogState = rememberVisibilityState<RemoveConversationMemberState>()
+    val getBottomSheetVisibility: () -> Boolean = remember(sheetState) { { sheetState.isVisible } }
+    val bottomSheetState = rememberOtherUserProfileSheetState(state.conversationSheetContent, state.groupState)
+
+    LaunchedEffect(bottomSheetState) {
+        snapshotFlow { sheetState.isVisible }.collect(FlowCollector { isVisible ->
+            // without clearing BottomSheet after every closing there could be strange UI behaviour.
+            // Example: open some big BottomSheet (ConversationBS), close it, then open small BS (ChangeRoleBS) ->
+            // in that case user will see ChangeRoleBS at the center of the screen (just for few milliseconds)
+            // and then it moves to the bottom.
+            // It happens cause when `sheetState.show()` is called, it calculates animation offset by the old BS height (which was big)
+            // To avoid such case we clear BS content on every closing
+            if (!isVisible) bottomSheetState.clearBottomSheetState()
+        })
+    }
 
     val tabItems by remember(state) {
         derivedStateOf {
@@ -173,7 +179,8 @@ fun OtherProfileScreenContent(
         coroutineScope = rememberCoroutineScope(),
         sheetContent = {
             OtherUserProfileBottomSheetContent(
-                bottomSheetState = state.bottomSheetContentState,
+                getBottomSheetVisibility = getBottomSheetVisibility,
+                bottomSheetState = bottomSheetState,
                 eventsHandler = bottomSheetEventsHandler,
                 blockUser = blockUserDialogState::show,
                 unblockUser = unblockUserDialogState::show,
@@ -194,7 +201,7 @@ fun OtherProfileScreenContent(
                     elevation = elevation,
                     onNavigateBack = eventsHandler::navigateBack,
                     openConversationBottomSheet = {
-                        bottomSheetEventsHandler.setBottomSheetStateToConversation()
+                        bottomSheetState.toConversation()
                         openBottomSheet()
                     })
             },
@@ -208,7 +215,7 @@ fun OtherProfileScreenContent(
                     otherUserProfileScreenState = otherUserProfileScreenState,
                     lazyListStates = lazyListStates,
                     openChangeRoleBottomSheet = {
-                        eventsHandler.setBottomSheetStateToChangeRole()
+                        bottomSheetState.toChangeRole()
                         openBottomSheet()
                     },
                     openRemoveConversationMemberDialog = removeMemberDialogState::show,

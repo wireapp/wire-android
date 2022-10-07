@@ -1,4 +1,4 @@
-package com.wire.android.ui.home.conversationslist.bottomsheet
+package com.wire.android.ui.common.bottomsheet.conversation
 
 import MutingOptionsSheetContent
 import androidx.activity.compose.BackHandler
@@ -15,7 +15,7 @@ import com.wire.kalium.logic.data.user.UserId
 @Composable
 fun ConversationSheetContent(
     conversationSheetState: ConversationSheetState,
-    onMutingConversationStatusChange: (MutedConversationStatus) -> Unit,
+    onMutingConversationStatusChange: () -> Unit,
     addConversationToFavourites: () -> Unit,
     moveConversationToFolder: () -> Unit,
     moveConversationToArchive: () -> Unit,
@@ -23,8 +23,12 @@ fun ConversationSheetContent(
     blockUser: (BlockUserDialogState) -> Unit,
     unblockUser: (UnblockUserDialogState) -> Unit,
     leaveGroup: (GroupDialogState) -> Unit,
-    deleteGroup: (GroupDialogState) -> Unit
+    deleteGroup: (GroupDialogState) -> Unit,
+    isBottomSheetVisible: () -> Boolean = { true }
 ) {
+    // it may be null as initial state
+    if (conversationSheetState.conversationSheetContent == null) return
+
     when (conversationSheetState.currentOptionNavigation) {
         ConversationOptionNavigation.Home -> {
             ConversationMainSheetContent(
@@ -45,13 +49,17 @@ fun ConversationSheetContent(
         ConversationOptionNavigation.MutingNotificationOption -> {
             MutingOptionsSheetContent(
                 mutingConversationState = conversationSheetState.conversationSheetContent!!.mutingConversationState,
-                onMuteConversation = onMutingConversationStatusChange,
+                onMuteConversation = { mutedStatus ->
+                    conversationSheetState.muteConversation(mutedStatus)
+                    onMutingConversationStatusChange()
+                    conversationSheetState.toHome()
+                },
                 onBackClick = conversationSheetState::toHome
             )
         }
     }
 
-    BackHandler(conversationSheetState.currentOptionNavigation is ConversationOptionNavigation.MutingNotificationOption) {
+    BackHandler(isBottomSheetVisible() && conversationSheetState.currentOptionNavigation is ConversationOptionNavigation.MutingNotificationOption) {
         conversationSheetState.toHome()
     }
 }

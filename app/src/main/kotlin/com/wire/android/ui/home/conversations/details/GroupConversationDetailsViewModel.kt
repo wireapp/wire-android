@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.EXTRA_GROUP_DELETED_NAME
@@ -16,10 +17,11 @@ import com.wire.android.ui.home.conversations.details.menu.GroupConversationDeta
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsState
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipantsViewModel
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
-import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
-import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationTypeDetail
+import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
+import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetail
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.android.util.ui.UIText
 import com.wire.android.util.uiText
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.conversation.ConversationDetails
@@ -84,6 +86,9 @@ class GroupConversationDetailsViewModel @Inject constructor(
         savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!
     )
 
+    var conversationSheetContent: ConversationSheetContent? by mutableStateOf(null)
+        private set
+
     private val _groupOptionsState = MutableStateFlow(GroupConversationOptionsState(conversationId))
     val groupOptionsState: StateFlow<GroupConversationOptionsState> = _groupOptionsState
 
@@ -131,7 +136,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
 
                 val isAbleToRemoveGroup = (selfUser.teamId != null && groupDetails.conversation.creatorId.value == selfUser.id.value)
 
-                val conversationSheetContent = ConversationSheetContent(
+                conversationSheetContent = ConversationSheetContent(
                     title = groupDetails.conversation.name.orEmpty(),
                     conversationId = conversationId,
                     mutingConversationState = groupDetails.conversation.mutedStatus,
@@ -147,7 +152,6 @@ class GroupConversationDetailsViewModel @Inject constructor(
                         areAccessOptionsAvailable = groupDetails.conversation.isTeamGroup(),
                         isGuestAllowed = isGuestAllowed,
                         isServicesAllowed = groupDetails.conversation.isServicesAllowed(),
-                        conversationSheetContent = conversationSheetContent,
                         isUpdatingAllowed = isSelfAnAdmin,
                         isUpdatingGuestAllowed = isSelfAnAdmin && isSelfInOwnerTeam,
                     )
@@ -324,17 +328,14 @@ class GroupConversationDetailsViewModel @Inject constructor(
         )
     }
 
-    fun clearBottomSheetState() {
-        updateState(groupOptionsState.value.clearBottomSheetState())
-    }
-
     override fun onMutingConversationStatusChange(conversationId: ConversationId?, status: MutedConversationStatus) {
         conversationId?.let {
             viewModelScope.launch {
                 when (updateConversationMutedStatus(conversationId, status, Date().time)) {
-                    ConversationUpdateStatusResult.Failure -> {} // TODO show snackbar
+                    ConversationUpdateStatusResult.Failure -> {
+                        showSnackBarMessage(UIText.StringResource(R.string.error_updating_muting_setting))
+                    }
                     ConversationUpdateStatusResult.Success -> {
-                        updateState(groupOptionsState.value.updateMuteStatus(status))
                         appLogger.i("MutedStatus changed for conversation: $conversationId to $status")
                     }
                 }
@@ -343,27 +344,19 @@ class GroupConversationDetailsViewModel @Inject constructor(
     }
 
     @Suppress("EmptyFunctionBlock")
-    override fun onAddConversationToFavourites(conversationId: ConversationId) {
+    override fun onAddConversationToFavourites(conversationId: ConversationId?) {
     }
 
     @Suppress("EmptyFunctionBlock")
-    override fun onMoveConversationToFolder(conversationId: ConversationId) {
+    override fun onMoveConversationToFolder(conversationId: ConversationId?) {
     }
 
     @Suppress("EmptyFunctionBlock")
-    override fun onMoveConversationToArchive(conversationId: ConversationId) {
+    override fun onMoveConversationToArchive(conversationId: ConversationId?) {
     }
 
     @Suppress("EmptyFunctionBlock")
-    override fun onClearConversationContent(conversationId: ConversationId) {
-    }
-
-    override fun setBottomSheetStateToConversation() {
-        updateState(groupOptionsState.value.setBottomSheetStateToConversation())
-    }
-
-    override fun setBottomSheetStateToMuteOptions() {
-        updateState(groupOptionsState.value.setBottomSheetStateToMuteOptions())
+    override fun onClearConversationContent(conversationId: ConversationId?) {
     }
 
     companion object {

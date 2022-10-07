@@ -19,8 +19,8 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
-import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
-import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationTypeDetail
+import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
+import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetail
 import com.wire.android.ui.home.conversationslist.model.BlockState
 import com.wire.android.ui.userprofile.common.UsernameMapper.mapUserLabel
 import com.wire.android.ui.userprofile.group.RemoveConversationMemberState
@@ -173,7 +173,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
 
     // TODO This could be loaded on demand not on init.
     private fun observeConversationSheetContentIfNeeded(otherUser: OtherUser, userAvatarAsset: ImageAsset.UserAvatarAsset?) {
-        // if we are not connected with that user, or that user is not already blocked ->
+        // if we are not connected with that user, or that user is already blocked ->
         // -> we don't have a direct conversation ->
         // -> no need to load data for ConversationBottomSheet
         if (otherUser.connectionStatus != ConnectionState.ACCEPTED && otherUser.connectionStatus != ConnectionState.BLOCKED) return
@@ -383,35 +383,19 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     }
 
     @Suppress("EmptyFunctionBlock")
-    override fun onAddConversationToFavourites(conversationId: ConversationId) {
+    override fun onAddConversationToFavourites(conversationId: ConversationId?) {
     }
 
     @Suppress("EmptyFunctionBlock")
-    override fun onMoveConversationToFolder(conversationId: ConversationId) {
+    override fun onMoveConversationToFolder(conversationId: ConversationId?) {
     }
 
     @Suppress("EmptyFunctionBlock")
-    override fun onMoveConversationToArchive(conversationId: ConversationId) {
+    override fun onMoveConversationToArchive(conversationId: ConversationId?) {
     }
 
     @Suppress("EmptyFunctionBlock")
-    override fun onClearConversationContent(conversationId: ConversationId) {
-    }
-
-    override fun setBottomSheetStateToConversation() {
-        state = state.setBottomSheetStateToConversation()
-    }
-
-    override fun setBottomSheetStateToMuteOptions() {
-        state = state.setBottomSheetStateToMuteOptions()
-    }
-
-    override fun setBottomSheetStateToChangeRole() {
-        state = state.setBottomSheetStateToChangeRole()
-    }
-
-    fun clearBottomSheetState() {
-        state = state.clearBottomSheetState()
+    override fun onClearConversationContent(conversationId: ConversationId?) {
     }
 
     override fun getOtherUserClients() {

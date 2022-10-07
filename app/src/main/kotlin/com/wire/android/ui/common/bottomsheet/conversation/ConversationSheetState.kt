@@ -1,4 +1,4 @@
-package com.wire.android.ui.home.conversationslist.bottomsheet
+package com.wire.android.ui.common.bottomsheet.conversation
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -87,6 +87,19 @@ fun rememberConversationSheetState(
     }
 
     return remember(conversationItem, conversationOptionNavigation) {
+        ConversationSheetState(
+            conversationSheetContent = conversationSheetContent,
+            conversationOptionNavigation = conversationOptionNavigation
+        )
+    }
+}
+
+@Composable
+fun rememberConversationSheetState(
+    conversationSheetContent: ConversationSheetContent?,
+    conversationOptionNavigation: ConversationOptionNavigation = ConversationOptionNavigation.Home
+): ConversationSheetState {
+    return remember(conversationSheetContent) {
         ConversationSheetState(
             conversationSheetContent = conversationSheetContent,
             conversationOptionNavigation = conversationOptionNavigation

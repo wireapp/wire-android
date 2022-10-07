@@ -1,4 +1,4 @@
-package com.wire.android.ui.home.conversationslist.bottomsheet
+package com.wire.android.ui.common.bottomsheet.conversation
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer

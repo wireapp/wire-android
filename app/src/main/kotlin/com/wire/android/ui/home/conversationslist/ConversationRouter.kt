@@ -8,6 +8,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.ui.common.bottomsheet.conversation.ConversationOptionNavigation
 import com.wire.android.ui.common.dialogs.BlockUserDialogContent
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.common.dialogs.UnblockUserDialogContent
@@ -16,9 +17,8 @@ import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.home.HomeSnackbarState
 import com.wire.android.ui.home.conversations.details.menu.DeleteConversationGroupDialog
 import com.wire.android.ui.home.conversations.details.menu.LeaveConversationGroupDialog
-import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationOptionNavigation
-import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
-import com.wire.android.ui.home.conversationslist.bottomsheet.rememberConversationSheetState
+import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
+import com.wire.android.ui.common.bottomsheet.conversation.rememberConversationSheetState
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 
@@ -82,10 +82,11 @@ fun ConversationRouterHomeBridge(
 
             ConversationSheetContent(
                 conversationSheetState = conversationState,
-                // FIXME: Compose - Find a way to not recreate this lambda
-                onMutingConversationStatusChange = { mutedStatus ->
-                    conversationState.muteConversation(mutedStatus)
-                    viewModel.muteConversation(conversationId = conversationState.conversationId, mutedStatus)
+                onMutingConversationStatusChange = {
+                    viewModel.muteConversation(
+                        conversationId = conversationState.conversationId,
+                        mutedConversationStatus = conversationState.conversationSheetContent!!.mutingConversationState
+                    )
                 },
                 addConversationToFavourites = viewModel::addConversationToFavourites,
                 moveConversationToFolder = viewModel::moveConversationToFolder,
@@ -127,7 +128,7 @@ fun ConversationRouterHomeBridge(
                     onOpenUserProfile = viewModel::openUserProfile,
                     onOpenConversationNotificationsSettings = onEditNotifications,
                     onJoinCall = viewModel::joinOngoingCall,
-                    shouldShowEmptyState= shouldShowEmptyState
+                    shouldShowEmptyState = shouldShowEmptyState
                 )
             ConversationItemType.CALLS ->
                 CallsScreen(

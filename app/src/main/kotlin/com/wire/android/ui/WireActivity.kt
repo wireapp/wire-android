@@ -34,6 +34,8 @@ import com.wire.android.ui.common.dialogs.CustomBEDeeplinkDialog
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.userprofile.self.MaxAccountReachedDialog
 import com.wire.android.util.CurrentScreenManager
+import com.wire.android.util.LocalSyncStateObserver
+import com.wire.android.util.SyncStateObserver
 import com.wire.android.util.debug.FeatureVisibilityFlags
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.ui.updateScreenSettings
@@ -79,7 +81,10 @@ class WireActivity : AppCompatActivity() {
 
     private fun setComposableContent() {
         setContent {
-            CompositionLocalProvider(LocalFeatureVisibilityFlags provides FeatureVisibilityFlags) {
+            CompositionLocalProvider(
+                LocalFeatureVisibilityFlags provides FeatureVisibilityFlags,
+                LocalSyncStateObserver provides SyncStateObserver(viewModel.observeSyncFlowState)
+            ) {
                 WireTheme {
                     val scope = rememberCoroutineScope()
                     val navController = rememberAnimatedNavController()

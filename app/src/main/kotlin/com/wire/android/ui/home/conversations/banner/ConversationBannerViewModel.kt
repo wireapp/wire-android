@@ -10,19 +10,26 @@ import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.ui.home.conversations.banner.usecase.ObserveConversationMembersByTypesUseCase
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@OptIn(ExperimentalCoroutinesApi::class)
 @Suppress("LongParameterList")
 @HiltViewModel
 class ConversationBannerViewModel @Inject constructor(
     qualifiedIdMapper: QualifiedIdMapper,
     override val savedStateHandle: SavedStateHandle,
     private val observeConversationMembersByTypes: ObserveConversationMembersByTypesUseCase,
+    private val observeConversationDetails: ObserveConversationDetailsUseCase,
 ) : SavedStateViewModel(savedStateHandle) {
 
     var bannerState by mutableStateOf<UIText?>(null)
@@ -33,7 +40,15 @@ class ConversationBannerViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            observeConversationMembersByTypes(conversationId).collect(::handleConversationMemberTypes)
+            observeConversationDetails(conversationId)
+                .filter {
+                    when (it) {
+                        is ObserveConversationDetailsUseCase.Result.Failure -> false
+                        is ObserveConversationDetailsUseCase.Result.Success -> it.conversationDetails is ConversationDetails.Group
+                    }
+                }
+                .flatMapLatest { observeConversationMembersByTypes(conversationId) }
+                .collect(::handleConversationMemberTypes)
         }
     }
 

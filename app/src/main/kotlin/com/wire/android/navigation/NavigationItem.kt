@@ -18,7 +18,6 @@ import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_ACCOU
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_PERSONAL_ACCOUNT
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_TEAM
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.DEBUG
-import com.wire.android.navigation.NavigationItemDestinationsRoutes.SELF_DEVICES
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.GROUP_CONVERSATION_ALL_PARTICIPANTS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.GROUP_CONVERSATION_DETAILS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.HOME
@@ -28,6 +27,7 @@ import com.wire.android.navigation.NavigationItemDestinationsRoutes.INITIATING_C
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.LOGIN
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.MEDIA_GALLERY
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.MIGRATION
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.MY_ACCOUNT
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.NETWORK_SETTINGS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.NEW_CONVERSATION
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.ONGOING_CALL
@@ -35,6 +35,7 @@ import com.wire.android.navigation.NavigationItemDestinationsRoutes.OTHER_USER_P
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.REGISTER_DEVICE
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.REMOVE_DEVICES
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.REPORT_BUG
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.SELF_DEVICES
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.SELF_USER_PROFILE
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.WELCOME
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
@@ -57,6 +58,7 @@ import com.wire.android.ui.home.conversations.details.participants.GroupConversa
 import com.wire.android.ui.home.conversations.search.AddMembersSearchRouter
 import com.wire.android.ui.home.gallery.MediaGalleryScreen
 import com.wire.android.ui.home.newconversation.NewConversationRouter
+import com.wire.android.ui.home.settings.account.MyAccountScreen
 import com.wire.android.ui.home.settings.appsettings.AppSettingsScreen
 import com.wire.android.ui.home.settings.appsettings.networkSettings.NetworkSettingsScreen
 import com.wire.android.ui.home.settings.backup.BackupAndRestoreScreen
@@ -190,6 +192,11 @@ enum class NavigationItem(
     Support(
         primaryRoute = BuildConfig.SUPPORT_URL,
         content = { },
+    ),
+
+    MyAccount(
+        primaryRoute = MY_ACCOUNT,
+        content = { MyAccountScreen() }
     ),
 
     ReportBug(
@@ -392,6 +399,7 @@ object NavigationItemDestinationsRoutes {
     const val APP_SETTINGS = "app_settings_screen"
     const val SELF_DEVICES = "self_devices_screen"
     const val BACKUP_AND_RESTORE = "backup_and_restore_screen"
+    const val MY_ACCOUNT = "my_account_screen"
     const val DEBUG = "debug_screen"
     const val REPORT_BUG = "report_bug"
     const val REMOVE_DEVICES = "remove_devices_screen"

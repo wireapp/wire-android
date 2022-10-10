@@ -117,6 +117,7 @@ object Libraries {
     const val accompanistPlaceholder    = "com.google.accompanist:accompanist-placeholder:${Versions.accompanist}"
     const val accompanistNavAnimation   = "com.google.accompanist:accompanist-navigation-animation:${Versions.accompanist}"
     const val accompanistIndicator      = "com.google.accompanist:accompanist-pager-indicators:${Versions.accompanist}"
+    const val accompanistFlowLayout     = "com.google.accompanist:accompanist-flowlayout:${Versions.accompanist}"
     const val material                  = "com.google.android.material:material:${Versions.material}"
     const val visibilityModifiers       = "io.github.esentsov:kotlin-visibility:${Versions.visibilityModifiers}"
     const val browser                   = "androidx.browser:browser:${Versions.browser}"

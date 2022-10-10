@@ -27,15 +27,12 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthTokens
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
+import com.wire.kalium.logic.feature.auth.AuthenticationScope
 import com.wire.kalium.logic.feature.auth.LoginUseCase
+import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.client.ClientScope
 import com.wire.kalium.logic.feature.client.GetOrRegisterClientUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
-import com.wire.kalium.logic.feature.server.FetchApiVersionResult
-import com.wire.kalium.logic.feature.server.FetchApiVersionUseCase
-import com.wire.kalium.logic.feature.session.GetSessionsUseCase
-import com.wire.kalium.logic.feature.session.RegisterTokenResult
-import com.wire.kalium.logic.feature.session.RegisterTokenUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -69,16 +66,10 @@ class LoginEmailViewModelTest {
     private lateinit var clientScopeProviderFactory: ClientScopeProvider.Factory
 
     @MockK
-    private lateinit var getSessionsUseCase: GetSessionsUseCase
-
-    @MockK
     private lateinit var clientScope: ClientScope
 
     @MockK
     private lateinit var getOrRegisterClientUseCase: GetOrRegisterClientUseCase
-
-    @MockK
-    private lateinit var registerTokenUseCase: RegisterTokenUseCase
 
     @MockK
     private lateinit var savedStateHandle: SavedStateHandle
@@ -90,10 +81,13 @@ class LoginEmailViewModelTest {
     private lateinit var qualifiedIdMapper: QualifiedIdMapper
 
     @MockK
-    private lateinit var fetchApiVersion: FetchApiVersionUseCase
+    private lateinit var autoVersionAuthScopeUseCase: AutoVersionAuthScopeUseCase
 
     @MockK
     private lateinit var authServerConfigProvider: AuthServerConfigProvider
+
+    @MockK
+    private lateinit var authenticationScope: AuthenticationScope
 
     private lateinit var loginViewModel: LoginEmailViewModel
 
@@ -108,14 +102,13 @@ class LoginEmailViewModelTest {
         every { savedStateHandle.set(any(), any<String>()) } returns Unit
         every { clientScopeProviderFactory.create(any()).clientScope } returns clientScope
         every { clientScope.getOrRegister } returns getOrRegisterClientUseCase
-        every { clientScope.registerPushToken } returns registerTokenUseCase
         every { authServerConfigProvider.authServer.value } returns newServerConfig(1).links
-        coEvery { fetchApiVersion(newServerConfig(1).links) } returns FetchApiVersionResult.Success(newServerConfig(1))
+        coEvery { autoVersionAuthScopeUseCase() } returns AutoVersionAuthScopeUseCase.Result.Success(authenticationScope)
+        every { authenticationScope.login } returns loginUseCase
         loginViewModel = LoginEmailViewModel(
-            loginUseCase,
+            autoVersionAuthScopeUseCase,
             addAuthenticatedUserUseCase,
             clientScopeProviderFactory,
-            fetchApiVersion,
             savedStateHandle,
             navigationManager,
             authServerConfigProvider
@@ -166,14 +159,12 @@ class LoginEmailViewModelTest {
         coEvery { addAuthenticatedUserUseCase(any(), any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
         coEvery { navigationManager.navigate(any()) } returns Unit
         coEvery { getOrRegisterClientUseCase(any()) } returns RegisterClientResult.Success(CLIENT)
-        coEvery { registerTokenUseCase(any(), CLIENT.id) } returns RegisterTokenResult.Success
 
         loginViewModel.onPasswordChange(TextFieldValue(password))
 
         runTest { loginViewModel.login() }
         coVerify(exactly = 1) { loginUseCase(any(), any(), any()) }
         coVerify(exactly = 1) { getOrRegisterClientUseCase(any()) }
-        coVerify(exactly = 1) { registerTokenUseCase(any(), CLIENT.id) }
         coVerify(exactly = 1) {
             navigationManager.navigate(
                 NavigationCommand(

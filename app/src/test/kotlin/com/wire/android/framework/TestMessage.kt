@@ -1,8 +1,9 @@
 package com.wire.android.framework
 
-import com.wire.android.mapper.AssetMessageData
+import com.wire.android.mapper.AssetMessageContentMetadata
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversations.model.MessageBody
+import com.wire.android.ui.home.conversations.model.MessageFooter
 import com.wire.android.ui.home.conversations.model.UIMessageContent.TextMessage
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageSource
@@ -77,7 +78,7 @@ object TestMessage {
         senderUserId = UserId("user-id", "domain"),
         status = Message.Status.SENT
     )
-    val IMAGE_ASSET_MESSAGE_DATA_TEST = AssetMessageData(
+    val IMAGE_ASSET_MESSAGE_DATA_TEST = AssetMessageContentMetadata(
         AssetContent(
             100L,
             "dummy_data.tiff",
@@ -101,7 +102,8 @@ object TestMessage {
         userAvatarData = UserAvatarData(asset = null, availabilityStatus = UserAvailabilityStatus.NONE),
         messageSource = MessageSource.OtherUser,
         messageHeader = UI_MESSAGE_HEADER,
-        messageContent = TextMessage(MessageBody(UIText.DynamicString("Some Text Message")))
+        messageContent = TextMessage(MessageBody(UIText.DynamicString("Some Text Message"))),
+        messageFooter =  MessageFooter(UI_MESSAGE_HEADER.messageId)
     )
 
     val MISSED_CALL_MESSAGE = Message.System(

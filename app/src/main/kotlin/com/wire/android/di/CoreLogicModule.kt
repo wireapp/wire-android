@@ -1,6 +1,7 @@
 package com.wire.android.di
 
 import android.content.Context
+import androidx.work.WorkManager
 import com.wire.android.util.DeviceLabel
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
@@ -13,6 +14,7 @@ import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.SendAssetMessageUseCase
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
+import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.GetAllCallsWithSortedParticipantsUseCase
 import com.wire.kalium.logic.feature.call.usecase.MuteCallUseCase
@@ -32,6 +34,7 @@ import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetAllContactsNotInConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetSecurityClassificationTypeUseCase
+import com.wire.kalium.logic.feature.conversation.LeaveConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveUserListByIdUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
@@ -41,6 +44,7 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseC
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
+import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
 import com.wire.kalium.logic.feature.message.getPaginatedFlowOfMessagesByConversation
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
 import com.wire.kalium.logic.feature.publicuser.GetKnownUserUseCase
@@ -49,7 +53,6 @@ import com.wire.kalium.logic.feature.publicuser.search.SearchPublicUsersUseCase
 import com.wire.kalium.logic.feature.server.ServerConfigForAccountUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
-import com.wire.kalium.logic.feature.session.RegisterTokenUseCase
 import com.wire.kalium.logic.feature.session.UpdateCurrentSessionUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
@@ -137,6 +140,10 @@ class CoreLogicModule {
     @Provides
     fun provideObservePersistentWebSocketConnectionStatusUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
         coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus
+
+    @Singleton
+    @Provides
+    fun provideWorkManager(@ApplicationContext applicationContext: Context) = WorkManager.getInstance(applicationContext)
 }
 
 @Module
@@ -199,21 +206,6 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun provideLoginUseCase(@KaliumCoreLogic coreLogic: CoreLogic, authServerConfigProvider: AuthServerConfigProvider) =
-        coreLogic.getAuthenticationScope(authServerConfigProvider.authServer.value).login
-
-    @ViewModelScoped
-    @Provides
-    fun provideSsoInitiateLoginUseCase(@KaliumCoreLogic coreLogic: CoreLogic, authServerConfigProvider: AuthServerConfigProvider) =
-        coreLogic.getAuthenticationScope(authServerConfigProvider.authServer.value).ssoLoginScope.initiate
-
-    @ViewModelScoped
-    @Provides
-    fun provideGetLoginSessionUseCase(@KaliumCoreLogic coreLogic: CoreLogic, authServerConfigProvider: AuthServerConfigProvider) =
-        coreLogic.getAuthenticationScope(authServerConfigProvider.authServer.value).ssoLoginScope.getLoginSessionGet
-
-    @ViewModelScoped
-    @Provides
     fun provideObserveSyncStateUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).observeSyncState
 
@@ -224,33 +216,18 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun provideValidateEmailUseCase(@KaliumCoreLogic coreLogic: CoreLogic, authServerConfigProvider: AuthServerConfigProvider) =
-        coreLogic.getAuthenticationScope(authServerConfigProvider.authServer.value).validateEmailUseCase
+    fun provideValidateEmailUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
+        coreLogic.getGlobalScope().validateEmailUseCase
 
     @ViewModelScoped
     @Provides
-    fun provideValidatePasswordUseCase(@KaliumCoreLogic coreLogic: CoreLogic, authServerConfigProvider: AuthServerConfigProvider) =
-        coreLogic.getAuthenticationScope(authServerConfigProvider.authServer.value).validatePasswordUseCase
+    fun provideValidatePasswordUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
+        coreLogic.getGlobalScope().validatePasswordUseCase
 
     @ViewModelScoped
     @Provides
-    fun provideValidateUserHandleUseCase(@KaliumCoreLogic coreLogic: CoreLogic, authServerConfigProvider: AuthServerConfigProvider) =
-        coreLogic.getAuthenticationScope(authServerConfigProvider.authServer.value).validateUserHandleUseCase
-
-    @ViewModelScoped
-    @Provides
-    fun provideRegisterAccountUseCase(@KaliumCoreLogic coreLogic: CoreLogic, authServerConfigProvider: AuthServerConfigProvider) =
-        coreLogic.getAuthenticationScope(authServerConfigProvider.authServer.value).register.register
-
-    @ViewModelScoped
-    @Provides
-    fun provideRequestCodeUseCase(@KaliumCoreLogic coreLogic: CoreLogic, authServerConfigProvider: AuthServerConfigProvider) =
-        coreLogic.getAuthenticationScope(authServerConfigProvider.authServer.value).register.requestActivationCode
-
-    @ViewModelScoped
-    @Provides
-    fun provideVerifyCodeUseCase(@KaliumCoreLogic coreLogic: CoreLogic, authServerConfigProvider: AuthServerConfigProvider) =
-        coreLogic.getAuthenticationScope(authServerConfigProvider.authServer.value).register.activate
+    fun provideValidateUserHandleUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
+        coreLogic.getGlobalScope().validateUserHandleUseCase
 
     @ViewModelScoped
     @Provides
@@ -259,23 +236,13 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun provideObserveConversationListDetailsUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+    fun provideObserveConversationListDetails(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).conversations.observeConversationListDetails
 
     @ViewModelScoped
     @Provides
     fun provideObserveConversationUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).conversations.getOneToOneConversation
-
-    @ViewModelScoped
-    @Provides
-    fun provideObserveConnectionListUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
-        coreLogic.getSessionScope(currentAccount).conversations.observeConnectionList
-
-    @ViewModelScoped
-    @Provides
-    fun provideObserveConversationsAndConnectionsUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
-        coreLogic.getSessionScope(currentAccount).conversations.observeConversationsAndConnectionListUseCase
 
     @ViewModelScoped
     @Provides
@@ -392,6 +359,11 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun provideRequestVideoStreamsUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).calls.requestVideoStreams
+
+    @ViewModelScoped
+    @Provides
     fun provideIsLastCallClosedUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).calls.isLastCallClosed
 
@@ -426,6 +398,13 @@ class UseCaseModule {
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
     ): SendTextMessageUseCase = coreLogic.getSessionScope(currentAccount).messages.sendTextMessage
+
+    @ViewModelScoped
+    @Provides
+    fun provideToggleReactionUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): ToggleReactionUseCase = coreLogic.getSessionScope(currentAccount).messages.toggleReaction
 
     @ViewModelScoped
     @Provides
@@ -598,6 +577,14 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun provideLeaveConversationUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): LeaveConversationUseCase =
+        coreLogic.getSessionScope(currentAccount).conversations.leaveConversation
+
+    @ViewModelScoped
+    @Provides
     fun provideUpdateConversationMutedStatusUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
@@ -663,11 +650,6 @@ class UseCaseModule {
     @Provides
     fun provideFileSharingStatusFlowUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).observeFileSharingStatus
-
-    @ViewModelScoped
-    @Provides
-    fun provideRegisterTokenUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): RegisterTokenUseCase =
-        coreLogic.getSessionScope(currentAccount).client.registerPushToken
 
     @ViewModelScoped
     @Provides
@@ -776,4 +758,12 @@ class UseCaseModule {
         @CurrentAccount currentAccount: UserId
     ): GetSecurityClassificationTypeUseCase =
         coreLogic.getSessionScope(currentAccount).getSecurityClassificationType
+
+    @ViewModelScoped
+    @Provides
+    fun provideAutoVersionAuthScopeUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        authServerConfigProvider: AuthServerConfigProvider
+    ): AutoVersionAuthScopeUseCase  =
+        coreLogic.versionedAuthenticationScope(authServerConfigProvider.authServer.value)
 }

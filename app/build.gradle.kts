@@ -1,4 +1,5 @@
 import com.android.build.api.dsl.AndroidSourceSet
+
 plugins {
     // Application Specific plugins
     id(BuildPlugins.androidApplication)
@@ -9,6 +10,7 @@ plugins {
     id(BuildPlugins.hilt)
     id(BuildPlugins.junit5)
     kotlin(BuildPlugins.kapt)
+    kotlin(BuildPlugins.serialization) version Libraries.Versions.kotlin
 
     // Internal Script plugins
     id(ScriptPlugins.variants)
@@ -109,9 +111,11 @@ dependencies {
     implementation(Libraries.dataStore)
     implementation(Libraries.splashscreen)
     implementation(Libraries.exifInterface)
+    implementation(Libraries.Kotlin.serialization)
 
     // Image handling
     implementation(Libraries.coil)
+    implementation(Libraries.coilGif)
     implementation(Libraries.coilCompose)
 
     /** lifecycle **/
@@ -142,6 +146,7 @@ dependencies {
     implementation(Libraries.accompanistNavAnimation)
     implementation(Libraries.accompanistIndicator)
     implementation(Libraries.composeRuntimeLiveData)
+    implementation(Libraries.accompanistFlowLayout)
 
     implementation(Libraries.Paging.runtime)
     implementation(Libraries.Paging.compose)
@@ -196,6 +201,8 @@ dependencies {
     kaptAndroidTest(Libraries.Hilt.compiler)
     androidTestUtil(TestLibraries.testOrchestrator)
     implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
+
+    implementation(Libraries.Hilt.hiltWork)
 
     // Development dependencies
     debugImplementation(DevLibraries.leakCanary)

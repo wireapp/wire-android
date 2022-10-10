@@ -109,7 +109,7 @@ fun ConversationProtocolDetails(
 ) {
     Column {
         FolderHeader(name = stringResource(R.string.folder_lable_protocol_details))
-        if (protocolInfo is Conversation.ProtocolInfo.MLS || BuildConfig.PRIVATE_BUILD) {
+        if (protocolInfo is Conversation.ProtocolInfo.MLS || BuildConfig.MLS_SUPPORT_ENABLED) {
             ProtocolDetails(
                 label = UIText.StringResource(R.string.protocol),
                 text = UIText.DynamicString(protocolInfo.name())

@@ -21,21 +21,19 @@ import com.wire.kalium.logic.data.client.Client
 import com.wire.kalium.logic.data.client.ClientType
 import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.SsoId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthTokens
+import com.wire.kalium.logic.feature.auth.AuthenticationScope
+import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.auth.sso.GetSSOLoginSessionUseCase
 import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginResult
 import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginUseCase
 import com.wire.kalium.logic.feature.auth.sso.SSOLoginSessionResult
 import com.wire.kalium.logic.feature.client.ClientScope
-import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.client.GetOrRegisterClientUseCase
-import com.wire.kalium.logic.feature.session.GetSessionsUseCase
-import com.wire.kalium.logic.feature.session.RegisterTokenResult
-import com.wire.kalium.logic.feature.session.RegisterTokenUseCase
+import com.wire.kalium.logic.feature.client.RegisterClientResult
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -78,13 +76,16 @@ class LoginSSOViewModelTest {
     private lateinit var getOrRegisterClientUseCase: GetOrRegisterClientUseCase
 
     @MockK
-    private lateinit var registerTokenUseCase: RegisterTokenUseCase
-
-    @MockK
     private lateinit var getSSOLoginSessionUseCase: GetSSOLoginSessionUseCase
 
     @MockK
     private lateinit var authServerConfigProvider: AuthServerConfigProvider
+
+    @MockK
+    private lateinit var autoVersionAuthScopeUseCase: AutoVersionAuthScopeUseCase
+
+    @MockK
+    private lateinit var authenticationScope: AuthenticationScope
 
     @MockK
     private lateinit var navigationManager: NavigationManager
@@ -100,13 +101,14 @@ class LoginSSOViewModelTest {
         every { savedStateHandle.set(any(), any<String>()) } returns Unit
         every { clientScopeProviderFactory.create(any()).clientScope } returns clientScope
         every { clientScope.getOrRegister } returns getOrRegisterClientUseCase
-        every { clientScope.registerPushToken } returns registerTokenUseCase
         every { authServerConfigProvider.authServer.value } returns newServerConfig(1).links
+        coEvery { autoVersionAuthScopeUseCase() } returns AutoVersionAuthScopeUseCase.Result.Success(authenticationScope)
+        every { authenticationScope.ssoLoginScope.initiate } returns ssoInitiateLoginUseCase
+        every { authenticationScope.ssoLoginScope.getLoginSession } returns getSSOLoginSessionUseCase
 
         loginViewModel = LoginSSOViewModel(
             savedStateHandle,
-            ssoInitiateLoginUseCase,
-            getSSOLoginSessionUseCase,
+            autoVersionAuthScopeUseCase,
             addAuthenticatedUserUseCase,
             clientScopeProviderFactory,
             navigationManager,
@@ -214,9 +216,6 @@ class LoginSSOViewModelTest {
         coEvery {
             getOrRegisterClientUseCase(any())
         } returns RegisterClientResult.Success(CLIENT)
-        coEvery {
-            registerTokenUseCase(any(), CLIENT.id)
-        } returns RegisterTokenResult.Failure.PushTokenRegister
 
         runTest { loginViewModel.establishSSOSession("", serverConfigId = SERVER_CONFIG.id) }
 
@@ -226,7 +225,6 @@ class LoginSSOViewModelTest {
             getOrRegisterClientUseCase(any())
         }
         coVerify(exactly = 1) { addAuthenticatedUserUseCase(any(), any(), any()) }
-        coVerify(exactly = 1) { registerTokenUseCase(any(), CLIENT.id) }
     }
 
     @Test
@@ -241,7 +239,6 @@ class LoginSSOViewModelTest {
         coVerify(exactly = 0) { loginViewModel.registerClient(any(), null) }
         coVerify(exactly = 0) { addAuthenticatedUserUseCase(any(), any(), any()) }
         coVerify(exactly = 0) { loginViewModel.navigateToConvScreen() }
-        coVerify(exactly = 0) { registerTokenUseCase(any(), CLIENT.id) }
     }
 
     @Test
@@ -261,7 +258,6 @@ class LoginSSOViewModelTest {
         coEvery { getSSOLoginSessionUseCase(any()) } returns SSOLoginSessionResult.Success(AUTH_TOKEN, SSO_ID)
         coEvery { addAuthenticatedUserUseCase(any(), any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
         coEvery { getOrRegisterClientUseCase(any()) } returns RegisterClientResult.Success(CLIENT)
-        coEvery { registerTokenUseCase(any(), CLIENT.id) } returns RegisterTokenResult.Success
 
         runTest { loginViewModel.handleSSOResult(DeepLinkResult.SSOLogin.Success("", "")) }
         coVerify(exactly = 1) { loginViewModel.navigateToConvScreen() }
@@ -279,7 +275,6 @@ class LoginSSOViewModelTest {
         coVerify(exactly = 0) { loginViewModel.registerClient(any(), null) }
         coVerify(exactly = 1) { addAuthenticatedUserUseCase(any(), any(), any()) }
         coVerify(exactly = 0) { loginViewModel.navigateToConvScreen() }
-        coVerify(exactly = 0) { registerTokenUseCase(any(), CLIENT.id) }
     }
 
     @Test
@@ -307,9 +302,6 @@ class LoginSSOViewModelTest {
         coEvery {
             getOrRegisterClientUseCase(any())
         } returns RegisterClientResult.Success(CLIENT)
-        coEvery {
-            registerTokenUseCase(any(), CLIENT.id)
-        } returns RegisterTokenResult.Failure.PushTokenRegister
 
         runTest { loginViewModel.establishSSOSession("", serverConfigId = SERVER_CONFIG.id) }
 
@@ -321,7 +313,6 @@ class LoginSSOViewModelTest {
             getOrRegisterClientUseCase(any())
         }
         coVerify(exactly = 1) { addAuthenticatedUserUseCase(any(), any(), any()) }
-        coVerify(exactly = 1) { registerTokenUseCase(any(), CLIENT.id) }
     }
 
     companion object {

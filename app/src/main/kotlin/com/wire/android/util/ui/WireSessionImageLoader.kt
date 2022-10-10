@@ -1,6 +1,7 @@
 package com.wire.android.util.ui
 
 import android.content.Context
+import android.os.Build.VERSION.SDK_INT
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.ui.graphics.painter.Painter
@@ -8,6 +9,8 @@ import androidx.compose.ui.platform.LocalContext
 import coil.Coil
 import coil.ImageLoader
 import coil.compose.rememberAsyncImagePainter
+import coil.decode.GifDecoder
+import coil.decode.ImageDecoderDecoder
 import coil.request.ImageRequest
 import com.wire.android.model.ImageAsset
 import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
@@ -49,6 +52,11 @@ class WireSessionImageLoader(private val coilImageLoader: ImageLoader) {
             defaultImageLoader.newBuilder()
                 .components {
                     add(AssetImageFetcher.Factory(getAvatarAsset, getPrivateAsset, resources))
+                    if (SDK_INT >= 28) {
+                        add(ImageDecoderDecoder.Factory())
+                    } else {
+                        add(GifDecoder.Factory())
+                    }
                 }.build()
         )
     }

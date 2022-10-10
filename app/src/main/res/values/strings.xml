@@ -52,6 +52,7 @@
     <string name="content_description_move_to_folder">Move to folder</string>
     <string name="content_description_move_to_archive">Move to archive</string>
     <string name="content_description_block_the_user">Block</string>
+    <string name="content_description_unblock_the_user">Unblock</string>
     <string name="content_description_leave_the_group">Leave the group</string>
     <string name="content_description_delete_the_group">Delete the group</string>
     <string name="content_description_conversation_phone_icon">Start audio call</string>
@@ -111,7 +112,7 @@
     <string name="user_profile_screen_title">User Profile</string>
     <string name="settings_screen_title">Settings</string>
     <string name="app_settings_screen_title">App Settings</string>
-    <string name="debug_screen_title">Debug</string>
+    <string name="report_bug_screen_title">Report Bug</string>
     <string name="debug_settings_screen_title">Debug Settings</string>
     <string name="support_screen_title">Support</string>
     <string name="backup_and_restore_screen_title">Back up &amp; Restore Conversations</string>
@@ -138,6 +139,11 @@
     <string name="api_versioning_client_update_required_message">You are missing out on new features. Update to the latest version of Wire to continue using the app with this account.</string>
     <string name="api_versioning_server_version_not_supported_title">Server version not supported</string>
     <string name="api_versioning_server_version_not_supported_message">Your Wire server needs to be updated. Please notify your system administrator.</string>
+    <!-- Migration -->
+    <string name="migration_title">Setting up Wire</string>
+    <string name="migration_message">Please wait while we set up the app for you</string>
+    <string name="migration_cancel_title">Cancel migration</string>
+    <string name="migration_cancel_message">Are you sure you want to close the application and cancel the ongoing migration?</string>
     <!-- Login -->
     <string name="login_title">Log in</string>
     <string name="login_forgot_password">Forgot password?</string>
@@ -296,6 +302,7 @@
     <string name="conversation_details_show_all_participants">Show all participants (%d)</string>
     <string name="conversation_details_group_participants_title">Group Participants</string>
     <string name="conversation_details_group_participants_add">Add participants</string>
+    <string name="conversation_participant_you_label">(You)</string>
     <string name="conversation_details_is_classified">SECURITY LEVEL: VS-NfD</string>
     <string name="conversation_details_is_not_classified">SECURITY LEVEL: UNCLASSIFIED</string>
     <string name="conversation_options_guests_label">Guests</string>
@@ -365,6 +372,7 @@
     <string name="label_move_to_archive">Move to Archive</string>
     <string name="label_clear_content">Clear Content…</string>
     <string name="label_block">Block</string>
+    <string name="label_unblock">Unblock</string>
     <string name="label_leave_group">Leave Group</string>
     <string name="label_delete_group">Delete Group</string>
     <!-- Muting options BottomSheet -->
@@ -385,6 +393,24 @@
     <string name="label_edit">Edit</string>
     <string name="label_delete">Delete</string>
     <string name="info_message_copied">Message copied</string>
+    <string name="conversation_banner_federated_externals_guests_services_present">Federated users, Externals, guests and services are present</string>
+
+    <string name="conversation_banner_federated_externals_guests_present">Federated users, Externals and guests are present</string>
+    <string name="conversation_banner_federated_externals_services_present">Federated users, Externals and services are present</string>
+
+    <string name="conversation_banner_federated_guests_services_present">Federated users, guests and services are present</string>
+    <string name="conversation_banner_federated_services_present">Federated users and services are present</string>
+    <string name="conversation_banner_federated_guests_present">Federated users and guests are present</string>
+    <string name="conversation_banner_federated_externals_present">Federated users and Externals are present</string>
+    <string name="conversation_banner_externals_guests_services_present">Externals, guests and services are present</string>
+    <string name="conversation_banner_externals_services_present">Externals and services are present</string>
+    <string name="conversation_banner_externals_guests_present">Externals and guests are present</string>
+    <string name="conversation_banner_guests_services_present">Guests and services are present</string>
+    <string name="conversation_banner_federated_present">Federated users are present</string>
+    <string name="conversation_banner_guests_present">Guests are present</string>
+    <string name="conversation_banner_externals_present">Externals are present</string>
+    <string name="conversation_banner_services_active">Services are active</string>
+
     <!-- System messages -->
     <string name="label_system_message_added">%1$s added %2$s to the conversation</string>
     <string name="label_system_message_removed">%1$s removed %2$s from the conversation</string>
@@ -396,6 +422,7 @@
         <item quantity="other">%1$d more</item>
     </plurals>
     <string name="label_system_message_blocked_user">%1$s blocked this user</string>
+    <string name="label_system_message_renamed_the_conversation">%1$s renamed the conversation\n%2$s</string>
     <!--Search Contact-->
     <string name="label_contacts">CONTACTS</string>
     <string name="label_new_group">New Group</string>
@@ -416,6 +443,7 @@
     <string name="error_downloading_user_info">There was an error downloading the user information. Please check your Internet connection</string>
     <string name="error_uploading_user_avatar">Picture could not be uploaded</string>
     <string name="error_uploading_image_message">Image upload failed</string>
+    <string name="error_downloading_image_message">Image download failed</string>
     <string name="error_updating_muting_setting">Notifications could not be updated</string>
     <string name="error_conversation_sending_image">The picture could not be sent. Please check your internet connection and try again.</string>
     <string name="error_conversation_sending_asset">There was an error trying to send that file. Please check your Internet connection and try again</string>
@@ -547,10 +575,11 @@
     <!--Settings -->
     <string name="url_why_verify_conversation">/hc/en-us/articles/207859815-Why-should-I-verify-my-conversations</string>
     <string name="settings_general_label">General</string>
+    <string name="settings_account_settings_label">Account Settings</string>
     <string name="settings_devices_label">Devices</string>
     <string name="settings_backups_label">Backups</string>
     <string name="settings_others_label">OTHERS</string>
-    <string name="settings_your_account_label">Your Account</string>
+    <string name="settings_your_account_label">Account Details</string>
     <string name="settings_app_settings_label">App Settings</string>
     <string name="settings_privacy_settings_label">Privacy Settings</string>
     <string name="settings_network_settings_label">Network Settings</string>
@@ -558,6 +587,20 @@
     <string name="settings_about_this_app_label">About this App</string>
     <string name="settings_keep_connection_to_websocket">Keep Connection to Websocket</string>
     <string name="settings_service_is_running">service is running</string>
+    <!--Settings, My Account -->
+    <string name="settings_myaccount_title">Account Data</string>
+    <string name="settings_myaccount_display_name">DISPLAY NAME</string>
+    <string name="settings_myaccount_username">USERNAME</string>
+    <string name="settings_myaccount_email">EMAIL</string>
+    <string name="settings_myaccount_team">TEAM</string>
+    <string name="settings_myaccount_domain">DOMAIN</string>
+    <string name="settings_myaccount_reset_password">Reset Password</string>
+
+    <!--Devices -->
+    <string name="devices_title">Your Devices</string>
+    <string name="current_device_label">Current Device</string>
+    <string name="other_devices_label">Other Devices</string>
+
     <!--unblock user dialog -->
     <string name="unblock_user_dialog_title">Unblock user?</string>
     <string name="unblock_user_dialog_body">%1$s will be able to contact you or add you to group conversations. You will be able to access a 1:1 conversation with them.</string>
@@ -569,4 +612,9 @@
     <string name="cant_switch_account_in_call">Can not switch accounts while in call</string>
     <string name="custom_backend_dialog_title">Redirect to an on-premises backend?</string>
     <string name="custom_backend_dialog_body">If you proceed, your client will be redirected to the following on-premises backend:\n\nBackend name:\n%1$s\n\nBackend URL:\n%2$s</string>
+    <string name="label_fetching_your_messages">Receiving new messages</string>
+    <string name="conversation_empty_list_description">Connect with others or create a new group to start collaborating!</string>
+    <string name="conversation_empty_list_title">Welcome 👋</string>
+    <string name="label_reactions">Reactions</string>
+    <string name="label_wait_until_synchronised">Please wait until the app is synchronised</string>
 </resources>

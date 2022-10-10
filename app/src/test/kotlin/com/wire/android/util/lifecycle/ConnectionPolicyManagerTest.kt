@@ -1,6 +1,5 @@
 package com.wire.android.util.lifecycle
 
-import android.accounts.Account
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.util.CurrentScreenManager
 import com.wire.kalium.logic.CoreLogic
@@ -13,6 +12,7 @@ import com.wire.kalium.logic.functional.Either
 import com.wire.kalium.logic.sync.SetConnectionPolicyUseCase
 import com.wire.kalium.logic.sync.SyncManager
 import io.mockk.MockKAnnotations
+import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.coVerifyOrder
 import io.mockk.every
@@ -30,7 +30,7 @@ class ConnectionPolicyManagerTest {
 
         val (arrangement, connectionPolicyManager) = Arrangement()
             .withCurrentSession(user)
-            .withUiInitialized()
+            .withAppInTheForeground()
             .arrange()
 
         connectionPolicyManager.handleConnectionOnPushNotification(user)
@@ -44,14 +44,14 @@ class ConnectionPolicyManagerTest {
 
         val (arrangement, connectionPolicyManager) = Arrangement()
             .withCurrentSession(user)
-            .withUiInitialized()
+            .withAppInTheForeground()
             .arrange()
 
         connectionPolicyManager.handleConnectionOnPushNotification(user)
 
         coVerify(exactly = 1) {
             arrangement.setConnectionPolicyUseCase.invoke(ConnectionPolicy.KEEP_ALIVE)
-            arrangement.syncManager.waitUntilLive()
+            arrangement.syncManager.waitUntilLiveOrFailure()
         }
     }
 
@@ -61,14 +61,14 @@ class ConnectionPolicyManagerTest {
 
         val (arrangement, connectionPolicyManager) = Arrangement()
             .withCurrentSession(user)
-            .withUiNotInitialized()
+            .withAppInTheBackground()
             .arrange()
 
         connectionPolicyManager.handleConnectionOnPushNotification(user)
 
         coVerify(exactly = 1) {
             arrangement.setConnectionPolicyUseCase.invoke(ConnectionPolicy.KEEP_ALIVE)
-            arrangement.syncManager.waitUntilLive()
+            arrangement.syncManager.waitUntilLiveOrFailure()
             arrangement.setConnectionPolicyUseCase.invoke(ConnectionPolicy.DISCONNECT_AFTER_PENDING_EVENTS)
         }
     }
@@ -79,14 +79,14 @@ class ConnectionPolicyManagerTest {
 
         val (arrangement, connectionPolicyManager) = Arrangement()
             .withCurrentSession(USER_ID_2)
-            .withUiInitialized()
+            .withAppInTheForeground()
             .arrange()
 
         connectionPolicyManager.handleConnectionOnPushNotification(user)
 
         coVerify(exactly = 1) {
             arrangement.setConnectionPolicyUseCase.invoke(ConnectionPolicy.KEEP_ALIVE)
-            arrangement.syncManager.waitUntilLive()
+            arrangement.syncManager.waitUntilLiveOrFailure()
             arrangement.setConnectionPolicyUseCase.invoke(ConnectionPolicy.DISCONNECT_AFTER_PENDING_EVENTS)
         }
     }
@@ -97,14 +97,14 @@ class ConnectionPolicyManagerTest {
 
         val (arrangement, connectionPolicyManager) = Arrangement()
             .withCurrentSession(USER_ID_2)
-            .withUiNotInitialized()
+            .withAppInTheBackground()
             .arrange()
 
         connectionPolicyManager.handleConnectionOnPushNotification(user)
 
         coVerifyOrder {
             arrangement.setConnectionPolicyUseCase.invoke(ConnectionPolicy.KEEP_ALIVE)
-            arrangement.syncManager.waitUntilLive()
+            arrangement.syncManager.waitUntilLiveOrFailure()
             arrangement.setConnectionPolicyUseCase.invoke(ConnectionPolicy.DISCONNECT_AFTER_PENDING_EVENTS)
         }
     }
@@ -140,14 +140,15 @@ class ConnectionPolicyManagerTest {
             every { coreLogic.getSessionScope(USER_ID) } returns userSessionScope
             every { userSessionScope.setConnectionPolicy } returns setConnectionPolicyUseCase
             every { userSessionScope.syncManager } returns syncManager
+            coEvery { syncManager.waitUntilLiveOrFailure() } returns Either.Right(Unit)
         }
 
-        fun withUiNotInitialized() = apply {
-            every { currentScreenManager.appWasVisibleAtLeastOnceFlow() } returns MutableStateFlow(false)
+        fun withAppInTheBackground() = apply {
+            every { currentScreenManager.isAppOnForegroundFlow() } returns MutableStateFlow(false)
         }
 
-        fun withUiInitialized() = apply {
-            every { currentScreenManager.appWasVisibleAtLeastOnceFlow() } returns MutableStateFlow(true)
+        fun withAppInTheForeground() = apply {
+            every { currentScreenManager.isAppOnForegroundFlow() } returns MutableStateFlow(true)
         }
 
         fun withCurrentSession(userId: UserId) = apply {

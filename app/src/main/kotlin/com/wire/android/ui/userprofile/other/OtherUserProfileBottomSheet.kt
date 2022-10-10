@@ -4,6 +4,7 @@ import MutingOptionsSheetContent
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
+import com.wire.android.ui.common.dialogs.UnblockUserDialogState
 import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationMainSheetContent
 
 @Composable
@@ -11,6 +12,7 @@ fun OtherUserProfileBottomSheetContent(
     bottomSheetState: BottomSheetContent?,
     eventsHandler: OtherUserProfileBottomSheetEventsHandler,
     blockUser: (BlockUserDialogState) -> Unit,
+    unblockUser: (UnblockUserDialogState) -> Unit,
     closeBottomSheet: () -> Unit
 ) {
     when (bottomSheetState) {
@@ -18,14 +20,17 @@ fun OtherUserProfileBottomSheetContent(
             val conversationId = bottomSheetState.conversationData.conversationId
             ConversationMainSheetContent(
                 conversationSheetContent = bottomSheetState.conversationData,
-                addConversationToFavourites = { eventsHandler.onAddConversationToFavourites(conversationId) },
-                moveConversationToFolder = { eventsHandler.onMoveConversationToFolder(conversationId) },
-                moveConversationToArchive = { eventsHandler.onMoveConversationToArchive(conversationId) },
-                clearConversationContent = { eventsHandler.onClearConversationContent(conversationId) },
+// TODO(profile): enable when implemented
+//
+//                addConversationToFavourites = { eventsHandler.onAddConversationToFavourites(conversationId) },
+//                moveConversationToFolder = { eventsHandler.onMoveConversationToFolder(conversationId) },
+//                moveConversationToArchive = { eventsHandler.onMoveConversationToArchive(conversationId) },
+//                clearConversationContent = { eventsHandler.onClearConversationContent(conversationId) },
                 blockUserClick = blockUser,
                 leaveGroup = { },
                 deleteGroup = { },
-                navigateToNotification = eventsHandler::setBottomSheetStateToMuteOptions
+                navigateToNotification = eventsHandler::setBottomSheetStateToMuteOptions,
+                unblockUserClick = unblockUser
             )
         }
         is BottomSheetContent.Mute ->

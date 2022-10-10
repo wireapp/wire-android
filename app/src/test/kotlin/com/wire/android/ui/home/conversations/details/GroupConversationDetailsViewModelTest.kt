@@ -122,7 +122,7 @@ class GroupConversationDetailsViewModelTest {
                 )
             )
         )
-        val selfTeam = Team("team_id", "team_name")
+        val selfTeam = Team("team_id", "team_name", "icon")
         val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
             .withConversationDetailUpdate(details)
             .withConversationMembersUpdate(conversationParticipantsData)
@@ -341,7 +341,7 @@ class GroupConversationDetailsViewModelTest {
         // Given
         val conversationParticipantsData = ConversationParticipantsData(isSelfAnAdmin = true)
         val details = testGroup.copy(conversation = testGroup.conversation.copy(teamId = TeamId("team_id")))
-        val selfTeam = Team("team_id", "team_name")
+        val selfTeam = Team("team_id", "team_name", "icon")
         val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
             .withConversationDetailUpdate(details)
             .withConversationMembersUpdate(conversationParticipantsData)
@@ -357,7 +357,7 @@ class GroupConversationDetailsViewModelTest {
         // Given
         val conversationParticipantsData = ConversationParticipantsData(isSelfAnAdmin = true)
         val details = testGroup.copy(conversation = testGroup.conversation.copy(teamId = TeamId("team_id")))
-        val selfTeam = Team("other_team_id", "team_name")
+        val selfTeam = Team("other_team_id", "team_name", "icon")
         val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
             .withConversationDetailUpdate(details)
             .withConversationMembersUpdate(conversationParticipantsData)

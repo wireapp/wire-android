@@ -84,15 +84,16 @@ fun WireButton(
     )
     val syncStateObserver = LocalSyncStateObserver.current
     val context = LocalContext.current
+    val onClickWithSyncObserver = remember(blockUntilSynced) {
+        {
+            if (blockUntilSynced && !syncStateObserver.isSynced)
+                Toast.makeText(context, context.getString(R.string.label_wait_until_synchronised), Toast.LENGTH_SHORT).show()
+            else
+                onClick()
+        }
+    }
     Button(
-        onClick = remember(blockUntilSynced) {
-            {
-                if (blockUntilSynced && !syncStateObserver.isSynced)
-                    Toast.makeText(context, context.getString(R.string.label_wait_until_synchronised), Toast.LENGTH_SHORT).show()
-                else
-                    onClick()
-            }
-        },
+        onClick = onClickWithSyncObserver,
         modifier = modifier
             .let { if (fillMaxWidth) it.fillMaxWidth() else it.wrapContentWidth() }
             .sizeIn(minHeight = minHeight, minWidth = minWidth),

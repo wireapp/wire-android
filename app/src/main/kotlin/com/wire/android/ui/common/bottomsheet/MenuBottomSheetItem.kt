@@ -14,6 +14,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
@@ -22,7 +23,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
+import com.wire.android.model.Clickable
 import com.wire.android.ui.common.ArrowRightIcon
+import com.wire.android.ui.common.clickable
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -33,14 +36,16 @@ fun MenuBottomSheetItem(
     title: String,
     icon: @Composable () -> Unit,
     action: (@Composable () -> Unit)? = null,
+    blockUntilSynced: Boolean = false,
     onItemClick: () -> Unit = {}
 ) {
+    val clickable = remember { Clickable(blockUntilSynced = blockUntilSynced) { onItemClick() } }
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
             .defaultMinSize(minHeight = MaterialTheme.wireDimensions.conversationBottomSheetItemHeight)
             .fillMaxWidth()
-            .clickable { onItemClick() }
+            .clickable(clickable)
             .padding(MaterialTheme.wireDimensions.conversationBottomSheetItemPadding)
     ) {
         icon()

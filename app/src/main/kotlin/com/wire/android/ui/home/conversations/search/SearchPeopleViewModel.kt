@@ -56,7 +56,7 @@ open class SearchAllPeopleViewModel(
     init {
         viewModelScope.launch {
             combine(
-                initialContactResultFlow(),
+                initialContactResultFlow,
                 publicPeopleSearchQueryFlow,
                 knownPeopleSearchQueryFlow,
                 searchQueryTextFieldFlow,
@@ -79,7 +79,7 @@ open class SearchAllPeopleViewModel(
         }
     }
 
-    override suspend fun getInitialContacts(): Flow<SearchResult> = getAllKnownUsers()
+    override fun getInitialContacts(): Flow<SearchResult> = getAllKnownUsers()
         .map { result ->
             when (result) {
                 is GetAllContactsResult.Failure -> SearchResult.Failure(R.string.label_general_error)
@@ -206,8 +206,7 @@ abstract class SearchPeopleViewModel(
         .asStateFlow()
         .debounce(DEFAULT_SEARCH_QUERY_DEBOUNCE)
 
-    suspend fun initialContactResultFlow() =
-        getInitialContacts().map { result ->
+    protected val initialContactResultFlow = getInitialContacts().map { result ->
             when (result) {
                 is SearchResult.Failure -> {
                     SearchResultState.Failure(result.failureString)
@@ -270,7 +269,7 @@ abstract class SearchPeopleViewModel(
         }
     }
 
-    abstract suspend fun getInitialContacts(): Flow<SearchResult>
+    abstract fun getInitialContacts(): Flow<SearchResult>
 
 }
 

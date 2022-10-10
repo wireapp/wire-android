@@ -50,6 +50,7 @@ fun SelectParticipantsButtonsRow(
             WirePrimaryButton(
                 text = "$mainButtonText ($count)",
                 onClick = onMainButtonClick,
+                blockUntilSynced = true,
                 modifier = Modifier.weight(1f)
             )
             if(onMoreButtonClick != null) {

@@ -19,6 +19,8 @@ import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
+import org.amshove.kluent.internal.assertEquals
+import org.amshove.kluent.internal.assertNotEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -38,7 +40,7 @@ class ConversationBannerViewModelTest {
         // When
         arrangement.observeConversationMembersByTypesUseCase(qualifiedId).test {
             awaitItem()
-            assert(viewModel.bannerState != null)
+            assertNotEquals(null, viewModel.bannerState)
             awaitComplete()
         }
     }
@@ -54,7 +56,7 @@ class ConversationBannerViewModelTest {
         // When
         arrangement.observeConversationMembersByTypesUseCase(qualifiedId).test {
             awaitComplete()
-            assert(viewModel.bannerState == null)
+            assertEquals(null, viewModel.bannerState)
         }
     }
 
@@ -70,7 +72,7 @@ class ConversationBannerViewModelTest {
         // When
         arrangement.observeConversationMembersByTypesUseCase(qualifiedId).test {
             awaitItem()
-            assert(viewModel.bannerState == null)
+            assertEquals(null, viewModel.bannerState)
             awaitComplete()
         }
     }

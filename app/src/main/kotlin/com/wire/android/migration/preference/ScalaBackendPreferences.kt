@@ -1,4 +1,4 @@
-package com.wire.android.migration.prefrences
+package com.wire.android.migration.preference
 
 import android.content.Context
 import android.content.SharedPreferences

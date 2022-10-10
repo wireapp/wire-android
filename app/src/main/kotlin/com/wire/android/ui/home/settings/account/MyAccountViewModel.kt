@@ -15,13 +15,13 @@ import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
 
 @HiltViewModel
 class MyAccountViewModel @Inject constructor(
@@ -60,8 +60,8 @@ class MyAccountViewModel @Inject constructor(
     private suspend fun fetchChangePasswordUrl() {
         when (val result = withContext(dispatchers.io()) { serverConfig() }) {
             is SelfServerConfigUseCase.Result.Failure -> appLogger.e("Error when fetching the accounts url for change password")
-            is SelfServerConfigUseCase.Result.Success -> myAccountState =
-                myAccountState.copy(changePasswordUrl = result.serverLinks.links.forgotPassword)
+            is SelfServerConfigUseCase.Result.Success ->
+                myAccountState = myAccountState.copy(changePasswordUrl = result.serverLinks.links.forgotPassword)
         }
     }
 

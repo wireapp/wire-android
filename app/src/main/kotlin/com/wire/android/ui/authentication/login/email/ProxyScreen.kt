@@ -1,16 +1,12 @@
 package com.wire.android.ui.authentication.login.email
 
-import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -35,13 +31,10 @@ import com.wire.android.ui.theme.wireDimensions
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun ProxyScreen(
-    scrollState: ScrollState = rememberScrollState()
-) {
+fun ProxyScreen() {
     val loginEmailViewModel: LoginEmailViewModel = hiltViewModel()
     val loginEmailState: LoginState = loginEmailViewModel.loginState
     ProxyContent(
-        scrollState = scrollState,
         loginState = loginEmailState,
         onUserIdentifierChange = { loginEmailViewModel.onUserIdentifierChange(it) },
         onPasswordChange = { loginEmailViewModel.onPasswordChange(it) },
@@ -54,7 +47,6 @@ fun ProxyScreen(
 
 @Composable
 private fun ProxyContent(
-    scrollState: ScrollState,
     loginState: LoginState,
     onUserIdentifierChange: (TextFieldValue) -> Unit,
     onPasswordChange: (TextFieldValue) -> Unit,
@@ -65,9 +57,6 @@ private fun ProxyContent(
 ) {
     Column(
         modifier = Modifier
-            .fillMaxHeight()
-            .verticalScroll(scrollState)
-            .padding(MaterialTheme.wireDimensions.spacing16x)
     ) {
         Spacer(modifier = Modifier.height(MaterialTheme.wireDimensions.spacing32x))
         UserIdentifierInput(
@@ -134,14 +123,11 @@ private fun PasswordInput(modifier: Modifier, password: TextFieldValue, onPasswo
     )
 }
 
-
-
 @Preview
 @Composable
 private fun LoginEmailScreenPreview() {
     WireTheme(isPreview = true) {
         ProxyContent(
-            scrollState = rememberScrollState(),
             loginState = LoginState(),
             onUserIdentifierChange = { },
             onPasswordChange = { },

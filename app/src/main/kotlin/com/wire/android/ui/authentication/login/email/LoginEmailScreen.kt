@@ -117,6 +117,8 @@ private fun LoginEmailContent(
                 .padding(bottom = MaterialTheme.wireDimensions.spacing16x),
             forgotPasswordUrl = forgotPasswordUrl
         )
+        ProxyScreen()
+
         Spacer(modifier = Modifier.weight(1f))
 
         LoginButton(

@@ -18,6 +18,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -26,6 +27,7 @@ import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.spacers.VerticalSpace
+import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireColorScheme
@@ -119,7 +121,7 @@ fun BackupAndRestoreContent(
 @Composable
 fun BackupAndRestoreDialogs(
     backupAndRestoreDialog: BackupAndRestoreDialog,
-    onCreateBackup: (String) -> Unit,
+    onStartBackup: (String) -> Unit,
     onSaveBackup: () -> Unit,
     onCancelBackup: () -> Unit,
     onChooseBackupFile: () -> Unit,
@@ -130,7 +132,7 @@ fun BackupAndRestoreDialogs(
         when (backupAndRestoreDialog) {
             is BackupAndRestoreDialog.Backup -> BackupDialog(
                 backupDialogState = backupAndRestoreDialog.backUpDialogState,
-                onStartBackup = onCreateBackup,
+                onStartBackup = onStartBackup,
                 onSaveBackup = onSaveBackup,
                 onCancelBackup = onCancelBackup,
                 onDismissDialog = onDismissDialog
@@ -180,7 +182,10 @@ fun BackupDialog(
                     type = WireDialogButtonType.Primary,
                 ),
             ) {
-
+                WirePasswordTextField(
+                    TextFieldValue(""),
+                    { }
+                )
             }
         }
         BackUpDialogStep.CreatingBackup -> {
@@ -281,9 +286,11 @@ class BackupDialogState(
     val onBackup: (String) -> Unit,
     val onSaveBackup: () -> Unit
 ) {
-    var currentBackupDialogStep: BackUpDialogStep by mutableStateOf(BackUpDialogStep.Inform)
+    companion object {
+        private const val INITIAL_STEP_INDEX = 1
+    }
 
-    private var currentStepIndex = 0
+    private var currentStepIndex = INITIAL_STEP_INDEX
 
     private val steps: List<BackUpDialogStep> = listOf(
         BackUpDialogStep.Inform,
@@ -292,14 +299,17 @@ class BackupDialogState(
         BackUpDialogStep.Failure
     )
 
+    var currentBackupDialogStep: BackUpDialogStep by mutableStateOf(steps[INITIAL_STEP_INDEX])
+
     fun next() {
-        if (currentStepIndex != steps.size) {
-            currentBackupDialogStep = steps[currentStepIndex++]
+        if (currentStepIndex != steps.lastIndex) {
+            currentStepIndex += 1
+            currentBackupDialogStep = steps[currentStepIndex]
         }
     }
 
     fun reset() {
-        currentStepIndex = 0
+        currentStepIndex = 1
         currentBackupDialogStep = steps[currentStepIndex]
     }
 

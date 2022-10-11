@@ -43,7 +43,7 @@ class RemoveDeviceViewModel @Inject constructor(
         loadClientsList()
     }
 
-    fun loadClientsList() {
+    private fun loadClientsList() {
         viewModelScope.launch {
             state = state.copy(isLoadingClientsList = true)
             val selfClientsResult = selfClientsUseCase()

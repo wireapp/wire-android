@@ -26,7 +26,7 @@ import androidx.compose.runtime.staticCompositionLocalOf
 // Those flags can be removed once we set all flags to true :)
 object FeatureVisibilityFlags {
     const val AppSettings = false
-    const val BackUpSettings = false
+    const val BackUpSettings = true
     const val AudioMessagesIcon = false
     const val ShareLocationIcon = false
     const val RichTextIcon = false

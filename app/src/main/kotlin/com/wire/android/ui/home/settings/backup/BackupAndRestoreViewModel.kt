@@ -1,5 +1,6 @@
 package com.wire.android.ui.home.settings.backup
 
+import android.app.backup.BackupManager
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.navigation.NavigationManager
@@ -9,9 +10,31 @@ import javax.inject.Inject
 
 @HiltViewModel
 class BackupAndRestoreViewModel
-@Inject constructor(private val navigationManager: NavigationManager) : ViewModel() {
+@Inject constructor(
+    private val navigationManager: NavigationManager,
+    private val wireBackUpManager: WireBackupManager
+) : ViewModel() {
+
+    fun createBackup(backupPassword: String) {
+//        wireBackUpManager.createBackUp(backupPassword)
+    }
+
+    fun saveBackup() {
+//        wireBackUpManager.createBackUp(backupPassword)
+    }
+
+    fun cancelBackup() {
+//        wireBackUpManager.createBackUp(backupPassword)
+    }
+
+    fun chooseBackupFile() {
+
+    }
+
+    fun restoreBackup() {
+//        wireBackUpManager.restoreBackUp(file)
+    }
 
     fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }
-    fun backupCreate() { /* TODO */ }
-    fun backupRestore() { /* TODO */ }
+
 }

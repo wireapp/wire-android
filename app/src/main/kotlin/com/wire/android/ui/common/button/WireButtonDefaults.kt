@@ -30,6 +30,12 @@ fun wirePrimaryButtonColors() = wireButtonColors(
 )
 
 @Composable
+fun wireSendPrimaryButtonColors() = wirePrimaryButtonColors().copy(
+    disabled = MaterialTheme.wireColorScheme.onSecondaryButtonDisabled,
+    onDisabled = MaterialTheme.wireColorScheme.onPrimary
+)
+
+@Composable
 fun wireSecondaryButtonColors() = wireButtonColors(
     enabled = MaterialTheme.wireColorScheme.secondaryButtonEnabled,
     onEnabled = MaterialTheme.wireColorScheme.onSecondaryButtonEnabled,
@@ -77,9 +83,27 @@ private fun wireButtonColors(
     error: Color,       onError: Color,     errorOutline: Color,
     positive: Color,    onPositive: Color,  positiveOutline: Color,
     ripple: Color
-) = object: WireButtonColors {
+) = WireButtonColors(
+    enabled,            onEnabled,          enabledOutline,
+    disabled,           onDisabled,         disabledOutline,
+    selected,           onSelected,         selectedOutline,
+    error,              onError,            errorOutline,
+    positive,           onPositive,         positiveOutline,
+    ripple
+)
+
+@Stable
+data class WireButtonColors(
+    val enabled: Color,     val onEnabled: Color,   val enabledOutline: Color,
+    val disabled: Color,    val onDisabled: Color,  val disabledOutline: Color,
+    val selected: Color,    val onSelected: Color,  val selectedOutline: Color,
+    val error: Color,       val onError: Color,     val errorOutline: Color,
+    val positive: Color,    val onPositive: Color,  val positiveOutline: Color,
+    val ripple: Color
+) {
+
     @Composable
-    override fun containerColor(state: WireButtonState, interactionSource: InteractionSource): State<Color> = animateColorAsState(
+    fun containerColor(state: WireButtonState, interactionSource: InteractionSource): State<Color> = animateColorAsState(
         when(state) {
             WireButtonState.Default -> enabled
             WireButtonState.Disabled -> disabled
@@ -90,7 +114,7 @@ private fun wireButtonColors(
     )
 
     @Composable
-    override fun outlineColor(state: WireButtonState, interactionSource: InteractionSource): State<Color> = animateColorAsState(
+     fun outlineColor(state: WireButtonState, interactionSource: InteractionSource): State<Color> = animateColorAsState(
         when(state) {
             WireButtonState.Default -> enabledOutline
             WireButtonState.Disabled -> disabledOutline
@@ -101,7 +125,7 @@ private fun wireButtonColors(
     )
 
     @Composable
-    override fun contentColor(state: WireButtonState, interactionSource: InteractionSource): State<Color> = animateColorAsState(
+    fun contentColor(state: WireButtonState, interactionSource: InteractionSource): State<Color> = animateColorAsState(
         when(state) {
             WireButtonState.Default -> onEnabled
             WireButtonState.Disabled -> onDisabled
@@ -112,23 +136,7 @@ private fun wireButtonColors(
     )
 
     @Composable
-    override fun rippleColor(): Color = ripple
-}
-
-@Stable
-interface WireButtonColors {
-
-    @Composable
-    fun containerColor(state: WireButtonState, interactionSource: InteractionSource): State<Color>
-
-    @Composable
-    fun contentColor(state: WireButtonState, interactionSource: InteractionSource): State<Color>
-
-    @Composable
-    fun outlineColor(state: WireButtonState, interactionSource: InteractionSource): State<Color>
-
-    @Composable
-    fun rippleColor(): Color
+    fun rippleColor(): Color = ripple
 }
 
 sealed class WireButtonState {

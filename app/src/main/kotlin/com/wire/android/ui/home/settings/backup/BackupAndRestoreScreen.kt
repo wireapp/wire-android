@@ -189,7 +189,7 @@ fun BackupDialog(
                 text = "test",
                 onDismiss = onDismissDialog,
                 optionButton1Properties = WireDialogButtonProperties(
-                    onClick = { },
+                    onClick = backupDialogState::next,
                     text = stringResource(id = R.string.label_ok),
                     type = WireDialogButtonType.Primary,
                 ),
@@ -203,7 +203,7 @@ fun BackupDialog(
                 text = "test",
                 onDismiss = onDismissDialog,
                 optionButton1Properties = WireDialogButtonProperties(
-                    onClick = { },
+                    onClick = backupDialogState::next,
                     text = stringResource(id = R.string.label_ok),
                     type = WireDialogButtonType.Primary,
                 ),
@@ -273,7 +273,7 @@ sealed class BackupAndRestoreDialog {
 
 @Composable
 fun rememberBackUpAndRestoreState(): BackUpAndRestoreState {
-    return remember { BackUpAndRestoreState({}, {}, {}) }
+    return remember { BackUpAndRestoreState({ }, { }, { }) }
 }
 
 class BackupDialogState(

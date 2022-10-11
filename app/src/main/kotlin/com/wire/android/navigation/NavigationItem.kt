@@ -18,6 +18,7 @@ import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_ACCOU
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_PERSONAL_ACCOUNT
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.CREATE_TEAM
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.DEBUG
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.GIVE_FEEDBACK
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.GROUP_CONVERSATION_ALL_PARTICIPANTS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.GROUP_CONVERSATION_DETAILS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.HOME
@@ -197,6 +198,11 @@ enum class NavigationItem(
     MyAccount(
         primaryRoute = MY_ACCOUNT,
         content = { MyAccountScreen() }
+    ),
+
+    GiveFeedback(
+        primaryRoute = GIVE_FEEDBACK,
+        content = { },
     ),
 
     ReportBug(
@@ -401,6 +407,7 @@ object NavigationItemDestinationsRoutes {
     const val BACKUP_AND_RESTORE = "backup_and_restore_screen"
     const val MY_ACCOUNT = "my_account_screen"
     const val DEBUG = "debug_screen"
+    const val GIVE_FEEDBACK = "mailto:wire-newandroid-feedback@wearezeta.zendesk.com"
     const val REPORT_BUG = "report_bug"
     const val REMOVE_DEVICES = "remove_devices_screen"
     const val REGISTER_DEVICE = "register_device_screen"

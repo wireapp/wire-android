@@ -1,6 +1,8 @@
 package com.wire.android.ui.home
 
 import android.content.Intent
+import android.content.Intent.ACTION_SENDTO
+import android.net.Uri
 import androidx.activity.compose.BackHandler
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
@@ -37,6 +39,7 @@ import com.wire.android.R
 import com.wire.android.navigation.HomeNavigationItem
 import com.wire.android.navigation.HomeNavigationItem.Settings
 import com.wire.android.navigation.NavigationItem
+import com.wire.android.navigation.NavigationItem.GiveFeedback
 import com.wire.android.navigation.NavigationItem.ReportBug
 import com.wire.android.navigation.NavigationItem.Support
 import com.wire.android.navigation.isExternalRoute
@@ -121,6 +124,20 @@ fun HomeDrawer(
         }
 
         DrawerItem(
+            data = GiveFeedback.getDrawerData(),
+            selected = false,
+            onItemClick = {
+
+                val intent = Intent(Intent.ACTION_SEND)
+                intent.putExtra(Intent.EXTRA_EMAIL, arrayOf("wire-newandroid-feedback@wearezeta.zendesk.com"))
+                intent.putExtra(Intent.EXTRA_SUBJECT, "Feedback - Wire Beta")
+                intent.putExtra(Intent.EXTRA_TEXT, viewModel.giveFeedbackEmailTemplate(context.getDeviceId()?.sha256()))
+
+                intent.selector = Intent(ACTION_SENDTO).setData(Uri.parse("mailto:"))
+                context.startActivity(Intent.createChooser(intent,"Choose an Email client: "))
+            })
+
+        DrawerItem(
             data = ReportBug.getDrawerData(),
             selected = false,
             onItemClick = {
@@ -133,7 +150,7 @@ fun HomeDrawer(
                 intent.putExtra(Intent.EXTRA_TEXT, viewModel.reportBugEmailTemplate(context.getDeviceId()?.sha256()))
                 intent.type = "message/rfc822"
 
-                context.startActivity(Intent.createChooser(intent,"Choose an Email client : "))
+                context.startActivity(Intent.createChooser(intent,"Choose an Email client: "))
         })
 
         Text(
@@ -184,6 +201,7 @@ private fun Any.getDrawerData(): DrawerItemData =
     when (this) {
         is HomeNavigationItem -> DrawerItemData(this.title, this.icon)
         Support -> DrawerItemData(R.string.support_screen_title, R.drawable.ic_support)
+        GiveFeedback -> DrawerItemData(R.string.give_feedback_screen_title, R.drawable.ic_emoticon)
         ReportBug -> DrawerItemData(R.string.report_bug_screen_title, R.drawable.ic_bug)
         else -> DrawerItemData(null, null)
     }

@@ -57,13 +57,7 @@ class HomeViewModel @Inject constructor(
 
     // TODO(localization): localize if needed
     fun reportBugEmailTemplate(deviceHash: String? = "unavailable"): String = """
-        --- DO NOT EDIT---
-        App Version: ${BuildConfig.VERSION_NAME}
-        Device Hash: $deviceHash
-        Device: ${Build.MANUFACTURER} - ${Build.MODEL}
-        SDK: ${Build.VERSION.RELEASE}
-        Date: ${Date()}
-        ------------------
+        ${emailDebugHeader(deviceHash)}
 
         Please fill in the following
 
@@ -76,6 +70,24 @@ class HomeViewModel @Inject constructor(
         - Steps to reproduce (if relevant):
         
     """.trimIndent()
+
+    // TODO(localization): localize if needed
+    fun giveFeedbackEmailTemplate(deviceHash: String? = "unavailable"): String = """
+        ${emailDebugHeader(deviceHash)}
+
+        Thank you for taking interest from the Wire Team!
+
+    """.trimIndent()
+
+    private fun emailDebugHeader(deviceHash: String?): String = """
+        --- DO NOT EDIT---
+        App Version: ${BuildConfig.VERSION_NAME}
+        Device Hash: $deviceHash
+        Device: ${Build.MANUFACTURER} - ${Build.MODEL}
+        SDK: ${Build.VERSION.RELEASE}
+        Date: ${Date()}
+        ------------------
+    """
 
     fun checkRequirements() {
         viewModelScope.launch {

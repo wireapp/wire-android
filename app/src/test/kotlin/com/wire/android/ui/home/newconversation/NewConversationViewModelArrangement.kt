@@ -33,6 +33,7 @@ import com.wire.kalium.logic.feature.publicuser.search.SearchPublicUsersUseCase
 import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
+import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.flow.flowOf
 
@@ -49,9 +50,9 @@ internal class NewConversationViewModelArrangement {
         coEvery { searchKnownUsers(any()) } returns flowOf(
             SearchUsersResult.Success(userSearchResult = UserSearchResult(listOf(KNOWN_USER)))
         )
-        coEvery { getAllKnownUsers() } returns flowOf(GetAllContactsResult.Success(listOf()))
+//        coEvery { getAllKnownUsers() } returns flowOf(GetAllContactsResult.Success(listOf()))
         coEvery { createGroupConversation(any(), any(), any()) } returns CreateGroupConversationUseCase.Result.Success(CONVERSATION)
-        coEvery { contactMapper.fromOtherUser(PUBLIC_USER) } returns Contact(
+        every { contactMapper.fromOtherUser(PUBLIC_USER) } returns Contact(
             id = "publicValue",
             domain = "domain",
             name = "publicUsername",
@@ -64,7 +65,7 @@ internal class NewConversationViewModelArrangement {
             membership = Membership.Federated
         )
 
-        coEvery { contactMapper.fromOtherUser(KNOWN_USER) } returns Contact(
+        every { contactMapper.fromOtherUser(KNOWN_USER) } returns Contact(
             id = "knownValue",
             domain = "domain",
             name = "knownUsername",
@@ -76,6 +77,8 @@ internal class NewConversationViewModelArrangement {
             connectionState = ConnectionState.NOT_CONNECTED,
             membership = Membership.Federated
         )
+
+        coEvery { getAllKnownUsers() } returns flowOf(GetAllContactsResult.Success(listOf(KNOWN_USER)))
     }
 
     @MockK

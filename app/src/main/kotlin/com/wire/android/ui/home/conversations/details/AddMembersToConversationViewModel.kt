@@ -60,7 +60,7 @@ class AddMembersToConversationViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             combine(
-                initialContactResultFlow,
+                initialContactResultFlow(),
                 knownPeopleSearchQueryFlow,
                 searchQueryTextFieldFlow,
                 selectedContactsFlow

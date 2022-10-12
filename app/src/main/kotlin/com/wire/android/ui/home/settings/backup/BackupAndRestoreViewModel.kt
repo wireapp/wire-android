@@ -16,8 +16,7 @@ import javax.inject.Inject
 @HiltViewModel
 class BackupAndRestoreViewModel
 @Inject constructor(
-    private val navigationManager: NavigationManager,
-    private val wireBackUpManager: WireBackupManager
+    private val navigationManager: NavigationManager
 ) : ViewModel() {
 
     var state by mutableStateOf(BackupAndRestoreState())
@@ -28,19 +27,16 @@ class BackupAndRestoreViewModel
 
     fun validateBackupPassword(backupPassword: TextFieldValue) {
         viewModelScope.launch {
-            delay(2000)
             state = state.copy(isBackupPasswordValid = true)
         }
-//        wireBackUpManager.createBackUp(backupPassword)
     }
 
     fun saveBackup() {
-//        wireBackUpManager.createBackUp(backupPassword)
+
     }
 
     fun cancelBackup() {
         resetState()
-//        wireBackUpManager.createBackUp(backupPassword)
     }
 
     fun createBackup() {
@@ -52,12 +48,12 @@ class BackupAndRestoreViewModel
     }
 
     fun restoreBackup() {
-//        wireBackUpManager.restoreBackUp(file)
+
     }
 
     private fun resetState() {
         state = state.copy(
-            isBackupPasswordValid = false,
+            isBackupPasswordValid = true,
             backupPassword = TextFieldValue(""),
             backupProgress = 0.0f
         )

@@ -16,6 +16,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -32,6 +33,8 @@ import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.home.settings.backup.dialog.BackupDialog
+import com.wire.android.ui.home.settings.backup.dialog.rememberBackUpDialogState
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -62,7 +65,7 @@ fun BackupAndRestoreContent(
     onRestoreBackup: () -> Unit,
     onBackPressed: () -> Unit
 ) {
-    val backupAndRestoreStateHolder = rememberBackUpAndRestoreState()
+    val backupAndRestoreStateHolder = rememberBackUpAndRestoreStateHolder()
 
     Scaffold(topBar = {
         WireCenterAlignedTopAppBar(
@@ -148,92 +151,6 @@ fun BackupAndRestoreContent(
 }
 
 @Composable
-fun BackupDialog(
-    backupDialogStateHolder: BackupDialogStateHolder,
-    onValidateBackupPassword: (TextFieldValue) -> Unit,
-    onCreateBackup: () -> Unit,
-    onSaveBackup: () -> Unit,
-    onCancelBackup: () -> Unit,
-    onDismissDialog: () -> Unit
-) {
-    with(backupDialogStateHolder) {
-        when (currentBackupDialogStep) {
-            BackUpDialogStep.Inform -> {
-                WireDialog(
-                    title = "Set an email and password",
-                    text = "You need an email and a password in order to back up your conversation history. You can do it from the account page in Settings.",
-                    onDismiss = onDismissDialog,
-                    optionButton1Properties = WireDialogButtonProperties(
-                        onClick = ::nextStep,
-                        text = stringResource(id = R.string.label_ok),
-                        type = WireDialogButtonType.Primary,
-                    )
-                )
-            }
-            is BackUpDialogStep.SetPassword -> {
-                LaunchedEffect(isBackupPasswordValid) {
-                    if (isBackupPasswordValid) {
-                        backupDialogStateHolder.toCreateBackUp()
-                        onCreateBackup()
-                    }
-                }
-
-                WireDialog(
-                    title = "Set password",
-                    text = "test",
-                    onDismiss = onDismissDialog,
-                    dismissButtonProperties = WireDialogButtonProperties(
-                        onClick = onDismissDialog,
-                        text = stringResource(id = R.string.label_cancel),
-                        state = WireButtonState.Default
-                    ),
-                    optionButton1Properties = WireDialogButtonProperties(
-                        onClick = { onValidateBackupPassword(backupPassword) },
-                        text = stringResource(id = R.string.label_ok),
-                        type = WireDialogButtonType.Primary,
-                        state = if (isBackupPasswordValid) WireButtonState.Default else WireButtonState.Error
-                    )
-                ) {
-                    WirePasswordTextField(
-                        state = if (isBackupPasswordValid) WireTextFieldState.Error("some error") else WireTextFieldState.Default,
-                        value = backupPassword,
-                        onValueChange = { backupPassword = it }
-                    )
-                }
-            }
-            BackUpDialogStep.CreatingBackup -> {
-                WireDialog(
-                    title = "Creating Backup",
-                    text = "test",
-                    onDismiss = onDismissDialog,
-                    optionButton1Properties = WireDialogButtonProperties(
-                        onClick = ::nextStep,
-                        text = stringResource(id = R.string.label_ok),
-                        type = WireDialogButtonType.Primary,
-                    )
-                ) {
-
-                }
-            }
-            BackUpDialogStep.Failure -> {
-                WireDialog(
-                    title = "Something went wrong",
-                    text = "test",
-                    onDismiss = onDismissDialog,
-                    optionButton1Properties = WireDialogButtonProperties(
-                        onClick = ::nextStep,
-                        text = stringResource(id = R.string.label_ok),
-                        type = WireDialogButtonType.Primary,
-                    )
-                ) {
-
-                }
-            }
-        }
-    }
-}
-
-@Composable
 fun RestoreDialog(
     onChooseBackupFile: Any,
     onRestoreBackup: Any
@@ -270,73 +187,10 @@ sealed class BackupAndRestoreDialog {
 }
 
 @Composable
-fun rememberBackUpDialogState(): BackupDialogStateHolder {
-    val backupDialogStateHolder = remember { BackupDialogStateHolder({}, { TextFieldValue("") }, {}) }
-
-    return backupDialogStateHolder
-}
-
-@Composable
-fun rememberBackUpAndRestoreState(): BackUpAndRestoreStateHolder {
+fun rememberBackUpAndRestoreStateHolder(): BackUpAndRestoreStateHolder {
     return remember {
         BackUpAndRestoreStateHolder()
     }
-}
-
-class BackupDialogStateHolder(
-    val onDismiss: () -> Unit,
-    val onStartBackup: (TextFieldValue) -> Unit,
-    val onSaveBackup: () -> Unit
-) {
-    companion object {
-        private const val INITIAL_STEP_INDEX = 0
-    }
-
-    private var currentStepIndex = INITIAL_STEP_INDEX
-
-    private val steps: List<BackUpDialogStep> = listOf(
-        BackUpDialogStep.Inform,
-        BackUpDialogStep.SetPassword,
-        BackUpDialogStep.CreatingBackup,
-        BackUpDialogStep.Failure
-    )
-
-    var currentBackupDialogStep: BackUpDialogStep by mutableStateOf(steps[INITIAL_STEP_INDEX])
-
-    var backupPassword: TextFieldValue by mutableStateOf(TextFieldValue(""))
-
-    var isBackupPasswordValid: Boolean by mutableStateOf(false)
-
-    var backupProgress: Float by mutableStateOf(0.0f)
-
-    fun nextStep() {
-        if (currentStepIndex != steps.lastIndex) {
-            currentStepIndex += 1
-            currentBackupDialogStep = steps[currentStepIndex]
-        }
-    }
-
-    fun reset() {
-        currentStepIndex = INITIAL_STEP_INDEX
-        currentBackupDialogStep = steps[INITIAL_STEP_INDEX]
-    }
-
-    fun toCreateBackUp() {
-        currentBackupDialogStep = steps[2]
-    }
-
-    private fun clearPasswordData() {
-        backupPassword = TextFieldValue("")
-        isBackupPasswordValid = false
-    }
-
-}
-
-sealed interface BackUpDialogStep {
-    object Inform : BackUpDialogStep
-    object SetPassword : BackUpDialogStep
-    object CreatingBackup : BackUpDialogStep
-    object Failure : BackUpDialogStep
 }
 
 sealed interface RestoreDialogStep {

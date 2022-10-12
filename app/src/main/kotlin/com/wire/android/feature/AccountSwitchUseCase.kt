@@ -1,6 +1,7 @@
 package com.wire.android.feature
 
 import com.wire.android.di.ApplicationScope
+import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
@@ -8,6 +9,7 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AccountInfo
+import com.wire.kalium.logic.feature.server.ServerConfigForAccountUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import com.wire.kalium.logic.feature.session.DeleteSessionUseCase
@@ -28,6 +30,8 @@ class AccountSwitchUseCase @Inject constructor(
     private val getSessions: GetSessionsUseCase,
     private val getCurrentSession: CurrentSessionUseCase,
     private val deleteSession: DeleteSessionUseCase,
+    private val authServerConfigProvider: AuthServerConfigProvider,
+    private val serverConfigForAccountUseCase: ServerConfigForAccountUseCase,
     @ApplicationScope private val coroutineScope: CoroutineScope
 ) {
 
@@ -54,8 +58,7 @@ class AccountSwitchUseCase @Inject constructor(
                 GetAllSessionsResult.Failure.NoSessionFound -> null
                 is GetAllSessionsResult.Success ->
                     it.sessions.firstOrNull { accountInfo ->
-                        (accountInfo is AccountInfo.Valid) &&
-                                accountInfo.userId != current?.userId
+                        (accountInfo is AccountInfo.Valid) && (accountInfo.userId != current?.userId)
                     }?.userId
             }
         }
@@ -63,7 +66,11 @@ class AccountSwitchUseCase @Inject constructor(
     }
 
     private suspend fun switch(userId: UserId?, current: AccountInfo?) {
-        val navigationDistention = (userId?.let { NavigationItem.Home } ?: NavigationItem.Welcome).getRouteWithArgs()
+        val navigationDistention = (userId?.let { NavigationItem.Home } ?: run {
+            // if there are no more accounts, we need to change the auth server config to the one of the current user
+            current?.let { updateAuthServer(it.userId) }
+            NavigationItem.Welcome
+        }).getRouteWithArgs()
 
         when (updateCurrentSession(userId)) {
             is UpdateCurrentSessionUseCase.Result.Success -> {
@@ -81,6 +88,16 @@ class AccountSwitchUseCase @Inject constructor(
         current?.also {
             handleOldSession(it)
         }
+    }
+
+    private suspend fun updateAuthServer(current: UserId) {
+        serverConfigForAccountUseCase(current).let {
+            when (it) {
+                is ServerConfigForAccountUseCase.Result.Success -> authServerConfigProvider.updateAuthServer(it.config)
+                is ServerConfigForAccountUseCase.Result.Failure -> return
+            }
+        }
+
     }
 
     private fun handleOldSession(oldSession: AccountInfo) {

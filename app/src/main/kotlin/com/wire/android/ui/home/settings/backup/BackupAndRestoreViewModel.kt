@@ -1,6 +1,7 @@
 package com.wire.android.ui.home.settings.backup
 
 import android.app.backup.BackupManager
+import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.navigation.NavigationManager
@@ -15,7 +16,7 @@ class BackupAndRestoreViewModel
     private val wireBackUpManager: WireBackupManager
 ) : ViewModel() {
 
-    fun createBackup(backupPassword: String) {
+    fun createBackup(backupPassword: TextFieldValue) {
 //        wireBackUpManager.createBackUp(backupPassword)
     }
 

@@ -4,6 +4,7 @@ import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Stable
 import com.wire.android.R
+import com.wire.android.model.ImageAsset
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversations.model.MessageStatus.DecryptionFailure
 import com.wire.android.ui.home.conversations.model.MessageStatus.Deleted
@@ -23,6 +24,7 @@ data class UIMessage(
     val messageSource: MessageSource,
     val messageHeader: MessageHeader,
     val messageContent: UIMessageContent?,
+    val messageFooter: MessageFooter
 ) {
     val isDeleted: Boolean = messageHeader.messageStatus == Deleted
     val sendingFailed: Boolean = messageHeader.messageStatus == SendFailure
@@ -42,6 +44,13 @@ data class MessageHeader(
     val connectionState: ConnectionState?
 )
 
+@Stable
+data class MessageFooter(
+    val messageId: String,
+    val reactions: Map<String, Int> = emptyMap(),
+    val ownReactions: Set<String> = emptySet(),
+)
+
 sealed class MessageStatus(val text: UIText) {
     object Untouched : MessageStatus(UIText.DynamicString(""))
     object Deleted : MessageStatus(UIText.StringResource(R.string.deleted_message_text))
@@ -56,6 +65,8 @@ sealed class MessageStatus(val text: UIText) {
 sealed class UIMessageContent {
 
     sealed class ClientMessage : UIMessageContent()
+
+    object PreviewAssetMessage : UIMessageContent()
 
     data class TextMessage(val messageBody: MessageBody) : ClientMessage()
 
@@ -77,27 +88,12 @@ sealed class UIMessageContent {
 
     data class ImageMessage(
         val assetId: AssetId,
-        var imgData: ByteArray?,
+        val asset: ImageAsset.PrivateAsset?,
         val width: Int,
         val height: Int,
         val uploadStatus: Message.UploadStatus,
         val downloadStatus: Message.DownloadStatus
-    ) : UIMessageContent() {
-        override fun equals(other: Any?): Boolean {
-            if (this === other) return true
-            if (javaClass != other?.javaClass) return false
-            other as ImageMessage
-            if (assetId != other.assetId) return false
-            if (!imgData.contentEquals(other.imgData)) return false
-            if (uploadStatus != other.uploadStatus) return false
-            if (downloadStatus != other.downloadStatus) return false
-            return true
-        }
-
-        override fun hashCode(): Int {
-            return imgData.contentHashCode()
-        }
-    }
+    ) : UIMessageContent()
 
     sealed class SystemMessage(
         @DrawableRes val iconResId: Int?,

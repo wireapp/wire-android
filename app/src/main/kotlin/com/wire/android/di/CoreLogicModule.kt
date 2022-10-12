@@ -1,6 +1,7 @@
 package com.wire.android.di
 
 import android.content.Context
+import androidx.work.WorkManager
 import com.wire.android.util.DeviceLabel
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
@@ -43,6 +44,7 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseC
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
+import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
 import com.wire.kalium.logic.feature.message.getPaginatedFlowOfMessagesByConversation
 import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
 import com.wire.kalium.logic.feature.publicuser.GetKnownUserUseCase
@@ -133,6 +135,10 @@ class CoreLogicModule {
     @Provides
     fun provideObservePersistentWebSocketConnectionStatusUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
         coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus
+
+    @Singleton
+    @Provides
+    fun provideWorkManager(@ApplicationContext applicationContext: Context) = WorkManager.getInstance(applicationContext)
 }
 
 @Module
@@ -387,6 +393,13 @@ class UseCaseModule {
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
     ): SendTextMessageUseCase = coreLogic.getSessionScope(currentAccount).messages.sendTextMessage
+
+    @ViewModelScoped
+    @Provides
+    fun provideToggleReactionUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): ToggleReactionUseCase = coreLogic.getSessionScope(currentAccount).messages.toggleReaction
 
     @ViewModelScoped
     @Provides

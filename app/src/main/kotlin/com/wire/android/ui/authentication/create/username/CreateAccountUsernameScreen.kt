@@ -16,6 +16,8 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.autofill.AutofillType
+import androidx.compose.ui.platform.LocalAutofillTree
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -29,9 +31,11 @@ import com.wire.android.R
 import com.wire.android.ui.common.ShakeAnimation
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
+import com.wire.android.ui.common.textfield.AutoFillTextField
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
+import com.wire.android.ui.common.textfield.clearAutofillTree
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -110,13 +114,16 @@ private fun UsernameTextField(
     onUsernameChange: (TextFieldValue) -> Unit,
     onUsernameErrorAnimated: () -> Unit
 ) {
+    clearAutofillTree()
+
     val keyboardController = LocalSoftwareKeyboardController.current
     ShakeAnimation { animate ->
         if(state.animateUsernameError) {
             animate()
             onUsernameErrorAnimated()
         }
-        WireTextField(
+        AutoFillTextField(
+            autofillTypes = listOf(AutofillType.Username),
             value = state.username,
             onValueChange = onUsernameChange,
             placeholderText = stringResource(R.string.create_account_username_placeholder),

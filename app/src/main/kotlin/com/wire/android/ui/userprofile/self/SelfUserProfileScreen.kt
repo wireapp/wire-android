@@ -244,7 +244,8 @@ private fun SelfUserProfileTopBar(
                 text = stringResource(R.string.user_profile_logout),
                 fillMaxWidth = false,
                 minHeight = dimensions().userProfileLogoutBtnHeight,
-                state = WireButtonState.Error
+                state = WireButtonState.Error,
+                blockUntilSynced = true
             )
         }
     )
@@ -328,6 +329,7 @@ private fun ProfileStatusButton(
                     .testTag(text)
             )
         },
+        blockUntilSynced = true,
         modifier = modifier,
     )
 }

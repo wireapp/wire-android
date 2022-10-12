@@ -21,6 +21,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.autofill.AutofillType
+import androidx.compose.ui.platform.LocalAutofillTree
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
@@ -44,9 +46,11 @@ import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
+import com.wire.android.ui.common.textfield.AutoFillTextField
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
+import com.wire.android.ui.common.textfield.clearAutofillTree
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -84,6 +88,8 @@ private fun EmailContent(
     tosUrl: String,
     serverConfig: ServerConfig.Links
 ) {
+    clearAutofillTree()
+
     Scaffold(topBar = {
         WireCenterAlignedTopAppBar(
             elevation = 0.dp,
@@ -116,7 +122,8 @@ private fun EmailContent(
                     )
                     .testTag("createTeamText")
             )
-            WireTextField(
+            AutoFillTextField(
+                autofillTypes = listOf(AutofillType.EmailAddress),
                 value = state.email,
                 onValueChange = onEmailChange,
                 placeholderText = stringResource(R.string.create_account_email_placeholder),

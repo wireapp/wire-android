@@ -199,6 +199,7 @@ private fun WireDialogButtonProperties?.getButton(modifier: Modifier = Modifier)
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Preview(showBackground = true)
 @Composable
 private fun WireDialogPreview() {
@@ -239,6 +240,7 @@ private fun WireDialogPreview() {
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Preview(showBackground = true)
 @Composable
 private fun WireDialogPreviewWith2OptionButtons() {

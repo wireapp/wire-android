@@ -23,6 +23,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.autofill.AutofillType
 import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
@@ -42,6 +43,7 @@ import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
+import com.wire.android.ui.common.textfield.clearAutofillTree
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -51,6 +53,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun CreateAccountDetailsScreen(viewModel: CreateAccountDetailsViewModel, serverConfig: ServerConfig.Links) {
+    clearAutofillTree()
     DetailsContent(
         state = viewModel.detailsState,
         onFirstNameChange = { viewModel.onDetailsChange(it, CreateAccountDetailsViewModel.DetailsFieldType.FirstName) },
@@ -214,6 +217,7 @@ private fun PasswordTextFields(
         labelMandatoryIcon = true,
         descriptionText = stringResource(R.string.create_account_details_password_description),
         imeAction = ImeAction.Next,
+        autofillTypes = listOf(),
         modifier = Modifier
             .padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
             .bringIntoViewOnFocus(coroutineScope)
@@ -228,6 +232,7 @@ private fun PasswordTextFields(
         labelMandatoryIcon = true,
         imeAction = ImeAction.Done,
         keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
+        autofillTypes = listOf(),
         modifier = Modifier
             .padding(
                 horizontal = MaterialTheme.wireDimensions.spacing16x,

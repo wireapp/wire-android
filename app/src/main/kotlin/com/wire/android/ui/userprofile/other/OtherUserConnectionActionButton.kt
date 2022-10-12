@@ -30,7 +30,8 @@ fun OtherUserConnectionActionButton(
     when (connectionStatus) {
         ConnectionState.SENT -> WireSecondaryButton(
             text = stringResource(R.string.connection_label_cancel_request),
-            onClick = onCancelConnectionRequest
+            onClick = onCancelConnectionRequest,
+            blockUntilSynced = true,
         )
         ConnectionState.ACCEPTED -> WirePrimaryButton(
             text = stringResource(R.string.label_open_conversation),
@@ -39,6 +40,7 @@ fun OtherUserConnectionActionButton(
         ConnectionState.IGNORED ->  WirePrimaryButton(
             text = stringResource(R.string.connection_label_accept),
             onClick = acceptConnectionRequest,
+            blockUntilSynced = true,
             leadingIcon = {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_check_tick),
@@ -51,6 +53,7 @@ fun OtherUserConnectionActionButton(
             WirePrimaryButton(
                 text = stringResource(R.string.connection_label_accept),
                 onClick = acceptConnectionRequest,
+                blockUntilSynced = true,
                 leadingIcon = {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_check_tick),
@@ -64,6 +67,7 @@ fun OtherUserConnectionActionButton(
                 text = stringResource(R.string.connection_label_ignore),
                 state = WireButtonState.Error,
                 onClick = ignoreConnectionRequest,
+                blockUntilSynced = true,
                 leadingIcon = {
                     Icon(
                         painter = painterResource(id = R.drawable.ic_close),
@@ -75,12 +79,14 @@ fun OtherUserConnectionActionButton(
         ConnectionState.BLOCKED -> {
             WireSecondaryButton(
                 text = stringResource(R.string.user_profile_unblock_user),
-                onClick = onUnblockUser
+                onClick = onUnblockUser,
+                blockUntilSynced = true,
             )
         }
         else -> WirePrimaryButton(
             text = stringResource(R.string.connection_label_connect),
             onClick = onSendConnectionRequest,
+            blockUntilSynced = true,
             leadingIcon = {
                 Icon(
                     painter = painterResource(id = R.drawable.ic_add_contact),

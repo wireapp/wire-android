@@ -139,6 +139,11 @@
     <string name="api_versioning_client_update_required_message">You are missing out on new features. Update to the latest version of Wire to continue using the app with this account.</string>
     <string name="api_versioning_server_version_not_supported_title">Server version not supported</string>
     <string name="api_versioning_server_version_not_supported_message">Your Wire server needs to be updated. Please notify your system administrator.</string>
+    <!-- Migration -->
+    <string name="migration_title">Setting up Wire</string>
+    <string name="migration_message">Please wait while we set up the app for you</string>
+    <string name="migration_cancel_title">Cancel migration</string>
+    <string name="migration_cancel_message">Are you sure you want to close the application and cancel the ongoing migration?</string>
     <!-- Login -->
     <string name="login_title">Log in</string>
     <string name="login_forgot_password">Forgot password?</string>
@@ -570,10 +575,11 @@
     <!--Settings -->
     <string name="url_why_verify_conversation">/hc/en-us/articles/207859815-Why-should-I-verify-my-conversations</string>
     <string name="settings_general_label">General</string>
+    <string name="settings_account_settings_label">Account Settings</string>
     <string name="settings_devices_label">Devices</string>
     <string name="settings_backups_label">Backups</string>
     <string name="settings_others_label">OTHERS</string>
-    <string name="settings_your_account_label">Your Account</string>
+    <string name="settings_your_account_label">Account Details</string>
     <string name="settings_app_settings_label">App Settings</string>
     <string name="settings_privacy_settings_label">Privacy Settings</string>
     <string name="settings_network_settings_label">Network Settings</string>
@@ -581,6 +587,20 @@
     <string name="settings_about_this_app_label">About this App</string>
     <string name="settings_keep_connection_to_websocket">Keep Connection to Websocket</string>
     <string name="settings_service_is_running">service is running</string>
+    <!--Settings, My Account -->
+    <string name="settings_myaccount_title">Account Data</string>
+    <string name="settings_myaccount_display_name">DISPLAY NAME</string>
+    <string name="settings_myaccount_username">USERNAME</string>
+    <string name="settings_myaccount_email">EMAIL</string>
+    <string name="settings_myaccount_team">TEAM</string>
+    <string name="settings_myaccount_domain">DOMAIN</string>
+    <string name="settings_myaccount_reset_password">Reset Password</string>
+
+    <!--Devices -->
+    <string name="devices_title">Your Devices</string>
+    <string name="current_device_label">Current Device</string>
+    <string name="other_devices_label">Other Devices</string>
+
     <!--unblock user dialog -->
     <string name="unblock_user_dialog_title">Unblock user?</string>
     <string name="unblock_user_dialog_body">%1$s will be able to contact you or add you to group conversations. You will be able to access a 1:1 conversation with them.</string>
@@ -597,4 +617,6 @@
     <string name="conversation_empty_list_title">Welcome 👋</string>
     <string name="label_no_conversation_found">No conversations could be found.</string>
     <string name="label_connect_with_new_users">Connect with new users or start a new conversation:</string>
+    <string name="label_reactions">Reactions</string>
+    <string name="label_wait_until_synchronised">Please wait until the app is synchronised</string>
 </resources>

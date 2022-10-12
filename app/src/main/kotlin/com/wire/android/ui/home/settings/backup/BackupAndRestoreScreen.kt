@@ -33,7 +33,11 @@ import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.home.settings.backup.dialog.BackUpAndRestoreStateHolder
+import com.wire.android.ui.home.settings.backup.dialog.BackupAndRestoreDialog
 import com.wire.android.ui.home.settings.backup.dialog.BackupDialog
+import com.wire.android.ui.home.settings.backup.dialog.RestoreDialog
+import com.wire.android.ui.home.settings.backup.dialog.rememberBackUpAndRestoreStateHolder
 import com.wire.android.ui.home.settings.backup.dialog.rememberBackUpDialogState
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -148,66 +152,6 @@ fun BackupAndRestoreContent(
                 )
         }
     }
-}
-
-@Composable
-fun RestoreDialog(
-    onChooseBackupFile: Any,
-    onRestoreBackup: Any
-) {
-//    when (restoreDialogState) {
-//
-//    }
-}
-
-class BackUpAndRestoreStateHolder() {
-
-    var dialogState: BackupAndRestoreDialog by mutableStateOf(
-        BackupAndRestoreDialog.None
-    )
-
-    fun showBackupDialog() {
-        dialogState = BackupAndRestoreDialog.Backup
-    }
-
-    fun showRestoreDialog() {
-        dialogState = BackupAndRestoreDialog.Restore
-    }
-
-    fun dismissDialog() {
-        dialogState = BackupAndRestoreDialog.None
-    }
-
-}
-
-sealed class BackupAndRestoreDialog {
-    object None : BackupAndRestoreDialog()
-    object Backup : BackupAndRestoreDialog()
-    object Restore : BackupAndRestoreDialog()
-}
-
-@Composable
-fun rememberBackUpAndRestoreStateHolder(): BackUpAndRestoreStateHolder {
-    return remember {
-        BackUpAndRestoreStateHolder()
-    }
-}
-
-sealed interface RestoreDialogStep {
-    object Inform : RestoreDialogStep
-    object Failure : RestoreDialogStep, RestoreFailures
-    object Restore : RestoreDialogStep
-}
-
-sealed interface RestoreFailures {
-    object IncompatibleBackup : RestoreFailures
-    object WrongBackup : RestoreFailures
-    object SomethingWentWrong : RestoreFailures
-    object WrongPassword : RestoreFailures
-}
-
-class RestoreDialogState() {
-
 }
 
 //@Preview

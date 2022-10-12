@@ -26,7 +26,7 @@ class BackupAndRestoreViewModel
         state = state.copy(backupPassword = backupPassword)
     }
 
-    fun createBackup() {
+    fun validateBackupPassword(backupPassword: TextFieldValue) {
         viewModelScope.launch {
             delay(2000)
             state = state.copy(isBackupPasswordValid = true)
@@ -39,7 +39,12 @@ class BackupAndRestoreViewModel
     }
 
     fun cancelBackup() {
+        resetState()
 //        wireBackUpManager.createBackUp(backupPassword)
+    }
+
+    fun createBackup() {
+
     }
 
     fun chooseBackupFile() {
@@ -50,8 +55,21 @@ class BackupAndRestoreViewModel
 //        wireBackUpManager.restoreBackUp(file)
     }
 
+    private fun resetState() {
+        state = state.copy(
+            isBackupPasswordValid = false,
+            backupPassword = TextFieldValue(""),
+            backupProgress = 0.0f
+        )
+    }
+
     fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }
 
 }
 
-data class BackupAndRestoreState(val isBackupPasswordValid: Boolean = false, val backupPassword: TextFieldValue = TextFieldValue(""))
+data class BackupAndRestoreState(
+    val isBackupPasswordValid: Boolean = false,
+    val backupPassword: TextFieldValue = TextFieldValue(""),
+    val backupProgress: Float = 0.0f
+) {
+}

@@ -3,6 +3,8 @@ package com.wire.android.migration
 import android.content.Context
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.datastore.GlobalDataStore
+import com.wire.android.migration.feature.MigrateActiveAccountsUseCase
+import com.wire.android.migration.feature.MigrateServerConfigUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -62,9 +64,11 @@ class MigrationManagerTest {
         lateinit var migrateServerConfigUseCase: MigrateServerConfigUseCase
         @MockK
         lateinit var dbFile: File
+        @MockK
+        lateinit var migrateActiveAccounts: MigrateActiveAccountsUseCase
 
         private val manager: MigrationManager by lazy {
-            MigrationManager(applicationContext, globalDataStore, migrateServerConfigUseCase)
+            MigrationManager(applicationContext, globalDataStore, migrateServerConfigUseCase, migrateActiveAccounts)
         }
 
         init {

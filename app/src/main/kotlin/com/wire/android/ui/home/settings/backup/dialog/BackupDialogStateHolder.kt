@@ -13,54 +13,36 @@ class BackupDialogStateHolder(
     val onSaveBackup: () -> Unit
 ) {
     companion object {
-        private const val INITIAL_STEP_INDEX = 0
+        val INITIAL_STEP = BackUpDialogStep.Inform
     }
 
-    private var currentStepIndex = INITIAL_STEP_INDEX
-
-    private val steps: List<BackUpDialogStep> = listOf(
-        BackUpDialogStep.Inform,
-        BackUpDialogStep.SetPassword,
-        BackUpDialogStep.CreatingBackup,
-        BackUpDialogStep.Failure
-    )
-
-    var currentBackupDialogStep: BackUpDialogStep by mutableStateOf(steps[INITIAL_STEP_INDEX])
+    var currentBackupDialogStep: BackUpDialogStep by mutableStateOf(INITIAL_STEP)
 
     var backupPassword: TextFieldValue by mutableStateOf(TextFieldValue(""))
 
-    var isBackupPasswordValid: Boolean by mutableStateOf(true)
+    var isBackupPasswordValid: Boolean by mutableStateOf(false)
 
     var backupProgress: Float by mutableStateOf(0.0f)
 
-    fun nextStep() {
-        if (currentStepIndex != steps.lastIndex) {
-            currentStepIndex += 1
-            currentBackupDialogStep = steps[currentStepIndex]
-        }
-    }
-
     fun reset() {
-        currentStepIndex = INITIAL_STEP_INDEX
-        currentBackupDialogStep = steps[INITIAL_STEP_INDEX]
+        currentBackupDialogStep = INITIAL_STEP
     }
 
     fun toCreateBackUp() {
-        currentBackupDialogStep = steps[2]
+        currentBackupDialogStep = BackUpDialogStep.CreatingBackup
     }
 
-    private fun clearPasswordData() {
-        backupPassword = TextFieldValue("")
-        isBackupPasswordValid = false
+    fun toBackupPassword() {
+        currentBackupDialogStep = BackUpDialogStep.SetPassword
     }
 
 }
 
 @Composable
 fun rememberBackUpDialogState(): BackupDialogStateHolder {
-    val backupDialogStateHolder = remember { BackupDialogStateHolder({}, { TextFieldValue("") }, {}) }
+    val backupDialogStateHolder =
 
-    return backupDialogStateHolder
+    return remember { BackupDialogStateHolder({}, { TextFieldValue("") }, {}) }
 }
 
 sealed interface BackUpDialogStep {

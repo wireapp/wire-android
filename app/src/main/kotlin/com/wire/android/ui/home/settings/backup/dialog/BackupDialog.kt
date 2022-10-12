@@ -1,7 +1,13 @@
 package com.wire.android.ui.home.settings.backup.dialog
 
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.R
@@ -11,6 +17,8 @@ import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
+import com.wire.android.ui.theme.wireDimensions
+import com.wire.android.ui.theme.wireTypography
 
 @Composable
 fun BackupDialog(
@@ -29,7 +37,7 @@ fun BackupDialog(
                     text = "You need an email and a password in order to back up your conversation history. You can do it from the account page in Settings.",
                     onDismiss = onDismissDialog,
                     optionButton1Properties = WireDialogButtonProperties(
-                        onClick = ::nextStep,
+                        onClick = ::toBackupPassword,
                         text = stringResource(id = R.string.label_ok),
                         type = WireDialogButtonType.Primary,
                     )
@@ -38,7 +46,7 @@ fun BackupDialog(
             is BackUpDialogStep.SetPassword -> {
                 WireDialog(
                     title = "Set password",
-                    text = "test",
+                    text = "The backup will be compressed and encrypted with a password. Make sure to store it in a secure place.",
                     onDismiss = onDismissDialog,
                     dismissButtonProperties = WireDialogButtonProperties(
                         onClick = onDismissDialog,
@@ -57,6 +65,10 @@ fun BackupDialog(
                         state = if (!isBackupPasswordValid) WireButtonState.Disabled else WireButtonState.Default
                     )
                 ) {
+                    Text(
+                        text = "PASSWORD (OPTIONAL)",
+                        style = MaterialTheme.wireTypography.label04
+                    )
                     WirePasswordTextField(
                         state = if (!isBackupPasswordValid) WireTextFieldState.Error("some error") else WireTextFieldState.Default,
                         value = backupPassword,
@@ -73,7 +85,7 @@ fun BackupDialog(
                     text = "test",
                     onDismiss = onDismissDialog,
                     optionButton1Properties = WireDialogButtonProperties(
-                        onClick = ::nextStep,
+                        onClick = { },
                         text = stringResource(id = R.string.label_ok),
                         type = WireDialogButtonType.Primary,
                     )
@@ -87,7 +99,7 @@ fun BackupDialog(
                     text = "test",
                     onDismiss = onDismissDialog,
                     optionButton1Properties = WireDialogButtonProperties(
-                        onClick = ::nextStep,
+                        onClick = onDismissDialog,
                         text = stringResource(id = R.string.label_ok),
                         type = WireDialogButtonType.Primary,
                     )

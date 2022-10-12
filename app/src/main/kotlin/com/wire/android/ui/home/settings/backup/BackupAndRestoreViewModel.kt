@@ -27,7 +27,9 @@ class BackupAndRestoreViewModel
 
     fun validateBackupPassword(backupPassword: TextFieldValue) {
         viewModelScope.launch {
-            state = state.copy(isBackupPasswordValid = true)
+            state = state.copy(
+                isBackupPasswordValid = backupPassword.text.isEmpty()
+            )
         }
     }
 
@@ -66,7 +68,7 @@ data class BackupAndRestoreState(
 ) {
     companion object {
         val INITIAL_STATE = BackupAndRestoreState(
-            isBackupPasswordValid = true,
+            isBackupPasswordValid = false,
             backupPassword = TextFieldValue(""),
             backupProgress = 0.0f
         )

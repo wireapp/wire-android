@@ -127,6 +127,10 @@ sealed class UIMessageContent {
 
         data class RenamedConversation(val author: UIText, val content: MessageContent.ConversationRenamed) :
             SystemMessage(R.drawable.ic_edit, R.string.label_system_message_renamed_the_conversation, true, content.conversationName)
+
+        data class TeamMemberRemoved(val content: MessageContent.TeamMemberRemoved) :
+            SystemMessage(R.drawable.ic_minus, R.string.label_system_message_team_member_left, true, content.userName)
+
     }
 }
 

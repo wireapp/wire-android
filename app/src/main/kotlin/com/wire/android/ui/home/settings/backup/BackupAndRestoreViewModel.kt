@@ -19,7 +19,7 @@ class BackupAndRestoreViewModel
     private val navigationManager: NavigationManager
 ) : ViewModel() {
 
-    var state by mutableStateOf(BackupAndRestoreState())
+    var state by mutableStateOf(BackupAndRestoreState.INITIAL_STATE)
 
     fun setBackupPassword(backupPassword: TextFieldValue) {
         state = state.copy(backupPassword = backupPassword)
@@ -52,11 +52,7 @@ class BackupAndRestoreViewModel
     }
 
     private fun resetState() {
-        state = state.copy(
-            isBackupPasswordValid = true,
-            backupPassword = TextFieldValue(""),
-            backupProgress = 0.0f
-        )
+        state = BackupAndRestoreState.INITIAL_STATE
     }
 
     fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }
@@ -64,8 +60,15 @@ class BackupAndRestoreViewModel
 }
 
 data class BackupAndRestoreState(
-    val isBackupPasswordValid: Boolean = false,
+    val isBackupPasswordValid: Boolean = true,
     val backupPassword: TextFieldValue = TextFieldValue(""),
     val backupProgress: Float = 0.0f
 ) {
+    companion object {
+        val INITIAL_STATE = BackupAndRestoreState(
+            isBackupPasswordValid = true,
+            backupPassword = TextFieldValue(""),
+            backupProgress = 0.0f
+        )
+    }
 }

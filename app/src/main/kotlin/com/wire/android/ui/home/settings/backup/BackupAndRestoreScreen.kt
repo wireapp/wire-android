@@ -11,6 +11,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -19,7 +20,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
@@ -30,6 +30,7 @@ import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WirePrimaryButton
+import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -38,6 +39,8 @@ import com.wire.android.ui.theme.wireTypography
 @Composable
 fun BackupAndRestoreScreen(viewModel: BackupAndRestoreViewModel = hiltViewModel()) {
     BackupAndRestoreContent(
+        backUpAndRestoreState = viewModel.state,
+        onBackupPasswordChanged = viewModel::setBackupPassword,
         onSaveBackup = viewModel::saveBackup,
         onCancelBackup = viewModel::cancelBackup,
         onChooseBackupFile = viewModel::chooseBackupFile,
@@ -50,7 +53,9 @@ fun BackupAndRestoreScreen(viewModel: BackupAndRestoreViewModel = hiltViewModel(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BackupAndRestoreContent(
-    onCreateBackup: (TextFieldValue) -> Unit,
+    backUpAndRestoreState: BackupAndRestoreState,
+    onBackupPasswordChanged: (TextFieldValue) -> Unit,
+    onCreateBackup: () -> Unit,
     onSaveBackup: () -> Unit,
     onCancelBackup: () -> Unit,
     onChooseBackupFile: () -> Unit,
@@ -108,118 +113,108 @@ fun BackupAndRestoreContent(
         }
     }
 
-    BackupAndRestoreDialogs(
-        backupAndRestoreDialog = backupAndRestoreState.dialogState,
-        onStartBackup = onCreateBackup,
-        onSaveBackup = {},
-        onCancelBackup = {},
-        onChooseBackupFile = {},
-        onRestoreBackup = {},
-        onDismissDialog = backupAndRestoreState::dismissDialog
-    )
-}
-
-@Composable
-fun BackupAndRestoreDialogs(
-    backupAndRestoreDialog: BackupAndRestoreDialog,
-    onStartBackup: (TextFieldValue) -> Unit,
-    onSaveBackup: () -> Unit,
-    onCancelBackup: () -> Unit,
-    onChooseBackupFile: () -> Unit,
-    onRestoreBackup: () -> Unit,
-    onDismissDialog: () -> Unit
-) {
-    if (backupAndRestoreDialog !is BackupAndRestoreDialog.None) {
-        when (backupAndRestoreDialog) {
-            is BackupAndRestoreDialog.Backup -> BackupDialog(
-                backupDialogState = backupAndRestoreDialog.backUpDialogState,
-                onCreateBackup = onStartBackup,
-                onSaveBackup = onSaveBackup,
-                onCancelBackup = onCancelBackup,
-                onDismissDialog = onDismissDialog
-            )
-            is BackupAndRestoreDialog.Restore -> {
+    if (backupAndRestoreState.dialogState !is BackupAndRestoreDialog.None) {
+        when (backupAndRestoreState.dialogState) {
+            is BackupAndRestoreDialog.Backup ->
+                BackupDialog(
+                    onBackupPasswordChanged = onBackupPasswordChanged,
+                    backupPassword = backUpAndRestoreState.backupPassword,
+                    isBackupPasswordValid = backUpAndRestoreState.isBackupPasswordValid,
+                    onCreateBackup = onCreateBackup,
+                    onSaveBackup = onSaveBackup,
+                    onCancelBackup = onCancelBackup,
+                    onDismissDialog = backupAndRestoreState::dismissDialog
+                )
+            is BackupAndRestoreDialog.Restore ->
                 RestoreDialog(
-                    restoreDialogState = backupAndRestoreDialog.restoreDialogState,
                     onChooseBackupFile = onChooseBackupFile,
                     onRestoreBackup = onRestoreBackup
                 )
-            }
         }
     }
 }
 
 @Composable
 fun BackupDialog(
-    backupDialogState: BackupDialogState,
-    onCreateBackup: (TextFieldValue) -> Unit,
+    isBackupPasswordValid: Boolean,
+    onBackupPasswordChanged: (TextFieldValue) -> Unit,
+    backupPassword: TextFieldValue,
+    onCreateBackup: () -> Unit,
     onSaveBackup: () -> Unit,
     onCancelBackup: () -> Unit,
     onDismissDialog: () -> Unit
 ) {
-    when (val backupDialogStep = backupDialogState.currentBackupDialogStep) {
-        BackUpDialogStep.Inform -> {
-            WireDialog(
-                title = "Set an email and password",
-                text = "test",
-                onDismiss = onDismissDialog,
-                optionButton1Properties = WireDialogButtonProperties(
-                    onClick = backupDialogState::nextStep,
-                    text = stringResource(id = R.string.label_ok),
-                    type = WireDialogButtonType.Primary,
-                ),
-            ) {
+    val backupDialogState = rememberBackUpDialogState()
 
-            }
-        }
-        is BackUpDialogStep.SetPassword -> {
-            WireDialog(
-                title = "Set password",
-                text = "test",
-                onDismiss = onDismissDialog,
-                dismissButtonProperties = WireDialogButtonProperties(
-                    onClick = onDismissDialog,
-                    text = stringResource(id = R.string.label_cancel),
-                    state = WireButtonState.Default
-                ),
-                optionButton1Properties = WireDialogButtonProperties(
-                    onClick = { backupDialogState.startBackup(backupDialogStep.password) },
-                    text = stringResource(id = R.string.label_ok),
-                    type = WireDialogButtonType.Primary,
-                ),
-            ) {
-                WirePasswordTextField(
-                    value = backupDialogStep.password,
-                    onValueChange = { backupDialogStep.password = it }
+    with(backupDialogState) {
+        when (currentBackupDialogStep) {
+            BackUpDialogStep.Inform -> {
+                WireDialog(
+                    title = "Set an email and password",
+                    text = "You need an email and a password in order to back up your conversation history. You can do it from the account page in Settings.",
+                    onDismiss = onDismissDialog,
+                    optionButton1Properties = WireDialogButtonProperties(
+                        onClick = ::nextStep,
+                        text = stringResource(id = R.string.label_ok),
+                        type = WireDialogButtonType.Primary,
+                    )
                 )
             }
-        }
-        BackUpDialogStep.CreatingBackup -> {
-            WireDialog(
-                title = "Creating Backup",
-                text = "test",
-                onDismiss = onDismissDialog,
-                optionButton1Properties = WireDialogButtonProperties(
-                    onClick = backupDialogState::nextStep,
-                    text = stringResource(id = R.string.label_ok),
-                    type = WireDialogButtonType.Primary,
-                ),
-            ) {
+            is BackUpDialogStep.SetPassword -> {
+                LaunchedEffect(isBackupPasswordValid) {
+                    if (isBackupPasswordValid) backupDialogState.nextStep()
+                }
 
+                WireDialog(
+                    title = "Set password",
+                    text = "test",
+                    onDismiss = onDismissDialog,
+                    dismissButtonProperties = WireDialogButtonProperties(
+                        onClick = onDismissDialog,
+                        text = stringResource(id = R.string.label_cancel),
+                        state = WireButtonState.Default
+                    ),
+                    optionButton1Properties = WireDialogButtonProperties(
+                        onClick = onCreateBackup,
+                        text = stringResource(id = R.string.label_ok),
+                        type = WireDialogButtonType.Primary,
+                        state = if (isBackupPasswordValid) WireButtonState.Default else WireButtonState.Error
+                    )
+                ) {
+                    WirePasswordTextField(
+                        state = if (isBackupPasswordValid) WireTextFieldState.Error("some error") else WireTextFieldState.Default,
+                        value = backupPassword,
+                        onValueChange = onBackupPasswordChanged
+                    )
+                }
             }
-        }
-        BackUpDialogStep.Failure -> {
-            WireDialog(
-                title = "Something went wrong",
-                text = "test",
-                onDismiss = onDismissDialog,
-                optionButton1Properties = WireDialogButtonProperties(
-                    onClick = backupDialogState::nextStep,
-                    text = stringResource(id = R.string.label_ok),
-                    type = WireDialogButtonType.Primary,
-                ),
-            ) {
+            BackUpDialogStep.CreatingBackup -> {
+                WireDialog(
+                    title = "Creating Backup",
+                    text = "test",
+                    onDismiss = onDismissDialog,
+                    optionButton1Properties = WireDialogButtonProperties(
+                        onClick = ::nextStep,
+                        text = stringResource(id = R.string.label_ok),
+                        type = WireDialogButtonType.Primary,
+                    )
+                ) {
 
+                }
+            }
+            BackUpDialogStep.Failure -> {
+                WireDialog(
+                    title = "Something went wrong",
+                    text = "test",
+                    onDismiss = onDismissDialog,
+                    optionButton1Properties = WireDialogButtonProperties(
+                        onClick = ::nextStep,
+                        text = stringResource(id = R.string.label_ok),
+                        type = WireDialogButtonType.Primary,
+                    )
+                ) {
+
+                }
             }
         }
     }
@@ -227,47 +222,26 @@ fun BackupDialog(
 
 @Composable
 fun RestoreDialog(
-    restoreDialogState: RestoreDialogState,
     onChooseBackupFile: Any,
     onRestoreBackup: Any
 ) {
-    when (restoreDialogState) {
-
-    }
+//    when (restoreDialogState) {
+//
+//    }
 }
 
-class BackUpAndRestoreState(
-    private val onDismiss: () -> Unit,
-    private val onStartBackup: (TextFieldValue) -> Unit,
-    private val onSaveBackup: () -> Unit
-) {
+class BackUpAndRestoreStateHolder() {
 
     var dialogState: BackupAndRestoreDialog by mutableStateOf(
-        BackupAndRestoreDialog.Backup(
-            BackupDialogState(
-                onDismiss = onDismiss,
-                onStartBackup = onStartBackup,
-                onSaveBackup = onSaveBackup
-            )
-        )
+        BackupAndRestoreDialog.None
     )
 
     fun showBackupDialog() {
-        dialogState = BackupAndRestoreDialog.Backup(
-            BackupDialogState(
-                onDismiss = onDismiss,
-                onStartBackup = onStartBackup,
-                onSaveBackup = onSaveBackup
-            )
-        )
+        dialogState = BackupAndRestoreDialog.Backup
     }
 
     fun showRestoreDialog() {
-        dialogState = BackupAndRestoreDialog.Restore(
-            RestoreDialogState(
-
-            )
-        )
+        dialogState = BackupAndRestoreDialog.Restore
     }
 
     fun dismissDialog() {
@@ -278,18 +252,21 @@ class BackUpAndRestoreState(
 
 sealed class BackupAndRestoreDialog {
     object None : BackupAndRestoreDialog()
-    data class Backup(val backUpDialogState: BackupDialogState) : BackupAndRestoreDialog()
-    data class Restore(val restoreDialogState: RestoreDialogState) : BackupAndRestoreDialog()
+    object Backup : BackupAndRestoreDialog()
+    object Restore : BackupAndRestoreDialog()
 }
 
 @Composable
-fun rememberBackUpAndRestoreState(): BackUpAndRestoreState {
+fun rememberBackUpDialogState(): BackupDialogState {
+    val backupDialogState = remember { BackupDialogState({}, { TextFieldValue("") }, {}) }
+
+    return backupDialogState
+}
+
+@Composable
+fun rememberBackUpAndRestoreState(): BackUpAndRestoreStateHolder {
     return remember {
-        BackUpAndRestoreState(
-            onDismiss = { },
-            onStartBackup = { },
-            onSaveBackup = { }
-        )
+        BackUpAndRestoreStateHolder()
     }
 }
 
@@ -303,6 +280,8 @@ class BackupDialogState(
     }
 
     private var currentStepIndex = INITIAL_STEP_INDEX
+
+    var password by mutableStateOf(TextFieldValue(""))
 
     private val steps: List<BackUpDialogStep> = listOf(
         BackUpDialogStep.Inform,
@@ -321,23 +300,21 @@ class BackupDialogState(
     }
 
     fun startBackup(password: TextFieldValue) {
-        onStartBackup(password)
-        nextStep()
+//        if (onStartBackup(password)) {
+//            nextStep()
+//        }
     }
 
     fun reset() {
-        currentStepIndex = 1
-        currentBackupDialogStep = steps[currentStepIndex]
+        currentStepIndex = INITIAL_STEP_INDEX
+        currentBackupDialogStep = steps[INITIAL_STEP_INDEX]
     }
 
 }
 
 sealed interface BackUpDialogStep {
     object Inform : BackUpDialogStep
-    object SetPassword : BackUpDialogStep {
-        var password by mutableStateOf(TextFieldValue(""))
-    }
-
+    object SetPassword : BackUpDialogStep
     object CreatingBackup : BackUpDialogStep
     object Failure : BackUpDialogStep
 }
@@ -359,8 +336,8 @@ class RestoreDialogState() {
 
 }
 
-@Preview
-@Composable
-fun BackupAndRestoreScreenPreview() {
-    BackupAndRestoreContent({}, {}, {}, {}, {}, {})
-}
+//@Preview
+//@Composable
+//fun BackupAndRestoreScreenPreview() {
+//    BackupAndRestoreContent({}, {}, {}, {}, {}, {})
+//}

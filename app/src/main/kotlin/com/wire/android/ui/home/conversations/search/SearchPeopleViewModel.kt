@@ -84,11 +84,11 @@ open class SearchAllPeopleViewModel(
         }
     }
 
-    override suspend fun getInitialContacts(): SearchResult =
-        when (val result = getAllKnownUsers()) {
-            is GetAllContactsResult.Failure -> SearchResult.Failure(R.string.label_general_error)
-            is GetAllContactsResult.Success -> SearchResult.Success(result.allContacts.map(contactMapper::fromOtherUser))
-        }
+    override suspend fun getInitialContacts(): SearchResult = SearchResult.Failure(R.string.label_general_error)
+//        when (val result = getAllKnownUsers()) {
+//            is GetAllContactsResult.Failure -> SearchResult.Failure(R.string.label_general_error)
+//            is GetAllContactsResult.Success -> SearchResult.Success(result.allContacts.map(contactMapper::fromOtherUser))
+//        }
 
     override suspend fun searchKnownPeople(searchTerm: String): Flow<ContactSearchResult.InternalContact> =
         searchKnownUsers(searchTerm).flowOn(dispatcher.io()).map { result ->

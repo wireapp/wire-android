@@ -10,7 +10,7 @@ import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavController
 import com.wire.android.R
 import com.wire.android.ui.common.WireBottomNavigationItemData
-import com.wire.android.ui.home.HomeScreenState
+import com.wire.android.ui.home.HomeStateHolder
 import com.wire.android.ui.home.archive.ArchiveScreen
 import com.wire.android.ui.home.conversationslist.ConversationItemType
 import com.wire.android.ui.home.conversationslist.ConversationRouterHomeBridge
@@ -46,7 +46,7 @@ enum class HomeNavigationItem(
     @DrawableRes val icon: Int,
     val isSearchable: Boolean = false,
     val withNewConversationFab: Boolean = false,
-    val content: (HomeScreenState) -> (@Composable (NavBackStackEntry) -> Unit)
+    val content: (HomeStateHolder) -> (@Composable (NavBackStackEntry) -> Unit)
 ) {
     Conversations(
         route = HomeDestinationsRoutes.conversations,

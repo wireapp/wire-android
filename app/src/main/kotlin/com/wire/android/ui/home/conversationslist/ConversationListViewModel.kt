@@ -100,7 +100,7 @@ class ConversationListViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            searchQueryFlow.combine(observeConversationListDetailsUseCase().onEach(::conversationListDetailsToState))
+            searchQueryFlow.combine(observeConversationListDetailsUseCase())
                 .flatMapLatest { (searchQuery, conversationDetails) ->
                     flow {
                         if (searchQuery.isEmpty()) {
@@ -109,9 +109,16 @@ class ConversationListViewModel @Inject constructor(
                             emit(searchConversation(conversationDetails, searchQuery))
                         }
                     }
-                }.collect { conversationSearchResult ->
+                }.collect { conversationListDetails ->
                     conversationListState = conversationListState.copy(
-                        conversationSearchResult = conversationSearchResult.toConversationsFoldersMap()
+                        conversations = conversationListDetails.toConversationsFoldersMap(),
+                        hasNoConversations = conversationListDetails.none { it !is Self },
+                        callHistory = mockCallHistory, // TODO: needs to be implemented
+                        unreadMentions = mockUnreadMentionList, // TODO: needs to be implemented
+                        allMentions = mockAllMentionList, // TODO: needs to be implemented
+                        newActivityCount = 0L,
+                        unreadMentionsCount = 0L, // TODO: needs to be implemented on Kalium side
+                        missedCallsCount = 0L // TODO: needs to be implemented on Kalium side
                     )
                 }
         }
@@ -125,19 +132,6 @@ class ConversationListViewModel @Inject constructor(
         }
 
         return matchingConversations
-    }
-
-    private fun conversationListDetailsToState(conversationListDetails: List<ConversationDetails>) {
-        conversationListState = conversationListState.copy(
-            conversations = conversationListDetails.toConversationsFoldersMap(),
-            hasNoConversations = conversationListDetails.none { it !is Self },
-            callHistory = mockCallHistory, // TODO: needs to be implemented
-            unreadMentions = mockUnreadMentionList, // TODO: needs to be implemented
-            allMentions = mockAllMentionList, // TODO: needs to be implemented
-            newActivityCount = 0L,
-            unreadMentionsCount = 0L, // TODO: needs to be implemented on Kalium side
-            missedCallsCount = 0L // TODO: needs to be implemented on Kalium side
-        )
     }
 
     private fun List<ConversationDetails>.toConversationsFoldersMap(): Map<ConversationFolder, List<ConversationItem>> {

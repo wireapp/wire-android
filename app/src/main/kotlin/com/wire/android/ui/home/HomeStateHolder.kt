@@ -30,7 +30,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
-class HomeScreenState(
+class HomeStateHolder(
     val coroutineScope: CoroutineScope,
     val navController: NavHostController,
     val drawerState: DrawerState,
@@ -43,7 +43,7 @@ class HomeScreenState(
     var homeBottomSheetContent: @Composable (ColumnScope.() -> Unit)? by mutableStateOf(null)
         private set
 
-    var snackbarState: HomeSnackbarState by mutableStateOf(HomeSnackbarState.None) // TODO replace with Flow
+    var snackbarState: HomeSnackbarState by mutableStateOf(HomeSnackbarState.None)
         private set
     fun setSnackBarState(state: HomeSnackbarState) {
         snackbarState = state
@@ -94,7 +94,7 @@ fun rememberHomeScreenState(
     drawerState: DrawerState = rememberDrawerState(DrawerValue.Closed),
     bottomSheetState: ModalBottomSheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden),
     snackBarHostState: SnackbarHostState = remember { SnackbarHostState() }
-): HomeScreenState {
+): HomeStateHolder {
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route
     val currentNavigationItem = HomeNavigationItem.values().firstOrNull { it.route == currentRoute } ?: HomeNavigationItem.Conversations
@@ -104,7 +104,7 @@ fun rememberHomeScreenState(
     val homeState = remember(
         currentNavigationItem
     ) {
-        HomeScreenState(
+        HomeStateHolder(
             coroutineScope,
             navController,
             drawerState,

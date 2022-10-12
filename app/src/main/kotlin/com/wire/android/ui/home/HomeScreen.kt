@@ -99,7 +99,7 @@ fun HomeScreen(
     HomeContent(
         connectivityState = commonTopAppBarViewModel.connectivityState,
         homeState = homeViewModel.homeState,
-        homeScreenState = homeScreenState,
+        homeStateHolder = homeScreenState,
         conversationListState = conversationListViewModel.conversationListState,
         onReturnToCallClick = commonTopAppBarViewModel::openOngoingCallScreen,
         onNewConversationClick = conversationListViewModel::openNewConversation,
@@ -117,142 +117,140 @@ fun HomeScreen(
 fun HomeContent(
     connectivityState: ConnectivityUIState,
     homeState: HomeState,
-    homeScreenState: HomeScreenState,
+    homeStateHolder: HomeStateHolder,
     conversationListState: ConversationListState,
     onReturnToCallClick: () -> Unit,
     onNewConversationClick: () -> Unit,
     onSelfUserClick: () -> Unit,
     navigateToItem: (NavigationItem) -> Unit
 ) {
-    with(homeScreenState) {
-        with(homeState) {
-            ModalDrawer(
-                drawerBackgroundColor = MaterialTheme.colorScheme.surface,
-                drawerElevation = 0.dp,
-                drawerShape = RectangleShape,
-                drawerState = drawerState,
-                drawerContent = {
-                    HomeDrawer(
-                        //TODO: logFilePath does not belong in the UI logic
-                        logFilePath = logFilePath,
-                        currentRoute = currentNavigationItem.route,
-                        navigateToHomeItem = ::navigateTo,
-                        navigateToItem = navigateToItem,
-                        onCloseDrawer = ::closeDrawer
-                    )
-                },
-                gesturesEnabled = drawerState.isOpen,
-                content = {
-                    with(currentNavigationItem) {
-                        WireModalSheetLayout(
-                            sheetState = bottomSheetState,
-                            coroutineScope = coroutineScope,
-                            // we want to render "nothing" instead of doing a if/else check
-                            // on homeBottomSheetContent and wrap homeContent() into WireModalSheetLayout
-                            // or render it without WireModalSheetLayout to avoid
-                            // recomposing the homeContent() when homeBottomSheetContent
-                            // changes from null to "something"
-                            sheetContent = homeBottomSheetContent ?: { }
-                        ) {
-                            CollapsingTopBarScaffold(
-                                snapOnFling = false,
-                                keepElevationWhenCollapsed = true,
-                                topBarHeader = { elevation ->
-                                    Column(modifier = Modifier.animateContentSize()) {
-                                        CommonTopAppBar(
-                                            connectivityUIState = connectivityState,
-                                            onReturnToCallClick = onReturnToCallClick
-                                        )
-                                        AnimatedVisibility(visible = !searchBarState.isSearchActive) {
-                                            HomeTopBar(
-                                                avatarAsset = avatarAsset,
-                                                status = status,
-                                                title = stringResource(currentNavigationItem.title),
-                                                elevation = elevation,
-                                                onHamburgerMenuClick = ::openDrawer,
-                                                onNavigateToSelfUserProfile = onSelfUserClick
-                                            )
-                                        }
-                                    }
-                                },
-                                snackbarHost = {
-                                    SwipeDismissSnackbarHost(
-                                        hostState = snackBarHostState,
-                                        modifier = Modifier.fillMaxWidth()
+    with(homeStateHolder) {
+        ModalDrawer(
+            drawerBackgroundColor = MaterialTheme.colorScheme.surface,
+            drawerElevation = 0.dp,
+            drawerShape = RectangleShape,
+            drawerState = drawerState,
+            drawerContent = {
+                HomeDrawer(
+                    //TODO: logFilePath does not belong in the UI logic
+                    logFilePath = homeState.logFilePath,
+                    currentRoute = currentNavigationItem.route,
+                    navigateToHomeItem = ::navigateTo,
+                    navigateToItem = navigateToItem,
+                    onCloseDrawer = ::closeDrawer
+                )
+            },
+            gesturesEnabled = drawerState.isOpen,
+            content = {
+                with(currentNavigationItem) {
+                    WireModalSheetLayout(
+                        sheetState = bottomSheetState,
+                        coroutineScope = coroutineScope,
+                        // we want to render "nothing" instead of doing a if/else check
+                        // on homeBottomSheetContent and wrap homeContent() into WireModalSheetLayout
+                        // or render it without WireModalSheetLayout to avoid
+                        // recomposing the homeContent() when homeBottomSheetContent
+                        // changes from null to "something"
+                        sheetContent = homeBottomSheetContent ?: { }
+                    ) {
+                        CollapsingTopBarScaffold(
+                            snapOnFling = false,
+                            keepElevationWhenCollapsed = true,
+                            topBarHeader = { elevation ->
+                                Column(modifier = Modifier.animateContentSize()) {
+                                    CommonTopAppBar(
+                                        connectivityUIState = connectivityState,
+                                        onReturnToCallClick = onReturnToCallClick
                                     )
-                                },
-                                topBarCollapsing = {
-                                    if (currentNavigationItem.isSearchable)
-                                        SearchTopBar(
-                                            isSearchActive = searchBarState.isSearchActive,
-                                            searchBarHint = stringResource(
-                                                R.string.search_bar_hint,
-                                                stringResource(id = title).lowercase()
-                                            ),
-                                            searchQuery = searchBarState.searchQuery,
-                                            onSearchQueryChanged = searchBarState::searchQueryChanged,
-                                            onInputClicked = searchBarState::openSearch,
-                                            onCloseSearchClicked = searchBarState::closeSearch,
-                                        )
-                                },
-                                content = {
-                                    NavHost(
-                                        navController = navController,
-                                        // For now we only support Conversations screen
-                                        startDestination = HomeNavigationItem.Conversations.route
-                                    ) {
-                                        HomeNavigationItem.values()
-                                            .forEach { item ->
-                                                composable(
-                                                    route = item.route,
-                                                    content = item.content(homeScreenState)
-                                                )
-                                            }
-                                    }
-                                },
-                                floatingActionButton = {
-                                    AnimatedVisibility(
-                                        visible = currentNavigationItem.withNewConversationFab && !searchBarState.isSearchActive,
-                                        enter = fadeIn(),
-                                        exit = fadeOut(),
-                                    ) {
-                                        FloatingActionButton(
-                                            text = stringResource(R.string.label_new),
-                                            icon = {
-                                                Image(
-                                                    painter = painterResource(id = R.drawable.ic_conversation),
-                                                    contentDescription = stringResource(R.string.content_description_new_conversation),
-                                                    contentScale = ContentScale.FillBounds,
-                                                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimary),
-                                                    modifier = Modifier
-                                                        .padding(start = dimensions().spacing4x, top = dimensions().spacing2x)
-                                                        .size(dimensions().fabIconSize)
-                                                )
-                                            },
-                                            onClick = onNewConversationClick
-                                        )
-                                    }
-                                },
-                                bottomBar = {
-                                    AnimatedVisibility(
-                                        visible = currentNavigationItem.withBottomTabs,
-                                        enter = slideInVertically(initialOffsetY = { it }),
-                                        exit = slideOutVertically(targetOffsetY = { it }),
-                                    ) {
-                                        WireBottomNavigationBar(
-                                            items = HomeNavigationItem.bottomTabItems.toBottomNavigationItems(
-                                                ConversationListState = conversationListState
-                                            ),
-                                            navController = navController
+                                    AnimatedVisibility(visible = !searchBarState.isSearchActive) {
+                                        HomeTopBar(
+                                            avatarAsset = homeState.avatarAsset,
+                                            status = homeState.status,
+                                            title = stringResource(currentNavigationItem.title),
+                                            elevation = elevation,
+                                            onHamburgerMenuClick = ::openDrawer,
+                                            onNavigateToSelfUserProfile = onSelfUserClick
                                         )
                                     }
                                 }
-                            )
-                        }
+                            },
+                            snackbarHost = {
+                                SwipeDismissSnackbarHost(
+                                    hostState = snackBarHostState,
+                                    modifier = Modifier.fillMaxWidth()
+                                )
+                            },
+                            topBarCollapsing = {
+                                if (currentNavigationItem.isSearchable)
+                                    SearchTopBar(
+                                        isSearchActive = searchBarState.isSearchActive,
+                                        searchBarHint = stringResource(
+                                            R.string.search_bar_hint,
+                                            stringResource(id = title).lowercase()
+                                        ),
+                                        searchQuery = searchBarState.searchQuery,
+                                        onSearchQueryChanged = searchBarState::searchQueryChanged,
+                                        onInputClicked = searchBarState::openSearch,
+                                        onCloseSearchClicked = searchBarState::closeSearch,
+                                    )
+                            },
+                            content = {
+                                NavHost(
+                                    navController = navController,
+                                    // For now we only support Conversations screen
+                                    startDestination = HomeNavigationItem.Conversations.route
+                                ) {
+                                    HomeNavigationItem.values()
+                                        .forEach { item ->
+                                            composable(
+                                                route = item.route,
+                                                content = item.content(homeStateHolder)
+                                            )
+                                        }
+                                }
+                            },
+                            floatingActionButton = {
+                                AnimatedVisibility(
+                                    visible = currentNavigationItem.withNewConversationFab && !searchBarState.isSearchActive,
+                                    enter = fadeIn(),
+                                    exit = fadeOut(),
+                                ) {
+                                    FloatingActionButton(
+                                        text = stringResource(R.string.label_new),
+                                        icon = {
+                                            Image(
+                                                painter = painterResource(id = R.drawable.ic_conversation),
+                                                contentDescription = stringResource(R.string.content_description_new_conversation),
+                                                contentScale = ContentScale.FillBounds,
+                                                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimary),
+                                                modifier = Modifier
+                                                    .padding(start = dimensions().spacing4x, top = dimensions().spacing2x)
+                                                    .size(dimensions().fabIconSize)
+                                            )
+                                        },
+                                        onClick = onNewConversationClick
+                                    )
+                                }
+                            },
+                            bottomBar = {
+                                AnimatedVisibility(
+                                    visible = currentNavigationItem.withBottomTabs,
+                                    enter = slideInVertically(initialOffsetY = { it }),
+                                    exit = slideOutVertically(targetOffsetY = { it }),
+                                ) {
+                                    WireBottomNavigationBar(
+                                        items = HomeNavigationItem.bottomTabItems.toBottomNavigationItems(
+                                            ConversationListState = conversationListState
+                                        ),
+                                        navController = navController
+                                    )
+                                }
+                            }
+                        )
                     }
                 }
-            )
-        }
+            }
+        )
     }
 }
 

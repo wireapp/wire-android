@@ -1,11 +1,15 @@
 package com.wire.android.ui.home.settings.backup.dialog
 
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -20,6 +24,7 @@ import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun BackupDialog(
     backupDialogStateHolder: BackupDialogStateHolder,
@@ -79,15 +84,32 @@ fun BackupDialog(
             BackUpDialogStep.CreatingBackup -> {
                 WireDialog(
                     title = "Creating Backup",
-                    text = "test",
                     onDismiss = onDismissDialog,
                     optionButton1Properties = WireDialogButtonProperties(
                         onClick = { },
                         text = stringResource(id = R.string.label_ok),
                         type = WireDialogButtonType.Primary,
-                    )
+                        state = if (backupProgress == 1.0f) WireButtonState.Default else WireButtonState.Disabled
+                    ),
+                    dismissButtonProperties = WireDialogButtonProperties(
+                        onClick = onDismissDialog,
+                        text = stringResource(id = R.string.label_cancel),
+                        state = WireButtonState.Default
+                    ),
                 ) {
-
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        if (backupProgress == 1.0f) {
+                            Row {
+                                Text("Conversations successfully saved")
+                            }
+                        } else {
+                            Row {
+                                Text("Saving conversations")
+                                Text("25 %")
+                            }
+                        }
+                        LinearProgressIndicator(progress = 1f)
+                    }
                 }
             }
             BackUpDialogStep.Failure -> {

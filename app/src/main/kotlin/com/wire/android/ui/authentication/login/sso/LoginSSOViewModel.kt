@@ -52,11 +52,11 @@ class LoginSSOViewModel @Inject constructor(
                     is AutoVersionAuthScopeUseCase.Result.Success -> it.authenticationScope
 
                     is AutoVersionAuthScopeUseCase.Result.Failure.UnknownServerVersion -> {
-                        loginState = loginState.copy(showServerVersionNotSupportedDialog = true)
+                        loginState = loginState.copy(loginError = LoginError.DialogError.ServerVersionNotSupported)
                         return@launch
                     }
                     is AutoVersionAuthScopeUseCase.Result.Failure.TooNewVersion -> {
-                        loginState = loginState.copy(showClientUpdateDialog = true)
+                        loginState = loginState.copy(loginError = LoginError.DialogError.ClientUpdateRequired)
                         return@launch
                     }
                     is AutoVersionAuthScopeUseCase.Result.Failure.Generic -> {
@@ -84,11 +84,11 @@ class LoginSSOViewModel @Inject constructor(
                     is AutoVersionAuthScopeUseCase.Result.Success -> it.authenticationScope
 
                     is AutoVersionAuthScopeUseCase.Result.Failure.UnknownServerVersion -> {
-                        loginState = loginState.copy(showServerVersionNotSupportedDialog = true)
+                        loginState = loginState.copy(loginError = LoginError.DialogError.ServerVersionNotSupported)
                         return@launch
                     }
                     is AutoVersionAuthScopeUseCase.Result.Failure.TooNewVersion -> {
-                        loginState = loginState.copy(showClientUpdateDialog = true)
+                        loginState = loginState.copy(loginError = LoginError.DialogError.ClientUpdateRequired)
                         return@launch
                     }
                     is AutoVersionAuthScopeUseCase.Result.Failure.Generic -> {

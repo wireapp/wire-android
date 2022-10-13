@@ -60,7 +60,7 @@ class AddMembersToConversationViewModel @Inject constructor(
     init {
         viewModelScope.launch {
             combine(
-                initialContactResultFlow,
+                initialContactResultFlow(),
                 knownPeopleSearchQueryFlow,
                 searchQueryTextFieldFlow,
                 selectedContactsFlow
@@ -78,15 +78,15 @@ class AddMembersToConversationViewModel @Inject constructor(
         }
     }
 
-    override suspend fun getInitialContacts(): SearchResult =
-        withContext(dispatchers.io()) {
-            SearchResult.Failure(R.string.label_general_error)
-//            when (val result = getAllContactsNotInConversation(conversationId)) {
-//                is Result.Failure -> SearchResult.Failure(R.string.label_general_error)
-//                is Result.Success -> SearchResult.Success(result.contactsNotInConversation.map(contactMapper::fromOtherUser))
+    override fun getInitialContacts(): Flow<SearchResult> =
+            getAllContactsNotInConversation(conversationId).map { result ->
+                SearchResult.Failure(R.string.label_general_error)
+//            when (result) {
+    //                is Result.Failure -> SearchResult.Failure(R.string.label_general_error)
+    //                is Result.Success -> SearchResult.Success(result.contactsNotInConversation.map(contactMapper::fromOtherUser))
 //                else -> SearchResult.Failure(R.string.label_general_error)
-//            }
-        }
+    //            }
+            }
 
     override suspend fun searchKnownPeople(searchTerm: String): Flow<ContactSearchResult.InternalContact> {
        return searchKnownUsers(

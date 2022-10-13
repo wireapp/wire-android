@@ -82,7 +82,7 @@ private fun LeaveGroupItem(
                 tint = MaterialTheme.colorScheme.error
             )
         },
-        onItemClick = Clickable {
+        onItemClick = Clickable(blockUntilSynced = true) {
             onLeaveGroup()
             closeBottomSheet()
         }

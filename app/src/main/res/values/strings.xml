@@ -112,6 +112,7 @@
     <string name="user_profile_screen_title">User Profile</string>
     <string name="settings_screen_title">Settings</string>
     <string name="app_settings_screen_title">App Settings</string>
+    <string name="give_feedback_screen_title">Give Feedback</string>
     <string name="report_bug_screen_title">Report Bug</string>
     <string name="debug_settings_screen_title">Debug Settings</string>
     <string name="support_screen_title">Support</string>
@@ -423,6 +424,7 @@
     </plurals>
     <string name="label_system_message_blocked_user">%1$s blocked this user</string>
     <string name="label_system_message_renamed_the_conversation">%1$s renamed the conversation\n%2$s</string>
+    <string name="label_system_message_team_member_left">%1$s was removed from the team</string>
     <!--Search Contact-->
     <string name="label_contacts">CONTACTS</string>
     <string name="label_new_group">New Group</string>
@@ -616,4 +618,5 @@
     <string name="conversation_empty_list_description">Connect with others or create a new group to start collaborating!</string>
     <string name="conversation_empty_list_title">Welcome 👋</string>
     <string name="label_reactions">Reactions</string>
+    <string name="label_wait_until_synchronised">Please wait until the app is synchronised</string>
 </resources>

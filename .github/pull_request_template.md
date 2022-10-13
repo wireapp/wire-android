@@ -48,7 +48,8 @@ _Specify here any other facts that you think are important for this issue._
 
 ### Attachments (Optional)
 
-<!-- _Attachments like images, videos, etc. (drag and drop in the text box)_ -->
+_Attachments like images, videos, etc. (drag and drop in the text box)_ 
+<!-- Uncomment the brackets and place your screenshots on the table below. -->
 <!--
 | Before | After |
 | ----------- | ------------ |

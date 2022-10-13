@@ -16,6 +16,7 @@ import com.wire.kalium.logic.feature.auth.AuthenticationResult
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -44,11 +45,11 @@ class LoginEmailViewModel @Inject constructor(
                     is AutoVersionAuthScopeUseCase.Result.Success -> it.authenticationScope
 
                     is AutoVersionAuthScopeUseCase.Result.Failure.UnknownServerVersion -> {
-                        loginState = loginState.copy(showServerVersionNotSupportedDialog = true)
+                        loginState = loginState.copy(loginError = LoginError.DialogError.ServerVersionNotSupported)
                         return@launch
                     }
                     is AutoVersionAuthScopeUseCase.Result.Failure.TooNewVersion -> {
-                        loginState = loginState.copy(showClientUpdateDialog = true)
+                        loginState = loginState.copy(loginError = LoginError.DialogError.ClientUpdateRequired)
                         return@launch
                     }
                     is AutoVersionAuthScopeUseCase.Result.Failure.Generic -> {

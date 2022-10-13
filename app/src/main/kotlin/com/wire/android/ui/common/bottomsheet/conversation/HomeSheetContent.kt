@@ -149,6 +149,7 @@ internal fun ConversationMainSheetContent(
                                     )
                                 },
                                 title = stringResource(R.string.label_block),
+                                blockUntilSynced = true,
                                 onItemClick = {
                                     blockUserClick(
                                         BlockUserDialogState(

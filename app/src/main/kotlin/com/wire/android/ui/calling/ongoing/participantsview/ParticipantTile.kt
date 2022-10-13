@@ -179,7 +179,6 @@ private fun AvatarTile(
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         UserProfileAvatar(
-            modifier = Modifier.padding(top = dimensions().spacing16x),
             size = avatarSize,
             avatarData = avatar
         )

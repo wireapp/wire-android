@@ -52,6 +52,7 @@ fun LoginSSOScreen(
     val scope = rememberCoroutineScope()
     val context = LocalContext.current
     val loginSSOViewModel: LoginSSOViewModel = hiltViewModel()
+
     LaunchedEffect(ssoLoginResult) {
         loginSSOViewModel.handleSSOResult(ssoLoginResult)
     }
@@ -106,7 +107,7 @@ private fun LoginSSOContent(
         ) { scope.launch { onLoginButtonClick() } }
     }
     if (loginState.loginError is LoginError.DialogError) {
-        LoginErrorDialog(loginState.loginError, onDialogDismiss, ssoLoginResult)
+        LoginErrorDialog(loginState.loginError, onDialogDismiss, {}, ssoLoginResult)
     } else if (loginState.loginError is LoginError.TooManyDevicesError) {
         onRemoveDeviceOpen()
     }

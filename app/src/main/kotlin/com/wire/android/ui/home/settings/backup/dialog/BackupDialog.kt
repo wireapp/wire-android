@@ -15,10 +15,13 @@ import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.R
+import com.wire.android.ui.common.WireCheckIcon
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
+import com.wire.android.ui.common.spacers.HorizontalSpace
+import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.theme.wireDimensions
@@ -100,31 +103,32 @@ fun BackupDialog(
                     Column(modifier = Modifier.fillMaxWidth()) {
                         if (backupProgress == 1.0f) {
                             Row {
-                                Text("Conversations successfully saved")
+                                Text("Conversations successfully saved", modifier = Modifier.weight(1f))
+                                WireCheckIcon()
                             }
                         } else {
                             Row {
-                                Text("Saving conversations")
-                                Text("25 %")
+                                Text("Saving conversations", modifier = Modifier.weight(1f))
+                                Text("25 %", style = MaterialTheme.wireTypography.body02)
                             }
                         }
+                        VerticalSpace.x16()
                         LinearProgressIndicator(progress = 1f)
+                        VerticalSpace.x16()
                     }
                 }
             }
             BackUpDialogStep.Failure -> {
                 WireDialog(
                     title = "Something went wrong",
-                    text = "test",
+                    text = "The backup could not be created. Please try again or contact the Wire customer support.",
                     onDismiss = onDismissDialog,
                     optionButton1Properties = WireDialogButtonProperties(
                         onClick = onDismissDialog,
                         text = stringResource(id = R.string.label_ok),
                         type = WireDialogButtonType.Primary,
                     )
-                ) {
-
-                }
+                )
             }
         }
     }

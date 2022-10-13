@@ -1,6 +1,5 @@
 package com.wire.android.ui.home.settings.backup
 
-import android.app.backup.BackupManager
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -36,7 +35,10 @@ class BackupAndRestoreViewModel
     }
 
     fun createBackup() {
-
+        viewModelScope.launch {
+            delay(2000)
+            state = state.copy(isBackupSuccessFull = false)
+        }
     }
 
     fun chooseBackupFile() {
@@ -60,15 +62,17 @@ class BackupAndRestoreViewModel
 }
 
 data class BackupAndRestoreState(
-    val isBackupPasswordValid: Boolean = true,
-    val backupPassword: TextFieldValue = TextFieldValue(""),
-    val backupProgress: Float = 0.0f
+    val isBackupPasswordValid: Boolean,
+    val backupPassword: TextFieldValue,
+    val backupProgress: Float,
+    val isBackupSuccessFull: Boolean
 ) {
     companion object {
         val INITIAL_STATE = BackupAndRestoreState(
             isBackupPasswordValid = true,
             backupPassword = TextFieldValue(""),
-            backupProgress = 0.0f
+            backupProgress = 0.0f,
+            isBackupSuccessFull = true
         )
     }
 }

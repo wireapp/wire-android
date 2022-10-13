@@ -108,46 +108,23 @@ fun BackupAndRestoreContent(
         }
     }
 
-    BackupAndRestoreDialogs(backupAndRestoreStateHolder.dialogState,
-        isBackupPasswordValid = backUpAndRestoreState.isBackupPasswordValid,
-        backupProgress = backUpAndRestoreState.backupProgress,
-        onValidateBackupPassword = onValidateBackupPassword,
-        onCreateBackup = onCreateBackup,
-        onSaveBackup = onSaveBackup,
-        onCancelBackup = onCancelBackup,
-        onChooseBackupFile = onChooseBackupFile,
-        onRestoreBackup = onRestoreBackup,
-        onDismissDialog = {
-            onCancelBackup()
-            backupAndRestoreStateHolder.dismissDialog()
-        })
-}
-
-
-@Composable
-fun BackupAndRestoreDialogs(
-    dialogState: BackupAndRestoreDialog,
-    isBackupPasswordValid: Boolean,
-    backupProgress: Float,
-    onValidateBackupPassword: (TextFieldValue) -> Unit,
-    onCreateBackup: () -> Unit,
-    onSaveBackup: () -> Unit,
-    onCancelBackup: () -> Unit,
-    onChooseBackupFile: () -> Unit,
-    onRestoreBackup: () -> Unit,
-    onDismissDialog: () -> Unit
-) {
-    if (dialogState !is BackupAndRestoreDialog.None) {
-        when (dialogState) {
+    if (backupAndRestoreStateHolder.dialogState !is BackupAndRestoreDialog.None) {
+        when (backupAndRestoreStateHolder.dialogState) {
             is BackupAndRestoreDialog.Backup -> {
                 val backupDialogStateHolder = rememberBackUpDialogState()
 
-                LaunchedEffect(isBackupPasswordValid) {
-                    backupDialogStateHolder.isBackupPasswordValid = isBackupPasswordValid
+                LaunchedEffect(backUpAndRestoreState.isBackupPasswordValid) {
+                    backupDialogStateHolder.isBackupPasswordValid = backUpAndRestoreState.isBackupPasswordValid
                 }
 
-                LaunchedEffect(backupProgress) {
-                    backupDialogStateHolder.backupProgress = backupProgress
+                LaunchedEffect(backUpAndRestoreState.backupProgress) {
+                    backupDialogStateHolder.backupProgress = backUpAndRestoreState.backupProgress
+                }
+
+                LaunchedEffect(backUpAndRestoreState.isBackupSuccessFull) {
+                    if (!backUpAndRestoreState.isBackupSuccessFull) {
+                        backupDialogStateHolder.toBackupFailure()
+                    }
                 }
 
                 BackupDialog(
@@ -156,7 +133,10 @@ fun BackupAndRestoreDialogs(
                     onCreateBackup = onCreateBackup,
                     onSaveBackup = onSaveBackup,
                     onCancelBackup = onCancelBackup,
-                    onDismissDialog = onDismissDialog
+                    onDismissDialog = {
+                        onCancelBackup()
+                        backupAndRestoreStateHolder.dismissDialog()
+                    }
                 )
             }
             is BackupAndRestoreDialog.Restore ->
@@ -167,6 +147,7 @@ fun BackupAndRestoreDialogs(
         }
     }
 }
+
 //@Preview
 //@Composable
 //fun BackupAndRestoreScreenPreview() {

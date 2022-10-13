@@ -1,17 +1,15 @@
 package com.wire.android.ui.home.settings.backup.dialog
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 
-class BackupDialogStateHolder(
-    val onDismiss: () -> Unit,
-    val onStartBackup: (TextFieldValue) -> Unit,
-    val onSaveBackup: () -> Unit
-) {
+@Stable
+class BackupDialogStateHolder {
     companion object {
         val INITIAL_STEP = BackUpDialogStep.Inform
     }
@@ -32,6 +30,10 @@ class BackupDialogStateHolder(
         currentBackupDialogStep = BackUpDialogStep.SetPassword
     }
 
+    fun toBackupFailure() {
+        currentBackupDialogStep = BackUpDialogStep.Failure
+    }
+
     fun reset() {
         currentBackupDialogStep = INITIAL_STEP
     }
@@ -40,7 +42,7 @@ class BackupDialogStateHolder(
 
 @Composable
 fun rememberBackUpDialogState(): BackupDialogStateHolder {
-    return remember { BackupDialogStateHolder({}, { TextFieldValue("") }, {}) }
+    return remember { BackupDialogStateHolder() }
 }
 
 sealed interface BackUpDialogStep {

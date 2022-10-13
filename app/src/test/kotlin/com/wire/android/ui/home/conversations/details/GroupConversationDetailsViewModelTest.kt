@@ -385,7 +385,8 @@ class GroupConversationDetailsViewModelTest {
                 access = listOf(Conversation.Access.CODE, Conversation.Access.INVITE),
                 accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER, Conversation.AccessRole.GUEST),
                 lastReadDate = "2022-04-04T16:11:28.388Z",
-                creatorId = PlainId("")
+                isCreator = false,
+                isSelfUserMember = true
             ),
             legalHoldStatus = LegalHoldStatus.DISABLED,
             hasOngoingCall = false,

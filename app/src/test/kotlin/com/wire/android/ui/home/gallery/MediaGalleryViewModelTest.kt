@@ -284,7 +284,8 @@ class MediaGalleryViewModelTest {
                 lastReadDate = "2022-04-04T16:11:28.388Z",
                 access = listOf(Conversation.Access.INVITE),
                 accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER),
-                creatorId = PlainId("")
+                isCreator = false,
+                isSelfUserMember = true
             ),
             otherUser = OtherUser(
                 QualifiedID("other-user-id", "domain-id"),

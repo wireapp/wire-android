@@ -4,8 +4,8 @@ import androidx.compose.runtime.Composable
 
 @Composable
 fun RestoreDialog(
-    onChooseBackupFile: Any,
-    onRestoreBackup: Any
+    onChooseBackupFile: () -> Unit,
+    onRestoreBackup: () -> Unit
 ) {
 //    when (restoreDialogState) {
 //

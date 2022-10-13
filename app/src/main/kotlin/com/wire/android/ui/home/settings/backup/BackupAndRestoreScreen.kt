@@ -6,18 +6,12 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
@@ -25,16 +19,9 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
-import com.wire.android.ui.common.WireDialog
-import com.wire.android.ui.common.WireDialogButtonProperties
-import com.wire.android.ui.common.WireDialogButtonType
-import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.spacers.VerticalSpace
-import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WirePrimaryButton
-import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
-import com.wire.android.ui.home.settings.backup.dialog.BackUpAndRestoreStateHolder
 import com.wire.android.ui.home.settings.backup.dialog.BackupAndRestoreDialog
 import com.wire.android.ui.home.settings.backup.dialog.BackupDialog
 import com.wire.android.ui.home.settings.backup.dialog.RestoreDialog
@@ -48,12 +35,12 @@ import com.wire.android.ui.theme.wireTypography
 fun BackupAndRestoreScreen(viewModel: BackupAndRestoreViewModel = hiltViewModel()) {
     BackupAndRestoreContent(
         backUpAndRestoreState = viewModel.state,
+        onValidateBackupPassword = viewModel::validateBackupPassword,
         onCreateBackup = viewModel::createBackup,
         onSaveBackup = viewModel::saveBackup,
         onCancelBackup = viewModel::cancelBackup,
         onChooseBackupFile = viewModel::chooseBackupFile,
         onRestoreBackup = viewModel::restoreBackup,
-        onValidateBackupPassword = viewModel::validateBackupPassword,
         onBackPressed = viewModel::navigateBack
     )
 }
@@ -121,17 +108,46 @@ fun BackupAndRestoreContent(
         }
     }
 
-    if (backupAndRestoreStateHolder.dialogState !is BackupAndRestoreDialog.None) {
-        when (backupAndRestoreStateHolder.dialogState) {
+    BackupAndRestoreDialogs(backupAndRestoreStateHolder.dialogState,
+        isBackupPasswordValid = backUpAndRestoreState.isBackupPasswordValid,
+        backupProgress = backUpAndRestoreState.backupProgress,
+        onValidateBackupPassword = onValidateBackupPassword,
+        onCreateBackup = onCreateBackup,
+        onSaveBackup = onSaveBackup,
+        onCancelBackup = onCancelBackup,
+        onChooseBackupFile = onChooseBackupFile,
+        onRestoreBackup = onRestoreBackup,
+        onDismissDialog = {
+            onCancelBackup()
+            backupAndRestoreStateHolder.dismissDialog()
+        })
+}
+
+
+@Composable
+fun BackupAndRestoreDialogs(
+    dialogState: BackupAndRestoreDialog,
+    isBackupPasswordValid: Boolean,
+    backupProgress: Float,
+    onValidateBackupPassword: (TextFieldValue) -> Unit,
+    onCreateBackup: () -> Unit,
+    onSaveBackup: () -> Unit,
+    onCancelBackup: () -> Unit,
+    onChooseBackupFile: () -> Unit,
+    onRestoreBackup: () -> Unit,
+    onDismissDialog: () -> Unit
+) {
+    if (dialogState !is BackupAndRestoreDialog.None) {
+        when (dialogState) {
             is BackupAndRestoreDialog.Backup -> {
                 val backupDialogStateHolder = rememberBackUpDialogState()
 
-                LaunchedEffect(backUpAndRestoreState.isBackupPasswordValid) {
-                    backupDialogStateHolder.isBackupPasswordValid = backUpAndRestoreState.isBackupPasswordValid
+                LaunchedEffect(isBackupPasswordValid) {
+                    backupDialogStateHolder.isBackupPasswordValid = isBackupPasswordValid
                 }
 
-                LaunchedEffect(backUpAndRestoreState.backupProgress) {
-                    backupDialogStateHolder.backupProgress = backUpAndRestoreState.backupProgress
+                LaunchedEffect(backupProgress) {
+                    backupDialogStateHolder.backupProgress = backupProgress
                 }
 
                 BackupDialog(
@@ -140,20 +156,17 @@ fun BackupAndRestoreContent(
                     onCreateBackup = onCreateBackup,
                     onSaveBackup = onSaveBackup,
                     onCancelBackup = onCancelBackup,
-                    onDismissDialog = {
-                        onCancelBackup()
-                        backupAndRestoreStateHolder.dismissDialog()
-                    }
+                    onDismissDialog = onDismissDialog
                 )
             }
             is BackupAndRestoreDialog.Restore ->
                 RestoreDialog(
-                    onRestoreBackup = onRestoreBackup
+                    onRestoreBackup = onRestoreBackup,
+                    onChooseBackupFile = onChooseBackupFile
                 )
         }
     }
 }
-
 //@Preview
 //@Composable
 //fun BackupAndRestoreScreenPreview() {

@@ -24,10 +24,6 @@ class BackupDialogStateHolder(
 
     var backupProgress: Float by mutableStateOf(0.0f)
 
-    fun reset() {
-        currentBackupDialogStep = INITIAL_STEP
-    }
-
     fun toCreateBackUp() {
         currentBackupDialogStep = BackUpDialogStep.CreatingBackup
     }
@@ -36,12 +32,14 @@ class BackupDialogStateHolder(
         currentBackupDialogStep = BackUpDialogStep.SetPassword
     }
 
+    fun reset() {
+        currentBackupDialogStep = INITIAL_STEP
+    }
+
 }
 
 @Composable
 fun rememberBackUpDialogState(): BackupDialogStateHolder {
-    val backupDialogStateHolder =
-
     return remember { BackupDialogStateHolder({}, { TextFieldValue("") }, {}) }
 }
 

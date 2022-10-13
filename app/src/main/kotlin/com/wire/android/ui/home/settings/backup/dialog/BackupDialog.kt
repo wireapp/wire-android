@@ -65,11 +65,8 @@ fun BackupDialog(
                         state = if (!isBackupPasswordValid) WireButtonState.Disabled else WireButtonState.Default
                     )
                 ) {
-                    Text(
-                        text = "PASSWORD (OPTIONAL)",
-                        style = MaterialTheme.wireTypography.label04
-                    )
                     WirePasswordTextField(
+                        labelText = "PASSWORD (OPTIONAL)",
                         state = if (!isBackupPasswordValid) WireTextFieldState.Error("some error") else WireTextFieldState.Default,
                         value = backupPassword,
                         onValueChange = {

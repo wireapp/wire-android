@@ -21,24 +21,18 @@ class BackupAndRestoreViewModel
 
     var state by mutableStateOf(BackupAndRestoreState.INITIAL_STATE)
 
-    fun setBackupPassword(backupPassword: TextFieldValue) {
-        state = state.copy(backupPassword = backupPassword)
-    }
-
+    // TODO: the requirement of the validation could be changed
+    // for now we do not validate the password
     fun validateBackupPassword(backupPassword: TextFieldValue) {
         viewModelScope.launch {
             state = state.copy(
-                isBackupPasswordValid = backupPassword.text.isEmpty()
+                isBackupPasswordValid = true
             )
         }
     }
 
     fun saveBackup() {
 
-    }
-
-    fun cancelBackup() {
-        resetState()
     }
 
     fun createBackup() {
@@ -51,6 +45,10 @@ class BackupAndRestoreViewModel
 
     fun restoreBackup() {
 
+    }
+
+    fun cancelBackup() {
+        resetState()
     }
 
     private fun resetState() {
@@ -68,7 +66,7 @@ data class BackupAndRestoreState(
 ) {
     companion object {
         val INITIAL_STATE = BackupAndRestoreState(
-            isBackupPasswordValid = false,
+            isBackupPasswordValid = true,
             backupPassword = TextFieldValue(""),
             backupProgress = 0.0f
         )

@@ -759,6 +759,11 @@ class UseCaseModule {
     fun provideAutoVersionAuthScopeUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         authServerConfigProvider: AuthServerConfigProvider
-    ): AutoVersionAuthScopeUseCase  =
+    ): AutoVersionAuthScopeUseCase =
         coreLogic.versionedAuthenticationScope(authServerConfigProvider.authServer.value)
+
+    @ViewModelScoped
+    @Provides
+    fun provideIsCallRunningUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).calls.isCallRunning
 }

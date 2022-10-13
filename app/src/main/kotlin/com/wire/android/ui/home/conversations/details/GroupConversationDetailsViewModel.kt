@@ -13,12 +13,12 @@ import com.wire.android.navigation.EXTRA_LEFT_GROUP
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
+import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetail
 import com.wire.android.ui.home.conversations.details.menu.GroupConversationDetailsBottomSheetEventsHandler
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsState
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipantsViewModel
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
-import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
-import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetail
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
@@ -51,7 +51,6 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
-import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Date
@@ -124,17 +123,16 @@ class GroupConversationDetailsViewModel @Inject constructor(
                 .distinctUntilChanged()
 
             combine(
-                observerSelfUser().take(1),
                 groupDetailsFlow,
                 isSelfAdminFlow,
                 getSelfTeam(),
                 isSelfUserMemberFlow
-            ) { selfUser, groupDetails, isSelfAnAdmin, selfTeam, isSelfUserMember ->
+            ) { groupDetails, isSelfAnAdmin, selfTeam, isSelfUserMember ->
 
                 val isSelfInOwnerTeam =
                     selfTeam?.id != null && selfTeam.id == groupDetails.conversation.teamId?.value
 
-                val isAbleToRemoveGroup = (selfUser.teamId != null && groupDetails.conversation.creatorId.value == selfUser.id.value)
+                val isAbleToRemoveGroup = groupDetails.conversation.isCreator
 
                 conversationSheetContent = ConversationSheetContent(
                     title = groupDetails.conversation.name.orEmpty(),

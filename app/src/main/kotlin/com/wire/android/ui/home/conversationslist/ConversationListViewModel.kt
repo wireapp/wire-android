@@ -299,7 +299,11 @@ private fun ConversationDetails.toConversationItem(
     selfUser: SelfUser
 ): ConversationItem = when (this) {
     is Group -> {
-        val isSelfCreated = (selfUser.teamId != null && conversation.creatorId.value == selfUser.id.value)
+        if (conversation.name == "testing_by_boris") {
+            println("cyka creator ${conversation.creatorId}")
+            println("cyka me ${selfUser.id}")
+            println("cyka conversation ${conversation.id}")
+        }
         ConversationItem.GroupConversation(
             groupName = conversation.name.orEmpty(),
             conversationId = conversation.id,
@@ -308,7 +312,7 @@ private fun ConversationDetails.toConversationItem(
             lastEvent = ConversationLastEvent.None, // TODO implement unread events
             badgeEventType = parseConversationEventType(conversation.mutedStatus, unreadMentionsCount, unreadMessagesCount),
             hasOnGoingCall = hasOngoingCall,
-            isCreator = isSelfCreated,
+            isCreator = conversation.isCreator,
             isSelfUserMember = isSelfUserMember
         )
     }

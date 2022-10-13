@@ -49,6 +49,7 @@ import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import okio.Path
@@ -158,7 +159,17 @@ internal class ConversationsViewModelArrangement {
     }
 
     fun withSuccessfulSendAttachmentMessage() = apply {
-        coEvery { sendAssetMessage(any(), any(), any(), any(), any(), any(), any()) } returns ScheduleNewAssetMessageResult.Success
+        coEvery {
+            sendAssetMessage(
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any()
+            )
+        } returns ScheduleNewAssetMessageResult.Success("some-message-id")
     }
 
     fun withFailureOnDeletingMessages() = apply {
@@ -211,7 +222,7 @@ internal fun mockConversationDetailsGroup(
     lastUnreadMessage = null
 )
 
-internal fun mockUITextMessage(id:String = "someId", userName: String = "mockUserName"): UIMessage {
+internal fun mockUITextMessage(id: String = "someId", userName: String = "mockUserName"): UIMessage {
     return mockk<UIMessage>().also {
         every { it.userAvatarData } returns UserAvatarData()
         every { it.messageSource } returns MessageSource.OtherUser

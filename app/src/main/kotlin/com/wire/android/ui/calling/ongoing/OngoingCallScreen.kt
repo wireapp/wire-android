@@ -41,6 +41,9 @@ import com.wire.android.ui.calling.ongoing.participantsview.VerticalCallingPager
 import com.wire.android.ui.common.SecurityClassificationBanner
 import com.wire.android.ui.common.WireCircularProgressIndicator
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.topappbar.CommonTopAppBar
+import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
+import com.wire.android.ui.common.topappbar.ConnectivityUIState
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireColorScheme
@@ -51,7 +54,8 @@ import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 @Composable
 fun OngoingCallScreen(
     ongoingCallViewModel: OngoingCallViewModel = hiltViewModel(),
-    sharedCallingViewModel: SharedCallingViewModel = hiltViewModel()
+    sharedCallingViewModel: SharedCallingViewModel = hiltViewModel(),
+    commonTopAppBarViewModel: CommonTopAppBarViewModel = hiltViewModel(),
 ) {
 
     with(sharedCallingViewModel.callState) {
@@ -62,6 +66,7 @@ fun OngoingCallScreen(
             isCameraOn ?: false,
             isSpeakerOn,
             securityClassificationType,
+            commonTopAppBarViewModel.connectivityState,
             sharedCallingViewModel::toggleSpeaker,
             sharedCallingViewModel::toggleMute,
             sharedCallingViewModel::hangUpCall,
@@ -86,6 +91,7 @@ private fun OngoingCallContent(
     isCameraOn: Boolean,
     isSpeakerOn: Boolean,
     classificationType: SecurityClassificationType,
+    connectivityState: ConnectivityUIState,
     toggleSpeaker: () -> Unit,
     toggleMute: () -> Unit,
     hangUpCall: () -> Unit,
@@ -103,6 +109,10 @@ private fun OngoingCallContent(
     )
     BottomSheetScaffold(
         topBar = {
+            CommonTopAppBar(
+                connectivityUIState = connectivityState,
+                onReturnToCallClick = { }
+            )
             OngoingCallTopBar(
                 conversationName = when (conversationName) {
                     is ConversationName.Known -> conversationName.name

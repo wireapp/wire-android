@@ -1,6 +1,9 @@
 package com.wire.android.ui.home
 
 import android.content.Intent
+import android.content.Intent.ACTION_SENDTO
+import android.net.Uri
+import android.provider.ContactsContract.CommonDataKinds.Email
 import android.os.Build
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
@@ -35,7 +38,6 @@ import com.wire.android.R
 import com.wire.android.navigation.HomeNavigationItem
 import com.wire.android.navigation.HomeNavigationItem.Settings
 import com.wire.android.navigation.NavigationItem
-import com.wire.android.navigation.NavigationItem.ReportBug
 import com.wire.android.navigation.NavigationItem.Support
 import com.wire.android.navigation.isExternalRoute
 import com.wire.android.ui.common.Logo
@@ -43,6 +45,7 @@ import com.wire.android.ui.common.selectableBackground
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
+import com.wire.android.util.EmailComposer
 import com.wire.android.util.getDeviceId
 import com.wire.android.util.getUrisOfFilesInDirectory
 import com.wire.android.util.multipleFileSharingIntent
@@ -114,20 +117,34 @@ fun HomeDrawer(
         }
 
         DrawerItem(
-            data = ReportBug.getDrawerData(),
+            data = DrawerItemData(R.string.give_feedback_screen_title, R.drawable.ic_emoticon),
+            selected = false,
+            onItemClick = {
+
+                val intent = Intent(Intent.ACTION_SEND)
+                intent.putExtra(Intent.EXTRA_EMAIL, arrayOf("wire-newandroid-feedback@wearezeta.zendesk.com"))
+                intent.putExtra(Intent.EXTRA_SUBJECT, "Feedback - Wire Beta")
+                intent.putExtra(Intent.EXTRA_TEXT, EmailComposer.giveFeedbackEmailTemplate(context.getDeviceId()?.sha256()))
+
+                intent.selector = Intent(ACTION_SENDTO).setData(Uri.parse("mailto:"))
+                context.startActivity(Intent.createChooser(intent,"Choose an Email client: "))
+            })
+
+        DrawerItem(
+            data = DrawerItemData(R.string.report_bug_screen_title, R.drawable.ic_bug),
             selected = false,
             onItemClick = {
                 val dir = File(logFilePath).parentFile
 
                 if (dir != null) {
-                    val logsUris = context.getUrisOfFilesInDirectory(dir)
-                    val intent = context.multipleFileSharingIntent(logsUris)
-                    intent.putExtra(Intent.EXTRA_EMAIL, arrayOf("wire-newandroid@wearezeta.zendesk.com"))
-                    intent.putExtra(Intent.EXTRA_SUBJECT, "Bug Report - Wire Beta")
-                    intent.putExtra(Intent.EXTRA_TEXT, reportBugEmailTemplate(context.getDeviceId()?.sha256()))
-                    intent.type = "message/rfc822"
+                val logsUris = context.getUrisOfFilesInDirectory(dir)
+                val intent = context.multipleFileSharingIntent(logsUris)
+                intent.putExtra(Intent.EXTRA_EMAIL, arrayOf("wire-newandroid@wearezeta.zendesk.com"))
+                intent.putExtra(Intent.EXTRA_SUBJECT, "Bug Report - Wire Beta")
+                intent.putExtra(Intent.EXTRA_TEXT, EmailComposer.reportBugEmailTemplate(context.getDeviceId()?.sha256()))
+                intent.type = "message/rfc822"
 
-                    context.startActivity(Intent.createChooser(intent, "Choose an Email client : "))
+                    context.startActivity(Intent.createChooser(intent, "Choose an Email client: "))
                 }
             }
         )
@@ -202,7 +219,6 @@ private fun Any.getDrawerData(): DrawerItemData =
     when (this) {
         is HomeNavigationItem -> DrawerItemData(this.title, this.icon)
         Support -> DrawerItemData(R.string.support_screen_title, R.drawable.ic_support)
-        ReportBug -> DrawerItemData(R.string.report_bug_screen_title, R.drawable.ic_bug)
         else -> DrawerItemData(null, null)
     }
 

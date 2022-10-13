@@ -55,28 +55,6 @@ class HomeViewModel @Inject constructor(
 
     fun logFilePath(): String = logFileWriter.activeLoggingFile.absolutePath
 
-    // TODO(localization): localize if needed
-    fun reportBugEmailTemplate(deviceHash: String? = "unavailable"): String = """
-        --- DO NOT EDIT---
-        App Version: ${BuildConfig.VERSION_NAME}
-        Device Hash: $deviceHash
-        Device: ${Build.MANUFACTURER} - ${Build.MODEL}
-        SDK: ${Build.VERSION.RELEASE}
-        Date: ${Date()}
-        ------------------
-
-        Please fill in the following
-
-        - Date & Time of when the issue occurred:
-
-
-        - What happened:
-
-
-        - Steps to reproduce (if relevant):
-        
-    """.trimIndent()
-
     fun checkRequirements() {
         viewModelScope.launch {
             when {

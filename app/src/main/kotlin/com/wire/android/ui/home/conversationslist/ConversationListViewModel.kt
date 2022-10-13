@@ -140,6 +140,7 @@ class ConversationListViewModel @Inject constructor(
         )
     }
 
+    @Suppress("ComplexMethod")
     private fun List<ConversationDetails>.toConversationsFoldersMap(): Map<ConversationFolder, List<ConversationItem>> {
         val unreadConversations = filter {
             when (it.conversation.mutedStatus) {
@@ -292,7 +293,9 @@ class ConversationListViewModel @Inject constructor(
             when (withContext(dispatcher.io()) { deleteTeamConversation(groupDialogState.conversationId) }) {
                 is Result.Failure.GenericFailure -> homeSnackBarState.emit(HomeSnackbarState.DeleteConversationGroupError)
                 Result.Failure.NoTeamFailure -> homeSnackBarState.emit(HomeSnackbarState.DeleteConversationGroupError)
-                Result.Success -> homeSnackBarState.emit(HomeSnackbarState.DeletedConversationGroupSuccess(groupDialogState.conversationName))
+                Result.Success -> homeSnackBarState.emit(
+                    HomeSnackbarState.DeletedConversationGroupSuccess(groupDialogState.conversationName)
+                )
             }
             requestInProgress = false
         }

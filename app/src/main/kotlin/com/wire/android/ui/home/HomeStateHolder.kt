@@ -29,6 +29,7 @@ import com.wire.android.ui.common.topappbar.search.rememberSearchbarState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 
+@Suppress("LongParameterList")
 @OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class)
 class HomeStateHolder(
     val coroutineScope: CoroutineScope,

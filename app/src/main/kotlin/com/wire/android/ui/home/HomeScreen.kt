@@ -293,7 +293,7 @@ private fun handleSnackBarMessage(
 @ExperimentalAnimationApi
 @Composable
 private fun List<HomeNavigationItem>.toBottomNavigationItems(
-    ConversationListState: ConversationListState
+    conversationListState: ConversationListState
 ): List<WireBottomNavigationItemData> = map { homeNavigationItem ->
     when (homeNavigationItem) {
         HomeNavigationItem.Conversations -> homeNavigationItem.toBottomNavigationItemData(ConversationListState.newActivityCount)

@@ -27,7 +27,11 @@ import com.wire.android.ui.theme.wireTypography
 
 @Composable
 fun BackupAndRestoreScreen(viewModel: BackupAndRestoreViewModel = hiltViewModel()) {
-    BackupAndRestoreContent(viewModel::navigateBack, viewModel::backupCreate, viewModel::backupRestore)
+    BackupAndRestoreContent(
+        viewModel::navigateBack,
+        viewModel::backupCreate,
+        viewModel::backupRestore
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

@@ -45,11 +45,15 @@ class BackupAndRestoreViewModel
 
     }
 
-    fun restoreBackup() {
+    fun restoreBackup(backupPassword: TextFieldValue) {
 
     }
 
-    fun cancelBackup() {
+    fun cancelBackupCreation() {
+        resetState()
+    }
+
+    fun cancelBackupRestore() {
         resetState()
     }
 

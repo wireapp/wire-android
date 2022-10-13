@@ -29,8 +29,8 @@ import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
-import com.wire.kalium.logic.feature.asset.SendAssetMessageResult
-import com.wire.kalium.logic.feature.asset.SendAssetMessageUseCase
+import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageResult
+import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
@@ -88,7 +88,7 @@ internal class ConversationsViewModelArrangement {
     lateinit var sendTextMessage: SendTextMessageUseCase
 
     @MockK
-    lateinit var sendAssetMessage: SendAssetMessageUseCase
+    lateinit var sendAssetMessage: ScheduleNewAssetMessageUseCase
 
     @MockK
     lateinit var deleteMessage: DeleteMessageUseCase
@@ -158,7 +158,7 @@ internal class ConversationsViewModelArrangement {
     }
 
     fun withSuccessfulSendAttachmentMessage() = apply {
-        coEvery { sendAssetMessage(any(), any(), any(), any(), any(), any(), any()) } returns SendAssetMessageResult.Success
+        coEvery { sendAssetMessage(any(), any(), any(), any(), any(), any(), any()) } returns ScheduleNewAssetMessageResult.Success
     }
 
     fun withFailureOnDeletingMessages() = apply {

@@ -66,8 +66,8 @@ internal fun MessageAsset(
             .clickable(if (isNotClickable(assetDownloadStatus, assetUploadStatus)) null else onAssetClick)
             .padding(dimensions().spacing8x)
     ) {
-        if (assetUploadStatus == Message.UploadStatus.UPLOAD_IN_PROGRESS) {
-            // If asset is being uploaded, we don't want to show any asset metadata info
+        val shouldHideAssetMetadata = assetUploadStatus == Message.UploadStatus.UPLOAD_IN_PROGRESS
+        if (shouldHideAssetMetadata) {
             UploadInProgressAssetMessage()
         } else {
             Column {

@@ -24,6 +24,7 @@ import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversationslist.common.ConversationItemFactory
+import com.wire.android.ui.home.conversationslist.common.ConversationList
 import com.wire.android.ui.home.conversationslist.folderWithElements
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
@@ -47,46 +48,14 @@ fun SearchConversationScreen(
         if (conversationSearchResult.values.isEmpty()) {
             EmptySearchResult(onOpenNewConversation)
         } else {
-            val context = LocalContext.current
-
-            LazyColumn(
-                state = rememberLazyListState(),
-                modifier = Modifier.fillMaxSize()
-            ) {
-                /*
-             * When the list is scrolled to top and new items (e.g. new activity section) should appear on top of the list, it appears above
-             * all current items, scroll is preserved so the list still shows the same item as the first one on list so it scrolls
-             * automatically to that item and the newly added section on top is hidden above this previously top item, so for such situation
-             * when the list is scrolled to the top and we want the new section to appear at the top we need a dummy top item which will make
-             *  it so it wants to keep this dummy top item as the first one on list and show all other items below it.
-             */
-                item("empty-top-header") {
-                    Divider(
-                        thickness = Dp.Hairline,
-                        color = Color.Transparent
-                    )
-                }
-                conversationSearchResult.forEach { (conversationFolder, conversationList) ->
-                    folderWithElements(
-                        header = when (conversationFolder) {
-                            is ConversationFolder.Predefined -> context.getString(conversationFolder.folderNameResId)
-                            is ConversationFolder.Custom -> conversationFolder.folderName
-                        },
-                        items = conversationList.associateBy {
-                            it.conversationId.toString()
-                        }
-                    ) { generalConversation ->
-                        ConversationItemFactory(
-                            conversation = generalConversation,
-                            openConversation = onOpenConversation,
-                            openMenu = onEditConversation,
-                            openUserProfile = onOpenUserProfile,
-                            openNotificationsOptions = onOpenConversationNotificationsSettings,
-                            joinCall = onJoinCall
-                        )
-                    }
-                }
-            }
+            ConversationList(
+                conversationListItems = conversationSearchResult,
+                onOpenConversation = onOpenConversation,
+                onEditConversation = onEditConversation,
+                onOpenUserProfile = onOpenUserProfile,
+                onOpenConversationNotificationsSettings = onOpenConversationNotificationsSettings,
+                onJoinCall = onJoinCall
+            )
         }
     }
 }

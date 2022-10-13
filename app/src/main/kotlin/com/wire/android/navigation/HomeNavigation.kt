@@ -53,7 +53,7 @@ enum class HomeNavigationItem(
         title = R.string.conversations_screen_title,
         tabName = R.string.conversations_all_tab_title,
         icon = R.drawable.ic_conversation,
-        isSearchable = true, // TODO
+        isSearchable = true,
         withNewConversationFab = true,
         content = { homeState ->
             {

@@ -50,12 +50,6 @@ class HomeViewModel @Inject constructor(
     )
         private set
 
-
-    private val mutableSearchQueryFlow = MutableStateFlow("")
-    private val searchQueryFlow = mutableSearchQueryFlow
-        .asStateFlow()
-        .debounce(SearchPeopleViewModel.DEFAULT_SEARCH_QUERY_DEBOUNCE)
-
     init {
         loadUserAvatar()
     }
@@ -106,16 +100,6 @@ class HomeViewModel @Inject constructor(
             }
         }
     }
-//
-//    fun searchConversation(searchQuery: TextFieldValue) {
-//        val textQueryChanged = searchQueryTextFieldFlow.value.text != searchQuery.text
-//        // we set the state with a searchQuery, immediately to update the UI first
-//        viewModelScope.launch {
-//            searchQueryTextFieldFlow.emit(searchQuery)
-//
-//            if (textQueryChanged) mutableSearchQueryFlow.emit(searchQuery.text)
-//        }
-//    }
 
     fun navigateTo(item: NavigationItem) {
         viewModelScope.launch {

@@ -216,8 +216,10 @@ class ConversationRouterState(
     val deleteGroupDialogState: VisibilityState<GroupDialogState>,
     val blockUserDialogState: VisibilityState<BlockUserDialogState>,
     val unblockUserDialogState: VisibilityState<UnblockUserDialogState>,
-    val requestInProgress: Boolean
+    requestInProgress: Boolean
 ) {
+
+    var requestInProgress: Boolean by mutableStateOf(requestInProgress)
 
     var conversationItemType: ConversationItemType by mutableStateOf(initialItemType)
 
@@ -254,16 +256,7 @@ fun rememberConversationRouterState(
         closeBottomSheetState.collect { onCloseBottomSheet() }
     }
 
-    LaunchedEffect(requestInProgress) {
-        if (!requestInProgress) {
-            leaveGroupDialogState.dismiss()
-            deleteGroupDialogState.dismiss()
-            blockUserDialogState.dismiss()
-            unblockUserDialogState.dismiss()
-        }
-    }
-
-    return remember(initialConversationItemType) {
+    val conversationRouterState = remember(initialConversationItemType) {
         ConversationRouterState(
             initialConversationItemType,
             leaveGroupDialogState,
@@ -273,6 +266,19 @@ fun rememberConversationRouterState(
             requestInProgress
         )
     }
+
+    LaunchedEffect(requestInProgress) {
+        if (!requestInProgress) {
+            leaveGroupDialogState.dismiss()
+            deleteGroupDialogState.dismiss()
+            blockUserDialogState.dismiss()
+            unblockUserDialogState.dismiss()
+        }
+
+        conversationRouterState.requestInProgress = requestInProgress
+    }
+
+    return conversationRouterState
 }
 
 enum class ConversationItemType {

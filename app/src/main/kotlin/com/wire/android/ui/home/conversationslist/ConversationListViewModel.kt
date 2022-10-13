@@ -299,11 +299,6 @@ private fun ConversationDetails.toConversationItem(
     selfUser: SelfUser
 ): ConversationItem = when (this) {
     is Group -> {
-        if (conversation.name == "testing_by_boris") {
-            println("cyka creator ${conversation.creatorId}")
-            println("cyka me ${selfUser.id}")
-            println("cyka conversation ${conversation.id}")
-        }
         ConversationItem.GroupConversation(
             groupName = conversation.name.orEmpty(),
             conversationId = conversation.id,

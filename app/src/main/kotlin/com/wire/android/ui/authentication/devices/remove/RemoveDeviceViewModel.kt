@@ -122,7 +122,7 @@ class RemoveDeviceViewModel @Inject constructor(
             DeleteClientResult.Failure.PasswordAuthRequired -> showDeleteClientDialog(device)
             DeleteClientResult.Success -> {
                 // this delay is only a work around because the backend is not updating the list of clients immediately
-                // TODO: remove the delay once the server side bug is fixed
+                // TODO(revert me): remove the delay once the server side bug is fixed
                 delay(REGISTER_CLIENT_AFTER_DELETE_DELAY)
                 registerClient(password)
             }

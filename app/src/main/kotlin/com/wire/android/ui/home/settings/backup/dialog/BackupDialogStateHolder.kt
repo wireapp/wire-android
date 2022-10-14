@@ -20,7 +20,7 @@ class BackupDialogStateHolder {
 
     var isBackupPasswordValid: Boolean by mutableStateOf(false)
 
-    var isBackupSuccessFull: Boolean by mutableStateOf(false)
+    var isBackupFinished: Boolean by mutableStateOf(false)
 
     var backupProgress: Float by mutableStateOf(0.0f)
 
@@ -34,6 +34,11 @@ class BackupDialogStateHolder {
 
     fun toBackupFailure() {
         currentBackupDialogStep = BackUpDialogStep.Failure
+    }
+
+    fun toFinished() {
+        isBackupFinished = true
+        backupProgress = 1.0f
     }
 
 }

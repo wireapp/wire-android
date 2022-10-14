@@ -16,9 +16,13 @@ class RestoreDialogStateHolder {
 
     var currentRestoreDialogStep: RestoreDialogStep by mutableStateOf(INITIAL_STEP)
 
-    var restorePassword: TextFieldValue by mutableStateOf(TextFieldValue(""))
-
     var restoreProgress: Float by mutableStateOf(0.0f)
+
+    var isRestoreCompleted: Boolean by mutableStateOf(false)
+
+    var isRestorePasswordValid: Boolean by mutableStateOf(false)
+
+    var restorePassword: TextFieldValue by mutableStateOf(TextFieldValue(""))
 
     fun toEnterPassword() {
         currentRestoreDialogStep = RestoreDialogStep.EnterPassword
@@ -28,12 +32,21 @@ class RestoreDialogStateHolder {
         currentRestoreDialogStep = RestoreDialogStep.WrongPassword
     }
 
+    fun test(){
+        isRestorePasswordValid = true
+    }
+
     fun toRestoreFailure(restoreFailure: RestoreFailure) {
         currentRestoreDialogStep = RestoreDialogStep.Failure(restoreFailure)
     }
 
     fun toRestoreBackup() {
         currentRestoreDialogStep = RestoreDialogStep.RestoreBackup
+    }
+
+    fun toFinished() {
+        restoreProgress = 1.0f
+        isRestoreCompleted = true
     }
 }
 

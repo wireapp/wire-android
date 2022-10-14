@@ -153,7 +153,7 @@ fun BackupAndRestoreContent(
                         RestoreFileValidation.IncompatibleBackup -> restoreDialogStateHolder.toRestoreFailure(RestoreFailure.IncompatibleBackup)
                         RestoreFileValidation.WrongBackup -> restoreDialogStateHolder.toRestoreFailure(RestoreFailure.WrongBackup)
                         RestoreFileValidation.RequiresPassword -> restoreDialogStateHolder.toEnterPassword()
-                        RestoreFileValidation.WrongPassword -> restoreDialogStateHolder.toRestoreFailure(RestoreFailure.WrongPassword)
+                        RestoreFileValidation.WrongPassword -> restoreDialogStateHolder.toWrongPassword()
                         RestoreFileValidation.SuccessFull -> restoreDialogStateHolder.toRestoreBackup()
                     }
                 }

@@ -103,6 +103,18 @@ fun RestoreDialog(
                     }
                 }
             }
+            is RestoreDialogStep.WrongPassword -> {
+                WireDialog(
+                    title = "Wrong password",
+                    text = "Pleasy verify your input and try again",
+                    onDismiss = onDismissDialog,
+                    optionButton1Properties = WireDialogButtonProperties(
+                        onClick = { toEnterPassword() },
+                        text = stringResource(id = R.string.label_ok),
+                        type = WireDialogButtonType.Primary,
+                    )
+                )
+            }
             is RestoreDialogStep.Failure -> {
                 WireDialog(
                     title = restoreDialogStep.restoreFailure.title,

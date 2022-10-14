@@ -134,7 +134,7 @@ fun HomeDrawer(
                 intent.putExtra(Intent.EXTRA_TEXT, EmailComposer.giveFeedbackEmailTemplate(context.getDeviceId()?.sha256()))
 
                 intent.selector = Intent(ACTION_SENDTO).setData(Uri.parse("mailto:"))
-                context.startActivity(Intent.createChooser(intent,"Choose an Email client: "))
+                context.startActivity(Intent.createChooser(intent, "Choose an Email client: "))
             })
 
         DrawerItem(
@@ -150,8 +150,8 @@ fun HomeDrawer(
                 intent.putExtra(Intent.EXTRA_TEXT, EmailComposer.reportBugEmailTemplate(context.getDeviceId()?.sha256()))
                 intent.type = "message/rfc822"
 
-                context.startActivity(Intent.createChooser(intent,"Choose an Email client: "))
-        })
+                context.startActivity(Intent.createChooser(intent, "Choose an Email client: "))
+            })
 
         Text(
             text = stringResource(R.string.app_version, BuildConfig.VERSION_NAME),

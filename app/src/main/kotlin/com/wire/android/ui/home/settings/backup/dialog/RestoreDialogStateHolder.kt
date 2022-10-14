@@ -24,6 +24,10 @@ class RestoreDialogStateHolder {
         currentRestoreDialogStep = RestoreDialogStep.EnterPassword
     }
 
+    fun toWrongPassword() {
+        currentRestoreDialogStep = RestoreDialogStep.WrongPassword
+    }
+
     fun toRestoreFailure(restoreFailure: RestoreFailure) {
         currentRestoreDialogStep = RestoreDialogStep.Failure(restoreFailure)
     }
@@ -42,6 +46,7 @@ sealed interface RestoreDialogStep {
     object ChooseBackupFile : RestoreDialogStep
     object EnterPassword : RestoreDialogStep
     object RestoreBackup : RestoreDialogStep
+    object WrongPassword : RestoreDialogStep
     data class Failure(val restoreFailure: RestoreFailure) : RestoreDialogStep
 }
 

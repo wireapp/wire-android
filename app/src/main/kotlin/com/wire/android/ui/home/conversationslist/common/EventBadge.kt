@@ -112,8 +112,8 @@ private fun UnreadMessageEventBadge(unreadMessageCount: Long) {
                 Text(
                     modifier = Modifier
                         .padding(
-                            horizontal = 8.dp,
-                            vertical = 2.dp
+                            horizontal = dimensions().spacing8x,
+                            vertical = dimensions().spacing2x
                         ),
                     text = unReadMessageCountStringify(unreadMessageCount),
                     color = MaterialTheme.wireColorScheme.onBadge,

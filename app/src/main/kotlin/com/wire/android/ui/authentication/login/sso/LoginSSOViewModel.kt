@@ -14,6 +14,7 @@ import com.wire.android.ui.authentication.login.toLoginError
 import com.wire.android.ui.authentication.login.updateSSOLoginEnabled
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.kalium.logic.CoreFailure
+import com.wire.kalium.logic.data.auth.login.ProxyCredentialsModel
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.auth.sso.SSOInitiateLoginResult
@@ -47,23 +48,24 @@ class LoginSSOViewModel @Inject constructor(
     fun login() {
         loginState = loginState.copy(ssoLoginLoading = true, loginError = LoginError.None).updateSSOLoginEnabled()
         viewModelScope.launch {
-            val authScope = authScope().let {
-                when (it) {
-                    is AutoVersionAuthScopeUseCase.Result.Success -> it.authenticationScope
+            val authScope =
+                authScope(AutoVersionAuthScopeUseCase.ProxyCredentials.UsernameAndPassword(ProxyCredentialsModel("name", "pass"))).let {
+                    when (it) {
+                        is AutoVersionAuthScopeUseCase.Result.Success -> it.authenticationScope
 
-                    is AutoVersionAuthScopeUseCase.Result.Failure.UnknownServerVersion -> {
-                        loginState = loginState.copy(loginError = LoginError.DialogError.ServerVersionNotSupported)
-                        return@launch
-                    }
-                    is AutoVersionAuthScopeUseCase.Result.Failure.TooNewVersion -> {
-                        loginState = loginState.copy(loginError = LoginError.DialogError.ClientUpdateRequired)
-                        return@launch
-                    }
-                    is AutoVersionAuthScopeUseCase.Result.Failure.Generic -> {
-                        return@launch
+                        is AutoVersionAuthScopeUseCase.Result.Failure.UnknownServerVersion -> {
+                            loginState = loginState.copy(loginError = LoginError.DialogError.ServerVersionNotSupported)
+                            return@launch
+                        }
+                        is AutoVersionAuthScopeUseCase.Result.Failure.TooNewVersion -> {
+                            loginState = loginState.copy(loginError = LoginError.DialogError.ClientUpdateRequired)
+                            return@launch
+                        }
+                        is AutoVersionAuthScopeUseCase.Result.Failure.Generic -> {
+                            return@launch
+                        }
                     }
                 }
-            }
 
             authScope.ssoLoginScope.initiate(SSOInitiateLoginUseCase.Param.WithRedirect(loginState.ssoCode.text)).let { result ->
                 when (result) {
@@ -79,7 +81,7 @@ class LoginSSOViewModel @Inject constructor(
     fun establishSSOSession(cookie: String, serverConfigId: String) {
         loginState = loginState.copy(ssoLoginLoading = true, loginError = LoginError.None).updateSSOLoginEnabled()
         viewModelScope.launch {
-            val authScope = authScope().let {
+            val authScope = authScope(AutoVersionAuthScopeUseCase.ProxyCredentials.UsernameAndPassword(ProxyCredentialsModel("name","pass"))).let {
                 when (it) {
                     is AutoVersionAuthScopeUseCase.Result.Success -> it.authenticationScope
 

@@ -11,6 +11,7 @@ import com.wire.android.ui.authentication.login.LoginError
 import com.wire.android.ui.authentication.login.LoginViewModel
 import com.wire.android.ui.authentication.login.toLoginError
 import com.wire.android.ui.authentication.login.updateEmailLoginEnabled
+import com.wire.kalium.logic.data.auth.login.ProxyCredentialsModel
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
@@ -40,7 +41,7 @@ class LoginEmailViewModel @Inject constructor(
     fun login() {
         loginState = loginState.copy(emailLoginLoading = true, loginError = LoginError.None).updateEmailLoginEnabled()
         viewModelScope.launch {
-            val authScope = authScope().let {
+            val authScope = authScope(AutoVersionAuthScopeUseCase.ProxyCredentials.UsernameAndPassword(ProxyCredentialsModel("name","pass"))).let {
                 when (it) {
                     is AutoVersionAuthScopeUseCase.Result.Success -> it.authenticationScope
 

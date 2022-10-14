@@ -7,6 +7,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -43,7 +46,10 @@ class BackupAndRestoreViewModel
     }
 
     fun restoreBackup(backupPassword: TextFieldValue) {
-
+        state = state.copy(
+            restoreFileValidation = RestoreFileValidation.SuccessFull,
+            restoreProgress = 1.0f
+        )
     }
 
     fun cancelBackupCreation() {
@@ -59,6 +65,12 @@ class BackupAndRestoreViewModel
             restoreProgress = 0.0f,
             restoreFileValidation = RestoreFileValidation.None
         )
+    }
+
+    fun navigateToConversations() {
+        viewModelScope.launch {
+            navigationManager.navigate(NavigationCommand(NavigationItem.Home.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
+        }
     }
 
     fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }

@@ -29,6 +29,7 @@ fun RestoreDialog(
     restoreDialogStateHolder: RestoreDialogStateHolder,
     onBackupFileChosen: (Uri) -> Unit,
     onRestoreBackup: (TextFieldValue) -> Unit,
+    onOpenConversations: () -> Unit,
     onDismissDialog: () -> Unit
 ) {
     with(restoreDialogStateHolder) {
@@ -72,23 +73,20 @@ fun RestoreDialog(
                     )
                 }
             RestoreDialogStep.RestoreBackup -> {
+                val isCompleted = restoreProgress == 1.0f
+
                 WireDialog(
                     title = "Restoring Backup...",
                     onDismiss = onDismissDialog,
                     optionButton1Properties = WireDialogButtonProperties(
-                        onClick = { },
-                        text = stringResource(id = R.string.label_ok),
+                        onClick = { if (isCompleted) onOpenConversations() else onDismissDialog() },
+                        text = if (isCompleted) "Ok" else stringResource(id = R.string.label_cancel),
                         type = WireDialogButtonType.Primary,
-                        state = if (restoreProgress == 1.0f) WireButtonState.Default else WireButtonState.Disabled
-                    ),
-                    dismissButtonProperties = WireDialogButtonProperties(
-                        onClick = onDismissDialog,
-                        text = stringResource(id = R.string.label_cancel),
-                        state = WireButtonState.Default
+                        state = if (isCompleted) WireButtonState.Default else WireButtonState.Disabled
                     ),
                 ) {
                     Column(modifier = Modifier.fillMaxWidth()) {
-                        if (restoreProgress == 1.0f) {
+                        if (isCompleted) {
                             Row {
                                 Text("Conversations have been restored", modifier = Modifier.weight(1f))
                                 WireCheckIcon()

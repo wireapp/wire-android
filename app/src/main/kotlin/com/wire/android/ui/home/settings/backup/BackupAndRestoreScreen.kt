@@ -45,6 +45,7 @@ fun BackupAndRestoreScreen(viewModel: BackupAndRestoreViewModel = hiltViewModel(
         onRestoreBackup = viewModel::restoreBackup,
         onCancelBackupRestore = viewModel::cancelBackupRestore,
         onCancelBackupCreation = viewModel::cancelBackupCreation,
+        onOpenConversations = viewModel::navigateToConversations,
         onBackPressed = viewModel::navigateBack
     )
 }
@@ -60,6 +61,7 @@ fun BackupAndRestoreContent(
     onCancelBackupRestore: () -> Unit,
     onChooseBackupFile: (Uri) -> Unit,
     onRestoreBackup: (TextFieldValue) -> Unit,
+    onOpenConversations : () -> Unit,
     onBackPressed: () -> Unit
 ) {
     val backupAndRestoreStateHolder = rememberBackUpAndRestoreStateHolder()
@@ -156,10 +158,15 @@ fun BackupAndRestoreContent(
                     }
                 }
 
+                LaunchedEffect(backUpAndRestoreState.restoreProgress) {
+                    restoreDialogStateHolder.restoreProgress = backUpAndRestoreState.restoreProgress
+                }
+
                 RestoreDialog(
                     restoreDialogStateHolder = restoreDialogStateHolder,
                     onBackupFileChosen = onChooseBackupFile,
                     onRestoreBackup = onRestoreBackup,
+                    onOpenConversations = onOpenConversations,
                     onDismissDialog = {
                         onCancelBackupRestore()
                         backupAndRestoreStateHolder.dismissDialog()

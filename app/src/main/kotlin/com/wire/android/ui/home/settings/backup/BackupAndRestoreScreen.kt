@@ -19,7 +19,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.ui.common.spacers.VerticalSpace
-import com.wire.android.ui.common.textfield.WirePrimaryButton
+import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
@@ -27,7 +27,11 @@ import com.wire.android.ui.theme.wireTypography
 
 @Composable
 fun BackupAndRestoreScreen(viewModel: BackupAndRestoreViewModel = hiltViewModel()) {
-    BackupAndRestoreContent(viewModel::navigateBack, viewModel::backupCreate, viewModel::backupRestore)
+    BackupAndRestoreContent(
+        viewModel::navigateBack,
+        viewModel::backupCreate,
+        viewModel::backupRestore
+    )
 }
 
 @OptIn(ExperimentalMaterial3Api::class)

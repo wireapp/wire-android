@@ -617,6 +617,8 @@
     <string name="label_fetching_your_messages">Receiving new messages</string>
     <string name="conversation_empty_list_description">Connect with others or create a new group to start collaborating!</string>
     <string name="conversation_empty_list_title">Welcome 👋</string>
+    <string name="label_no_conversation_found">No conversations could be found.</string>
+    <string name="label_connect_with_new_users">Connect with new users or start a new conversation:</string>
     <string name="label_reactions">Reactions</string>
     <string name="label_wait_until_synchronised">Please wait until the app is synchronised</string>
 </resources>

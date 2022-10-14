@@ -39,7 +39,7 @@ class BackupAndRestoreViewModel
     }
 
     fun chooseBackupFileToRestore(uri: Uri) {
-        state = state.copy(restoreFileValidation = RestoreFileValidation.IncompatibleBackup)
+        state = state.copy(restoreFileValidation = RestoreFileValidation.RequiresPassword)
     }
 
     fun restoreBackup(backupPassword: TextFieldValue) {
@@ -94,4 +94,5 @@ sealed class RestoreFileValidation {
     object RequiresPassword : RestoreFileValidation()
     object GeneralFailure : RestoreFileValidation()
     object SuccessFull : RestoreFileValidation()
+    object WrongPassword : RestoreFileValidation()
 }

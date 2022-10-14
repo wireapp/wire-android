@@ -14,7 +14,9 @@ class RestoreDialogStateHolder {
 
     var currentRestoreDialogStep: RestoreDialogStep by mutableStateOf(INITIAL_STEP)
 
-    var backupPassword: TextFieldValue by mutableStateOf(TextFieldValue(""))
+    var restorePassword: TextFieldValue by mutableStateOf(TextFieldValue(""))
+
+    var restoreProgress: Float by mutableStateOf(0.0f)
 
     fun toEnterPassword() {
         currentRestoreDialogStep = RestoreDialogStep.EnterPassword
@@ -47,5 +49,6 @@ enum class RestoreFailure(val title: String, val message: String) {
         "This backup was created by a newer or outdated version of Wire and cannot be restored here."
     ),
     WrongBackup("Wrong Backup", "You cannot restore history from a different account."),
+    WrongPassword("Wrong password", "Please verify your input and try again."),
     GeneralFailure("Something Went Wrong", "Your history could not be restored. Please try again or contact the Wire customer support.")
 }

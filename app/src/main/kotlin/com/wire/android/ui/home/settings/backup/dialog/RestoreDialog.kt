@@ -1,17 +1,27 @@
 package com.wire.android.ui.home.settings.backup.dialog
 
 import android.net.Uri
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import com.wire.android.R
+import com.wire.android.ui.common.WireCheckIcon
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.button.WireButtonState
+import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.home.messagecomposer.attachment.FileBrowserFlow
+import com.wire.android.ui.theme.wireTypography
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
@@ -48,21 +58,52 @@ fun RestoreDialog(
                         state = WireButtonState.Default
                     ),
                     optionButton1Properties = WireDialogButtonProperties(
-                        onClick = { onRestoreBackup(backupPassword) },
+                        onClick = { onRestoreBackup(restorePassword) },
                         text = "Continue",
                         type = WireDialogButtonType.Primary,
-                        state = if (backupPassword.text.isEmpty()) WireButtonState.Disabled else WireButtonState.Default
+                        state = if (restorePassword.text.isEmpty()) WireButtonState.Disabled else WireButtonState.Default
                     )
                 ) {
                     WirePasswordTextField(
-                        value = backupPassword,
+                        value = restorePassword,
                         onValueChange = {
-                            backupPassword = it
+                            restorePassword = it
                         }
                     )
                 }
             RestoreDialogStep.RestoreBackup -> {
-
+                WireDialog(
+                    title = "Restoring Backup...",
+                    onDismiss = onDismissDialog,
+                    optionButton1Properties = WireDialogButtonProperties(
+                        onClick = { },
+                        text = stringResource(id = R.string.label_ok),
+                        type = WireDialogButtonType.Primary,
+                        state = if (restoreProgress == 1.0f) WireButtonState.Default else WireButtonState.Disabled
+                    ),
+                    dismissButtonProperties = WireDialogButtonProperties(
+                        onClick = onDismissDialog,
+                        text = stringResource(id = R.string.label_cancel),
+                        state = WireButtonState.Default
+                    ),
+                ) {
+                    Column(modifier = Modifier.fillMaxWidth()) {
+                        if (restoreProgress == 1.0f) {
+                            Row {
+                                Text("Conversations have been restored", modifier = Modifier.weight(1f))
+                                WireCheckIcon()
+                            }
+                        } else {
+                            Row {
+                                Text("Loading conversations", modifier = Modifier.weight(1f))
+                                Text("25 %", style = MaterialTheme.wireTypography.body02)
+                            }
+                        }
+                        VerticalSpace.x16()
+                        LinearProgressIndicator(progress = 1f)
+                        VerticalSpace.x16()
+                    }
+                }
             }
             is RestoreDialogStep.Failure -> {
                 WireDialog(

@@ -80,12 +80,6 @@ fun BackupDialog(
                 }
             }
             BackUpDialogStep.CreatingBackup -> {
-                LaunchedEffect(isBackupSuccessFull) {
-                    if (!isBackupSuccessFull) {
-                        toBackupFailure()
-                    }
-                }
-
                 WireDialog(
                     title = "Creating Backup",
                     onDismiss = onDismissDialog,
@@ -116,6 +110,12 @@ fun BackupDialog(
                         VerticalSpace.x16()
                         LinearProgressIndicator(progress = 1f)
                         VerticalSpace.x16()
+                    }
+                }
+
+                LaunchedEffect(isBackupSuccessFull) {
+                    if (!isBackupSuccessFull) {
+                        toBackupFailure()
                     }
                 }
             }

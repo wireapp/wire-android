@@ -1,5 +1,6 @@
 package com.wire.android.ui.home.settings.backup
 
+import android.net.Uri
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -16,7 +17,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
@@ -40,7 +40,7 @@ fun BackupAndRestoreScreen(viewModel: BackupAndRestoreViewModel = hiltViewModel(
         onValidateBackupPassword = viewModel::validateBackupPassword,
         onCreateBackup = viewModel::createBackup,
         onSaveBackup = viewModel::saveBackup,
-        onChooseBackupFile = viewModel::chooseBackupFile,
+        onChooseBackupFile = viewModel::chooseBackupFileToRestore,
         onRestoreBackup = viewModel::restoreBackup,
         onCancelBackupRestore = viewModel::cancelBackupRestore,
         onCancelBackupCreation = viewModel::cancelBackupCreation,
@@ -57,7 +57,7 @@ fun BackupAndRestoreContent(
     onSaveBackup: () -> Unit,
     onCancelBackupCreation: () -> Unit,
     onCancelBackupRestore: () -> Unit,
-    onChooseBackupFile: () -> Unit,
+    onChooseBackupFile: (Uri) -> Unit,
     onRestoreBackup: (TextFieldValue) -> Unit,
     onBackPressed: () -> Unit
 ) {
@@ -126,9 +126,7 @@ fun BackupAndRestoreContent(
                 }
 
                 LaunchedEffect(backUpAndRestoreState.isBackupSuccessFull) {
-                    if (!backUpAndRestoreState.isBackupSuccessFull) {
-                        backupDialogStateHolder.toBackupFailure()
-                    }
+                    backupDialogStateHolder.isBackupSuccessFull = backUpAndRestoreState.isBackupSuccessFull
                 }
 
                 BackupDialog(
@@ -148,7 +146,7 @@ fun BackupAndRestoreContent(
 
                 RestoreDialog(
                     restoreDialogStateHolder = restoreDialogStateHolder,
-                    onChooseBackupFile = onChooseBackupFile,
+                    onBackupFileChosen = onChooseBackupFile,
                     onRestoreBackup = onRestoreBackup,
                     onDismissDialog = {
                         onCancelBackupRestore()

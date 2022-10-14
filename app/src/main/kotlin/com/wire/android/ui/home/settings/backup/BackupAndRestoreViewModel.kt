@@ -1,5 +1,6 @@
 package com.wire.android.ui.home.settings.backup
 
+import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -8,7 +9,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.navigation.NavigationManager
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -35,13 +35,10 @@ class BackupAndRestoreViewModel
     }
 
     fun createBackup() {
-        viewModelScope.launch {
-            delay(2000)
-            state = state.copy(isBackupSuccessFull = false)
-        }
+
     }
 
-    fun chooseBackupFile() {
+    fun chooseBackupFileToRestore(uri : Uri) {
 
     }
 
@@ -50,15 +47,18 @@ class BackupAndRestoreViewModel
     }
 
     fun cancelBackupCreation() {
-        resetState()
+        state = state.copy(
+            isBackupPasswordValid = false,
+            backupProgress = 0.0f
+        )
     }
 
     fun cancelBackupRestore() {
-        resetState()
-    }
-
-    private fun resetState() {
-        state = BackupAndRestoreState.INITIAL_STATE
+        state = state.copy(
+            isRestorePasswordValid = false,
+            restoreProgress = 0.0f,
+            restoreFile = ""
+        )
     }
 
     fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }
@@ -66,17 +66,24 @@ class BackupAndRestoreViewModel
 }
 
 data class BackupAndRestoreState(
+    val isRestorePasswordValid: Boolean,
+    val restoreProgress: Float,
+    val restoreFile: String,
+    val isRestoreSuccessFull: Boolean,
     val isBackupPasswordValid: Boolean,
-    val backupPassword: TextFieldValue,
     val backupProgress: Float,
-    val isBackupSuccessFull: Boolean
+    val isBackupSuccessFull: Boolean,
 ) {
     companion object {
         val INITIAL_STATE = BackupAndRestoreState(
+            isRestorePasswordValid = false,
+            restoreProgress = 0.0f,
+            restoreFile = "",
+            isRestoreSuccessFull = true,
             isBackupPasswordValid = true,
-            backupPassword = TextFieldValue(""),
             backupProgress = 0.0f,
             isBackupSuccessFull = true
         )
     }
 }
+

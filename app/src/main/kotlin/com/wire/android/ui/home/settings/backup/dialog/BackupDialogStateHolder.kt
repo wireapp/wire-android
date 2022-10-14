@@ -20,6 +20,8 @@ class BackupDialogStateHolder {
 
     var isBackupPasswordValid: Boolean by mutableStateOf(false)
 
+    var isBackupSuccessFull : Boolean by mutableStateOf(false)
+
     var backupProgress: Float by mutableStateOf(0.0f)
 
     fun toCreateBackUp() {

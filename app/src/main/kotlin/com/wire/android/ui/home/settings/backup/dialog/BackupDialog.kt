@@ -62,12 +62,7 @@ fun BackupDialog(
                         state = WireButtonState.Default
                     ),
                     optionButton1Properties = WireDialogButtonProperties(
-                        onClick = {
-                            if (isBackupPasswordValid) {
-                                toCreateBackUp()
-                                onCreateBackup()
-                            }
-                        },
+                        onClick = { toCreateBackUp(); onCreateBackup() },
                         text = stringResource(id = R.string.label_ok),
                         type = WireDialogButtonType.Primary,
                         state = if (!isBackupPasswordValid) WireButtonState.Disabled else WireButtonState.Default
@@ -85,6 +80,12 @@ fun BackupDialog(
                 }
             }
             BackUpDialogStep.CreatingBackup -> {
+                LaunchedEffect(isBackupSuccessFull) {
+                    if (!isBackupSuccessFull) {
+                        toBackupFailure()
+                    }
+                }
+
                 WireDialog(
                     title = "Creating Backup",
                     onDismiss = onDismissDialog,

@@ -38,8 +38,8 @@ class BackupAndRestoreViewModel
 
     }
 
-    fun chooseBackupFileToRestore(uri : Uri) {
-
+    fun chooseBackupFileToRestore(uri: Uri) {
+        state = state.copy(restoreFileValidation = RestoreFileValidation.IncompatibleBackup)
     }
 
     fun restoreBackup(backupPassword: TextFieldValue) {
@@ -57,7 +57,7 @@ class BackupAndRestoreViewModel
         state = state.copy(
             isRestorePasswordValid = false,
             restoreProgress = 0.0f,
-            restoreFile = ""
+            restoreFileValidation = RestoreFileValidation.None
         )
     }
 
@@ -68,8 +68,8 @@ class BackupAndRestoreViewModel
 data class BackupAndRestoreState(
     val isRestorePasswordValid: Boolean,
     val restoreProgress: Float,
-    val restoreFile: String,
     val isRestoreSuccessFull: Boolean,
+    val restoreFileValidation: RestoreFileValidation,
     val isBackupPasswordValid: Boolean,
     val backupProgress: Float,
     val isBackupSuccessFull: Boolean,
@@ -78,8 +78,8 @@ data class BackupAndRestoreState(
         val INITIAL_STATE = BackupAndRestoreState(
             isRestorePasswordValid = false,
             restoreProgress = 0.0f,
-            restoreFile = "",
             isRestoreSuccessFull = true,
+            restoreFileValidation = RestoreFileValidation.None,
             isBackupPasswordValid = true,
             backupProgress = 0.0f,
             isBackupSuccessFull = true
@@ -87,3 +87,11 @@ data class BackupAndRestoreState(
     }
 }
 
+sealed class RestoreFileValidation {
+    object None : RestoreFileValidation()
+    object IncompatibleBackup : RestoreFileValidation()
+    object WrongBackup : RestoreFileValidation()
+    object RequiresPassword : RestoreFileValidation()
+    object GeneralFailure : RestoreFileValidation()
+    object SuccessFull : RestoreFileValidation()
+}

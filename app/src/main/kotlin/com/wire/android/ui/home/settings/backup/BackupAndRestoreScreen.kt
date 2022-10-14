@@ -26,6 +26,7 @@ import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.home.settings.backup.dialog.BackupAndRestoreDialog
 import com.wire.android.ui.home.settings.backup.dialog.BackupDialog
 import com.wire.android.ui.home.settings.backup.dialog.RestoreDialog
+import com.wire.android.ui.home.settings.backup.dialog.RestoreFailure
 import com.wire.android.ui.home.settings.backup.dialog.rememberBackUpAndRestoreStateHolder
 import com.wire.android.ui.home.settings.backup.dialog.rememberBackUpDialogState
 import com.wire.android.ui.home.settings.backup.dialog.rememberRestoreDialogState
@@ -143,6 +144,16 @@ fun BackupAndRestoreContent(
             }
             is BackupAndRestoreDialog.Restore -> {
                 val restoreDialogStateHolder = rememberRestoreDialogState()
+
+                LaunchedEffect(backUpAndRestoreState.restoreFileValidation) {
+                    when (backUpAndRestoreState.restoreFileValidation) {
+                        RestoreFileValidation.GeneralFailure -> restoreDialogStateHolder.toRestoreFailure(RestoreFailure.GeneralFailure)
+                        RestoreFileValidation.IncompatibleBackup -> restoreDialogStateHolder.toRestoreFailure(RestoreFailure.IncompatibleBackup)
+                        RestoreFileValidation.WrongBackup -> restoreDialogStateHolder.toRestoreFailure(RestoreFailure.WrongBackup)
+                        RestoreFileValidation.RequiresPassword -> restoreDialogStateHolder.toEnterPassword()
+                        RestoreFileValidation.SuccessFull -> restoreDialogStateHolder.toRestoreBackup()
+                    }
+                }
 
                 RestoreDialog(
                     restoreDialogStateHolder = restoreDialogStateHolder,

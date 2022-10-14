@@ -22,8 +22,7 @@ fun RestoreDialog(
     onDismissDialog: () -> Unit
 ) {
     with(restoreDialogStateHolder) {
-        when (currentBackupDialogStep) {
-
+        when (val restoreDialogStep = currentRestoreDialogStep) {
             is RestoreDialogStep.ChooseBackupFile -> {
                 val fileFlow = FileBrowserFlow(onBackupFileChosen)
 
@@ -62,6 +61,21 @@ fun RestoreDialog(
                         }
                     )
                 }
+            RestoreDialogStep.RestoreBackup -> {
+
+            }
+            is RestoreDialogStep.Failure -> {
+                WireDialog(
+                    title = restoreDialogStep.restoreFailure.title,
+                    text = restoreDialogStep.restoreFailure.message,
+                    onDismiss = onDismissDialog,
+                    optionButton1Properties = WireDialogButtonProperties(
+                        onClick = onDismissDialog,
+                        text = stringResource(id = R.string.label_ok),
+                        type = WireDialogButtonType.Primary,
+                    )
+                )
+            }
         }
     }
 }

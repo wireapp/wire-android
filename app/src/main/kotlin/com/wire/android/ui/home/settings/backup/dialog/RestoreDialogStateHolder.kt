@@ -12,22 +12,21 @@ class RestoreDialogStateHolder {
         val INITIAL_STEP = RestoreDialogStep.ChooseBackupFile
     }
 
-    var currentBackupDialogStep: RestoreDialogStep by mutableStateOf(INITIAL_STEP)
+    var currentRestoreDialogStep: RestoreDialogStep by mutableStateOf(INITIAL_STEP)
 
     var backupPassword: TextFieldValue by mutableStateOf(TextFieldValue(""))
 
     fun toEnterPassword() {
-        currentBackupDialogStep = RestoreDialogStep.EnterPassword
+        currentRestoreDialogStep = RestoreDialogStep.EnterPassword
     }
 
-    fun toBackupFailure() {
-        currentBackupDialogStep = RestoreDialogStep.Failure
+    fun toRestoreFailure(restoreFailure: RestoreFailure) {
+        currentRestoreDialogStep = RestoreDialogStep.Failure(restoreFailure)
     }
 
-    fun reset() {
-        currentBackupDialogStep = INITIAL_STEP
+    fun toRestoreBackup() {
+        currentRestoreDialogStep = RestoreDialogStep.RestoreBackup
     }
-
 }
 
 @Composable
@@ -39,12 +38,14 @@ sealed interface RestoreDialogStep {
     object ChooseBackupFile : RestoreDialogStep
     object EnterPassword : RestoreDialogStep
     object RestoreBackup : RestoreDialogStep
-    object Failure : RestoreDialogStep, RestoreFailures
+    data class Failure(val restoreFailure: RestoreFailure) : RestoreDialogStep
 }
 
-sealed interface RestoreFailures {
-    object IncompatibleBackup : RestoreFailures
-    object WrongBackup : RestoreFailures
-    object SomethingWentWrong : RestoreFailures
-    object WrongPassword : RestoreFailures
+enum class RestoreFailure(val title: String, val message: String) {
+    IncompatibleBackup(
+        "Incompatible Backup",
+        "This backup was created by a newer or outdated version of Wire and cannot be restored here."
+    ),
+    WrongBackup("Wrong Backup", "You cannot restore history from a different account."),
+    GeneralFailure("Something Went Wrong", "Your history could not be restored. Please try again or contact the Wire customer support.")
 }

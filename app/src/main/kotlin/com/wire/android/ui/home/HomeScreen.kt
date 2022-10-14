@@ -240,7 +240,7 @@ fun HomeContent(
                                 ) {
                                     WireBottomNavigationBar(
                                         items = HomeNavigationItem.bottomTabItems.toBottomNavigationItems(
-                                            ConversationListState = conversationListState
+                                            conversationListState = conversationListState
                                         ),
                                         navController = navController
                                     )
@@ -296,9 +296,9 @@ private fun List<HomeNavigationItem>.toBottomNavigationItems(
     conversationListState: ConversationListState
 ): List<WireBottomNavigationItemData> = map { homeNavigationItem ->
     when (homeNavigationItem) {
-        HomeNavigationItem.Conversations -> homeNavigationItem.toBottomNavigationItemData(ConversationListState.newActivityCount)
-        HomeNavigationItem.Calls -> homeNavigationItem.toBottomNavigationItemData(ConversationListState.missedCallsCount)
-        HomeNavigationItem.Mentions -> homeNavigationItem.toBottomNavigationItemData(ConversationListState.unreadMentionsCount)
+        HomeNavigationItem.Conversations -> homeNavigationItem.toBottomNavigationItemData(conversationListState.newActivityCount)
+        HomeNavigationItem.Calls -> homeNavigationItem.toBottomNavigationItemData(conversationListState.missedCallsCount)
+        HomeNavigationItem.Mentions -> homeNavigationItem.toBottomNavigationItemData(conversationListState.unreadMentionsCount)
         else -> homeNavigationItem.toBottomNavigationItemData(0L)
     }
 }

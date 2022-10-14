@@ -23,6 +23,7 @@ import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.consumeAsFlow
 import kotlinx.coroutines.flow.flowOf
@@ -109,7 +110,7 @@ class ConversationMessagesViewModelArrangement {
     }
 
     fun withGetMessageAssetUseCaseReturning(decodedAssetPath: Path, assetSize: Long) = apply {
-        coEvery { getMessageAsset(any(), any()) } returns MessageAssetResult.Success(decodedAssetPath, assetSize)
+        coEvery { getMessageAsset(any(), any()) } returns CompletableDeferred(MessageAssetResult.Success(decodedAssetPath, assetSize))
     }
 
     suspend fun withPaginatedMessagesReturning(pagingDataFlow: PagingData<UIMessage>) = apply {

@@ -42,10 +42,12 @@ class BackupAndRestoreViewModel
     }
 
     fun chooseBackupFileToRestore(uri: Uri) {
+        //TODO: validate the file
         state = state.copy(restoreFileValidation = RestoreFileValidation.RequiresPassword)
     }
 
     fun restoreBackup(backupPassword: TextFieldValue) {
+        //TODO: restore the back up file
         state = state.copy(
             restoreFileValidation = RestoreFileValidation.SuccessFull,
             restoreProgress = 1.0f

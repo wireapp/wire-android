@@ -11,7 +11,7 @@ import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.GetAvatarAssetUseCase
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
-import com.wire.kalium.logic.feature.asset.SendAssetMessageUseCase
+import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.LogoutUseCase
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
@@ -411,7 +411,7 @@ class UseCaseModule {
     fun providesSendAssetMessageUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
-    ): SendAssetMessageUseCase = coreLogic.getSessionScope(currentAccount).messages.sendAssetMessage
+    ): ScheduleNewAssetMessageUseCase = coreLogic.getSessionScope(currentAccount).messages.sendAssetMessage
 
     @ViewModelScoped
     @Provides
@@ -764,6 +764,11 @@ class UseCaseModule {
     fun provideAutoVersionAuthScopeUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         authServerConfigProvider: AuthServerConfigProvider
-    ): AutoVersionAuthScopeUseCase  =
+    ): AutoVersionAuthScopeUseCase =
         coreLogic.versionedAuthenticationScope(authServerConfigProvider.authServer.value)
+
+    @ViewModelScoped
+    @Provides
+    fun provideIsCallRunningUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).calls.isCallRunning
 }

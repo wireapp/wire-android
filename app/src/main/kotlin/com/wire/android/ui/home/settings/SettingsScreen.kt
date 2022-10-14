@@ -65,6 +65,7 @@ fun SettingsScreenContent(
                 header = context.getString(R.string.settings_account_settings_label),
                 items = buildList {
                     add(SettingsItem.YourAccount)
+                    add(SettingsItem.ManageDevices)
                     if (BackUpSettings) {
                         add(SettingsItem.BackupAndRestore)
                     }
@@ -78,7 +79,6 @@ fun SettingsScreenContent(
                     if (AppSettings) {
                         add(SettingsItem.AppSettings)
                     }
-                    add(SettingsItem.ManageDevices)
                     add(SettingsItem.NetworkSettings)
                 },
                 onItemClicked = onItemClicked

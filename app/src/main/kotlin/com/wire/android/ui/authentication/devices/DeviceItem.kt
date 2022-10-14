@@ -48,56 +48,52 @@ private fun DeviceItemContent(
     background: Color? = null,
     onRemoveDeviceClick: ((Device) -> Unit)?
 ) {
-    Row(verticalAlignment = Alignment.Top, modifier = Modifier.apply {
-        if(background != null) {
-            background(color = background)
-        }
-    }) {
-        Row(
-            modifier = Modifier
-                .padding(MaterialTheme.wireDimensions.removeDeviceItemPadding)
-                .weight(1f)
-        ) {
-            Icon(
-                modifier = Modifier.shimmerPlaceholder(visible = placeholder),
-                imageVector = ImageVector.vectorResource(id = R.drawable.ic_devices),
-                contentDescription = stringResource(R.string.content_description_remove_devices_screen_device_item_icon)
-            )
-            Column(
-                horizontalAlignment = Alignment.Start,
+        Row(verticalAlignment = Alignment.Top, modifier = if (background != null) Modifier.background(color = background) else Modifier) {
+            Row(
                 modifier = Modifier
-                    .padding(start = MaterialTheme.wireDimensions.removeDeviceItemPadding)
-                    .weight(1f),
-            ) { DeviceItemTexts(device, placeholder) }
-        }
-        val (buttonTopPadding, buttonEndPadding) = getMinTouchMargins(minSize = MaterialTheme.wireDimensions.buttonSmallMinSize)
-            .let {
-                // default button touch area [48x48] is higher than button size [40x32] so it will have margins, we have to subtract
-                // these margins from the default item padding so that all elements are the same distance from the edge
-                Pair(
-                    MaterialTheme.wireDimensions.removeDeviceItemPadding - it.calculateTopPadding(),
-                    MaterialTheme.wireDimensions.removeDeviceItemPadding - it.calculateEndPadding(LocalLayoutDirection.current)
+                    .padding(MaterialTheme.wireDimensions.removeDeviceItemPadding)
+                    .weight(1f)
+            ) {
+                Icon(
+                    modifier = Modifier.shimmerPlaceholder(visible = placeholder),
+                    imageVector = ImageVector.vectorResource(id = R.drawable.ic_devices),
+                    contentDescription = stringResource(R.string.content_description_remove_devices_screen_device_item_icon)
                 )
+                Column(
+                    horizontalAlignment = Alignment.Start,
+                    modifier = Modifier
+                        .padding(start = MaterialTheme.wireDimensions.removeDeviceItemPadding)
+                        .weight(1f),
+                ) { DeviceItemTexts(device, placeholder) }
             }
-        if (!placeholder && onRemoveDeviceClick != null)
-            WireSecondaryButton(
-                modifier = Modifier
-                    .padding(top = buttonTopPadding, end = buttonEndPadding)
-                    .testTag("remove device button"),
-                onClick = { onRemoveDeviceClick(device) },
-                leadingIcon = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_remove),
-                        contentDescription = stringResource(R.string.content_description_remove_devices_screen_remove_icon),
+            val (buttonTopPadding, buttonEndPadding) = getMinTouchMargins(minSize = MaterialTheme.wireDimensions.buttonSmallMinSize)
+                .let {
+                    // default button touch area [48x48] is higher than button size [40x32] so it will have margins, we have to subtract
+                    // these margins from the default item padding so that all elements are the same distance from the edge
+                    Pair(
+                        MaterialTheme.wireDimensions.removeDeviceItemPadding - it.calculateTopPadding(),
+                        MaterialTheme.wireDimensions.removeDeviceItemPadding - it.calculateEndPadding(LocalLayoutDirection.current)
                     )
-                },
-                fillMaxWidth = false,
-                minHeight = MaterialTheme.wireDimensions.buttonSmallMinSize.height,
-                minWidth = MaterialTheme.wireDimensions.buttonSmallMinSize.width,
-                shape = RoundedCornerShape(size = MaterialTheme.wireDimensions.buttonSmallCornerSize),
-                contentPadding = PaddingValues(0.dp),
-            )
-    }
+                }
+            if (!placeholder && onRemoveDeviceClick != null)
+                WireSecondaryButton(
+                    modifier = Modifier
+                        .padding(top = buttonTopPadding, end = buttonEndPadding)
+                        .testTag("remove device button"),
+                    onClick = { onRemoveDeviceClick(device) },
+                    leadingIcon = {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_remove),
+                            contentDescription = stringResource(R.string.content_description_remove_devices_screen_remove_icon),
+                        )
+                    },
+                    fillMaxWidth = false,
+                    minHeight = MaterialTheme.wireDimensions.buttonSmallMinSize.height,
+                    minWidth = MaterialTheme.wireDimensions.buttonSmallMinSize.width,
+                    shape = RoundedCornerShape(size = MaterialTheme.wireDimensions.buttonSmallCornerSize),
+                    contentPadding = PaddingValues(0.dp),
+                )
+        }
 }
 
 @Composable

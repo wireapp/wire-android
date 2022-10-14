@@ -29,8 +29,8 @@ import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
-import com.wire.kalium.logic.feature.asset.SendAssetMessageResult
-import com.wire.kalium.logic.feature.asset.SendAssetMessageUseCase
+import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageResult
+import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
@@ -49,6 +49,7 @@ import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import okio.Path
@@ -88,7 +89,7 @@ internal class ConversationsViewModelArrangement {
     lateinit var sendTextMessage: SendTextMessageUseCase
 
     @MockK
-    lateinit var sendAssetMessage: SendAssetMessageUseCase
+    lateinit var sendAssetMessage: ScheduleNewAssetMessageUseCase
 
     @MockK
     lateinit var deleteMessage: DeleteMessageUseCase
@@ -158,7 +159,17 @@ internal class ConversationsViewModelArrangement {
     }
 
     fun withSuccessfulSendAttachmentMessage() = apply {
-        coEvery { sendAssetMessage(any(), any(), any(), any(), any(), any(), any()) } returns SendAssetMessageResult.Success
+        coEvery {
+            sendAssetMessage(
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any()
+            )
+        } returns ScheduleNewAssetMessageResult.Success("some-message-id")
     }
 
     fun withFailureOnDeletingMessages() = apply {
@@ -211,7 +222,7 @@ internal fun mockConversationDetailsGroup(
     lastUnreadMessage = null
 )
 
-internal fun mockUITextMessage(id:String = "someId", userName: String = "mockUserName"): UIMessage {
+internal fun mockUITextMessage(id: String = "someId", userName: String = "mockUserName"): UIMessage {
     return mockk<UIMessage>().also {
         every { it.userAvatarData } returns UserAvatarData()
         every { it.messageSource } returns MessageSource.OtherUser

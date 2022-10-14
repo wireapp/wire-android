@@ -53,6 +53,7 @@ class MessageContentMapper @Inject constructor(
         is MemberChange -> mapMemberChangeMessage(content, message.senderUserId, members)
         is MessageContent.MissedCall -> mapMissedCallMessage(message.senderUserId, members)
         is MessageContent.ConversationRenamed -> mapConversationRenamedMessage(message.senderUserId, content, members)
+        is MessageContent.TeamMemberRemoved -> mapTeamMemberRemovedMessage(content)
     }
 
     private fun mapMissedCallMessage(
@@ -70,6 +71,10 @@ class MessageContentMapper @Inject constructor(
             UIMessageContent.SystemMessage.MissedCall.OtherCalled(authorName)
         }
     }
+
+    private fun mapTeamMemberRemovedMessage(
+        content: MessageContent.TeamMemberRemoved,
+    ): UIMessageContent.SystemMessage = UIMessageContent.SystemMessage.TeamMemberRemoved(content)
 
     private fun mapConversationRenamedMessage(
         senderUserId: UserId,

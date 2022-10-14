@@ -27,6 +27,7 @@ import com.wire.android.navigation.NavigationGraph
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.navigateToItem
 import com.wire.android.navigation.popWithArguments
+import com.wire.android.ui.calling.ProximitySensorManager
 import com.wire.android.ui.common.WireDialog
 import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
@@ -34,6 +35,8 @@ import com.wire.android.ui.common.dialogs.CustomBEDeeplinkDialog
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.userprofile.self.MaxAccountReachedDialog
 import com.wire.android.util.CurrentScreenManager
+import com.wire.android.util.LocalSyncStateObserver
+import com.wire.android.util.SyncStateObserver
 import com.wire.android.util.debug.FeatureVisibilityFlags
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.ui.updateScreenSettings
@@ -60,11 +63,15 @@ class WireActivity : AppCompatActivity() {
     @Inject
     lateinit var currentScreenManager: CurrentScreenManager
 
+    @Inject
+    lateinit var proximitySensorManager: ProximitySensorManager
+
     val viewModel: WireActivityViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
+        proximitySensorManager.initialize()
         lifecycle.addObserver(currentScreenManager)
         viewModel.handleDeepLink(intent)
         setComposableContent()
@@ -79,7 +86,10 @@ class WireActivity : AppCompatActivity() {
 
     private fun setComposableContent() {
         setContent {
-            CompositionLocalProvider(LocalFeatureVisibilityFlags provides FeatureVisibilityFlags) {
+            CompositionLocalProvider(
+                LocalFeatureVisibilityFlags provides FeatureVisibilityFlags,
+                LocalSyncStateObserver provides SyncStateObserver(viewModel.observeSyncFlowState)
+            ) {
                 WireTheme {
                     val scope = rememberCoroutineScope()
                     val navController = rememberAnimatedNavController()
@@ -156,19 +166,15 @@ class WireActivity : AppCompatActivity() {
         val keyboardController = LocalSoftwareKeyboardController.current
         // with the static key here we're sure that this effect wouldn't be canceled or restarted
         LaunchedEffect("key") {
-            navigationManager.navigateState
-                .onEach { command ->
-                    if (command == null) return@onEach
-                    keyboardController?.hide()
-                    navController.navigateToItem(command)
-                }
-                .launchIn(scope)
+            navigationManager.navigateState.onEach { command ->
+                if (command == null) return@onEach
+                keyboardController?.hide()
+                navController.navigateToItem(command)
+            }.launchIn(scope)
 
-            navigationManager.navigateBack
-                .onEach {
-                    if (!navController.popWithArguments(it)) finish()
-                }
-                .launchIn(scope)
+            navigationManager.navigateBack.onEach {
+                if (!navController.popWithArguments(it)) finish()
+            }.launchIn(scope)
 
             navController.addOnDestinationChangedListener { controller, _, _ ->
                 keyboardController?.hide()
@@ -177,6 +183,16 @@ class WireActivity : AppCompatActivity() {
 
             navController.addOnDestinationChangedListener(currentScreenManager)
         }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        proximitySensorManager.registerListener()
+    }
+
+    override fun onPause() {
+        super.onPause()
+        proximitySensorManager.unRegisterListener()
     }
 }
 

@@ -64,7 +64,12 @@ fun UserProfileInfo(
             UserProfileAvatar(
                 size = dimensions().userAvatarDefaultBigSize,
                 avatarData = UserAvatarData(asset = avatarAsset, connectionState = connection),
-                clickable = remember { Clickable(enabled = editableState is EditableState.IsEditable) { onUserProfileClick?.invoke() } }
+                clickable = remember(editableState) {
+                    Clickable(
+                        enabled = editableState is EditableState.IsEditable,
+                        blockUntilSynced = true
+                    ) { onUserProfileClick?.invoke() }
+                }
             )
             if (isLoading) {
                 Box(

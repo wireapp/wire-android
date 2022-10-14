@@ -37,7 +37,7 @@ open class LoginViewModel @Inject constructor(
 ) : ViewModel() {
     var loginState by mutableStateOf(
         LoginState(
-            ssoCode = TextFieldValue(savedStateHandle.get(SSO_CODE_SAVED_STATE_KEY) ?: String.EMPTY),
+            ssoCode = TextFieldValue(savedStateHandle[SSO_CODE_SAVED_STATE_KEY] ?: String.EMPTY),
             userIdentifier = TextFieldValue(savedStateHandle[USER_IDENTIFIER_SAVED_STATE_KEY] ?: String.EMPTY),
             password = TextFieldValue(String.EMPTY)
         )
@@ -109,14 +109,6 @@ open class LoginViewModel @Inject constructor(
 
     private fun navigateToRemoveDevicesScreen() = viewModelScope.launch {
         navigationManager.navigate(NavigationCommand(NavigationItem.RemoveDevices.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
-    }
-
-    fun dismissClientUpdateDialog() {
-        loginState = loginState.copy(showClientUpdateDialog = false)
-    }
-
-    fun dismissApiVersionNotSupportedDialog() {
-        loginState = loginState.copy(showServerVersionNotSupportedDialog = false)
     }
 
     fun updateTheApp() {

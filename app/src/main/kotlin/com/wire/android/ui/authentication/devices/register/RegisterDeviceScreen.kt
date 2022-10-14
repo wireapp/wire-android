@@ -6,9 +6,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
-import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -18,10 +16,8 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
-import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -30,9 +26,9 @@ import com.wire.android.R
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
 import com.wire.android.ui.common.textfield.WirePasswordTextField
-import com.wire.android.ui.common.textfield.WirePrimaryButton
-import com.wire.android.ui.common.textfield.WireTextField
+import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.textfield.WireTextFieldState
+import com.wire.android.ui.common.textfield.clearAutofillTree
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -40,6 +36,7 @@ import com.wire.android.ui.theme.wireTypography
 @Composable
 fun RegisterDeviceScreen() {
     val viewModel: RegisterDeviceViewModel = hiltViewModel()
+    clearAutofillTree()
     RegisterDeviceContent(
         state = viewModel.state,
         onPasswordChange = viewModel::onPasswordChange,
@@ -48,7 +45,7 @@ fun RegisterDeviceScreen() {
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun RegisterDeviceContent(
     state: RegisterDeviceState,
@@ -78,7 +75,8 @@ private fun RegisterDeviceContent(
                     .padding(
                         horizontal = MaterialTheme.wireDimensions.spacing16x,
                         vertical = MaterialTheme.wireDimensions.spacing24x
-                    ).testTag("registerText")
+                    )
+                    .testTag("registerText")
             )
             PasswordTextField(state = state, onPasswordChange = onPasswordChange)
             Spacer(modifier = Modifier.weight(1f))
@@ -90,7 +88,8 @@ private fun RegisterDeviceContent(
                 state = if (state.continueEnabled) WireButtonState.Default else WireButtonState.Disabled,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(MaterialTheme.wireDimensions.spacing16x).testTag("registerButton")
+                    .padding(MaterialTheme.wireDimensions.spacing16x)
+                    .testTag("registerButton")
             )
         }
     }
@@ -103,17 +102,19 @@ private fun RegisterDeviceContent(
 private fun PasswordTextField(state: RegisterDeviceState, onPasswordChange: (TextFieldValue) -> Unit) {
     val keyboardController = LocalSoftwareKeyboardController.current
     WirePasswordTextField(
-            value = state.password,
-            onValueChange = onPasswordChange,
-            state = when(state.error) {
-                is RegisterDeviceError.InvalidCredentialsError ->
-                    WireTextFieldState.Error(stringResource(id = R.string.remove_device_invalid_password))
-                else -> WireTextFieldState.Default
-            },
-            imeAction = ImeAction.Done,
-            keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
-            modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing16x).testTag("password field")
-        )
+        value = state.password,
+        onValueChange = onPasswordChange,
+        state = when (state.error) {
+            is RegisterDeviceError.InvalidCredentialsError ->
+                WireTextFieldState.Error(stringResource(id = R.string.remove_device_invalid_password))
+            else -> WireTextFieldState.Default
+        },
+        imeAction = ImeAction.Done,
+        keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
+        modifier = Modifier
+            .padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
+            .testTag("password field")
+    )
 }
 
 @Composable

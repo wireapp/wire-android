@@ -20,15 +20,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import com.wire.android.R
 import com.wire.android.ui.common.button.IconAlignment
+import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.textfield.WirePrimaryButton
+import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 
 @Composable
 fun SelectParticipantsButtonsRow(
-    count: Int,
+    count: Int = 0,
     mainButtonText: String,
     elevation: Dp = MaterialTheme.wireDimensions.bottomNavigationShadowElevation,
     modifier: Modifier = Modifier
@@ -50,9 +51,11 @@ fun SelectParticipantsButtonsRow(
             WirePrimaryButton(
                 text = "$mainButtonText ($count)",
                 onClick = onMainButtonClick,
+                state = if (count <= 0) WireButtonState.Disabled else WireButtonState.Default,
+                blockUntilSynced = true,
                 modifier = Modifier.weight(1f)
             )
-            if(onMoreButtonClick != null) {
+            if (onMoreButtonClick != null) {
                 Spacer(Modifier.width(dimensions().spacing8x))
                 WireSecondaryButton(
                     onClick = onMoreButtonClick,
@@ -82,4 +85,10 @@ private fun SelectParticipantsButtonsRowPreview() {
 @Composable
 private fun SelectParticipantsButtonsRowWithoutMoreButtonPreview() {
     SelectParticipantsButtonsRow(count = 3, mainButtonText = "Continue", onMainButtonClick = {})
+}
+
+@Preview
+@Composable
+private fun SelectParticipantsButtonsRowDisabledButtonPreview() {
+    SelectParticipantsButtonsRow(count = 0, mainButtonText = "Continue", onMainButtonClick = {})
 }

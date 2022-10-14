@@ -32,6 +32,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import okio.Path
@@ -313,7 +314,12 @@ class MessageContentMapperTest {
             fakeKaliumFileSystem.sink(expectedAssetPath).buffer().use {
                 it.write(dummyData)
             }
-            coEvery { getMessageAssetUseCase.invoke(any(), any()) } returns MessageAssetResult.Success(expectedAssetPath, expectedAssetSize)
+            coEvery {
+                getMessageAssetUseCase.invoke(
+                    any(),
+                    any()
+                )
+            } returns CompletableDeferred(MessageAssetResult.Success(expectedAssetPath, expectedAssetSize))
             return this
         }
 

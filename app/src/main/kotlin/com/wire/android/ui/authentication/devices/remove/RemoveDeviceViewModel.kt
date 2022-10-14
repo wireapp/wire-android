@@ -159,6 +159,6 @@ class RemoveDeviceViewModel @Inject constructor(
         navigationManager.navigate(NavigationCommand(NavigationItem.Home.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
 
     private companion object {
-        const val REGISTER_CLIENT_AFTER_DELETE_DELAY = 500L
+        const val REGISTER_CLIENT_AFTER_DELETE_DELAY = 2000L
     }
 }

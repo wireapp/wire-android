@@ -30,7 +30,6 @@ import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.home.settings.backup.dialog.common.FailureDialog
 import com.wire.android.ui.home.settings.backup.dialog.create.BackUpDialogStep
-import com.wire.android.ui.home.settings.backup.dialog.create.BackupDialog
 import com.wire.android.ui.home.settings.backup.dialog.create.CreateBackupDialog
 import com.wire.android.ui.home.settings.backup.dialog.create.InformBackupDialog
 import com.wire.android.ui.home.settings.backup.dialog.create.SetBackupPasswordDialog
@@ -132,7 +131,9 @@ fun BackupAndRestoreContent(
             is BackupAndRestoreDialog.Backup -> {
                 CreateBackupDialogFlow(
                     backUpAndRestoreState = backUpAndRestoreState,
-                    onValidateBackupPassword = onValidateBackupPassword
+                    onValidateBackupPassword = onValidateBackupPassword,
+                    onCreateBackup = onCreateBackup,
+                    onSaveBackup = onSaveBackup
                 )
             }
             is BackupAndRestoreDialog.Restore -> {
@@ -152,6 +153,8 @@ fun BackupAndRestoreContent(
 fun CreateBackupDialogFlow(
     backUpAndRestoreState: BackupAndRestoreState,
     onValidateBackupPassword: (TextFieldValue) -> Unit,
+    onCreateBackup: () -> Unit,
+    onSaveBackup: () -> Unit,
 ) {
     val backupDialogStateHolder = rememberBackUpDialogState()
 
@@ -165,16 +168,27 @@ fun CreateBackupDialogFlow(
             }
             BackUpDialogStep.SetPassword -> {
                 SetBackupPasswordDialog(
-                    isBackupPasswordValid = backUpAndRestoreState.isBackupPasswordValid,
+                    isBackupPasswordValid = backUpAndRestoreState.backupPasswordValidation is PasswordValidation.Valid,
                     onBackupPasswordChanged = onValidateBackupPassword,
-                    onCreateBackup = ::toCreateBackUp,
+                    onCreateBackup = { toCreateBackUp(); onCreateBackup() },
                     onDismissDialog = { }
                 )
             }
             BackUpDialogStep.CreatingBackup -> {
+                LaunchedEffect(backUpAndRestoreState.backupProgress) {
+                    when (val progress = backUpAndRestoreState.backupProgress) {
+                        BackupProgress.Failed -> backupDialogStateHolder.toBackupFailure()
+                        BackupProgress.Finished -> backupDialogStateHolder.toFinished()
+                        is BackupProgress.InProgress -> {
+                            backupDialogStateHolder.backupProgress = progress.progress
+                        }
+                    }
+                }
+
                 CreateBackupDialog(
-                    isBackupCreationCompleted = false,
-                    createBackupProgress = 1f,
+                    isBackupCreationCompleted = backupDialogStateHolder.isBackupFinished,
+                    createBackupProgress = backupDialogStateHolder.backupProgress,
+                    onSaveBackup = onSaveBackup,
                     onDismissDialog = { }
                 )
             }
@@ -217,9 +231,9 @@ fun RestoreDialogFlow(
 
                 LaunchedEffect(backUpAndRestoreState.restorePasswordValidation) {
                     when (backUpAndRestoreState.restorePasswordValidation) {
-                        RestorePasswordValidation.NotValid -> showWrongPassword = true
-                        RestorePasswordValidation.NotVerified -> showWrongPassword = false
-                        RestorePasswordValidation.Valid -> restoreDialogStateHolder.toRestoreBackup()
+                        PasswordValidation.NotValid -> showWrongPassword = true
+                        PasswordValidation.NotVerified -> showWrongPassword = false
+                        PasswordValidation.Valid -> restoreDialogStateHolder.toRestoreBackup()
                     }
                 }
 

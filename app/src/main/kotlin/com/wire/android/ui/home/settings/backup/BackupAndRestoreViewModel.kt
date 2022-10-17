@@ -13,7 +13,6 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -30,7 +29,7 @@ class BackupAndRestoreViewModel
     fun validateBackupPassword(backupPassword: TextFieldValue) {
         viewModelScope.launch {
             state = state.copy(
-                isBackupPasswordValid = true
+                backupPasswordValidation = if (backupPassword.text.isEmpty()) PasswordValidation.Valid else PasswordValidation.NotValid
             )
         }
     }
@@ -40,7 +39,17 @@ class BackupAndRestoreViewModel
     }
 
     fun createBackup() {
-
+        viewModelScope.launch {
+            state = state.copy(backupProgress = BackupProgress.InProgress(0.25f))
+            delay(250)
+            state = state.copy(backupProgress = BackupProgress.InProgress(0.50f))
+            delay(250)
+            state = state.copy(backupProgress = BackupProgress.InProgress(0.75f))
+            delay(250)
+            state = state.copy(backupProgress = BackupProgress.InProgress(0.99f))
+            delay(250)
+            state = state.copy(backupProgress = BackupProgress.Finished)
+        }
     }
 
     fun chooseBackupFileToRestore(uri: Uri) {
@@ -52,20 +61,15 @@ class BackupAndRestoreViewModel
         //TODO: restore the back up file
         viewModelScope.launch {
             delay(1000)
-            state = state.copy(restorePasswordValidation = RestorePasswordValidation.NotVerified)
+            state = state.copy(restorePasswordValidation = PasswordValidation.NotVerified)
             delay(1000)
-            state = state.copy(restorePasswordValidation = RestorePasswordValidation.NotValid)
-            delay(1000)
-            state = state.copy(
-                restorePasswordValidation = RestorePasswordValidation.Valid,
-                restoreProgress = RestoreProgress.InProgress(0.3f)
-            )
+            state = state.copy(restorePasswordValidation = PasswordValidation.NotValid)
         }
     }
 
     fun cancelBackupCreation() {
         state = state.copy(
-            isBackupPasswordValid = false,
+            backupPasswordValidation = PasswordValidation.NotVerified,
         )
     }
 
@@ -73,7 +77,7 @@ class BackupAndRestoreViewModel
         state = state.copy(
             restoreFileValidation = RestoreFileValidation.Pending,
             restoreProgress = RestoreProgress.Pending,
-            restorePasswordValidation = RestorePasswordValidation.NotVerified
+            restorePasswordValidation = PasswordValidation.NotVerified
         )
     }
 
@@ -83,10 +87,6 @@ class BackupAndRestoreViewModel
         }
     }
 
-    fun retryRestorePassword() {
-
-    }
-
     fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }
 
 }
@@ -94,25 +94,25 @@ class BackupAndRestoreViewModel
 data class BackupAndRestoreState(
     val restoreProgress: RestoreProgress,
     val restoreFileValidation: RestoreFileValidation,
-    val restorePasswordValidation: RestorePasswordValidation,
+    val restorePasswordValidation: PasswordValidation,
     val backupProgress: BackupProgress,
-    val isBackupPasswordValid: Boolean,
+    val backupPasswordValidation: PasswordValidation
 ) {
     companion object {
         val INITIAL_STATE = BackupAndRestoreState(
             restoreProgress = RestoreProgress.Pending,
             restoreFileValidation = RestoreFileValidation.Pending,
-            restorePasswordValidation = RestorePasswordValidation.NotVerified,
             backupProgress = BackupProgress.Pending,
-            isBackupPasswordValid = true,
+            restorePasswordValidation = PasswordValidation.NotVerified,
+            backupPasswordValidation = PasswordValidation.NotVerified
         )
     }
 }
 
-sealed interface RestorePasswordValidation {
-    object NotVerified : RestorePasswordValidation
-    object NotValid : RestorePasswordValidation
-    object Valid : RestorePasswordValidation
+sealed interface PasswordValidation {
+    object NotVerified : PasswordValidation
+    object NotValid : PasswordValidation
+    object Valid : PasswordValidation
 }
 
 sealed interface BackupProgress {

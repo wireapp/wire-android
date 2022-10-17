@@ -36,7 +36,10 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.data.id.ConversationId
 
 @Composable
-fun CommonTopAppBar(connectivityUIState: ConnectivityUIState, onReturnToCallClick: () -> Unit) {
+fun CommonTopAppBar(
+    connectivityUIState: ConnectivityUIState,
+    onReturnToCallClick: () -> Unit
+) {
     ConnectivityStatusBar(
         connectivityInfo = connectivityUIState.info,
         onReturnToCallClick = onReturnToCallClick
@@ -49,6 +52,7 @@ private fun ConnectivityStatusBar(
     onReturnToCallClick: () -> Unit
 ) {
     val isVisible = connectivityInfo !is ConnectivityUIState.Info.None
+
     if (!isVisible) {
         clearStatusBarColor()
     }

@@ -51,7 +51,7 @@ open class SearchAllPeopleViewModel(
     navigationManager = navigationManager
 ) {
 
-    var state: SearchPeopleState by mutableStateOf(SearchPeopleState())
+    var state: SearchPeopleState by mutableStateOf(SearchPeopleState(isGroupCreationContext = true))
 
     init {
         viewModelScope.launch {
@@ -69,9 +69,10 @@ open class SearchAllPeopleViewModel(
                         SearchResultTitle(R.string.label_contacts) to knownResult,
                         SearchResultTitle(R.string.label_public_wire) to publicResult.filterContacts(knownResult)
                     ),
-                    noneSearchSucceed = publicResult.searchResultState is SearchResultState.Failure
-                            && knownResult.searchResultState is SearchResultState.Failure,
-                    contactsAddedToGroup = selectedContacts
+                    noneSearchSucceed = publicResult.searchResultState is SearchResultState.Failure &&
+                        knownResult.searchResultState is SearchResultState.Failure,
+                    contactsAddedToGroup = selectedContacts,
+                    isGroupCreationContext = true
                 )
             }.collect { updatedState ->
                 state = updatedState
@@ -122,16 +123,19 @@ open class SearchAllPeopleViewModel(
         return if (searchResultState is SearchResultState.Success &&
             contactSearchResult.searchResultState is SearchResultState.Success
         ) {
-            ContactSearchResult.ExternalContact(SearchResultState.Success(searchResultState.result.filterNot { contact ->
-                contactSearchResult.searchResultState.result.map { it.id }.contains(
-                    contact.id
+            ContactSearchResult.ExternalContact(
+                SearchResultState.Success(
+                    searchResultState.result.filterNot { contact ->
+                        contactSearchResult.searchResultState.result.map { it.id }.contains(
+                            contact.id
+                        )
+                    }
                 )
-            }))
+            )
         } else {
             this
         }
     }
-
 }
 
 abstract class PublicWithKnownPeopleSearchViewModel(
@@ -206,15 +210,15 @@ abstract class SearchPeopleViewModel(
         .debounce(DEFAULT_SEARCH_QUERY_DEBOUNCE)
 
     fun initialContactResultFlow() = getInitialContacts().map { result ->
-            when (result) {
-                is SearchResult.Failure -> {
-                    SearchResultState.Failure(result.failureString)
-                }
-                is SearchResult.Success -> {
-                    SearchResultState.Success(result.contacts)
-                }
+        when (result) {
+            is SearchResult.Failure -> {
+                SearchResultState.Failure(result.failureString)
+            }
+            is SearchResult.Success -> {
+                SearchResultState.Success(result.contacts)
             }
         }
+    }
 
     protected val searchQueryTextFieldFlow = MutableStateFlow(TextFieldValue(""))
 
@@ -269,7 +273,6 @@ abstract class SearchPeopleViewModel(
     }
 
     abstract fun getInitialContacts(): Flow<SearchResult>
-
 }
 
 // Different use cases could return different type for the search, we are making sure here

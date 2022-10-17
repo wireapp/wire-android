@@ -23,6 +23,7 @@ import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
@@ -291,9 +292,20 @@ fun RestoreDialogFlow(
         onCancelBackupRestore()
     }
 }
-//
-//@Preview
-//@Composable
-//fun BackupAndRestoreScreenPreview() {
-//    BackupAndRestoreContent({}, {}, {}, {}, {}, {})
-//}
+
+@Preview
+@Composable
+fun BackupAndRestoreScreenPreview() {
+    BackupAndRestoreContent(
+        backUpAndRestoreState = BackupAndRestoreState.INITIAL_STATE,
+        onValidateBackupPassword = {},
+        onCreateBackup = {},
+        onSaveBackup = {},
+        onCancelBackupCreation = {},
+        onCancelBackupRestore = {},
+        onChooseBackupFile = {},
+        onRestoreBackup = {},
+        onOpenConversations = {},
+        onBackPressed = {}
+    )
+}

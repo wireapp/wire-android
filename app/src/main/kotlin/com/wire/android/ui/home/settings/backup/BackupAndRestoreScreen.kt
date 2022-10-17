@@ -1,6 +1,7 @@
 package com.wire.android.ui.home.settings.backup
 
 import android.net.Uri
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -208,6 +209,10 @@ fun CreateBackupDialogFlow(
             }
         }
     }
+
+    BackHandler(backupDialogStateHolder.currentBackupDialogStep != BackUpDialogStep.CreatingBackup) {
+        onCancelCreateBackup()
+    }
 }
 
 @Composable
@@ -280,6 +285,10 @@ fun RestoreDialogFlow(
                 )
             }
         }
+    }
+
+    BackHandler(restoreDialogStateHolder.currentRestoreDialogStep != RestoreDialogStep.RestoreBackup) {
+        onCancelBackupRestore()
     }
 }
 //

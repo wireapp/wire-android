@@ -34,10 +34,12 @@ class BackupAndRestoreViewModel
         }
     }
 
+    //TODO: save a back up file
     fun saveBackup() {
 
     }
 
+    //TODO: create a back up
     fun createBackup() {
         viewModelScope.launch {
             state = state.copy(backupProgress = BackupProgress.InProgress(0.25f))
@@ -57,6 +59,7 @@ class BackupAndRestoreViewModel
         state = state.copy(restoreFileValidation = RestoreFileValidation.PasswordRequired)
     }
 
+    //TODO: restore the back up with the provided restorePassword
     fun restoreBackup(restorePassword: TextFieldValue) {
         //TODO: restore the back up file
         viewModelScope.launch {
@@ -70,6 +73,7 @@ class BackupAndRestoreViewModel
     fun cancelBackupCreation() {
         state = state.copy(
             backupPasswordValidation = PasswordValidation.NotVerified,
+            backupProgress = BackupProgress.Pending,
         )
     }
 

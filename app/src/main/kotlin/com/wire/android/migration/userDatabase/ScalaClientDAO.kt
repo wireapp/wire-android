@@ -20,16 +20,16 @@ class ScalaClientDAO(private val db: ScalaUserDatabase) {
                 arrayOf(KEY_COLUMN_NAME, OTR_LAT_PREKEY_ID)
             )
 
-        try {
+        return try {
             if (clientIdCursor.moveToFirst().not() or otrLastPrekeyIdCursor.moveToFirst().not()) {
                 return null
             }
             val clientId = clientIdCursor.getString(0)
             val otrLastPrekeyId = otrLastPrekeyIdCursor.getString(0).toInt()
 
-            return ScalaClientInfo(clientId, otrLastPrekeyId)
+            ScalaClientInfo(clientId, otrLastPrekeyId)
         } catch (e: SQLException) {
-            return null
+            null
         } finally {
             clientIdCursor.close()
             otrLastPrekeyIdCursor.close()

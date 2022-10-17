@@ -16,6 +16,7 @@ import com.wire.kalium.logic.functional.fold
 import javax.inject.Inject
 import javax.inject.Singleton
 
+@Suppress("ReturnCount")
 @Singleton
 class MigrateActiveAccountsUseCase @Inject constructor(
     @KaliumCoreLogic private val coreLogic: CoreLogic,

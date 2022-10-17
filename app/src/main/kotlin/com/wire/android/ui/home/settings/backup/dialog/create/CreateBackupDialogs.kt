@@ -35,8 +35,8 @@ fun InformBackupDialog(
     onDismissDialog: () -> Unit
 ) {
     WireDialog(
-        title = "Set an email and password",
-        text = "You need an email and a password in order to back up your conversation history. You can do it from the account page in Settings.",
+        title = stringResource(R.string.dialog_create_backup_inform_title),
+        text = stringResource(R.string.dialog_create_backup_inform_message),
         onDismiss = onDismissDialog,
         optionButton1Properties = WireDialogButtonProperties(
             onClick = onAcknowledgeBackup,
@@ -57,8 +57,8 @@ fun SetBackupPasswordDialog(
     var backupPassword by remember { mutableStateOf(TextFieldValue("")) }
 
     WireDialog(
-        title = "Set password",
-        text = "The backup will be compressed and encrypted with a password. Make sure to store it in a secure place.",
+        title = stringResource(R.string.dialog_create_backup_set_password_title),
+        text = stringResource(R.string.dialog_create_backup_set_password_message),
         onDismiss = onDismissDialog,
         dismissButtonProperties = WireDialogButtonProperties(
             onClick = onDismissDialog,
@@ -73,7 +73,7 @@ fun SetBackupPasswordDialog(
         )
     ) {
         WirePasswordTextField(
-            labelText = "PASSWORD (OPTIONAL)",
+            labelText = stringResource(R.string.label_textfield_optional_password),
             state = if (!isBackupPasswordValid) WireTextFieldState.Error("some error") else WireTextFieldState.Default,
             value = backupPassword,
             onValueChange = {
@@ -92,7 +92,7 @@ fun CreateBackupDialog(
     onDismissDialog: () -> Unit
 ) {
     WireDialog(
-        title = "Creating Backup",
+        title = stringResource(R.string.dialog_create_backup_title),
         onDismiss = onDismissDialog,
         optionButton1Properties = WireDialogButtonProperties(
             onClick = onSaveBackup,
@@ -109,13 +109,13 @@ fun CreateBackupDialog(
         Column(modifier = Modifier.fillMaxWidth()) {
             if (isBackupCreationCompleted) {
                 Row {
-                    Text("Conversations successfully saved", modifier = Modifier.weight(1f))
+                    Text(stringResource(R.string.label_conversation_successfully_saved), modifier = Modifier.weight(1f))
                     WireCheckIcon()
                 }
             } else {
                 Row {
-                    Text("Saving conversations", modifier = Modifier.weight(1f))
-                    Text("25 %", style = MaterialTheme.wireTypography.body02)
+                    Text(stringResource(R.string.label_sacing_conversations), modifier = Modifier.weight(1f))
+                    Text("$createBackupProgress %", style = MaterialTheme.wireTypography.body02)
                 }
             }
             VerticalSpace.x16()

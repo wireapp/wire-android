@@ -29,13 +29,16 @@ import com.wire.android.ui.theme.wireTypography
 
 
 @Composable
-fun PickRestoreFileDialog(onChooseBackupFile: (Uri) -> Unit) {
+fun PickRestoreFileDialog(
+    onChooseBackupFile: (Uri) -> Unit,
+    onCancelBackupRestore: () -> Unit
+) {
     val fileFlow = FileBrowserFlow(onChooseBackupFile)
 
     WireDialog(
-        title = "Restore a Backup",
-        text = "The backup contents will replace the conversation history on this device. You can only restore history from a backup of the same platform.",
-        onDismiss = {},
+        title = stringResource(R.string.dialog_restore_backup_title),
+        text = stringResource(R.string.dialog_restore_backup_message),
+        onDismiss = onCancelBackupRestore,
         optionButton1Properties = WireDialogButtonProperties(
             onClick = { fileFlow.launch() },
             text = "Choose Backup File",
@@ -49,23 +52,24 @@ fun PickRestoreFileDialog(onChooseBackupFile: (Uri) -> Unit) {
 fun EnterRestorePasswordDialog(
     isWrongPassword: Boolean,
     onRestoreBackupFile: (TextFieldValue) -> Unit,
-    onAcknowledgeWrongPassword: () -> Unit
+    onAcknowledgeWrongPassword: () -> Unit,
+    onCancelBackupRestore: () -> Unit
 ) {
     var restorePassword by remember { mutableStateOf(TextFieldValue((""))) }
 
     if (!isWrongPassword) {
         WireDialog(
-            title = "Enter password",
-            text = "This backup is password protected.",
-            onDismiss = { },
+            title = stringResource(R.string.label_enter_password),
+            text = stringResource(R.string.dialog_restore_backup_password_message),
+            onDismiss = onCancelBackupRestore,
             dismissButtonProperties = WireDialogButtonProperties(
-                onClick = { },
+                onClick = onCancelBackupRestore,
                 text = stringResource(id = R.string.label_cancel),
                 state = WireButtonState.Default
             ),
             optionButton1Properties = WireDialogButtonProperties(
                 onClick = { onRestoreBackupFile(restorePassword) },
-                text = "Continue",
+                text = stringResource(id = R.string.label_continue),
                 type = WireDialogButtonType.Primary,
                 state = if (restorePassword.text.isEmpty()) WireButtonState.Disabled else WireButtonState.Default
             )
@@ -79,9 +83,9 @@ fun EnterRestorePasswordDialog(
         }
     } else {
         WireDialog(
-            title = "Wrong password",
-            text = "Please verify your input and try again",
-            onDismiss = { },
+            title = stringResource(R.string.label_wrong_password),
+            text = stringResource(R.string.label_verify_input),
+            onDismiss = onCancelBackupRestore,
             optionButton1Properties = WireDialogButtonProperties(
                 onClick = onAcknowledgeWrongPassword,
                 text = stringResource(id = R.string.label_ok),
@@ -95,15 +99,19 @@ fun EnterRestorePasswordDialog(
 fun RestoreProgressDialog(
     isRestoreCompleted: Boolean,
     restoreProgress: Float,
-    onCancelRestore: () -> Unit,
-    onOpenConversation: () -> Unit
+    onOpenConversation: () -> Unit,
+    onCancelBackupRestore: () -> Unit
 ) {
     WireDialog(
-        title = "Restoring Backup...",
-        onDismiss = { },
+        title = stringResource(R.string.dialog_restoring_backup_title),
+        onDismiss = {
+            // User is not able to dismiss the dialog
+        },
         optionButton1Properties = WireDialogButtonProperties(
-            onClick = { if (isRestoreCompleted) onOpenConversation() else onCancelRestore() },
-            text = if (isRestoreCompleted) "Ok" else stringResource(id = R.string.label_cancel),
+            onClick = {
+                if (isRestoreCompleted) onOpenConversation() else onCancelBackupRestore()
+            },
+            text = if (isRestoreCompleted) stringResource(R.string.label_ok) else stringResource(id = R.string.label_cancel),
             type = WireDialogButtonType.Primary,
             state = if (isRestoreCompleted) WireButtonState.Default else WireButtonState.Disabled
         ),
@@ -111,13 +119,13 @@ fun RestoreProgressDialog(
         Column(modifier = Modifier.fillMaxWidth()) {
             if (isRestoreCompleted) {
                 Row {
-                    Text("Conversations have been restored", modifier = Modifier.weight(1f))
+                    Text(stringResource(R.string.label_conversation_restored), modifier = Modifier.weight(1f))
                     WireCheckIcon()
                 }
             } else {
                 Row {
-                    Text("Loading conversations", modifier = Modifier.weight(1f))
-                    Text("25 %", style = MaterialTheme.wireTypography.body02)
+                    Text(stringResource(R.string.label_loading_conversations), modifier = Modifier.weight(1f))
+                    Text("$restoreProgress %", style = MaterialTheme.wireTypography.body02)
                 }
             }
             VerticalSpace.x16()

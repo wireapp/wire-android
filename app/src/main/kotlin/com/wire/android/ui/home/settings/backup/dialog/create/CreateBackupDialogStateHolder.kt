@@ -45,7 +45,7 @@ class CreateBackupDialogStateHolder {
 
 @Composable
 fun rememberBackUpDialogState(): CreateBackupDialogStateHolder {
-    return remember { CreateBackupDialogStateHolder() }
+    return remember("someData") { CreateBackupDialogStateHolder() }
 }
 
 sealed interface BackUpDialogStep {

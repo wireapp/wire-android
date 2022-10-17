@@ -133,7 +133,11 @@ fun BackupAndRestoreContent(
                     backUpAndRestoreState = backUpAndRestoreState,
                     onValidateBackupPassword = onValidateBackupPassword,
                     onCreateBackup = onCreateBackup,
-                    onSaveBackup = onSaveBackup
+                    onSaveBackup = onSaveBackup,
+                    onCancelCreateBackup = {
+                        backupAndRestoreStateHolder.dismissDialog()
+                        onCancelBackupCreation()
+                    }
                 )
             }
             is BackupAndRestoreDialog.Restore -> {
@@ -141,7 +145,10 @@ fun BackupAndRestoreContent(
                     backUpAndRestoreState = backUpAndRestoreState,
                     onChooseBackupFile = onChooseBackupFile,
                     onRestoreBackup = onRestoreBackup,
-                    onCancelBackupRestore = onCancelBackupRestore,
+                    onCancelBackupRestore = {
+                        backupAndRestoreStateHolder.dismissDialog()
+                        onCancelBackupRestore()
+                    },
                     onOpenConversations = onOpenConversations
                 )
             }
@@ -155,6 +162,7 @@ fun CreateBackupDialogFlow(
     onValidateBackupPassword: (TextFieldValue) -> Unit,
     onCreateBackup: () -> Unit,
     onSaveBackup: () -> Unit,
+    onCancelCreateBackup: () -> Unit
 ) {
     val backupDialogStateHolder = rememberBackUpDialogState()
 
@@ -163,7 +171,7 @@ fun CreateBackupDialogFlow(
             BackUpDialogStep.Inform -> {
                 InformBackupDialog(
                     onAcknowledgeBackup = ::toBackupPassword,
-                    onDismissDialog = { }
+                    onDismissDialog = onCancelCreateBackup
                 )
             }
             BackUpDialogStep.SetPassword -> {
@@ -171,7 +179,7 @@ fun CreateBackupDialogFlow(
                     isBackupPasswordValid = backUpAndRestoreState.backupPasswordValidation is PasswordValidation.Valid,
                     onBackupPasswordChanged = onValidateBackupPassword,
                     onCreateBackup = { toCreateBackUp(); onCreateBackup() },
-                    onDismissDialog = { }
+                    onDismissDialog = onCancelCreateBackup
                 )
             }
             BackUpDialogStep.CreatingBackup -> {
@@ -189,7 +197,7 @@ fun CreateBackupDialogFlow(
                     isBackupCreationCompleted = backupDialogStateHolder.isBackupFinished,
                     createBackupProgress = backupDialogStateHolder.backupProgress,
                     onSaveBackup = onSaveBackup,
-                    onDismissDialog = { }
+                    onDismissDialog = onCancelCreateBackup
                 )
             }
             BackUpDialogStep.Failure -> {
@@ -207,8 +215,8 @@ fun RestoreDialogFlow(
     backUpAndRestoreState: BackupAndRestoreState,
     onChooseBackupFile: (Uri) -> Unit,
     onRestoreBackup: (TextFieldValue) -> Unit,
-    onCancelBackupRestore: () -> Unit,
-    onOpenConversations: () -> Unit
+    onOpenConversations: () -> Unit,
+    onCancelBackupRestore: () -> Unit
 ) {
     val restoreDialogStateHolder = rememberRestoreDialogState()
 
@@ -224,7 +232,10 @@ fun RestoreDialogFlow(
                     }
                 }
 
-                PickRestoreFileDialog(onChooseBackupFile = onChooseBackupFile)
+                PickRestoreFileDialog(
+                    onChooseBackupFile = onChooseBackupFile,
+                    onCancelBackupRestore = onCancelBackupRestore
+                )
             }
             is RestoreDialogStep.EnterPassword -> {
                 var showWrongPassword by remember { mutableStateOf(false) }
@@ -240,7 +251,8 @@ fun RestoreDialogFlow(
                 EnterRestorePasswordDialog(
                     isWrongPassword = showWrongPassword,
                     onRestoreBackupFile = onRestoreBackup,
-                    onAcknowledgeWrongPassword = { showWrongPassword = false }
+                    onAcknowledgeWrongPassword = { showWrongPassword = false },
+                    onCancelBackupRestore = onCancelBackupRestore
                 )
             }
             RestoreDialogStep.RestoreBackup -> {
@@ -258,7 +270,7 @@ fun RestoreDialogFlow(
                     isRestoreCompleted = isRestoreCompleted,
                     restoreProgress = restoreProgress,
                     onOpenConversation = onOpenConversations,
-                    onCancelRestore = onCancelBackupRestore
+                    onCancelBackupRestore = onCancelBackupRestore
                 )
             }
             is RestoreDialogStep.Failure -> {

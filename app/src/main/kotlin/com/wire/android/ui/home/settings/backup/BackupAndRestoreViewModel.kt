@@ -51,16 +51,15 @@ class BackupAndRestoreViewModel
     fun restoreBackup(restorePassword: TextFieldValue) {
         //TODO: restore the back up file
         viewModelScope.launch {
-            state = state.copy(
-                restorePasswordValidation = RestorePasswordValidation.NotVerified
-            )
+            delay(1000)
+            state = state.copy(restorePasswordValidation = RestorePasswordValidation.NotVerified)
             delay(1000)
             state = state.copy(restorePasswordValidation = RestorePasswordValidation.NotValid)
-//            delay(1000)
-//            state = state.copy(
-//                restorePasswordValidation = RestorePasswordValidation.Valid,
-//                restoreProgress = RestoreProgress.InProgress(0.3f)
-//            )
+            delay(1000)
+            state = state.copy(
+                restorePasswordValidation = RestorePasswordValidation.Valid,
+                restoreProgress = RestoreProgress.InProgress(0.3f)
+            )
         }
     }
 

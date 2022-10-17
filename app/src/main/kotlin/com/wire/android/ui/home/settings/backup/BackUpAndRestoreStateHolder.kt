@@ -1,4 +1,4 @@
-package com.wire.android.ui.home.settings.backup.dialog
+package com.wire.android.ui.home.settings.backup
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -6,7 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 
-class BackUpAndRestoreStateHolder() {
+class BackUpAndRestoreStateHolder {
 
     var dialogState: BackupAndRestoreDialog by mutableStateOf(
         BackupAndRestoreDialog.None

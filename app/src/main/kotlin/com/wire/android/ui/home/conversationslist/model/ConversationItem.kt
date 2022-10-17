@@ -15,7 +15,6 @@ sealed class ConversationItem {
     abstract val isLegalHold: Boolean
     abstract val lastEvent: ConversationLastEvent
     abstract val badgeEventType: BadgeEventType
-
     data class GroupConversation(
         val groupName: String,
         override val conversationId: ConversationId,

@@ -34,6 +34,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
@@ -238,12 +239,17 @@ class MediaGalleryViewModelTest {
         }
 
         fun withSuccessfulImageData(imageDataPath: Path, imageSize: Long): Arrangement {
-            coEvery { getImageData(any(), any()) } returns MessageAssetResult.Success(imageDataPath, imageSize)
+            coEvery { getImageData(any(), any()) } returns CompletableDeferred(MessageAssetResult.Success(imageDataPath, imageSize))
             return this
         }
 
         fun withFailedImageDataRequest(): Arrangement {
-            coEvery { getImageData(any(), any()) } returns MessageAssetResult.Failure(CoreFailure.Unknown(java.lang.RuntimeException()))
+            coEvery {
+                getImageData(
+                    any(),
+                    any()
+                )
+            } returns CompletableDeferred(MessageAssetResult.Failure(CoreFailure.Unknown(java.lang.RuntimeException())))
             return this
         }
 

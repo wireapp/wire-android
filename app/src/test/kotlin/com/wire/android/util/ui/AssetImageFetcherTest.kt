@@ -14,6 +14,7 @@ import com.wire.kalium.logic.feature.asset.PublicAssetResult
 import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.mockk
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import okio.Path
@@ -103,7 +104,14 @@ internal class AssetImageFetcherTest {
         fun withSuccessfulImageData(data: ImageAsset, expectedAssetPath: Path, expectedAssetSize: Long): Arrangement {
             imageData = data
             coEvery { getPublicAsset.invoke((any())) }.returns(PublicAssetResult.Success(expectedAssetPath))
-            coEvery { getPrivateAsset.invoke(any(), any()) }.returns(MessageAssetResult.Success(expectedAssetPath, expectedAssetSize))
+            coEvery { getPrivateAsset.invoke(any(), any()) }.returns(
+                CompletableDeferred(
+                    MessageAssetResult.Success(
+                        expectedAssetPath,
+                        expectedAssetSize
+                    )
+                )
+            )
             coEvery { drawableResultWrapper.toFetchResult(any()) }.returns(mockFetchResult)
 
             return this
@@ -120,7 +128,12 @@ internal class AssetImageFetcherTest {
         fun withErrorResponse(data: ImageAsset): Arrangement {
             imageData = data
             coEvery { getPublicAsset.invoke((any())) }.returns(PublicAssetResult.Failure(CoreFailure.Unknown(null)))
-            coEvery { getPrivateAsset.invoke(any(), any()) }.returns(MessageAssetResult.Failure(CoreFailure.Unknown(null)))
+            coEvery {
+                getPrivateAsset.invoke(
+                    any(),
+                    any()
+                )
+            }.returns(CompletableDeferred(MessageAssetResult.Failure(CoreFailure.Unknown(null))))
 
             return this
         }

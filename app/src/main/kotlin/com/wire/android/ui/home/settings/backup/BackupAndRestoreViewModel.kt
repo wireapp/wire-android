@@ -29,7 +29,7 @@ class BackupAndRestoreViewModel
     fun validateBackupPassword(backupPassword: TextFieldValue) {
         viewModelScope.launch {
             state = state.copy(
-                backupPasswordValidation = if (backupPassword.text.isEmpty()) PasswordValidation.Valid else PasswordValidation.NotValid
+                backupPasswordValidation = PasswordValidation.Valid
             )
         }
     }
@@ -41,17 +41,18 @@ class BackupAndRestoreViewModel
 
     //TODO: create a back up
     fun createBackup() {
-        viewModelScope.launch {
-            state = state.copy(backupProgress = BackupProgress.InProgress(0.25f))
-            delay(250)
-            state = state.copy(backupProgress = BackupProgress.InProgress(0.50f))
-            delay(250)
-            state = state.copy(backupProgress = BackupProgress.InProgress(0.75f))
-            delay(250)
-            state = state.copy(backupProgress = BackupProgress.InProgress(0.99f))
-            delay(250)
-            state = state.copy(backupProgress = BackupProgress.Finished)
-        }
+//        // TEST purpose remove once we are restoring the backup
+//        viewModelScope.launch {
+//            state = state.copy(backupProgress = BackupProgress.InProgress(0.25f))
+//            delay(250)
+//            state = state.copy(backupProgress = BackupProgress.InProgress(0.50f))
+//            delay(250)
+//            state = state.copy(backupProgress = BackupProgress.InProgress(0.75f))
+//            delay(250)
+//            state = state.copy(backupProgress = BackupProgress.InProgress(0.99f))
+//            delay(250)
+//            state = state.copy(backupProgress = BackupProgress.Finished)
+//        }
     }
 
     fun chooseBackupFileToRestore(uri: Uri) {
@@ -62,12 +63,14 @@ class BackupAndRestoreViewModel
     //TODO: restore the back up with the provided restorePassword
     fun restoreBackup(restorePassword: TextFieldValue) {
         //TODO: restore the back up file
-        viewModelScope.launch {
-            delay(1000)
-            state = state.copy(restorePasswordValidation = PasswordValidation.NotVerified)
-            delay(1000)
-            state = state.copy(restorePasswordValidation = PasswordValidation.NotValid)
-        }
+        state = state.copy(restorePasswordValidation = PasswordValidation.Valid)
+//        //TEST purpose remove once we are restoring the backup
+//        viewModelScope.launch {
+//            delay(1000)
+//            state = state.copy(restorePasswordValidation = PasswordValidation.NotVerified)
+//            delay(1000)
+//            state = state.copy(restorePasswordValidation = PasswordValidation.NotValid)
+//        }
     }
 
     fun cancelBackupCreation() {
@@ -108,7 +111,7 @@ data class BackupAndRestoreState(
             restoreFileValidation = RestoreFileValidation.Pending,
             backupProgress = BackupProgress.Pending,
             restorePasswordValidation = PasswordValidation.NotVerified,
-            backupPasswordValidation = PasswordValidation.NotVerified
+            backupPasswordValidation = PasswordValidation.Valid
         )
     }
 }

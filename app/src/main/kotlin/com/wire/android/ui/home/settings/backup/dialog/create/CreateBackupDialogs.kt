@@ -28,6 +28,7 @@ import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.home.settings.backup.dialog.create.BackUpDialogStep
 import com.wire.android.ui.home.settings.backup.dialog.create.CreateBackupDialogStateHolder
 import com.wire.android.ui.theme.wireTypography
+import kotlin.math.roundToInt
 
 @Composable
 fun InformBackupDialog(
@@ -115,11 +116,11 @@ fun CreateBackupDialog(
             } else {
                 Row {
                     Text(stringResource(R.string.label_sacing_conversations), modifier = Modifier.weight(1f))
-                    Text("$createBackupProgress %", style = MaterialTheme.wireTypography.body02)
+                    Text("${createBackupProgress.times(100).roundToInt()} %", style = MaterialTheme.wireTypography.body02)
                 }
             }
             VerticalSpace.x16()
-            LinearProgressIndicator(progress = 1f)
+            LinearProgressIndicator(progress = createBackupProgress)
             VerticalSpace.x16()
         }
     }

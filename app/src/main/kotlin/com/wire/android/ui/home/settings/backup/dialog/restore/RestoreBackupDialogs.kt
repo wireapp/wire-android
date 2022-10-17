@@ -26,6 +26,7 @@ import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.home.messagecomposer.attachment.FileBrowserFlow
 import com.wire.android.ui.theme.wireTypography
+import kotlin.math.roundToInt
 
 
 @Composable
@@ -125,7 +126,7 @@ fun RestoreProgressDialog(
             } else {
                 Row {
                     Text(stringResource(R.string.label_loading_conversations), modifier = Modifier.weight(1f))
-                    Text("$restoreProgress %", style = MaterialTheme.wireTypography.body02)
+                    Text("${restoreProgress.times(100).roundToInt()} %", style = MaterialTheme.wireTypography.body02)
                 }
             }
             VerticalSpace.x16()

@@ -92,12 +92,17 @@ fun EnterRestorePasswordDialog(
 }
 
 @Composable
-fun RestoreProgressDialog(isRestoreCompleted: Boolean, restoreProgress: Float) {
+fun RestoreProgressDialog(
+    isRestoreCompleted: Boolean,
+    restoreProgress: Float,
+    onCancelRestore: () -> Unit,
+    onOpenConversation: () -> Unit
+) {
     WireDialog(
         title = "Restoring Backup...",
         onDismiss = { },
         optionButton1Properties = WireDialogButtonProperties(
-            onClick = { },
+            onClick = { if (isRestoreCompleted) onOpenConversation() else onCancelRestore() },
             text = if (isRestoreCompleted) "Ok" else stringResource(id = R.string.label_cancel),
             type = WireDialogButtonType.Primary,
             state = if (isRestoreCompleted) WireButtonState.Default else WireButtonState.Disabled
@@ -122,16 +127,3 @@ fun RestoreProgressDialog(isRestoreCompleted: Boolean, restoreProgress: Float) {
     }
 }
 
-@Composable
-fun FailureDialog(title: String, message: String) {
-    WireDialog(
-        title = title,
-        text = message,
-        onDismiss = { },
-        optionButton1Properties = WireDialogButtonProperties(
-            onClick = { },
-            text = stringResource(id = R.string.label_ok),
-            type = WireDialogButtonType.Primary,
-        )
-    )
-}

@@ -1,4 +1,4 @@
-package com.wire.android.ui.home.settings.backup.dialog
+package com.wire.android.ui.home.settings.backup.dialog.create
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
@@ -9,7 +9,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 
 @Stable
-class BackupDialogStateHolder {
+class CreateBackupDialogStateHolder {
     companion object {
         val INITIAL_STEP = BackUpDialogStep.Inform
     }
@@ -44,8 +44,8 @@ class BackupDialogStateHolder {
 }
 
 @Composable
-fun rememberBackUpDialogState(): BackupDialogStateHolder {
-    return remember { BackupDialogStateHolder() }
+fun rememberBackUpDialogState(): CreateBackupDialogStateHolder {
+    return remember { CreateBackupDialogStateHolder() }
 }
 
 sealed interface BackUpDialogStep {

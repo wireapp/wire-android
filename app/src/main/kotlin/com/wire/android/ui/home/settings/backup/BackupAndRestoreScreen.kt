@@ -13,6 +13,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -24,9 +28,19 @@ import com.wire.android.R
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
-import com.wire.android.ui.home.settings.backup.dialog.BackupDialog
-import com.wire.android.ui.home.settings.backup.dialog.restore.RestoreDialogProcess
-import com.wire.android.ui.home.settings.backup.dialog.rememberBackUpDialogState
+import com.wire.android.ui.home.settings.backup.dialog.common.FailureDialog
+import com.wire.android.ui.home.settings.backup.dialog.create.BackUpDialogStep
+import com.wire.android.ui.home.settings.backup.dialog.create.BackupDialog
+import com.wire.android.ui.home.settings.backup.dialog.create.CreateBackupDialog
+import com.wire.android.ui.home.settings.backup.dialog.create.InformBackupDialog
+import com.wire.android.ui.home.settings.backup.dialog.create.SetBackupPasswordDialog
+import com.wire.android.ui.home.settings.backup.dialog.create.rememberBackUpDialogState
+import com.wire.android.ui.home.settings.backup.dialog.restore.EnterRestorePasswordDialog
+import com.wire.android.ui.home.settings.backup.dialog.restore.PickRestoreFileDialog
+import com.wire.android.ui.home.settings.backup.dialog.restore.RestoreDialogStep
+import com.wire.android.ui.home.settings.backup.dialog.restore.RestoreFailure
+import com.wire.android.ui.home.settings.backup.dialog.restore.RestoreProgressDialog
+import com.wire.android.ui.home.settings.backup.dialog.restore.rememberRestoreDialogState
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -44,7 +58,6 @@ fun BackupAndRestoreScreen(viewModel: BackupAndRestoreViewModel = hiltViewModel(
         onCancelBackupRestore = viewModel::cancelBackupRestore,
         onCancelBackupCreation = viewModel::cancelBackupCreation,
         onOpenConversations = viewModel::navigateToConversations,
-        onRetryRestorePassword = viewModel::retryRestorePassword,
         onBackPressed = viewModel::navigateBack
     )
 }
@@ -61,7 +74,6 @@ fun BackupAndRestoreContent(
     onChooseBackupFile: (Uri) -> Unit,
     onRestoreBackup: (TextFieldValue) -> Unit,
     onOpenConversations: () -> Unit,
-    onRetryRestorePassword: () -> Unit,
     onBackPressed: () -> Unit
 ) {
     val backupAndRestoreStateHolder = rememberBackUpAndRestoreStateHolder()
@@ -118,46 +130,132 @@ fun BackupAndRestoreContent(
     if (backupAndRestoreStateHolder.dialogState !is BackupAndRestoreDialog.None) {
         when (backupAndRestoreStateHolder.dialogState) {
             is BackupAndRestoreDialog.Backup -> {
-                val backupDialogStateHolder = rememberBackUpDialogState()
-
-                LaunchedEffect(backUpAndRestoreState.isBackupPasswordValid) {
-                    backupDialogStateHolder.isBackupPasswordValid = backUpAndRestoreState.isBackupPasswordValid
-                }
-
-                LaunchedEffect(backUpAndRestoreState.backupProgress) {
-                    when (val progress = backUpAndRestoreState.backupProgress) {
-                        BackupProgress.Failed -> backupDialogStateHolder.toBackupFailure()
-                        BackupProgress.Finished -> backupDialogStateHolder.toFinished()
-                        is BackupProgress.InProgress -> {
-                            backupDialogStateHolder.backupProgress = progress.progress
-                        }
-                    }
-                }
-
-                BackupDialog(
-                    backupDialogStateHolder = backupDialogStateHolder,
-                    onValidateBackupPassword = onValidateBackupPassword,
-                    onCreateBackup = onCreateBackup,
-                    onSaveBackup = onSaveBackup,
-                    onCancelBackup = onCancelBackupCreation,
-                    onDismissDialog = {
-                        onCancelBackupCreation()
-                        backupAndRestoreStateHolder.dismissDialog()
-                    }
+                CreateBackupDialogFlow(
+                    backUpAndRestoreState = backUpAndRestoreState,
+                    onValidateBackupPassword = onValidateBackupPassword
                 )
             }
             is BackupAndRestoreDialog.Restore -> {
-                RestoreDialogProcess(
-                    backUpAndRestoreState,
-                    onChooseBackupFile,
-                    onRestoreBackup
+                RestoreDialogFlow(
+                    backUpAndRestoreState = backUpAndRestoreState,
+                    onChooseBackupFile = onChooseBackupFile,
+                    onRestoreBackup = onRestoreBackup,
+                    onCancelBackupRestore = onCancelBackupRestore,
+                    onOpenConversations = onOpenConversations
                 )
             }
         }
     }
 }
 
+@Composable
+fun CreateBackupDialogFlow(
+    backUpAndRestoreState: BackupAndRestoreState,
+    onValidateBackupPassword: (TextFieldValue) -> Unit,
+) {
+    val backupDialogStateHolder = rememberBackUpDialogState()
 
+    with(backupDialogStateHolder) {
+        when (backupDialogStateHolder.currentBackupDialogStep) {
+            BackUpDialogStep.Inform -> {
+                InformBackupDialog(
+                    onAcknowledgeBackup = ::toBackupPassword,
+                    onDismissDialog = { }
+                )
+            }
+            BackUpDialogStep.SetPassword -> {
+                SetBackupPasswordDialog(
+                    isBackupPasswordValid = backUpAndRestoreState.isBackupPasswordValid,
+                    onBackupPasswordChanged = onValidateBackupPassword,
+                    onCreateBackup = ::toCreateBackUp,
+                    onDismissDialog = { }
+                )
+            }
+            BackUpDialogStep.CreatingBackup -> {
+                CreateBackupDialog(
+                    isBackupCreationCompleted = false,
+                    createBackupProgress = 1f,
+                    onDismissDialog = { }
+                )
+            }
+            BackUpDialogStep.Failure -> {
+                FailureDialog(
+                    title = "test",
+                    message = "restoreDialogStep.restoreFailure.messag"
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun RestoreDialogFlow(
+    backUpAndRestoreState: BackupAndRestoreState,
+    onChooseBackupFile: (Uri) -> Unit,
+    onRestoreBackup: (TextFieldValue) -> Unit,
+    onCancelBackupRestore: () -> Unit,
+    onOpenConversations: () -> Unit
+) {
+    val restoreDialogStateHolder = rememberRestoreDialogState()
+
+    with(restoreDialogStateHolder) {
+        when (val restoreDialogStep = currentRestoreDialogStep) {
+            is RestoreDialogStep.ChooseBackupFile -> {
+                LaunchedEffect(backUpAndRestoreState.restoreFileValidation) {
+                    when (backUpAndRestoreState.restoreFileValidation) {
+                        RestoreFileValidation.GeneralFailure -> restoreDialogStateHolder.toRestoreFailure(RestoreFailure.GeneralFailure)
+                        RestoreFileValidation.IncompatibleBackup -> restoreDialogStateHolder.toRestoreFailure(RestoreFailure.IncompatibleBackup)
+                        RestoreFileValidation.WrongBackup -> restoreDialogStateHolder.toRestoreFailure(RestoreFailure.WrongBackup)
+                        RestoreFileValidation.PasswordRequired -> restoreDialogStateHolder.toEnterPassword()
+                    }
+                }
+
+                PickRestoreFileDialog(onChooseBackupFile = onChooseBackupFile)
+            }
+            is RestoreDialogStep.EnterPassword -> {
+                var showWrongPassword by remember { mutableStateOf(false) }
+
+                LaunchedEffect(backUpAndRestoreState.restorePasswordValidation) {
+                    when (backUpAndRestoreState.restorePasswordValidation) {
+                        RestorePasswordValidation.NotValid -> showWrongPassword = true
+                        RestorePasswordValidation.NotVerified -> showWrongPassword = false
+                        RestorePasswordValidation.Valid -> restoreDialogStateHolder.toRestoreBackup()
+                    }
+                }
+
+                EnterRestorePasswordDialog(
+                    isWrongPassword = showWrongPassword,
+                    onRestoreBackupFile = onRestoreBackup,
+                    onAcknowledgeWrongPassword = { showWrongPassword = false }
+                )
+            }
+            RestoreDialogStep.RestoreBackup -> {
+                LaunchedEffect(backUpAndRestoreState.restoreProgress) {
+                    when (val progress = backUpAndRestoreState.restoreProgress) {
+                        RestoreProgress.Failed -> restoreDialogStateHolder.toRestoreFailure(RestoreFailure.GeneralFailure)
+                        RestoreProgress.Finished -> restoreDialogStateHolder.toFinished()
+                        is RestoreProgress.InProgress -> {
+                            restoreDialogStateHolder.restoreProgress = progress.progress
+                        }
+                    }
+                }
+
+                RestoreProgressDialog(
+                    isRestoreCompleted = isRestoreCompleted,
+                    restoreProgress = restoreProgress,
+                    onOpenConversation = onOpenConversations,
+                    onCancelRestore = onCancelBackupRestore
+                )
+            }
+            is RestoreDialogStep.Failure -> {
+                FailureDialog(
+                    title = restoreDialogStep.restoreFailure.title,
+                    message = restoreDialogStep.restoreFailure.message
+                )
+            }
+        }
+    }
+}
 //
 //@Preview
 //@Composable

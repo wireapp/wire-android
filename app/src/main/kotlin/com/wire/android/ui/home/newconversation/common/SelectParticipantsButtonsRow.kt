@@ -21,11 +21,26 @@ import androidx.compose.ui.unit.Dp
 import com.wire.android.R
 import com.wire.android.ui.common.button.IconAlignment
 import com.wire.android.ui.common.button.WireButtonState
+import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
+
+@Composable
+fun SelectParticipantsButtonsAlwaysEnabled(
+    count: Int = 0,
+    mainButtonText: String,
+    elevation: Dp = MaterialTheme.wireDimensions.bottomNavigationShadowElevation,
+    modifier: Modifier = Modifier
+        .padding(horizontal = dimensions().spacing16x)
+        .height(dimensions().groupButtonHeight)
+        .fillMaxWidth(),
+    onMoreButtonClick: (() -> Unit)? = null,
+    onMainButtonClick: () -> Unit,
+) {
+    SelectParticipantsButtonsRow(count, mainButtonText, true, elevation, modifier, onMoreButtonClick, onMainButtonClick)
+}
 
 @Composable
 fun SelectParticipantsButtonsRow(
@@ -37,7 +52,23 @@ fun SelectParticipantsButtonsRow(
         .height(dimensions().groupButtonHeight)
         .fillMaxWidth(),
     onMoreButtonClick: (() -> Unit)? = null,
-    onMainButtonClick: () -> Unit
+    onMainButtonClick: () -> Unit,
+) {
+    SelectParticipantsButtonsRow(count, mainButtonText, false, elevation, modifier, onMoreButtonClick, onMainButtonClick)
+}
+
+@Composable
+private fun SelectParticipantsButtonsRow(
+    count: Int = 0,
+    mainButtonText: String,
+    shouldAllowNoSelectionContinue: Boolean = false,
+    elevation: Dp = MaterialTheme.wireDimensions.bottomNavigationShadowElevation,
+    modifier: Modifier = Modifier
+        .padding(horizontal = dimensions().spacing16x)
+        .height(dimensions().groupButtonHeight)
+        .fillMaxWidth(),
+    onMoreButtonClick: (() -> Unit)? = null,
+    onMainButtonClick: () -> Unit,
 ) {
     Surface(
         color = MaterialTheme.wireColorScheme.background,
@@ -51,7 +82,7 @@ fun SelectParticipantsButtonsRow(
             WirePrimaryButton(
                 text = "$mainButtonText ($count)",
                 onClick = onMainButtonClick,
-                state = if (count <= 0) WireButtonState.Disabled else WireButtonState.Default,
+                state = computeButtonState(count, shouldAllowNoSelectionContinue),
                 blockUntilSynced = true,
                 modifier = Modifier.weight(1f)
             )
@@ -72,6 +103,14 @@ fun SelectParticipantsButtonsRow(
                 )
             }
         }
+    }
+}
+
+private fun computeButtonState(count: Int = 0, shouldAllowNoSelectionContinue: Boolean): WireButtonState {
+    return when {
+        shouldAllowNoSelectionContinue -> WireButtonState.Default
+        count > 0 -> WireButtonState.Default
+        else -> WireButtonState.Disabled
     }
 }
 

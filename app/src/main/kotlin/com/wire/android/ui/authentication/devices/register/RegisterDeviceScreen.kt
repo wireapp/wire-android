@@ -26,7 +26,7 @@ import com.wire.android.R
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
 import com.wire.android.ui.common.textfield.WirePasswordTextField
-import com.wire.android.ui.common.textfield.WirePrimaryButton
+import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.textfield.clearAutofillTree
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar

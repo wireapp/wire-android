@@ -25,10 +25,10 @@ import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import com.wire.android.ui.common.topappbar.search.rememberSearchbarState
 import com.wire.android.ui.home.conversations.details.AddMembersToConversationViewModel
 import com.wire.android.ui.home.newconversation.common.SearchListScreens
+import com.wire.android.ui.home.newconversation.common.SelectParticipantsButtonsAlwaysEnabled
 import com.wire.android.ui.home.newconversation.common.SelectParticipantsButtonsRow
 import com.wire.android.ui.home.newconversation.contacts.ContactsScreen
 import com.wire.android.ui.home.newconversation.model.Contact
-
 
 @Composable
 fun AddMembersSearchRouter(
@@ -165,11 +165,19 @@ fun SearchPeopleContent(
                 }
             },
             bottomBar = {
-                SelectParticipantsButtonsRow(
-                    count = contactsAddedToGroup.size,
-                    mainButtonText = actionButtonTitle,
-                    onMainButtonClick = onGroupSelectionSubmitAction
-                )
+                if (searchPeopleState.isGroupCreationContext) {
+                    SelectParticipantsButtonsAlwaysEnabled(
+                        count = contactsAddedToGroup.size,
+                        mainButtonText = actionButtonTitle,
+                        onMainButtonClick = onGroupSelectionSubmitAction
+                    )
+                } else {
+                    SelectParticipantsButtonsRow(
+                        count = contactsAddedToGroup.size,
+                        mainButtonText = actionButtonTitle,
+                        onMainButtonClick = onGroupSelectionSubmitAction
+                    )
+                }
             },
             snapOnFling = false,
             keepElevationWhenCollapsed = true

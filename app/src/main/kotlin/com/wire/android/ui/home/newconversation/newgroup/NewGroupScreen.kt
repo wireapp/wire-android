@@ -29,7 +29,7 @@ import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.ShakeAnimation
 import com.wire.android.ui.common.WireDropDown
 import com.wire.android.ui.common.button.WireButtonState
-import com.wire.android.ui.common.textfield.WirePrimaryButton
+import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar

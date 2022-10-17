@@ -50,9 +50,9 @@ fun rememberConversationSheetState(
                     mutingConversationState = mutedStatus,
                     conversationTypeDetail = ConversationTypeDetail.Group(
                         conversationId = conversationId,
-                        isCreator = isCreator
+                        isCreator = isSelfUserCreator
                     ),
-                    isSelfUserMember = conversationItem.isSelfUserMember
+                    isSelfUserMember = isSelfUserMember
                 )
             }
         }

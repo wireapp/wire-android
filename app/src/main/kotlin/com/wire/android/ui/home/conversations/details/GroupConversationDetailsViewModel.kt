@@ -132,13 +132,11 @@ class GroupConversationDetailsViewModel @Inject constructor(
                 val isSelfInOwnerTeam =
                     selfTeam?.id != null && selfTeam.id == groupDetails.conversation.teamId?.value
 
-                val isAbleToRemoveGroup = groupDetails.conversation.isCreator
-
                 conversationSheetContent = ConversationSheetContent(
                     title = groupDetails.conversation.name.orEmpty(),
                     conversationId = conversationId,
                     mutingConversationState = groupDetails.conversation.mutedStatus,
-                    conversationTypeDetail = ConversationTypeDetail.Group(conversationId, isAbleToRemoveGroup),
+                    conversationTypeDetail = ConversationTypeDetail.Group(conversationId, groupDetails.isSelfUserCreator),
                     isSelfUserMember = isSelfUserMember
                 )
                 val isGuestAllowed = groupDetails.conversation.isGuestAllowed() || groupDetails.conversation.isNonTeamMemberAllowed()

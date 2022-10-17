@@ -357,15 +357,17 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     }
 
     override fun onBlockUser(blockUserState: BlockUserDialogState) {
-        viewModelScope.launch(dispatchers.io()) {
+        viewModelScope.launch() {
             requestInProgress = true
             when (val result = blockUser(userId)) {
                 BlockUserResult.Success -> {
+                    println("cyka blocked")
                     appLogger.i("User $userId was blocked")
                     closeBottomSheetAndShowInfoMessage(BlockingUserOperationSuccess(blockUserState.userName))
                 }
 
                 is BlockUserResult.Failure -> {
+                    println("cyka not blocked")
                     appLogger.e("Error while blocking user $userId ; Error ${result.coreFailure}")
                     closeBottomSheetAndShowInfoMessage(BlockingUserOperationError)
                 }
@@ -375,15 +377,17 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     }
 
     override fun onUnblockUser(userId: UserId) {
-        viewModelScope.launch(dispatchers.io()) {
+        viewModelScope.launch() {
             requestInProgress = true
             when (val result = unblockUser(userId)) {
                 UnblockUserResult.Success -> {
+                    println("cyka unblocked")
                     appLogger.i("User $userId was unblocked")
                     _closeBottomSheet.emit(Unit)
                 }
 
                 is UnblockUserResult.Failure -> {
+                    println("cyka not unblocked")
                     appLogger.e("Error while unblocking user $userId ; Error ${result.coreFailure}")
                     closeBottomSheetAndShowInfoMessage(UnblockingUserOperationError)
                 }

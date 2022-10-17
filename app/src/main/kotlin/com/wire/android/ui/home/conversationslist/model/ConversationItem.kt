@@ -24,7 +24,7 @@ sealed class ConversationItem {
         override val lastEvent: ConversationLastEvent,
         override val badgeEventType: BadgeEventType,
         val hasOnGoingCall: Boolean = false,
-        val isCreator: Boolean = false,
+        val isSelfUserCreator: Boolean = false,
         val isSelfUserMember: Boolean = true
     ) : ConversationItem()
 

@@ -104,6 +104,7 @@ fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltView
     }
     LaunchedEffect(Unit) {
         viewModel.closeBottomSheet.collect {
+            println("cyka close BS called")
             closeBottomSheet()
         }
     }

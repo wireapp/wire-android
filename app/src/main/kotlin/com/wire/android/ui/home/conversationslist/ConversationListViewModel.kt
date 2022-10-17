@@ -307,7 +307,7 @@ private fun ConversationDetails.toConversationItem(
             lastEvent = ConversationLastEvent.None, // TODO implement unread events
             badgeEventType = parseConversationEventType(conversation.mutedStatus, unreadMentionsCount, unreadMessagesCount),
             hasOnGoingCall = hasOngoingCall,
-            isCreator = conversation.isCreator,
+            isSelfUserCreator = isSelfUserCreator,
             isSelfUserMember = isSelfUserMember
         )
     }

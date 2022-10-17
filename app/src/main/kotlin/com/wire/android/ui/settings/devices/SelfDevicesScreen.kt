@@ -51,8 +51,6 @@ fun SelfDevicesScreenContent(
     val lazyListState = rememberLazyListState()
     val context = LocalContext.current
 
-    val headerColor = MaterialTheme.colorScheme.background
-
     Scaffold(
         snackbarHost = {
             SwipeDismissSnackbarHost(
@@ -76,12 +74,12 @@ fun SelfDevicesScreenContent(
                     true -> items(count = 4, itemContent = { Device() })
                     false -> {
                         state.currentDevice?.let { currentDevice ->
-                            folderWithElements(
+                            folderDeviceItems(
                                 context.getString(R.string.current_device_label),
                                 listOf(currentDevice)
                             )
                         }
-                        folderWithElements(
+                        folderDeviceItems(
                             context.getString(R.string.other_devices_label),
                             state.deviceList
                         )
@@ -92,7 +90,7 @@ fun SelfDevicesScreenContent(
     )
 }
 
-private fun LazyListScope.folderWithElements(
+private fun LazyListScope.folderDeviceItems(
     header: String,
     items: List<Device>,
 ) {

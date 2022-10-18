@@ -2,11 +2,8 @@ package com.wire.android.ui.debugscreen
 
 import android.content.Context
 import android.content.Intent
-import android.hardware.usb.UsbDevice.getDeviceId
 import android.widget.Toast
-import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -18,7 +15,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.LocalClipboardManager
@@ -73,6 +69,7 @@ fun DebugContent(
         topBar = {
             WireCenterAlignedTopAppBar(
                 title = stringResource(R.string.label_debug_title),
+                elevation = 0.dp,
                 navigationIconType = NavigationIconType.Back,
                 onNavigationPressed = navigateBack
             )
@@ -153,7 +150,7 @@ private fun LogOptions(
 
         SettingsItem(
             title = stringResource(R.string.label_share_logs),
-            trailingIcon = R.drawable.ic_share,
+            trailingIcon = R.drawable.ic_entypo_share,
             onIconPressed = Clickable(
                 enabled = true,
                 onClick = onShareLogs
@@ -219,12 +216,13 @@ private fun EnableLoggingSwitch(
             WireSwitch(
                 checked = isEnabled,
                 onCheckedChange = onCheckedChange,
-                modifier = Modifier.padding(end = 16.dp)
+                modifier = Modifier
+                    .size(width = 36.dp, height = 24.dp)
+                    .padding(end = 24.dp)
             )
         }
     )
 }
-
 
 @Composable
 fun rememberDebugContentState(logPath: String): DebugContentState {

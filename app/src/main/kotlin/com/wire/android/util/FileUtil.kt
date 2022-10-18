@@ -172,21 +172,19 @@ fun saveFileToDownloadsFolder(assetName: String, assetDataPath: Path, assetDataS
     context.saveFileDataToDownloadsFolder(assetName, assetDataPath, assetDataSize)
 }
 
-fun Context.startMultipleFileSharingIntent(path: String) {
-    val file = File(path)
+fun Context.multipleFileSharingIntent(uris: ArrayList<Uri>): Intent {
 
-    val fileURI = FileProvider.getUriForFile(
-        this, getProviderAuthority(),
-        file
-    )
+    val intent = Intent(Intent.ACTION_SEND_MULTIPLE)
+    intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+    intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, uris)
+    return intent
+}
 
-    val intent = Intent()
-    intent.action = Intent.ACTION_SEND_MULTIPLE
-    intent.type = fileURI.getMimeType(context = this)
+fun Context.getUrisOfFilesInDirectory(dir: File): ArrayList<Uri> {
 
     val files = ArrayList<Uri>()
 
-    file.parentFile.listFiles()?.map {
+    dir.listFiles()?.map {
         val uri = FileProvider.getUriForFile(
             this, getProviderAuthority(),
             it
@@ -194,9 +192,7 @@ fun Context.startMultipleFileSharingIntent(path: String) {
         files.add(uri)
     }
 
-    intent.putParcelableArrayListExtra(Intent.EXTRA_STREAM, files)
-
-    startActivity(intent)
+    return files
 }
 
 fun openAssetFileWithExternalApp(assetDataPath: Path, context: Context, assetExtension: String?, onError: () -> Unit) {
@@ -222,10 +218,10 @@ fun openAssetFileWithExternalApp(assetDataPath: Path, context: Context, assetExt
 }
 
 @Suppress("MagicNumber")
-fun getDeviceId(context: Context): String? {
+fun Context.getDeviceId(): String? {
     
     if (Build.VERSION.SDK_INT >= 26) {
-        return Settings.Secure.getString(context.contentResolver, Settings.Secure.ANDROID_ID)
+        return Settings.Secure.getString(this.contentResolver, Settings.Secure.ANDROID_ID)
     }
     
     return null

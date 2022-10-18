@@ -18,7 +18,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusManager
 import com.wire.android.R
-import com.wire.android.ui.common.button.WireIconButton
+import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 
@@ -84,8 +84,9 @@ private fun MessageComposeActions(
 
 @Composable
 private fun RichTextEditingAction() {
-    WireIconButton(
+    WireSecondaryIconButton(
         onButtonClicked = {},
+        blockUntilSynced = true,
         iconResource = R.drawable.ic_rich_text,
         contentDescription = R.string.content_description_conversation_enable_rich_text_mode
     )
@@ -93,8 +94,9 @@ private fun RichTextEditingAction() {
 
 @Composable
 private fun AddEmojiAction() {
-    WireIconButton(
+    WireSecondaryIconButton(
         onButtonClicked = {},
+        blockUntilSynced = true,
         iconResource = R.drawable.ic_emoticon,
         contentDescription = R.string.content_description_conversation_send_emoticon
     )
@@ -102,8 +104,9 @@ private fun AddEmojiAction() {
 
 @Composable
 private fun AddGifAction() {
-    WireIconButton(
+    WireSecondaryIconButton(
         onButtonClicked = {},
+        blockUntilSynced = true,
         iconResource = R.drawable.ic_gif,
         contentDescription = R.string.content_description_conversation_send_gif
     )
@@ -111,8 +114,9 @@ private fun AddGifAction() {
 
 @Composable
 private fun AddMentionAction() {
-    WireIconButton(
+    WireSecondaryIconButton(
         onButtonClicked = {},
+        blockUntilSynced = true,
         iconResource = R.drawable.ic_mention,
         contentDescription = R.string.content_description_conversation_mention_someone
     )
@@ -120,8 +124,9 @@ private fun AddMentionAction() {
 
 @Composable
 private fun PingAction() {
-    WireIconButton(
+    WireSecondaryIconButton(
         onButtonClicked = {},
+        blockUntilSynced = true,
         iconResource = R.drawable.ic_ping,
         contentDescription = R.string.content_description_ping_everyone
     )

@@ -51,7 +51,7 @@ import com.wire.android.R
 import com.wire.android.ui.authentication.ServerTitle
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.textfield.WirePrimaryButton
+import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.WireTheme

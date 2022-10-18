@@ -5,7 +5,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.model.Clickable
-import com.wire.android.ui.calling.controlButtons.JoinButton
+import com.wire.android.ui.calling.controlbuttons.JoinButton
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.conversationColor

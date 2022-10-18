@@ -169,4 +169,18 @@ class ConversationMessagesViewModelTest {
             viewModel.conversationViewState.lastUnreadMessageInstant.shouldNotBeNull()
             viewModel.conversationViewState.lastUnreadMessageInstant.toString() shouldBeEqualTo sendMessage.date
         }
+
+    @Test
+    fun `given a message and a reaction, when toggleReaction is called, then should call ToggleReactionUseCase`() = runTest {
+        val (arrangement, viewModel) = ConversationMessagesViewModelArrangement().arrange()
+
+        val messageId = "mID"
+        val reaction = "🤌🏼"
+
+        viewModel.toggleReaction(messageId, reaction)
+
+        coVerify(exactly = 1) {
+            arrangement.toggleReaction(arrangement.conversationId, messageId, reaction)
+        }
+    }
 }

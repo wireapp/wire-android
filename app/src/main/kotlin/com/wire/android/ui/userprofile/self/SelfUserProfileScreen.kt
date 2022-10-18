@@ -46,7 +46,7 @@ import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
-import com.wire.android.ui.common.textfield.WirePrimaryButton
+import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
@@ -244,7 +244,8 @@ private fun SelfUserProfileTopBar(
                 text = stringResource(R.string.user_profile_logout),
                 fillMaxWidth = false,
                 minHeight = dimensions().userProfileLogoutBtnHeight,
-                state = WireButtonState.Error
+                state = WireButtonState.Error,
+                blockUntilSynced = true
             )
         }
     )
@@ -328,6 +329,7 @@ private fun ProfileStatusButton(
                     .testTag(text)
             )
         },
+        blockUntilSynced = true,
         modifier = modifier,
     )
 }

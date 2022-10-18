@@ -31,7 +31,7 @@ internal class AssetImageFetcher(
             }
 
             is ImageAsset.PrivateAsset -> {
-                when (val result = getPrivateAsset(data.conversationId, data.messageId)) {
+                when (val result = getPrivateAsset(data.conversationId, data.messageId).await()) {
                     is MessageAssetResult.Failure -> null
                     is MessageAssetResult.Success -> {
                         drawableResultWrapper.toFetchResult(result.decodedAssetPath)

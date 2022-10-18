@@ -24,7 +24,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.model.UserAvatarData
-import com.wire.android.ui.calling.controlButtons.JoinButton
+import com.wire.android.ui.calling.controlbuttons.JoinButton
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
@@ -169,6 +169,7 @@ private fun callControlButton(
             fillMaxWidth = false,
             minHeight = MaterialTheme.wireDimensions.spacing32x,
             minWidth = MaterialTheme.wireDimensions.spacing40x,
+            blockUntilSynced = true,
             shape = RoundedCornerShape(size = MaterialTheme.wireDimensions.corner12x),
             contentPadding = PaddingValues(0.dp)
         )

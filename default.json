@@ -23,7 +23,7 @@
         "logging_enabled": true,
         "safe_logging": false,
         "private_build": true,
-        "development_api_enabled": false
+        "development_api_enabled": true
     },
     "candidate": {
         "applicationId": "com.wire.candidate",

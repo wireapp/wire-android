@@ -23,6 +23,7 @@ import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.conversationColor
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
+import com.wire.android.ui.common.dialogs.UnblockUserDialogState
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
 import com.wire.android.ui.home.conversationslist.model.BlockingState
@@ -43,6 +44,7 @@ internal fun ConversationMainSheetContent(
 //    moveConversationToArchive: () -> Unit,
 //    clearConversationContent: () -> Unit,
     blockUserClick: (BlockUserDialogState) -> Unit,
+    unblockUserClick: (UnblockUserDialogState) -> Unit,
     leaveGroup: (GroupDialogState) -> Unit,
     deleteGroup: (GroupDialogState) -> Unit,
     navigateToNotification: () -> Unit
@@ -51,7 +53,7 @@ internal fun ConversationMainSheetContent(
         header = MenuModalSheetHeader.Visible(
             title = conversationSheetContent.title,
             leadingIcon = {
-                    if (conversationSheetContent.conversationTypeDetail is ConversationTypeDetail.Group) {
+                if (conversationSheetContent.conversationTypeDetail is ConversationTypeDetail.Group) {
                     GroupConversationAvatar(
                         color = colorsScheme()
                             .conversationColor(id = conversationSheetContent.conversationTypeDetail.conversationId)
@@ -147,9 +149,30 @@ internal fun ConversationMainSheetContent(
                                     )
                                 },
                                 title = stringResource(R.string.label_block),
+                                blockUntilSynced = true,
                                 onItemClick = {
                                     blockUserClick(
                                         BlockUserDialogState(
+                                            userName = conversationSheetContent.title,
+                                            userId = conversationSheetContent.conversationTypeDetail.userId
+                                        )
+                                    )
+                                }
+                            )
+                        }
+                    } else if (conversationSheetContent.conversationTypeDetail.blockingState == BlockingState.BLOCKED) {
+                        CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.onBackground) {
+                            MenuBottomSheetItem(
+                                icon = {
+                                    MenuItemIcon(
+                                        id = R.drawable.ic_block,
+                                        contentDescription = stringResource(R.string.content_description_unblock_the_user)
+                                    )
+                                },
+                                title = stringResource(R.string.label_unblock),
+                                onItemClick = {
+                                    unblockUserClick(
+                                        UnblockUserDialogState(
                                             userName = conversationSheetContent.title,
                                             userId = conversationSheetContent.conversationTypeDetail.userId
                                         )

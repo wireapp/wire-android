@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalMaterial3Api::class)
+
 package com.wire.android.ui.home.conversations
 
 import androidx.compose.foundation.BorderStroke
@@ -16,6 +18,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -29,13 +32,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.google.accompanist.flowlayout.FlowRow
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.LegalHoldIndicator
 import com.wire.android.ui.common.UserBadge
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.home.conversations.messages.ReactionPill
 import com.wire.android.ui.home.conversations.model.MessageBody
+import com.wire.android.ui.home.conversations.model.MessageFooter
 import com.wire.android.ui.home.conversations.model.MessageGenericAsset
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageImage
@@ -58,10 +64,12 @@ fun MessageItem(
     onLongClicked: (UIMessage) -> Unit,
     onAssetMessageClicked: (String) -> Unit,
     onImageMessageClicked: (String, Boolean) -> Unit,
-    onAvatarClicked: (MessageSource, UserId) -> Unit
+    onAvatarClicked: (MessageSource, UserId) -> Unit,
+    onReactionClicked: (String, String) -> Unit
 ) {
     with(message) {
         val fullAvatarOuterPadding = dimensions().userAvatarClickablePadding + dimensions().userAvatarStatusBorderSize
+        Column {  }
         Row(
             Modifier
                 .customizeMessageBackground(message)
@@ -121,6 +129,10 @@ fun MessageItem(
                             onImageClick = currentOnImageClick,
                             onLongClick = onLongClick
                         )
+                        MessageFooter(
+                            messageFooter,
+                            onReactionClicked
+                        )
                     } else {
                         // Decryption failed for this message
                         MessageDecryptionFailure()
@@ -145,7 +157,9 @@ private fun Modifier.customizeMessageBackground(
 }
 
 @Composable
-private fun MessageHeader(messageHeader: MessageHeader) {
+private fun MessageHeader(
+    messageHeader: MessageHeader,
+) {
     with(messageHeader) {
         Column {
             Row(verticalAlignment = Alignment.CenterVertically) {
@@ -171,6 +185,33 @@ private fun MessageHeader(messageHeader: MessageHeader) {
                 )
             }
             MessageStatusLabel(messageStatus = messageStatus)
+        }
+    }
+}
+
+@Composable
+private fun MessageFooter(
+    messageFooter: MessageFooter,
+    onReactionClicked: (String, String) -> Unit
+) {
+    FlowRow(
+        mainAxisSpacing = dimensions().spacing4x,
+        crossAxisSpacing = dimensions().spacing6x,
+        modifier = Modifier.padding(vertical = dimensions().spacing4x)
+    ) {
+        messageFooter.reactions.entries
+            .sortedBy { it.key }
+            .forEach {
+                val reaction = it.key
+                val count = it.value
+                ReactionPill(
+                    emoji = reaction,
+                    count = count,
+                    isOwn = messageFooter.ownReactions.contains(reaction),
+                    onTap = {
+                        onReactionClicked(messageFooter.messageId, reaction)
+                    }
+                )
         }
     }
 }
@@ -208,7 +249,7 @@ private fun MessageContent(
 ) {
     when (messageContent) {
         is UIMessageContent.ImageMessage -> MessageImage(
-            rawImgData = messageContent.imgData,
+            asset = messageContent.asset,
             imgParams = ImageMessageParams(messageContent.width, messageContent.height),
             uploadStatus = messageContent.uploadStatus,
             downloadStatus = messageContent.downloadStatus,

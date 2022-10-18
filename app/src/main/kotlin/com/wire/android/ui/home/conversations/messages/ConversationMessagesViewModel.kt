@@ -24,6 +24,7 @@ import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
+import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
@@ -44,6 +45,7 @@ class ConversationMessagesViewModel @Inject constructor(
     private val fileManager: FileManager,
     private val dispatchers: DispatcherProvider,
     private val getMessageForConversation: GetMessagesForConversationUseCase,
+    private val toggleReaction: ToggleReactionUseCase
 ) : SavedStateViewModel(savedStateHandle) {
 
     var conversationViewState by mutableStateOf(ConversationMessagesViewState())
@@ -111,20 +113,7 @@ class ConversationMessagesViewModel @Inject constructor(
             return
         }
         val assetContent = messageContent.value
-        val downloadStatus = assetContent.downloadStatus
-        val isAssetDownloadedInternally = downloadStatus == Message.DownloadStatus.SAVED_INTERNALLY ||
-                downloadStatus == Message.DownloadStatus.DOWNLOAD_IN_PROGRESS
-
-        if (!isAssetDownloadedInternally)
-        // TODO: Refactor. UseCase responsible for downloading should update to IN_PROGRESS status.
-            updateAssetMessageDownloadStatus(Message.DownloadStatus.DOWNLOAD_IN_PROGRESS, conversationId, messageId)
-
         val resultData = assetDataPath(conversationId, messageId)
-        updateAssetMessageDownloadStatus(
-            if (resultData != null) Message.DownloadStatus.SAVED_INTERNALLY else Message.DownloadStatus.FAILED_DOWNLOAD,
-            conversationId,
-            messageId
-        )
 
         if (resultData != null) {
             showOnAssetDownloadedDialog(assetContent.name ?: "", resultData, assetContent.sizeInBytes, messageId)
@@ -174,11 +163,18 @@ class ConversationMessagesViewModel @Inject constructor(
         conversationViewState = conversationViewState.copy(downloadedAssetDialogState = DownloadedAssetDialogVisibilityState.Hidden)
     }
 
+    fun toggleReaction(messageId: String, reactionEmoji: String) {
+        viewModelScope.launch {
+            toggleReaction(conversationId, messageId, reactionEmoji)
+        }
+    }
+
+    // region Private
     private suspend fun assetDataPath(conversationId: QualifiedID, messageId: String): Path? {
         getMessageAsset(
             conversationId = conversationId,
             messageId = messageId
-        ).run {
+        ).await().run {
             return when (this) {
                 is MessageAssetResult.Success -> decodedAssetPath
                 else -> null
@@ -194,4 +190,5 @@ class ConversationMessagesViewModel @Inject constructor(
         onSnackbarMessage(ConversationSnackbarMessages.OnFileDownloaded(assetName))
     }
 
+    // endregion
 }

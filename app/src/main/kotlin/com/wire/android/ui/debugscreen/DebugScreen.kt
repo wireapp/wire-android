@@ -1,6 +1,8 @@
 package com.wire.android.ui.debugscreen
 
 import android.content.Context
+import android.content.Intent
+import android.hardware.usb.UsbDevice.getDeviceId
 import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
@@ -16,6 +18,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ClipboardManager
 import androidx.compose.ui.platform.LocalClipboardManager
@@ -36,7 +39,10 @@ import com.wire.android.ui.home.settings.SettingsItem
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.getDeviceId
-import com.wire.android.util.startMultipleFileSharingIntent
+import com.wire.android.util.getMimeType
+import com.wire.android.util.getUrisOfFilesInDirectory
+import com.wire.android.util.multipleFileSharingIntent
+import java.io.File
 
 @Composable
 fun DebugScreen() {
@@ -147,17 +153,16 @@ private fun LogOptions(
 
         SettingsItem(
             title = stringResource(R.string.label_share_logs),
-            trailingIcon = android.R.drawable.ic_menu_share,
+            trailingIcon = R.drawable.ic_delete,
             onIconPressed = Clickable(
                 enabled = true,
                 onClick = onShareLogs
-            ),
-            modifier = Modifier.size(32.dp).background(MaterialTheme.colorScheme.background)
+            )
         )
 
         SettingsItem(
             title = stringResource(R.string.label_delete_logs),
-            trailingIcon = android.R.drawable.ic_delete,
+            trailingIcon = R.drawable.ic_delete,
             onIconPressed = Clickable(
                 enabled = true,
                 onClick = onDeleteLogs
@@ -198,7 +203,8 @@ private fun ClientIdOptions(
 @Composable
 private fun EnableLoggingSwitch(
     isEnabled: Boolean = false,
-    onCheckedChange: ((Boolean) -> Unit)?
+    onCheckedChange: ((Boolean) -> Unit)?,
+    modifier: Modifier = Modifier
 ) {
     RowItemTemplate(
         title = {
@@ -213,7 +219,7 @@ private fun EnableLoggingSwitch(
             WireSwitch(
                 checked = isEnabled,
                 onCheckedChange = onCheckedChange,
-                modifier = Modifier.defaultMinSize(80.dp)
+                modifier = Modifier.padding(end = 16.dp)
             )
         }
     )
@@ -241,7 +247,7 @@ data class DebugContentState(
 ) {
 
     val deviceId: String?
-        get() = getDeviceId(context)
+        get() = context.getDeviceId()
 
     fun copyToClipboard(text: String) {
         clipboardManager.setText(AnnotatedString(text))
@@ -253,8 +259,18 @@ data class DebugContentState(
     }
 
     fun shareLogs() {
-        context.startMultipleFileSharingIntent(logPath)
+        val dir = File(logPath).parentFile
+        val fileUris = context.getUrisOfFilesInDirectory(dir)
+        val intent = context.multipleFileSharingIntent(fileUris)
+        // The first log file is simply text, not compressed. Get its mime type separately
+        // and set it as the mime type for the intent.
+        intent.type = fileUris.firstOrNull()?.getMimeType(context) ?: "text/plain"
+        // Get all other mime types and add them
+        val mimeTypes = fileUris.drop(1).mapNotNull { it.getMimeType(context) }
+        intent.putExtra(Intent.EXTRA_MIME_TYPES, mimeTypes.toTypedArray())
+        context.startActivity(intent)
     }
 }
+
 
 

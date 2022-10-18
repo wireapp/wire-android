@@ -31,8 +31,8 @@ import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
-import com.wire.kalium.logic.feature.asset.SendAssetMessageResult
-import com.wire.kalium.logic.feature.asset.SendAssetMessageUseCase
+import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageResult
+import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
 import com.wire.kalium.logic.feature.conversation.GetSecurityClassificationTypeUseCase
 import com.wire.kalium.logic.feature.conversation.IsSelfUserMemberResult
 import com.wire.kalium.logic.feature.conversation.ObserveIsSelfUserMemberUseCase
@@ -58,7 +58,7 @@ class MessageComposerViewModel @Inject constructor(
     qualifiedIdMapper: QualifiedIdMapper,
     override val savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
-    private val sendAssetMessage: SendAssetMessageUseCase,
+    private val sendAssetMessage: ScheduleNewAssetMessageUseCase,
     private val sendTextMessage: SendTextMessageUseCase,
     private val deleteMessage: DeleteMessageUseCase,
     private val dispatchers: DispatcherProvider,
@@ -168,9 +168,10 @@ class MessageComposerViewModel @Inject constructor(
                         AttachmentType.IMAGE -> {
                             if (dataSize > IMAGE_SIZE_LIMIT_BYTES) onSnackbarMessage(ErrorMaxImageSize)
                             else {
-                                val (imgWidth, imgHeight) = ImageUtil.extractImageWidthAndHeight(
-                                    kaliumFileSystem.source(attachmentBundle.dataPath).buffer().inputStream()
-                                )
+                                val (imgWidth, imgHeight) =
+                                    ImageUtil.extractImageWidthAndHeight(
+                                        kaliumFileSystem.source(attachmentBundle.dataPath).buffer().inputStream(), mimeType
+                                    )
                                 val result = sendAssetMessage(
                                     conversationId = conversationId,
                                     assetDataPath = dataPath,
@@ -180,7 +181,7 @@ class MessageComposerViewModel @Inject constructor(
                                     assetDataSize = dataSize,
                                     assetMimeType = mimeType
                                 )
-                                if (result is SendAssetMessageResult.Failure) {
+                                if (result is ScheduleNewAssetMessageResult.Failure) {
                                     onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingImage)
                                 }
                             }
@@ -204,7 +205,7 @@ class MessageComposerViewModel @Inject constructor(
                                         assetHeight = null,
                                         assetWidth = null
                                     )
-                                    if (result is SendAssetMessageResult.Failure) {
+                                    if (result is ScheduleNewAssetMessageResult.Failure) {
                                         onSnackbarMessage(ConversationSnackbarMessages.ErrorSendingAsset)
                                     }
                                 } catch (e: OutOfMemoryError) {

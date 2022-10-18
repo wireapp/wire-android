@@ -5,6 +5,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
+import com.wire.android.ui.common.dialogs.UnblockUserDialogState
 import com.wire.android.ui.home.conversationslist.model.BlockingState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
@@ -20,6 +21,7 @@ fun ConversationSheetContent(
     moveConversationToArchive: () -> Unit,
     clearConversationContent: () -> Unit,
     blockUser: (BlockUserDialogState) -> Unit,
+    unblockUser: (UnblockUserDialogState) -> Unit,
     leaveGroup: (GroupDialogState) -> Unit,
     deleteGroup: (GroupDialogState) -> Unit
 ) {
@@ -34,6 +36,7 @@ fun ConversationSheetContent(
 //                moveConversationToArchive = moveConversationToArchive,
 //                clearConversationContent = clearConversationContent,
                 blockUserClick = blockUser,
+                unblockUserClick = unblockUser,
                 leaveGroup = leaveGroup,
                 deleteGroup = deleteGroup,
                 navigateToNotification = conversationSheetState::toMutingNotificationOption

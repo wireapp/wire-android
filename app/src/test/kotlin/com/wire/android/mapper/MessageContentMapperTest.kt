@@ -8,18 +8,23 @@ import com.wire.android.framework.TestMessage
 import com.wire.android.framework.TestMessage.buildAssetMessage
 import com.wire.android.framework.TestUser
 import com.wire.android.ui.home.conversations.model.UIMessageContent.AssetMessage
-import com.wire.android.ui.home.conversations.model.UIMessageContent.ImageMessage
+import com.wire.android.ui.home.conversations.model.UIMessageContent.PreviewAssetMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent.SystemMessage
 import com.wire.android.ui.home.conversations.name
 import com.wire.android.util.ui.UIText
+import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.Conversation.Member
 import com.wire.kalium.logic.data.conversation.MemberDetails
+import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.AssetContent.AssetMetadata
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
+import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.OtherUser
+import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.data.user.type.UserType
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import io.mockk.MockKAnnotations
@@ -27,6 +32,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import okio.Path
@@ -55,10 +61,14 @@ class MessageContentMapperTest {
         val otherName = mapper.toSystemMessageMemberName(otherMemberDetails.user, MessageContentMapper.SelfNameType.NameOrDeleted)
         // Then
         assertTrue(selfName is UIText.DynamicString && selfName.value == selfMemberDetails.name)
-        assertTrue(selfResLower is UIText.StringResource
-                && selfResLower.resId == arrangement.messageResourceProvider.memberNameYouLowercase)
-        assertTrue(selfResTitle is UIText.StringResource
-                && selfResTitle.resId == arrangement.messageResourceProvider.memberNameYouTitlecase)
+        assertTrue(
+            selfResLower is UIText.StringResource
+                    && selfResLower.resId == arrangement.messageResourceProvider.memberNameYouLowercase
+        )
+        assertTrue(
+            selfResTitle is UIText.StringResource
+                    && selfResTitle.resId == arrangement.messageResourceProvider.memberNameYouTitlecase
+        )
         assertTrue(deleted is UIText.StringResource && deleted.resId == arrangement.messageResourceProvider.memberNameDeleted)
         assertTrue(otherName is UIText.DynamicString && otherName.value == otherMemberDetails.name)
     }
@@ -172,15 +182,17 @@ class MessageContentMapperTest {
 
         with(arrangement) {
             // When - Then
-            val resultContentOther = mapper.toUIMessageContent(AssetMessageContentMetadata(unknownImageMessageContent), testMessage1)
+            val resultContentOther =
+                mapper.toUIMessageContent(AssetMessageContentMetadata(unknownImageMessageContent), testMessage1, sender)
             coVerify(exactly = 0) { arrangement.getMessageAssetUseCase.invoke(any(), any()) }
-            assertTrue(resultContentOther is AssetMessage
-                    && resultContentOther.assetId.value == unknownImageMessageContent.remoteData.assetId)
+            assertTrue(
+                resultContentOther is AssetMessage
+                        && resultContentOther.assetId.value == unknownImageMessageContent.remoteData.assetId
+            )
 
             // When - Then
-            val resultContentImage = mapper.toUIMessageContent(AssetMessageContentMetadata(correctJPGImage), testMessage2)
-            coVerify(exactly = 1) { arrangement.getMessageAssetUseCase.invoke(any(), any()) }
-            assertTrue(resultContentImage is ImageMessage && resultContentImage.assetId.value == correctJPGImage.remoteData.assetId)
+            val resultContentImage = mapper.toUIMessageContent(AssetMessageContentMetadata(correctJPGImage), testMessage2, sender)
+            assertTrue(resultContentImage is PreviewAssetMessage)
         }
     }
 
@@ -200,7 +212,7 @@ class MessageContentMapperTest {
         val testMessage = buildAssetMessage(contentImage)
 
         // When
-        val resultContentImage = mapper.toUIMessageContent(AssetMessageContentMetadata(contentImage), testMessage)
+        val resultContentImage = mapper.toUIMessageContent(AssetMessageContentMetadata(contentImage), testMessage, sender)
 
         // Then
         coVerify(inverse = true) { arrangement.getMessageAssetUseCase.invoke(any(), any()) }
@@ -237,15 +249,12 @@ class MessageContentMapperTest {
 
         // When
         with(arrangement) {
-            val resultContentImage1 = mapper.toUIMessageContent(AssetMessageContentMetadata(contentImage1), testMessage1)
-            val resultContentImage2 = mapper.toUIMessageContent(AssetMessageContentMetadata(contentImage2), testMessage2)
+            val resultContentImage1 = mapper.toUIMessageContent(AssetMessageContentMetadata(contentImage1), testMessage1, sender)
+            val resultContentImage2 = mapper.toUIMessageContent(AssetMessageContentMetadata(contentImage2), testMessage2, sender)
 
             // Then
             assertTrue(resultContentImage1 is AssetMessage)
-            assertTrue(resultContentImage2 is ImageMessage)
-
-            // Only the image with valid metadata is downloaded
-            coVerify(exactly = 1) { arrangement.getMessageAssetUseCase.invoke(any(), any()) }
+            assertTrue(resultContentImage2 is PreviewAssetMessage)
         }
     }
 
@@ -283,10 +292,13 @@ class MessageContentMapperTest {
         @MockK
         lateinit var resources: Resources
 
+        @MockK
+        private lateinit var wireSessionImageLoader: WireSessionImageLoader
+
         val testDispatcher = TestDispatcherProvider()
 
         private val messageContentMapper by lazy {
-            MessageContentMapper(getMessageAssetUseCase, messageResourceProvider, fakeKaliumFileSystem, testDispatcher)
+            MessageContentMapper(messageResourceProvider, wireSessionImageLoader)
         }
 
         init {
@@ -302,7 +314,12 @@ class MessageContentMapperTest {
             fakeKaliumFileSystem.sink(expectedAssetPath).buffer().use {
                 it.write(dummyData)
             }
-            coEvery { getMessageAssetUseCase.invoke(any(), any()) } returns MessageAssetResult.Success(expectedAssetPath, expectedAssetSize)
+            coEvery {
+                getMessageAssetUseCase.invoke(
+                    any(),
+                    any()
+                )
+            } returns CompletableDeferred(MessageAssetResult.Success(expectedAssetPath, expectedAssetSize))
             return this
         }
 
@@ -311,5 +328,24 @@ class MessageContentMapperTest {
 
     companion object {
         val fakeKaliumFileSystem = FakeKaliumFileSystem()
+        val sender = OtherUser(
+            id = QualifiedID(
+                value = "someSearchQuery",
+                domain = "wire.com",
+            ),
+            name = null,
+            handle = null,
+            email = null,
+            phone = null,
+            accentId = 0,
+            teamId = null,
+            connectionStatus = ConnectionState.ACCEPTED,
+            previewPicture = null,
+            completePicture = null,
+            availabilityStatus = UserAvailabilityStatus.NONE,
+            userType = UserType.FEDERATED,
+            botService = null,
+            deleted = false
+        )
     }
 }

@@ -153,7 +153,7 @@ private fun LogOptions(
 
         SettingsItem(
             title = stringResource(R.string.label_share_logs),
-            trailingIcon = R.drawable.ic_delete,
+            trailingIcon = R.drawable.ic_share,
             onIconPressed = Clickable(
                 enabled = true,
                 onClick = onShareLogs

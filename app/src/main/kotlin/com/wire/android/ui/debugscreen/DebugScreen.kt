@@ -2,10 +2,12 @@ package com.wire.android.ui.debugscreen
 
 import android.content.Context
 import android.widget.Toast
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -149,11 +151,12 @@ private fun LogOptions(
             onIconPressed = Clickable(
                 enabled = true,
                 onClick = onShareLogs
-            )
+            ),
+            modifier = Modifier.size(32.dp).background(MaterialTheme.colorScheme.background)
         )
 
         SettingsItem(
-            stringResource(R.string.label_delete_logs),
+            title = stringResource(R.string.label_delete_logs),
             trailingIcon = android.R.drawable.ic_delete,
             onIconPressed = Clickable(
                 enabled = true,
@@ -163,7 +166,7 @@ private fun LogOptions(
 
         if (deviceId != null) {
             SettingsItem(
-                stringResource(R.string.label_client_id, deviceId),
+                title = stringResource(R.string.label_client_id, deviceId),
                 trailingIcon = R.drawable.ic_copy,
                 onIconPressed = Clickable(
                     enabled = true,

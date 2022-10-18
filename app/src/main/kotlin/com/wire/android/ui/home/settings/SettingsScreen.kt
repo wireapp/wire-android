@@ -120,8 +120,7 @@ fun SettingsItem(
     title: String,
     @DrawableRes trailingIcon: Int? = null,
     onRowPressed: Clickable = Clickable(false),
-    onIconPressed: Clickable = Clickable(false),
-    modifier: Modifier = Modifier
+    onIconPressed: Clickable = Clickable(false)
 ) {
     RowItemTemplate(
         title = {
@@ -140,10 +139,9 @@ fun SettingsItem(
                     painter = painterResource(id = trailingIcon),
                     contentDescription = "",
                     tint = MaterialTheme.wireColorScheme.onSecondaryButtonEnabled,
-                    modifier = modifier
+                    modifier = Modifier
                         .defaultMinSize(80.dp)
                         .clickable(onIconPressed)
-                        .then(modifier)
                 )
             } ?: Icons.Filled.ChevronRight
         },

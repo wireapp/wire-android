@@ -38,7 +38,6 @@ import com.wire.kalium.logic.data.conversation.LegalHoldStatus
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.ConnectionState
-import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.AnswerCallUseCase
@@ -53,7 +52,6 @@ import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUs
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
 import com.wire.kalium.logic.feature.team.Result
-import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.functional.combine
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -77,7 +75,6 @@ class ConversationListViewModel @Inject constructor(
     private val updateConversationMutedStatus: UpdateConversationMutedStatusUseCase,
     private val answerCall: AnswerCallUseCase,
     private val observeConversationListDetails: ObserveConversationListDetailsUseCase,
-    private val observerSelfUser: GetSelfUserUseCase,
     private val leaveConversation: LeaveConversationUseCase,
     private val deleteTeamConversation: DeleteTeamConversationUseCase,
     private val blockUserUseCase: BlockUserUseCase,
@@ -103,25 +100,18 @@ class ConversationListViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            val conversationDetailsFlow = observeConversationListDetails()
-                .combine(observerSelfUser())
-                .onEach { (details, selfUser) -> conversationListDetailsToState(details, selfUser) }
-
-            searchQueryFlow.combine(conversationDetailsFlow)
-                .flatMapLatest { (searchQuery, conversationDetailsAndSelfUser) ->
+            searchQueryFlow.combine(observeConversationListDetails().onEach(::conversationListDetailsToState))
+                .flatMapLatest { (searchQuery, conversationDetails) ->
                     flow {
                         if (searchQuery.isEmpty()) {
-                            emit(conversationDetailsAndSelfUser)
+                            emit(conversationDetails)
                         } else {
-                            emit(
-                                searchConversation(conversationDetailsAndSelfUser.first, searchQuery)
-                                        to conversationDetailsAndSelfUser.second
-                            )
+                            emit(searchConversation(conversationDetails, searchQuery))
                         }
                     }
-                }.collect { (details, selfUser) ->
+                }.collect { conversationSearchResult ->
                     conversationListState = conversationListState.copy(
-                        conversationSearchResult = details.toConversationsFoldersMap(selfUser)
+                        conversationSearchResult = conversationSearchResult.toConversationsFoldersMap()
                     )
                 }
         }
@@ -137,9 +127,9 @@ class ConversationListViewModel @Inject constructor(
         return matchingConversations
     }
 
-    private fun conversationListDetailsToState(conversationListDetails: List<ConversationDetails>, selfUser: SelfUser) {
+    private fun conversationListDetailsToState(conversationListDetails: List<ConversationDetails>) {
         conversationListState = conversationListState.copy(
-            conversations = conversationListDetails.toConversationsFoldersMap(selfUser),
+            conversations = conversationListDetails.toConversationsFoldersMap(),
             hasNoConversations = conversationListDetails.none { it !is Self },
             callHistory = mockCallHistory, // TODO: needs to be implemented
             unreadMentions = mockUnreadMentionList, // TODO: needs to be implemented
@@ -151,7 +141,7 @@ class ConversationListViewModel @Inject constructor(
     }
 
     @Suppress("ComplexMethod")
-    private fun List<ConversationDetails>.toConversationsFoldersMap(selfUser: SelfUser): Map<ConversationFolder, List<ConversationItem>> {
+    private fun List<ConversationDetails>.toConversationsFoldersMap(): Map<ConversationFolder, List<ConversationItem>> {
         val unreadConversations = filter {
             when (it.conversation.mutedStatus) {
                 MutedConversationStatus.AllAllowed ->
@@ -176,8 +166,8 @@ class ConversationListViewModel @Inject constructor(
 
         val remainingConversations = this - unreadConversations.toSet()
 
-        val unreadConversationsItems = unreadConversations.toConversationItemList(selfUser)
-        val remainingConversationsItems = remainingConversations.toConversationItemList(selfUser)
+        val unreadConversationsItems = unreadConversations.toConversationItemList()
+        val remainingConversationsItems = remainingConversations.toConversationItemList()
 
         return buildMap {
             if (unreadConversationsItems.isNotEmpty()) put(ConversationFolder.Predefined.NewActivities, unreadConversationsItems)
@@ -311,10 +301,10 @@ class ConversationListViewModel @Inject constructor(
         }
     }
 
-    private fun List<ConversationDetails>.toConversationItemList(selfUser: SelfUser): List<ConversationItem> =
+    private fun List<ConversationDetails>.toConversationItemList(): List<ConversationItem> =
         filter { it is Group || it is OneOne || it is Connection }
             .map {
-                it.toConversationItem(wireSessionImageLoader, userTypeMapper, selfUser)
+                it.toConversationItem(wireSessionImageLoader, userTypeMapper)
             }
 
     fun searchConversation(searchQuery: TextFieldValue) {
@@ -350,8 +340,7 @@ private fun LegalHoldStatus.showLegalHoldIndicator() = this == LegalHoldStatus.E
 @Suppress("LongMethod")
 private fun ConversationDetails.toConversationItem(
     wireSessionImageLoader: WireSessionImageLoader,
-    userTypeMapper: UserTypeMapper,
-    selfUser: SelfUser
+    userTypeMapper: UserTypeMapper
 ): ConversationItem = when (this) {
     is Group -> {
         ConversationItem.GroupConversation(

@@ -11,7 +11,6 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.Conversation.Member
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.id.PlainId
 import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.data.user.ConnectionState
@@ -410,9 +409,7 @@ class OtherUserProfileScreenViewModelTest {
             lastModifiedDate = null,
             lastReadDate = "2022-04-04T16:11:28.388Z",
             access = listOf(Conversation.Access.INVITE),
-            accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER),
-            isCreator = false,
-            isSelfUserMember = true
+            accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER)
         )
         val CONVERSATION_ROLE_DATA = ConversationRoleData(
             "some_name",

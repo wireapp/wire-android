@@ -49,7 +49,6 @@ import io.mockk.coEvery
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
-import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import okio.Path
@@ -219,7 +218,9 @@ internal fun mockConversationDetailsGroup(
     legalHoldStatus = mockk(),
     hasOngoingCall = false,
     unreadMessagesCount = 0,
-    lastUnreadMessage = null
+    lastUnreadMessage = null,
+    isSelfUserCreator = true,
+    isSelfUserMember = true
 )
 
 internal fun mockUITextMessage(id: String = "someId", userName: String = "mockUserName"): UIMessage {

@@ -4,7 +4,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
-import com.wire.android.framework.TestUser
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.model.UserAvatarData
 import com.wire.android.navigation.NavigationCommand
@@ -31,7 +30,6 @@ import com.wire.kalium.logic.feature.conversation.LeaveConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
-import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -69,16 +67,10 @@ class ConversationListViewModelTest {
     lateinit var joinCall: AnswerCallUseCase
 
     @MockK
-    lateinit var getSelf: GetSelfUserUseCase
-
-    @MockK
     lateinit var blockUser: BlockUserUseCase
 
     @MockK
     lateinit var unblockUser: UnblockUserUseCase
-
-    @MockK
-    lateinit var observerSelfUser: GetSelfUserUseCase
 
     @MockK
     private lateinit var wireSessionImageLoader: WireSessionImageLoader
@@ -95,7 +87,6 @@ class ConversationListViewModelTest {
                 updateConversationMutedStatus,
                 joinCall,
                 observeConversationListDetailsUseCase,
-                observerSelfUser,
                 leaveConversation,
                 deleteTeamConversationUseCase,
                 blockUser,
@@ -105,7 +96,6 @@ class ConversationListViewModelTest {
             )
 
         coEvery { observeConversationListDetailsUseCase() } returns flowOf(listOf())
-        coEvery { observerSelfUser() } returns flowOf(TestUser.SELF_USER)
     }
 
     @Test

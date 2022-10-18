@@ -125,9 +125,7 @@ internal class NewConversationViewModelArrangement {
             lastModifiedDate = null,
             lastReadDate = "2022-04-04T16:11:28.388Z",
             access = listOf(Conversation.Access.INVITE),
-            accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER),
-            isCreator = false,
-            isSelfUserMember = true
+            accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER)
         )
 
         val PUBLIC_USER = OtherUser(

@@ -216,7 +216,7 @@ private fun EnableLoggingSwitch(
                 checked = isEnabled,
                 onCheckedChange = onCheckedChange,
                 modifier = Modifier
-                    .padding(end = 20.dp)
+                    .padding(end = 16.dp)
             )
         }
     )

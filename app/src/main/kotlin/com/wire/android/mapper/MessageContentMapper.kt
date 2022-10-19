@@ -21,7 +21,7 @@ import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.User
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.sync.receiver.hasValidRemoteData
+import com.wire.kalium.logic.sync.receiver.conversation.hasValidRemoteData
 import com.wire.kalium.logic.util.isGreaterThan
 import javax.inject.Inject
 

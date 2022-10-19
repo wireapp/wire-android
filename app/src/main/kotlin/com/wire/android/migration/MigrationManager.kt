@@ -6,6 +6,7 @@ import androidx.work.workDataOf
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.migration.feature.MigrateActiveAccountsUseCase
 import com.wire.android.migration.feature.MigrateServerConfigUseCase
+import com.wire.android.migration.feature.MigrationFailure
 import com.wire.android.migration.util.ScalaDBNameProvider
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.StorageFailure
@@ -48,6 +49,7 @@ class MigrationManager @Inject constructor(
                     is StorageFailure.DataNotFound -> MigrationResult.Failure.Type.DATA_NOT_FOUND
                     is ServerConfigFailure.UnknownServerVersion -> MigrationResult.Failure.Type.UNKNOWN_SERVER_VERSION
                     is ServerConfigFailure.NewServerVersion -> MigrationResult.Failure.Type.TOO_NEW_VERSION
+                    is MigrationFailure.InvalidRefreshToken -> MigrationResult.Failure.Type.UNKNOWN
                     else -> MigrationResult.Failure.Type.UNKNOWN
                 }
             }

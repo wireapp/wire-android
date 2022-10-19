@@ -6,6 +6,8 @@ data class LoginState(
     val userIdentifier: TextFieldValue = TextFieldValue(""),
     val password: TextFieldValue = TextFieldValue(""),
     val ssoCode: TextFieldValue = TextFieldValue(""),
+    val proxyIdentifier: TextFieldValue = TextFieldValue(""),
+    val proxyPassword: TextFieldValue = TextFieldValue(""),
     val ssoLoginLoading: Boolean = false,
     val emailLoginLoading: Boolean = false,
     val ssoLoginEnabled: Boolean = false,

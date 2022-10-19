@@ -17,7 +17,6 @@ import com.wire.kalium.logic.feature.auth.AuthenticationResult
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -112,5 +111,17 @@ class LoginEmailViewModel @Inject constructor(
 
     fun onPasswordChange(newText: TextFieldValue) {
         loginState = loginState.copy(password = newText).updateEmailLoginEnabled()
+    }
+
+    fun onProxyIdentifierChange(newText: TextFieldValue) {
+//        // in case an error is showing e.g. inline error is should be cleared
+//        if (loginState.loginError is LoginError.TextFieldError && newText != loginState.userIdentifier) {
+//            clearEmailLoginError()
+//        }
+        loginState = loginState.copy(proxyIdentifier = newText).updateEmailLoginEnabled()
+    }
+
+    fun onProxyPasswordChange(newText: TextFieldValue) {
+        loginState = loginState.copy(proxyPassword = newText).updateEmailLoginEnabled()
     }
 }

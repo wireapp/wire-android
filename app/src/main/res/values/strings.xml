@@ -150,6 +150,7 @@
     <string name="login_forgot_password">Forgot password?</string>
     <string name="login_user_identifier_placeholder">jane@example.com or jane.doe</string>
     <string name="login_user_identifier_label">EMAIL OR USERNAME</string>
+    <string name="login_proxy_identifier_label">PROXY EMAIL OR USERNAME</string>
     <string name="login_error_invalid_credentials_title">Invalid information</string>
     <string name="login_error_invalid_credentials_message">These account credentials are incorrect.
         Please verify your details and try again.

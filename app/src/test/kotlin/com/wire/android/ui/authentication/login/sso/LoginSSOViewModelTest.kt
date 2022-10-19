@@ -102,7 +102,9 @@ class LoginSSOViewModelTest {
         every { clientScopeProviderFactory.create(any()).clientScope } returns clientScope
         every { clientScope.getOrRegister } returns getOrRegisterClientUseCase
         every { authServerConfigProvider.authServer.value } returns newServerConfig(1).links
-        coEvery { autoVersionAuthScopeUseCase() } returns AutoVersionAuthScopeUseCase.Result.Success(authenticationScope)
+        coEvery { autoVersionAuthScopeUseCase(AutoVersionAuthScopeUseCase.ProxyCredentials.None) } returns AutoVersionAuthScopeUseCase.Result.Success(
+            authenticationScope
+        )
         every { authenticationScope.ssoLoginScope.initiate } returns ssoInitiateLoginUseCase
         every { authenticationScope.ssoLoginScope.getLoginSession } returns getSSOLoginSessionUseCase
 
@@ -338,7 +340,8 @@ class LoginSSOViewModelTest {
                 teams = "https://server-teamsUrl.de",
                 website = "https://server-websiteUrl.de",
                 title = "server-title",
-                false
+                false,
+                proxy = null
             ),
             metaData = ServerConfig.MetaData(
                 commonApiVersion = CommonApiVersionType.Valid(1),

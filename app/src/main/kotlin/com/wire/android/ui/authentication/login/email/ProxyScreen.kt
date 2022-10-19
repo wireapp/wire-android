@@ -33,50 +33,41 @@ import com.wire.android.ui.theme.wireDimensions
 @Composable
 fun ProxyScreen() {
     val loginEmailViewModel: LoginEmailViewModel = hiltViewModel()
-    val loginEmailState: LoginState = loginEmailViewModel.loginState
+    val proxyState: LoginState = loginEmailViewModel.loginState
     ProxyContent(
-        loginState = loginEmailState,
-        onUserIdentifierChange = { loginEmailViewModel.onUserIdentifierChange(it) },
-        onPasswordChange = { loginEmailViewModel.onPasswordChange(it) },
-        onDialogDismiss = loginEmailViewModel::onDialogDismiss,
-        onRemoveDeviceOpen = loginEmailViewModel::onTooManyDevicesError,
-        forgotPasswordUrl = loginEmailViewModel.serverConfig.forgotPassword,
-        serverTitle = loginEmailViewModel.serverConfig.title
+        proxyState = proxyState,
+        onProxyIdentifierChange = { loginEmailViewModel.onProxyIdentifierChange(it) },
+        onProxyPasswordChange = { loginEmailViewModel.onProxyPasswordChange(it) },
     )
 }
 
 @Composable
 private fun ProxyContent(
-    loginState: LoginState,
-    onUserIdentifierChange: (TextFieldValue) -> Unit,
-    onPasswordChange: (TextFieldValue) -> Unit,
-    onDialogDismiss: () -> Unit,
-    onRemoveDeviceOpen: () -> Unit,
-    forgotPasswordUrl: String,
-    serverTitle: String
+    proxyState: LoginState,
+    onProxyIdentifierChange: (TextFieldValue) -> Unit,
+    onProxyPasswordChange: (TextFieldValue) -> Unit,
 ) {
     Column(
         modifier = Modifier
     ) {
         Spacer(modifier = Modifier.height(MaterialTheme.wireDimensions.spacing32x))
-        UserIdentifierInput(
+        ProxyIdentifierInput(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = MaterialTheme.wireDimensions.spacing16x),
-            userIdentifier = loginState.userIdentifier,
-            onUserIdentifierChange = onUserIdentifierChange,
-            error = when (loginState.loginError) {
+            proxyIdentifier = proxyState.proxyIdentifier,
+            onProxyUserIdentifierChange = onProxyIdentifierChange,
+            error = when (proxyState.loginError) {
                 LoginError.TextFieldError.InvalidValue -> stringResource(R.string.login_error_invalid_user_identifier)
                 else -> null
             },
-            serverTitle = serverTitle
         )
-        PasswordInput(
+        ProxyPasswordInput(
             modifier = Modifier
                 .fillMaxWidth()
                 .padding(bottom = MaterialTheme.wireDimensions.spacing16x),
-            password = loginState.password,
-            onPasswordChange = onPasswordChange
+            proxyPassword = proxyState.proxyPassword,
+            onProxyPasswordChange = onProxyPasswordChange
         )
 
         Spacer(modifier = Modifier.weight(1f))
@@ -91,19 +82,17 @@ private fun ProxyContent(
 }
 
 @Composable
-private fun UserIdentifierInput(
+private fun ProxyIdentifierInput(
     modifier: Modifier,
-    userIdentifier: TextFieldValue,
+    proxyIdentifier: TextFieldValue,
     error: String?,
-    onUserIdentifierChange: (TextFieldValue) -> Unit,
-    // todo: temporary to show to pointing server
-    serverTitle: String
+    onProxyUserIdentifierChange: (TextFieldValue) -> Unit,
 ) {
     WireTextField(
-        value = userIdentifier,
-        onValueChange = onUserIdentifierChange,
+        value = proxyIdentifier,
+        onValueChange = onProxyUserIdentifierChange,
         placeholderText = stringResource(R.string.login_user_identifier_placeholder),
-        labelText = stringResource(R.string.login_user_identifier_label) + " on $serverTitle",
+        labelText = stringResource(R.string.login_proxy_identifier_label),
         state = if (error != null) WireTextFieldState.Error(error) else WireTextFieldState.Default,
         keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email, imeAction = ImeAction.Next),
         modifier = modifier.testTag("emailField")
@@ -112,11 +101,11 @@ private fun UserIdentifierInput(
 
 @OptIn(ExperimentalComposeUiApi::class)
 @Composable
-private fun PasswordInput(modifier: Modifier, password: TextFieldValue, onPasswordChange: (TextFieldValue) -> Unit) {
+private fun ProxyPasswordInput(modifier: Modifier, proxyPassword: TextFieldValue, onProxyPasswordChange: (TextFieldValue) -> Unit) {
     val keyboardController = LocalSoftwareKeyboardController.current
     WirePasswordTextField(
-        value = password,
-        onValueChange = onPasswordChange,
+        value = proxyPassword,
+        onValueChange = onProxyPasswordChange,
         imeAction = ImeAction.Done,
         keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
         modifier = modifier.testTag("passwordField")
@@ -125,16 +114,12 @@ private fun PasswordInput(modifier: Modifier, password: TextFieldValue, onPasswo
 
 @Preview
 @Composable
-private fun LoginEmailScreenPreview() {
+private fun ProxyScreenPreview() {
     WireTheme(isPreview = true) {
         ProxyContent(
-            loginState = LoginState(),
-            onUserIdentifierChange = { },
-            onPasswordChange = { },
-            onDialogDismiss = { },
-            onRemoveDeviceOpen = { },
-            forgotPasswordUrl = "",
-            serverTitle = "Test Server"
+            proxyState = LoginState(),
+            onProxyIdentifierChange = { },
+            onProxyPasswordChange = { },
         )
     }
 }

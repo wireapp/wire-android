@@ -19,7 +19,7 @@ class ScalaConversationDAO(private val db: ScalaUserDatabase) {
             val domainIndex = cursor.getColumnIndex(COLUMN_DOMAIN).orNullIfNegative()
             val idIndex = cursor.getColumnIndex(COLUMN_ID)
             val nameIndex = cursor.getColumnIndex(COLUMN_NAME)
-
+            val creatorIdIndex = cursor.getColumnIndex(COLUMN_CREATOR)
         } catch (exception: Exception) {
 
         }

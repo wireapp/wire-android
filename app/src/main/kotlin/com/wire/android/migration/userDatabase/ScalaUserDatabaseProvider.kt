@@ -9,9 +9,8 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import javax.inject.Inject
 import javax.inject.Singleton
 
-class ScalaUserDatabaseProvider
 @Singleton
-class ScalaAppDataBaseProvider @Inject constructor(
+class ScalaUserDatabaseProvider @Inject constructor(
     @ApplicationContext private val applicationContext: Context,
     private val userId: UserId
 ) {
@@ -27,6 +26,7 @@ class ScalaAppDataBaseProvider @Inject constructor(
         }
 
     val clientDAO: ScalaClientDAO = ScalaClientDAO(db!!)
+    val conversationDAO: ScalaConversationDAO = ScalaConversationDAO(db!!)
 }
 
 typealias ScalaUserDatabase = SQLiteDatabase

@@ -321,6 +321,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     }
 
     private suspend fun closeBottomSheetAndShowInfoMessage(type: SnackBarMessage) {
+        println("cyka close and show called ${Thread.currentThread()}")
         _closeBottomSheet.emit(Unit)
         _infoMessage.emit(type.uiText)
     }
@@ -380,6 +381,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
             when (val result = unblockUser(userId)) {
                 UnblockUserResult.Success -> {
                     appLogger.i("User $userId was unblocked")
+                    println("cyka unblocked ${Thread.currentThread()}")
                     _closeBottomSheet.emit(Unit)
                 }
 

@@ -1,13 +1,28 @@
 package com.wire.android.migration.userDatabase
 
-class ScalaConversationData
+import com.wire.android.migration.util.orNullIfNegative
+import com.wire.kalium.logic.data.conversation.Conversation
+
+data class ScalaConversationData(
+    val remoteId: String,
+    val domain: String?,
+    val name: String?,
+    val creatorId: String,
+    val type: Int,
+)
 
 class ScalaConversationDAO(private val db: ScalaUserDatabase) {
 
-
-    fun conversations(): List<ScalaConversationData> {
+    fun conversations(): List<Conversation> {
         val cursor = db.rawQuery("SELECT * from $TABLE_NAME", null)
+        try {
+            val domainIndex = cursor.getColumnIndex(COLUMN_DOMAIN).orNullIfNegative()
+            val idIndex = cursor.getColumnIndex(COLUMN_ID)
+            val nameIndex = cursor.getColumnIndex(COLUMN_NAME)
 
+        } catch (exception: Exception) {
+
+        }
         return emptyList()
     }
 
@@ -16,7 +31,7 @@ class ScalaConversationDAO(private val db: ScalaUserDatabase) {
 //    type TEXT AS ConversationEntity.Type NOT NULL,
 //    team_id TEXT,
 //    mls_group_id TEXT,
-//    mls_group_state TEXT AS ConversationEntity.GroupState NOT NULL,
+//    mls_group_state TEXT AS ConversationEntity.GroupState NOT NULL, // established
 //    mls_epoch INTEGER DEFAULT 0 NOT NULL,
 //    mls_proposal_timer TEXT,
 //    protocol TEXT AS ConversationEntity.Protocol NOT NULL,

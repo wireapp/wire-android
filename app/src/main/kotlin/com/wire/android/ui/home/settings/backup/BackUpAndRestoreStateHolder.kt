@@ -35,7 +35,7 @@ fun rememberBackUpAndRestoreStateHolder(): BackUpAndRestoreStateHolder {
 
 sealed class BackupAndRestoreDialog {
     object None : BackupAndRestoreDialog()
-    object Backup : BackupAndRestoreDialog()
-    object Restore : BackupAndRestoreDialog()
+    object CreateBackup : BackupAndRestoreDialog()
+    object RestoreBackup : BackupAndRestoreDialog()
 }
 

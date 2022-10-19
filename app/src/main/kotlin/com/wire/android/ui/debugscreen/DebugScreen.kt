@@ -6,7 +6,6 @@ import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -217,7 +216,7 @@ private fun EnableLoggingSwitch(
                 checked = isEnabled,
                 onCheckedChange = onCheckedChange,
                 modifier = Modifier
-                    .padding(end = 30.dp)
+                    .padding(end = 20.dp)
             )
         }
     )

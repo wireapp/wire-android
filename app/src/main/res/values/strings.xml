@@ -626,7 +626,7 @@
     <string name="label_textfield_optional_password">PASSWORD (OPTIONAL)</string>
     <string name="dialog_create_backup_title">Creating Backup</string>
     <string name="label_conversation_successfully_saved">Conversations successfully saved</string>
-    <string name="label_sacing_conversations">Saving conversations</string>
+    <string name="label_saving_conversations">Saving conversations</string>
     <string name="label_wrong_password">Wrong password</string>
     <string name="label_verify_input">Please verify your input and try again</string>
     <string name="dialog_restoring_backup_title">Restoring Backup...</string>

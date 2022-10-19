@@ -24,7 +24,7 @@ class CreateBackupDialogStateHolder {
 
     var backupProgress: Float by mutableStateOf(0.0f)
 
-    fun toCreateBackUp() {
+    fun toCreateBackup() {
         currentBackupDialogStep = BackUpDialogStep.CreatingBackup
     }
 

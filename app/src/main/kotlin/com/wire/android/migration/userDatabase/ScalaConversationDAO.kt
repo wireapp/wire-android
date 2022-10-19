@@ -1,5 +1,6 @@
 package com.wire.android.migration.userDatabase
 
+import com.wire.android.appLogger
 import com.wire.android.migration.util.orNullIfNegative
 import com.wire.kalium.logic.data.conversation.Conversation
 
@@ -20,8 +21,9 @@ class ScalaConversationDAO(private val db: ScalaUserDatabase) {
             val idIndex = cursor.getColumnIndex(COLUMN_ID)
             val nameIndex = cursor.getColumnIndex(COLUMN_NAME)
             val creatorIdIndex = cursor.getColumnIndex(COLUMN_CREATOR)
+            // todo: iterate cursor and map to conversation model
         } catch (exception: Exception) {
-
+            appLogger.e("Error while querying old conversations $exception")
         }
         return emptyList()
     }

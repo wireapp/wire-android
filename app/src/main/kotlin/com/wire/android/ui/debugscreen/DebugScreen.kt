@@ -215,8 +215,7 @@ private fun EnableLoggingSwitch(
             WireSwitch(
                 checked = isEnabled,
                 onCheckedChange = onCheckedChange,
-                modifier = Modifier
-                    .padding(end = 16.dp)
+                modifier = Modifier.padding(end = dimensions().spacing16x)
             )
         }
     )

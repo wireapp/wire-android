@@ -6,6 +6,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.saveable.Saver
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.text.input.TextFieldValue
 
 @Composable
 fun rememberSearchbarState(): SearchBarState {
@@ -20,10 +21,13 @@ fun rememberSearchbarState(): SearchBarState {
 
 class SearchBarState(
     isSearchActive: Boolean = false,
+    searchQuery: TextFieldValue = TextFieldValue("")
 ) {
 
     var isSearchActive by mutableStateOf(isSearchActive)
         private set
+
+    var searchQuery by mutableStateOf(searchQuery)
 
     fun closeSearch() {
         isSearchActive = false
@@ -33,14 +37,19 @@ class SearchBarState(
         isSearchActive = true
     }
 
+    fun searchQueryChanged(searchQuery: TextFieldValue) {
+        this.searchQuery = searchQuery
+    }
+
     companion object {
         fun saver(): Saver<SearchBarState, *> = Saver(
             save = {
-                listOf(it.isSearchActive)
+                listOf(it.isSearchActive, it.searchQuery.text)
             },
             restore = {
                 SearchBarState(
-                    isSearchActive = it[0]
+                    isSearchActive = it[0] as Boolean,
+                    searchQuery = TextFieldValue(it[1] as String)
                 )
             }
         )

@@ -20,8 +20,8 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.ui.common.Icon
 import com.wire.android.ui.common.RowItemTemplate
+import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
-import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.home.conversationslist.folderWithElements
 import com.wire.android.ui.theme.wireColorScheme

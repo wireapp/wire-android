@@ -13,7 +13,8 @@ data class SearchPeopleState(
     val searchQuery: TextFieldValue = TextFieldValue(""),
     val searchResult: ImmutableMap<SearchResultTitle, ContactSearchResult> = persistentMapOf(),
     val noneSearchSucceed: Boolean = false,
-    val contactsAddedToGroup: ImmutableList<Contact> = persistentListOf()
+    val contactsAddedToGroup: ImmutableList<Contact> = persistentListOf(),
+    val isGroupCreationContext: Boolean = true
 )
 
 sealed class ContactSearchResult(val searchResultState: SearchResultState) {
@@ -36,4 +37,4 @@ sealed class SearchResultState {
     data class Success(val result: ImmutableList<Contact>) : SearchResultState()
 }
 
-data class SearchResultTitle(@StringRes val stringRes : Int)
+data class SearchResultTitle(@StringRes val stringRes: Int)

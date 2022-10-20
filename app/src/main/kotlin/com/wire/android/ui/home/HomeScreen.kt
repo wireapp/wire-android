@@ -1,39 +1,38 @@
 package com.wire.android.ui.home
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.ModalBottomSheetState
 import androidx.compose.material.ModalDrawer
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.input.TextFieldValue
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
 import com.wire.android.R
-import com.wire.android.navigation.HomeNavigationGraph
 import com.wire.android.navigation.HomeNavigationItem
+import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.hiltSavedStateViewModel
 import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.FloatingActionButton
@@ -47,6 +46,7 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topappbar.CommonTopAppBar
 import com.wire.android.ui.common.topappbar.CommonTopAppBarViewModel
+import com.wire.android.ui.common.topappbar.ConnectivityUIState
 import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import com.wire.android.ui.home.conversationslist.ConversationListState
 import com.wire.android.ui.home.conversationslist.ConversationListViewModel
@@ -55,7 +55,6 @@ import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.persistentMapOf
 
 @OptIn(
-    ExperimentalAnimationApi::class,
     ExperimentalMaterialApi::class,
     ExperimentalMaterial3Api::class
 )
@@ -63,27 +62,74 @@ import kotlinx.collections.immutable.persistentMapOf
 fun HomeScreen(
     backNavArgs: ImmutableMap<String, Any> = persistentMapOf(),
     homeViewModel: HomeViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs),
-    syncViewModel: FeatureFlagNotificationViewModel = hiltViewModel(),
+    featureFlagNotificationViewModel: FeatureFlagNotificationViewModel = hiltViewModel(),
     commonTopAppBarViewModel: CommonTopAppBarViewModel = hiltViewModel(),
     conversationListViewModel: ConversationListViewModel = hiltViewModel(), // TODO: move required elements from this one to HomeViewModel?
 ) {
     homeViewModel.checkRequirements()
-    val homeUIState = rememberHomeUIState()
-    val coroutineScope = rememberCoroutineScope()
-    val homeState = syncViewModel.homeState
-    val snackbarHostState = remember { SnackbarHostState() }
 
-    handleSnackBarMessage(snackbarHostState, homeUIState.snackbarState, homeUIState::clearSnackbarMessage)
+    val homeScreenState = rememberHomeScreenState()
 
     LaunchedEffect(homeViewModel.savedStateHandle) {
-        homeViewModel.checkPendingSnackbarState()?.let(homeUIState::setSnackBarState)
+        homeViewModel.checkPendingSnackbarState()?.let(homeScreenState::setSnackBarState)
     }
 
-    val topItems = listOf(HomeNavigationItem.Conversations)
-    // TODO: Re-enable once we have Archive & Vault
-    // listOf(HomeNavigationItem.Conversations, HomeNavigationItem.Archive, HomeNavigationItem.Vault)
+    handleSnackBarMessage(
+        snackbarHostState = homeScreenState.snackBarHostState,
+        conversationListSnackBarState = homeScreenState.snackbarState,
+        onMessageShown = homeScreenState::clearSnackbarMessage
+    )
 
-    with(homeUIState) {
+    val featureFlagState = featureFlagNotificationViewModel.featureFlagState
+
+    if (featureFlagState.showFileSharingDialog) {
+        val text: String = if (featureFlagState.isFileSharingEnabledState) {
+            stringResource(id = R.string.sharing_files_enabled)
+        } else {
+            stringResource(id = R.string.sharing_files_disabled)
+        }
+
+        WireDialog(
+            title = stringResource(id = R.string.team_settings_changed),
+            text = text,
+            onDismiss = { featureFlagNotificationViewModel.hideDialogStatus() },
+            optionButton1Properties = WireDialogButtonProperties(
+                onClick = { featureFlagNotificationViewModel.hideDialogStatus() },
+                text = stringResource(id = R.string.label_ok),
+                type = WireDialogButtonType.Primary,
+            )
+        )
+    }
+
+    HomeContent(
+        connectivityState = commonTopAppBarViewModel.connectivityState,
+        homeState = homeViewModel.homeState,
+        homeStateHolder = homeScreenState,
+        conversationListState = conversationListViewModel.conversationListState,
+        onReturnToCallClick = commonTopAppBarViewModel::openOngoingCallScreen,
+        onNewConversationClick = conversationListViewModel::openNewConversation,
+        onSelfUserClick = homeViewModel::navigateToSelfUserProfile,
+        navigateToItem = homeViewModel::navigateTo
+    )
+
+    BackHandler(homeScreenState.searchBarState.isSearchActive) {
+        homeScreenState.searchBarState.closeSearch()
+    }
+}
+
+@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
+@Composable
+fun HomeContent(
+    connectivityState: ConnectivityUIState,
+    homeState: HomeState,
+    homeStateHolder: HomeStateHolder,
+    conversationListState: ConversationListState,
+    onReturnToCallClick: () -> Unit,
+    onNewConversationClick: () -> Unit,
+    onSelfUserClick: () -> Unit,
+    navigateToItem: (NavigationItem) -> Unit
+) {
+    with(homeStateHolder) {
         ModalDrawer(
             drawerBackgroundColor = MaterialTheme.colorScheme.surface,
             drawerElevation = 0.dp,
@@ -91,148 +137,125 @@ fun HomeScreen(
             drawerState = drawerState,
             drawerContent = {
                 HomeDrawer(
-                    drawerState = drawerState,
+                    //TODO: logFilePath does not belong in the UI logic
+                    logFilePath = homeState.logFilePath,
                     currentRoute = currentNavigationItem.route,
-                    homeNavController = navController,
-                    topItems = topItems,
-                    scope = coroutineScope,
-                    viewModel = homeViewModel
+                    navigateToHomeItem = ::navigateTo,
+                    navigateToItem = navigateToItem,
+                    onCloseDrawer = ::closeDrawer
                 )
             },
-            gesturesEnabled = drawerState.isOpen
-        ) {
-            HomeContent(
-                homeBottomSheetContent = homeUIState.homeBottomSheetContent,
-                homeBottomSheetState = homeUIState.bottomSheetState,
-                snackbarHostState = snackbarHostState,
-                homeTopBar = { elevation ->
-                    Column {
-                        CommonTopAppBar(
-                            connectivityUIState = commonTopAppBarViewModel.connectivityState,
-                            onReturnToCallClick = commonTopAppBarViewModel::openOngoingCallScreen
-                        )
-                        HomeTopBar(
-                            avatarAsset = homeViewModel.userAvatar.avatarAsset,
-                            status = homeViewModel.userAvatar.status,
-                            title = stringResource(id = homeUIState.currentNavigationItem.title),
-                            elevation = elevation,
-                            onOpenDrawerClicked = ::openDrawer,
-                            onNavigateToUserProfile = homeViewModel::navigateToUserProfile,
-                        )
-                    }
-                },
-                currentNavigationItem = homeUIState.currentNavigationItem,
-                homeNavigationGraph = {
-                    HomeNavigationGraph(
-                        homeUIState = homeUIState,
-                        navController = homeUIState.navController,
-                        startDestination = topItems[0]
-                    )
-                },
-                openNewConversation = conversationListViewModel::openNewConversation,
-                conversationListState = conversationListViewModel.state,
-                navController = homeUIState.navController,
-            )
-        }
-        if (homeState.showFileSharingDialog) {
-            val text: String = if (homeState.isFileSharingEnabledState) {
-                stringResource(id = R.string.sharing_files_enabled)
-            } else {
-                stringResource(id = R.string.sharing_files_disabled)
-            }
-
-            WireDialog(
-                title = stringResource(id = R.string.team_settings_changed),
-                text = text,
-                onDismiss = { syncViewModel.hideDialogStatus() },
-                optionButton1Properties = WireDialogButtonProperties(
-                    onClick = { syncViewModel.hideDialogStatus() },
-                    text = stringResource(id = R.string.label_ok),
-                    type = WireDialogButtonType.Primary,
-                )
-            )
-        }
-    }
-}
-
-@OptIn(ExperimentalMaterialApi::class, ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
-@Composable
-fun HomeContent(
-    homeBottomSheetState: ModalBottomSheetState,
-    snackbarHostState: SnackbarHostState,
-    homeBottomSheetContent: @Composable (ColumnScope.() -> Unit)?,
-    currentNavigationItem: HomeNavigationItem,
-    homeNavigationGraph: @Composable () -> Unit,
-    homeTopBar: @Composable (elevation: Dp) -> Unit,
-    openNewConversation: () -> Unit,
-    conversationListState: ConversationListState,
-    navController: NavHostController,
-) {
-    with(currentNavigationItem) {
-        WireModalSheetLayout(
-            sheetState = homeBottomSheetState,
-            coroutineScope = rememberCoroutineScope(),
-            // we want to render "nothing" instead of doing a if/else check
-            // on homeBottomSheetContent and wrap homeContent() into WireModalSheetLayout
-            // or render it without WireModalSheetLayout to avoid
-            // recomposing the homeContent() when homeBottomSheetContent
-            // changes from null to "something"
-            sheetContent = homeBottomSheetContent ?: { }
-        ) {
-            CollapsingTopBarScaffold(
-                snapOnFling = false,
-                keepElevationWhenCollapsed = true,
-                topBarHeader = homeTopBar,
-                snackbarHost = {
-                    SwipeDismissSnackbarHost(
-                        hostState = snackbarHostState,
-                        modifier = Modifier.fillMaxWidth()
-                    )
-                },
-                topBarCollapsing = {
-                    if (currentNavigationItem.isSearchable)
-                        SearchTopBar(
-                            isSearchActive = false, // TODO
-                            searchBarHint = stringResource(R.string.search_bar_hint, stringResource(id = title).lowercase()),
-                            searchQuery = TextFieldValue(""), // TODO
-                            onSearchQueryChanged = { /* TODO */ },
-                            onInputClicked = { /* TODO */ },
-                            onCloseSearchClicked = { /* TODO */ },
-                        )
-                },
-                content = { homeNavigationGraph() },
-                floatingActionButton = {
-                    if (currentNavigationItem.withNewConversationFab)
-                        FloatingActionButton(
-                            text = stringResource(R.string.label_new),
-                            icon = {
-                                Image(
-                                    painter = painterResource(id = R.drawable.ic_conversation),
-                                    contentDescription = stringResource(R.string.content_description_new_conversation),
-                                    contentScale = ContentScale.FillBounds,
-                                    colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimary),
-                                    modifier = Modifier
-                                        .padding(start = dimensions().spacing4x, top = dimensions().spacing2x)
-                                        .size(dimensions().fabIconSize)
+            gesturesEnabled = drawerState.isOpen,
+            content = {
+                with(currentNavigationItem) {
+                    WireModalSheetLayout(
+                        sheetState = bottomSheetState,
+                        coroutineScope = coroutineScope,
+                        // we want to render "nothing" instead of doing a if/else check
+                        // on homeBottomSheetContent and wrap homeContent() into WireModalSheetLayout
+                        // or render it without WireModalSheetLayout to avoid
+                        // recomposing the homeContent() when homeBottomSheetContent
+                        // changes from null to "something"
+                        sheetContent = homeBottomSheetContent ?: { }
+                    ) {
+                        CollapsingTopBarScaffold(
+                            snapOnFling = false,
+                            keepElevationWhenCollapsed = true,
+                            topBarHeader = { elevation ->
+                                Column(modifier = Modifier.animateContentSize()) {
+                                    CommonTopAppBar(
+                                        connectivityUIState = connectivityState,
+                                        onReturnToCallClick = onReturnToCallClick
+                                    )
+                                    AnimatedVisibility(visible = !searchBarState.isSearchActive) {
+                                        HomeTopBar(
+                                            avatarAsset = homeState.avatarAsset,
+                                            status = homeState.status,
+                                            title = stringResource(currentNavigationItem.title),
+                                            elevation = elevation,
+                                            onHamburgerMenuClick = ::openDrawer,
+                                            onNavigateToSelfUserProfile = onSelfUserClick
+                                        )
+                                    }
+                                }
+                            },
+                            snackbarHost = {
+                                SwipeDismissSnackbarHost(
+                                    hostState = snackBarHostState,
+                                    modifier = Modifier.fillMaxWidth()
                                 )
                             },
-                            onClick = openNewConversation
-                        )
-                },
-                bottomBar = {
-                    AnimatedVisibility(
-                        visible = currentNavigationItem.withBottomTabs,
-                        enter = slideInVertically(initialOffsetY = { it }),
-                        exit = slideOutVertically(targetOffsetY = { it }),
-                    ) {
-                        WireBottomNavigationBar(
-                            HomeNavigationItem.bottomTabItems.toBottomNavigationItems(conversationListState),
-                            navController
+                            topBarCollapsing = {
+                                if (currentNavigationItem.isSearchable)
+                                    SearchTopBar(
+                                        isSearchActive = searchBarState.isSearchActive,
+                                        searchBarHint = stringResource(
+                                            R.string.search_bar_hint,
+                                            stringResource(id = title).lowercase()
+                                        ),
+                                        searchQuery = searchBarState.searchQuery,
+                                        onSearchQueryChanged = searchBarState::searchQueryChanged,
+                                        onInputClicked = searchBarState::openSearch,
+                                        onCloseSearchClicked = searchBarState::closeSearch,
+                                    )
+                            },
+                            content = {
+                                NavHost(
+                                    navController = navController,
+                                    // For now we only support Conversations screen
+                                    startDestination = HomeNavigationItem.Conversations.route
+                                ) {
+                                    HomeNavigationItem.values()
+                                        .forEach { item ->
+                                            composable(
+                                                route = item.route,
+                                                content = item.content(homeStateHolder)
+                                            )
+                                        }
+                                }
+                            },
+                            floatingActionButton = {
+                                AnimatedVisibility(
+                                    visible = currentNavigationItem.withNewConversationFab && !searchBarState.isSearchActive,
+                                    enter = fadeIn(),
+                                    exit = fadeOut(),
+                                ) {
+                                    FloatingActionButton(
+                                        text = stringResource(R.string.label_new),
+                                        icon = {
+                                            Image(
+                                                painter = painterResource(id = R.drawable.ic_conversation),
+                                                contentDescription = stringResource(R.string.content_description_new_conversation),
+                                                contentScale = ContentScale.FillBounds,
+                                                colorFilter = ColorFilter.tint(MaterialTheme.colorScheme.onPrimary),
+                                                modifier = Modifier
+                                                    .padding(start = dimensions().spacing4x, top = dimensions().spacing2x)
+                                                    .size(dimensions().fabIconSize)
+                                            )
+                                        },
+                                        onClick = onNewConversationClick
+                                    )
+                                }
+                            },
+                            bottomBar = {
+                                AnimatedVisibility(
+                                    visible = currentNavigationItem.withBottomTabs,
+                                    enter = slideInVertically(initialOffsetY = { it }),
+                                    exit = slideOutVertically(targetOffsetY = { it }),
+                                ) {
+                                    WireBottomNavigationBar(
+                                        items = HomeNavigationItem.bottomTabItems.toBottomNavigationItems(
+                                            conversationListState = conversationListState
+                                        ),
+                                        navController = navController
+                                    )
+                                }
+                            }
                         )
                     }
                 }
-            )
-        }
+            }
+        )
     }
 }
 
@@ -246,14 +269,17 @@ private fun handleSnackBarMessage(
         val message = when (messageType) {
             is HomeSnackbarState.SuccessConnectionIgnoreRequest ->
                 stringResource(id = R.string.connection_request_ignored, messageType.userName)
+
             is HomeSnackbarState.BlockingUserOperationSuccess ->
                 stringResource(id = R.string.blocking_user_success, messageType.userName)
+
             HomeSnackbarState.MutingOperationError -> stringResource(id = R.string.error_updating_muting_setting)
             HomeSnackbarState.BlockingUserOperationError -> stringResource(id = R.string.error_blocking_user)
             HomeSnackbarState.UnblockingUserOperationError -> stringResource(id = R.string.error_unblocking_user)
             HomeSnackbarState.None -> ""
             is HomeSnackbarState.DeletedConversationGroupSuccess ->
                 stringResource(id = R.string.conversation_group_removed_success, messageType.groupName)
+
             HomeSnackbarState.LeftConversationSuccess -> stringResource(id = R.string.left_conversation_group_success)
             HomeSnackbarState.LeaveConversationError -> stringResource(id = R.string.leave_group_conversation_error)
             HomeSnackbarState.DeleteConversationGroupError -> stringResource(id = R.string.delete_group_conversation_error)
@@ -272,12 +298,12 @@ private fun handleSnackBarMessage(
 @ExperimentalAnimationApi
 @Composable
 private fun List<HomeNavigationItem>.toBottomNavigationItems(
-    uiListState: ConversationListState
+    conversationListState: ConversationListState
 ): List<WireBottomNavigationItemData> = map { homeNavigationItem ->
     when (homeNavigationItem) {
-        HomeNavigationItem.Conversations -> homeNavigationItem.toBottomNavigationItemData(uiListState.newActivityCount)
-        HomeNavigationItem.Calls -> homeNavigationItem.toBottomNavigationItemData(uiListState.missedCallsCount)
-        HomeNavigationItem.Mentions -> homeNavigationItem.toBottomNavigationItemData(uiListState.unreadMentionsCount)
+        HomeNavigationItem.Conversations -> homeNavigationItem.toBottomNavigationItemData(conversationListState.newActivityCount)
+        HomeNavigationItem.Calls -> homeNavigationItem.toBottomNavigationItemData(conversationListState.missedCallsCount)
+        HomeNavigationItem.Mentions -> homeNavigationItem.toBottomNavigationItemData(conversationListState.unreadMentionsCount)
         else -> homeNavigationItem.toBottomNavigationItemData(0L)
     }
 }

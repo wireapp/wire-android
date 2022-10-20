@@ -9,12 +9,13 @@ import kotlinx.collections.immutable.persistentMapOf
 
 data class ConversationListState(
     val conversations: ImmutableMap<ConversationFolder, List<ConversationItem>> = persistentMapOf(),
+    val hasNoConversations: Boolean = false,
+    val conversationSearchResult: ImmutableMap<ConversationFolder, List<ConversationItem>> = persistentMapOf(),
     val missedCalls: ImmutableList<ConversationItem> = persistentListOf(),
     val callHistory: ImmutableList<ConversationItem> = persistentListOf(),
     val unreadMentions: ImmutableList<ConversationItem> = persistentListOf(),
     val allMentions: ImmutableList<ConversationItem> = persistentListOf(),
     val newActivityCount: Long = 0,
     val missedCallsCount: Long = 0,
-    val unreadMentionsCount: Long = 0,
-    val shouldShowEmptyState: Boolean = false
+    val unreadMentionsCount: Long = 0
 )

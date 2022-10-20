@@ -174,7 +174,7 @@ class ConversationMessagesViewModel @Inject constructor(
         getMessageAsset(
             conversationId = conversationId,
             messageId = messageId
-        ).run {
+        ).await().run {
             return when (this) {
                 is MessageAssetResult.Success -> decodedAssetPath
                 else -> null

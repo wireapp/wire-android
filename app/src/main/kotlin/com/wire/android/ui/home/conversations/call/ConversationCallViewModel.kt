@@ -39,7 +39,6 @@ class ConversationCallViewModel @Inject constructor(
     val conversationId: QualifiedID = qualifiedIdMapper.fromStringToQualifiedID(
         savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!
     )
-
     var conversationCallViewState by mutableStateOf(ConversationCallViewState())
         private set
 

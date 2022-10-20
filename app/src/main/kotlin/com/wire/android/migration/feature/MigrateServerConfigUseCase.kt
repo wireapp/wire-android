@@ -23,7 +23,7 @@ class MigrateServerConfigUseCase @Inject constructor(
 ) {
     suspend operator fun invoke(): Either<CoreFailure, ServerConfig> =
         when (val scalaServerConfig = scalaServerConfigDAO.scalaServerConfig) {
-            is ScalaServerConfig.Full -> // TODO what to do when versionInfo.domain is null?
+            is ScalaServerConfig.Full ->
                 coreLogic.getGlobalScope().storeServerConfig(scalaServerConfig.links, scalaServerConfig.versionInfo).handleResult()
             is ScalaServerConfig.Links ->
                 scalaServerConfig.links.fetchApiVersionAndStore()

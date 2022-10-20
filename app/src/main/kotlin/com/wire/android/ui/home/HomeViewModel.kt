@@ -16,12 +16,17 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.navigation.getBackNavArg
+import com.wire.android.ui.home.conversations.search.SearchPeopleViewModel
+import com.wire.android.util.EMPTY
 import com.wire.android.util.LogFileWriter
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -35,17 +40,19 @@ class HomeViewModel @Inject constructor(
     private val getSelf: GetSelfUserUseCase,
     private val needsToRegisterClient: NeedsToRegisterClientUseCase,
     private val wireSessionImageLoader: WireSessionImageLoader,
-    private val logFileWriter: LogFileWriter
+    logFileWriter: LogFileWriter
 ) : SavedStateViewModel(savedStateHandle) {
 
-    var userAvatar by mutableStateOf(SelfUserData())
+    var homeState by mutableStateOf(
+        HomeState(
+            logFilePath = logFileWriter.activeLoggingFile.absolutePath
+        )
+    )
         private set
 
     init {
         loadUserAvatar()
     }
-
-    fun logFilePath(): String = logFileWriter.activeLoggingFile.absolutePath
 
     fun checkRequirements() {
         viewModelScope.launch {
@@ -86,7 +93,7 @@ class HomeViewModel @Inject constructor(
     private fun loadUserAvatar() {
         viewModelScope.launch {
             getSelf().collect { selfUser ->
-                userAvatar = SelfUserData(
+                homeState = HomeState(
                     selfUser.previewPicture?.let { UserAvatarAsset(wireSessionImageLoader, it) },
                     selfUser.availabilityStatus
                 )
@@ -94,16 +101,19 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    suspend fun navigateTo(item: NavigationItem) {
-        navigationManager.navigate(NavigationCommand(destination = item.getRouteWithArgs()))
+    fun navigateTo(item: NavigationItem) {
+        viewModelScope.launch {
+            navigationManager.navigate(NavigationCommand(destination = item.getRouteWithArgs()))
+        }
     }
 
-    fun navigateToUserProfile() = viewModelScope.launch { navigateTo(NavigationItem.SelfUserProfile) }
+    fun navigateToSelfUserProfile() = viewModelScope.launch { navigateTo(NavigationItem.SelfUserProfile) }
 }
 
-data class SelfUserData(
+data class HomeState(
     val avatarAsset: UserAvatarAsset? = null,
-    val status: UserAvailabilityStatus = UserAvailabilityStatus.NONE
+    val status: UserAvailabilityStatus = UserAvailabilityStatus.NONE,
+    val logFilePath: String = String.EMPTY
 )
 
 // TODO change to extend [SnackBarMessage]

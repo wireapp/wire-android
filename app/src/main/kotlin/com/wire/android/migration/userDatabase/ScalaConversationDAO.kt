@@ -1,8 +1,8 @@
 package com.wire.android.migration.userDatabase
 
 import com.wire.android.appLogger
+import com.wire.android.migration.util.getStringOrNull
 import com.wire.android.migration.util.orNullIfNegative
-import com.wire.kalium.logic.data.conversation.Conversation
 
 data class ScalaConversationData(
     val remoteId: String,
@@ -14,39 +14,34 @@ data class ScalaConversationData(
 
 class ScalaConversationDAO(private val db: ScalaUserDatabase) {
 
-    fun conversations(): List<Conversation> {
+    fun conversations(): List<ScalaConversationData> {
         val cursor = db.rawQuery("SELECT * from $TABLE_NAME", null)
-        try {
+        return try {
             val domainIndex = cursor.getColumnIndex(COLUMN_DOMAIN).orNullIfNegative()
             val idIndex = cursor.getColumnIndex(COLUMN_ID)
             val nameIndex = cursor.getColumnIndex(COLUMN_NAME)
             val creatorIdIndex = cursor.getColumnIndex(COLUMN_CREATOR)
-            // todo: iterate cursor and map to conversation model
+            val typeIndex = cursor.getColumnIndex(COLUMN_TYPE)
+            if (!cursor.moveToFirst()) {
+                emptyList()
+            } else {
+                val accumulator = mutableListOf<ScalaConversationData>()
+                do {
+                    accumulator += ScalaConversationData(
+                        remoteId = cursor.getStringOrNull(idIndex).orEmpty(),
+                        domain = domainIndex?.let { cursor.getStringOrNull(domainIndex) },
+                        name = cursor.getStringOrNull(nameIndex),
+                        creatorId = cursor.getString(creatorIdIndex),
+                        type = cursor.getInt(typeIndex)
+                    )
+                } while (cursor.moveToNext())
+                accumulator
+            }
         } catch (exception: Exception) {
             appLogger.e("Error while querying old conversations $exception")
+            emptyList()
         }
-        return emptyList()
     }
-
-//    qualified_id TEXT AS QualifiedIDEntity NOT NULL PRIMARY KEY,
-//    name TEXT,
-//    type TEXT AS ConversationEntity.Type NOT NULL,
-//    team_id TEXT,
-//    mls_group_id TEXT,
-//    mls_group_state TEXT AS ConversationEntity.GroupState NOT NULL, // established
-//    mls_epoch INTEGER DEFAULT 0 NOT NULL,
-//    mls_proposal_timer TEXT,
-//    protocol TEXT AS ConversationEntity.Protocol NOT NULL,
-//    muted_status TEXT AS ConversationEntity.MutedStatus DEFAULT "ALL_ALLOWED" NOT NULL,
-//    muted_time INTEGER DEFAULT 0 NOT NULL,
-//    creator_id TEXT NOT NULL,
-//    last_modified_date TEXT NOT NULL,
-//    last_notified_message_date TEXT,
-//    last_read_date TEXT DEFAULT "1970-01-01T00:00:00.000Z" NOT NULL,
-//    access_list TEXT AS List<ConversationEntity.Access> NOT NULL,
-//    access_role_list TEXT AS List<ConversationEntity.AccessRole> NOT NULL,
-//    mls_last_keying_material_update INTEGER DEFAULT 0 NOT NULL,
-//    mls_cipher_suite TEXT AS ConversationEntity.CipherSuite NOT NULL
 
     companion object {
         const val TABLE_NAME = "Conversations"
@@ -54,5 +49,6 @@ class ScalaConversationDAO(private val db: ScalaUserDatabase) {
         const val COLUMN_DOMAIN = "domain"
         const val COLUMN_NAME = "name"
         const val COLUMN_CREATOR = "creator"
+        const val COLUMN_TYPE = "conv_type"
     }
 }

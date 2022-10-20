@@ -5,6 +5,7 @@ import androidx.work.Data
 import androidx.work.workDataOf
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.migration.feature.MigrateActiveAccountsUseCase
+import com.wire.android.migration.feature.MigrateConversationsUseCase
 import com.wire.android.migration.feature.MigrateServerConfigUseCase
 import com.wire.android.migration.feature.MigrationFailure
 import com.wire.android.migration.util.ScalaDBNameProvider
@@ -23,7 +24,8 @@ class MigrationManager @Inject constructor(
     @ApplicationContext private val applicationContext: Context,
     private val globalDataStore: GlobalDataStore,
     private val migrateServerConfig: MigrateServerConfigUseCase,
-    private val migrateActiveAccounts: MigrateActiveAccountsUseCase
+    private val migrateActiveAccounts: MigrateActiveAccountsUseCase,
+    private val migrateConversations: MigrateConversationsUseCase,
 ) {
 
     private fun isScalaDBPresent(): Boolean =
@@ -42,6 +44,8 @@ class MigrationManager @Inject constructor(
         return migrateServerConfig()
             .flatMap {
                 migrateActiveAccounts(it)
+            }.flatMap {
+                migrateConversations()
             }
             .mapLeft {
                 when (it) {

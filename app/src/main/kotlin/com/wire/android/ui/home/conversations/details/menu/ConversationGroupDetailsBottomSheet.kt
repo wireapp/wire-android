@@ -37,8 +37,8 @@ fun ConversationGroupDetailsBottomSheet(
                     )
                 )
             }),
-        menuItems = listOf {
-            if (conversationOptionsState.isSelfUserMember)
+        menuItems = listOf<@Composable () -> Unit>().also {
+            if (conversationOptionsState.isSelfUserMember) it.plus {
                 LeaveGroupItem(
                     onLeaveGroup = {
                         onLeaveGroup(
@@ -50,7 +50,8 @@ fun ConversationGroupDetailsBottomSheet(
                     },
                     closeBottomSheet = closeBottomSheet
                 )
-            if (conversationOptionsState.isAbleToRemoveGroup)
+            }
+            if (conversationOptionsState.isAbleToRemoveGroup) it.plus {
                 DeleteGroupItem(
                     onDeleteGroup = {
                         onDeleteGroup(
@@ -62,6 +63,7 @@ fun ConversationGroupDetailsBottomSheet(
                     },
                     closeBottomSheet = closeBottomSheet
                 )
+            }
         },
     )
 }

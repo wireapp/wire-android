@@ -8,9 +8,9 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 
 @Composable
-fun rememberSearchbarState(scrollPositionProvider: (() -> Int) = { 0 }): SearchBarState {
+fun rememberSearchbarState(): SearchBarState {
     val searchBarState = rememberSaveable(
-        saver = SearchBarState.saver(scrollPositionProvider)
+        saver = SearchBarState.saver()
     ) {
         SearchBarState()
     }
@@ -34,7 +34,7 @@ class SearchBarState(
     }
 
     companion object {
-        fun saver(scrollPositionProvider: (() -> Int) = { 0 }): Saver<SearchBarState, *> = Saver(
+        fun saver(): Saver<SearchBarState, *> = Saver(
             save = {
                 listOf(it.isSearchActive)
             },

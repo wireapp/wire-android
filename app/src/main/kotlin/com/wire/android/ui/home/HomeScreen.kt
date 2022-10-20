@@ -29,10 +29,12 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import com.wire.android.R
 import com.wire.android.navigation.HomeNavigationGraph
 import com.wire.android.navigation.HomeNavigationItem
+import com.wire.android.navigation.hiltSavedStateViewModel
 import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.FloatingActionButton
 import com.wire.android.ui.common.WireBottomNavigationBar
@@ -49,6 +51,8 @@ import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import com.wire.android.ui.home.conversationslist.ConversationListState
 import com.wire.android.ui.home.conversationslist.ConversationListViewModel
 import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
+import kotlinx.collections.immutable.ImmutableMap
+import kotlinx.collections.immutable.persistentMapOf
 
 @OptIn(
     ExperimentalAnimationApi::class,
@@ -57,10 +61,11 @@ import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
 )
 @Composable
 fun HomeScreen(
-    homeViewModel: HomeViewModel,
-    syncViewModel: FeatureFlagNotificationViewModel,
-    commonTopAppBarViewModel: CommonTopAppBarViewModel,
-    conversationListViewModel: ConversationListViewModel, // TODO: move required elements from this one to HomeViewModel?
+    backNavArgs: ImmutableMap<String, Any> = persistentMapOf(),
+    homeViewModel: HomeViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs),
+    syncViewModel: FeatureFlagNotificationViewModel = hiltViewModel(),
+    commonTopAppBarViewModel: CommonTopAppBarViewModel = hiltViewModel(),
+    conversationListViewModel: ConversationListViewModel = hiltViewModel(), // TODO: move required elements from this one to HomeViewModel?
 ) {
     homeViewModel.checkRequirements()
     val homeUIState = rememberHomeUIState()

@@ -74,7 +74,7 @@ fun Modifier.shimmerPlaceholder(
 fun Modifier.clickable(clickable: Clickable?) = clickable?.let {
     val syncStateObserver = LocalSyncStateObserver.current
     val context = LocalContext.current
-    val onClick = remember(clickable.blockUntilSynced) {
+    val onClick = remember(clickable) {
         {
             if (clickable.blockUntilSynced && !syncStateObserver.isSynced)
                 Toast.makeText(context, context.getString(R.string.label_wait_until_synchronised), Toast.LENGTH_SHORT).show()
@@ -83,7 +83,7 @@ fun Modifier.clickable(clickable: Clickable?) = clickable?.let {
         }
     }
     val onLongClick = clickable.onLongClick?.let { onLongClick ->
-        remember(clickable.blockUntilSynced) {
+        remember(clickable) {
             {
                 if (clickable.blockUntilSynced && !syncStateObserver.isSynced)
                     Toast.makeText(context, context.getString(R.string.label_wait_until_synchronised), Toast.LENGTH_SHORT).show()

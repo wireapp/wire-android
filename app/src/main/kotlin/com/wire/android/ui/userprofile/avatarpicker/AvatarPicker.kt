@@ -24,6 +24,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.core.net.toUri
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.bottomsheet.MenuBottomSheetItem
@@ -51,7 +52,7 @@ import okio.Path
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
-fun AvatarPickerScreen(viewModel: AvatarPickerViewModel) {
+fun AvatarPickerScreen(viewModel: AvatarPickerViewModel = hiltViewModel()) {
     val context = LocalContext.current
 
     val targetAvatarPath = viewModel.defaultAvatarPath

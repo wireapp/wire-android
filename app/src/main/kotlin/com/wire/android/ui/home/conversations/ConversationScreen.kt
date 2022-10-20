@@ -29,11 +29,13 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
 import com.wire.android.R
+import com.wire.android.navigation.hiltSavedStateViewModel
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.dialogs.OngoingActiveCallDialog
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
@@ -73,6 +75,7 @@ import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothReque
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.data.user.UserId
+import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
@@ -89,12 +92,13 @@ private const val MAXIMUM_SCROLLED_MESSAGES_UNTIL_AUTOSCROLL_STOPS = 5
 
 @Composable
 fun ConversationScreen(
-    messageComposerViewModel: MessageComposerViewModel,
-    conversationCallViewModel: ConversationCallViewModel,
-    conversationInfoViewModel: ConversationInfoViewModel,
-    conversationMessagesViewModel: ConversationMessagesViewModel,
-    conversationBannerViewModel: ConversationBannerViewModel,
-    commonTopAppBarViewModel: CommonTopAppBarViewModel
+    backNavArgs: ImmutableMap<String, Any>,
+    messageComposerViewModel: MessageComposerViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs),
+    conversationCallViewModel: ConversationCallViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs),
+    conversationInfoViewModel: ConversationInfoViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs),
+    conversationMessagesViewModel: ConversationMessagesViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs),
+    conversationBannerViewModel: ConversationBannerViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs),
+    commonTopAppBarViewModel: CommonTopAppBarViewModel = hiltViewModel(),
 ) {
     val coroutineScope = rememberCoroutineScope()
     val showDialog = remember { mutableStateOf(ConversationScreenDialogType.NONE) }

@@ -51,8 +51,9 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusU
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
 import com.wire.kalium.logic.feature.team.Result
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.toImmutableList
+import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -93,11 +94,11 @@ class ConversationListViewModel @Inject constructor(
             .flowOn(dispatcher.io())
             .collect { conversationListDetails ->
                 state = ConversationListState(
-                    conversations = conversationListDetails.toConversationsFoldersMap(),
+                    conversations = conversationListDetails.toConversationsFoldersMap().toImmutableMap(),
                     shouldShowEmptyState = conversationListDetails.none { it !is Self },
-                    callHistory = mockCallHistory, // TODO: needs to be implemented
-                    unreadMentions = mockUnreadMentionList, // TODO: needs to be implemented
-                    allMentions = mockAllMentionList, // TODO: needs to be implemented
+                    callHistory = mockCallHistory.toImmutableList(), // TODO: needs to be implemented
+                    unreadMentions = mockUnreadMentionList.toImmutableList(), // TODO: needs to be implemented
+                    allMentions = mockAllMentionList.toImmutableList(), // TODO: needs to be implemented
                     newActivityCount = 0L,
                     unreadMentionsCount = 0L, // TODO: needs to be implemented on Kalium side
                     missedCallsCount = 0L // TODO: needs to be implemented on Kalium side

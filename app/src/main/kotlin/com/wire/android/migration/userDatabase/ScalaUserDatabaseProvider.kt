@@ -35,7 +35,7 @@ class ScalaUserDatabaseProvider @Inject constructor(
 
     private var _db: ScalaUserDatabase? = null
     private val db: Lazy<ScalaUserDatabase?> = lazy {
-        synchronized(this) {
+        synchronized(this@ScalaUserDatabaseProvider) {
             if (_db == null) {
                 _db = applicationContext.openDatabaseIfExists(ScalaDBNameProvider.userDB(userId))
                 _db

@@ -23,8 +23,10 @@ import javax.inject.Inject
 
 data class DebugScreenState(
     val isLoggingEnabled: Boolean = false,
-    val mlsData: List<String> = emptyList(),
-    val currentClientId: String = String.EMPTY
+    val currentClientId: String = String.EMPTY,
+    val keyPackagesCount: Int = 0,
+    val mslClientId: String = String.EMPTY,
+    val mlsErrorMessage: String = String.EMPTY
 )
 
 @HiltViewModel
@@ -37,9 +39,13 @@ class DebugScreenViewModel
     private val currentClientIdUseCase: ObserveCurrentClientIdUseCase,
     isLoggingEnabledUseCase: IsLoggingEnabledUseCase
 ) : ViewModel() {
-    var state by mutableStateOf(DebugScreenState(isLoggingEnabled = isLoggingEnabledUseCase()))
+    val logPath: String = logFileWriter.activeLoggingFile.absolutePath
 
-    fun logFilePath(): String = logFileWriter.activeLoggingFile.absolutePath
+    var state by mutableStateOf(
+        DebugScreenState(
+            isLoggingEnabled = isLoggingEnabledUseCase()
+        )
+    )
 
     init {
         observeMlsMetadata()
@@ -60,13 +66,16 @@ class DebugScreenViewModel
             mlsKeyPackageCountUseCase().let {
                 when (it) {
                     is MLSKeyPackageCountResult.Success -> {
-                        state = state.copy(mlsData = listOf("KeyPackages Count: ${it.count}", "MLS ClientId: ${it.clientId.value}"))
+                        state = state.copy(
+                            keyPackagesCount = it.count,
+                            mslClientId = it.clientId.value
+                        )
                     }
                     is MLSKeyPackageCountResult.Failure.NetworkCallFailure -> {
-                        state = state.copy(mlsData = listOf("Network Error!"))
+                        state = state.copy(mlsErrorMessage = "Network Error!")
                     }
                     is MLSKeyPackageCountResult.Failure.FetchClientIdFailure -> {
-                        state = state.copy(mlsData = listOf("ClientId Fetch Error!"))
+                        state = state.copy(mlsErrorMessage = "ClientId Fetch Error!")
                     }
                     is MLSKeyPackageCountResult.Failure.Generic -> {}
                 }
@@ -74,10 +83,9 @@ class DebugScreenViewModel
         }
     }
 
-    fun deleteAllLogs() {
+    fun deleteLogs() {
         logFileWriter.deleteAllLogFiles()
     }
-
 
     fun setLoggingEnabledState(isEnabled: Boolean) {
         enableLogging(isEnabled)

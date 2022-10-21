@@ -15,6 +15,7 @@ sealed class ImageAsset(private val imageLoader: WireSessionImageLoader) {
      */
     abstract val uniqueKey: String
 
+    @Stable
     data class UserAvatarAsset(
         private val imageLoader: WireSessionImageLoader,
         val userAssetId: UserAssetId
@@ -23,6 +24,7 @@ sealed class ImageAsset(private val imageLoader: WireSessionImageLoader) {
             get() = userAssetId.toString()
     }
 
+    @Stable
     data class PrivateAsset(
         private val imageLoader: WireSessionImageLoader,
         val conversationId: ConversationId,

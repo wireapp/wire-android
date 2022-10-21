@@ -77,6 +77,7 @@ import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.call.usecase.ConferenceCallingResult
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -198,23 +199,21 @@ private fun startCallIfPossible(
         if (!conversationCallViewModel.hasStableConnectivity()) {
             showDialog.value = ConversationScreenDialogType.NO_CONNECTIVITY
         } else {
-            val canStartCall = (conversationType == Conversation.Type.ONE_ON_ONE ||
-                    (conversationType == Conversation.Type.GROUP && conversationCallViewModel.isConferenceCallingEnabled()))
-            conversationCallViewModel.establishedCallConversationId?.let {
-                if (it == conversationCallViewModel.conversationId) {
-                    onOpenOngoingCallScreen()
-                } else {
-                    showDialog.value = if (canStartCall) ConversationScreenDialogType.ONGOING_ACTIVE_CALL else
-                        ConversationScreenDialogType.CALLING_FEATURE_UNAVAILABLE
-                }
-            } ?: run {
-                if (canStartCall) {
+            val dialogValue = when (conversationCallViewModel.isConferenceCallingEnabled(conversationType)) {
+                ConferenceCallingResult.Enabled -> {
                     startCallAudioPermissionCheck.launch()
-                } else {
-                    showDialog.value = ConversationScreenDialogType.CALLING_FEATURE_UNAVAILABLE
+                    ConversationScreenDialogType.NONE
                 }
+                ConferenceCallingResult.Disabled.Established -> {
+                    onOpenOngoingCallScreen()
+                    ConversationScreenDialogType.NONE
+                }
+                ConferenceCallingResult.Disabled.OngoingCall -> ConversationScreenDialogType.ONGOING_ACTIVE_CALL
+                ConferenceCallingResult.Disabled.Unavailable -> ConversationScreenDialogType.CALLING_FEATURE_UNAVAILABLE
+                else -> ConversationScreenDialogType.NONE
             }
 
+            showDialog.value = dialogValue
         }
     }
 }

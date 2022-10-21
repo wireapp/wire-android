@@ -3,7 +3,6 @@ package com.wire.android.navigation
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
-import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavBackStackEntry
 import androidx.navigation.NavDeepLink
 import androidx.navigation.navDeepLink
@@ -152,14 +151,7 @@ enum class NavigationItem(
 
     Home(
         primaryRoute = HOME,
-        content = {
-            HomeScreen(
-                hiltSavedStateViewModel(it.navBackStackEntry),
-                hiltViewModel(),
-                hiltViewModel(),
-                hiltViewModel()
-            )
-        },
+        content = { HomeScreen(it.navBackStackEntry.savedStateHandle.getBackNavArgs()) },
         animationConfig = NavigationAnimationConfig.DelegatedAnimation
     ),
 
@@ -227,7 +219,7 @@ enum class NavigationItem(
 
     ProfileImagePicker(
         primaryRoute = IMAGE_PICKER,
-        content = { AvatarPickerScreen(hiltViewModel()) },
+        content = { AvatarPickerScreen() },
     ),
 
     Conversation(
@@ -240,17 +232,7 @@ enum class NavigationItem(
                         "{$EXTRA_CONVERSATION_ID}"
             }
         ),
-        content = {
-            ConversationScreen(
-                messageComposerViewModel = hiltSavedStateViewModel(it.navBackStackEntry),
-                conversationCallViewModel = hiltSavedStateViewModel(it.navBackStackEntry),
-                conversationInfoViewModel = hiltSavedStateViewModel(it.navBackStackEntry),
-                conversationMessagesViewModel = hiltSavedStateViewModel(it.navBackStackEntry),
-                commonTopAppBarViewModel = hiltViewModel(),
-                conversationBannerViewModel = hiltSavedStateViewModel(it.navBackStackEntry),
-
-                )
-        },
+        content = { ConversationScreen(it.navBackStackEntry.savedStateHandle.getBackNavArgs()) },
         animationConfig = NavigationAnimationConfig.NoAnimation
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
@@ -263,7 +245,7 @@ enum class NavigationItem(
     GroupConversationDetails(
         primaryRoute = GROUP_CONVERSATION_DETAILS,
         canonicalRoute = "$GROUP_CONVERSATION_DETAILS/{$EXTRA_CONVERSATION_ID}",
-        content = { GroupConversationDetailsScreen(hiltViewModel()) },
+        content = { GroupConversationDetailsScreen() },
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String = routeWithConversationIdArg(arguments)
     },
@@ -279,7 +261,7 @@ enum class NavigationItem(
     GroupConversationAllParticipants(
         primaryRoute = GROUP_CONVERSATION_ALL_PARTICIPANTS,
         canonicalRoute = "$GROUP_CONVERSATION_ALL_PARTICIPANTS/{$EXTRA_CONVERSATION_ID}",
-        content = { GroupConversationAllParticipantsScreen(hiltViewModel()) },
+        content = { GroupConversationAllParticipantsScreen() },
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String = routeWithConversationIdArg(arguments)
     },

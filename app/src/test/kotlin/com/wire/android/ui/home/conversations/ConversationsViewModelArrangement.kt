@@ -192,7 +192,9 @@ internal fun withMockConversationDetailsOneOnOne(
     connectionState: ConnectionState = ConnectionState.ACCEPTED,
     unavailable: Boolean = false
 ) = ConversationDetails.OneOne(
-    conversation = mockk(),
+    conversation = mockk<Conversation>().apply {
+        every { type } returns Conversation.Type.ONE_ON_ONE
+    },
     otherUser = mockk<OtherUser>().apply {
         every { id } returns senderId
         every { name } returns senderName
@@ -214,6 +216,7 @@ internal fun mockConversationDetailsGroup(
     conversation = mockk<Conversation>().apply {
         every { name } returns conversationName
         every { id } returns mockedConversationId
+        every { type } returns Conversation.Type.GROUP
     },
     legalHoldStatus = mockk(),
     hasOngoingCall = false,

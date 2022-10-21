@@ -98,7 +98,8 @@ class ConversationInfoViewModel @Inject constructor(
             conversationAvatar = getConversationAvatar(conversationDetails),
             conversationDetailsData = detailsData,
             isUserBlocked = isUserBlocked,
-            hasUserPermissionToEdit = detailsData !is ConversationDetailsData.None
+            hasUserPermissionToEdit = detailsData !is ConversationDetailsData.None,
+            conversationType = conversationDetails.conversation.type
         )
     }
 

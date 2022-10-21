@@ -127,14 +127,13 @@ fun HomeDrawer(
             data = DrawerItemData(R.string.give_feedback_screen_title, R.drawable.ic_emoticon),
             selected = false,
             onItemClick = {
-
                 val intent = Intent(Intent.ACTION_SEND)
                 intent.putExtra(Intent.EXTRA_EMAIL, arrayOf("wire-newandroid-feedback@wearezeta.zendesk.com"))
                 intent.putExtra(Intent.EXTRA_SUBJECT, "Feedback - Wire Beta")
                 intent.putExtra(Intent.EXTRA_TEXT, EmailComposer.giveFeedbackEmailTemplate(context.getDeviceId()?.sha256()))
 
                 intent.selector = Intent(ACTION_SENDTO).setData(Uri.parse("mailto:"))
-                context.startActivity(Intent.createChooser(intent, "Choose an Email client: "))
+                context.startActivity(Intent.createChooser(intent, context.getString(R.string.send_feedback_choose_email)))
             })
 
         DrawerItem(

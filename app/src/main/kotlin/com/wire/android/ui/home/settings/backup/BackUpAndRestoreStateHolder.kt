@@ -13,11 +13,11 @@ class BackUpAndRestoreStateHolder {
     )
 
     fun showBackupDialog() {
-        dialogState = BackupAndRestoreDialog.Backup
+        dialogState = BackupAndRestoreDialog.CreateBackup
     }
 
     fun showRestoreDialog() {
-        dialogState = BackupAndRestoreDialog.Restore
+        dialogState = BackupAndRestoreDialog.RestoreBackup
     }
 
     fun dismissDialog() {

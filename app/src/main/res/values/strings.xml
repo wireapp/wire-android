@@ -636,4 +636,6 @@
     <string name="dialog_restore_backup_message">The backup contents will replace the conversation history on this device. You can only restore history from a backup of the same platform.</string>
     <string name="label_enter_password">Enter password</string>
     <string name="dialog_restore_backup_password_message">This backup is password protected.</string>
+    <string name="send_feedback_choose_email">\"Choose an Email client: \"</string>
+    <string name="dialog_choose_backup_file_option">Choose Backup File</string>
 </resources>

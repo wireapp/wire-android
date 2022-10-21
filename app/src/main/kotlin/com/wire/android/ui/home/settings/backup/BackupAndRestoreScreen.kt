@@ -130,7 +130,7 @@ fun BackupAndRestoreContent(
 
     if (backupAndRestoreStateHolder.dialogState !is BackupAndRestoreDialog.None) {
         when (backupAndRestoreStateHolder.dialogState) {
-            is BackupAndRestoreDialog.Backup -> {
+            is BackupAndRestoreDialog.CreateBackup -> {
                 CreateBackupDialogFlow(
                     backUpAndRestoreState = backUpAndRestoreState,
                     onValidateBackupPassword = onValidateBackupPassword,
@@ -142,8 +142,8 @@ fun BackupAndRestoreContent(
                     }
                 )
             }
-            is BackupAndRestoreDialog.Restore -> {
-                RestoreDialogFlow(
+            is BackupAndRestoreDialog.RestoreBackup -> {
+                RestoreBackupDialogFlow(
                     backUpAndRestoreState = backUpAndRestoreState,
                     onChooseBackupFile = onChooseBackupFile,
                     onRestoreBackup = onRestoreBackup,
@@ -180,7 +180,7 @@ fun CreateBackupDialogFlow(
                 SetBackupPasswordDialog(
                     isBackupPasswordValid = backUpAndRestoreState.backupPasswordValidation is PasswordValidation.Valid,
                     onBackupPasswordChanged = onValidateBackupPassword,
-                    onCreateBackup = { toCreateBackUp(); onCreateBackup() },
+                    onCreateBackup = { toCreateBackup(); onCreateBackup() },
                     onDismissDialog = onCancelCreateBackup
                 )
             }
@@ -190,7 +190,7 @@ fun CreateBackupDialogFlow(
                         BackupProgress.Failed -> backupDialogStateHolder.toBackupFailure()
                         BackupProgress.Finished -> backupDialogStateHolder.toFinished()
                         is BackupProgress.InProgress -> {
-                            backupDialogStateHolder.backupProgress = progress.progress
+                            backupDialogStateHolder.backupProgress = progress.value
                         }
                     }
                 }
@@ -217,7 +217,7 @@ fun CreateBackupDialogFlow(
 }
 
 @Composable
-fun RestoreDialogFlow(
+fun RestoreBackupDialogFlow(
     backUpAndRestoreState: BackupAndRestoreState,
     onChooseBackupFile: (Uri) -> Unit,
     onRestoreBackup: (TextFieldValue) -> Unit,
@@ -267,7 +267,7 @@ fun RestoreDialogFlow(
                         RestoreProgress.Failed -> restoreDialogStateHolder.toRestoreFailure(RestoreFailure.GeneralFailure)
                         RestoreProgress.Finished -> restoreDialogStateHolder.toFinished()
                         is RestoreProgress.InProgress -> {
-                            restoreDialogStateHolder.restoreProgress = progress.progress
+                            restoreDialogStateHolder.restoreProgress = progress.value
                         }
                     }
                 }

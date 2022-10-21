@@ -143,14 +143,14 @@ sealed interface PasswordValidation {
 sealed interface BackupProgress {
     object Pending : BackupProgress
     object Finished : BackupProgress
-    data class InProgress(val progress: Float = 0f) : BackupProgress
+    data class InProgress(val value: Float = 0f) : BackupProgress
     object Failed : BackupProgress
 }
 
 sealed interface RestoreProgress {
     object Pending : RestoreProgress
     object Finished : RestoreProgress
-    data class InProgress(val progress: Float = 0f) : RestoreProgress
+    data class InProgress(val value: Float = 0f) : RestoreProgress
     object Failed : RestoreProgress
 }
 

@@ -42,7 +42,7 @@ fun PickRestoreFileDialog(
         onDismiss = onCancelBackupRestore,
         optionButton1Properties = WireDialogButtonProperties(
             onClick = { fileFlow.launch() },
-            text = "Choose Backup File",
+            text = stringResource(R.string.dialog_choose_backup_file_option),
             type = WireDialogButtonType.Primary,
         )
     )

@@ -58,10 +58,8 @@ fun BackupAndRestoreScreen(viewModel: BackupAndRestoreViewModel = hiltViewModel(
         onRestoreBackup = viewModel::restoreBackup,
         onCancelBackupRestore = viewModel::cancelBackupRestore,
         onCancelBackupCreation = viewModel::cancelBackupCreation,
-        onOpenConversations =
-        viewModel::navigateToConversations,
-        onBackPressed =
-        viewModel::navigateBack
+        onOpenConversations = viewModel::navigateToConversations,
+        onBackPressed = viewModel::navigateBack
     )
 }
 

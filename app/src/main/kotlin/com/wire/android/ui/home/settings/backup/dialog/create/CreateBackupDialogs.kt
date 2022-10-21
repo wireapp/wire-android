@@ -115,7 +115,7 @@ fun CreateBackupDialog(
                 }
             } else {
                 Row {
-                    Text(stringResource(R.string.label_sacing_conversations), modifier = Modifier.weight(1f))
+                    Text("Test", modifier = Modifier.weight(1f))
                     Text("${createBackupProgress.times(100).roundToInt()} %", style = MaterialTheme.wireTypography.body02)
                 }
             }

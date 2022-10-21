@@ -2,6 +2,7 @@ package com.wire.android.ui.home.conversations.search
 
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.Crossfade
 import androidx.compose.animation.expandVertically
 import androidx.compose.animation.shrinkVertically
 import androidx.compose.foundation.layout.Box
@@ -13,10 +14,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import com.wire.android.R
 import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.topappbar.NavigationIconType
@@ -83,7 +80,6 @@ fun SearchPeopleContent(
     onClose: () -> Unit
 ) {
     val searchBarState = rememberSearchbarState()
-    val searchNavController: NavHostController = rememberNavController()
 
     with(searchPeopleState) {
         CollapsingTopBarScaffold(
@@ -104,18 +100,8 @@ fun SearchPeopleContent(
                 }
             },
             topBarCollapsing = {
-                val onInputClicked: () -> Unit = remember {
-                    {
-                        searchBarState.openSearch()
-                        searchNavController.navigate(SearchListScreens.SearchPeopleScreen.route)
-                    }
-                }
-                val onCloseSearchClicked: () -> Unit = remember {
-                    {
-                        searchBarState.closeSearch()
-                        searchNavController.popBackStack()
-                    }
-                }
+                val onInputClicked: () -> Unit = remember { { searchBarState.openSearch() } }
+                val onCloseSearchClicked: () -> Unit = remember { { searchBarState.closeSearch() } }
                 SearchTopBar(
                     isSearchActive = searchBarState.isSearchActive,
                     searchBarHint = stringResource(R.string.label_search_people),
@@ -126,42 +112,31 @@ fun SearchPeopleContent(
                 )
             },
             content = {
-                NavHost(
-                    navController = searchNavController,
-                    startDestination = SearchListScreens.KnownContactsScreen.route
-                ) {
-                    composable(
-                        route = SearchListScreens.KnownContactsScreen.route,
-                        content = {
-                            ContactsScreen(
-                                allKnownContactResult = initialContacts,
-                                contactsAddedToGroup = contactsAddedToGroup,
-                                onAddToGroup = onAddContactToGroup,
-                                onRemoveFromGroup = onRemoveContactFromGroup,
-                                onOpenUserProfile = onOpenUserProfile
-                            )
-                        }
-                    )
-                    composable(
-                        route = SearchListScreens.SearchPeopleScreen.route,
-                        content = {
-                            SearchAllPeopleScreen(
-                                searchQuery = searchQuery.text,
-                                noneSearchSucceed = noneSearchSucceed,
-                                searchResult = searchResult,
-                                contactsAddedToGroup = contactsAddedToGroup,
-                                onAddToGroup = onAddContactToGroup,
-                                onRemoveFromGroup = onRemoveContactFromGroup,
-                                onOpenUserProfile = onOpenUserProfile,
-                                onAddContactClicked = onAddContact
-                            )
-                        }
-                    )
+                Crossfade(
+                    targetState = searchBarState.isSearchActive
+                ) { isSearchActive ->
+                    if (isSearchActive)
+                        SearchAllPeopleScreen(
+                            searchQuery = searchQuery.text,
+                            noneSearchSucceed = noneSearchSucceed,
+                            searchResult = searchResult,
+                            contactsAddedToGroup = contactsAddedToGroup,
+                            onAddToGroup = onAddContactToGroup,
+                            onRemoveFromGroup = onRemoveContactFromGroup,
+                            onOpenUserProfile = onOpenUserProfile,
+                            onAddContactClicked = onAddContact
+                        )
+                    else
+                        ContactsScreen(
+                            allKnownContactResult = initialContacts,
+                            contactsAddedToGroup = contactsAddedToGroup,
+                            onAddToGroup = onAddContactToGroup,
+                            onRemoveFromGroup = onRemoveContactFromGroup,
+                            onOpenUserProfile = onOpenUserProfile
+                        )
                 }
-
-                BackHandler(searchBarState.isSearchActive) {
+                BackHandler(enabled = searchBarState.isSearchActive) {
                     searchBarState.closeSearch()
-                    searchNavController.popBackStack()
                 }
             },
             bottomBar = {

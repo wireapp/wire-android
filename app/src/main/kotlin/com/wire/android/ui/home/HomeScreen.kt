@@ -27,11 +27,13 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import com.wire.android.R
 import com.wire.android.navigation.HomeNavigationItem
 import com.wire.android.navigation.NavigationItem
+import com.wire.android.navigation.hiltSavedStateViewModel
 import com.wire.android.ui.common.CollapsingTopBarScaffold
 import com.wire.android.ui.common.FloatingActionButton
 import com.wire.android.ui.common.WireBottomNavigationBar
@@ -49,6 +51,8 @@ import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import com.wire.android.ui.home.conversationslist.ConversationListState
 import com.wire.android.ui.home.conversationslist.ConversationListViewModel
 import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
+import kotlinx.collections.immutable.ImmutableMap
+import kotlinx.collections.immutable.persistentMapOf
 
 @OptIn(
     ExperimentalMaterialApi::class,
@@ -56,10 +60,11 @@ import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
 )
 @Composable
 fun HomeScreen(
-    homeViewModel: HomeViewModel,
-    featureFlagNotificationViewModel: FeatureFlagNotificationViewModel,
-    commonTopAppBarViewModel: CommonTopAppBarViewModel,
-    conversationListViewModel: ConversationListViewModel, // TODO: move required elements from this one to HomeViewModel?
+    backNavArgs: ImmutableMap<String, Any> = persistentMapOf(),
+    homeViewModel: HomeViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs),
+    featureFlagNotificationViewModel: FeatureFlagNotificationViewModel = hiltViewModel(),
+    commonTopAppBarViewModel: CommonTopAppBarViewModel = hiltViewModel(),
+    conversationListViewModel: ConversationListViewModel = hiltViewModel(), // TODO: move required elements from this one to HomeViewModel?
 ) {
     homeViewModel.checkRequirements()
 

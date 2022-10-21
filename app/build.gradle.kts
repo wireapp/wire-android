@@ -112,6 +112,7 @@ dependencies {
     implementation(Libraries.splashscreen)
     implementation(Libraries.exifInterface)
     implementation(Libraries.Kotlin.serialization)
+    implementation(Libraries.ktxImmutableCollections)
 
     // Image handling
     implementation(Libraries.coil)
@@ -200,7 +201,6 @@ dependencies {
     androidTestImplementation(TestLibraries.workManager)
     kaptAndroidTest(Libraries.Hilt.compiler)
     androidTestUtil(TestLibraries.testOrchestrator)
-    implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.4.0")
 
     implementation(Libraries.Hilt.hiltWork)
 

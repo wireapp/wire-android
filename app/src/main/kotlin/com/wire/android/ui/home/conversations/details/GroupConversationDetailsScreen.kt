@@ -33,6 +33,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
@@ -67,7 +68,7 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 
 @Composable
-fun GroupConversationDetailsScreen(viewModel: GroupConversationDetailsViewModel) {
+fun GroupConversationDetailsScreen(viewModel: GroupConversationDetailsViewModel = hiltViewModel()) {
     val context = LocalContext.current
     GroupConversationDetailsContent(
         conversationSheetContent = viewModel.conversationSheetContent,

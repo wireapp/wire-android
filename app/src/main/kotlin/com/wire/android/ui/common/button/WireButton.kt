@@ -84,7 +84,7 @@ fun WireButton(
     )
     val syncStateObserver = LocalSyncStateObserver.current
     val context = LocalContext.current
-    val onClickWithSyncObserver = remember(blockUntilSynced, onClick) {
+    val onClickWithSyncObserver = remember(blockUntilSynced, syncStateObserver, onClick) {
         {
             if (blockUntilSynced && !syncStateObserver.isSynced)
                 Toast.makeText(context, context.getString(R.string.label_wait_until_synchronised), Toast.LENGTH_SHORT).show()
@@ -145,18 +145,16 @@ private fun InnerButtonBox(
             }
         }
     }
-    Box(
-        contentAlignment = Alignment.Center,
+    Box(contentAlignment = Alignment.Center,
         modifier = if (fillMaxWidth) Modifier.fillMaxWidth() else Modifier.wrapContentWidth(),
     ) {
         var startItemWidth by remember { mutableStateOf(0) }
         var endItemWidth by remember { mutableStateOf(0) }
         val borderItemsMaxWidth = with(LocalDensity.current) { max(startItemWidth, endItemWidth).toDp() }
 
-        Box(
-            modifier = Modifier
-                .align(Alignment.CenterStart)
-                .onGloballyPositioned { startItemWidth = it.size.width },
+        Box(modifier = Modifier
+            .align(Alignment.CenterStart)
+            .onGloballyPositioned { startItemWidth = it.size.width },
         ) { if (leadingIconAlignment == IconAlignment.Border) leadingItem() }
 
         Row(

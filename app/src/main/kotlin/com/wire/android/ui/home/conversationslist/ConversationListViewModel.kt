@@ -54,6 +54,8 @@ import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
 import com.wire.kalium.logic.feature.team.Result
 import com.wire.kalium.logic.functional.combine
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.toImmutableList
+import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -111,7 +113,7 @@ class ConversationListViewModel @Inject constructor(
                     }
                 }.collect { conversationSearchResult ->
                     conversationListState = conversationListState.copy(
-                        conversationSearchResult = conversationSearchResult.toConversationsFoldersMap()
+                        conversationSearchResult = conversationSearchResult.toConversationsFoldersMap().toImmutableMap()
                     )
                 }
         }
@@ -129,11 +131,11 @@ class ConversationListViewModel @Inject constructor(
 
     private fun conversationListDetailsToState(conversationListDetails: List<ConversationDetails>) {
         conversationListState = conversationListState.copy(
-            conversations = conversationListDetails.toConversationsFoldersMap(),
+            conversations = conversationListDetails.toConversationsFoldersMap().toImmutableMap(),
             hasNoConversations = conversationListDetails.none { it !is Self },
-            callHistory = mockCallHistory, // TODO: needs to be implemented
-            unreadMentions = mockUnreadMentionList, // TODO: needs to be implemented
-            allMentions = mockAllMentionList, // TODO: needs to be implemented
+            callHistory = mockCallHistory.toImmutableList(), // TODO: needs to be implemented
+            unreadMentions = mockUnreadMentionList.toImmutableList(), // TODO: needs to be implemented
+            allMentions = mockAllMentionList.toImmutableList(), // TODO: needs to be implemented
             newActivityCount = 0L,
             unreadMentionsCount = 0L, // TODO: needs to be implemented on Kalium side
             missedCallsCount = 0L // TODO: needs to be implemented on Kalium side

@@ -10,10 +10,12 @@ import com.wire.android.appLogger
 import com.wire.android.model.ImageAsset
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
+import com.wire.android.navigation.EXTRA_GROUP_DELETED_NAME
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.SavedStateViewModel
+import com.wire.android.navigation.getBackNavArg
 import com.wire.android.ui.home.conversations.ConversationAvatar
 import com.wire.android.ui.home.conversations.ConversationDetailsData
 import com.wire.android.ui.home.conversations.model.MessageSource
@@ -72,7 +74,13 @@ class ConversationInfoViewModel @Inject constructor(
      */
     private suspend fun handleConversationDetailsFailure(failure: StorageFailure) {
         when (failure) {
-            is StorageFailure.DataNotFound -> navigateToHome()
+            is StorageFailure.DataNotFound -> {
+                if (savedStateHandle.getBackNavArg<String>(EXTRA_GROUP_DELETED_NAME) != null) {
+                    // do nothing - this group has just been deleted and it's already handled in MessageComposerViewModel
+                } else {
+                    navigateToHome()
+                }
+            }
             is StorageFailure.Generic -> appLogger.e("An error occurred when fetching details of the conversation", failure.rootCause)
         }
     }

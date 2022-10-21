@@ -13,6 +13,7 @@ import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
+import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
 import kotlinx.coroutines.test.runTest
@@ -40,7 +41,7 @@ class NewConversationViewModelTest {
             assertEquals(
                 viewModel.state.searchResult[SearchResultTitle(R.string.label_contacts)]!!.searchResultState,
                 SearchResultState.Success(
-                    result = listOf(
+                    result = persistentListOf(
                         Contact(
                             id = "knownValue",
                             domain = "domain",
@@ -63,7 +64,7 @@ class NewConversationViewModelTest {
             assertEquals(
                 viewModel.state.searchResult[SearchResultTitle(R.string.label_public_wire)]!!.searchResultState,
                 SearchResultState.Success(
-                    result = listOf(
+                    result = persistentListOf(
                         Contact(
                             id = "publicValue",
                             domain = "domain",

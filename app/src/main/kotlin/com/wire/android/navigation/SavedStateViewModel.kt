@@ -10,7 +10,7 @@ import kotlinx.collections.immutable.toImmutableMap
 
 /*
  * ViewModel extension which already has SavedStateHandle field.
- * It is recommended to use it for NavigationItem together with the hiltViewModel(backNavArgs: ImmutableMap<String, Any>) method which
+ * It is recommended to use it for NavigationItem together with the hiltSavedStateViewModel(backNavArgs: ImmutableMap<String, Any>) which
  * requires a map of back navigation arguments which are passed to the NavBackStackEntry's SavedStateHandle when using popWithArguments.
  */
 open class SavedStateViewModel(open val savedStateHandle: SavedStateHandle) : ViewModel()

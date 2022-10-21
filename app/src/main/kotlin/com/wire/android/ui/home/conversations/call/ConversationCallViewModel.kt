@@ -15,6 +15,7 @@ import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.sync.SyncState
 import com.wire.kalium.logic.feature.call.AnswerCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.IsConferenceCallingEnabledUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
@@ -34,7 +35,8 @@ class ConversationCallViewModel @Inject constructor(
     private val answerCall: AnswerCallUseCase,
     private val endCall: EndCallUseCase,
     private val observeSyncState: ObserveSyncStateUseCase,
-    ) : SavedStateViewModel(savedStateHandle) {
+    private val isConferenceCallingEnabled: IsConferenceCallingEnabledUseCase
+) : SavedStateViewModel(savedStateHandle) {
 
     val conversationId: QualifiedID = qualifiedIdMapper.fromStringToQualifiedID(
         savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!
@@ -102,4 +104,6 @@ class ConversationCallViewModel @Inject constructor(
         }
         return hasConnection
     }
+
+    fun isConferenceCallingEnabled(): Boolean = isConferenceCallingEnabled.invoke()
 }

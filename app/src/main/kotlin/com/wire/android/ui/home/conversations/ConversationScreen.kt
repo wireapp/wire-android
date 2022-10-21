@@ -35,6 +35,7 @@ import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
 import com.wire.android.R
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
+import com.wire.android.ui.common.dialogs.CallingFeatureUnavailableDialog
 import com.wire.android.ui.common.dialogs.OngoingActiveCallDialog
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
@@ -72,6 +73,7 @@ import com.wire.android.util.permission.CallingAudioRequestFlow
 import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.NetworkFailure
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
@@ -124,6 +126,12 @@ fun ConversationScreen(
             }
         }
 
+        ConversationScreenDialogType.CALLING_FEATURE_UNAVAILABLE -> {
+            CallingFeatureUnavailableDialog(onDialogDismiss = {
+                showDialog.value = ConversationScreenDialogType.NONE
+            })
+        }
+
         ConversationScreenDialogType.NONE -> {}
     }
 
@@ -142,7 +150,16 @@ fun ConversationScreen(
         onBackButtonClick = messageComposerViewModel::navigateBack,
         onDeleteMessage = messageComposerViewModel::showDeleteMessageDialog,
         onReactionClick = conversationMessagesViewModel::toggleReaction,
-        onStartCall = { startCallIfPossible(conversationCallViewModel, showDialog, startCallAudioPermissionCheck, coroutineScope) },
+        onStartCall = {
+            startCallIfPossible(
+                conversationCallViewModel,
+                showDialog,
+                startCallAudioPermissionCheck,
+                coroutineScope,
+                conversationInfoViewModel.conversationInfoViewState.conversationType,
+                commonTopAppBarViewModel::openOngoingCallScreen
+            )
+        },
         onJoinCall = conversationCallViewModel::joinOngoingCall,
         onSnackbarMessage = messageComposerViewModel::onSnackbarMessage,
         onSnackbarMessageShown = messageComposerViewModel::clearSnackbarMessage,
@@ -168,17 +185,31 @@ private fun startCallIfPossible(
     conversationCallViewModel: ConversationCallViewModel,
     showDialog: MutableState<ConversationScreenDialogType>,
     startCallAudioPermissionCheck: CallingAudioRequestFlow,
-    coroutineScope: CoroutineScope
+    coroutineScope: CoroutineScope,
+    conversationType: Conversation.Type,
+    onOpenOngoingCallScreen: () -> Unit
 ) {
     coroutineScope.launch {
         if (!conversationCallViewModel.hasStableConnectivity()) {
             showDialog.value = ConversationScreenDialogType.NO_CONNECTIVITY
         } else {
+            val canStartCall = (conversationType == Conversation.Type.ONE_ON_ONE ||
+                    (conversationType == Conversation.Type.GROUP && conversationCallViewModel.isConferenceCallingEnabled()))
             conversationCallViewModel.establishedCallConversationId?.let {
-                showDialog.value = ConversationScreenDialogType.ONGOING_ACTIVE_CALL
+                if (it == conversationCallViewModel.conversationId) {
+                    onOpenOngoingCallScreen()
+                } else {
+                    showDialog.value = if (canStartCall) ConversationScreenDialogType.ONGOING_ACTIVE_CALL else
+                        ConversationScreenDialogType.CALLING_FEATURE_UNAVAILABLE
+                }
             } ?: run {
-                startCallAudioPermissionCheck.launch()
+                if (canStartCall) {
+                    startCallAudioPermissionCheck.launch()
+                } else {
+                    showDialog.value = ConversationScreenDialogType.CALLING_FEATURE_UNAVAILABLE
+                }
             }
+
         }
     }
 }
@@ -515,7 +546,7 @@ fun ConversationScreenPreview() {
         onSendMessage = { },
         onSendAttachment = { },
         onDownloadAsset = { },
-        onReactionClick = {_,_ -> },
+        onReactionClick = { _, _ -> },
         onImageFullScreenMode = { _, _ -> },
         onBackButtonClick = { },
         onDeleteMessage = { _, _ -> },

@@ -46,6 +46,9 @@ fun OtherUserProfileBottomSheetContent(
                 changeMemberRole = eventsHandler::onChangeMemberRole,
                 closeChangeRoleBottomSheet = closeBottomSheet
             )
-        null -> {}
+        null -> {
+            // we don't want to show empty BottomSheet
+            closeBottomSheet()
+        }
     }
 }

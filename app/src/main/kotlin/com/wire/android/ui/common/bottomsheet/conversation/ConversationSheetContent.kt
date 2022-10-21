@@ -88,4 +88,22 @@ data class ConversationSheetContent(
     val mutingConversationState: MutedConversationStatus,
     val conversationTypeDetail: ConversationTypeDetail,
     val isSelfUserMember: Boolean = true
-)
+) {
+    fun canEditNotifications(): Boolean = isSelfUserMember
+            && ((conversationTypeDetail is ConversationTypeDetail.Private && conversationTypeDetail.blockingState == BlockingState.NOT_BLOCKED)
+            || conversationTypeDetail is ConversationTypeDetail.Group)
+
+    fun canDeleteGroup(): Boolean = conversationTypeDetail is ConversationTypeDetail.Group && conversationTypeDetail.isCreator
+
+    fun canLeaveTheGroup(): Boolean = conversationTypeDetail is ConversationTypeDetail.Group && isSelfUserMember
+
+    fun canBlockUser(): Boolean =
+        conversationTypeDetail is ConversationTypeDetail.Private && conversationTypeDetail.blockingState == BlockingState.NOT_BLOCKED
+
+    fun canUnblockUser(): Boolean =
+        conversationTypeDetail is ConversationTypeDetail.Private && conversationTypeDetail.blockingState == BlockingState.BLOCKED
+
+    fun canAddToFavourite(): Boolean =
+        (conversationTypeDetail is ConversationTypeDetail.Private && conversationTypeDetail.blockingState != BlockingState.BLOCKED)
+                || conversationTypeDetail is ConversationTypeDetail.Group
+}

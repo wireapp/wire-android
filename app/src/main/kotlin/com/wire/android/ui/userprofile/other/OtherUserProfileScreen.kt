@@ -104,8 +104,7 @@ fun OtherUserProfileScreen(viewModel: OtherUserProfileScreenViewModel = hiltView
     }
     LaunchedEffect(Unit) {
         viewModel.closeBottomSheet.collect {
-            println("cyka close called ${Thread.currentThread()}")
-            closeBottomSheet()
+            sheetState.hide()
         }
     }
 }
@@ -136,6 +135,18 @@ fun OtherProfileScreenContent(
     val removeMemberDialogState = rememberVisibilityState<RemoveConversationMemberState>()
     val getBottomSheetVisibility: () -> Boolean = remember(sheetState) { { sheetState.isVisible } }
     val bottomSheetState = rememberOtherUserProfileSheetState(state.conversationSheetContent, state.groupState)
+    val openConversationBottomSheet: () -> Unit = remember(bottomSheetState) {
+        {
+            bottomSheetState.toConversation()
+            openBottomSheet()
+        }
+    }
+    val openChangeRoleBottomSheet: () -> Unit = remember(bottomSheetState) {
+        {
+            bottomSheetState.toChangeRole()
+            openBottomSheet()
+        }
+    }
 
     LaunchedEffect(bottomSheetState) {
         snapshotFlow { sheetState.isVisible }.collect(FlowCollector { isVisible ->
@@ -177,7 +188,7 @@ fun OtherProfileScreenContent(
 
     WireModalSheetLayout(
         sheetState = sheetState,
-        coroutineScope = rememberCoroutineScope(),
+        coroutineScope = scope,
         sheetContent = {
             OtherUserProfileBottomSheetContent(
                 getBottomSheetVisibility = getBottomSheetVisibility,
@@ -201,10 +212,8 @@ fun OtherProfileScreenContent(
                     state = state,
                     elevation = elevation,
                     onNavigateBack = eventsHandler::navigateBack,
-                    openConversationBottomSheet = {
-                        bottomSheetState.toConversation()
-                        openBottomSheet()
-                    })
+                    openConversationBottomSheet = openConversationBottomSheet
+                )
             },
             topBarCollapsing = { TopBarCollapsing(state) },
             topBarFooter = { TopBarFooter(state, pagerState, tabBarElevationState, tabItems, currentTabState, scope) },
@@ -215,10 +224,7 @@ fun OtherProfileScreenContent(
                     tabItems = tabItems,
                     otherUserProfileScreenState = otherUserProfileScreenState,
                     lazyListStates = lazyListStates,
-                    openChangeRoleBottomSheet = {
-                        bottomSheetState.toChangeRole()
-                        openBottomSheet()
-                    },
+                    openChangeRoleBottomSheet = openChangeRoleBottomSheet,
                     openRemoveConversationMemberDialog = removeMemberDialogState::show,
                     getOtherUserClients = eventsHandler::getOtherUserClients
                 )

@@ -14,7 +14,7 @@ class OtherUserBottomSheetState(
     conversationSheetContent: ConversationSheetContent? = null,
 ) {
 
-    var conversationSheetContent: ConversationSheetContent? by mutableStateOf(conversationSheetContent)
+    private var conversationSheetContent: ConversationSheetContent? by mutableStateOf(conversationSheetContent)
     var bottomSheetContentState: BottomSheetContent? by mutableStateOf(null)
 
     fun toConversation() = conversationSheetContent?.let { bottomSheetContentState = BottomSheetContent.Conversation(it) }

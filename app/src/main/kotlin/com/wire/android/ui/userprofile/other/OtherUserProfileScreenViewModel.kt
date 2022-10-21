@@ -17,10 +17,10 @@ import com.wire.android.navigation.EXTRA_USER_ID
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
-import com.wire.android.ui.common.dialogs.BlockUserDialogState
-import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetail
+import com.wire.android.ui.common.dialogs.BlockUserDialogState
+import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
 import com.wire.android.ui.home.conversationslist.model.BlockState
 import com.wire.android.ui.userprofile.common.UsernameMapper.mapUserLabel
 import com.wire.android.ui.userprofile.group.RemoveConversationMemberState
@@ -321,7 +321,6 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     }
 
     private suspend fun closeBottomSheetAndShowInfoMessage(type: SnackBarMessage) {
-        println("cyka close and show called ${Thread.currentThread()}")
         _closeBottomSheet.emit(Unit)
         _infoMessage.emit(type.uiText)
     }
@@ -358,9 +357,9 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     }
 
     override fun onBlockUser(blockUserState: BlockUserDialogState) {
-        viewModelScope.launch() {
+        viewModelScope.launch {
             requestInProgress = true
-            when (val result = blockUser(userId)) {
+            when (val result = withContext(dispatchers.io()) { blockUser(userId) }) {
                 BlockUserResult.Success -> {
                     appLogger.i("User $userId was blocked")
                     closeBottomSheetAndShowInfoMessage(BlockingUserOperationSuccess(blockUserState.userName))
@@ -376,12 +375,11 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     }
 
     override fun onUnblockUser(userId: UserId) {
-        viewModelScope.launch() {
+        viewModelScope.launch {
             requestInProgress = true
-            when (val result = unblockUser(userId)) {
+            when (val result = withContext(dispatchers.io()) { unblockUser(userId) }) {
                 UnblockUserResult.Success -> {
                     appLogger.i("User $userId was unblocked")
-                    println("cyka unblocked ${Thread.currentThread()}")
                     _closeBottomSheet.emit(Unit)
                 }
 

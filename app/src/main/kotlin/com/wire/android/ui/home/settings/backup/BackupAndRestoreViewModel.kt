@@ -1,25 +1,31 @@
 package com.wire.android.ui.home.settings.backup
 
+import android.content.Context
 import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.core.net.toFile
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.kalium.logic.feature.backup.ImportBackupUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.io.File
 import javax.inject.Inject
 
 @HiltViewModel
 class BackupAndRestoreViewModel
 @Inject constructor(
-    private val navigationManager: NavigationManager
+    private val navigationManager: NavigationManager,
+    private val importBackup: ImportBackupUseCase,
+    private val context: Context
 ) : ViewModel() {
 
     var state by mutableStateOf(BackupAndRestoreState.INITIAL_STATE)
@@ -57,7 +63,14 @@ class BackupAndRestoreViewModel
 
     fun chooseBackupFileToRestore(uri: Uri) {
         //TODO: validate the file
-        validateBackupFile(uri)
+
+        val tempDbFile = File(context.cacheDir, "tempDb")
+
+        context.contentResolver.openInputStream(uri)!!.copyTo(tempDbFile.outputStream())
+
+        viewModelScope.launch {
+            importBackup(tempDbFile.absolutePath)
+        }
     }
 
     private fun validateBackupFile(uri: Uri) {

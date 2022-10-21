@@ -9,7 +9,8 @@ data class SearchPeopleState(
     val searchQuery: TextFieldValue = TextFieldValue(""),
     val searchResult: Map<SearchResultTitle, ContactSearchResult> = emptyMap(),
     val noneSearchSucceed: Boolean = false,
-    val contactsAddedToGroup: List<Contact> = emptyList()
+    val contactsAddedToGroup: List<Contact> = emptyList(),
+    val isGroupCreationContext: Boolean = true
 )
 
 sealed class ContactSearchResult(val searchResultState: SearchResultState) {
@@ -32,4 +33,4 @@ sealed class SearchResultState {
     data class Success(val result: List<Contact>) : SearchResultState()
 }
 
-data class SearchResultTitle(@StringRes val stringRes : Int)
+data class SearchResultTitle(@StringRes val stringRes: Int)

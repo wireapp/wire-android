@@ -4,7 +4,7 @@ import android.content.Intent
 import android.content.Intent.ACTION_SENDTO
 import android.net.Uri
 import android.provider.ContactsContract.CommonDataKinds.Email
-import androidx.activity.compose.BackHandler
+import android.os.Build
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -17,7 +17,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.DrawerState
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -34,7 +33,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.navigation.HomeNavigationItem
@@ -42,7 +40,6 @@ import com.wire.android.navigation.HomeNavigationItem.Settings
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationItem.Support
 import com.wire.android.navigation.isExternalRoute
-import com.wire.android.navigation.navigateToItemInHome
 import com.wire.android.ui.common.Logo
 import com.wire.android.ui.common.selectableBackground
 import com.wire.android.ui.theme.wireDimensions
@@ -53,29 +50,21 @@ import com.wire.android.util.getDeviceId
 import com.wire.android.util.getUrisOfFilesInDirectory
 import com.wire.android.util.multipleFileSharingIntent
 import com.wire.android.util.sha256
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.launch
 import java.io.File
+import java.util.Date
 
 @ExperimentalMaterialApi
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalAnimationApi::class)
 @Composable
+//TODO: logFilePath does not belong in the UI logic
 fun HomeDrawer(
-    drawerState: DrawerState,
+    logFilePath: String,
     currentRoute: String?,
-    homeNavController: NavController,
-    topItems: List<HomeNavigationItem>,
-    scope: CoroutineScope,
-    viewModel: HomeViewModel
+    navigateToHomeItem: (HomeNavigationItem) -> Unit,
+    navigateToItem: (NavigationItem) -> Unit,
+    onCloseDrawer: () -> Unit,
 ) {
-
     val context = LocalContext.current
-
-    BackHandler(enabled = drawerState.isOpen) {
-        scope.launch {
-            drawerState.close()
-        }
-    }
 
     Column(
         modifier = Modifier
@@ -88,17 +77,21 @@ fun HomeDrawer(
     ) {
         Logo()
 
-        fun navigateAndCloseDrawer(item: Any) = scope.launch {
+        fun navigateAndCloseDrawer(item: Any) {
             when (item) {
-                is HomeNavigationItem -> navigateToItemInHome(homeNavController, item)
+                is HomeNavigationItem -> navigateToHomeItem(item)
                 is NavigationItem -> when (item.isExternalRoute()) {
-                    true -> CustomTabsHelper.launchUrl(homeNavController.context, item.getRouteWithArgs())
-                    false -> viewModel.navigateTo(item)
+                    true -> CustomTabsHelper.launchUrl(context, item.getRouteWithArgs())
+                    false -> navigateToItem(item)
                 }
                 else -> {}
             }
-            drawerState.close()
+            onCloseDrawer()
         }
+
+       val topItems = listOf(HomeNavigationItem.Conversations)
+        // TODO: Re-enable once we have Archive & Vault
+        // listOf(HomeNavigationItem.Conversations, HomeNavigationItem.Archive, HomeNavigationItem.Vault)
 
         topItems.forEach { item ->
             DrawerItem(
@@ -140,8 +133,9 @@ fun HomeDrawer(
             data = DrawerItemData(R.string.report_bug_screen_title, R.drawable.ic_bug),
             selected = false,
             onItemClick = {
+                val dir = File(logFilePath).parentFile
 
-                val dir = File(viewModel.logFilePath()).parentFile
+                if (dir != null) {
                 val logsUris = context.getUrisOfFilesInDirectory(dir)
                 val intent = context.multipleFileSharingIntent(logsUris)
                 intent.putExtra(Intent.EXTRA_EMAIL, arrayOf("wire-newandroid@wearezeta.zendesk.com"))
@@ -150,7 +144,8 @@ fun HomeDrawer(
                 intent.type = "message/rfc822"
 
                 context.startActivity(Intent.createChooser(intent, "Choose an Email client: "))
-            })
+            }}
+        )
 
         Text(
             text = stringResource(R.string.app_version, BuildConfig.VERSION_NAME),
@@ -159,6 +154,28 @@ fun HomeDrawer(
         )
     }
 }
+
+// TODO:Mateusz: this should not belong here nor in ViewModel
+private fun reportBugEmailTemplate(deviceHash: String? = "unavailable"): String = """
+        --- DO NOT EDIT---
+        App Version: ${BuildConfig.VERSION_NAME}
+        Device Hash: $deviceHash
+        Device: ${Build.MANUFACTURER} - ${Build.MODEL}
+        SDK: ${Build.VERSION.RELEASE}
+        Date: ${Date()}
+        ------------------
+
+        Please fill in the following
+
+        - Date & Time of when the issue occurred:
+
+
+        - What happened:
+
+
+        - Steps to reproduce (if relevant):
+        
+    """.trimIndent()
 
 @Composable
 fun DrawerItem(data: DrawerItemData, selected: Boolean, onItemClick: () -> Unit) {

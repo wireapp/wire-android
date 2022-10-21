@@ -28,7 +28,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.ui.common.spacers.VerticalSpace
-import com.wire.android.ui.common.textfield.WirePrimaryButton
+import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.home.settings.backup.dialog.common.FailureDialog
 import com.wire.android.ui.home.settings.backup.dialog.create.BackUpDialogStep
@@ -58,8 +58,10 @@ fun BackupAndRestoreScreen(viewModel: BackupAndRestoreViewModel = hiltViewModel(
         onRestoreBackup = viewModel::restoreBackup,
         onCancelBackupRestore = viewModel::cancelBackupRestore,
         onCancelBackupCreation = viewModel::cancelBackupCreation,
-        onOpenConversations = viewModel::navigateToConversations,
-        onBackPressed = viewModel::navigateBack
+        onOpenConversations =
+        viewModel::navigateToConversations,
+        onBackPressed =
+        viewModel::navigateBack
     )
 }
 

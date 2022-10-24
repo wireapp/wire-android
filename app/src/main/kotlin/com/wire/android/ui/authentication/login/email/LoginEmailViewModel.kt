@@ -36,11 +36,14 @@ class LoginEmailViewModel @Inject constructor(
     clientScopeProviderFactory,
     authServerConfigProvider
 ) {
-
     fun login() {
         loginState = loginState.copy(emailLoginLoading = true, loginError = LoginError.None).updateEmailLoginEnabled()
         viewModelScope.launch {
-            val authScope = authScope(AutoVersionAuthScopeUseCase.ProxyCredentials.UsernameAndPassword(ProxyCredentialsModel("name","pass"))).let {
+            val authScope = authScope(
+                AutoVersionAuthScopeUseCase.ProxyCredentials.UsernameAndPassword(
+                    ProxyCredentialsModel(loginState.proxyIdentifier.text, loginState.proxyPassword.text)
+                )
+            ).let {
                 when (it) {
                     is AutoVersionAuthScopeUseCase.Result.Success -> it.authenticationScope
 
@@ -56,6 +59,7 @@ class LoginEmailViewModel @Inject constructor(
                         return@launch
                     }
                 }
+
             }
 
             val loginResult = authScope.login(loginState.userIdentifier.text, loginState.password.text, true)

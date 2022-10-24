@@ -24,6 +24,8 @@ import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchPublicUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchUsersResult
+import kotlinx.collections.immutable.persistentMapOf
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -65,13 +67,13 @@ open class SearchAllPeopleViewModel(
                 SearchPeopleState(
                     initialContacts = initialContacts,
                     searchQuery = searchQuery,
-                    searchResult = mapOf(
+                    searchResult = persistentMapOf(
                         SearchResultTitle(R.string.label_contacts) to knownResult,
                         SearchResultTitle(R.string.label_public_wire) to publicResult.filterContacts(knownResult)
                     ),
                     noneSearchSucceed = publicResult.searchResultState is SearchResultState.Failure &&
                         knownResult.searchResultState is SearchResultState.Failure,
-                    contactsAddedToGroup = selectedContacts,
+                    contactsAddedToGroup = selectedContacts.toImmutableList(),
                     isGroupCreationContext = true
                 )
             }.collect { updatedState ->
@@ -96,7 +98,7 @@ open class SearchAllPeopleViewModel(
                 SearchUsersResult.Failure.InvalidQuery ->
                     ContactSearchResult.InternalContact(SearchResultState.Failure(R.string.label_no_results_found))
                 is SearchUsersResult.Success -> ContactSearchResult.InternalContact(
-                    SearchResultState.Success(result.userSearchResult.result.map(contactMapper::fromOtherUser))
+                    SearchResultState.Success(result.userSearchResult.result.map(contactMapper::fromOtherUser).toImmutableList())
                 )
             }
         }
@@ -112,7 +114,7 @@ open class SearchAllPeopleViewModel(
                     SearchResultState.Failure(R.string.label_no_results_found)
                 )
                 is SearchUsersResult.Success -> ContactSearchResult.ExternalContact(
-                    SearchResultState.Success(result.userSearchResult.result.map(contactMapper::fromOtherUser))
+                    SearchResultState.Success(result.userSearchResult.result.map(contactMapper::fromOtherUser).toImmutableList())
                 )
             }
         }
@@ -123,15 +125,15 @@ open class SearchAllPeopleViewModel(
         return if (searchResultState is SearchResultState.Success &&
             contactSearchResult.searchResultState is SearchResultState.Success
         ) {
-            ContactSearchResult.ExternalContact(
-                SearchResultState.Success(
-                    searchResultState.result.filterNot { contact ->
-                        contactSearchResult.searchResultState.result.map { it.id }.contains(
-                            contact.id
-                        )
+            ContactSearchResult.ExternalContact(SearchResultState.Success(
+                searchResultState.result
+                    .filterNot { contact ->
+                        contactSearchResult.searchResultState.result
+                            .map { it.id }
+                            .contains(contact.id)
                     }
-                )
-            )
+                    .toImmutableList()
+            ))
         } else {
             this
         }
@@ -215,7 +217,7 @@ abstract class SearchPeopleViewModel(
                 SearchResultState.Failure(result.failureString)
             }
             is SearchResult.Success -> {
-                SearchResultState.Success(result.contacts)
+                SearchResultState.Success(result.contacts.toImmutableList())
             }
         }
     }

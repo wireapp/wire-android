@@ -217,7 +217,6 @@ fun openAssetFileWithExternalApp(assetDataPath: Path, context: Context, assetExt
     }
 }
 
-
 @Suppress("MagicNumber")
 fun Context.getDeviceId(): String? {
     

@@ -16,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.topappbar.NavigationIconType
@@ -24,7 +25,7 @@ import com.wire.android.ui.home.conversations.details.participants.model.UIParti
 import com.wire.android.ui.theme.WireTheme
 
 @Composable
-fun GroupConversationAllParticipantsScreen(viewModel: GroupConversationParticipantsViewModel) {
+fun GroupConversationAllParticipantsScreen(viewModel: GroupConversationParticipantsViewModel = hiltViewModel()) {
     GroupConversationAllParticipantsContent(
         onBackPressed = viewModel::navigateBack,
         groupParticipantsState = viewModel.groupParticipantsState,

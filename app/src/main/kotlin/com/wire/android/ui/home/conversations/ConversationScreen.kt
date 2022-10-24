@@ -29,12 +29,15 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
 import com.wire.android.R
+import com.wire.android.navigation.hiltSavedStateViewModel
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
+import com.wire.android.ui.common.dialogs.CallingFeatureUnavailableDialog
 import com.wire.android.ui.common.dialogs.OngoingActiveCallDialog
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
@@ -72,7 +75,10 @@ import com.wire.android.util.permission.CallingAudioRequestFlow
 import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.NetworkFailure
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.call.usecase.ConferenceCallingResult
+import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
@@ -89,12 +95,13 @@ private const val MAXIMUM_SCROLLED_MESSAGES_UNTIL_AUTOSCROLL_STOPS = 5
 
 @Composable
 fun ConversationScreen(
-    messageComposerViewModel: MessageComposerViewModel,
-    conversationCallViewModel: ConversationCallViewModel,
-    conversationInfoViewModel: ConversationInfoViewModel,
-    conversationMessagesViewModel: ConversationMessagesViewModel,
-    conversationBannerViewModel: ConversationBannerViewModel,
-    commonTopAppBarViewModel: CommonTopAppBarViewModel
+    backNavArgs: ImmutableMap<String, Any>,
+    messageComposerViewModel: MessageComposerViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs),
+    conversationCallViewModel: ConversationCallViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs),
+    conversationInfoViewModel: ConversationInfoViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs),
+    conversationMessagesViewModel: ConversationMessagesViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs),
+    conversationBannerViewModel: ConversationBannerViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs),
+    commonTopAppBarViewModel: CommonTopAppBarViewModel = hiltViewModel(),
 ) {
     val coroutineScope = rememberCoroutineScope()
     val showDialog = remember { mutableStateOf(ConversationScreenDialogType.NONE) }
@@ -124,6 +131,12 @@ fun ConversationScreen(
             }
         }
 
+        ConversationScreenDialogType.CALLING_FEATURE_UNAVAILABLE -> {
+            CallingFeatureUnavailableDialog(onDialogDismiss = {
+                showDialog.value = ConversationScreenDialogType.NONE
+            })
+        }
+
         ConversationScreenDialogType.NONE -> {}
     }
 
@@ -142,7 +155,16 @@ fun ConversationScreen(
         onBackButtonClick = messageComposerViewModel::navigateBack,
         onDeleteMessage = messageComposerViewModel::showDeleteMessageDialog,
         onReactionClick = conversationMessagesViewModel::toggleReaction,
-        onStartCall = { startCallIfPossible(conversationCallViewModel, showDialog, startCallAudioPermissionCheck, coroutineScope) },
+        onStartCall = {
+            startCallIfPossible(
+                conversationCallViewModel,
+                showDialog,
+                startCallAudioPermissionCheck,
+                coroutineScope,
+                conversationInfoViewModel.conversationInfoViewState.conversationType,
+                commonTopAppBarViewModel::openOngoingCallScreen
+            )
+        },
         onJoinCall = conversationCallViewModel::joinOngoingCall,
         onSnackbarMessage = messageComposerViewModel::onSnackbarMessage,
         onSnackbarMessageShown = messageComposerViewModel::clearSnackbarMessage,
@@ -164,21 +186,34 @@ fun ConversationScreen(
     )
 }
 
+@Suppress("LongParameterList")
 private fun startCallIfPossible(
     conversationCallViewModel: ConversationCallViewModel,
     showDialog: MutableState<ConversationScreenDialogType>,
     startCallAudioPermissionCheck: CallingAudioRequestFlow,
-    coroutineScope: CoroutineScope
+    coroutineScope: CoroutineScope,
+    conversationType: Conversation.Type,
+    onOpenOngoingCallScreen: () -> Unit
 ) {
     coroutineScope.launch {
         if (!conversationCallViewModel.hasStableConnectivity()) {
             showDialog.value = ConversationScreenDialogType.NO_CONNECTIVITY
         } else {
-            conversationCallViewModel.establishedCallConversationId?.let {
-                showDialog.value = ConversationScreenDialogType.ONGOING_ACTIVE_CALL
-            } ?: run {
-                startCallAudioPermissionCheck.launch()
+            val dialogValue = when (conversationCallViewModel.isConferenceCallingEnabled(conversationType)) {
+                ConferenceCallingResult.Enabled -> {
+                    startCallAudioPermissionCheck.launch()
+                    ConversationScreenDialogType.NONE
+                }
+                ConferenceCallingResult.Disabled.Established -> {
+                    onOpenOngoingCallScreen()
+                    ConversationScreenDialogType.NONE
+                }
+                ConferenceCallingResult.Disabled.OngoingCall -> ConversationScreenDialogType.ONGOING_ACTIVE_CALL
+                ConferenceCallingResult.Disabled.Unavailable -> ConversationScreenDialogType.CALLING_FEATURE_UNAVAILABLE
+                else -> ConversationScreenDialogType.NONE
             }
+
+            showDialog.value = dialogValue
         }
     }
 }
@@ -515,7 +550,7 @@ fun ConversationScreenPreview() {
         onSendMessage = { },
         onSendAttachment = { },
         onDownloadAsset = { },
-        onReactionClick = {_,_ -> },
+        onReactionClick = { _, _ -> },
         onImageFullScreenMode = { _, _ -> },
         onBackButtonClick = { },
         onDeleteMessage = { _, _ -> },

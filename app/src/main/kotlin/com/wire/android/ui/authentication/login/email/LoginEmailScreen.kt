@@ -18,7 +18,6 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -42,10 +41,9 @@ import com.wire.android.ui.authentication.login.LoginError
 import com.wire.android.ui.authentication.login.LoginErrorDialog
 import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.common.button.WireButtonState
-import com.wire.android.ui.common.collectAsStateLifecycleAware
+import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.textfield.AutoFillTextField
 import com.wire.android.ui.common.textfield.WirePasswordTextField
-import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.textfield.clearAutofillTree
 import com.wire.android.ui.theme.WireTheme
@@ -76,6 +74,7 @@ fun LoginEmailScreen(
         onLoginButtonClick = suspend { loginEmailViewModel.login() },
         onUpdateApp = loginEmailViewModel::updateTheApp,
         forgotPasswordUrl = loginEmailViewModel.serverConfig.forgotPassword,
+        shouldShowProxy = loginEmailViewModel.serverConfig.proxy?.needsAuthentication,
         scope = scope
     )
 }
@@ -91,6 +90,7 @@ private fun LoginEmailContent(
     onLoginButtonClick: suspend () -> Unit,
     onUpdateApp: () -> Unit,
     forgotPasswordUrl: String,
+    shouldShowProxy: Boolean?,
     scope: CoroutineScope
 ) {
     Column(
@@ -124,7 +124,9 @@ private fun LoginEmailContent(
                 .padding(bottom = MaterialTheme.wireDimensions.spacing16x),
             forgotPasswordUrl = forgotPasswordUrl
         )
-        ProxyScreen()
+        if (shouldShowProxy == true){
+            ProxyScreen()
+        }
 
         Spacer(modifier = Modifier.weight(1f))
 

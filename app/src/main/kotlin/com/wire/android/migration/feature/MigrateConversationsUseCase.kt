@@ -33,10 +33,9 @@ class MigrateConversationsUseCase @Inject constructor(
         // run sync and wait or just sync/fetch convos ?
         // filter not in db and persist the rest upsert (ignoring present)
         // -- at the kalium level, should we perform inserts/selects with partial id (not qualified)?
-//        with(coreLogic.getSessionScope(scalaUserDatabase.userId.value)) {
-//            syncConversations().fold({ logger.e("Error while migrating conversations $it") }, {
-//
-//            })
+//        with(coreLogic.getSessionScope(scalaUserDatabase.userId.value).conversations) {
+//            val result = persistMigratedConversation(mappedConversations)
+//            logger.d("Conversation migrated?: $result")
 //        }
         return Either.Right(Unit)
     }

@@ -7,6 +7,7 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.PlainId
+import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.data.user.SsoId
 import java.time.LocalDateTime
 import javax.inject.Inject
@@ -27,7 +28,7 @@ class MigrationMapper @Inject constructor() {
             id = ConversationId(remoteId, domain.orDefault("wire.com")),
             name = name,
             type = mapConversationType(type),
-            teamId = null, // can we get this from user?
+            teamId = scalaConversation.teamId?.let { TeamId(it) },
             protocol = Conversation.ProtocolInfo.Proteus,
             mutedStatus = MutedConversationStatus.AllAllowed,
             creatorId = PlainId(creatorId),

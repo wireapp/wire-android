@@ -26,7 +26,7 @@ class MigrationMapper @Inject constructor() {
         Conversation(
             id = ConversationId(remoteId, domain.orDefault("wire.com")),
             name = name,
-            type = Conversation.Type.valueOf(type.toString()),
+            type = mapConversationType(type),
             teamId = null, // can we get this from user?
             protocol = Conversation.ProtocolInfo.Proteus,
             mutedStatus = MutedConversationStatus.AllAllowed,
@@ -38,5 +38,14 @@ class MigrationMapper @Inject constructor() {
             lastModifiedDate = LocalDateTime.MIN.toString(),
             lastNotificationDate = LocalDateTime.MIN.toString()
         )
+    }
+
+    // UNKNOWN(-1), GROUP(0), SELF(1), ONE_TO_ONE(2), WAIT_FOR_CONNECTION(3), INCOMING_CONNECTION(4)
+    private fun mapConversationType(type: Int): Conversation.Type = when (type) {
+        0 -> Conversation.Type.GROUP
+        1 -> Conversation.Type.SELF
+        2 -> Conversation.Type.ONE_ON_ONE
+        3, 4 -> Conversation.Type.CONNECTION_PENDING
+        else -> Conversation.Type.ONE_ON_ONE // what should we do here ?
     }
 }

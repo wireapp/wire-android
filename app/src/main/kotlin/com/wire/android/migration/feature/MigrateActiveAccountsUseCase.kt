@@ -23,8 +23,9 @@ class MigrateActiveAccountsUseCase @Inject constructor(
     private val scalaGlobalDB: ScalaAppDataBaseProvider,
     private val mapper: MigrationMapper
 ) {
-    suspend operator fun invoke(serverConfig: ServerConfig): Either<CoreFailure, Unit> {
+    suspend operator fun invoke(serverConfig: ServerConfig): Either<CoreFailure, List<UserId>> {
         val activeAccounts = scalaGlobalDB.scalaAccountsDAO.activeAccounts()
+        val userIds = mutableListOf<UserId>()
         activeAccounts.forEach {
             val activeAccount = it.copy(refreshToken = (REFRESH_TOKEN_SUFFIX + it.refreshToken))
 
@@ -33,7 +34,7 @@ class MigrateActiveAccountsUseCase @Inject constructor(
 
             val authToken = if (isDataComplete) {
                 val domain = activeAccount.domain ?: serverConfig.metaData.domain!!
-                val userId = UserId(activeAccount.id, domain)
+                val userId = UserId(activeAccount.id, domain).also { userId -> userIds += userId }
                 Either.Right(
                     AuthTokens(
                         userId = userId,
@@ -62,7 +63,7 @@ class MigrateActiveAccountsUseCase @Inject constructor(
                 }
             }
         }
-        return Either.Right(Unit)
+        return Either.Right(userIds)
     }
 
     private fun isDataComplete(serverConfig: ServerConfig, activeAccount: ScalaActiveAccountsEntity): Boolean {
@@ -90,8 +91,8 @@ class MigrateActiveAccountsUseCase @Inject constructor(
 }
 
 
-sealed class MigrationFailure: CoreFailure.FeatureFailure() {
-    object InvalidRefreshToken: MigrationFailure()
+sealed class MigrationFailure : CoreFailure.FeatureFailure() {
+    object InvalidRefreshToken : MigrationFailure()
 }
 
 

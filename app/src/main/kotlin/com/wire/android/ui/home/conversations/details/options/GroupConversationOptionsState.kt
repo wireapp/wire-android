@@ -27,8 +27,3 @@ data class GroupConversationOptionsState(
         class UpdateServicesError(val cause: CoreFailure) : Error
     }
 }
-
-sealed class BottomSheetContent {
-    data class Conversation(val conversationData: ConversationSheetContent) : BottomSheetContent()
-    data class Mute(val conversationData: ConversationSheetContent) : BottomSheetContent()
-}

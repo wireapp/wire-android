@@ -30,9 +30,7 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
-import com.wire.kalium.logic.feature.conversation.IsSelfUserMemberResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
-import com.wire.kalium.logic.feature.conversation.ObserveIsSelfUserMemberUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
@@ -68,7 +66,6 @@ class GroupConversationDetailsViewModel @Inject constructor(
     private val observerSelfUser: GetSelfUserUseCase,
     private val deleteTeamConversation: DeleteTeamConversationUseCase,
     private val removeMemberFromConversation: RemoveMemberFromConversationUseCase,
-    private val observeIsSelfUserMember: ObserveIsSelfUserMemberUseCase,
     private val updateConversationMutedStatus: UpdateConversationMutedStatusUseCase,
     savedStateHandle: SavedStateHandle,
     qualifiedIdMapper: QualifiedIdMapper
@@ -108,16 +105,6 @@ class GroupConversationDetailsViewModel @Inject constructor(
                 .flowOn(dispatcher.io())
                 .shareIn(this, SharingStarted.WhileSubscribed(), 1)
 
-            val isSelfUserMemberFlow = observeIsSelfUserMember(conversationId)
-                .flowOn(dispatcher.io())
-                .map { result ->
-                    when (result) {
-                        is IsSelfUserMemberResult.Success -> result.isMember
-                        is IsSelfUserMemberResult.Failure -> false
-                    }
-                }
-                .shareIn(this, SharingStarted.WhileSubscribed(), 1)
-
             val isSelfAdminFlow = observeConversationMembers(conversationId)
                 .map { it.isSelfAnAdmin }
                 .distinctUntilChanged()
@@ -126,8 +113,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
                 groupDetailsFlow,
                 isSelfAdminFlow,
                 getSelfTeam(),
-                isSelfUserMemberFlow
-            ) { groupDetails, isSelfAnAdmin, selfTeam, isSelfUserMember ->
+            ) { groupDetails, isSelfAnAdmin, selfTeam ->
 
                 val isSelfInOwnerTeam =
                     selfTeam?.id != null && selfTeam.id == groupDetails.conversation.teamId?.value
@@ -137,7 +123,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
                     conversationId = conversationId,
                     mutingConversationState = groupDetails.conversation.mutedStatus,
                     conversationTypeDetail = ConversationTypeDetail.Group(conversationId, groupDetails.isSelfUserCreator),
-                    isSelfUserMember = isSelfUserMember
+                    isSelfUserMember = groupDetails.isSelfUserCreator
                 )
                 val isGuestAllowed = groupDetails.conversation.isGuestAllowed() || groupDetails.conversation.isNonTeamMemberAllowed()
 

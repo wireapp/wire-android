@@ -186,7 +186,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         if (otherUser.connectionStatus != ConnectionState.ACCEPTED && otherUser.connectionStatus != ConnectionState.BLOCKED) return
 
         viewModelScope.launch {
-            when (val conversationResult = getConversation(userId)) {
+            when (val conversationResult = withContext(dispatchers.io()) { getConversation(userId) }) {
                 is GetOneToOneConversationUseCase.Result.Failure -> {
                     appLogger.d("Couldn't not getOrCreateOneToOneConversation for user id: $userId")
                     return@launch
@@ -345,7 +345,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     override fun onMutingConversationStatusChange(conversationId: ConversationId?, status: MutedConversationStatus) {
         conversationId?.let {
             viewModelScope.launch {
-                when (updateConversationMutedStatus(conversationId, status, Date().time)) {
+                when (withContext(dispatchers.io()) { updateConversationMutedStatus(conversationId, status, Date().time) }) {
                     ConversationUpdateStatusResult.Failure -> closeBottomSheetAndShowInfoMessage(MutingOperationError)
                     ConversationUpdateStatusResult.Success -> {
                         state = state.updateMuteStatus(status)

@@ -45,6 +45,7 @@ fun ConversationRouterHomeBridge(
     onCloseBottomSheet: () -> Unit,
     onSnackBarStateChanged: (HomeSnackbarState) -> Unit,
     searchBarState: SearchBarState,
+    isBottomSheetVisible: () -> Boolean
 ) {
     val viewModel: ConversationListViewModel = hiltViewModel()
 
@@ -109,7 +110,8 @@ fun ConversationRouterHomeBridge(
                 blockUser = blockUserDialogState::show,
                 unblockUser = unblockUserDialogState::show,
                 leaveGroup = leaveGroupDialogState::show,
-                deleteGroup = deleteGroupDialogState::show
+                deleteGroup = deleteGroupDialogState::show,
+                isBottomSheetVisible = isBottomSheetVisible
             )
         }
 

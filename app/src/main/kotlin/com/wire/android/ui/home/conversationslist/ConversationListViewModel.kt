@@ -76,7 +76,7 @@ class ConversationListViewModel @Inject constructor(
     private val dispatcher: DispatcherProvider,
     private val updateConversationMutedStatus: UpdateConversationMutedStatusUseCase,
     private val answerCall: AnswerCallUseCase,
-    private val observeConversationListDetailsUseCase: ObserveConversationListDetailsUseCase,
+    private val observeConversationListDetails: ObserveConversationListDetailsUseCase,
     private val leaveConversation: LeaveConversationUseCase,
     private val deleteTeamConversation: DeleteTeamConversationUseCase,
     private val blockUserUseCase: BlockUserUseCase,
@@ -102,7 +102,7 @@ class ConversationListViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            searchQueryFlow.combine(observeConversationListDetailsUseCase().onEach(::conversationListDetailsToState))
+            searchQueryFlow.combine(observeConversationListDetails().onEach(::conversationListDetailsToState))
                 .flatMapLatest { (searchQuery, conversationDetails) ->
                     flow {
                         if (searchQuery.isEmpty()) {
@@ -353,7 +353,7 @@ private fun ConversationDetails.toConversationItem(
             lastEvent = ConversationLastEvent.None, // TODO implement unread events
             badgeEventType = parseConversationEventType(conversation.mutedStatus, unreadMentionsCount, unreadMessagesCount),
             hasOnGoingCall = hasOngoingCall,
-            isCreator = isSelfCreated,
+            isSelfUserCreator = isSelfUserCreator,
             isSelfUserMember = isSelfUserMember
         )
     }

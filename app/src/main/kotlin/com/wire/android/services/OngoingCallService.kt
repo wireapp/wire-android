@@ -68,7 +68,7 @@ class OngoingCallService : Service() {
 
             generateForegroundNotification(callName, conversationIdString, userIdString)
         } else {
-            appLogger.i(
+            appLogger.w(
                 "$TAG: stopSelf. Reason: some of the parameter is absent. " +
                         "userIdString: $userIdString, conversationIdString: $conversationIdString, callName: $callName"
             )

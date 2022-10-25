@@ -19,9 +19,7 @@ import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
-import com.wire.kalium.logic.feature.conversation.IsSelfUserMemberResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
-import com.wire.kalium.logic.feature.conversation.ObserveIsSelfUserMemberUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
@@ -425,9 +423,6 @@ internal class GroupConversationDetailsViewModelArrangement {
     lateinit var getSelfTeamUseCase: GetSelfTeamUseCase
 
     @MockK
-    lateinit var observeIsSelfUserMember: ObserveIsSelfUserMemberUseCase
-
-    @MockK
     lateinit var updateConversationMutedStatus: UpdateConversationMutedStatusUseCase
 
     @MockK
@@ -450,7 +445,6 @@ internal class GroupConversationDetailsViewModelArrangement {
             getSelfTeam = getSelfTeamUseCase,
             savedStateHandle = savedStateHandle,
             qualifiedIdMapper = qualifiedIdMapper,
-            observeIsSelfUserMember = observeIsSelfUserMember,
             updateConversationMutedStatus = updateConversationMutedStatus
         )
     }
@@ -471,7 +465,6 @@ internal class GroupConversationDetailsViewModelArrangement {
         coEvery {
             qualifiedIdMapper.fromStringToQualifiedID("conv_id@domain")
         } returns QualifiedID("conv_id", "domain")
-        coEvery { observeIsSelfUserMember(any()) } returns (flowOf(IsSelfUserMemberResult.Success(true)))
         coEvery { updateConversationMutedStatus(any(), any(), any()) } returns ConversationUpdateStatusResult.Success
     }
 

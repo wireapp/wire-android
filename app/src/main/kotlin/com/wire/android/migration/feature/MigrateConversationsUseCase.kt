@@ -25,8 +25,6 @@ class MigrateConversationsUseCase @Inject constructor(
     suspend operator fun invoke(userIds: List<UserId>): Either<CoreFailure, Unit> {
         userIds.forEach { userId ->
             val sessionScope = coreLogic.getSessionScope(userId)
-            // start sync to later migrate data into created model
-
             // todo: we need to migrate clients before doing this sync below
             // sessionScope.syncManager.waitUntilLive()
 

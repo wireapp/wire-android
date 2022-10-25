@@ -78,6 +78,7 @@ class WireActivity : AppCompatActivity() {
         proximitySensorManager.initialize()
         lifecycle.addObserver(currentScreenManager)
 
+        // todo: combine this with migration finished flag
         connectionPolicyManager.startObservingAppLifecycle()
 
         viewModel.handleDeepLink(intent)

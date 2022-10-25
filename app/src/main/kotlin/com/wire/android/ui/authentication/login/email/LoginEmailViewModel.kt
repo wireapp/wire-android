@@ -71,7 +71,12 @@ class LoginEmailViewModel @Inject constructor(
                             return@launch
                         }
 
-                        is AuthenticationResult.Success -> it
+                        is AuthenticationResult.Success -> {
+                            if (serverConfig.proxy?.needsAuthentication == true) {
+                                persistProxyCredentials(loginState.proxyIdentifier.text, loginState.proxyPassword.text)
+                            }
+                            it
+                        }
                     }
                 }
             val storedUserId =
@@ -98,9 +103,6 @@ class LoginEmailViewModel @Inject constructor(
                     }
 
                     is RegisterClientResult.Success -> {
-                        if (serverConfig.proxy?.needsAuthentication == true) {
-                            persistProxyCredentials(loginState.proxyIdentifier.text, loginState.proxyPassword.text)
-                        }
                         navigateToConvScreen()
                     }
                 }

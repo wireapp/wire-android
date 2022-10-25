@@ -44,8 +44,10 @@ class MigrationManager @Inject constructor(
         return migrateServerConfig()
             .flatMap {
                 migrateActiveAccounts(it)
+                // sync
             }.flatMap {
                 migrateConversations()
+                // messages
             }
             .mapLeft {
                 when (it) {

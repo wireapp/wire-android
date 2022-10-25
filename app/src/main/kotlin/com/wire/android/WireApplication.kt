@@ -17,7 +17,6 @@ import com.wire.android.util.DataDogLogger
 import com.wire.android.util.LogFileWriter
 import com.wire.android.util.extension.isGoogleServicesAvailable
 import com.wire.android.util.getDeviceId
-import com.wire.android.util.lifecycle.ConnectionPolicyManager
 import com.wire.android.util.sha256
 import com.wire.android.workmanager.WireWorkerFactory
 import com.wire.kalium.logger.KaliumLogLevel
@@ -26,11 +25,6 @@ import com.wire.kalium.logic.CoreLogger
 import com.wire.kalium.logic.CoreLogic
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
-
-
-/**
- * Indicates whether the build is private (dev || internal) or public
- */
 
 var appLogger = KaliumLogger(
     config = KaliumLogger.Config(
@@ -41,7 +35,6 @@ var appLogger = KaliumLogger(
     platformLogWriter()
 )
 
-
 @HiltAndroidApp
 class WireApplication : Application(), Configuration.Provider {
 
@@ -51,9 +44,6 @@ class WireApplication : Application(), Configuration.Provider {
 
     @Inject
     lateinit var logFileWriter: LogFileWriter
-
-    @Inject
-    lateinit var connectionPolicyManager: ConnectionPolicyManager
 
     @Inject
     lateinit var wireWorkerFactory: WireWorkerFactory
@@ -78,8 +68,6 @@ class WireApplication : Application(), Configuration.Provider {
 
         // TODO: Can be handled in one of Sync steps
         coreLogic.updateApiVersionsScheduler.schedulePeriodicApiVersionUpdate()
-
-        connectionPolicyManager.startObservingAppLifecycle()
 
         logDeviceInformation()
     }

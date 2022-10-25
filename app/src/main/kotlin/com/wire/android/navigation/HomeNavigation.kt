@@ -63,7 +63,8 @@ enum class HomeNavigationItem(
                     onOpenBottomSheet = homeState::openBottomSheet,
                     onCloseBottomSheet = homeState::closeBottomSheet,
                     onSnackBarStateChanged = homeState::setSnackBarState,
-                    searchBarState = homeState.searchBarState
+                    searchBarState = homeState.searchBarState,
+                    isBottomSheetVisible = homeState::isBottomSheetVisible
                 )
             }
         }
@@ -83,7 +84,8 @@ enum class HomeNavigationItem(
                     onOpenBottomSheet = homeState::openBottomSheet,
                     onCloseBottomSheet = homeState::closeBottomSheet,
                     onSnackBarStateChanged = homeState::setSnackBarState,
-                    searchBarState = homeState.searchBarState
+                    searchBarState = homeState.searchBarState,
+                    isBottomSheetVisible = homeState::isBottomSheetVisible
                 )
             }
         }
@@ -103,7 +105,8 @@ enum class HomeNavigationItem(
                     onOpenBottomSheet = homeState::openBottomSheet,
                     onCloseBottomSheet = homeState::closeBottomSheet,
                     onSnackBarStateChanged = homeState::setSnackBarState,
-                    searchBarState = homeState.searchBarState
+                    searchBarState = homeState.searchBarState,
+                    isBottomSheetVisible = homeState::isBottomSheetVisible
                 )
             }
         }

@@ -15,12 +15,13 @@ import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
+import kotlinx.collections.immutable.ImmutableMap
 
 
 @Composable
 fun ConversationList(
     lazyListState: LazyListState = rememberLazyListState(),
-    conversationListItems: Map<ConversationFolder, List<ConversationItem>>,
+    conversationListItems: ImmutableMap<ConversationFolder, List<ConversationItem>>,
     onOpenConversation: (ConversationId) -> Unit,
     onEditConversation: (ConversationItem) -> Unit,
     onOpenUserProfile: (UserId) -> Unit,

@@ -776,4 +776,9 @@ class UseCaseModule {
     @Provides
     fun provideIsCallRunningUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).calls.isCallRunning
+
+    @ViewModelScoped
+    @Provides
+    fun provideIsEligibleToStartCall(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).calls.isEligibleToStartCall
 }

@@ -10,11 +10,14 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.SavedStateViewModel
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.sync.SyncState
-import com.wire.kalium.logic.feature.call.AnswerCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.AnswerCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.ConferenceCallingResult
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.IsEligibleToStartCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
 import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
@@ -34,7 +37,8 @@ class ConversationCallViewModel @Inject constructor(
     private val answerCall: AnswerCallUseCase,
     private val endCall: EndCallUseCase,
     private val observeSyncState: ObserveSyncStateUseCase,
-    ) : SavedStateViewModel(savedStateHandle) {
+    private val isConferenceCallingEnabled: IsEligibleToStartCallUseCase
+) : SavedStateViewModel(savedStateHandle) {
 
     val conversationId: QualifiedID = qualifiedIdMapper.fromStringToQualifiedID(
         savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!
@@ -102,4 +106,7 @@ class ConversationCallViewModel @Inject constructor(
         }
         return hasConnection
     }
+
+    suspend fun isConferenceCallingEnabled(conversationType: Conversation.Type): ConferenceCallingResult =
+        isConferenceCallingEnabled.invoke(conversationId, conversationType)
 }

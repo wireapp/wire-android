@@ -1,4 +1,4 @@
-package com.wire.android.ui.home.conversationslist.bottomsheet
+package com.wire.android.ui.common.bottomsheet.conversation
 
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -72,9 +72,9 @@ internal fun ConversationMainSheetContent(
             },
             customBottomPadding = dimensions().spacing8x
         ),
-        menuItems = listOf(
-            {
-                if (conversationSheetContent.isSelfUserMember)
+        menuItems = buildList<@Composable () -> Unit> {
+            if (conversationSheetContent.canEditNotifications())
+                add {
                     MenuBottomSheetItem(
                         title = stringResource(R.string.label_notifications),
                         icon = {
@@ -86,22 +86,23 @@ internal fun ConversationMainSheetContent(
                         action = { NotificationsOptionsItemAction(conversationSheetContent.mutingConversationState) },
                         onItemClick = navigateToNotification
                     )
-            },
+                }
 // TODO(profile): enable when implemented
 //
-//            {
-//                MenuBottomSheetItem(
-//                    title = stringResource(R.string.label_add_to_favourites),
-//                    icon = {
-//                        MenuItemIcon(
-//                            id = R.drawable.ic_favourite,
-//                            contentDescription = stringResource(R.string.content_description_add_to_favourite),
-//                        )
-//                    },
-//                    onItemClick = addConversationToFavourites
-//                )
-//            },
-//            {
+//            if (conversationSheetContent.canAddToFavourite())
+//                add {
+//                    MenuBottomSheetItem(
+//                        title = stringResource(R.string.label_add_to_favourites),
+//                        icon = {
+//                            MenuItemIcon(
+//                                id = R.drawable.ic_favourite,
+//                                contentDescription = stringResource(R.string.content_description_add_to_favourite),
+//                            )
+//                        },
+//                        onItemClick = addConversationToFavourites
+//                    )
+//                }
+//            add {
 //                MenuBottomSheetItem(
 //                    icon = {
 //                        MenuItemIcon(
@@ -112,8 +113,8 @@ internal fun ConversationMainSheetContent(
 //                    title = stringResource(R.string.label_move_to_folder),
 //                    onItemClick = moveConversationToFolder
 //                )
-//            },
-//            {
+//            }
+//            add {
 //                MenuBottomSheetItem(
 //                    icon = {
 //                        MenuItemIcon(
@@ -124,8 +125,8 @@ internal fun ConversationMainSheetContent(
 //                    title = stringResource(R.string.label_move_to_archive),
 //                    onItemClick = moveConversationToArchive
 //                )
-//            },
-//            {
+//            }
+//            add {
 //                MenuBottomSheetItem(
 //                    icon = {
 //                        MenuItemIcon(
@@ -136,52 +137,54 @@ internal fun ConversationMainSheetContent(
 //                    title = stringResource(R.string.label_clear_content),
 //                    onItemClick = clearConversationContent
 //                )
-//            },
-            {
-                if (conversationSheetContent.conversationTypeDetail is ConversationTypeDetail.Private) {
-                    if (conversationSheetContent.conversationTypeDetail.blockingState == BlockingState.NOT_BLOCKED) {
-                        CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.error) {
-                            MenuBottomSheetItem(
-                                icon = {
-                                    MenuItemIcon(
-                                        id = R.drawable.ic_block,
-                                        contentDescription = stringResource(R.string.content_description_block_the_user),
+//            }
+            if (conversationSheetContent.canBlockUser())
+                add {
+                    CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.error) {
+                        MenuBottomSheetItem(
+                            icon = {
+                                MenuItemIcon(
+                                    id = R.drawable.ic_block,
+                                    contentDescription = stringResource(R.string.content_description_block_the_user),
+                                )
+                            },
+                            title = stringResource(R.string.label_block),
+                            blockUntilSynced = true,
+                            onItemClick = {
+                                blockUserClick(
+                                    BlockUserDialogState(
+                                        userName = conversationSheetContent.title,
+                                        userId = (conversationSheetContent.conversationTypeDetail as ConversationTypeDetail.Private).userId
                                     )
-                                },
-                                title = stringResource(R.string.label_block),
-                                blockUntilSynced = true,
-                                onItemClick = {
-                                    blockUserClick(
-                                        BlockUserDialogState(
-                                            userName = conversationSheetContent.title,
-                                            userId = conversationSheetContent.conversationTypeDetail.userId
-                                        )
-                                    )
-                                }
-                            )
-                        }
-                    } else if (conversationSheetContent.conversationTypeDetail.blockingState == BlockingState.BLOCKED) {
-                        CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.onBackground) {
-                            MenuBottomSheetItem(
-                                icon = {
-                                    MenuItemIcon(
-                                        id = R.drawable.ic_block,
-                                        contentDescription = stringResource(R.string.content_description_unblock_the_user)
-                                    )
-                                },
-                                title = stringResource(R.string.label_unblock),
-                                onItemClick = {
-                                    unblockUserClick(
-                                        UnblockUserDialogState(
-                                            userName = conversationSheetContent.title,
-                                            userId = conversationSheetContent.conversationTypeDetail.userId
-                                        )
-                                    )
-                                }
-                            )
-                        }
+                                )
+                            }
+                        )
                     }
-                } else if (conversationSheetContent.isSelfUserMember) {
+                }
+            if (conversationSheetContent.canUnblockUser())
+                add {
+                    CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.onBackground) {
+                        MenuBottomSheetItem(
+                            icon = {
+                                MenuItemIcon(
+                                    id = R.drawable.ic_block,
+                                    contentDescription = stringResource(R.string.content_description_unblock_the_user)
+                                )
+                            },
+                            title = stringResource(R.string.label_unblock),
+                            onItemClick = {
+                                unblockUserClick(
+                                    UnblockUserDialogState(
+                                        userName = conversationSheetContent.title,
+                                        userId = (conversationSheetContent.conversationTypeDetail as ConversationTypeDetail.Private).userId
+                                    )
+                                )
+                            }
+                        )
+                    }
+                }
+            if (conversationSheetContent.canLeaveTheGroup())
+                add {
                     CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.error) {
                         MenuBottomSheetItem(
                             icon = {
@@ -202,10 +205,8 @@ internal fun ConversationMainSheetContent(
                         )
                     }
                 }
-            },
-            {
-                val conversationTypeDetail = conversationSheetContent.conversationTypeDetail
-                if (conversationTypeDetail is ConversationTypeDetail.Group && conversationTypeDetail.isCreator) {
+            if (conversationSheetContent.canDeleteGroup())
+                add {
                     CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.error) {
                         MenuBottomSheetItem(
                             icon = {
@@ -226,8 +227,7 @@ internal fun ConversationMainSheetContent(
                         )
                     }
                 }
-            }
-        )
+        }
     )
 }
 

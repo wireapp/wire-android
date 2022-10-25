@@ -1,4 +1,4 @@
-package com.wire.android.ui.home.conversationslist.bottomsheet
+package com.wire.android.ui.common.bottomsheet.conversation
 
 import MutingOptionsSheetContent
 import androidx.activity.compose.BackHandler
@@ -15,7 +15,7 @@ import com.wire.kalium.logic.data.user.UserId
 @Composable
 fun ConversationSheetContent(
     conversationSheetState: ConversationSheetState,
-    onMutingConversationStatusChange: (MutedConversationStatus) -> Unit,
+    onMutingConversationStatusChange: () -> Unit,
     addConversationToFavourites: () -> Unit,
     moveConversationToFolder: () -> Unit,
     moveConversationToArchive: () -> Unit,
@@ -23,8 +23,12 @@ fun ConversationSheetContent(
     blockUser: (BlockUserDialogState) -> Unit,
     unblockUser: (UnblockUserDialogState) -> Unit,
     leaveGroup: (GroupDialogState) -> Unit,
-    deleteGroup: (GroupDialogState) -> Unit
+    deleteGroup: (GroupDialogState) -> Unit,
+    isBottomSheetVisible: () -> Boolean = { true }
 ) {
+    // it may be null as initial state
+    if (conversationSheetState.conversationSheetContent == null) return
+
     when (conversationSheetState.currentOptionNavigation) {
         ConversationOptionNavigation.Home -> {
             ConversationMainSheetContent(
@@ -45,13 +49,20 @@ fun ConversationSheetContent(
         ConversationOptionNavigation.MutingNotificationOption -> {
             MutingOptionsSheetContent(
                 mutingConversationState = conversationSheetState.conversationSheetContent!!.mutingConversationState,
-                onMuteConversation = onMutingConversationStatusChange,
+                onMuteConversation = { mutedStatus ->
+                    conversationSheetState.muteConversation(mutedStatus)
+                    onMutingConversationStatusChange()
+                    conversationSheetState.toHome()
+                },
                 onBackClick = conversationSheetState::toHome
             )
         }
     }
 
-    BackHandler(conversationSheetState.currentOptionNavigation is ConversationOptionNavigation.MutingNotificationOption) {
+    BackHandler(
+        conversationSheetState.currentOptionNavigation is ConversationOptionNavigation.MutingNotificationOption
+                && isBottomSheetVisible()
+    ) {
         conversationSheetState.toHome()
     }
 }
@@ -68,6 +79,7 @@ sealed class ConversationTypeDetail {
         val userId: UserId,
         val blockingState: BlockingState
     ) : ConversationTypeDetail()
+
     data class Connection(val avatarAsset: UserAvatarAsset?) : ConversationTypeDetail()
 }
 
@@ -77,4 +89,23 @@ data class ConversationSheetContent(
     val mutingConversationState: MutedConversationStatus,
     val conversationTypeDetail: ConversationTypeDetail,
     val isSelfUserMember: Boolean = true
-)
+) {
+    fun canEditNotifications(): Boolean = isSelfUserMember
+            && ((conversationTypeDetail is ConversationTypeDetail.Private
+            && (conversationTypeDetail.blockingState != BlockingState.BLOCKED))
+            || conversationTypeDetail is ConversationTypeDetail.Group)
+
+    fun canDeleteGroup(): Boolean = conversationTypeDetail is ConversationTypeDetail.Group && conversationTypeDetail.isCreator
+
+    fun canLeaveTheGroup(): Boolean = conversationTypeDetail is ConversationTypeDetail.Group && isSelfUserMember
+
+    fun canBlockUser(): Boolean =
+        conversationTypeDetail is ConversationTypeDetail.Private && conversationTypeDetail.blockingState == BlockingState.NOT_BLOCKED
+
+    fun canUnblockUser(): Boolean =
+        conversationTypeDetail is ConversationTypeDetail.Private && conversationTypeDetail.blockingState == BlockingState.BLOCKED
+
+    fun canAddToFavourite(): Boolean =
+        (conversationTypeDetail is ConversationTypeDetail.Private && conversationTypeDetail.blockingState != BlockingState.BLOCKED)
+                || conversationTypeDetail is ConversationTypeDetail.Group
+}

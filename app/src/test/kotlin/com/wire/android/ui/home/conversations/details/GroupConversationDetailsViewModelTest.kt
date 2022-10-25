@@ -7,6 +7,9 @@ import com.wire.android.framework.TestUser
 import com.wire.android.mapper.testUIParticipant
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
+import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetail
+import com.wire.android.ui.home.conversations.details.GroupConversationDetailsViewModelTest.Companion.dummyConversationId
 import com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.kalium.logic.data.conversation.Conversation
@@ -367,10 +370,34 @@ class GroupConversationDetailsViewModelTest {
         assertEquals(false, viewModel.groupOptionsState.value.isUpdatingGuestAllowed)
     }
 
+    @Test
+    fun `given a group conversation, then conversationSheetContent is valid`() = runTest {
+        // Given
+        val conversationParticipantsData = ConversationParticipantsData(isSelfAnAdmin = true)
+        val details = testGroup.copy(conversation = testGroup.conversation.copy(teamId = TeamId("team_id")))
+        val selfTeam = Team("other_team_id", "team_name", "icon")
+        val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
+            .withConversationDetailUpdate(details)
+            .withConversationMembersUpdate(conversationParticipantsData)
+            .withSelfTeamUseCaseReturns(selfTeam)
+            .arrange()
+
+        val expected = ConversationSheetContent(
+            title = details.conversation.name.orEmpty(),
+            conversationId = details.conversation.id,
+            mutingConversationState = details.conversation.mutedStatus,
+            conversationTypeDetail = ConversationTypeDetail.Group(details.conversation.id, details.isSelfUserCreator),
+            isSelfUserMember = true
+        )
+        // When - Then
+        assertEquals(expected, viewModel.conversationSheetContent)
+    }
+
     companion object {
+        val dummyConversationId = ConversationId("some-dummy-value","some.dummy.domain")
         val testGroup = ConversationDetails.Group(
             Conversation(
-                id = ConversationId("conv_id", "domain"),
+                id = dummyConversationId,
                 name = "Conv Name",
                 type = Conversation.Type.ONE_ON_ONE,
                 teamId = TeamId("team_id"),
@@ -451,7 +478,7 @@ internal class GroupConversationDetailsViewModelArrangement {
 
     init {
         // Tests setup
-        val dummyConversationId = "some-dummy-value@some.dummy.domain"
+        val dummyConversationId = dummyConversationId.toString()
         MockKAnnotations.init(this, relaxUnitFun = true)
         every { savedStateHandle.get<String>(EXTRA_CONVERSATION_ID) } returns dummyConversationId
         // Default empty values

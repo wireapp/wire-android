@@ -3,7 +3,6 @@ package com.wire.android.ui.home.conversations.details.options
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.conversation.Conversation
-import com.wire.kalium.logic.feature.conversation.ObserveIsSelfUserMemberUseCase
 
 data class GroupConversationOptionsState(
     val conversationId: ConversationId,

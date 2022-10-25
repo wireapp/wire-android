@@ -8,6 +8,5 @@ data class ConversationInfoViewState(
     val conversationName: UIText = UIText.DynamicString(""),
     val conversationDetailsData: ConversationDetailsData = ConversationDetailsData.None,
     val conversationAvatar: ConversationAvatar = ConversationAvatar.None,
-    val isUserBlocked: Boolean = false,
     val hasUserPermissionToEdit : Boolean = false,
 )

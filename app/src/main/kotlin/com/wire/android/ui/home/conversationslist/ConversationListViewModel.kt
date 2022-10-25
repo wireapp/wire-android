@@ -374,7 +374,9 @@ private fun ConversationDetails.toConversationItem(
             isLegalHold = legalHoldStatus.showLegalHoldIndicator(),
             lastEvent = ConversationLastEvent.None, // TODO implement unread events
             badgeEventType = parsePrivateConversationEventType(
-                otherUser.connectionStatus, parseConversationEventType(conversation.mutedStatus, unreadMentionsCount, unreadMessagesCount)
+                otherUser.connectionStatus,
+                otherUser.deleted,
+                parseConversationEventType(conversation.mutedStatus, unreadMentionsCount, unreadMessagesCount)
             ),
             userId = otherUser.id,
             blockingState = otherUser.BlockState
@@ -413,8 +415,9 @@ private fun ConversationDetails.toConversationItem(
 private fun parseConnectionEventType(connectionState: ConnectionState) =
     if (connectionState == ConnectionState.SENT) BadgeEventType.SentConnectRequest else BadgeEventType.ReceivedConnectionRequest
 
-private fun parsePrivateConversationEventType(connectionState: ConnectionState, eventType: BadgeEventType) =
+private fun parsePrivateConversationEventType(connectionState: ConnectionState, isDeleted: Boolean, eventType: BadgeEventType) =
     if (connectionState == ConnectionState.BLOCKED) BadgeEventType.Blocked
+    else if(isDeleted) BadgeEventType.Deleted
     else eventType
 
 private fun parseConversationEventType(

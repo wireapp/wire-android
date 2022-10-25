@@ -38,7 +38,7 @@ class HomeStateHolder(
     val bottomSheetState: ModalBottomSheetState,
     val currentNavigationItem: HomeNavigationItem,
     val snackBarHostState: SnackbarHostState,
-    val searchBarState : SearchBarState
+    val searchBarState: SearchBarState
 ) {
 
     var homeBottomSheetContent: @Composable (ColumnScope.() -> Unit)? by mutableStateOf(null)
@@ -46,6 +46,7 @@ class HomeStateHolder(
 
     var snackbarState: HomeSnackbarState by mutableStateOf(HomeSnackbarState.None)
         private set
+
     fun setSnackBarState(state: HomeSnackbarState) {
         snackbarState = state
         if (state != HomeSnackbarState.None) closeBottomSheet()
@@ -67,6 +68,8 @@ class HomeStateHolder(
         }
     }
 
+    fun isBottomSheetVisible() = bottomSheetState.isVisible
+
     fun changeBottomSheetContent(content: @Composable ColumnScope.() -> Unit) {
         homeBottomSheetContent = content
     }
@@ -82,6 +85,7 @@ class HomeStateHolder(
             drawerState.open()
         }
     }
+
     fun navigateTo(homeNavigationItem: HomeNavigationItem) {
         navigateToItemInHome(navController, homeNavigationItem)
     }

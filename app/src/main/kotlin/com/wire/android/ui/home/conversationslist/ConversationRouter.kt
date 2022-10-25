@@ -12,6 +12,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.ui.common.bottomsheet.conversation.ConversationOptionNavigation
 import com.wire.android.ui.common.dialogs.BlockUserDialogContent
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.common.dialogs.UnblockUserDialogContent
@@ -23,9 +24,8 @@ import com.wire.android.ui.home.HomeSnackbarState
 import com.wire.android.ui.home.conversations.details.menu.DeleteConversationGroupDialog
 import com.wire.android.ui.home.conversations.details.menu.LeaveConversationGroupDialog
 import com.wire.android.ui.home.conversationslist.all.AllConversationScreen
-import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationOptionNavigation
-import com.wire.android.ui.home.conversationslist.bottomsheet.ConversationSheetContent
-import com.wire.android.ui.home.conversationslist.bottomsheet.rememberConversationSheetState
+import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
+import com.wire.android.ui.common.bottomsheet.conversation.rememberConversationSheetState
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.ui.home.conversationslist.search.SearchConversationScreen
@@ -45,6 +45,7 @@ fun ConversationRouterHomeBridge(
     onCloseBottomSheet: () -> Unit,
     onSnackBarStateChanged: (HomeSnackbarState) -> Unit,
     searchBarState: SearchBarState,
+    isBottomSheetVisible: () -> Boolean
 ) {
     val viewModel: ConversationListViewModel = hiltViewModel()
 
@@ -94,22 +95,25 @@ fun ConversationRouterHomeBridge(
                     }
                 }
 
-                ConversationSheetContent(
-                    conversationSheetState = conversationState,
-                    onMutingConversationStatusChange = { mutedStatus ->
-                        conversationState.muteConversation(mutedStatus)
-                        viewModel.muteConversation(conversationId = conversationState.conversationId, mutedStatus)
-                    },
-                    addConversationToFavourites = viewModel::addConversationToFavourites,
-                    moveConversationToFolder = viewModel::moveConversationToFolder,
-                    moveConversationToArchive = viewModel::moveConversationToArchive,
-                    clearConversationContent = viewModel::clearConversationContent,
-                    blockUser = blockUserDialogState::show,
-                    unblockUser = unblockUserDialogState::show,
-                    leaveGroup = leaveGroupDialogState::show,
-                    deleteGroup = deleteGroupDialogState::show
-                )
-            }
+            ConversationSheetContent(
+                conversationSheetState = conversationState,
+                onMutingConversationStatusChange = {
+                    viewModel.muteConversation(
+                        conversationId = conversationState.conversationId,
+                        mutedConversationStatus = conversationState.conversationSheetContent!!.mutingConversationState
+                    )
+                },
+                addConversationToFavourites = viewModel::addConversationToFavourites,
+                moveConversationToFolder = viewModel::moveConversationToFolder,
+                moveConversationToArchive = viewModel::moveConversationToArchive,
+                clearConversationContent = viewModel::clearConversationContent,
+                blockUser = blockUserDialogState::show,
+                unblockUser = unblockUserDialogState::show,
+                leaveGroup = leaveGroupDialogState::show,
+                deleteGroup = deleteGroupDialogState::show,
+                isBottomSheetVisible = isBottomSheetVisible
+            )
+        }
 
             onOpenBottomSheet()
         }

@@ -339,6 +339,11 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun providePersistProxyCredentialsUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
+        coreLogic.getGlobalScope().persistProxyCredentialsUseCase
+
+    @ViewModelScoped
+    @Provides
     fun providePersistOtherUsersClients(@CurrentAccount currentAccount: UserId, clientScopeProviderFactory: ClientScopeProvider.Factory) =
         clientScopeProviderFactory.create(currentAccount).clientScope.persistOtherUserClients
 

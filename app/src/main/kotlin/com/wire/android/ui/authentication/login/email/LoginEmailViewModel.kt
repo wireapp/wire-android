@@ -15,6 +15,7 @@ import com.wire.kalium.logic.data.auth.login.ProxyCredentialsModel
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
+import com.wire.kalium.logic.feature.client.PersistProxyCredentialsUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -26,6 +27,7 @@ import javax.inject.Inject
 class LoginEmailViewModel @Inject constructor(
     private val authScope: AutoVersionAuthScopeUseCase,
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
+    private val persistProxyCredentials: PersistProxyCredentialsUseCase,
     clientScopeProviderFactory: ClientScopeProvider.Factory,
     private val savedStateHandle: SavedStateHandle,
     navigationManager: NavigationManager,
@@ -59,7 +61,6 @@ class LoginEmailViewModel @Inject constructor(
                         return@launch
                     }
                 }
-
             }
 
             val loginResult = authScope.login(loginState.userIdentifier.text, loginState.password.text, true)
@@ -97,6 +98,9 @@ class LoginEmailViewModel @Inject constructor(
                     }
 
                     is RegisterClientResult.Success -> {
+                        if (serverConfig.proxy?.needsAuthentication == true) {
+                            persistProxyCredentials(loginState.proxyIdentifier.text, loginState.proxyPassword.text)
+                        }
                         navigateToConvScreen()
                     }
                 }
@@ -118,10 +122,6 @@ class LoginEmailViewModel @Inject constructor(
     }
 
     fun onProxyIdentifierChange(newText: TextFieldValue) {
-//        // in case an error is showing e.g. inline error is should be cleared
-//        if (loginState.loginError is LoginError.TextFieldError && newText != loginState.userIdentifier) {
-//            clearEmailLoginError()
-//        }
         loginState = loginState.copy(proxyIdentifier = newText).updateEmailLoginEnabled()
     }
 

@@ -124,7 +124,7 @@ private fun LoginEmailContent(
                 .padding(bottom = MaterialTheme.wireDimensions.spacing16x),
             forgotPasswordUrl = forgotPasswordUrl
         )
-        if (shouldShowProxy == true){
+        if (shouldShowProxy == true) {
             ProxyScreen()
         }
 
@@ -242,7 +242,8 @@ private fun LoginEmailScreenPreview() {
             onLoginButtonClick = suspend { },
             onUpdateApp = {},
             forgotPasswordUrl = "",
-            scope = scope
+            shouldShowProxy = true,
+            scope = scope,
         )
     }
 }

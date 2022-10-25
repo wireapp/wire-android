@@ -9,6 +9,7 @@ import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
@@ -28,6 +29,7 @@ import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
+import com.wire.android.ui.theme.wireTypography
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -36,6 +38,7 @@ fun ProxyScreen() {
     val proxyState: LoginState = loginEmailViewModel.loginState
     ProxyContent(
         proxyState = proxyState,
+        apiProxyUrl = loginEmailViewModel.serverConfig.proxy?.apiProxy,
         onProxyIdentifierChange = { loginEmailViewModel.onProxyIdentifierChange(it) },
         onProxyPasswordChange = { loginEmailViewModel.onProxyPasswordChange(it) },
     )
@@ -44,6 +47,7 @@ fun ProxyScreen() {
 @Composable
 private fun ProxyContent(
     proxyState: LoginState,
+    apiProxyUrl: String?,
     onProxyIdentifierChange: (TextFieldValue) -> Unit,
     onProxyPasswordChange: (TextFieldValue) -> Unit,
 ) {
@@ -51,6 +55,19 @@ private fun ProxyContent(
         modifier = Modifier
     ) {
         Spacer(modifier = Modifier.height(MaterialTheme.wireDimensions.spacing32x))
+        apiProxyUrl?.let {
+            Text(
+                text = stringResource(R.string.proxy_credential_description, it),
+                style = MaterialTheme.wireTypography.body01,
+//            modifier = Modifier
+//                .fillMaxWidth()
+//                .padding(
+//                    horizontal = MaterialTheme.wireDimensions.spacing16x,
+//                    vertical = MaterialTheme.wireDimensions.spacing24x
+//                )
+            )
+        }
+
         ProxyIdentifierInput(
             modifier = Modifier
                 .fillMaxWidth()
@@ -118,8 +135,10 @@ private fun ProxyScreenPreview() {
     WireTheme(isPreview = true) {
         ProxyContent(
             proxyState = LoginState(),
+            apiProxyUrl="",
             onProxyIdentifierChange = { },
             onProxyPasswordChange = { },
+
         )
     }
 }

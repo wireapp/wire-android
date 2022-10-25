@@ -40,7 +40,7 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.call.AnswerCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.AnswerCallUseCase
 import com.wire.kalium.logic.feature.connection.BlockUserResult
 import com.wire.kalium.logic.feature.connection.BlockUserUseCase
 import com.wire.kalium.logic.feature.connection.UnblockUserResult
@@ -63,7 +63,6 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Date
@@ -77,7 +76,7 @@ class ConversationListViewModel @Inject constructor(
     private val dispatcher: DispatcherProvider,
     private val updateConversationMutedStatus: UpdateConversationMutedStatusUseCase,
     private val answerCall: AnswerCallUseCase,
-    private val observeConversationListDetailsUseCase: ObserveConversationListDetailsUseCase,
+    private val observeConversationListDetails: ObserveConversationListDetailsUseCase,
     private val leaveConversation: LeaveConversationUseCase,
     private val deleteTeamConversation: DeleteTeamConversationUseCase,
     private val blockUserUseCase: BlockUserUseCase,
@@ -103,7 +102,7 @@ class ConversationListViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            searchQueryFlow.combine(observeConversationListDetailsUseCase().onEach(::conversationListDetailsToState))
+            searchQueryFlow.combine(observeConversationListDetails().onEach(::conversationListDetailsToState))
                 .flatMapLatest { (searchQuery, conversationDetails) ->
                     flow {
                         if (searchQuery.isEmpty()) {
@@ -354,7 +353,7 @@ private fun ConversationDetails.toConversationItem(
             lastEvent = ConversationLastEvent.None, // TODO implement unread events
             badgeEventType = parseConversationEventType(conversation.mutedStatus, unreadMentionsCount, unreadMessagesCount),
             hasOnGoingCall = hasOngoingCall,
-            isCreator = isSelfCreated,
+            isSelfUserCreator = isSelfUserCreator,
             isSelfUserMember = isSelfUserMember
         )
     }

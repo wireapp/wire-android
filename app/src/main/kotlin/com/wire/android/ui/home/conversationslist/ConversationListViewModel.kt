@@ -123,7 +123,7 @@ class ConversationListViewModel @Inject constructor(
     // next iteration : SQL- query ?
     private fun searchConversation(conversationDetails: List<ConversationDetails>, searchQuery: String): List<ConversationDetails> {
         val matchingConversations = conversationDetails.filter { details ->
-            details.conversation.name?.contains(searchQuery) ?: false
+            details.conversation.name?.contains(searchQuery, true) ?: false
         }
 
         return matchingConversations

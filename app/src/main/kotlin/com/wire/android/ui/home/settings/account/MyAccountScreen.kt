@@ -118,7 +118,7 @@ fun MyAccountContent(
 @Composable
 fun MyAccountScreenPreview() {
     MyAccountContent(
-        listOf(
+        accountDetailItems = listOf(
             AccountDetailsItem.DisplayName("Bob"),
             AccountDetailsItem.Username("@bob_wire"),
             AccountDetailsItem.Email("bob@wire.com"),

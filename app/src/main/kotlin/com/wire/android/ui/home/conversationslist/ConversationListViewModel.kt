@@ -119,7 +119,6 @@ class ConversationListViewModel @Inject constructor(
         }
     }
 
-
     // Mateusz : First iteration, just filter stuff
     // next iteration : SQL- query ?
     private fun searchConversation(conversationDetails: List<ConversationDetails>, searchQuery: String): List<ConversationDetails> {

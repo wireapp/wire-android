@@ -124,6 +124,6 @@ fun MyAccountScreenPreview() {
             AccountDetailsItem.Email("bob@wire.com"),
             AccountDetailsItem.Team("Wire"),
         ),
-        "http://wire.com"
+        forgotPasswordUrl = "http://wire.com"
     )
 }

@@ -123,7 +123,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
                     conversationId = conversationId,
                     mutingConversationState = groupDetails.conversation.mutedStatus,
                     conversationTypeDetail = ConversationTypeDetail.Group(conversationId, groupDetails.isSelfUserCreator),
-                    isSelfUserMember = groupDetails.isSelfUserCreator
+                    isSelfUserMember = groupDetails.isSelfUserMember
                 )
                 val isGuestAllowed = groupDetails.conversation.isGuestAllowed() || groupDetails.conversation.isNonTeamMemberAllowed()
 

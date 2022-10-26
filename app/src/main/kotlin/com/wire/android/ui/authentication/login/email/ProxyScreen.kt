@@ -3,11 +3,11 @@ package com.wire.android.ui.authentication.login.email
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material3.Divider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -20,14 +20,17 @@ import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.ui.authentication.login.LoginError
 import com.wire.android.ui.authentication.login.LoginState
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 
@@ -54,17 +57,28 @@ private fun ProxyContent(
     Column(
         modifier = Modifier
     ) {
-        Spacer(modifier = Modifier.height(MaterialTheme.wireDimensions.spacing32x))
+        Divider(color = MaterialTheme.wireColorScheme.divider, thickness = Dp.Hairline)
+        Text(
+            text = stringResource(R.string.label_proxy_credentials),
+            style = MaterialTheme.wireTypography.title03.copy(
+                color = colorsScheme().labelText
+            ),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(
+                    vertical = MaterialTheme.wireDimensions.spacing16x
+                )
+        )
+
         apiProxyUrl?.let {
             Text(
                 text = stringResource(R.string.proxy_credential_description, it),
-                style = MaterialTheme.wireTypography.body01,
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .padding(
-//                    horizontal = MaterialTheme.wireDimensions.spacing16x,
-//                    vertical = MaterialTheme.wireDimensions.spacing24x
-//                )
+                style = MaterialTheme.wireTypography.body01.copy(color = colorsScheme().onBackground),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        bottom = MaterialTheme.wireDimensions.spacing16x
+                    )
             )
         }
 
@@ -90,12 +104,6 @@ private fun ProxyContent(
         Spacer(modifier = Modifier.weight(1f))
 
     }
-
-//    if (loginState.loginError is LoginError.DialogError && loginState.loginError !is LoginError.DialogError.InvalidSession) {
-//        LoginErrorDialog(loginState.loginError, onDialogDismiss)
-//    } else if (loginState.loginError is LoginError.TooManyDevicesError) {
-//        onRemoveDeviceOpen()
-//    }
 }
 
 @Composable
@@ -124,6 +132,7 @@ private fun ProxyPasswordInput(modifier: Modifier, proxyPassword: TextFieldValue
         value = proxyPassword,
         onValueChange = onProxyPasswordChange,
         imeAction = ImeAction.Done,
+        labelText= stringResource(R.string.label_proxy_password),
         keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
         modifier = modifier.testTag("passwordField")
     )
@@ -135,10 +144,9 @@ private fun ProxyScreenPreview() {
     WireTheme(isPreview = true) {
         ProxyContent(
             proxyState = LoginState(),
-            apiProxyUrl="",
+            apiProxyUrl = "",
             onProxyIdentifierChange = { },
             onProxyPasswordChange = { },
-
         )
     }
 }

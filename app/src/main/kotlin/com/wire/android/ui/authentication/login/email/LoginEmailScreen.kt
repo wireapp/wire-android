@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
@@ -42,6 +41,7 @@ import com.wire.android.ui.authentication.login.LoginErrorDialog
 import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.textfield.AutoFillTextField
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
@@ -74,7 +74,6 @@ fun LoginEmailScreen(
         onLoginButtonClick = suspend { loginEmailViewModel.login() },
         onUpdateApp = loginEmailViewModel::updateTheApp,
         forgotPasswordUrl = loginEmailViewModel.serverConfig.forgotPassword,
-        shouldShowProxy = loginEmailViewModel.serverConfig.proxy?.needsAuthentication,
         scope = scope
     )
 }
@@ -90,7 +89,6 @@ private fun LoginEmailContent(
     onLoginButtonClick: suspend () -> Unit,
     onUpdateApp: () -> Unit,
     forgotPasswordUrl: String,
-    shouldShowProxy: Boolean?,
     scope: CoroutineScope
 ) {
     Column(
@@ -99,7 +97,19 @@ private fun LoginEmailContent(
             .verticalScroll(scrollState)
             .padding(MaterialTheme.wireDimensions.spacing16x)
     ) {
-        Spacer(modifier = Modifier.height(MaterialTheme.wireDimensions.spacing32x))
+        if (loginState.isProxyAuthRequired) {
+            Text(
+                text = stringResource(R.string.label_wire_credentials),
+                style = MaterialTheme.wireTypography.title03.copy(
+                    color = colorsScheme().labelText
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        vertical = MaterialTheme.wireDimensions.spacing16x
+                    )
+            )
+        }
         UserIdentifierInput(
             modifier = Modifier
                 .fillMaxWidth()
@@ -124,7 +134,7 @@ private fun LoginEmailContent(
                 .padding(bottom = MaterialTheme.wireDimensions.spacing16x),
             forgotPasswordUrl = forgotPasswordUrl
         )
-        if (shouldShowProxy == true) {
+        if (loginState.isProxyAuthRequired) {
             ProxyScreen()
         }
 
@@ -242,7 +252,6 @@ private fun LoginEmailScreenPreview() {
             onLoginButtonClick = suspend { },
             onUpdateApp = {},
             forgotPasswordUrl = "",
-            shouldShowProxy = true,
             scope = scope,
         )
     }

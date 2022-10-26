@@ -12,7 +12,7 @@ class NavigationManager {
     }
 
     suspend fun navigateBack(previousBackStackPassedArgs: Map<String, Any> = mapOf()) {
-        navigateBack.emit(previousBackStackPassedArgs.toMap())
+        navigateBack.emit(previousBackStackPassedArgs)
     }
 }
 

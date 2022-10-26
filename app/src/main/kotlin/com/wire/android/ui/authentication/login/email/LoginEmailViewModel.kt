@@ -38,6 +38,7 @@ class LoginEmailViewModel @Inject constructor(
     clientScopeProviderFactory,
     authServerConfigProvider
 ) {
+    @Suppress("LongMethod")
     fun login() {
         loginState = loginState.copy(emailLoginLoading = true, loginError = LoginError.None).updateEmailLoginEnabled()
         viewModelScope.launch {
@@ -72,7 +73,7 @@ class LoginEmailViewModel @Inject constructor(
                         }
 
                         is AuthenticationResult.Success -> {
-                            if (serverConfig.proxy?.needsAuthentication == true) {
+                            if (loginState.isProxyAuthRequired) {
                                 persistProxyCredentials(loginState.proxyIdentifier.text, loginState.proxyPassword.text)
                             }
                             it
@@ -91,7 +92,6 @@ class LoginEmailViewModel @Inject constructor(
                             updateEmailLoginError(it.toLoginError())
                             return@launch
                         }
-
                         is AddAuthenticatedUserUseCase.Result.Success -> it.userId
                     }
                 }
@@ -101,7 +101,6 @@ class LoginEmailViewModel @Inject constructor(
                         updateEmailLoginError(it.toLoginError())
                         return@launch
                     }
-
                     is RegisterClientResult.Success -> {
                         navigateToConvScreen()
                     }

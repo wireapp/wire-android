@@ -1,7 +1,6 @@
 package com.wire.android.ui.common.bottomsheet
 
 import androidx.annotation.DrawableRes
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
@@ -39,7 +38,7 @@ fun MenuBottomSheetItem(
     blockUntilSynced: Boolean = false,
     onItemClick: () -> Unit = {}
 ) {
-    val clickable = remember { Clickable(blockUntilSynced = blockUntilSynced) { onItemClick() } }
+    val clickable = remember(onItemClick, blockUntilSynced) { Clickable(blockUntilSynced = blockUntilSynced) { onItemClick() } }
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier

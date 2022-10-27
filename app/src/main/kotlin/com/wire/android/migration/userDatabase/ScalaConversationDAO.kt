@@ -8,7 +8,6 @@ data class ScalaConversationData(
     val remoteId: String,
     val domain: String?,
     val name: String?,
-    val creatorId: String,
     val type: Int,
     val teamId: String?,
 )
@@ -21,7 +20,6 @@ class ScalaConversationDAO(private val db: ScalaUserDatabase) {
             val domainIndex = cursor.getColumnIndex(COLUMN_DOMAIN).orNullIfNegative()
             val idIndex = cursor.getColumnIndex(COLUMN_ID)
             val nameIndex = cursor.getColumnIndex(COLUMN_NAME)
-            val creatorIdIndex = cursor.getColumnIndex(COLUMN_CREATOR)
             val typeIndex = cursor.getColumnIndex(COLUMN_TYPE)
             val teamIndex = cursor.getColumnIndex(COLUMN_TEAM)
             if (!cursor.moveToFirst()) {
@@ -33,7 +31,6 @@ class ScalaConversationDAO(private val db: ScalaUserDatabase) {
                         remoteId = cursor.getStringOrNull(idIndex).orEmpty(),
                         domain = domainIndex?.let { cursor.getStringOrNull(domainIndex) },
                         name = cursor.getStringOrNull(nameIndex),
-                        creatorId = cursor.getString(creatorIdIndex),
                         type = cursor.getInt(typeIndex),
                         teamId = cursor.getStringOrNull(teamIndex)
                     )
@@ -51,7 +48,6 @@ class ScalaConversationDAO(private val db: ScalaUserDatabase) {
         const val COLUMN_ID = "remote_id"
         const val COLUMN_DOMAIN = "domain"
         const val COLUMN_NAME = "name"
-        const val COLUMN_CREATOR = "creator"
         const val COLUMN_TYPE = "conv_type"
         const val COLUMN_TEAM = "team"
     }

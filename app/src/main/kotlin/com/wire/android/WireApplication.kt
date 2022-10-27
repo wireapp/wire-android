@@ -70,7 +70,7 @@ class WireApplication : Application(), Configuration.Provider {
             FirebaseApp.initializeApp(this)
         }
 
-//         enableDatadog()
+        enableDatadog()
 
         if (BuildConfig.PRIVATE_BUILD || coreLogic.getGlobalScope().isLoggingEnabled()) {
             enableLoggingAndInitiateFileLogging()

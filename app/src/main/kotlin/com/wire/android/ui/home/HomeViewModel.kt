@@ -95,7 +95,8 @@ class HomeViewModel @Inject constructor(
             getSelf().collect { selfUser ->
                 homeState = HomeState(
                     selfUser.previewPicture?.let { UserAvatarAsset(wireSessionImageLoader, it) },
-                    selfUser.availabilityStatus
+                    selfUser.availabilityStatus,
+                    homeState.logFilePath
                 )
             }
         }
@@ -113,7 +114,7 @@ class HomeViewModel @Inject constructor(
 data class HomeState(
     val avatarAsset: UserAvatarAsset? = null,
     val status: UserAvailabilityStatus = UserAvailabilityStatus.NONE,
-    val logFilePath: String = String.EMPTY
+    val logFilePath: String
 )
 
 // TODO change to extend [SnackBarMessage]

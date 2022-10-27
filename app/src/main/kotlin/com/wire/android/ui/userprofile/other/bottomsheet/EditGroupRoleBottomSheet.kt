@@ -1,4 +1,4 @@
-package com.wire.android.ui.userprofile.other
+package com.wire.android.ui.userprofile.other.bottomsheet
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
@@ -10,6 +10,8 @@ import com.wire.android.ui.common.bottomsheet.MenuModalSheetHeader
 import com.wire.android.ui.common.bottomsheet.SelectableMenuBottomSheetItem
 import com.wire.android.ui.common.bottomsheet.RichMenuItemState
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.ui.userprofile.other.OtherUserProfileGroupState
+import com.wire.android.ui.userprofile.other.name
 import com.wire.kalium.logic.data.conversation.Conversation.Member
 
 @Composable

@@ -7,7 +7,7 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.data.user.type.UserType
+import com.wire.kalium.logic.data.user.type.isTeammate
 
 sealed class ConversationItem {
     abstract val conversationId: ConversationId
@@ -23,7 +23,7 @@ sealed class ConversationItem {
         override val lastEvent: ConversationLastEvent,
         override val badgeEventType: BadgeEventType,
         val hasOnGoingCall: Boolean = false,
-        val isCreator: Boolean = false,
+        val isSelfUserCreator: Boolean = false,
         val isSelfUserMember: Boolean = true
     ) : ConversationItem()
 
@@ -65,8 +65,8 @@ enum class BlockingState {
 val OtherUser.BlockState: BlockingState
     get() =
         when {
+            userType.isTeammate() -> BlockingState.CAN_NOT_BE_BLOCKED
             connectionStatus == ConnectionState.BLOCKED -> BlockingState.BLOCKED
-            userType == UserType.INTERNAL -> BlockingState.CAN_NOT_BE_BLOCKED
             else -> BlockingState.NOT_BLOCKED
         }
 

@@ -12,7 +12,6 @@ import kotlinx.coroutines.Job
 interface OtherUserProfileEventsHandler {
     fun navigateBack(): Job
     fun onBlockUser(blockUserState: BlockUserDialogState)
-    fun setBottomSheetStateToChangeRole()
     fun onRemoveConversationMember(state: RemoveConversationMemberState)
     fun onUnblockUser(userId: UserId)
     fun getOtherUserClients()
@@ -21,7 +20,6 @@ interface OtherUserProfileEventsHandler {
         @Suppress("TooManyFunctions")
         val PREVIEW = object : OtherUserProfileEventsHandler {
             override fun onBlockUser(blockUserState: BlockUserDialogState) {}
-            override fun setBottomSheetStateToChangeRole() {}
             override fun onRemoveConversationMember(state: RemoveConversationMemberState) {}
             override fun onUnblockUser(userId: UserId) {}
             override fun getOtherUserClients() {}
@@ -56,24 +54,20 @@ interface OtherUserProfileFooterEventsHandler {
 interface OtherUserProfileBottomSheetEventsHandler {
     fun onChangeMemberRole(role: Conversation.Member.Role)
     fun onMutingConversationStatusChange(conversationId: ConversationId?, status: MutedConversationStatus)
-    fun onAddConversationToFavourites(conversationId: ConversationId)
-    fun onMoveConversationToFolder(conversationId: ConversationId)
-    fun onMoveConversationToArchive(conversationId: ConversationId)
-    fun onClearConversationContent(conversationId: ConversationId)
-    fun setBottomSheetStateToConversation()
-    fun setBottomSheetStateToMuteOptions()
+    fun onAddConversationToFavourites(conversationId: ConversationId? = null)
+    fun onMoveConversationToFolder(conversationId: ConversationId? = null)
+    fun onMoveConversationToArchive(conversationId: ConversationId? = null)
+    fun onClearConversationContent(conversationId: ConversationId? = null)
 
     companion object {
         @Suppress("TooManyFunctions")
         val PREVIEW = object : OtherUserProfileBottomSheetEventsHandler {
             override fun onChangeMemberRole(role: Conversation.Member.Role) {}
             override fun onMutingConversationStatusChange(conversationId: ConversationId?, status: MutedConversationStatus) {}
-            override fun onAddConversationToFavourites(conversationId: ConversationId) {}
-            override fun onMoveConversationToFolder(conversationId: ConversationId) {}
-            override fun onMoveConversationToArchive(conversationId: ConversationId) {}
-            override fun onClearConversationContent(conversationId: ConversationId) {}
-            override fun setBottomSheetStateToConversation() {}
-            override fun setBottomSheetStateToMuteOptions() {}
+            override fun onAddConversationToFavourites(conversationId: ConversationId?) {}
+            override fun onMoveConversationToFolder(conversationId: ConversationId?) {}
+            override fun onMoveConversationToArchive(conversationId: ConversationId?) {}
+            override fun onClearConversationContent(conversationId: ConversationId?) {}
         }
     }
 }

@@ -6,27 +6,23 @@ import com.wire.android.migration.util.ScalaDBNameProvider
 import com.wire.android.migration.util.openDatabaseIfExists
 import com.wire.kalium.logic.data.user.UserId
 import dagger.hilt.android.qualifiers.ApplicationContext
+import java.util.concurrent.ConcurrentHashMap
+import java.util.concurrent.ConcurrentMap
 import javax.inject.Inject
 import javax.inject.Singleton
 
-class ScalaUserDatabaseProvider
 @Singleton
-class ScalaAppDataBaseProvider @Inject constructor(
-    @ApplicationContext private val applicationContext: Context,
-    private val userId: UserId
+class ScalaUserDatabaseProvider @Inject constructor(
+    @ApplicationContext private val applicationContext: Context
 ) {
+    private val _dbs: ConcurrentMap<UserId, ScalaUserDatabase> by lazy { ConcurrentHashMap() }
 
-    private var _db: ScalaUserDatabase? = null
-    val db
-        @Synchronized
-        get() = if (_db == null) {
-            _db = applicationContext.openDatabaseIfExists(ScalaDBNameProvider.userDB(userId))
-            _db
-        } else {
-            _db
-        }
+    @Synchronized
+    fun db(userId: UserId): ScalaUserDatabase? =
+        if (_dbs[userId] != null) _dbs[userId]
+        else applicationContext.openDatabaseIfExists(ScalaDBNameProvider.userDB(userId)).also { _dbs[userId] = it }
 
-    val clientDAO: ScalaClientDAO = ScalaClientDAO(db!!)
+    fun clientDAO(userId: UserId): ScalaClientDAO? = db(userId)?.let { ScalaClientDAO(it) }
 }
 
 typealias ScalaUserDatabase = SQLiteDatabase

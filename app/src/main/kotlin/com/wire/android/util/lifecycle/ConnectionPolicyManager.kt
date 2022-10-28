@@ -2,6 +2,7 @@ package com.wire.android.util.lifecycle
 
 import com.wire.android.appLogger
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.migration.MigrationManager
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logger.KaliumLogger.Companion.ApplicationFlow.SYNC
@@ -41,7 +42,8 @@ import javax.inject.Singleton
 class ConnectionPolicyManager @Inject constructor(
     private val currentScreenManager: CurrentScreenManager,
     @KaliumCoreLogic private val coreLogic: CoreLogic,
-    private val dispatcherProvider: DispatcherProvider
+    private val dispatcherProvider: DispatcherProvider,
+    private val migrationManager: MigrationManager
 ) {
 
     private val logger = appLogger.withFeatureId(SYNC)
@@ -52,11 +54,15 @@ class ConnectionPolicyManager @Inject constructor(
     @OptIn(ExperimentalCoroutinesApi::class)
     fun startObservingAppLifecycle() {
         CoroutineScope(dispatcherProvider.default()).launch {
-            currentScreenManager.isAppOnForegroundFlow()
-                .combine(currentSessionFlow()) { isOnForeground, currentSession -> isOnForeground to currentSession }
-                .collect { (isOnForeground, currentSession) ->
+            combine(
+                currentScreenManager.isAppOnForegroundFlow(),
+                currentSessionFlow(),
+                migrationManager.isMigrationCompletedFlow(),
+                ::Triple
+            ).collect { (isOnForeground, currentSession, isMigrationCompleted) ->
+                if (isMigrationCompleted)
                     setPolicyForSessions(allValidSessions(), currentSession, isOnForeground)
-                }
+            }
         }
     }
 

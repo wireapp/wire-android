@@ -10,6 +10,7 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.functional.Either
+import com.wire.kalium.logic.functional.foldToEitherWhileRight
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -22,24 +23,15 @@ class MigrateConversationsUseCase @Inject constructor(
 
     private val logger by lazy { appLogger.withFeatureId(KaliumLogger.Companion.ApplicationFlow.CONVERSATIONS) }
 
-    suspend operator fun invoke(userIds: List<UserId>): Either<CoreFailure, Unit> {
-        userIds.forEach { userId ->
-            val sessionScope = coreLogic.getSessionScope(userId)
-            // todo: we need to migrate clients before doing this sync below
-            // sessionScope.syncManager.waitUntilLive()
-
-            val conversations = scalaUserDatabase.conversationDAO(userId)?.conversations()
-            val mappedConversations = mutableListOf<Conversation>()
-            conversations?.forEachIndexed { index, scalaConversation ->
-                logger.d("Conversation num: $index / data: $scalaConversation")
-                mappedConversations += mapper.fromScalaConversationToConversation(scalaConversation)
-                val migrated = sessionScope.conversations.persistMigratedConversation(mappedConversations)
-
-                logger.d("Migrated conversations? $migrated")
-            }
+    suspend operator fun invoke(userIds: List<UserId>): Either<CoreFailure, Unit> = userIds.foldToEitherWhileRight(Unit) { userId, _ ->
+        val sessionScope = coreLogic.getSessionScope(userId)
+        val conversations = scalaUserDatabase.conversationDAO(userId)?.conversations()
+        val mappedConversations = mutableListOf<Conversation>()
+        conversations?.forEach { scalaConversation ->
+            mappedConversations += mapper.fromScalaConversationToConversation(scalaConversation)
+            val migrated = sessionScope.conversations.persistMigratedConversation(mappedConversations)
+            logger.d("Migrated conversations? $migrated")
         }
-
-        return Either.Right(Unit)
+        Either.Right(Unit)
     }
-
 }

@@ -39,7 +39,6 @@ import com.wire.android.util.LocalSyncStateObserver
 import com.wire.android.util.SyncStateObserver
 import com.wire.android.util.debug.FeatureVisibilityFlags
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
-import com.wire.android.util.lifecycle.ConnectionPolicyManager
 import com.wire.android.util.ui.updateScreenSettings
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
@@ -67,9 +66,6 @@ class WireActivity : AppCompatActivity() {
     @Inject
     lateinit var proximitySensorManager: ProximitySensorManager
 
-    @Inject
-    lateinit var connectionPolicyManager: ConnectionPolicyManager
-
     val viewModel: WireActivityViewModel by viewModels()
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -77,9 +73,6 @@ class WireActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         proximitySensorManager.initialize()
         lifecycle.addObserver(currentScreenManager)
-
-        // todo: combine this with migration finished flag
-        connectionPolicyManager.startObservingAppLifecycle()
 
         viewModel.handleDeepLink(intent)
         setComposableContent()

@@ -17,6 +17,7 @@ import com.wire.android.util.DataDogLogger
 import com.wire.android.util.LogFileWriter
 import com.wire.android.util.extension.isGoogleServicesAvailable
 import com.wire.android.util.getDeviceId
+import com.wire.android.util.lifecycle.ConnectionPolicyManager
 import com.wire.android.util.sha256
 import com.wire.android.workmanager.WireWorkerFactory
 import com.wire.kalium.logger.KaliumLogLevel
@@ -48,6 +49,9 @@ class WireApplication : Application(), Configuration.Provider {
     @Inject
     lateinit var wireWorkerFactory: WireWorkerFactory
 
+    @Inject
+    lateinit var connectionPolicyManager: ConnectionPolicyManager
+
     override fun getWorkManagerConfiguration(): Configuration {
         return Configuration.Builder()
             .setWorkerFactory(wireWorkerFactory)
@@ -68,6 +72,8 @@ class WireApplication : Application(), Configuration.Provider {
 
         // TODO: Can be handled in one of Sync steps
         coreLogic.updateApiVersionsScheduler.schedulePeriodicApiVersionUpdate()
+
+        connectionPolicyManager.startObservingAppLifecycle()
 
         logDeviceInformation()
     }

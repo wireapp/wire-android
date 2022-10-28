@@ -43,7 +43,7 @@ class MigrateClientsDataUseCase @Inject constructor(
                         Either.Left(MigrationFailure.ClientNotRegistered)
                     }
                     is PersistRegisteredClientIdResult.Success ->
-                        Either.Right(acc)
+                        Either.Right(acc + userId)
                 }
             }
         }

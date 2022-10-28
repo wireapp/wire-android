@@ -7,6 +7,7 @@ import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.preferencesDataStore
 import dagger.hilt.android.qualifiers.ApplicationContext
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.flow.map
 import javax.inject.Inject
@@ -27,8 +28,10 @@ class GlobalDataStore @Inject constructor(@ApplicationContext private val contex
         context.dataStore.edit { it.clear() }
     }
 
-    suspend fun isMigrationCompleted(): Boolean =
-        context.dataStore.data.map { it[MIGRATION_COMPLETED] }.firstOrNull() ?: false
+    fun isMigrationCompletedFlow(): Flow<Boolean> = context.dataStore.data.map { it[MIGRATION_COMPLETED] ?: false }
+
+    suspend fun isMigrationCompleted(): Boolean = isMigrationCompletedFlow().firstOrNull() ?: false
+
 
     suspend fun setMigrationCompleted() {
         context.dataStore.edit { it[MIGRATION_COMPLETED] = true }

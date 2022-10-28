@@ -1,21 +1,25 @@
 package com.wire.android.ui.calling.controlbuttons
 
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.material.ripple.rememberRipple
+import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
-import com.wire.android.ui.theme.wireDimensions
+import com.wire.android.ui.common.dimensions
 
 @Composable
 fun CameraFlipButton(
@@ -25,12 +29,20 @@ fun CameraFlipButton(
     var isCameraFlipped by remember { mutableStateOf(isCameraFlipped) }
 
     IconButton(
-        modifier = Modifier
-            .width(MaterialTheme.wireDimensions.defaultCallingControlsSize)
-            .height(MaterialTheme.wireDimensions.defaultCallingControlsSize),
-        onClick = onCameraFlipButtonClicked
+        modifier = Modifier.size(dimensions().defaultCallingControlsSize),
+        onClick = {}
     ) {
-        Image(
+        Icon(
+            modifier = Modifier
+                .wrapContentSize()
+                .clickable(
+                    interactionSource = remember { MutableInteractionSource() },
+                    indication = rememberRipple(bounded = false, radius = dimensions().defaultCallingControlsSize / 2),
+                    role = Role.Button,
+                    onClick = {
+                        onCameraFlipButtonClicked()
+                    }
+                ),
             painter = painterResource(
                 id = if (isCameraFlipped)
                     R.drawable.ic_flip_camera_on
@@ -40,6 +52,7 @@ fun CameraFlipButton(
                 id = if (isCameraFlipped) R.string.content_description_calling_flip_camera_on
                 else R.string.content_description_calling_flip_camera_off
             ),
+            tint = Color.Unspecified
         )
     }
 }

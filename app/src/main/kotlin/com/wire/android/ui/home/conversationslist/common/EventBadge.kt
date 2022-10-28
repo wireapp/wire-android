@@ -17,9 +17,9 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.BlockedLabel
+import com.wire.android.ui.common.DeletedLabel
 import com.wire.android.ui.common.button.WireItemLabel
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.model.BadgeEventType
@@ -37,6 +37,7 @@ fun EventBadgeFactory(eventType: BadgeEventType, modifier: Modifier = Modifier) 
         BadgeEventType.ReceivedConnectionRequest -> ConnectRequestBadge(modifier)
         BadgeEventType.SentConnectRequest -> ConnectPendingRequestBadge(modifier)
         BadgeEventType.Blocked -> BlockedLabel(modifier)
+        BadgeEventType.Deleted -> DeletedLabel(modifier)
     }
 }
 

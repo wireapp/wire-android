@@ -97,7 +97,6 @@ class ConversationInfoViewModel @Inject constructor(
             conversationName = getConversationName(conversationDetails, isConversationUnavailable),
             conversationAvatar = getConversationAvatar(conversationDetails),
             conversationDetailsData = detailsData,
-            isUserBlocked = isUserBlocked,
             hasUserPermissionToEdit = detailsData !is ConversationDetailsData.None,
             conversationType = conversationDetails.conversation.type
         )
@@ -107,8 +106,10 @@ class ConversationInfoViewModel @Inject constructor(
         when (conversationDetails) {
             is ConversationDetails.Group -> ConversationDetailsData.Group(conversationDetails.conversation.id)
             is ConversationDetails.OneOne -> ConversationDetailsData.OneOne(
-                conversationDetails.otherUser.id,
-                conversationDetails.otherUser.connectionStatus
+                otherUserId = conversationDetails.otherUser.id,
+                connectionState = conversationDetails.otherUser.connectionStatus,
+                isBlocked = conversationDetails.otherUser.connectionStatus == ConnectionState.BLOCKED,
+                isDeleted = conversationDetails.otherUser.deleted
             )
 
             else -> ConversationDetailsData.None

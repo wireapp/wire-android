@@ -17,7 +17,7 @@ import com.wire.android.R
 import com.wire.android.ui.theme.wireTypography
 
 @Composable
-fun BlockedLabel(modifier: Modifier = Modifier) {
+fun DeletedLabel(modifier: Modifier = Modifier) {
     Box(
         modifier = modifier.border(
             width = dimensions().spacing1x,
@@ -26,7 +26,7 @@ fun BlockedLabel(modifier: Modifier = Modifier) {
         )
     ) {
         Text(
-            text = stringResource(id = R.string.label_user_blocked),
+            text = stringResource(id = R.string.label_user_deleted),
             color = colorsScheme().labelText,
             style = MaterialTheme.wireTypography.label03.copy(textAlign = TextAlign.Center),
             maxLines = 1,
@@ -40,6 +40,6 @@ fun BlockedLabel(modifier: Modifier = Modifier) {
 
 @Preview
 @Composable
-fun BlockedLabelPreview() {
-    BlockedLabel()
+fun DeletedLabelPreview() {
+    DeletedLabel()
 }

@@ -79,6 +79,7 @@ import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.ConferenceCallingResult
 import kotlinx.collections.immutable.ImmutableMap
+import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
@@ -172,7 +173,7 @@ fun ConversationScreen(
         tempCachePath = messageComposerViewModel.provideTempCachePath(),
         onOpenProfile = conversationInfoViewModel::navigateToProfile,
         onUpdateConversationReadDate = messageComposerViewModel::updateConversationReadDate,
-        isSendingMessagesAllowed = messageComposerViewModel.isSendingMessagesAllowed,
+        interactionAvailability = messageComposerViewModel.interactionAvailability,
     )
     DeleteMessageDialog(
         state = messageComposerViewModel.deleteMessageDialogsState,
@@ -253,7 +254,7 @@ private fun ConversationScreen(
     tempCachePath: Path,
     onOpenProfile: (MessageSource, UserId) -> Unit,
     onUpdateConversationReadDate: (String) -> Unit,
-    isSendingMessagesAllowed: Boolean,
+    interactionAvailability: InteractionAvailability,
 ) {
     val conversationScreenState = rememberConversationScreenState()
 
@@ -325,8 +326,7 @@ private fun ConversationScreen(
                             onPhoneButtonClick = onStartCall,
                             hasOngoingCall = conversationCallViewState.hasOngoingCall,
                             onJoinCallButtonClick = onJoinCall,
-                            isUserBlocked = conversationInfoViewState.isUserBlocked,
-                            isCallingEnabled = isSendingMessagesAllowed
+                            isInteractionEnabled = interactionAvailability == InteractionAvailability.ENABLED
                         )
                         ConversationBanner(bannerMessage)
                     }
@@ -356,10 +356,9 @@ private fun ConversationScreen(
                             conversationScreenState = conversationScreenState,
                             isFileSharingEnabled = conversationViewState.isFileSharingEnabled,
                             tempCachePath = tempCachePath,
-                            isUserBlocked = conversationInfoViewState.isUserBlocked,
-                            isSendingMessagesAllowed = isSendingMessagesAllowed,
+                            interactionAvailability = interactionAvailability,
                             onOpenProfile = onOpenProfile,
-                            onUpdateConversationReadDate = onUpdateConversationReadDate
+                            onUpdateConversationReadDate = onUpdateConversationReadDate,
                         )
                     }
                 }
@@ -387,9 +386,8 @@ private fun ConversationScreenContent(
     onSnackbarMessageShown: () -> Unit,
     conversationScreenState: ConversationScreenState,
     isFileSharingEnabled: Boolean,
-    isUserBlocked: Boolean,
-    isSendingMessagesAllowed: Boolean,
     tempCachePath: Path,
+    interactionAvailability: InteractionAvailability,
     onUpdateConversationReadDate: (String) -> Unit
 ) {
     SnackBarMessage(snackbarMessage, conversationState, conversationScreenState, onSnackbarMessageShown)
@@ -423,8 +421,7 @@ private fun ConversationScreenContent(
         onMessageComposerInputStateChange = onMessageComposerInputStateChange,
         isFileSharingEnabled = isFileSharingEnabled,
         tempCachePath = tempCachePath,
-        isUserBlocked = isUserBlocked,
-        isSendingMessagesAllowed = isSendingMessagesAllowed,
+        interactionAvailability = interactionAvailability,
         securityClassificationType = conversationState.securityClassificationType
     )
 }
@@ -562,6 +559,6 @@ fun ConversationScreenPreview() {
         tempCachePath = "".toPath(),
         onOpenProfile = { _, _ -> },
         onUpdateConversationReadDate = { },
-        isSendingMessagesAllowed = true
+        interactionAvailability = InteractionAvailability.ENABLED,
     )
 }

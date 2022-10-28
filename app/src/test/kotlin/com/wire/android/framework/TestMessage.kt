@@ -96,7 +96,8 @@ object TestMessage {
         messageTime = MessageTime("12.23pm"),
         messageStatus = MessageStatus.Untouched,
         messageId = "messageID",
-        connectionState = null
+        connectionState = null,
+        isDeleted = false
     )
     val UI_TEXT_MESSAGE = UIMessage(
         userAvatarData = UserAvatarData(asset = null, availabilityStatus = UserAvailabilityStatus.NONE),

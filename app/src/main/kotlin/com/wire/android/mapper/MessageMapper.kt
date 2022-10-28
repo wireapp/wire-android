@@ -74,9 +74,8 @@ class MessageMapper @Inject constructor(
     }
 
     private fun provideMessageHeader(sender: User?, message: Message): MessageHeader = MessageHeader(
-        // TODO: Designs for deleted users?
         username = sender?.name?.let { UIText.DynamicString(it) }
-            ?: UIText.StringResource(R.string.member_name_deleted_label),
+            ?: UIText.StringResource(R.string.username_unavailable_label),
         membership = when (sender) {
             is OtherUser -> userTypeMapper.toMembership(sender.userType)
             is SelfUser, null -> Membership.None
@@ -86,7 +85,11 @@ class MessageMapper @Inject constructor(
         messageTime = MessageTime(message.date),
         messageStatus = getMessageStatus(message),
         messageId = message.id,
-        userId = sender?.id
+        userId = sender?.id,
+        isDeleted = when (sender) {
+            is OtherUser -> sender.deleted
+            is SelfUser, null -> false
+        }
     )
 
     private fun getMessageStatus(message: Message) = when {

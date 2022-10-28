@@ -6,7 +6,6 @@ import com.wire.android.util.orDefault
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.id.PlainId
 import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.data.user.SsoId
 import java.time.LocalDateTime
@@ -40,12 +39,11 @@ class MigrationMapper @Inject constructor() {
         )
     }
 
-    // UNKNOWN(-1), GROUP(0), SELF(1), ONE_TO_ONE(2), WAIT_FOR_CONNECTION(3), INCOMING_CONNECTION(4)
     private fun mapConversationType(type: Int): Conversation.Type = when (type) {
         0 -> Conversation.Type.GROUP
         1 -> Conversation.Type.SELF
         2 -> Conversation.Type.ONE_ON_ONE
         3, 4 -> Conversation.Type.CONNECTION_PENDING
-        else -> Conversation.Type.ONE_ON_ONE // what should we do here ?
+        else -> throw RuntimeException("Could not map conversation type")
     }
 }

@@ -2,6 +2,7 @@ package com.wire.android.migration.feature
 
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.migration.MigrationMapper
+import com.wire.android.migration.failure.MigrationFailure
 import com.wire.android.migration.globalDatabase.ScalaActiveAccountsEntity
 import com.wire.android.migration.globalDatabase.ScalaAppDataBaseProvider
 import com.wire.kalium.logic.CoreFailure
@@ -12,29 +13,26 @@ import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthTokens
 import com.wire.kalium.logic.feature.auth.sso.SSOLoginSessionResult
 import com.wire.kalium.logic.functional.Either
-import com.wire.kalium.logic.functional.fold
+import com.wire.kalium.logic.functional.flatMap
+import com.wire.kalium.logic.functional.foldToEitherWhileRight
 import javax.inject.Inject
 import javax.inject.Singleton
 
-@Suppress("ReturnCount")
 @Singleton
 class MigrateActiveAccountsUseCase @Inject constructor(
     @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val scalaGlobalDB: ScalaAppDataBaseProvider,
     private val mapper: MigrationMapper
 ) {
-    suspend operator fun invoke(serverConfig: ServerConfig): Either<CoreFailure, List<UserId>> {
-        val activeAccounts = scalaGlobalDB.scalaAccountsDAO.activeAccounts()
-        val userIds = mutableListOf<UserId>()
-        activeAccounts.forEach {
-            val activeAccount = it.copy(refreshToken = (REFRESH_TOKEN_SUFFIX + it.refreshToken))
+    suspend operator fun invoke(serverConfig: ServerConfig): Either<CoreFailure, List<UserId>> =
+        scalaGlobalDB.scalaAccountsDAO.activeAccounts().foldToEitherWhileRight(emptyList()) { item, acc ->
 
+            val activeAccount = item.copy(refreshToken = item.refreshToken.removePrefix(REFRESH_TOKEN_PREFIX))
             val isDataComplete = isDataComplete(serverConfig, activeAccount)
             val ssoId = activeAccount.ssoId?.let { ssoId -> mapper.fromScalaSsoID(ssoId) }
-
-            val authToken = if (isDataComplete) {
+            val authTokensEither: Either<CoreFailure, AuthTokens> = if (isDataComplete) {
                 val domain = activeAccount.domain ?: serverConfig.metaData.domain!!
-                val userId = UserId(activeAccount.id, domain).also { userId -> userIds += userId }
+                val userId = UserId(activeAccount.id, domain)
                 Either.Right(
                     AuthTokens(
                         userId = userId,
@@ -48,23 +46,23 @@ class MigrateActiveAccountsUseCase @Inject constructor(
                     serverConfig,
                     activeAccount.refreshToken
                 )
-            }.fold({ return Either.Left(it) }, { it })
+            }
 
-            coreLogic.globalScope {
-                addAuthenticatedAccount(
-                    serverConfigId = serverConfig.id,
-                    ssoId = ssoId,
-                    authTokens = authToken,
-                    replace = false
-                )
-            }.also {
-                if (it is AddAuthenticatedUserUseCase.Result.Failure.Generic) {
-                    return Either.Left(it.genericFailure)
+            authTokensEither.flatMap { authTokens ->
+                val addAccountResult = coreLogic.globalScope {
+                    addAuthenticatedAccount(
+                        serverConfigId = serverConfig.id,
+                        ssoId = ssoId,
+                        authTokens = authTokens,
+                        replace = false
+                    )
+                }
+                when (addAccountResult) {
+                    is AddAuthenticatedUserUseCase.Result.Failure.Generic -> Either.Left(addAccountResult.genericFailure)
+                    else -> Either.Right(acc + authTokens.userId)
                 }
             }
         }
-        return Either.Right(userIds)
-    }
 
     private fun isDataComplete(serverConfig: ServerConfig, activeAccount: ScalaActiveAccountsEntity): Boolean {
         val isDomainExist = (activeAccount.domain != null) or (serverConfig.metaData.domain != null)
@@ -86,13 +84,6 @@ class MigrateActiveAccountsUseCase @Inject constructor(
     }
 
     private companion object {
-        const val REFRESH_TOKEN_SUFFIX = "zuid="
+        const val REFRESH_TOKEN_PREFIX = "zuid="
     }
 }
-
-
-sealed class MigrationFailure : CoreFailure.FeatureFailure() {
-    object InvalidRefreshToken : MigrationFailure()
-}
-
-

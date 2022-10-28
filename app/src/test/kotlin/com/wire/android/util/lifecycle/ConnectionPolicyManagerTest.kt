@@ -1,6 +1,7 @@
 package com.wire.android.util.lifecycle
 
 import com.wire.android.config.TestDispatcherProvider
+import com.wire.android.migration.MigrationManager
 import com.wire.android.util.CurrentScreenManager
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.session.SessionRepository
@@ -19,6 +20,7 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Test
 
@@ -129,8 +131,11 @@ class ConnectionPolicyManagerTest {
         @MockK
         lateinit var sessionRepository: SessionRepository
 
+        @MockK
+        lateinit var migrationManager: MigrationManager
+
         private val connectionPolicyManager by lazy {
-            ConnectionPolicyManager(currentScreenManager, coreLogic, TestDispatcherProvider())
+            ConnectionPolicyManager(currentScreenManager, coreLogic, TestDispatcherProvider(), migrationManager)
         }
 
         init {
@@ -141,6 +146,7 @@ class ConnectionPolicyManagerTest {
             every { userSessionScope.setConnectionPolicy } returns setConnectionPolicyUseCase
             every { userSessionScope.syncManager } returns syncManager
             coEvery { syncManager.waitUntilLiveOrFailure() } returns Either.Right(Unit)
+            every { migrationManager.isMigrationCompletedFlow() } returns flowOf(true)
         }
 
         fun withAppInTheBackground() = apply {

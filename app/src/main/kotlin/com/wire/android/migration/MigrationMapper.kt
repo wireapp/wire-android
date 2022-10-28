@@ -23,27 +23,29 @@ class MigrationMapper @Inject constructor() {
     }
 
     fun fromScalaConversationToConversation(scalaConversation: ScalaConversationData) = with(scalaConversation) {
-        Conversation(
-            id = ConversationId(remoteId, domain.orDefault("wire.com")),
-            name = name,
-            type = mapConversationType(type),
-            teamId = scalaConversation.teamId?.let { TeamId(it) },
-            protocol = Conversation.ProtocolInfo.Proteus,
-            mutedStatus = MutedConversationStatus.AllAllowed,
-            access = listOf(),
-            accessRole = listOf(),
-            removedBy = null,
-            lastReadDate = LocalDateTime.MIN.toString(),
-            lastModifiedDate = LocalDateTime.MIN.toString(),
-            lastNotificationDate = LocalDateTime.MIN.toString()
-        )
+        mapConversationType(type)?.let {
+            Conversation(
+                id = ConversationId(remoteId, domain.orDefault("wire.com")),
+                name = name,
+                type = it,
+                teamId = scalaConversation.teamId?.let { TeamId(it) },
+                protocol = Conversation.ProtocolInfo.Proteus,
+                mutedStatus = MutedConversationStatus.AllAllowed,
+                access = listOf(),
+                accessRole = listOf(),
+                removedBy = null,
+                lastReadDate = LocalDateTime.MIN.toString(),
+                lastModifiedDate = LocalDateTime.MIN.toString(),
+                lastNotificationDate = LocalDateTime.MIN.toString()
+            )
+        }
     }
 
-    private fun mapConversationType(type: Int): Conversation.Type = when (type) {
+    private fun mapConversationType(type: Int): Conversation.Type? = when (type) {
         0 -> Conversation.Type.GROUP
         1 -> Conversation.Type.SELF
         2 -> Conversation.Type.ONE_ON_ONE
         3, 4 -> Conversation.Type.CONNECTION_PENDING
-        else -> throw RuntimeException("Could not map conversation type")
+        else -> null
     }
 }

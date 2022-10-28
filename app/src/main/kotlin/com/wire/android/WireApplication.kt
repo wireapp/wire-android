@@ -47,10 +47,10 @@ class WireApplication : Application(), Configuration.Provider {
     lateinit var logFileWriter: LogFileWriter
 
     @Inject
-    lateinit var wireWorkerFactory: WireWorkerFactory
+    lateinit var connectionPolicyManager: ConnectionPolicyManager
 
     @Inject
-    lateinit var connectionPolicyManager: ConnectionPolicyManager
+    lateinit var wireWorkerFactory: WireWorkerFactory
 
     override fun getWorkManagerConfiguration(): Configuration {
         return Configuration.Builder()

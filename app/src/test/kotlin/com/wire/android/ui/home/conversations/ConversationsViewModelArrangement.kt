@@ -207,6 +207,7 @@ internal fun withMockConversationDetailsOneOnOne(
         every { availabilityStatus } returns UserAvailabilityStatus.NONE
         every { connectionStatus } returns connectionState
         every { isUnavailableUser } returns unavailable
+        every { deleted } returns false
     },
     legalHoldStatus = LegalHoldStatus.DISABLED,
     userType = UserType.INTERNAL,

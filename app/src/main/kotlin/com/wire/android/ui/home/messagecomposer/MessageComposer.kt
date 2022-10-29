@@ -9,22 +9,29 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.Divider
 import androidx.compose.material.Surface
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
@@ -39,14 +46,20 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.wire.android.R
+import com.wire.android.model.Clickable
+import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.common.SecurityClassificationBanner
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
+import com.wire.android.ui.home.conversations.mention.MemberItemToMention
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
+import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.messagecomposer.attachment.AttachmentOptions
+import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
+import kotlinx.coroutines.flow.distinctUntilChanged
 import okio.Path
 
 @Composable
@@ -55,6 +68,7 @@ fun MessageComposer(
     content: @Composable () -> Unit,
     onSendTextMessage: (String) -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
+    onMentionMember: (String) -> Unit,
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
     onMessageComposerInputStateChange: (MessageComposerStateTransition) -> Unit,
     isFileSharingEnabled: Boolean,
@@ -73,6 +87,14 @@ fun MessageComposer(
             {
                 onSendTextMessage(messageComposerState.messageText.text)
                 messageComposerState.messageText = TextFieldValue("")
+            }
+        }
+
+        LaunchedEffect(messageComposerState) {
+            snapshotFlow { messageComposerState.mentionString }.distinctUntilChanged().collect {
+                if (it.isNotEmpty()) {
+                    onMentionMember(it.replaceFirst("@", ""))
+                }
             }
         }
 
@@ -162,7 +184,7 @@ private fun MessageComposer(
                         height = Dimension.fillToConstraints
                     }) {
 
-                val (additionalActions, sendActions, messageInput) = createRefs()
+                val (additionalActions, sendActions, messageInput, mentions) = createRefs()
                 // Column wrapping the content passed as Box with weight = 1f as @Composable lambda and the MessageComposerInput with
                 // CollapseIconButton
                 Column(
@@ -196,6 +218,27 @@ private fun MessageComposer(
                     if (isUserBlocked) {
                         BlockedUserMessage()
                     } else if (isSendingMessagesAllowed) {
+                        if(messageComposerState.messageComposeInputState != MessageComposeInputState.FullScreen) {
+                            Column(
+                                modifier = Modifier
+                                    .heightIn(50.dp, 200.dp)
+                                    .wrapContentHeight()
+                                    .animateContentSize()
+                                    .verticalScroll(rememberScrollState()),
+                                verticalArrangement = Arrangement.Bottom
+                            ) {
+                                MemberItemToMention(
+                                    avatarData = UserAvatarData(),
+                                    name = "name",
+                                    label = "handle",
+                                    membership = Membership.Federated,
+                                    searchQuery = "search",
+                                    connectionState = ConnectionState.ACCEPTED,
+                                    clickable = Clickable(),
+                                    modifier = Modifier
+                                )
+                            }
+                        }
                         // Column wrapping CollapseIconButton and MessageComposerInput
                         Column(
                             modifier = Modifier

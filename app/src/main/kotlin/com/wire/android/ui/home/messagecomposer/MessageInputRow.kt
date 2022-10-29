@@ -24,6 +24,8 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.wireTextFieldColors
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.EMPTY
+import com.wire.android.util.WHITE_SPACE
 
 @ExperimentalAnimationApi
 @Composable
@@ -63,6 +65,15 @@ fun ColumnScope.MessageComposerInputRow(
         MessageComposerInput(
             messageText = messageComposerState.messageText,
             onMessageTextChanged = { value ->
+
+                if (((value.text.split(String.WHITE_SPACE).last().startsWith("@") && messageComposerState.mentionString.isEmpty()) ||
+                    (messageComposerState.mentionString.isNotEmpty() && !value.text.endsWith(String.WHITE_SPACE))) && value.text.isNotEmpty()
+                )
+                    messageComposerState.mentionString = value.text.split(String.WHITE_SPACE).last()
+                else
+                    messageComposerState.mentionString = String.EMPTY
+
+
                 messageComposerState.messageText = value
             },
             messageComposerInputState = messageComposerState.messageComposeInputState,

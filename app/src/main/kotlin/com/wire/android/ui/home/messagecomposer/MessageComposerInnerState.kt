@@ -51,6 +51,8 @@ data class MessageComposerInnerState(
 
     var isKeyboardShown by mutableStateOf(false)
 
+    var mentionString by mutableStateOf("")
+
     var messageText by mutableStateOf(TextFieldValue(""))
 
     var messageComposeInputState by mutableStateOf(MessageComposeInputState.Enabled)

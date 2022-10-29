@@ -30,11 +30,13 @@ import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
+import com.wire.kalium.logic.data.conversation.MemberDetails
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageResult
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
 import com.wire.kalium.logic.feature.conversation.GetSecurityClassificationTypeUseCase
 import com.wire.kalium.logic.feature.conversation.IsSelfUserMemberResult
+import com.wire.kalium.logic.feature.conversation.MembersToMentionUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveIsSelfUserMemberUseCase
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationTypeResult
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
@@ -68,13 +70,16 @@ class MessageComposerViewModel @Inject constructor(
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val kaliumFileSystem: KaliumFileSystem,
     private val updateConversationReadDateUseCase: UpdateConversationReadDateUseCase,
-    private val getConversationClassifiedType: GetSecurityClassificationTypeUseCase
+    private val getConversationClassifiedType: GetSecurityClassificationTypeUseCase,
+    private val membersToMention: MembersToMentionUseCase
 ) : SavedStateViewModel(savedStateHandle) {
 
     var conversationViewState by mutableStateOf(ConversationViewState())
         private set
 
     var isSendingMessagesAllowed by mutableStateOf(true)
+
+    var mentionsToSelect by mutableStateOf<List<MemberDetails>>(listOf())
 
     var deleteMessageDialogsState: DeleteMessageDialogsState by mutableStateOf(
         DeleteMessageDialogsState.States(
@@ -217,6 +222,14 @@ class MessageComposerViewModel @Inject constructor(
                     }
                 }
             }
+        }
+    }
+
+
+    fun mentionMember(searchQuery: String) {
+        viewModelScope.launch {
+            val members = membersToMention(conversationId, searchQuery)
+            mentionsToSelect = members
         }
     }
 

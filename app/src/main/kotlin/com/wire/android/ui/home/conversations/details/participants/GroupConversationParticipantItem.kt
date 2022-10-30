@@ -60,7 +60,8 @@ fun GroupConversationParticipantItem(
                 UserBadge(
                     membership = uiParticipant.membership,
                     connectionState = uiParticipant.connectionState,
-                    startPadding = dimensions().spacing6x
+                    startPadding = dimensions().spacing6x,
+                    isDeleted = uiParticipant.isDeleted
                 )
             }
 

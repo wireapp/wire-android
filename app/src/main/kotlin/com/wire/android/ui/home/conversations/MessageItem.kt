@@ -172,7 +172,8 @@ private fun MessageHeader(
                     UserBadge(
                         membership = membership,
                         connectionState = connectionState,
-                        startPadding = dimensions().spacing6x
+                        startPadding = dimensions().spacing6x,
+                        isDeleted = isDeleted
                     )
 
                     if (isLegalHold) {

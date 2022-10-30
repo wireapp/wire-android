@@ -8,5 +8,6 @@ sealed class BadgeEventType {
     object ReceivedConnectionRequest : BadgeEventType()
     object SentConnectRequest : BadgeEventType()
     object Blocked : BadgeEventType()
+    object Deleted : BadgeEventType()
     object None : BadgeEventType()
 }

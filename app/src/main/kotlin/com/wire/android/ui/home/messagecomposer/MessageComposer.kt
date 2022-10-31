@@ -232,19 +232,21 @@ private fun MessageComposer(
                                 reverseLayout = true
                             ) {
                                 membersToMention.forEach {
-                                    item {
-                                        MemberItemToMention(
-                                            avatarData = it.avatarData,
-                                            name = it.name,
-                                            label = it.label,
-                                            membership = it.membership,
-                                            clickable = Clickable(),
-                                            modifier = Modifier
-                                        )
-                                        Divider(
-                                            color = MaterialTheme.wireColorScheme.divider,
-                                            thickness = Dp.Hairline
-                                        )
+                                    if(it.membership != Membership.Service) {
+                                        item {
+                                            MemberItemToMention(
+                                                avatarData = it.avatarData,
+                                                name = it.name,
+                                                label = it.label,
+                                                membership = it.membership,
+                                                clickable = Clickable(),
+                                                modifier = Modifier
+                                            )
+                                            Divider(
+                                                color = MaterialTheme.wireColorScheme.divider,
+                                                thickness = Dp.Hairline
+                                            )
+                                        }
                                     }
                                 }
                             }

@@ -83,7 +83,7 @@ object Libraries {
         const val coil = "2.2.1"
         const val exif = "1.3.3"
         const val firebaseBOM = "29.3.1"
-        const val dataDog = "1.13.0"
+        const val dataDog = "1.14.1"
         const val ktxDateTime = "0.4.0"
         const val ktxSerialization = "1.3.2"
         const val ktxImmutableCollections = "0.3.5"

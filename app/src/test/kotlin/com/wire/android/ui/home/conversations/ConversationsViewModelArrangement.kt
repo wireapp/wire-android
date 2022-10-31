@@ -35,8 +35,9 @@ import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
 import com.wire.kalium.logic.feature.conversation.GetSecurityClassificationTypeUseCase
-import com.wire.kalium.logic.feature.conversation.IsSelfUserMemberResult
-import com.wire.kalium.logic.feature.conversation.ObserveIsSelfUserMemberUseCase
+import com.wire.kalium.logic.feature.conversation.InteractionAvailability
+import com.wire.kalium.logic.feature.conversation.IsInteractionAvailableResult
+import com.wire.kalium.logic.feature.conversation.ObserveConversationInteractionAvailabilityUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
@@ -109,7 +110,7 @@ internal class ConversationsViewModelArrangement {
     private lateinit var observeEstablishedCallsUseCase: ObserveEstablishedCallsUseCase
 
     @MockK
-    private lateinit var observeIsSelfUserMemberUseCase: ObserveIsSelfUserMemberUseCase
+    private lateinit var observeConversationInteractionAvailabilityUseCase: ObserveConversationInteractionAvailabilityUseCase
 
     @MockK
     private lateinit var endCall: EndCallUseCase
@@ -139,7 +140,7 @@ internal class ConversationsViewModelArrangement {
             wireSessionImageLoader = wireSessionImageLoader,
             kaliumFileSystem = fakeKaliumFileSystem,
             updateConversationReadDateUseCase = updateConversationReadDateUseCase,
-            observeIsSelfConversationMember = observeIsSelfUserMemberUseCase,
+            observeConversationInteractionAvailability = observeConversationInteractionAvailabilityUseCase,
             getConversationClassifiedType = getSecurityClassificationType
         )
     }
@@ -148,7 +149,11 @@ internal class ConversationsViewModelArrangement {
         coEvery { isFileSharingEnabledUseCase() } returns FileSharingStatus(null, null)
         coEvery { observeOngoingCallsUseCase() } returns emptyFlow()
         coEvery { observeEstablishedCallsUseCase() } returns emptyFlow()
-        coEvery { observeIsSelfUserMemberUseCase(any()) } returns flowOf(IsSelfUserMemberResult.Success(true))
+        coEvery { observeConversationInteractionAvailabilityUseCase(any()) } returns flowOf(
+            IsInteractionAvailableResult.Success(
+                InteractionAvailability.ENABLED
+            )
+        )
     }
 
     fun withStoredAsset(dataPath: Path, dataContent: ByteArray) = apply {
@@ -202,6 +207,7 @@ internal fun withMockConversationDetailsOneOnOne(
         every { availabilityStatus } returns UserAvailabilityStatus.NONE
         every { connectionStatus } returns connectionState
         every { isUnavailableUser } returns unavailable
+        every { deleted } returns false
     },
     legalHoldStatus = LegalHoldStatus.DISABLED,
     userType = UserType.INTERNAL,

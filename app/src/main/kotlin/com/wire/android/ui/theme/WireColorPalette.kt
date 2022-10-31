@@ -152,4 +152,7 @@ object WireColorPalette {
     @Stable val Gray100 = Color(0xFF17181A)
 
     @Stable val GrayRed900  = Color(0xFF390000)
+
+    @Stable val messageMentionBackground = Color(0x1A0772DE)
+    @Stable val messageMentionText = Color(0xFF0772DE)
 }

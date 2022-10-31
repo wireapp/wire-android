@@ -34,6 +34,7 @@ sealed class DownloadedAssetDialogVisibilityState {
 
 sealed class ConversationDetailsData {
     object None : ConversationDetailsData()
-    data class OneOne(val otherUserId: UserId, val connectionState: ConnectionState) : ConversationDetailsData()
+    data class OneOne(val otherUserId: UserId, val connectionState: ConnectionState, val isBlocked: Boolean, val isDeleted: Boolean) :
+        ConversationDetailsData()
     data class Group(val conversationId: QualifiedID) : ConversationDetailsData()
 }

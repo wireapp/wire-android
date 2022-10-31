@@ -133,7 +133,7 @@ class MessageContentMapper @Inject constructor(
 
     fun toText(content: MessageContent) = MessageBody(
         when (content) {
-            is MessageContent.Text -> UIText.DynamicString(content.value)
+            is MessageContent.Text -> UIText.DynamicString(content.value, content.mentions)
             is MessageContent.Unknown -> UIText.StringResource(
                 messageResourceProvider.sentAMessageWithContent, content.typeName ?: "Unknown"
             )

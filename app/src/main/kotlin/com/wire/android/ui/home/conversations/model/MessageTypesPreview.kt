@@ -26,7 +26,7 @@ fun PreviewMessage() {
         onLongClicked = {},
         onAssetMessageClicked = {},
         onImageMessageClicked = { _, _ -> },
-        onAvatarClicked = { _, _ -> },
+        onOpenProfile = { _ -> },
         onReactionClicked = { _, _ -> }
     )
 }
@@ -41,7 +41,7 @@ fun PreviewDeletedMessage() {
         onLongClicked = {},
         onAssetMessageClicked = {},
         onImageMessageClicked = { _, _ -> },
-        onAvatarClicked = { _, _ -> },
+        onOpenProfile = { _ -> },
         onReactionClicked = { _, _ -> }
     )
 }
@@ -54,7 +54,7 @@ fun PreviewAssetMessage() {
         onLongClicked = {},
         onAssetMessageClicked = {},
         onImageMessageClicked = { _, _ -> },
-        onAvatarClicked = { _, _ -> },
+        onOpenProfile = { _ -> },
         onReactionClicked = { _, _ -> }
     )
 }
@@ -67,7 +67,7 @@ fun PreviewImageMessageUploaded() {
         onLongClicked = {},
         onAssetMessageClicked = {},
         onImageMessageClicked = { _, _ -> },
-        onAvatarClicked = { _, _ -> },
+        onOpenProfile = { _ -> },
         onReactionClicked = { _, _ -> }
     )
 }
@@ -80,10 +80,11 @@ fun PreviewImageMessageUploading() {
         onLongClicked = {},
         onAssetMessageClicked = {},
         onImageMessageClicked = { _, _ -> },
-        onAvatarClicked = { _, _ -> },
+        onOpenProfile = { _ -> },
         onReactionClicked = { _, _ -> }
     )
 }
+
 @Preview(showBackground = true)
 @Composable
 fun PreviewImageMessageFailedUpload() {
@@ -92,7 +93,7 @@ fun PreviewImageMessageFailedUpload() {
         onLongClicked = {},
         onAssetMessageClicked = {},
         onImageMessageClicked = { _, _ -> },
-        onAvatarClicked = { _, _ -> },
+        onOpenProfile = { _ -> },
         onReactionClicked = { _, _ -> }
     )
 }
@@ -106,7 +107,7 @@ fun PreviewMessageWithSystemMessage() {
             onLongClicked = {},
             onAssetMessageClicked = {},
             onImageMessageClicked = { _, _ -> },
-            onAvatarClicked = { _, _ -> },
+            onOpenProfile = { _ -> },
             onReactionClicked = { _, _ -> }
         )
         SystemMessageItem(UIMessageContent.SystemMessage.MissedCall.YouCalled(UIText.DynamicString("You")))

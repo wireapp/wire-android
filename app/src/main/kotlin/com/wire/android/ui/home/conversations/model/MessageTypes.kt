@@ -34,14 +34,19 @@ import com.wire.kalium.logic.data.message.Message.UploadStatus.UPLOAD_IN_PROGRES
 // TODO: Here we actually need to implement some logic that will distinguish MentionLabel with Body of the message,
 //       waiting for the backend to implement mapping logic for the MessageBody
 @Composable
-internal fun MessageBody(messageBody: MessageBody, onLongClick: (() -> Unit)? = null) {
+internal fun MessageBody(
+    messageBody: MessageBody,
+    onLongClick: (() -> Unit)? = null,
+    onOpenProfile: (String) -> Unit,
+) {
     LinkifyText(
-        text = messageBody.message.asString(),
+        text = messageBody.message,
         mask = Linkify.WEB_URLS or Linkify.EMAIL_ADDRESSES,
         color = MaterialTheme.colorScheme.onBackground,
         onLongClick = onLongClick,
         modifier = Modifier.defaultMinSize(minHeight = dimensions().spacing20x),
-        style = MaterialTheme.wireTypography.body01
+        style = MaterialTheme.wireTypography.body01,
+        onOpenProfile = onOpenProfile
     )
 }
 

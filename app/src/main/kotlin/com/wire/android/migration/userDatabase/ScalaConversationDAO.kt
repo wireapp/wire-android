@@ -3,6 +3,7 @@ package com.wire.android.migration.userDatabase
 import com.wire.android.appLogger
 import com.wire.android.migration.util.getStringOrNull
 import com.wire.android.migration.util.orNullIfNegative
+import java.sql.SQLException
 
 data class ScalaConversationData(
     val remoteId: String,
@@ -46,9 +47,11 @@ class ScalaConversationDAO(private val db: ScalaUserDatabase) {
                 } while (cursor.moveToNext())
                 accumulator
             }
-        } catch (exception: Exception) {
+        } catch (exception: SQLException) {
             appLogger.e("Error while querying old conversations $exception")
             emptyList()
+        } finally {
+            cursor.close()
         }
     }
 

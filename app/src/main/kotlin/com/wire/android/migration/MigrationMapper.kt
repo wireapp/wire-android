@@ -17,7 +17,7 @@ import com.wire.kalium.logic.data.user.SsoId
 import java.time.LocalDateTime
 import javax.inject.Inject
 import javax.inject.Singleton
-
+@Suppress("MagicNumber")
 @Singleton
 class MigrationMapper @Inject constructor() {
     fun fromScalaSsoID(ssoIdEntity: ScalaSsoIdEntity): SsoId = with(ssoIdEntity) {

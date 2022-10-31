@@ -17,6 +17,7 @@ import androidx.work.WorkManager
 import androidx.work.WorkRequest.MIN_BACKOFF_MILLIS
 import androidx.work.WorkerParameters
 import com.wire.android.R
+import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.migration.MigrationManager
 import com.wire.android.migration.MigrationResult
 import com.wire.android.migration.getMigrationFailure
@@ -35,12 +36,16 @@ class MigrationWorker
     @Assisted appContext: Context,
     @Assisted workerParams: WorkerParameters,
     private val migrationManager: MigrationManager,
+    private val globalDataStore: GlobalDataStore,
     private val notificationManager: NotificationManagerCompat
 ) : CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result = migrationManager.migrate().let {
         when (it) {
-            MigrationResult.Success -> Result.success()
+            MigrationResult.Success -> {
+                globalDataStore.setMigrationCompleted()
+                Result.success()
+            }
             is MigrationResult.Failure -> Result.failure(it.type.toData())
         }
     }

@@ -18,11 +18,13 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.Divider
 import androidx.compose.material.Surface
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -44,6 +46,7 @@ import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
+import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.messagecomposer.attachment.AttachmentOptions
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
@@ -57,11 +60,13 @@ fun MessageComposer(
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
     onMessageComposerInputStateChange: (MessageComposerStateTransition) -> Unit,
+    onQueryMentions: (String?) -> Unit,
     isFileSharingEnabled: Boolean,
     isUserBlocked: Boolean,
     isSendingMessagesAllowed: Boolean,
     tempCachePath: Path,
-    securityClassificationType: SecurityClassificationType
+    securityClassificationType: SecurityClassificationType,
+    mentionSuggestions: List<UIParticipant>
 ) {
     BoxWithConstraints {
         val messageComposerState = rememberMessageComposerInnerState(
@@ -72,7 +77,7 @@ fun MessageComposer(
         val onSendButtonClicked = remember {
             {
                 onSendTextMessage(messageComposerState.messageText.text)
-                messageComposerState.messageText = TextFieldValue("")
+                messageComposerState.setMessageTextValue(TextFieldValue(""))
             }
         }
 
@@ -81,6 +86,17 @@ fun MessageComposer(
                 onSendAttachment(attachmentBundle)
                 messageComposerState.toggleAttachmentOptionsVisibility()
             }
+        }
+
+        val onMentionPicked = remember {
+            { participant: UIParticipant ->
+                messageComposerState.addMention(participant)
+            }
+        }
+
+        LaunchedEffect(Unit) {
+            messageComposerState.mentionQueryFlowState
+                .collect { onQueryMentions(it) }
         }
 
         MessageComposer(
@@ -94,7 +110,9 @@ fun MessageComposer(
             isUserBlocked = isUserBlocked,
             isSendingMessagesAllowed = isSendingMessagesAllowed,
             tempCachePath = tempCachePath,
-            securityClassificationType = securityClassificationType
+            securityClassificationType = securityClassificationType,
+            mentionSuggestions = mentionSuggestions,
+            onMentionPicked = onMentionPicked
         )
     }
 }
@@ -118,7 +136,9 @@ private fun MessageComposer(
     isUserBlocked: Boolean,
     isSendingMessagesAllowed: Boolean,
     tempCachePath: Path,
-    securityClassificationType: SecurityClassificationType
+    securityClassificationType: SecurityClassificationType,
+    mentionSuggestions: List<UIParticipant>,
+    onMentionPicked: (UIParticipant) -> Unit
 ) {
     val focusManager = LocalFocusManager.current
 
@@ -191,6 +211,11 @@ private fun MessageComposer(
                             .background(color = colorsScheme().backgroundVariant)
                             .padding(bottom = dimensions().spacing8x)
                             .weight(1f)) {
+                        MentionSuggestionList(
+                            mentionSuggestions,
+                            rememberLazyListState(),
+                            onMentionPicked
+                        )
                         content()
                     }
                     if (isUserBlocked) {

@@ -173,6 +173,7 @@ fun ConversationScreen(
         onOpenProfile = conversationInfoViewModel::navigateToProfile,
         onUpdateConversationReadDate = messageComposerViewModel::updateConversationReadDate,
         isSendingMessagesAllowed = messageComposerViewModel.isSendingMessagesAllowed,
+        onQueryMentions = messageComposerViewModel::queryMentions
     )
     DeleteMessageDialog(
         state = messageComposerViewModel.deleteMessageDialogsState,
@@ -239,6 +240,7 @@ private fun ConversationScreen(
     connectivityUIState: ConnectivityUIState,
     onOpenOngoingCallScreen: () -> Unit,
     onSendMessage: (String) -> Unit,
+    onQueryMentions: (String?) -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onDownloadAsset: (String) -> Unit,
     onImageFullScreenMode: (String, Boolean) -> Unit,
@@ -359,7 +361,8 @@ private fun ConversationScreen(
                             isUserBlocked = conversationInfoViewState.isUserBlocked,
                             isSendingMessagesAllowed = isSendingMessagesAllowed,
                             onOpenProfile = onOpenProfile,
-                            onUpdateConversationReadDate = onUpdateConversationReadDate
+                            onUpdateConversationReadDate = onUpdateConversationReadDate,
+                            onQueryMentions = onQueryMentions
                         )
                     }
                 }
@@ -376,6 +379,7 @@ private fun ConversationScreenContent(
     messages: Flow<PagingData<UIMessage>>,
     lastUnreadMessageInstant: Instant?,
     onSendMessage: (String) -> Unit,
+    onQueryMentions: (String?) -> Unit,
     onShowContextMenu: (UIMessage) -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onDownloadAsset: (String) -> Unit,
@@ -425,7 +429,9 @@ private fun ConversationScreenContent(
         tempCachePath = tempCachePath,
         isUserBlocked = isUserBlocked,
         isSendingMessagesAllowed = isSendingMessagesAllowed,
-        securityClassificationType = conversationState.securityClassificationType
+        securityClassificationType = conversationState.securityClassificationType,
+        onQueryMentions = onQueryMentions,
+        mentionSuggestions = conversationState.mentionSuggestions
     )
 }
 
@@ -562,6 +568,7 @@ fun ConversationScreenPreview() {
         tempCachePath = "".toPath(),
         onOpenProfile = { _, _ -> },
         onUpdateConversationReadDate = { },
-        isSendingMessagesAllowed = true
+        isSendingMessagesAllowed = true,
+        onQueryMentions = {}
     )
 }

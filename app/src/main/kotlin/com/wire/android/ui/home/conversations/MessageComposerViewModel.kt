@@ -302,6 +302,18 @@ class MessageComposerViewModel @Inject constructor(
 
     fun provideTempCachePath(): Path = kaliumFileSystem.rootCachePath
 
+    fun queryMentions(query: String?) {
+        println("cyka queried $query")
+        if (query == null)
+            conversationViewState = conversationViewState.copy(mentionSuggestions = listOf())
+        else
+            conversationViewState = conversationViewState.copy(
+                mentionSuggestions = listOf(
+//                    "user 1", "user 2", "user 3"
+                )
+            )
+    }
+
     companion object {
         const val IMAGE_SIZE_LIMIT_BYTES = 15 * 1024 * 1024 // 15 MB limit for images
         const val ASSET_SIZE_DEFAULT_LIMIT_BYTES = 25 * 1024 * 1024 // 25 MB asset default user limit size

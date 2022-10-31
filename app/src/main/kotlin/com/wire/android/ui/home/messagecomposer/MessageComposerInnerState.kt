@@ -11,6 +11,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.Dp
 import com.wire.android.appLogger
+import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.util.DEFAULT_FILE_MIME_TYPE
@@ -20,6 +21,9 @@ import com.wire.android.util.getMimeType
 import com.wire.android.util.orDefault
 import com.wire.android.util.resampleImageAndCopyToTempPath
 import com.wire.kalium.logic.data.asset.isDisplayableMimeType
+import com.wire.kalium.logic.data.message.MessageMention
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import okio.Path
 import okio.Path.Companion.toPath
 import java.io.IOException
@@ -52,6 +56,26 @@ data class MessageComposerInnerState(
     var isKeyboardShown by mutableStateOf(false)
 
     var messageText by mutableStateOf(TextFieldValue(""))
+        private set
+
+    fun setMessageTextValue(text: TextFieldValue) {
+        // TODO cyka calculate mentions here
+        // TODO cyka don't forget about the case when big text was copy-passed into the field,
+        //  need to check for mentions in that case too
+        println("cyka ${text.selection}")
+        messageText = text
+    }
+
+    fun startMention() {
+        //TODO cyka add "@" to the place where cursor is
+    }
+
+    fun addMention(participant: UIParticipant) {
+        //TODO cyka
+        _mentionQueryFlowState.value = null
+    }
+
+    var mentions by mutableStateOf(listOf<MessageMention>())
 
     var messageComposeInputState by mutableStateOf(MessageComposeInputState.Enabled)
         private set
@@ -70,6 +94,9 @@ data class MessageComposerInnerState(
     fun toggleAttachmentOptionsVisibility() {
         attachmentOptionsDisplayed = !attachmentOptionsDisplayed
     }
+
+    private val _mentionQueryFlowState: MutableStateFlow<String?> = MutableStateFlow(null)
+    val mentionQueryFlowState: StateFlow<String?> = _mentionQueryFlowState
 
     private fun toEnabled() {
         onMessageComposeInputStateChanged(

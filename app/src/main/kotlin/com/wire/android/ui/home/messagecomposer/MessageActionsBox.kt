@@ -74,8 +74,7 @@ private fun MessageComposeActions(
                 AddEmojiAction()
             if (GifIcon)
                 AddGifAction()
-            if (MentionIcon)
-                AddMentionAction()
+            AddMentionAction(messageComposerState::startMention)
             if (PingIcon)
                 PingAction()
         }
@@ -113,9 +112,9 @@ private fun AddGifAction() {
 }
 
 @Composable
-private fun AddMentionAction() {
+private fun AddMentionAction(addMentionAction: () -> Unit) {
     WireSecondaryIconButton(
-        onButtonClicked = {},
+        onButtonClicked = addMentionAction,
         blockUntilSynced = true,
         iconResource = R.drawable.ic_mention,
         contentDescription = R.string.content_description_conversation_mention_someone

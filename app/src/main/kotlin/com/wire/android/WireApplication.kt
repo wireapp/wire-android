@@ -101,7 +101,7 @@ class WireApplication : Application(), Configuration.Provider {
         val applicationId = "619af3ef-2fa6-41e2-8bb1-b42041d50802"
 
         val environmentName = "internal"
-        val appVariantName = "com.wire.android.dev.debug"
+        val appVariantName = "com.wire.android.${BuildConfig.FLAVOR}.${BuildConfig.BUILD_TYPE}"
 
         val configuration = com.datadog.android.core.configuration.Configuration.Builder(
             logsEnabled = true,
@@ -109,6 +109,7 @@ class WireApplication : Application(), Configuration.Provider {
             rumEnabled = true,
             crashReportsEnabled = true,
         ).trackInteractions()
+            .trackBackgroundRumEvents(true)
             .trackLongTasks(LONG_TASK_THRESH_HOLD_MS)
             .useSite(DatadogSite.EU1)
             .build()

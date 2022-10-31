@@ -41,7 +41,8 @@ data class MessageHeader(
     val messageStatus: MessageStatus,
     val messageId: String,
     val userId: UserId? = null,
-    val connectionState: ConnectionState?
+    val connectionState: ConnectionState?,
+    val isDeleted: Boolean
 )
 
 @Stable

@@ -27,7 +27,8 @@ class UIParticipantMapper @Inject constructor(
             isSelf = user is SelfUser,
             membership = userTypeMapper.toMembership(userType),
             connectionState = connectionState,
-            unavailable = unavailable
+            unavailable = unavailable,
+            isDeleted = if(user is OtherUser) user.deleted else false
         )
     }
 }

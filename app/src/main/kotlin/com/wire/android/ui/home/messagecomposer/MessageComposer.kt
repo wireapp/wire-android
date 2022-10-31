@@ -47,6 +47,7 @@ import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.messagecomposer.attachment.AttachmentOptions
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
+import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import okio.Path
 
 @Composable
@@ -58,8 +59,7 @@ fun MessageComposer(
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
     onMessageComposerInputStateChange: (MessageComposerStateTransition) -> Unit,
     isFileSharingEnabled: Boolean,
-    isUserBlocked: Boolean,
-    isSendingMessagesAllowed: Boolean,
+    interactionAvailability: InteractionAvailability,
     tempCachePath: Path,
     securityClassificationType: SecurityClassificationType
 ) {
@@ -91,8 +91,7 @@ fun MessageComposer(
             onSendAttachmentClicked = onSendAttachmentClicked,
             onMessageComposerError = onMessageComposerError,
             isFileSharingEnabled = isFileSharingEnabled,
-            isUserBlocked = isUserBlocked,
-            isSendingMessagesAllowed = isSendingMessagesAllowed,
+            interactionAvailability = interactionAvailability,
             tempCachePath = tempCachePath,
             securityClassificationType = securityClassificationType
         )
@@ -115,8 +114,7 @@ private fun MessageComposer(
     onSendAttachmentClicked: (AttachmentBundle?) -> Unit,
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
     isFileSharingEnabled: Boolean,
-    isUserBlocked: Boolean,
-    isSendingMessagesAllowed: Boolean,
+    interactionAvailability: InteractionAvailability,
     tempCachePath: Path,
     securityClassificationType: SecurityClassificationType
 ) {
@@ -193,34 +191,37 @@ private fun MessageComposer(
                             .weight(1f)) {
                         content()
                     }
-                    if (isUserBlocked) {
-                        BlockedUserMessage()
-                    } else if (isSendingMessagesAllowed) {
-                        // Column wrapping CollapseIconButton and MessageComposerInput
-                        Column(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .animateContentSize()
-                        ) {
-                            val isClassifiedConversation = securityClassificationType != SecurityClassificationType.NONE
-                            if (isClassifiedConversation) {
-                                Box(Modifier.wrapContentSize()) {
-                                    VerticalSpace.x8()
-                                    SecurityClassificationBanner(securityClassificationType = securityClassificationType)
+                    when (interactionAvailability) {
+                        InteractionAvailability.BLOCKED_USER -> BlockedUserMessage()
+                        InteractionAvailability.DELETED_USER -> DeletedUserMessage()
+                        InteractionAvailability.NOT_MEMBER, InteractionAvailability.DISABLED -> {}
+                        InteractionAvailability.ENABLED -> {
+                            // Column wrapping CollapseIconButton and MessageComposerInput
+                            Column(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .animateContentSize()
+                            ) {
+                                val isClassifiedConversation = securityClassificationType != SecurityClassificationType.NONE
+                                if (isClassifiedConversation) {
+                                    Box(Modifier.wrapContentSize()) {
+                                        VerticalSpace.x8()
+                                        SecurityClassificationBanner(securityClassificationType = securityClassificationType)
+                                    }
                                 }
+                                Divider()
+                                CollapseIconButtonBox(transition, messageComposerState)
+                                // Row wrapping the AdditionalOptionButton() when we are in Enabled state and MessageComposerInput()
+                                // when we are in the Fullscreen state, we want to align the TextField to Top of the Row,
+                                // when other we center it vertically. Once we go to Fullscreen, we set the weight to 1f
+                                // so that it fills the whole Row which is = height of the whole screen - height of TopBar -
+                                // - height of container with additional options
+                                MessageComposerInputRow(transition, messageComposerState)
                             }
-                            Divider()
-                            CollapseIconButtonBox(transition, messageComposerState)
-                            // Row wrapping the AdditionalOptionButton() when we are in Enabled state and MessageComposerInput()
-                            // when we are in the Fullscreen state, we want to align the TextField to Top of the Row,
-                            // when other we center it vertically. Once we go to Fullscreen, we set the weight to 1f
-                            // so that it fills the whole Row which is = height of the whole screen - height of TopBar -
-                            // - height of container with additional options
-                            MessageComposerInputRow(transition, messageComposerState)
                         }
                     }
                 }
-                if (!isUserBlocked && isSendingMessagesAllowed) {
+                if (interactionAvailability == InteractionAvailability.ENABLED) {
                     // Box wrapping the SendActions so that we do not include it in the animationContentSize
                     // changed which is applied only for
                     // MessageComposerInput and CollapsingButton
@@ -251,7 +252,7 @@ private fun MessageComposer(
             // we want to offset the AttachmentOptionsComponent equal to where
             // the device keyboard is displayed, so that when the keyboard is closed,
             // we get the effect of overlapping it
-            if (messageComposerState.attachmentOptionsDisplayed && !isUserBlocked && isSendingMessagesAllowed) {
+            if (messageComposerState.attachmentOptionsDisplayed && interactionAvailability == InteractionAvailability.ENABLED) {
                 AttachmentOptions(
                     keyboardHeight,
                     messageComposerState,

@@ -62,12 +62,12 @@ class MigrationManager @Inject constructor(
             }
             .fold({ MigrationResult.Failure(it) }, { MigrationResult.Success })
 
-        markMigrationAsCompleted(migrationResult)
+        markMigrationAsCompletedWhenSuccess(migrationResult)
         return migrationResult
     }
 
     // Check if we need to mark the migration process as completed
-    private suspend fun markMigrationAsCompleted(result: MigrationResult) {
+    private suspend fun markMigrationAsCompletedWhenSuccess(result: MigrationResult) {
         if (result is MigrationResult.Success) {
             globalDataStore.setMigrationCompleted()
         }

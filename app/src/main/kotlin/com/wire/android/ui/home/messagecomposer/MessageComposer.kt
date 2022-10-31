@@ -183,7 +183,7 @@ private fun MessageComposer(
                         height = Dimension.fillToConstraints
                     }) {
 
-                val (additionalActions, sendActions, messageInput, mentions) = createRefs()
+                val (additionalActions, sendActions, messageInput) = createRefs()
                 // Column wrapping the content passed as Box with weight = 1f as @Composable lambda and the MessageComposerInput with
                 // CollapseIconButton
                 Column(
@@ -217,27 +217,29 @@ private fun MessageComposer(
                     if (isUserBlocked) {
                         BlockedUserMessage()
                     } else if (isSendingMessagesAllowed) {
-                        if(messageComposerState.messageComposeInputState != MessageComposeInputState.FullScreen) {
-                            Column(
-                                modifier = Modifier
-                                    .heightIn(50.dp, 200.dp)
-                                    .wrapContentHeight()
-                                    .animateContentSize()
-                                    .verticalScroll(rememberScrollState()),
-                                verticalArrangement = Arrangement.Bottom
-                            ) {
-                                MemberItemToMention(
-                                    avatarData = UserAvatarData(),
-                                    name = "name",
-                                    label = "handle",
-                                    membership = Membership.Federated,
-                                    searchQuery = "search",
-                                    connectionState = ConnectionState.ACCEPTED,
-                                    clickable = Clickable(),
+                        /** TO be used in next PR to display suggestion list
+                            if(messageComposerState.messageComposeInputState != MessageComposeInputState.FullScreen) {
+                                Column(
                                     modifier = Modifier
-                                )
+                                        .heightIn(50.dp, 200.dp)
+                                        .wrapContentHeight()
+                                        .animateContentSize()
+                                        .verticalScroll(rememberScrollState()),
+                                    verticalArrangement = Arrangement.Bottom
+                                ) {
+                                    MemberItemToMention(
+                                        avatarData = UserAvatarData(),
+                                        name = "name",
+                                        label = "handle",
+                                        membership = Membership.Federated,
+                                        searchQuery = "search",
+                                        connectionState = ConnectionState.ACCEPTED,
+                                        clickable = Clickable(),
+                                        modifier = Modifier
+                                    )
+                                }
                             }
-                        }
+                        **/
                         // Column wrapping CollapseIconButton and MessageComposerInput
                         Column(
                             modifier = Modifier

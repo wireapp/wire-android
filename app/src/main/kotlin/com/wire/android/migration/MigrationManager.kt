@@ -46,7 +46,7 @@ class MigrationManager @Inject constructor(
     fun isMigrationCompletedFlow(): Flow<Boolean> = globalDataStore.isMigrationCompletedFlow()
 
     suspend fun migrate(): MigrationResult {
-        return migrateServerConfig()
+        val migrationResult = migrateServerConfig()
             .flatMap { migrateActiveAccounts(it) }
             .flatMap { migrateClientsData(it) }
             .flatMap { migrateConversations(it) }
@@ -61,6 +61,16 @@ class MigrationManager @Inject constructor(
                 }
             }
             .fold({ MigrationResult.Failure(it) }, { MigrationResult.Success })
+
+        markMigrationAsCompleted(migrationResult)
+        return migrationResult
+    }
+
+    // Check if we need to mark the migration process as completed
+    private suspend fun markMigrationAsCompleted(result: MigrationResult) {
+        if (result is MigrationResult.Success) {
+            globalDataStore.setMigrationCompleted()
+        }
     }
 }
 

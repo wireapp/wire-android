@@ -64,7 +64,6 @@ import com.wire.android.ui.home.conversations.info.ConversationInfoViewState
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewState
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
-import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.messagecomposer.KeyboardHeight
@@ -76,7 +75,6 @@ import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothReque
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.data.conversation.Conversation
-import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.ConferenceCallingResult
 import kotlinx.collections.immutable.ImmutableMap
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
@@ -252,7 +250,7 @@ private fun ConversationScreen(
     onSnackbarMessageShown: () -> Unit,
     onDropDownClick: () -> Unit,
     tempCachePath: Path,
-    onOpenProfile: (MessageSource, UserId) -> Unit,
+    onOpenProfile: (String) -> Unit,
     onUpdateConversationReadDate: (String) -> Unit,
     interactionAvailability: InteractionAvailability,
 ) {
@@ -380,7 +378,7 @@ private fun ConversationScreenContent(
     onDownloadAsset: (String) -> Unit,
     onReactionClicked: (String, String) -> Unit,
     onImageFullScreenMode: (String, Boolean) -> Unit,
-    onOpenProfile: (MessageSource, UserId) -> Unit,
+    onOpenProfile: (String) -> Unit,
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
     conversationState: ConversationViewState,
     onSnackbarMessageShown: () -> Unit,
@@ -477,7 +475,7 @@ fun MessageList(
     onShowContextMenu: (UIMessage) -> Unit,
     onDownloadAsset: (String) -> Unit,
     onImageFullScreenMode: (String, Boolean) -> Unit,
-    onOpenProfile: (MessageSource, UserId) -> Unit,
+    onOpenProfile: (String) -> Unit,
     onUpdateConversationReadDate: (String) -> Unit,
     onReactionClicked: (String, String) -> Unit
 ) {
@@ -525,7 +523,7 @@ fun MessageList(
                     onLongClicked = onShowContextMenu,
                     onAssetMessageClicked = onDownloadAsset,
                     onImageMessageClicked = onImageFullScreenMode,
-                    onAvatarClicked = onOpenProfile,
+                    onOpenProfile = onOpenProfile,
                     onReactionClicked = onReactionClicked
                 )
             }
@@ -557,7 +555,7 @@ fun ConversationScreenPreview() {
         onSnackbarMessageShown = { },
         onDropDownClick = { },
         tempCachePath = "".toPath(),
-        onOpenProfile = { _, _ -> },
+        onOpenProfile = { _ -> },
         onUpdateConversationReadDate = { },
         interactionAvailability = InteractionAvailability.ENABLED,
     )

@@ -55,7 +55,6 @@ import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMess
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
-import com.wire.kalium.logic.data.user.UserId
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -64,12 +63,12 @@ fun MessageItem(
     onLongClicked: (UIMessage) -> Unit,
     onAssetMessageClicked: (String) -> Unit,
     onImageMessageClicked: (String, Boolean) -> Unit,
-    onAvatarClicked: (MessageSource, UserId) -> Unit,
+    onOpenProfile: (String) -> Unit,
     onReactionClicked: (String, String) -> Unit
 ) {
     with(message) {
         val fullAvatarOuterPadding = dimensions().userAvatarClickablePadding + dimensions().userAvatarStatusBorderSize
-        Column {  }
+        Column { }
         Row(
             Modifier
                 .customizeMessageBackground(message)
@@ -89,7 +88,7 @@ fun MessageItem(
             Spacer(Modifier.padding(start = dimensions().spacing8x - fullAvatarOuterPadding))
             val avatarClickable = remember {
                 Clickable(enabled = message.messageHeader.userId != null) {
-                    onAvatarClicked(message.messageSource, message.messageHeader.userId!!)
+                    onOpenProfile(message.messageHeader.userId!!.toString())
                 }
             }
             UserProfileAvatar(
@@ -127,7 +126,8 @@ fun MessageItem(
                             messageContent = messageContent,
                             onAssetClick = currentOnAssetClicked,
                             onImageClick = currentOnImageClick,
-                            onLongClick = onLongClick
+                            onLongClick = onLongClick,
+                            onOpenProfile = onOpenProfile
                         )
                         MessageFooter(
                             messageFooter,
@@ -213,7 +213,7 @@ private fun MessageFooter(
                         onReactionClicked(messageFooter.messageId, reaction)
                     }
                 )
-        }
+            }
     }
 }
 
@@ -246,7 +246,8 @@ private fun MessageContent(
     messageContent: UIMessageContent?,
     onAssetClick: Clickable,
     onImageClick: Clickable,
-    onLongClick: (() -> Unit)? = null
+    onLongClick: (() -> Unit)? = null,
+    onOpenProfile: (String) -> Unit
 ) {
     when (messageContent) {
         is UIMessageContent.ImageMessage -> MessageImage(
@@ -258,7 +259,8 @@ private fun MessageContent(
         )
         is UIMessageContent.TextMessage -> MessageBody(
             messageBody = messageContent.messageBody,
-            onLongClick = onLongClick
+            onLongClick = onLongClick,
+            onOpenProfile = onOpenProfile
         )
         is UIMessageContent.AssetMessage -> MessageGenericAsset(
             assetName = messageContent.assetName,

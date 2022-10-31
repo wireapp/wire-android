@@ -14,7 +14,6 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.search.HighlightName
 import com.wire.android.ui.home.conversations.search.HighlightSubtitle
 import com.wire.android.ui.home.conversationslist.model.Membership
-import com.wire.kalium.logic.data.user.ConnectionState
 
 @Composable
 fun MemberItemToMention(
@@ -22,8 +21,7 @@ fun MemberItemToMention(
     name: String,
     label: String,
     membership: Membership,
-    searchQuery: String,
-    connectionState: ConnectionState,
+    searchQuery: String = "",
     clickable: Clickable,
     modifier: Modifier = Modifier
 ) {
@@ -40,7 +38,6 @@ fun MemberItemToMention(
                 )
                 UserBadge(
                     membership = membership,
-                    connectionState = connectionState,
                     startPadding = dimensions().spacing8x
                 )
             }
@@ -66,7 +63,6 @@ fun MemberItemToMentionPreview() {
         label = "handle",
         membership = Membership.Federated,
         searchQuery = "search",
-        connectionState = ConnectionState.ACCEPTED,
         clickable = Clickable(),
         modifier = Modifier
     )

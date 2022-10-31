@@ -74,24 +74,22 @@ import com.wire.android.ui.home.conversations.delete.DeleteMessageDialog
 import com.wire.android.ui.home.conversations.edit.EditMessageMenuItems
 import com.wire.android.ui.home.conversations.info.ConversationInfoViewModel
 import com.wire.android.ui.home.conversations.info.ConversationInfoViewState
-import com.wire.android.ui.home.conversations.mention.MemberItemToMention
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewState
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
-import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.messagecomposer.KeyboardHeight
 import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.ui.home.messagecomposer.MessageComposerStateTransition
+import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.permission.CallingAudioRequestFlow
 import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.data.conversation.Conversation
-import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.ConferenceCallingResult
 import kotlinx.collections.immutable.ImmutableMap
@@ -190,6 +188,7 @@ fun ConversationScreen(
         onOpenProfile = conversationInfoViewModel::navigateToProfile,
         onUpdateConversationReadDate = messageComposerViewModel::updateConversationReadDate,
         isSendingMessagesAllowed = messageComposerViewModel.isSendingMessagesAllowed,
+        membersToMention = messageComposerViewModel.mentionsToSelect,
     )
     DeleteMessageDialog(
         state = messageComposerViewModel.deleteMessageDialogsState,
@@ -272,6 +271,7 @@ private fun ConversationScreen(
     onOpenProfile: (MessageSource, UserId) -> Unit,
     onUpdateConversationReadDate: (String) -> Unit,
     isSendingMessagesAllowed: Boolean,
+    membersToMention: List<Contact>,
 ) {
     val conversationScreenState = rememberConversationScreenState()
 
@@ -378,7 +378,8 @@ private fun ConversationScreen(
                             isUserBlocked = conversationInfoViewState.isUserBlocked,
                             isSendingMessagesAllowed = isSendingMessagesAllowed,
                             onOpenProfile = onOpenProfile,
-                            onUpdateConversationReadDate = onUpdateConversationReadDate
+                            onUpdateConversationReadDate = onUpdateConversationReadDate,
+                            membersToMention = membersToMention
                         )
                     }
                 }
@@ -410,7 +411,8 @@ private fun ConversationScreenContent(
     isUserBlocked: Boolean,
     isSendingMessagesAllowed: Boolean,
     tempCachePath: Path,
-    onUpdateConversationReadDate: (String) -> Unit
+    onUpdateConversationReadDate: (String) -> Unit,
+    membersToMention: List<Contact>
 ) {
     SnackBarMessage(snackbarMessage, conversationState, conversationScreenState, onSnackbarMessageShown)
 
@@ -446,7 +448,8 @@ private fun ConversationScreenContent(
         tempCachePath = tempCachePath,
         isUserBlocked = isUserBlocked,
         isSendingMessagesAllowed = isSendingMessagesAllowed,
-        securityClassificationType = conversationState.securityClassificationType
+        securityClassificationType = conversationState.securityClassificationType,
+        membersToMention = membersToMention
     )
 }
 
@@ -584,6 +587,7 @@ fun ConversationScreenPreview() {
         tempCachePath = "".toPath(),
         onOpenProfile = { _, _ -> },
         onUpdateConversationReadDate = { },
-        isSendingMessagesAllowed = true
+        isSendingMessagesAllowed = true,
+        membersToMention = listOf()
     )
 }

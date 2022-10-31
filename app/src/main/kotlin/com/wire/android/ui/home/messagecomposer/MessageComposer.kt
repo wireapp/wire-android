@@ -9,23 +9,23 @@ import androidx.compose.animation.core.animateFloat
 import androidx.compose.animation.core.updateTransition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.detectTapGestures
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.Divider
 import androidx.compose.material.Surface
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -34,6 +34,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
@@ -56,7 +57,10 @@ import com.wire.android.ui.home.conversations.mention.MemberItemToMention
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.messagecomposer.attachment.AttachmentOptions
-import com.wire.kalium.logic.data.user.ConnectionState
+import com.wire.android.ui.home.newconversation.model.Contact
+import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.util.WHITE_SPACE
+import com.wire.kalium.logic.data.conversation.MemberDetails
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 import kotlinx.coroutines.flow.distinctUntilChanged
 import okio.Path
@@ -74,7 +78,8 @@ fun MessageComposer(
     isUserBlocked: Boolean,
     isSendingMessagesAllowed: Boolean,
     tempCachePath: Path,
-    securityClassificationType: SecurityClassificationType
+    securityClassificationType: SecurityClassificationType,
+    membersToMention: List<Contact>
 ) {
     BoxWithConstraints {
         val messageComposerState = rememberMessageComposerInnerState(
@@ -91,9 +96,9 @@ fun MessageComposer(
 
         LaunchedEffect(messageComposerState) {
             snapshotFlow { messageComposerState.mentionString }.distinctUntilChanged().collect {
-                if (it.isNotEmpty()) {
+                if (it.isNotEmpty())
                     onMentionMember(it.replaceFirst("@", ""))
-                }
+                else onMentionMember(String.WHITE_SPACE) //To clear old search result
             }
         }
 
@@ -115,7 +120,8 @@ fun MessageComposer(
             isUserBlocked = isUserBlocked,
             isSendingMessagesAllowed = isSendingMessagesAllowed,
             tempCachePath = tempCachePath,
-            securityClassificationType = securityClassificationType
+            securityClassificationType = securityClassificationType,
+            membersToMention = membersToMention
         )
     }
 }
@@ -139,7 +145,8 @@ private fun MessageComposer(
     isUserBlocked: Boolean,
     isSendingMessagesAllowed: Boolean,
     tempCachePath: Path,
-    securityClassificationType: SecurityClassificationType
+    securityClassificationType: SecurityClassificationType,
+    membersToMention: List<Contact>
 ) {
     val focusManager = LocalFocusManager.current
 
@@ -213,33 +220,40 @@ private fun MessageComposer(
                             .padding(bottom = dimensions().spacing8x)
                             .weight(1f)) {
                         content()
+                        Column(
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .animateContentSize()
+                        ) {
+                            Spacer(modifier = Modifier.weight(1f))
+
+                            LazyColumn(
+                                modifier = Modifier.background(Color.White),
+                                reverseLayout = true
+                            ) {
+                                membersToMention.forEach {
+                                    item {
+                                        MemberItemToMention(
+                                            avatarData = it.avatarData,
+                                            name = it.name,
+                                            label = it.label,
+                                            membership = it.membership,
+                                            clickable = Clickable(),
+                                            modifier = Modifier
+                                        )
+                                        Divider(
+                                            color = MaterialTheme.wireColorScheme.divider,
+                                            thickness = Dp.Hairline
+                                        )
+                                    }
+                                }
+                            }
+                        }
                     }
                     if (isUserBlocked) {
                         BlockedUserMessage()
                     } else if (isSendingMessagesAllowed) {
-                        /** TO be used in next PR to display suggestion list
-                            if(messageComposerState.messageComposeInputState != MessageComposeInputState.FullScreen) {
-                                Column(
-                                    modifier = Modifier
-                                        .heightIn(50.dp, 200.dp)
-                                        .wrapContentHeight()
-                                        .animateContentSize()
-                                        .verticalScroll(rememberScrollState()),
-                                    verticalArrangement = Arrangement.Bottom
-                                ) {
-                                    MemberItemToMention(
-                                        avatarData = UserAvatarData(),
-                                        name = "name",
-                                        label = "handle",
-                                        membership = Membership.Federated,
-                                        searchQuery = "search",
-                                        connectionState = ConnectionState.ACCEPTED,
-                                        clickable = Clickable(),
-                                        modifier = Modifier
-                                    )
-                                }
-                            }
-                        **/
+
                         // Column wrapping CollapseIconButton and MessageComposerInput
                         Column(
                             modifier = Modifier

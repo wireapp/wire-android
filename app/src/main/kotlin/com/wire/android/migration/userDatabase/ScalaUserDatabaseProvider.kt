@@ -23,6 +23,7 @@ class ScalaUserDatabaseProvider @Inject constructor(
         else applicationContext.openDatabaseIfExists(ScalaDBNameProvider.userDB(userId)).also { _dbs[userId] = it }
 
     fun clientDAO(userId: UserId): ScalaClientDAO? = db(userId)?.let { ScalaClientDAO(it) }
+    fun conversationDAO(userId: UserId): ScalaConversationDAO? = db(userId)?.let { ScalaConversationDAO(it) }
 }
 
 typealias ScalaUserDatabase = SQLiteDatabase

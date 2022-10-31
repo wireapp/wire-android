@@ -7,6 +7,7 @@ import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.migration.failure.MigrationFailure
 import com.wire.android.migration.feature.MigrateActiveAccountsUseCase
 import com.wire.android.migration.feature.MigrateClientsDataUseCase
+import com.wire.android.migration.feature.MigrateConversationsUseCase
 import com.wire.android.migration.feature.MigrateServerConfigUseCase
 import com.wire.android.migration.util.ScalaDBNameProvider
 import com.wire.kalium.logic.NetworkFailure
@@ -26,7 +27,8 @@ class MigrationManager @Inject constructor(
     private val globalDataStore: GlobalDataStore,
     private val migrateServerConfig: MigrateServerConfigUseCase,
     private val migrateActiveAccounts: MigrateActiveAccountsUseCase,
-    private val migrateClientsData: MigrateClientsDataUseCase
+    private val migrateClientsData: MigrateClientsDataUseCase,
+    private val migrateConversations: MigrateConversationsUseCase,
 ) {
 
     private fun isScalaDBPresent(): Boolean =
@@ -44,9 +46,10 @@ class MigrationManager @Inject constructor(
     fun isMigrationCompletedFlow(): Flow<Boolean> = globalDataStore.isMigrationCompletedFlow()
 
     suspend fun migrate(): MigrationResult {
-        return migrateServerConfig()
+        val migrationResult = migrateServerConfig()
             .flatMap { migrateActiveAccounts(it) }
             .flatMap { migrateClientsData(it) }
+            .flatMap { migrateConversations(it) }
             .mapLeft {
                 when (it) {
                     is NetworkFailure.NoNetworkConnection -> MigrationResult.Failure.Type.NO_NETWORK
@@ -58,6 +61,16 @@ class MigrationManager @Inject constructor(
                 }
             }
             .fold({ MigrationResult.Failure(it) }, { MigrationResult.Success })
+
+        markMigrationAsCompletedWhenSuccess(migrationResult)
+        return migrationResult
+    }
+
+    // Check if we need to mark the migration process as completed
+    private suspend fun markMigrationAsCompletedWhenSuccess(result: MigrationResult) {
+        if (result is MigrationResult.Success) {
+            globalDataStore.setMigrationCompleted()
+        }
     }
 }
 

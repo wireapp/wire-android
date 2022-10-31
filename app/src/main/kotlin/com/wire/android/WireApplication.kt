@@ -27,11 +27,6 @@ import com.wire.kalium.logic.CoreLogic
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
 
-
-/**
- * Indicates whether the build is private (dev || internal) or public
- */
-
 var appLogger = KaliumLogger(
     config = KaliumLogger.Config(
         severity = if (BuildConfig.PRIVATE_BUILD) KaliumLogLevel.DEBUG else KaliumLogLevel.DISABLED,
@@ -40,7 +35,6 @@ var appLogger = KaliumLogger(
     DataDogLogger,
     platformLogWriter()
 )
-
 
 @HiltAndroidApp
 class WireApplication : Application(), Configuration.Provider {

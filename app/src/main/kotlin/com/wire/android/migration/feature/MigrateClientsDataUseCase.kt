@@ -22,8 +22,8 @@ class MigrateClientsDataUseCase @Inject constructor(
     private val scalaCryptoBoxDirectoryProvider: ScalaCryptoBoxDirectoryProvider,
     private val scalaUserDBProvider: ScalaUserDatabaseProvider
 ) {
-    suspend operator fun invoke(userIds: List<UserId>): Either<CoreFailure, Unit> =
-        userIds.foldToEitherWhileRight(Unit) { userId, _ ->
+    suspend operator fun invoke(userIds: List<UserId>): Either<CoreFailure, List<UserId>> =
+        userIds.foldToEitherWhileRight(emptyList()) { userId, acc ->
 
             val clientId = scalaUserDBProvider.clientDAO(userId)?.clientInfo()?.clientId?.let { ClientId(it) }
                 ?: return Either.Left(StorageFailure.DataNotFound)
@@ -43,7 +43,7 @@ class MigrateClientsDataUseCase @Inject constructor(
                         Either.Left(MigrationFailure.ClientNotRegistered)
                     }
                     is PersistRegisteredClientIdResult.Success ->
-                        Either.Right(Unit)
+                        Either.Right(acc + userId)
                 }
             }
         }

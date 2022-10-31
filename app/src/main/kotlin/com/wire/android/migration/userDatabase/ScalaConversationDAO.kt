@@ -12,6 +12,7 @@ data class ScalaConversationData(
     val teamId: String?,
     val mutedStatus: Int,
     val access: String,
+    val creatorId: String,
 )
 
 class ScalaConversationDAO(private val db: ScalaUserDatabase) {
@@ -26,6 +27,7 @@ class ScalaConversationDAO(private val db: ScalaUserDatabase) {
             val teamIndex = cursor.getColumnIndex(COLUMN_TEAM)
             val mutedStatusIndex = cursor.getColumnIndex(COLUMN_MUTED_STATUS)
             val accessIndex = cursor.getColumnIndex(COLUMN_ACCESS)
+            val creatorIdIndex = cursor.getColumnIndex(COLUMN_CREATOR)
             if (!cursor.moveToFirst()) {
                 emptyList()
             } else {
@@ -38,7 +40,8 @@ class ScalaConversationDAO(private val db: ScalaUserDatabase) {
                         type = cursor.getInt(typeIndex),
                         teamId = cursor.getStringOrNull(teamIndex),
                         mutedStatus = cursor.getInt(mutedStatusIndex),
-                        access = cursor.getStringOrNull(accessIndex).orEmpty()
+                        access = cursor.getStringOrNull(accessIndex).orEmpty(),
+                        creatorId = cursor.getStringOrNull(creatorIdIndex).orEmpty()
                     )
                 } while (cursor.moveToNext())
                 accumulator
@@ -58,5 +61,6 @@ class ScalaConversationDAO(private val db: ScalaUserDatabase) {
         const val COLUMN_TEAM = "team"
         const val COLUMN_MUTED_STATUS = "muted_status"
         const val COLUMN_ACCESS = "access"
+        const val COLUMN_CREATOR = "creator"
     }
 }

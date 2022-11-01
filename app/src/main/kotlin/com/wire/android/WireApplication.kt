@@ -28,19 +28,8 @@ import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
 
 
-/**
- * Indicates whether the build is private (dev || internal) or public
- */
-
-var appLogger = KaliumLogger(
-    config = KaliumLogger.Config(
-        severity = if (BuildConfig.PRIVATE_BUILD) KaliumLogLevel.DEBUG else KaliumLogLevel.DISABLED,
-        tag = "WireAppLogger"
-    ),
-    DataDogLogger,
-    platformLogWriter()
-)
-
+// App wide global logger, carefully initialized when our application is "onCreate"
+lateinit var appLogger: KaliumLogger
 
 @HiltAndroidApp
 class WireApplication : Application(), Configuration.Provider {
@@ -70,17 +59,28 @@ class WireApplication : Application(), Configuration.Provider {
             FirebaseApp.initializeApp(this)
         }
 
-        enableDatadog()
-
-        if (BuildConfig.PRIVATE_BUILD || coreLogic.getGlobalScope().isLoggingEnabled()) {
-            enableLoggingAndInitiateFileLogging()
-        }
+        initializeApplicationLoggingFrameworks()
+        connectionPolicyManager.startObservingAppLifecycle()
 
         // TODO: Can be handled in one of Sync steps
         coreLogic.updateApiVersionsScheduler.schedulePeriodicApiVersionUpdate()
+    }
 
-        connectionPolicyManager.startObservingAppLifecycle()
-
+    private fun initializeApplicationLoggingFrameworks() {
+        // 1. Datadog should be initialized first
+        enableDatadog()
+        // 2. Initialize our internal logging framework
+        appLogger = KaliumLogger(
+            config = KaliumLogger.Config(
+                severity = if (BuildConfig.PRIVATE_BUILD) KaliumLogLevel.DEBUG else KaliumLogLevel.DISABLED,
+                tag = "WireAppLogger"
+            ),
+            DataDogLogger,
+            platformLogWriter()
+        )
+        // 3. Initialize our internal FILE logging framework
+        enableLoggingAndInitiateFileLogging()
+        // 4. Everything ready, now we can log device info
         logDeviceInformation()
     }
 
@@ -93,12 +93,14 @@ class WireApplication : Application(), Configuration.Provider {
     }
 
     private fun enableLoggingAndInitiateFileLogging() {
-        CoreLogger.setLoggingLevel(
-            level = KaliumLogLevel.VERBOSE,
-            logWriters = arrayOf(DataDogLogger, platformLogWriter())
-        )
-        logFileWriter.start()
-        appLogger.i("Logger enabled")
+        if (BuildConfig.PRIVATE_BUILD || coreLogic.getGlobalScope().isLoggingEnabled()) {
+            CoreLogger.setLoggingLevel(
+                level = KaliumLogLevel.VERBOSE,
+                logWriters = arrayOf(DataDogLogger, platformLogWriter())
+            )
+            logFileWriter.start()
+            appLogger.i("Logger enabled")
+        }
     }
 
     private fun enableDatadog() {

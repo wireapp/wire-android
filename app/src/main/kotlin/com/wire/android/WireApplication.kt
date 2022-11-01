@@ -29,7 +29,7 @@ import javax.inject.Inject
 
 
 // App wide global logger, carefully initialized when our application is "onCreate"
-lateinit var appLogger: KaliumLogger
+var appLogger: KaliumLogger = KaliumLogger.disabled()
 
 @HiltAndroidApp
 class WireApplication : Application(), Configuration.Provider {

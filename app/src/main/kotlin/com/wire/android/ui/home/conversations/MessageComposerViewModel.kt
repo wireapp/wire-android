@@ -304,15 +304,7 @@ class MessageComposerViewModel @Inject constructor(
     fun provideTempCachePath(): Path = kaliumFileSystem.rootCachePath
 
     fun queryMentions(query: String?) {
-        println("cyka queried $query")
-        if (query == null)
-            conversationViewState = conversationViewState.copy(mentionSuggestions = listOf())
-        else
-            conversationViewState = conversationViewState.copy(
-                mentionSuggestions = listOf(
-//                    "user 1", "user 2", "user 3"
-                )
-            )
+
     }
 
     companion object {

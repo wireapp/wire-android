@@ -30,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
@@ -194,27 +195,35 @@ private fun MessageComposer(
                     }
                 ) {
                     Box(
-                        Modifier
-                            .pointerInput(Unit) {
-                                detectTapGestures(
-                                    onPress = {
-                                        focusManager.clearFocus()
-                                        messageComposerState.clickOutSideMessageComposer()
-                                    },
-                                    onDoubleTap = { /* Called on Double Tap */ },
-                                    onLongPress = { /* Called on Long Press */ },
-                                    onTap = {  /* Called on Tap */ }
-                                )
-                            }
-                            .background(color = colorsScheme().backgroundVariant)
-                            .padding(bottom = dimensions().spacing8x)
-                            .weight(1f)) {
+                        modifier = Modifier
+                            .background(color = Color.Transparent)
+                            .weight(1f),
+                        contentAlignment = Alignment.BottomCenter
+                    ) {
+                        Box(
+                            Modifier
+                                .pointerInput(Unit) {
+                                    detectTapGestures(
+                                        onPress = {
+                                            focusManager.clearFocus()
+                                            messageComposerState.clickOutSideMessageComposer()
+                                        },
+                                        onDoubleTap = { /* Called on Double Tap */ },
+                                        onLongPress = { /* Called on Long Press */ },
+                                        onTap = {  /* Called on Tap */ }
+                                    )
+                                }
+                                .background(color = colorsScheme().backgroundVariant)
+                                .padding(bottom = dimensions().spacing8x)
+                                ) {
+                            content()
+                        }
+
                         MentionSuggestionList(
                             mentionSuggestions,
                             rememberLazyListState(),
                             onMentionPicked
                         )
-                        content()
                     }
                     when (interactionAvailability) {
                         InteractionAvailability.BLOCKED_USER -> BlockedUserMessage()

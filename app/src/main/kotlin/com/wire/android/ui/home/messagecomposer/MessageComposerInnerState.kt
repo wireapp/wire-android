@@ -8,6 +8,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.Dp
 import com.wire.android.appLogger
@@ -15,6 +16,7 @@ import com.wire.android.ui.home.conversations.details.participants.model.UIParti
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.util.DEFAULT_FILE_MIME_TYPE
+import com.wire.android.util.EMPTY
 import com.wire.android.util.copyToTempPath
 import com.wire.android.util.getFileName
 import com.wire.android.util.getMimeType
@@ -22,12 +24,14 @@ import com.wire.android.util.orDefault
 import com.wire.android.util.resampleImageAndCopyToTempPath
 import com.wire.kalium.logic.data.asset.isDisplayableMimeType
 import com.wire.kalium.logic.data.message.MessageMention
+import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import okio.Path
 import okio.Path.Companion.toPath
 import java.io.IOException
 import java.util.UUID
+import com.wire.android.util.WHITE_SPACE
 
 @Composable
 fun rememberMessageComposerInnerState(
@@ -59,23 +63,64 @@ data class MessageComposerInnerState(
         private set
 
     fun setMessageTextValue(text: TextFieldValue) {
-        // TODO cyka calculate mentions here
-        // TODO cyka don't forget about the case when big text was copy-passed into the field,
-        //  need to check for mentions in that case too
-        println("cyka ${text.selection}")
+        updateMentionsIfNeeded(text)
+        requestMentionSuggestionIfNeeded(text)
+
         messageText = text
     }
 
     fun startMention() {
-        //TODO cyka add "@" to the place where cursor is
+        val beforeSelection = messageText.text.subSequence(0, messageText.selection.min)
+            .run {
+                if (endsWith(String.WHITE_SPACE) || this == String.EMPTY) {
+                    this.toString()
+                } else {
+                    StringBuilder(this)
+                        .append(String.WHITE_SPACE)
+                        .toString()
+                }
+            }
+        val afterSelection = messageText.text.subSequence(messageText.selection.max, messageText.text.length)
+        val resultText = StringBuilder(beforeSelection)
+            .append("@")
+            .append(afterSelection)
+            .toString()
+        val newSelection = TextRange(beforeSelection.length + 1)
+
+        setMessageTextValue(TextFieldValue(resultText, newSelection))
     }
 
     fun addMention(participant: UIParticipant) {
-        //TODO cyka
+        val mention = UiMention(
+            start = messageText.currentMentionStartIndex(),
+            length = participant.name.length + 1, // + 1 cause there is an "@" before it
+            userId = participant.id,
+            handler = "@" + participant.name
+        )
+
+        addMentionIntoText(mention)
+        mentions = mentions.plus(mention).sortedBy { it.start }
         _mentionQueryFlowState.value = null
     }
 
-    var mentions by mutableStateOf(listOf<MessageMention>())
+    private fun addMentionIntoText(mention: UiMention) {
+        val beforeMention = messageText.text.subSequence(0, mention.start)
+        val afterMention = messageText.text.subSequence(messageText.selection.max, messageText.text.length)
+        val resultText = StringBuilder()
+            .append(beforeMention)
+            .append(mention.handler)
+            .apply {
+                if (!afterMention.startsWith(String.WHITE_SPACE))
+                    append(String.WHITE_SPACE)
+            }
+            .append(afterMention)
+            .toString()
+        val newSelection = TextRange(beforeMention.length + mention.handler.length + 1)
+
+        setMessageTextValue(TextFieldValue(resultText, newSelection))
+    }
+
+    var mentions by mutableStateOf(listOf<UiMention>())
 
     var messageComposeInputState by mutableStateOf(MessageComposeInputState.Enabled)
         private set
@@ -140,6 +185,68 @@ data class MessageComposerInnerState(
 
         messageComposeInputState = newState
     }
+
+    private fun updateMentionsIfNeeded(newText: TextFieldValue) {
+        val updatedMentions = mutableSetOf<UiMention>()
+        mentions.forEach { mention ->
+            if (newText.text.length >= mention.start + mention.length) {
+                val substringInMentionPlace = newText.text.substring(mention.start, mention.start + mention.length)
+                if (substringInMentionPlace == mention.handler) {
+                    updatedMentions.add(mention)
+                    return@forEach
+                }
+            }
+
+            val prevMentionEnd = updatedMentions.lastOrNull()?.let { it.start + it.length } ?: 0
+            val newIndexOfMention = newText.text.indexOf(mention.handler, prevMentionEnd)
+            if (newIndexOfMention >= 0)
+                updatedMentions.add(mention.copy(start = newIndexOfMention))
+        }
+
+        mentions = updatedMentions.toList()
+    }
+
+    private fun requestMentionSuggestionIfNeeded(text: TextFieldValue) {
+        if (text.selection.min != text.selection.max) {
+            _mentionQueryFlowState.value = null
+            return
+        } else {
+            mentions.firstOrNull { text.selection.min in it.start..it.start + it.length }?.let {
+                _mentionQueryFlowState.value = null
+                return
+            }
+        }
+
+        val currentMentionStartIndex = text.currentMentionStartIndex()
+
+        if (currentMentionStartIndex >= 0) {
+            val sub = text.text.subSequence(currentMentionStartIndex, text.selection.min)
+            if (!sub.contains(String.WHITE_SPACE)) {
+                _mentionQueryFlowState.value = sub.toString()
+                return
+            }
+        }
+    }
+
+}
+
+private fun TextFieldValue.currentMentionStartIndex(): Int {
+    val lastIndexOfAt = text.lastIndexOf("@", selection.min)
+
+    return when {
+        (lastIndexOfAt <= 0) ||
+                (text[lastIndexOfAt - 1].toString() == String.WHITE_SPACE) -> lastIndexOfAt
+        else -> -1
+    }
+}
+
+data class UiMention(
+    val start: Int,
+    val length: Int,
+    val userId: UserId,
+    val handler: String // name that should be displayed in a message
+) {
+    fun intoMessageMention() = MessageMention(start, length, userId)
 }
 
 class AttachmentInnerState(val context: Context) {

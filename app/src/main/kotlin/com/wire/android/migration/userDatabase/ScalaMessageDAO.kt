@@ -15,7 +15,7 @@ class ScalaMessageDAO(private val db: ScalaUserDatabase) {
 
     fun messages(conversations: List<Conversation>): List<ScalaMessage> {
         val accumulator = mutableListOf<ScalaMessage>()
-        var cursor: Cursor = db.rawQuery("SELECT 1", null)
+        var cursor: Cursor = db.rawQuery("SELECT 1", null) // Dummy query to init the cursor
         conversations.forEach { conversation ->
             cursor = db.rawQuery("SELECT * from $TABLE_NAME WHERE $COLUMN_CONVERSATION_ID = ?", arrayOf(conversation.id.value))
             try {

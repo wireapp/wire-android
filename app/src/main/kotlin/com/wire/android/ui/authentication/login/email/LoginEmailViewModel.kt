@@ -15,7 +15,6 @@ import com.wire.kalium.logic.data.auth.login.ProxyCredentialsModel
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
-import com.wire.kalium.logic.feature.client.PersistProxyCredentialsUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -27,7 +26,6 @@ import javax.inject.Inject
 class LoginEmailViewModel @Inject constructor(
     private val authScope: AutoVersionAuthScopeUseCase,
     private val addAuthenticatedUser: AddAuthenticatedUserUseCase,
-    private val persistProxyCredentials: PersistProxyCredentialsUseCase,
     clientScopeProviderFactory: ClientScopeProvider.Factory,
     private val savedStateHandle: SavedStateHandle,
     navigationManager: NavigationManager,
@@ -73,9 +71,6 @@ class LoginEmailViewModel @Inject constructor(
                         }
 
                         is AuthenticationResult.Success -> {
-                            if (loginState.isProxyAuthRequired) {
-                                persistProxyCredentials(loginState.proxyIdentifier.text, loginState.proxyPassword.text)
-                            }
                             it
                         }
                     }

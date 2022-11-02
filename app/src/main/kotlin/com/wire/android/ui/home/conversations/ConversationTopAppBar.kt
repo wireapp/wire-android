@@ -50,9 +50,8 @@ fun ConversationScreenTopAppBar(
     onSearchButtonClick: () -> Unit,
     onPhoneButtonClick: () -> Unit,
     hasOngoingCall: Boolean,
-    isUserBlocked: Boolean,
     onJoinCallButtonClick: () -> Unit,
-    isCallingEnabled: Boolean = true
+    isInteractionEnabled: Boolean,
 ) {
     SmallTopAppBar(
         title = {
@@ -107,8 +106,7 @@ fun ConversationScreenTopAppBar(
                 hasOngoingCall = hasOngoingCall,
                 onJoinCallButtonClick = onJoinCallButtonClick,
                 onPhoneButtonClick = onPhoneButtonClick,
-                isUserBlocked = isUserBlocked,
-                isCallingEnabled = isCallingEnabled
+                isCallingEnabled = isInteractionEnabled
             )
             Spacer(Modifier.width(MaterialTheme.wireDimensions.spacing6x))
         }, colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
@@ -146,7 +144,6 @@ private fun Avatar(
 @Composable
 private fun callControlButton(
     hasOngoingCall: Boolean,
-    isUserBlocked: Boolean,
     onJoinCallButtonClick: () -> Unit,
     onPhoneButtonClick: () -> Unit,
     isCallingEnabled: Boolean
@@ -156,7 +153,7 @@ private fun callControlButton(
             buttonClick = onJoinCallButtonClick,
             minHeight = MaterialTheme.wireDimensions.spacing28x
         )
-    } else if (isCallingEnabled) {
+    } else {
         WireSecondaryButton(
             onClick = onPhoneButtonClick,
             leadingIcon = {
@@ -165,7 +162,7 @@ private fun callControlButton(
                     contentDescription = stringResource(R.string.content_description_conversation_phone_icon),
                 )
             },
-            state = if (isUserBlocked) WireButtonState.Disabled else WireButtonState.Default,
+            state = if (isCallingEnabled) WireButtonState.Default else WireButtonState.Disabled,
             fillMaxWidth = false,
             minHeight = MaterialTheme.wireDimensions.spacing32x,
             minWidth = MaterialTheme.wireDimensions.spacing40x,
@@ -185,7 +182,7 @@ fun ConversationScreenTopAppBarLongTitlePreview() {
                 "This is some very very very very very very very very very very long conversation title"
             ),
             conversationDetailsData = ConversationDetailsData.Group(QualifiedID("", "")),
-            conversationAvatar = ConversationAvatar.OneOne(null, UserAvailabilityStatus.NONE)
+            conversationAvatar = ConversationAvatar.OneOne(null, UserAvailabilityStatus.NONE),
         ),
         onBackButtonClick = {},
         onDropDownClick = {},
@@ -193,8 +190,8 @@ fun ConversationScreenTopAppBarLongTitlePreview() {
         onSearchButtonClick = {},
         onPhoneButtonClick = {},
         hasOngoingCall = false,
-        isUserBlocked = false,
-        onJoinCallButtonClick = {}
+        onJoinCallButtonClick = {},
+        isInteractionEnabled = true
     )
 }
 
@@ -214,8 +211,8 @@ fun ConversationScreenTopAppBarShortTitlePreview() {
         onSearchButtonClick = {},
         onPhoneButtonClick = {},
         hasOngoingCall = false,
-        isUserBlocked = false,
-        onJoinCallButtonClick = {}
+        onJoinCallButtonClick = {},
+        isInteractionEnabled = true
     )
 }
 
@@ -235,7 +232,7 @@ fun ConversationScreenTopAppBarShortTitleWithOngoingCallPreview() {
         onSearchButtonClick = {},
         onPhoneButtonClick = {},
         hasOngoingCall = true,
-        isUserBlocked = false,
-        onJoinCallButtonClick = {}
+        onJoinCallButtonClick = {},
+        isInteractionEnabled = true
     )
 }

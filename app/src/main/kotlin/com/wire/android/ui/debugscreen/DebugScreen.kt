@@ -167,7 +167,7 @@ private fun LogOptions(
 
         if (deviceId != null) {
             SettingsItem(
-                title = stringResource(R.string.label_client_id, deviceId),
+                title = stringResource(R.string.label_device_id, deviceId),
                 trailingIcon = R.drawable.ic_copy,
                 onIconPressed = Clickable(
                     enabled = true,

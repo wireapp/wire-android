@@ -19,6 +19,7 @@
     <string name="label_membership_guest">Guest</string>
     <string name="label_membership_external">External</string>
     <string name="label_membership_service">Service</string>
+    <string name="label_user_deleted">Deleted</string>
     <string name="label_message_sent_failure">Message could not be sent.</string>
     <string name="label_message_receive_failure">Download Error</string>
     <string name="label_message_decryption_failure_message">Message could not be decrypted.</string>
@@ -426,6 +427,8 @@
     <string name="label_system_message_blocked_user">%1$s blocked this user</string>
     <string name="label_system_message_renamed_the_conversation">%1$s renamed the conversation\n%2$s</string>
     <string name="label_system_message_team_member_left">%1$s was removed from the team</string>
+    <string name="label_system_message_user_not_available">This user is no longer available</string>
+
     <!--Search Contact-->
     <string name="label_contacts">CONTACTS</string>
     <string name="label_new_group">New Group</string>

@@ -46,7 +46,7 @@ class ConnectionPolicyManager @Inject constructor(
     private val migrationManager: MigrationManager
 ) {
 
-    private val logger = appLogger.withFeatureId(SYNC)
+    private val logger by lazy { appLogger.withFeatureId(SYNC) }
 
     /**
      * Starts observing the app state and take action.
@@ -75,8 +75,10 @@ class ConnectionPolicyManager @Inject constructor(
      * this will downgrade the policy back to [ConnectionPolicy.DISCONNECT_AFTER_PENDING_EVENTS].
      */
     suspend fun handleConnectionOnPushNotification(userId: UserId) {
-        logger.d("$TAG Handling connection policy for push notification of " +
-                "user=${userId.value.obfuscateId()}@${userId.domain.obfuscateDomain()}")
+        logger.d(
+            "$TAG Handling connection policy for push notification of " +
+                    "user=${userId.value.obfuscateId()}@${userId.domain.obfuscateDomain()}"
+        )
         coreLogic.getSessionScope(userId).run {
             logger.d("$TAG Forcing KEEP_ALIVE policy")
             // Force KEEP_ALIVE policy, so we gather pending events and become online

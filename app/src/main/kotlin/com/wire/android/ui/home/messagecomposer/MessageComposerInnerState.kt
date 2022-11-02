@@ -12,9 +12,9 @@ import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.Dp
 import com.wire.android.appLogger
-import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
+import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.DEFAULT_FILE_MIME_TYPE
 import com.wire.android.util.EMPTY
 import com.wire.android.util.copyToTempPath
@@ -23,7 +23,6 @@ import com.wire.android.util.getMimeType
 import com.wire.android.util.orDefault
 import com.wire.android.util.resampleImageAndCopyToTempPath
 import com.wire.kalium.logic.data.asset.isDisplayableMimeType
-import com.wire.kalium.logic.data.message.MessageMention
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -32,6 +31,7 @@ import okio.Path.Companion.toPath
 import java.io.IOException
 import java.util.UUID
 import com.wire.android.util.WHITE_SPACE
+import com.wire.kalium.logic.data.message.mention.MessageMention
 
 @Composable
 fun rememberMessageComposerInnerState(
@@ -58,6 +58,8 @@ data class MessageComposerInnerState(
     var hasFocus by mutableStateOf(false)
 
     var isKeyboardShown by mutableStateOf(false)
+
+    var mentionString by mutableStateOf("")
 
     var messageText by mutableStateOf(TextFieldValue(""))
         private set
@@ -90,12 +92,12 @@ data class MessageComposerInnerState(
         setMessageTextValue(TextFieldValue(resultText, newSelection))
     }
 
-    fun addMention(participant: UIParticipant) {
+    fun addMention(contact: Contact) {
         val mention = UiMention(
             start = messageText.currentMentionStartIndex(),
-            length = participant.name.length + 1, // + 1 cause there is an "@" before it
-            userId = participant.id,
-            handler = "@" + participant.name
+            length = contact.name.length + 1, // + 1 cause there is an "@" before it
+            userId = UserId(contact.id, contact.domain),
+            handler = "@" + contact.name
         )
 
         addMentionIntoText(mention)

@@ -2,15 +2,24 @@ package com.wire.android.ui.home.conversations
 
 import android.app.DownloadManager
 import android.content.Intent
+import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
+import androidx.compose.material.Text
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarResult
@@ -24,17 +33,21 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.paging.PagingData
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
 import com.wire.android.R
+import com.wire.android.model.Clickable
+import com.wire.android.model.UserAvatarData
 import com.wire.android.navigation.hiltSavedStateViewModel
 import com.wire.android.ui.common.bottomsheet.MenuModalSheetLayout
 import com.wire.android.ui.common.dialogs.CallingFeatureUnavailableDialog
@@ -64,20 +77,22 @@ import com.wire.android.ui.home.conversations.info.ConversationInfoViewState
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewModel
 import com.wire.android.ui.home.conversations.messages.ConversationMessagesViewState
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
+import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.messagecomposer.KeyboardHeight
 import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.ui.home.messagecomposer.MessageComposerStateTransition
+import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.permission.CallingAudioRequestFlow
 import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.data.conversation.Conversation
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.ConferenceCallingResult
 import kotlinx.collections.immutable.ImmutableMap
-import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
@@ -149,6 +164,7 @@ fun ConversationScreen(
         onOpenOngoingCallScreen = commonTopAppBarViewModel::openOngoingCallScreen,
         onSendMessage = messageComposerViewModel::sendMessage,
         onSendAttachment = messageComposerViewModel::sendAttachmentMessage,
+        onMentionMember = messageComposerViewModel::mentionMember,
         onDownloadAsset = conversationMessagesViewModel::downloadOrFetchAssetToInternalStorage,
         onImageFullScreenMode = messageComposerViewModel::navigateToGallery,
         onBackButtonClick = messageComposerViewModel::navigateBack,
@@ -171,8 +187,8 @@ fun ConversationScreen(
         tempCachePath = messageComposerViewModel.provideTempCachePath(),
         onOpenProfile = conversationInfoViewModel::navigateToProfile,
         onUpdateConversationReadDate = messageComposerViewModel::updateConversationReadDate,
-        interactionAvailability = messageComposerViewModel.interactionAvailability,
-        onQueryMentions = messageComposerViewModel::queryMentions
+        isSendingMessagesAllowed = messageComposerViewModel.isSendingMessagesAllowed,
+        membersToMention = messageComposerViewModel.mentionsToSelect,
     )
     DeleteMessageDialog(
         state = messageComposerViewModel.deleteMessageDialogsState,
@@ -239,8 +255,8 @@ private fun ConversationScreen(
     connectivityUIState: ConnectivityUIState,
     onOpenOngoingCallScreen: () -> Unit,
     onSendMessage: (String) -> Unit,
-    onQueryMentions: (String?) -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
+    onMentionMember: (String?) -> Unit,
     onDownloadAsset: (String) -> Unit,
     onImageFullScreenMode: (String, Boolean) -> Unit,
     onBackButtonClick: () -> Unit,
@@ -252,9 +268,10 @@ private fun ConversationScreen(
     onSnackbarMessageShown: () -> Unit,
     onDropDownClick: () -> Unit,
     tempCachePath: Path,
-    onOpenProfile: (String) -> Unit,
+    onOpenProfile: (MessageSource, UserId) -> Unit,
     onUpdateConversationReadDate: (String) -> Unit,
-    interactionAvailability: InteractionAvailability,
+    isSendingMessagesAllowed: Boolean,
+    membersToMention: List<Contact>,
 ) {
     val conversationScreenState = rememberConversationScreenState()
 
@@ -326,7 +343,8 @@ private fun ConversationScreen(
                             onPhoneButtonClick = onStartCall,
                             hasOngoingCall = conversationCallViewState.hasOngoingCall,
                             onJoinCallButtonClick = onJoinCall,
-                            isInteractionEnabled = interactionAvailability == InteractionAvailability.ENABLED
+                            isUserBlocked = conversationInfoViewState.isUserBlocked,
+                            isCallingEnabled = isSendingMessagesAllowed
                         )
                         ConversationBanner(bannerMessage)
                     }
@@ -347,6 +365,7 @@ private fun ConversationScreen(
                             onSendMessage = onSendMessage,
                             onShowContextMenu = conversationScreenState::showEditContextMenu,
                             onSendAttachment = onSendAttachment,
+                            onMentionMember = onMentionMember,
                             onDownloadAsset = onDownloadAsset,
                             onReactionClicked = onReactionClick,
                             onImageFullScreenMode = onImageFullScreenMode,
@@ -356,10 +375,11 @@ private fun ConversationScreen(
                             conversationScreenState = conversationScreenState,
                             isFileSharingEnabled = conversationViewState.isFileSharingEnabled,
                             tempCachePath = tempCachePath,
-                            interactionAvailability = interactionAvailability,
+                            isUserBlocked = conversationInfoViewState.isUserBlocked,
+                            isSendingMessagesAllowed = isSendingMessagesAllowed,
                             onOpenProfile = onOpenProfile,
                             onUpdateConversationReadDate = onUpdateConversationReadDate,
-                            onQueryMentions = onQueryMentions
+                            membersToMention = membersToMention
                         )
                     }
                 }
@@ -376,21 +396,23 @@ private fun ConversationScreenContent(
     messages: Flow<PagingData<UIMessage>>,
     lastUnreadMessageInstant: Instant?,
     onSendMessage: (String) -> Unit,
-    onQueryMentions: (String?) -> Unit,
     onShowContextMenu: (UIMessage) -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
+    onMentionMember: (String?) -> Unit,
     onDownloadAsset: (String) -> Unit,
     onReactionClicked: (String, String) -> Unit,
     onImageFullScreenMode: (String, Boolean) -> Unit,
-    onOpenProfile: (String) -> Unit,
+    onOpenProfile: (MessageSource, UserId) -> Unit,
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
     conversationState: ConversationViewState,
     onSnackbarMessageShown: () -> Unit,
     conversationScreenState: ConversationScreenState,
     isFileSharingEnabled: Boolean,
+    isUserBlocked: Boolean,
+    isSendingMessagesAllowed: Boolean,
     tempCachePath: Path,
-    interactionAvailability: InteractionAvailability,
-    onUpdateConversationReadDate: (String) -> Unit
+    onUpdateConversationReadDate: (String) -> Unit,
+    membersToMention: List<Contact>
 ) {
     SnackBarMessage(snackbarMessage, conversationState, conversationScreenState, onSnackbarMessageShown)
 
@@ -419,14 +441,15 @@ private fun ConversationScreenContent(
         },
         onSendTextMessage = onSendMessage,
         onSendAttachment = onSendAttachment,
+        onMentionMember = onMentionMember,
         onMessageComposerError = onMessageComposerError,
         onMessageComposerInputStateChange = onMessageComposerInputStateChange,
         isFileSharingEnabled = isFileSharingEnabled,
         tempCachePath = tempCachePath,
-        interactionAvailability = interactionAvailability,
+        isUserBlocked = isUserBlocked,
+        isSendingMessagesAllowed = isSendingMessagesAllowed,
         securityClassificationType = conversationState.securityClassificationType,
-        onQueryMentions = onQueryMentions,
-        mentionSuggestions = conversationState.mentionSuggestions
+        membersToMention = membersToMention
     )
 }
 
@@ -481,7 +504,7 @@ fun MessageList(
     onShowContextMenu: (UIMessage) -> Unit,
     onDownloadAsset: (String) -> Unit,
     onImageFullScreenMode: (String, Boolean) -> Unit,
-    onOpenProfile: (String) -> Unit,
+    onOpenProfile: (MessageSource, UserId) -> Unit,
     onUpdateConversationReadDate: (String) -> Unit,
     onReactionClicked: (String, String) -> Unit
 ) {
@@ -550,6 +573,7 @@ fun ConversationScreenPreview() {
         onOpenOngoingCallScreen = { },
         onSendMessage = { },
         onSendAttachment = { },
+        onMentionMember = { },
         onDownloadAsset = { },
         onReactionClick = { _, _ -> },
         onImageFullScreenMode = { _, _ -> },
@@ -561,9 +585,9 @@ fun ConversationScreenPreview() {
         onSnackbarMessageShown = { },
         onDropDownClick = { },
         tempCachePath = "".toPath(),
-        onOpenProfile = { _ -> },
+        onOpenProfile = { _, _ -> },
         onUpdateConversationReadDate = { },
-        interactionAvailability = InteractionAvailability.ENABLED,
-        onQueryMentions = {}
+        isSendingMessagesAllowed = true,
+        membersToMention = listOf()
     )
 }

@@ -12,17 +12,20 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.Divider
 import androidx.compose.material.Surface
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -42,16 +45,19 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.wire.android.R
+import com.wire.android.model.Clickable
 import com.wire.android.ui.common.SecurityClassificationBanner
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
-import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
+import com.wire.android.ui.home.conversations.mention.MemberItemToMention
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
+import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.messagecomposer.attachment.AttachmentOptions
+import com.wire.android.ui.home.newconversation.model.Contact
+import com.wire.android.ui.theme.wireColorScheme
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
-import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import okio.Path
 
 @Composable
@@ -60,14 +66,15 @@ fun MessageComposer(
     content: @Composable () -> Unit,
     onSendTextMessage: (String) -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
+    onMentionMember: (String?) -> Unit,
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
     onMessageComposerInputStateChange: (MessageComposerStateTransition) -> Unit,
-    onQueryMentions: (String?) -> Unit,
     isFileSharingEnabled: Boolean,
-    interactionAvailability: InteractionAvailability,
+    isUserBlocked: Boolean,
+    isSendingMessagesAllowed: Boolean,
     tempCachePath: Path,
     securityClassificationType: SecurityClassificationType,
-    mentionSuggestions: List<UIParticipant>
+    membersToMention: List<Contact>
 ) {
     BoxWithConstraints {
         val messageComposerState = rememberMessageComposerInnerState(
@@ -90,14 +97,14 @@ fun MessageComposer(
         }
 
         val onMentionPicked = remember {
-            { participant: UIParticipant ->
-                messageComposerState.addMention(participant)
+            { contact: Contact ->
+                messageComposerState.addMention(contact)
             }
         }
 
         LaunchedEffect(Unit) {
             messageComposerState.mentionQueryFlowState
-                .collect { onQueryMentions(it) }
+                .collect { onMentionMember(it) }
         }
 
         MessageComposer(
@@ -108,10 +115,11 @@ fun MessageComposer(
             onSendAttachmentClicked = onSendAttachmentClicked,
             onMessageComposerError = onMessageComposerError,
             isFileSharingEnabled = isFileSharingEnabled,
-            interactionAvailability = interactionAvailability,
+            isUserBlocked = isUserBlocked,
+            isSendingMessagesAllowed = isSendingMessagesAllowed,
             tempCachePath = tempCachePath,
             securityClassificationType = securityClassificationType,
-            mentionSuggestions = mentionSuggestions,
+            membersToMention = membersToMention,
             onMentionPicked = onMentionPicked
         )
     }
@@ -133,11 +141,12 @@ private fun MessageComposer(
     onSendAttachmentClicked: (AttachmentBundle?) -> Unit,
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
     isFileSharingEnabled: Boolean,
-    interactionAvailability: InteractionAvailability,
+    isUserBlocked: Boolean,
+    isSendingMessagesAllowed: Boolean,
     tempCachePath: Path,
     securityClassificationType: SecurityClassificationType,
-    mentionSuggestions: List<UIParticipant>,
-    onMentionPicked: (UIParticipant) -> Unit
+    membersToMention: List<Contact>,
+    onMentionPicked: (Contact) -> Unit
 ) {
     val focusManager = LocalFocusManager.current
 
@@ -195,67 +204,83 @@ private fun MessageComposer(
                     }
                 ) {
                     Box(
-                        modifier = Modifier
-                            .background(color = Color.Transparent)
-                            .weight(1f),
-                        contentAlignment = Alignment.BottomCenter
-                    ) {
-                        Box(
-                            Modifier
-                                .pointerInput(Unit) {
-                                    detectTapGestures(
-                                        onPress = {
-                                            focusManager.clearFocus()
-                                            messageComposerState.clickOutSideMessageComposer()
-                                        },
-                                        onDoubleTap = { /* Called on Double Tap */ },
-                                        onLongPress = { /* Called on Long Press */ },
-                                        onTap = {  /* Called on Tap */ }
-                                    )
-                                }
-                                .background(color = colorsScheme().backgroundVariant)
-                                .padding(bottom = dimensions().spacing8x)
-                                ) {
-                            content()
-                        }
+                        Modifier
+                            .pointerInput(Unit) {
+                                detectTapGestures(
+                                    onPress = {
+                                        focusManager.clearFocus()
+                                        messageComposerState.clickOutSideMessageComposer()
+                                    },
+                                    onDoubleTap = { /* Called on Double Tap */ },
+                                    onLongPress = { /* Called on Long Press */ },
+                                    onTap = {  /* Called on Tap */ }
+                                )
+                            }
+                            .background(color = colorsScheme().backgroundVariant)
+                            .padding(bottom = dimensions().spacing8x)
+                            .weight(1f)) {
+                        content()
+                        Column(
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .animateContentSize()
+                        ) {
+                            Spacer(modifier = Modifier.weight(1f))
 
-                        MentionSuggestionList(
-                            mentionSuggestions,
-                            rememberLazyListState(),
-                            onMentionPicked
-                        )
-                    }
-                    when (interactionAvailability) {
-                        InteractionAvailability.BLOCKED_USER -> BlockedUserMessage()
-                        InteractionAvailability.DELETED_USER -> DeletedUserMessage()
-                        InteractionAvailability.NOT_MEMBER, InteractionAvailability.DISABLED -> {}
-                        InteractionAvailability.ENABLED -> {
-                            // Column wrapping CollapseIconButton and MessageComposerInput
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .animateContentSize()
+                            LazyColumn(
+                                modifier = Modifier.background(Color.White),
+                                reverseLayout = true
                             ) {
-                                val isClassifiedConversation = securityClassificationType != SecurityClassificationType.NONE
-                                if (isClassifiedConversation) {
-                                    Box(Modifier.wrapContentSize()) {
-                                        VerticalSpace.x8()
-                                        SecurityClassificationBanner(securityClassificationType = securityClassificationType)
+                                membersToMention.forEach {
+                                    if (it.membership != Membership.Service) {
+                                        item {
+                                            MemberItemToMention(
+                                                avatarData = it.avatarData,
+                                                name = it.name,
+                                                label = it.label,
+                                                membership = it.membership,
+                                                clickable = remember { Clickable(enabled = true) { onMentionPicked(it) } },
+                                                modifier = Modifier
+                                            )
+                                            Divider(
+                                                color = MaterialTheme.wireColorScheme.divider,
+                                                thickness = Dp.Hairline
+                                            )
+                                        }
                                     }
                                 }
-                                Divider()
-                                CollapseIconButtonBox(transition, messageComposerState)
-                                // Row wrapping the AdditionalOptionButton() when we are in Enabled state and MessageComposerInput()
-                                // when we are in the Fullscreen state, we want to align the TextField to Top of the Row,
-                                // when other we center it vertically. Once we go to Fullscreen, we set the weight to 1f
-                                // so that it fills the whole Row which is = height of the whole screen - height of TopBar -
-                                // - height of container with additional options
-                                MessageComposerInputRow(transition, messageComposerState)
                             }
                         }
                     }
+                    if (isUserBlocked) {
+                        BlockedUserMessage()
+                    } else if (isSendingMessagesAllowed) {
+
+                        // Column wrapping CollapseIconButton and MessageComposerInput
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .animateContentSize()
+                        ) {
+                            val isClassifiedConversation = securityClassificationType != SecurityClassificationType.NONE
+                            if (isClassifiedConversation) {
+                                Box(Modifier.wrapContentSize()) {
+                                    VerticalSpace.x8()
+                                    SecurityClassificationBanner(securityClassificationType = securityClassificationType)
+                                }
+                            }
+                            Divider()
+                            CollapseIconButtonBox(transition, messageComposerState)
+                            // Row wrapping the AdditionalOptionButton() when we are in Enabled state and MessageComposerInput()
+                            // when we are in the Fullscreen state, we want to align the TextField to Top of the Row,
+                            // when other we center it vertically. Once we go to Fullscreen, we set the weight to 1f
+                            // so that it fills the whole Row which is = height of the whole screen - height of TopBar -
+                            // - height of container with additional options
+                            MessageComposerInputRow(transition, messageComposerState)
+                        }
+                    }
                 }
-                if (interactionAvailability == InteractionAvailability.ENABLED) {
+                if (!isUserBlocked && isSendingMessagesAllowed) {
                     // Box wrapping the SendActions so that we do not include it in the animationContentSize
                     // changed which is applied only for
                     // MessageComposerInput and CollapsingButton
@@ -286,7 +311,7 @@ private fun MessageComposer(
             // we want to offset the AttachmentOptionsComponent equal to where
             // the device keyboard is displayed, so that when the keyboard is closed,
             // we get the effect of overlapping it
-            if (messageComposerState.attachmentOptionsDisplayed && interactionAvailability == InteractionAvailability.ENABLED) {
+            if (messageComposerState.attachmentOptionsDisplayed && !isUserBlocked && isSendingMessagesAllowed) {
                 AttachmentOptions(
                     keyboardHeight,
                     messageComposerState,

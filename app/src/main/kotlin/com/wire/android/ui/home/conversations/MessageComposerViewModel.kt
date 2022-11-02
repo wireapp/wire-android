@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
+import com.wire.android.mapper.ContactMapper
 import com.wire.android.model.ImageAsset.PrivateAsset
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.EXTRA_GROUP_DELETED_NAME
@@ -26,18 +27,20 @@ import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogHelper
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsState
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
+import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
+import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageResult
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
 import com.wire.kalium.logic.feature.conversation.GetSecurityClassificationTypeUseCase
-import com.wire.kalium.logic.feature.conversation.IsInteractionAvailableResult
-import com.wire.kalium.logic.feature.conversation.ObserveConversationInteractionAvailabilityUseCase
+import com.wire.kalium.logic.feature.conversation.MembersToMentionUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveIsSelfUserMemberUseCase
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationTypeResult
-import com.wire.kalium.logic.feature.conversation.InteractionAvailability
+import com.wire.kalium.logic.feature.conversation.IsSelfUserMemberResult
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
@@ -65,17 +68,21 @@ class MessageComposerViewModel @Inject constructor(
     private val dispatchers: DispatcherProvider,
     private val getSelfUserTeam: GetSelfTeamUseCase,
     private val isFileSharingEnabled: IsFileSharingEnabledUseCase,
-    private val observeConversationInteractionAvailability: ObserveConversationInteractionAvailabilityUseCase,
+    private val observeIsSelfConversationMember: ObserveIsSelfUserMemberUseCase,
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val kaliumFileSystem: KaliumFileSystem,
     private val updateConversationReadDateUseCase: UpdateConversationReadDateUseCase,
-    private val getConversationClassifiedType: GetSecurityClassificationTypeUseCase
+    private val getConversationClassifiedType: GetSecurityClassificationTypeUseCase,
+    private val contactMapper: ContactMapper,
+    private val membersToMention: MembersToMentionUseCase
 ) : SavedStateViewModel(savedStateHandle) {
 
     var conversationViewState by mutableStateOf(ConversationViewState())
         private set
 
-    var interactionAvailability by mutableStateOf(InteractionAvailability.ENABLED)
+    var isSendingMessagesAllowed by mutableStateOf(true)
+
+    var mentionsToSelect by mutableStateOf<List<Contact>>(listOf())
 
     var deleteMessageDialogsState: DeleteMessageDialogsState by mutableStateOf(
         DeleteMessageDialogsState.States(
@@ -99,17 +106,17 @@ class MessageComposerViewModel @Inject constructor(
     }
 
     init {
-        observeIsTypingAvailable()
+        observeIfSelfIsConversationMember()
         fetchSelfUserTeam()
         fetchConversationClassificationType()
         setFileSharingStatus()
     }
 
-    private fun observeIsTypingAvailable() = viewModelScope.launch {
-        observeConversationInteractionAvailability(conversationId).collect { result ->
-            interactionAvailability = when (result) {
-                is IsInteractionAvailableResult.Failure -> InteractionAvailability.DISABLED
-                is IsInteractionAvailableResult.Success -> result.interactionAvailability
+    private fun observeIfSelfIsConversationMember() = viewModelScope.launch {
+        observeIsSelfConversationMember(conversationId).collect { result ->
+            when (result) {
+                is IsSelfUserMemberResult.Failure -> isSendingMessagesAllowed = false
+                is IsSelfUserMemberResult.Success -> isSendingMessagesAllowed = result.isMember
             }
         }
     }
@@ -221,6 +228,19 @@ class MessageComposerViewModel @Inject constructor(
         }
     }
 
+    fun mentionMember(searchQuery: String?) {
+        viewModelScope.launch(dispatchers.io()) {
+            mentionsToSelect = if (searchQuery == null) {
+                listOf()
+            } else {
+                val members = membersToMention(conversationId, searchQuery)
+                members.map {
+                    contactMapper.fromOtherUser(it.user as OtherUser)
+                }
+            }
+        }
+    }
+
     private fun setFileSharingStatus() {
         viewModelScope.launch {
             if (isFileSharingEnabled().isFileSharingEnabled != null) {
@@ -302,10 +322,6 @@ class MessageComposerViewModel @Inject constructor(
     }
 
     fun provideTempCachePath(): Path = kaliumFileSystem.rootCachePath
-
-    fun queryMentions(query: String?) {
-
-    }
 
     companion object {
         const val IMAGE_SIZE_LIMIT_BYTES = 15 * 1024 * 1024 // 15 MB limit for images

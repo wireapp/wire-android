@@ -5,6 +5,7 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.migration.feature.MigrateActiveAccountsUseCase
 import com.wire.android.migration.feature.MigrateClientsDataUseCase
+import com.wire.android.migration.feature.MigrateConversationsUseCase
 import com.wire.android.migration.feature.MigrateServerConfigUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -29,6 +30,7 @@ class MigrationManagerTest {
             .arrange()
         assert(!manager.shouldMigrate())
     }
+
     @Test
     fun givenDBFileNotExistsAndMigrationCompleted_whenCheckingWhetherToMigrate_thenReturnFalse() = runTest {
         val (_, manager) = Arrangement()
@@ -37,6 +39,7 @@ class MigrationManagerTest {
             .arrange()
         assert(!manager.shouldMigrate())
     }
+
     @Test
     fun givenDBFileExistsAndMigrationNotCompleted_whenCheckingWhetherToMigrate_thenReturnTrue() = runTest {
         val (_, manager) = Arrangement()
@@ -59,19 +62,34 @@ class MigrationManagerTest {
     private class Arrangement {
         @MockK
         lateinit var applicationContext: Context
+
         @MockK
         lateinit var globalDataStore: GlobalDataStore
+
         @MockK
         lateinit var migrateServerConfigUseCase: MigrateServerConfigUseCase
+
         @MockK
         lateinit var dbFile: File
+
         @MockK
         lateinit var migrateActiveAccounts: MigrateActiveAccountsUseCase
+
         @MockK
         lateinit var migrateClientsData: MigrateClientsDataUseCase
 
+        @MockK
+        lateinit var migrateConversations: MigrateConversationsUseCase
+
         private val manager: MigrationManager by lazy {
-            MigrationManager(applicationContext, globalDataStore, migrateServerConfigUseCase, migrateActiveAccounts, migrateClientsData)
+            MigrationManager(
+                applicationContext,
+                globalDataStore,
+                migrateServerConfigUseCase,
+                migrateActiveAccounts,
+                migrateClientsData,
+                migrateConversations
+            )
         }
 
         init {

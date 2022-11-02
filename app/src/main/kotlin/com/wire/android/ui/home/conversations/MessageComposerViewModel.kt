@@ -37,10 +37,10 @@ import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageResult
 import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
 import com.wire.kalium.logic.feature.conversation.GetSecurityClassificationTypeUseCase
-import com.wire.kalium.logic.feature.conversation.MembersToMentionUseCase
-import com.wire.kalium.logic.feature.conversation.ObserveIsSelfUserMemberUseCase
+import com.wire.kalium.logic.feature.conversation.IsInteractionAvailableResult
+import com.wire.kalium.logic.feature.conversation.ObserveConversationInteractionAvailabilityUseCase
 import com.wire.kalium.logic.feature.conversation.SecurityClassificationTypeResult
-import com.wire.kalium.logic.feature.conversation.IsSelfUserMemberResult
+import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
@@ -55,6 +55,7 @@ import okio.Path
 import okio.buffer
 import javax.inject.Inject
 import com.wire.kalium.logic.data.id.QualifiedID as ConversationId
+import com.wire.kalium.logic.feature.conversation.MembersToMentionUseCase
 
 @Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel
@@ -68,7 +69,7 @@ class MessageComposerViewModel @Inject constructor(
     private val dispatchers: DispatcherProvider,
     private val getSelfUserTeam: GetSelfTeamUseCase,
     private val isFileSharingEnabled: IsFileSharingEnabledUseCase,
-    private val observeIsSelfConversationMember: ObserveIsSelfUserMemberUseCase,
+    private val observeConversationInteractionAvailability: ObserveConversationInteractionAvailabilityUseCase,
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val kaliumFileSystem: KaliumFileSystem,
     private val updateConversationReadDateUseCase: UpdateConversationReadDateUseCase,
@@ -80,7 +81,7 @@ class MessageComposerViewModel @Inject constructor(
     var conversationViewState by mutableStateOf(ConversationViewState())
         private set
 
-    var isSendingMessagesAllowed by mutableStateOf(true)
+    var interactionAvailability by mutableStateOf(InteractionAvailability.ENABLED)
 
     var mentionsToSelect by mutableStateOf<List<Contact>>(listOf())
 
@@ -106,17 +107,17 @@ class MessageComposerViewModel @Inject constructor(
     }
 
     init {
-        observeIfSelfIsConversationMember()
+        observeIsTypingAvailable()
         fetchSelfUserTeam()
         fetchConversationClassificationType()
         setFileSharingStatus()
     }
 
-    private fun observeIfSelfIsConversationMember() = viewModelScope.launch {
-        observeIsSelfConversationMember(conversationId).collect { result ->
-            when (result) {
-                is IsSelfUserMemberResult.Failure -> isSendingMessagesAllowed = false
-                is IsSelfUserMemberResult.Success -> isSendingMessagesAllowed = result.isMember
+    private fun observeIsTypingAvailable() = viewModelScope.launch {
+        observeConversationInteractionAvailability(conversationId).collect { result ->
+            interactionAvailability = when (result) {
+                is IsInteractionAvailableResult.Failure -> InteractionAvailability.DISABLED
+                is IsInteractionAvailableResult.Success -> result.interactionAvailability
             }
         }
     }

@@ -1,5 +1,6 @@
 package com.wire.android.migration.userDatabase
 
+import android.database.Cursor
 import com.wire.android.appLogger
 import com.wire.android.migration.util.getStringOrNull
 import com.wire.kalium.logic.data.conversation.Conversation
@@ -13,24 +14,24 @@ data class ScalaMessage(
 class ScalaMessageDAO(private val db: ScalaUserDatabase) {
 
     fun messages(conversations: List<Conversation>): List<ScalaMessage> {
-
-        val cursor = db.rawQuery("SELECT * from $TABLE_NAME", null)
-        return try {
-            val conversationIdIndex = cursor.getColumnIndex(COLUMN_CONVERSATION_ID)
-            val protoBlobIndex = cursor.getColumnIndex(COLUMN_PROTO_BLOB)
-            val accumulator = mutableListOf<ScalaMessage>()
-            do {
-                val conversationId = cursor.getStringOrNull(conversationIdIndex).orEmpty()
-                val protoBlob = cursor.getBlob(protoBlobIndex)
-                accumulator += ScalaMessage(conversationId, protoBlob)
-            } while (cursor.moveToNext())
-            accumulator
-        } catch (exception: SQLException) {
-            appLogger.e("Error while querying old messages $exception")
-            emptyList()
-        } finally {
-            cursor.close()
+        val accumulator = mutableListOf<ScalaMessage>()
+        var cursor: Cursor = db.rawQuery("SELECT 1", null)
+        conversations.forEach { conversation ->
+            cursor = db.rawQuery("SELECT * from $TABLE_NAME WHERE $COLUMN_CONVERSATION_ID = ?", arrayOf(conversation.id.value))
+            try {
+                val conversationIdIndex = cursor.getColumnIndex(COLUMN_CONVERSATION_ID)
+                val protoBlobIndex = cursor.getColumnIndex(COLUMN_PROTO_BLOB)
+                do {
+                    val conversationId = cursor.getStringOrNull(conversationIdIndex).orEmpty()
+                    val protoBlob = cursor.getBlob(protoBlobIndex)
+                    accumulator += ScalaMessage(conversationId, protoBlob)
+                } while (cursor.moveToNext())
+            } catch (exception: SQLException) {
+                appLogger.e("Error while querying old messages for conversationId ${conversation.id}: $exception")
+            }
         }
+        cursor.close()
+        return accumulator
     }
 
     companion object {

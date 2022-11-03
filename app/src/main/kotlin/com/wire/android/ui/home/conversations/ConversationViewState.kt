@@ -1,8 +1,6 @@
 package com.wire.android.ui.home.conversations
 
 import com.wire.android.model.ImageAsset.UserAvatarAsset
-import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
-import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.team.Team
 import com.wire.kalium.logic.data.user.ConnectionState
@@ -16,8 +14,7 @@ data class ConversationViewState(
     val snackbarMessage: ConversationSnackbarMessages? = null,
     val userTeam: Team? = null,
     val isFileSharingEnabled: Boolean = true,
-    val securityClassificationType: SecurityClassificationType = SecurityClassificationType.NONE,
-    val mentionSuggestions: List<UIParticipant> = listOf()
+    val securityClassificationType: SecurityClassificationType = SecurityClassificationType.NONE
 )
 
 sealed class ConversationAvatar {

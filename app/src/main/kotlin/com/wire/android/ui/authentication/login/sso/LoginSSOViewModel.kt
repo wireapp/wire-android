@@ -47,23 +47,24 @@ class LoginSSOViewModel @Inject constructor(
     fun login() {
         loginState = loginState.copy(ssoLoginLoading = true, loginError = LoginError.None).updateSSOLoginEnabled()
         viewModelScope.launch {
-            val authScope = authScope().let {
-                when (it) {
-                    is AutoVersionAuthScopeUseCase.Result.Success -> it.authenticationScope
+            val authScope =
+                authScope().let {
+                    when (it) {
+                        is AutoVersionAuthScopeUseCase.Result.Success -> it.authenticationScope
 
-                    is AutoVersionAuthScopeUseCase.Result.Failure.UnknownServerVersion -> {
-                        loginState = loginState.copy(loginError = LoginError.DialogError.ServerVersionNotSupported)
-                        return@launch
-                    }
-                    is AutoVersionAuthScopeUseCase.Result.Failure.TooNewVersion -> {
-                        loginState = loginState.copy(loginError = LoginError.DialogError.ClientUpdateRequired)
-                        return@launch
-                    }
-                    is AutoVersionAuthScopeUseCase.Result.Failure.Generic -> {
-                        return@launch
+                        is AutoVersionAuthScopeUseCase.Result.Failure.UnknownServerVersion -> {
+                            loginState = loginState.copy(loginError = LoginError.DialogError.ServerVersionNotSupported)
+                            return@launch
+                        }
+                        is AutoVersionAuthScopeUseCase.Result.Failure.TooNewVersion -> {
+                            loginState = loginState.copy(loginError = LoginError.DialogError.ClientUpdateRequired)
+                            return@launch
+                        }
+                        is AutoVersionAuthScopeUseCase.Result.Failure.Generic -> {
+                            return@launch
+                        }
                     }
                 }
-            }
 
             authScope.ssoLoginScope.initiate(SSOInitiateLoginUseCase.Param.WithRedirect(loginState.ssoCode.text)).let { result ->
                 when (result) {
@@ -79,23 +80,24 @@ class LoginSSOViewModel @Inject constructor(
     fun establishSSOSession(cookie: String, serverConfigId: String) {
         loginState = loginState.copy(ssoLoginLoading = true, loginError = LoginError.None).updateSSOLoginEnabled()
         viewModelScope.launch {
-            val authScope = authScope().let {
-                when (it) {
-                    is AutoVersionAuthScopeUseCase.Result.Success -> it.authenticationScope
+            val authScope =
+                authScope().let {
+                    when (it) {
+                        is AutoVersionAuthScopeUseCase.Result.Success -> it.authenticationScope
 
-                    is AutoVersionAuthScopeUseCase.Result.Failure.UnknownServerVersion -> {
-                        loginState = loginState.copy(loginError = LoginError.DialogError.ServerVersionNotSupported)
-                        return@launch
-                    }
-                    is AutoVersionAuthScopeUseCase.Result.Failure.TooNewVersion -> {
-                        loginState = loginState.copy(loginError = LoginError.DialogError.ClientUpdateRequired)
-                        return@launch
-                    }
-                    is AutoVersionAuthScopeUseCase.Result.Failure.Generic -> {
-                        return@launch
+                        is AutoVersionAuthScopeUseCase.Result.Failure.UnknownServerVersion -> {
+                            loginState = loginState.copy(loginError = LoginError.DialogError.ServerVersionNotSupported)
+                            return@launch
+                        }
+                        is AutoVersionAuthScopeUseCase.Result.Failure.TooNewVersion -> {
+                            loginState = loginState.copy(loginError = LoginError.DialogError.ClientUpdateRequired)
+                            return@launch
+                        }
+                        is AutoVersionAuthScopeUseCase.Result.Failure.Generic -> {
+                            return@launch
+                        }
                     }
                 }
-            }
             val (authTokens, ssoId) = authScope.ssoLoginScope.getLoginSession(cookie).let {
                 when (it) {
                     is SSOLoginSessionResult.Failure -> {

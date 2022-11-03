@@ -35,16 +35,18 @@ open class LoginViewModel @Inject constructor(
     private val clientScopeProviderFactory: ClientScopeProvider.Factory,
     authServerConfigProvider: AuthServerConfigProvider
 ) : ViewModel() {
+    val serverConfig = authServerConfigProvider.authServer.value
+
     var loginState by mutableStateOf(
         LoginState(
             ssoCode = TextFieldValue(savedStateHandle[SSO_CODE_SAVED_STATE_KEY] ?: String.EMPTY),
             userIdentifier = TextFieldValue(savedStateHandle[USER_IDENTIFIER_SAVED_STATE_KEY] ?: String.EMPTY),
-            password = TextFieldValue(String.EMPTY)
+            password = TextFieldValue(String.EMPTY),
+            isProxyAuthRequired = if (serverConfig.proxy?.needsAuthentication != null)
+                serverConfig.proxy?.needsAuthentication!! else false
         )
     )
         protected set
-
-    val serverConfig = authServerConfigProvider.authServer.value
 
     open fun updateSSOLoginError(error: LoginError) {
         loginState = if (error is LoginError.None) {
@@ -122,6 +124,7 @@ open class LoginViewModel @Inject constructor(
 }
 
 fun AuthenticationResult.Failure.toLoginError() = when (this) {
+    is AuthenticationResult.Failure.SocketError -> LoginError.DialogError.ProxyError
     is AuthenticationResult.Failure.Generic -> LoginError.DialogError.GenericError(this.genericFailure)
     AuthenticationResult.Failure.InvalidCredentials -> LoginError.DialogError.InvalidCredentialsError
     AuthenticationResult.Failure.InvalidUserIdentifier -> LoginError.TextFieldError.InvalidValue

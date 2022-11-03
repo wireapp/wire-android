@@ -641,8 +641,17 @@
     <string name="label_connect_with_new_users">Connect with new users or start a new conversation:</string>
     <string name="label_reactions">Reactions</string>
     <string name="label_wait_until_synchronised">Please wait until the app is synchronised</string>
+
+    <string name="group_content_deleted">Group content was deleted</string>
+    <string name="conversation_content_deleted">Conversation content was deleted</string>
+    <string name="group_content_delete_failure">Group content could not be deleted</string>
+    <string name="conversation_content_delete_failure">Conversation content could not be deleted</string>
+    <string name="group_label">group</string>
+    <string name="conversation_label">conversation</string>
+
     <string name="proxy_credential_description">This backend is configured to use the following proxy server: %1$s</string>
     <string name="label_proxy_credentials">PROXY CREDENTIALS</string>
     <string name="label_proxy_password">PROXY PASSWORD</string>
     <string name="label_wire_credentials">WIRE CREDENTIALS</string>
+
 </resources>

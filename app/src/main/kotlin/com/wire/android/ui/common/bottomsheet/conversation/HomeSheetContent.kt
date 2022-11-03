@@ -27,6 +27,7 @@ import com.wire.android.ui.common.dialogs.UnblockUserDialogState
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
 import com.wire.android.ui.home.conversationslist.model.BlockingState
+import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.ui.home.conversationslist.model.getMutedStatusTextResource
 import com.wire.android.ui.theme.wireColorScheme
@@ -42,7 +43,7 @@ internal fun ConversationMainSheetContent(
 //    addConversationToFavourites: () -> Unit,
 //    moveConversationToFolder: () -> Unit,
 //    moveConversationToArchive: () -> Unit,
-//    clearConversationContent: () -> Unit,
+    clearConversationContent: (DialogState) -> Unit,
     blockUserClick: (BlockUserDialogState) -> Unit,
     unblockUserClick: (UnblockUserDialogState) -> Unit,
     leaveGroup: (GroupDialogState) -> Unit,

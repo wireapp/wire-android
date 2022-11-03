@@ -16,17 +16,12 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.navigation.getBackNavArg
-import com.wire.android.ui.home.conversations.search.SearchPeopleViewModel
-import com.wire.android.util.EMPTY
 import com.wire.android.util.LogFileWriter
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.feature.client.NeedsToRegisterClientUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -119,14 +114,17 @@ data class HomeState(
 
 // TODO change to extend [SnackBarMessage]
 sealed class HomeSnackbarState {
+    object None : HomeSnackbarState()
+    data class ClearConversationContentSuccess(val isGroup: Boolean) : HomeSnackbarState()
+    data class ClearConversationContentFailure(val isGroup: Boolean) : HomeSnackbarState()
+
     class SuccessConnectionIgnoreRequest(val userName: String) : HomeSnackbarState()
     object MutingOperationError : HomeSnackbarState()
     object BlockingUserOperationError : HomeSnackbarState()
-    class BlockingUserOperationSuccess(val userName: String) : HomeSnackbarState()
+    data class BlockingUserOperationSuccess(val userName: String) : HomeSnackbarState()
     object UnblockingUserOperationError : HomeSnackbarState()
-    class DeletedConversationGroupSuccess(val groupName: String) : HomeSnackbarState()
+    data class DeletedConversationGroupSuccess(val groupName: String) : HomeSnackbarState()
     object DeleteConversationGroupError : HomeSnackbarState()
     object LeftConversationSuccess : HomeSnackbarState()
     object LeaveConversationError : HomeSnackbarState()
-    object None : HomeSnackbarState()
 }

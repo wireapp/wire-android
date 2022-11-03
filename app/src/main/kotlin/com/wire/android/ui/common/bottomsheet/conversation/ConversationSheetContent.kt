@@ -2,11 +2,14 @@ package com.wire.android.ui.common.bottomsheet.conversation
 
 import MutingOptionsSheetContent
 import androidx.activity.compose.BackHandler
+import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
+import com.wire.android.R
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.common.dialogs.UnblockUserDialogState
 import com.wire.android.ui.home.conversationslist.model.BlockingState
+import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
@@ -19,7 +22,7 @@ fun ConversationSheetContent(
     addConversationToFavourites: () -> Unit,
     moveConversationToFolder: () -> Unit,
     moveConversationToArchive: () -> Unit,
-    clearConversationContent: () -> Unit,
+    clearConversationContent: (DialogState) -> Unit,
     blockUser: (BlockUserDialogState) -> Unit,
     unblockUser: (UnblockUserDialogState) -> Unit,
     leaveGroup: (GroupDialogState) -> Unit,
@@ -38,7 +41,7 @@ fun ConversationSheetContent(
 //                addConversationToFavourites = addConversationToFavourites,
 //                moveConversationToFolder = moveConversationToFolder,
 //                moveConversationToArchive = moveConversationToArchive,
-//                clearConversationContent = clearConversationContent,
+                clearConversationContent = clearConversationContent,
                 blockUserClick = blockUser,
                 unblockUserClick = unblockUser,
                 leaveGroup = leaveGroup,
@@ -81,6 +84,9 @@ sealed class ConversationTypeDetail {
     ) : ConversationTypeDetail()
 
     data class Connection(val avatarAsset: UserAvatarAsset?) : ConversationTypeDetail()
+
+    val labelResource: Int
+        get() = if (this is Group) R.string.group_label else R.string.conversation_label
 }
 
 data class ConversationSheetContent(

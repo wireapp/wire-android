@@ -19,6 +19,7 @@ import com.wire.android.ui.home.conversations.details.menu.GroupConversationDeta
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsState
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipantsViewModel
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
+import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
@@ -29,6 +30,7 @@ import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
+import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
@@ -67,6 +69,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
     private val deleteTeamConversation: DeleteTeamConversationUseCase,
     private val removeMemberFromConversation: RemoveMemberFromConversationUseCase,
     private val updateConversationMutedStatus: UpdateConversationMutedStatusUseCase,
+    private val clearConversationContentUseCase: ClearConversationContentUseCase,
     savedStateHandle: SavedStateHandle,
     qualifiedIdMapper: QualifiedIdMapper
 ) : GroupConversationParticipantsViewModel(
@@ -325,6 +328,27 @@ class GroupConversationDetailsViewModel @Inject constructor(
         }
     }
 
+   override fun onClearConversationContent(dialogState: DialogState) {
+       viewModelScope.launch{
+        with(dialogState) {
+                val result = withContext(dispatcher.io()) { clearConversationContentUseCase(conversationId) }
+                clearContentSnackbarResult(result, conversationTypeDetail)
+            }
+            }
+        }
+
+    private suspend fun clearContentSnackbarResult(
+        clearContentResult: ClearConversationContentUseCase.Result,
+        conversationTypeDetail: ConversationTypeDetail
+    ) {
+        if (conversationTypeDetail is ConversationTypeDetail.Connection) throw IllegalStateException("Unsupported conversation type to clear content, something went wrong?")
+                if (clearContentResult is ClearConversationContentUseCase.Result.Failure) {
+                    showSnackBarMessage(UIText.StringResource(R.string.group_content_delete_failure))
+                } else {
+                    showSnackBarMessage(UIText.StringResource(R.string.group_content_deleted))
+                }
+    }
+
     @Suppress("EmptyFunctionBlock")
     override fun onAddConversationToFavourites(conversationId: ConversationId?) {
     }
@@ -335,10 +359,6 @@ class GroupConversationDetailsViewModel @Inject constructor(
 
     @Suppress("EmptyFunctionBlock")
     override fun onMoveConversationToArchive(conversationId: ConversationId?) {
-    }
-
-    @Suppress("EmptyFunctionBlock")
-    override fun onClearConversationContent(conversationId: ConversationId?) {
     }
 
     companion object {

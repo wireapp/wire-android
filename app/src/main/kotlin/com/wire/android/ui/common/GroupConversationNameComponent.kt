@@ -62,21 +62,20 @@ fun GroupNameScreen(
             ) {
                 val (textField, text, button, protocol) = createRefs()
                 val keyboardController = LocalSoftwareKeyboardController.current
-                if (mode == CREATION) {
-                    Text(
-                        text = stringResource(id = R.string.new_group_description),
-                        style = MaterialTheme.wireTypography.body01,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(
-                                horizontal = MaterialTheme.wireDimensions.spacing16x,
-                                vertical = MaterialTheme.wireDimensions.spacing24x
-                            )
-                            .constrainAs(text) {
-                                top.linkTo(parent.top)
-                            }
-                    )
-                }
+                Text(
+                    text = stringResource(id = R.string.new_group_description),
+                    style = MaterialTheme.wireTypography.body01,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            horizontal = MaterialTheme.wireDimensions.spacing16x,
+                            vertical = MaterialTheme.wireDimensions.spacing24x
+                        )
+                        .constrainAs(text) {
+                            top.linkTo(parent.top)
+                        }
+                )
+                
                 Box(modifier = Modifier.constrainAs(textField) {
                     top.linkTo(text.bottom)
                     bottom.linkTo(protocol.top)

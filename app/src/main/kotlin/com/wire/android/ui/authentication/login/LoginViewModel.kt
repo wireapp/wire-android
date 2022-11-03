@@ -124,7 +124,7 @@ open class LoginViewModel @Inject constructor(
 }
 
 fun AuthenticationResult.Failure.toLoginError() = when (this) {
-    is AuthenticationResult.Failure.SocketError -> LoginError.DialogError.SocketError
+    is AuthenticationResult.Failure.SocketError -> LoginError.DialogError.ProxyError
     is AuthenticationResult.Failure.Generic -> LoginError.DialogError.GenericError(this.genericFailure)
     AuthenticationResult.Failure.InvalidCredentials -> LoginError.DialogError.InvalidCredentialsError
     AuthenticationResult.Failure.InvalidUserIdentifier -> LoginError.TextFieldError.InvalidValue

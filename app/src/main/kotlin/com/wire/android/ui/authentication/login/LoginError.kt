@@ -12,7 +12,7 @@ sealed class LoginError {
     sealed class DialogError : LoginError() {
         data class GenericError(val coreFailure: CoreFailure) : DialogError()
         object InvalidCredentialsError : DialogError()
-        object SocketError : DialogError()
+        object ProxyError : DialogError()
         object InvalidSSOCookie : DialogError()
         object InvalidCodeError : DialogError()
         object UserAlreadyExists : DialogError()

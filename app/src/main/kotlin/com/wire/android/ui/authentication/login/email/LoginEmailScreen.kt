@@ -252,7 +252,7 @@ private fun LoginEmailScreenPreview() {
             onLoginButtonClick = suspend { },
             onUpdateApp = {},
             forgotPasswordUrl = "",
-            scope = scope,
+            scope = scope
         )
     }
 }

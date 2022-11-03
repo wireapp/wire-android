@@ -303,7 +303,8 @@ private fun MessageComposer(
                             },
                         transition,
                         messageComposerState,
-                        focusManager
+                        focusManager,
+                        membersToMention.isNotEmpty()
                     )
                 }
             }

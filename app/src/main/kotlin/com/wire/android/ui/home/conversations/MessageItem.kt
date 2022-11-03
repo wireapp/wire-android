@@ -55,7 +55,6 @@ import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMess
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
-import com.wire.kalium.logic.data.user.UserId
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -64,7 +63,7 @@ fun MessageItem(
     onLongClicked: (UIMessage) -> Unit,
     onAssetMessageClicked: (String) -> Unit,
     onImageMessageClicked: (String, Boolean) -> Unit,
-    onOpenProfile: (MessageSource, UserId) -> Unit,
+    onOpenProfile: (String) -> Unit,
     onReactionClicked: (String, String) -> Unit
 ) {
     with(message) {

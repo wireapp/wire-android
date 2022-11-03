@@ -27,6 +27,7 @@ import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogHelper
 import com.wire.android.ui.home.conversations.delete.DeleteMessageDialogsState
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
+import com.wire.android.ui.home.messagecomposer.UiMention
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.ImageUtil
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -162,9 +163,9 @@ class MessageComposerViewModel @Inject constructor(
 
     }
 
-    fun sendMessage(message: String) {
+    fun sendMessage(message: String, mentions: List<UiMention>) {
         viewModelScope.launch {
-            sendTextMessage(conversationId, message)
+            sendTextMessage(conversationId, message, mentions.map { it.intoMessageMention() })
         }
     }
 

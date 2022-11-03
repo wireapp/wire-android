@@ -17,12 +17,15 @@ import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.DEFAULT_FILE_MIME_TYPE
 import com.wire.android.util.EMPTY
+import com.wire.android.util.MENTION_SYMBOL
+import com.wire.android.util.WHITE_SPACE
 import com.wire.android.util.copyToTempPath
 import com.wire.android.util.getFileName
 import com.wire.android.util.getMimeType
 import com.wire.android.util.orDefault
 import com.wire.android.util.resampleImageAndCopyToTempPath
 import com.wire.kalium.logic.data.asset.isDisplayableMimeType
+import com.wire.kalium.logic.data.message.mention.MessageMention
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -30,8 +33,6 @@ import okio.Path
 import okio.Path.Companion.toPath
 import java.io.IOException
 import java.util.UUID
-import com.wire.android.util.WHITE_SPACE
-import com.wire.kalium.logic.data.message.mention.MessageMention
 
 @Composable
 fun rememberMessageComposerInnerState(
@@ -59,10 +60,11 @@ data class MessageComposerInnerState(
 
     var isKeyboardShown by mutableStateOf(false)
 
-    var mentionString by mutableStateOf("")
-
     var messageText by mutableStateOf(TextFieldValue(""))
         private set
+
+    private val _mentionQueryFlowState: MutableStateFlow<String?> = MutableStateFlow(null)
+    val mentionQueryFlowState: StateFlow<String?> = _mentionQueryFlowState
 
     fun setMessageTextValue(text: TextFieldValue) {
         updateMentionsIfNeeded(text)
@@ -84,7 +86,7 @@ data class MessageComposerInnerState(
             }
         val afterSelection = messageText.text.subSequence(messageText.selection.max, messageText.text.length)
         val resultText = StringBuilder(beforeSelection)
-            .append("@")
+            .append(String.MENTION_SYMBOL)
             .append(afterSelection)
             .toString()
         val newSelection = TextRange(beforeSelection.length + 1)
@@ -95,31 +97,14 @@ data class MessageComposerInnerState(
     fun addMention(contact: Contact) {
         val mention = UiMention(
             start = messageText.currentMentionStartIndex(),
-            length = contact.name.length + 1, // + 1 cause there is an "@" before it
+            length = contact.name.length + 1, // +1 cause there is an "@" before it
             userId = UserId(contact.id, contact.domain),
-            handler = "@" + contact.name
+            handler = String.MENTION_SYMBOL + contact.name
         )
 
-        addMentionIntoText(mention)
+        insertMentionIntoText(mention)
         mentions = mentions.plus(mention).sortedBy { it.start }
         _mentionQueryFlowState.value = null
-    }
-
-    private fun addMentionIntoText(mention: UiMention) {
-        val beforeMention = messageText.text.subSequence(0, mention.start)
-        val afterMention = messageText.text.subSequence(messageText.selection.max, messageText.text.length)
-        val resultText = StringBuilder()
-            .append(beforeMention)
-            .append(mention.handler)
-            .apply {
-                if (!afterMention.startsWith(String.WHITE_SPACE))
-                    append(String.WHITE_SPACE)
-            }
-            .append(afterMention)
-            .toString()
-        val newSelection = TextRange(beforeMention.length + mention.handler.length + 1)
-
-        setMessageTextValue(TextFieldValue(resultText, newSelection))
     }
 
     var mentions by mutableStateOf(listOf<UiMention>())
@@ -141,9 +126,6 @@ data class MessageComposerInnerState(
     fun toggleAttachmentOptionsVisibility() {
         attachmentOptionsDisplayed = !attachmentOptionsDisplayed
     }
-
-    private val _mentionQueryFlowState: MutableStateFlow<String?> = MutableStateFlow(null)
-    val mentionQueryFlowState: StateFlow<String?> = _mentionQueryFlowState
 
     private fun toEnabled() {
         onMessageComposeInputStateChanged(
@@ -188,6 +170,24 @@ data class MessageComposerInnerState(
         messageComposeInputState = newState
     }
 
+    private fun insertMentionIntoText(mention: UiMention) {
+        val beforeMentionText = messageText.text.subSequence(0, mention.start)
+        val afterMentionText = messageText.text.subSequence(messageText.selection.max, messageText.text.length)
+        val resultText = StringBuilder()
+            .append(beforeMentionText)
+            .append(mention.handler)
+            .apply {
+                if (!afterMentionText.startsWith(String.WHITE_SPACE)) append(String.WHITE_SPACE)
+            }
+            .append(afterMentionText)
+            .toString()
+
+        // + 1 cause we add space after mention and move selector there
+        val newSelection = TextRange(beforeMentionText.length + mention.handler.length + 1)
+
+        setMessageTextValue(TextFieldValue(resultText, newSelection))
+    }
+
     private fun updateMentionsIfNeeded(newText: TextFieldValue) {
         val updatedMentions = mutableSetOf<UiMention>()
         mentions.forEach { mention ->
@@ -222,10 +222,12 @@ data class MessageComposerInnerState(
         val currentMentionStartIndex = text.currentMentionStartIndex()
 
         if (currentMentionStartIndex >= 0) {
-            val sub = text.text.subSequence(currentMentionStartIndex, text.selection.min)
-            if (!sub.contains(String.WHITE_SPACE)) {
-                _mentionQueryFlowState.value = sub.toString()
-                return
+            // +1 cause need to remove @ symbol at the begin of string
+            val textBetweenAtAndSelection = text.text.subSequence(currentMentionStartIndex + 1, text.selection.min)
+            if (!textBetweenAtAndSelection.contains(String.WHITE_SPACE)) {
+                _mentionQueryFlowState.value = textBetweenAtAndSelection.toString()
+            } else {
+                _mentionQueryFlowState.value = null
             }
         }
     }
@@ -233,7 +235,7 @@ data class MessageComposerInnerState(
 }
 
 private fun TextFieldValue.currentMentionStartIndex(): Int {
-    val lastIndexOfAt = text.lastIndexOf("@", selection.min)
+    val lastIndexOfAt = text.lastIndexOf(String.MENTION_SYMBOL, selection.min)
 
     return when {
         (lastIndexOfAt <= 0) ||

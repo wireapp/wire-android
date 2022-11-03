@@ -57,16 +57,15 @@ import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.messagecomposer.attachment.AttachmentOptions
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.theme.wireColorScheme
-import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
-import kotlinx.coroutines.flow.distinctUntilChanged
+import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 import okio.Path
 
 @Composable
 fun MessageComposer(
     keyboardHeight: KeyboardHeight,
     content: @Composable () -> Unit,
-    onSendTextMessage: (String) -> Unit,
+    onSendTextMessage: (String, List<UiMention>) -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onMentionMember: (String?) -> Unit,
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
@@ -85,7 +84,7 @@ fun MessageComposer(
 
         val onSendButtonClicked = remember {
             {
-                onSendTextMessage(messageComposerState.messageText.text)
+                onSendTextMessage(messageComposerState.messageText.text, messageComposerState.mentions)
                 messageComposerState.setMessageTextValue(TextFieldValue(""))
             }
         }

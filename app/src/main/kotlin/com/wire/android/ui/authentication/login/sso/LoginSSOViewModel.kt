@@ -48,7 +48,7 @@ class LoginSSOViewModel @Inject constructor(
         loginState = loginState.copy(ssoLoginLoading = true, loginError = LoginError.None).updateSSOLoginEnabled()
         viewModelScope.launch {
             val authScope =
-                authScope(AutoVersionAuthScopeUseCase.ProxyCredentials.None).let {
+                authScope(AutoVersionAuthScopeUseCase.ProxyAuthentication.None).let {
                     when (it) {
                         is AutoVersionAuthScopeUseCase.Result.Success -> it.authenticationScope
 
@@ -81,7 +81,7 @@ class LoginSSOViewModel @Inject constructor(
         loginState = loginState.copy(ssoLoginLoading = true, loginError = LoginError.None).updateSSOLoginEnabled()
         viewModelScope.launch {
             val authScope =
-                authScope(AutoVersionAuthScopeUseCase.ProxyCredentials.None).let {
+                authScope(AutoVersionAuthScopeUseCase.ProxyAuthentication.None).let {
                     when (it) {
                         is AutoVersionAuthScopeUseCase.Result.Success -> it.authenticationScope
 

@@ -23,7 +23,6 @@ import com.wire.android.ui.authentication.create.overview.CreateAccountOverviewV
 import com.wire.android.ui.common.textfield.CodeFieldValue
 import com.wire.android.util.WillNeverOccurError
 import com.wire.kalium.logic.configuration.server.ServerConfig
-import com.wire.kalium.logic.data.auth.login.ProxyCredentialsModel
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.ValidateEmailUseCase
@@ -138,7 +137,7 @@ abstract class CreateAccountBaseViewModel(
     final override fun onTermsAccept() {
         emailState = emailState.copy(loading = true, continueEnabled = false, termsDialogVisible = false, termsAccepted = true)
         viewModelScope.launch {
-            val authScope = authScope(AutoVersionAuthScopeUseCase.ProxyCredentials.None).let {
+            val authScope = authScope(AutoVersionAuthScopeUseCase.ProxyAuthentication.None).let {
                 when (it) {
                     is AutoVersionAuthScopeUseCase.Result.Success -> it.authenticationScope
 
@@ -232,7 +231,7 @@ abstract class CreateAccountBaseViewModel(
     final override fun resendCode() {
         codeState = codeState.copy(loading = true)
         viewModelScope.launch {
-            val authScope = authScope(AutoVersionAuthScopeUseCase.ProxyCredentials.None).let {
+            val authScope = authScope(AutoVersionAuthScopeUseCase.ProxyAuthentication.None).let {
                 when (it) {
                     is AutoVersionAuthScopeUseCase.Result.Success -> it.authenticationScope
 
@@ -259,7 +258,7 @@ abstract class CreateAccountBaseViewModel(
     private fun onCodeContinue() {
         codeState = codeState.copy(loading = true)
         viewModelScope.launch {
-            val authScope = authScope(AutoVersionAuthScopeUseCase.ProxyCredentials.None).let {
+            val authScope = authScope(AutoVersionAuthScopeUseCase.ProxyAuthentication.None).let {
                 when (it) {
                     is AutoVersionAuthScopeUseCase.Result.Success -> it.authenticationScope
 

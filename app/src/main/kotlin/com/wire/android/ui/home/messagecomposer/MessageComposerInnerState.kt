@@ -2,12 +2,15 @@ package com.wire.android.ui.home.messagecomposer
 
 import android.content.Context
 import android.net.Uri
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.AnnotatedString
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.Dp
@@ -15,6 +18,7 @@ import com.wire.android.appLogger
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.ui.home.newconversation.model.Contact
+import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.DEFAULT_FILE_MIME_TYPE
 import com.wire.android.util.EMPTY
 import com.wire.android.util.MENTION_SYMBOL
@@ -41,11 +45,17 @@ fun rememberMessageComposerInnerState(
 ): MessageComposerInnerState {
     val defaultAttachmentInnerState = AttachmentInnerState(LocalContext.current)
 
+    val mentionSpanStyle = SpanStyle(
+        color = MaterialTheme.wireColorScheme.messageMentionText,
+        background = MaterialTheme.wireColorScheme.messageMentionBackground
+    )
+
     return remember {
         MessageComposerInnerState(
             fullScreenHeight = fullScreenHeight,
             attachmentInnerState = defaultAttachmentInnerState,
-            onMessageComposeInputStateChanged = onMessageComposeInputStateChanged
+            onMessageComposeInputStateChanged = onMessageComposeInputStateChanged,
+            mentionSpanStyle = mentionSpanStyle
         )
     }
 }
@@ -53,7 +63,8 @@ fun rememberMessageComposerInnerState(
 data class MessageComposerInnerState(
     val fullScreenHeight: Dp,
     val attachmentInnerState: AttachmentInnerState,
-    private val onMessageComposeInputStateChanged: (MessageComposerStateTransition) -> Unit
+    private val onMessageComposeInputStateChanged: (MessageComposerStateTransition) -> Unit,
+    private val mentionSpanStyle: SpanStyle
 ) {
 
     var hasFocus by mutableStateOf(false)
@@ -70,7 +81,7 @@ data class MessageComposerInnerState(
         updateMentionsIfNeeded(text)
         requestMentionSuggestionIfNeeded(text)
 
-        messageText = text
+        messageText = applyMentionStylesIntoText(text)
     }
 
     fun startMention() {
@@ -170,6 +181,25 @@ data class MessageComposerInnerState(
         messageComposeInputState = newState
     }
 
+    private fun applyMentionStylesIntoText(text: TextFieldValue): TextFieldValue {
+        // For now there is a known issue in Compose
+        // https://issuetracker.google.com/issues/199768107
+        // It do not allow us to set some custom SpanStyle into "EditableTextView" :(
+        // But maybe someday they'll fix it, so we could use it
+        val spanStyles = mentions.map { mention ->
+            AnnotatedString.Range(mentionSpanStyle, mention.start, mention.start + mention.length)
+        }
+
+//        return text.copy(
+//            annotatedString = AnnotatedString(
+//                text.annotatedString.text,
+//                spanStyles,
+//                text.annotatedString.paragraphStyles
+//            )
+//        )
+        return text
+    }
+
     private fun insertMentionIntoText(mention: UiMention) {
         val beforeMentionText = messageText.text.subSequence(0, mention.start)
         val afterMentionText = messageText.text.subSequence(messageText.selection.max, messageText.text.length)
@@ -229,13 +259,15 @@ data class MessageComposerInnerState(
             } else {
                 _mentionQueryFlowState.value = null
             }
+        } else {
+            _mentionQueryFlowState.value = null
         }
     }
 
 }
 
 private fun TextFieldValue.currentMentionStartIndex(): Int {
-    val lastIndexOfAt = text.lastIndexOf(String.MENTION_SYMBOL, selection.min)
+    val lastIndexOfAt = text.lastIndexOf(String.MENTION_SYMBOL, selection.min - 1)
 
     return when {
         (lastIndexOfAt <= 0) ||

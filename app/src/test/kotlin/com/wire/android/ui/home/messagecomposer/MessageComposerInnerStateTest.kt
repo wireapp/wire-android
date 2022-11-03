@@ -1,6 +1,7 @@
 package com.wire.android.ui.home.messagecomposer
 
 import android.content.Context
+import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.dp
@@ -37,7 +38,7 @@ class MessageComposerInnerStateTest {
 
         state.setMessageTextValue(textFieldValueWithSelection("start text @"))
 
-        assertEquals(state.mentionQueryFlowState.value, "")
+        assertEquals("", state.mentionQueryFlowState.value)
     }
 
     @Test
@@ -47,7 +48,7 @@ class MessageComposerInnerStateTest {
 
         state.setMessageTextValue(textFieldValueWithSelection("start text@"))
 
-        assertEquals(state.mentionQueryFlowState.value, null)
+        assertEquals(null, state.mentionQueryFlowState.value)
     }
 
     @Test
@@ -57,7 +58,7 @@ class MessageComposerInnerStateTest {
 
         state.setMessageTextValue(textFieldValueWithSelection("start text @abc"))
 
-        assertEquals(state.mentionQueryFlowState.value, "abc")
+        assertEquals("abc", state.mentionQueryFlowState.value)
     }
 
     @Test
@@ -120,6 +121,33 @@ class MessageComposerInnerStateTest {
         assertEquals(expected, state.mentions)
     }
 
+    // case was found by manual testing
+    @Test
+    fun `when message starts from mention and then it's removed, then mention is not requested anymore`() = runTest {
+        val state = createState(context)
+        state.setMessageTextValue(textFieldValueWithSelection("@"))
+
+        assertEquals("", state.mentionQueryFlowState.value)
+        state.setMessageTextValue(textFieldValueWithSelection(""))
+
+        assertEquals(null, state.mentionQueryFlowState.value)
+    }
+
+    // case was found by manual testing
+    @Test
+    fun `when selection goes just before mention symbol, then mention is not requested`() = runTest {
+        val state = createState(context)
+        state.setMessageTextValue(textFieldValueWithSelection("@ @ "))
+
+        state.setMessageTextValue(TextFieldValue("@ @ ", TextRange(3)))
+
+        assertEquals("", state.mentionQueryFlowState.value)
+
+        state.setMessageTextValue(TextFieldValue("@ @ ", TextRange(2)))
+
+        assertEquals(null, state.mentionQueryFlowState.value)
+    }
+
     private fun textFieldValueWithSelection(text: String) = TextFieldValue(text, TextRange(text.length))
 
     private fun contact(suffix: Int = 0) = Contact(
@@ -131,6 +159,6 @@ class MessageComposerInnerStateTest {
     )
 
     companion object {
-        fun createState(context: Context) = MessageComposerInnerState(0.dp, AttachmentInnerState(context)) {}
+        fun createState(context: Context) = MessageComposerInnerState(0.dp, AttachmentInnerState(context), {}, SpanStyle())
     }
 }

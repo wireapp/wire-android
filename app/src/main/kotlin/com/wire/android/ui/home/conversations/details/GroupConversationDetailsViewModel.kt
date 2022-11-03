@@ -341,6 +341,16 @@ class GroupConversationDetailsViewModel @Inject constructor(
     override fun onClearConversationContent(conversationId: ConversationId?) {
     }
 
+    fun navigateToEditGroupName() {
+        viewModelScope.launch {
+            navigationManager.navigate(
+                command = NavigationCommand(
+                    destination = NavigationItem.EditConversationName.getRouteWithArgs(listOf(conversationId))
+                )
+            )
+        }
+    }
+
     companion object {
         const val MAX_NUMBER_OF_PARTICIPANTS = 4
     }

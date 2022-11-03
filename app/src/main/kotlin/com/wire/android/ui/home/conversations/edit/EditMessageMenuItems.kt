@@ -18,6 +18,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.TextUnit
@@ -93,25 +94,30 @@ private fun ReactionOptions(
     Column {
         Row {
             Spacer(modifier = Modifier.width(dimensions().spacing8x))
-            Text(stringResource(R.string.label_reactions).uppercase(), style = MaterialTheme.wireTypography.label01)
+            Text(("${stringResource(R.string.label_reactions)} ${stringResource(id = R.string.label_more_comming_soon)}").uppercase(), style = MaterialTheme.wireTypography.label01)
         }
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            listOf("👍", "❤️", "🚀", "🤯", "😄", "🤣", "👎").forEach { emoji ->
+            listOf("❤️", "👍",  "🚀", "🤯", "😄", "🤣", "👎").forEach { emoji ->
                 CompositionLocalProvider(
                     LocalMinimumTouchTargetEnforcement provides false
                 ) {
                     Button(
                         onClick = {
-                            // So we display the pretty emoji,
-                            // but we match the ugly one sent from other platforms
-                            val correctedEmoji = if (emoji == "❤️") "❤"
-                            else emoji
-                            onReactionClick(correctedEmoji)
+                            // TODO remove when all emojis will be available
+                            if (emoji == "❤️") {
+                                // So we display the pretty emoji,
+                                // but we match the ugly one sent from other platforms
+                                val correctedEmoji = "❤"
+                                onReactionClick(correctedEmoji)
+                            }
                         },
-                        modifier = Modifier.defaultMinSize(minWidth = 1.dp, minHeight = 1.dp),
+                        modifier = Modifier
+                            .defaultMinSize(minWidth = 1.dp, minHeight = 1.dp)
+                            // TODO remove when all emojis will be available
+                            .alpha(if (emoji == "❤️") 1F else 0.3F),
                         contentPadding = PaddingValues(dimensions().spacing8x),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.wireColorScheme.surface,

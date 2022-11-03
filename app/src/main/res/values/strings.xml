@@ -637,5 +637,6 @@
     <string name="label_no_conversation_found">No conversations could be found.</string>
     <string name="label_connect_with_new_users">Connect with new users or start a new conversation:</string>
     <string name="label_reactions">Reactions</string>
+    <string name="label_more_comming_soon">(more coming soon)</string>
     <string name="label_wait_until_synchronised">Please wait until the app is synchronised</string>
 </resources>

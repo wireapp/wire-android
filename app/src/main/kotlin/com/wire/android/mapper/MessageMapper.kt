@@ -50,7 +50,17 @@ class MessageMapper @Inject constructor(
             userList = userList
         )
 
-        val footer = if(message is Message.Regular) {
+        val footer = if (message is Message.Regular) {
+            // TODO find ugly and proper heart emoji and merge them to ugly one 😅
+
+            val totalHeartsCount = message.reactions.totalReactions
+                .filterKeys { !isHeart(it) }.values
+                .scan(0) { acc, count -> acc + count }
+                .lastOrNull()
+
+            val selfHeartsCount = message.reactions.selfUserReactions.filter { !isHeart(it) }.size
+
+
             MessageFooter(message.id, message.reactions.totalReactions, message.reactions.selfUserReactions)
         } else {
             MessageFooter(message.id)
@@ -72,6 +82,8 @@ class MessageMapper @Inject constructor(
             )
         }
     }
+
+    private fun isHeart(it: String) = it == "❤️" || it == "❤"
 
     private fun provideMessageHeader(sender: User?, message: Message): MessageHeader = MessageHeader(
         username = sender?.name?.let { UIText.DynamicString(it) }

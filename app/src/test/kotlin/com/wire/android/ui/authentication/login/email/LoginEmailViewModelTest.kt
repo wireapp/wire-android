@@ -32,7 +32,6 @@ import com.wire.kalium.logic.feature.auth.LoginUseCase
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.client.ClientScope
 import com.wire.kalium.logic.feature.client.GetOrRegisterClientUseCase
-import com.wire.kalium.logic.feature.client.PersistProxyCredentialsUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
@@ -62,9 +61,6 @@ class LoginEmailViewModelTest {
 
     @MockK
     private lateinit var addAuthenticatedUserUseCase: AddAuthenticatedUserUseCase
-
-    @MockK
-    private lateinit var persistProxyCredentialsUseCase: PersistProxyCredentialsUseCase
 
     @MockK
     private lateinit var clientScopeProviderFactory: ClientScopeProvider.Factory
@@ -113,17 +109,10 @@ class LoginEmailViewModelTest {
             authenticationScope
         )
 
-        coEvery {
-            persistProxyCredentialsUseCase(
-                any(),
-                any()
-            )
-        } returns PersistProxyCredentialsUseCase.PersistProxyCredentialsResult.Success
         every { authenticationScope.login } returns loginUseCase
         loginViewModel = LoginEmailViewModel(
             autoVersionAuthScopeUseCase,
             addAuthenticatedUserUseCase,
-            persistProxyCredentialsUseCase,
             clientScopeProviderFactory,
             savedStateHandle,
             navigationManager,

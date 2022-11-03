@@ -7,8 +7,8 @@ import com.wire.android.ui.home.conversations.findUser
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.util.ui.UIText
-import com.wire.kalium.logic.data.asset.isDisplayableMimeType
 import com.wire.android.util.ui.WireSessionImageLoader
+import com.wire.kalium.logic.data.asset.isDisplayableMimeType
 import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent

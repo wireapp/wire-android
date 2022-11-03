@@ -103,7 +103,7 @@ class LoginSSOViewModelTest {
         every { clientScope.getOrRegister } returns getOrRegisterClientUseCase
         every { authServerConfigProvider.authServer.value } returns newServerConfig(1).links
         coEvery {
-            autoVersionAuthScopeUseCase(AutoVersionAuthScopeUseCase.ProxyAuthentication.None)
+            autoVersionAuthScopeUseCase()
         } returns AutoVersionAuthScopeUseCase.Result.Success(
             authenticationScope
         )

@@ -1,4 +1,4 @@
-package com.wire.android.ui.common
+package com.wire.android.ui.common.groupname
 
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -24,13 +24,15 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import com.wire.android.BuildConfig
 import com.wire.android.R
-import com.wire.android.ui.common.GroupNameMode.CREATION
+import com.wire.android.ui.common.Icon
+import com.wire.android.ui.common.ShakeAnimation
+import com.wire.android.ui.common.WireDropDown
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
+import com.wire.android.ui.common.groupname.GroupNameMode.CREATION
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
-import com.wire.android.ui.home.newconversation.newgroup.NewGroupState
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.data.conversation.ConversationOptions
@@ -38,12 +40,11 @@ import com.wire.kalium.logic.data.conversation.ConversationOptions
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun GroupNameScreen(
-    newGroupState: NewGroupState,
+    newGroupState: GroupMetadataState,
     onGroupNameChange: (TextFieldValue) -> Unit,
     onContinuePressed: () -> Unit,
     onGroupNameErrorAnimated: () -> Unit,
     onBackPressed: () -> Unit,
-    mode: GroupNameMode = CREATION,
 ) {
     with(newGroupState) {
         Scaffold(topBar = {
@@ -90,10 +91,10 @@ fun GroupNameScreen(
                             onValueChange = onGroupNameChange,
                             placeholderText = stringResource(R.string.group_name),
                             labelText = stringResource(R.string.group_name).uppercase(),
-                            state = if (error is NewGroupState.NewGroupError.TextFieldError) when (error) {
-                                NewGroupState.NewGroupError.TextFieldError.GroupNameEmptyError ->
+                            state = if (error is GroupMetadataState.NewGroupError.TextFieldError) when (error) {
+                                GroupMetadataState.NewGroupError.TextFieldError.GroupNameEmptyError ->
                                     WireTextFieldState.Error(stringResource(id = R.string.empty_group_name_error))
-                                NewGroupState.NewGroupError.TextFieldError.GroupNameExceedLimitError ->
+                                GroupMetadataState.NewGroupError.TextFieldError.GroupNameExceedLimitError ->
                                     WireTextFieldState.Error(stringResource(id = R.string.group_name_exceeded_limit_error))
                             } else WireTextFieldState.Default,
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Done),
@@ -137,5 +138,3 @@ fun GroupNameScreen(
         }
     }
 }
-
-enum class GroupNameMode { CREATION, EDITION }

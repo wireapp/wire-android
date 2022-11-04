@@ -9,13 +9,16 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationManager
-import com.wire.android.ui.home.newconversation.newgroup.NewGroupState
+import com.wire.android.ui.common.groupname.GroupMetadataState
+import com.wire.android.ui.common.groupname.GroupNameMode
+import com.wire.android.ui.common.groupname.GroupNameValidator
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -24,7 +27,6 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 @HiltViewModel
 class EditConversationMetadataViewModel @Inject constructor(
@@ -39,7 +41,7 @@ class EditConversationMetadataViewModel @Inject constructor(
         savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!
     )
 
-    var editConversationState by mutableStateOf(NewGroupState())
+    var editConversationState by mutableStateOf(GroupMetadataState(mode = GroupNameMode.EDITION))
         private set
 
     init {
@@ -63,4 +65,7 @@ class EditConversationMetadataViewModel @Inject constructor(
         }
     }
 
+    fun onGroupNameChange(newText: TextFieldValue) {
+        editConversationState = GroupNameValidator.onGroupNameChange(newText, editConversationState)
+    }
 }

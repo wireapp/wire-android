@@ -7,6 +7,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.appLogger
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.common.groupname.GroupMetadataState
@@ -67,5 +68,17 @@ class EditConversationMetadataViewModel @Inject constructor(
 
     fun onGroupNameChange(newText: TextFieldValue) {
         editConversationState = GroupNameValidator.onGroupNameChange(newText, editConversationState)
+    }
+
+    fun onGroupNameErrorAnimated() {
+        editConversationState = GroupNameValidator.onGroupNameErrorAnimated(editConversationState)
+    }
+
+    fun saveNewGroupName() {
+        appLogger.d("saving new name")
+    }
+
+    fun navigateBack() {
+        viewModelScope.launch { navigationManager.navigateBack() }
     }
 }

@@ -36,4 +36,6 @@ object GroupNameValidator {
             }
         }
     }
+
+    fun onGroupNameErrorAnimated(currentGroupState: GroupMetadataState) = currentGroupState.copy(animatedGroupNameError = false)
 }

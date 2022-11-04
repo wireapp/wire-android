@@ -175,6 +175,6 @@ class NewConversationViewModel @Inject constructor(
     }
 
     fun onGroupNameErrorAnimated() {
-        newGroupState = newGroupState.copy(animatedGroupNameError = false)
+        newGroupState = GroupNameValidator.onGroupNameErrorAnimated(newGroupState)
     }
 }

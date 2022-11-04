@@ -12,6 +12,7 @@ import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.client.PersistRegisteredClientIdResult
 import com.wire.kalium.logic.functional.Either
 import com.wire.kalium.logic.functional.foldToEitherWhileRight
+import com.wire.kalium.logic.functional.map
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -43,7 +44,7 @@ class MigrateClientsDataUseCase @Inject constructor(
                         Either.Left(MigrationFailure.ClientNotRegistered)
                     }
                     is PersistRegisteredClientIdResult.Success ->
-                        Either.Right(acc + userId)
+                        syncManager.waitUntilLiveOrFailure().map { acc + userId }
                 }
             }
         }

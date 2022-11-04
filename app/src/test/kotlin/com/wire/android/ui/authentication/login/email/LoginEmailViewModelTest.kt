@@ -103,7 +103,12 @@ class LoginEmailViewModelTest {
         every { clientScopeProviderFactory.create(any()).clientScope } returns clientScope
         every { clientScope.getOrRegister } returns getOrRegisterClientUseCase
         every { authServerConfigProvider.authServer.value } returns newServerConfig(1).links
-        coEvery { autoVersionAuthScopeUseCase() } returns AutoVersionAuthScopeUseCase.Result.Success(authenticationScope)
+        coEvery {
+            autoVersionAuthScopeUseCase(any())
+        } returns AutoVersionAuthScopeUseCase.Result.Success(
+            authenticationScope
+        )
+
         every { authenticationScope.login } returns loginUseCase
         loginViewModel = LoginEmailViewModel(
             autoVersionAuthScopeUseCase,
@@ -249,7 +254,8 @@ class LoginEmailViewModelTest {
                 teams = "https://server-teamsUrl.de",
                 website = "https://server-websiteUrl.de",
                 title = "server-title",
-                false
+                false,
+                proxy = null
             ),
             metaData = ServerConfig.MetaData(
                 commonApiVersion = CommonApiVersionType.Valid(1),

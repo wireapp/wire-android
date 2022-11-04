@@ -82,7 +82,7 @@ class EditConversationMetadataViewModel @Inject constructor(
         viewModelScope.launch {
             when (withContext(dispatcher.io()) { renameConversation(conversationId, editConversationState.groupName.text) }) {
                 is RenamingResult.Failure -> appLogger.e("Failure changing name for conversation")
-                is RenamingResult.Success -> appLogger.d("Name changed :)")
+                is RenamingResult.Success -> navigateBack()
             }
         }
     }

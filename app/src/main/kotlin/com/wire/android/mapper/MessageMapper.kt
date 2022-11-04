@@ -52,16 +52,30 @@ class MessageMapper @Inject constructor(
 
         val footer = if (message is Message.Regular) {
             // TODO find ugly and proper heart emoji and merge them to ugly one 😅
-
             val totalHeartsCount = message.reactions.totalReactions
-                .filterKeys { !isHeart(it) }.values
+                .filterKeys { isHeart(it) }.values
                 .scan(0) { acc, count -> acc + count }
                 .lastOrNull()
+            val hasSelfHeart = message.reactions.selfUserReactions.any { isHeart(it) }
 
-            val selfHeartsCount = message.reactions.selfUserReactions.filter { !isHeart(it) }.size
-
-
-            MessageFooter(message.id, message.reactions.totalReactions, message.reactions.selfUserReactions)
+            MessageFooter(message.id,
+                message.reactions.totalReactions
+                    .filter { !isHeart(it.key) }
+                    .run {
+                        if (totalHeartsCount != null && totalHeartsCount != 0)
+                            plus("❤" to totalHeartsCount)
+                        else
+                            this
+                    },
+                message.reactions.selfUserReactions
+                    .filter { isHeart(it) }.toSet()
+                    .run {
+                        if (hasSelfHeart)
+                            plus("❤")
+                        else
+                            this
+                    }
+            )
         } else {
             MessageFooter(message.id)
         }

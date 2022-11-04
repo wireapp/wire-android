@@ -35,8 +35,6 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.data.conversation.ConversationOptions
 
-enum class GroupNameMode { CREATION, EDITION }
-
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalComposeUiApi::class)
 @Composable
 fun GroupNameScreen(
@@ -75,11 +73,13 @@ fun GroupNameScreen(
                             top.linkTo(parent.top)
                         }
                 )
-                
-                Box(modifier = Modifier.constrainAs(textField) {
-                    top.linkTo(text.bottom)
-                    bottom.linkTo(protocol.top)
-                }) {
+
+                Box(
+                    modifier = Modifier.constrainAs(textField) {
+                        top.linkTo(text.bottom)
+                        bottom.linkTo(protocol.top)
+                    }
+                ) {
                     ShakeAnimation { animate ->
                         if (animatedGroupNameError) {
                             animate()
@@ -101,21 +101,22 @@ fun GroupNameScreen(
                             modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
                         )
                     }
-
                 }
-                if (mode == CREATION && (mlsEnabled || (BuildConfig.PRIVATE_BUILD && BuildConfig.MLS_SUPPORT_ENABLED))) {
-                    WireDropDown(
-                        items =
-                        ConversationOptions.Protocol.values().map { it.name },
-                        defaultItemIndex = 0,
-                        stringResource(R.string.protocol),
-                        modifier = Modifier
-                            .constrainAs(protocol) {
-                                top.linkTo(textField.bottom)
-                            }
-                            .padding(MaterialTheme.wireDimensions.spacing16x)
-                    ) { selectedIndex ->
-                        groupProtocol = ConversationOptions.Protocol.values()[selectedIndex]
+                if (mlsEnabled || (BuildConfig.PRIVATE_BUILD && BuildConfig.MLS_SUPPORT_ENABLED)) {
+                    if (mode == CREATION) {
+                        WireDropDown(
+                            items =
+                            ConversationOptions.Protocol.values().map { it.name },
+                            defaultItemIndex = 0,
+                            stringResource(R.string.protocol),
+                            modifier = Modifier
+                                .constrainAs(protocol) {
+                                    top.linkTo(textField.bottom)
+                                }
+                                .padding(MaterialTheme.wireDimensions.spacing16x)
+                        ) { selectedIndex ->
+                            groupProtocol = ConversationOptions.Protocol.values()[selectedIndex]
+                        }
                     }
                 }
                 WirePrimaryButton(
@@ -136,3 +137,5 @@ fun GroupNameScreen(
         }
     }
 }
+
+enum class GroupNameMode { CREATION, EDITION }

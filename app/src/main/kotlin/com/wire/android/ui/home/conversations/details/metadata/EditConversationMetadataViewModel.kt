@@ -18,6 +18,8 @@ import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
+import com.wire.kalium.logic.feature.conversation.RenameConversationUseCase
+import com.wire.kalium.logic.feature.conversation.RenamingResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.SharingStarted
@@ -28,12 +30,14 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 
 @HiltViewModel
 class EditConversationMetadataViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val dispatcher: DispatcherProvider,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
+    private val renameConversation: RenameConversationUseCase,
     savedStateHandle: SavedStateHandle,
     qualifiedIdMapper: QualifiedIdMapper
 ) : ViewModel() {
@@ -75,7 +79,12 @@ class EditConversationMetadataViewModel @Inject constructor(
     }
 
     fun saveNewGroupName() {
-        appLogger.d("saving new name")
+        viewModelScope.launch {
+            when (withContext(dispatcher.io()) { renameConversation(conversationId, editConversationState.groupName.text) }) {
+                is RenamingResult.Failure -> appLogger.e("Failure changing name for conversation")
+                is RenamingResult.Success -> appLogger.d("Name changed :)")
+            }
+        }
     }
 
     fun navigateBack() {

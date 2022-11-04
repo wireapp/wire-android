@@ -24,6 +24,8 @@ import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton
 
+
+@Suppress("LongParameterList")
 @Singleton
 class MigrationManager @Inject constructor(
     @ApplicationContext private val applicationContext: Context,

@@ -148,6 +148,28 @@ class MessageComposerInnerStateTest {
         assertEquals(null, state.mentionQueryFlowState.value)
     }
 
+    // case was found by manual testing
+    @Test
+    fun `when mention symbol is at the begin of new line, then mention is requested`() = runTest {
+        val state = createState(context)
+        state.setMessageTextValue(textFieldValueWithSelection("some text\n"))
+
+        state.setMessageTextValue(textFieldValueWithSelection("some text\n@"))
+
+        assertEquals("", state.mentionQueryFlowState.value)
+    }
+
+    // case was found by manual testing
+    @Test
+    fun `when cursor is at the begin of new line, and add mention btn clicked, then mention is requested`() = runTest {
+        val state = createState(context)
+        state.setMessageTextValue(textFieldValueWithSelection("some text\n"))
+        state.startMention()
+
+        assertEquals("", state.mentionQueryFlowState.value)
+        assertEquals("some text\n@", state.messageText.text)
+    }
+
     private fun textFieldValueWithSelection(text: String) = TextFieldValue(text, TextRange(text.length))
 
     private fun contact(suffix: Int = 0) = Contact(

@@ -237,7 +237,7 @@ private fun MessageComposer(
                                                 name = it.name,
                                                 label = it.label,
                                                 membership = it.membership,
-                                                clickable = remember { Clickable(enabled = true) { onMentionPicked(it) } },
+                                                clickable = Clickable(enabled = true) { onMentionPicked(it) },
                                                 modifier = Modifier
                                             )
                                             Divider(

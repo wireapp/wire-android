@@ -5,6 +5,10 @@ import java.security.MessageDigest
 
 val String.Companion.EMPTY get() = ""
 
+val String.Companion.WHITE_SPACE get() = " "
+
+val String.Companion.MENTION_SYMBOL get() = "@"
+
 fun String?.orDefault(default: String) = this ?: default
 
 public inline fun String.ifNotEmpty(transform: () -> String): String = if (!isEmpty()) transform() else this

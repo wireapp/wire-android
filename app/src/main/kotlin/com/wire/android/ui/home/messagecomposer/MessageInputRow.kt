@@ -62,9 +62,7 @@ fun ColumnScope.MessageComposerInputRow(
         // other we let it wrap the content of the height, which will be equivalent to the text
         MessageComposerInput(
             messageText = messageComposerState.messageText,
-            onMessageTextChanged = { value ->
-                messageComposerState.messageText = value
-            },
+            onMessageTextChanged = messageComposerState::setMessageTextValue,
             messageComposerInputState = messageComposerState.messageComposeInputState,
             onIsFocused = {
                 messageComposerState.toActive()

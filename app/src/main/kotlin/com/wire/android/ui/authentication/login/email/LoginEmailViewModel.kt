@@ -11,12 +11,12 @@ import com.wire.android.ui.authentication.login.LoginError
 import com.wire.android.ui.authentication.login.LoginViewModel
 import com.wire.android.ui.authentication.login.toLoginError
 import com.wire.android.ui.authentication.login.updateEmailLoginEnabled
+import com.wire.kalium.logic.data.auth.login.ProxyCredentials
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
 import com.wire.kalium.logic.feature.auth.autoVersioningAuth.AutoVersionAuthScopeUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -36,11 +36,15 @@ class LoginEmailViewModel @Inject constructor(
     clientScopeProviderFactory,
     authServerConfigProvider
 ) {
-
+    @Suppress("LongMethod")
     fun login() {
         loginState = loginState.copy(emailLoginLoading = true, loginError = LoginError.None).updateEmailLoginEnabled()
         viewModelScope.launch {
-            val authScope = authScope().let {
+            val authScope = authScope(
+                AutoVersionAuthScopeUseCase.ProxyAuthentication.UsernameAndPassword(
+                    ProxyCredentials(loginState.proxyIdentifier.text, loginState.proxyPassword.text)
+                )
+            ).let {
                 when (it) {
                     is AutoVersionAuthScopeUseCase.Result.Success -> it.authenticationScope
 
@@ -66,7 +70,9 @@ class LoginEmailViewModel @Inject constructor(
                             return@launch
                         }
 
-                        is AuthenticationResult.Success -> it
+                        is AuthenticationResult.Success -> {
+                            it
+                        }
                     }
                 }
             val storedUserId =
@@ -81,7 +87,6 @@ class LoginEmailViewModel @Inject constructor(
                             updateEmailLoginError(it.toLoginError())
                             return@launch
                         }
-
                         is AddAuthenticatedUserUseCase.Result.Success -> it.userId
                     }
                 }
@@ -91,7 +96,6 @@ class LoginEmailViewModel @Inject constructor(
                         updateEmailLoginError(it.toLoginError())
                         return@launch
                     }
-
                     is RegisterClientResult.Success -> {
                         navigateToConvScreen()
                     }
@@ -111,5 +115,13 @@ class LoginEmailViewModel @Inject constructor(
 
     fun onPasswordChange(newText: TextFieldValue) {
         loginState = loginState.copy(password = newText).updateEmailLoginEnabled()
+    }
+
+    fun onProxyIdentifierChange(newText: TextFieldValue) {
+        loginState = loginState.copy(proxyIdentifier = newText).updateEmailLoginEnabled()
+    }
+
+    fun onProxyPasswordChange(newText: TextFieldValue) {
+        loginState = loginState.copy(proxyPassword = newText).updateEmailLoginEnabled()
     }
 }

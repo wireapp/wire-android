@@ -118,11 +118,7 @@ private fun AddGifAction() {
 @Composable
 private fun AddMentionAction(isSelected: Boolean, addMentionAction: () -> Unit) {
     val onButtonClicked = remember(isSelected) {
-        if (isSelected) {
-            {} // we don't want to start mention flow when it's already "in progress"
-        } else {
-            addMentionAction
-        }
+        { if (!isSelected) addMentionAction() }
     }
     WireSecondaryIconButton(
         onButtonClicked = onButtonClicked,

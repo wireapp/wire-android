@@ -10,8 +10,8 @@ fun EditConversationNameScreen(viewModel: EditConversationMetadataViewModel = hi
         GroupNameScreen(
             newGroupState = this,
             onGroupNameChange = viewModel::onGroupNameChange,
-            onContinuePressed = viewModel::saveNewGroupName,
             onGroupNameErrorAnimated = viewModel::onGroupNameErrorAnimated,
+            onContinuePressed = viewModel::saveNewGroupName,
             onBackPressed = viewModel::navigateBack
         )
     }

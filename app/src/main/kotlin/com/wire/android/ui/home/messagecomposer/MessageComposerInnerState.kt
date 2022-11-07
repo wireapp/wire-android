@@ -22,6 +22,7 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.DEFAULT_FILE_MIME_TYPE
 import com.wire.android.util.EMPTY
 import com.wire.android.util.MENTION_SYMBOL
+import com.wire.android.util.NEW_LINE_SYMBOL
 import com.wire.android.util.WHITE_SPACE
 import com.wire.android.util.copyToTempPath
 import com.wire.android.util.getFileName
@@ -87,7 +88,7 @@ data class MessageComposerInnerState(
     fun startMention() {
         val beforeSelection = messageText.text.subSequence(0, messageText.selection.min)
             .run {
-                if (endsWith(String.WHITE_SPACE) || this == String.EMPTY) {
+                if (endsWith(String.WHITE_SPACE) || endsWith(String.NEW_LINE_SYMBOL) || this == String.EMPTY) {
                     this.toString()
                 } else {
                     StringBuilder(this)
@@ -271,7 +272,7 @@ private fun TextFieldValue.currentMentionStartIndex(): Int {
 
     return when {
         (lastIndexOfAt <= 0) ||
-                (text[lastIndexOfAt - 1].toString() == String.WHITE_SPACE) -> lastIndexOfAt
+                (text[lastIndexOfAt - 1].toString() in listOf(String.WHITE_SPACE, String.NEW_LINE_SYMBOL)) -> lastIndexOfAt
         else -> -1
     }
 }

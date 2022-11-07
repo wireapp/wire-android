@@ -32,7 +32,7 @@ class MessageComposerInnerStateTest {
     }
 
     @Test
-    fun `when @ symbol is added into message, then mention is queried`() = runTest {
+    fun `given some message, when mention symbol is added into message, then mention is queried`() = runTest {
         val state = createState(context)
         state.setMessageTextValue(textFieldValueWithSelection("start text"))
 
@@ -42,7 +42,7 @@ class MessageComposerInnerStateTest {
     }
 
     @Test
-    fun `when @ symbol is added into message without space before it, then mention is not queried`() = runTest {
+    fun `given some message, when mention symbol is added without space before it, then mention is not queried`() = runTest {
         val state = createState(context)
         state.setMessageTextValue(textFieldValueWithSelection("start text"))
 
@@ -52,7 +52,7 @@ class MessageComposerInnerStateTest {
     }
 
     @Test
-    fun `when mention is started in message, then mention is queried with corresponding query`() = runTest {
+    fun `given mention is started in message, then mention is queried with corresponding query`() = runTest {
         val state = createState(context)
         state.setMessageTextValue(textFieldValueWithSelection("start text @"))
 
@@ -62,7 +62,7 @@ class MessageComposerInnerStateTest {
     }
 
     @Test
-    fun `when mention is started in message and user type space, then mention stop querying`() = runTest {
+    fun `given mention is started in message, when user type space, then mention stop querying`() = runTest {
         val state = createState(context)
         state.setMessageTextValue(textFieldValueWithSelection("start text @"))
 
@@ -123,7 +123,7 @@ class MessageComposerInnerStateTest {
 
     // case was found by manual testing
     @Test
-    fun `when message starts from mention and then it's removed, then mention is not requested anymore`() = runTest {
+    fun `given message starts from mention, when mention symbol is removed, then mention is not requested anymore`() = runTest {
         val state = createState(context)
         state.setMessageTextValue(textFieldValueWithSelection("@"))
 
@@ -135,7 +135,7 @@ class MessageComposerInnerStateTest {
 
     // case was found by manual testing
     @Test
-    fun `when selection goes just before mention symbol, then mention is not requested`() = runTest {
+    fun `given selection goes just before mention symbol, then mention is not requested`() = runTest {
         val state = createState(context)
         state.setMessageTextValue(textFieldValueWithSelection("@ @ "))
 
@@ -146,6 +146,28 @@ class MessageComposerInnerStateTest {
         state.setMessageTextValue(TextFieldValue("@ @ ", TextRange(2)))
 
         assertEquals(null, state.mentionQueryFlowState.value)
+    }
+
+    // case was found by manual testing
+    @Test
+    fun `given cursor is at the begin of new line, when mention symbol is added, then mention is requested`() = runTest {
+        val state = createState(context)
+        state.setMessageTextValue(textFieldValueWithSelection("some text\n"))
+
+        state.setMessageTextValue(textFieldValueWithSelection("some text\n@"))
+
+        assertEquals("", state.mentionQueryFlowState.value)
+    }
+
+    // case was found by manual testing
+    @Test
+    fun `given cursor is at the begin of new line, when add mention button clicked, then mention is requested`() = runTest {
+        val state = createState(context)
+        state.setMessageTextValue(textFieldValueWithSelection("some text\n"))
+        state.startMention()
+
+        assertEquals("", state.mentionQueryFlowState.value)
+        assertEquals("some text\n@", state.messageText.text)
     }
 
     private fun textFieldValueWithSelection(text: String) = TextFieldValue(text, TextRange(text.length))

@@ -426,9 +426,9 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         if (conversationTypeDetail is ConversationTypeDetail.Connection) throw IllegalStateException("Unsupported conversation type to clear content, something went wrong?")
 
         if (clearContentResult is ClearConversationContentUseCase.Result.Failure) {
-            _infoMessage.emit(UIText.StringResource(R.string.conversation_content_deleted))
+            closeBottomSheetAndShowInfoMessage(OtherUserProfileInfoMessageType.ConversationContentDeleteFailure)
         } else {
-            _infoMessage.emit(UIText.StringResource(R.string.conversation_content_delete_failure))
+            closeBottomSheetAndShowInfoMessage(OtherUserProfileInfoMessageType.ConversationContentDeleted)
         }
     }
 

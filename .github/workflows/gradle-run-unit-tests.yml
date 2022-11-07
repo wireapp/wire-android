@@ -38,6 +38,9 @@ jobs:
 
       - name: Test with coverage
         run: ./gradlew testCoverage
+        env:
+            GITHUB_USER: ${{ github.actor }}
+            GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Install Pip for test result publishing
         run: sudo apt-get install -y python3-pip

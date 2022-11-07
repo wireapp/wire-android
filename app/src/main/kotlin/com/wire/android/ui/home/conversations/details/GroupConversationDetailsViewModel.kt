@@ -98,11 +98,17 @@ class GroupConversationDetailsViewModel @Inject constructor(
     private fun observeConversationDetails() {
         viewModelScope.launch {
             val groupDetailsFlow =
-                observeConversationDetails(conversationId).filterIsInstance<ObserveConversationDetailsUseCase.Result.Success>()
-                    .map { it.conversationDetails }.filterIsInstance<ConversationDetails.Group>().distinctUntilChanged()
-                    .flowOn(dispatcher.io()).shareIn(this, SharingStarted.WhileSubscribed(), 1)
+                observeConversationDetails(conversationId)
+                    .filterIsInstance<ObserveConversationDetailsUseCase.Result.Success>()
+                    .map { it.conversationDetails }
+                    .filterIsInstance<ConversationDetails.Group>()
+                    .distinctUntilChanged()
+                    .flowOn(dispatcher.io())
+                    .shareIn(this, SharingStarted.WhileSubscribed(), 1)
 
-            val isSelfAdminFlow = observeConversationMembers(conversationId).map { it.isSelfAnAdmin }.distinctUntilChanged()
+            val isSelfAdminFlow = observeConversationMembers(conversationId)
+                .map { it.isSelfAnAdmin }
+                .distinctUntilChanged()
 
             combine(
                 groupDetailsFlow,

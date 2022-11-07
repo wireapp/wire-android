@@ -409,8 +409,8 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     }
 
     override fun onClearConversationContent(dialogState: DialogState) {
-        viewModelScope.launch{
-        requestInProgress = true
+        viewModelScope.launch {
+            requestInProgress = true
             with(dialogState) {
                 val result = withContext(dispatchers.io()) { clearConversationContentUseCase(conversationId) }
                 requestInProgress = false
@@ -426,9 +426,9 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         if (conversationTypeDetail is ConversationTypeDetail.Connection) throw IllegalStateException("Unsupported conversation type to clear content, something went wrong?")
 
         if (clearContentResult is ClearConversationContentUseCase.Result.Failure) {
-            _infoMessage.emit(UIText.StringResource(R.string.group_content_delete_failure))
+            _infoMessage.emit(UIText.StringResource(R.string.conversation_content_deleted))
         } else {
-            _infoMessage.emit(UIText.StringResource(R.string.group_content_deleted))
+            _infoMessage.emit(UIText.StringResource(R.string.conversation_content_delete_failure))
         }
     }
 

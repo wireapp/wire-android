@@ -187,6 +187,7 @@ fun OtherProfileScreenContent(
         blockUserDialogState.dismiss()
         unblockUserDialogState.dismiss()
         removeMemberDialogState.dismiss()
+        clearConversationDialogState.dismiss()
     }
 
     WireModalSheetLayout(

@@ -1,7 +1,6 @@
 package com.wire.android.ui.home.conversations.details.dialog
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.ui.common.VisibilityState
@@ -20,8 +19,8 @@ fun ClearConversationContentDialog(
 ) {
     VisibilityState(dialogState) {
         WireDialog(
-            title = "Clear content?",
-            text = "This will clear the previous conversation history on all your devices. You remain in the ${stringResource(id = it.conversationTypeDetail.labelResource)} and have access to all new ${stringResource(it.conversationTypeDetail.labelResource)} activity.",
+            title = stringResource(R.string.dialog_clear_content_title),
+            text = stringResource(R.string.dialog_clear_content_text, stringResource(it.conversationTypeDetail.labelResource)),
             buttonsHorizontalAlignment = true,
             onDismiss = dialogState::dismiss,
             dismissButtonProperties = WireDialogButtonProperties(
@@ -31,7 +30,7 @@ fun ClearConversationContentDialog(
             ),
             optionButton1Properties = WireDialogButtonProperties(
                 onClick = { onClearConversationContent(it) },
-                text = "Clear content",
+                text = stringResource(R.string.dialog_clear_content_option),
                 type = WireDialogButtonType.Primary,
                 state =
                 if (isLoading)

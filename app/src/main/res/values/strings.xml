@@ -653,5 +653,8 @@
     <string name="label_proxy_credentials">PROXY CREDENTIALS</string>
     <string name="label_proxy_password">PROXY PASSWORD</string>
     <string name="label_wire_credentials">WIRE CREDENTIALS</string>
+    <string name="dialog_clear_content_title">Clear content?</string>
+    <string name="dialog_clear_content_option">Clear content</string>
+    <string name="dialog_clear_content_text">"This will clear the previous conversation history on all your devices. You remain in the %1$s and have access to all new %1$s activity</string>
 
 </resources>

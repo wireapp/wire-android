@@ -286,6 +286,7 @@ private fun handleSnackBarMessage(
             is HomeSnackbarState.ClearConversationContentFailure -> stringResource(if (messageType.isGroup) R.string.group_content_delete_failure else R.string.conversation_content_delete_failure)
             is HomeSnackbarState.ClearConversationContentSuccess -> stringResource(if (messageType.isGroup) R.string.group_content_deleted else R.string.conversation_content_deleted)
         }
+
         LaunchedEffect(messageType) {
             if (messageType != HomeSnackbarState.None) {
                 snackbarHostState.showSnackbar(message)

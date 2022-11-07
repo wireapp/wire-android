@@ -127,18 +127,26 @@ internal fun ConversationMainSheetContent(
 //                    onItemClick = moveConversationToArchive
 //                )
 //            }
-//            add {
-//                MenuBottomSheetItem(
-//                    icon = {
-//                        MenuItemIcon(
-//                            id = R.drawable.ic_erase,
-//                            contentDescription = stringResource(R.string.content_description_clear_content),
-//                        )
-//                    },
-//                    title = stringResource(R.string.label_clear_content),
-//                    onItemClick = clearConversationContent
-//                )
-//            }
+            add {
+                MenuBottomSheetItem(
+                    icon = {
+                        MenuItemIcon(
+                            id = R.drawable.ic_erase,
+                            contentDescription = stringResource(R.string.content_description_clear_content),
+                        )
+                    },
+                    title = stringResource(R.string.label_clear_content),
+                    onItemClick = {
+                        clearConversationContent(
+                            DialogState(
+                                conversationSheetContent.conversationId,
+                                conversationSheetContent.title,
+                                conversationSheetContent.conversationTypeDetail
+                        )
+                        )
+                    }
+                )
+            }
             if (conversationSheetContent.canBlockUser())
                 add {
                     CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.error) {

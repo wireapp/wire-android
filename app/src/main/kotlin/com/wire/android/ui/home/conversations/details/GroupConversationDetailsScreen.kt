@@ -57,6 +57,8 @@ import com.wire.android.ui.home.conversations.details.participants.GroupConversa
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
 import com.wire.android.ui.common.bottomsheet.conversation.rememberConversationSheetState
+import com.wire.android.ui.home.conversations.details.dialog.ClearConversationContentDialog
+import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
@@ -126,6 +128,7 @@ private fun GroupConversationDetailsContent(
 
     val deleteGroupDialogState = rememberVisibilityState<GroupDialogState>()
     val leaveGroupDialogState = rememberVisibilityState<GroupDialogState>()
+    val clearConversationDialogState = rememberVisibilityState<DialogState>()
 
     val snackbarHostState = remember { SnackbarHostState() }
     LaunchedEffect(Unit) {
@@ -147,7 +150,9 @@ private fun GroupConversationDetailsContent(
     if (!isLoading) {
         deleteGroupDialogState.dismiss()
         leaveGroupDialogState.dismiss()
+        clearConversationDialogState.dismiss()
     }
+
     WireModalSheetLayout(
         sheetState = sheetState,
         coroutineScope = rememberCoroutineScope(),
@@ -164,7 +169,7 @@ private fun GroupConversationDetailsContent(
                 addConversationToFavourites = bottomSheetEventsHandler::onAddConversationToFavourites,
                 moveConversationToFolder = bottomSheetEventsHandler::onMoveConversationToFolder,
                 moveConversationToArchive = bottomSheetEventsHandler::onMoveConversationToArchive,
-                clearConversationContent = bottomSheetEventsHandler::onClearConversationContent,
+                clearConversationContent = clearConversationDialogState::show,
                 blockUser = {},
                 unblockUser = {},
                 leaveGroup = leaveGroupDialogState::show,
@@ -214,6 +219,7 @@ private fun GroupConversationDetailsContent(
                         GroupConversationDetailsTabItem.OPTIONS -> GroupConversationOptions(
                             lazyListState = lazyListStates[pageIndex]
                         )
+
                         GroupConversationDetailsTabItem.PARTICIPANTS -> GroupConversationParticipants(
                             groupParticipantsState = groupParticipantsState,
                             openFullListPressed = openFullListPressed,
@@ -245,6 +251,14 @@ private fun GroupConversationDetailsContent(
         dialogState = leaveGroupDialogState,
         isLoading = isLoading,
         onLeaveGroup = onLeaveGroup
+    )
+
+    ClearConversationContentDialog(
+        dialogState = clearConversationDialogState,
+        isLoading = isLoading,
+        onClearConversationContent = {
+            bottomSheetEventsHandler.onClearConversationContent(it)
+        }
     )
 
 }

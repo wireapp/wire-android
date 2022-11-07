@@ -26,7 +26,9 @@ import com.wire.android.ui.home.conversations.details.menu.LeaveConversationGrou
 import com.wire.android.ui.home.conversationslist.all.AllConversationScreen
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
 import com.wire.android.ui.common.bottomsheet.conversation.rememberConversationSheetState
+import com.wire.android.ui.home.conversations.details.dialog.ClearConversationContentDialog
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
+import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.ui.home.conversationslist.search.SearchConversationScreen
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -95,26 +97,25 @@ fun ConversationRouterHomeBridge(
                     }
                 }
 
-            ConversationSheetContent(
-                conversationSheetState = conversationState,
-                onMutingConversationStatusChange = {
-                    viewModel.muteConversation(
-                        conversationId = conversationState.conversationId,
-                        mutedConversationStatus = conversationState.conversationSheetContent!!.mutingConversationState
-                    )
-                },
-                addConversationToFavourites = viewModel::addConversationToFavourites,
-                moveConversationToFolder = viewModel::moveConversationToFolder,
-                moveConversationToArchive = viewModel::moveConversationToArchive,
-                clearConversationContent = viewModel::clearConversationContent,
-                blockUser = blockUserDialogState::show,
-                unblockUser = unblockUserDialogState::show,
-                leaveGroup = leaveGroupDialogState::show,
-                deleteGroup = deleteGroupDialogState::show,
-                isBottomSheetVisible = isBottomSheetVisible
-            )
-        }
-
+                ConversationSheetContent(
+                    conversationSheetState = conversationState,
+                    onMutingConversationStatusChange = {
+                        viewModel.muteConversation(
+                            conversationId = conversationState.conversationId,
+                            mutedConversationStatus = conversationState.conversationSheetContent!!.mutingConversationState
+                        )
+                    },
+                    addConversationToFavourites = viewModel::addConversationToFavourites,
+                    moveConversationToFolder = viewModel::moveConversationToFolder,
+                    moveConversationToArchive = viewModel::moveConversationToArchive,
+                    clearConversationContent = clearContentDialogState::show,
+                    blockUser = blockUserDialogState::show,
+                    unblockUser = unblockUserDialogState::show,
+                    leaveGroup = leaveGroupDialogState::show,
+                    deleteGroup = deleteGroupDialogState::show,
+                    isBottomSheetVisible = isBottomSheetVisible
+                )
+            }
             onOpenBottomSheet()
         }
 
@@ -208,6 +209,12 @@ fun ConversationRouterHomeBridge(
             isLoading = requestInProgress,
         )
 
+        ClearConversationContentDialog(
+            dialogState = clearContentDialogState,
+            isLoading = requestInProgress,
+            onClearConversationContent = viewModel::clearConversationContent
+        )
+
         BackHandler(conversationItemType == ConversationItemType.SEARCH) {
             closeSearch()
         }
@@ -220,6 +227,7 @@ class ConversationRouterState(
     val deleteGroupDialogState: VisibilityState<GroupDialogState>,
     val blockUserDialogState: VisibilityState<BlockUserDialogState>,
     val unblockUserDialogState: VisibilityState<UnblockUserDialogState>,
+    val clearContentDialogState: VisibilityState<DialogState>,
     requestInProgress: Boolean
 ) {
 
@@ -251,6 +259,7 @@ fun rememberConversationRouterState(
     val deleteGroupDialogState = rememberVisibilityState<GroupDialogState>()
     val blockUserDialogState = rememberVisibilityState<BlockUserDialogState>()
     val unblockUserDialogState = rememberVisibilityState<UnblockUserDialogState>()
+    val clearContentDialogState = rememberVisibilityState<DialogState>()
 
     LaunchedEffect(Unit) {
         homeSnackBarState.collect { onSnackBarStateChanged(it) }
@@ -267,6 +276,7 @@ fun rememberConversationRouterState(
             deleteGroupDialogState,
             blockUserDialogState,
             unblockUserDialogState,
+            clearContentDialogState,
             requestInProgress
         )
     }
@@ -277,6 +287,7 @@ fun rememberConversationRouterState(
             deleteGroupDialogState.dismiss()
             blockUserDialogState.dismiss()
             unblockUserDialogState.dismiss()
+            clearContentDialogState.dismiss()
         }
 
         conversationRouterState.requestInProgress = requestInProgress

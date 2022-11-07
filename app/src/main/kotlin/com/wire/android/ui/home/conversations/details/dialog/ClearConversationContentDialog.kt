@@ -18,12 +18,6 @@ fun ClearConversationContentDialog(
     isLoading: Boolean,
     onClearConversationContent: (DialogState) -> Unit
 ) {
-    LaunchedEffect(isLoading) {
-        if (!isLoading) {
-            dialogState.dismiss()
-        }
-    }
-
     VisibilityState(dialogState) {
         WireDialog(
             title = "Clear content?",

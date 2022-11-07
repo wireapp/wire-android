@@ -26,6 +26,7 @@ import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.ConversationLastEvent
+import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
@@ -332,7 +333,7 @@ class ConversationListViewModel @Inject constructor(
 
     // TODO: needs to be implemented
     @Suppress("EmptyFunctionBlock")
-    fun clearConversationContent(id: String = "") {
+    fun clearConversationContent(dialogState: DialogState) {
     }
 
 }

@@ -69,6 +69,8 @@ import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.messagecomposer.KeyboardHeight
 import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.ui.home.messagecomposer.MessageComposerStateTransition
+import com.wire.android.ui.home.messagecomposer.UiMention
+import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.permission.CallingAudioRequestFlow
 import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
@@ -76,8 +78,8 @@ import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.feature.call.usecase.ConferenceCallingResult
-import kotlinx.collections.immutable.ImmutableMap
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
+import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.launch
@@ -149,6 +151,7 @@ fun ConversationScreen(
         onOpenOngoingCallScreen = commonTopAppBarViewModel::openOngoingCallScreen,
         onSendMessage = messageComposerViewModel::sendMessage,
         onSendAttachment = messageComposerViewModel::sendAttachmentMessage,
+        onMentionMember = messageComposerViewModel::mentionMember,
         onDownloadAsset = conversationMessagesViewModel::downloadOrFetchAssetToInternalStorage,
         onImageFullScreenMode = messageComposerViewModel::navigateToGallery,
         onBackButtonClick = messageComposerViewModel::navigateBack,
@@ -172,6 +175,7 @@ fun ConversationScreen(
         onOpenProfile = conversationInfoViewModel::navigateToProfile,
         onUpdateConversationReadDate = messageComposerViewModel::updateConversationReadDate,
         interactionAvailability = messageComposerViewModel.interactionAvailability,
+        membersToMention = messageComposerViewModel.mentionsToSelect,
     )
     DeleteMessageDialog(
         state = messageComposerViewModel.deleteMessageDialogsState,
@@ -237,8 +241,9 @@ private fun ConversationScreen(
     bannerMessage: UIText?,
     connectivityUIState: ConnectivityUIState,
     onOpenOngoingCallScreen: () -> Unit,
-    onSendMessage: (String) -> Unit,
+    onSendMessage: (String, List<UiMention>) -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
+    onMentionMember: (String?) -> Unit,
     onDownloadAsset: (String) -> Unit,
     onImageFullScreenMode: (String, Boolean) -> Unit,
     onBackButtonClick: () -> Unit,
@@ -253,6 +258,7 @@ private fun ConversationScreen(
     onOpenProfile: (String) -> Unit,
     onUpdateConversationReadDate: (String) -> Unit,
     interactionAvailability: InteractionAvailability,
+    membersToMention: List<Contact>
 ) {
     val conversationScreenState = rememberConversationScreenState()
 
@@ -345,6 +351,7 @@ private fun ConversationScreen(
                             onSendMessage = onSendMessage,
                             onShowContextMenu = conversationScreenState::showEditContextMenu,
                             onSendAttachment = onSendAttachment,
+                            onMentionMember = onMentionMember,
                             onDownloadAsset = onDownloadAsset,
                             onReactionClicked = onReactionClick,
                             onImageFullScreenMode = onImageFullScreenMode,
@@ -357,6 +364,7 @@ private fun ConversationScreen(
                             interactionAvailability = interactionAvailability,
                             onOpenProfile = onOpenProfile,
                             onUpdateConversationReadDate = onUpdateConversationReadDate,
+                            membersToMention = membersToMention
                         )
                     }
                 }
@@ -372,9 +380,10 @@ private fun ConversationScreenContent(
     keyboardHeight: KeyboardHeight,
     messages: Flow<PagingData<UIMessage>>,
     lastUnreadMessageInstant: Instant?,
-    onSendMessage: (String) -> Unit,
+    onSendMessage: (String, List<UiMention>) -> Unit,
     onShowContextMenu: (UIMessage) -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
+    onMentionMember: (String?) -> Unit,
     onDownloadAsset: (String) -> Unit,
     onReactionClicked: (String, String) -> Unit,
     onImageFullScreenMode: (String, Boolean) -> Unit,
@@ -386,7 +395,8 @@ private fun ConversationScreenContent(
     isFileSharingEnabled: Boolean,
     tempCachePath: Path,
     interactionAvailability: InteractionAvailability,
-    onUpdateConversationReadDate: (String) -> Unit
+    onUpdateConversationReadDate: (String) -> Unit,
+    membersToMention: List<Contact>
 ) {
     SnackBarMessage(snackbarMessage, conversationState, conversationScreenState, onSnackbarMessageShown)
 
@@ -415,12 +425,14 @@ private fun ConversationScreenContent(
         },
         onSendTextMessage = onSendMessage,
         onSendAttachment = onSendAttachment,
+        onMentionMember = onMentionMember,
         onMessageComposerError = onMessageComposerError,
         onMessageComposerInputStateChange = onMessageComposerInputStateChange,
         isFileSharingEnabled = isFileSharingEnabled,
         tempCachePath = tempCachePath,
         interactionAvailability = interactionAvailability,
-        securityClassificationType = conversationState.securityClassificationType
+        securityClassificationType = conversationState.securityClassificationType,
+        membersToMention = membersToMention
     )
 }
 
@@ -542,8 +554,9 @@ fun ConversationScreenPreview() {
         connectivityUIState = ConnectivityUIState(info = ConnectivityUIState.Info.None),
         bannerMessage = null,
         onOpenOngoingCallScreen = { },
-        onSendMessage = { },
+        onSendMessage = {_, _ -> },
         onSendAttachment = { },
+        onMentionMember = { },
         onDownloadAsset = { },
         onReactionClick = { _, _ -> },
         onImageFullScreenMode = { _, _ -> },
@@ -558,5 +571,6 @@ fun ConversationScreenPreview() {
         onOpenProfile = { _ -> },
         onUpdateConversationReadDate = { },
         interactionAvailability = InteractionAvailability.ENABLED,
+        membersToMention = listOf(),
     )
 }

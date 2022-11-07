@@ -317,6 +317,11 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun provideMembersToMentionUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).conversations.getMembersToMention
+
+    @ViewModelScoped
+    @Provides
     fun provideObserveUserListByIdUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId

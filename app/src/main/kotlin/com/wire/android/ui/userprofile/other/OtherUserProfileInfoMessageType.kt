@@ -35,6 +35,7 @@ sealed class OtherUserProfileInfoMessageType(override val uiText: UIText) : Snac
 
     object ConversationContentDeleted : OtherUserProfileInfoMessageType(UIText.StringResource(R.string.conversation_content_deleted))
 
-    object ConversationContentDeleteFailure : OtherUserProfileInfoMessageType(UIText.StringResource(R.string.conversation_content_delete_failure))
+    object ConversationContentDeleteFailure :
+        OtherUserProfileInfoMessageType(UIText.StringResource(R.string.conversation_content_delete_failure))
 
 }

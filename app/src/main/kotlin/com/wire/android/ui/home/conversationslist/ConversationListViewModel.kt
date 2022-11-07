@@ -351,12 +351,15 @@ class ConversationListViewModel @Inject constructor(
         clearContentResult: ClearConversationContentUseCase.Result,
         conversationTypeDetail: ConversationTypeDetail
     ) {
-        if (conversationTypeDetail is ConversationTypeDetail.Connection) throw IllegalStateException("Unsupported conversation type to clear content, something went wrong?")
+        if (conversationTypeDetail is ConversationTypeDetail.Connection)
+            throw IllegalStateException("Unsupported conversation type to clear content, something went wrong?")
+
+        val isGroup = conversationTypeDetail is ConversationTypeDetail.Group
 
         if (clearContentResult is ClearConversationContentUseCase.Result.Failure) {
-            homeSnackBarState.emit(HomeSnackbarState.ClearConversationContentFailure(conversationTypeDetail is ConversationTypeDetail.Group))
+            homeSnackBarState.emit(HomeSnackbarState.ClearConversationContentFailure(isGroup))
         } else {
-            homeSnackBarState.emit(HomeSnackbarState.ClearConversationContentSuccess(conversationTypeDetail is ConversationTypeDetail.Group))
+            homeSnackBarState.emit(HomeSnackbarState.ClearConversationContentSuccess(isGroup))
         }
     }
 

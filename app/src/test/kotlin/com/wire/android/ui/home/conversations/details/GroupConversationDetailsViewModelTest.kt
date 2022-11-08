@@ -7,6 +7,9 @@ import com.wire.android.framework.TestUser
 import com.wire.android.mapper.testUIParticipant
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
+import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetail
+import com.wire.android.ui.home.conversations.details.GroupConversationDetailsViewModelTest.Companion.dummyConversationId
 import com.wire.android.ui.home.conversations.details.participants.model.ConversationParticipantsData
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
 import com.wire.kalium.logic.data.conversation.Conversation
@@ -14,16 +17,15 @@ import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.LegalHoldStatus
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.id.PlainId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.data.team.Team
-import com.wire.kalium.logic.feature.conversation.IsSelfUserMemberResult
+import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
-import com.wire.kalium.logic.feature.conversation.ObserveIsSelfUserMemberUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationAccessRoleUseCase
+import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusUseCase
 import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
@@ -368,10 +370,34 @@ class GroupConversationDetailsViewModelTest {
         assertEquals(false, viewModel.groupOptionsState.value.isUpdatingGuestAllowed)
     }
 
+    @Test
+    fun `given a group conversation, then conversationSheetContent is valid`() = runTest {
+        // Given
+        val conversationParticipantsData = ConversationParticipantsData(isSelfAnAdmin = true)
+        val details = testGroup.copy(conversation = testGroup.conversation.copy(teamId = TeamId("team_id")))
+        val selfTeam = Team("other_team_id", "team_name", "icon")
+        val (_, viewModel) = GroupConversationDetailsViewModelArrangement()
+            .withConversationDetailUpdate(details)
+            .withConversationMembersUpdate(conversationParticipantsData)
+            .withSelfTeamUseCaseReturns(selfTeam)
+            .arrange()
+
+        val expected = ConversationSheetContent(
+            title = details.conversation.name.orEmpty(),
+            conversationId = details.conversation.id,
+            mutingConversationState = details.conversation.mutedStatus,
+            conversationTypeDetail = ConversationTypeDetail.Group(details.conversation.id, details.isSelfUserCreator),
+            isSelfUserMember = true
+        )
+        // When - Then
+        assertEquals(expected, viewModel.conversationSheetContent)
+    }
+
     companion object {
+        val dummyConversationId = ConversationId("some-dummy-value","some.dummy.domain")
         val testGroup = ConversationDetails.Group(
             Conversation(
-                id = ConversationId("conv_id", "domain"),
+                id = dummyConversationId,
                 name = "Conv Name",
                 type = Conversation.Type.ONE_ON_ONE,
                 teamId = TeamId("team_id"),
@@ -383,12 +409,14 @@ class GroupConversationDetailsViewModelTest {
                 access = listOf(Conversation.Access.CODE, Conversation.Access.INVITE),
                 accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER, Conversation.AccessRole.GUEST),
                 lastReadDate = "2022-04-04T16:11:28.388Z",
-                creatorId = PlainId("")
+                creatorId = null
             ),
             legalHoldStatus = LegalHoldStatus.DISABLED,
             hasOngoingCall = false,
             unreadMessagesCount = 0L,
-            lastUnreadMessage = null
+            lastUnreadMessage = null,
+            isSelfUserCreator = false,
+            isSelfUserMember = true
         )
     }
 }
@@ -423,7 +451,7 @@ internal class GroupConversationDetailsViewModelArrangement {
     lateinit var getSelfTeamUseCase: GetSelfTeamUseCase
 
     @MockK
-    lateinit var observeIsSelfUserMember: ObserveIsSelfUserMemberUseCase
+    lateinit var updateConversationMutedStatus: UpdateConversationMutedStatusUseCase
 
     @MockK
     private lateinit var qualifiedIdMapper: QualifiedIdMapper
@@ -445,13 +473,13 @@ internal class GroupConversationDetailsViewModelArrangement {
             getSelfTeam = getSelfTeamUseCase,
             savedStateHandle = savedStateHandle,
             qualifiedIdMapper = qualifiedIdMapper,
-            observeIsSelfUserMember = observeIsSelfUserMember
+            updateConversationMutedStatus = updateConversationMutedStatus
         )
     }
 
     init {
         // Tests setup
-        val dummyConversationId = "some-dummy-value@some.dummy.domain"
+        val dummyConversationId = dummyConversationId.toString()
         MockKAnnotations.init(this, relaxUnitFun = true)
         every { savedStateHandle.get<String>(EXTRA_CONVERSATION_ID) } returns dummyConversationId
         // Default empty values
@@ -465,7 +493,7 @@ internal class GroupConversationDetailsViewModelArrangement {
         coEvery {
             qualifiedIdMapper.fromStringToQualifiedID("conv_id@domain")
         } returns QualifiedID("conv_id", "domain")
-        coEvery { observeIsSelfUserMember(any()) } returns (flowOf(IsSelfUserMemberResult.Success(true)))
+        coEvery { updateConversationMutedStatus(any(), any(), any()) } returns ConversationUpdateStatusResult.Success
     }
 
     fun withSavedStateConversationId(conversationId: ConversationId) = apply {

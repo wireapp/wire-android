@@ -83,9 +83,10 @@ object Libraries {
         const val coil = "2.2.1"
         const val exif = "1.3.3"
         const val firebaseBOM = "29.3.1"
-        const val dataDog = "1.13.0"
-        const val ktxDateTime = "0.3.2"
+        const val dataDog = "1.14.1"
+        const val ktxDateTime = "0.4.0"
         const val ktxSerialization = "1.3.2"
+        const val ktxImmutableCollections = "0.3.5"
     }
 
     // AndroidX Dependencies
@@ -107,7 +108,8 @@ object Libraries {
     const val composeRuntimeLiveData    = "androidx.compose.runtime:runtime-livedata:${Versions.compose}"
     const val dataStore                 = "androidx.datastore:datastore-preferences:${Versions.dataStore}"
     const val exifInterface             = "androidx.exifinterface:exifinterface:${Versions.exif}"
-    const val ktxDateTime                  = "org.jetbrains.kotlinx:kotlinx-datetime:${Versions.ktxDateTime}"
+    const val ktxDateTime               = "org.jetbrains.kotlinx:kotlinx-datetime:${Versions.ktxDateTime}"
+    const val ktxImmutableCollections   = "org.jetbrains.kotlinx:kotlinx-collections-immutable:${Versions.ktxImmutableCollections}"
 
 
     // Other dependencies

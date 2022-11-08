@@ -16,6 +16,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.model.Clickable
@@ -139,5 +140,20 @@ private fun ContactItem(
             }
         },
         clickable = clickable
+    )
+}
+
+@Preview
+@Composable
+fun ContactItemPreview() {
+    ContactItem(
+        name = "Name",
+        avatarData = UserAvatarData(),
+        membership = Membership.Admin,
+        belongsToGroup = true,
+        connectionState = ConnectionState.ACCEPTED,
+        addToGroup = { },
+        removeFromGroup = { },
+        openUserProfile = { }
     )
 }

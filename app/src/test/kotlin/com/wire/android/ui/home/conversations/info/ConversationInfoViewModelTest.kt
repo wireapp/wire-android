@@ -1,18 +1,21 @@
 package com.wire.android.ui.home.conversations.info
 
 import com.wire.android.config.CoroutineTestExtension
+import com.wire.android.framework.TestUser
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.ui.home.conversations.ConversationAvatar
 import com.wire.android.ui.home.conversations.mockConversationDetailsGroup
-import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.withMockConversationDetailsOneOnOne
 import com.wire.android.util.EMPTY
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserId
+import io.mockk.coEvery
 import io.mockk.coVerify
+import io.mockk.every
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
@@ -27,13 +30,13 @@ class ConversationInfoViewModelTest {
     fun `given self user 1on1 message, when clicking on avatar, then open self profile`() = runTest {
         // Given
         val oneOneDetails = withMockConversationDetailsOneOnOne("Other User Name Goes Here")
-        val messageSource = MessageSource.Self
-        val userId = UserId("id", "domain")
+        val userId = TestUser.USER_ID
         val (arrangement, viewModel) = ConversationInfoViewModelArrangement()
             .withConversationDetailUpdate(oneOneDetails)
+            .withSelfUser()
             .arrange()
         // When
-        viewModel.navigateToProfile(messageSource, userId)
+        viewModel.navigateToProfile(userId.toString())
         // Then
         coVerify(exactly = 1) {
             arrangement.navigationManager.navigate(NavigationCommand(NavigationItem.SelfUserProfile.getRouteWithArgs()))
@@ -44,13 +47,13 @@ class ConversationInfoViewModelTest {
     fun `given self user group message, when clicking on avatar, then open self profile`() = runTest {
         // Given
         val groupDetails = mockConversationDetailsGroup("Conversation Name Goes Here")
-        val messageSource = MessageSource.Self
-        val userId = UserId("id", "domain")
+        val userId = TestUser.USER_ID
         val (arrangement, viewModel) = ConversationInfoViewModelArrangement()
             .withConversationDetailUpdate(groupDetails)
+            .withSelfUser()
             .arrange()
         // When
-        viewModel.navigateToProfile(messageSource, userId)
+        viewModel.navigateToProfile(userId.toString())
         // Then
         coVerify(exactly = 1) {
             arrangement.navigationManager.navigate(NavigationCommand(NavigationItem.SelfUserProfile.getRouteWithArgs()))
@@ -61,13 +64,17 @@ class ConversationInfoViewModelTest {
     fun `given other user 1on1 message, when clicking on avatar, then open other user profile without group data`() = runTest {
         // Given
         val oneOneDetails: ConversationDetails.OneOne = withMockConversationDetailsOneOnOne("Other User Name Goes Here")
-        val messageSource = MessageSource.OtherUser
-        val userId = UserId("id", "domain")
+        val userId = UserId("other", "domain")
         val (arrangement, viewModel) = ConversationInfoViewModelArrangement()
             .withConversationDetailUpdate(oneOneDetails)
+            .withSelfUser()
             .arrange()
+        coEvery {
+            arrangement.qualifiedIdMapper.fromStringToQualifiedID("other@domain")
+        } returns QualifiedID("other", "domain")
+
         // When
-        viewModel.navigateToProfile(messageSource, userId)
+        viewModel.navigateToProfile(userId.toString())
         // Then
         coVerify(exactly = 1) {
             arrangement.navigationManager.navigate(NavigationCommand(NavigationItem.OtherUserProfile.getRouteWithArgs(listOf(userId))))
@@ -78,13 +85,17 @@ class ConversationInfoViewModelTest {
     fun `given other user group message, when clicking on avatar, then open other user profile with group data`() = runTest {
         // Given
         val groupDetails: ConversationDetails.Group = mockConversationDetailsGroup("Conversation Name Goes Here")
-        val messageSource = MessageSource.OtherUser
-        val userId = UserId("id", "domain")
+        val userId = UserId("other", "domain")
         val (arrangement, viewModel) = ConversationInfoViewModelArrangement()
             .withConversationDetailUpdate(groupDetails)
+            .withSelfUser()
             .arrange()
+        coEvery {
+            arrangement.qualifiedIdMapper.fromStringToQualifiedID("other@domain")
+        } returns QualifiedID("other", "domain")
+
         // When
-        viewModel.navigateToProfile(messageSource, userId)
+        viewModel.navigateToProfile(userId.toString())
         // Then
         coVerify(exactly = 1) {
             arrangement.navigationManager.navigate(
@@ -102,6 +113,7 @@ class ConversationInfoViewModelTest {
             .withConversationDetailUpdate(
                 conversationDetails = oneToOneConversationDetails
             )
+            .withSelfUser()
             .arrange()
 
         // When - Then
@@ -120,6 +132,7 @@ class ConversationInfoViewModelTest {
             .withConversationDetailUpdate(
                 conversationDetails = oneToOneConversationDetails
             )
+            .withSelfUser()
             .arrange()
 
         // When - Then
@@ -133,6 +146,7 @@ class ConversationInfoViewModelTest {
         val groupConversationDetails = mockConversationDetailsGroup("Conversation Name Goes Here")
         val (_, viewModel) = ConversationInfoViewModelArrangement()
             .withConversationDetailUpdate(conversationDetails = groupConversationDetails)
+            .withSelfUser()
             .arrange()
 
         // When - Then
@@ -152,6 +166,7 @@ class ConversationInfoViewModelTest {
             .withConversationDetailUpdate(
                 conversationDetails = firstConversationDetails
             )
+            .withSelfUser()
             .arrange()
 
         // When - Then
@@ -176,6 +191,7 @@ class ConversationInfoViewModelTest {
         runTest {
             // Given
             val (_, viewModel) = ConversationInfoViewModelArrangement()
+                .withSelfUser()
                 .arrange()
 
             // When - Then
@@ -191,6 +207,7 @@ class ConversationInfoViewModelTest {
             .withConversationDetailUpdate(
                 conversationDetails = oneToOneConversationDetails
             )
+            .withSelfUser()
             .arrange()
 
         // When - Then
@@ -204,6 +221,7 @@ class ConversationInfoViewModelTest {
         val otherUserAvatar = conversationDetails.otherUser.previewPicture
         val (_, viewModel) = ConversationInfoViewModelArrangement()
             .withConversationDetailUpdate(conversationDetails = conversationDetails)
+            .withSelfUser()
             .arrange()
         val actualAvatar = viewModel.conversationInfoViewState.conversationAvatar
         // When - Then

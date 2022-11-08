@@ -10,13 +10,14 @@ import com.wire.android.appLogger
 import com.wire.android.model.ImageAsset
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
+import com.wire.android.navigation.EXTRA_GROUP_DELETED_NAME
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.SavedStateViewModel
+import com.wire.android.navigation.getBackNavArg
 import com.wire.android.ui.home.conversations.ConversationAvatar
 import com.wire.android.ui.home.conversations.ConversationDetailsData
-import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
@@ -28,16 +29,20 @@ import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
+import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
+@Suppress("LongParameterList")
 @HiltViewModel
 class ConversationInfoViewModel @Inject constructor(
-    qualifiedIdMapper: QualifiedIdMapper,
+    private val qualifiedIdMapper: QualifiedIdMapper,
     override val savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
+    private val observerSelfUser: GetSelfUserUseCase,
     private val wireSessionImageLoader: WireSessionImageLoader,
     private val dispatchers: DispatcherProvider
 ) : SavedStateViewModel(savedStateHandle) {
@@ -48,8 +53,11 @@ class ConversationInfoViewModel @Inject constructor(
         savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!
     )
 
+    private lateinit var selfUserId: UserId
+
     init {
         viewModelScope.launch {
+            selfUserId = observerSelfUser().first().id
             observeConversationDetails(conversationId).collect(::handleConversationDetailsResult)
         }
     }
@@ -72,7 +80,13 @@ class ConversationInfoViewModel @Inject constructor(
      */
     private suspend fun handleConversationDetailsFailure(failure: StorageFailure) {
         when (failure) {
-            is StorageFailure.DataNotFound -> navigateToHome()
+            is StorageFailure.DataNotFound -> {
+                if (savedStateHandle.getBackNavArg<String>(EXTRA_GROUP_DELETED_NAME) != null) {
+                    // do nothing - this group has just been deleted and it's already handled in MessageComposerViewModel
+                } else {
+                    navigateToHome()
+                }
+            }
             is StorageFailure.Generic -> appLogger.e("An error occurred when fetching details of the conversation", failure.rootCause)
         }
     }
@@ -89,8 +103,8 @@ class ConversationInfoViewModel @Inject constructor(
             conversationName = getConversationName(conversationDetails, isConversationUnavailable),
             conversationAvatar = getConversationAvatar(conversationDetails),
             conversationDetailsData = detailsData,
-            isUserBlocked = isUserBlocked,
-            hasUserPermissionToEdit = detailsData !is ConversationDetailsData.None
+            hasUserPermissionToEdit = detailsData !is ConversationDetailsData.None,
+            conversationType = conversationDetails.conversation.type
         )
     }
 
@@ -98,8 +112,10 @@ class ConversationInfoViewModel @Inject constructor(
         when (conversationDetails) {
             is ConversationDetails.Group -> ConversationDetailsData.Group(conversationDetails.conversation.id)
             is ConversationDetails.OneOne -> ConversationDetailsData.OneOne(
-                conversationDetails.otherUser.id,
-                conversationDetails.otherUser.connectionStatus
+                otherUserId = conversationDetails.otherUser.id,
+                connectionState = conversationDetails.otherUser.connectionStatus,
+                isBlocked = conversationDetails.otherUser.connectionStatus == ConnectionState.BLOCKED,
+                isDeleted = conversationDetails.otherUser.deleted
             )
 
             else -> ConversationDetailsData.None
@@ -153,15 +169,18 @@ class ConversationInfoViewModel @Inject constructor(
         }
     }
 
-    fun navigateToProfile(messageSource: MessageSource, userId: UserId) {
+    fun navigateToProfile(mentionUserId: String) {
         viewModelScope.launch {
-            when (messageSource) {
-                MessageSource.Self -> navigateToSelfProfile()
-                MessageSource.OtherUser -> when (conversationInfoViewState.conversationDetailsData) {
+            if (selfUserId.toString() == mentionUserId) {
+                navigateToSelfProfile()
+            } else {
+                val userId = qualifiedIdMapper.fromStringToQualifiedID(mentionUserId)
+                when (conversationInfoViewState.conversationDetailsData) {
                     is ConversationDetailsData.Group -> navigateToOtherProfile(userId, conversationId)
                     else -> navigateToOtherProfile(userId)
                 }
             }
+
         }
     }
 

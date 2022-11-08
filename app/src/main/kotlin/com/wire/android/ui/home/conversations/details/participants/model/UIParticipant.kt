@@ -13,5 +13,6 @@ data class UIParticipant(
     val avatarData: UserAvatarData = UserAvatarData(),
     val membership: Membership = Membership.None,
     val connectionState: ConnectionState? = null,
-    val unavailable: Boolean = false
+    val unavailable: Boolean = false,
+    val isDeleted: Boolean = false
 )

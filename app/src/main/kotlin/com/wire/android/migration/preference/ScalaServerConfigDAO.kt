@@ -29,7 +29,7 @@ class ScalaServerConfigDAO @Inject constructor(private val scalaBackendPreferenc
         @Suppress("ComplexCondition")
         return if (!apiBaseUrl.isNullOrEmpty() && !accountsBaseUrl.isNullOrEmpty() && !webSocketBaseUrl.isNullOrEmpty() &&
             !blackListUrl.isNullOrEmpty() && !teamsUrl.isNullOrEmpty() && !websiteUrl.isNullOrEmpty() && !title.isNullOrEmpty()
-        ) ServerConfig.Links(apiBaseUrl, accountsBaseUrl, webSocketBaseUrl, blackListUrl, teamsUrl, websiteUrl, title, false)
+        ) ServerConfig.Links(apiBaseUrl, accountsBaseUrl, webSocketBaseUrl, blackListUrl, teamsUrl, websiteUrl, title, false, null)
         else null
     }
 

@@ -7,8 +7,8 @@ import com.wire.android.ui.home.conversations.findUser
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.util.ui.UIText
-import com.wire.kalium.logic.data.asset.isDisplayableMimeType
 import com.wire.android.util.ui.WireSessionImageLoader
+import com.wire.kalium.logic.data.asset.isDisplayableMimeType
 import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
@@ -21,7 +21,7 @@ import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.User
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.sync.receiver.conversation.hasValidRemoteData
+import com.wire.kalium.logic.sync.receiver.conversation.message.hasValidRemoteData
 import com.wire.kalium.logic.util.isGreaterThan
 import javax.inject.Inject
 
@@ -133,7 +133,7 @@ class MessageContentMapper @Inject constructor(
 
     fun toText(content: MessageContent) = MessageBody(
         when (content) {
-            is MessageContent.Text -> UIText.DynamicString(content.value)
+            is MessageContent.Text -> UIText.DynamicString(content.value, content.mentions)
             is MessageContent.Unknown -> UIText.StringResource(
                 messageResourceProvider.sentAMessageWithContent, content.typeName ?: "Unknown"
             )

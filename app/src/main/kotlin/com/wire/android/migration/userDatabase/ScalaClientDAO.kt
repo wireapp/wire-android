@@ -11,13 +11,13 @@ class ScalaClientDAO(private val db: ScalaUserDatabase) {
     fun clientInfo(): ScalaClientInfo? {
         val clientIdCursor =
             db.rawQuery(
-                "SELECT $VALUE_COLUMN_NAME FROM $KEY_VALUES_TABLE_NAME WHERE ? = ?",
-                arrayOf(KEY_COLUMN_NAME, SELF_CLIENT_KEY)
+                "SELECT $VALUE_COLUMN_NAME FROM $KEY_VALUES_TABLE_NAME WHERE $KEY_COLUMN_NAME = ?",
+                arrayOf(SELF_CLIENT_KEY)
             )
         val otrLastPrekeyIdCursor =
             db.rawQuery(
-                "SELECT $VALUE_COLUMN_NAME FROM $KEY_VALUES_TABLE_NAME WHERE ? = ?",
-                arrayOf(KEY_COLUMN_NAME, OTR_LAT_PREKEY_ID)
+                "SELECT $VALUE_COLUMN_NAME FROM $KEY_VALUES_TABLE_NAME WHERE $KEY_COLUMN_NAME = ?",
+                arrayOf(OTR_LAT_PREKEY_ID)
             )
 
         return try {

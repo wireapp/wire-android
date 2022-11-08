@@ -32,7 +32,9 @@ object TestConversationDetails {
         TestConversation.ONE_ON_ONE,
         LegalHoldStatus.DISABLED,
         unreadMessagesCount = 0,
-        lastUnreadMessage = null
+        lastUnreadMessage = null,
+        isSelfUserCreator = true,
+        isSelfUserMember = true
     )
 
 }

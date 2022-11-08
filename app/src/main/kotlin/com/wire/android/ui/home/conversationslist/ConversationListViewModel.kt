@@ -40,7 +40,7 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
-import com.wire.kalium.logic.feature.call.AnswerCallUseCase
+import com.wire.kalium.logic.feature.call.usecase.AnswerCallUseCase
 import com.wire.kalium.logic.feature.connection.BlockUserResult
 import com.wire.kalium.logic.feature.connection.BlockUserUseCase
 import com.wire.kalium.logic.feature.connection.UnblockUserResult
@@ -54,6 +54,8 @@ import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
 import com.wire.kalium.logic.feature.team.Result
 import com.wire.kalium.logic.functional.combine
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.collections.immutable.toImmutableList
+import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -61,7 +63,6 @@ import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.onEach
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Date
@@ -75,7 +76,7 @@ class ConversationListViewModel @Inject constructor(
     private val dispatcher: DispatcherProvider,
     private val updateConversationMutedStatus: UpdateConversationMutedStatusUseCase,
     private val answerCall: AnswerCallUseCase,
-    private val observeConversationListDetailsUseCase: ObserveConversationListDetailsUseCase,
+    private val observeConversationListDetails: ObserveConversationListDetailsUseCase,
     private val leaveConversation: LeaveConversationUseCase,
     private val deleteTeamConversation: DeleteTeamConversationUseCase,
     private val blockUserUseCase: BlockUserUseCase,
@@ -101,7 +102,7 @@ class ConversationListViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            searchQueryFlow.combine(observeConversationListDetailsUseCase().onEach(::conversationListDetailsToState))
+            searchQueryFlow.combine(observeConversationListDetails().onEach(::conversationListDetailsToState))
                 .flatMapLatest { (searchQuery, conversationDetails) ->
                     flow {
                         if (searchQuery.isEmpty()) {
@@ -112,7 +113,7 @@ class ConversationListViewModel @Inject constructor(
                     }
                 }.collect { conversationSearchResult ->
                     conversationListState = conversationListState.copy(
-                        conversationSearchResult = conversationSearchResult.toConversationsFoldersMap()
+                        conversationSearchResult = conversationSearchResult.toConversationsFoldersMap().toImmutableMap()
                     )
                 }
         }
@@ -122,7 +123,7 @@ class ConversationListViewModel @Inject constructor(
     // next iteration : SQL- query ?
     private fun searchConversation(conversationDetails: List<ConversationDetails>, searchQuery: String): List<ConversationDetails> {
         val matchingConversations = conversationDetails.filter { details ->
-            details.conversation.name?.contains(searchQuery) ?: false
+            details.conversation.name?.contains(searchQuery, true) ?: false
         }
 
         return matchingConversations
@@ -130,11 +131,11 @@ class ConversationListViewModel @Inject constructor(
 
     private fun conversationListDetailsToState(conversationListDetails: List<ConversationDetails>) {
         conversationListState = conversationListState.copy(
-            conversations = conversationListDetails.toConversationsFoldersMap(),
+            conversations = conversationListDetails.toConversationsFoldersMap().toImmutableMap(),
             hasNoConversations = conversationListDetails.none { it !is Self },
-            callHistory = mockCallHistory, // TODO: needs to be implemented
-            unreadMentions = mockUnreadMentionList, // TODO: needs to be implemented
-            allMentions = mockAllMentionList, // TODO: needs to be implemented
+            callHistory = mockCallHistory.toImmutableList(), // TODO: needs to be implemented
+            unreadMentions = mockUnreadMentionList.toImmutableList(), // TODO: needs to be implemented
+            allMentions = mockAllMentionList.toImmutableList(), // TODO: needs to be implemented
             newActivityCount = 0L,
             unreadMentionsCount = 0L, // TODO: needs to be implemented on Kalium side
             missedCallsCount = 0L // TODO: needs to be implemented on Kalium side
@@ -352,7 +353,7 @@ private fun ConversationDetails.toConversationItem(
             lastEvent = ConversationLastEvent.None, // TODO implement unread events
             badgeEventType = parseConversationEventType(conversation.mutedStatus, unreadMentionsCount, unreadMessagesCount),
             hasOnGoingCall = hasOngoingCall,
-            isCreator = isSelfCreated,
+            isSelfUserCreator = isSelfUserCreator,
             isSelfUserMember = isSelfUserMember
         )
     }
@@ -374,7 +375,9 @@ private fun ConversationDetails.toConversationItem(
             isLegalHold = legalHoldStatus.showLegalHoldIndicator(),
             lastEvent = ConversationLastEvent.None, // TODO implement unread events
             badgeEventType = parsePrivateConversationEventType(
-                otherUser.connectionStatus, parseConversationEventType(conversation.mutedStatus, unreadMentionsCount, unreadMessagesCount)
+                otherUser.connectionStatus,
+                otherUser.deleted,
+                parseConversationEventType(conversation.mutedStatus, unreadMentionsCount, unreadMessagesCount)
             ),
             userId = otherUser.id,
             blockingState = otherUser.BlockState
@@ -413,8 +416,9 @@ private fun ConversationDetails.toConversationItem(
 private fun parseConnectionEventType(connectionState: ConnectionState) =
     if (connectionState == ConnectionState.SENT) BadgeEventType.SentConnectRequest else BadgeEventType.ReceivedConnectionRequest
 
-private fun parsePrivateConversationEventType(connectionState: ConnectionState, eventType: BadgeEventType) =
+private fun parsePrivateConversationEventType(connectionState: ConnectionState, isDeleted: Boolean, eventType: BadgeEventType) =
     if (connectionState == ConnectionState.BLOCKED) BadgeEventType.Blocked
+    else if(isDeleted) BadgeEventType.Deleted
     else eventType
 
 private fun parseConversationEventType(

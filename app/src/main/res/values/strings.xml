@@ -19,6 +19,7 @@
     <string name="label_membership_guest">Guest</string>
     <string name="label_membership_external">External</string>
     <string name="label_membership_service">Service</string>
+    <string name="label_user_deleted">Deleted</string>
     <string name="label_message_sent_failure">Message could not be sent.</string>
     <string name="label_message_receive_failure">Download Error</string>
     <string name="label_message_decryption_failure_message">Message could not be decrypted.</string>
@@ -150,6 +151,7 @@
     <string name="login_forgot_password">Forgot password?</string>
     <string name="login_user_identifier_placeholder">jane@example.com or jane.doe</string>
     <string name="login_user_identifier_label">EMAIL OR USERNAME</string>
+    <string name="login_proxy_identifier_label">PROXY EMAIL OR USERNAME</string>
     <string name="login_error_invalid_credentials_title">Invalid information</string>
     <string name="login_error_invalid_credentials_message">These account credentials are incorrect.
         Please verify your details and try again.
@@ -425,6 +427,8 @@
     <string name="label_system_message_blocked_user">%1$s blocked this user</string>
     <string name="label_system_message_renamed_the_conversation">%1$s renamed the conversation\n%2$s</string>
     <string name="label_system_message_team_member_left">%1$s was removed from the team</string>
+    <string name="label_system_message_user_not_available">This user is no longer available</string>
+
     <!--Search Contact-->
     <string name="label_contacts">CONTACTS</string>
     <string name="label_new_group">New Group</string>
@@ -440,6 +444,8 @@
     <string name="error_unknown_message">Please try again</string>
     <string name="error_server_miscommunication_title">Server error</string>
     <string name="error_server_miscommunication_message">Please try again</string>
+    <string name="error_socket_title">Invalid information</string>
+    <string name="error_socket_message">The proxy credentials are incorrect. Please verify your details and try again.</string>
     <string name="error_no_network_title">Waiting for network</string>
     <string name="error_no_network_message">Please check your Internet connection and try again</string>
     <string name="error_downloading_user_info">There was an error downloading the user information. Please check your Internet connection</string>
@@ -511,6 +517,8 @@
     <string name="calling_ongoing_call_start_anyway">Call Anyway</string>
     <string name="calling_ongoing_call_join_message_alert">A call is active in another conversation.\nJoining this call will hang up the other one.</string>
     <string name="calling_ongoing_call_join_anyway">Join Anyway</string>
+    <string name="calling_feature_unavailable_title_alert">Feature unavailable</string>
+    <string name="calling_feature_unavailable_message_alert">The option to initiate a conference call is only available in the paid version of Wire.</string>
     <!-- Connectivity Status Bar -->
     <string name="connectivity_status_bar_return_to_call">Return to call</string>
     <string name="connectivity_status_bar_connecting">Connecting</string>
@@ -633,6 +641,7 @@
     <string name="label_connect_with_new_users">Connect with new users or start a new conversation:</string>
     <string name="label_reactions">Reactions</string>
     <string name="label_wait_until_synchronised">Please wait until the app is synchronised</string>
+<<<<<<< HEAD
     <string name="label_textfield_optional_password">PASSWORD (OPTIONAL)</string>
     <!--create and restore backup-->
     <string name="dialog_create_backup_inform_title">Set an email and password</string>
@@ -656,4 +665,10 @@
     <string name="send_feedback_choose_email">\"Choose an Email client: \"</string>
     <string name="backup_dialog_create_backup_save">Save backup</string>
 
+=======
+    <string name="proxy_credential_description">This backend is configured to use the following proxy server: %1$s</string>
+    <string name="label_proxy_credentials">PROXY CREDENTIALS</string>
+    <string name="label_proxy_password">PROXY PASSWORD</string>
+    <string name="label_wire_credentials">WIRE CREDENTIALS</string>
+>>>>>>> develop
 </resources>

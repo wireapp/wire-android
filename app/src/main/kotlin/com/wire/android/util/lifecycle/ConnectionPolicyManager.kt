@@ -2,6 +2,7 @@ package com.wire.android.util.lifecycle
 
 import com.wire.android.appLogger
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.migration.MigrationManager
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logger.KaliumLogger.Companion.ApplicationFlow.SYNC
@@ -41,10 +42,11 @@ import javax.inject.Singleton
 class ConnectionPolicyManager @Inject constructor(
     private val currentScreenManager: CurrentScreenManager,
     @KaliumCoreLogic private val coreLogic: CoreLogic,
-    private val dispatcherProvider: DispatcherProvider
+    private val dispatcherProvider: DispatcherProvider,
+    private val migrationManager: MigrationManager
 ) {
 
-    private val logger = appLogger.withFeatureId(SYNC)
+    private val logger by lazy { appLogger.withFeatureId(SYNC) }
 
     /**
      * Starts observing the app state and take action.
@@ -52,11 +54,15 @@ class ConnectionPolicyManager @Inject constructor(
     @OptIn(ExperimentalCoroutinesApi::class)
     fun startObservingAppLifecycle() {
         CoroutineScope(dispatcherProvider.default()).launch {
-            currentScreenManager.isAppOnForegroundFlow()
-                .combine(currentSessionFlow()) { isOnForeground, currentSession -> isOnForeground to currentSession }
-                .collect { (isOnForeground, currentSession) ->
+            combine(
+                currentScreenManager.isAppOnForegroundFlow(),
+                currentSessionFlow(),
+                migrationManager.isMigrationCompletedFlow(),
+                ::Triple
+            ).collect { (isOnForeground, currentSession, isMigrationCompleted) ->
+                if (isMigrationCompleted)
                     setPolicyForSessions(allValidSessions(), currentSession, isOnForeground)
-                }
+            }
         }
     }
 
@@ -69,8 +75,10 @@ class ConnectionPolicyManager @Inject constructor(
      * this will downgrade the policy back to [ConnectionPolicy.DISCONNECT_AFTER_PENDING_EVENTS].
      */
     suspend fun handleConnectionOnPushNotification(userId: UserId) {
-        logger.d("$TAG Handling connection policy for push notification of " +
-                "user=${userId.value.obfuscateId()}@${userId.domain.obfuscateDomain()}")
+        logger.d(
+            "$TAG Handling connection policy for push notification of " +
+                    "user=${userId.value.obfuscateId()}@${userId.domain.obfuscateDomain()}"
+        )
         coreLogic.getSessionScope(userId).run {
             logger.d("$TAG Forcing KEEP_ALIVE policy")
             // Force KEEP_ALIVE policy, so we gather pending events and become online

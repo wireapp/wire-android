@@ -24,10 +24,6 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
     private val notificationManager = NotificationManagerCompat.from(context)
     private val soundUri by lazy { Uri.parse("${ContentResolver.SCHEME_ANDROID_RESOURCE}://${context.packageName}/raw/ringing_from_them") }
 
-    init {
-        appLogger.i("${TAG}: initialized")
-    }
-
     fun handleIncomingCallNotifications(calls: List<Call>, userId: QualifiedID?) {
         if (calls.isEmpty() || userId == null) {
             hideIncomingCallNotification()

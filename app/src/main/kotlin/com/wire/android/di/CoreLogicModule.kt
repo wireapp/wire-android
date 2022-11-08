@@ -306,8 +306,18 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun provideObserveConversationInteractionAvailability(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).conversations.observeConversationInteractionAvailabilityUseCase
+
+    @ViewModelScoped
+    @Provides
     fun provideObserveConversationMembersUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).conversations.observeConversationMembers
+
+    @ViewModelScoped
+    @Provides
+    fun provideMembersToMentionUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).conversations.getMembersToMention
 
     @ViewModelScoped
     @Provides
@@ -774,7 +784,12 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+<<<<<<< HEAD
     fun provideImportBackupUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).importBackup
 
+=======
+    fun provideIsEligibleToStartCall(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).calls.isEligibleToStartCall
+>>>>>>> develop
 }

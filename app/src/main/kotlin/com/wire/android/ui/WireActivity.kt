@@ -73,6 +73,7 @@ class WireActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         proximitySensorManager.initialize()
         lifecycle.addObserver(currentScreenManager)
+
         viewModel.handleDeepLink(intent)
         setComposableContent()
     }

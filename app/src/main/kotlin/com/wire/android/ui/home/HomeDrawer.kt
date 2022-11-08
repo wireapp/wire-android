@@ -136,12 +136,12 @@ fun HomeDrawer(
                 val dir = File(logFilePath).parentFile
 
                 if (dir != null) {
-                val logsUris = context.getUrisOfFilesInDirectory(dir)
-                val intent = context.multipleFileSharingIntent(logsUris)
-                intent.putExtra(Intent.EXTRA_EMAIL, arrayOf("wire-newandroid@wearezeta.zendesk.com"))
-                intent.putExtra(Intent.EXTRA_SUBJECT, "Bug Report - Wire Beta")
-                intent.putExtra(Intent.EXTRA_TEXT, EmailComposer.reportBugEmailTemplate(context.getDeviceId()?.sha256()))
-                intent.type = "message/rfc822"
+                    val logsUris = context.getUrisOfFilesInDirectory(dir)
+                    val intent = context.multipleFileSharingIntent(logsUris)
+                    intent.putExtra(Intent.EXTRA_EMAIL, arrayOf("wire-newandroid@wearezeta.zendesk.com"))
+                    intent.putExtra(Intent.EXTRA_SUBJECT, "Bug Report - Wire Beta")
+                    intent.putExtra(Intent.EXTRA_TEXT, EmailComposer.reportBugEmailTemplate(context.getDeviceId()?.sha256()))
+                    intent.type = "message/rfc822"
 
                 context.startActivity(Intent.createChooser(intent, "Choose an Email client: "))
             }}

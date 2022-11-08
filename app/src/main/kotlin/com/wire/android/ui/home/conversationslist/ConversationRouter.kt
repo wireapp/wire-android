@@ -107,7 +107,7 @@ fun ConversationRouterHomeBridge(
                     },
                     addConversationToFavourites = viewModel::addConversationToFavourites,
                     moveConversationToFolder = viewModel::moveConversationToFolder,
-                    moveConversationToArchive = viewModel::moveConversationToArchive,224
+                    moveConversationToArchive = viewModel::moveConversationToArchive,
                     clearConversationContent = clearContentDialogState::show,
                     blockUser = blockUserDialogState::show,
                     unblockUser = unblockUserDialogState::show,

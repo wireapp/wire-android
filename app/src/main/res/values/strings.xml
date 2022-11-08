@@ -654,5 +654,6 @@
     <string name="backup_dialog_restore_backup_password_message">This backup is password protected.</string>
 
     <string name="send_feedback_choose_email">\"Choose an Email client: \"</string>
+    <string name="backup_dialog_create_backup_save">Save backup</string>
 
 </resources>

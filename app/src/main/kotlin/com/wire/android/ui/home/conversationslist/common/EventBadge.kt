@@ -106,7 +106,7 @@ fun ConnectPendingRequestBadge(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun UnreadMessageEventBadge(unreadMessageCount: Long) {
+private fun UnreadMessageEventBadge(unreadMessageCount: Int) {
     if (unreadMessageCount > 0) {
         NotificationBadgeContainer(
             notificationIcon = {
@@ -139,5 +139,5 @@ private fun NotificationBadgeContainer(notificationIcon: @Composable () -> Unit,
 
 private const val MAX_UNREAD_MESSAGE_COUNT = 99
 
-private fun unReadMessageCountStringify(unreadMessageCount: Long) =
+private fun unReadMessageCountStringify(unreadMessageCount: Int) =
     if (unreadMessageCount > MAX_UNREAD_MESSAGE_COUNT) "$MAX_UNREAD_MESSAGE_COUNT+" else unreadMessageCount.toString()

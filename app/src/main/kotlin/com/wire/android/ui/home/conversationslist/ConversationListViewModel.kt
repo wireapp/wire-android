@@ -424,7 +424,7 @@ private fun parsePrivateConversationEventType(connectionState: ConnectionState, 
 private fun parseConversationEventType(
     mutedStatus: MutedConversationStatus,
     unreadMentionsCount: Long,
-    unreadMessagesCount: Long
+    unreadMessagesCount: Int
 ): BadgeEventType = when (mutedStatus) {
     MutedConversationStatus.AllMuted -> BadgeEventType.None
     MutedConversationStatus.OnlyMentionsAllowed ->

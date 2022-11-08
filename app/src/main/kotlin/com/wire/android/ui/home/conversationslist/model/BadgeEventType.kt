@@ -1,7 +1,7 @@
 package com.wire.android.ui.home.conversationslist.model
 
 sealed class BadgeEventType {
-    data class UnreadMessage(val unreadMessageCount: Long) : BadgeEventType()
+    data class UnreadMessage(val unreadMessageCount: Int) : BadgeEventType()
     object UnreadMention : BadgeEventType()
     object UnreadReply : BadgeEventType()
     object MissedCall : BadgeEventType()

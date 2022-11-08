@@ -121,5 +121,5 @@
     "web_link_preview": true,
     "keep_websocket_on": false,
     "mls_support_enabled": true,
-    "encrypt_proteus_storage": false
+    "encrypt_proteus_storage": true
 }

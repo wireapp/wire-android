@@ -107,7 +107,7 @@ fun ConversationRouterHomeBridge(
                     },
                     addConversationToFavourites = viewModel::addConversationToFavourites,
                     moveConversationToFolder = viewModel::moveConversationToFolder,
-                    moveConversationToArchive = viewModel::moveConversationToArchive,
+                    moveConversationToArchive = viewModel::moveConversationToArchive,224
                     clearConversationContent = clearContentDialogState::show,
                     blockUser = blockUserDialogState::show,
                     unblockUser = unblockUserDialogState::show,
@@ -221,6 +221,7 @@ fun ConversationRouterHomeBridge(
     }
 }
 
+@Suppress("LongParameterList")
 class ConversationRouterState(
     private val initialItemType: ConversationItemType,
     val leaveGroupDialogState: VisibilityState<GroupDialogState>,

@@ -423,7 +423,8 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         clearContentResult: ClearConversationContentUseCase.Result,
         conversationTypeDetail: ConversationTypeDetail
     ) {
-        if (conversationTypeDetail is ConversationTypeDetail.Connection) throw IllegalStateException("Unsupported conversation type to clear content, something went wrong?")
+        if (conversationTypeDetail is ConversationTypeDetail.Connection)
+            throw IllegalStateException("Unsupported conversation type to clear content, something went wrong?")
 
         if (clearContentResult is ClearConversationContentUseCase.Result.Failure) {
             closeBottomSheetAndShowInfoMessage(OtherUserProfileInfoMessageType.ConversationContentDeleteFailure)

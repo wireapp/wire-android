@@ -259,6 +259,7 @@ fun HomeContent(
     }
 }
 
+@Suppress("ComplexMethod")
 @Composable
 private fun handleSnackBarMessage(
     snackbarHostState: SnackbarHostState,

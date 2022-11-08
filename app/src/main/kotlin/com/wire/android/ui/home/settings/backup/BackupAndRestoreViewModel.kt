@@ -6,7 +6,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
-import androidx.core.net.toFile
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.navigation.BackStackMode
@@ -40,11 +39,13 @@ class BackupAndRestoreViewModel
         }
     }
 
+    @Suppress("EmptyFunctionBlock")
     //TODO: save a back up file
     fun saveBackup() {
 
     }
 
+    @Suppress("MagicNumber")
     //TODO: create a back up
     fun createBackup() {
         // TEST purpose remove once we are restoring the backup
@@ -63,7 +64,6 @@ class BackupAndRestoreViewModel
 
     fun chooseBackupFileToRestore(uri: Uri) {
         //TODO: validate the file
-
         val tempDbFile = File(context.cacheDir, "tempDb")
 
         context.contentResolver.openInputStream(uri)!!.copyTo(tempDbFile.outputStream())
@@ -81,13 +81,13 @@ class BackupAndRestoreViewModel
         viewModelScope.launch {
             //TODO: restore the back up file
             checkRestorePassword(restorePassword)
-            delay(250)
             //TODO: restore the file
-            restoreBackupfile(restorePassword)
+            restoreBackupFile(restorePassword)
         }
     }
-
-    private suspend fun restoreBackupfile(restorePassword: TextFieldValue) {
+    @Suppress("MagicNumber")
+    private suspend fun restoreBackupFile(restorePassword: TextFieldValue) {
+        // Test purpose remove once we are able to restore file
         state = state.copy(restoreProgress = RestoreProgress.InProgress(0.25f))
         delay(250)
         state = state.copy(restoreProgress = RestoreProgress.InProgress(0.50f))

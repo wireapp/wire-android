@@ -11,7 +11,6 @@ import androidx.compose.ui.platform.LocalContext
 import com.wire.android.R
 import com.wire.android.ui.home.conversationslist.common.ConversationItemFactory
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
-import com.wire.android.ui.home.conversationslist.model.BadgeEventType
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
 
@@ -66,7 +65,8 @@ fun CallContent(
                 openMenu = onEditConversationItem,
                 openUserProfile = onOpenUserProfile,
                 openNotificationsOptions = openConversationNotificationsSettings,
-                joinCall = onJoinCall
+                joinCall = onJoinCall,
+                searchQuery = "test"
             )
         }
 
@@ -80,7 +80,8 @@ fun CallContent(
                 openMenu = onEditConversationItem,
                 openUserProfile = onOpenUserProfile,
                 openNotificationsOptions = openConversationNotificationsSettings,
-                joinCall = onJoinCall
+                joinCall = onJoinCall,
+                searchQuery = "test"
             )
         }
     }

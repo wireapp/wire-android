@@ -23,11 +23,12 @@ import com.wire.kalium.logic.data.user.UserId
 @Composable
 fun ConversationItemFactory(
     conversation: ConversationItem,
+    searchQuery: String,
     openConversation: (ConversationId) -> Unit,
     openMenu: (ConversationItem) -> Unit,
     openUserProfile: (UserId) -> Unit,
     openNotificationsOptions: (ConversationItem) -> Unit,
-    joinCall: (ConversationId) -> Unit,
+    joinCall: (ConversationId) -> Unit
 ) {
     val onConversationItemClick = remember(conversation) {
         Clickable(
@@ -42,6 +43,7 @@ fun ConversationItemFactory(
                 when (conversation.lastEvent) {
                     is ConversationLastEvent.Connection -> {
                     }
+
                     else -> openMenu(conversation)
                 }
             }
@@ -49,6 +51,7 @@ fun ConversationItemFactory(
     }
     GeneralConversationItem(
         conversation = conversation,
+        searchQuery = "test",
         subTitle = {
             when (val lastEvent = conversation.lastEvent) {
                 is ConversationLastEvent.Call -> CallLabel(callInfo = lastEvent)
@@ -70,6 +73,7 @@ fun ConversationItemFactory(
 
 @Composable
 private fun GeneralConversationItem(
+    searchQuery: String,
     conversation: ConversationItem,
     subTitle: @Composable () -> Unit = {},
     onConversationItemClick: Clickable,
@@ -84,7 +88,8 @@ private fun GeneralConversationItem(
                     title = {
                         ConversationTitle(
                             name = groupName.ifEmpty { stringResource(id = R.string.member_name_deleted_label) },
-                            isLegalHold = conversation.isLegalHold
+                            isLegalHold = conversation.isLegalHold,
+                            searchQuery = searchQuery
                         )
                     },
                     subTitle = subTitle,
@@ -100,6 +105,7 @@ private fun GeneralConversationItem(
                 )
             }
         }
+
         is ConversationItem.PrivateConversation -> {
             with(conversation) {
                 RowItemTemplate(
@@ -116,6 +122,7 @@ private fun GeneralConversationItem(
                 )
             }
         }
+
         is ConversationItem.ConnectionConversation -> {
             with(conversation) {
                 RowItemTemplate(

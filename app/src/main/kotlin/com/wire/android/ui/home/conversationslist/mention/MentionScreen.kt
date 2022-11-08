@@ -64,7 +64,8 @@ private fun MentionContent(
                 openMenu = onEditConversationItem,
                 openUserProfile = onOpenUserProfile,
                 openNotificationsOptions = openConversationNotificationsSettings,
-                joinCall = onJoinCall
+                joinCall = onJoinCall,
+                searchQuery = "test"
             )
         }
 
@@ -78,7 +79,8 @@ private fun MentionContent(
                 openMenu = onEditConversationItem,
                 openUserProfile = onOpenUserProfile,
                 openNotificationsOptions = openConversationNotificationsSettings,
-                joinCall = onJoinCall
+                joinCall = onJoinCall,
+                searchQuery = "test"
             )
         }
     }

@@ -23,7 +23,8 @@ fun UserLabel(userInfoLabel: UserInfoLabel, modifier: Modifier = Modifier) {
                     Spacer(modifier = Modifier.width(6.dp))
                     MembershipQualifierLabel(membership)
                 }
-            }
+            },
+            searchQuery = "test"
         )
     }
 }

@@ -45,6 +45,7 @@ fun AllConversationScreen(
         ConversationList(
             lazyListState = lazyListState,
             conversationListItems = conversations,
+            searchQuery = "test",
             onOpenConversation = onOpenConversation,
             onEditConversation = onEditConversation,
             onOpenUserProfile = onOpenUserProfile,

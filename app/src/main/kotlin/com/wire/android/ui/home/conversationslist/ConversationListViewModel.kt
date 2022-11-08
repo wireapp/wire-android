@@ -106,14 +106,15 @@ class ConversationListViewModel @Inject constructor(
                 .flatMapLatest { (searchQuery, conversationDetails) ->
                     flow {
                         if (searchQuery.isEmpty()) {
-                            emit(conversationDetails)
+                            emit(conversationDetails to searchQuery)
                         } else {
-                            emit(searchConversation(conversationDetails, searchQuery))
+                            emit(searchConversation(conversationDetails, searchQuery) to searchQuery)
                         }
                     }
-                }.collect { conversationSearchResult ->
+                }.collect { (conversationSearchResult, searchQuery) ->
                     conversationListState = conversationListState.copy(
-                        conversationSearchResult = conversationSearchResult.toConversationsFoldersMap().toImmutableMap()
+                        conversationSearchResult = conversationSearchResult.toConversationsFoldersMap().toImmutableMap(),
+                        searchQuery = searchQuery
                     )
                 }
         }
@@ -418,7 +419,7 @@ private fun parseConnectionEventType(connectionState: ConnectionState) =
 
 private fun parsePrivateConversationEventType(connectionState: ConnectionState, isDeleted: Boolean, eventType: BadgeEventType) =
     if (connectionState == ConnectionState.BLOCKED) BadgeEventType.Blocked
-    else if(isDeleted) BadgeEventType.Deleted
+    else if (isDeleted) BadgeEventType.Deleted
     else eventType
 
 private fun parseConversationEventType(

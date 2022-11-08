@@ -172,13 +172,14 @@ fun ConversationRouterHomeBridge(
 
                 ConversationItemType.SEARCH -> {
                     SearchConversationScreen(
+                        searchQuery = searchQuery,
                         conversationSearchResult = conversationSearchResult,
                         onOpenNewConversation = viewModel::openNewConversation,
                         onOpenConversation = viewModel::openConversation,
                         onEditConversation = onEditConversationItem,
                         onOpenUserProfile = viewModel::openUserProfile,
                         onOpenConversationNotificationsSettings = onEditNotifications,
-                        onJoinCall = viewModel::joinOngoingCall
+                        onJoinCall = viewModel::joinOngoingCall,
                     )
                 }
             }

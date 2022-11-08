@@ -3,6 +3,7 @@ package com.wire.android.ui.home.conversations.search
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -26,14 +27,12 @@ fun HighlightName(
     searchQuery: String,
     modifier: Modifier = Modifier
 ) {
-    val scope = rememberCoroutineScope()
-
     var highlightIndexes by remember {
         mutableStateOf(emptyList<MatchQueryResult>())
     }
 
-    SideEffect {
-        scope.launch {
+    LaunchedEffect(searchQuery) {
+        launch {
             highlightIndexes = QueryMatchExtractor.extractQueryMatchIndexes(
                 matchText = searchQuery,
                 text = name

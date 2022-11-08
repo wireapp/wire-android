@@ -110,7 +110,12 @@ private fun GeneralConversationItem(
             with(conversation) {
                 RowItemTemplate(
                     leadingIcon = { ConversationUserAvatar(userAvatarData) },
-                    title = { UserLabel(userInfoLabel = toUserInfoLabel()) },
+                    title = {
+                        UserLabel(
+                            userInfoLabel = toUserInfoLabel(),
+                            searchQuery = searchQuery
+                        )
+                    },
                     subTitle = subTitle,
                     eventType = conversation.badgeEventType,
                     clickable = onConversationItemClick,
@@ -118,7 +123,7 @@ private fun GeneralConversationItem(
                         if (mutedStatus != MutedConversationStatus.AllAllowed) {
                             MutedConversationBadge(onMutedIconClick)
                         }
-                    },
+                    }
                 )
             }
         }
@@ -127,7 +132,12 @@ private fun GeneralConversationItem(
             with(conversation) {
                 RowItemTemplate(
                     leadingIcon = { ConversationUserAvatar(userAvatarData) },
-                    title = { UserLabel(userInfoLabel = toUserInfoLabel()) },
+                    title = {
+                        UserLabel(
+                            userInfoLabel = toUserInfoLabel(),
+                            searchQuery = searchQuery
+                        )
+                    },
                     subTitle = subTitle,
                     eventType = conversation.badgeEventType,
                     clickable = onConversationItemClick

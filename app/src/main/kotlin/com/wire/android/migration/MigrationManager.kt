@@ -3,6 +3,7 @@ package com.wire.android.migration
 import android.content.Context
 import androidx.work.Data
 import androidx.work.workDataOf
+import com.wire.android.appLogger
 import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.migration.failure.MigrationFailure
 import com.wire.android.migration.feature.MigrateActiveAccountsUseCase
@@ -53,13 +54,31 @@ class MigrationManager @Inject constructor(
 
     suspend fun migrate(): MigrationResult =
         migrateServerConfig()
-            .flatMap { migrateActiveAccounts(it) }
-            .flatMap { migrateClientsData(it) }
-            .flatMap { migrateConversations(it) }
-            .flatMap { migrateMessages(it) }
+            .flatMap {
+                appLogger.d("$TAG - Step 1 - Migrating accounts")
+                migrateActiveAccounts(it)
+            }
+            .flatMap {
+                appLogger.d("$TAG - Step 2 - Migrating clients")
+                migrateClientsData(it)
+            }
+            .flatMap {
+                appLogger.d("$TAG - Step 3 - Migrating conversations")
+                migrateConversations(it)
+            }
+            .flatMap {
+                appLogger.d("$TAG - Step 4 - Migrating messages")
+                migrateMessages(it)
+            }
             .mapLeft(::migrationFailure)
             .onSuccess { globalDataStore.setMigrationCompleted() }
-            .fold({ MigrationResult.Failure(it) }, { MigrationResult.Success })
+            .fold({
+                appLogger.e("$TAG - Failure - Migrating data from old client - $it")
+                MigrationResult.Failure(it)
+            }, {
+                appLogger.d("$TAG - Success - Migrated data from old client")
+                MigrationResult.Success
+            })
 
     private fun migrationFailure(failure: CoreFailure): MigrationResult.Failure.Type = when (failure) {
         is NetworkFailure.NoNetworkConnection -> MigrationResult.Failure.Type.NO_NETWORK
@@ -68,6 +87,10 @@ class MigrationManager @Inject constructor(
         is ServerConfigFailure.NewServerVersion -> MigrationResult.Failure.Type.TOO_NEW_VERSION
         is MigrationFailure.InvalidRefreshToken -> MigrationResult.Failure.Type.UNKNOWN
         else -> MigrationResult.Failure.Type.UNKNOWN
+    }
+
+    companion object {
+        private const val TAG = "MigrationManager"
     }
 }
 

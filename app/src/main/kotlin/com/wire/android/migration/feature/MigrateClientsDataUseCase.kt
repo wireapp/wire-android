@@ -6,13 +6,16 @@ import com.wire.android.migration.userDatabase.ScalaUserDatabaseProvider
 import com.wire.android.migration.util.ScalaCryptoBoxDirectoryProvider
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.NetworkFailure
 import com.wire.kalium.logic.StorageFailure
 import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.client.PersistRegisteredClientIdResult
 import com.wire.kalium.logic.functional.Either
+import com.wire.kalium.logic.functional.flatMap
 import com.wire.kalium.logic.functional.foldToEitherWhileRight
 import com.wire.kalium.logic.functional.map
+import kotlinx.coroutines.withTimeoutOrNull
 import java.io.File
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -44,8 +47,16 @@ class MigrateClientsDataUseCase @Inject constructor(
                         Either.Left(MigrationFailure.ClientNotRegistered)
                     }
                     is PersistRegisteredClientIdResult.Success ->
-                        syncManager.waitUntilLiveOrFailure().map { acc + userId }
+                        withTimeoutOrNull(SYNC_START_TIMEOUT) {
+                            syncManager.waitUntilStartedOrFailure()
+                        }.let {
+                            it ?: Either.Left(NetworkFailure.NoNetworkConnection(null))
+                        }.flatMap { syncManager.waitUntilLiveOrFailure().map { acc + userId } }
                 }
             }
         }
+
+    companion object {
+        const val SYNC_START_TIMEOUT = 20_000L
+    }
 }

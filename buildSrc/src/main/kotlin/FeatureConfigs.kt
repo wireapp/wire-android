@@ -44,6 +44,7 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     WEB_LINK_PREVIEW("web_link_preview", ConfigType.BOOLEAN),
     WEBSITE_URL("websiteUrl", ConfigType.STRING),
     WEB_SOCKET_URL("websocketUrl", ConfigType.STRING),
+    ENCRYPT_PROTEUS_STORAGE("encrypt_proteus_storage", ConfigType.BOOLEAN),
 
     CERTIFICATE_PIN("certificatePin", ConfigType.CERTIFICATE_PIN),
 

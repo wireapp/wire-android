@@ -37,12 +37,12 @@ fun PickRestoreFileDialog(
     val fileFlow = FileBrowserFlow(onChooseBackupFile)
 
     WireDialog(
-        title = stringResource(R.string.dialog_restore_backup_title),
-        text = stringResource(R.string.dialog_restore_backup_message),
+        title = stringResource(R.string.backup_dialog_restore_backup_title),
+        text = stringResource(R.string.backup_dialog_restore_backup_message),
         onDismiss = onCancelBackupRestore,
         optionButton1Properties = WireDialogButtonProperties(
             onClick = { fileFlow.launch() },
-            text = stringResource(R.string.dialog_choose_backup_file_option),
+            text = stringResource(R.string.backup_dialog_choose_backup_file_option),
             type = WireDialogButtonType.Primary,
         )
     )
@@ -60,8 +60,8 @@ fun EnterRestorePasswordDialog(
 
     if (!isWrongPassword) {
         WireDialog(
-            title = stringResource(R.string.label_enter_password),
-            text = stringResource(R.string.dialog_restore_backup_password_message),
+            title = stringResource(R.string.backup_label_enter_password),
+            text = stringResource(R.string.backup_dialog_restore_backup_password_message),
             onDismiss = onCancelBackupRestore,
             dismissButtonProperties = WireDialogButtonProperties(
                 onClick = onCancelBackupRestore,
@@ -84,8 +84,8 @@ fun EnterRestorePasswordDialog(
         }
     } else {
         WireDialog(
-            title = stringResource(R.string.label_wrong_password),
-            text = stringResource(R.string.label_verify_input),
+            title = stringResource(R.string.backup_label_wrong_password),
+            text = stringResource(R.string.backup_label_verify_input),
             onDismiss = onCancelBackupRestore,
             optionButton1Properties = WireDialogButtonProperties(
                 onClick = onAcknowledgeWrongPassword,
@@ -104,7 +104,7 @@ fun RestoreProgressDialog(
     onCancelBackupRestore: () -> Unit
 ) {
     WireDialog(
-        title = stringResource(R.string.dialog_restoring_backup_title),
+        title = stringResource(R.string.backup_dialog_restoring_backup_title),
         onDismiss = {
             // User is not able to dismiss the dialog
         },
@@ -120,12 +120,12 @@ fun RestoreProgressDialog(
         Column(modifier = Modifier.fillMaxWidth()) {
             if (isRestoreCompleted) {
                 Row {
-                    Text(stringResource(R.string.label_conversation_restored), modifier = Modifier.weight(1f))
+                    Text(stringResource(R.string.backup_label_conversation_restored), modifier = Modifier.weight(1f))
                     WireCheckIcon()
                 }
             } else {
                 Row {
-                    Text(stringResource(R.string.label_loading_conversations), modifier = Modifier.weight(1f))
+                    Text(stringResource(R.string.backup_label_loading_conversations), modifier = Modifier.weight(1f))
                     Text("${restoreProgress.times(100).roundToInt()} %", style = MaterialTheme.wireTypography.body02)
                 }
             }

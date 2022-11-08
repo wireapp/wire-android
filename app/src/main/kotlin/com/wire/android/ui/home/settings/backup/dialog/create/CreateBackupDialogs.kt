@@ -7,7 +7,6 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -25,8 +24,6 @@ import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
-import com.wire.android.ui.home.settings.backup.dialog.create.BackUpDialogStep
-import com.wire.android.ui.home.settings.backup.dialog.create.CreateBackupDialogStateHolder
 import com.wire.android.ui.theme.wireTypography
 import kotlin.math.roundToInt
 
@@ -37,7 +34,7 @@ fun InformBackupDialog(
 ) {
     WireDialog(
         title = stringResource(R.string.dialog_create_backup_inform_title),
-        text = stringResource(R.string.dialog_create_backup_inform_message),
+        text = stringResource(R.string.backup_dialog_create_backup_inform_message),
         onDismiss = onDismissDialog,
         optionButton1Properties = WireDialogButtonProperties(
             onClick = onAcknowledgeBackup,
@@ -58,8 +55,8 @@ fun SetBackupPasswordDialog(
     var backupPassword by remember { mutableStateOf(TextFieldValue("")) }
 
     WireDialog(
-        title = stringResource(R.string.dialog_create_backup_set_password_title),
-        text = stringResource(R.string.dialog_create_backup_set_password_message),
+        title = stringResource(R.string.backup_dialog_create_backup_set_password_title),
+        text = stringResource(R.string.backup_dialog_create_backup_set_password_message),
         onDismiss = onDismissDialog,
         dismissButtonProperties = WireDialogButtonProperties(
             onClick = onDismissDialog,
@@ -93,7 +90,7 @@ fun CreateBackupDialog(
     onDismissDialog: () -> Unit
 ) {
     WireDialog(
-        title = stringResource(R.string.dialog_create_backup_title),
+        title = stringResource(R.string.backup_dialog_create_backup_title),
         onDismiss = onDismissDialog,
         optionButton1Properties = WireDialogButtonProperties(
             onClick = onSaveBackup,
@@ -110,7 +107,7 @@ fun CreateBackupDialog(
         Column(modifier = Modifier.fillMaxWidth()) {
             if (isBackupCreationCompleted) {
                 Row {
-                    Text(stringResource(R.string.label_conversation_successfully_saved), modifier = Modifier.weight(1f))
+                    Text(stringResource(R.string.backup_label_conversation_successfully_saved), modifier = Modifier.weight(1f))
                     WireCheckIcon()
                 }
             } else {

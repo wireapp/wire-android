@@ -23,7 +23,7 @@ import kotlinx.coroutines.launch
 @Composable
 fun HighlightName(
     name: String,
-    searchQuery: String = "",
+    searchQuery: String,
     modifier: Modifier = Modifier
 ) {
     val scope = rememberCoroutineScope()

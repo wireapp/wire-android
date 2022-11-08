@@ -51,7 +51,7 @@ fun ConversationItemFactory(
     }
     GeneralConversationItem(
         conversation = conversation,
-        searchQuery = "test",
+        searchQuery = searchQuery,
         subTitle = {
             when (val lastEvent = conversation.lastEvent) {
                 is ConversationLastEvent.Call -> CallLabel(callInfo = lastEvent)

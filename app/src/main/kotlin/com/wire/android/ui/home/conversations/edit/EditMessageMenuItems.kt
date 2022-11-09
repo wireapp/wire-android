@@ -97,13 +97,16 @@ private fun ReactionOptions(
     Column {
         Row {
             Spacer(modifier = Modifier.width(dimensions().spacing8x))
-            Text(("${stringResource(R.string.label_reactions)} ${stringResource(id = R.string.label_more_comming_soon)}").uppercase(), style = MaterialTheme.wireTypography.label01)
+            Text(
+                ("${stringResource(R.string.label_reactions)} ${stringResource(id = R.string.label_more_comming_soon)}").uppercase(),
+                style = MaterialTheme.wireTypography.label01
+            )
         }
         Row(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            listOf("❤️", "👍",  "\uD83D\uDE01", "\uD83D\uDE42", "☹️", "\uD83D\uDC4E").forEach { emoji ->
+            listOf("❤️", "👍",  "😁", "🙂", "☹️", "👎").forEach { emoji ->
                 CompositionLocalProvider(
                     LocalMinimumTouchTargetEnforcement provides false
                 ) {

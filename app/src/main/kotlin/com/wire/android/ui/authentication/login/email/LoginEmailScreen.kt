@@ -8,7 +8,6 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardActions
@@ -18,7 +17,6 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
@@ -42,10 +40,10 @@ import com.wire.android.ui.authentication.login.LoginError
 import com.wire.android.ui.authentication.login.LoginErrorDialog
 import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.common.button.WireButtonState
-import com.wire.android.ui.common.collectAsStateLifecycleAware
+import com.wire.android.ui.common.button.WirePrimaryButton
+import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.textfield.AutoFillTextField
 import com.wire.android.ui.common.textfield.WirePasswordTextField
-import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.textfield.clearAutofillTree
 import com.wire.android.ui.theme.WireTheme
@@ -99,7 +97,19 @@ private fun LoginEmailContent(
             .verticalScroll(scrollState)
             .padding(MaterialTheme.wireDimensions.spacing16x)
     ) {
-        Spacer(modifier = Modifier.height(MaterialTheme.wireDimensions.spacing32x))
+        if (loginState.isProxyAuthRequired) {
+            Text(
+                text = stringResource(R.string.label_wire_credentials),
+                style = MaterialTheme.wireTypography.title03.copy(
+                    color = colorsScheme().labelText
+                ),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(
+                        vertical = MaterialTheme.wireDimensions.spacing16x
+                    )
+            )
+        }
         UserIdentifierInput(
             modifier = Modifier
                 .fillMaxWidth()
@@ -124,6 +134,10 @@ private fun LoginEmailContent(
                 .padding(bottom = MaterialTheme.wireDimensions.spacing16x),
             forgotPasswordUrl = forgotPasswordUrl
         )
+        if (loginState.isProxyAuthRequired) {
+            ProxyScreen()
+        }
+
         Spacer(modifier = Modifier.weight(1f))
 
         LoginButton(

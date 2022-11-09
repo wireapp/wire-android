@@ -12,22 +12,28 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.Divider
 import androidx.compose.material.Surface
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
@@ -39,29 +45,36 @@ import androidx.compose.ui.unit.dp
 import androidx.constraintlayout.compose.ConstraintLayout
 import androidx.constraintlayout.compose.Dimension
 import com.wire.android.R
+import com.wire.android.model.Clickable
 import com.wire.android.ui.common.SecurityClassificationBanner
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
+import com.wire.android.ui.home.conversations.mention.MemberItemToMention
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
+import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.messagecomposer.attachment.AttachmentOptions
-import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
+import com.wire.android.ui.home.newconversation.model.Contact
+import com.wire.android.ui.theme.wireColorScheme
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
+import com.wire.kalium.logic.feature.conversation.SecurityClassificationType
 import okio.Path
 
 @Composable
 fun MessageComposer(
     keyboardHeight: KeyboardHeight,
     content: @Composable () -> Unit,
-    onSendTextMessage: (String) -> Unit,
+    onSendTextMessage: (String, List<UiMention>) -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
+    onMentionMember: (String?) -> Unit,
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
     onMessageComposerInputStateChange: (MessageComposerStateTransition) -> Unit,
     isFileSharingEnabled: Boolean,
     interactionAvailability: InteractionAvailability,
     tempCachePath: Path,
-    securityClassificationType: SecurityClassificationType
+    securityClassificationType: SecurityClassificationType,
+    membersToMention: List<Contact>
 ) {
     BoxWithConstraints {
         val messageComposerState = rememberMessageComposerInnerState(
@@ -71,8 +84,8 @@ fun MessageComposer(
 
         val onSendButtonClicked = remember {
             {
-                onSendTextMessage(messageComposerState.messageText.text)
-                messageComposerState.messageText = TextFieldValue("")
+                onSendTextMessage(messageComposerState.messageText.text, messageComposerState.mentions)
+                messageComposerState.setMessageTextValue(TextFieldValue(""))
             }
         }
 
@@ -81,6 +94,17 @@ fun MessageComposer(
                 onSendAttachment(attachmentBundle)
                 messageComposerState.toggleAttachmentOptionsVisibility()
             }
+        }
+
+        val onMentionPicked = remember {
+            { contact: Contact ->
+                messageComposerState.addMention(contact)
+            }
+        }
+
+        LaunchedEffect(Unit) {
+            messageComposerState.mentionQueryFlowState
+                .collect { onMentionMember(it) }
         }
 
         MessageComposer(
@@ -93,7 +117,9 @@ fun MessageComposer(
             isFileSharingEnabled = isFileSharingEnabled,
             interactionAvailability = interactionAvailability,
             tempCachePath = tempCachePath,
-            securityClassificationType = securityClassificationType
+            securityClassificationType = securityClassificationType,
+            membersToMention = membersToMention,
+            onMentionPicked = onMentionPicked
         )
     }
 }
@@ -116,7 +142,9 @@ private fun MessageComposer(
     isFileSharingEnabled: Boolean,
     interactionAvailability: InteractionAvailability,
     tempCachePath: Path,
-    securityClassificationType: SecurityClassificationType
+    securityClassificationType: SecurityClassificationType,
+    membersToMention: List<Contact>,
+    onMentionPicked: (Contact) -> Unit
 ) {
     val focusManager = LocalFocusManager.current
 
@@ -190,6 +218,37 @@ private fun MessageComposer(
                             .padding(bottom = dimensions().spacing8x)
                             .weight(1f)) {
                         content()
+                        Column(
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .animateContentSize()
+                        ) {
+                            Spacer(modifier = Modifier.weight(1f))
+
+                            LazyColumn(
+                                modifier = Modifier.background(Color.White),
+                                reverseLayout = true
+                            ) {
+                                membersToMention.forEach {
+                                    if (it.membership != Membership.Service) {
+                                        item {
+                                            MemberItemToMention(
+                                                avatarData = it.avatarData,
+                                                name = it.name,
+                                                label = it.label,
+                                                membership = it.membership,
+                                                clickable = Clickable(enabled = true) { onMentionPicked(it) },
+                                                modifier = Modifier
+                                            )
+                                            Divider(
+                                                color = MaterialTheme.wireColorScheme.divider,
+                                                thickness = Dp.Hairline
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                        }
                     }
                     when (interactionAvailability) {
                         InteractionAvailability.BLOCKED_USER -> BlockedUserMessage()
@@ -244,7 +303,8 @@ private fun MessageComposer(
                             },
                         transition,
                         messageComposerState,
-                        focusManager
+                        focusManager,
+                        membersToMention.isNotEmpty()
                     )
                 }
             }

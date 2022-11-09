@@ -153,6 +153,13 @@ fun LoginErrorDialog(
             stringResource(R.string.login_error_user_already_logged_in_message),
             onDialogDismiss
         )
+        is LoginError.DialogError.ProxyError -> {
+            LoginDialogErrorData(
+                stringResource(R.string.error_socket_title),
+                stringResource(R.string.error_socket_message),
+                onDialogDismiss
+            )
+        }
 
         is LoginError.DialogError.GenericError -> {
             val strings = error.coreFailure.dialogErrorStrings(LocalContext.current.resources)

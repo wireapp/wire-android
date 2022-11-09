@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.framework.FakeKaliumFileSystem
+import com.wire.android.mapper.ContactMapper
 import com.wire.android.model.UserAvatarData
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.model.MessageHeader
@@ -37,6 +38,7 @@ import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
 import com.wire.kalium.logic.feature.conversation.GetSecurityClassificationTypeUseCase
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import com.wire.kalium.logic.feature.conversation.IsInteractionAvailableResult
+import com.wire.kalium.logic.feature.conversation.MembersToMentionUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationInteractionAvailabilityUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
@@ -124,6 +126,12 @@ internal class ConversationsViewModelArrangement {
     @MockK
     private lateinit var observeSyncState: ObserveSyncStateUseCase
 
+    @MockK
+    private lateinit var contactMapper: ContactMapper
+
+    @MockK
+    private lateinit var membersToMention: MembersToMentionUseCase
+
     private val fakeKaliumFileSystem = FakeKaliumFileSystem()
 
     private val viewModel by lazy {
@@ -141,7 +149,9 @@ internal class ConversationsViewModelArrangement {
             kaliumFileSystem = fakeKaliumFileSystem,
             updateConversationReadDateUseCase = updateConversationReadDateUseCase,
             observeConversationInteractionAvailability = observeConversationInteractionAvailabilityUseCase,
-            getConversationClassifiedType = getSecurityClassificationType
+            getConversationClassifiedType = getSecurityClassificationType,
+            contactMapper = contactMapper,
+            membersToMention = membersToMention
         )
     }
 

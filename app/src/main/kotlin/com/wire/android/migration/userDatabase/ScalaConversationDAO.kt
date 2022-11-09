@@ -6,6 +6,7 @@ import com.wire.android.migration.util.orNullIfNegative
 import java.sql.SQLException
 
 data class ScalaConversationData(
+    val id: String,
     val remoteId: String,
     val domain: String?,
     val name: String?,
@@ -23,6 +24,7 @@ class ScalaConversationDAO(private val db: ScalaUserDatabase) {
         return try {
             val domainIndex = cursor.getColumnIndex(COLUMN_DOMAIN).orNullIfNegative()
             val idIndex = cursor.getColumnIndex(COLUMN_ID)
+            val remoteIdIndex = cursor.getColumnIndex(COLUMN_REMOTE_ID)
             val nameIndex = cursor.getColumnIndex(COLUMN_NAME)
             val typeIndex = cursor.getColumnIndex(COLUMN_TYPE)
             val teamIndex = cursor.getColumnIndex(COLUMN_TEAM)
@@ -35,7 +37,8 @@ class ScalaConversationDAO(private val db: ScalaUserDatabase) {
                 val accumulator = mutableListOf<ScalaConversationData>()
                 do {
                     accumulator += ScalaConversationData(
-                        remoteId = cursor.getStringOrNull(idIndex).orEmpty(),
+                        id = cursor.getStringOrNull(idIndex).orEmpty(),
+                        remoteId = cursor.getStringOrNull(remoteIdIndex).orEmpty(),
                         domain = domainIndex?.let { cursor.getStringOrNull(domainIndex) },
                         name = cursor.getStringOrNull(nameIndex),
                         type = cursor.getInt(typeIndex),
@@ -57,7 +60,8 @@ class ScalaConversationDAO(private val db: ScalaUserDatabase) {
 
     companion object {
         const val TABLE_NAME = "Conversations"
-        const val COLUMN_ID = "remote_id"
+        const val COLUMN_ID = "_id"
+        const val COLUMN_REMOTE_ID = "remote_id"
         const val COLUMN_DOMAIN = "domain"
         const val COLUMN_NAME = "name"
         const val COLUMN_TYPE = "conv_type"

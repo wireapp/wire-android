@@ -10,6 +10,8 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.LocalMinimumTouchTargetEnforcement
 import androidx.compose.material3.MaterialTheme
@@ -19,6 +21,7 @@ import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.unit.TextUnit
@@ -100,7 +103,7 @@ private fun ReactionOptions(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            listOf("❤️", "👍",  "🚀", "🤯", "😄", "🤣", "👎").forEach { emoji ->
+            listOf("❤️", "👍",  "\uD83D\uDE01", "\uD83D\uDE42", "☹️", "\uD83D\uDC4E").forEach { emoji ->
                 CompositionLocalProvider(
                     LocalMinimumTouchTargetEnforcement provides false
                 ) {
@@ -127,6 +130,19 @@ private fun ReactionOptions(
                         Text(emoji, style = TextStyle(fontSize = emojiFontSize))
                     }
                 }
+            }
+            IconButton(
+                onClick = {
+                    // TODO show more emojis
+                },
+                modifier = Modifier
+                    // TODO remove when all emojis will be available
+                    .alpha(0.1F),
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.ic_more_emojis),
+                    contentDescription = stringResource(R.string.content_description_more_emojis)
+                )
             }
         }
     }

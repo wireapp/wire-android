@@ -36,6 +36,8 @@ import com.wire.kalium.logic.data.conversation.ConversationDetails.OneOne
 import com.wire.kalium.logic.data.conversation.ConversationDetails.Self
 import com.wire.kalium.logic.data.conversation.LegalHoldStatus
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
+import com.wire.kalium.logic.data.conversation.UnreadContentCount
+import com.wire.kalium.logic.data.conversation.UnreadContentType
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
@@ -351,7 +353,7 @@ private fun ConversationDetails.toConversationItem(
             mutedStatus = conversation.mutedStatus,
             isLegalHold = legalHoldStatus.showLegalHoldIndicator(),
             lastEvent = ConversationLastEvent.None, // TODO implement unread events
-            badgeEventType = parseConversationEventType(conversation.mutedStatus, unreadMentionsCount, unreadMessagesCount),
+            badgeEventType = parseConversationEventType(conversation.mutedStatus, unreadMentionsCount, unreadContentCount),
             hasOnGoingCall = hasOngoingCall,
             isSelfUserCreator = isSelfUserCreator,
             isSelfUserMember = isSelfUserMember
@@ -377,7 +379,7 @@ private fun ConversationDetails.toConversationItem(
             badgeEventType = parsePrivateConversationEventType(
                 otherUser.connectionStatus,
                 otherUser.deleted,
-                parseConversationEventType(conversation.mutedStatus, unreadMentionsCount, unreadMessagesCount)
+                parseConversationEventType(conversation.mutedStatus, unreadMentionsCount, unreadContentCount)
             ),
             userId = otherUser.id,
             blockingState = otherUser.BlockState
@@ -424,16 +426,22 @@ private fun parsePrivateConversationEventType(connectionState: ConnectionState, 
 private fun parseConversationEventType(
     mutedStatus: MutedConversationStatus,
     unreadMentionsCount: Long,
-    unreadMessagesCount: Int
+    unreadContentCount: UnreadContentCount
 ): BadgeEventType = when (mutedStatus) {
     MutedConversationStatus.AllMuted -> BadgeEventType.None
     MutedConversationStatus.OnlyMentionsAllowed ->
         if (unreadMentionsCount > 0) BadgeEventType.UnreadMention
         else BadgeEventType.None
 
-    else -> when {
-        unreadMentionsCount > 0 -> BadgeEventType.UnreadMention
-        unreadMessagesCount > 0 -> BadgeEventType.UnreadMessage(unreadMessagesCount)
-        else -> BadgeEventType.None
+    else -> {
+        val unreadMessagesCount = unreadContentCount.values.sum()
+        when {
+//            unreadContentCount.containsKey(UnreadContentType.KNOCK) -> BadgeEventType.Knock TODO uncomment when icon will be available
+            unreadContentCount.containsKey(UnreadContentType.MISSED_CALL) -> BadgeEventType.MissedCall
+            unreadMentionsCount > 0 -> BadgeEventType.UnreadMention
+            // TODO handle replies
+            unreadMessagesCount > 0 -> BadgeEventType.UnreadMessage(unreadMessagesCount)
+            else -> BadgeEventType.None
+        }
     }
 }

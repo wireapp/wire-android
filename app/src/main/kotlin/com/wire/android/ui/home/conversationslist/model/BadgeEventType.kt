@@ -5,6 +5,7 @@ sealed class BadgeEventType {
     object UnreadMention : BadgeEventType()
     object UnreadReply : BadgeEventType()
     object MissedCall : BadgeEventType()
+    object Knock : BadgeEventType()
     object ReceivedConnectionRequest : BadgeEventType()
     object SentConnectRequest : BadgeEventType()
     object Blocked : BadgeEventType()

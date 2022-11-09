@@ -54,15 +54,15 @@ class MessageMapper @Inject constructor(
             // TODO find ugly and proper heart emoji and merge them to ugly one 😅
             val totalHeartsCount = message.reactions.totalReactions
                 .filterKeys { isHeart(it) }.values
-                .scan(0) { acc, count -> acc + count }
-                .lastOrNull()
+                .sum()
+
             val hasSelfHeart = message.reactions.selfUserReactions.any { isHeart(it) }
 
             MessageFooter(message.id,
                 message.reactions.totalReactions
                     .filter { !isHeart(it.key) }
                     .run {
-                        if (totalHeartsCount != null && totalHeartsCount != 0)
+                        if (totalHeartsCount != 0)
                             plus("❤" to totalHeartsCount)
                         else
                             this

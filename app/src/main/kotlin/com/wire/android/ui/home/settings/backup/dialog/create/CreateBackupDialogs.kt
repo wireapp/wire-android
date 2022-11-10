@@ -100,7 +100,7 @@ fun CreateBackupDialog(
         ),
         dismissButtonProperties = WireDialogButtonProperties(
             onClick = onDismissDialog,
-           text = stringResource(id = R.string.label_cancel),
+            text = stringResource(id = R.string.label_cancel),
             state = WireButtonState.Default
         ),
     ) {
@@ -112,12 +112,12 @@ fun CreateBackupDialog(
                 }
             } else {
                 Row {
-                    Text("Test", modifier = Modifier.weight(1f))
+                    Text(stringResource(id = R.string.backup_dialog_create_backup_subtitle), modifier = Modifier.weight(1f))
                     Text("${createBackupProgress.times(100).roundToInt()} %", style = MaterialTheme.wireTypography.body02)
                 }
             }
             VerticalSpace.x16()
-            LinearProgressIndicator(progress = createBackupProgress)
+            LinearProgressIndicator(modifier = Modifier.fillMaxWidth(), progress = createBackupProgress)
             VerticalSpace.x16()
         }
     }

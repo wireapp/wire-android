@@ -106,7 +106,6 @@ class BackupAndRestoreViewModel
 
     fun cancelBackupCreation() {
         state = state.copy(
-            backupPasswordValidation = PasswordValidation.NotVerified,
             backupProgress = BackupProgress.Pending,
         )
     }

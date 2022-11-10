@@ -303,8 +303,9 @@ class MediaGalleryViewModelTest {
             ),
             legalHoldStatus = LegalHoldStatus.DISABLED,
             userType = UserType.INTERNAL,
-            unreadMessagesCount = 0L,
-            lastUnreadMessage = null
+            unreadMessagesCount = 0,
+            lastUnreadMessage = null,
+            unreadContentCount = emptyMap()
         )
 
     companion object {

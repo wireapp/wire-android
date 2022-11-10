@@ -54,6 +54,7 @@ class MigrateActiveAccountsUseCase @Inject constructor(
                         serverConfigId = serverConfig.id,
                         ssoId = ssoId,
                         authTokens = authTokens,
+                        null, // uses migrated form the scala app will not have proxy
                         replace = false
                     )
                 }

@@ -3,7 +3,6 @@ package com.wire.android.ui.home
 import android.content.Intent
 import android.content.Intent.ACTION_SENDTO
 import android.net.Uri
-import android.provider.ContactsContract.CommonDataKinds.Email
 import android.os.Build
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
@@ -89,7 +88,7 @@ fun HomeDrawer(
             onCloseDrawer()
         }
 
-       val topItems = listOf(HomeNavigationItem.Conversations)
+        val topItems = listOf(HomeNavigationItem.Conversations)
         // TODO: Re-enable once we have Archive & Vault
         // listOf(HomeNavigationItem.Conversations, HomeNavigationItem.Archive, HomeNavigationItem.Vault)
 
@@ -143,8 +142,9 @@ fun HomeDrawer(
                     intent.putExtra(Intent.EXTRA_TEXT, EmailComposer.reportBugEmailTemplate(context.getDeviceId()?.sha256()))
                     intent.type = "message/rfc822"
 
-                context.startActivity(Intent.createChooser(intent, "Choose an Email client: "))
-            }}
+                    context.startActivity(Intent.createChooser(intent, context.getString(R.string.send_feedback_choose_email)))
+                }
+            }
         )
 
         Text(

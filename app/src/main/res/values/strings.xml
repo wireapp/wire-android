@@ -663,6 +663,12 @@
     <string name="backup_dialog_restore_backup_password_message">This backup is password protected.</string>
     <string name="send_feedback_choose_email">\"Choose an Email client: \"</string>
     <string name="backup_dialog_create_backup_save">Save backup</string>
+    <string name="backup_dialog_restore_incompatible_version_error_title">Incompatible Backup</string>
+    <string name="backup_dialog_restore_incompatible_version_error_message">This backup was created by a newer or outdated version of Wire and cannot be restored here.</string>
+    <string name="backup_dialog_restore_wrong_user_error_title">Wrong Backup</string>
+    <string name="backup_dialog_restore_wrong_user__error_message">You cannot restore history from a different account.</string>
+    <string name="backup_dialog_restore_general_error_title">Something Went Wrong</string>
+    <string name="backup_dialog_restore_general_error_message">Your history could not be restored. Please try again or contact the Wire customer support.</string>
 
     <string name="proxy_credential_description">This backend is configured to use the following proxy server: %1$s</string>
     <string name="label_proxy_credentials">PROXY CREDENTIALS</string>

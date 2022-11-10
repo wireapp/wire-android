@@ -27,8 +27,8 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
-import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.button.WirePrimaryButton
+import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.home.settings.backup.dialog.common.FailureDialog
 import com.wire.android.ui.home.settings.backup.dialog.create.BackUpDialogStep
@@ -300,8 +300,8 @@ fun RestoreBackupDialogFlow(
 
             is RestoreDialogStep.Failure -> {
                 FailureDialog(
-                    title = restoreDialogStep.restoreFailure.title,
-                    message = restoreDialogStep.restoreFailure.message
+                    title = stringResource(id = restoreDialogStep.restoreFailure.title),
+                    message = stringResource(id = restoreDialogStep.restoreFailure.message)
                 )
             }
         }

@@ -23,7 +23,6 @@ class BackUpAndRestoreStateHolder {
     fun dismissDialog() {
         dialogState = BackupAndRestoreDialog.None
     }
-
 }
 
 @Composable

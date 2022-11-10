@@ -1,11 +1,13 @@
 package com.wire.android.ui.home.settings.backup.dialog.restore
 
+import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Stable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import com.wire.android.R
 
 @Stable
 class RestoreDialogStateHolder {
@@ -55,11 +57,17 @@ sealed interface RestoreDialogStep {
     data class Failure(val restoreFailure: RestoreFailure) : RestoreDialogStep
 }
 
-enum class RestoreFailure(val title: String, val message: String) {
+enum class RestoreFailure(@StringRes val title: Int, @StringRes val message: Int) {
     IncompatibleBackup(
-        "Incompatible Backup",
-        "This backup was created by a newer or outdated version of Wire and cannot be restored here."
+        R.string.backup_dialog_restore_incompatible_version_error_title,
+        R.string.backup_dialog_restore_incompatible_version_error_message
     ),
-    WrongBackup("Wrong Backup", "You cannot restore history from a different account."),
-    GeneralFailure("Something Went Wrong", "Your history could not be restored. Please try again or contact the Wire customer support.")
+    WrongBackup(
+        R.string.backup_dialog_restore_wrong_user_error_title,
+        R.string.backup_dialog_restore_wrong_user__error_message
+    ),
+    GeneralFailure(
+        R.string.backup_dialog_restore_general_error_title,
+        R.string.backup_dialog_restore_general_error_message
+    )
 }

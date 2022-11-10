@@ -2,7 +2,11 @@ package com.wire.android.migration
 
 import com.wire.android.migration.globalDatabase.ScalaSsoIdEntity
 import com.wire.android.migration.userDatabase.ScalaConversationData
+import com.wire.android.migration.userDatabase.ScalaMessageData
+import com.wire.android.migration.userDatabase.ScalaUserData
 import com.wire.android.util.orDefault
+import com.wire.android.util.timestampToServerDate
+import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.Conversation.Access
 import com.wire.kalium.logic.data.conversation.Conversation.AccessRole.NON_TEAM_MEMBER
@@ -12,11 +16,15 @@ import com.wire.kalium.logic.data.conversation.Conversation.ProtocolInfo
 import com.wire.kalium.logic.data.conversation.Conversation.Type
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.TeamId
+import com.wire.kalium.logic.data.message.MigratedMessage
 import com.wire.kalium.logic.data.user.SsoId
+import com.wire.kalium.logic.data.user.UserId
 import java.time.LocalDateTime
 import javax.inject.Inject
 import javax.inject.Singleton
+
 @Suppress("MagicNumber")
 @Singleton
 class MigrationMapper @Inject constructor() {
@@ -28,10 +36,13 @@ class MigrationMapper @Inject constructor() {
         )
     }
 
+    private fun toConversationId(remoteId: String, domain: String?): ConversationId =
+        ConversationId(remoteId, domain.orDefault(QualifiedID.WIRE_PRODUCTION_DOMAIN))
+
     fun fromScalaConversationToConversation(scalaConversation: ScalaConversationData) = with(scalaConversation) {
         mapConversationType(type)?.let {
             Conversation(
-                id = ConversationId(remoteId, domain.orDefault("wire.com")),
+                id = toConversationId(remoteId, domain),
                 name = name,
                 type = it,
                 teamId = scalaConversation.teamId?.let { teamId -> TeamId(teamId) },
@@ -47,6 +58,16 @@ class MigrationMapper @Inject constructor() {
             )
         }
     }
+
+    fun fromScalaMessageToMessage(scalaMessage: ScalaMessageData, scalaSenderUserData: ScalaUserData) =
+        MigratedMessage(
+            conversationId = toConversationId(scalaMessage.conversationRemoteId, scalaMessage.conversationDomain),
+            senderUserId = UserId(scalaSenderUserData.id, scalaSenderUserData.domain.orDefault(QualifiedID.WIRE_PRODUCTION_DOMAIN)),
+            senderClientId = ClientId(scalaMessage.senderClientId.orEmpty()),
+            timestampIso = scalaMessage.time.timestampToServerDate().orEmpty(),
+            content = scalaMessage.content.orEmpty(),
+            encryptedProto = scalaMessage.proto
+        )
 
     private fun mapAccess(access: String): List<Access> {
         val accessList = access.removeSurrounding("[", "]").replace("\"", "").split(",").map { it.trim() }

@@ -45,3 +45,10 @@ fun String.uiMessageDateTime(): String? = this
     }
 
 fun getCurrentParsedDateTime(): String = mediumDateTimeFormat.format(System.currentTimeMillis())
+
+fun Long.timestampToServerDate(): String? = try {
+    serverDateTimeFormat.format(Date(this))
+} catch (e: ParseException) {
+    appLogger.e("There was an error parsing the timestamp")
+    null
+}

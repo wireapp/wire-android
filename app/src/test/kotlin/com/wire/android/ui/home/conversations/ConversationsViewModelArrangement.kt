@@ -221,8 +221,9 @@ internal fun withMockConversationDetailsOneOnOne(
     },
     legalHoldStatus = LegalHoldStatus.DISABLED,
     userType = UserType.INTERNAL,
-    unreadMessagesCount = 0L,
-    lastUnreadMessage = null
+    unreadMessagesCount = 0,
+    lastUnreadMessage = null,
+    unreadContentCount = emptyMap()
 )
 
 internal fun mockConversationDetailsGroup(
@@ -239,7 +240,8 @@ internal fun mockConversationDetailsGroup(
     unreadMessagesCount = 0,
     lastUnreadMessage = null,
     isSelfUserCreator = true,
-    isSelfUserMember = true
+    isSelfUserMember = true,
+    unreadContentCount = emptyMap()
 )
 
 internal fun mockUITextMessage(id: String = "someId", userName: String = "mockUserName"): UIMessage {

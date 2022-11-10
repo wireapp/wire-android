@@ -91,12 +91,7 @@ fun GroupNameScreen(
                             onValueChange = onGroupNameChange,
                             placeholderText = stringResource(R.string.group_name),
                             labelText = stringResource(R.string.group_name).uppercase(),
-                            state = if (error is GroupMetadataState.NewGroupError.TextFieldError) when (error) {
-                                GroupMetadataState.NewGroupError.TextFieldError.GroupNameEmptyError ->
-                                    WireTextFieldState.Error(stringResource(id = R.string.empty_group_name_error))
-                                GroupMetadataState.NewGroupError.TextFieldError.GroupNameExceedLimitError ->
-                                    WireTextFieldState.Error(stringResource(id = R.string.group_name_exceeded_limit_error))
-                            } else WireTextFieldState.Default,
+                            state = computeGroupMetadataState(error),
                             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Text, imeAction = ImeAction.Done),
                             keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
                             modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
@@ -138,3 +133,14 @@ fun GroupNameScreen(
         }
     }
 }
+
+@Composable
+private fun computeGroupMetadataState(error: GroupMetadataState.NewGroupError) =
+    if (error is GroupMetadataState.NewGroupError.TextFieldError) when (error) {
+        GroupMetadataState.NewGroupError.TextFieldError.GroupNameEmptyError ->
+            WireTextFieldState.Error(stringResource(id = R.string.empty_group_name_error))
+        GroupMetadataState.NewGroupError.TextFieldError.GroupNameExceedLimitError ->
+            WireTextFieldState.Error(stringResource(id = R.string.group_name_exceeded_limit_error))
+    } else {
+        WireTextFieldState.Default
+    }

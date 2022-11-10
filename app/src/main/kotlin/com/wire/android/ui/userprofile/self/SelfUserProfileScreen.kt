@@ -6,10 +6,8 @@ import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.gestures.Orientation
 import androidx.compose.foundation.gestures.scrollable
-import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -18,7 +16,6 @@ import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -29,7 +26,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.res.stringResource
@@ -42,11 +38,12 @@ import com.wire.android.ui.common.ArrowRightIcon
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.UserStatusIndicator
+import com.wire.android.ui.common.WireDropDown
 import com.wire.android.ui.common.button.WireButtonState
+import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
-import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
@@ -256,82 +253,35 @@ private fun CurrentSelfUserStatus(
     userStatus: UserAvailabilityStatus,
     onStatusClicked: (UserAvailabilityStatus) -> Unit
 ) {
-    val minButtonWeight = 4F
-    Row(
-        horizontalArrangement = Arrangement.Center,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(dimensions().spacing16x),
-    ) {
-        ProfileStatusButton(
-            userStatus = UserAvailabilityStatus.AVAILABLE,
-            modifier = Modifier.weight(weight = minButtonWeight + stringResource(R.string.user_profile_status_available).length.toFloat()),
-            onClick = { status -> onStatusClicked(status) },
-            text = stringResource(R.string.user_profile_status_available),
-            currentStatus = userStatus,
-            shape = RoundedCornerShape(
-                topStart = dimensions().corner16x,
-                bottomStart = dimensions().corner16x
-            ),
-        )
-        ProfileStatusButton(
-            userStatus = UserAvailabilityStatus.BUSY,
-            modifier = Modifier.weight(weight = minButtonWeight + stringResource(R.string.user_profile_status_busy).length.toFloat()),
-            onClick = { status -> onStatusClicked(status) },
-            text = stringResource(R.string.user_profile_status_busy),
-            currentStatus = userStatus,
-        )
-        ProfileStatusButton(
-            userStatus = UserAvailabilityStatus.AWAY,
-            modifier = Modifier.weight(weight = minButtonWeight + stringResource(R.string.user_profile_status_away).length.toFloat()),
-            onClick = { status -> onStatusClicked(status) },
-            text = stringResource(R.string.user_profile_status_away),
-            currentStatus = userStatus,
-        )
-        ProfileStatusButton(
-            userStatus = UserAvailabilityStatus.NONE,
-            modifier = Modifier.weight(weight = minButtonWeight + stringResource(R.string.user_profile_status_none).length.toFloat()),
-            onClick = { status -> onStatusClicked(status) },
-            text = stringResource(R.string.user_profile_status_none),
-            currentStatus = userStatus,
-            shape = RoundedCornerShape(
-                topEnd = dimensions().corner16x,
-                bottomEnd = dimensions().corner16x
-            ),
-        )
-    }
-}
-
-@Composable
-private fun ProfileStatusButton(
-    onClick: (UserAvailabilityStatus) -> Unit,
-    userStatus: UserAvailabilityStatus,
-    currentStatus: UserAvailabilityStatus,
-    text: String,
-    shape: Shape = RoundedCornerShape(0.dp),
-    modifier: Modifier = Modifier,
-) {
-    WireSecondaryButton(
-        onClick = { onClick(userStatus) },
-        text = text,
-        fillMaxWidth = true,
-        contentPadding = PaddingValues(
-            vertical = MaterialTheme.wireDimensions.buttonVerticalContentPadding
-        ),
-        minHeight = dimensions().userProfileStatusBtnHeight,
-        state = if (currentStatus == userStatus) WireButtonState.Selected else WireButtonState.Default,
-        shape = shape,
-        leadingIcon = {
-            UserStatusIndicator(
-                status = userStatus,
-                modifier = Modifier
-                    .padding(end = dimensions().spacing4x)
-                    .testTag(text)
-            )
-        },
-        blockUntilSynced = true,
-        modifier = modifier,
+    val items = listOf(
+        UserAvailabilityStatus.AVAILABLE,
+        UserAvailabilityStatus.BUSY,
+        UserAvailabilityStatus.AWAY,
+        UserAvailabilityStatus.NONE
     )
+
+    Column(modifier = Modifier.fillMaxWidth()) {
+        FolderHeader("Availability")
+
+        WireDropDown(
+            items = items.map {
+                when (it) {
+                    UserAvailabilityStatus.AVAILABLE -> stringResource(R.string.user_profile_status_available)
+                    UserAvailabilityStatus.BUSY -> stringResource(R.string.user_profile_status_busy)
+                    UserAvailabilityStatus.AWAY -> stringResource(R.string.user_profile_status_away)
+                    UserAvailabilityStatus.NONE -> stringResource(R.string.user_profile_status_none)
+                }
+            },
+            defaultItemIndex = items.indexOf(userStatus),
+            label = null,
+            modifier = Modifier.padding(MaterialTheme.wireDimensions.spacing16x),
+            autoUpdateSelection = false,
+            showDefaultTextIndicator = false,
+            leadingCompose = { index -> UserStatusIndicator(items[index]) }
+        ) { selectedIndex ->
+            onStatusClicked(items[selectedIndex])
+        }
+    }
 }
 
 @Composable

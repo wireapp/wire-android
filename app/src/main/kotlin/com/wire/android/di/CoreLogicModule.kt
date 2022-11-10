@@ -784,12 +784,11 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-<<<<<<< HEAD
     fun provideImportBackupUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).importBackup
 
-=======
+    @ViewModelScoped
+    @Provides
     fun provideIsEligibleToStartCall(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).calls.isEligibleToStartCall
->>>>>>> develop
 }

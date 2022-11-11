@@ -24,6 +24,8 @@ class ScalaUserDatabaseProvider @Inject constructor(
 
     fun clientDAO(userId: UserId): ScalaClientDAO? = db(userId)?.let { ScalaClientDAO(it) }
     fun conversationDAO(userId: UserId): ScalaConversationDAO? = db(userId)?.let { ScalaConversationDAO(it) }
+    fun messageDAO(userId: UserId): ScalaMessageDAO? = db(userId)?.let { ScalaMessageDAO(it) }
+    fun userDAO(userId: UserId): ScalaUserDAO? = db(userId)?.let { ScalaUserDAO(it) }
 }
 
 typealias ScalaUserDatabase = SQLiteDatabase

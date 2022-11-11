@@ -3,7 +3,6 @@ package com.wire.android.ui.home
 import android.content.Intent
 import android.content.Intent.ACTION_SENDTO
 import android.net.Uri
-import android.provider.ContactsContract.CommonDataKinds.Email
 import android.os.Build
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
@@ -89,7 +88,7 @@ fun HomeDrawer(
             onCloseDrawer()
         }
 
-       val topItems = listOf(HomeNavigationItem.Conversations)
+        val topItems = listOf(HomeNavigationItem.Conversations)
         // TODO: Re-enable once we have Archive & Vault
         // listOf(HomeNavigationItem.Conversations, HomeNavigationItem.Archive, HomeNavigationItem.Vault)
 
@@ -120,14 +119,13 @@ fun HomeDrawer(
             data = DrawerItemData(R.string.give_feedback_screen_title, R.drawable.ic_emoticon),
             selected = false,
             onItemClick = {
-
                 val intent = Intent(Intent.ACTION_SEND)
                 intent.putExtra(Intent.EXTRA_EMAIL, arrayOf("wire-newandroid-feedback@wearezeta.zendesk.com"))
                 intent.putExtra(Intent.EXTRA_SUBJECT, "Feedback - Wire Beta")
                 intent.putExtra(Intent.EXTRA_TEXT, EmailComposer.giveFeedbackEmailTemplate(context.getDeviceId()?.sha256()))
 
                 intent.selector = Intent(ACTION_SENDTO).setData(Uri.parse("mailto:"))
-                context.startActivity(Intent.createChooser(intent,"Choose an Email client: "))
+                context.startActivity(Intent.createChooser(intent, context.getString(R.string.send_feedback_choose_email)))
             })
 
         DrawerItem(
@@ -144,7 +142,7 @@ fun HomeDrawer(
                     intent.putExtra(Intent.EXTRA_TEXT, EmailComposer.reportBugEmailTemplate(context.getDeviceId()?.sha256()))
                     intent.type = "message/rfc822"
 
-                    context.startActivity(Intent.createChooser(intent, "Choose an Email client: "))
+                    context.startActivity(Intent.createChooser(intent, context.getString(R.string.send_feedback_choose_email)))
                 }
             }
         )

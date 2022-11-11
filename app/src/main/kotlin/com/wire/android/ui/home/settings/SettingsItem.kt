@@ -31,7 +31,6 @@ enum class SettingsItem(val id: String, val title: UIText, val navigationItem: N
         title = UIText.StringResource(R.string.settings_manage_devices_label),
         navigationItem = NavigationItem.SelfDevices
     ),
-
     BackupAndRestore(
         id = "backups_backup_and_restore",
         title = UIText.StringResource(R.string.backup_and_restore_screen_title),

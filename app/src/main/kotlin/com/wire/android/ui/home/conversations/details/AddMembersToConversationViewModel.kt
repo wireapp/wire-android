@@ -85,6 +85,7 @@ class AddMembersToConversationViewModel @Inject constructor(
             when (result) {
                 is Result.Failure -> SearchResult.Failure(R.string.label_general_error)
                 is Result.Success -> SearchResult.Success(result.contactsNotInConversation.map(contactMapper::fromOtherUser))
+                else -> SearchResult.Failure(R.string.label_general_error)
             }
         }
 

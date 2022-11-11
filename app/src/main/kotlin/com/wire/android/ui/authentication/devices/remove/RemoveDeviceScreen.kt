@@ -91,6 +91,7 @@ private fun RemoveDeviceContent(
             )
             if (state.error is RemoveDeviceError.GenericError) {
                 val (title, message) = state.error.coreFailure.dialogErrorStrings(LocalContext.current.resources)
+
                 WireDialog(
                     title = title,
                     text = message,

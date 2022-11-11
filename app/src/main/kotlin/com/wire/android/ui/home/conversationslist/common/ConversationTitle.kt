@@ -27,7 +27,7 @@ fun ConversationTitle(
         verticalAlignment = Alignment.CenterVertically,
         modifier = modifier
     ) {
-        if(searchQuery.isEmpty()) {
+        if (searchQuery.isEmpty()) {
             Text(
                 text = name,
                 style = MaterialTheme.wireTypography.body02,
@@ -35,7 +35,7 @@ fun ConversationTitle(
                 maxLines = 1,
                 modifier = Modifier.weight(weight = 1f, fill = false)
             )
-        }else{
+        } else {
             HighlightName(name = name, searchQuery = searchQuery)
         }
         badges()

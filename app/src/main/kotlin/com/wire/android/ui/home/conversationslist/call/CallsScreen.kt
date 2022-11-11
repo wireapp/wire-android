@@ -1,4 +1,4 @@
-package com.wire.android.ui.home.conversationslist
+package com.wire.android.ui.home.conversationslist.call
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import com.wire.android.R
 import com.wire.android.ui.home.conversationslist.common.ConversationItemFactory
+import com.wire.android.ui.home.conversationslist.folderWithElements
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
@@ -38,7 +39,6 @@ fun CallsScreen(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun CallContent(
     lazyListState: LazyListState,
@@ -66,7 +66,7 @@ fun CallContent(
                 openUserProfile = onOpenUserProfile,
                 openNotificationsOptions = openConversationNotificationsSettings,
                 joinCall = onJoinCall,
-                searchQuery = "test"
+                searchQuery = ""
             )
         }
 
@@ -81,7 +81,7 @@ fun CallContent(
                 openUserProfile = onOpenUserProfile,
                 openNotificationsOptions = openConversationNotificationsSettings,
                 joinCall = onJoinCall,
-                searchQuery = "test"
+                searchQuery = " "
             )
         }
     }

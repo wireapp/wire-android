@@ -16,8 +16,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
@@ -63,13 +65,13 @@ import okio.Path
 
 @Composable
 fun MessageComposer(
+    messageComposerState: MessageComposerInnerState,
     keyboardHeight: KeyboardHeight,
     content: @Composable () -> Unit,
     onSendTextMessage: (String, List<UiMention>) -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onMentionMember: (String?) -> Unit,
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
-    onMessageComposerInputStateChange: (MessageComposerStateTransition) -> Unit,
     isFileSharingEnabled: Boolean,
     interactionAvailability: InteractionAvailability,
     tempCachePath: Path,
@@ -77,10 +79,7 @@ fun MessageComposer(
     membersToMention: List<Contact>
 ) {
     BoxWithConstraints {
-        val messageComposerState = rememberMessageComposerInnerState(
-            fullScreenHeight = with(LocalDensity.current) { constraints.maxHeight.toDp() },
-            onMessageComposeInputStateChanged = onMessageComposerInputStateChange
-        )
+        messageComposerState.fullScreenHeight = with(LocalDensity.current) { constraints.maxHeight.toDp() }
 
         val onSendButtonClicked = remember {
             {
@@ -270,6 +269,9 @@ private fun MessageComposer(
                                 }
                                 Divider()
                                 CollapseIconButtonBox(transition, messageComposerState)
+                                if (messageComposerState.isReplying) {
+                                    ReplyMessage()
+                                }
                                 // Row wrapping the AdditionalOptionButton() when we are in Enabled state and MessageComposerInput()
                                 // when we are in the Fullscreen state, we want to align the TextField to Top of the Row,
                                 // when other we center it vertically. Once we go to Fullscreen, we set the weight to 1f
@@ -324,6 +326,16 @@ private fun MessageComposer(
             }
         }
     }
+}
+
+@Composable
+fun ReplyMessage() {
+    Box(
+        Modifier
+            .width(256.dp)
+            .height(256.dp)
+            .background(Color.Red)
+    )
 }
 
 @ExperimentalAnimationApi

@@ -14,6 +14,7 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.wire.android.appLogger
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
@@ -41,8 +42,6 @@ import java.util.UUID
 
 @Composable
 fun rememberMessageComposerInnerState(
-    fullScreenHeight: Dp,
-    onMessageComposeInputStateChanged: (MessageComposerStateTransition) -> Unit
 ): MessageComposerInnerState {
     val defaultAttachmentInnerState = AttachmentInnerState(LocalContext.current)
 
@@ -53,24 +52,22 @@ fun rememberMessageComposerInnerState(
 
     return remember {
         MessageComposerInnerState(
-            fullScreenHeight = fullScreenHeight,
             attachmentInnerState = defaultAttachmentInnerState,
-            onMessageComposeInputStateChanged = onMessageComposeInputStateChanged,
             mentionSpanStyle = mentionSpanStyle
         )
     }
 }
 
 data class MessageComposerInnerState(
-    val fullScreenHeight: Dp,
     val attachmentInnerState: AttachmentInnerState,
-    private val onMessageComposeInputStateChanged: (MessageComposerStateTransition) -> Unit,
     private val mentionSpanStyle: SpanStyle
 ) {
 
-    var hasFocus by mutableStateOf(false)
+    var fullScreenHeight: Dp by mutableStateOf(0.0.dp)
 
-    var isKeyboardShown by mutableStateOf(false)
+    var isReplying by mutableStateOf(false)
+
+    var hasFocus by mutableStateOf(false)
 
     var messageText by mutableStateOf(TextFieldValue(""))
         private set
@@ -140,12 +137,6 @@ data class MessageComposerInnerState(
     }
 
     private fun toEnabled() {
-        onMessageComposeInputStateChanged(
-            MessageComposerStateTransition(
-                from = messageComposeInputState,
-                to = MessageComposeInputState.Enabled
-            )
-        )
         messageComposeInputState = MessageComposeInputState.Enabled
     }
 
@@ -156,13 +147,6 @@ data class MessageComposerInnerState(
     }
 
     fun toActive() {
-        onMessageComposeInputStateChanged(
-            MessageComposerStateTransition(
-                from = messageComposeInputState,
-                to = MessageComposeInputState.Active
-            )
-        )
-
         hasFocus = true
         attachmentOptionsDisplayed = false
         messageComposeInputState = MessageComposeInputState.Active
@@ -171,13 +155,6 @@ data class MessageComposerInnerState(
     fun toggleFullScreen() {
         val newState = if (messageComposeInputState == MessageComposeInputState.Active)
             MessageComposeInputState.FullScreen else MessageComposeInputState.Active
-
-        onMessageComposeInputStateChanged(
-            MessageComposerStateTransition(
-                from = messageComposeInputState,
-                to = newState
-            )
-        )
 
         messageComposeInputState = newState
     }
@@ -273,6 +250,7 @@ private fun TextFieldValue.currentMentionStartIndex(): Int {
     return when {
         (lastIndexOfAt <= 0) ||
                 (text[lastIndexOfAt - 1].toString() in listOf(String.WHITE_SPACE, String.NEW_LINE_SYMBOL)) -> lastIndexOfAt
+
         else -> -1
     }
 }

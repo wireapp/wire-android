@@ -37,6 +37,7 @@ fun EditMessageMenuItems(
     onCopyMessage: () -> Unit,
     onDeleteMessage: () -> Unit,
     onReactionClick: (emoji: String) -> Unit,
+    onReply: () -> Unit
 ): List<@Composable () -> Unit> {
     return buildList {
         add { ReactionOptions(onReactionClick) }
@@ -78,6 +79,20 @@ fun EditMessageMenuItems(
                     },
                     title = stringResource(R.string.label_delete),
                     onItemClick = onDeleteMessage
+                )
+            }
+        }
+        add {
+            CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.error) {
+                MenuBottomSheetItem(
+                    icon = {
+                        MenuItemIcon(
+                            id = R.drawable.ic_speaker_on,
+                            contentDescription = stringResource(R.string.content_description_delete_the_message),
+                        )
+                    },
+                    title = "Reply",
+                    onItemClick = onReply
                 )
             }
         }

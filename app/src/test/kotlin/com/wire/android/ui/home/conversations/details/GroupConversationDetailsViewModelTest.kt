@@ -47,7 +47,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
 class GroupConversationDetailsViewModelTest {
-
     @Test
     fun `given a group conversation, when solving the conversation name, then the name of the conversation is used`() = runTest {
         // Given
@@ -413,10 +412,11 @@ class GroupConversationDetailsViewModelTest {
             ),
             legalHoldStatus = LegalHoldStatus.DISABLED,
             hasOngoingCall = false,
-            unreadMessagesCount = 0L,
+            unreadMessagesCount = 0,
             lastUnreadMessage = null,
             isSelfUserCreator = false,
-            isSelfUserMember = true
+            isSelfUserMember = true,
+            unreadContentCount = emptyMap()
         )
     }
 }

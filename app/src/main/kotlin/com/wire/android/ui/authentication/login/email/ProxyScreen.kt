@@ -41,7 +41,7 @@ fun ProxyScreen() {
     val proxyState: LoginState = loginEmailViewModel.loginState
     ProxyContent(
         proxyState = proxyState,
-        apiProxyUrl = loginEmailViewModel.serverConfig.proxy?.proxyApi,
+        apiProxyUrl = loginEmailViewModel.serverConfig.apiProxy?.host,
         onProxyIdentifierChange = { loginEmailViewModel.onProxyIdentifierChange(it) },
         onProxyPasswordChange = { loginEmailViewModel.onProxyPasswordChange(it) },
     )

@@ -343,7 +343,7 @@ class LoginSSOViewModelTest {
                 website = "https://server-websiteUrl.de",
                 title = "server-title",
                 false,
-                proxy = null
+                apiProxy = null
             ),
             metaData = ServerConfig.MetaData(
                 commonApiVersion = CommonApiVersionType.Valid(1),

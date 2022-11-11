@@ -25,6 +25,7 @@ import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.Divider
 import androidx.compose.material.Surface
+import androidx.compose.material.Text
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -270,7 +271,7 @@ private fun MessageComposer(
                                 Divider()
                                 CollapseIconButtonBox(transition, messageComposerState)
                                 if (messageComposerState.isReplying) {
-                                    ReplyMessage()
+                                    ReplyMessage(messageComposerState.replyText)
                                 }
                                 // Row wrapping the AdditionalOptionButton() when we are in Enabled state and MessageComposerInput()
                                 // when we are in the Fullscreen state, we want to align the TextField to Top of the Row,
@@ -329,13 +330,15 @@ private fun MessageComposer(
 }
 
 @Composable
-fun ReplyMessage() {
+fun ReplyMessage(replyText: String) {
     Box(
         Modifier
             .width(256.dp)
             .height(256.dp)
             .background(Color.Red)
-    )
+    ) {
+        Text(replyText)
+    }
 }
 
 @ExperimentalAnimationApi

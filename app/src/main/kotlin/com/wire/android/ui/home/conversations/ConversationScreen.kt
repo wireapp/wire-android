@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
 import androidx.compose.material.ExperimentalMaterialApi
-import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarResult
@@ -70,7 +69,6 @@ import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.messagecomposer.KeyboardHeight
 import com.wire.android.ui.home.messagecomposer.MessageComposer
 import com.wire.android.ui.home.messagecomposer.MessageComposerInnerState
-import com.wire.android.ui.home.messagecomposer.MessageComposerStateTransition
 import com.wire.android.ui.home.messagecomposer.UiMention
 import com.wire.android.ui.home.messagecomposer.rememberMessageComposerInnerState
 import com.wire.android.ui.home.newconversation.model.Contact
@@ -291,6 +289,8 @@ private fun ConversationScreen(
 
     val localFeatureVisibilityFlags = LocalFeatureVisibilityFlags.current
 
+    val context = LocalContext.current
+
     MenuModalSheetLayout(
         sheetState = conversationScreenState.modalBottomSheetState,
         coroutineScope = conversationScreenState.coroutineScope,
@@ -301,8 +301,14 @@ private fun ConversationScreen(
             onDeleteMessage = menuModalOnDeleteMessage,
             onReactionClick = menuModalOnReactionClick,
             onReply = {
-                messageComposerInnerState.isReplying = true
-                conversationScreenState.hideEditContextMenu()
+                conversationScreenState.selectedMessage?.let {
+                    if (it.messageContent is UIMessageContent.TextMessage) {
+                        messageComposerInnerState.reply(
+                            it.messageContent.messageBody.message.asString(context.resources)
+                        )
+                        conversationScreenState.hideEditContextMenu()
+                    }
+                }
             }
         )
     ) {

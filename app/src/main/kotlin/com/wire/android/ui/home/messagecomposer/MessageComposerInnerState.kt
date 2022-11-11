@@ -72,6 +72,9 @@ data class MessageComposerInnerState(
     var messageText by mutableStateOf(TextFieldValue(""))
         private set
 
+    var replyText by mutableStateOf("")
+        private set
+
     private val _mentionQueryFlowState: MutableStateFlow<String?> = MutableStateFlow(null)
     val mentionQueryFlowState: StateFlow<String?> = _mentionQueryFlowState
 
@@ -240,6 +243,11 @@ data class MessageComposerInnerState(
         } else {
             _mentionQueryFlowState.value = null
         }
+    }
+
+    fun reply(selectedMessage: String) {
+        isReplying = true
+        replyText = selectedMessage
     }
 
 }

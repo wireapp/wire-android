@@ -330,7 +330,8 @@ private fun OtherAccountItem(
             Row(verticalAlignment = Alignment.CenterVertically) {
                 HighlightName(
                     name = account.fullName,
-                    modifier = Modifier.weight(weight = 1f, fill = false)
+                    modifier = Modifier.weight(weight = 1f, fill = false),
+                    searchQuery = ""
                 )
             }
 

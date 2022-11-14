@@ -410,6 +410,7 @@ const val EXTRA_MESSAGE_TO_DELETE_IS_SELF = "extra_message_to_delete_is_self"
 
 const val EXTRA_CONNECTION_IGNORED_USER_NAME = "extra_connection_ignored_user_name"
 const val EXTRA_GROUP_DELETED_NAME = "extra_group_deleted_name"
+const val EXTRA_GROUP_NAME_CHANGED = "extra_group_name_changed"
 const val EXTRA_LEFT_GROUP = "extra_left_group"
 
 const val EXTRA_BACK_NAVIGATION_ARGUMENTS = "extra_back_navigation_arguments"

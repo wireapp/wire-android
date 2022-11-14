@@ -5,15 +5,16 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.appLogger
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
+import com.wire.android.navigation.EXTRA_GROUP_NAME_CHANGED
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.common.groupname.GroupMetadataState
 import com.wire.android.ui.common.groupname.GroupNameMode
 import com.wire.android.ui.common.groupname.GroupNameValidator
+import com.wire.android.ui.home.conversations.details.GroupDetailsBaseViewModel
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.android.util.uiText
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
@@ -39,7 +40,7 @@ class EditConversationMetadataViewModel @Inject constructor(
     private val renameConversation: RenameConversationUseCase,
     savedStateHandle: SavedStateHandle,
     qualifiedIdMapper: QualifiedIdMapper
-) : ViewModel() {
+) : GroupDetailsBaseViewModel() {
 
     private val conversationId: QualifiedID = qualifiedIdMapper.fromStringToQualifiedID(
         savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!
@@ -78,14 +79,16 @@ class EditConversationMetadataViewModel @Inject constructor(
 
     fun saveNewGroupName() {
         viewModelScope.launch {
-            when (withContext(dispatcher.io()) { renameConversation(conversationId, editConversationState.groupName.text) }) {
-                is RenamingResult.Failure -> appLogger.e("Failure changing name for conversation")
-                is RenamingResult.Success -> navigateBack()
+            when (val result = withContext(dispatcher.io()) { renameConversation(conversationId, editConversationState.groupName.text) }) {
+                is RenamingResult.Failure -> showSnackBarMessage(result.coreFailure.uiText())
+                is RenamingResult.Success -> navigateBack(mapOf(EXTRA_GROUP_NAME_CHANGED to true))
             }
         }
     }
 
-    fun navigateBack() {
-        viewModelScope.launch { navigationManager.navigateBack() }
+    fun navigateBack(args: Map<String, Any> = mapOf()) {
+        viewModelScope.launch {
+            navigationManager.navigateBack(args)
+        }
     }
 }

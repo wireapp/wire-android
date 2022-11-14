@@ -67,7 +67,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
     private val deleteTeamConversation: DeleteTeamConversationUseCase,
     private val removeMemberFromConversation: RemoveMemberFromConversationUseCase,
     private val updateConversationMutedStatus: UpdateConversationMutedStatusUseCase,
-    savedStateHandle: SavedStateHandle,
+    private val savedStateHandle: SavedStateHandle,
     qualifiedIdMapper: QualifiedIdMapper
 ) : GroupConversationParticipantsViewModel(
     savedStateHandle,
@@ -350,6 +350,16 @@ class GroupConversationDetailsViewModel @Inject constructor(
             )
         }
     }
+
+//    suspend fun checkForPendingMessages() {
+//        with(savedStateHandle) {
+//            when (getBackNavArg<Boolean>(EXTRA_GROUP_NAME_CHANGED)) {
+//                true -> showSnackBarMessage("hola".toUIText())
+//                false -> showSnackBarMessage("nooo".toUIText())
+//                else -> showSnackBarMessage("null ?".toUIText())
+//            }
+//        }
+//    }
 
     companion object {
         const val MAX_NUMBER_OF_PARTICIPANTS = 4

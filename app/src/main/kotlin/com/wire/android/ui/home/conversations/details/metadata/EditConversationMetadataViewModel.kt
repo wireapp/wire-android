@@ -38,7 +38,7 @@ class EditConversationMetadataViewModel @Inject constructor(
     private val dispatcher: DispatcherProvider,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val renameConversation: RenameConversationUseCase,
-    savedStateHandle: SavedStateHandle,
+    val savedStateHandle: SavedStateHandle,
     qualifiedIdMapper: QualifiedIdMapper
 ) : GroupDetailsBaseViewModel() {
 
@@ -86,9 +86,7 @@ class EditConversationMetadataViewModel @Inject constructor(
         }
     }
 
-    fun navigateBack(args: Map<String, Any> = mapOf()) {
-        viewModelScope.launch {
-            navigationManager.navigateBack(args)
-        }
+    fun navigateBack(args: Map<String, Boolean> = mapOf()) {
+        viewModelScope.launch { navigationManager.navigateBack(args) }
     }
 }

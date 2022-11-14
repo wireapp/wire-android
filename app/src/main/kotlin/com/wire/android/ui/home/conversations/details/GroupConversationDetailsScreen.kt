@@ -38,10 +38,13 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
 import com.wire.android.R
+import com.wire.android.appLogger
 import com.wire.android.ui.common.MoreOptionIcon
 import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireTabRow
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
+import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
+import com.wire.android.ui.common.bottomsheet.conversation.rememberConversationSheetState
 import com.wire.android.ui.common.calculateCurrentTab
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topBarElevation
@@ -55,8 +58,6 @@ import com.wire.android.ui.home.conversations.details.options.GroupConversationO
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipants
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipantsState
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
-import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
-import com.wire.android.ui.common.bottomsheet.conversation.rememberConversationSheetState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
@@ -76,13 +77,14 @@ fun GroupConversationDetailsScreen(viewModel: GroupConversationDetailsViewModel 
         onBackPressed = viewModel::navigateBack,
         openFullListPressed = viewModel::navigateToFullParticipantsList,
         onProfilePressed = viewModel::openProfile,
-        onAddParticipantsPressed = viewModel::navigateToAddParticants,
+        onAddParticipantsPressed = viewModel::navigateToAddParticipants,
         groupParticipantsState = viewModel.groupParticipantsState,
         onLeaveGroup = viewModel::leaveGroup,
         onDeleteGroup = viewModel::deleteGroup,
         isLoading = viewModel.requestInProgress,
         messages = viewModel.snackBarMessage,
-        context = context
+        context = context,
+        checkPendingMessages = viewModel::checkForPendingMessages
     )
 }
 
@@ -107,7 +109,8 @@ private fun GroupConversationDetailsContent(
     groupParticipantsState: GroupConversationParticipantsState,
     isLoading: Boolean,
     messages: SharedFlow<UIText>,
-    context: Context = LocalContext.current
+    context: Context = LocalContext.current,
+    checkPendingMessages: suspend () -> Unit = {}
 ) {
     val scope = rememberCoroutineScope()
     val lazyListStates: List<LazyListState> = GroupConversationDetailsTabItem.values().map { rememberLazyListState() }
@@ -128,6 +131,11 @@ private fun GroupConversationDetailsContent(
     val leaveGroupDialogState = rememberVisibilityState<GroupDialogState>()
 
     val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(Unit) {
+        checkPendingMessages()
+    }
+
     LaunchedEffect(Unit) {
         messages.collect {
             closeBottomSheet()

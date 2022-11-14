@@ -9,10 +9,12 @@ import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.EXTRA_GROUP_DELETED_NAME
+import com.wire.android.navigation.EXTRA_GROUP_NAME_CHANGED
 import com.wire.android.navigation.EXTRA_LEFT_GROUP
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.navigation.getBackNavArg
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetail
 import com.wire.android.ui.home.conversations.details.menu.GroupConversationDetailsBottomSheetEventsHandler
@@ -22,6 +24,7 @@ import com.wire.android.ui.home.conversations.details.participants.usecase.Obser
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
+import com.wire.android.util.ui.toUIText
 import com.wire.android.util.uiText
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.conversation.ConversationDetails
@@ -302,7 +305,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
         )
     }
 
-    fun navigateToAddParticants() = viewModelScope.launch {
+    fun navigateToAddParticipants() = viewModelScope.launch {
         navigationManager.navigate(
             command = NavigationCommand(
                 destination = NavigationItem.AddConversationParticipants.getRouteWithArgs(listOf(conversationId))
@@ -351,15 +354,15 @@ class GroupConversationDetailsViewModel @Inject constructor(
         }
     }
 
-//    suspend fun checkForPendingMessages() {
-//        with(savedStateHandle) {
-//            when (getBackNavArg<Boolean>(EXTRA_GROUP_NAME_CHANGED)) {
-//                true -> showSnackBarMessage("hola".toUIText())
-//                false -> showSnackBarMessage("nooo".toUIText())
-//                else -> showSnackBarMessage("null ?".toUIText())
-//            }
-//        }
-//    }
+    suspend fun checkForPendingMessages() {
+        with(savedStateHandle) {
+            when (getBackNavArg<Boolean>(EXTRA_GROUP_NAME_CHANGED)) {
+                true -> showSnackBarMessage("hola".toUIText())
+                false -> showSnackBarMessage("nooo".toUIText())
+                else -> showSnackBarMessage("null ?".toUIText())
+            }
+        }
+    }
 
     companion object {
         const val MAX_NUMBER_OF_PARTICIPANTS = 4

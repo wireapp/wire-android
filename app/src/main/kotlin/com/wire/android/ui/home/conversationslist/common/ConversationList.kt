@@ -22,6 +22,7 @@ import kotlinx.collections.immutable.ImmutableMap
 fun ConversationList(
     lazyListState: LazyListState = rememberLazyListState(),
     conversationListItems: ImmutableMap<ConversationFolder, List<ConversationItem>>,
+    searchQuery: String,
     onOpenConversation: (ConversationId) -> Unit,
     onEditConversation: (ConversationItem) -> Unit,
     onOpenUserProfile: (UserId) -> Unit,
@@ -58,6 +59,7 @@ fun ConversationList(
                 }
             ) { generalConversation ->
                 ConversationItemFactory(
+                    searchQuery = searchQuery,
                     conversation = generalConversation,
                     openConversation = onOpenConversation,
                     openMenu = onEditConversation,

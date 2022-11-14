@@ -16,18 +16,13 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.widthIn
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.material.Divider
 import androidx.compose.material.Surface
-import androidx.compose.material.Text
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -58,6 +53,7 @@ import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.mention.MemberItemToMention
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
+import com.wire.android.ui.home.conversationslist.common.ReplyMessage
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.messagecomposer.attachment.AttachmentOptions
 import com.wire.android.ui.home.newconversation.model.Contact
@@ -274,7 +270,7 @@ private fun MessageComposer(
                                 Divider()
                                 CollapseIconButtonBox(transition, messageComposerState)
                                 if (messageComposerState.isReplying) {
-                                    ReplyMessage(messageComposerState.replyText)
+                                    ReplyMessage(messageComposerState.replyAuthor, messageComposerState.replyBody, {})
                                 }
                                 // Row wrapping the AdditionalOptionButton() when we are in Enabled state and MessageComposerInput()
                                 // when we are in the Fullscreen state, we want to align the TextField to Top of the Row,
@@ -332,18 +328,6 @@ private fun MessageComposer(
     }
 }
 
-@Composable
-fun ReplyMessage(replyText: String) {
-    Box(
-        Modifier
-            .heightIn(max = 64.dp)
-            .wrapContentHeight()
-            .background(Color.Red)
-    ) {
-        Text(replyText)
-    }
-}
-
 @ExperimentalAnimationApi
 @Composable
 private fun CollapseIconButtonBox(
@@ -373,7 +357,7 @@ private fun CollapseIconButtonBox(
     }
 }
 
-//if attachment is visible we want to align the bottom of the compose actions
+// if attachment is visible we want to align the bottom of the compose actions
 // to top of the guide line
 @Composable
 private fun CollapseIconButton(onCollapseClick: () -> Unit, modifier: Modifier = Modifier, collapseRotation: Float = 0f) {

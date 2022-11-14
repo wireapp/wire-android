@@ -304,7 +304,8 @@ private fun ConversationScreen(
                 conversationScreenState.selectedMessage?.let {
                     if (it.messageContent is UIMessageContent.TextMessage) {
                         messageComposerInnerState.reply(
-                            it.messageContent.messageBody.message.asString(context.resources)
+                            messageBody = it.messageContent.messageBody.message.asString(context.resources),
+                            messageAuthor = it.messageHeader.username.asString(context.resources)
                         )
                         conversationScreenState.hideEditContextMenu()
                     }

@@ -1,9 +1,11 @@
 package com.wire.android.ui.home.conversationslist.common
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -19,6 +21,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -47,28 +50,44 @@ fun ReplyMessage(
                 shape = RoundedCornerShape(12.dp)
             )
     ) {
-        Image(
-            colorFilter = ColorFilter.tint(MaterialTheme.wireColorScheme.secondaryText),
+        Box(
             modifier = Modifier
+//                .padding(
+//                    start = 16.dp,
+//                    end = 8.dp,
+//                    top = 16.dp,
+//                    bottom = 16.dp
+//                )
                 .padding(
-                    start = 16.dp,
-                    end = 8.dp,
-                    top = 16.dp,
-                    bottom = 16.dp
+                    vertical = 16.dp,
+                    horizontal = 4.dp
                 )
-                .width(16.dp)
-                .height(16.dp)
+                .width(40.dp)
+                .height(32.dp)
                 .clickable(onClick = onCancelReply),
-            painter = painterResource(
-                id = R.drawable.ic_close
-            ),
-            contentDescription = "Cancel message reply"
-        )
+            contentAlignment = Alignment.Center
+        ) {
+            Image(
+                colorFilter = ColorFilter.tint(MaterialTheme.wireColorScheme.secondaryText),
+                modifier = Modifier
+                    .width(16.dp)
+                    .height(16.dp),
+                painter = painterResource(
+                    id = R.drawable.ic_close
+                ),
+                contentDescription = "Cancel message reply"
+            )
+        }
         Column(
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight()
-                .padding(8.dp)
+                .padding(
+                    start = 4.dp,
+                    top = 8.dp,
+                    bottom = 8.dp,
+                    end = 8.dp
+                )
         ) {
             ReplyAuthor(replyAuthor)
             Spacer(Modifier.height(4.dp))

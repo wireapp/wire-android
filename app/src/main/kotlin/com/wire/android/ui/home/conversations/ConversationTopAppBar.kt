@@ -59,7 +59,7 @@ fun ConversationScreenTopAppBar(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .clip(RoundedCornerShape(MaterialTheme.wireDimensions.buttonCornerSize))
-                    .clickable(onClick = onDropDownClick, enabled = isDropDownEnabled)
+                    .clickable(onClick = onDropDownClick, enabled = isDropDownEnabled && isInteractionEnabled)
 
             ) {
                 val conversationAvatar: ConversationAvatar = conversationInfoViewState.conversationAvatar
@@ -72,7 +72,7 @@ fun ConversationScreenTopAppBar(
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(weight = 1f, fill = false)
                 )
-                if (isDropDownEnabled)
+                if (isDropDownEnabled && isInteractionEnabled)
                     Icon(
                         painter = painterResource(id = R.drawable.ic_dropdown_icon),
                         contentDescription = stringResource(R.string.content_description_drop_down_icon)

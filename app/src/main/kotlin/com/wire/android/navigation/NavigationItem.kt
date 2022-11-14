@@ -247,7 +247,7 @@ enum class NavigationItem(
     GroupConversationDetails(
         primaryRoute = GROUP_CONVERSATION_DETAILS,
         canonicalRoute = "$GROUP_CONVERSATION_DETAILS/{$EXTRA_CONVERSATION_ID}",
-        content = { GroupConversationDetailsScreen() },
+        content = { GroupConversationDetailsScreen(it.navBackStackEntry.savedStateHandle.getBackNavArgs()) },
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String = routeWithConversationIdArg(arguments)
     },

@@ -14,7 +14,6 @@ import com.wire.android.ui.common.groupname.GroupNameMode
 import com.wire.android.ui.common.groupname.GroupNameValidator
 import com.wire.android.ui.home.conversations.details.GroupDetailsBaseViewModel
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.android.util.uiText
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
@@ -38,9 +37,9 @@ class EditConversationMetadataViewModel @Inject constructor(
     private val dispatcher: DispatcherProvider,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
     private val renameConversation: RenameConversationUseCase,
-    val savedStateHandle: SavedStateHandle,
+    override val savedStateHandle: SavedStateHandle,
     qualifiedIdMapper: QualifiedIdMapper
-) : GroupDetailsBaseViewModel() {
+) : GroupDetailsBaseViewModel(savedStateHandle) {
 
     private val conversationId: QualifiedID = qualifiedIdMapper.fromStringToQualifiedID(
         savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!
@@ -79,8 +78,8 @@ class EditConversationMetadataViewModel @Inject constructor(
 
     fun saveNewGroupName() {
         viewModelScope.launch {
-            when (val result = withContext(dispatcher.io()) { renameConversation(conversationId, editConversationState.groupName.text) }) {
-                is RenamingResult.Failure -> showSnackBarMessage(result.coreFailure.uiText())
+            when (withContext(dispatcher.io()) { renameConversation(conversationId, editConversationState.groupName.text) }) {
+                is RenamingResult.Failure -> navigateBack(mapOf(EXTRA_GROUP_NAME_CHANGED to false))
                 is RenamingResult.Success -> navigateBack(mapOf(EXTRA_GROUP_NAME_CHANGED to true))
             }
         }

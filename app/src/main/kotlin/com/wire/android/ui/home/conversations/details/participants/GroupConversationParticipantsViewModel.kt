@@ -26,7 +26,7 @@ open class GroupConversationParticipantsViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val observeConversationMembers: ObserveParticipantsForConversationUseCase,
     qualifiedIdMapper: QualifiedIdMapper
-) : GroupDetailsBaseViewModel() {
+) : GroupDetailsBaseViewModel(savedStateHandle) {
 
     open val maxNumberOfItems get() = -1 // -1 means return whole list
 

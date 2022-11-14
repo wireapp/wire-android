@@ -7,6 +7,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.EXTRA_GROUP_DELETED_NAME
 import com.wire.android.navigation.EXTRA_GROUP_NAME_CHANGED
@@ -70,7 +71,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
     private val deleteTeamConversation: DeleteTeamConversationUseCase,
     private val removeMemberFromConversation: RemoveMemberFromConversationUseCase,
     private val updateConversationMutedStatus: UpdateConversationMutedStatusUseCase,
-    private val savedStateHandle: SavedStateHandle,
+    override val savedStateHandle: SavedStateHandle,
     qualifiedIdMapper: QualifiedIdMapper
 ) : GroupConversationParticipantsViewModel(
     savedStateHandle,

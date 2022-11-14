@@ -33,12 +33,11 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
 import com.wire.android.R
-import com.wire.android.appLogger
+import com.wire.android.navigation.hiltSavedStateViewModel
 import com.wire.android.ui.common.MoreOptionIcon
 import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireTabRow
@@ -62,6 +61,8 @@ import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.ui.UIText
+import kotlinx.collections.immutable.ImmutableMap
+import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -69,7 +70,13 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 
 @Composable
-fun GroupConversationDetailsScreen(viewModel: GroupConversationDetailsViewModel = hiltViewModel()) {
+fun GroupConversationDetailsScreen(
+    backNavArgs: ImmutableMap<String, Any> = persistentMapOf(),
+    viewModel: GroupConversationDetailsViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs)
+) {
+    // Check if we need to display new messages
+    LaunchedEffect(Unit) { viewModel.checkForPendingMessages() }
+
     val context = LocalContext.current
     GroupConversationDetailsContent(
         conversationSheetContent = viewModel.conversationSheetContent,
@@ -83,8 +90,7 @@ fun GroupConversationDetailsScreen(viewModel: GroupConversationDetailsViewModel 
         onDeleteGroup = viewModel::deleteGroup,
         isLoading = viewModel.requestInProgress,
         messages = viewModel.snackBarMessage,
-        context = context,
-        checkPendingMessages = viewModel::checkForPendingMessages
+        context = context
     )
 }
 
@@ -109,8 +115,7 @@ private fun GroupConversationDetailsContent(
     groupParticipantsState: GroupConversationParticipantsState,
     isLoading: Boolean,
     messages: SharedFlow<UIText>,
-    context: Context = LocalContext.current,
-    checkPendingMessages: suspend () -> Unit = {}
+    context: Context = LocalContext.current
 ) {
     val scope = rememberCoroutineScope()
     val lazyListStates: List<LazyListState> = GroupConversationDetailsTabItem.values().map { rememberLazyListState() }
@@ -131,12 +136,7 @@ private fun GroupConversationDetailsContent(
     val leaveGroupDialogState = rememberVisibilityState<GroupDialogState>()
 
     val snackbarHostState = remember { SnackbarHostState() }
-
-    LaunchedEffect(Unit) {
-        checkPendingMessages()
-    }
-
-    LaunchedEffect(Unit) {
+    LaunchedEffect(messages) {
         messages.collect {
             closeBottomSheet()
             snackbarHostState.showSnackbar(it.asString(context.resources))

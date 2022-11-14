@@ -261,7 +261,7 @@ private fun CurrentSelfUserStatus(
     )
 
     Column(modifier = Modifier.fillMaxWidth()) {
-        FolderHeader("Availability")
+        FolderHeader(stringResource(R.string.user_profile_status_availability))
 
         WireDropDown(
             items = items.map {
@@ -274,7 +274,11 @@ private fun CurrentSelfUserStatus(
             },
             defaultItemIndex = items.indexOf(userStatus),
             label = null,
-            modifier = Modifier.padding(MaterialTheme.wireDimensions.spacing16x),
+            modifier = Modifier.padding(
+                bottom = MaterialTheme.wireDimensions.spacing16x,
+                start = MaterialTheme.wireDimensions.spacing16x,
+                end = MaterialTheme.wireDimensions.spacing16x
+            ),
             autoUpdateSelection = false,
             showDefaultTextIndicator = false,
             leadingCompose = { index -> UserStatusIndicator(items[index]) }

@@ -122,17 +122,17 @@ class ConversationMessagesViewModelTest {
             )
 
             arrangement.conversationDetailsChannel.send(
-                groupDetails.copy(lastUnreadMessage = sendMessage)
+                groupDetails.copy(lastMessage = sendMessage)
             )
 
-            viewModel.conversationViewState.lastUnreadMessageInstant.shouldNotBeNull()
-            viewModel.conversationViewState.lastUnreadMessageInstant.toString() shouldBeEqualTo sendMessage.date
+            viewModel.conversationViewState.lastReadInstant.shouldNotBeNull()
+            viewModel.conversationViewState.lastReadInstant.toString() shouldBeEqualTo sendMessage.date
 
             arrangement.conversationDetailsChannel.send(
-                groupDetails.copy(lastUnreadMessage = null)
+                groupDetails.copy(lastMessage = null)
             )
 
-            viewModel.conversationViewState.lastUnreadMessageInstant.shouldBeNull()
+            viewModel.conversationViewState.lastReadInstant.shouldBeNull()
         }
 
     @Test
@@ -157,17 +157,17 @@ class ConversationMessagesViewModelTest {
             )
 
             arrangement.conversationDetailsChannel.send(
-                groupDetails.copy(lastUnreadMessage = null)
+                groupDetails.copy(lastMessage = null)
             )
 
-            viewModel.conversationViewState.lastUnreadMessageInstant.shouldBeNull()
+            viewModel.conversationViewState.lastReadInstant.shouldBeNull()
 
             arrangement.conversationDetailsChannel.send(
-                groupDetails.copy(lastUnreadMessage = sendMessage)
+                groupDetails.copy(lastMessage = sendMessage)
             )
 
-            viewModel.conversationViewState.lastUnreadMessageInstant.shouldNotBeNull()
-            viewModel.conversationViewState.lastUnreadMessageInstant.toString() shouldBeEqualTo sendMessage.date
+            viewModel.conversationViewState.lastReadInstant.shouldNotBeNull()
+            viewModel.conversationViewState.lastReadInstant.toString() shouldBeEqualTo sendMessage.date
         }
 
     @Test

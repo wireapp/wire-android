@@ -17,7 +17,6 @@ import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.ConversationDetails.OneOne
 import com.wire.kalium.logic.data.conversation.LegalHoldStatus
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus.AllAllowed
-import com.wire.kalium.logic.data.id.PlainId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.user.ConnectionState
@@ -290,7 +289,8 @@ class MediaGalleryViewModelTest {
                 lastReadDate = "2022-04-04T16:11:28.388Z",
                 access = listOf(Conversation.Access.INVITE),
                 accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER),
-                creatorId = null
+                creatorId = null,
+                lastUnreadMessageDate = ""
             ),
             otherUser = OtherUser(
                 QualifiedID("other-user-id", "domain-id"),
@@ -304,7 +304,7 @@ class MediaGalleryViewModelTest {
             legalHoldStatus = LegalHoldStatus.DISABLED,
             userType = UserType.INTERNAL,
             unreadMessagesCount = 0,
-            lastUnreadMessage = null,
+            lastMessage = null,
             unreadContentCount = emptyMap()
         )
 

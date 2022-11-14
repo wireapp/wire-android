@@ -347,7 +347,7 @@ private fun ConversationScreen(
                             keyboardHeight = keyboardHeight,
                             snackbarMessage = conversationViewState.snackbarMessage ?: conversationMessagesViewState.snackbarMessage,
                             messages = conversationMessagesViewState.messages,
-                            lastUnreadMessageInstant = conversationMessagesViewState.lastUnreadMessageInstant,
+                            lastUnreadMessageInstant = conversationMessagesViewState.lastReadInstant,
                             onSendMessage = onSendMessage,
                             onShowContextMenu = conversationScreenState::showEditContextMenu,
                             onSendAttachment = onSendAttachment,

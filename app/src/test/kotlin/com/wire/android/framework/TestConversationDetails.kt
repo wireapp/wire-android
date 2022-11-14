@@ -25,7 +25,7 @@ object TestConversationDetails {
         LegalHoldStatus.DISABLED,
         UserType.EXTERNAL,
         unreadMessagesCount = 0,
-        lastUnreadMessage = null,
+        lastMessage = null,
         unreadContentCount = emptyMap()
     )
 
@@ -33,7 +33,7 @@ object TestConversationDetails {
         TestConversation.ONE_ON_ONE,
         LegalHoldStatus.DISABLED,
         unreadMessagesCount = 0,
-        lastUnreadMessage = null,
+        lastMessage = null,
         isSelfUserCreator = true,
         isSelfUserMember = true,
         unreadContentCount = emptyMap()

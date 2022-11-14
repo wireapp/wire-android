@@ -222,7 +222,7 @@ internal fun withMockConversationDetailsOneOnOne(
     legalHoldStatus = LegalHoldStatus.DISABLED,
     userType = UserType.INTERNAL,
     unreadMessagesCount = 0,
-    lastUnreadMessage = null,
+    lastMessage = null,
     unreadContentCount = emptyMap()
 )
 
@@ -238,7 +238,7 @@ internal fun mockConversationDetailsGroup(
     legalHoldStatus = mockk(),
     hasOngoingCall = false,
     unreadMessagesCount = 0,
-    lastUnreadMessage = null,
+    lastMessage = null,
     isSelfUserCreator = true,
     isSelfUserMember = true,
     unreadContentCount = emptyMap()

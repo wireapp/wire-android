@@ -63,7 +63,7 @@ fun DropDownMentionsSuggestions(
 }
 
 private fun getDropDownMaxHeight(screenHeight: Int): Dp {
-    return if (screenHeight < 700) 150.dp else 200.dp
+    return if (screenHeight < MINIMUM_SCREEN_HEIGHT) DROP_DOWN_HEIGHT_SMALL else DROP_DOWN_HEIGHT_LARGE
 }
 
 /**
@@ -81,15 +81,25 @@ private fun updateDropDownCoordinateY(
     var coordinateY = cursorCoordinateY
     // since we are using BottomYCoordinate of the cursor, we reduce some space from Y coordinate
     // for approximately the second part of the screen.
-    if (cursorCoordinateY >= screenHeight / 2.5)
-        coordinateY = cursorCoordinateY - 30
+    if (cursorCoordinateY >= screenHeight / HALF_SCREEN)
+        coordinateY = cursorCoordinateY - THIRTY
     // If there is only one item to show, in the second part of the screen, the DropDown will be displayed above the cursor.
     // Fixing this by adding more space
-    if (membersToMentionSize == 1 && cursorCoordinateY < screenHeight * 0.80)
-        coordinateY = cursorCoordinateY + 20
+    if (membersToMentionSize == ONE && cursorCoordinateY < screenHeight * EIGHTY_PERCENT_OF_SCREEN)
+        coordinateY = cursorCoordinateY + TWENTY
     // For the first line, we get the wrong Y coordinate of the cursor.
     // Fixing this by adding more space
-    if (currentSelectedLineIndex == 0)
-        coordinateY = cursorCoordinateY + 30
+    if (currentSelectedLineIndex == FIRST_LINE_INDEX)
+        coordinateY = cursorCoordinateY + THIRTY
     return coordinateY.toInt()
 }
+
+private const val MINIMUM_SCREEN_HEIGHT = 700
+private val DROP_DOWN_HEIGHT_SMALL = 150.dp
+private val DROP_DOWN_HEIGHT_LARGE = 200.dp
+private const val FIRST_LINE_INDEX = 0
+private const val HALF_SCREEN = 2.5
+private const val EIGHTY_PERCENT_OF_SCREEN = 0.80
+private const val ONE = 1
+private const val THIRTY = 30
+private const val TWENTY = 20

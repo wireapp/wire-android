@@ -29,6 +29,7 @@ import kotlinx.collections.immutable.ImmutableMap
 
 @Composable
 fun SearchConversationScreen(
+    searchQuery: String,
     conversationSearchResult: ImmutableMap<ConversationFolder, List<ConversationItem>>,
     onOpenNewConversation: () -> Unit,
     onOpenConversation: (ConversationId) -> Unit,
@@ -43,6 +44,7 @@ fun SearchConversationScreen(
         } else {
             ConversationList(
                 conversationListItems = conversationSearchResult,
+                searchQuery = searchQuery,
                 onOpenConversation = onOpenConversation,
                 onEditConversation = onEditConversation,
                 onOpenUserProfile = onOpenUserProfile,

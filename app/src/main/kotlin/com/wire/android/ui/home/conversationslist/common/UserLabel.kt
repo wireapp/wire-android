@@ -12,7 +12,11 @@ import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.conversationslist.model.hasLabel
 
 @Composable
-fun UserLabel(userInfoLabel: UserInfoLabel, modifier: Modifier = Modifier) {
+fun UserLabel(
+    searchQuery : String,
+    userInfoLabel: UserInfoLabel,
+    modifier: Modifier = Modifier
+) {
     with(userInfoLabel) {
         ConversationTitle(
             name = if (unavailable) stringResource(id = R.string.username_unavailable_label) else labelName,
@@ -23,7 +27,8 @@ fun UserLabel(userInfoLabel: UserInfoLabel, modifier: Modifier = Modifier) {
                     Spacer(modifier = Modifier.width(6.dp))
                     MembershipQualifierLabel(membership)
                 }
-            }
+            },
+            searchQuery = searchQuery
         )
     }
 }

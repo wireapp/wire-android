@@ -105,6 +105,7 @@
     <string name="content_description_calling_call_muted">Call Muted</string>
     <string name="content_description_calling_call_unmuted">Call Unmuted</string>
     <string name="content_description_calling_call_paused_camera">Paused Camera</string>
+    <string name="content_description_more_emojis">More emojis</string>
     <!-- Non translatable strings-->
     <string name="url_decryption_failure_learn_more" translatable="false">https://support.wire.com/hc/en-us/articles/207948115-Why-was-I-notified-that-a-message-from-a-contact-was-not-received-</string>
     <!-- Navigation -->
@@ -640,6 +641,7 @@
     <string name="label_no_conversation_found">No conversations could be found.</string>
     <string name="label_connect_with_new_users">Connect with new users or start a new conversation:</string>
     <string name="label_reactions">Reactions</string>
+    <string name="label_more_comming_soon">(more coming soon)</string>
     <string name="label_wait_until_synchronised">Please wait until the app is synchronised</string>
     <string name="proxy_credential_description">This backend is configured to use the following proxy server: %1$s</string>
     <string name="label_proxy_credentials">PROXY CREDENTIALS</string>

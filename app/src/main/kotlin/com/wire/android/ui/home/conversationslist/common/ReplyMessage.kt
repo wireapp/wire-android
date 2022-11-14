@@ -2,6 +2,7 @@ package com.wire.android.ui.home.conversationslist.common
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,7 +19,6 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -28,7 +28,11 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 
 @Composable
-fun ReplyMessage(replyAuthor: String, replyBody: String, onCancelReply: () -> Unit) {
+fun ReplyMessage(
+    replyAuthor: String,
+    replyBody: String,
+    onCancelReply: () -> Unit
+) {
     Row(
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
@@ -38,7 +42,7 @@ fun ReplyMessage(replyAuthor: String, replyBody: String, onCancelReply: () -> Un
             .wrapContentHeight()
             .fillMaxWidth()
             .border(
-                1.dp,
+                width = 1.dp,
                 color = MaterialTheme.wireColorScheme.divider,
                 shape = RoundedCornerShape(12.dp)
             )
@@ -47,11 +51,14 @@ fun ReplyMessage(replyAuthor: String, replyBody: String, onCancelReply: () -> Un
             colorFilter = ColorFilter.tint(MaterialTheme.wireColorScheme.secondaryText),
             modifier = Modifier
                 .padding(
-                    vertical = 4.dp,
-                    horizontal = 8.dp
+                    start = 16.dp,
+                    end = 8.dp,
+                    top = 16.dp,
+                    bottom = 16.dp
                 )
                 .width(16.dp)
-                .height(16.dp),
+                .height(16.dp)
+                .clickable(onClick = onCancelReply),
             painter = painterResource(
                 id = R.drawable.ic_close
             ),

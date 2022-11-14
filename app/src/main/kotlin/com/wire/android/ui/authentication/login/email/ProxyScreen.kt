@@ -132,9 +132,10 @@ private fun ProxyPasswordInput(modifier: Modifier, proxyPassword: TextFieldValue
         value = proxyPassword,
         onValueChange = onProxyPasswordChange,
         imeAction = ImeAction.Done,
-        labelText= stringResource(R.string.label_proxy_password),
+        labelText = stringResource(R.string.label_proxy_password),
         keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
-        modifier = modifier.testTag("passwordField")
+        modifier = modifier.testTag("passwordField"),
+        autofillTypes = listOf()
     )
 }
 

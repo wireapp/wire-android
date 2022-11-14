@@ -9,8 +9,9 @@ object GroupNameValidator {
      * Receives a group field and state and returns the new state after validation
      */
     fun onGroupNameChange(newText: TextFieldValue, currentGroupState: GroupMetadataState): GroupMetadataState {
+        val cleanText = newText.text.trim()
         return when {
-            newText.text.trim().isEmpty() -> {
+            cleanText.isEmpty() -> {
                 currentGroupState.copy(
                     animatedGroupNameError = true,
                     groupName = newText,
@@ -18,7 +19,7 @@ object GroupNameValidator {
                     error = GroupMetadataState.NewGroupError.TextFieldError.GroupNameEmptyError
                 )
             }
-            newText.text.trim().count() > GROUP_NAME_MAX_COUNT -> {
+            cleanText.count() > GROUP_NAME_MAX_COUNT -> {
                 currentGroupState.copy(
                     animatedGroupNameError = true,
                     groupName = newText,

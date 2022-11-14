@@ -14,14 +14,12 @@ import com.wire.android.ui.common.groupname.GroupMetadataState
 import com.wire.android.ui.common.groupname.GroupNameMode
 import com.wire.android.ui.common.groupname.GroupNameValidator
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.RenameConversationUseCase
 import com.wire.kalium.logic.feature.conversation.RenamingResult
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.distinctUntilChanged
@@ -31,6 +29,7 @@ import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import javax.inject.Inject
 
 @HiltViewModel
 class EditConversationMetadataViewModel @Inject constructor(
@@ -58,7 +57,6 @@ class EditConversationMetadataViewModel @Inject constructor(
             observeConversationDetails(conversationId)
                 .filterIsInstance<ObserveConversationDetailsUseCase.Result.Success>()
                 .map { it.conversationDetails }
-                .filterIsInstance<ConversationDetails.Group>()
                 .distinctUntilChanged()
                 .flowOn(dispatcher.io())
                 .shareIn(this, SharingStarted.WhileSubscribed(), 1)

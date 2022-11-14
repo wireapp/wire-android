@@ -45,6 +45,7 @@ import com.wire.android.ui.home.conversations.model.MessageFooter
 import com.wire.android.ui.home.conversations.model.MessageGenericAsset
 import com.wire.android.ui.home.conversations.model.MessageHeader
 import com.wire.android.ui.home.conversations.model.MessageImage
+import com.wire.android.ui.home.conversations.model.MessageQuote
 import com.wire.android.ui.home.conversations.model.MessageSource
 import com.wire.android.ui.home.conversations.model.MessageStatus
 import com.wire.android.ui.home.conversations.model.UIMessage
@@ -249,6 +250,8 @@ private fun MessageContent(
     onLongClick: (() -> Unit)? = null,
     onOpenProfile: (String) -> Unit
 ) {
+    // TODO: Display Quote
+
     when (messageContent) {
         is UIMessageContent.ImageMessage -> MessageImage(
             asset = messageContent.asset,
@@ -257,11 +260,16 @@ private fun MessageContent(
             downloadStatus = messageContent.downloadStatus,
             onImageClick = onImageClick
         )
-        is UIMessageContent.TextMessage -> MessageBody(
-            messageBody = messageContent.messageBody,
-            onLongClick = onLongClick,
-            onOpenProfile = onOpenProfile
-        )
+        is UIMessageContent.TextMessage -> {
+            messageContent.messageBody.quotedMessage?.let {
+                MessageQuote(it)
+            }
+            MessageBody(
+                messageBody = messageContent.messageBody,
+                onLongClick = onLongClick,
+                onOpenProfile = onOpenProfile
+            )
+        }
         is UIMessageContent.AssetMessage -> MessageGenericAsset(
             assetName = messageContent.assetName,
             assetExtension = messageContent.assetExtension,

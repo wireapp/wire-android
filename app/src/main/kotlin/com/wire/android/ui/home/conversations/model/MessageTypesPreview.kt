@@ -10,6 +10,11 @@ import com.wire.android.ui.home.conversations.mock.mockMessageWithText
 import com.wire.android.ui.home.conversations.mock.mockedImageUIMessage
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.message.Message
+import com.wire.kalium.logic.data.user.UserId
+import kotlinx.datetime.Clock
+
+
+private val previewUserId = UserId("value", "domain")
 
 @Preview(showBackground = true)
 @Composable
@@ -20,6 +25,39 @@ fun PreviewMessage() {
                 username = UIText.DynamicString(
                     "Pablo Diego José Francisco de Paula Juan Nepomuceno María de los Remedios Cipriano de la Santísima Trinidad " +
                             "Ruiz y Picasso"
+                )
+            )
+        ),
+        onLongClicked = {},
+        onAssetMessageClicked = {},
+        onImageMessageClicked = { _, _ -> },
+        onOpenProfile = { _ -> },
+        onReactionClicked = { _, _ -> }
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun PreviewMessageWithReply() {
+    MessageItem(
+        message = mockMessageWithText.copy(
+            messageHeader = mockMessageWithText.messageHeader.copy(
+                username = UIText.DynamicString(
+                    "Don Joe"
+                )
+            ),
+            messageContent = UIMessageContent.TextMessage(
+                MessageBody(
+                    message = UIText.DynamicString("Sure, go ahead!"),
+                    quotedMessage = QuotedMessageUIData(
+                        senderId = previewUserId,
+                        senderName = "John Doe",
+                        timeInstant = Clock.System.now(),
+                        isDeleted = false,
+                        editTime = null,
+                        text = "Hey, can I call right now?",
+                        assetType = null
+                    )
                 )
             )
         ),

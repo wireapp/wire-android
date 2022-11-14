@@ -18,6 +18,7 @@ import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.user.AssetId
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserId
+import kotlinx.datetime.Instant
 
 data class UIMessage(
     val userAvatarData: UserAvatarData,
@@ -136,7 +137,18 @@ sealed class UIMessageContent {
 }
 
 data class MessageBody(
-    val message: UIText
+    val message: UIText,
+    val quotedMessage: QuotedMessageUIData? = null
+)
+
+data class QuotedMessageUIData(
+    val senderId: UserId,
+    val senderName: String,
+    val timeInstant: Instant,
+    val isDeleted: Boolean,
+    val editTime: Instant?,
+    val text: String?,
+    val assetType: AttachmentType?
 )
 
 enum class MessageSource {

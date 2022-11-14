@@ -23,7 +23,6 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.autofill.AutofillType
 import androidx.compose.ui.focus.onFocusEvent
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.platform.testTag
@@ -37,10 +36,10 @@ import com.wire.android.R
 import com.wire.android.ui.authentication.ServerTitle
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.common.button.WireButtonState
+import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.textfield.WirePasswordTextField
-import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.textfield.clearAutofillTree
@@ -222,8 +221,11 @@ private fun PasswordTextFields(
             .padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
             .bringIntoViewOnFocus(coroutineScope)
             .testTag("password"),
-        state = if (state.error is CreateAccountDetailsViewState.DetailsError.None) WireTextFieldState.Default
-        else WireTextFieldState.Error()
+        state = if (state.error is CreateAccountDetailsViewState.DetailsError.TextFieldError.InvalidPasswordError){
+            WireTextFieldState.Error()
+        } else {
+            WireTextFieldState.Default
+        }
     )
     WirePasswordTextField(
         value = state.confirmPassword,

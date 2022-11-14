@@ -52,12 +52,6 @@ fun ReplyMessage(
     ) {
         Box(
             modifier = Modifier
-//                .padding(
-//                    start = 16.dp,
-//                    end = 8.dp,
-//                    top = 16.dp,
-//                    bottom = 16.dp
-//                )
                 .padding(
                     vertical = 16.dp,
                     horizontal = 4.dp

@@ -25,6 +25,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -32,6 +33,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
@@ -41,40 +43,40 @@ import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireTabRow
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
 import com.wire.android.ui.common.calculateCurrentTab
-import com.wire.android.ui.common.collectAsStateLifecycleAware
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
-import com.wire.android.ui.home.conversations.details.menu.ConversationGroupDetailsBottomSheet
 import com.wire.android.ui.home.conversations.details.menu.DeleteConversationGroupDialog
+import com.wire.android.ui.home.conversations.details.menu.GroupConversationDetailsBottomSheetEventsHandler
 import com.wire.android.ui.home.conversations.details.menu.LeaveConversationGroupDialog
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptions
-import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsState
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipants
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipantsState
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
+import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
+import com.wire.android.ui.common.bottomsheet.conversation.rememberConversationSheetState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.ui.UIText
-import com.wire.kalium.logic.data.id.ConversationId
+import kotlinx.coroutines.InternalCoroutinesApi
+import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.MutableSharedFlow
-import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 @Composable
-fun GroupConversationDetailsScreen(viewModel: GroupConversationDetailsViewModel) {
+fun GroupConversationDetailsScreen(viewModel: GroupConversationDetailsViewModel = hiltViewModel()) {
     val context = LocalContext.current
     GroupConversationDetailsContent(
+        conversationSheetContent = viewModel.conversationSheetContent,
+        bottomSheetEventsHandler = viewModel,
         onBackPressed = viewModel::navigateBack,
         openFullListPressed = viewModel::navigateToFullParticipantsList,
         onProfilePressed = viewModel::openProfile,
         onAddParticipantsPressed = viewModel::navigateToAddParticants,
-        groupOptionsStateFlow = viewModel.groupOptionsState,
         groupParticipantsState = viewModel.groupParticipantsState,
         onLeaveGroup = viewModel::leaveGroup,
         onDeleteGroup = viewModel::deleteGroup,
@@ -88,24 +90,26 @@ fun GroupConversationDetailsScreen(viewModel: GroupConversationDetailsViewModel)
     ExperimentalComposeUiApi::class,
     ExperimentalMaterial3Api::class,
     ExperimentalPagerApi::class,
-    ExperimentalMaterialApi::class, ExperimentalFoundationApi::class
+    ExperimentalMaterialApi::class,
+    ExperimentalFoundationApi::class,
+    InternalCoroutinesApi::class
 )
 @Composable
 private fun GroupConversationDetailsContent(
+    conversationSheetContent: ConversationSheetContent?,
+    bottomSheetEventsHandler: GroupConversationDetailsBottomSheetEventsHandler,
     onBackPressed: () -> Unit,
     openFullListPressed: () -> Unit,
     onProfilePressed: (UIParticipant) -> Unit,
     onAddParticipantsPressed: () -> Unit,
     onLeaveGroup: (GroupDialogState) -> Unit,
     onDeleteGroup: (GroupDialogState) -> Unit,
-    groupOptionsStateFlow: StateFlow<GroupConversationOptionsState>,
     groupParticipantsState: GroupConversationParticipantsState,
     isLoading: Boolean,
     messages: SharedFlow<UIText>,
     context: Context = LocalContext.current
 ) {
     val scope = rememberCoroutineScope()
-    val groupOptionsState by groupOptionsStateFlow.collectAsStateLifecycleAware()
     val lazyListStates: List<LazyListState> = GroupConversationDetailsTabItem.values().map { rememberLazyListState() }
     val initialPageIndex = GroupConversationDetailsTabItem.OPTIONS.ordinal
     val pagerState = rememberPagerState(initialPage = initialPageIndex)
@@ -113,16 +117,31 @@ private fun GroupConversationDetailsContent(
     val currentTabState by remember { derivedStateOf { pagerState.calculateCurrentTab() } }
     val elevationState by remember { derivedStateOf { lazyListStates[currentTabState].topBarElevation(maxAppBarElevation) } }
 
+    val conversationSheetState = rememberConversationSheetState(conversationSheetContent)
+
     val sheetState = rememberModalBottomSheetState(ModalBottomSheetValue.Hidden)
     val openBottomSheet: () -> Unit = remember { { scope.launch { sheetState.show() } } }
     val closeBottomSheet: () -> Unit = remember { { scope.launch { sheetState.hide() } } }
+    val getBottomSheetVisibility: () -> Boolean = remember(sheetState) { { sheetState.isVisible } }
 
     val deleteGroupDialogState = rememberVisibilityState<GroupDialogState>()
     val leaveGroupDialogState = rememberVisibilityState<GroupDialogState>()
 
     val snackbarHostState = remember { SnackbarHostState() }
     LaunchedEffect(Unit) {
-        messages.collect { snackbarHostState.showSnackbar(it.asString(context.resources)) }
+        messages.collect {
+            closeBottomSheet()
+            snackbarHostState.showSnackbar(it.asString(context.resources))
+        }
+    }
+
+    LaunchedEffect(conversationSheetState.conversationSheetContent) {
+        // on each closing BottomSheet we revert BSContent to Home.
+        // So in case if user opened BS, went to MuteStatus BS and closed it by clicking outside of BS,
+        // then opens BS again - Home BS suppose to be opened, not MuteStatus BS
+        snapshotFlow { sheetState.isVisible }.collect(FlowCollector { isVisible ->
+            if (!isVisible) conversationSheetState.toHome()
+        })
     }
 
     if (!isLoading) {
@@ -133,11 +152,23 @@ private fun GroupConversationDetailsContent(
         sheetState = sheetState,
         coroutineScope = rememberCoroutineScope(),
         sheetContent = {
-            ConversationGroupDetailsBottomSheet(
-                conversationOptionsState = groupOptionsState,
-                closeBottomSheet = closeBottomSheet,
-                onDeleteGroup = deleteGroupDialogState::show,
-                onLeaveGroup = leaveGroupDialogState::show
+            ConversationSheetContent(
+                isBottomSheetVisible = getBottomSheetVisibility,
+                conversationSheetState = conversationSheetState,
+                onMutingConversationStatusChange = {
+                    bottomSheetEventsHandler.onMutingConversationStatusChange(
+                        conversationSheetState.conversationId,
+                        conversationSheetState.conversationSheetContent!!.mutingConversationState
+                    )
+                },
+                addConversationToFavourites = bottomSheetEventsHandler::onAddConversationToFavourites,
+                moveConversationToFolder = bottomSheetEventsHandler::onMoveConversationToFolder,
+                moveConversationToArchive = bottomSheetEventsHandler::onMoveConversationToArchive,
+                clearConversationContent = bottomSheetEventsHandler::onClearConversationContent,
+                blockUser = {},
+                unblockUser = {},
+                leaveGroup = leaveGroupDialogState::show,
+                deleteGroup = deleteGroupDialogState::show
             )
         }
     ) {
@@ -148,9 +179,7 @@ private fun GroupConversationDetailsContent(
                     title = stringResource(R.string.conversation_details_title),
                     navigationIconType = NavigationIconType.Close,
                     onNavigationPressed = onBackPressed,
-                    actions = {
-                        MoreOptionIcon(openBottomSheet)
-                    }
+                    actions = { MoreOptionIcon(onButtonClicked = openBottomSheet) }
                 ) {
                     WireTabRow(
                         tabs = GroupConversationDetailsTabItem.values().toList(),
@@ -230,18 +259,14 @@ enum class GroupConversationDetailsTabItem(@StringRes override val titleResId: I
 private fun GroupConversationDetailsPreview() {
     WireTheme(isPreview = true) {
         GroupConversationDetailsContent(
+            conversationSheetContent = null,
+            bottomSheetEventsHandler = GroupConversationDetailsBottomSheetEventsHandler.PREVIEW,
             onBackPressed = {},
             openFullListPressed = {},
             onProfilePressed = {},
             onAddParticipantsPressed = {},
             onLeaveGroup = {},
             onDeleteGroup = {},
-            groupOptionsStateFlow = MutableStateFlow(
-                GroupConversationOptionsState(
-                    conversationId = ConversationId("someValue", "someDomain"),
-                    groupName = "Group name"
-                )
-            ),
             groupParticipantsState = GroupConversationParticipantsState.PREVIEW,
             isLoading = false,
             messages = MutableSharedFlow(),

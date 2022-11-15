@@ -36,12 +36,13 @@ import com.wire.android.R
 import com.wire.android.ui.authentication.ServerTitle
 import com.wire.android.ui.authentication.create.common.CreateAccountFlowType
 import com.wire.android.ui.common.button.WireButtonState
+import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.error.CoreFailureErrorDialog
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.textfield.WirePasswordTextField
-import com.wire.android.ui.common.textfield.WirePrimaryButton
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
+import com.wire.android.ui.common.textfield.clearAutofillTree
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -51,6 +52,7 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun CreateAccountDetailsScreen(viewModel: CreateAccountDetailsViewModel, serverConfig: ServerConfig.Links) {
+    clearAutofillTree()
     DetailsContent(
         state = viewModel.detailsState,
         onFirstNameChange = { viewModel.onDetailsChange(it, CreateAccountDetailsViewModel.DetailsFieldType.FirstName) },
@@ -214,12 +216,16 @@ private fun PasswordTextFields(
         labelMandatoryIcon = true,
         descriptionText = stringResource(R.string.create_account_details_password_description),
         imeAction = ImeAction.Next,
+        autofillTypes = listOf(),
         modifier = Modifier
             .padding(horizontal = MaterialTheme.wireDimensions.spacing16x)
             .bringIntoViewOnFocus(coroutineScope)
             .testTag("password"),
-        state = if (state.error is CreateAccountDetailsViewState.DetailsError.None) WireTextFieldState.Default
-        else WireTextFieldState.Error()
+        state = if (state.error is CreateAccountDetailsViewState.DetailsError.TextFieldError.InvalidPasswordError){
+            WireTextFieldState.Error()
+        } else {
+            WireTextFieldState.Default
+        }
     )
     WirePasswordTextField(
         value = state.confirmPassword,
@@ -228,6 +234,7 @@ private fun PasswordTextFields(
         labelMandatoryIcon = true,
         imeAction = ImeAction.Done,
         keyboardActions = KeyboardActions(onDone = { keyboardController?.hide() }),
+        autofillTypes = listOf(),
         modifier = Modifier
             .padding(
                 horizontal = MaterialTheme.wireDimensions.spacing16x,

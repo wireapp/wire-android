@@ -4,10 +4,10 @@ import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversationslist.common.UserInfoLabel
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.data.user.type.isTeammate
 
 sealed class ConversationItem {
     abstract val conversationId: ConversationId
@@ -15,7 +15,6 @@ sealed class ConversationItem {
     abstract val isLegalHold: Boolean
     abstract val lastEvent: ConversationLastEvent
     abstract val badgeEventType: BadgeEventType
-
     data class GroupConversation(
         val groupName: String,
         override val conversationId: ConversationId,
@@ -24,7 +23,7 @@ sealed class ConversationItem {
         override val lastEvent: ConversationLastEvent,
         override val badgeEventType: BadgeEventType,
         val hasOnGoingCall: Boolean = false,
-        val isCreator: Boolean = false,
+        val isSelfUserCreator: Boolean = false,
         val isSelfUserMember: Boolean = true
     ) : ConversationItem()
 
@@ -63,12 +62,13 @@ enum class BlockingState {
     NOT_BLOCKED
 }
 
-fun OtherUser.getBlockingState(selfTeamId: TeamId?): BlockingState =
-    when {
-        connectionStatus == ConnectionState.BLOCKED -> BlockingState.BLOCKED
-        teamId == selfTeamId -> BlockingState.CAN_NOT_BE_BLOCKED
-        else -> BlockingState.NOT_BLOCKED
-    }
+val OtherUser.BlockState: BlockingState
+    get() =
+        when {
+            userType.isTeammate() -> BlockingState.CAN_NOT_BE_BLOCKED
+            connectionStatus == ConnectionState.BLOCKED -> BlockingState.BLOCKED
+            else -> BlockingState.NOT_BLOCKED
+        }
 
 fun ConversationItem.PrivateConversation.toUserInfoLabel() =
     UserInfoLabel(

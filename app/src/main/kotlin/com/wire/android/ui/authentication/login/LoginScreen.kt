@@ -2,11 +2,11 @@ package com.wire.android.ui.authentication.login
 
 import androidx.annotation.StringRes
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.LocalOverscrollConfiguration
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
@@ -26,6 +26,7 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.window.DialogProperties
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
@@ -42,12 +43,9 @@ import com.wire.android.ui.common.WireTabRow
 import com.wire.android.ui.common.calculateCurrentTab
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
-import com.wire.android.ui.server.ClientUpdateRequiredDialog
-import com.wire.android.ui.server.ServerVersionNotSupportedDialog
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.DialogErrorStrings
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.dialogErrorStrings
 import kotlinx.coroutines.launch
@@ -56,10 +54,10 @@ import kotlinx.coroutines.launch
 @Composable
 fun LoginScreen(ssoLoginResult: DeepLinkResult.SSOLogin?) {
     val loginViewModel: LoginViewModel = hiltViewModel()
+
     LoginContent(
         onBackPressed = { loginViewModel.navigateBack() },
         loginViewModel,
-        loginViewModel.loginState,
         ssoLoginResult = ssoLoginResult
     )
 }
@@ -72,7 +70,6 @@ fun LoginScreen(ssoLoginResult: DeepLinkResult.SSOLogin?) {
 private fun LoginContent(
     onBackPressed: () -> Unit,
     viewModel: LoginViewModel,
-    loginState: LoginState,
     ssoLoginResult: DeepLinkResult.SSOLogin?
 ) {
     val scope = rememberCoroutineScope()
@@ -112,15 +109,7 @@ private fun LoginContent(
         var focusedTabIndex: Int by remember { mutableStateOf(initialPageIndex) }
         val keyboardController = LocalSoftwareKeyboardController.current
         val focusManager = LocalFocusManager.current
-        if (loginState.showClientUpdateDialog) {
-            ClientUpdateRequiredDialog(
-                onClose = viewModel::dismissClientUpdateDialog,
-                onUpdate = viewModel::updateTheApp
-            )
-        }
-        if (loginState.showServerVersionNotSupportedDialog) {
-            ServerVersionNotSupportedDialog(onClose = viewModel::dismissApiVersionNotSupportedDialog)
-        }
+
         CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
             HorizontalPager(
                 state = pagerState,
@@ -144,62 +133,116 @@ private fun LoginContent(
     }
 }
 
+@OptIn(ExperimentalComposeUiApi::class)
 @Composable
 fun LoginErrorDialog(
     error: LoginError,
     onDialogDismiss: () -> Unit,
+    updateTheApp: () -> Unit,
     ssoLoginResult: DeepLinkResult.SSOLogin? = null
 ) {
-    val (title, message) = when (error) {
-        is LoginError.DialogError.InvalidCredentialsError -> DialogErrorStrings(
-            stringResource(id = R.string.login_error_invalid_credentials_title),
-            stringResource(id = R.string.login_error_invalid_credentials_message)
+    val dialogErrorData: LoginDialogErrorData = when (error) {
+        is LoginError.DialogError.InvalidCredentialsError -> LoginDialogErrorData(
+            stringResource(R.string.login_error_invalid_credentials_title),
+            stringResource(R.string.login_error_invalid_credentials_message),
+            onDialogDismiss
         )
 
-        is LoginError.DialogError.UserAlreadyExists -> DialogErrorStrings(
-            stringResource(id = R.string.login_error_user_already_logged_in_title),
-            stringResource(id = R.string.login_error_user_already_logged_in_message)
+        is LoginError.DialogError.UserAlreadyExists -> LoginDialogErrorData(
+            stringResource(R.string.login_error_user_already_logged_in_title),
+            stringResource(R.string.login_error_user_already_logged_in_message),
+            onDialogDismiss
+        )
+        is LoginError.DialogError.ProxyError -> {
+            LoginDialogErrorData(
+                stringResource(R.string.error_socket_title),
+                stringResource(R.string.error_socket_message),
+                onDialogDismiss
+            )
+        }
+
+        is LoginError.DialogError.GenericError -> {
+            val strings = error.coreFailure.dialogErrorStrings(LocalContext.current.resources)
+            LoginDialogErrorData(
+                strings.title,
+                strings.message,
+                onDialogDismiss
+            )
+        }
+
+        is LoginError.DialogError.InvalidCodeError -> LoginDialogErrorData(
+            stringResource(R.string.login_error_invalid_credentials_title),
+            stringResource(R.string.login_error_invalid_sso_code),
+            onDialogDismiss
         )
 
-        is LoginError.DialogError.GenericError ->
-            error.coreFailure.dialogErrorStrings(LocalContext.current.resources)
-
-        is LoginError.DialogError.InvalidCodeError -> DialogErrorStrings(
-            title = stringResource(id = R.string.login_error_invalid_credentials_title),
-            message = stringResource(id = R.string.login_error_invalid_sso_code)
-        )
-
-        is LoginError.DialogError.InvalidSSOCookie -> DialogErrorStrings(
-            stringResource(id = R.string.login_sso_error_invalid_cookie_title),
-            stringResource(id = R.string.login_sso_error_invalid_cookie_message)
+        is LoginError.DialogError.InvalidSSOCookie -> LoginDialogErrorData(
+            stringResource(R.string.login_sso_error_invalid_cookie_title),
+            stringResource(R.string.login_sso_error_invalid_cookie_message),
+            onDialogDismiss
         )
 
         is LoginError.DialogError.SSOResultError -> {
             with(ssoLoginResult as DeepLinkResult.SSOLogin.Failure) {
-                DialogErrorStrings(
+                LoginDialogErrorData(
                     stringResource(R.string.sso_erro_dialog_title),
-                    stringResource(R.string.sso_erro_dialog_message, this.ssoError.errorCode)
+                    stringResource(R.string.sso_erro_dialog_message, this.ssoError.errorCode),
+                    onDialogDismiss
                 )
             }
         }
 
+        is LoginError.DialogError.ServerVersionNotSupported -> LoginDialogErrorData(
+            title = stringResource(R.string.api_versioning_server_version_not_supported_title),
+            body = stringResource(R.string.api_versioning_server_version_not_supported_message),
+            onDismiss = onDialogDismiss,
+            actionTextId = R.string.label_close,
+            dismissOnClickOutside = false
+        )
+
+        is LoginError.DialogError.ClientUpdateRequired -> LoginDialogErrorData(
+            title = stringResource(R.string.api_versioning_client_update_required_title),
+            body = stringResource(R.string.api_versioning_client_update_required_message),
+            onDismiss = onDialogDismiss,
+            actionTextId = R.string.label_update,
+            onAction = updateTheApp,
+            dismissOnClickOutside = false
+        )
+
         LoginError.DialogError.PasswordNeededToRegisterClient -> TODO()
-        else -> DialogErrorStrings(
+
+        else -> LoginDialogErrorData(
             stringResource(R.string.error_unknown_title),
-            stringResource(R.string.error_unknown_message)
+            stringResource(R.string.error_unknown_message),
+            onDialogDismiss
         )
     }
+
     WireDialog(
-        title = title,
-        text = message,
-        onDismiss = onDialogDismiss,
+        title = dialogErrorData.title,
+        text = dialogErrorData.body,
+        onDismiss = dialogErrorData.onDismiss,
         optionButton1Properties = WireDialogButtonProperties(
-            onClick = onDialogDismiss,
-            text = stringResource(id = R.string.label_ok),
-            type = WireDialogButtonType.Primary,
+            text = stringResource(dialogErrorData.actionTextId),
+            onClick = dialogErrorData.onAction,
+            type = WireDialogButtonType.Primary
+        ),
+        properties = DialogProperties(
+            dismissOnBackPress = true,
+            dismissOnClickOutside = dialogErrorData.dismissOnClickOutside,
+            usePlatformDefaultWidth = false
         )
     )
 }
+
+data class LoginDialogErrorData(
+    val title: String,
+    val body: String,
+    val onDismiss: () -> Unit,
+    @StringRes val actionTextId: Int = R.string.label_ok,
+    val onAction: () -> Unit = onDismiss,
+    val dismissOnClickOutside: Boolean = true
+)
 
 enum class LoginTabItem(@StringRes override val titleResId: Int) : TabItem {
     EMAIL(R.string.login_tab_email),
@@ -211,6 +254,6 @@ enum class LoginTabItem(@StringRes override val titleResId: Int) : TabItem {
 @Composable
 private fun LoginScreenPreview() {
     WireTheme(isPreview = true) {
-        LoginContent(onBackPressed = { }, hiltViewModel(), LoginState(), ssoLoginResult = null)
+        LoginContent(onBackPressed = { }, hiltViewModel(), ssoLoginResult = null)
     }
 }

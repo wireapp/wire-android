@@ -12,12 +12,15 @@ sealed class LoginError {
     sealed class DialogError : LoginError() {
         data class GenericError(val coreFailure: CoreFailure) : DialogError()
         object InvalidCredentialsError : DialogError()
+        object ProxyError : DialogError()
         object InvalidSSOCookie : DialogError()
         object InvalidCodeError : DialogError()
         object UserAlreadyExists : DialogError()
         object PasswordNeededToRegisterClient : DialogError()
         data class SSOResultError constructor(val result: SSOFailureCodes) :
             DialogError()
+        object ServerVersionNotSupported: DialogError()
+        object ClientUpdateRequired: DialogError()
     }
 
     object TooManyDevicesError : LoginError()

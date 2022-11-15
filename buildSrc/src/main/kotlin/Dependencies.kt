@@ -33,6 +33,7 @@ object BuildPlugins {
     const val hilt = "dagger.hilt.android.plugin"
     const val junit5 = "de.mannodermaus.android-junit5"
     const val gms = "com.google.gms.google-services"
+    const val serialization = "plugin.serialization"
 }
 
 object ScriptPlugins {
@@ -70,6 +71,7 @@ object Libraries {
         const val accompanist = "0.25.0"
         const val composeConstraint = "1.0.0"
         const val hilt = "2.43.2"
+        const val hiltWork = "1.0.0"
         const val lifecycle = "2.5.0"
         const val visibilityModifiers = "1.1.0"
         const val composeHiltNavigation = "1.0.0"
@@ -81,8 +83,10 @@ object Libraries {
         const val coil = "2.2.1"
         const val exif = "1.3.3"
         const val firebaseBOM = "29.3.1"
-        const val dataDog = "1.13.0"
-        const val ktxDateTime = "0.3.2"
+        const val dataDog = "1.14.1"
+        const val ktxDateTime = "0.4.0"
+        const val ktxSerialization = "1.3.2"
+        const val ktxImmutableCollections = "0.3.5"
     }
 
     // AndroidX Dependencies
@@ -104,7 +108,8 @@ object Libraries {
     const val composeRuntimeLiveData    = "androidx.compose.runtime:runtime-livedata:${Versions.compose}"
     const val dataStore                 = "androidx.datastore:datastore-preferences:${Versions.dataStore}"
     const val exifInterface             = "androidx.exifinterface:exifinterface:${Versions.exif}"
-    const val ktxDateTime                  = "org.jetbrains.kotlinx:kotlinx-datetime:${Versions.ktxDateTime}"
+    const val ktxDateTime               = "org.jetbrains.kotlinx:kotlinx-datetime:${Versions.ktxDateTime}"
+    const val ktxImmutableCollections   = "org.jetbrains.kotlinx:kotlinx-collections-immutable:${Versions.ktxImmutableCollections}"
 
 
     // Other dependencies
@@ -114,11 +119,13 @@ object Libraries {
     const val accompanistPlaceholder    = "com.google.accompanist:accompanist-placeholder:${Versions.accompanist}"
     const val accompanistNavAnimation   = "com.google.accompanist:accompanist-navigation-animation:${Versions.accompanist}"
     const val accompanistIndicator      = "com.google.accompanist:accompanist-pager-indicators:${Versions.accompanist}"
+    const val accompanistFlowLayout     = "com.google.accompanist:accompanist-flowlayout:${Versions.accompanist}"
     const val material                  = "com.google.android.material:material:${Versions.material}"
     const val visibilityModifiers       = "io.github.esentsov:kotlin-visibility:${Versions.visibilityModifiers}"
     const val browser                   = "androidx.browser:browser:${Versions.browser}"
     const val splashscreen              = "androidx.core:core-splashscreen:${Versions.splashscreen}"
     const val coil                      = "io.coil-kt:coil:${Versions.coil}"
+    const val coilGif                   = "io.coil-kt:coil-gif:${Versions.coil}"
     const val coilCompose               = "io.coil-kt:coil-compose:${Versions.coil}"
     const val dataDog                   = "com.datadoghq:dd-sdk-android:${Versions.dataDog}"
 
@@ -128,6 +135,7 @@ object Libraries {
         const val gradlePlugin = "com.google.dagger:hilt-android-gradle-plugin:${Versions.hilt}"
         const val navigationCompose = "androidx.hilt:hilt-navigation-compose:${Versions.composeHiltNavigation}"
         const val hiltTest = "com.google.dagger:hilt-android-testing:${Versions.hilt}"
+        const val hiltWork = "androidx.hilt:hilt-work:${Versions.hiltWork}"
     }
 
     object Lifecycle {
@@ -142,6 +150,7 @@ object Libraries {
         const val stdLib            = "org.jetbrains.kotlin:kotlin-stdlib-jdk8:${Versions.kotlin}"
         const val coroutinesCore    = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines}"
         const val coroutinesAndroid = "org.jetbrains.kotlinx:kotlinx-coroutines-android:${Versions.coroutines}"
+        const val serialization     = "org.jetbrains.kotlinx:kotlinx-serialization-json:${Versions.ktxSerialization}"
     }
 
     object Firebase {

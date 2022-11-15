@@ -32,7 +32,6 @@ class CommonTopAppBarViewModel @Inject constructor(
 ) : CommonTopAppBarBaseViewModel() {
 
     var connectivityState by mutableStateOf(ConnectivityUIState(ConnectivityUIState.Info.None))
-
     init {
         viewModelScope.launch {
             combine(activeCallFlow(), currentScreenFlow(), connectivityFlow()) { activeCall, currentScreen, connectivity ->

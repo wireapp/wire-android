@@ -23,6 +23,7 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     ENABLE_BLACK_LIST("enableBlacklist", ConfigType.BOOLEAN),
     FILE_RESTRICTION_ENABLED("file_restriction_enabled", ConfigType.BOOLEAN),
     FILE_RESTRICTION_LIST("file_restriction_list", ConfigType.STRING),
+    MLS_SUPPORT_ENABLED("mls_support_enabled", ConfigType.BOOLEAN),
     FIREBASE_APP_ID("firebaseAppId", ConfigType.STRING),
     FIREBASE_PUSH_SENDER_ID("firebasePushSenderId", ConfigType.STRING),
     FORCE_APP_LOCK("force_app_lock", ConfigType.BOOLEAN),
@@ -43,6 +44,7 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     WEB_LINK_PREVIEW("web_link_preview", ConfigType.BOOLEAN),
     WEBSITE_URL("websiteUrl", ConfigType.STRING),
     WEB_SOCKET_URL("websocketUrl", ConfigType.STRING),
+    ENCRYPT_PROTEUS_STORAGE("encrypt_proteus_storage", ConfigType.BOOLEAN),
 
     CERTIFICATE_PIN("certificatePin", ConfigType.CERTIFICATE_PIN),
 

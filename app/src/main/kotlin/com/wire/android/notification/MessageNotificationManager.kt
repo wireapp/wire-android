@@ -27,16 +27,16 @@ import javax.inject.Singleton
 
 @Suppress("TooManyFunctions")
 @Singleton
-class MessageNotificationManager @Inject constructor(private val context: Context) {
-
-    private val notificationManager = NotificationManagerCompat.from(context)
-    private val oldNotificationManager = context.getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
+class MessageNotificationManager
+@Inject constructor(
+    private val context: Context,
+    private val notificationManagerCompat: NotificationManagerCompat,
+    private val notificationManager: NotificationManager
+) {
     fun handleNotification(newNotifications: List<LocalNotificationConversation>, userId: QualifiedID?) {
-
         if (newNotifications.isEmpty()) return
 
-        val activeNotifications: Array<StatusBarNotification> = oldNotificationManager.activeNotifications ?: arrayOf()
+        val activeNotifications: Array<StatusBarNotification> = notificationManager.activeNotifications ?: arrayOf()
         val userIdString = userId?.toString()
 
         createNotificationChannel()
@@ -52,7 +52,7 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
         val notificationId = getConversationNotificationId(conversationsId)
 
         if (isThereAnyOtherWireNotification(notificationId)) {
-            notificationManager.cancel(notificationId)
+            notificationManagerCompat.cancel(notificationId)
         } else {
             hideAllNotifications()
         }
@@ -60,7 +60,7 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
 
     fun hideAllNotifications() {
         // removing groupSummary removes all the notifications in a group
-        notificationManager.cancel(NotificationConstants.MESSAGE_SUMMARY_ID)
+        notificationManagerCompat.cancel(NotificationConstants.MESSAGE_SUMMARY_ID)
     }
 
     private fun createNotificationChannel() {
@@ -69,7 +69,7 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
             .setName(NotificationConstants.MESSAGE_CHANNEL_NAME)
             .build()
 
-        notificationManager.createNotificationChannel(notificationChannel)
+        notificationManagerCompat.createNotificationChannel(notificationChannel)
     }
 
     private fun showSummaryIfNeeded(activeNotifications: Array<StatusBarNotification>) {
@@ -87,7 +87,7 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
         val notificationId = getConversationNotificationId(conversation.id)
         getConversationNotification(conversation, userId, activeNotifications)?.let { notification ->
             appLogger.i("$TAG adding ConversationNotification")
-            notificationManager.notify(notificationId, notification)
+            notificationManagerCompat.notify(notificationId, notification)
         }
     }
 
@@ -192,13 +192,7 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
     }
 
     private fun getConversationTitle(conversation: NotificationConversation): String? =
-        conversation.messages.firstOrNull().let { firstMessage ->
-            when {
-                firstMessage is NotificationMessage.ConnectionRequest -> firstMessage.author.name
-                conversation.isOneToOneConversation -> null
-                else -> conversation.name
-            }
-        }
+        if (conversation.isOneToOneConversation) null else conversation.name
 
     private fun italicTextFromResId(@StringRes stringResId: Int) =
         context.getString(stringResId).toSpannable()
@@ -220,8 +214,8 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
             is NotificationMessage.ConnectionRequest -> italicTextFromResId(R.string.notification_connection_request)
             is NotificationMessage.ConversationDeleted -> italicTextFromResId(R.string.notification_conversation_deleted)
         }
-
         return NotificationCompat.MessagingStyle.Message(message, time, sender)
+
     }
 
     /**
@@ -229,7 +223,7 @@ class MessageNotificationManager @Inject constructor(private val context: Contex
      * and notification with id [exceptNotificationId]
      */
     private fun isThereAnyOtherWireNotification(exceptNotificationId: Int): Boolean {
-        return oldNotificationManager.activeNotifications
+        return notificationManager.activeNotifications
             ?.any {
                 it.groupKey.endsWith(NotificationConstants.MESSAGE_GROUP_KEY)
                         && it.id != exceptNotificationId

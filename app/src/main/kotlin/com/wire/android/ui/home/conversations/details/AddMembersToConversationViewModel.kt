@@ -25,15 +25,16 @@ import com.wire.kalium.logic.feature.conversation.AddMemberToConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetAllContactsNotInConversationUseCase
 import com.wire.kalium.logic.feature.conversation.Result
 import com.wire.kalium.logic.feature.publicuser.search.SearchKnownUsersUseCase
+import com.wire.kalium.logic.feature.publicuser.search.SearchUsersResult as KnownUserSearchResult
 import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
+import kotlinx.collections.immutable.persistentMapOf
+import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import javax.inject.Inject
-import com.wire.kalium.logic.feature.publicuser.search.SearchUsersResult as KnownUserSearchResult
 
 @Suppress("LongParameterList")
 @HiltViewModel
@@ -55,12 +56,12 @@ class AddMembersToConversationViewModel @Inject constructor(
         savedStateHandle.get<String>(EXTRA_CONVERSATION_ID)!!
     )
 
-    var state: SearchPeopleState by mutableStateOf(SearchPeopleState())
+    var state: SearchPeopleState by mutableStateOf(SearchPeopleState(isGroupCreationContext = false))
 
     init {
         viewModelScope.launch {
             combine(
-                initialContactResultFlow,
+                initialContactResultFlow(),
                 knownPeopleSearchQueryFlow,
                 searchQueryTextFieldFlow,
                 selectedContactsFlow
@@ -68,9 +69,10 @@ class AddMembersToConversationViewModel @Inject constructor(
                 SearchPeopleState(
                     initialContacts = initialContacts,
                     searchQuery = searchQuery,
-                    searchResult = mapOf(SearchResultTitle(R.string.label_contacts) to knownResult),
+                    searchResult = persistentMapOf(SearchResultTitle(R.string.label_contacts) to knownResult),
                     noneSearchSucceed = knownResult.searchResultState is SearchResultState.Failure,
-                    contactsAddedToGroup = selectedContacts
+                    contactsAddedToGroup = selectedContacts.toImmutableList(),
+                    isGroupCreationContext = false
                 )
             }.collect { updatedState ->
                 state = updatedState
@@ -78,16 +80,16 @@ class AddMembersToConversationViewModel @Inject constructor(
         }
     }
 
-    override suspend fun getInitialContacts(): SearchResult =
-        withContext(dispatchers.io()) {
-            when (val result = getAllContactsNotInConversation(conversationId)) {
+    override fun getInitialContacts(): Flow<SearchResult> =
+        getAllContactsNotInConversation(conversationId).map { result ->
+            when (result) {
                 is Result.Failure -> SearchResult.Failure(R.string.label_general_error)
                 is Result.Success -> SearchResult.Success(result.contactsNotInConversation.map(contactMapper::fromOtherUser))
             }
         }
 
     override suspend fun searchKnownPeople(searchTerm: String): Flow<ContactSearchResult.InternalContact> {
-       return searchKnownUsers(
+        return searchKnownUsers(
             searchQuery = searchTerm,
             searchUsersOptions = SearchUsersOptions(
                 conversationExcluded = ConversationMemberExcludedOptions.ConversationExcluded(conversationId),
@@ -106,11 +108,7 @@ class AddMembersToConversationViewModel @Inject constructor(
                         SearchResultState.Failure(R.string.label_general_error)
                     )
                     is KnownUserSearchResult.Success -> ContactSearchResult.InternalContact(
-                        SearchResultState.Success(
-                            result.userSearchResult.result.map(
-                                contactMapper::fromOtherUser
-                            )
-                        )
+                        SearchResultState.Success(result.userSearchResult.result.map(contactMapper::fromOtherUser).toImmutableList())
                     )
                 }
             }
@@ -119,7 +117,7 @@ class AddMembersToConversationViewModel @Inject constructor(
     fun addMembersToConversation() {
         viewModelScope.launch {
             withContext(dispatchers.io()) {
-                //TODO: addMembersToConversationUseCase does not handle failure
+                // TODO: addMembersToConversationUseCase does not handle failure
                 addMemberToConversation(
                     conversationId = conversationId,
                     userIdList = state.contactsAddedToGroup.map { UserId(it.id, it.domain) }
@@ -128,5 +126,4 @@ class AddMembersToConversationViewModel @Inject constructor(
             navigationManager.navigateBack()
         }
     }
-
 }

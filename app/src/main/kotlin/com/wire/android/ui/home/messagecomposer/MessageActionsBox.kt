@@ -14,12 +14,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material.Divider
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusManager
 import com.wire.android.R
-import com.wire.android.ui.common.button.WireIconButton
+import com.wire.android.ui.common.button.WireButtonState
+import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.common.dimensions
+import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 
 @ExperimentalAnimationApi
 @Composable
@@ -27,7 +30,8 @@ fun MessageComposeActionsBox(
     modifier: Modifier,
     transition: Transition<MessageComposeInputState>,
     messageComposerState: MessageComposerInnerState,
-    focusManager: FocusManager
+    focusManager: FocusManager,
+    isMentionActive: Boolean
 ) {
     Column(
         modifier
@@ -42,7 +46,7 @@ fun MessageComposeActionsBox(
                     targetOffsetY = { fullHeight -> fullHeight / 2 }
                 ) + fadeOut()
             ) {
-                MessageComposeActions(messageComposerState, focusManager)
+                MessageComposeActions(messageComposerState, focusManager, isMentionActive)
             }
         }
     }
@@ -51,8 +55,11 @@ fun MessageComposeActionsBox(
 @Composable
 private fun MessageComposeActions(
     messageComposerState: MessageComposerInnerState,
-    focusManager: FocusManager
+    focusManager: FocusManager,
+    isMentionsSelected: Boolean
 ) {
+    val localFeatureVisibilityFlags = LocalFeatureVisibilityFlags.current
+
     Row(
         verticalAlignment = Alignment.CenterVertically,
         horizontalArrangement = Arrangement.SpaceEvenly,
@@ -60,22 +67,29 @@ private fun MessageComposeActions(
             .fillMaxWidth()
             .height(dimensions().spacing56x)
     ) {
-        AdditionalOptionButton(messageComposerState.attachmentOptionsDisplayed) {
-            focusManager.clearFocus()
-            messageComposerState.toggleAttachmentOptionsVisibility()
+        with(localFeatureVisibilityFlags) {
+            AdditionalOptionButton(messageComposerState.attachmentOptionsDisplayed) {
+                focusManager.clearFocus()
+                messageComposerState.toggleAttachmentOptionsVisibility()
+            }
+            if (RichTextIcon)
+                RichTextEditingAction()
+            if (EmojiIcon)
+                AddEmojiAction()
+            if (GifIcon)
+                AddGifAction()
+            AddMentionAction(isMentionsSelected, messageComposerState::startMention)
+            if (PingIcon)
+                PingAction()
         }
-        RichTextEditingAction()
-        AddEmojiAction()
-        AddGifAction()
-        AddMentionAction()
-        TakePictureAction()
     }
 }
 
 @Composable
 private fun RichTextEditingAction() {
-    WireIconButton(
+    WireSecondaryIconButton(
         onButtonClicked = {},
+        blockUntilSynced = true,
         iconResource = R.drawable.ic_rich_text,
         contentDescription = R.string.content_description_conversation_enable_rich_text_mode
     )
@@ -83,8 +97,9 @@ private fun RichTextEditingAction() {
 
 @Composable
 private fun AddEmojiAction() {
-    WireIconButton(
+    WireSecondaryIconButton(
         onButtonClicked = {},
+        blockUntilSynced = true,
         iconResource = R.drawable.ic_emoticon,
         contentDescription = R.string.content_description_conversation_send_emoticon
     )
@@ -92,26 +107,33 @@ private fun AddEmojiAction() {
 
 @Composable
 private fun AddGifAction() {
-    WireIconButton(
+    WireSecondaryIconButton(
         onButtonClicked = {},
+        blockUntilSynced = true,
         iconResource = R.drawable.ic_gif,
         contentDescription = R.string.content_description_conversation_send_gif
     )
 }
 
 @Composable
-private fun AddMentionAction() {
-    WireIconButton(
-        onButtonClicked = {},
+private fun AddMentionAction(isSelected: Boolean, addMentionAction: () -> Unit) {
+    val onButtonClicked = remember(isSelected) {
+        { if (!isSelected) addMentionAction() }
+    }
+    WireSecondaryIconButton(
+        onButtonClicked = onButtonClicked,
+        blockUntilSynced = true,
         iconResource = R.drawable.ic_mention,
-        contentDescription = R.string.content_description_conversation_mention_someone
+        contentDescription = R.string.content_description_conversation_mention_someone,
+        state = if (isSelected) WireButtonState.Selected else WireButtonState.Default
     )
 }
 
 @Composable
-private fun TakePictureAction() {
-    WireIconButton(
+private fun PingAction() {
+    WireSecondaryIconButton(
         onButtonClicked = {},
+        blockUntilSynced = true,
         iconResource = R.drawable.ic_ping,
         contentDescription = R.string.content_description_ping_everyone
     )

@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.framework.FakeKaliumFileSystem
+import com.wire.android.mapper.ContactMapper
 import com.wire.android.model.UserAvatarData
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.model.MessageHeader
@@ -29,14 +30,16 @@ import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.data.user.type.UserType
-import com.wire.kalium.logic.feature.asset.SendAssetMessageResult
-import com.wire.kalium.logic.feature.asset.SendAssetMessageUseCase
+import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageResult
+import com.wire.kalium.logic.feature.asset.ScheduleNewAssetMessageUseCase
 import com.wire.kalium.logic.feature.call.usecase.EndCallUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.ObserveOngoingCallsUseCase
 import com.wire.kalium.logic.feature.conversation.GetSecurityClassificationTypeUseCase
-import com.wire.kalium.logic.feature.conversation.IsSelfUserMemberResult
-import com.wire.kalium.logic.feature.conversation.ObserveIsSelfUserMemberUseCase
+import com.wire.kalium.logic.feature.conversation.InteractionAvailability
+import com.wire.kalium.logic.feature.conversation.IsInteractionAvailableResult
+import com.wire.kalium.logic.feature.conversation.MembersToMentionUseCase
+import com.wire.kalium.logic.feature.conversation.ObserveConversationInteractionAvailabilityUseCase
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
@@ -88,7 +91,7 @@ internal class ConversationsViewModelArrangement {
     lateinit var sendTextMessage: SendTextMessageUseCase
 
     @MockK
-    lateinit var sendAssetMessage: SendAssetMessageUseCase
+    lateinit var sendAssetMessage: ScheduleNewAssetMessageUseCase
 
     @MockK
     lateinit var deleteMessage: DeleteMessageUseCase
@@ -109,7 +112,7 @@ internal class ConversationsViewModelArrangement {
     private lateinit var observeEstablishedCallsUseCase: ObserveEstablishedCallsUseCase
 
     @MockK
-    private lateinit var observeIsSelfUserMemberUseCase: ObserveIsSelfUserMemberUseCase
+    private lateinit var observeConversationInteractionAvailabilityUseCase: ObserveConversationInteractionAvailabilityUseCase
 
     @MockK
     private lateinit var endCall: EndCallUseCase
@@ -122,6 +125,12 @@ internal class ConversationsViewModelArrangement {
 
     @MockK
     private lateinit var observeSyncState: ObserveSyncStateUseCase
+
+    @MockK
+    private lateinit var contactMapper: ContactMapper
+
+    @MockK
+    private lateinit var membersToMention: MembersToMentionUseCase
 
     private val fakeKaliumFileSystem = FakeKaliumFileSystem()
 
@@ -139,8 +148,10 @@ internal class ConversationsViewModelArrangement {
             wireSessionImageLoader = wireSessionImageLoader,
             kaliumFileSystem = fakeKaliumFileSystem,
             updateConversationReadDateUseCase = updateConversationReadDateUseCase,
-            observeIsSelfConversationMember = observeIsSelfUserMemberUseCase,
-            getConversationClassifiedType = getSecurityClassificationType
+            observeConversationInteractionAvailability = observeConversationInteractionAvailabilityUseCase,
+            getConversationClassifiedType = getSecurityClassificationType,
+            contactMapper = contactMapper,
+            membersToMention = membersToMention
         )
     }
 
@@ -148,7 +159,11 @@ internal class ConversationsViewModelArrangement {
         coEvery { isFileSharingEnabledUseCase() } returns FileSharingStatus(null, null)
         coEvery { observeOngoingCallsUseCase() } returns emptyFlow()
         coEvery { observeEstablishedCallsUseCase() } returns emptyFlow()
-        coEvery { observeIsSelfUserMemberUseCase(any()) } returns flowOf(IsSelfUserMemberResult.Success(true))
+        coEvery { observeConversationInteractionAvailabilityUseCase(any()) } returns flowOf(
+            IsInteractionAvailableResult.Success(
+                InteractionAvailability.ENABLED
+            )
+        )
     }
 
     fun withStoredAsset(dataPath: Path, dataContent: ByteArray) = apply {
@@ -158,7 +173,17 @@ internal class ConversationsViewModelArrangement {
     }
 
     fun withSuccessfulSendAttachmentMessage() = apply {
-        coEvery { sendAssetMessage(any(), any(), any(), any(), any(), any(), any()) } returns SendAssetMessageResult.Success
+        coEvery {
+            sendAssetMessage(
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any(),
+                any()
+            )
+        } returns ScheduleNewAssetMessageResult.Success("some-message-id")
     }
 
     fun withFailureOnDeletingMessages() = apply {
@@ -182,7 +207,9 @@ internal fun withMockConversationDetailsOneOnOne(
     connectionState: ConnectionState = ConnectionState.ACCEPTED,
     unavailable: Boolean = false
 ) = ConversationDetails.OneOne(
-    conversation = mockk(),
+    conversation = mockk<Conversation>().apply {
+        every { type } returns Conversation.Type.ONE_ON_ONE
+    },
     otherUser = mockk<OtherUser>().apply {
         every { id } returns senderId
         every { name } returns senderName
@@ -190,12 +217,13 @@ internal fun withMockConversationDetailsOneOnOne(
         every { availabilityStatus } returns UserAvailabilityStatus.NONE
         every { connectionStatus } returns connectionState
         every { isUnavailableUser } returns unavailable
+        every { deleted } returns false
     },
-    connectionState = ConnectionState.PENDING,
     legalHoldStatus = LegalHoldStatus.DISABLED,
     userType = UserType.INTERNAL,
-    unreadMessagesCount = 0L,
-    lastUnreadMessage = null
+    unreadMessagesCount = 0,
+    lastUnreadMessage = null,
+    unreadContentCount = emptyMap()
 )
 
 internal fun mockConversationDetailsGroup(
@@ -205,14 +233,18 @@ internal fun mockConversationDetailsGroup(
     conversation = mockk<Conversation>().apply {
         every { name } returns conversationName
         every { id } returns mockedConversationId
+        every { type } returns Conversation.Type.GROUP
     },
     legalHoldStatus = mockk(),
     hasOngoingCall = false,
     unreadMessagesCount = 0,
-    lastUnreadMessage = null
+    lastUnreadMessage = null,
+    isSelfUserCreator = true,
+    isSelfUserMember = true,
+    unreadContentCount = emptyMap()
 )
 
-internal fun mockUITextMessage(id:String = "someId", userName: String = "mockUserName"): UIMessage {
+internal fun mockUITextMessage(id: String = "someId", userName: String = "mockUserName"): UIMessage {
     return mockk<UIMessage>().also {
         every { it.userAvatarData } returns UserAvatarData()
         every { it.messageSource } returns MessageSource.OtherUser

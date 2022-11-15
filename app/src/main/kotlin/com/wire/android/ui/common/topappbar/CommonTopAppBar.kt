@@ -1,3 +1,5 @@
+@file:Suppress("TooManyFunctions")
+
 package com.wire.android.ui.common.topappbar
 
 import androidx.compose.animation.AnimatedVisibility
@@ -23,6 +25,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.IntSize
 import com.google.accompanist.systemuicontroller.rememberSystemUiController
@@ -33,7 +36,10 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.kalium.logic.data.id.ConversationId
 
 @Composable
-fun CommonTopAppBar(connectivityUIState: ConnectivityUIState, onReturnToCallClick: () -> Unit) {
+fun CommonTopAppBar(
+    connectivityUIState: ConnectivityUIState,
+    onReturnToCallClick: () -> Unit
+) {
     ConnectivityStatusBar(
         connectivityInfo = connectivityUIState.info,
         onReturnToCallClick = onReturnToCallClick
@@ -46,6 +52,7 @@ private fun ConnectivityStatusBar(
     onReturnToCallClick: () -> Unit
 ) {
     val isVisible = connectivityInfo !is ConnectivityUIState.Info.None
+
     if (!isVisible) {
         clearStatusBarColor()
     }
@@ -124,6 +131,16 @@ private fun OngoingCallContent(isMuted: Boolean) {
 private fun StatusLabel(stringResource: Int) {
     Text(
         text = stringResource(id = stringResource).uppercase(),
+        color = MaterialTheme.wireColorScheme.connectivityBarTextColor,
+        style = MaterialTheme.wireTypography.title03,
+    )
+}
+
+@Composable
+fun StatusLabel(message: String) {
+    Text(
+        text = message,
+        textAlign = TextAlign.Center,
         color = MaterialTheme.wireColorScheme.connectivityBarTextColor,
         style = MaterialTheme.wireTypography.title03,
     )

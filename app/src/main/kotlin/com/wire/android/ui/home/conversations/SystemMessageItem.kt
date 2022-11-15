@@ -64,7 +64,7 @@ fun SystemMessageItem(message: SystemMessage) {
                 Box(
                     modifier = Modifier.size(
                         width = dimensions().systemMessageIconLargeSize,
-                        height =  dimensions().spacing20x
+                        height = dimensions().spacing20x
                     ),
                     contentAlignment = Alignment.Center
                 ) {
@@ -171,6 +171,8 @@ private val SystemMessage.expandable
         is SystemMessage.MemberRemoved -> this.memberNames.size > EXPANDABLE_THRESHOLD
         is SystemMessage.MemberLeft -> false
         is SystemMessage.MissedCall -> false
+        is SystemMessage.RenamedConversation -> false
+        is SystemMessage.TeamMemberRemoved -> false
     }
 
 private fun List<String>.toUserNamesListString(res: Resources) = when {
@@ -210,6 +212,8 @@ fun SystemMessage.annotatedString(
             )
         is SystemMessage.MemberLeft -> arrayOf(author.asString(res))
         is SystemMessage.MissedCall -> arrayOf(author.asString(res))
+        is SystemMessage.RenamedConversation -> arrayOf(author.asString(res), additionalContent)
+        is SystemMessage.TeamMemberRemoved -> arrayOf(content.userName)
     }
     return res.stringWithStyledArgs(stringResId, normalStyle, boldStyle, normalColor, boldColor, *args)
 }

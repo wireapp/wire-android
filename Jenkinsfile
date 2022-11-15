@@ -92,15 +92,21 @@ pipeline {
 
         stage('Create properties file') {
           steps {
-            sh '''FILE=/${propertiesFile}
-                        if test -f "$FILE"; then
-                            echo "${propertiesFile} exists already"
-                        else
-                            echo "sdk.dir="$ANDROID_HOME >> ${propertiesFile}
-                            echo "ndk.dir="$NDK_HOME >> ${propertiesFile}
-                            echo "nexus.url=$NEXUS_URL" >> ${propertiesFile}
-                        fi
-                    '''
+           withCredentials([
+                    string(credentialsId: 'GITHUB_PACKAGES_USER', variable: 'GITHUB_USER'),
+                    string(credentialsId: 'GITHUB_PACKAGES_TOKEN', variable: 'GITHUB_TOKEN')
+                  ]) {
+                    sh '''FILE=/${propertiesFile}
+                          if test -f "$FILE"; then
+                              echo "${propertiesFile} exists already, deleting"
+                              rm {$propertiesFile}
+                          fi
+                          echo "sdk.dir="$ANDROID_HOME >> ${propertiesFile}
+                          echo "ndk.dir="$NDK_HOME >> ${propertiesFile}
+                          echo "github.package_registry.user="$GITHUB_USER >> ${propertiesFile}
+                          echo "github.package_registry.token="$GITHUB_TOKEN >> ${propertiesFile}
+                       '''
+             }
           }
         }
       }
@@ -135,6 +141,12 @@ pipeline {
         stage('Fetch submodules') {
           steps {
             sh 'git submodule update --init --recursive'
+          }
+        }
+
+        stage('Copy local.properties to Kalium') {
+          steps {
+            sh '\\cp -f ${propertiesFile} kalium/${propertiesFile}'
           }
         }
 

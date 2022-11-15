@@ -1,5 +1,6 @@
 package com.wire.android.ui.common
 
+import android.widget.Toast
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.combinedClickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
@@ -17,6 +18,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.Shape
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.semantics.Role
 import androidx.lifecycle.Lifecycle
@@ -25,9 +27,11 @@ import androidx.lifecycle.flowWithLifecycle
 import com.google.accompanist.placeholder.PlaceholderHighlight
 import com.google.accompanist.placeholder.placeholder
 import com.google.accompanist.placeholder.shimmer
+import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
+import com.wire.android.util.LocalSyncStateObserver
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.StateFlow
 import kotlin.coroutines.CoroutineContext
@@ -68,10 +72,30 @@ fun Modifier.shimmerPlaceholder(
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun Modifier.clickable(clickable: Clickable?) = clickable?.let {
+    val syncStateObserver = LocalSyncStateObserver.current
+    val context = LocalContext.current
+    val onClick = remember(clickable) {
+        {
+            if (clickable.blockUntilSynced && !syncStateObserver.isSynced)
+                Toast.makeText(context, context.getString(R.string.label_wait_until_synchronised), Toast.LENGTH_SHORT).show()
+            else
+                clickable.onClick()
+        }
+    }
+    val onLongClick = clickable.onLongClick?.let { onLongClick ->
+        remember(clickable) {
+            {
+                if (clickable.blockUntilSynced && !syncStateObserver.isSynced)
+                    Toast.makeText(context, context.getString(R.string.label_wait_until_synchronised), Toast.LENGTH_SHORT).show()
+                else
+                    onLongClick()
+            }
+        }
+    }
     this.combinedClickable(
         enabled = clickable.enabled,
-        onClick = clickable.onClick,
-        onLongClick = clickable.onLongClick
+        onClick = onClick,
+        onLongClick = onLongClick
     )
 } ?: this
 

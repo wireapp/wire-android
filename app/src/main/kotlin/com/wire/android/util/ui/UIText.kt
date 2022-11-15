@@ -4,9 +4,13 @@ import android.content.res.Resources
 import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
+import com.wire.kalium.logic.data.message.mention.MessageMention
 
 sealed class UIText {
-    data class DynamicString(val value: String) : UIText()
+    data class DynamicString(
+        val value: String,
+        val mentions: List<MessageMention> = listOf()
+    ) : UIText()
 
     class StringResource(
         @StringRes val resId: Int,

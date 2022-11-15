@@ -24,7 +24,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.model.UserAvatarData
-import com.wire.android.ui.calling.controlButtons.JoinButton
+import com.wire.android.ui.calling.controlbuttons.JoinButton
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryButton
@@ -36,6 +36,7 @@ import com.wire.android.ui.home.conversations.info.ConversationInfoViewState
 import com.wire.android.ui.home.conversationslist.common.GroupConversationAvatar
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
@@ -49,9 +50,8 @@ fun ConversationScreenTopAppBar(
     onSearchButtonClick: () -> Unit,
     onPhoneButtonClick: () -> Unit,
     hasOngoingCall: Boolean,
-    isUserBlocked: Boolean,
     onJoinCallButtonClick: () -> Unit,
-    isCallingEnabled: Boolean = true
+    isInteractionEnabled: Boolean,
 ) {
     SmallTopAppBar(
         title = {
@@ -59,7 +59,7 @@ fun ConversationScreenTopAppBar(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier
                     .clip(RoundedCornerShape(MaterialTheme.wireDimensions.buttonCornerSize))
-                    .clickable(onClick = onDropDownClick, enabled = isDropDownEnabled)
+                    .clickable(onClick = onDropDownClick, enabled = isDropDownEnabled && isInteractionEnabled)
 
             ) {
                 val conversationAvatar: ConversationAvatar = conversationInfoViewState.conversationAvatar
@@ -72,7 +72,7 @@ fun ConversationScreenTopAppBar(
                     overflow = TextOverflow.Ellipsis,
                     modifier = Modifier.weight(weight = 1f, fill = false)
                 )
-                if (isDropDownEnabled)
+                if (isDropDownEnabled && isInteractionEnabled)
                     Icon(
                         painter = painterResource(id = R.drawable.ic_dropdown_icon),
                         contentDescription = stringResource(R.string.content_description_drop_down_icon)
@@ -81,28 +81,32 @@ fun ConversationScreenTopAppBar(
         },
         navigationIcon = { BackNavigationIconButton(onBackButtonClick = onBackButtonClick) },
         actions = {
-            WireSecondaryButton(
-                onClick = onSearchButtonClick,
-                leadingIcon = {
-                    Icon(
-                        painter = painterResource(id = R.drawable.ic_search),
-                        contentDescription = stringResource(R.string.content_description_conversation_search_icon),
-                        tint = MaterialTheme.colorScheme.onBackground
-                    )
-                },
-                fillMaxWidth = false,
-                minHeight = MaterialTheme.wireDimensions.spacing32x,
-                minWidth = MaterialTheme.wireDimensions.spacing40x,
-                shape = RoundedCornerShape(size = MaterialTheme.wireDimensions.corner12x),
-                contentPadding = PaddingValues(0.dp)
-            )
+            val featureVisibilityFlags = LocalFeatureVisibilityFlags.current
+
+            if (featureVisibilityFlags.ConversationSearchIcon) {
+                WireSecondaryButton(
+                    onClick = onSearchButtonClick,
+                    leadingIcon = {
+                        Icon(
+                            painter = painterResource(id = R.drawable.ic_search),
+                            contentDescription = stringResource(R.string.content_description_conversation_search_icon),
+                            tint = MaterialTheme.colorScheme.onBackground
+                        )
+                    },
+                    fillMaxWidth = false,
+                    minHeight = MaterialTheme.wireDimensions.spacing32x,
+                    minWidth = MaterialTheme.wireDimensions.spacing40x,
+                    shape = RoundedCornerShape(size = MaterialTheme.wireDimensions.corner12x),
+                    contentPadding = PaddingValues(0.dp)
+                )
+            }
+
             Spacer(Modifier.width(MaterialTheme.wireDimensions.spacing6x))
             callControlButton(
                 hasOngoingCall = hasOngoingCall,
                 onJoinCallButtonClick = onJoinCallButtonClick,
                 onPhoneButtonClick = onPhoneButtonClick,
-                isUserBlocked = isUserBlocked,
-                isCallingEnabled = isCallingEnabled
+                isCallingEnabled = isInteractionEnabled
             )
             Spacer(Modifier.width(MaterialTheme.wireDimensions.spacing6x))
         }, colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
@@ -140,7 +144,6 @@ private fun Avatar(
 @Composable
 private fun callControlButton(
     hasOngoingCall: Boolean,
-    isUserBlocked: Boolean,
     onJoinCallButtonClick: () -> Unit,
     onPhoneButtonClick: () -> Unit,
     isCallingEnabled: Boolean
@@ -150,7 +153,7 @@ private fun callControlButton(
             buttonClick = onJoinCallButtonClick,
             minHeight = MaterialTheme.wireDimensions.spacing28x
         )
-    } else if (isCallingEnabled) {
+    } else {
         WireSecondaryButton(
             onClick = onPhoneButtonClick,
             leadingIcon = {
@@ -159,10 +162,11 @@ private fun callControlButton(
                     contentDescription = stringResource(R.string.content_description_conversation_phone_icon),
                 )
             },
-            state = if (isUserBlocked) WireButtonState.Disabled else WireButtonState.Default,
+            state = if (isCallingEnabled) WireButtonState.Default else WireButtonState.Disabled,
             fillMaxWidth = false,
             minHeight = MaterialTheme.wireDimensions.spacing32x,
             minWidth = MaterialTheme.wireDimensions.spacing40x,
+            blockUntilSynced = true,
             shape = RoundedCornerShape(size = MaterialTheme.wireDimensions.corner12x),
             contentPadding = PaddingValues(0.dp)
         )
@@ -178,7 +182,7 @@ fun ConversationScreenTopAppBarLongTitlePreview() {
                 "This is some very very very very very very very very very very long conversation title"
             ),
             conversationDetailsData = ConversationDetailsData.Group(QualifiedID("", "")),
-            conversationAvatar = ConversationAvatar.OneOne(null, UserAvailabilityStatus.NONE)
+            conversationAvatar = ConversationAvatar.OneOne(null, UserAvailabilityStatus.NONE),
         ),
         onBackButtonClick = {},
         onDropDownClick = {},
@@ -186,8 +190,8 @@ fun ConversationScreenTopAppBarLongTitlePreview() {
         onSearchButtonClick = {},
         onPhoneButtonClick = {},
         hasOngoingCall = false,
-        isUserBlocked = false,
-        onJoinCallButtonClick = {}
+        onJoinCallButtonClick = {},
+        isInteractionEnabled = true
     )
 }
 
@@ -207,8 +211,8 @@ fun ConversationScreenTopAppBarShortTitlePreview() {
         onSearchButtonClick = {},
         onPhoneButtonClick = {},
         hasOngoingCall = false,
-        isUserBlocked = false,
-        onJoinCallButtonClick = {}
+        onJoinCallButtonClick = {},
+        isInteractionEnabled = true
     )
 }
 
@@ -228,7 +232,7 @@ fun ConversationScreenTopAppBarShortTitleWithOngoingCallPreview() {
         onSearchButtonClick = {},
         onPhoneButtonClick = {},
         hasOngoingCall = true,
-        isUserBlocked = false,
-        onJoinCallButtonClick = {}
+        onJoinCallButtonClick = {},
+        isInteractionEnabled = true
     )
 }

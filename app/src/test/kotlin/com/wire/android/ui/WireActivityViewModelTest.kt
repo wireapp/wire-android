@@ -5,7 +5,9 @@ import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.di.AuthServerConfigProvider
+import com.wire.android.di.ObserveSyncStateUseCaseProvider
 import com.wire.android.feature.AccountSwitchUseCase
+import com.wire.android.migration.MigrationManager
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
@@ -24,6 +26,7 @@ import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
+import com.wire.kalium.logic.sync.ObserveSyncStateUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -31,6 +34,7 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import io.mockk.mockk
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.emptyFlow
 import kotlinx.coroutines.flow.flowOf
 import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Test
@@ -361,6 +365,7 @@ class WireActivityViewModelTest {
             coEvery { navigationManager.navigate(any()) } returns Unit
             coEvery { observePersistentWebSocketConnectionStatus() } returns flowOf(true)
             coEvery { getSessionsUseCase.invoke() }
+            coEvery { migrationManager.shouldMigrate() } returns false
         }
 
         @MockK
@@ -390,6 +395,15 @@ class WireActivityViewModelTest {
         @MockK
         private lateinit var switchAccount: AccountSwitchUseCase
 
+        @MockK
+        private lateinit var migrationManager: MigrationManager
+
+        @MockK
+        private lateinit var observeSyncStateUseCase: ObserveSyncStateUseCase
+
+        @MockK
+        private lateinit var observeSyncStateUseCaseProviderFactory: ObserveSyncStateUseCaseProvider.Factory
+
         private val viewModel by lazy {
             WireActivityViewModel(
                 dispatchers = TestDispatcherProvider(),
@@ -401,8 +415,15 @@ class WireActivityViewModelTest {
                 authServerConfigProvider = authServerConfigProvider,
                 observePersistentWebSocketConnectionStatus = observePersistentWebSocketConnectionStatus,
                 getSessions = getSessionsUseCase,
-                accountSwitch = switchAccount
+                accountSwitch = switchAccount,
+                migrationManager = migrationManager,
+                observeSyncStateUseCaseProviderFactory = observeSyncStateUseCaseProviderFactory
             )
+        }
+
+        init {
+            every { observeSyncStateUseCaseProviderFactory.create(any()).observeSyncState } returns observeSyncStateUseCase
+            every { observeSyncStateUseCase() } returns emptyFlow()
         }
 
         fun withSomeCurrentSession(): Arrangement {

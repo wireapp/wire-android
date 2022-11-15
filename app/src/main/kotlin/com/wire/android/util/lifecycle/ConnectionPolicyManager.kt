@@ -2,6 +2,7 @@ package com.wire.android.util.lifecycle
 
 import com.wire.android.appLogger
 import com.wire.android.di.KaliumCoreLogic
+import com.wire.android.migration.MigrationManager
 import com.wire.android.util.CurrentScreenManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logger.KaliumLogger.Companion.ApplicationFlow.SYNC
@@ -13,11 +14,13 @@ import com.wire.kalium.logic.data.sync.ConnectionPolicy
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.UserSessionScope
 import com.wire.kalium.logic.functional.fold
+import com.wire.kalium.logic.functional.isLeft
 import com.wire.kalium.logic.functional.map
 import com.wire.kalium.logic.functional.nullableFold
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -34,14 +37,16 @@ import javax.inject.Singleton
  * When the app is initialised without displaying any UI all sessions are
  * set to [ConnectionPolicy.DISCONNECT_AFTER_PENDING_EVENTS].
  */
+@OptIn(ExperimentalCoroutinesApi::class)
 @Singleton
 class ConnectionPolicyManager @Inject constructor(
     private val currentScreenManager: CurrentScreenManager,
     @KaliumCoreLogic private val coreLogic: CoreLogic,
-    private val dispatcherProvider: DispatcherProvider
+    private val dispatcherProvider: DispatcherProvider,
+    private val migrationManager: MigrationManager
 ) {
 
-    private val logger = appLogger.withFeatureId(SYNC)
+    private val logger by lazy { appLogger.withFeatureId(SYNC) }
 
     /**
      * Starts observing the app state and take action.
@@ -49,11 +54,15 @@ class ConnectionPolicyManager @Inject constructor(
     @OptIn(ExperimentalCoroutinesApi::class)
     fun startObservingAppLifecycle() {
         CoroutineScope(dispatcherProvider.default()).launch {
-            currentScreenManager.appWasVisibleAtLeastOnceFlow()
-                .combine(currentSessionFlow()) { wasVisible, currentSession -> wasVisible to currentSession }
-                .collect { (wasVisible, currentSession) ->
-                    setPolicyForSessions(allValidSessions(), currentSession, wasVisible)
-                }
+            combine(
+                currentScreenManager.isAppOnForegroundFlow(),
+                currentSessionFlow(),
+                migrationManager.isMigrationCompletedFlow(),
+                ::Triple
+            ).collect { (isOnForeground, currentSession, isMigrationCompleted) ->
+                if (isMigrationCompleted)
+                    setPolicyForSessions(allValidSessions(), currentSession, isOnForeground)
+            }
         }
     }
 
@@ -66,16 +75,20 @@ class ConnectionPolicyManager @Inject constructor(
      * this will downgrade the policy back to [ConnectionPolicy.DISCONNECT_AFTER_PENDING_EVENTS].
      */
     suspend fun handleConnectionOnPushNotification(userId: UserId) {
-        logger.d("Handling connection policy for push notification of " +
-                "user=${userId.value.obfuscateId()}@${userId.domain.obfuscateDomain()}")
+        logger.d(
+            "$TAG Handling connection policy for push notification of " +
+                    "user=${userId.value.obfuscateId()}@${userId.domain.obfuscateDomain()}"
+        )
         coreLogic.getSessionScope(userId).run {
-            logger.d("Forcing KEEP_ALIVE policy")
+            logger.d("$TAG Forcing KEEP_ALIVE policy")
             // Force KEEP_ALIVE policy, so we gather pending events and become online
             setConnectionPolicy(ConnectionPolicy.KEEP_ALIVE)
             // Wait until the client is live and pending events are processed
-            logger.d("Waiting until live")
-            syncManager.waitUntilLive()
-            logger.d("Checking if downgrading policy is needed")
+            logger.d("$TAG Waiting until live")
+            if (syncManager.waitUntilLiveOrFailure().isLeft()) {
+                logger.w("$TAG Failed waiting until live")
+            }
+            logger.d("$TAG Checking if downgrading policy is needed")
             downgradePolicyIfNeeded(userId)
         }
     }
@@ -86,15 +99,15 @@ class ConnectionPolicyManager @Inject constructor(
      * the [ConnectionPolicy.KEEP_ALIVE] policy.
      * Otherwise, we downgrade to [ConnectionPolicy.DISCONNECT_AFTER_PENDING_EVENTS].
      */
-    private fun UserSessionScope.downgradePolicyIfNeeded(
+    private suspend fun UserSessionScope.downgradePolicyIfNeeded(
         userId: UserId
     ) {
         val isCurrentSession = isCurrentSession(userId)
-        val hasInitialisedUI = currentScreenManager.appWasVisibleAtLeastOnceFlow().value
+        val isAppOnForeground = currentScreenManager.isAppOnForegroundFlow().first()
         logger.d("isCurrentSession = $isCurrentSession; hasInitialisedUI = $isCurrentSession")
-        val shouldKeepLivePolicy = isCurrentSession && hasInitialisedUI
+        val shouldKeepLivePolicy = isCurrentSession && isAppOnForeground
         if (!shouldKeepLivePolicy) {
-            logger.d("Downgrading policy as conditions to KEEP_ALIVE are not met")
+            logger.d("$TAG Downgrading policy as conditions to KEEP_ALIVE are not met")
             setConnectionPolicy(ConnectionPolicy.DISCONNECT_AFTER_PENDING_EVENTS)
         }
     }
@@ -109,7 +122,7 @@ class ConnectionPolicyManager @Inject constructor(
         return isCurrentSession
     }
 
-    private fun setPolicyForSessions(
+    private suspend fun setPolicyForSessions(
         userIdList: List<QualifiedID>,
         currentSessionUserId: QualifiedID?,
         wasUIInitialized: Boolean
@@ -130,4 +143,8 @@ class ConnectionPolicyManager @Inject constructor(
     private fun currentSessionFlow() =
         coreLogic.getGlobalScope().sessionRepository.currentSessionFlow()
             .map { it.nullableFold({ null }, { currentSession -> currentSession.userId }) }
+
+    companion object {
+        private const val TAG = "ConnectionPolicyManager"
+    }
 }

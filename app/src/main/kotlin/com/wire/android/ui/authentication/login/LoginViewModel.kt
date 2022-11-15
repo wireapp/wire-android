@@ -9,8 +9,6 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.BuildConfig
-import com.wire.android.appLogger
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.navigation.BackStackMode
@@ -19,13 +17,11 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.client.ClientCapability
-import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.auth.AddAuthenticatedUserUseCase
 import com.wire.kalium.logic.feature.auth.AuthenticationResult
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.client.RegisterClientUseCase
-import com.wire.kalium.logic.feature.session.RegisterTokenResult
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -39,16 +35,18 @@ open class LoginViewModel @Inject constructor(
     private val clientScopeProviderFactory: ClientScopeProvider.Factory,
     authServerConfigProvider: AuthServerConfigProvider
 ) : ViewModel() {
+    val serverConfig = authServerConfigProvider.authServer.value
+
     var loginState by mutableStateOf(
         LoginState(
-            ssoCode = TextFieldValue(savedStateHandle.get(SSO_CODE_SAVED_STATE_KEY) ?: String.EMPTY),
+            ssoCode = TextFieldValue(savedStateHandle[SSO_CODE_SAVED_STATE_KEY] ?: String.EMPTY),
             userIdentifier = TextFieldValue(savedStateHandle[USER_IDENTIFIER_SAVED_STATE_KEY] ?: String.EMPTY),
-            password = TextFieldValue(String.EMPTY)
+            password = TextFieldValue(String.EMPTY),
+            isProxyAuthRequired = if (serverConfig.apiProxy?.needsAuthentication != null)
+                serverConfig.apiProxy?.needsAuthentication!! else false
         )
     )
         protected set
-
-    val serverConfig = authServerConfigProvider.authServer.value
 
     open fun updateSSOLoginError(error: LoginError) {
         loginState = if (error is LoginError.None) {
@@ -67,7 +65,7 @@ open class LoginViewModel @Inject constructor(
     }
 
     fun onDialogDismiss() {
-            clearLoginErrors()
+        clearLoginErrors()
     }
 
     private fun clearLoginErrors() {
@@ -102,20 +100,6 @@ open class LoginViewModel @Inject constructor(
         )
     }
 
-    suspend fun registerPushToken(userId: UserId, clientId: ClientId) {
-        val clientScope = clientScopeProviderFactory.create(userId).clientScope
-        clientScope.registerPushToken(BuildConfig.SENDER_ID, clientId).let { registerTokenResult ->
-            when (registerTokenResult) {
-                is RegisterTokenResult.Success ->
-                    appLogger.i("PushToken Registered Successfully")
-
-                is RegisterTokenResult.Failure ->
-                    //TODO: handle failure in settings to allow the user to retry tokenRegistration
-                    appLogger.i("PushToken Registration Failed: $registerTokenResult")
-            }
-        }
-    }
-
     fun navigateBack() = viewModelScope.launch {
         navigationManager.navigateBack()
     }
@@ -129,14 +113,6 @@ open class LoginViewModel @Inject constructor(
         navigationManager.navigate(NavigationCommand(NavigationItem.RemoveDevices.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
     }
 
-    fun dismissClientUpdateDialog() {
-        loginState = loginState.copy(showClientUpdateDialog = false)
-    }
-
-    fun dismissApiVersionNotSupportedDialog() {
-        loginState = loginState.copy(showServerVersionNotSupportedDialog = false)
-    }
-
     fun updateTheApp() {
         // todo : update the app after releasing on the store
     }
@@ -148,6 +124,7 @@ open class LoginViewModel @Inject constructor(
 }
 
 fun AuthenticationResult.Failure.toLoginError() = when (this) {
+    is AuthenticationResult.Failure.SocketError -> LoginError.DialogError.ProxyError
     is AuthenticationResult.Failure.Generic -> LoginError.DialogError.GenericError(this.genericFailure)
     AuthenticationResult.Failure.InvalidCredentials -> LoginError.DialogError.InvalidCredentialsError
     AuthenticationResult.Failure.InvalidUserIdentifier -> LoginError.TextFieldError.InvalidValue

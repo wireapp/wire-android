@@ -34,6 +34,7 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import kotlinx.coroutines.CompletableDeferred
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.runTest
@@ -238,12 +239,17 @@ class MediaGalleryViewModelTest {
         }
 
         fun withSuccessfulImageData(imageDataPath: Path, imageSize: Long): Arrangement {
-            coEvery { getImageData(any(), any()) } returns MessageAssetResult.Success(imageDataPath, imageSize)
+            coEvery { getImageData(any(), any()) } returns CompletableDeferred(MessageAssetResult.Success(imageDataPath, imageSize))
             return this
         }
 
         fun withFailedImageDataRequest(): Arrangement {
-            coEvery { getImageData(any(), any()) } returns MessageAssetResult.Failure(CoreFailure.Unknown(java.lang.RuntimeException()))
+            coEvery {
+                getImageData(
+                    any(),
+                    any()
+                )
+            } returns CompletableDeferred(MessageAssetResult.Failure(CoreFailure.Unknown(java.lang.RuntimeException())))
             return this
         }
 
@@ -284,7 +290,7 @@ class MediaGalleryViewModelTest {
                 lastReadDate = "2022-04-04T16:11:28.388Z",
                 access = listOf(Conversation.Access.INVITE),
                 accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER),
-                creatorId = PlainId("")
+                creatorId = null
             ),
             otherUser = OtherUser(
                 QualifiedID("other-user-id", "domain-id"),
@@ -295,11 +301,11 @@ class MediaGalleryViewModelTest {
                 null,
                 false
             ),
-            connectionState = ConnectionState.ACCEPTED,
             legalHoldStatus = LegalHoldStatus.DISABLED,
             userType = UserType.INTERNAL,
-            unreadMessagesCount = 0L,
-            lastUnreadMessage = null
+            unreadMessagesCount = 0,
+            lastUnreadMessage = null,
+            unreadContentCount = emptyMap()
         )
 
     companion object {

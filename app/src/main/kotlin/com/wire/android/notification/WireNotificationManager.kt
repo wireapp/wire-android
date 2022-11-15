@@ -20,9 +20,11 @@ import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.util.toStringDate
 import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.TimeoutCancellationException
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -36,12 +38,16 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.onCompletion
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.take
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withTimeout
 import javax.inject.Inject
 import javax.inject.Singleton
+import kotlin.time.Duration.Companion.seconds
 
 @ExperimentalCoroutinesApi
 @Suppress("TooManyFunctions", "LongParameterList")
@@ -65,25 +71,43 @@ class WireNotificationManager @Inject constructor(
      * and display notifications for new events.
      * Can be used in Services (e.g., after receiving FCM push).
      *
-     * This function is asynchronous and thread-safe.
-     * It ignores successive calls with the same [userIdValue]
-     * until the first call is finished processing.
+     * This function is synchronized and won't allow parallel
+     * executions for the same [userIdValue].
+     * Successive calls with the same [userIdValue]
+     * will join the first execution and return together.
      * @param userIdValue String value param of QualifiedID of the User that need to check Notifications for
      */
-    suspend fun fetchAndShowNotificationsOnce(userIdValue: String) = fetchOnceMutex.withLock {
-        if (isNotCurrentUser(userIdValue)) {
-            appLogger.d("$TAG Ignoring notification for user=${userIdValue.obfuscateId()}, because not current user")
-            return@withLock
-        }
-        val isJobRunningForUser = fetchOnceJobs[userIdValue]?.isActive ?: false
-        if (isJobRunningForUser) {
-            appLogger.d("$TAG Already processing notifications for user=${userIdValue.obfuscateId()}, ignoring request")
-        } else {
-            appLogger.d("$TAG Starting to processing notifications for user=${userIdValue.obfuscateId()}")
-            fetchOnceJobs[userIdValue] = scope.launch {
-                triggerSyncForUserIfAuthenticated(userIdValue)
+    suspend fun fetchAndShowNotificationsOnce(userIdValue: String) {
+        val jobForUser = fetchOnceMutex.withLock {
+            // Use the lock to create a new coroutine if needed
+            if (isNotCurrentUser(userIdValue)) {
+                appLogger.d("$TAG Ignoring notification for user=${userIdValue.obfuscateId()}, because not current user")
+                return@withLock null
+            }
+            val currentJobForUser = fetchOnceJobs[userIdValue]
+            val isJobRunningForUser = currentJobForUser?.run {
+                // Coroutine started, or didn't start yet, and it's waiting to be started
+                isActive || !isCompleted
+            } ?: false
+            if (isJobRunningForUser) {
+                // Return the currently existing job if it's active
+                appLogger.d(
+                    "$TAG Already processing notifications for user=${userIdValue.obfuscateId()}, and joining original execution"
+                )
+                currentJobForUser
+            } else {
+                // Create a new job for this user
+                appLogger.d("$TAG Starting to processing notifications for user=${userIdValue.obfuscateId()}")
+                val newJob = scope.launch(start = CoroutineStart.LAZY) {
+                    triggerSyncForUserIfAuthenticated(userIdValue)
+                }
+                fetchOnceJobs[userIdValue] = newJob
+                newJob
             }
         }
+        // Join the job for the user, waiting for its completion
+        jobForUser?.start()
+        jobForUser?.join()
     }
 
     private fun isNotCurrentUser(userId: String): Boolean {
@@ -100,11 +124,18 @@ class WireNotificationManager @Inject constructor(
             val observeMessagesJob = scope.launch {
                 observeMessageNotifications(flowOf(userId), MutableStateFlow(CurrentScreen.InBackground))
             }
+
             appLogger.d("$TAG start syncing")
             connectionPolicyManager.handleConnectionOnPushNotification(userId)
 
             appLogger.d("$TAG checking calls once")
-            fetchAndShowCallNotificationsOnce(userId)
+            try {
+                withTimeout(8.seconds) {
+                    fetchAndShowCallNotificationsOnce(userId)
+                }
+            } catch (timeout: TimeoutCancellationException) {
+                appLogger.e("$TAG Fetching call notifications was stopped due to timeout", timeout)
+            }
 
             appLogger.d("$TAG checked the notifications once, canceling observing.")
             observeMessagesJob.cancel("$TAG checked the notifications once, canceling observing.")
@@ -117,17 +148,34 @@ class WireNotificationManager @Inject constructor(
         //      but we don't get it from the first GetIncomingCallsUseCase() call.
         //      To cover that case we have this `intervalFlow().take(CHECK_INCOMING_CALLS_TRIES)`
         //      to try get incoming calls 6 times, if it returns nothing we assume there is no incoming call
+        var periodicCheckCount = 0
+        val tag = "$TAG.fetchAndShowCallNotificationsOnce"
         intervalFlow(CHECK_INCOMING_CALLS_PERIOD_MS)
+            .cancellable()
+            .onCompletion {
+                if (it != null) {
+                    appLogger.e("$tag; Completed fetching calls with exception", it)
+                } else {
+                    appLogger.d("$tag; Completed fetching calls normally")
+                }
+            }
+            .onEach {
+                periodicCheckCount++
+                appLogger.d("$tag; Periodic check on call notifications: $periodicCheckCount")
+            }
             .map {
+                appLogger.d("$tag; Getting incoming calls for")
                 coreLogic.getSessionScope(userId)
                     .calls
                     .getIncomingCalls()
-                    .first()
+                    .first().also {
+                        appLogger.d("$tag; Incoming calls result list size = ${it.size}")
+                    }
             }
             .take(CHECK_INCOMING_CALLS_TRIES)
             .distinctUntilChanged()
-            .cancellable()
             .collect { callsList ->
+                appLogger.d("$tag; Collecting call list. Terminal operation.")
                 callNotificationManager.handleIncomingCallNotifications(callsList, userId)
             }
     }
@@ -221,9 +269,11 @@ class WireNotificationManager @Inject constructor(
         observeUserId: Flow<UserId?>,
         doIfCallCameAndAppVisible: (Call) -> Unit
     ) {
+        appLogger.d("$TAG observe incoming calls")
         observeUserId
             .flatMapLatest { userId ->
                 if (userId == null) {
+                    appLogger.d("$TAG userId is empty for incoming calls")
                     flowOf(listOf())
                 } else {
                     coreLogic.getSessionScope(userId)
@@ -239,7 +289,6 @@ class WireNotificationManager @Inject constructor(
                     }
                     callNotificationManager.hideIncomingCallNotification()
                 } else {
-                    appLogger.d("$TAG got ${calls.size} calls while app is in background")
                     callNotificationManager.handleIncomingCallNotifications(calls, userId)
                 }
             }
@@ -382,7 +431,7 @@ class WireNotificationManager @Inject constructor(
         }
     }
 
-    private data class MessagesNotificationsData(
+    data class MessagesNotificationsData(
         val newNotifications: List<LocalNotificationConversation>,
         val userId: QualifiedID?
     )

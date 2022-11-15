@@ -17,28 +17,19 @@ import com.wire.android.util.DataDogLogger
 import com.wire.android.util.LogFileWriter
 import com.wire.android.util.extension.isGoogleServicesAvailable
 import com.wire.android.util.getDeviceId
-import com.wire.android.util.sha256
 import com.wire.android.util.lifecycle.ConnectionPolicyManager
+import com.wire.android.util.sha256
+import com.wire.android.workmanager.WireWorkerFactory
 import com.wire.kalium.logger.KaliumLogLevel
 import com.wire.kalium.logger.KaliumLogger
 import com.wire.kalium.logic.CoreLogger
 import com.wire.kalium.logic.CoreLogic
-import com.wire.kalium.logic.sync.WrapperWorkerFactory
 import dagger.hilt.android.HiltAndroidApp
 import javax.inject.Inject
 
-/**
- * Indicates whether the build is private (dev || internal) or public
- */
 
-var appLogger = KaliumLogger(
-    config = KaliumLogger.Config(
-        severity = if (BuildConfig.PRIVATE_BUILD) KaliumLogLevel.DEBUG else KaliumLogLevel.DISABLED,
-        tag = "WireAppLogger"
-    ),
-    DataDogLogger,
-    platformLogWriter()
-)
+// App wide global logger, carefully initialized when our application is "onCreate"
+var appLogger: KaliumLogger = KaliumLogger.disabled()
 
 @HiltAndroidApp
 class WireApplication : Application(), Configuration.Provider {
@@ -53,10 +44,12 @@ class WireApplication : Application(), Configuration.Provider {
     @Inject
     lateinit var connectionPolicyManager: ConnectionPolicyManager
 
+    @Inject
+    lateinit var wireWorkerFactory: WireWorkerFactory
+
     override fun getWorkManagerConfiguration(): Configuration {
-        val myWorkerFactory = WrapperWorkerFactory(coreLogic)
         return Configuration.Builder()
-            .setWorkerFactory(myWorkerFactory)
+            .setWorkerFactory(wireWorkerFactory)
             .build()
     }
 
@@ -66,17 +59,28 @@ class WireApplication : Application(), Configuration.Provider {
             FirebaseApp.initializeApp(this)
         }
 
-        enableDatadog()
-
-        if (BuildConfig.PRIVATE_BUILD || coreLogic.getGlobalScope().isLoggingEnabled()) {
-            enableLoggingAndInitiateFileLogging()
-        }
+        initializeApplicationLoggingFrameworks()
+        connectionPolicyManager.startObservingAppLifecycle()
 
         // TODO: Can be handled in one of Sync steps
         coreLogic.updateApiVersionsScheduler.schedulePeriodicApiVersionUpdate()
+    }
 
-        connectionPolicyManager.startObservingAppLifecycle()
-
+    private fun initializeApplicationLoggingFrameworks() {
+        // 1. Datadog should be initialized first
+        enableDatadog()
+        // 2. Initialize our internal logging framework
+        appLogger = KaliumLogger(
+            config = KaliumLogger.Config(
+                severity = if (BuildConfig.PRIVATE_BUILD) KaliumLogLevel.DEBUG else KaliumLogLevel.DISABLED,
+                tag = "WireAppLogger"
+            ),
+            DataDogLogger,
+            platformLogWriter()
+        )
+        // 3. Initialize our internal FILE logging framework
+        enableLoggingAndInitiateFileLogging()
+        // 4. Everything ready, now we can log device info
         logDeviceInformation()
     }
 
@@ -89,12 +93,14 @@ class WireApplication : Application(), Configuration.Provider {
     }
 
     private fun enableLoggingAndInitiateFileLogging() {
-        CoreLogger.setLoggingLevel(
-            level = KaliumLogLevel.VERBOSE,
-            logWriters = arrayOf(DataDogLogger, platformLogWriter())
-        )
-        logFileWriter.start()
-        appLogger.i("Logger enabled")
+        if (BuildConfig.PRIVATE_BUILD || coreLogic.getGlobalScope().isLoggingEnabled()) {
+            CoreLogger.setLoggingLevel(
+                level = KaliumLogLevel.VERBOSE,
+                logWriters = arrayOf(DataDogLogger, platformLogWriter())
+            )
+            logFileWriter.start()
+            appLogger.i("Logger enabled")
+        }
     }
 
     private fun enableDatadog() {
@@ -103,7 +109,7 @@ class WireApplication : Application(), Configuration.Provider {
         val applicationId = "619af3ef-2fa6-41e2-8bb1-b42041d50802"
 
         val environmentName = "internal"
-        val appVariantName = "com.wire.android.dev.debug"
+        val appVariantName = "com.wire.android.${BuildConfig.FLAVOR}.${BuildConfig.BUILD_TYPE}"
 
         val configuration = com.datadog.android.core.configuration.Configuration.Builder(
             logsEnabled = true,
@@ -111,13 +117,14 @@ class WireApplication : Application(), Configuration.Provider {
             rumEnabled = true,
             crashReportsEnabled = true,
         ).trackInteractions()
+            .trackBackgroundRumEvents(true)
             .trackLongTasks(LONG_TASK_THRESH_HOLD_MS)
             .useSite(DatadogSite.EU1)
             .build()
 
         val credentials = Credentials(clientToken, environmentName, appVariantName, applicationId)
         Datadog.initialize(this, credentials, configuration, TrackingConsent.GRANTED)
-        Datadog.setUserInfo(id = getDeviceId(this)?.sha256())
+        Datadog.setUserInfo(id = getDeviceId()?.sha256())
         GlobalRum.registerIfAbsent(RumMonitor.Builder().build())
     }
 
@@ -146,6 +153,7 @@ class WireApplication : Application(), Configuration.Provider {
             TRIM_MEMORY_RUNNING_LOW(ComponentCallbacks2.TRIM_MEMORY_RUNNING_LOW),
             TRIM_MEMORY_RUNNING_MODERATE(ComponentCallbacks2.TRIM_MEMORY_RUNNING_MODERATE),
             TRIM_MEMORY_UI_HIDDEN(ComponentCallbacks2.TRIM_MEMORY_UI_HIDDEN),
+
             @Suppress("MagicNumber")
             TRIM_MEMORY_UNKNOWN(-1);
 

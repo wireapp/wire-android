@@ -52,7 +52,9 @@ class KaliumConfigsModule {
             shouldEncryptData = !BuildConfig.DEBUG || Build.VERSION.SDK_INT < Build.VERSION_CODES.R,
             lowerKeyPackageLimits = BuildConfig.PRIVATE_BUILD,
             lowerKeyingMaterialsUpdateThreshold = BuildConfig.PRIVATE_BUILD,
-            developmentApiEnabled = BuildConfig.DEVELOPMENT_API_ENABLED
+            isMLSSupportEnabled = BuildConfig.MLS_SUPPORT_ENABLED,
+            developmentApiEnabled = BuildConfig.DEVELOPMENT_API_ENABLED,
+            encryptProteusStorage = BuildConfig.ENCRYPT_PROTEUS_STORAGE
         )
     }
 

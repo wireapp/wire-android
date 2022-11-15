@@ -291,6 +291,7 @@ abstract class CreateAccountBaseViewModel(
                 authTokens = registerResult.authData,
                 ssoId = registerResult.ssoID,
                 serverConfigId = registerResult.serverConfigId,
+                proxyCredentials = registerResult.proxyCredentials,
                 replace = false
             ).let {
                 when (it) {

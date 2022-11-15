@@ -15,12 +15,17 @@ import com.wire.kalium.logic.data.conversation.Conversation.AccessRole.TEAM_MEMB
 import com.wire.kalium.logic.data.conversation.Conversation.ProtocolInfo
 import com.wire.kalium.logic.data.conversation.Conversation.Type
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
-import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.data.message.MigratedMessage
+import com.wire.kalium.logic.data.user.BotService
+import com.wire.kalium.logic.data.user.ConnectionState
+import com.wire.kalium.logic.data.user.OtherUser
+import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.SsoId
+import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.data.user.type.UserType
 import java.time.LocalDateTime
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -36,13 +41,13 @@ class MigrationMapper @Inject constructor() {
         )
     }
 
-    private fun toConversationId(remoteId: String, domain: String?): ConversationId =
-        ConversationId(remoteId, domain.orDefault(QualifiedID.WIRE_PRODUCTION_DOMAIN))
+    private fun toQualifiedId(remoteId: String, domain: String?): QualifiedID =
+        QualifiedID(remoteId, domain.orDefault(QualifiedID.WIRE_PRODUCTION_DOMAIN))
 
     fun fromScalaConversationToConversation(scalaConversation: ScalaConversationData) = with(scalaConversation) {
         mapConversationType(type)?.let {
             Conversation(
-                id = toConversationId(remoteId, domain),
+                id = toQualifiedId(remoteId, domain),
                 name = name,
                 type = it,
                 teamId = scalaConversation.teamId?.let { teamId -> TeamId(teamId) },
@@ -61,7 +66,7 @@ class MigrationMapper @Inject constructor() {
 
     fun fromScalaMessageToMessage(scalaMessage: ScalaMessageData, scalaSenderUserData: ScalaUserData) =
         MigratedMessage(
-            conversationId = toConversationId(scalaMessage.conversationRemoteId, scalaMessage.conversationDomain),
+            conversationId = toQualifiedId(scalaMessage.conversationRemoteId, scalaMessage.conversationDomain),
             senderUserId = UserId(scalaSenderUserData.id, scalaSenderUserData.domain.orDefault(QualifiedID.WIRE_PRODUCTION_DOMAIN)),
             senderClientId = ClientId(scalaMessage.senderClientId.orEmpty()),
             timestampIso = scalaMessage.time.timestampToServerDate().orEmpty(),
@@ -96,4 +101,69 @@ class MigrationMapper @Inject constructor() {
         3, 4 -> Type.CONNECTION_PENDING
         else -> null
     }
+
+    private fun mapUserAvailabilityStatus(status: Int): UserAvailabilityStatus = when (status) {
+        1 -> UserAvailabilityStatus.AVAILABLE
+        2 -> UserAvailabilityStatus.AWAY
+        3 -> UserAvailabilityStatus.BUSY
+        else -> UserAvailabilityStatus.NONE
+    }
+
+    private fun mapConnectionStatus(connectionStatus: String): ConnectionState = when (connectionStatus) {
+        "self" -> ConnectionState.ACCEPTED
+        "sent" -> ConnectionState.SENT
+        "pending" -> ConnectionState.PENDING
+        "accepted" -> ConnectionState.ACCEPTED
+        "blocked" -> ConnectionState.BLOCKED
+        "ignored" -> ConnectionState.IGNORED
+        "cancelled" -> ConnectionState.CANCELLED
+        "missing-legalhold-consent" -> ConnectionState.MISSING_LEGALHOLD_CONSENT
+        "unconnected" -> ConnectionState.NOT_CONNECTED
+        else -> ConnectionState.NOT_CONNECTED
+    }
+
+    fun fromScalaUserToUser(scalaUserData: ScalaUserData, selfUserId: String, selfUserDomain: String?, selfUserTeamId: String?) =
+        if (scalaUserData.id == selfUserId && scalaUserData.domain == selfUserDomain) {
+            SelfUser(
+                id = toQualifiedId(scalaUserData.id, scalaUserData.domain),
+                name = scalaUserData.name,
+                handle = scalaUserData.handle,
+                email = scalaUserData.email,
+                phone = scalaUserData.phone,
+                accentId = scalaUserData.accentId,
+                teamId = scalaUserData.teamId?.let { TeamId(it) },
+                connectionStatus = ConnectionState.ACCEPTED,
+                previewPicture = toQualifiedId(scalaUserData.pictureAssetId, scalaUserData.domain),
+                completePicture = toQualifiedId(scalaUserData.pictureAssetId, scalaUserData.domain),
+                availabilityStatus = mapUserAvailabilityStatus(scalaUserData.availability)
+            )
+        } else {
+            val botService =
+                if (scalaUserData.serviceIntegrationId == null || scalaUserData.serviceProviderId == null) null
+                else BotService(scalaUserData.serviceIntegrationId, scalaUserData.serviceProviderId)
+            val userType = when {
+                botService != null -> UserType.SERVICE
+                scalaUserData.domain != selfUserDomain -> UserType.FEDERATED
+                scalaUserData.teamId != null && scalaUserData.teamId == selfUserTeamId -> UserType.INTERNAL
+                selfUserTeamId != null -> UserType.GUEST
+                else -> UserType.NONE
+            }
+            OtherUser(
+                id = toQualifiedId(scalaUserData.id, scalaUserData.domain),
+                name = scalaUserData.name,
+                handle = scalaUserData.handle,
+                email = scalaUserData.email,
+                phone = scalaUserData.phone,
+                accentId = scalaUserData.accentId,
+                teamId = scalaUserData.teamId?.let { TeamId(it) },
+                connectionStatus = mapConnectionStatus(scalaUserData.connection),
+                previewPicture = toQualifiedId(scalaUserData.pictureAssetId, scalaUserData.domain),
+                completePicture = toQualifiedId(scalaUserData.pictureAssetId, scalaUserData.domain),
+                userType = userType,
+                availabilityStatus = mapUserAvailabilityStatus(scalaUserData.availability),
+                botService = botService,
+                deleted = scalaUserData.deleted
+
+            )
+        }
 }

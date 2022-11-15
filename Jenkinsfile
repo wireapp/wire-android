@@ -146,8 +146,7 @@ pipeline {
 
         stage('Copy local.properties to Kalium') {
           steps {
-            sh 'rm kalium/${propertiesFile}'
-            sh 'cp ${propertiesFile} kalium/${propertiesFile}'
+            sh '\cp -f ${propertiesFile} kalium/${propertiesFile}'
           }
         }
 

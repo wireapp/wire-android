@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.Text
 import androidx.compose.material3.MaterialTheme
@@ -21,7 +22,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -56,9 +56,7 @@ fun ReplyMessage(
                         contentDescription = stringResource(R.string.content_description_image_message),
                         modifier = Modifier
                             .width(32.dp)
-                            .height(32.dp),
-                        alignment = Alignment.Center,
-                        contentScale = ContentScale.Crop
+                            .height(32.dp)
                     )
                 },
                 onCancelReply = onCancelReply
@@ -121,7 +119,7 @@ private fun ReplyContainer(
         }
         Column(
             modifier = Modifier
-                .fillMaxWidth()
+                .weight(1f)
                 .wrapContentHeight()
                 .padding(
                     start = 4.dp,
@@ -135,7 +133,11 @@ private fun ReplyContainer(
             ReplyBody(replyBody)
         }
         if (replyIcon != null) {
-            Box(modifier = Modifier.padding(4.dp)) {
+            Box(
+                modifier = Modifier
+                    .padding(4.dp)
+                    .wrapContentSize()
+            ) {
                 replyIcon()
             }
         }

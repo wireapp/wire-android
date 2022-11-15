@@ -269,16 +269,25 @@ private fun MessageComposer(
                                     }
                                 }
                                 Divider()
-                                CollapseIconButtonBox(transition, messageComposerState)
+                                CollapseIconButtonBox(
+                                    transition = transition,
+                                    messageComposerState = messageComposerState
+                                )
                                 if (messageReplyState != null) {
-                                    ReplyMessage(messageReplyState, {})
+                                    ReplyMessage(
+                                        messageReplyType = messageReplyState,
+                                        onCancelReply = messageComposerState::cancelReply
+                                    )
                                 }
                                 // Row wrapping the AdditionalOptionButton() when we are in Enabled state and MessageComposerInput()
                                 // when we are in the Fullscreen state, we want to align the TextField to Top of the Row,
                                 // when other we center it vertically. Once we go to Fullscreen, we set the weight to 1f
                                 // so that it fills the whole Row which is = height of the whole screen - height of TopBar -
                                 // - height of container with additional options
-                                MessageComposerInputRow(transition, messageComposerState)
+                                MessageComposerInputRow(
+                                    transition = transition,
+                                    messageComposerState = messageComposerState
+                                )
                             }
                         }
                     }
@@ -317,12 +326,12 @@ private fun MessageComposer(
             // we get the effect of overlapping it
             if (messageComposerState.attachmentOptionsDisplayed && interactionAvailability == InteractionAvailability.ENABLED) {
                 AttachmentOptions(
-                    keyboardHeight,
-                    messageComposerState,
-                    onSendAttachmentClicked,
-                    onMessageComposerError,
-                    isFileSharingEnabled,
-                    tempCachePath
+                    keyboardHeight = keyboardHeight,
+                    messageComposerState = messageComposerState,
+                    onSendAttachment = onSendAttachmentClicked,
+                    onMessageComposerError = onMessageComposerError,
+                    isFileSharingEnabled = isFileSharingEnabled,
+                    tempCachePath = tempCachePath
                 )
             }
         }

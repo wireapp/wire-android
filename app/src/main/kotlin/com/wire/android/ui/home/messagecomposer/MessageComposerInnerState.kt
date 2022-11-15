@@ -291,6 +291,10 @@ data class MessageComposerInnerState(
         }
     }
 
+    fun cancelReply() {
+        messageReplyType = null
+    }
+
 }
 
 sealed class MessageReplyType {

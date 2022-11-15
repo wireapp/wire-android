@@ -241,6 +241,7 @@ private fun Username(username: String, modifier: Modifier = Modifier) {
     )
 }
 
+@Suppress("ComplexMethod")
 @Composable
 private fun MessageContent(
     messageContent: UIMessageContent?,

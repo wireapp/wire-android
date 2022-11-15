@@ -21,6 +21,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -57,6 +58,7 @@ fun ReplyMessage(
                         modifier = Modifier
                             .width(32.dp)
                             .height(32.dp)
+                            .clip(RoundedCornerShape(10.dp))
                     )
                 },
                 onCancelReply = onCancelReply

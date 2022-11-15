@@ -16,8 +16,11 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import com.wire.android.appLogger
+import com.wire.android.model.ImageAsset
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
+import com.wire.android.ui.home.conversations.model.UIMessage
+import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.DEFAULT_FILE_MIME_TYPE
@@ -41,9 +44,10 @@ import java.io.IOException
 import java.util.UUID
 
 @Composable
-fun rememberMessageComposerInnerState(
-): MessageComposerInnerState {
-    val defaultAttachmentInnerState = AttachmentInnerState(LocalContext.current)
+fun rememberMessageComposerInnerState(): MessageComposerInnerState {
+    val context = LocalContext.current
+
+    val defaultAttachmentInnerState = AttachmentInnerState(context)
 
     val mentionSpanStyle = SpanStyle(
         color = MaterialTheme.wireColorScheme.messageMentionText,
@@ -52,6 +56,7 @@ fun rememberMessageComposerInnerState(
 
     return remember {
         MessageComposerInnerState(
+            context = context,
             attachmentInnerState = defaultAttachmentInnerState,
             mentionSpanStyle = mentionSpanStyle
         )
@@ -59,26 +64,35 @@ fun rememberMessageComposerInnerState(
 }
 
 data class MessageComposerInnerState(
+    val context: Context,
     val attachmentInnerState: AttachmentInnerState,
     private val mentionSpanStyle: SpanStyle
 ) {
+    var messageComposeInputState by mutableStateOf(MessageComposeInputState.Enabled)
+        private set
+
+    var attachmentOptionsDisplayed by mutableStateOf(false)
+        private set
+
+    val sendButtonEnabled: Boolean
+        get() = if (messageComposeInputState == MessageComposeInputState.Enabled) {
+            false
+        } else {
+            messageText.text.filter { !it.isWhitespace() }
+                .isNotBlank()
+        }
 
     var fullScreenHeight: Dp by mutableStateOf(0.0.dp)
-
-    var isReplying by mutableStateOf(false)
 
     var hasFocus by mutableStateOf(false)
 
     var messageText by mutableStateOf(TextFieldValue(""))
         private set
-
-    var replyBody by mutableStateOf("")
-        private set
-    var replyAuthor by mutableStateOf("")
-        private set
-
     private val _mentionQueryFlowState: MutableStateFlow<String?> = MutableStateFlow(null)
+
     val mentionQueryFlowState: StateFlow<String?> = _mentionQueryFlowState
+
+    var mentions by mutableStateOf(listOf<UiMention>())
 
     fun setMessageTextValue(text: TextFieldValue) {
         updateMentionsIfNeeded(text)
@@ -120,22 +134,6 @@ data class MessageComposerInnerState(
         mentions = mentions.plus(mention).sortedBy { it.start }
         _mentionQueryFlowState.value = null
     }
-
-    var mentions by mutableStateOf(listOf<UiMention>())
-
-    var messageComposeInputState by mutableStateOf(MessageComposeInputState.Enabled)
-        private set
-
-    val sendButtonEnabled: Boolean
-        @Composable get() = if (messageComposeInputState == MessageComposeInputState.Enabled) {
-            false
-        } else {
-            messageText.text.filter { !it.isWhitespace() }
-                .isNotBlank()
-        }
-
-    var attachmentOptionsDisplayed by mutableStateOf(false)
-        private set
 
     fun toggleAttachmentOptionsVisibility() {
         attachmentOptionsDisplayed = !attachmentOptionsDisplayed
@@ -247,11 +245,60 @@ data class MessageComposerInnerState(
         }
     }
 
-    fun reply(messageBody: String, messageAuthor: String) {
-        isReplying = true
-        replyBody = messageBody
-        replyAuthor = messageAuthor
+    var messageReplyType: MessageReplyType? by mutableStateOf(null)
+
+    fun reply(uiMessage: UIMessage) {
+        val authorName = uiMessage.messageHeader.username.asString(context.resources)
+
+        when (val content = uiMessage.messageContent) {
+            is UIMessageContent.AssetMessage -> {
+                messageReplyType = MessageReplyType.AssetReply(
+                    author = authorName,
+                    assetName = content.assetName
+                )
+            }
+
+            is UIMessageContent.RestrictedAsset -> {
+                messageReplyType = MessageReplyType.AssetReply(
+                    author = authorName,
+                    assetName = content.assetName
+                )
+            }
+
+            is UIMessageContent.TextMessage -> {
+                messageReplyType = MessageReplyType.TextReply(
+                    author = authorName,
+                    textBody = content.messageBody.message.asString(context.resources)
+                )
+            }
+
+            is UIMessageContent.ImageMessage -> {
+                messageReplyType = MessageReplyType.ImageReply(
+                    author = authorName,
+                    imagePath = content.asset
+                )
+            }
+
+            UIMessageContent.PreviewAssetMessage -> return
+            is UIMessageContent.SystemMessage.MemberAdded -> return
+            is UIMessageContent.SystemMessage.MemberLeft -> return
+            is UIMessageContent.SystemMessage.MemberRemoved -> return
+            is UIMessageContent.SystemMessage.MissedCall.OtherCalled -> return
+            is UIMessageContent.SystemMessage.MissedCall.YouCalled -> return
+            is UIMessageContent.SystemMessage.RenamedConversation -> return
+            is UIMessageContent.SystemMessage.TeamMemberRemoved -> return
+            null -> return
+        }
     }
+
+}
+
+sealed class MessageReplyType {
+    data class AssetReply(val author: String, val assetName: String) : MessageReplyType()
+
+    data class TextReply(val author: String, val textBody: String) : MessageReplyType()
+
+    data class ImageReply(val author: String, val imagePath: ImageAsset.PrivateAsset?) : MessageReplyType()
 
 }
 

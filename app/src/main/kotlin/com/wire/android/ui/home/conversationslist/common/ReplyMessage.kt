@@ -1,7 +1,6 @@
 package com.wire.android.ui.home.conversationslist.common
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
@@ -21,19 +20,67 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
+import com.wire.android.ui.home.messagecomposer.MessageReplyType
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 
 @Composable
 fun ReplyMessage(
+    messageReplyType: MessageReplyType,
+    onCancelReply: () -> Unit
+) {
+    when (messageReplyType) {
+        is MessageReplyType.AssetReply -> {
+            ReplyContainer(
+                replyAuthor = messageReplyType.author,
+                replyBody = messageReplyType.assetName,
+                onCancelReply = onCancelReply
+            )
+
+        }
+
+        is MessageReplyType.ImageReply -> {
+            ReplyContainer(
+                replyAuthor = messageReplyType.author,
+                replyBody = "Picture",
+                replyIcon = {
+                    Image(
+                        painter = messageReplyType.imagePath!!.paint(),
+                        contentDescription = stringResource(R.string.content_description_image_message),
+                        modifier = Modifier
+                            .width(32.dp)
+                            .height(32.dp),
+                        alignment = Alignment.Center,
+                        contentScale = ContentScale.Crop
+                    )
+                },
+                onCancelReply = onCancelReply
+            )
+        }
+
+        is MessageReplyType.TextReply -> {
+            ReplyContainer(
+                replyAuthor = messageReplyType.author,
+                replyBody = messageReplyType.textBody,
+                onCancelReply = onCancelReply
+            )
+        }
+    }
+}
+
+
+@Composable
+private fun ReplyContainer(
     replyAuthor: String,
     replyBody: String,
+    replyIcon: @Composable (() -> Unit)? = null,
     onCancelReply: () -> Unit
 ) {
     Row(
@@ -86,6 +133,11 @@ fun ReplyMessage(
             ReplyAuthor(replyAuthor)
             Spacer(Modifier.height(4.dp))
             ReplyBody(replyBody)
+        }
+        if (replyIcon != null) {
+            Box(modifier = Modifier.padding(4.dp)) {
+                replyIcon()
+            }
         }
     }
 }

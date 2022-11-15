@@ -289,8 +289,6 @@ private fun ConversationScreen(
 
     val localFeatureVisibilityFlags = LocalFeatureVisibilityFlags.current
 
-    val context = LocalContext.current
-
     MenuModalSheetLayout(
         sheetState = conversationScreenState.modalBottomSheetState,
         coroutineScope = conversationScreenState.coroutineScope,
@@ -302,13 +300,8 @@ private fun ConversationScreen(
             onReactionClick = menuModalOnReactionClick,
             onReply = {
                 conversationScreenState.selectedMessage?.let {
-                    if (it.messageContent is UIMessageContent.TextMessage) {
-                        messageComposerInnerState.reply(
-                            messageBody = it.messageContent.messageBody.message.asString(context.resources),
-                            messageAuthor = it.messageHeader.username.asString(context.resources)
-                        )
-                        conversationScreenState.hideEditContextMenu()
-                    }
+                    messageComposerInnerState.reply(it)
+                    conversationScreenState.hideEditContextMenu()
                 }
             }
         )

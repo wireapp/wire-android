@@ -145,6 +145,7 @@ private fun MessageComposer(
     onMentionPicked: (Contact) -> Unit
 ) {
     val focusManager = LocalFocusManager.current
+    val messageReplyState = messageComposerState.messageReplyType
 
     Surface {
         val transition = updateTransition(
@@ -269,8 +270,8 @@ private fun MessageComposer(
                                 }
                                 Divider()
                                 CollapseIconButtonBox(transition, messageComposerState)
-                                if (messageComposerState.isReplying) {
-                                    ReplyMessage(messageComposerState.replyAuthor, messageComposerState.replyBody, {})
+                                if (messageReplyState != null) {
+                                    ReplyMessage(messageReplyState, {})
                                 }
                                 // Row wrapping the AdditionalOptionButton() when we are in Enabled state and MessageComposerInput()
                                 // when we are in the Fullscreen state, we want to align the TextField to Top of the Row,

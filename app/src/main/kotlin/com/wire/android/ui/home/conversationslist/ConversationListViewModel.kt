@@ -296,7 +296,7 @@ class ConversationListViewModel @Inject constructor(
         viewModelScope.launch {
             requestInProgress = true
             when (withContext(dispatcher.io()) { deleteTeamConversation(groupDialogState.conversationId) }) {
-                is Result.Failure.GenericFailure.Failure.GenericFailure -> homeSnackBarState.emit(HomeSnackbarState.DeleteConversationGroupError)
+                is Result.Failure.GenericFailure -> homeSnackBarState.emit(HomeSnackbarState.DeleteConversationGroupError)
                 Result.Failure.NoTeamFailure -> homeSnackBarState.emit(HomeSnackbarState.DeleteConversationGroupError)
                 Result.Success -> homeSnackBarState.emit(
                     HomeSnackbarState.DeletedConversationGroupSuccess(groupDialogState.conversationName)

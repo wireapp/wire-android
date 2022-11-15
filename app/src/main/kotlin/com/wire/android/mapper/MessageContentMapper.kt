@@ -4,11 +4,13 @@ import androidx.annotation.StringRes
 import com.wire.android.R
 import com.wire.android.model.ImageAsset
 import com.wire.android.ui.home.conversations.findUser
+import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.ui.home.conversations.model.MessageBody
+import com.wire.android.ui.home.conversations.model.QuotedMessageUIData
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
-import com.wire.kalium.logic.data.asset.isDisplayableMimeType
+import com.wire.kalium.logic.data.asset.isDisplayableImageMimeType
 import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
@@ -41,6 +43,7 @@ class MessageContentMapper @Inject constructor(
                     is Message.Regular -> mapRegularMessage(message, userList.findUser(message.senderUserId))
                     is Message.System -> mapSystemMessage(message, userList)
                 }
+
             Message.Visibility.DELETED, // for deleted, there is a state label displayed only
             Message.Visibility.HIDDEN -> null // we don't want to show hidden nor deleted message content in any way
         }
@@ -110,6 +113,7 @@ class MessageContentMapper @Inject constructor(
                 } else {
                     UIMessageContent.SystemMessage.MemberAdded(author = authorName, memberNames = memberNameList)
                 }
+
             is Removed ->
                 if (isAuthorSelfAction) {
                     UIMessageContent.SystemMessage.MemberLeft(author = authorName)
@@ -127,6 +131,7 @@ class MessageContentMapper @Inject constructor(
             val assetMessageContentMetadata = AssetMessageContentMetadata(content.value)
             toUIMessageContent(assetMessageContentMetadata, message, sender)
         }
+
         is MessageContent.RestrictedAsset -> toRestrictedAsset(content.mimeType, content.sizeInBytes, content.name)
         else -> toText(content)
     }
@@ -139,6 +144,17 @@ class MessageContentMapper @Inject constructor(
             )
             is MessageContent.FailedDecryption -> UIText.StringResource(R.string.label_message_decryption_failure_message)
             else -> UIText.StringResource(messageResourceProvider.sentAMessageWithContent, "Unknown")
+        },
+        quotedMessage = (content as? MessageContent.Text)?.quotedMessageDetails?.let {
+            QuotedMessageUIData(
+                it.senderId,
+                it.senderName,
+                it.timeInstant,
+                it.isDeleted,
+                it.editInstant,
+                it.textContent,
+                it.textContent?.let { mimeType -> AttachmentType.fromMimeTypeString(mimeType) }
+            )
         }
     ).let { messageBody -> UIMessageContent.TextMessage(messageBody = messageBody) }
 
@@ -199,6 +215,7 @@ class MessageContentMapper @Inject constructor(
             SelfNameType.NameOrDeleted -> user.name?.let { UIText.DynamicString(it) }
                 ?: UIText.StringResource(messageResourceProvider.memberNameDeleted)
         }
+
         else -> UIText.StringResource(messageResourceProvider.memberNameDeleted)
     }
 
@@ -221,7 +238,7 @@ class AssetMessageContentMetadata(val assetMessageContent: AssetContent) {
             else -> 0
         }
 
-    fun isDisplayableImage(): Boolean = isDisplayableMimeType(assetMessageContent.mimeType) &&
+    fun isDisplayableImage(): Boolean = isDisplayableImageMimeType(assetMessageContent.mimeType) &&
             imgWidth.isGreaterThan(0) && imgHeight.isGreaterThan(0)
 }
 

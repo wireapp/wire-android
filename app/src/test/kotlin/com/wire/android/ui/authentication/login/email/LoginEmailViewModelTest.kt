@@ -5,6 +5,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.mockUri
+import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.navigation.BackStackMode
@@ -40,6 +41,7 @@ import io.mockk.every
 import io.mockk.impl.annotations.MockK
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.runTest
@@ -87,6 +89,9 @@ class LoginEmailViewModelTest {
     private lateinit var authServerConfigProvider: AuthServerConfigProvider
 
     @MockK
+    private lateinit var userDataStoreProvider: UserDataStoreProvider
+
+    @MockK
     private lateinit var authenticationScope: AuthenticationScope
 
     private lateinit var loginViewModel: LoginEmailViewModel
@@ -116,7 +121,8 @@ class LoginEmailViewModelTest {
             clientScopeProviderFactory,
             savedStateHandle,
             navigationManager,
-            authServerConfigProvider
+            authServerConfigProvider,
+            userDataStoreProvider
         )
     }
 
@@ -156,7 +162,7 @@ class LoginEmailViewModelTest {
     }
 
     @Test
-    fun `given button is clicked, when login returns Success, then navigateToConvScreen is called`() {
+    fun `given button is clicked and initial sync is completed, when login returns Success, then navigate to home screen`() {
         val scheduler = TestCoroutineScheduler()
         val password = "abc"
         Dispatchers.setMain(StandardTestDispatcher(scheduler))
@@ -164,6 +170,7 @@ class LoginEmailViewModelTest {
         coEvery { addAuthenticatedUserUseCase(any(), any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
         coEvery { navigationManager.navigate(any()) } returns Unit
         coEvery { getOrRegisterClientUseCase(any()) } returns RegisterClientResult.Success(CLIENT)
+        every { userDataStoreProvider.getOrCreate(any()).initialSyncCompleted } returns flowOf(true)
 
         loginViewModel.onPasswordChange(TextFieldValue(password))
 
@@ -174,6 +181,32 @@ class LoginEmailViewModelTest {
             navigationManager.navigate(
                 NavigationCommand(
                     NavigationItemDestinationsRoutes.HOME,
+                    BackStackMode.CLEAR_WHOLE
+                )
+            )
+        }
+    }
+
+    @Test
+    fun `given button is clicked and initial sync is not completed, when login returns Success, then navigate to initial sync screen`() {
+        val scheduler = TestCoroutineScheduler()
+        val password = "abc"
+        Dispatchers.setMain(StandardTestDispatcher(scheduler))
+        coEvery { loginUseCase(any(), any(), any()) } returns AuthenticationResult.Success(AUTH_TOKEN, SSO_ID, SERVER_CONFIG.id)
+        coEvery { addAuthenticatedUserUseCase(any(), any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
+        coEvery { navigationManager.navigate(any()) } returns Unit
+        coEvery { getOrRegisterClientUseCase(any()) } returns RegisterClientResult.Success(CLIENT)
+        every { userDataStoreProvider.getOrCreate(any()).initialSyncCompleted } returns flowOf(false)
+
+        loginViewModel.onPasswordChange(TextFieldValue(password))
+
+        runTest { loginViewModel.login() }
+        coVerify(exactly = 1) { loginUseCase(any(), any(), any()) }
+        coVerify(exactly = 1) { getOrRegisterClientUseCase(any()) }
+        coVerify(exactly = 1) {
+            navigationManager.navigate(
+                NavigationCommand(
+                    NavigationItemDestinationsRoutes.INITIAL_SYNC,
                     BackStackMode.CLEAR_WHOLE
                 )
             )

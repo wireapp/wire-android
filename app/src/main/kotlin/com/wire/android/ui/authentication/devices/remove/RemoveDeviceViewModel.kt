@@ -1,11 +1,13 @@
 package com.wire.android.ui.authentication.devices.remove
 
+import androidx.annotation.VisibleForTesting
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.datastore.UserDataStore
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
@@ -22,6 +24,7 @@ import com.wire.kalium.logic.feature.client.SelfClientsUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -31,7 +34,8 @@ class RemoveDeviceViewModel @Inject constructor(
     private val selfClientsUseCase: SelfClientsUseCase,
     private val deleteClientUseCase: DeleteClientUseCase,
     private val registerClientUseCase: RegisterClientUseCase,
-    private val isPasswordRequired: IsPasswordRequiredUseCase
+    private val isPasswordRequired: IsPasswordRequiredUseCase,
+    private val userDataStore: UserDataStore
 ) : ViewModel() {
 
     var state: RemoveDeviceState by mutableStateOf(
@@ -107,7 +111,7 @@ class RemoveDeviceViewModel @Inject constructor(
                 RegisterClientResult.Failure.InvalidCredentials -> state = state.copy(error = RemoveDeviceError.InvalidCredentialsError)
                 RegisterClientResult.Failure.TooManyClients -> loadClientsList()
                 is RegisterClientResult.Success -> {
-                    navigateToConvScreen()
+                    navigateAfterRegisterClientSuccess()
                 }
             }
         }
@@ -155,8 +159,12 @@ class RemoveDeviceViewModel @Inject constructor(
         }
     }
 
-    private suspend fun navigateToConvScreen() =
-        navigationManager.navigate(NavigationCommand(NavigationItem.Home.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
+    @VisibleForTesting
+    private suspend fun navigateAfterRegisterClientSuccess() =
+        if (userDataStore.initialSyncCompleted.first())
+            navigationManager.navigate(NavigationCommand(NavigationItem.Home.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
+        else
+            navigationManager.navigate(NavigationCommand(NavigationItem.InitialSync.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
 
     private companion object {
         const val REGISTER_CLIENT_AFTER_DELETE_DELAY = 2000L

@@ -37,7 +37,7 @@ import okio.Path
 import javax.inject.Inject
 
 @HiltViewModel
-@Suppress("LongParameterList")
+@Suppress("LongParameterList", "TooManyFunctions")
 class ConversationMessagesViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     qualifiedIdMapper: QualifiedIdMapper,

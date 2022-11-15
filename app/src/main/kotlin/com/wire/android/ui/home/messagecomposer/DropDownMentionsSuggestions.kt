@@ -85,7 +85,7 @@ private fun updateDropDownCoordinateY(
         coordinateY = cursorCoordinateY - THIRTY
     // If there is only one item to show, in the second part of the screen, the DropDown will be displayed above the cursor.
     // Fixing this by adding more space
-    if (membersToMentionSize == ONE && cursorCoordinateY < screenHeight * EIGHTY_PERCENT_OF_SCREEN)
+    if (membersToMentionSize == ONE && cursorCoordinateY < screenHeight * EIGHTY_PERCENT)
         coordinateY = cursorCoordinateY + TWENTY
     // For the first line, we get the wrong Y coordinate of the cursor.
     // Fixing this by adding more space

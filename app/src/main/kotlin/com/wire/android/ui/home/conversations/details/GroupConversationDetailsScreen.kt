@@ -50,6 +50,7 @@ import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
+import com.wire.android.ui.home.conversations.details.GroupConversationDetailsViewModel.GroupMetadataOperationResult
 import com.wire.android.ui.home.conversations.details.menu.DeleteConversationGroupDialog
 import com.wire.android.ui.home.conversations.details.menu.GroupConversationDetailsBottomSheetEventsHandler
 import com.wire.android.ui.home.conversations.details.menu.LeaveConversationGroupDialog
@@ -74,9 +75,6 @@ fun GroupConversationDetailsScreen(
     backNavArgs: ImmutableMap<String, Any> = persistentMapOf(),
     viewModel: GroupConversationDetailsViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs)
 ) {
-    // Check if we need to display new messages
-    LaunchedEffect(Unit) { viewModel.checkForPendingMessages() }
-
     val context = LocalContext.current
     GroupConversationDetailsContent(
         conversationSheetContent = viewModel.conversationSheetContent,
@@ -90,6 +88,7 @@ fun GroupConversationDetailsScreen(
         onDeleteGroup = viewModel::deleteGroup,
         isLoading = viewModel.requestInProgress,
         messages = viewModel.snackBarMessage,
+        checkPendingSnackBarMessages = viewModel::checkForPendingMessages,
         context = context
     )
 }
@@ -115,6 +114,7 @@ private fun GroupConversationDetailsContent(
     groupParticipantsState: GroupConversationParticipantsState,
     isLoading: Boolean,
     messages: SharedFlow<UIText>,
+    checkPendingSnackBarMessages: () -> GroupMetadataOperationResult = { GroupMetadataOperationResult.None },
     context: Context = LocalContext.current
 ) {
     val scope = rememberCoroutineScope()
@@ -137,9 +137,14 @@ private fun GroupConversationDetailsContent(
 
     val snackbarHostState = remember { SnackbarHostState() }
     LaunchedEffect(messages) {
-        messages.collect {
-            closeBottomSheet()
-            snackbarHostState.showSnackbar(it.asString(context.resources))
+        val result = checkPendingSnackBarMessages()
+        if (result is GroupMetadataOperationResult.Error) {
+            snackbarHostState.showSnackbar(result.message.asString(context.resources))
+        } else {
+            messages.collect {
+                closeBottomSheet()
+                snackbarHostState.showSnackbar(it.asString(context.resources))
+            }
         }
     }
 

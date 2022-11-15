@@ -7,7 +7,6 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import com.wire.android.R
 import com.wire.android.appLogger
-import com.wire.android.model.SnackBarMessage
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.EXTRA_GROUP_DELETED_NAME
 import com.wire.android.navigation.EXTRA_GROUP_NAME_CHANGED
@@ -25,7 +24,6 @@ import com.wire.android.ui.home.conversations.details.participants.usecase.Obser
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
-import com.wire.android.util.ui.toUIText
 import com.wire.android.util.uiText
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.data.conversation.ConversationDetails
@@ -355,17 +353,22 @@ class GroupConversationDetailsViewModel @Inject constructor(
         }
     }
 
-    suspend fun checkForPendingMessages() {
-        with(savedStateHandle) {
+    fun checkForPendingMessages(): GroupMetadataOperationResult {
+        return with(savedStateHandle) {
             when (getBackNavArg<Boolean>(EXTRA_GROUP_NAME_CHANGED)) {
-                true -> showSnackBarMessage("hola".toUIText())
-                false -> showSnackBarMessage("nooo".toUIText())
-                else -> showSnackBarMessage("null ?".toUIText())
+                false -> GroupMetadataOperationResult.Error(UIText.StringResource(R.string.error_unknown_message))
+                else -> GroupMetadataOperationResult.None
             }
         }
+    }
+
+    sealed interface GroupMetadataOperationResult {
+        object None : GroupMetadataOperationResult
+        class Error(val message: UIText) : GroupMetadataOperationResult
     }
 
     companion object {
         const val MAX_NUMBER_OF_PARTICIPANTS = 4
     }
+
 }

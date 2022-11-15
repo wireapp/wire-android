@@ -56,9 +56,9 @@ fun ReplyMessage(
                         painter = messageReplyType.imagePath!!.paint(),
                         contentDescription = stringResource(R.string.content_description_image_message),
                         modifier = Modifier
-                            .width(32.dp)
-                            .height(32.dp)
-                            .clip(RoundedCornerShape(10.dp))
+                            .width(40.dp)
+                            .height(40.dp)
+                            .clip(RoundedCornerShape(12.dp))
                     )
                 },
                 onCancelReply = onCancelReply
@@ -75,7 +75,6 @@ fun ReplyMessage(
     }
 }
 
-
 @Composable
 private fun ReplyContainer(
     replyAuthor: String,
@@ -87,7 +86,6 @@ private fun ReplyContainer(
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier
-            .heightIn(max = 80.dp)
             .padding(8.dp)
             .wrapContentHeight()
             .fillMaxWidth()
@@ -100,7 +98,7 @@ private fun ReplyContainer(
         Box(
             modifier = Modifier
                 .padding(
-                    vertical = 16.dp,
+                    vertical = 8.dp,
                     horizontal = 4.dp
                 )
                 .width(40.dp)
@@ -131,13 +129,12 @@ private fun ReplyContainer(
                 )
         ) {
             ReplyAuthor(replyAuthor)
-            Spacer(Modifier.height(4.dp))
+            Spacer(Modifier.height(2.dp))
             ReplyBody(replyBody)
         }
         if (replyIcon != null) {
             Box(
                 modifier = Modifier
-                    .padding(4.dp)
                     .wrapContentSize()
             ) {
                 replyIcon()

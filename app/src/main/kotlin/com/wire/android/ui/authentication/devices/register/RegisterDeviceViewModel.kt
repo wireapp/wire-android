@@ -80,7 +80,7 @@ class RegisterDeviceViewModel @Inject constructor(
                 continueEnabled = true,
                 error = RegisterDeviceError.InvalidCredentialsError
             )
-            else -> {}
+            RegisterClientResult.Failure.PasswordAuthRequired -> {}
         }
     }
 

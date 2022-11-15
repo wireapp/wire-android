@@ -144,6 +144,13 @@ pipeline {
           }
         }
 
+        stage('Copy local.properties to Kalium') {
+          steps {
+            sh 'rm kalium/${propertiesFile}'
+            sh 'cp ${propertiesFile} kalium/${propertiesFile}'
+          }
+        }
+
         stage('Spawn Gradle Wrapper') {
           steps {
             withGradle() {

@@ -98,19 +98,20 @@ class LoginSSOViewModel @Inject constructor(
                         }
                     }
                 }
-            val (authTokens, ssoId) = authScope.ssoLoginScope.getLoginSession(cookie).let {
+            val ssoLoginResult = authScope.ssoLoginScope.getLoginSession(cookie).let {
                 when (it) {
                     is SSOLoginSessionResult.Failure -> {
                         updateSSOLoginError(it.toLoginError())
                         return@launch
                     }
-                    is SSOLoginSessionResult.Success -> it.authTokens to it.ssoId
+                    is SSOLoginSessionResult.Success -> it
                 }
             }
             val storedUserId = addAuthenticatedUser(
-                authTokens = authTokens,
-                ssoId = ssoId,
+                authTokens = ssoLoginResult.authTokens,
+                ssoId = ssoLoginResult.ssoId,
                 serverConfigId = serverConfigId,
+                proxyCredentials = ssoLoginResult.proxyCredentials,
                 replace = false
             ).let {
                 when (it) {

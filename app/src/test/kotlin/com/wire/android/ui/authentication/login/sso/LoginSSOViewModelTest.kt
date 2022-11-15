@@ -225,8 +225,8 @@ class LoginSSOViewModelTest {
 
     @Test
     fun `given establishSSOSession is called and initial sync is not completed, when SSOLogin Success, navigate to initial sync screen`() {
-        coEvery { getSSOLoginSessionUseCase(any()) } returns SSOLoginSessionResult.Success(AUTH_TOKEN, SSO_ID)
-        coEvery { addAuthenticatedUserUseCase(any(), any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
+        coEvery { getSSOLoginSessionUseCase(any()) } returns SSOLoginSessionResult.Success(AUTH_TOKEN, SSO_ID, null)
+        coEvery { addAuthenticatedUserUseCase(any(), any(), any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
         coEvery { getOrRegisterClientUseCase(any()) } returns RegisterClientResult.Success(CLIENT)
         every { userDataStoreProvider.getOrCreate(any()).initialSyncCompleted } returns flowOf(false)
 
@@ -235,7 +235,7 @@ class LoginSSOViewModelTest {
         coVerify(exactly = 1) { navigationManager.navigate(any()) }
         coVerify(exactly = 1) { getSSOLoginSessionUseCase(any()) }
         coVerify(exactly = 1) { getOrRegisterClientUseCase(any()) }
-        coVerify(exactly = 1) { addAuthenticatedUserUseCase(any(), any(), any()) }
+        coVerify(exactly = 1) { addAuthenticatedUserUseCase(any(), any(), any(), any()) }
         coVerify(exactly = 1) {
             navigationManager.navigate(
                 NavigationCommand(
@@ -257,7 +257,7 @@ class LoginSSOViewModelTest {
 
         coVerify(exactly = 1) { getSSOLoginSessionUseCase(any()) }
         coVerify(exactly = 1) { getOrRegisterClientUseCase(any()) }
-        coVerify(exactly = 1) { addAuthenticatedUserUseCase(any(), any(), any()) }
+        coVerify(exactly = 1) { addAuthenticatedUserUseCase(any(), any(), any(), any()) }
         coVerify(exactly = 1) {
             navigationManager.navigate(
                 NavigationCommand(
@@ -271,14 +271,14 @@ class LoginSSOViewModelTest {
     @Test
     fun `given establishSSOSession is called, when SSOLoginSessionResult return InvalidCookie, then SSOLoginResult fails`() {
         coEvery { getSSOLoginSessionUseCase(any()) } returns SSOLoginSessionResult.Failure.InvalidCookie
-        coEvery { addAuthenticatedUserUseCase(any(), any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
+        coEvery { addAuthenticatedUserUseCase(any(), any(), any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
         coEvery { getOrRegisterClientUseCase(any()) } returns RegisterClientResult.Success(CLIENT)
 
         runTest { loginViewModel.establishSSOSession("", serverConfigId = SERVER_CONFIG.id) }
         loginViewModel.loginState.loginError shouldBeInstanceOf LoginError.DialogError.InvalidSSOCookie::class
         coVerify(exactly = 1) { getSSOLoginSessionUseCase(any()) }
         coVerify(exactly = 0) { loginViewModel.registerClient(any(), null) }
-        coVerify(exactly = 0) { addAuthenticatedUserUseCase(any(), any(), any()) }
+        coVerify(exactly = 0) { addAuthenticatedUserUseCase(any(), any(), any(), any()) }
         verify(exactly = 0) { loginViewModel.navigateAfterRegisterClientSuccess(any()) }
     }
 
@@ -296,8 +296,8 @@ class LoginSSOViewModelTest {
 
     @Test
     fun `given HandleSSOResult is called, when SSOLoginResult is success, then establishSSOSession should be called once`() {
-        coEvery { getSSOLoginSessionUseCase(any()) } returns SSOLoginSessionResult.Success(AUTH_TOKEN, SSO_ID)
-        coEvery { addAuthenticatedUserUseCase(any(), any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
+        coEvery { getSSOLoginSessionUseCase(any()) } returns SSOLoginSessionResult.Success(AUTH_TOKEN, SSO_ID, null)
+        coEvery { addAuthenticatedUserUseCase(any(), any(), any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
         coEvery { getOrRegisterClientUseCase(any()) } returns RegisterClientResult.Success(CLIENT)
         coEvery { navigationManager.navigate(any()) } returns Unit
         every { userDataStoreProvider.getOrCreate(any()).initialSyncCompleted } returns flowOf(true)
@@ -308,22 +308,29 @@ class LoginSSOViewModelTest {
 
     @Test
     fun `given establishSSOSession called, when addAuthenticatedUser returns UserAlreadyExists error, then UserAlreadyExists is passed`() {
-        coEvery { getSSOLoginSessionUseCase(any()) } returns SSOLoginSessionResult.Success(AUTH_TOKEN, SSO_ID)
-        coEvery { addAuthenticatedUserUseCase(any(), any(), any()) } returns AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists
+        coEvery { getSSOLoginSessionUseCase(any()) } returns SSOLoginSessionResult.Success(AUTH_TOKEN, SSO_ID, null)
+        coEvery {
+            addAuthenticatedUserUseCase(
+                any(),
+                any(),
+                any(),
+                any()
+            )
+        } returns AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists
 
         runTest { loginViewModel.establishSSOSession("", serverConfigId = SERVER_CONFIG.id) }
 
         loginViewModel.loginState.loginError shouldBeInstanceOf LoginError.DialogError.UserAlreadyExists::class
         coVerify(exactly = 1) { getSSOLoginSessionUseCase(any()) }
         coVerify(exactly = 0) { loginViewModel.registerClient(any(), null) }
-        coVerify(exactly = 1) { addAuthenticatedUserUseCase(any(), any(), any()) }
+        coVerify(exactly = 1) { addAuthenticatedUserUseCase(any(), any(), any(), any()) }
         verify(exactly = 0) { loginViewModel.navigateAfterRegisterClientSuccess(any()) }
     }
 
     @Test
     fun `given establishSSOSession is called, when getOrRegister Client returns TooManyClients error, then TooManyClients is passed`() {
-        coEvery { getSSOLoginSessionUseCase(any()) } returns SSOLoginSessionResult.Success(AUTH_TOKEN, SSO_ID)
-        coEvery { addAuthenticatedUserUseCase(any(), any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
+        coEvery { getSSOLoginSessionUseCase(any()) } returns SSOLoginSessionResult.Success(AUTH_TOKEN, SSO_ID, null)
+        coEvery { addAuthenticatedUserUseCase(any(), any(), any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
         coEvery {
             getOrRegisterClientUseCase(any())
         } returns RegisterClientResult.Failure.TooManyClients
@@ -334,7 +341,7 @@ class LoginSSOViewModelTest {
 
         coVerify(exactly = 1) { getOrRegisterClientUseCase(any()) }
         coVerify(exactly = 1) { getSSOLoginSessionUseCase(any()) }
-        coVerify(exactly = 1) { addAuthenticatedUserUseCase(any(), any(), any()) }
+        coVerify(exactly = 1) { addAuthenticatedUserUseCase(any(), any(), any(), any()) }
         verify(exactly = 0) { loginViewModel.navigateAfterRegisterClientSuccess(any()) }
     }
 
@@ -362,7 +369,7 @@ class LoginSSOViewModelTest {
                 website = "https://server-websiteUrl.de",
                 title = "server-title",
                 false,
-                proxy = null
+                apiProxy = null
             ),
             metaData = ServerConfig.MetaData(
                 commonApiVersion = CommonApiVersionType.Valid(1),

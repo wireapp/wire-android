@@ -147,7 +147,7 @@ class LoginEmailViewModelTest {
         val scheduler = TestCoroutineScheduler()
         Dispatchers.setMain(StandardTestDispatcher(scheduler))
         coEvery { loginUseCase(any(), any(), any()) } returns AuthenticationResult.Failure.InvalidCredentials
-        coEvery { addAuthenticatedUserUseCase(any(), any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
+        coEvery { addAuthenticatedUserUseCase(any(), any(), any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
 
         loginViewModel.onPasswordChange(TextFieldValue("abc"))
         loginViewModel.onUserIdentifierChange(TextFieldValue("abc"))
@@ -166,8 +166,8 @@ class LoginEmailViewModelTest {
         val scheduler = TestCoroutineScheduler()
         val password = "abc"
         Dispatchers.setMain(StandardTestDispatcher(scheduler))
-        coEvery { loginUseCase(any(), any(), any()) } returns AuthenticationResult.Success(AUTH_TOKEN, SSO_ID, SERVER_CONFIG.id)
-        coEvery { addAuthenticatedUserUseCase(any(), any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
+        coEvery { loginUseCase(any(), any(), any()) } returns AuthenticationResult.Success(AUTH_TOKEN, SSO_ID, SERVER_CONFIG.id, null)
+        coEvery { addAuthenticatedUserUseCase(any(), any(), any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
         coEvery { navigationManager.navigate(any()) } returns Unit
         coEvery { getOrRegisterClientUseCase(any()) } returns RegisterClientResult.Success(CLIENT)
         every { userDataStoreProvider.getOrCreate(any()).initialSyncCompleted } returns flowOf(true)
@@ -256,8 +256,15 @@ class LoginEmailViewModelTest {
 
     @Test
     fun `given button is clicked, when addAuthenticatedUser returns UserAlreadyExists error, then UserAlreadyExists is passed`() {
-        coEvery { loginUseCase(any(), any(), any()) } returns AuthenticationResult.Success(AUTH_TOKEN, SSO_ID, SERVER_CONFIG.id)
-        coEvery { addAuthenticatedUserUseCase(any(), any(), any()) } returns AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists
+        coEvery { loginUseCase(any(), any(), any()) } returns AuthenticationResult.Success(AUTH_TOKEN, SSO_ID, SERVER_CONFIG.id, null)
+        coEvery {
+            addAuthenticatedUserUseCase(
+                any(),
+                any(),
+                any(),
+                any()
+            )
+        } returns AddAuthenticatedUserUseCase.Result.Failure.UserAlreadyExists
 
         runTest { loginViewModel.login() }
 
@@ -288,7 +295,7 @@ class LoginEmailViewModelTest {
                 website = "https://server-websiteUrl.de",
                 title = "server-title",
                 false,
-                proxy = null
+                apiProxy = null
             ),
             metaData = ServerConfig.MetaData(
                 commonApiVersion = CommonApiVersionType.Valid(1),

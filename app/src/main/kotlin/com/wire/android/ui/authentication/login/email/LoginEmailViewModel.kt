@@ -48,6 +48,7 @@ class LoginEmailViewModel @Inject constructor(
                     ProxyCredentials(loginState.proxyIdentifier.text, loginState.proxyPassword.text)
                 )
             ).let {
+                loginState = loginState.copy(emailLoginLoading = false)
                 when (it) {
                     is AutoVersionAuthScopeUseCase.Result.Success -> it.authenticationScope
 
@@ -60,6 +61,7 @@ class LoginEmailViewModel @Inject constructor(
                         return@launch
                     }
                     is AutoVersionAuthScopeUseCase.Result.Failure.Generic -> {
+                       loginState = loginState.copy(loginError = LoginError.DialogError.GenericError(it.genericFailure))
                         return@launch
                     }
                 }
@@ -83,6 +85,7 @@ class LoginEmailViewModel @Inject constructor(
                     authTokens = loginResult.authData,
                     ssoId = loginResult.ssoID,
                     serverConfigId = loginResult.serverConfigId,
+                    proxyCredentials = loginResult.proxyCredentials,
                     replace = false
                 ).let {
                     when (it) {

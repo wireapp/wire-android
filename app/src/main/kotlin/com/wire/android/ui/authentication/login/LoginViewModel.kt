@@ -45,8 +45,8 @@ open class LoginViewModel @Inject constructor(
             ssoCode = TextFieldValue(savedStateHandle[SSO_CODE_SAVED_STATE_KEY] ?: String.EMPTY),
             userIdentifier = TextFieldValue(savedStateHandle[USER_IDENTIFIER_SAVED_STATE_KEY] ?: String.EMPTY),
             password = TextFieldValue(String.EMPTY),
-            isProxyAuthRequired = if (serverConfig.proxy?.needsAuthentication != null)
-                serverConfig.proxy?.needsAuthentication!! else false
+            isProxyAuthRequired = if (serverConfig.apiProxy?.needsAuthentication != null)
+                serverConfig.apiProxy?.needsAuthentication!! else false
         )
     )
         protected set

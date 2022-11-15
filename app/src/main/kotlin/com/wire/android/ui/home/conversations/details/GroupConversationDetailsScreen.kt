@@ -138,7 +138,7 @@ private fun GroupConversationDetailsContent(
     val snackbarHostState = remember { SnackbarHostState() }
     LaunchedEffect(messages) {
         val result = checkPendingSnackBarMessages()
-        if (result is GroupMetadataOperationResult.Error) {
+        if (result is GroupMetadataOperationResult.Result) {
             snackbarHostState.showSnackbar(result.message.asString(context.resources))
         } else {
             messages.collect {

@@ -356,7 +356,8 @@ class GroupConversationDetailsViewModel @Inject constructor(
     fun checkForPendingMessages(): GroupMetadataOperationResult {
         return with(savedStateHandle) {
             when (getBackNavArg<Boolean>(EXTRA_GROUP_NAME_CHANGED)) {
-                false -> GroupMetadataOperationResult.Error(UIText.StringResource(R.string.error_unknown_message))
+                true -> GroupMetadataOperationResult.Result(UIText.StringResource(R.string.conversation_options_renamed))
+                false -> GroupMetadataOperationResult.Result(UIText.StringResource(R.string.error_unknown_message))
                 else -> GroupMetadataOperationResult.None
             }
         }
@@ -364,7 +365,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
 
     sealed interface GroupMetadataOperationResult {
         object None : GroupMetadataOperationResult
-        class Error(val message: UIText) : GroupMetadataOperationResult
+        class Result(val message: UIText) : GroupMetadataOperationResult
     }
 
     companion object {

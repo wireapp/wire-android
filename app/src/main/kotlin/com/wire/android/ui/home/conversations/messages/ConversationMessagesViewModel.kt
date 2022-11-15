@@ -8,6 +8,9 @@ import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
 import com.wire.android.appLogger
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.NavigationItem
+import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.DownloadedAssetDialogVisibilityState
@@ -36,6 +39,7 @@ import javax.inject.Inject
 @HiltViewModel
 @Suppress("LongParameterList")
 class ConversationMessagesViewModel @Inject constructor(
+    private val navigationManager: NavigationManager,
     qualifiedIdMapper: QualifiedIdMapper,
     override val savedStateHandle: SavedStateHandle,
     private val observeConversationDetails: ObserveConversationDetailsUseCase,
@@ -166,6 +170,18 @@ class ConversationMessagesViewModel @Inject constructor(
     fun toggleReaction(messageId: String, reactionEmoji: String) {
         viewModelScope.launch {
             toggleReaction(conversationId, messageId, reactionEmoji)
+        }
+    }
+
+    fun openMessageDetails(messageId: String) {
+        viewModelScope.launch {
+            navigationManager.navigate(
+                command = NavigationCommand(
+                    destination = NavigationItem.MessageDetails.getRouteWithArgs(
+                        listOf(conversationId, messageId)
+                    )
+                )
+            )
         }
     }
 

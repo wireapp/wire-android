@@ -2,7 +2,9 @@ package com.wire.android.mapper
 
 import com.wire.android.ui.home.conversations.avatar
 import com.wire.android.ui.home.conversations.details.participants.model.UIParticipant
+import com.wire.android.ui.home.conversations.previewAsset
 import com.wire.android.util.ui.WireSessionImageLoader
+import com.wire.kalium.logic.data.message.reaction.MessageReaction
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.SelfUser
 import com.wire.kalium.logic.data.user.User
@@ -28,7 +30,20 @@ class UIParticipantMapper @Inject constructor(
             membership = userTypeMapper.toMembership(userType),
             connectionState = connectionState,
             unavailable = unavailable,
-            isDeleted = if(user is OtherUser) user.deleted else false
+            isDeleted = if (user is OtherUser) user.deleted else false
+        )
+    }
+
+    fun toUIParticipant(messageReaction: MessageReaction): UIParticipant = with(messageReaction) {
+        return UIParticipant(
+            id = userId,
+            name = name.orEmpty(),
+            handle = handle.orEmpty(),
+            avatarData = previewAsset(wireSessionImageLoader),
+            membership = userTypeMapper.toMembership(userType),
+            unavailable = !deleted && name.orEmpty().isEmpty(),
+            isDeleted = deleted,
+            isSelf = isSelfUser
         )
     }
 }

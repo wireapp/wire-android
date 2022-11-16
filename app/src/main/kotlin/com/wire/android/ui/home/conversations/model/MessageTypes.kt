@@ -2,6 +2,7 @@ package com.wire.android.ui.home.conversations.model
 
 import android.text.util.Linkify
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.combinedClickable
@@ -12,19 +13,25 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.model.ImageAsset
+import com.wire.android.ui.common.DeletedLabel
 import com.wire.android.ui.common.LinkifyText
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
@@ -101,11 +108,12 @@ fun MessageImage(
 
 @Composable
 internal fun MessageQuote(
-    quotedMessageUIData: QuotedMessageUIData
+    quotedMessageUIData: QuotedMessageUIData,
+    modifier: Modifier = Modifier
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(dimensions().spacing4x),
-        modifier = Modifier.border(
+        modifier = modifier.border(
             width = dimensions().messageQuoteBorderRadius,
             color = colorsScheme().divider,
             shape = RoundedCornerShape(dimensions().corner12x)
@@ -121,10 +129,47 @@ internal fun MessageQuote(
             )
             Text(text = quotedMessageUIData.senderName, style = typography().label02, color = colorsScheme().secondaryText)
         }
-        quotedMessageUIData.text?.let { text ->
-            Text(text = text, style = typography().subline01)
+        // Draw content
+        when (val quotedContent = quotedMessageUIData.quotedContent) {
+            is QuotedMessageUIData.Text -> QuotedText(quotedContent.value)
+            QuotedMessageUIData.Deleted -> QuotedDeleted()
+            is QuotedMessageUIData.DisplayableImage -> QuotedImage(quotedContent.displayable)
+            is QuotedMessageUIData.GenericAsset -> QuotedGenericAsset(quotedContent.assetMimeType)
         }
     }
+}
+
+@Composable
+private fun QuotedDeleted() {
+    DeletedLabel()
+}
+
+@Composable
+private fun QuotedText(
+    text: String
+) {
+    Text(text = text, style = typography().subline01)
+}
+
+@Composable
+private fun QuotedImage(
+    asset: ImageAsset.PrivateAsset
+) {
+    Image(
+        painter = asset.paint(),
+        contentDescription = stringResource(R.string.content_description_image_message),
+        modifier = Modifier
+            .width(dimensions().spacing48x),
+        alignment = Alignment.Center,
+        contentScale = ContentScale.Crop
+    )
+}
+
+@Composable
+private fun QuotedGenericAsset(
+    mimeType: String
+) {
+    Text(text = mimeType, style = typography().subline01.copy(fontStyle = FontStyle.Italic))
 }
 
 @Composable

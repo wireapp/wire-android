@@ -11,6 +11,7 @@ import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.asset.isDisplayableImageMimeType
+import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
@@ -133,10 +134,10 @@ class MessageContentMapper @Inject constructor(
         }
 
         is MessageContent.RestrictedAsset -> toRestrictedAsset(content.mimeType, content.sizeInBytes, content.name)
-        else -> toText(content)
+        else -> toText(message.conversationId, content)
     }
 
-    fun toText(content: MessageContent) = MessageBody(
+    fun toText(conversationId: ConversationId, content: MessageContent) = MessageBody(
         when (content) {
             is MessageContent.Text -> UIText.DynamicString(content.value, content.mentions)
             is MessageContent.Unknown -> UIText.StringResource(
@@ -145,18 +146,31 @@ class MessageContentMapper @Inject constructor(
             is MessageContent.FailedDecryption -> UIText.StringResource(R.string.label_message_decryption_failure_message)
             else -> UIText.StringResource(messageResourceProvider.sentAMessageWithContent, "Unknown")
         },
-        quotedMessage = (content as? MessageContent.Text)?.quotedMessageDetails?.let {
-            QuotedMessageUIData(
-                it.senderId,
-                it.senderName,
-                it.timeInstant,
-                it.isDeleted,
-                it.editInstant,
-                it.textContent,
-                it.textContent?.let { mimeType -> AttachmentType.fromMimeTypeString(mimeType) }
-            )
-        }
+        quotedMessage = (content as? MessageContent.Text)?.quotedMessageDetails?.let { mapQuoteData(conversationId, it) }
     ).let { messageBody -> UIMessageContent.TextMessage(messageBody = messageBody) }
+
+    private fun mapQuoteData(conversationId: ConversationId, it: MessageContent.QuotedMessageDetails) = QuotedMessageUIData(
+        it.senderId,
+        it.senderName,
+        it.timeInstant,
+        it.editInstant,
+        when (val quotedContent = it.quotedContent) {
+            is MessageContent.QuotedMessageDetails.Asset -> when (AttachmentType.fromMimeTypeString(quotedContent.assetMimeType)) {
+                AttachmentType.IMAGE -> QuotedMessageUIData.DisplayableImage(
+                    ImageAsset.PrivateAsset(
+                        wireSessionImageLoader,
+                        conversationId,
+                        it.messageId,
+                        it.isQuotingSelfUser
+                    )
+                )
+
+                AttachmentType.GENERIC_FILE -> QuotedMessageUIData.GenericAsset(quotedContent.assetMimeType)
+            }
+            is MessageContent.QuotedMessageDetails.Text -> QuotedMessageUIData.Text(quotedContent.value)
+            MessageContent.QuotedMessageDetails.Deleted -> QuotedMessageUIData.Deleted
+        }
+    )
 
     fun toUIMessageContent(assetMessageContentMetadata: AssetMessageContentMetadata, message: Message, sender: User?): UIMessageContent =
         with(assetMessageContentMetadata.assetMessageContent) {

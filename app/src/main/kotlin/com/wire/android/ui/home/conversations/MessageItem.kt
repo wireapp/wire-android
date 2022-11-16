@@ -250,8 +250,6 @@ private fun MessageContent(
     onLongClick: (() -> Unit)? = null,
     onOpenProfile: (String) -> Unit
 ) {
-    // TODO: Display Quote
-
     when (messageContent) {
         is UIMessageContent.ImageMessage -> MessageImage(
             asset = messageContent.asset,

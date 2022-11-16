@@ -53,10 +53,8 @@ fun PreviewMessageWithReply() {
                         senderId = previewUserId,
                         senderName = "John Doe",
                         timeInstant = Clock.System.now(),
-                        isDeleted = false,
                         editTime = null,
-                        text = "Hey, can I call right now?",
-                        assetType = null
+                        quotedContent = QuotedMessageUIData.Text("Hey, can I call right now?")
                     )
                 )
             )

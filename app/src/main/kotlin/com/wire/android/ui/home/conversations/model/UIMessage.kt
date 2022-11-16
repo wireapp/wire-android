@@ -145,11 +145,24 @@ data class QuotedMessageUIData(
     val senderId: UserId,
     val senderName: String,
     val timeInstant: Instant,
-    val isDeleted: Boolean,
     val editTime: Instant?,
-    val text: String?,
-    val assetType: AttachmentType?
-)
+    val quotedContent: Content
+) {
+
+    sealed interface Content
+
+    data class Text(val value: String) : Content
+
+    data class GenericAsset(
+        val assetMimeType: String,
+    ) : Content
+
+    data class DisplayableImage(
+        val displayable: ImageAsset.PrivateAsset
+    ) : Content
+
+    object Deleted : Content
+}
 
 enum class MessageSource {
     Self, OtherUser

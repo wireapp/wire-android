@@ -77,7 +77,7 @@ fun DropDownMentionsSuggestions(
     }
 }
 
-@Suppress("ReturnCount")
+@Suppress("ReturnCount", "NestedBlockDepth")
 private fun calculateMaxHeight(
     defaultMaxHeightDropdownMenu: Dp,
     itemHeights: Map<Int, Int>,

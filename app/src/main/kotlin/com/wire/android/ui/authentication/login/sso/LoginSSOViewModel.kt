@@ -5,6 +5,7 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.navigation.NavigationManager
@@ -35,11 +36,13 @@ class LoginSSOViewModel @Inject constructor(
     clientScopeProviderFactory: ClientScopeProvider.Factory,
     navigationManager: NavigationManager,
     authServerConfigProvider: AuthServerConfigProvider,
+    userDataStoreProvider: UserDataStoreProvider
 ) : LoginViewModel(
     savedStateHandle,
     navigationManager,
     clientScopeProviderFactory,
-    authServerConfigProvider
+    authServerConfigProvider,
+    userDataStoreProvider
 ) {
 
     var openWebUrl = MutableSharedFlow<String>()
@@ -98,19 +101,20 @@ class LoginSSOViewModel @Inject constructor(
                         }
                     }
                 }
-            val (authTokens, ssoId) = authScope.ssoLoginScope.getLoginSession(cookie).let {
+            val ssoLoginResult = authScope.ssoLoginScope.getLoginSession(cookie).let {
                 when (it) {
                     is SSOLoginSessionResult.Failure -> {
                         updateSSOLoginError(it.toLoginError())
                         return@launch
                     }
-                    is SSOLoginSessionResult.Success -> it.authTokens to it.ssoId
+                    is SSOLoginSessionResult.Success -> it
                 }
             }
             val storedUserId = addAuthenticatedUser(
-                authTokens = authTokens,
-                ssoId = ssoId,
+                authTokens = ssoLoginResult.authTokens,
+                ssoId = ssoLoginResult.ssoId,
                 serverConfigId = serverConfigId,
+                proxyCredentials = ssoLoginResult.proxyCredentials,
                 replace = false
             ).let {
                 when (it) {
@@ -124,7 +128,7 @@ class LoginSSOViewModel @Inject constructor(
             registerClient(storedUserId, null).let {
                 when (it) {
                     is RegisterClientResult.Success -> {
-                        navigateToConvScreen()
+                        navigateAfterRegisterClientSuccess(storedUserId)
                     }
                     is RegisterClientResult.Failure -> {
                         updateSSOLoginError(it.toLoginError())

@@ -12,6 +12,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
@@ -111,13 +112,19 @@ internal fun MessageQuote(
     quotedMessageUIData: QuotedMessageUIData,
     modifier: Modifier = Modifier
 ) {
+    val shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
     Column(
         verticalArrangement = Arrangement.spacedBy(dimensions().spacing4x),
-        modifier = modifier.border(
-            width = dimensions().messageQuoteBorderRadius,
-            color = colorsScheme().divider,
-            shape = RoundedCornerShape(dimensions().corner12x)
-        ).padding(dimensions().spacing8x).fillMaxWidth()
+        modifier = modifier
+            .background(
+                color = MaterialTheme.wireColorScheme.surface,
+                shape = shape
+            )
+            .border(
+                width = 1.dp,
+                color = MaterialTheme.wireColorScheme.divider,
+                shape = shape
+            ).padding(dimensions().spacing8x).fillMaxWidth()
     ) {
         Row(
             horizontalArrangement = Arrangement.spacedBy(dimensions().spacing4x),
@@ -155,11 +162,14 @@ private fun QuotedText(
 private fun QuotedImage(
     asset: ImageAsset.PrivateAsset
 ) {
+
     Image(
         painter = asset.paint(),
         contentDescription = stringResource(R.string.content_description_image_message),
         modifier = Modifier
-            .width(dimensions().spacing48x),
+            .width(dimensions().spacing56x)
+            .height(dimensions().spacing56x)
+            .clip(RoundedCornerShape(dimensions().spacing8x)),
         alignment = Alignment.Center,
         contentScale = ContentScale.Crop
     )
@@ -169,7 +179,7 @@ private fun QuotedImage(
 private fun QuotedGenericAsset(
     mimeType: String
 ) {
-    Text(text = mimeType, style = typography().subline01.copy(fontStyle = FontStyle.Italic))
+    Text(text = "Generic Asset $mimeType", style = typography().subline01.copy(fontStyle = FontStyle.Italic))
 }
 
 @Composable

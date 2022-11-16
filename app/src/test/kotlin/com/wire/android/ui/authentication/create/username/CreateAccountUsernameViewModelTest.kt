@@ -104,7 +104,7 @@ class CreateAccountUsernameViewModelTest {
     }
 
     @Test
-    fun `given button is clicked, when request returns Success, then navigateToConvScreen is called`() {
+    fun `given button is clicked, when request returns Success, then navigate to initial sync screen`() {
         val scheduler = TestCoroutineScheduler()
         val username = "abc"
         Dispatchers.setMain(StandardTestDispatcher(scheduler))
@@ -119,7 +119,7 @@ class CreateAccountUsernameViewModelTest {
         coVerify(exactly = 2) { validateUserHandleUseCase.invoke(username) }
         coVerify(exactly = 1) { setUserHandleUseCase.invoke(username) }
         coVerify(exactly = 1) {
-            navigationManager.navigate(NavigationCommand(NavigationItemDestinationsRoutes.HOME, BackStackMode.CLEAR_WHOLE))
+            navigationManager.navigate(NavigationCommand(NavigationItemDestinationsRoutes.INITIAL_SYNC, BackStackMode.CLEAR_WHOLE))
         }
     }
 

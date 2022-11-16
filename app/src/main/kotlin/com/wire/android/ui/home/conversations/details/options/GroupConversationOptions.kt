@@ -42,7 +42,8 @@ fun GroupConversationOptions(
         state = state,
         onGuestSwitchClicked = viewModel::onGuestUpdate,
         onServiceSwitchClicked = viewModel::onServicesUpdate,
-        lazyListState = lazyListState
+        lazyListState = lazyListState,
+        onEditGroupName = viewModel::navigateToEditGroupName
     )
     if (state.changeGuestOptionConfirmationRequired) {
         DisableGuestConfirmationDialog(
@@ -64,14 +65,19 @@ fun GroupConversationSettings(
     state: GroupConversationOptionsState,
     onGuestSwitchClicked: (Boolean) -> Unit,
     onServiceSwitchClicked: (Boolean) -> Unit,
-    lazyListState: LazyListState = rememberLazyListState()
+    onEditGroupName: () -> Unit,
+    lazyListState: LazyListState = rememberLazyListState(),
 ) {
     LazyColumn(
         state = lazyListState,
         modifier = Modifier.fillMaxSize()
     ) {
         item {
-            GroupNameItem(groupName = state.groupName, canBeChanged = state.isUpdatingAllowed)
+            GroupNameItem(
+                groupName = state.groupName,
+                canBeChanged = state.isUpdatingAllowed,
+                onClick = onEditGroupName,
+            )
         }
         if (state.areAccessOptionsAvailable) {
             item { FolderHeader(name = stringResource(R.string.folder_lable_access)) }
@@ -138,11 +144,18 @@ fun ConversationProtocolDetails(
 }
 
 @Composable
-private fun GroupNameItem(groupName: String, canBeChanged: Boolean) {
+private fun GroupNameItem(
+    groupName: String,
+    canBeChanged: Boolean,
+    onClick: () -> Unit = {},
+) {
     GroupConversationOptionsItem(
         label = stringResource(id = R.string.conversation_details_options_group_name),
         title = groupName,
-        clickable = Clickable(enabled = canBeChanged, onClick = { /* TODO */ }, onLongClick = { /* not handled */ }),
+        clickable = Clickable(
+            enabled = canBeChanged,
+            onClick = onClick,
+            onLongClick = { /* not handled */ }),
         arrowType = if (!canBeChanged) ArrowType.NONE else ArrowType.CENTER_ALIGNED
     )
     Divider(color = MaterialTheme.wireColorScheme.divider, thickness = Dp.Hairline)
@@ -274,7 +287,7 @@ private fun AdminTeamGroupConversationOptionsPreview() {
             isServicesAllowed = true,
             isUpdatingGuestAllowed = true
         ),
-        {}, {}
+        {}, {}, { }
     )
 }
 
@@ -291,7 +304,7 @@ private fun GuestAdminTeamGroupConversationOptionsPreview() {
             isServicesAllowed = true,
             isUpdatingGuestAllowed = false
         ),
-        {}, {}
+        {}, {}, { }
     )
 }
 
@@ -308,7 +321,7 @@ private fun MemberTeamGroupConversationOptionsPreview() {
             isServicesAllowed = true,
             isUpdatingGuestAllowed = false
         ),
-        {}, {}
+        {}, {}, { }
     )
 }
 
@@ -321,7 +334,7 @@ private fun NormalGroupConversationOptionsPreview() {
             groupName = "Normal Group Conversation",
             areAccessOptionsAvailable = false
         ),
-        {}, {}
+        {}, {}, { }
     )
 }
 

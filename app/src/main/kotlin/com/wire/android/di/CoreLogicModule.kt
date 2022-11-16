@@ -2,6 +2,7 @@ package com.wire.android.di
 
 import android.content.Context
 import androidx.work.WorkManager
+import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.util.DeviceLabel
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
@@ -71,9 +72,9 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.android.scopes.ServiceScoped
 import dagger.hilt.android.scopes.ViewModelScoped
 import dagger.hilt.components.SingletonComponent
-import kotlinx.coroutines.runBlocking
 import javax.inject.Qualifier
 import javax.inject.Singleton
+import kotlinx.coroutines.runBlocking
 
 @Qualifier
 @Retention(AnnotationRetention.BINARY)
@@ -163,6 +164,11 @@ class SessionModule {
             }
         }
     }
+
+    @ViewModelScoped
+    @Provides
+    fun provideCurrentAccountUserDataStore(@CurrentAccount currentAccount: UserId, userDataStoreProvider: UserDataStoreProvider) =
+        userDataStoreProvider.getOrCreate(currentAccount)
 }
 
 @Module
@@ -791,4 +797,9 @@ class UseCaseModule {
     @Provides
     fun provideIsEligibleToStartCall(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).calls.isEligibleToStartCall
+
+    @ViewModelScoped
+    @Provides
+    fun provideRenameConversation(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).conversations.renameConversation
 }

@@ -2,7 +2,7 @@ const val appId = "com.wire.android"
 
 object AndroidSdk {
     const val min = 24
-    const val compile = 32
+    const val compile = 33
     const val target = compile
 }
 
@@ -52,29 +52,29 @@ object Repositories {
 
 object Libraries {
     object Versions {
-        const val kotlin = "1.6.21"
+        const val kotlin = "1.7.10"
         const val coroutines = "1.6.1-native-mt"
         const val jetpack = "1.1.0"
         const val constraintLayout = "1.1.3"
-        const val ktx = "1.6.0"
+        const val ktx = "1.8.0"
         const val material = "1.5.0"
         const val pinEditText = "1.2.3"
         const val sqlLiteJdbc = "3.36.0"
         const val desugaring = "1.1.5"
         const val workManager = "2.7.1"
-        const val fragment = "1.2.5"
-        const val compose = "1.2.0-beta01"
+        const val fragment = "1.5.0"
+        const val compose = "1.3.1"
         const val composeMaterial = compose
         const val composeMaterial3 = "1.0.0-alpha11"
         const val composeActivity = "1.4.0"
         const val composeNavigation = "2.4.2"
         const val accompanist = "0.25.0"
         const val composeConstraint = "1.0.0"
-        const val hilt = "2.38.1"
+        const val hilt = "2.43.2"
         const val hiltWork = "1.0.0"
-        const val lifecycle = "2.4.0"
+        const val lifecycle = "2.5.0"
         const val visibilityModifiers = "1.1.0"
-        const val composeHiltNavigation = "1.0.0-alpha03"
+        const val composeHiltNavigation = "1.0.0"
         const val browser = "1.3.0"
         const val dataStore = "1.0.0"
         const val paging3 = "3.1.1"

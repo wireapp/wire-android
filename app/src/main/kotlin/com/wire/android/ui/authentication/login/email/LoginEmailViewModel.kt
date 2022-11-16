@@ -4,6 +4,7 @@ import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.navigation.NavigationManager
@@ -30,11 +31,13 @@ class LoginEmailViewModel @Inject constructor(
     private val savedStateHandle: SavedStateHandle,
     navigationManager: NavigationManager,
     authServerConfigProvider: AuthServerConfigProvider,
+    userDataStoreProvider: UserDataStoreProvider
 ) : LoginViewModel(
     savedStateHandle,
     navigationManager,
     clientScopeProviderFactory,
-    authServerConfigProvider
+    authServerConfigProvider,
+    userDataStoreProvider
 ) {
     @Suppress("LongMethod")
     fun login() {
@@ -100,7 +103,7 @@ class LoginEmailViewModel @Inject constructor(
                         return@launch
                     }
                     is RegisterClientResult.Success -> {
-                        navigateToConvScreen()
+                        navigateAfterRegisterClientSuccess(storedUserId)
                     }
                 }
             }

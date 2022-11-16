@@ -2,6 +2,7 @@ package com.wire.android.di
 
 import android.content.Context
 import androidx.work.WorkManager
+import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.util.DeviceLabel
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
@@ -163,6 +164,11 @@ class SessionModule {
             }
         }
     }
+
+    @ViewModelScoped
+    @Provides
+    fun provideCurrentAccountUserDataStore(@CurrentAccount currentAccount: UserId, userDataStoreProvider: UserDataStoreProvider) =
+        userDataStoreProvider.getOrCreate(currentAccount)
 }
 
 @Module

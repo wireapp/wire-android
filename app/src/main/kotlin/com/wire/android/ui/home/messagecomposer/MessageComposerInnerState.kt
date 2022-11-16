@@ -94,6 +94,8 @@ data class MessageComposerInnerState(
 
     var mentions by mutableStateOf(listOf<UiMention>())
 
+    var messageReplyType: MessageReplyType? by mutableStateOf(null)
+
     fun setMessageTextValue(text: TextFieldValue) {
         updateMentionsIfNeeded(text)
         requestMentionSuggestionIfNeeded(text)
@@ -245,8 +247,6 @@ data class MessageComposerInnerState(
         }
     }
 
-    var messageReplyType: MessageReplyType? by mutableStateOf(null)
-
     fun reply(uiMessage: UIMessage) {
         val authorName = uiMessage.messageHeader.username.asString(context.resources)
 
@@ -289,6 +289,8 @@ data class MessageComposerInnerState(
             is UIMessageContent.SystemMessage.TeamMemberRemoved -> return
             null -> return
         }
+
+        hasFocus = true
     }
 
     fun cancelReply() {

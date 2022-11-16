@@ -241,6 +241,7 @@ private fun Username(username: String, modifier: Modifier = Modifier) {
     )
 }
 
+@Suppress("ComplexMethod")
 @Composable
 private fun MessageContent(
     messageContent: UIMessageContent?,
@@ -273,6 +274,8 @@ private fun MessageContent(
         is UIMessageContent.SystemMessage.MemberAdded -> {}
         is UIMessageContent.SystemMessage.MemberLeft -> {}
         is UIMessageContent.SystemMessage.MemberRemoved -> {}
+        is UIMessageContent.SystemMessage.RenamedConversation -> {}
+        is UIMessageContent.SystemMessage.TeamMemberRemoved -> {}
         is UIMessageContent.RestrictedAsset -> {
             when {
                 messageContent.mimeType.contains("image/") -> {
@@ -289,7 +292,10 @@ private fun MessageContent(
                 }
             }
         }
-        is UIMessageContent.SystemMessage.RenamedConversation -> {}
+        is UIMessageContent.PreviewAssetMessage -> {}
+        is UIMessageContent.SystemMessage.MissedCall.YouCalled -> {}
+        is UIMessageContent.SystemMessage.MissedCall.OtherCalled -> {}
+        null -> { throw NullPointerException("messageContent is null")}
     }
 }
 

@@ -1,11 +1,11 @@
-package com.wire.android.ui.migration
+package com.wire.android.ui.initialsync
 
 import androidx.compose.runtime.Composable
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.ui.common.SettingUpWireScreenContent
 
 @Composable
-fun MigrationScreen(viewModel: MigrationViewModel = hiltViewModel()) {
-    viewModel.init()
+fun InitialSyncScreen(viewModel: InitialSyncViewModel = hiltViewModel()) {
     SettingUpWireScreenContent()
+    viewModel.waitUntilSyncIsCompleted()
 }

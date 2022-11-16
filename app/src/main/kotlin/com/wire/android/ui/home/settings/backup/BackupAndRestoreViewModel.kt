@@ -2,20 +2,27 @@ package com.wire.android.ui.home.settings.backup
 
 import android.content.Context
 import android.net.Uri
+import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.R
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
-import com.wire.kalium.logic.feature.backup.ImportBackupUseCase
+import com.wire.android.util.FileManager
+import com.wire.kalium.logic.data.asset.KaliumFileSystem
+import com.wire.kalium.logic.feature.backup.CreateBackupResult
+import com.wire.kalium.logic.feature.backup.CreateBackupUseCase
+import com.wire.kalium.logic.feature.backup.RestoreBackupUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import okio.Path
 import java.io.File
 import javax.inject.Inject
 
@@ -23,7 +30,9 @@ import javax.inject.Inject
 class BackupAndRestoreViewModel
 @Inject constructor(
     private val navigationManager: NavigationManager,
-    private val importBackup: ImportBackupUseCase,
+    private val importBackup: RestoreBackupUseCase,
+    private val createBackupUseCase: CreateBackupUseCase,
+    private val fileManager: FileManager,
     private val context: Context
 ) : ViewModel() {
 
@@ -40,25 +49,25 @@ class BackupAndRestoreViewModel
     }
 
     @Suppress("EmptyFunctionBlock")
-    //TODO: save a back up file
     fun saveBackup() {
-
+        val errorToast = Toast.makeText(context, context.getString(R.string.error_conversation_opening_asset_file), Toast.LENGTH_SHORT)
+        state.createdBackupPath?.let { backupDataPath ->
+            val backupExtension = "zip"
+            fileManager.openWithExternalApp(backupDataPath, backupExtension) { errorToast.show() }
+        } ?: errorToast.show()
     }
 
     @Suppress("MagicNumber")
-    //TODO: create a back up
-    fun createBackup() {
-        // TEST purpose remove once we are restoring the backup
+    fun createBackup(password: String) {
         viewModelScope.launch {
             state = state.copy(backupProgress = BackupProgress.InProgress(0.25f))
-            delay(250)
             state = state.copy(backupProgress = BackupProgress.InProgress(0.50f))
-            delay(250)
-            state = state.copy(backupProgress = BackupProgress.InProgress(0.75f))
-            delay(250)
-            state = state.copy(backupProgress = BackupProgress.InProgress(0.99f))
-            delay(250)
-            state = state.copy(backupProgress = BackupProgress.Finished)
+            val result = createBackupUseCase.invoke(password)
+
+            state = if (result is CreateBackupResult.Success) {
+                state.copy(createdBackupPath = result.backupFilePath, backupProgress = BackupProgress.Finished)
+
+            } else state.copy(backupProgress = BackupProgress.Failed)
         }
     }
 
@@ -85,6 +94,7 @@ class BackupAndRestoreViewModel
             restoreBackupFile(restorePassword)
         }
     }
+
     @Suppress("MagicNumber")
     private suspend fun restoreBackupFile(restorePassword: TextFieldValue) {
         // Test purpose remove once we are able to restore file
@@ -125,7 +135,6 @@ class BackupAndRestoreViewModel
     }
 
     fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }
-
 }
 
 data class BackupAndRestoreState(
@@ -133,7 +142,8 @@ data class BackupAndRestoreState(
     val restoreFileValidation: RestoreFileValidation,
     val restorePasswordValidation: PasswordValidation,
     val backupProgress: BackupProgress,
-    val backupPasswordValidation: PasswordValidation
+    val backupPasswordValidation: PasswordValidation,
+    val createdBackupPath: Path?
 ) {
     companion object {
         val INITIAL_STATE = BackupAndRestoreState(
@@ -141,7 +151,8 @@ data class BackupAndRestoreState(
             restoreFileValidation = RestoreFileValidation.Pending,
             backupProgress = BackupProgress.Pending,
             restorePasswordValidation = PasswordValidation.NotVerified,
-            backupPasswordValidation = PasswordValidation.Valid
+            backupPasswordValidation = PasswordValidation.Valid,
+            createdBackupPath = null
         )
     }
 }

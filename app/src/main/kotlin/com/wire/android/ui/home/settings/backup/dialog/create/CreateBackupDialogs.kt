@@ -49,7 +49,7 @@ fun InformBackupDialog(
 fun SetBackupPasswordDialog(
     isBackupPasswordValid: Boolean,
     onBackupPasswordChanged: (TextFieldValue) -> Unit,
-    onCreateBackup: () -> Unit,
+    onCreateBackup: (String) -> Unit,
     onDismissDialog: () -> Unit
 ) {
     var backupPassword by remember { mutableStateOf(TextFieldValue("")) }
@@ -64,7 +64,7 @@ fun SetBackupPasswordDialog(
             state = WireButtonState.Default
         ),
         optionButton1Properties = WireDialogButtonProperties(
-            onClick = onCreateBackup,
+            onClick = { onCreateBackup(backupPassword.text) },
             text = stringResource(id = R.string.label_ok),
             type = WireDialogButtonType.Primary,
             state = if (!isBackupPasswordValid) WireButtonState.Disabled else WireButtonState.Default

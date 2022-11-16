@@ -19,7 +19,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
@@ -45,7 +44,6 @@ import com.wire.android.ui.home.settings.backup.dialog.restore.rememberRestoreDi
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
-import kotlinx.coroutines.InternalCoroutinesApi
 
 @Composable
 fun BackupAndRestoreScreen(viewModel: BackupAndRestoreViewModel = hiltViewModel()) {
@@ -63,12 +61,12 @@ fun BackupAndRestoreScreen(viewModel: BackupAndRestoreViewModel = hiltViewModel(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class, InternalCoroutinesApi::class, ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BackupAndRestoreContent(
     backUpAndRestoreState: BackupAndRestoreState,
     onValidateBackupPassword: (TextFieldValue) -> Unit,
-    onCreateBackup: () -> Unit,
+    onCreateBackup: (String) -> Unit,
     onSaveBackup: () -> Unit,
     onCancelBackupCreation: () -> Unit,
     onCancelBackupRestore: () -> Unit,
@@ -155,6 +153,8 @@ fun BackupAndRestoreContent(
                     onOpenConversations = onOpenConversations
                 )
             }
+
+            BackupAndRestoreDialog.None -> {}
         }
     }
 }
@@ -163,7 +163,7 @@ fun BackupAndRestoreContent(
 fun CreateBackupDialogFlow(
     backUpAndRestoreState: BackupAndRestoreState,
     onValidateBackupPassword: (TextFieldValue) -> Unit,
-    onCreateBackup: () -> Unit,
+    onCreateBackup: (String) -> Unit,
     onSaveBackup: () -> Unit,
     onCancelCreateBackup: () -> Unit
 ) {
@@ -182,7 +182,10 @@ fun CreateBackupDialogFlow(
                 SetBackupPasswordDialog(
                     isBackupPasswordValid = backUpAndRestoreState.backupPasswordValidation is PasswordValidation.Valid,
                     onBackupPasswordChanged = onValidateBackupPassword,
-                    onCreateBackup = { toCreateBackup(); onCreateBackup() },
+                    onCreateBackup = { password ->
+                        toCreateBackup()
+                        onCreateBackup(password)
+                    },
                     onDismissDialog = onCancelCreateBackup
                 )
             }
@@ -190,6 +193,7 @@ fun CreateBackupDialogFlow(
             BackUpDialogStep.CreatingBackup -> {
                 LaunchedEffect(backUpAndRestoreState.backupProgress) {
                     when (val progress = backUpAndRestoreState.backupProgress) {
+                        BackupProgress.Pending -> {}
                         BackupProgress.Failed -> backupDialogStateHolder.toBackupFailure()
                         BackupProgress.Finished -> backupDialogStateHolder.toFinished()
                         is BackupProgress.InProgress -> {
@@ -236,6 +240,7 @@ fun RestoreBackupDialogFlow(
             is RestoreDialogStep.ChooseBackupFile -> {
                 LaunchedEffect(backUpAndRestoreState.restoreFileValidation) {
                     when (backUpAndRestoreState.restoreFileValidation) {
+                        RestoreFileValidation.Pending -> {}
                         RestoreFileValidation.GeneralFailure -> {
                             restoreDialogStateHolder.toRestoreFailure(RestoreFailure.GeneralFailure)
                         }

@@ -6,7 +6,9 @@ import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.migration.feature.MigrateActiveAccountsUseCase
 import com.wire.android.migration.feature.MigrateClientsDataUseCase
 import com.wire.android.migration.feature.MigrateConversationsUseCase
+import com.wire.android.migration.feature.MigrateMessagesUseCase
 import com.wire.android.migration.feature.MigrateServerConfigUseCase
+import com.wire.android.migration.feature.MigrateUsersUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -79,7 +81,13 @@ class MigrationManagerTest {
         lateinit var migrateClientsData: MigrateClientsDataUseCase
 
         @MockK
+        lateinit var migrateUsers: MigrateUsersUseCase
+
+        @MockK
         lateinit var migrateConversations: MigrateConversationsUseCase
+
+        @MockK
+        lateinit var migrateMessages: MigrateMessagesUseCase
 
         private val manager: MigrationManager by lazy {
             MigrationManager(
@@ -88,7 +96,9 @@ class MigrationManagerTest {
                 migrateServerConfigUseCase,
                 migrateActiveAccounts,
                 migrateClientsData,
-                migrateConversations
+                migrateUsers,
+                migrateConversations,
+                migrateMessages
             )
         }
 

@@ -77,6 +77,7 @@ fun DropDownMentionsSuggestions(
     }
 }
 
+@Suppress("ReturnCount")
 private fun calculateMaxHeight(
     defaultMaxHeightDropdownMenu: Dp,
     itemHeights: Map<Int, Int>,

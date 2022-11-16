@@ -13,8 +13,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -67,9 +71,6 @@ fun ColumnScope.MessageComposerInputRow(
             onIsFocused = {
                 messageComposerState.toActive()
             },
-            onNotFocused = {
-                messageComposerState.hasFocus = false
-            },
             modifier = Modifier
                 .fillMaxWidth()
                 .then(
@@ -78,6 +79,7 @@ fun ColumnScope.MessageComposerInputRow(
                             Modifier
                                 .fillMaxHeight()
                                 .padding(end = dimensions().messageComposerPaddingEnd)
+
                         MessageComposeInputState.Active -> {
                             Modifier
                                 .heightIn(
@@ -87,6 +89,7 @@ fun ColumnScope.MessageComposerInputRow(
                                     end = dimensions().messageComposerPaddingEnd
                                 )
                         }
+
                         else -> Modifier.wrapContentHeight()
                     }
                 )
@@ -100,7 +103,6 @@ private fun MessageComposerInput(
     onMessageTextChanged: (TextFieldValue) -> Unit,
     messageComposerInputState: MessageComposeInputState,
     onIsFocused: () -> Unit,
-    onNotFocused: () -> Unit,
     modifier: Modifier = Modifier
 ) {
     WireTextField(
@@ -116,13 +118,12 @@ private fun MessageComposerInput(
         // Add a extra space so that the a cursor is placed one space before "Type a message"
         placeholderText = " " + stringResource(R.string.label_type_a_message),
         modifier = modifier.then(
-            Modifier.onFocusChanged { focusState ->
-                if (focusState.isFocused) {
-                    onIsFocused()
-                } else {
-                    onNotFocused()
+            Modifier
+                .onFocusChanged { focusState ->
+                    if (focusState.isFocused) {
+                        onIsFocused()
+                    }
                 }
-            }
         )
     )
 }

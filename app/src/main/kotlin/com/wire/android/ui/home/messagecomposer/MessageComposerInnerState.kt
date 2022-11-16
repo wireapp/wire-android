@@ -84,8 +84,6 @@ data class MessageComposerInnerState(
 
     var fullScreenHeight: Dp by mutableStateOf(0.0.dp)
 
-    var hasFocus by mutableStateOf(false)
-
     var messageText by mutableStateOf(TextFieldValue(""))
         private set
     private val _mentionQueryFlowState: MutableStateFlow<String?> = MutableStateFlow(null)
@@ -152,7 +150,6 @@ data class MessageComposerInnerState(
     }
 
     fun toActive() {
-        hasFocus = true
         attachmentOptionsDisplayed = false
         messageComposeInputState = MessageComposeInputState.Active
     }
@@ -290,7 +287,7 @@ data class MessageComposerInnerState(
             null -> return
         }
 
-        hasFocus = true
+        toActive()
     }
 
     fun cancelReply() {
@@ -362,5 +359,3 @@ sealed class AttachmentState {
     class Picked(val attachmentBundle: AttachmentBundle) : AttachmentState()
     object Error : AttachmentState()
 }
-
-data class MessageComposerStateTransition(val from: MessageComposeInputState, val to: MessageComposeInputState)

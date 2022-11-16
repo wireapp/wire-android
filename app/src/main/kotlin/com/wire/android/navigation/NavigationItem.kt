@@ -23,6 +23,7 @@ import com.wire.android.navigation.NavigationItemDestinationsRoutes.GROUP_CONVER
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.HOME
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.IMAGE_PICKER
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.INCOMING_CALL
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.INITIAL_SYNC
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.INITIATING_CALL
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.LOGIN
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.MEDIA_GALLERY
@@ -64,6 +65,7 @@ import com.wire.android.ui.home.settings.account.MyAccountScreen
 import com.wire.android.ui.home.settings.appsettings.AppSettingsScreen
 import com.wire.android.ui.home.settings.appsettings.networkSettings.NetworkSettingsScreen
 import com.wire.android.ui.home.settings.backup.BackupAndRestoreScreen
+import com.wire.android.ui.initialsync.InitialSyncScreen
 import com.wire.android.ui.migration.MigrationScreen
 import com.wire.android.ui.settings.devices.SelfDevicesScreen
 import com.wire.android.ui.userprofile.avatarpicker.AvatarPickerScreen
@@ -157,6 +159,11 @@ enum class NavigationItem(
         primaryRoute = HOME,
         content = { HomeScreen(it.navBackStackEntry.savedStateHandle.getBackNavArgs()) },
         animationConfig = NavigationAnimationConfig.DelegatedAnimation
+    ),
+
+    InitialSync(
+        primaryRoute = INITIAL_SYNC,
+        content = { InitialSyncScreen() },
     ),
 
     AppSettings(
@@ -392,6 +399,7 @@ object NavigationItemDestinationsRoutes {
     const val CREATE_ACCOUNT_USERNAME = "create_account_username_screen"
     const val CREATE_ACCOUNT_SUMMARY = "create_account_summary_screen"
     const val HOME = "home_landing_screen"
+    const val INITIAL_SYNC = "initial_sync_screen"
     const val SELF_USER_PROFILE = "self_user_profile_screen"
     const val OTHER_USER_PROFILE = "other_user_profile_screen"
     const val CONVERSATION = "detailed_conversation_screen"

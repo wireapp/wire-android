@@ -5,8 +5,12 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.mockUri
+import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
+import com.wire.android.navigation.BackStackMode
+import com.wire.android.navigation.NavigationCommand
+import com.wire.android.navigation.NavigationItemDestinationsRoutes
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.authentication.login.LoginError
 import com.wire.android.util.EMPTY
@@ -39,9 +43,11 @@ import io.mockk.coEvery
 import io.mockk.coVerify
 import io.mockk.every
 import io.mockk.impl.annotations.MockK
+import io.mockk.verify
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.StandardTestDispatcher
 import kotlinx.coroutines.test.TestCoroutineScheduler
 import kotlinx.coroutines.test.runTest
@@ -82,6 +88,9 @@ class LoginSSOViewModelTest {
     private lateinit var authServerConfigProvider: AuthServerConfigProvider
 
     @MockK
+    private lateinit var userDataStoreProvider: UserDataStoreProvider
+
+    @MockK
     private lateinit var autoVersionAuthScopeUseCase: AutoVersionAuthScopeUseCase
 
     @MockK
@@ -116,7 +125,8 @@ class LoginSSOViewModelTest {
             addAuthenticatedUserUseCase,
             clientScopeProviderFactory,
             navigationManager,
-            authServerConfigProvider
+            authServerConfigProvider,
+            userDataStoreProvider
         )
     }
 
@@ -214,21 +224,48 @@ class LoginSSOViewModelTest {
     }
 
     @Test
-    fun `given establishSSOSession is called, when SSOLogin Success, then SSOLoginResult is passed`() {
+    fun `given establishSSOSession is called and initial sync is not completed, when SSOLogin Success, navigate to initial sync screen`() {
         coEvery { getSSOLoginSessionUseCase(any()) } returns SSOLoginSessionResult.Success(AUTH_TOKEN, SSO_ID, null)
         coEvery { addAuthenticatedUserUseCase(any(), any(), any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
-        coEvery {
-            getOrRegisterClientUseCase(any())
-        } returns RegisterClientResult.Success(CLIENT)
+        coEvery { getOrRegisterClientUseCase(any()) } returns RegisterClientResult.Success(CLIENT)
+        every { userDataStoreProvider.getOrCreate(any()).initialSyncCompleted } returns flowOf(false)
 
         runTest { loginViewModel.establishSSOSession("", serverConfigId = SERVER_CONFIG.id) }
 
         coVerify(exactly = 1) { navigationManager.navigate(any()) }
         coVerify(exactly = 1) { getSSOLoginSessionUseCase(any()) }
-        coVerify(exactly = 1) {
-            getOrRegisterClientUseCase(any())
-        }
+        coVerify(exactly = 1) { getOrRegisterClientUseCase(any()) }
         coVerify(exactly = 1) { addAuthenticatedUserUseCase(any(), any(), any(), any()) }
+        coVerify(exactly = 1) {
+            navigationManager.navigate(
+                NavigationCommand(
+                    NavigationItemDestinationsRoutes.INITIAL_SYNC,
+                    BackStackMode.CLEAR_WHOLE
+                )
+            )
+        }
+    }
+
+    @Test
+    fun `given establishSSOSession is called and initial sync is completed, when SSOLogin Success, navigate to home screen`() {
+        coEvery { getSSOLoginSessionUseCase(any()) } returns SSOLoginSessionResult.Success(AUTH_TOKEN, SSO_ID, null)
+        coEvery { addAuthenticatedUserUseCase(any(), any(), any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
+        coEvery { getOrRegisterClientUseCase(any()) } returns RegisterClientResult.Success(CLIENT)
+        every { userDataStoreProvider.getOrCreate(any()).initialSyncCompleted } returns flowOf(true)
+
+        runTest { loginViewModel.establishSSOSession("", serverConfigId = SERVER_CONFIG.id) }
+
+        coVerify(exactly = 1) { getSSOLoginSessionUseCase(any()) }
+        coVerify(exactly = 1) { getOrRegisterClientUseCase(any()) }
+        coVerify(exactly = 1) { addAuthenticatedUserUseCase(any(), any(), any(), any()) }
+        coVerify(exactly = 1) {
+            navigationManager.navigate(
+                NavigationCommand(
+                    NavigationItemDestinationsRoutes.HOME,
+                    BackStackMode.CLEAR_WHOLE
+                )
+            )
+        }
     }
 
     @Test
@@ -242,7 +279,7 @@ class LoginSSOViewModelTest {
         coVerify(exactly = 1) { getSSOLoginSessionUseCase(any()) }
         coVerify(exactly = 0) { loginViewModel.registerClient(any(), null) }
         coVerify(exactly = 0) { addAuthenticatedUserUseCase(any(), any(), any(), any()) }
-        coVerify(exactly = 0) { loginViewModel.navigateToConvScreen() }
+        verify(exactly = 0) { loginViewModel.navigateAfterRegisterClientSuccess(any()) }
     }
 
     @Test
@@ -262,9 +299,11 @@ class LoginSSOViewModelTest {
         coEvery { getSSOLoginSessionUseCase(any()) } returns SSOLoginSessionResult.Success(AUTH_TOKEN, SSO_ID, null)
         coEvery { addAuthenticatedUserUseCase(any(), any(), any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
         coEvery { getOrRegisterClientUseCase(any()) } returns RegisterClientResult.Success(CLIENT)
+        coEvery { navigationManager.navigate(any()) } returns Unit
+        every { userDataStoreProvider.getOrCreate(any()).initialSyncCompleted } returns flowOf(true)
 
         runTest { loginViewModel.handleSSOResult(DeepLinkResult.SSOLogin.Success("", "")) }
-        coVerify(exactly = 1) { loginViewModel.navigateToConvScreen() }
+        coVerify(exactly = 1) { navigationManager.navigate(any()) }
     }
 
     @Test
@@ -285,7 +324,7 @@ class LoginSSOViewModelTest {
         coVerify(exactly = 1) { getSSOLoginSessionUseCase(any()) }
         coVerify(exactly = 0) { loginViewModel.registerClient(any(), null) }
         coVerify(exactly = 1) { addAuthenticatedUserUseCase(any(), any(), any(), any()) }
-        coVerify(exactly = 0) { loginViewModel.navigateToConvScreen() }
+        verify(exactly = 0) { loginViewModel.navigateAfterRegisterClientSuccess(any()) }
     }
 
     @Test
@@ -303,27 +342,7 @@ class LoginSSOViewModelTest {
         coVerify(exactly = 1) { getOrRegisterClientUseCase(any()) }
         coVerify(exactly = 1) { getSSOLoginSessionUseCase(any()) }
         coVerify(exactly = 1) { addAuthenticatedUserUseCase(any(), any(), any(), any()) }
-        coVerify(exactly = 0) { loginViewModel.navigateToConvScreen() }
-    }
-
-    @Test
-    fun `given establishSSOSession is called, when registerTokenUseCase returns PushTokenFailure error, then LoginError is None`() {
-        coEvery { getSSOLoginSessionUseCase(any()) } returns SSOLoginSessionResult.Success(AUTH_TOKEN, SSO_ID, null)
-        coEvery { addAuthenticatedUserUseCase(any(), any(), any(), any()) } returns AddAuthenticatedUserUseCase.Result.Success(userId)
-        coEvery {
-            getOrRegisterClientUseCase(any())
-        } returns RegisterClientResult.Success(CLIENT)
-
-        runTest { loginViewModel.establishSSOSession("", serverConfigId = SERVER_CONFIG.id) }
-
-        loginViewModel.loginState.loginError shouldBeInstanceOf LoginError.None::class
-
-        coVerify(exactly = 1) { navigationManager.navigate(any()) }
-        coVerify(exactly = 1) { getSSOLoginSessionUseCase(any()) }
-        coVerify(exactly = 1) {
-            getOrRegisterClientUseCase(any())
-        }
-        coVerify(exactly = 1) { addAuthenticatedUserUseCase(any(), any(), any(), any()) }
+        verify(exactly = 0) { loginViewModel.navigateAfterRegisterClientSuccess(any()) }
     }
 
     companion object {

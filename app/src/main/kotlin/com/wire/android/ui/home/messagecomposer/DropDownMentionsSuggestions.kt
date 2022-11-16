@@ -77,29 +77,25 @@ fun DropDownMentionsSuggestions(
     }
 }
 
-@Suppress("ReturnCount")
 private fun calculateMaxHeight(
     defaultMaxHeightDropdownMenu: Dp,
     itemHeights: Map<Int, Int>,
     density: Density,
     membersToMention: List<Contact>,
-): Dp {
-
-    if (itemHeights.keys.toSet() != membersToMention.indices.toSet()) {
+): Dp = if (itemHeights.keys.toSet() != membersToMention.indices.toSet()) {
         // if we don't have all heights calculated yet, return default value
-        return defaultMaxHeightDropdownMenu
-    }
-    val baseHeightInt = with(density) { defaultMaxHeightDropdownMenu.toPx().toInt() }
-
-    var sum = with(density) { DropdownMenuVerticalPadding.toPx().toInt() } * TWO
-    for ((i, itemSize) in itemHeights.toSortedMap()) {
-        sum += itemSize
-        if (sum >= baseHeightInt) {
-            return with(density) { (sum - itemSize / TWO).toDp() }
+        defaultMaxHeightDropdownMenu
+    } else {
+        val baseHeightInt = with(density) { defaultMaxHeightDropdownMenu.toPx().toInt() }
+        var sum = with(density) { DropdownMenuVerticalPadding.toPx().toInt() } * TWO
+        for ((i, itemSize) in itemHeights.toSortedMap()) {
+            sum += itemSize
+            if (sum >= baseHeightInt) {
+                return with(density) { (sum - itemSize / TWO).toDp() }
+            }
         }
-    }
-    // all items fit into default height
-    return defaultMaxHeightDropdownMenu
+        // all items fit into default height
+        defaultMaxHeightDropdownMenu
 }
 
 private fun getDropDownMaxHeight(screenHeight: Int): Dp {

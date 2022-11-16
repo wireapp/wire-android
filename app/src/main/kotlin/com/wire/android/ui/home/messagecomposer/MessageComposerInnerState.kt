@@ -33,7 +33,7 @@ import com.wire.android.util.getFileName
 import com.wire.android.util.getMimeType
 import com.wire.android.util.orDefault
 import com.wire.android.util.resampleImageAndCopyToTempPath
-import com.wire.kalium.logic.data.asset.isDisplayableMimeType
+import com.wire.kalium.logic.data.asset.isDisplayableImageMimeType
 import com.wire.kalium.logic.data.message.mention.MessageMention
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -250,6 +250,7 @@ data class MessageComposerInnerState(
         when (val content = uiMessage.messageContent) {
             is UIMessageContent.AssetMessage -> {
                 messageReplyType = MessageReplyType.AssetReply(
+                    messageId = uiMessage.messageHeader.messageId,
                     author = authorName,
                     assetName = content.assetName
                 )
@@ -257,6 +258,7 @@ data class MessageComposerInnerState(
 
             is UIMessageContent.RestrictedAsset -> {
                 messageReplyType = MessageReplyType.AssetReply(
+                    messageId = uiMessage.messageHeader.messageId,
                     author = authorName,
                     assetName = content.assetName
                 )
@@ -264,6 +266,7 @@ data class MessageComposerInnerState(
 
             is UIMessageContent.TextMessage -> {
                 messageReplyType = MessageReplyType.TextReply(
+                    messageId = uiMessage.messageHeader.messageId,
                     author = authorName,
                     textBody = content.messageBody.message.asString(context.resources)
                 )
@@ -271,6 +274,7 @@ data class MessageComposerInnerState(
 
             is UIMessageContent.ImageMessage -> {
                 messageReplyType = MessageReplyType.ImageReply(
+                    messageId = uiMessage.messageHeader.messageId,
                     author = authorName,
                     imagePath = content.asset
                 )
@@ -296,12 +300,24 @@ data class MessageComposerInnerState(
 
 }
 
-sealed class MessageReplyType {
-    data class AssetReply(val author: String, val assetName: String) : MessageReplyType()
+sealed class MessageReplyType(open val messageId: String) {
+    data class AssetReply(
+        override val messageId: String,
+        val author: String,
+        val assetName: String
+    ) : MessageReplyType(messageId)
 
-    data class TextReply(val author: String, val textBody: String) : MessageReplyType()
+    data class TextReply(
+        override val messageId: String,
+        val author: String,
+        val textBody: String
+    ) : MessageReplyType(messageId)
 
-    data class ImageReply(val author: String, val imagePath: ImageAsset.PrivateAsset?) : MessageReplyType()
+    data class ImageReply(
+        override val messageId: String,
+        val author: String,
+        val imagePath: ImageAsset.PrivateAsset?
+    ) : MessageReplyType(messageId)
 
 }
 
@@ -333,7 +349,7 @@ class AttachmentInnerState(val context: Context) {
             val fullTempAssetPath = "$tempCachePath/${UUID.randomUUID()}".toPath()
             val assetFileName = context.getFileName(attachmentUri) ?: throw IOException("The selected asset has an invalid name")
             val mimeType = attachmentUri.getMimeType(context).orDefault(DEFAULT_FILE_MIME_TYPE)
-            val attachmentType = if (isDisplayableMimeType(mimeType)) AttachmentType.IMAGE else AttachmentType.GENERIC_FILE
+            val attachmentType = if (isDisplayableImageMimeType(mimeType)) AttachmentType.IMAGE else AttachmentType.GENERIC_FILE
             val assetSize = if (attachmentType == AttachmentType.IMAGE)
                 attachmentUri.resampleImageAndCopyToTempPath(context, fullTempAssetPath)
             else attachmentUri.copyToTempPath(context, fullTempAssetPath)

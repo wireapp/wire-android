@@ -67,7 +67,7 @@ fun MessageComposer(
     messageComposerState: MessageComposerInnerState,
     keyboardHeight: KeyboardHeight,
     content: @Composable () -> Unit,
-    onSendTextMessage: (String, List<UiMention>) -> Unit,
+    onSendTextMessage: (String, List<UiMention>, messageId: String?) -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onMentionMember: (String?) -> Unit,
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
@@ -82,7 +82,11 @@ fun MessageComposer(
 
         val onSendButtonClicked = remember {
             {
-                onSendTextMessage(messageComposerState.messageText.text, messageComposerState.mentions)
+                onSendTextMessage(
+                    messageComposerState.messageText.text,
+                    messageComposerState.mentions,
+                    messageComposerState.messageReplyType?.messageId
+                )
                 messageComposerState.setMessageTextValue(TextFieldValue(""))
             }
         }

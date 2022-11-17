@@ -90,7 +90,7 @@ private fun MessageDetailsScreenContent(
                     onNavigationPressed = onBackPressed
                 ) {
                     WireTabRow(
-                        tabs = MessageDetailsTabItem.values().toList(),
+                        tabs = provideMessageDetailsTabItems(isSelfMessage = messageDetailsState.isSelfMessage),
                         selectedTabIndex = currentTabState,
                         onTabChange = { scope.launch { pagerState.animateScrollToPage(it) } },
                         modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing16x),
@@ -145,3 +145,7 @@ enum class MessageDetailsTabItem(@StringRes override val titleResId: Int) : TabI
     REACTIONS(R.string.message_details_reactions_tab),
     READ_RECEIPTS(R.string.message_details_read_receipts_tab)
 }
+
+private fun provideMessageDetailsTabItems(isSelfMessage: Boolean) =
+    if (isSelfMessage) MessageDetailsTabItem.values().toList()
+    else listOf(MessageDetailsTabItem.REACTIONS)

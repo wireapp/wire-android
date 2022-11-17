@@ -14,7 +14,7 @@ fun newServerConfig(id: Int) = ServerConfig(
         website = "https://server$id-websiteUrl.de/",
         title = "server$id-title",
         isOnPremises = false,
-        proxy = null
+        apiProxy = null
     ),
     metaData = ServerConfig.MetaData(
         commonApiVersion = CommonApiVersionType.Valid(id),

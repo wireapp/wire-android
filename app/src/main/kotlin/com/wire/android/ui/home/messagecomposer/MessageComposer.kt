@@ -275,7 +275,7 @@ private fun MessageComposer(
                                 // when other we center it vertically. Once we go to Fullscreen, we set the weight to 1f
                                 // so that it fills the whole Row which is = height of the whole screen - height of TopBar -
                                 // - height of container with additional options
-                                MessageComposerInputRow(transition, messageComposerState)
+                                MessageComposerInputRow(transition, messageComposerState, membersToMention, onMentionPicked)
                             }
                         }
                     }

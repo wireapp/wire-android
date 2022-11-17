@@ -80,8 +80,12 @@ fun ConversationRouterHomeBridge(
             conversationOptionNavigation: ConversationOptionNavigation = ConversationOptionNavigation.Home
         ) {
             onHomeBottomSheetContentChanged {
+                // if we just use [conversationItem] we won't be able to observe changes in conversation details (e.g. name changing).
+                // So we need to find ConversationItem in the State by id and use it for BottomSheet content.
+                val item: ConversationItem? = viewModel.conversationListState.findConversationById(conversationItem.conversationId)
+
                 val conversationState = rememberConversationSheetState(
-                    conversationItem = conversationItem,
+                    conversationItem = item ?: conversationItem,
                     conversationOptionNavigation = conversationOptionNavigation
                 )
                 // if we reopen the BottomSheet of the previous conversation for example:
@@ -97,25 +101,25 @@ fun ConversationRouterHomeBridge(
                     }
                 }
 
-            ConversationSheetContent(
-                conversationSheetState = conversationState,
-                onMutingConversationStatusChange = {
-                    viewModel.muteConversation(
-                        conversationId = conversationState.conversationId,
-                        mutedConversationStatus = conversationState.conversationSheetContent!!.mutingConversationState
-                    )
-                },
-                addConversationToFavourites = viewModel::addConversationToFavourites,
-                moveConversationToFolder = viewModel::moveConversationToFolder,
-                moveConversationToArchive = viewModel::moveConversationToArchive,
-                clearConversationContent = viewModel::clearConversationContent,
-                blockUser = blockUserDialogState::show,
-                unblockUser = unblockUserDialogState::show,
-                leaveGroup = leaveGroupDialogState::show,
-                deleteGroup = deleteGroupDialogState::show,
-                isBottomSheetVisible = isBottomSheetVisible
-            )
-        }
+                ConversationSheetContent(
+                    conversationSheetState = conversationState,
+                    onMutingConversationStatusChange = {
+                        viewModel.muteConversation(
+                            conversationId = conversationState.conversationId,
+                            mutedConversationStatus = conversationState.conversationSheetContent!!.mutingConversationState
+                        )
+                    },
+                    addConversationToFavourites = viewModel::addConversationToFavourites,
+                    moveConversationToFolder = viewModel::moveConversationToFolder,
+                    moveConversationToArchive = viewModel::moveConversationToArchive,
+                    clearConversationContent = viewModel::clearConversationContent,
+                    blockUser = blockUserDialogState::show,
+                    unblockUser = unblockUserDialogState::show,
+                    leaveGroup = leaveGroupDialogState::show,
+                    deleteGroup = deleteGroupDialogState::show,
+                    isBottomSheetVisible = isBottomSheetVisible
+                )
+            }
 
             onOpenBottomSheet()
         }

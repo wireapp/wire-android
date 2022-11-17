@@ -79,6 +79,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
@@ -186,27 +187,29 @@ class OtherUserProfileScreenViewModel @Inject constructor(
         if (otherUser.connectionStatus != ConnectionState.ACCEPTED && otherUser.connectionStatus != ConnectionState.BLOCKED) return
 
         viewModelScope.launch {
-            when (val conversationResult = withContext(dispatchers.io()) { getConversation(userId) }) {
-                is GetOneToOneConversationUseCase.Result.Failure -> {
-                    appLogger.d("Couldn't not getOrCreateOneToOneConversation for user id: $userId")
-                    return@launch
-                }
+            getConversation(userId)
+                .collect { conversationResult ->
+                    when (conversationResult) {
+                        is GetOneToOneConversationUseCase.Result.Failure -> {
+                            appLogger.d("Couldn't not getOrCreateOneToOneConversation for user id: $userId")
+                        }
 
-                is GetOneToOneConversationUseCase.Result.Success -> {
-                    state = state.copy(
-                        conversationSheetContent = ConversationSheetContent(
-                            title = otherUser.name.orEmpty(),
-                            conversationId = conversationResult.conversation.id,
-                            mutingConversationState = conversationResult.conversation.mutedStatus,
-                            conversationTypeDetail = ConversationTypeDetail.Private(
-                                userAvatarAsset,
-                                userId,
-                                otherUser.BlockState
+                        is GetOneToOneConversationUseCase.Result.Success -> {
+                            state = state.copy(
+                                conversationSheetContent = ConversationSheetContent(
+                                    title = otherUser.name.orEmpty(),
+                                    conversationId = conversationResult.conversation.id,
+                                    mutingConversationState = conversationResult.conversation.mutedStatus,
+                                    conversationTypeDetail = ConversationTypeDetail.Private(
+                                        userAvatarAsset,
+                                        userId,
+                                        otherUser.BlockState
+                                    )
+                                )
                             )
-                        )
-                    )
+                        }
+                    }
                 }
-            }
         }
     }
 

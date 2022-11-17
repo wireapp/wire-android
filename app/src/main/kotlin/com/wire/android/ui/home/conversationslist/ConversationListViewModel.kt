@@ -134,6 +134,7 @@ class ConversationListViewModel @Inject constructor(
 
     private fun conversationListDetailsToState(conversationListDetails: List<ConversationDetails>) {
         conversationListState = conversationListState.copy(
+            allConversations = conversationListDetails.map { it.toConversationItem(wireSessionImageLoader, userTypeMapper) },
             conversations = conversationListDetails.toConversationsFoldersMap().toImmutableMap(),
             hasNoConversations = conversationListDetails.none { it !is Self },
             callHistory = mockCallHistory.toImmutableList(), // TODO: needs to be implemented

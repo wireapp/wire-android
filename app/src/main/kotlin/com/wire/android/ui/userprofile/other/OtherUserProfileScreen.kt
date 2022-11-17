@@ -64,8 +64,8 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.userprofile.common.EditableState
 import com.wire.android.ui.userprofile.common.UserProfileInfo
 import com.wire.android.ui.userprofile.group.RemoveConversationMemberState
+import com.wire.android.ui.userprofile.other.bottomsheet.OtherUserBottomSheetState
 import com.wire.android.ui.userprofile.other.bottomsheet.OtherUserProfileBottomSheetContent
-import com.wire.android.ui.userprofile.other.bottomsheet.rememberOtherUserProfileSheetState
 import com.wire.kalium.logic.data.user.ConnectionState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.InternalCoroutinesApi
@@ -134,7 +134,8 @@ fun OtherProfileScreenContent(
     val unblockUserDialogState = rememberVisibilityState<UnblockUserDialogState>()
     val removeMemberDialogState = rememberVisibilityState<RemoveConversationMemberState>()
     val getBottomSheetVisibility: () -> Boolean = remember(sheetState) { { sheetState.isVisible } }
-    val bottomSheetState = rememberOtherUserProfileSheetState(state.conversationSheetContent, state.groupState)
+    val bottomSheetState = remember { OtherUserBottomSheetState() }
+    bottomSheetState.setContents(state.conversationSheetContent, state.groupState)
     val openConversationBottomSheet: () -> Unit = remember(bottomSheetState) {
         {
             bottomSheetState.toConversation()

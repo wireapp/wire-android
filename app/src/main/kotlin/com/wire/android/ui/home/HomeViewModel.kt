@@ -70,9 +70,15 @@ class HomeViewModel @Inject constructor(
                     )
                     return@launch
                 }
+                isFirstInstall() -> {
+                    homeState = homeState.copy(shouldDisplayWelcomeMessage = true)
+                }
             }
         }
     }
+
+    // todo: change this for a use case with persistence on shared pref.
+    private fun isFirstInstall() = true
 
     fun checkPendingSnackbarState(): HomeSnackbarState? {
         return with(savedStateHandle) {
@@ -97,6 +103,11 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    fun dismissDialog() {
+        // todo: this should be performed to persist the flag on shared pref to false
+        homeState = homeState.copy(shouldDisplayWelcomeMessage = false)
+    }
+
     fun navigateTo(item: NavigationItem) {
         viewModelScope.launch {
             navigationManager.navigate(NavigationCommand(destination = item.getRouteWithArgs()))
@@ -109,7 +120,8 @@ class HomeViewModel @Inject constructor(
 data class HomeState(
     val avatarAsset: UserAvatarAsset? = null,
     val status: UserAvailabilityStatus = UserAvailabilityStatus.NONE,
-    val logFilePath: String
+    val logFilePath: String,
+    val shouldDisplayWelcomeMessage: Boolean = false,
 )
 
 // TODO change to extend [SnackBarMessage]

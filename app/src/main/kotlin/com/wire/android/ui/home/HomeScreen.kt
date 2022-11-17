@@ -81,7 +81,54 @@ fun HomeScreen(
     )
 
     val featureFlagState = featureFlagNotificationViewModel.featureFlagState
+    val homeState = homeViewModel.homeState
 
+    handleWelcomeNewUserDialog(homeState, homeViewModel)
+    handleFeatureFlagChangedNotification(featureFlagState, featureFlagNotificationViewModel)
+
+    HomeContent(
+        connectivityState = commonTopAppBarViewModel.connectivityState,
+        homeState = homeState,
+        homeStateHolder = homeScreenState,
+        conversationListState = conversationListViewModel.conversationListState,
+        onReturnToCallClick = commonTopAppBarViewModel::openOngoingCallScreen,
+        onNewConversationClick = conversationListViewModel::openNewConversation,
+        onSelfUserClick = homeViewModel::navigateToSelfUserProfile,
+        navigateToItem = homeViewModel::navigateTo
+    )
+
+    BackHandler(homeScreenState.searchBarState.isSearchActive) {
+        homeScreenState.searchBarState.closeSearch()
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun handleWelcomeNewUserDialog(homeState: HomeState, homeViewModel: HomeViewModel) {
+    if (homeState.shouldDisplayWelcomeMessage) {
+        WireDialog(
+            title = stringResource(id = R.string.team_settings_changed),
+            text = stringResource(id = R.string.welcome_footer_text),
+            onDismiss = homeViewModel::dismissDialog,
+            optionButton1Properties = WireDialogButtonProperties(
+                onClick = { homeViewModel.navigateTo(NavigationItem.Support) },
+                text = stringResource(id = R.string.label_learn_more), // todo: change to learn more
+                type = WireDialogButtonType.Primary,
+            ),
+            optionButton2Properties = WireDialogButtonProperties(
+                onClick = { /* todo: hide and persist flag */ },
+                text = stringResource(id = R.string.label_get_started), // todo: change to start using wire
+                type = WireDialogButtonType.Primary,
+            )
+        )
+    }
+}
+
+@Composable
+private fun handleFeatureFlagChangedNotification(
+    featureFlagState: FeatureFlagState,
+    featureFlagNotificationViewModel: FeatureFlagNotificationViewModel
+) {
     if (featureFlagState.showFileSharingDialog) {
         val text: String = if (featureFlagState.isFileSharingEnabledState) {
             stringResource(id = R.string.sharing_files_enabled)
@@ -99,21 +146,6 @@ fun HomeScreen(
                 type = WireDialogButtonType.Primary,
             )
         )
-    }
-
-    HomeContent(
-        connectivityState = commonTopAppBarViewModel.connectivityState,
-        homeState = homeViewModel.homeState,
-        homeStateHolder = homeScreenState,
-        conversationListState = conversationListViewModel.conversationListState,
-        onReturnToCallClick = commonTopAppBarViewModel::openOngoingCallScreen,
-        onNewConversationClick = conversationListViewModel::openNewConversation,
-        onSelfUserClick = homeViewModel::navigateToSelfUserProfile,
-        navigateToItem = homeViewModel::navigateTo
-    )
-
-    BackHandler(homeScreenState.searchBarState.isSearchActive) {
-        homeScreenState.searchBarState.closeSearch()
     }
 }
 

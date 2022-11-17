@@ -266,30 +266,33 @@ private fun ConversationScreen(
 
     val menuModalOnDeleteMessage = remember {
         {
-            conversationScreenState.hideEditContextMenu()
-            onDeleteMessage(
-                conversationScreenState.selectedMessage?.messageHeader!!.messageId,
-                conversationScreenState.isMyMessage
-            )
+            conversationScreenState.hideEditContextMenu {
+                onDeleteMessage(
+                    conversationScreenState.selectedMessage?.messageHeader!!.messageId,
+                    conversationScreenState.isMyMessage
+                )
+            }
         }
     }
 
     val menuModalOnReactionClick = remember {
         { emoji: String ->
-            conversationScreenState.hideEditContextMenu()
-            onReactionClick(
-                conversationScreenState.selectedMessage?.messageHeader!!.messageId,
-                emoji
-            )
+            conversationScreenState.hideEditContextMenu {
+                onReactionClick(
+                    conversationScreenState.selectedMessage?.messageHeader!!.messageId,
+                    emoji
+                )
+            }
         }
     }
 
     val menuModalOnMessageDetailsClick = remember {
         {
-            // conversationScreenState.hideEditContextMenu() // TODO: doesnt hide itself and some menus are hidden because its null
-            onMessageDetailsClick(
-                conversationScreenState.selectedMessage?.messageHeader!!.messageId
-            )
+            conversationScreenState.hideEditContextMenu {
+                onMessageDetailsClick(
+                    conversationScreenState.selectedMessage?.messageHeader!!.messageId
+                )
+            }
         }
     }
 
@@ -318,6 +321,7 @@ private fun ConversationScreen(
             }
 
             // if the currentScreenHeight is smaller than the initial fullScreenHeight,
+            // and we don't know the keyboard height yet
             // and we don't know the keyboard height yet
             // calculated at the first composition of the ConversationScreen, then we know the keyboard size
             if (keyboardHeight is KeyboardHeight.NotKnown && currentScreenHeight < fullScreenHeight) {

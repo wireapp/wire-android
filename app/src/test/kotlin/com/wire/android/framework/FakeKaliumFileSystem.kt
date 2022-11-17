@@ -3,6 +3,7 @@ package com.wire.android.framework
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.kalium.logic.data.asset.AssetsStorageFolder
 import com.wire.kalium.logic.data.asset.CacheFolder
+import com.wire.kalium.logic.data.asset.DBFolder
 import com.wire.kalium.logic.data.asset.DataStoragePaths
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import kotlinx.coroutines.withContext
@@ -24,9 +25,11 @@ class FakeKaliumFileSystem(
 
     private val rootCacheSystemPath = CacheFolder("$userHomePath/cache")
 
+    private val rootDBSystemPath = DBFolder("$userHomePath/database")
+
     private val fakeFileSystem = FakeFileSystem()
 
-    private val dataStoragePaths = DataStoragePaths(rootFileSystemPath, rootCacheSystemPath)
+    private val dataStoragePaths = DataStoragePaths(rootFileSystemPath, rootCacheSystemPath, )
 
     init {
         fakeFileSystem.allowDeletingOpenFiles = true
@@ -37,6 +40,8 @@ class FakeKaliumFileSystem(
     }
 
     override val rootCachePath: Path = dataStoragePaths.cachePath.value.toPath()
+
+    override val rootDBPath: Path = dataStoragePaths.dbPath.value.toPath()
 
     override fun sink(outputPath: Path, mustCreate: Boolean): Sink = fakeFileSystem.sink(outputPath, mustCreate)
 

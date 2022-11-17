@@ -287,6 +287,7 @@ fun RestoreBackupDialogFlow(
             RestoreDialogStep.RestoreBackup -> {
                 LaunchedEffect(backUpAndRestoreState.restoreProgress) {
                     when (val progress = backUpAndRestoreState.restoreProgress) {
+                        RestoreProgress.Pending -> {}
                         RestoreProgress.Failed -> restoreDialogStateHolder.toRestoreFailure(RestoreFailure.GeneralFailure)
                         RestoreProgress.Finished -> restoreDialogStateHolder.toFinished()
                         is RestoreProgress.InProgress -> {

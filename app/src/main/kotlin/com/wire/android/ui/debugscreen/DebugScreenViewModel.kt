@@ -30,6 +30,7 @@ data class DebugScreenState(
     val mlsErrorMessage: String = String.EMPTY
 )
 
+@Suppress("LongParameterList")
 @HiltViewModel
 class DebugScreenViewModel
 @Inject constructor(

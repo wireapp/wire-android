@@ -6,6 +6,8 @@ import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -22,10 +24,13 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.WireSwitch
+import com.wire.android.ui.common.button.WireButton
+import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
@@ -49,7 +54,8 @@ fun DebugScreen() {
         debugContentState = debugContentState,
         onLoggingEnabledChange = debugScreenViewModel::setLoggingEnabledState,
         onDeleteLogs = debugScreenViewModel::deleteLogs,
-        navigateBack = debugScreenViewModel::navigateBack
+        navigateBack = debugScreenViewModel::navigateBack,
+        onForceLatestDevelopmentApiChange = debugScreenViewModel::forceUpdateApiVersions,
     )
 }
 
@@ -60,7 +66,8 @@ fun DebugContent(
     debugContentState: DebugContentState,
     onLoggingEnabledChange: (Boolean) -> Unit,
     onDeleteLogs: () -> Unit,
-    navigateBack: () -> Unit
+    navigateBack: () -> Unit,
+    onForceLatestDevelopmentApiChange: () -> Unit,
 ) {
     val scrollState = rememberScrollState()
 
@@ -99,6 +106,10 @@ fun DebugContent(
                 debugScreenState.currentClientId,
                 debugContentState::copyToClipboard
             )
+
+            if (BuildConfig.DEBUG) {
+                DevelopmentApiVersioningOptions(onForceLatestDevelopmentApiChange = onForceLatestDevelopmentApiChange)
+            }
         }
     }
 }
@@ -216,6 +227,30 @@ private fun EnableLoggingSwitch(
                 checked = isEnabled,
                 onCheckedChange = onCheckedChange,
                 modifier = Modifier.padding(end = dimensions().spacing16x)
+            )
+        }
+    )
+}
+
+@Composable
+fun DevelopmentApiVersioningOptions(
+    onForceLatestDevelopmentApiChange: () -> Unit
+) {
+    FolderHeader(stringResource(R.string.debug_settings_api_versioning_title))
+    RowItemTemplate(
+        title = {
+            Text(
+                style = MaterialTheme.wireTypography.body01,
+                color = MaterialTheme.wireColorScheme.onBackground,
+                text = stringResource(R.string.debug_settings_force_api_versioning_update),
+                modifier = Modifier.padding(start = dimensions().spacing8x)
+            )
+        },
+        actions = {
+            WirePrimaryButton(
+                onClick = onForceLatestDevelopmentApiChange,
+                text = stringResource(R.string.debug_settings_force_api_versioning_update_button_text),
+                modifier = Modifier.wrapContentWidth()
             )
         }
     )

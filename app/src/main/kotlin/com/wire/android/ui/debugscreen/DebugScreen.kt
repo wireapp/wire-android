@@ -5,6 +5,7 @@ import android.content.Intent
 import android.widget.Toast
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentWidth
@@ -237,7 +238,7 @@ fun DevelopmentApiVersioningOptions(
     onForceLatestDevelopmentApiChange: () -> Unit
 ) {
     FolderHeader(stringResource(R.string.debug_settings_api_versioning_title))
-    RowItemTemplate(
+    RowItemTemplate(modifier = Modifier.wrapContentWidth(),
         title = {
             Text(
                 style = MaterialTheme.wireTypography.body01,
@@ -250,7 +251,7 @@ fun DevelopmentApiVersioningOptions(
             WirePrimaryButton(
                 onClick = onForceLatestDevelopmentApiChange,
                 text = stringResource(R.string.debug_settings_force_api_versioning_update_button_text),
-                modifier = Modifier.wrapContentWidth()
+                fillMaxWidth = false
             )
         }
     )

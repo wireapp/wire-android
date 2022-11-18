@@ -23,10 +23,10 @@ import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
-import com.wire.android.ui.home.conversationslist.folderWithElements
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
+import com.wire.android.util.extension.folderWithElements
 
 @Composable
 fun MyAccountScreen(viewModel: MyAccountViewModel = hiltViewModel()) {

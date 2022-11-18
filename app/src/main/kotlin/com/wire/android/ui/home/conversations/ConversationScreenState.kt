@@ -68,8 +68,11 @@ class ConversationScreenState(
         coroutineScope.launch { modalBottomSheetState.animateTo(ModalBottomSheetValue.Expanded) }
     }
 
-    fun hideEditContextMenu() {
-        coroutineScope.launch { modalBottomSheetState.animateTo(ModalBottomSheetValue.Hidden) }
+    fun hideEditContextMenu(onComplete: () -> Unit) {
+        coroutineScope.launch {
+            modalBottomSheetState.animateTo(ModalBottomSheetValue.Hidden)
+            onComplete()
+        }
     }
 
     fun copyMessage() {

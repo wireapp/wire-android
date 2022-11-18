@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Icon
@@ -216,8 +217,10 @@ private fun QuotedGenericAsset(
             painter = painterResource(R.drawable.ic_file),
             contentDescription = null,
             modifier = modifier
-                .width(dimensions().spacing56x)
-                .width(dimensions().spacing56x)
+                .width(dimensions().spacing24x)
+                .width(dimensions().spacing24x)
+                .size(dimensions().spacing24x),
+            tint = colorsScheme().secondaryText
         )
     }, footerContent = {
         QuotedMessageOriginalDate(originalDateTimeText)

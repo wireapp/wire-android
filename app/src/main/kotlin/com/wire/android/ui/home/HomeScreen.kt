@@ -117,20 +117,20 @@ fun handleWelcomeNewUserDialog(
 ) {
     if (homeState.shouldDisplayWelcomeMessage) {
         WireDialog(
-            title = stringResource(id = R.string.team_settings_changed),
-            text = stringResource(id = R.string.welcome_footer_text),
+            title = stringResource(id = R.string.welcome_migration_dialog_title),
+            text = stringResource(id = R.string.welcome_migration_dialog_content),
             onDismiss = dismissDialog,
             optionButton1Properties = WireDialogButtonProperties(
                 onClick = {
                     dismissDialog.invoke()
                     CustomTabsHelper.launchUrl(context, "https://google.com")
                 },
-                text = stringResource(id = R.string.label_learn_more), // todo: change to learn more
+                text = stringResource(id = R.string.label_learn_more),
                 type = WireDialogButtonType.Primary,
             ),
             optionButton2Properties = WireDialogButtonProperties(
                 onClick = { /* todo: hide and persist flag */ },
-                text = stringResource(id = R.string.label_get_started), // todo: change to start using wire
+                text = stringResource(id = R.string.welcome_migration_dialog_continue),
                 type = WireDialogButtonType.Primary,
             )
         )

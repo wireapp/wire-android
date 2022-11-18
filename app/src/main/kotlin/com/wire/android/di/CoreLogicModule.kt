@@ -805,4 +805,9 @@ class UseCaseModule {
     @Provides
     fun provideRenameConversation(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).conversations.renameConversation
+
+    @ViewModelScoped
+    @Provides
+    fun provideUpdateApiVersionsScheduler(@KaliumCoreLogic coreLogic: CoreLogic) =
+        coreLogic.updateApiVersionsScheduler
 }

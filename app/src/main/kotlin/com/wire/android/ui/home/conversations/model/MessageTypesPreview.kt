@@ -3,6 +3,7 @@ package com.wire.android.ui.home.conversations.model
 import androidx.compose.foundation.layout.Column
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.tooling.preview.Preview
+import com.wire.android.R
 import com.wire.android.ui.home.conversations.MessageItem
 import com.wire.android.ui.home.conversations.SystemMessageItem
 import com.wire.android.ui.home.conversations.mock.mockAssetMessage
@@ -11,7 +12,6 @@ import com.wire.android.ui.home.conversations.mock.mockedImageUIMessage
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.user.UserId
-import kotlinx.datetime.Clock
 
 
 private val previewUserId = UserId("value", "domain")
@@ -52,8 +52,8 @@ fun PreviewMessageWithReply() {
                     quotedMessage = QuotedMessageUIData(
                         senderId = previewUserId,
                         senderName = "John Doe",
-                        timeInstant = Clock.System.now(),
-                        editTime = null,
+                        originalMessageDateDescription = UIText.StringResource(R.string.label_quote_original_message_date, "10:30"),
+                        editedTimeDescription = UIText.StringResource(R.string.label_message_status_edited_with_date, "10:32"),
                         quotedContent = QuotedMessageUIData.Text("Hey, can I call right now?")
                     )
                 )

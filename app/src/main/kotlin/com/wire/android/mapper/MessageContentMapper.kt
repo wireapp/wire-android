@@ -8,6 +8,7 @@ import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.QuotedMessageUIData
 import com.wire.android.ui.home.conversations.model.UIMessageContent
+import com.wire.android.util.time.ISOFormatter
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.asset.isDisplayableImageMimeType
@@ -31,7 +32,8 @@ import javax.inject.Inject
 // TODO: splits mapping into more classes
 class MessageContentMapper @Inject constructor(
     private val messageResourceProvider: MessageResourceProvider,
-    private val wireSessionImageLoader: WireSessionImageLoader
+    private val wireSessionImageLoader: WireSessionImageLoader,
+    private val isoFormatter: ISOFormatter,
 ) {
 
     fun fromMessage(
@@ -153,8 +155,10 @@ class MessageContentMapper @Inject constructor(
     private fun mapQuoteData(conversationId: ConversationId, it: MessageContent.QuotedMessageDetails) = QuotedMessageUIData(
         it.senderId,
         it.senderName,
-        it.timeInstant,
-        it.editInstant,
+        UIText.StringResource(R.string.label_quote_original_message_date, isoFormatter.fromISO8601ToTimeFormat(it.timeInstant.toString())),
+        it.editInstant?.let { instant ->
+            UIText.StringResource(R.string.label_message_status_edited_with_date, isoFormatter.fromISO8601ToTimeFormat(instant.toString()))
+        },
         when (val quotedContent = it.quotedContent) {
             is MessageContent.QuotedMessageDetails.Asset -> when (AttachmentType.fromMimeTypeString(quotedContent.assetMimeType)) {
                 AttachmentType.IMAGE -> QuotedMessageUIData.DisplayableImage(
@@ -171,8 +175,10 @@ class MessageContentMapper @Inject constructor(
                     quotedContent.assetMimeType
                 )
             }
+
             is MessageContent.QuotedMessageDetails.Text -> QuotedMessageUIData.Text(quotedContent.value)
             MessageContent.QuotedMessageDetails.Deleted -> QuotedMessageUIData.Deleted
+            MessageContent.QuotedMessageDetails.Invalid -> QuotedMessageUIData.Invalid
         }
     )
 

@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.defaultMinSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -32,8 +33,8 @@ import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.model.ImageAsset
-import com.wire.android.ui.common.DeletedLabel
 import com.wire.android.ui.common.LinkifyText
+import com.wire.android.ui.common.StatusBox
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.typography
@@ -44,6 +45,7 @@ import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMess
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageParams
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.DOWNLOAD_IN_PROGRESS
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.FAILED_DOWNLOAD
@@ -105,82 +107,6 @@ fun MessageImage(
             }
         }
     }
-}
-
-@Composable
-internal fun MessageQuote(
-    quotedMessageUIData: QuotedMessageUIData,
-    modifier: Modifier = Modifier
-) {
-    val shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
-    Column(
-        verticalArrangement = Arrangement.spacedBy(dimensions().spacing4x),
-        modifier = modifier
-            .background(
-                color = MaterialTheme.wireColorScheme.surface,
-                shape = shape
-            )
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.wireColorScheme.divider,
-                shape = shape
-            ).padding(dimensions().spacing8x).fillMaxWidth()
-    ) {
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(dimensions().spacing4x),
-        ) {
-            Icon(
-                painter = painterResource(id = R.drawable.ic_event_badge_unread_reply),
-                tint = colorsScheme().secondaryText,
-                contentDescription = null
-            )
-            Text(text = quotedMessageUIData.senderName, style = typography().label02, color = colorsScheme().secondaryText)
-        }
-        // Draw content
-        when (val quotedContent = quotedMessageUIData.quotedContent) {
-            is QuotedMessageUIData.Text -> QuotedText(quotedContent.value)
-            QuotedMessageUIData.Deleted -> QuotedDeleted()
-            is QuotedMessageUIData.DisplayableImage -> QuotedImage(quotedContent.displayable)
-            is QuotedMessageUIData.GenericAsset -> QuotedGenericAsset(quotedContent.assetName, quotedContent.assetMimeType)
-        }
-    }
-}
-
-@Composable
-private fun QuotedDeleted() {
-    DeletedLabel()
-}
-
-@Composable
-private fun QuotedText(
-    text: String
-) {
-    Text(text = text, style = typography().subline01)
-}
-
-@Composable
-private fun QuotedImage(
-    asset: ImageAsset.PrivateAsset
-) {
-
-    Image(
-        painter = asset.paint(),
-        contentDescription = stringResource(R.string.content_description_image_message),
-        modifier = Modifier
-            .width(dimensions().spacing56x)
-            .height(dimensions().spacing56x)
-            .clip(RoundedCornerShape(dimensions().spacing8x)),
-        alignment = Alignment.Center,
-        contentScale = ContentScale.Crop
-    )
-}
-
-@Composable
-private fun QuotedGenericAsset(
-    assetName: String?,
-    mimeType: String
-) {
-    Text(text = "Generic Asset $assetName: $mimeType", style = typography().subline01.copy(fontStyle = FontStyle.Italic))
 }
 
 @Composable

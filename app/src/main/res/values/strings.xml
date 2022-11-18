@@ -329,8 +329,8 @@
 
     <!-- Messages -->
     <string name="message_details_title">Message Details</string>
-    <string name="message_details_reactions_tab">REACTIONS</string>
-    <string name="message_details_read_receipts_tab">READ RECEIPTS</string>
+    <string name="message_details_reactions_tab">REACTIONS (%s)</string>
+    <string name="message_details_read_receipts_tab">READ RECEIPTS (%s)</string>
 
     <!-- Attachment options -->
     <string name="attachment_share_file">Attach File</string>

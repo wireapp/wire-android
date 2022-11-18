@@ -27,6 +27,7 @@ import com.wire.android.navigation.NavigationItemDestinationsRoutes.INITIAL_SYNC
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.INITIATING_CALL
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.LOGIN
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.MEDIA_GALLERY
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.MESSAGE_DETAILS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.MIGRATION
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.MY_ACCOUNT
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.NETWORK_SETTINGS
@@ -56,6 +57,7 @@ import com.wire.android.ui.home.conversations.ConversationScreen
 import com.wire.android.ui.home.conversations.details.GroupConversationDetailsScreen
 import com.wire.android.ui.home.conversations.details.metadata.EditConversationNameScreen
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationAllParticipantsScreen
+import com.wire.android.ui.home.conversations.messagedetails.MessageDetailsScreen
 import com.wire.android.ui.home.conversations.search.AddMembersSearchRouter
 import com.wire.android.ui.home.gallery.MediaGalleryScreen
 import com.wire.android.ui.home.newconversation.NewConversationRouter
@@ -251,6 +253,20 @@ enum class NavigationItem(
         }
     },
 
+    MessageDetails(
+        primaryRoute = MESSAGE_DETAILS,
+        canonicalRoute = "$MESSAGE_DETAILS?$EXTRA_CONVERSATION_ID={$EXTRA_CONVERSATION_ID}&$EXTRA_MESSAGE_ID={$EXTRA_MESSAGE_ID}",
+        content = { MessageDetailsScreen() }
+    ) {
+        override fun getRouteWithArgs(arguments: List<Any>): String {
+            val conversationIdString: String = arguments.filterIsInstance<ConversationId>().firstOrNull()?.toString()
+                ?: "{$EXTRA_CONVERSATION_ID}"
+            val messageIdString: String = arguments.filterIsInstance<String>().firstOrNull()?.toString()
+                ?: "{$EXTRA_MESSAGE_ID}"
+            return "$MESSAGE_DETAILS?$EXTRA_CONVERSATION_ID=$conversationIdString&$EXTRA_MESSAGE_ID=$messageIdString"
+        }
+    },
+
     GroupConversationDetails(
         primaryRoute = GROUP_CONVERSATION_DETAILS,
         canonicalRoute = "$GROUP_CONVERSATION_DETAILS/{$EXTRA_CONVERSATION_ID}",
@@ -389,6 +405,7 @@ object NavigationItemDestinationsRoutes {
     const val CONVERSATION = "detailed_conversation_screen"
     const val EDIT_CONVERSATION_NAME = "edit_conversation_name_screen"
     const val GROUP_CONVERSATION_DETAILS = "group_conversation_details_screen"
+    const val MESSAGE_DETAILS = "message_details_screen"
     const val GROUP_CONVERSATION_ALL_PARTICIPANTS = "group_conversation_all_participants_screen"
     const val ADD_CONVERSATION_PARTICIPANTS = "add_conversation_participants"
     const val APP_SETTINGS = "app_settings_screen"
@@ -413,6 +430,7 @@ const val EXTRA_USER_DOMAIN = "extra_user_domain"
 const val EXTRA_CONVERSATION_ID = "extra_conversation_id"
 const val EXTRA_CREATE_ACCOUNT_FLOW_TYPE = "extra_create_account_flow_type"
 const val EXTRA_IMAGE_DATA = "extra_image_data"
+const val EXTRA_MESSAGE_ID = "extra_message_id"
 const val EXTRA_MESSAGE_TO_DELETE_ID = "extra_message_to_delete"
 const val EXTRA_MESSAGE_TO_DELETE_IS_SELF = "extra_message_to_delete_is_self"
 

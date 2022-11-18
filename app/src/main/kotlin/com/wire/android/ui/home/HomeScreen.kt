@@ -1,5 +1,6 @@
 package com.wire.android.ui.home
 
+import android.content.Context
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -24,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -51,6 +53,7 @@ import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import com.wire.android.ui.home.conversationslist.ConversationListState
 import com.wire.android.ui.home.conversationslist.ConversationListViewModel
 import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
+import com.wire.android.util.CustomTabsHelper
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.persistentMapOf
 
@@ -80,11 +83,15 @@ fun HomeScreen(
         onMessageShown = homeScreenState::clearSnackbarMessage
     )
 
-    val featureFlagState = featureFlagNotificationViewModel.featureFlagState
     val homeState = homeViewModel.homeState
-
-    handleWelcomeNewUserDialog(homeState, homeViewModel)
-    handleFeatureFlagChangedNotification(featureFlagState, featureFlagNotificationViewModel)
+    handleWelcomeNewUserDialog(
+        homeState = homeViewModel.homeState,
+        dismissDialog = homeViewModel::dismissWelcomeMessage
+    )
+    handleFeatureFlagChangedNotification(
+        featureFlagState = featureFlagNotificationViewModel.featureFlagState,
+        hideDialogStatus = featureFlagNotificationViewModel::hideDialogStatus
+    )
 
     HomeContent(
         connectivityState = commonTopAppBarViewModel.connectivityState,
@@ -102,16 +109,22 @@ fun HomeScreen(
     }
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun handleWelcomeNewUserDialog(homeState: HomeState, homeViewModel: HomeViewModel) {
+fun handleWelcomeNewUserDialog(
+    homeState: HomeState,
+    dismissDialog: () -> Unit,
+    context: Context = LocalContext.current
+) {
     if (homeState.shouldDisplayWelcomeMessage) {
         WireDialog(
             title = stringResource(id = R.string.team_settings_changed),
             text = stringResource(id = R.string.welcome_footer_text),
-            onDismiss = homeViewModel::dismissDialog,
+            onDismiss = dismissDialog,
             optionButton1Properties = WireDialogButtonProperties(
-                onClick = { homeViewModel.navigateTo(NavigationItem.Support) },
+                onClick = {
+                    dismissDialog.invoke()
+                    CustomTabsHelper.launchUrl(context, "https://google.com")
+                },
                 text = stringResource(id = R.string.label_learn_more), // todo: change to learn more
                 type = WireDialogButtonType.Primary,
             ),
@@ -127,7 +140,7 @@ fun handleWelcomeNewUserDialog(homeState: HomeState, homeViewModel: HomeViewMode
 @Composable
 private fun handleFeatureFlagChangedNotification(
     featureFlagState: FeatureFlagState,
-    featureFlagNotificationViewModel: FeatureFlagNotificationViewModel
+    hideDialogStatus: () -> Unit,
 ) {
     if (featureFlagState.showFileSharingDialog) {
         val text: String = if (featureFlagState.isFileSharingEnabledState) {
@@ -139,9 +152,9 @@ private fun handleFeatureFlagChangedNotification(
         WireDialog(
             title = stringResource(id = R.string.team_settings_changed),
             text = text,
-            onDismiss = { featureFlagNotificationViewModel.hideDialogStatus() },
+            onDismiss = hideDialogStatus,
             optionButton1Properties = WireDialogButtonProperties(
-                onClick = { featureFlagNotificationViewModel.hideDialogStatus() },
+                onClick = hideDialogStatus,
                 text = stringResource(id = R.string.label_ok),
                 type = WireDialogButtonType.Primary,
             )

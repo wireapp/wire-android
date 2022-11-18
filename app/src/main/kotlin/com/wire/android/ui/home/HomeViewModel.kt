@@ -103,7 +103,7 @@ class HomeViewModel @Inject constructor(
         }
     }
 
-    fun dismissDialog() {
+    fun dismissWelcomeMessage() {
         // todo: this should be performed to persist the flag on shared pref to false
         homeState = homeState.copy(shouldDisplayWelcomeMessage = false)
     }

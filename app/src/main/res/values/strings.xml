@@ -79,6 +79,7 @@
     <string name="content_description_left_arrow">Go back</string>
     <string name="content_description_mention_icon">Mention icon</string>
     <string name="content_description_attachment_item">Attach new item to conversation</string>
+    <string name="content_description_open_message_details">Open Message Details</string>
     <string name="content_description_copy_the_message">Copy the message</string>
     <string name="content_description_delete_the_message">Delete the message</string>
     <string name="content_description_edit_the_message">Edit the message</string>
@@ -117,6 +118,9 @@
     <string name="give_feedback_screen_title">Give Feedback</string>
     <string name="report_bug_screen_title">Report Bug</string>
     <string name="debug_settings_screen_title">Debug Settings</string>
+    <string name="debug_settings_api_versioning_title">API VERSIONING</string>
+    <string name="debug_settings_force_api_versioning_update">Force API versioning update</string>
+    <string name="debug_settings_force_api_versioning_update_button_text">Force update</string>
     <string name="support_screen_title">Support</string>
     <string name="backup_and_restore_screen_title">Back up &amp; Restore Conversations</string>
     <string name="search_bar_hint">Search %s</string>
@@ -326,6 +330,11 @@
     <string name="delete_group_conversation_dialog_title">Remove “%s”?</string>
     <string name="delete_group_conversation_dialog_description">The group will be removed from your conversations list on all devices. You will no longer be able to access the group and its content.</string>
 
+    <!-- Messages -->
+    <string name="message_details_title">Message Details</string>
+    <string name="message_details_reactions_tab">REACTIONS (%s)</string>
+    <string name="message_details_read_receipts_tab">READ RECEIPTS (%s)</string>
+
     <!-- Attachment options -->
     <string name="attachment_share_file">Attach File</string>
     <string name="attachment_share_image">Attach Picture</string>
@@ -396,6 +405,7 @@
     <string name="profile_image_take_a_picture_menu_item">Take a picture</string>
     <string name="profile_image_change_image_button_label">Change Picture…</string>
     <!--Conversation-->
+    <string name="label_message_details">Message Details</string>
     <string name="label_copy">Copy</string>
     <string name="label_edit">Edit</string>
     <string name="label_delete">Delete</string>

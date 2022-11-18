@@ -154,6 +154,7 @@ data class QuotedMessageUIData(
     data class Text(val value: String) : Content
 
     data class GenericAsset(
+        val assetName: String?,
         val assetMimeType: String,
     ) : Content
 

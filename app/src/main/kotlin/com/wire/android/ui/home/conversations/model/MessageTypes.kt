@@ -141,7 +141,7 @@ internal fun MessageQuote(
             is QuotedMessageUIData.Text -> QuotedText(quotedContent.value)
             QuotedMessageUIData.Deleted -> QuotedDeleted()
             is QuotedMessageUIData.DisplayableImage -> QuotedImage(quotedContent.displayable)
-            is QuotedMessageUIData.GenericAsset -> QuotedGenericAsset(quotedContent.assetMimeType)
+            is QuotedMessageUIData.GenericAsset -> QuotedGenericAsset(quotedContent.assetName, quotedContent.assetMimeType)
         }
     }
 }
@@ -177,9 +177,10 @@ private fun QuotedImage(
 
 @Composable
 private fun QuotedGenericAsset(
+    assetName: String?,
     mimeType: String
 ) {
-    Text(text = "Generic Asset $mimeType", style = typography().subline01.copy(fontStyle = FontStyle.Italic))
+    Text(text = "Generic Asset $assetName: $mimeType", style = typography().subline01.copy(fontStyle = FontStyle.Italic))
 }
 
 @Composable

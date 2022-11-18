@@ -143,6 +143,7 @@ class MessageContentMapper @Inject constructor(
             is MessageContent.Unknown -> UIText.StringResource(
                 messageResourceProvider.sentAMessageWithContent, content.typeName ?: "Unknown"
             )
+
             is MessageContent.FailedDecryption -> UIText.StringResource(R.string.label_message_decryption_failure_message)
             else -> UIText.StringResource(messageResourceProvider.sentAMessageWithContent, "Unknown")
         },
@@ -165,7 +166,10 @@ class MessageContentMapper @Inject constructor(
                     )
                 )
 
-                AttachmentType.GENERIC_FILE -> QuotedMessageUIData.GenericAsset(quotedContent.assetMimeType)
+                AttachmentType.GENERIC_FILE -> QuotedMessageUIData.GenericAsset(
+                    quotedContent.assetName,
+                    quotedContent.assetMimeType
+                )
             }
             is MessageContent.QuotedMessageDetails.Text -> QuotedMessageUIData.Text(quotedContent.value)
             MessageContent.QuotedMessageDetails.Deleted -> QuotedMessageUIData.Deleted

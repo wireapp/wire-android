@@ -15,15 +15,18 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.FileManager
+import com.wire.android.util.copyToTempPath
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.feature.backup.CreateBackupResult
 import com.wire.kalium.logic.feature.backup.CreateBackupUseCase
 import com.wire.kalium.logic.feature.backup.RestoreBackupUseCase
+import com.wire.kalium.logic.functional.fold
+import com.wire.kalium.logic.util.extractCompressedFile
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import okio.Path
-import java.io.File
+import okio.buffer
 import javax.inject.Inject
 
 @HiltViewModel
@@ -33,6 +36,7 @@ class BackupAndRestoreViewModel
     private val importBackup: RestoreBackupUseCase,
     private val createBackupUseCase: CreateBackupUseCase,
     private val fileManager: FileManager,
+    private val kaliumFileSystem: KaliumFileSystem,
     private val context: Context
 ) : ViewModel() {
 
@@ -72,13 +76,21 @@ class BackupAndRestoreViewModel
     }
 
     fun chooseBackupFileToRestore(uri: Uri) {
-        //TODO: validate the file
-        val tempDbFile = File(context.cacheDir, "tempDb")
+        val importedBackupPath = kaliumFileSystem.tempFilePath("tempImportedBackup.zip")
+        uri.copyToTempPath(context, importedBackupPath)
+        val tempCompressedBackupFileSource = kaliumFileSystem.source(importedBackupPath)
 
-        context.contentResolver.openInputStream(uri)!!.copyTo(tempDbFile.outputStream())
+        val extractedBackupFilesPath = kaliumFileSystem.tempFilePath("extractedBackupFiles/")
+        val tempExtractedBackupSink = kaliumFileSystem.sink(extractedBackupFilesPath)
+
+        extractCompressedFile(tempCompressedBackupFileSource, tempExtractedBackupSink).fold({
+            Toast.makeText(context, context.getString(R.string.error_conversation_downloading_asset), Toast.LENGTH_SHORT).show()
+        }, {
+            Toast.makeText(context, "Backup.zip was successfully extracted", Toast.LENGTH_SHORT).show()
+        })
 
         viewModelScope.launch {
-            importBackup(tempDbFile.absolutePath)
+            importBackup(importedBackupPath.toString())
         }
     }
 

@@ -8,7 +8,7 @@ import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
-import com.wire.kalium.logic.data.asset.isDisplayableMimeType
+import com.wire.kalium.logic.data.asset.isDisplayableImageMimeType
 import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
@@ -221,7 +221,7 @@ class AssetMessageContentMetadata(val assetMessageContent: AssetContent) {
             else -> 0
         }
 
-    fun isDisplayableImage(): Boolean = isDisplayableMimeType(assetMessageContent.mimeType) &&
+    fun isDisplayableImage(): Boolean = isDisplayableImageMimeType(assetMessageContent.mimeType) &&
             imgWidth.isGreaterThan(0) && imgHeight.isGreaterThan(0)
 }
 

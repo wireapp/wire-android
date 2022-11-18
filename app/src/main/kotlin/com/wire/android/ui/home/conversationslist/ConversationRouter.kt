@@ -27,6 +27,8 @@ import com.wire.android.ui.home.conversationslist.all.AllConversationScreen
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
 import com.wire.android.ui.common.bottomsheet.conversation.rememberConversationSheetState
 import com.wire.android.ui.home.conversations.details.dialog.ClearConversationContentDialog
+import com.wire.android.ui.home.conversationslist.call.CallsScreen
+import com.wire.android.ui.home.conversationslist.mention.MentionScreen
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
@@ -173,13 +175,14 @@ fun ConversationRouterHomeBridge(
 
                 ConversationItemType.SEARCH -> {
                     SearchConversationScreen(
+                        searchQuery = searchQuery,
                         conversationSearchResult = conversationSearchResult,
                         onOpenNewConversation = viewModel::openNewConversation,
                         onOpenConversation = viewModel::openConversation,
                         onEditConversation = onEditConversationItem,
                         onOpenUserProfile = viewModel::openUserProfile,
                         onOpenConversationNotificationsSettings = onEditNotifications,
-                        onJoinCall = viewModel::joinOngoingCall
+                        onJoinCall = viewModel::joinOngoingCall,
                     )
                 }
             }

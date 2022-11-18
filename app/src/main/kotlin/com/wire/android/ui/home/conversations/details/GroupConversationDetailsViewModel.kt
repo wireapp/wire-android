@@ -9,10 +9,12 @@ import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.EXTRA_GROUP_DELETED_NAME
+import com.wire.android.navigation.EXTRA_GROUP_NAME_CHANGED
 import com.wire.android.navigation.EXTRA_LEFT_GROUP
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.navigation.getBackNavArg
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetail
 import com.wire.android.ui.home.conversations.details.menu.GroupConversationDetailsBottomSheetEventsHandler
@@ -70,7 +72,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
     private val removeMemberFromConversation: RemoveMemberFromConversationUseCase,
     private val updateConversationMutedStatus: UpdateConversationMutedStatusUseCase,
     private val clearConversationContentUseCase: ClearConversationContentUseCase,
-    savedStateHandle: SavedStateHandle,
+    override val savedStateHandle: SavedStateHandle,
     qualifiedIdMapper: QualifiedIdMapper
 ) : GroupConversationParticipantsViewModel(
     savedStateHandle, navigationManager, observeConversationMembers, qualifiedIdMapper
@@ -298,7 +300,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
         )
     }
 
-    fun navigateToAddParticants() = viewModelScope.launch {
+    fun navigateToAddParticipants() = viewModelScope.launch {
         navigationManager.navigate(
             command = NavigationCommand(
                 destination = NavigationItem.AddConversationParticipants.getRouteWithArgs(listOf(conversationId))
@@ -358,7 +360,33 @@ class GroupConversationDetailsViewModel @Inject constructor(
     override fun onMoveConversationToArchive(conversationId: ConversationId?) {
     }
 
+    fun navigateToEditGroupName() {
+        viewModelScope.launch {
+            navigationManager.navigate(
+                command = NavigationCommand(
+                    destination = NavigationItem.EditConversationName.getRouteWithArgs(listOf(conversationId))
+                )
+            )
+        }
+    }
+
+    fun checkForPendingMessages(): GroupMetadataOperationResult {
+        return with(savedStateHandle) {
+            when (getBackNavArg<Boolean>(EXTRA_GROUP_NAME_CHANGED)) {
+                true -> GroupMetadataOperationResult.Result(UIText.StringResource(R.string.conversation_options_renamed))
+                false -> GroupMetadataOperationResult.Result(UIText.StringResource(R.string.error_unknown_message))
+                else -> GroupMetadataOperationResult.None
+            }
+        }
+    }
+
+    sealed interface GroupMetadataOperationResult {
+        object None : GroupMetadataOperationResult
+        class Result(val message: UIText) : GroupMetadataOperationResult
+    }
+
     companion object {
         const val MAX_NUMBER_OF_PARTICIPANTS = 4
     }
+
 }

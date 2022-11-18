@@ -3,11 +3,8 @@ package com.wire.android.ui.home.conversationslist.common
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -38,6 +35,9 @@ fun EventBadgeFactory(eventType: BadgeEventType, modifier: Modifier = Modifier) 
         BadgeEventType.SentConnectRequest -> ConnectPendingRequestBadge(modifier)
         BadgeEventType.Blocked -> BlockedLabel(modifier)
         BadgeEventType.Deleted -> DeletedLabel(modifier)
+        // TODO BadgeEventType.Knock -> KnockBadge(modifier)
+        BadgeEventType.Knock -> {}
+        BadgeEventType.None -> {}
     }
 }
 
@@ -106,7 +106,7 @@ fun ConnectPendingRequestBadge(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun UnreadMessageEventBadge(unreadMessageCount: Long) {
+private fun UnreadMessageEventBadge(unreadMessageCount: Int) {
     if (unreadMessageCount > 0) {
         NotificationBadgeContainer(
             notificationIcon = {
@@ -139,5 +139,5 @@ private fun NotificationBadgeContainer(notificationIcon: @Composable () -> Unit,
 
 private const val MAX_UNREAD_MESSAGE_COUNT = 99
 
-private fun unReadMessageCountStringify(unreadMessageCount: Long) =
+private fun unReadMessageCountStringify(unreadMessageCount: Int) =
     if (unreadMessageCount > MAX_UNREAD_MESSAGE_COUNT) "$MAX_UNREAD_MESSAGE_COUNT+" else unreadMessageCount.toString()

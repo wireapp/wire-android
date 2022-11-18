@@ -33,21 +33,24 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
 import com.wire.android.R
+import com.wire.android.navigation.hiltSavedStateViewModel
 import com.wire.android.ui.common.MoreOptionIcon
 import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireTabRow
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout
+import com.wire.android.ui.common.bottomsheet.conversation.ConversationSheetContent
+import com.wire.android.ui.common.bottomsheet.conversation.rememberConversationSheetState
 import com.wire.android.ui.common.calculateCurrentTab
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
+import com.wire.android.ui.home.conversations.details.GroupConversationDetailsViewModel.GroupMetadataOperationResult
 import com.wire.android.ui.home.conversations.details.menu.DeleteConversationGroupDialog
 import com.wire.android.ui.home.conversations.details.menu.GroupConversationDetailsBottomSheetEventsHandler
 import com.wire.android.ui.home.conversations.details.menu.LeaveConversationGroupDialog
@@ -63,6 +66,8 @@ import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.util.ui.UIText
+import kotlinx.collections.immutable.ImmutableMap
+import kotlinx.collections.immutable.persistentMapOf
 import kotlinx.coroutines.InternalCoroutinesApi
 import kotlinx.coroutines.flow.FlowCollector
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -70,7 +75,10 @@ import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.launch
 
 @Composable
-fun GroupConversationDetailsScreen(viewModel: GroupConversationDetailsViewModel = hiltViewModel()) {
+fun GroupConversationDetailsScreen(
+    backNavArgs: ImmutableMap<String, Any> = persistentMapOf(),
+    viewModel: GroupConversationDetailsViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs)
+) {
     val context = LocalContext.current
     GroupConversationDetailsContent(
         conversationSheetContent = viewModel.conversationSheetContent,
@@ -78,12 +86,13 @@ fun GroupConversationDetailsScreen(viewModel: GroupConversationDetailsViewModel 
         onBackPressed = viewModel::navigateBack,
         openFullListPressed = viewModel::navigateToFullParticipantsList,
         onProfilePressed = viewModel::openProfile,
-        onAddParticipantsPressed = viewModel::navigateToAddParticants,
+        onAddParticipantsPressed = viewModel::navigateToAddParticipants,
         groupParticipantsState = viewModel.groupParticipantsState,
         onLeaveGroup = viewModel::leaveGroup,
         onDeleteGroup = viewModel::deleteGroup,
         isLoading = viewModel.requestInProgress,
         messages = viewModel.snackBarMessage,
+        checkPendingSnackBarMessages = viewModel::checkForPendingMessages,
         context = context
     )
 }
@@ -109,6 +118,7 @@ private fun GroupConversationDetailsContent(
     groupParticipantsState: GroupConversationParticipantsState,
     isLoading: Boolean,
     messages: SharedFlow<UIText>,
+    checkPendingSnackBarMessages: () -> GroupMetadataOperationResult = { GroupMetadataOperationResult.None },
     context: Context = LocalContext.current
 ) {
     val scope = rememberCoroutineScope()
@@ -131,10 +141,15 @@ private fun GroupConversationDetailsContent(
     val clearConversationDialogState = rememberVisibilityState<DialogState>()
 
     val snackbarHostState = remember { SnackbarHostState() }
-    LaunchedEffect(Unit) {
-        messages.collect {
-            closeBottomSheet()
-            snackbarHostState.showSnackbar(it.asString(context.resources))
+    LaunchedEffect(messages) {
+        val result = checkPendingSnackBarMessages()
+        if (result is GroupMetadataOperationResult.Result) {
+            snackbarHostState.showSnackbar(result.message.asString(context.resources))
+        } else {
+            messages.collect {
+                closeBottomSheet()
+                snackbarHostState.showSnackbar(it.asString(context.resources))
+            }
         }
     }
 

@@ -66,8 +66,8 @@ private fun MessageDetailsScreenContent(
     onBackPressed: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
-    val lazyListStates: List<LazyListState> = MessageDetailsTabItem.values().map { rememberLazyListState() }
-    val initialPageIndex = MessageDetailsTabItem.REACTIONS.ordinal
+    val lazyListStates: List<LazyListState> = MessageDetailsTab.values().map { rememberLazyListState() }
+    val initialPageIndex = MessageDetailsTab.REACTIONS.ordinal
     val pagerState = rememberPagerState(initialPage = initialPageIndex)
     val maxAppBarElevation = MaterialTheme.wireDimensions.topBarShadowElevation
     val currentTabState by remember { derivedStateOf { pagerState.calculateCurrentTab() } }
@@ -90,7 +90,10 @@ private fun MessageDetailsScreenContent(
                     onNavigationPressed = onBackPressed
                 ) {
                     WireTabRow(
-                        tabs = provideMessageDetailsTabItems(isSelfMessage = messageDetailsState.isSelfMessage),
+                        tabs = provideMessageDetailsTabItems(
+                            messageDetailsState = messageDetailsState,
+                            isSelfMessage = messageDetailsState.isSelfMessage
+                        ),
                         selectedTabIndex = currentTabState,
                         onTabChange = { scope.launch { pagerState.animateScrollToPage(it) } },
                         modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing16x),
@@ -113,17 +116,17 @@ private fun MessageDetailsScreenContent(
             CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
                 HorizontalPager(
                     state = pagerState,
-                    count = MessageDetailsTabItem.values().size,
+                    count = MessageDetailsTab.values().size,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(internalPadding)
                 ) { pageIndex ->
-                    when (MessageDetailsTabItem.values()[pageIndex]) {
-                        MessageDetailsTabItem.REACTIONS -> MessageDetailsReactions(
+                    when (MessageDetailsTab.values()[pageIndex]) {
+                        MessageDetailsTab.REACTIONS -> MessageDetailsReactions(
                             messageDetailsState = messageDetailsState,
                             lazyListState = lazyListStates[pageIndex]
                         )
-                        MessageDetailsTabItem.READ_RECEIPTS -> {
+                        MessageDetailsTab.READ_RECEIPTS -> {
                             // Not implemented yet.
                         }
                     }
@@ -141,11 +144,31 @@ private fun MessageDetailsScreenContent(
     }
 }
 
-enum class MessageDetailsTabItem(@StringRes override val titleResId: Int) : TabItem {
+enum class MessageDetailsTab(@StringRes override val titleResId: Int) : TabItem {
     REACTIONS(R.string.message_details_reactions_tab),
     READ_RECEIPTS(R.string.message_details_read_receipts_tab)
 }
 
-private fun provideMessageDetailsTabItems(isSelfMessage: Boolean) =
-    if (isSelfMessage) MessageDetailsTabItem.values().toList()
-    else listOf(MessageDetailsTabItem.REACTIONS)
+/**
+ * This method creates a new TabItem (data class) and NOT Enum due to enums not being dynamic and we needing to pass
+ * the total reactions count into [WireTabRow]
+ */
+private fun provideMessageDetailsTabItems(
+    messageDetailsState: MessageDetailsState,
+    isSelfMessage: Boolean
+): List<TabItem> {
+    val reactions = MessageDetailsTabItem(
+        titleResId = MessageDetailsTab.REACTIONS.titleResId,
+        count = messageDetailsState.reactionsData.reactions.map { it.value.size }.sum()
+    )
+    val readReceipts = MessageDetailsTabItem(
+        titleResId = MessageDetailsTab.READ_RECEIPTS.titleResId,
+        count = 0 // Default is 0 as Read Receipts is yet not implemented
+    )
+
+    return if (isSelfMessage) listOf(reactions, readReceipts) else listOf(reactions)
+}
+
+data class MessageDetailsTabItem(@StringRes override val titleResId: Int, val count: Int) : TabItem
+
+

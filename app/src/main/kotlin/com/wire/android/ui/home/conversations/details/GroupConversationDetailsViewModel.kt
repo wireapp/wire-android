@@ -71,7 +71,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
     private val deleteTeamConversation: DeleteTeamConversationUseCase,
     private val removeMemberFromConversation: RemoveMemberFromConversationUseCase,
     private val updateConversationMutedStatus: UpdateConversationMutedStatusUseCase,
-    private val clearConversationContentUseCase: ClearConversationContentUseCase,
+    private val clearConversationContent: ClearConversationContentUseCase,
     override val savedStateHandle: SavedStateHandle,
     qualifiedIdMapper: QualifiedIdMapper
 ) : GroupConversationParticipantsViewModel(
@@ -328,7 +328,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
         viewModelScope.launch {
             requestInProgress = true
             with(dialogState) {
-                val result = withContext(dispatcher.io()) { clearConversationContentUseCase(conversationId) }
+                val result = withContext(dispatcher.io()) { clearConversationContent(conversationId) }
                 requestInProgress = false
                 clearContentSnackbarResult(result, conversationTypeDetail)
             }

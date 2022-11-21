@@ -1,6 +1,7 @@
 package com.wire.android.ui.userprofile.other
 
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
+import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.userprofile.group.RemoveConversationMemberState
 import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
@@ -57,7 +58,7 @@ interface OtherUserProfileBottomSheetEventsHandler {
     fun onAddConversationToFavourites(conversationId: ConversationId? = null)
     fun onMoveConversationToFolder(conversationId: ConversationId? = null)
     fun onMoveConversationToArchive(conversationId: ConversationId? = null)
-    fun onClearConversationContent(conversationId: ConversationId? = null)
+    fun onClearConversationContent(dialogState: DialogState)
 
     companion object {
         @Suppress("TooManyFunctions")
@@ -67,7 +68,7 @@ interface OtherUserProfileBottomSheetEventsHandler {
             override fun onAddConversationToFavourites(conversationId: ConversationId?) {}
             override fun onMoveConversationToFolder(conversationId: ConversationId?) {}
             override fun onMoveConversationToArchive(conversationId: ConversationId?) {}
-            override fun onClearConversationContent(conversationId: ConversationId?) {}
+            override fun onClearConversationContent(dialogState: DialogState) {}
         }
     }
 }

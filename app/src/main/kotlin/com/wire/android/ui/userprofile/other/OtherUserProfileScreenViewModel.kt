@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.model.ImageAsset
@@ -22,6 +23,7 @@ import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetai
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveConversationRoleForUserUseCase
 import com.wire.android.ui.home.conversationslist.model.BlockState
+import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.userprofile.common.UsernameMapper.mapUserLabel
 import com.wire.android.ui.userprofile.group.RemoveConversationMemberState
 import com.wire.android.ui.userprofile.other.OtherUserProfileInfoMessageType.BlockingUserOperationError
@@ -65,6 +67,7 @@ import com.wire.kalium.logic.feature.connection.SendConnectionRequestResult
 import com.wire.kalium.logic.feature.connection.SendConnectionRequestUseCase
 import com.wire.kalium.logic.feature.connection.UnblockUserResult
 import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
+import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.CreateConversationResult
 import com.wire.kalium.logic.feature.conversation.GetOneToOneConversationUseCase
@@ -92,7 +95,6 @@ import javax.inject.Inject
 @Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel
 class OtherUserProfileScreenViewModel @Inject constructor(
-    savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
     private val dispatchers: DispatcherProvider,
     private val updateConversationMutedStatus: UpdateConversationMutedStatusUseCase,
@@ -112,6 +114,8 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     private val updateMemberRole: UpdateConversationMemberRoleUseCase,
     private val getOtherUserClients: GetOtherUserClientsUseCase,
     private val persistOtherUserClients: PersistOtherUserClientsUseCase,
+    private val clearConversationContentUseCase: ClearConversationContentUseCase,
+    savedStateHandle: SavedStateHandle,
     qualifiedIdMapper: QualifiedIdMapper
 ) : ViewModel(), OtherUserProfileEventsHandler, OtherUserProfileBottomSheetEventsHandler, OtherUserProfileFooterEventsHandler {
 
@@ -407,8 +411,29 @@ class OtherUserProfileScreenViewModel @Inject constructor(
     override fun onMoveConversationToArchive(conversationId: ConversationId?) {
     }
 
-    @Suppress("EmptyFunctionBlock")
-    override fun onClearConversationContent(conversationId: ConversationId?) {
+    override fun onClearConversationContent(dialogState: DialogState) {
+        viewModelScope.launch {
+            requestInProgress = true
+            with(dialogState) {
+                val result = withContext(dispatchers.io()) { clearConversationContentUseCase(conversationId) }
+                requestInProgress = false
+                clearContentSnackbarResult(result, conversationTypeDetail)
+            }
+        }
+    }
+
+    private suspend fun clearContentSnackbarResult(
+        clearContentResult: ClearConversationContentUseCase.Result,
+        conversationTypeDetail: ConversationTypeDetail
+    ) {
+        if (conversationTypeDetail is ConversationTypeDetail.Connection)
+            throw IllegalStateException("Unsupported conversation type to clear content, something went wrong?")
+
+        if (clearContentResult is ClearConversationContentUseCase.Result.Failure) {
+            closeBottomSheetAndShowInfoMessage(OtherUserProfileInfoMessageType.ConversationContentDeleteFailure)
+        } else {
+            closeBottomSheetAndShowInfoMessage(OtherUserProfileInfoMessageType.ConversationContentDeleted)
+        }
     }
 
     override fun getOtherUserClients() {

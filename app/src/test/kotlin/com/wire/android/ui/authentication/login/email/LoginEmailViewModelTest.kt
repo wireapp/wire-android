@@ -53,7 +53,6 @@ import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
-
 @OptIn(ExperimentalMaterialApi::class, ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
 class LoginEmailViewModelTest {
@@ -275,7 +274,7 @@ class LoginEmailViewModelTest {
         val CLIENT_ID = ClientId("test")
         val CLIENT = Client(
             CLIENT_ID, ClientType.Permanent, "time", null,
-            null, "label", "cookie", null, "model"
+            null, "label", "cookie", null, "model", emptyMap()
         )
         val SSO_ID: SsoId = SsoId("scim_id", null, null)
         val AUTH_TOKEN = AuthTokens(
@@ -305,4 +304,3 @@ class LoginEmailViewModelTest {
         )
     }
 }
-

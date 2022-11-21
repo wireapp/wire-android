@@ -119,6 +119,7 @@ fun ConversationRouterHomeBridge(
                     unblockUser = unblockUserDialogState::show,
                     leaveGroup = leaveGroupDialogState::show,
                     deleteGroup = deleteGroupDialogState::show,
+                    closeBottomSheet = onCloseBottomSheet,
                     isBottomSheetVisible = isBottomSheetVisible
                 )
             }

@@ -305,6 +305,7 @@ fun HomeContent(
     }
 }
 
+@Suppress("ComplexMethod")
 @Composable
 private fun handleSnackBarMessage(
     snackbarHostState: SnackbarHostState,
@@ -329,7 +330,19 @@ private fun handleSnackBarMessage(
             HomeSnackbarState.LeftConversationSuccess -> stringResource(id = R.string.left_conversation_group_success)
             HomeSnackbarState.LeaveConversationError -> stringResource(id = R.string.leave_group_conversation_error)
             HomeSnackbarState.DeleteConversationGroupError -> stringResource(id = R.string.delete_group_conversation_error)
+            is HomeSnackbarState.ClearConversationContentFailure -> stringResource(
+                if (messageType.isGroup)
+                    R.string.group_content_delete_failure else
+                    R.string.conversation_content_delete_failure
+            )
+
+            is HomeSnackbarState.ClearConversationContentSuccess -> stringResource(
+                if (messageType.isGroup)
+                    R.string.group_content_deleted else
+                    R.string.conversation_content_deleted
+            )
         }
+
         LaunchedEffect(messageType) {
             if (messageType != HomeSnackbarState.None) {
                 snackbarHostState.showSnackbar(message)

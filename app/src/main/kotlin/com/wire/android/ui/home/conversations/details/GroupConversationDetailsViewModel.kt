@@ -21,6 +21,7 @@ import com.wire.android.ui.home.conversations.details.menu.GroupConversationDeta
 import com.wire.android.ui.home.conversations.details.options.GroupConversationOptionsState
 import com.wire.android.ui.home.conversations.details.participants.GroupConversationParticipantsViewModel
 import com.wire.android.ui.home.conversations.details.participants.usecase.ObserveParticipantsForConversationUseCase
+import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
@@ -31,6 +32,7 @@ import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
+import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
@@ -69,13 +71,11 @@ class GroupConversationDetailsViewModel @Inject constructor(
     private val deleteTeamConversation: DeleteTeamConversationUseCase,
     private val removeMemberFromConversation: RemoveMemberFromConversationUseCase,
     private val updateConversationMutedStatus: UpdateConversationMutedStatusUseCase,
+    private val clearConversationContent: ClearConversationContentUseCase,
     override val savedStateHandle: SavedStateHandle,
     qualifiedIdMapper: QualifiedIdMapper
 ) : GroupConversationParticipantsViewModel(
-    savedStateHandle,
-    navigationManager,
-    observeConversationMembers,
-    qualifiedIdMapper
+    savedStateHandle, navigationManager, observeConversationMembers, qualifiedIdMapper
 ), GroupConversationDetailsBottomSheetEventsHandler {
 
     override val maxNumberOfItems: Int get() = MAX_NUMBER_OF_PARTICIPANTS
@@ -99,13 +99,14 @@ class GroupConversationDetailsViewModel @Inject constructor(
 
     private fun observeConversationDetails() {
         viewModelScope.launch {
-            val groupDetailsFlow = observeConversationDetails(conversationId)
-                .filterIsInstance<ObserveConversationDetailsUseCase.Result.Success>()
-                .map { it.conversationDetails }
-                .filterIsInstance<ConversationDetails.Group>()
-                .distinctUntilChanged()
-                .flowOn(dispatcher.io())
-                .shareIn(this, SharingStarted.WhileSubscribed(), 1)
+            val groupDetailsFlow =
+                observeConversationDetails(conversationId)
+                    .filterIsInstance<ObserveConversationDetailsUseCase.Result.Success>()
+                    .map { it.conversationDetails }
+                    .filterIsInstance<ConversationDetails.Group>()
+                    .distinctUntilChanged()
+                    .flowOn(dispatcher.io())
+                    .shareIn(this, SharingStarted.WhileSubscribed(), 1)
 
             val isSelfAdminFlow = observeConversationMembers(conversationId)
                 .map { it.isSelfAnAdmin }
@@ -117,8 +118,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
                 getSelfTeam(),
             ) { groupDetails, isSelfAnAdmin, selfTeam ->
 
-                val isSelfInOwnerTeam =
-                    selfTeam?.id != null && selfTeam.id == groupDetails.conversation.teamId?.value
+                val isSelfInOwnerTeam = selfTeam?.id != null && selfTeam.id == groupDetails.conversation.teamId?.value
 
                 conversationSheetContent = ConversationSheetContent(
                     title = groupDetails.conversation.name.orEmpty(),
@@ -150,13 +150,12 @@ class GroupConversationDetailsViewModel @Inject constructor(
             val response = withContext(dispatcher.io()) {
                 val selfUser = observerSelfUser().first()
                 removeMemberFromConversation(
-                    leaveGroupState.conversationId,
-                    selfUser.id
+                    leaveGroupState.conversationId, selfUser.id
                 )
             }
             when (response) {
-                is RemoveMemberFromConversationUseCase.Result.Failure ->
-                    showSnackBarMessage(response.cause.uiText())
+                is RemoveMemberFromConversationUseCase.Result.Failure -> showSnackBarMessage(response.cause.uiText())
+
                 RemoveMemberFromConversationUseCase.Result.Success -> {
                     navigationManager.navigateBack(
                         mapOf(
@@ -237,9 +236,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
         viewModelScope.launch {
             val result = withContext(dispatcher.io()) {
                 updateConversationAccess(
-                    enableGuestAndNonTeamMember,
-                    groupOptionsState.value.isServicesAllowed,
-                    conversationId
+                    enableGuestAndNonTeamMember, groupOptionsState.value.isServicesAllowed, conversationId
                 )
             }
 
@@ -250,6 +247,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
                         error = GroupConversationOptionsState.Error.UpdateGuestError(result.cause)
                     )
                 )
+
                 UpdateConversationAccessRoleUseCase.Result.Success -> Unit
             }
 
@@ -270,10 +268,10 @@ class GroupConversationDetailsViewModel @Inject constructor(
             when (result) {
                 is UpdateConversationAccessRoleUseCase.Result.Failure -> updateState(
                     groupOptionsState.value.copy(
-                        isServicesAllowed = !enableServices,
-                        error = GroupConversationOptionsState.Error.UpdateServicesError(result.cause)
+                        isServicesAllowed = !enableServices, error = GroupConversationOptionsState.Error.UpdateServicesError(result.cause)
                     )
                 )
+
                 UpdateConversationAccessRoleUseCase.Result.Success -> Unit
             }
 
@@ -282,9 +280,7 @@ class GroupConversationDetailsViewModel @Inject constructor(
     }
 
     private suspend fun updateConversationAccess(
-        enableGuestAndNonTeamMember: Boolean,
-        enableServices: Boolean,
-        conversationId: ConversationId
+        enableGuestAndNonTeamMember: Boolean, enableServices: Boolean, conversationId: ConversationId
     ) = updateConversationAccessRole(
         allowGuest = enableGuestAndNonTeamMember,
         allowNonTeamMember = enableGuestAndNonTeamMember,
@@ -319,11 +315,36 @@ class GroupConversationDetailsViewModel @Inject constructor(
                     ConversationUpdateStatusResult.Failure -> {
                         showSnackBarMessage(UIText.StringResource(R.string.error_updating_muting_setting))
                     }
+
                     ConversationUpdateStatusResult.Success -> {
                         appLogger.i("MutedStatus changed for conversation: $conversationId to $status")
                     }
                 }
             }
+        }
+    }
+
+    override fun onClearConversationContent(dialogState: DialogState) {
+        viewModelScope.launch {
+            requestInProgress = true
+            with(dialogState) {
+                val result = withContext(dispatcher.io()) { clearConversationContent(conversationId) }
+                requestInProgress = false
+                clearContentSnackbarResult(result, conversationTypeDetail)
+            }
+        }
+    }
+
+    private suspend fun clearContentSnackbarResult(
+        clearContentResult: ClearConversationContentUseCase.Result, conversationTypeDetail: ConversationTypeDetail
+    ) {
+        if (conversationTypeDetail is ConversationTypeDetail.Connection)
+            throw IllegalStateException("Unsupported conversation type to clear content, something went wrong?")
+
+        if (clearContentResult is ClearConversationContentUseCase.Result.Failure) {
+            showSnackBarMessage(UIText.StringResource(R.string.group_content_delete_failure))
+        } else {
+            showSnackBarMessage(UIText.StringResource(R.string.group_content_deleted))
         }
     }
 
@@ -337,10 +358,6 @@ class GroupConversationDetailsViewModel @Inject constructor(
 
     @Suppress("EmptyFunctionBlock")
     override fun onMoveConversationToArchive(conversationId: ConversationId?) {
-    }
-
-    @Suppress("EmptyFunctionBlock")
-    override fun onClearConversationContent(conversationId: ConversationId?) {
     }
 
     fun navigateToEditGroupName() {

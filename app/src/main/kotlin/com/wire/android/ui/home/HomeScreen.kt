@@ -51,6 +51,7 @@ import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import com.wire.android.ui.home.conversationslist.ConversationListState
 import com.wire.android.ui.home.conversationslist.ConversationListViewModel
 import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
+import com.wire.android.util.permission.rememberRequestPushNotificationsPermissionFlow
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.persistentMapOf
 
@@ -69,9 +70,12 @@ fun HomeScreen(
     homeViewModel.checkRequirements()
 
     val homeScreenState = rememberHomeScreenState()
+    val showNotificationsFlow = rememberRequestPushNotificationsPermissionFlow(
+        onPermissionDenied = { /** TODO: Show a dialog rationale explaining why the permission is needed **/ })
 
     LaunchedEffect(homeViewModel.savedStateHandle) {
         homeViewModel.checkPendingSnackbarState()?.let(homeScreenState::setSnackBarState)
+        showNotificationsFlow.launch()
     }
 
     handleSnackBarMessage(

@@ -78,18 +78,18 @@ private fun QuotedMessageContent(
     footerContent: @Composable () -> Unit = {},
     centerContent: @Composable () -> Unit = {}
 ) {
-    val shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
+    val quoteOutlineShape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
     Row(
         horizontalArrangement = Arrangement.spacedBy(dimensions().spacing4x),
         modifier = modifier
             .background(
                 color = MaterialTheme.wireColorScheme.surface,
-                shape = shape
+                shape = quoteOutlineShape
             )
             .border(
                 width = 1.dp,
                 color = MaterialTheme.wireColorScheme.divider,
-                shape = shape
+                shape = quoteOutlineShape
             ).padding(dimensions().spacing8x).fillMaxWidth()
     ) {
 

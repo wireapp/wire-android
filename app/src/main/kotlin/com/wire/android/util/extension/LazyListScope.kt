@@ -1,4 +1,4 @@
-package com.wire.android.ui.home.conversationslist
+package com.wire.android.util.extension
 
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
@@ -34,9 +34,10 @@ inline fun <T, K : Any> LazyListScope.folderWithElements(
         }
         itemsIndexed(
             items = list,
-            key = { _: Int, item: Map.Entry<K, T> -> item.key })
+            key = { _: Int, item: Map.Entry<K, T> -> "$header:${item.key}" })
         { index: Int, item: Map.Entry<K, T> ->
-            Box(modifier = Modifier
+            Box(
+                modifier = Modifier
                     .wrapContentSize()
                     .animateItemPlacement()
             ) {

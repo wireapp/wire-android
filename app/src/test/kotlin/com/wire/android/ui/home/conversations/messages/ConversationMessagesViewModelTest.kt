@@ -111,7 +111,7 @@ class ConversationMessagesViewModelTest {
 
             val sendMessage = Message.Regular(
                 id = "commonId",
-                content = MessageContent.Text("some Text"),
+                content = MessageContent.Text("some Text", listOf(), null, null),
                 conversationId = QualifiedID("someValue", "someId"),
                 date = Instant.fromEpochSeconds(1000L, 0).toString(),
                 senderUserId = QualifiedID("someValue", "someId"),
@@ -146,7 +146,7 @@ class ConversationMessagesViewModelTest {
 
             val sendMessage = Message.Regular(
                 id = "commonId",
-                content = MessageContent.Text("some Text"),
+                content = MessageContent.Text("some Text", listOf(), null, null),
                 conversationId = QualifiedID("someValue", "someId"),
                 date = Instant.fromEpochSeconds(1000L, 0).toString(),
                 senderUserId = QualifiedID("someValue", "someId"),

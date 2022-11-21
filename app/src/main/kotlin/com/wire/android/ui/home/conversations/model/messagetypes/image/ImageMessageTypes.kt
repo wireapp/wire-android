@@ -30,11 +30,11 @@ import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.getUriFromDrawable
 
 @Composable
-fun DisplayableImageMessage(imageData: ImageAsset.PrivateAsset, imgParams: ImageMessageParams) {
+fun DisplayableImageMessage(imageData: ImageAsset.PrivateAsset, imgParams: ImageMessageParams, modifier: Modifier = Modifier) {
     Image(
         painter = imageData.paint(),
         contentDescription = stringResource(R.string.content_description_image_message),
-        modifier = Modifier
+        modifier = modifier
             .width(imgParams.normalizedWidth)
             .height(imgParams.normalizedHeight),
         alignment = Alignment.Center,

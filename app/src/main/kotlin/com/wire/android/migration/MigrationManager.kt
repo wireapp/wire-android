@@ -26,7 +26,6 @@ import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton
 
-
 @Suppress("LongParameterList")
 @Singleton
 class MigrationManager @Inject constructor(
@@ -46,10 +45,16 @@ class MigrationManager @Inject constructor(
     suspend fun shouldMigrate(): Boolean = when {
         // already migrated
         globalDataStore.isMigrationCompleted() -> false
-        // not yet migrated and old DB is present
-        isScalaDBPresent() -> true
+        // not yet migrated and old DB is present and mark that we should present the welcome to new android dialog
+        isScalaDBPresent() -> {
+            globalDataStore.setWelcomeScreenNotPresented()
+            true
+        }
         // not yet migrated and no DB to migrate from - skip and set as migrated because it's not an update of the old app version
-        else -> globalDataStore.setMigrationCompleted().let { false }
+        else -> {
+            globalDataStore.setWelcomeScreenPresented()
+            globalDataStore.setMigrationCompleted().let { false }
+        }
     }
 
     fun isMigrationCompletedFlow(): Flow<Boolean> = globalDataStore.isMigrationCompletedFlow()

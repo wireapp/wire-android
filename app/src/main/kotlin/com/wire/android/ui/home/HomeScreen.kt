@@ -51,6 +51,7 @@ import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import com.wire.android.ui.home.conversationslist.ConversationListState
 import com.wire.android.ui.home.conversationslist.ConversationListViewModel
 import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
+import com.wire.android.util.permission.rememberRequestPushNotificationsPermissionFlow
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.persistentMapOf
 
@@ -69,9 +70,12 @@ fun HomeScreen(
     homeViewModel.checkRequirements()
 
     val homeScreenState = rememberHomeScreenState()
+    val showNotificationsFlow = rememberRequestPushNotificationsPermissionFlow(
+        onPermissionDenied = { /** TODO: Show a dialog rationale explaining why the permission is needed **/ })
 
     LaunchedEffect(homeViewModel.savedStateHandle) {
         homeViewModel.checkPendingSnackbarState()?.let(homeScreenState::setSnackBarState)
+        showNotificationsFlow.launch()
     }
 
     handleSnackBarMessage(
@@ -259,6 +263,7 @@ fun HomeContent(
     }
 }
 
+@Suppress("ComplexMethod")
 @Composable
 private fun handleSnackBarMessage(
     snackbarHostState: SnackbarHostState,
@@ -283,7 +288,19 @@ private fun handleSnackBarMessage(
             HomeSnackbarState.LeftConversationSuccess -> stringResource(id = R.string.left_conversation_group_success)
             HomeSnackbarState.LeaveConversationError -> stringResource(id = R.string.leave_group_conversation_error)
             HomeSnackbarState.DeleteConversationGroupError -> stringResource(id = R.string.delete_group_conversation_error)
+            is HomeSnackbarState.ClearConversationContentFailure -> stringResource(
+                if (messageType.isGroup)
+                    R.string.group_content_delete_failure else
+                    R.string.conversation_content_delete_failure
+            )
+
+            is HomeSnackbarState.ClearConversationContentSuccess -> stringResource(
+                if (messageType.isGroup)
+                    R.string.group_content_deleted else
+                    R.string.conversation_content_deleted
+            )
         }
+
         LaunchedEffect(messageType) {
             if (messageType != HomeSnackbarState.None) {
                 snackbarHostState.showSnackbar(message)

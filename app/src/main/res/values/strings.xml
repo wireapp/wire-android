@@ -108,6 +108,7 @@
     <string name="content_description_more_emojis">More emojis</string>
     <!-- Non translatable strings-->
     <string name="url_decryption_failure_learn_more" translatable="false">https://support.wire.com/hc/en-us/articles/207948115-Why-was-I-notified-that-a-message-from-a-contact-was-not-received-</string>
+    <string name="url_welcome_to_new_android" translatable="false">https://support.wire.com/hc/en-us/articles/6655706999581-What-s-new-on-Android-</string>
     <!-- Navigation -->
     <string name="vault_screen_title">Vault</string>
     <string name="archive_screen_title">Archive</string>

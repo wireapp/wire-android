@@ -116,6 +116,7 @@ fun handleWelcomeNewUserDialog(
     context: Context = LocalContext.current
 ) {
     if (homeState.shouldDisplayWelcomeMessage) {
+        val welcomeToNewAndroidUrl = stringResource(id = R.string.url_welcome_to_new_android)
         WireDialog(
             title = stringResource(id = R.string.welcome_migration_dialog_title),
             text = stringResource(id = R.string.welcome_migration_dialog_content),
@@ -123,7 +124,7 @@ fun handleWelcomeNewUserDialog(
             optionButton1Properties = WireDialogButtonProperties(
                 onClick = {
                     dismissDialog.invoke()
-                    CustomTabsHelper.launchUrl(context, "https://google.com")
+                    CustomTabsHelper.launchUrl(context, welcomeToNewAndroidUrl)
                 },
                 text = stringResource(id = R.string.label_learn_more),
                 type = WireDialogButtonType.Primary,

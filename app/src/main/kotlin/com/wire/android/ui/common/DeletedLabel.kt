@@ -56,7 +56,10 @@ fun StatusBox(
 
 @Composable
 fun DeletedLabel(modifier: Modifier = Modifier) {
-    stringResource(id = R.string.label_user_deleted, modifier)
+    StatusBox(
+        statusText = stringResource(id = R.string.label_user_deleted),
+        modifier = modifier
+    )
 }
 
 @Preview

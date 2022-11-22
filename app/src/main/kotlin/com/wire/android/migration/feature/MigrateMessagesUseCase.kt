@@ -25,8 +25,9 @@ class MigrateMessagesUseCase @Inject constructor(
             val userDAO = scalaUserDatabase.userDAO(userId)
             val messages = messageDAO?.messages(scalaConversations) ?: listOf()
             if (messages.isNotEmpty()) {
-                val mappedMessages = messages.mapNotNull {
-                    userDAO?.users(listOf(it.senderId))?.firstOrNull()?.let { user -> mapper.fromScalaMessageToMessage(it, user) }
+                val users = userDAO?.users(messages.map { it.senderId }.distinct())?.associateBy { it.id } ?: mapOf()
+                val mappedMessages = messages.mapNotNull { scalaMessage ->
+                    users[scalaMessage.senderId]?.let { mapper.fromScalaMessageToMessage(scalaMessage, it) }
                 }
                 val sessionScope = coreLogic.getSessionScope(userId)
                 sessionScope.messages.persistMigratedMessage(mappedMessages)

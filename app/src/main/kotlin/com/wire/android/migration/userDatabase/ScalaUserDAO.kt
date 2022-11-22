@@ -30,8 +30,9 @@ class ScalaUserDAO(private val db: ScalaUserDatabase) {
     }
 
     fun users(userIds: List<String>): List<ScalaUserData> {
-        val userIdsSelectionArg = userIds.joinToString(",")
-        val cursor = db.rawQuery("SELECT * FROM $TABLE_NAME WHERE $COLUMN_ID IN (?)", arrayOf(userIdsSelectionArg))
+        val sqlQuery = "SELECT * FROM $TABLE_NAME WHERE $COLUMN_ID IN (?)"
+        val userIdsSelectionArg = userIds.joinToString(separator = "','", prefix = "'", postfix = "'")
+        val cursor = db.rawQuery(sqlQuery.replace("?", userIdsSelectionArg), null)
         return getUsersFromCursor(cursor)
     }
 

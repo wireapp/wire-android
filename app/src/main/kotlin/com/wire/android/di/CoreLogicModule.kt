@@ -135,12 +135,6 @@ class CoreLogicModule {
     @Provides
     fun provideNoSessionQualifiedIdMapper(): QualifiedIdMapper = QualifiedIdMapperImpl(null)
 
-    @NoSession
-    @Singleton
-    @Provides
-    fun provideObservePersistentWebSocketConnectionStatusUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
-        coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus
-
     @Singleton
     @Provides
     fun provideWorkManager(@ApplicationContext applicationContext: Context) = WorkManager.getInstance(applicationContext)
@@ -623,13 +617,15 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun provideObservePersistentWebSocketConnectionStatusUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
-        coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus
+    fun provideObservePersistentWebSocketConnectionStatusUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic
+    ) = coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus
 
     @ViewModelScoped
     @Provides
-    fun providePersistPersistentWebSocketConnectionStatusUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
-        coreLogic.getGlobalScope().persistPersistentWebSocketConnectionStatus
+    fun providePersistPersistentWebSocketConnectionStatusUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic
+    ) = coreLogic.getGlobalScope().persistPersistentWebSocketConnectionStatus
 
     @ViewModelScoped
     @Provides

@@ -34,6 +34,7 @@ import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.shareIn
@@ -73,29 +74,47 @@ class PersistentWebSocketService : Service() {
     @OptIn(ExperimentalCoroutinesApi::class)
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         // TODO: repository should not be exposed to the app
-        coreLogic.globalScope { sessionRepository.currentSession() }.fold({
-            appLogger.e("error while getting the current session from persistent web socket service $it")
-        }, { currentAccount ->
-            runBlocking {
-                coreLogic.getSessionScope(currentAccount.userId)
-                    .setConnectionPolicy(ConnectionPolicy.KEEP_ALIVE)
-            }
+        scope.launch {
 
-            val observeUserId = currentSessionFlow()
-                .map { result ->
-                    if (result is CurrentSessionResult.Success) result.accountInfo.userId
-                    else null
-                }
-                .distinctUntilChanged()
-                .flowOn(dispatcherProvider.io())
-                .shareIn(scope, SharingStarted.WhileSubscribed(), 1)
+            coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus().collect {
+                it.map { persistentWebSocketStatus ->
+                    if (persistentWebSocketStatus.isPersistentWebSocketEnabled) {
+                        coreLogic.getSessionScope(persistentWebSocketStatus.userId)
+                            .setConnectionPolicy(ConnectionPolicy.KEEP_ALIVE)
 
-            scope.launch {
-                notificationManager.observeNotificationsAndCalls(observeUserId, scope) {
-                    openIncomingCall(it.conversationId)
+                        notificationManager.observeNotificationsAndCalls(flowOf(persistentWebSocketStatus.userId), scope) {
+                            openIncomingCall(it.conversationId)
+                        }
+
+
+                    }
                 }
+
             }
-        })
+        }
+//        coreLogic.globalScope { sessionRepository.currentSession() }.fold({
+//            appLogger.e("error while getting the current session from persistent web socket service $it")
+//        }, { currentAccount ->
+//            runBlocking {
+//                coreLogic.getSessionScope(currentAccount.userId)
+//                    .setConnectionPolicy(ConnectionPolicy.KEEP_ALIVE)
+//            }
+//
+//            val observeUserId = currentSessionFlow()
+//                .map { result ->
+//                    if (result is CurrentSessionResult.Success) result.accountInfo.userId
+//                    else null
+//                }
+//                .distinctUntilChanged()
+//                .flowOn(dispatcherProvider.io())
+//                .shareIn(scope, SharingStarted.WhileSubscribed(), 1)
+//
+//            scope.launch {
+//                notificationManager.observeNotificationsAndCalls(observeUserId, scope) {
+//                    openIncomingCall(it.conversationId)
+//                }
+//            }
+//        })
         generateForegroundNotification()
         return START_STICKY
 

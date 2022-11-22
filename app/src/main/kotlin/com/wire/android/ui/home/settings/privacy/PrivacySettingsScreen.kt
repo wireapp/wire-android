@@ -10,6 +10,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.home.conversations.details.options.ArrowType
@@ -17,11 +18,14 @@ import com.wire.android.ui.home.conversations.details.options.GroupConversationO
 import com.wire.android.ui.home.conversations.details.options.SwitchState
 
 @Composable
-fun PrivacySettingsConfigScreen() {
+fun PrivacySettingsConfigScreen(
+    viewModel: PrivacySettingsViewModel = hiltViewModel()
+) {
     PrivacySettingsScreenContent(
-        onBackPressed = { /*TODO*/ },
         isReadReceiptsEnabled = true,
-        setReadReceiptsState = {})
+        setReadReceiptsState = {},
+        onBackPressed = viewModel::navigateBack
+    )
 }
 
 

@@ -267,6 +267,11 @@ enum class NavigationItem(
         }
     },
 
+    MessageDetailsReactionsLearnMore(
+        primaryRoute = MESSAGE_DETAILS_REACTIONS_LEARN_MORE_URL,
+        content = { },
+    ),
+
     GroupConversationDetails(
         primaryRoute = GROUP_CONVERSATION_DETAILS,
         canonicalRoute = "$GROUP_CONVERSATION_DETAILS/{$EXTRA_CONVERSATION_ID}",
@@ -453,3 +458,5 @@ enum class ScreenMode {
     WAKE_UP, // wake up the device on navigating to that NavigationItem (i.e IncomingCall)
     NONE // do not wake up and allow device to sleep
 }
+
+private const val MESSAGE_DETAILS_REACTIONS_LEARN_MORE_URL = "https://support.wire.com/hc/en-us/articles/212053645-Like-a-message"

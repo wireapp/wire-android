@@ -24,9 +24,9 @@ import com.wire.android.ui.authentication.devices.DeviceItem
 import com.wire.android.ui.authentication.devices.model.Device
 import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
-import com.wire.android.ui.home.conversationslist.folderWithElements
 import com.wire.android.ui.settings.devices.model.SelfDevicesState
 import com.wire.android.ui.theme.wireColorScheme
+import com.wire.android.util.extension.folderWithElements
 
 @Composable
 fun SelfDevicesScreen(viewModel: SelfDevicesViewModel = hiltViewModel()) {
@@ -104,9 +104,11 @@ private fun LazyListScope.folderDeviceItems(
             )
         }
     ) { item ->
-        DeviceItem(item,
+        DeviceItem(
+            item,
             background = MaterialTheme.wireColorScheme.surface,
-            placeholder = false)
+            placeholder = false
+        )
     }
 }
 

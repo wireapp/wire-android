@@ -21,6 +21,7 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.data.team.Team
+import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.conversation.RemoveMemberFromConversationUseCase
@@ -393,7 +394,7 @@ class GroupConversationDetailsViewModelTest {
     }
 
     companion object {
-        val dummyConversationId = ConversationId("some-dummy-value","some.dummy.domain")
+        val dummyConversationId = ConversationId("some-dummy-value", "some.dummy.domain")
         val testGroup = ConversationDetails.Group(
             Conversation(
                 id = dummyConversationId,
@@ -454,6 +455,9 @@ internal class GroupConversationDetailsViewModelArrangement {
     lateinit var updateConversationMutedStatus: UpdateConversationMutedStatusUseCase
 
     @MockK
+    lateinit var clearConversationContentUseCase: ClearConversationContentUseCase
+
+    @MockK
     private lateinit var qualifiedIdMapper: QualifiedIdMapper
 
     private val conversationDetailsChannel = Channel<ConversationDetails>(capacity = Channel.UNLIMITED)
@@ -473,7 +477,8 @@ internal class GroupConversationDetailsViewModelArrangement {
             getSelfTeam = getSelfTeamUseCase,
             savedStateHandle = savedStateHandle,
             qualifiedIdMapper = qualifiedIdMapper,
-            updateConversationMutedStatus = updateConversationMutedStatus
+            updateConversationMutedStatus = updateConversationMutedStatus,
+            clearConversationContent = clearConversationContentUseCase
         )
     }
 

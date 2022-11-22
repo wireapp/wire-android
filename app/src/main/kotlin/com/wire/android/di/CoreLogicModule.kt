@@ -2,6 +2,7 @@ package com.wire.android.di
 
 import android.content.Context
 import androidx.work.WorkManager
+import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.util.DeviceLabel
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
@@ -30,6 +31,7 @@ import com.wire.kalium.logic.feature.client.ObserveCurrentClientIdUseCase
 import com.wire.kalium.logic.feature.connection.BlockUserUseCase
 import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
 import com.wire.kalium.logic.feature.conversation.AddMemberToConversationUseCase
+import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
 import com.wire.kalium.logic.feature.conversation.CreateGroupConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetAllContactsNotInConversationUseCase
 import com.wire.kalium.logic.feature.conversation.GetOrCreateOneToOneConversationUseCase
@@ -43,6 +45,7 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationMutedStatusU
 import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseCase
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
+import com.wire.kalium.logic.feature.message.ObserveMessageReactionsUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
 import com.wire.kalium.logic.feature.message.getPaginatedFlowOfMessagesByConversation
@@ -157,6 +160,11 @@ class SessionModule {
             }
         }
     }
+
+    @ViewModelScoped
+    @Provides
+    fun provideCurrentAccountUserDataStore(@CurrentAccount currentAccount: UserId, userDataStoreProvider: UserDataStoreProvider) =
+        userDataStoreProvider.getOrCreate(currentAccount)
 }
 
 @Module
@@ -409,6 +417,13 @@ class UseCaseModule {
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
     ): ToggleReactionUseCase = coreLogic.getSessionScope(currentAccount).messages.toggleReaction
+
+    @ViewModelScoped
+    @Provides
+    fun provideObserveMessageReactionsUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): ObserveMessageReactionsUseCase = coreLogic.getSessionScope(currentAccount).messages.observeMessageReactions
 
     @ViewModelScoped
     @Provides
@@ -782,4 +797,21 @@ class UseCaseModule {
     @Provides
     fun provideIsEligibleToStartCall(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).calls.isEligibleToStartCall
+
+    @ViewModelScoped
+    @Provides
+    fun provideClearConversationContentUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): ClearConversationContentUseCase = coreLogic.getSessionScope(currentAccount).conversations.clearConversationContent
+
+    @ViewModelScoped
+    @Provides
+    fun provideRenameConversation(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).conversations.renameConversation
+
+    @ViewModelScoped
+    @Provides
+    fun provideUpdateApiVersionsScheduler(@KaliumCoreLogic coreLogic: CoreLogic) =
+        coreLogic.updateApiVersionsScheduler
 }

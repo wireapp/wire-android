@@ -8,6 +8,7 @@ import com.wire.android.migration.feature.MigrateClientsDataUseCase
 import com.wire.android.migration.feature.MigrateConversationsUseCase
 import com.wire.android.migration.feature.MigrateMessagesUseCase
 import com.wire.android.migration.feature.MigrateServerConfigUseCase
+import com.wire.android.migration.feature.MigrateUsersUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.coVerify
@@ -25,29 +26,33 @@ class MigrationManagerTest {
 
     @Test
     fun givenDBFileExistsAndMigrationCompleted_whenCheckingWhetherToMigrate_thenReturnFalse() = runTest {
-        val (_, manager) = Arrangement()
+        val (arrangement, manager) = Arrangement()
             .withDBFileExists(true)
             .withMigrationCompleted(true)
             .arrange()
         assert(!manager.shouldMigrate())
+        coVerify(exactly = 0) { arrangement.globalDataStore.setWelcomeScreenPresented() }
     }
 
     @Test
     fun givenDBFileNotExistsAndMigrationCompleted_whenCheckingWhetherToMigrate_thenReturnFalse() = runTest {
-        val (_, manager) = Arrangement()
+        val (arrangement, manager) = Arrangement()
             .withDBFileExists(false)
             .withMigrationCompleted(true)
             .arrange()
         assert(!manager.shouldMigrate())
+        coVerify(exactly = 0) { arrangement.globalDataStore.setWelcomeScreenPresented() }
     }
 
     @Test
     fun givenDBFileExistsAndMigrationNotCompleted_whenCheckingWhetherToMigrate_thenReturnTrue() = runTest {
-        val (_, manager) = Arrangement()
+        val (arrangement, manager) = Arrangement()
             .withDBFileExists(true)
             .withMigrationCompleted(false)
             .arrange()
+
         assert(manager.shouldMigrate())
+        coVerify(exactly = 1) { arrangement.globalDataStore.setWelcomeScreenNotPresented() }
     }
 
     @Test
@@ -57,7 +62,10 @@ class MigrationManagerTest {
             .withMigrationCompleted(false)
             .arrange()
         assert(!manager.shouldMigrate())
-        coVerify(exactly = 1) { arrangement.globalDataStore.setMigrationCompleted() }
+        coVerify(exactly = 1) {
+            arrangement.globalDataStore.setWelcomeScreenPresented()
+            arrangement.globalDataStore.setMigrationCompleted()
+        }
     }
 
     private class Arrangement {
@@ -80,6 +88,9 @@ class MigrationManagerTest {
         lateinit var migrateClientsData: MigrateClientsDataUseCase
 
         @MockK
+        lateinit var migrateUsers: MigrateUsersUseCase
+
+        @MockK
         lateinit var migrateConversations: MigrateConversationsUseCase
 
         @MockK
@@ -92,6 +103,7 @@ class MigrationManagerTest {
                 migrateServerConfigUseCase,
                 migrateActiveAccounts,
                 migrateClientsData,
+                migrateUsers,
                 migrateConversations,
                 migrateMessages
             )

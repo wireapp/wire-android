@@ -2,13 +2,10 @@
 
 package com.wire.android.ui.home.conversations
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.combinedClickable
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -16,8 +13,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentSize
-import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
@@ -31,14 +26,15 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.unit.dp
 import com.google.accompanist.flowlayout.FlowRow
 import com.wire.android.R
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.LegalHoldIndicator
+import com.wire.android.ui.common.StatusBox
 import com.wire.android.ui.common.UserBadge
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.home.conversations.messages.QuotedMessage
 import com.wire.android.ui.home.conversations.messages.ReactionPill
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.MessageFooter
@@ -241,6 +237,7 @@ private fun Username(username: String, modifier: Modifier = Modifier) {
     )
 }
 
+@Suppress("ComplexMethod")
 @Composable
 private fun MessageContent(
     messageContent: UIMessageContent?,
@@ -257,11 +254,18 @@ private fun MessageContent(
             downloadStatus = messageContent.downloadStatus,
             onImageClick = onImageClick
         )
-        is UIMessageContent.TextMessage -> MessageBody(
-            messageBody = messageContent.messageBody,
-            onLongClick = onLongClick,
-            onOpenProfile = onOpenProfile
-        )
+
+        is UIMessageContent.TextMessage -> {
+            messageContent.messageBody.quotedMessage?.let {
+                QuotedMessage(it)
+            }
+            MessageBody(
+                messageBody = messageContent.messageBody,
+                onLongClick = onLongClick,
+                onOpenProfile = onOpenProfile
+            )
+        }
+
         is UIMessageContent.AssetMessage -> MessageGenericAsset(
             assetName = messageContent.assetName,
             assetExtension = messageContent.assetExtension,
@@ -270,61 +274,50 @@ private fun MessageContent(
             assetDownloadStatus = messageContent.downloadStatus,
             onAssetClick = onAssetClick
         )
+
         is UIMessageContent.SystemMessage.MemberAdded -> {}
         is UIMessageContent.SystemMessage.MemberLeft -> {}
         is UIMessageContent.SystemMessage.MemberRemoved -> {}
+        is UIMessageContent.SystemMessage.RenamedConversation -> {}
+        is UIMessageContent.SystemMessage.TeamMemberRemoved -> {}
         is UIMessageContent.RestrictedAsset -> {
             when {
                 messageContent.mimeType.contains("image/") -> {
                     RestrictedAssetMessage(R.drawable.ic_gallery, stringResource(id = R.string.prohibited_images_message))
                 }
+
                 messageContent.mimeType.contains("video/") -> {
                     RestrictedAssetMessage(R.drawable.ic_video, stringResource(id = R.string.prohibited_videos_message))
                 }
+
                 messageContent.mimeType.contains("audio/") -> {
                     RestrictedAssetMessage(R.drawable.ic_speaker_on, stringResource(id = R.string.prohibited_audio_message))
                 }
+
                 else -> {
                     RestrictedGenericFileMessage(messageContent.assetName, messageContent.assetSizeInBytes)
                 }
             }
         }
-        is UIMessageContent.SystemMessage.RenamedConversation -> {}
+
+        is UIMessageContent.PreviewAssetMessage -> {}
+        is UIMessageContent.SystemMessage.MissedCall.YouCalled -> {}
+        is UIMessageContent.SystemMessage.MissedCall.OtherCalled -> {}
+        null -> {
+            throw NullPointerException("messageContent is null")
+        }
     }
 }
 
 @Composable
 private fun MessageStatusLabel(messageStatus: MessageStatus) {
-    CompositionLocalProvider(
-        LocalTextStyle provides MaterialTheme.typography.labelSmall
-    ) {
-        when (messageStatus) {
-            MessageStatus.Deleted,
-            is MessageStatus.Edited,
-            MessageStatus.ReceiveFailure -> {
-                Box(
-                    modifier = Modifier
-                        .wrapContentSize()
-                        .border(
-                            BorderStroke(
-                                width = 1.dp,
-                                color = MaterialTheme.wireColorScheme.divider
-                            ),
-                            shape = RoundedCornerShape(size = dimensions().spacing4x)
-                        )
-                        .padding(
-                            horizontal = dimensions().spacing4x,
-                            vertical = dimensions().spacing2x
-                        )
-                ) {
-                    Text(
-                        text = messageStatus.text.asString(),
-                        style = LocalTextStyle.current.copy(color = MaterialTheme.wireColorScheme.labelText)
-                    )
-                }
-            }
-            MessageStatus.SendFailure, MessageStatus.Untouched, MessageStatus.DecryptionFailure -> {
-            }
+    when (messageStatus) {
+        MessageStatus.Deleted,
+        is MessageStatus.Edited,
+        MessageStatus.ReceiveFailure -> StatusBox(messageStatus.text.asString())
+
+        MessageStatus.SendFailure, MessageStatus.Untouched, MessageStatus.DecryptionFailure -> {
+            /** Don't display anything **/
         }
     }
 }

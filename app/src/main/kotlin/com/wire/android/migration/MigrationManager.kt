@@ -11,6 +11,7 @@ import com.wire.android.migration.feature.MigrateClientsDataUseCase
 import com.wire.android.migration.feature.MigrateConversationsUseCase
 import com.wire.android.migration.feature.MigrateMessagesUseCase
 import com.wire.android.migration.feature.MigrateServerConfigUseCase
+import com.wire.android.migration.feature.MigrateUsersUseCase
 import com.wire.android.migration.util.ScalaDBNameProvider
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.NetworkFailure
@@ -25,7 +26,6 @@ import kotlinx.coroutines.flow.Flow
 import javax.inject.Inject
 import javax.inject.Singleton
 
-
 @Suppress("LongParameterList")
 @Singleton
 class MigrationManager @Inject constructor(
@@ -34,6 +34,7 @@ class MigrationManager @Inject constructor(
     private val migrateServerConfig: MigrateServerConfigUseCase,
     private val migrateActiveAccounts: MigrateActiveAccountsUseCase,
     private val migrateClientsData: MigrateClientsDataUseCase,
+    private val migrateUsers: MigrateUsersUseCase,
     private val migrateConversations: MigrateConversationsUseCase,
     private val migrateMessages: MigrateMessagesUseCase,
 ) {
@@ -44,10 +45,16 @@ class MigrationManager @Inject constructor(
     suspend fun shouldMigrate(): Boolean = when {
         // already migrated
         globalDataStore.isMigrationCompleted() -> false
-        // not yet migrated and old DB is present
-        isScalaDBPresent() -> true
+        // not yet migrated and old DB is present and mark that we should present the welcome to new android dialog
+        isScalaDBPresent() -> {
+            globalDataStore.setWelcomeScreenNotPresented()
+            true
+        }
         // not yet migrated and no DB to migrate from - skip and set as migrated because it's not an update of the old app version
-        else -> globalDataStore.setMigrationCompleted().let { false }
+        else -> {
+            globalDataStore.setWelcomeScreenPresented()
+            globalDataStore.setMigrationCompleted().let { false }
+        }
     }
 
     fun isMigrationCompletedFlow(): Flow<Boolean> = globalDataStore.isMigrationCompletedFlow()
@@ -63,11 +70,15 @@ class MigrationManager @Inject constructor(
                 migrateClientsData(it)
             }
             .flatMap {
-                appLogger.d("$TAG - Step 3 - Migrating conversations")
+                appLogger.d("$TAG - Step 3 - Migrating users")
+                migrateUsers(it)
+            }
+            .flatMap {
+                appLogger.d("$TAG - Step 4 - Migrating conversations")
                 migrateConversations(it)
             }
             .flatMap {
-                appLogger.d("$TAG - Step 4 - Migrating messages")
+                appLogger.d("$TAG - Step 5 - Migrating messages")
                 migrateMessages(it)
             }
             .mapLeft(::migrationFailure)

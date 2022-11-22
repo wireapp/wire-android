@@ -82,8 +82,12 @@ fun ConversationRouterHomeBridge(
             conversationOptionNavigation: ConversationOptionNavigation = ConversationOptionNavigation.Home
         ) {
             onHomeBottomSheetContentChanged {
+                // if we just use [conversationItem] we won't be able to observe changes in conversation details (e.g. name changing).
+                // So we need to find ConversationItem in the State by id and use it for BottomSheet content.
+                val item: ConversationItem? = viewModel.conversationListState.findConversationById(conversationItem.conversationId)
+
                 val conversationState = rememberConversationSheetState(
-                    conversationItem = conversationItem,
+                    conversationItem = item ?: conversationItem,
                     conversationOptionNavigation = conversationOptionNavigation
                 )
                 // if we reopen the BottomSheet of the previous conversation for example:
@@ -115,6 +119,7 @@ fun ConversationRouterHomeBridge(
                     unblockUser = unblockUserDialogState::show,
                     leaveGroup = leaveGroupDialogState::show,
                     deleteGroup = deleteGroupDialogState::show,
+                    closeBottomSheet = onCloseBottomSheet,
                     isBottomSheetVisible = isBottomSheetVisible
                 )
             }

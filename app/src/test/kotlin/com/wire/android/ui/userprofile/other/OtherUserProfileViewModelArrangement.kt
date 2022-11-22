@@ -200,7 +200,7 @@ internal class OtherUserProfileViewModelArrangement {
     }
 
     fun withGetConversationDetails(result: GetOneToOneConversationUseCase.Result) = apply {
-        coEvery { getConversationUseCase(any()) } returns result
+        coEvery { getConversationUseCase(any()) } returns flowOf(result)
     }
 
     fun arrange() = this to viewModel

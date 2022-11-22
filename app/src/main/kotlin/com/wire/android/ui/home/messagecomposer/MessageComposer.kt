@@ -87,6 +87,7 @@ fun MessageComposer(
                     messageComposerState.mentions,
                     messageComposerState.messageReplyType?.messageId
                 )
+                messageComposerState.messageReplyType = null
                 messageComposerState.setMessageTextValue(TextFieldValue(""))
             }
         }

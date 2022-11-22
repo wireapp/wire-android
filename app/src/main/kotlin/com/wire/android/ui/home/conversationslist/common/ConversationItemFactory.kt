@@ -146,5 +146,3 @@ private fun GeneralConversationItem(
         }
     }
 }
-
-

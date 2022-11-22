@@ -160,7 +160,6 @@ class MessageComposerViewModel @Inject constructor(
         if (leftGroup || groupDeletedName != null) {
             navigateBack(savedStateHandle.getBackNavArgs())
         }
-
     }
 
     fun sendMessage(

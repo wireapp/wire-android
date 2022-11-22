@@ -41,7 +41,7 @@ fun EditMessageMenuItems(
     onCopyMessage: () -> Unit,
     onDeleteMessage: () -> Unit,
     onReactionClick: (emoji: String) -> Unit,
-    onReply: () -> Unit
+    onReply: () -> Unit,
     onMessageDetailsClick: () -> Unit
 ): List<@Composable () -> Unit> {
     return buildList {

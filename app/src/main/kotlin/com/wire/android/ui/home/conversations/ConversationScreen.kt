@@ -312,8 +312,7 @@ private fun ConversationScreen(
             onCopyMessage = conversationScreenState::copyMessage,
             onDeleteMessage = menuModalOnDeleteMessage,
             onReactionClick = menuModalOnReactionClick,
-            onMessageDetailsClick = menuModalOnMessageDetailsClick
-            onReactionClick = menuModalOnReactionClick,
+            onMessageDetailsClick = menuModalOnMessageDetailsClick,
             onReply = {
                 conversationScreenState.selectedMessage?.let {
                     messageComposerInnerState.reply(it)

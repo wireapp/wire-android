@@ -291,7 +291,7 @@ private fun MessageComposer(
                                 MessageComposerInputRow(
                                     transition = transition,
                                     messageComposerState = messageComposerState,
-                                    memebersToMention = membersToMention,
+                                    membersToMention = membersToMention,
                                     onMentionPicked = onMentionPicked
                                 )
                             }

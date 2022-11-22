@@ -1,5 +1,6 @@
 package com.wire.android.ui.home
 
+import android.content.Context
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
@@ -24,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.RectangleShape
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -51,6 +53,8 @@ import com.wire.android.ui.common.topappbar.search.SearchTopBar
 import com.wire.android.ui.home.conversationslist.ConversationListState
 import com.wire.android.ui.home.conversationslist.ConversationListViewModel
 import com.wire.android.ui.home.sync.FeatureFlagNotificationViewModel
+import com.wire.android.util.CustomTabsHelper
+import com.wire.android.util.permission.rememberRequestPushNotificationsPermissionFlow
 import kotlinx.collections.immutable.ImmutableMap
 import kotlinx.collections.immutable.persistentMapOf
 
@@ -69,9 +73,12 @@ fun HomeScreen(
     homeViewModel.checkRequirements()
 
     val homeScreenState = rememberHomeScreenState()
+    val showNotificationsFlow = rememberRequestPushNotificationsPermissionFlow(
+        onPermissionDenied = { /** TODO: Show a dialog rationale explaining why the permission is needed **/ })
 
     LaunchedEffect(homeViewModel.savedStateHandle) {
         homeViewModel.checkPendingSnackbarState()?.let(homeScreenState::setSnackBarState)
+        showNotificationsFlow.launch()
     }
 
     handleSnackBarMessage(
@@ -80,30 +87,19 @@ fun HomeScreen(
         onMessageShown = homeScreenState::clearSnackbarMessage
     )
 
-    val featureFlagState = featureFlagNotificationViewModel.featureFlagState
-
-    if (featureFlagState.showFileSharingDialog) {
-        val text: String = if (featureFlagState.isFileSharingEnabledState) {
-            stringResource(id = R.string.sharing_files_enabled)
-        } else {
-            stringResource(id = R.string.sharing_files_disabled)
-        }
-
-        WireDialog(
-            title = stringResource(id = R.string.team_settings_changed),
-            text = text,
-            onDismiss = { featureFlagNotificationViewModel.hideDialogStatus() },
-            optionButton1Properties = WireDialogButtonProperties(
-                onClick = { featureFlagNotificationViewModel.hideDialogStatus() },
-                text = stringResource(id = R.string.label_ok),
-                type = WireDialogButtonType.Primary,
-            )
-        )
-    }
+    val homeState = homeViewModel.homeState
+    handleWelcomeNewUserDialog(
+        homeState = homeViewModel.homeState,
+        dismissDialog = homeViewModel::dismissWelcomeMessage
+    )
+    handleFeatureFlagChangedNotification(
+        featureFlagState = featureFlagNotificationViewModel.featureFlagState,
+        hideDialogStatus = featureFlagNotificationViewModel::hideDialogStatus
+    )
 
     HomeContent(
         connectivityState = commonTopAppBarViewModel.connectivityState,
-        homeState = homeViewModel.homeState,
+        homeState = homeState,
         homeStateHolder = homeScreenState,
         conversationListState = conversationListViewModel.conversationListState,
         onReturnToCallClick = commonTopAppBarViewModel::openOngoingCallScreen,
@@ -114,6 +110,60 @@ fun HomeScreen(
 
     BackHandler(homeScreenState.searchBarState.isSearchActive) {
         homeScreenState.searchBarState.closeSearch()
+    }
+}
+
+@Composable
+fun handleWelcomeNewUserDialog(
+    homeState: HomeState,
+    dismissDialog: () -> Unit,
+    context: Context = LocalContext.current
+) {
+    if (homeState.shouldDisplayWelcomeMessage) {
+        val welcomeToNewAndroidUrl = stringResource(id = R.string.url_welcome_to_new_android)
+        WireDialog(
+            title = stringResource(id = R.string.welcome_migration_dialog_title),
+            text = stringResource(id = R.string.welcome_migration_dialog_content),
+            onDismiss = dismissDialog,
+            optionButton1Properties = WireDialogButtonProperties(
+                onClick = {
+                    dismissDialog.invoke()
+                    CustomTabsHelper.launchUrl(context, welcomeToNewAndroidUrl)
+                },
+                text = stringResource(id = R.string.label_learn_more),
+                type = WireDialogButtonType.Primary,
+            ),
+            optionButton2Properties = WireDialogButtonProperties(
+                onClick = { /* todo: hide and persist flag */ },
+                text = stringResource(id = R.string.welcome_migration_dialog_continue),
+                type = WireDialogButtonType.Primary,
+            )
+        )
+    }
+}
+
+@Composable
+private fun handleFeatureFlagChangedNotification(
+    featureFlagState: FeatureFlagState,
+    hideDialogStatus: () -> Unit,
+) {
+    if (featureFlagState.showFileSharingDialog) {
+        val text: String = if (featureFlagState.isFileSharingEnabledState) {
+            stringResource(id = R.string.sharing_files_enabled)
+        } else {
+            stringResource(id = R.string.sharing_files_disabled)
+        }
+
+        WireDialog(
+            title = stringResource(id = R.string.team_settings_changed),
+            text = text,
+            onDismiss = hideDialogStatus,
+            optionButton1Properties = WireDialogButtonProperties(
+                onClick = hideDialogStatus,
+                text = stringResource(id = R.string.label_ok),
+                type = WireDialogButtonType.Primary,
+            )
+        )
     }
 }
 
@@ -259,6 +309,7 @@ fun HomeContent(
     }
 }
 
+@Suppress("ComplexMethod")
 @Composable
 private fun handleSnackBarMessage(
     snackbarHostState: SnackbarHostState,
@@ -283,7 +334,19 @@ private fun handleSnackBarMessage(
             HomeSnackbarState.LeftConversationSuccess -> stringResource(id = R.string.left_conversation_group_success)
             HomeSnackbarState.LeaveConversationError -> stringResource(id = R.string.leave_group_conversation_error)
             HomeSnackbarState.DeleteConversationGroupError -> stringResource(id = R.string.delete_group_conversation_error)
+            is HomeSnackbarState.ClearConversationContentFailure -> stringResource(
+                if (messageType.isGroup)
+                    R.string.group_content_delete_failure else
+                    R.string.conversation_content_delete_failure
+            )
+
+            is HomeSnackbarState.ClearConversationContentSuccess -> stringResource(
+                if (messageType.isGroup)
+                    R.string.group_content_deleted else
+                    R.string.conversation_content_deleted
+            )
         }
+
         LaunchedEffect(messageType) {
             if (messageType != HomeSnackbarState.None) {
                 snackbarHostState.showSnackbar(message)

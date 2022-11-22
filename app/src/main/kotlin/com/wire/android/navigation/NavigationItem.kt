@@ -34,6 +34,7 @@ import com.wire.android.navigation.NavigationItemDestinationsRoutes.NETWORK_SETT
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.NEW_CONVERSATION
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.ONGOING_CALL
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.OTHER_USER_PROFILE
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.PRIVACY_SETTINGS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.REGISTER_DEVICE
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.REMOVE_DEVICES
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.SELF_DEVICES
@@ -65,6 +66,7 @@ import com.wire.android.ui.home.settings.account.MyAccountScreen
 import com.wire.android.ui.home.settings.appsettings.AppSettingsScreen
 import com.wire.android.ui.home.settings.appsettings.networkSettings.NetworkSettingsScreen
 import com.wire.android.ui.home.settings.backup.BackupAndRestoreScreen
+import com.wire.android.ui.home.settings.privacy.PrivacySettingsConfigScreen
 import com.wire.android.ui.initialsync.InitialSyncScreen
 import com.wire.android.ui.migration.MigrationScreen
 import com.wire.android.ui.settings.devices.SelfDevicesScreen
@@ -174,6 +176,11 @@ enum class NavigationItem(
     SelfDevices(
         primaryRoute = SELF_DEVICES,
         content = { SelfDevicesScreen() }
+    ),
+
+    PrivacySettings(
+        primaryRoute = PRIVACY_SETTINGS,
+        content = { PrivacySettingsConfigScreen() }
     ),
 
     BackupAndRestore(
@@ -410,6 +417,7 @@ object NavigationItemDestinationsRoutes {
     const val ADD_CONVERSATION_PARTICIPANTS = "add_conversation_participants"
     const val APP_SETTINGS = "app_settings_screen"
     const val SELF_DEVICES = "self_devices_screen"
+    const val PRIVACY_SETTINGS = "privacy_settings"
     const val BACKUP_AND_RESTORE = "backup_and_restore_screen"
     const val MY_ACCOUNT = "my_account_screen"
     const val DEBUG = "debug_screen"

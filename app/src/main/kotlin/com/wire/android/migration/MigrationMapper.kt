@@ -133,8 +133,8 @@ class MigrationMapper @Inject constructor() {
                 accentId = scalaUserData.accentId,
                 teamId = scalaUserData.teamId?.let { TeamId(it) },
                 connectionStatus = ConnectionState.ACCEPTED,
-                previewPicture = toQualifiedId(scalaUserData.pictureAssetId, scalaUserData.domain),
-                completePicture = toQualifiedId(scalaUserData.pictureAssetId, scalaUserData.domain),
+                previewPicture = scalaUserData.pictureAssetId?.let { toQualifiedId(it, scalaUserData.domain) },
+                completePicture = scalaUserData.pictureAssetId?.let { toQualifiedId(it, scalaUserData.domain) },
                 availabilityStatus = mapUserAvailabilityStatus(scalaUserData.availability)
             )
         } else {
@@ -157,13 +157,12 @@ class MigrationMapper @Inject constructor() {
                 accentId = scalaUserData.accentId,
                 teamId = scalaUserData.teamId?.let { TeamId(it) },
                 connectionStatus = mapConnectionStatus(scalaUserData.connection),
-                previewPicture = toQualifiedId(scalaUserData.pictureAssetId, scalaUserData.domain),
-                completePicture = toQualifiedId(scalaUserData.pictureAssetId, scalaUserData.domain),
+                previewPicture = scalaUserData.pictureAssetId?.let { toQualifiedId(it, scalaUserData.domain) },
+                completePicture = scalaUserData.pictureAssetId?.let { toQualifiedId(it, scalaUserData.domain) },
                 userType = userType,
                 availabilityStatus = mapUserAvailabilityStatus(scalaUserData.availability),
                 botService = botService,
                 deleted = scalaUserData.deleted
-
             )
         }
 }

@@ -15,7 +15,7 @@ data class ScalaUserData(
     val phone: String?,
     val accentId: Int,
     val connection: String,
-    val pictureAssetId: String,
+    val pictureAssetId: String?,
     val availability: Int,
     val deleted: Boolean,
     val serviceProviderId: String?,
@@ -66,7 +66,7 @@ class ScalaUserDAO(private val db: ScalaUserDatabase) {
                         phone = cursor.getStringOrNull(phoneIndex),
                         accentId = cursor.getInt(accentIndex),
                         connection = cursor.getString(connectionIndex),
-                        pictureAssetId = cursor.getString(pictureIndex),
+                        pictureAssetId = cursor.getStringOrNull(pictureIndex),
                         availability = cursor.getInt(availabilityIndex),
                         deleted = cursor.getInt(deletedIndex) == 1,
                         serviceProviderId = cursor.getStringOrNull(providerIdIndex),
@@ -87,7 +87,7 @@ class ScalaUserDAO(private val db: ScalaUserDatabase) {
         const val TABLE_NAME = "Users"
         const val COLUMN_ID = "_id"
         const val COLUMN_DOMAIN = "domain"
-        const val COLUMN_TEAM_ID = "team_id"
+        const val COLUMN_TEAM_ID = "teamId"
         const val COLUMN_NAME = "name"
         const val COLUMN_HANDLE = "handle"
         const val COLUMN_EMAIL = "email"

@@ -290,7 +290,9 @@ private fun MessageComposer(
                                 // - height of container with additional options
                                 MessageComposerInputRow(
                                     transition = transition,
-                                    messageComposerState = messageComposerState
+                                    messageComposerState = messageComposerState,
+                                    memebersToMention = membersToMention,
+                                    onMentionPicked = onMentionPicked
                                 )
                             }
                         }

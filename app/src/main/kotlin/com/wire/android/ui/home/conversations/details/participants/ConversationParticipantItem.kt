@@ -30,10 +30,11 @@ import com.wire.android.util.EMPTY
 import com.wire.kalium.logic.data.user.UserId
 
 @Composable
-fun GroupConversationParticipantItem(
+fun ConversationParticipantItem(
     uiParticipant: UIParticipant,
     searchQuery: String = String.EMPTY,
-    clickable: Clickable
+    clickable: Clickable,
+    showRightArrow: Boolean = true
 ) {
     RowItemTemplate(
         leadingIcon = { UserProfileAvatar(uiParticipant.avatarData) },
@@ -75,12 +76,14 @@ fun GroupConversationParticipantItem(
             )
         },
         actions = {
-            Box(
-                modifier = Modifier
-                    .wrapContentWidth()
-                    .padding(end = MaterialTheme.wireDimensions.spacing8x)
-            ) {
-                ArrowRightIcon(Modifier.align(Alignment.TopEnd))
+            if (showRightArrow) {
+                Box(
+                    modifier = Modifier
+                        .wrapContentWidth()
+                        .padding(end = MaterialTheme.wireDimensions.spacing8x)
+                ) {
+                    ArrowRightIcon(Modifier.align(Alignment.TopEnd))
+                }
             }
         },
         clickable = clickable,
@@ -91,7 +94,7 @@ fun GroupConversationParticipantItem(
 @Preview
 @Composable
 fun GroupConversationParticipantItemPreview() {
-    GroupConversationParticipantItem(
+    ConversationParticipantItem(
         UIParticipant(UserId("0", ""), "name", "handle", false, UserAvatarData(), Membership.Guest),
         clickable = Clickable(enabled = true) {}
     )

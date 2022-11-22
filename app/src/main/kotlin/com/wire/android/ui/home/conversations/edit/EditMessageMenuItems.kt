@@ -42,9 +42,11 @@ fun EditMessageMenuItems(
     onDeleteMessage: () -> Unit,
     onReactionClick: (emoji: String) -> Unit,
     onReply: () -> Unit
+    onMessageDetailsClick: () -> Unit
 ): List<@Composable () -> Unit> {
     return buildList {
         add { ReactionOptions(onReactionClick) }
+        add { MessageDetails(onMessageDetailsClick) }
         add {
             if (isCopyable) {
                 MenuBottomSheetItem(
@@ -121,7 +123,7 @@ private fun ReactionOptions(
             modifier = Modifier.fillMaxWidth(),
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            listOf("❤️", "👍",  "😁", "🙂", "☹️", "👎").forEach { emoji ->
+            listOf("❤️", "👍", "😁", "🙂", "☹️", "👎").forEach { emoji ->
                 CompositionLocalProvider(
                     LocalMinimumTouchTargetEnforcement provides false
                 ) {
@@ -164,4 +166,20 @@ private fun ReactionOptions(
             }
         }
     }
+}
+
+@Composable
+private fun MessageDetails(
+    onMessageDetailsClick: () -> Unit
+) {
+    MenuBottomSheetItem(
+        icon = {
+            MenuItemIcon(
+                id = R.drawable.ic_info,
+                contentDescription = stringResource(R.string.content_description_open_message_details),
+            )
+        },
+        title = stringResource(R.string.label_message_details),
+        onItemClick = onMessageDetailsClick
+    )
 }

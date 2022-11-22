@@ -349,7 +349,7 @@ class AttachmentInnerState(val context: Context) {
             val fullTempAssetPath = "$tempCachePath/${UUID.randomUUID()}".toPath()
             val assetFileName = context.getFileName(attachmentUri) ?: throw IOException("The selected asset has an invalid name")
             val mimeType = attachmentUri.getMimeType(context).orDefault(DEFAULT_FILE_MIME_TYPE)
-            val attachmentType = if (isDisplayableImageMimeType(mimeType)) AttachmentType.IMAGE else AttachmentType.GENERIC_FILE
+            val attachmentType = AttachmentType.fromMimeTypeString(mimeType)
             val assetSize = if (attachmentType == AttachmentType.IMAGE)
                 attachmentUri.resampleImageAndCopyToTempPath(context, fullTempAssetPath)
             else attachmentUri.copyToTempPath(context, fullTempAssetPath)

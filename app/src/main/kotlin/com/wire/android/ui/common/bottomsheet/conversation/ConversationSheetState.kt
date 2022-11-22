@@ -15,6 +15,7 @@ class ConversationSheetState(
     conversationSheetContent: ConversationSheetContent? = null,
     conversationOptionNavigation: ConversationOptionNavigation = ConversationOptionNavigation.Home
 ) {
+    val startOptionNavigation = conversationOptionNavigation
 
     var conversationSheetContent: ConversationSheetContent? by mutableStateOf(conversationSheetContent)
 

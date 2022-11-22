@@ -26,8 +26,8 @@ import com.wire.android.ui.common.WireCircularProgressIndicator
 import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.home.conversations.search.widget.SearchFailureBox
-import com.wire.android.ui.home.conversationslist.folderWithElements
 import com.wire.android.ui.home.newconversation.model.Contact
+import com.wire.android.util.extension.folderWithElements
 
 private const val DEFAULT_SEARCH_RESULT_ITEM_SIZE = 4
 

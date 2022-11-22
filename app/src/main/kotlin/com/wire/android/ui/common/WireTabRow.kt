@@ -20,6 +20,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.PagerState
+import com.wire.android.ui.home.conversations.messagedetails.MessageDetailsTabItem
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import kotlin.math.absoluteValue
@@ -45,11 +46,19 @@ fun WireTabRow(
     ) {
         tabs.forEachIndexed { index, tabItem ->
             val selected = selectedTabIndex == index
+            val text = if (tabItem is MessageDetailsTabItem) {
+                stringResource(id = tabItem.titleResId, tabItem.count)
+            } else {
+                stringResource(id = tabItem.titleResId)
+            }.let {
+                if(upperCaseTitles) it.uppercase() else it
+            }
+
             Tab(
                 enabled = true,
                 text = {
                     Text(
-                        text = stringResource(id = tabItem.titleResId).let { if(upperCaseTitles) it.uppercase() else it },
+                        text = text,
                         style = MaterialTheme.wireTypography.title03
                     )
                 },

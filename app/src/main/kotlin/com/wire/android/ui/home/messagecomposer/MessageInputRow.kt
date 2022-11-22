@@ -13,12 +13,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.focus.FocusRequester
-import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.focus.onFocusChanged
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
@@ -27,6 +27,7 @@ import com.wire.android.R
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.wireTextFieldColors
+import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.theme.wireTypography
 
 @ExperimentalAnimationApi
@@ -34,7 +35,18 @@ import com.wire.android.ui.theme.wireTypography
 fun ColumnScope.MessageComposerInputRow(
     transition: Transition<MessageComposeInputState>,
     messageComposerState: MessageComposerInnerState,
+    membersToMention: List<Contact>,
+    onMentionPicked: (Contact) -> Unit
 ) {
+
+    var currentSelectedLineIndex by remember {
+        mutableStateOf(0)
+    }
+
+    var cursorCoordinateY by remember {
+        mutableStateOf(0F)
+    }
+
     Row(
         verticalAlignment =
         if (messageComposerState.messageComposeInputState == MessageComposeInputState.FullScreen)
@@ -92,8 +104,17 @@ fun ColumnScope.MessageComposerInputRow(
 
                         else -> Modifier.wrapContentHeight()
                     }
-                )
+                ),
+            onSelectedLineIndexChanged = {
+                currentSelectedLineIndex = it
+            },
+            onLineBottomYCoordinateChanged = {
+                cursorCoordinateY = it
+            }
         )
+        if (membersToMention.isNotEmpty() && messageComposerState.messageComposeInputState == MessageComposeInputState.FullScreen)
+            DropDownMentionsSuggestions(currentSelectedLineIndex, cursorCoordinateY, membersToMention, onMentionPicked)
+
     }
 }
 
@@ -103,7 +124,9 @@ private fun MessageComposerInput(
     onMessageTextChanged: (TextFieldValue) -> Unit,
     messageComposerInputState: MessageComposeInputState,
     onIsFocused: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onSelectedLineIndexChanged: (Int) -> Unit = { },
+    onLineBottomYCoordinateChanged: (Float) -> Unit = { }
 ) {
     WireTextField(
         value = messageText,
@@ -124,6 +147,8 @@ private fun MessageComposerInput(
                         onIsFocused()
                     }
                 }
-        )
+        ),
+        onSelectedLineIndexChanged = onSelectedLineIndexChanged,
+        onLineBottomYCoordinateChanged = onLineBottomYCoordinateChanged
     )
 }

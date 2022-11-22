@@ -122,6 +122,7 @@ class MigrationMapper @Inject constructor() {
         else -> ConnectionState.NOT_CONNECTED
     }
 
+    @Suppress("ComplexMethod")
     fun fromScalaUserToUser(scalaUserData: ScalaUserData, selfUserId: String, selfUserDomain: String?, selfUserTeamId: String?) =
         if (scalaUserData.id == selfUserId && scalaUserData.domain == selfUserDomain) {
             SelfUser(

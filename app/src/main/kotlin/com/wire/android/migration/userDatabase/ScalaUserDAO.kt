@@ -25,13 +25,13 @@ data class ScalaUserData(
 class ScalaUserDAO(private val db: ScalaUserDatabase) {
 
     fun allUsers(): List<ScalaUserData> {
-        val cursor = db.rawQuery("SELECT * from $TABLE_NAME", arrayOf())
+        val cursor = db.rawQuery("SELECT * FROM $TABLE_NAME", arrayOf())
         return getUsersFromCursor(cursor)
     }
 
     fun users(userIds: List<String>): List<ScalaUserData> {
         val userIdsSelectionArg = userIds.joinToString(",")
-        val cursor = db.rawQuery("SELECT * from $TABLE_NAME WHERE $COLUMN_ID IN (?)", arrayOf(userIdsSelectionArg))
+        val cursor = db.rawQuery("SELECT * FROM $TABLE_NAME WHERE $COLUMN_ID IN (?)", arrayOf(userIdsSelectionArg))
         return getUsersFromCursor(cursor)
     }
 

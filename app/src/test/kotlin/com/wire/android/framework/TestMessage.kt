@@ -103,7 +103,7 @@ object TestMessage {
         userAvatarData = UserAvatarData(asset = null, availabilityStatus = UserAvailabilityStatus.NONE),
         messageSource = MessageSource.OtherUser,
         messageHeader = UI_MESSAGE_HEADER,
-        messageContent = TextMessage(MessageBody(UIText.DynamicString("Some Text Message"))),
+        messageContent = TextMessage(UIText.DynamicString("Some Text Message")),
         messageFooter =  MessageFooter(UI_MESSAGE_HEADER.messageId)
     )
 

@@ -55,7 +55,7 @@ class ConversationMessagesViewModel @Inject constructor(
 
     init {
         loadPaginatedMessages()
-        loadConversationLastReadInstant()
+        loadConversationFirstUnreadInstant()
     }
 
     private fun loadPaginatedMessages() = viewModelScope.launch {
@@ -65,13 +65,15 @@ class ConversationMessagesViewModel @Inject constructor(
         conversationViewState = conversationViewState.copy(messages = paginatedMessagesFlow)
     }
 
-    private fun loadConversationLastReadInstant() = viewModelScope.launch {
+    private fun loadConversationFirstUnreadInstant() = viewModelScope.launch {
         observeConversationDetails(conversationId)
             .flowOn(dispatchers.io())
             .collect { conversationDetailsResult ->
                 if (conversationDetailsResult is ObserveConversationDetailsUseCase.Result.Success) {
-                    val lastUnreadInstant = Instant.parse(conversationDetailsResult.conversationDetails.conversation.lastUnreadMessageDate)
-                    conversationViewState = conversationViewState.copy(lastReadInstant = lastUnreadInstant)
+                    val lastUnreadInstant = conversationDetailsResult.conversationDetails.conversation.firstUnreadMessageDate?.let {
+                        Instant.parse(it)
+                    }
+                    conversationViewState = conversationViewState.copy(firstUnreadInstant = lastUnreadInstant)
                 }
             }
     }

@@ -9,6 +9,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.mapper.UserTypeMapper
+import com.wire.android.mapper.toUIPreview
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.model.UserAvatarData
 import com.wire.android.navigation.NavigationCommand
@@ -16,16 +17,13 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.home.HomeSnackbarState
+import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.conversations.search.SearchPeopleViewModel
-import com.wire.android.ui.home.conversationslist.mock.mockAllMentionList
-import com.wire.android.ui.home.conversationslist.mock.mockCallHistory
-import com.wire.android.ui.home.conversationslist.mock.mockUnreadMentionList
 import com.wire.android.ui.home.conversationslist.model.BadgeEventType
 import com.wire.android.ui.home.conversationslist.model.BlockState
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
-import com.wire.android.ui.home.conversationslist.model.ConversationLastEvent
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.WireSessionImageLoader
@@ -36,9 +34,9 @@ import com.wire.kalium.logic.data.conversation.ConversationDetails.OneOne
 import com.wire.kalium.logic.data.conversation.ConversationDetails.Self
 import com.wire.kalium.logic.data.conversation.LegalHoldStatus
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
-import com.wire.kalium.logic.data.conversation.UnreadContentCount
-import com.wire.kalium.logic.data.conversation.UnreadContentType
+import com.wire.kalium.logic.data.conversation.UnreadEventCount
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.message.UnreadEventType
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
 import com.wire.kalium.logic.data.user.UserId
@@ -56,7 +54,6 @@ import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
 import com.wire.kalium.logic.feature.team.Result
 import com.wire.kalium.logic.functional.combine
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -135,9 +132,6 @@ class ConversationListViewModel @Inject constructor(
         conversationListState = conversationListState.copy(
             conversations = conversationListDetails.toConversationsFoldersMap().toImmutableMap(),
             hasNoConversations = conversationListDetails.none { it !is Self },
-            callHistory = mockCallHistory.toImmutableList(), // TODO: needs to be implemented
-            unreadMentions = mockUnreadMentionList.toImmutableList(), // TODO: needs to be implemented
-            allMentions = mockAllMentionList.toImmutableList(), // TODO: needs to be implemented
             newActivityCount = 0L,
             unreadMentionsCount = 0L, // TODO: needs to be implemented on Kalium side
             missedCallsCount = 0L // TODO: needs to be implemented on Kalium side
@@ -344,7 +338,7 @@ private fun LegalHoldStatus.showLegalHoldIndicator() = this == LegalHoldStatus.E
 @Suppress("LongMethod")
 private fun ConversationDetails.toConversationItem(
     wireSessionImageLoader: WireSessionImageLoader,
-    userTypeMapper: UserTypeMapper
+    userTypeMapper: UserTypeMapper,
 ): ConversationItem = when (this) {
     is Group -> {
         ConversationItem.GroupConversation(
@@ -352,8 +346,8 @@ private fun ConversationDetails.toConversationItem(
             conversationId = conversation.id,
             mutedStatus = conversation.mutedStatus,
             isLegalHold = legalHoldStatus.showLegalHoldIndicator(),
-            lastEvent = ConversationLastEvent.None, // TODO implement unread events
-            badgeEventType = parseConversationEventType(conversation.mutedStatus, unreadMentionsCount, unreadContentCount),
+            lastMessageContent = lastMessage.toUIPreview( unreadEventCount, unreadMentionsCount),
+            badgeEventType = parseConversationEventType(conversation.mutedStatus, unreadMentionsCount, unreadEventCount),
             hasOnGoingCall = hasOngoingCall,
             isSelfUserCreator = isSelfUserCreator,
             isSelfUserMember = isSelfUserMember
@@ -375,11 +369,11 @@ private fun ConversationDetails.toConversationItem(
             conversationId = conversation.id,
             mutedStatus = conversation.mutedStatus,
             isLegalHold = legalHoldStatus.showLegalHoldIndicator(),
-            lastEvent = ConversationLastEvent.None, // TODO implement unread events
+            lastMessageContent = lastMessage.toUIPreview(unreadEventCount, unreadMentionsCount),
             badgeEventType = parsePrivateConversationEventType(
                 otherUser.connectionStatus,
                 otherUser.deleted,
-                parseConversationEventType(conversation.mutedStatus, unreadMentionsCount, unreadContentCount)
+                parseConversationEventType(conversation.mutedStatus, unreadMentionsCount, unreadEventCount)
             ),
             userId = otherUser.id,
             blockingState = otherUser.BlockState
@@ -396,7 +390,7 @@ private fun ConversationDetails.toConversationItem(
                 name = otherUser?.name.orEmpty(),
                 membership = userTypeMapper.toMembership(userType)
             ),
-            lastEvent = ConversationLastEvent.Connection(
+            lastMessageContent = UIMessageContent.Connection(
                 connection.status,
                 connection.qualifiedToId
             ),
@@ -420,13 +414,13 @@ private fun parseConnectionEventType(connectionState: ConnectionState) =
 
 private fun parsePrivateConversationEventType(connectionState: ConnectionState, isDeleted: Boolean, eventType: BadgeEventType) =
     if (connectionState == ConnectionState.BLOCKED) BadgeEventType.Blocked
-    else if(isDeleted) BadgeEventType.Deleted
+    else if (isDeleted) BadgeEventType.Deleted
     else eventType
 
 private fun parseConversationEventType(
     mutedStatus: MutedConversationStatus,
     unreadMentionsCount: Long,
-    unreadContentCount: UnreadContentCount
+    unreadEventCount: UnreadEventCount
 ): BadgeEventType = when (mutedStatus) {
     MutedConversationStatus.AllMuted -> BadgeEventType.None
     MutedConversationStatus.OnlyMentionsAllowed ->
@@ -434,10 +428,10 @@ private fun parseConversationEventType(
         else BadgeEventType.None
 
     else -> {
-        val unreadMessagesCount = unreadContentCount.values.sum()
+        val unreadMessagesCount = unreadEventCount.values.sum()
         when {
-//            unreadContentCount.containsKey(UnreadContentType.KNOCK) -> BadgeEventType.Knock TODO uncomment when icon will be available
-            unreadContentCount.containsKey(UnreadContentType.MISSED_CALL) -> BadgeEventType.MissedCall
+            unreadEventCount.containsKey(UnreadEventType.KNOCK) -> BadgeEventType.Knock
+            unreadEventCount.containsKey(UnreadEventType.MISSED_CALL) -> BadgeEventType.MissedCall
             unreadMentionsCount > 0 -> BadgeEventType.UnreadMention
             // TODO handle replies
             unreadMessagesCount > 0 -> BadgeEventType.UnreadMessage(unreadMessagesCount)

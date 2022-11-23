@@ -290,7 +290,7 @@ class MediaGalleryViewModelTest {
                 access = listOf(Conversation.Access.INVITE),
                 accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER),
                 creatorId = null,
-                lastUnreadMessageDate = ""
+                firstUnreadMessageDate = ""
             ),
             otherUser = OtherUser(
                 QualifiedID("other-user-id", "domain-id"),
@@ -305,7 +305,7 @@ class MediaGalleryViewModelTest {
             userType = UserType.INTERNAL,
             unreadMessagesCount = 0,
             lastMessage = null,
-            unreadContentCount = emptyMap()
+            unreadEventCount = emptyMap()
         )
 
     companion object {

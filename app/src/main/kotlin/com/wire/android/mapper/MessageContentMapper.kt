@@ -4,11 +4,11 @@ import androidx.annotation.StringRes
 import com.wire.android.R
 import com.wire.android.model.ImageAsset
 import com.wire.android.ui.home.conversations.findUser
-import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.asset.isDisplayableMimeType
+import com.wire.kalium.logic.data.conversation.UnreadEventCount
 import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
@@ -16,6 +16,7 @@ import com.wire.kalium.logic.data.message.MessageContent.Asset
 import com.wire.kalium.logic.data.message.MessageContent.MemberChange
 import com.wire.kalium.logic.data.message.MessageContent.MemberChange.Added
 import com.wire.kalium.logic.data.message.MessageContent.MemberChange.Removed
+import com.wire.kalium.logic.data.message.UnreadEventType
 import com.wire.kalium.logic.data.user.AssetId
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.SelfUser
@@ -32,9 +33,12 @@ class MessageContentMapper @Inject constructor(
 ) {
 
     fun fromMessage(
-        message: Message,
+        message: Message?,
         userList: List<User>
     ): UIMessageContent? {
+        if(message == null) {
+            return null
+        }
         return when (message.visibility) {
             Message.Visibility.VISIBLE ->
                 return when (message) {
@@ -125,24 +129,22 @@ class MessageContentMapper @Inject constructor(
     ) = when (val content = message.content) {
         is Asset -> {
             val assetMessageContentMetadata = AssetMessageContentMetadata(content.value)
-            toUIMessageContent(assetMessageContentMetadata, message, sender)
+            toUIAssetMessageContent(assetMessageContentMetadata, message, sender)
         }
         is MessageContent.RestrictedAsset -> toRestrictedAsset(content.mimeType, content.sizeInBytes, content.name)
         else -> toText(content)
     }
 
-    fun toText(content: MessageContent) = MessageBody(
-        when (content) {
-            is MessageContent.Text -> UIText.DynamicString(content.value, content.mentions)
-            is MessageContent.Unknown -> UIText.StringResource(
-                messageResourceProvider.sentAMessageWithContent, content.typeName ?: "Unknown"
-            )
-            is MessageContent.FailedDecryption -> UIText.StringResource(R.string.label_message_decryption_failure_message)
-            else -> UIText.StringResource(messageResourceProvider.sentAMessageWithContent, "Unknown")
-        }
-    ).let { messageBody -> UIMessageContent.TextMessage(messageBody = messageBody) }
+    fun toText(content: MessageContent) = when (content) {
+        is MessageContent.Text -> UIText.DynamicString(content.value, content.mentions)
+        is MessageContent.Unknown -> UIText.StringResource(
+            messageResourceProvider.sentAMessageWithContent, content.typeName ?: "Unknown"
+        )
+        is MessageContent.FailedDecryption -> UIText.StringResource(R.string.label_message_decryption_failure_message)
+        else -> UIText.StringResource(messageResourceProvider.sentAMessageWithContent, "Unknown")
+    }.let { message -> UIMessageContent.TextMessage(message) }
 
-    fun toUIMessageContent(assetMessageContentMetadata: AssetMessageContentMetadata, message: Message, sender: User?): UIMessageContent =
+    fun toUIAssetMessageContent(assetMessageContentMetadata: AssetMessageContentMetadata, message: Message, sender: User?): UIMessageContent =
         with(assetMessageContentMetadata.assetMessageContent) {
             when {
                 assetMessageContentMetadata.isDisplayableImage() && !assetMessageContentMetadata.assetMessageContent.hasValidRemoteData() ->
@@ -205,6 +207,117 @@ class MessageContentMapper @Inject constructor(
     // TODO: should we keep it here ?
     enum class SelfNameType {
         ResourceLowercase, ResourceTitleCase, NameOrDeleted
+    }
+}
+
+@Suppress("ReturnCount")
+fun Message?.toUIPreview(
+    unreadEventCount: UnreadEventCount,
+    unreadMentionsCount: Long,
+): UIMessageContent {
+    if (this == null) {
+        return UIMessageContent.None
+    }
+
+    val sortedUnreadContent = unreadEventCount
+        .plus(if (unreadMentionsCount > 0) mapOf(Pair(UnreadEventType.MENTION, unreadMentionsCount.toInt())) else mapOf())
+        .toSortedMap()
+
+    // we want to show last text message content instead of counter when there are only unread text messages
+    if (!(sortedUnreadContent.size == 1 && sortedUnreadContent.contains(UnreadEventType.MESSAGE))) {
+        val unreadContentTexts = sortedUnreadContent
+            .mapNotNull { type ->
+                when (type.key) {
+                    UnreadEventType.KNOCK -> UIText.PluralResource(R.plurals.unread_event_knock, type.value, type.value)
+                    UnreadEventType.MISSED_CALL -> UIText.PluralResource(R.plurals.unread_event_call, type.value, type.value)
+                    UnreadEventType.MENTION -> UIText.PluralResource(R.plurals.unread_event_mention, type.value, type.value)
+                    // TODO we need to decrease number of text messages by mentions count because currently they contain them
+                    UnreadEventType.MESSAGE -> {
+                        val messagesWithoutMentions = type.value - unreadMentionsCount.toInt()
+                        if (messagesWithoutMentions > 0) {
+                            UIText.PluralResource(R.plurals.unread_event_message,
+                                messagesWithoutMentions,
+                                messagesWithoutMentions
+                            )
+                        } else {
+                            null
+                        }
+                    }
+                    UnreadEventType.IGNORED -> null
+                    null -> null
+                }
+            }
+        if (unreadContentTexts.size > 1) {
+            val first = unreadContentTexts.first()
+            val second = unreadContentTexts.elementAt(1)
+            return UIMessageContent.MultipleMessage(first, second)
+        } else if (unreadContentTexts.isNotEmpty()) {
+            return UIMessageContent.TextMessage(unreadContentTexts.first())
+        }
+    }
+
+    return uiMessageContent()
+}
+
+private fun Message.uiMessageContent(): UIMessageContent {
+    val senderUIText = when {
+        isSelfMessage -> UIText.StringResource(R.string.member_name_you_label_titlecase)
+        senderUserName != null -> UIText.DynamicString(senderUserName!!)
+        else -> UIText.StringResource(R.string.username_unavailable_label)
+
+    }
+
+    return when (this) {
+        is Message.Regular -> when(content) {
+            is Asset ->
+                when((content as Asset).value.metadata) {
+                    is AssetContent.AssetMetadata.Audio ->
+                        UIMessageContent.SenderWithMessage(senderUIText, UIText.StringResource(R.string.last_message_audio))
+                    is AssetContent.AssetMetadata.Image ->
+                        UIMessageContent.SenderWithMessage(senderUIText, UIText.StringResource(R.string.last_message_image))
+                    is AssetContent.AssetMetadata.Video ->
+                        UIMessageContent.SenderWithMessage(senderUIText, UIText.StringResource(R.string.last_message_video))
+                    null ->
+                        UIMessageContent.SenderWithMessage(senderUIText, UIText.StringResource(R.string.last_message_asset))
+                }
+            is MessageContent.Calling -> UIMessageContent.TextMessage(UIText.StringResource(R.string.last_message_asset))
+            is MessageContent.Cleared -> UIMessageContent.None
+            is MessageContent.DeleteForMe -> UIMessageContent.None
+            is MessageContent.DeleteMessage -> UIMessageContent.None
+            MessageContent.Empty -> UIMessageContent.None
+            is MessageContent.FailedDecryption -> UIMessageContent.None
+            is MessageContent.Knock -> UIMessageContent.SenderWithMessage(
+                senderUIText,
+                UIText.StringResource(R.string.last_message_knock)
+            )
+            is MessageContent.LastRead -> UIMessageContent.None
+            is MessageContent.Reaction -> UIMessageContent.None
+            is MessageContent.RestrictedAsset ->
+                UIMessageContent.SenderWithMessage(senderUIText, UIText.StringResource(R.string.last_message_asset))
+            is MessageContent.Text -> UIMessageContent.SenderWithMessage(
+                senderUIText,
+                UIText.StringResource(
+                    R.string.last_message_colon_text,
+                    (content as MessageContent.Text).value)
+            )
+            is MessageContent.TextEdited -> UIMessageContent.None
+            is MessageContent.Unknown -> UIMessageContent.None
+        }
+        is Message.System -> when(content) {
+            is MessageContent.ConversationRenamed -> UIMessageContent.SenderWithMessage(senderUIText, UIText.StringResource(R.string.last_message_change_conversation_name))
+            is Added -> UIMessageContent.SenderWithMessage(
+                senderUIText,
+                UIText.PluralResource(R.plurals.last_message_people_added,
+                    (content as Added).members.size,
+                    (content as Added).members.size))
+            is Removed -> UIMessageContent.SenderWithMessage(
+                senderUIText,
+                UIText.PluralResource(R.plurals.last_message_people_removed,
+                    (content as Removed).members.size,
+                    (content as Removed).members.size))
+            MessageContent.MissedCall -> UIMessageContent.SenderWithMessage(senderUIText, UIText.StringResource(R.string.last_message_call))
+            is MessageContent.TeamMemberRemoved -> UIMessageContent.None
+        }
     }
 }
 

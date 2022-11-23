@@ -84,14 +84,13 @@ class MessageContentMapperTest {
         val resultNonText = mapper.toText(nonTextContent)
         with(resultText) {
             assertTrue(
-                messageBody.message is UIText.DynamicString &&
-                        (messageBody.message as UIText.DynamicString).value == textContent.value
+                message is UIText.DynamicString && (message as UIText.DynamicString).value == textContent.value
             )
         }
         with(resultNonText) {
             assertTrue(
-                messageBody.message is UIText.StringResource &&
-                        (messageBody.message as UIText.StringResource).resId == arrangement.messageResourceProvider.sentAMessageWithContent
+                message is UIText.StringResource &&
+                        (message as UIText.StringResource).resId == arrangement.messageResourceProvider.sentAMessageWithContent
             )
         }
     }
@@ -183,7 +182,7 @@ class MessageContentMapperTest {
         with(arrangement) {
             // When - Then
             val resultContentOther =
-                mapper.toUIMessageContent(AssetMessageContentMetadata(unknownImageMessageContent), testMessage1, sender)
+                mapper.toUIAssetMessageContent(AssetMessageContentMetadata(unknownImageMessageContent), testMessage1, sender)
             coVerify(exactly = 0) { arrangement.getMessageAssetUseCase.invoke(any(), any()) }
             assertTrue(
                 resultContentOther is AssetMessage
@@ -191,7 +190,7 @@ class MessageContentMapperTest {
             )
 
             // When - Then
-            val resultContentImage = mapper.toUIMessageContent(AssetMessageContentMetadata(correctJPGImage), testMessage2, sender)
+            val resultContentImage = mapper.toUIAssetMessageContent(AssetMessageContentMetadata(correctJPGImage), testMessage2, sender)
             assertTrue(resultContentImage is PreviewAssetMessage)
         }
     }
@@ -212,7 +211,7 @@ class MessageContentMapperTest {
         val testMessage = buildAssetMessage(contentImage)
 
         // When
-        val resultContentImage = mapper.toUIMessageContent(AssetMessageContentMetadata(contentImage), testMessage, sender)
+        val resultContentImage = mapper.toUIAssetMessageContent(AssetMessageContentMetadata(contentImage), testMessage, sender)
 
         // Then
         coVerify(inverse = true) { arrangement.getMessageAssetUseCase.invoke(any(), any()) }
@@ -249,8 +248,8 @@ class MessageContentMapperTest {
 
         // When
         with(arrangement) {
-            val resultContentImage1 = mapper.toUIMessageContent(AssetMessageContentMetadata(contentImage1), testMessage1, sender)
-            val resultContentImage2 = mapper.toUIMessageContent(AssetMessageContentMetadata(contentImage2), testMessage2, sender)
+            val resultContentImage1 = mapper.toUIAssetMessageContent(AssetMessageContentMetadata(contentImage1), testMessage1, sender)
+            val resultContentImage2 = mapper.toUIAssetMessageContent(AssetMessageContentMetadata(contentImage2), testMessage2, sender)
 
             // Then
             assertTrue(resultContentImage1 is AssetMessage)

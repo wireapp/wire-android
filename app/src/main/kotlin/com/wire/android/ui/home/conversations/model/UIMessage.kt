@@ -64,12 +64,19 @@ sealed class MessageStatus(val text: UIText) {
 }
 
 sealed class UIMessageContent {
+    object None : UIMessageContent()
 
     sealed class ClientMessage : UIMessageContent()
 
     object PreviewAssetMessage : UIMessageContent()
 
-    data class TextMessage(val messageBody: MessageBody) : ClientMessage()
+    data class TextMessage(val message: UIText) : ClientMessage()
+
+    data class SenderWithMessage(val sender: UIText, val message: UIText) : UIMessageContent()
+
+    data class MultipleMessage(val firstMessage: UIText, val secondMessage: UIText) : UIMessageContent()
+
+    data class Connection(val connectionState: ConnectionState, val userId: UserId) : UIMessageContent()
 
     data class RestrictedAsset(
         val mimeType: String,
@@ -134,10 +141,6 @@ sealed class UIMessageContent {
 
     }
 }
-
-data class MessageBody(
-    val message: UIText
-)
 
 enum class MessageSource {
     Self, OtherUser

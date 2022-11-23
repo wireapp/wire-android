@@ -41,13 +41,11 @@ val mockMessageWithText = UIMessage(
         isDeleted = false
     ),
     messageContent = UIMessageContent.TextMessage(
-        messageBody = MessageBody(
-            UIText.DynamicString(
-                "This is some test message that is very very" +
-                        "very very very very" +
-                        " very very very" +
-                        "very very very very very long"
-            )
+        UIText.DynamicString(
+            "This is some test message that is very very" +
+                    "very very very very" +
+                    " very very very" +
+                    "very very very very very long"
         )
     ),
     messageSource = MessageSource.Self,
@@ -80,7 +78,7 @@ fun mockAssetMessage(uploadStatus: Message.UploadStatus = Message.UploadStatus.U
         messageId = "",
         connectionState = ConnectionState.ACCEPTED,
         isDeleted = false
-        ),
+    ),
     messageContent = UIMessageContent.AssetMessage(
         assetName = "This is some test asset message",
         assetExtension = "ZIP",
@@ -113,7 +111,7 @@ fun mockedImageUIMessage(uploadStatus: Message.UploadStatus = Message.UploadStat
         messageId = "4",
         connectionState = ConnectionState.ACCEPTED,
         isDeleted = false
-        ),
+    ),
     messageContent = mockedImg(uploadStatus),
     messageFooter = mockFooter,
     messageSource = MessageSource.Self
@@ -132,20 +130,18 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             messageId = "1",
             connectionState = ConnectionState.ACCEPTED,
             isDeleted = false
-            ),
+        ),
         messageContent = UIMessageContent.TextMessage(
-            messageBody = MessageBody(
-                UIText.DynamicString(
-                    "This is some test message that is very very" +
-                            "very very very very" +
-                            " very very very" +
-                            "very very very very very long"
-                )
+            UIText.DynamicString(
+                "This is some test message that is very very" +
+                        "very very very very" +
+                        " very very very" +
+                        "very very very very very long"
             )
         ),
         messageSource = MessageSource.Self,
         messageFooter = mockFooter,
-        ),
+    ),
     UIMessage(
         userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
         messageHeader = MessageHeader(
@@ -161,7 +157,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
         messageContent = mockedImg(),
         messageSource = MessageSource.Self,
         messageFooter = mockFooter,
-        ),
+    ),
     UIMessage(
         userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
         messageHeader = MessageHeader(
@@ -177,7 +173,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
         messageContent = mockedImg(),
         messageSource = MessageSource.Self,
         messageFooter = mockFooter,
-        ),
+    ),
     UIMessage(
         userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
         messageHeader = MessageHeader(
@@ -193,7 +189,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
         messageContent = mockedImg(),
         messageSource = MessageSource.Self,
         messageFooter = mockFooter,
-        ),
+    ),
     UIMessage(
         userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
         messageHeader = MessageHeader(
@@ -207,18 +203,16 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             isDeleted = false
         ),
         messageContent = UIMessageContent.TextMessage(
-            messageBody = MessageBody(
-                UIText.DynamicString(
-                    "This is some test message that is very very" +
-                            "very very very very" +
-                            " very very very" +
-                            "very very very very very long"
-                )
+            UIText.DynamicString(
+                "This is some test message that is very very" +
+                        "very very very very" +
+                        " very very very" +
+                        "very very very very very long"
             )
         ),
         messageSource = MessageSource.Self,
         messageFooter = mockFooter
-        ),
+    ),
     UIMessage(
         userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
         messageHeader = MessageHeader(
@@ -234,7 +228,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
         messageContent = mockedImg(),
         messageSource = MessageSource.Self,
         messageFooter = mockFooter,
-        ),
+    ),
     UIMessage(
         userAvatarData = UserAvatarData(null, UserAvailabilityStatus.AVAILABLE),
         messageHeader = MessageHeader(
@@ -248,33 +242,31 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             isDeleted = false
         ),
         messageContent = UIMessageContent.TextMessage(
-            messageBody = MessageBody(
-                UIText.DynamicString(
-                    "This is some test message that is very very" +
-                            "very very very very" +
-                            " very very very" +
-                            "very very very very very long" +
-                            "This is some test message that is very very" +
-                            "very very very very" +
-                            " very very very" +
-                            "very very very very very long" +
-                            "This is some test message that is very very" +
-                            "very very very very" +
-                            " very very very" +
-                            "very very very very very long" +
-                            "This is some test message that is very very" +
-                            "very very very very" +
-                            " very very very" +
-                            "very very very very very long" +
-                            "This is some test message that is very very" +
-                            "very very very very" +
-                            " very very very" +
-                            "very very very very very long"
-                )
+            UIText.DynamicString(
+                "This is some test message that is very very" +
+                        "very very very very" +
+                        " very very very" +
+                        "very very very very very long" +
+                        "This is some test message that is very very" +
+                        "very very very very" +
+                        " very very very" +
+                        "very very very very very long" +
+                        "This is some test message that is very very" +
+                        "very very very very" +
+                        " very very very" +
+                        "very very very very very long" +
+                        "This is some test message that is very very" +
+                        "very very very very" +
+                        " very very very" +
+                        "very very very very very long" +
+                        "This is some test message that is very very" +
+                        "very very very very" +
+                        " very very very" +
+                        "very very very very very long"
             )
         ),
         messageSource = MessageSource.Self,
         messageFooter = mockFooter
-        )
+    )
 )
 

@@ -26,7 +26,7 @@ object TestConversationDetails {
         UserType.EXTERNAL,
         unreadMessagesCount = 0,
         lastMessage = null,
-        unreadContentCount = emptyMap()
+        unreadEventCount = emptyMap()
     )
 
     val GROUP = ConversationDetails.Group(
@@ -36,7 +36,7 @@ object TestConversationDetails {
         lastMessage = null,
         isSelfUserCreator = true,
         isSelfUserMember = true,
-        unreadContentCount = emptyMap()
+        unreadEventCount = emptyMap()
     )
 
 }

@@ -258,7 +258,7 @@ private fun MessageContent(
             onImageClick = onImageClick
         )
         is UIMessageContent.TextMessage -> MessageBody(
-            messageBody = messageContent.messageBody,
+            message = messageContent.message,
             onLongClick = onLongClick,
             onOpenProfile = onOpenProfile
         )

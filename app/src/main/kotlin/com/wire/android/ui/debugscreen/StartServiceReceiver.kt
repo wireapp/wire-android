@@ -34,13 +34,13 @@ class StartServiceReceiver : BroadcastReceiver() {
         scope.launch {
             coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus().collect {
                 if (it.map { it.isPersistentWebSocketEnabled }.contains(true)) {
-                    context?.stopService(persistentWebSocketServiceIntent)
-                } else {
                     if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
                         context?.startForegroundService(persistentWebSocketServiceIntent)
                     } else {
                         context?.startService(persistentWebSocketServiceIntent)
                     }
+                } else {
+                    context?.stopService(persistentWebSocketServiceIntent)
                 }
             }
         }

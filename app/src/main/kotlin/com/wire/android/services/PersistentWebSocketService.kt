@@ -73,48 +73,23 @@ class PersistentWebSocketService : Service() {
 
     @OptIn(ExperimentalCoroutinesApi::class)
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        // TODO: repository should not be exposed to the app
         scope.launch {
-
             coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus().collect {
                 it.map { persistentWebSocketStatus ->
                     if (persistentWebSocketStatus.isPersistentWebSocketEnabled) {
-                        coreLogic.getSessionScope(persistentWebSocketStatus.userId)
-                            .setConnectionPolicy(ConnectionPolicy.KEEP_ALIVE)
-
+                        runBlocking {
+                            coreLogic.getSessionScope(persistentWebSocketStatus.userId)
+                                .setConnectionPolicy(ConnectionPolicy.KEEP_ALIVE)
+                        }
                         notificationManager.observeNotificationsAndCalls(flowOf(persistentWebSocketStatus.userId), scope) {
                             openIncomingCall(it.conversationId)
                         }
-
 
                     }
                 }
 
             }
         }
-//        coreLogic.globalScope { sessionRepository.currentSession() }.fold({
-//            appLogger.e("error while getting the current session from persistent web socket service $it")
-//        }, { currentAccount ->
-//            runBlocking {
-//                coreLogic.getSessionScope(currentAccount.userId)
-//                    .setConnectionPolicy(ConnectionPolicy.KEEP_ALIVE)
-//            }
-//
-//            val observeUserId = currentSessionFlow()
-//                .map { result ->
-//                    if (result is CurrentSessionResult.Success) result.accountInfo.userId
-//                    else null
-//                }
-//                .distinctUntilChanged()
-//                .flowOn(dispatcherProvider.io())
-//                .shareIn(scope, SharingStarted.WhileSubscribed(), 1)
-//
-//            scope.launch {
-//                notificationManager.observeNotificationsAndCalls(observeUserId, scope) {
-//                    openIncomingCall(it.conversationId)
-//                }
-//            }
-//        })
         generateForegroundNotification()
         return START_STICKY
 

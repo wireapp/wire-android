@@ -181,6 +181,6 @@ class MessageComposerInnerStateTest {
     )
 
     companion object {
-        fun createState(context: Context) = MessageComposerInnerState(0.dp, AttachmentInnerState(context), {}, SpanStyle())
+        fun createState(context: Context) = MessageComposerInnerState(context, AttachmentInnerState(context), SpanStyle())
     }
 }

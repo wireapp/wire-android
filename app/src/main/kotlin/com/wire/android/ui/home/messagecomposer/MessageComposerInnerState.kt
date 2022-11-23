@@ -63,6 +63,7 @@ fun rememberMessageComposerInnerState(): MessageComposerInnerState {
     }
 }
 
+@Suppress("TooManyFunctions")
 data class MessageComposerInnerState(
     val context: Context,
     val attachmentInnerState: AttachmentInnerState,
@@ -218,6 +219,7 @@ data class MessageComposerInnerState(
         mentions = updatedMentions.toList()
     }
 
+    @Suppress("ReturnCount")
     private fun requestMentionSuggestionIfNeeded(text: TextFieldValue) {
         if (text.selection.min != text.selection.max) {
             _mentionQueryFlowState.value = null

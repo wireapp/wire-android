@@ -110,6 +110,7 @@
     <!-- Non translatable strings-->
     <string name="url_decryption_failure_learn_more" translatable="false">https://support.wire.com/hc/en-us/articles/207948115-Why-was-I-notified-that-a-message-from-a-contact-was-not-received-</string>
     <string name="url_welcome_to_new_android" translatable="false">https://support.wire.com/hc/en-us/articles/6655706999581-What-s-new-on-Android-</string>
+    <string name="url_message_details_reactions_learn_more" translatable="false">https://support.wire.com/hc/en-us/articles/212053645-Like-a-message</string>
     <!-- Navigation -->
     <string name="vault_screen_title">Vault</string>
     <string name="archive_screen_title">Archive</string>
@@ -343,6 +344,8 @@
     <string name="message_details_title">Message Details</string>
     <string name="message_details_reactions_tab">REACTIONS (%s)</string>
     <string name="message_details_read_receipts_tab">READ RECEIPTS (%s)</string>
+    <string name="message_details_reactions_empty_text">No one reacted on this message yet 😱</string>
+    <string name="message_details_reactions_empty_learn_more">Learn more about reactions</string>
 
     <!-- Attachment options -->
     <string name="attachment_share_file">Attach File</string>

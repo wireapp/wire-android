@@ -53,6 +53,7 @@ import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.mention.MemberItemToMention
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
+import com.wire.android.ui.home.conversationslist.common.ReplyMessage
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.messagecomposer.attachment.AttachmentOptions
 import com.wire.android.ui.home.newconversation.model.Contact
@@ -63,13 +64,13 @@ import okio.Path
 
 @Composable
 fun MessageComposer(
+    messageComposerState: MessageComposerInnerState,
     keyboardHeight: KeyboardHeight,
     content: @Composable () -> Unit,
-    onSendTextMessage: (String, List<UiMention>) -> Unit,
+    onSendTextMessage: (String, List<UiMention>, messageId: String?) -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onMentionMember: (String?) -> Unit,
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
-    onMessageComposerInputStateChange: (MessageComposerStateTransition) -> Unit,
     isFileSharingEnabled: Boolean,
     interactionAvailability: InteractionAvailability,
     tempCachePath: Path,
@@ -77,14 +78,16 @@ fun MessageComposer(
     membersToMention: List<Contact>
 ) {
     BoxWithConstraints {
-        val messageComposerState = rememberMessageComposerInnerState(
-            fullScreenHeight = with(LocalDensity.current) { constraints.maxHeight.toDp() },
-            onMessageComposeInputStateChanged = onMessageComposerInputStateChange
-        )
+        messageComposerState.fullScreenHeight = with(LocalDensity.current) { constraints.maxHeight.toDp() }
 
         val onSendButtonClicked = remember {
             {
-                onSendTextMessage(messageComposerState.messageText.text, messageComposerState.mentions)
+                onSendTextMessage(
+                    messageComposerState.messageText.text,
+                    messageComposerState.mentions,
+                    messageComposerState.messageReplyType?.messageId
+                )
+                messageComposerState.messageReplyType = null
                 messageComposerState.setMessageTextValue(TextFieldValue(""))
             }
         }
@@ -147,6 +150,7 @@ private fun MessageComposer(
     onMentionPicked: (Contact) -> Unit
 ) {
     val focusManager = LocalFocusManager.current
+    val messageReplyState = messageComposerState.messageReplyType
 
     Surface {
         val transition = updateTransition(
@@ -259,6 +263,7 @@ private fun MessageComposer(
                             Column(
                                 modifier = Modifier
                                     .fillMaxWidth()
+                                    .wrapContentHeight()
                                     .animateContentSize()
                             ) {
                                 val isClassifiedConversation = securityClassificationType != SecurityClassificationType.NONE
@@ -269,13 +274,27 @@ private fun MessageComposer(
                                     }
                                 }
                                 Divider()
-                                CollapseIconButtonBox(transition, messageComposerState)
+                                CollapseIconButtonBox(
+                                    transition = transition,
+                                    messageComposerState = messageComposerState
+                                )
+                                if (messageReplyState != null) {
+                                    ReplyMessage(
+                                        messageReplyType = messageReplyState,
+                                        onCancelReply = messageComposerState::cancelReply
+                                    )
+                                }
                                 // Row wrapping the AdditionalOptionButton() when we are in Enabled state and MessageComposerInput()
                                 // when we are in the Fullscreen state, we want to align the TextField to Top of the Row,
                                 // when other we center it vertically. Once we go to Fullscreen, we set the weight to 1f
                                 // so that it fills the whole Row which is = height of the whole screen - height of TopBar -
                                 // - height of container with additional options
-                                MessageComposerInputRow(transition, messageComposerState, membersToMention, onMentionPicked)
+                                MessageComposerInputRow(
+                                    transition = transition,
+                                    messageComposerState = messageComposerState,
+                                    membersToMention = membersToMention,
+                                    onMentionPicked = onMentionPicked
+                                )
                             }
                         }
                     }
@@ -314,12 +333,12 @@ private fun MessageComposer(
             // we get the effect of overlapping it
             if (messageComposerState.attachmentOptionsDisplayed && interactionAvailability == InteractionAvailability.ENABLED) {
                 AttachmentOptions(
-                    keyboardHeight,
-                    messageComposerState,
-                    onSendAttachmentClicked,
-                    onMessageComposerError,
-                    isFileSharingEnabled,
-                    tempCachePath
+                    keyboardHeight = keyboardHeight,
+                    messageComposerState = messageComposerState,
+                    onSendAttachment = onSendAttachmentClicked,
+                    onMessageComposerError = onMessageComposerError,
+                    isFileSharingEnabled = isFileSharingEnabled,
+                    tempCachePath = tempCachePath
                 )
             }
         }
@@ -355,7 +374,7 @@ private fun CollapseIconButtonBox(
     }
 }
 
-//if attachment is visible we want to align the bottom of the compose actions
+// if attachment is visible we want to align the bottom of the compose actions
 // to top of the guide line
 @Composable
 private fun CollapseIconButton(onCollapseClick: () -> Unit, modifier: Modifier = Modifier, collapseRotation: Float = 0f) {

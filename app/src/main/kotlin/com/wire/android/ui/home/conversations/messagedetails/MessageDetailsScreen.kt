@@ -51,11 +51,13 @@ import kotlinx.coroutines.launch
 @Composable
 fun MessageDetailsScreen(viewModel: MessageDetailsViewModel = hiltViewModel()) {
     val context = LocalContext.current
+
+    val reactionsLearnMoreUrl = stringResource(id = R.string.url_message_details_reactions_learn_more)
     val onReactionsLearnMore = remember {
         {
             CustomTabsHelper.launchUrl(
                 context,
-                NavigationItem.MessageDetailsReactionsLearnMore.getRouteWithArgs()
+                reactionsLearnMoreUrl
             )
         }
     }

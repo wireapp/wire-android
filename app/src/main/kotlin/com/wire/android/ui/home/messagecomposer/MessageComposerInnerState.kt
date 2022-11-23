@@ -33,7 +33,6 @@ import com.wire.android.util.getFileName
 import com.wire.android.util.getMimeType
 import com.wire.android.util.orDefault
 import com.wire.android.util.resampleImageAndCopyToTempPath
-import com.wire.kalium.logic.data.asset.isDisplayableImageMimeType
 import com.wire.kalium.logic.data.message.mention.MessageMention
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -244,7 +243,6 @@ data class MessageComposerInnerState(
             _mentionQueryFlowState.value = null
         }
     }
-
 
     fun reply(uiMessage: UIMessage) {
         val authorName = uiMessage.messageHeader.username.asString(context.resources)

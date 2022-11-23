@@ -89,19 +89,18 @@ fun EditMessageMenuItems(
             }
         }
         add {
-            CompositionLocalProvider(LocalContentColor provides MaterialTheme.colorScheme.error) {
-                MenuBottomSheetItem(
-                    icon = {
-                        MenuItemIcon(
-                            id = R.drawable.ic_speaker_on,
-                            contentDescription = stringResource(R.string.content_description_delete_the_message),
-                        )
-                    },
-                    title = "Reply",
-                    onItemClick = onReply
-                )
-            }
+            MenuBottomSheetItem(
+                icon = {
+                    MenuItemIcon(
+                        id = R.drawable.ic_reply,
+                        contentDescription = stringResource(R.string.content_description_reply_to_messge),
+                    )
+                },
+                title = stringResource(R.string.notification_action_reply),
+                onItemClick = onReply
+            )
         }
+
     }
 }
 

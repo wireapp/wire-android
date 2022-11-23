@@ -61,23 +61,17 @@ fun MessageImage(
     onImageClick: Clickable,
 ) {
     Box(
-        Modifier
-            .clip(shape = RoundedCornerShape(dimensions().messageAssetBorderRadius))
-            .background(
-                color = MaterialTheme.wireColorScheme.onPrimary,
-                shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
-            )
-            .border(
-                width = 1.dp,
-                color = MaterialTheme.wireColorScheme.secondaryButtonDisabledOutline,
-                shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
-            )
-            .wrapContentSize()
-            .combinedClickable(
-                enabled = onImageClick.enabled,
-                onClick = onImageClick.onClick,
-                onLongClick = onImageClick.onLongClick,
-            )
+        Modifier.clip(shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)).background(
+            color = MaterialTheme.wireColorScheme.onPrimary, shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
+        ).border(
+            width = 1.dp,
+            color = MaterialTheme.wireColorScheme.secondaryButtonDisabledOutline,
+            shape = RoundedCornerShape(dimensions().messageAssetBorderRadius)
+        ).wrapContentSize().combinedClickable(
+            enabled = onImageClick.enabled,
+            onClick = onImageClick.onClick,
+            onLongClick = onImageClick.onLongClick,
+        )
     ) {
         when {
             asset != null -> DisplayableImageMessage(asset, imgParams)

@@ -26,6 +26,7 @@ import com.wire.kalium.logic.feature.connection.BlockUserResult
 import com.wire.kalium.logic.feature.connection.BlockUserUseCase
 import com.wire.kalium.logic.feature.connection.UnblockUserResult
 import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
+import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.LeaveConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
@@ -74,6 +75,9 @@ class ConversationListViewModelTest {
     lateinit var unblockUser: UnblockUserUseCase
 
     @MockK
+    lateinit var clearConversationContent: ClearConversationContentUseCase
+
+    @MockK
     private lateinit var wireSessionImageLoader: WireSessionImageLoader
 
     @BeforeEach
@@ -83,17 +87,18 @@ class ConversationListViewModelTest {
         mockUri()
         conversationListViewModel =
             ConversationListViewModel(
-                navigationManager,
-                TestDispatcherProvider(),
-                updateConversationMutedStatus,
-                joinCall,
-                observeConversationListDetailsUseCase,
-                leaveConversation,
-                deleteTeamConversationUseCase,
-                blockUser,
-                unblockUser,
-                wireSessionImageLoader,
-                UserTypeMapper(),
+                navigationManager = navigationManager,
+                dispatcher = TestDispatcherProvider(),
+                updateConversationMutedStatus = updateConversationMutedStatus,
+                answerCall = joinCall,
+                observeConversationListDetails = observeConversationListDetailsUseCase,
+                leaveConversation = leaveConversation,
+                deleteTeamConversation = deleteTeamConversationUseCase,
+                blockUserUseCase = blockUser,
+                unblockUserUseCase = unblockUser,
+                clearConversationContentUseCase = clearConversationContent,
+                wireSessionImageLoader = wireSessionImageLoader,
+                userTypeMapper = UserTypeMapper(),
             )
 
         coEvery { observeConversationListDetailsUseCase() } returns flowOf(listOf())

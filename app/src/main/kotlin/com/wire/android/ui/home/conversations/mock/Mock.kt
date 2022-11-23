@@ -41,12 +41,12 @@ val mockMessageWithText = UIMessage(
         isDeleted = false
     ),
     messageContent = UIMessageContent.TextMessage(
-        UIText.DynamicString(
+        MessageBody(UIText.DynamicString(
             "This is some test message that is very very" +
                     "very very very very" +
                     " very very very" +
                     "very very very very very long"
-        )
+        ))
     ),
     messageSource = MessageSource.Self,
     messageFooter = mockFooter
@@ -132,12 +132,12 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             isDeleted = false
         ),
         messageContent = UIMessageContent.TextMessage(
-            UIText.DynamicString(
+            MessageBody(UIText.DynamicString(
                 "This is some test message that is very very" +
                         "very very very very" +
                         " very very very" +
                         "very very very very very long"
-            )
+            ))
         ),
         messageSource = MessageSource.Self,
         messageFooter = mockFooter,
@@ -203,12 +203,12 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             isDeleted = false
         ),
         messageContent = UIMessageContent.TextMessage(
-            UIText.DynamicString(
+            MessageBody(UIText.DynamicString(
                 "This is some test message that is very very" +
                         "very very very very" +
                         " very very very" +
                         "very very very very very long"
-            )
+            ))
         ),
         messageSource = MessageSource.Self,
         messageFooter = mockFooter
@@ -242,7 +242,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             isDeleted = false
         ),
         messageContent = UIMessageContent.TextMessage(
-            UIText.DynamicString(
+            MessageBody(UIText.DynamicString(
                 "This is some test message that is very very" +
                         "very very very very" +
                         " very very very" +
@@ -263,7 +263,7 @@ fun getMockedMessages(): List<UIMessage> = listOf(
                         "very very very very" +
                         " very very very" +
                         "very very very very very long"
-            )
+            ))
         ),
         messageSource = MessageSource.Self,
         messageFooter = mockFooter

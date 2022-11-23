@@ -4,6 +4,7 @@ import android.content.Context
 import android.media.AudioAttributes
 import android.media.AudioManager
 import android.media.MediaPlayer
+import android.os.Build
 import com.wire.android.appLogger
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -21,8 +22,13 @@ class CallRinger @Inject constructor(private val context: Context) {
 
     private fun createMediaPlayer(resource: Int, isLooping: Boolean) {
         mediaPlayer = MediaPlayer.create(
-            context, resource,
-            AudioAttributes.Builder().setContentType(AudioAttributes.CONTENT_TYPE_MUSIC).build(), 0
+            context,
+            resource,
+            AudioAttributes.Builder()
+                .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+                .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
+                .build(),
+            0
         )
         mediaPlayer?.isLooping = isLooping
     }

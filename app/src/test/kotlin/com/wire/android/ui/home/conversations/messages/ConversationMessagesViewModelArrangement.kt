@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import androidx.paging.PagingData
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
+import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
 import com.wire.android.util.FileManager
@@ -39,6 +40,9 @@ class ConversationMessagesViewModelArrangement {
     val conversationDetailsChannel = Channel<ConversationDetails>(capacity = Channel.UNLIMITED)
 
     @MockK
+    lateinit var navigationManager: NavigationManager
+
+    @MockK
     lateinit var qualifiedIdMapper: QualifiedIdMapper
 
     @MockK
@@ -67,6 +71,7 @@ class ConversationMessagesViewModelArrangement {
 
     private val viewModel: ConversationMessagesViewModel by lazy {
         ConversationMessagesViewModel(
+            navigationManager,
             qualifiedIdMapper,
             savedStateHandle,
             observeConversationDetails,

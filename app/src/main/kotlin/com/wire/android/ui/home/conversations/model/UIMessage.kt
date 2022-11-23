@@ -70,7 +70,7 @@ sealed class UIMessageContent {
 
     object PreviewAssetMessage : UIMessageContent()
 
-    data class TextMessage(val message: UIText) : ClientMessage()
+    data class TextMessage(val messageBody: MessageBody) : ClientMessage()
 
     data class SenderWithMessage(val sender: UIText, val message: UIText) : UIMessageContent()
 
@@ -140,6 +140,36 @@ sealed class UIMessageContent {
             SystemMessage(R.drawable.ic_minus, R.string.label_system_message_team_member_left, true, content.userName)
 
     }
+}
+
+data class MessageBody(
+    val message: UIText,
+    val quotedMessage: QuotedMessageUIData? = null
+)
+
+data class QuotedMessageUIData(
+    val senderId: UserId,
+    val senderName: String,
+    val originalMessageDateDescription: UIText,
+    val editedTimeDescription: UIText?,
+    val quotedContent: Content
+) {
+
+    sealed interface Content
+
+    data class Text(val value: String) : Content
+
+    data class GenericAsset(
+        val assetName: String?,
+        val assetMimeType: String,
+    ) : Content
+
+    data class DisplayableImage(
+        val displayable: ImageAsset.PrivateAsset
+    ) : Content
+
+    object Deleted : Content
+    object Invalid : Content
 }
 
 enum class MessageSource {

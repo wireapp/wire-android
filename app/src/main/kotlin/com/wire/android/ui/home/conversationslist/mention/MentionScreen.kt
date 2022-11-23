@@ -1,17 +1,18 @@
-package com.wire.android.ui.home.conversationslist
+package com.wire.android.ui.home.conversationslist.mention
 
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyListState
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import com.wire.android.R
 import com.wire.android.ui.home.conversationslist.common.ConversationItemFactory
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
+import com.wire.android.util.extension.folderWithElements
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
+import androidx.compose.foundation.lazy.rememberLazyListState
 
 @Composable
 fun MentionScreen(
@@ -23,7 +24,7 @@ fun MentionScreen(
     openConversationNotificationsSettings: (ConversationItem) -> Unit,
     onJoinCall: (ConversationId) -> Unit
 ) {
-    val lazyListState = androidx.compose.foundation.lazy.rememberLazyListState()
+    val lazyListState = rememberLazyListState()
 
     MentionContent(
         lazyListState = lazyListState,
@@ -37,7 +38,6 @@ fun MentionScreen(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun MentionContent(
     lazyListState: LazyListState,
@@ -64,7 +64,8 @@ private fun MentionContent(
                 openMenu = onEditConversationItem,
                 openUserProfile = onOpenUserProfile,
                 openNotificationsOptions = openConversationNotificationsSettings,
-                joinCall = onJoinCall
+                joinCall = onJoinCall,
+                searchQuery = ""
             )
         }
 
@@ -78,7 +79,8 @@ private fun MentionContent(
                 openMenu = onEditConversationItem,
                 openUserProfile = onOpenUserProfile,
                 openNotificationsOptions = openConversationNotificationsSettings,
-                joinCall = onJoinCall
+                joinCall = onJoinCall,
+                searchQuery = ""
             )
         }
     }

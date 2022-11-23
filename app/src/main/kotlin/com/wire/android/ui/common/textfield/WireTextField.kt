@@ -72,7 +72,9 @@ internal fun WireTextField(
     inputMinHeight: Dp = MaterialTheme.wireDimensions.textFieldMinHeight,
     shape: Shape = RoundedCornerShape(MaterialTheme.wireDimensions.textFieldCornerSize),
     colors: WireTextFieldColors = wireTextFieldColors(),
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    onSelectedLineIndexChanged: (Int) -> Unit = { },
+    onLineBottomYCoordinateChanged: (Float) -> Unit = { },
 ) {
     val enabled = state !is WireTextFieldState.Disabled
 
@@ -109,6 +111,12 @@ internal fun WireTextField(
             decorationBox = { innerTextField ->
                 InnerText(innerTextField, value, leadingIcon, trailingIcon, placeholderText, state, placeholderTextStyle, inputMinHeight)
             },
+            onTextLayout = {
+                val lineOfText = it.getLineForOffset(value.selection.end)
+                val bottomYCoordinate = it.getLineBottom(lineOfText)
+                onSelectedLineIndexChanged(lineOfText)
+                onLineBottomYCoordinateChanged(bottomYCoordinate)
+            }
         )
         val bottomText = when {
             state is WireTextFieldState.Error && state.errorText != null -> state.errorText

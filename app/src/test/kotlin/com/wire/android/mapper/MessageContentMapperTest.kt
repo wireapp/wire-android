@@ -4,6 +4,7 @@ import android.content.res.Resources
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.framework.FakeKaliumFileSystem
+import com.wire.android.framework.TestConversation
 import com.wire.android.framework.TestMessage
 import com.wire.android.framework.TestMessage.buildAssetMessage
 import com.wire.android.framework.TestUser
@@ -11,6 +12,7 @@ import com.wire.android.ui.home.conversations.model.UIMessageContent.AssetMessag
 import com.wire.android.ui.home.conversations.model.UIMessageContent.PreviewAssetMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent.SystemMessage
 import com.wire.android.ui.home.conversations.name
+import com.wire.android.util.time.ISOFormatter
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.Conversation.Member
@@ -80,17 +82,17 @@ class MessageContentMapperTest {
         val textContent = MessageContent.Text("text-message")
         val nonTextContent = MessageContent.Unknown("type-name")
         // When
-        val resultText = mapper.toText(textContent)
-        val resultNonText = mapper.toText(nonTextContent)
+        val resultText = mapper.toText(TestConversation.ID, textContent)
+        val resultNonText = mapper.toText(TestConversation.ID, nonTextContent)
         with(resultText) {
             assertTrue(
-                message is UIText.DynamicString && (message as UIText.DynamicString).value == textContent.value
+                messageBody.message is UIText.DynamicString && (messageBody.message as UIText.DynamicString).value == textContent.value
             )
         }
         with(resultNonText) {
             assertTrue(
-                message is UIText.StringResource &&
-                        (message as UIText.StringResource).resId == arrangement.messageResourceProvider.sentAMessageWithContent
+                messageBody.message is UIText.StringResource &&
+                        (messageBody.message as UIText.StringResource).resId == arrangement.messageResourceProvider.sentAMessageWithContent
             )
         }
     }
@@ -297,7 +299,7 @@ class MessageContentMapperTest {
         val testDispatcher = TestDispatcherProvider()
 
         private val messageContentMapper by lazy {
-            MessageContentMapper(messageResourceProvider, wireSessionImageLoader)
+            MessageContentMapper(messageResourceProvider, wireSessionImageLoader, ISOFormatter())
         }
 
         init {

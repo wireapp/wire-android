@@ -136,7 +136,7 @@ class MessageMapperTest {
             MockKAnnotations.init(this, relaxUnitFun = true)
             coEvery { userTypeMapper.toMembership(any()) } returns Membership.Guest
             coEvery { messageContentMapper.fromMessage(any(), any()) } returns TextMessage(
-                UIText.DynamicString("some message text")
+                MessageBody(UIText.DynamicString("some message text"))
             )
             coEvery { messageContentMapper.toSystemMessageMemberName(any(), any()) } returns UIText.DynamicString("username")
             every { isoFormatter.fromISO8601ToTimeFormat(any()) } answers { firstArg<String>().uiMessageDateTime() ?: "" }

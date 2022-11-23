@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.mapper.toUIPreview
@@ -15,6 +16,7 @@ import com.wire.android.model.UserAvatarData
 import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
+import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetail
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.home.HomeSnackbarState
 import com.wire.android.ui.home.conversations.model.UIMessageContent
@@ -24,8 +26,11 @@ import com.wire.android.ui.home.conversationslist.model.BlockState
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
+import com.wire.android.ui.home.conversationslist.model.ConversationLastEvent
+import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.ConversationDetails.Connection
@@ -45,6 +50,7 @@ import com.wire.kalium.logic.feature.connection.BlockUserResult
 import com.wire.kalium.logic.feature.connection.BlockUserUseCase
 import com.wire.kalium.logic.feature.connection.UnblockUserResult
 import com.wire.kalium.logic.feature.connection.UnblockUserUseCase
+import com.wire.kalium.logic.feature.conversation.ClearConversationContentUseCase
 import com.wire.kalium.logic.feature.conversation.ConversationUpdateStatusResult
 import com.wire.kalium.logic.feature.conversation.LeaveConversationUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationListDetailsUseCase
@@ -80,8 +86,9 @@ class ConversationListViewModel @Inject constructor(
     private val deleteTeamConversation: DeleteTeamConversationUseCase,
     private val blockUserUseCase: BlockUserUseCase,
     private val unblockUserUseCase: UnblockUserUseCase,
+    private val clearConversationContentUseCase: ClearConversationContentUseCase,
     private val wireSessionImageLoader: WireSessionImageLoader,
-    private val userTypeMapper: UserTypeMapper
+    private val userTypeMapper: UserTypeMapper,
 ) : ViewModel() {
 
     var conversationListState by mutableStateOf(ConversationListState())
@@ -105,14 +112,15 @@ class ConversationListViewModel @Inject constructor(
                 .flatMapLatest { (searchQuery, conversationDetails) ->
                     flow {
                         if (searchQuery.isEmpty()) {
-                            emit(conversationDetails)
+                            emit(conversationDetails to searchQuery)
                         } else {
-                            emit(searchConversation(conversationDetails, searchQuery))
+                            emit(searchConversation(conversationDetails, searchQuery) to searchQuery)
                         }
                     }
-                }.collect { conversationSearchResult ->
+                }.collect { (conversationSearchResult, searchQuery) ->
                     conversationListState = conversationListState.copy(
-                        conversationSearchResult = conversationSearchResult.toConversationsFoldersMap().toImmutableMap()
+                        conversationSearchResult = conversationSearchResult.toConversationsFoldersMap().toImmutableMap(),
+                        searchQuery = searchQuery
                     )
                 }
         }
@@ -130,6 +138,7 @@ class ConversationListViewModel @Inject constructor(
 
     private fun conversationListDetailsToState(conversationListDetails: List<ConversationDetails>) {
         conversationListState = conversationListState.copy(
+            allConversations = conversationListDetails.map { it.toConversationItem(wireSessionImageLoader, userTypeMapper) },
             conversations = conversationListDetails.toConversationsFoldersMap().toImmutableMap(),
             hasNoConversations = conversationListDetails.none { it !is Self },
             newActivityCount = 0L,
@@ -326,9 +335,31 @@ class ConversationListViewModel @Inject constructor(
     fun moveConversationToArchive(id: String = "") {
     }
 
-    // TODO: needs to be implemented
-    @Suppress("EmptyFunctionBlock")
-    fun clearConversationContent(id: String = "") {
+    fun clearConversationContent(dialogState: DialogState) {
+        viewModelScope.launch {
+            requestInProgress = true
+            with(dialogState) {
+                val result = withContext(dispatcher.io()) { clearConversationContentUseCase(conversationId) }
+                requestInProgress = false
+                clearContentSnackbarResult(result, conversationTypeDetail)
+            }
+        }
+    }
+
+    private suspend fun clearContentSnackbarResult(
+        clearContentResult: ClearConversationContentUseCase.Result,
+        conversationTypeDetail: ConversationTypeDetail
+    ) {
+        if (conversationTypeDetail is ConversationTypeDetail.Connection)
+            throw IllegalStateException("Unsupported conversation type to clear content, something went wrong?")
+
+        val isGroup = conversationTypeDetail is ConversationTypeDetail.Group
+
+        if (clearContentResult is ClearConversationContentUseCase.Result.Failure) {
+            homeSnackBarState.emit(HomeSnackbarState.ClearConversationContentFailure(isGroup))
+        } else {
+            homeSnackBarState.emit(HomeSnackbarState.ClearConversationContentSuccess(isGroup))
+        }
     }
 
 }

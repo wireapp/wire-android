@@ -157,6 +157,7 @@ fun ConversationScreen(
         onBackButtonClick = messageComposerViewModel::navigateBack,
         onDeleteMessage = messageComposerViewModel::showDeleteMessageDialog,
         onReactionClick = conversationMessagesViewModel::toggleReaction,
+        onMessageDetailsClick = conversationMessagesViewModel::openMessageDetails,
         onStartCall = {
             startCallIfPossible(
                 conversationCallViewModel,
@@ -249,6 +250,7 @@ private fun ConversationScreen(
     onBackButtonClick: () -> Unit,
     onDeleteMessage: (String, Boolean) -> Unit,
     onReactionClick: (messageId: String, reactionEmoji: String) -> Unit,
+    onMessageDetailsClick: (messageId: String) -> Unit,
     onStartCall: () -> Unit,
     onJoinCall: () -> Unit,
     onSnackbarMessage: (ConversationSnackbarMessages) -> Unit,
@@ -264,21 +266,33 @@ private fun ConversationScreen(
 
     val menuModalOnDeleteMessage = remember {
         {
-            conversationScreenState.hideEditContextMenu()
-            onDeleteMessage(
-                conversationScreenState.selectedMessage?.messageHeader!!.messageId,
-                conversationScreenState.isMyMessage
-            )
+            conversationScreenState.hideEditContextMenu {
+                onDeleteMessage(
+                    conversationScreenState.selectedMessage?.messageHeader!!.messageId,
+                    conversationScreenState.isMyMessage
+                )
+            }
         }
     }
 
     val menuModalOnReactionClick = remember {
         { emoji: String ->
-            conversationScreenState.hideEditContextMenu()
-            onReactionClick(
-                conversationScreenState.selectedMessage?.messageHeader!!.messageId,
-                emoji
-            )
+            conversationScreenState.hideEditContextMenu {
+                onReactionClick(
+                    conversationScreenState.selectedMessage?.messageHeader!!.messageId,
+                    emoji
+                )
+            }
+        }
+    }
+
+    val menuModalOnMessageDetailsClick = remember {
+        {
+            conversationScreenState.hideEditContextMenu {
+                onMessageDetailsClick(
+                    conversationScreenState.selectedMessage?.messageHeader!!.messageId
+                )
+            }
         }
     }
 
@@ -292,7 +306,8 @@ private fun ConversationScreen(
             isEditable = conversationScreenState.isMyMessage && localFeatureVisibilityFlags.MessageEditIcon,
             onCopyMessage = conversationScreenState::copyMessage,
             onDeleteMessage = menuModalOnDeleteMessage,
-            onReactionClick = menuModalOnReactionClick
+            onReactionClick = menuModalOnReactionClick,
+            onMessageDetailsClick = menuModalOnMessageDetailsClick
         )
     ) {
         BoxWithConstraints {
@@ -554,7 +569,7 @@ fun ConversationScreenPreview() {
         connectivityUIState = ConnectivityUIState(info = ConnectivityUIState.Info.None),
         bannerMessage = null,
         onOpenOngoingCallScreen = { },
-        onSendMessage = {_, _ -> },
+        onSendMessage = { _, _ -> },
         onSendAttachment = { },
         onMentionMember = { },
         onDownloadAsset = { },
@@ -572,5 +587,6 @@ fun ConversationScreenPreview() {
         onUpdateConversationReadDate = { },
         interactionAvailability = InteractionAvailability.ENABLED,
         membersToMention = listOf(),
+        onMessageDetailsClick = { }
     )
 }

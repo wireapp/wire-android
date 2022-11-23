@@ -20,11 +20,12 @@ import com.wire.kalium.logic.data.user.UserId
 @Composable
 fun ConversationItemFactory(
     conversation: ConversationItem,
+    searchQuery: String,
     openConversation: (ConversationId) -> Unit,
     openMenu: (ConversationItem) -> Unit,
     openUserProfile: (UserId) -> Unit,
     openNotificationsOptions: (ConversationItem) -> Unit,
-    joinCall: (ConversationId) -> Unit,
+    joinCall: (ConversationId) -> Unit
 ) {
     val onConversationItemClick = remember(conversation) {
         Clickable(
@@ -39,6 +40,7 @@ fun ConversationItemFactory(
                 when (conversation.lastMessageContent) {
                     is UIMessageContent.Connection -> {
                     }
+
                     else -> openMenu(conversation)
                 }
             }
@@ -46,9 +48,10 @@ fun ConversationItemFactory(
     }
     GeneralConversationItem(
         conversation = conversation,
+        searchQuery = searchQuery,
         subTitle = {
             when (val messageContent = conversation.lastMessageContent) {
-                is UIMessageContent.TextMessage -> LastMessageSubtitle(messageContent.message)
+                is UIMessageContent.TextMessage -> LastMessageSubtitle(messageContent.messageBody.message)
                 is UIMessageContent.MultipleMessage -> LastMessagesSubtitle(messageContent.firstMessage, messageContent.secondMessage)
                 is UIMessageContent.SenderWithMessage -> LastMessageSubtitleWithAuthor(messageContent.sender, messageContent.message)
                 else -> {}
@@ -66,6 +69,7 @@ fun ConversationItemFactory(
 
 @Composable
 private fun GeneralConversationItem(
+    searchQuery: String,
     conversation: ConversationItem,
     subTitle: @Composable () -> Unit = {},
     onConversationItemClick: Clickable,
@@ -80,7 +84,8 @@ private fun GeneralConversationItem(
                     title = {
                         ConversationTitle(
                             name = groupName.ifEmpty { stringResource(id = R.string.member_name_deleted_label) },
-                            isLegalHold = conversation.isLegalHold
+                            isLegalHold = conversation.isLegalHold,
+                            searchQuery = searchQuery
                         )
                     },
                     subTitle = subTitle,
@@ -96,11 +101,17 @@ private fun GeneralConversationItem(
                 )
             }
         }
+
         is ConversationItem.PrivateConversation -> {
             with(conversation) {
                 RowItemTemplate(
                     leadingIcon = { ConversationUserAvatar(userAvatarData) },
-                    title = { UserLabel(userInfoLabel = toUserInfoLabel()) },
+                    title = {
+                        UserLabel(
+                            userInfoLabel = toUserInfoLabel(),
+                            searchQuery = searchQuery
+                        )
+                    },
                     subTitle = subTitle,
                     eventType = conversation.badgeEventType,
                     clickable = onConversationItemClick,
@@ -108,15 +119,21 @@ private fun GeneralConversationItem(
                         if (mutedStatus != MutedConversationStatus.AllAllowed) {
                             MutedConversationBadge(onMutedIconClick)
                         }
-                    },
+                    }
                 )
             }
         }
+
         is ConversationItem.ConnectionConversation -> {
             with(conversation) {
                 RowItemTemplate(
                     leadingIcon = { ConversationUserAvatar(userAvatarData) },
-                    title = { UserLabel(userInfoLabel = toUserInfoLabel()) },
+                    title = {
+                        UserLabel(
+                            userInfoLabel = toUserInfoLabel(),
+                            searchQuery = searchQuery
+                        )
+                    },
                     subTitle = subTitle,
                     eventType = conversation.badgeEventType,
                     clickable = onConversationItemClick

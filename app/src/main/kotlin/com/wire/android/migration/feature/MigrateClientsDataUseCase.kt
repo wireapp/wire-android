@@ -1,5 +1,6 @@
 package com.wire.android.migration.feature
 
+import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.migration.failure.MigrationFailure
 import com.wire.android.migration.userDatabase.ScalaUserDatabaseProvider
@@ -15,6 +16,7 @@ import com.wire.kalium.logic.functional.Either
 import com.wire.kalium.logic.functional.flatMap
 import com.wire.kalium.logic.functional.foldToEitherWhileRight
 import com.wire.kalium.logic.functional.map
+import com.wire.kalium.logic.functional.onSuccess
 import kotlinx.coroutines.withTimeoutOrNull
 import java.io.File
 import javax.inject.Inject
@@ -24,7 +26,8 @@ import javax.inject.Singleton
 class MigrateClientsDataUseCase @Inject constructor(
     @KaliumCoreLogic private val coreLogic: CoreLogic,
     private val scalaCryptoBoxDirectoryProvider: ScalaCryptoBoxDirectoryProvider,
-    private val scalaUserDBProvider: ScalaUserDatabaseProvider
+    private val scalaUserDBProvider: ScalaUserDatabaseProvider,
+    private val userDataStoreProvider: UserDataStoreProvider
 ) {
     suspend operator fun invoke(userIds: List<UserId>): Either<CoreFailure, List<UserId>> =
         userIds.foldToEitherWhileRight(emptyList()) { userId, acc ->
@@ -51,7 +54,11 @@ class MigrateClientsDataUseCase @Inject constructor(
                             syncManager.waitUntilStartedOrFailure()
                         }.let {
                             it ?: Either.Left(NetworkFailure.NoNetworkConnection(null))
-                        }.flatMap { syncManager.waitUntilLiveOrFailure().map { acc + userId } }
+                        }.flatMap {
+                            syncManager.waitUntilLiveOrFailure()
+                                .map { acc + userId }
+                                .onSuccess { userDataStoreProvider.getOrCreate(userId).setInitialSyncCompleted() }
+                        }
                 }
             }
         }

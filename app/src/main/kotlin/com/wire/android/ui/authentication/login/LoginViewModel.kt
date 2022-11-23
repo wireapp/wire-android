@@ -9,6 +9,7 @@ import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.datastore.UserDataStoreProvider
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ClientScopeProvider
 import com.wire.android.navigation.BackStackMode
@@ -23,6 +24,7 @@ import com.wire.kalium.logic.feature.auth.AuthenticationResult
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.client.RegisterClientUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -33,7 +35,8 @@ open class LoginViewModel @Inject constructor(
     savedStateHandle: SavedStateHandle,
     private val navigationManager: NavigationManager,
     private val clientScopeProviderFactory: ClientScopeProvider.Factory,
-    authServerConfigProvider: AuthServerConfigProvider
+    authServerConfigProvider: AuthServerConfigProvider,
+    private val userDataStoreProvider: UserDataStoreProvider
 ) : ViewModel() {
     val serverConfig = authServerConfigProvider.authServer.value
 
@@ -42,8 +45,8 @@ open class LoginViewModel @Inject constructor(
             ssoCode = TextFieldValue(savedStateHandle[SSO_CODE_SAVED_STATE_KEY] ?: String.EMPTY),
             userIdentifier = TextFieldValue(savedStateHandle[USER_IDENTIFIER_SAVED_STATE_KEY] ?: String.EMPTY),
             password = TextFieldValue(String.EMPTY),
-            isProxyAuthRequired = if (serverConfig.proxy?.needsAuthentication != null)
-                serverConfig.proxy?.needsAuthentication!! else false
+            isProxyAuthRequired = if (serverConfig.apiProxy?.needsAuthentication != null)
+                serverConfig.apiProxy?.needsAuthentication!! else false
         )
     )
         protected set
@@ -100,13 +103,16 @@ open class LoginViewModel @Inject constructor(
         )
     }
 
-    fun navigateBack() = viewModelScope.launch {
-        navigationManager.navigateBack()
+    @VisibleForTesting
+    fun navigateAfterRegisterClientSuccess(userId: UserId) = viewModelScope.launch {
+        if (userDataStoreProvider.getOrCreate(userId).initialSyncCompleted.first())
+            navigationManager.navigate(NavigationCommand(NavigationItem.Home.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
+        else
+            navigationManager.navigate(NavigationCommand(NavigationItem.InitialSync.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
     }
 
-    @VisibleForTesting
-    fun navigateToConvScreen() = viewModelScope.launch {
-        navigationManager.navigate(NavigationCommand(NavigationItem.Home.getRouteWithArgs(), BackStackMode.CLEAR_WHOLE))
+    fun navigateBack() = viewModelScope.launch {
+        navigationManager.navigateBack()
     }
 
     private fun navigateToRemoveDevicesScreen() = viewModelScope.launch {

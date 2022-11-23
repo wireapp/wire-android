@@ -57,6 +57,8 @@ import com.wire.android.ui.common.snackbar.SwipeDismissSnackbarHost
 import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.common.visbility.rememberVisibilityState
+import com.wire.android.ui.home.conversations.details.dialog.ClearConversationContentDialog
+import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireColorScheme
@@ -64,8 +66,8 @@ import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.userprofile.common.EditableState
 import com.wire.android.ui.userprofile.common.UserProfileInfo
 import com.wire.android.ui.userprofile.group.RemoveConversationMemberState
+import com.wire.android.ui.userprofile.other.bottomsheet.OtherUserBottomSheetState
 import com.wire.android.ui.userprofile.other.bottomsheet.OtherUserProfileBottomSheetContent
-import com.wire.android.ui.userprofile.other.bottomsheet.rememberOtherUserProfileSheetState
 import com.wire.kalium.logic.data.user.ConnectionState
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.InternalCoroutinesApi
@@ -133,8 +135,10 @@ fun OtherProfileScreenContent(
     val blockUserDialogState = rememberVisibilityState<BlockUserDialogState>()
     val unblockUserDialogState = rememberVisibilityState<UnblockUserDialogState>()
     val removeMemberDialogState = rememberVisibilityState<RemoveConversationMemberState>()
+    val clearConversationDialogState = rememberVisibilityState<DialogState>()
     val getBottomSheetVisibility: () -> Boolean = remember(sheetState) { { sheetState.isVisible } }
-    val bottomSheetState = rememberOtherUserProfileSheetState(state.conversationSheetContent, state.groupState)
+    val bottomSheetState = remember { OtherUserBottomSheetState() }
+    bottomSheetState.setContents(state.conversationSheetContent, state.groupState)
     val openConversationBottomSheet: () -> Unit = remember(bottomSheetState) {
         {
             bottomSheetState.toConversation()
@@ -184,6 +188,7 @@ fun OtherProfileScreenContent(
         blockUserDialogState.dismiss()
         unblockUserDialogState.dismiss()
         removeMemberDialogState.dismiss()
+        clearConversationDialogState.dismiss()
     }
 
     WireModalSheetLayout(
@@ -196,6 +201,7 @@ fun OtherProfileScreenContent(
                 eventsHandler = bottomSheetEventsHandler,
                 blockUser = blockUserDialogState::show,
                 unblockUser = unblockUserDialogState::show,
+                clearContent = clearConversationDialogState::show,
                 closeBottomSheet = closeBottomSheet,
             )
         }
@@ -255,6 +261,13 @@ fun OtherProfileScreenContent(
         dialogState = removeMemberDialogState,
         onRemoveConversationMember = eventsHandler::onRemoveConversationMember,
         isLoading = requestInProgress,
+    )
+    ClearConversationContentDialog(
+        dialogState = clearConversationDialogState,
+        isLoading = requestInProgress,
+        onClearConversationContent = {
+            bottomSheetEventsHandler.onClearConversationContent(it)
+        }
     )
 }
 

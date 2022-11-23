@@ -219,7 +219,6 @@ data class MessageComposerInnerState(
         mentions = updatedMentions.toList()
     }
 
-    @Suppress("ReturnCount")
     private fun requestMentionSuggestionIfNeeded(text: TextFieldValue) {
         if (text.selection.min != text.selection.max) {
             _mentionQueryFlowState.value = null
@@ -245,6 +244,7 @@ data class MessageComposerInnerState(
             _mentionQueryFlowState.value = null
         }
     }
+
 
     fun reply(uiMessage: UIMessage) {
         val authorName = uiMessage.messageHeader.username.asString(context.resources)
@@ -282,15 +282,7 @@ data class MessageComposerInnerState(
                 )
             }
 
-            UIMessageContent.PreviewAssetMessage -> return
-            is UIMessageContent.SystemMessage.MemberAdded -> return
-            is UIMessageContent.SystemMessage.MemberLeft -> return
-            is UIMessageContent.SystemMessage.MemberRemoved -> return
-            is UIMessageContent.SystemMessage.MissedCall.OtherCalled -> return
-            is UIMessageContent.SystemMessage.MissedCall.YouCalled -> return
-            is UIMessageContent.SystemMessage.RenamedConversation -> return
-            is UIMessageContent.SystemMessage.TeamMemberRemoved -> return
-            null -> return
+            else -> return
         }
 
         toActive()

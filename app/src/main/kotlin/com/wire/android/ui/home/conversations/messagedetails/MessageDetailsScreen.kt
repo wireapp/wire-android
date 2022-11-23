@@ -35,7 +35,6 @@ import com.google.accompanist.pager.ExperimentalPagerApi
 import com.google.accompanist.pager.HorizontalPager
 import com.google.accompanist.pager.rememberPagerState
 import com.wire.android.R
-import com.wire.android.navigation.NavigationItem
 import com.wire.android.ui.common.TabItem
 import com.wire.android.ui.common.WireTabRow
 import com.wire.android.ui.common.bottomsheet.WireModalSheetLayout

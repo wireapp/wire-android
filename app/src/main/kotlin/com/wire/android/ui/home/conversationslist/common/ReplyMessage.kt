@@ -22,6 +22,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.ColorFilter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextOverflow
@@ -56,7 +57,9 @@ fun ReplyMessage(
                         modifier = Modifier
                             .width(40.dp)
                             .height(40.dp)
-                            .clip(RoundedCornerShape(12.dp))
+                            .clip(RoundedCornerShape(8.dp)),
+                        alignment = Alignment.Center,
+                        contentScale = ContentScale.Crop
                     )
                 },
                 onCancelReply = onCancelReply

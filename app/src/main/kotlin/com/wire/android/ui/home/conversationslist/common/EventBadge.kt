@@ -39,7 +39,6 @@ fun EventBadgeFactory(eventType: BadgeEventType, modifier: Modifier = Modifier) 
         BadgeEventType.Blocked -> BlockedLabel(modifier)
         BadgeEventType.Deleted -> DeletedLabel(modifier)
         BadgeEventType.Knock -> UnreadKnockBadge(modifier)
-        BadgeEventType.Knock -> {}
         BadgeEventType.None -> {}
     }
 }

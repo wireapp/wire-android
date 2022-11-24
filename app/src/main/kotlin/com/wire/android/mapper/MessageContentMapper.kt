@@ -42,10 +42,7 @@ class MessageContentMapper @Inject constructor(
         message: Message?,
         userList: List<User>
     ): UIMessageContent? {
-        if(message == null) {
-            return null
-        }
-        return when (message.visibility) {
+        return when (message?.visibility) {
             Message.Visibility.VISIBLE ->
                 return when (message) {
                     is Message.Regular -> mapRegularMessage(message, userList.findUser(message.senderUserId))
@@ -54,6 +51,7 @@ class MessageContentMapper @Inject constructor(
 
             Message.Visibility.DELETED, // for deleted, there is a state label displayed only
             Message.Visibility.HIDDEN -> null // we don't want to show hidden nor deleted message content in any way
+            null -> null
         }
     }
 
@@ -187,7 +185,11 @@ class MessageContentMapper @Inject constructor(
         }
     )
 
-    fun toUIAssetMessageContent(assetMessageContentMetadata: AssetMessageContentMetadata, message: Message, sender: User?): UIMessageContent =
+    fun toUIAssetMessageContent(
+        assetMessageContentMetadata: AssetMessageContentMetadata,
+        message: Message,
+        sender: User?
+    ): UIMessageContent =
         with(assetMessageContentMetadata.assetMessageContent) {
             when {
                 assetMessageContentMetadata.isDisplayableImage() && !assetMessageContentMetadata.assetMessageContent.hasValidRemoteData() ->
@@ -279,7 +281,8 @@ fun Message?.toUIPreview(
                     UnreadEventType.MESSAGE -> {
                         val messagesWithoutMentions = type.value - unreadMentionsCount.toInt()
                         if (messagesWithoutMentions > 0) {
-                            UIText.PluralResource(R.plurals.unread_event_message,
+                            UIText.PluralResource(
+                                R.plurals.unread_event_message,
                                 messagesWithoutMentions,
                                 messagesWithoutMentions
                             )
@@ -303,6 +306,7 @@ fun Message?.toUIPreview(
     return uiMessageContent()
 }
 
+@Suppress("LongMethod", "ComplexMethod")
 private fun Message.uiMessageContent(): UIMessageContent {
     val senderUIText = when {
         isSelfMessage -> UIText.StringResource(R.string.member_name_you_label_titlecase)
@@ -312,9 +316,9 @@ private fun Message.uiMessageContent(): UIMessageContent {
     }
 
     return when (this) {
-        is Message.Regular -> when(content) {
+        is Message.Regular -> when (content) {
             is Asset ->
-                when((content as Asset).value.metadata) {
+                when ((content as Asset).value.metadata) {
                     is AssetContent.AssetMetadata.Audio ->
                         UIMessageContent.SenderWithMessage(senderUIText, UIText.StringResource(R.string.last_message_audio))
                     is AssetContent.AssetMetadata.Image ->
@@ -342,23 +346,33 @@ private fun Message.uiMessageContent(): UIMessageContent {
                 senderUIText,
                 UIText.StringResource(
                     R.string.last_message_colon_text,
-                    (content as MessageContent.Text).value)
+                    (content as MessageContent.Text).value
+                )
             )
             is MessageContent.TextEdited -> UIMessageContent.None
             is MessageContent.Unknown -> UIMessageContent.None
         }
-        is Message.System -> when(content) {
-            is MessageContent.ConversationRenamed -> UIMessageContent.SenderWithMessage(senderUIText, UIText.StringResource(R.string.last_message_change_conversation_name))
+        is Message.System -> when (content) {
+            is MessageContent.ConversationRenamed -> UIMessageContent.SenderWithMessage(
+                senderUIText,
+                UIText.StringResource(R.string.last_message_change_conversation_name)
+            )
             is Added -> UIMessageContent.SenderWithMessage(
                 senderUIText,
-                UIText.PluralResource(R.plurals.last_message_people_added,
+                UIText.PluralResource(
+                    R.plurals.last_message_people_added,
                     (content as Added).members.size,
-                    (content as Added).members.size))
+                    (content as Added).members.size
+                )
+            )
             is Removed -> UIMessageContent.SenderWithMessage(
                 senderUIText,
-                UIText.PluralResource(R.plurals.last_message_people_removed,
+                UIText.PluralResource(
+                    R.plurals.last_message_people_removed,
                     (content as Removed).members.size,
-                    (content as Removed).members.size))
+                    (content as Removed).members.size
+                )
+            )
             MessageContent.MissedCall -> UIMessageContent.SenderWithMessage(senderUIText, UIText.StringResource(R.string.last_message_call))
             is MessageContent.TeamMemberRemoved -> UIMessageContent.None
         }

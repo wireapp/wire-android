@@ -21,21 +21,21 @@ import com.wire.android.ui.home.conversations.details.options.SwitchState
 fun PrivacySettingsConfigScreen(
     viewModel: PrivacySettingsViewModel = hiltViewModel()
 ) {
-    PrivacySettingsScreenContent(
-        isReadReceiptsEnabled = true,
-        setReadReceiptsState = {},
-        onBackPressed = viewModel::navigateBack
-    )
+    with(viewModel) {
+        PrivacySettingsScreenContent(
+            isReadReceiptsEnabled = state.isReadReceiptsEnabled,
+            setReadReceiptsState = ::setReadReceiptsState,
+            onBackPressed = ::navigateBack
+        )
+    }
 }
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun PrivacySettingsScreenContent(
-    onBackPressed: () -> Unit,
     isReadReceiptsEnabled: Boolean,
-    setReadReceiptsState: (Boolean) -> Unit
-
+    setReadReceiptsState: (Boolean) -> Unit,
+    onBackPressed: () -> Unit
 ) {
     Scaffold(topBar = {
         WireCenterAlignedTopAppBar(
@@ -62,5 +62,5 @@ fun PrivacySettingsScreenContent(
 @Composable
 @Preview
 fun PreviewSendReadReceipts() {
-    PrivacySettingsScreenContent({}, true, {})
+    PrivacySettingsScreenContent(true, {}, {})
 }

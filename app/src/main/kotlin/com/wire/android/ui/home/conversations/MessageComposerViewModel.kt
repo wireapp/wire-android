@@ -160,12 +160,20 @@ class MessageComposerViewModel @Inject constructor(
         if (leftGroup || groupDeletedName != null) {
             navigateBack(savedStateHandle.getBackNavArgs())
         }
-
     }
 
-    fun sendMessage(message: String, mentions: List<UiMention>) {
+    fun sendMessage(
+        message: String,
+        mentions: List<UiMention>,
+        quotedMessageId: String?
+    ) {
         viewModelScope.launch {
-            sendTextMessage(conversationId, message, mentions.map { it.intoMessageMention() })
+            sendTextMessage(
+                conversationId = conversationId,
+                text = message,
+                mentions = mentions.map { it.intoMessageMention() },
+                quotedMessageId = quotedMessageId
+            )
         }
     }
 

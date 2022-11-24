@@ -68,8 +68,9 @@ import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.messagecomposer.KeyboardHeight
 import com.wire.android.ui.home.messagecomposer.MessageComposer
-import com.wire.android.ui.home.messagecomposer.MessageComposerStateTransition
+import com.wire.android.ui.home.messagecomposer.MessageComposerInnerState
 import com.wire.android.ui.home.messagecomposer.UiMention
+import com.wire.android.ui.home.messagecomposer.rememberMessageComposerInnerState
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 import com.wire.android.util.permission.CallingAudioRequestFlow
@@ -208,10 +209,12 @@ private fun startCallIfPossible(
                     startCallAudioPermissionCheck.launch()
                     ConversationScreenDialogType.NONE
                 }
+
                 ConferenceCallingResult.Disabled.Established -> {
                     onOpenOngoingCallScreen()
                     ConversationScreenDialogType.NONE
                 }
+
                 ConferenceCallingResult.Disabled.OngoingCall -> ConversationScreenDialogType.ONGOING_ACTIVE_CALL
                 ConferenceCallingResult.Disabled.Unavailable -> ConversationScreenDialogType.CALLING_FEATURE_UNAVAILABLE
                 else -> ConversationScreenDialogType.NONE
@@ -242,7 +245,7 @@ private fun ConversationScreen(
     bannerMessage: UIText?,
     connectivityUIState: ConnectivityUIState,
     onOpenOngoingCallScreen: () -> Unit,
-    onSendMessage: (String, List<UiMention>) -> Unit,
+    onSendMessage: (String, List<UiMention>, String?) -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onMentionMember: (String?) -> Unit,
     onDownloadAsset: (String) -> Unit,
@@ -263,6 +266,8 @@ private fun ConversationScreen(
     membersToMention: List<Contact>
 ) {
     val conversationScreenState = rememberConversationScreenState()
+
+    val messageComposerInnerState = rememberMessageComposerInnerState()
 
     val menuModalOnDeleteMessage = remember {
         {
@@ -307,7 +312,13 @@ private fun ConversationScreen(
             onCopyMessage = conversationScreenState::copyMessage,
             onDeleteMessage = menuModalOnDeleteMessage,
             onReactionClick = menuModalOnReactionClick,
-            onMessageDetailsClick = menuModalOnMessageDetailsClick
+            onMessageDetailsClick = menuModalOnMessageDetailsClick,
+            onReply = {
+                conversationScreenState.selectedMessage?.let {
+                    messageComposerInnerState.reply(it)
+                    conversationScreenState.hideEditContextMenu()
+                }
+            }
         )
     ) {
         BoxWithConstraints {
@@ -359,6 +370,7 @@ private fun ConversationScreen(
                 content = { internalPadding ->
                     Box(modifier = Modifier.padding(internalPadding)) {
                         ConversationScreenContent(
+                            messageComposerInnerState = messageComposerInnerState,
                             keyboardHeight = keyboardHeight,
                             snackbarMessage = conversationViewState.snackbarMessage ?: conversationMessagesViewState.snackbarMessage,
                             messages = conversationMessagesViewState.messages,
@@ -391,11 +403,13 @@ private fun ConversationScreen(
 @Suppress("LongParameterList")
 @Composable
 private fun ConversationScreenContent(
+    messageComposerInnerState: MessageComposerInnerState,
+    conversationScreenState: ConversationScreenState,
     snackbarMessage: ConversationSnackbarMessages?,
     keyboardHeight: KeyboardHeight,
     messages: Flow<PagingData<UIMessage>>,
     lastUnreadMessageInstant: Instant?,
-    onSendMessage: (String, List<UiMention>) -> Unit,
+    onSendMessage: (String, List<UiMention>, String?) -> Unit,
     onShowContextMenu: (UIMessage) -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onMentionMember: (String?) -> Unit,
@@ -406,15 +420,12 @@ private fun ConversationScreenContent(
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
     conversationState: ConversationViewState,
     onSnackbarMessageShown: () -> Unit,
-    conversationScreenState: ConversationScreenState,
     isFileSharingEnabled: Boolean,
     tempCachePath: Path,
     interactionAvailability: InteractionAvailability,
     onUpdateConversationReadDate: (String) -> Unit,
     membersToMention: List<Contact>
 ) {
-    SnackBarMessage(snackbarMessage, conversationState, conversationScreenState, onSnackbarMessageShown)
-
     val lazyPagingMessages = messages.collectAsLazyPagingItems()
 
     val lazyListState = rememberSaveable(lazyPagingMessages, saver = LazyListState.Saver) {
@@ -422,8 +433,8 @@ private fun ConversationScreenContent(
         LazyListState(0)
     }
 
-    val onMessageComposerInputStateChange: (MessageComposerStateTransition) -> Unit = remember { {} }
     MessageComposer(
+        messageComposerState = messageComposerInnerState,
         keyboardHeight = keyboardHeight,
         content = {
             MessageList(
@@ -442,13 +453,14 @@ private fun ConversationScreenContent(
         onSendAttachment = onSendAttachment,
         onMentionMember = onMentionMember,
         onMessageComposerError = onMessageComposerError,
-        onMessageComposerInputStateChange = onMessageComposerInputStateChange,
         isFileSharingEnabled = isFileSharingEnabled,
         tempCachePath = tempCachePath,
         interactionAvailability = interactionAvailability,
         securityClassificationType = conversationState.securityClassificationType,
         membersToMention = membersToMention
     )
+
+    SnackBarMessage(snackbarMessage, conversationState, conversationScreenState, onSnackbarMessageShown)
 }
 
 @Composable
@@ -569,7 +581,7 @@ fun ConversationScreenPreview() {
         connectivityUIState = ConnectivityUIState(info = ConnectivityUIState.Info.None),
         bannerMessage = null,
         onOpenOngoingCallScreen = { },
-        onSendMessage = { _, _ -> },
+        onSendMessage = { _, _, _ -> },
         onSendAttachment = { },
         onMentionMember = { },
         onDownloadAsset = { },

@@ -26,6 +26,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
@@ -43,13 +44,27 @@ import com.wire.android.ui.common.topBarElevation
 import com.wire.android.ui.common.topappbar.NavigationIconType
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
 import com.wire.android.ui.theme.wireDimensions
+import com.wire.android.util.CustomTabsHelper
 import kotlinx.coroutines.launch
 
 @Composable
 fun MessageDetailsScreen(viewModel: MessageDetailsViewModel = hiltViewModel()) {
+    val context = LocalContext.current
+
+    val reactionsLearnMoreUrl = stringResource(id = R.string.url_message_details_reactions_learn_more)
+    val onReactionsLearnMore = remember {
+        {
+            CustomTabsHelper.launchUrl(
+                context,
+                reactionsLearnMoreUrl
+            )
+        }
+    }
+
     MessageDetailsScreenContent(
         messageDetailsState = viewModel.messageDetailsState,
-        onBackPressed = viewModel::navigateBack
+        onBackPressed = viewModel::navigateBack,
+        onReactionsLearnMore = onReactionsLearnMore
     )
 }
 
@@ -63,7 +78,8 @@ fun MessageDetailsScreen(viewModel: MessageDetailsViewModel = hiltViewModel()) {
 @Composable
 private fun MessageDetailsScreenContent(
     messageDetailsState: MessageDetailsState,
-    onBackPressed: () -> Unit
+    onBackPressed: () -> Unit,
+    onReactionsLearnMore: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
     val lazyListStates: List<LazyListState> = MessageDetailsTab.values().map { rememberLazyListState() }
@@ -81,6 +97,10 @@ private fun MessageDetailsScreenContent(
         coroutineScope = rememberCoroutineScope(),
         sheetContent = {}
     ) {
+        val tabItems = provideMessageDetailsTabItems(
+            messageDetailsState = messageDetailsState,
+            isSelfMessage = messageDetailsState.isSelfMessage
+        )
         Scaffold(
             topBar = {
                 WireCenterAlignedTopAppBar(
@@ -90,10 +110,7 @@ private fun MessageDetailsScreenContent(
                     onNavigationPressed = onBackPressed
                 ) {
                     WireTabRow(
-                        tabs = provideMessageDetailsTabItems(
-                            messageDetailsState = messageDetailsState,
-                            isSelfMessage = messageDetailsState.isSelfMessage
-                        ),
+                        tabs = tabItems,
                         selectedTabIndex = currentTabState,
                         onTabChange = { scope.launch { pagerState.animateScrollToPage(it) } },
                         modifier = Modifier.padding(top = MaterialTheme.wireDimensions.spacing16x),
@@ -116,7 +133,7 @@ private fun MessageDetailsScreenContent(
             CompositionLocalProvider(LocalOverscrollConfiguration provides null) {
                 HorizontalPager(
                     state = pagerState,
-                    count = MessageDetailsTab.values().size,
+                    count = tabItems.size,
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(internalPadding)
@@ -124,7 +141,8 @@ private fun MessageDetailsScreenContent(
                     when (MessageDetailsTab.values()[pageIndex]) {
                         MessageDetailsTab.REACTIONS -> MessageDetailsReactions(
                             messageDetailsState = messageDetailsState,
-                            lazyListState = lazyListStates[pageIndex]
+                            lazyListState = lazyListStates[pageIndex],
+                            onReactionsLearnMore = onReactionsLearnMore
                         )
                         MessageDetailsTab.READ_RECEIPTS -> {
                             // Not implemented yet.

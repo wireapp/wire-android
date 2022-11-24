@@ -363,7 +363,7 @@ class WireActivityViewModelTest {
             coEvery { deepLinkProcessor(any()) } returns DeepLinkResult.Unknown
             coEvery { notificationManager.observeNotificationsAndCalls(any(), any(), any()) } returns Unit
             coEvery { navigationManager.navigate(any()) } returns Unit
-            coEvery { observePersistentWebSocketConnectionStatus() } returns flowOf(true)
+            coEvery { observePersistentWebSocketConnectionStatus() } returns flowOf(listOf())
             coEvery { getSessionsUseCase.invoke() }
             coEvery { migrationManager.shouldMigrate() } returns false
         }

@@ -134,7 +134,7 @@ fun handleWelcomeNewUserDialog(
                 type = WireDialogButtonType.Primary,
             ),
             optionButton2Properties = WireDialogButtonProperties(
-                onClick = { /* todo: hide and persist flag */ },
+                onClick = dismissDialog,
                 text = stringResource(id = R.string.welcome_migration_dialog_continue),
                 type = WireDialogButtonType.Primary,
             )

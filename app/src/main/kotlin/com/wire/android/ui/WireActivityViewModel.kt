@@ -101,15 +101,24 @@ class WireActivityViewModel @Inject constructor(
 
     init {
         viewModelScope.launch(dispatchers.io()) {
-            observePersistentWebSocketConnectionStatus().collect {
-                it.map {
-                    if (!it.isPersistentWebSocketEnabled) {
-                        notificationManager.observeNotificationsAndCalls(observeUserId, viewModelScope)
-                        { openIncomingCall(it.conversationId) }
+            observePersistentWebSocketConnectionStatus().let {
+                when (it) {
+                    is ObservePersistentWebSocketConnectionStatusUseCase.Result.Failure -> {
+                        appLogger.e("Failure while fetching persistent web socket status flow from wire activity")
                     }
-
+                    is ObservePersistentWebSocketConnectionStatusUseCase.Result.Success -> {
+                        it.persistentWebSocketStatusListFlow.collect {
+                            it.map { persistentWebSocketStatus ->
+                                if (!persistentWebSocketStatus.isPersistentWebSocketEnabled) {
+                                    notificationManager.observeNotificationsAndCalls(observeUserId, viewModelScope)
+                                    { openIncomingCall(it.conversationId) }
+                                }
+                            }
+                        }
+                    }
                 }
             }
+
         }
         viewModelScope.launch(dispatchers.io()) {
             observeUserId

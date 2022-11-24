@@ -23,23 +23,14 @@ import com.wire.android.notification.openAppPendingIntent
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.ConversationId
-import com.wire.kalium.logic.data.sync.ConnectionPolicy
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
-import com.wire.kalium.logic.feature.session.CurrentSessionResult
-import com.wire.kalium.logic.functional.fold
+import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.flowOf
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.shareIn
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -74,21 +65,38 @@ class PersistentWebSocketService : Service() {
     @OptIn(ExperimentalCoroutinesApi::class)
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         scope.launch {
-            coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus().collect {
-                it.map { persistentWebSocketStatus ->
-                    if (persistentWebSocketStatus.isPersistentWebSocketEnabled) {
-                        runBlocking {
-                            coreLogic.getSessionScope(persistentWebSocketStatus.userId)
-                                .setConnectionPolicy(ConnectionPolicy.KEEP_ALIVE)
-                        }
-                        notificationManager.observeNotificationsAndCalls(flowOf(persistentWebSocketStatus.userId), scope) {
-                            openIncomingCall(it.conversationId)
+            coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus().let {
+                when (it) {
+                    is ObservePersistentWebSocketConnectionStatusUseCase.Result.Failure -> {
+                        appLogger.e("Failure while fetching persistent web socket status flow from service")
+                    }
+                    is ObservePersistentWebSocketConnectionStatusUseCase.Result.Success -> {
+                        it.persistentWebSocketStatusListFlow.collect {
+                            it.map { persistentWebSocketStatus ->
+                                if (persistentWebSocketStatus.isPersistentWebSocketEnabled) {
+                                    kotlinx.coroutines.runBlocking {
+                                        coreLogic.getSessionScope(persistentWebSocketStatus.userId)
+                                            .setConnectionPolicy(com.wire.kalium.logic.data.sync.ConnectionPolicy.KEEP_ALIVE)
+                                    }
+                                    notificationManager.observeNotificationsAndCalls(
+                                        kotlinx.coroutines.flow.flowOf(
+                                            persistentWebSocketStatus.userId
+                                        ), scope
+                                    ) {
+                                        openIncomingCall(it.conversationId)
+                                    }
+
+                                }
+                            }
+
                         }
 
                     }
                 }
 
+
             }
+
         }
         generateForegroundNotification()
         return START_STICKY

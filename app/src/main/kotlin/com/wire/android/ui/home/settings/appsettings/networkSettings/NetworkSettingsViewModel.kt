@@ -5,6 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.wire.android.appLogger
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.services.ServicesManager
 import com.wire.kalium.logic.configuration.server.ServerConfig
@@ -44,22 +45,30 @@ class NetworkSettingsViewModel
                 is CurrentSessionResult.Success -> {
                     val userId = currentSession.accountInfo.userId
 
-                    observePersistentWebSocketConnectionStatus().collect {
-                        it.map { persistentWebSocketStatus ->
-                            if (persistentWebSocketStatus.userId == userId) {
-                                networkSettingsState =
-                                    networkSettingsState.copy(
-                                        isPersistentWebSocketConnectionEnabled = persistentWebSocketStatus.isPersistentWebSocketEnabled
-                                    )
+                    observePersistentWebSocketConnectionStatus().let {
+                        when (it) {
+                            is ObservePersistentWebSocketConnectionStatusUseCase.Result.Failure -> {
+                                appLogger.e("Failure while fetching persistent web socket status flow from network settings")
+                            }
+                            is ObservePersistentWebSocketConnectionStatusUseCase.Result.Success -> {
+                                it.persistentWebSocketStatusListFlow.collect {
+                                    it.map { persistentWebSocketStatus ->
+                                        if (persistentWebSocketStatus.userId == userId) {
+                                            networkSettingsState =
+                                                networkSettingsState.copy(
+                                                    isPersistentWebSocketConnectionEnabled =
+                                                    persistentWebSocketStatus.isPersistentWebSocketEnabled
+                                                )
+                                        }
+                                    }
+                                    if (it.map { it.isPersistentWebSocketEnabled }.contains(true)) {
+                                        servicesManager.startPersistentWebSocketService()
+                                    } else {
+                                        servicesManager.stopPersistentWebSocketService()
+                                    }
+                                }
                             }
                         }
-                        if (it.map { it.isPersistentWebSocketEnabled }.contains(true)) {
-                            servicesManager.startPersistentWebSocketService()
-
-                        } else {
-                            servicesManager.stopPersistentWebSocketService()
-                        }
-
                     }
                 }
                 else -> {

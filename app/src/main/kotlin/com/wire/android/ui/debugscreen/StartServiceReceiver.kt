@@ -9,6 +9,7 @@ import com.wire.android.di.KaliumCoreLogic
 import com.wire.android.services.PersistentWebSocketService
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
+import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
@@ -32,15 +33,24 @@ class StartServiceReceiver : BroadcastReceiver() {
         val persistentWebSocketServiceIntent = PersistentWebSocketService.newIntent(context)
         appLogger.e("persistent web socket receiver")
         scope.launch {
-            coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus().collect {
-                if (it.map { it.isPersistentWebSocketEnabled }.contains(true)) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                        context?.startForegroundService(persistentWebSocketServiceIntent)
-                    } else {
-                        context?.startService(persistentWebSocketServiceIntent)
+            coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus().let {
+                when (it) {
+                    is ObservePersistentWebSocketConnectionStatusUseCase.Result.Failure -> {
+                        appLogger.e("Failure while fetching persistent web socket status flow from StartServiceReceiver")
                     }
-                } else {
-                    context?.stopService(persistentWebSocketServiceIntent)
+                    is ObservePersistentWebSocketConnectionStatusUseCase.Result.Success -> {
+                        it.persistentWebSocketStatusListFlow.collect {
+                            if (it.map { it.isPersistentWebSocketEnabled }.contains(true)) {
+                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                    context?.startForegroundService(persistentWebSocketServiceIntent)
+                                } else {
+                                    context?.startService(persistentWebSocketServiceIntent)
+                                }
+                            } else {
+                                context?.stopService(persistentWebSocketServiceIntent)
+                            }
+                        }
+                    }
                 }
             }
         }

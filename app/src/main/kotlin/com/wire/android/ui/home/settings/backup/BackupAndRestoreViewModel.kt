@@ -47,15 +47,6 @@ class BackupAndRestoreViewModel
 
     var state by mutableStateOf(BackupAndRestoreState.INITIAL_STATE)
 
-    fun saveBackup() = viewModelScope.launch {
-        state.createdBackup?.let { backupData ->
-            fileManager.saveToExternalStorage(backupData.assetName, backupData.path, backupData.assetSize) {
-                Toast.makeText(context, context.getString(R.string.backup_label_conversation_successfully_saved), Toast.LENGTH_SHORT).show()
-            }
-        }
-        state = BackupAndRestoreState.INITIAL_STATE
-    }
-
     @Suppress("MagicNumber")
     fun createBackup(password: String) {
         viewModelScope.launch {
@@ -77,6 +68,15 @@ class BackupAndRestoreViewModel
                 )
             } else state.copy(backupCreationProgress = BackupCreationProgress.Failed)
         }
+    }
+
+    fun saveBackup() = viewModelScope.launch {
+        state.createdBackup?.let { backupData ->
+            fileManager.saveToExternalStorage(backupData.assetName, backupData.path, backupData.assetSize) {
+                Toast.makeText(context, context.getString(R.string.backup_label_conversation_successfully_saved), Toast.LENGTH_SHORT).show()
+            }
+        }
+        state = BackupAndRestoreState.INITIAL_STATE
     }
 
     fun chooseBackupFileToRestore(uri: Uri) = viewModelScope.launch {
@@ -121,7 +121,10 @@ class BackupAndRestoreViewModel
 
     @Suppress("MagicNumber")
     fun restorePasswordProtectedBackup(restorePassword: TextFieldValue) = viewModelScope.launch {
-        state = state.copy(backupRestoreProgress = BackupRestoreProgress.InProgress(0.50f))
+        state = state.copy(
+            backupRestoreProgress = BackupRestoreProgress.InProgress(0.50f),
+            restorePasswordValidation = PasswordValidation.NotVerified
+        )
         delay(250)
         val fileValidationState = state.restoreFileValidation
         if (fileValidationState is RestoreFileValidation.PasswordRequired) {
@@ -142,22 +145,16 @@ class BackupAndRestoreViewModel
                             restorePasswordValidation = PasswordValidation.NotValid,
                         )
 
-                        InvalidUserId -> {
-                            state = state.copy(
-                                backupRestoreProgress = BackupRestoreProgress.Failed,
-                                restoreFileValidation = RestoreFileValidation.WrongBackup
-                            )
-                        }
-                        is BackupIOFailure, is DecryptionFailure -> {
-                            state = state.copy(
-                                backupRestoreProgress = BackupRestoreProgress.Failed,
-                                restoreFileValidation = RestoreFileValidation.GeneralFailure
-                            )
-                        }
+                        InvalidUserId -> state = state.copy(
+                            backupRestoreProgress = BackupRestoreProgress.Failed,
+                            restoreFileValidation = RestoreFileValidation.WrongBackup
+                        )
+
+                        is BackupIOFailure, is DecryptionFailure -> state = state.copy(
+                            backupRestoreProgress = BackupRestoreProgress.Failed,
+                            restoreFileValidation = RestoreFileValidation.GeneralFailure
+                        )
                     }
-                    state = state.copy(restorePasswordValidation = PasswordValidation.NotValid)
-                    Toast.makeText(context, context.getString(R.string.backup_dialog_restore_general_error_message), Toast.LENGTH_LONG)
-                        .show()
                 }
             }
         } else {

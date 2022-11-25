@@ -77,9 +77,7 @@ fun EnterRestorePasswordDialog(
         ) {
             WirePasswordTextField(
                 value = restorePassword,
-                onValueChange = {
-                    restorePassword = it
-                }
+                onValueChange = { restorePassword = it }
             )
         }
     } else {
@@ -130,7 +128,7 @@ fun RestoreProgressDialog(
                 }
             }
             VerticalSpace.x16()
-            LinearProgressIndicator(progress = restoreProgress)
+            LinearProgressIndicator(modifier = Modifier.fillMaxWidth(), progress = restoreProgress)
             VerticalSpace.x16()
         }
     }

@@ -93,7 +93,10 @@ fun CreateBackupDialog(
         title = stringResource(R.string.backup_dialog_create_backup_title),
         onDismiss = onDismissDialog,
         optionButton1Properties = WireDialogButtonProperties(
-            onClick = onSaveBackup,
+            onClick = {
+                onSaveBackup()
+                onDismissDialog()
+            },
             text = stringResource(R.string.backup_dialog_create_backup_save),
             type = WireDialogButtonType.Primary,
             state = if (isBackupCreationCompleted) WireButtonState.Default else WireButtonState.Disabled

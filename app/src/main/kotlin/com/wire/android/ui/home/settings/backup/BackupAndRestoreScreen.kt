@@ -214,7 +214,8 @@ fun CreateBackupDialogFlow(
             BackUpDialogStep.Failure -> {
                 FailureDialog(
                     title = stringResource(R.string.backup_dialog_create_error_title),
-                    message = stringResource(R.string.backup_dialog_create_error_subtitle)
+                    message = stringResource(R.string.backup_dialog_create_error_subtitle),
+                    onDismiss = onCancelCreateBackup
                 )
             }
         }
@@ -280,7 +281,10 @@ fun RestoreBackupDialogFlow(
 
                 EnterRestorePasswordDialog(
                     isWrongPassword = showWrongPassword,
-                    onRestoreBackupFile = onRestoreBackup,
+                    onRestoreBackupFile = { password ->
+                        showWrongPassword = false
+                        onRestoreBackup(password)
+                    },
                     onAcknowledgeWrongPassword = { showWrongPassword = false },
                     onCancelBackupRestore = onCancelBackupRestore
                 )
@@ -309,7 +313,8 @@ fun RestoreBackupDialogFlow(
             is RestoreDialogStep.Failure -> {
                 FailureDialog(
                     title = stringResource(id = restoreDialogStep.restoreFailure.title),
-                    message = stringResource(id = restoreDialogStep.restoreFailure.message)
+                    message = stringResource(id = restoreDialogStep.restoreFailure.message),
+                    onDismiss = onCancelBackupRestore
                 )
             }
         }

@@ -60,11 +60,22 @@ fun MessageDetailsScreen(viewModel: MessageDetailsViewModel = hiltViewModel()) {
             )
         }
     }
+    
+    val readReceiptsLearnMoreUrl = stringResource(id = R.string.url_message_details_read_receipts_learn_more)
+    val onReadReceiptsLearnMore = remember {
+        {
+            CustomTabsHelper.launchUrl(
+                context,
+                readReceiptsLearnMoreUrl
+            )
+        }
+    }
 
     MessageDetailsScreenContent(
         messageDetailsState = viewModel.messageDetailsState,
         onBackPressed = viewModel::navigateBack,
-        onReactionsLearnMore = onReactionsLearnMore
+        onReactionsLearnMore = onReactionsLearnMore,
+        onReadReceiptsLearnMore = onReadReceiptsLearnMore
     )
 }
 
@@ -79,7 +90,8 @@ fun MessageDetailsScreen(viewModel: MessageDetailsViewModel = hiltViewModel()) {
 private fun MessageDetailsScreenContent(
     messageDetailsState: MessageDetailsState,
     onBackPressed: () -> Unit,
-    onReactionsLearnMore: () -> Unit
+    onReactionsLearnMore: () -> Unit,
+    onReadReceiptsLearnMore: () -> Unit
 ) {
     val scope = rememberCoroutineScope()
     val lazyListStates: List<LazyListState> = MessageDetailsTab.values().map { rememberLazyListState() }
@@ -140,13 +152,15 @@ private fun MessageDetailsScreenContent(
                 ) { pageIndex ->
                     when (MessageDetailsTab.values()[pageIndex]) {
                         MessageDetailsTab.REACTIONS -> MessageDetailsReactions(
-                            messageDetailsState = messageDetailsState,
+                            reactionsData = messageDetailsState.reactionsData,
                             lazyListState = lazyListStates[pageIndex],
                             onReactionsLearnMore = onReactionsLearnMore
                         )
-                        MessageDetailsTab.READ_RECEIPTS -> {
-                            // Not implemented yet.
-                        }
+                        MessageDetailsTab.READ_RECEIPTS -> MessageDetailsReadReceipts(
+                            readReceiptsData = messageDetailsState.readReceiptsData,
+                            lazyListState = lazyListStates[pageIndex],
+                            onReadReceiptsLearnMore = onReadReceiptsLearnMore
+                        )
                     }
                 }
 

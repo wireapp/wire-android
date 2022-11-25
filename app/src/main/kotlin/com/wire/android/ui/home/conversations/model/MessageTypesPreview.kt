@@ -13,6 +13,7 @@ import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.user.UserId
 
+
 private val previewUserId = UserId("value", "domain")
 
 @Preview(showBackground = true)

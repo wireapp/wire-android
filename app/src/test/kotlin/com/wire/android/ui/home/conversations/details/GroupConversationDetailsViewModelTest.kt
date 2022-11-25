@@ -409,16 +409,15 @@ class GroupConversationDetailsViewModelTest {
                 access = listOf(Conversation.Access.CODE, Conversation.Access.INVITE),
                 accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER, Conversation.AccessRole.GUEST),
                 lastReadDate = "2022-04-04T16:11:28.388Z",
-                creatorId = null,
-                firstUnreadMessageDate = "2022-04-04T16:11:28.388Z"
+                creatorId = null
             ),
             legalHoldStatus = LegalHoldStatus.DISABLED,
             hasOngoingCall = false,
             unreadMessagesCount = 0,
-            lastMessage = null,
+            lastUnreadMessage = null,
             isSelfUserCreator = false,
             isSelfUserMember = true,
-            unreadEventCount = emptyMap()
+            unreadContentCount = emptyMap()
         )
     }
 }

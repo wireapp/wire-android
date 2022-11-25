@@ -30,7 +30,6 @@ fun OtherUserProfileBottomSheetContent(
                         conversationSheetState.conversationId,
                         mutedConversationStatus
                     )
-                    bottomSheetState.muteConversation(mutedConversationStatus)
                 },
                 addConversationToFavourites = eventsHandler::onAddConversationToFavourites,
                 moveConversationToFolder = eventsHandler::onMoveConversationToFolder,

@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
+import com.wire.android.datastore.GlobalDataStore
 import com.wire.android.model.ImageAsset.UserAvatarAsset
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.EXTRA_CONNECTION_IGNORED_USER_NAME
@@ -32,6 +33,7 @@ import javax.inject.Inject
 @HiltViewModel
 class HomeViewModel @Inject constructor(
     override val savedStateHandle: SavedStateHandle,
+    private val globalDataStore: GlobalDataStore,
     private val navigationManager: NavigationManager,
     private val getSelf: GetSelfUserUseCase,
     private val needsToRegisterClient: NeedsToRegisterClientUseCase,
@@ -71,9 +73,15 @@ class HomeViewModel @Inject constructor(
                     )
                     return@launch
                 }
+                shouldDisplayWelcomeToARScreen() -> {
+                    homeState = homeState.copy(shouldDisplayWelcomeMessage = true)
+                }
             }
         }
     }
+
+    private suspend fun shouldDisplayWelcomeToARScreen() =
+        globalDataStore.isMigrationCompleted() && !globalDataStore.isWelcomeScreenPresented()
 
     fun checkPendingSnackbarState(): HomeSnackbarState? {
         return with(savedStateHandle) {
@@ -98,6 +106,13 @@ class HomeViewModel @Inject constructor(
         }
     }
 
+    fun dismissWelcomeMessage() {
+        viewModelScope.launch {
+            globalDataStore.setWelcomeScreenPresented()
+            homeState = homeState.copy(shouldDisplayWelcomeMessage = false)
+        }
+    }
+
     fun navigateTo(item: NavigationItem) {
         viewModelScope.launch {
             navigationManager.navigate(NavigationCommand(destination = item.getRouteWithArgs()))
@@ -110,7 +125,8 @@ class HomeViewModel @Inject constructor(
 data class HomeState(
     val avatarAsset: UserAvatarAsset? = null,
     val status: UserAvailabilityStatus = UserAvailabilityStatus.NONE,
-    val logFilePath: String
+    val logFilePath: String,
+    val shouldDisplayWelcomeMessage: Boolean = false,
 )
 
 // TODO change to extend [SnackBarMessage]

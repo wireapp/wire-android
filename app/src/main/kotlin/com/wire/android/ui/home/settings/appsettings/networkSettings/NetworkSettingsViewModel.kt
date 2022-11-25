@@ -62,7 +62,9 @@ class NetworkSettingsViewModel
                                         }
                                     }
                                     if (it.map { it.isPersistentWebSocketEnabled }.contains(true)) {
-                                        servicesManager.startPersistentWebSocketService()
+                                        if (!servicesManager.isPersistentWebSocketServiceRunning()) {
+                                            servicesManager.startPersistentWebSocketService()
+                                        }
                                     } else {
                                         servicesManager.stopPersistentWebSocketService()
                                     }

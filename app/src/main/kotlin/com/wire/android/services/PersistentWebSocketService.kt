@@ -4,6 +4,7 @@ import android.app.Notification
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.location.Location
 import android.os.IBinder
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
@@ -62,6 +63,11 @@ class PersistentWebSocketService : Service() {
         return null
     }
 
+    override fun onCreate() {
+        super.onCreate()
+        var isServiceStarted = true
+    }
+
     @OptIn(ExperimentalCoroutinesApi::class)
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         scope.launch {
@@ -86,15 +92,16 @@ class PersistentWebSocketService : Service() {
                                         openIncomingCall(it.conversationId)
                                     }
 
+                                } else {
+                                    kotlinx.coroutines.runBlocking {
+                                        coreLogic.getSessionScope(persistentWebSocketStatus.userId)
+                                            .setConnectionPolicy(com.wire.kalium.logic.data.sync.ConnectionPolicy.DISCONNECT_AFTER_PENDING_EVENTS)
+                                    }
                                 }
                             }
-
                         }
-
                     }
                 }
-
-
             }
 
         }
@@ -133,10 +140,14 @@ class PersistentWebSocketService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         scope.cancel("PersistentWebSocketService was destroyed")
+        var isServiceStarted = false
+
     }
 
     companion object {
         fun newIntent(context: Context?): Intent =
             Intent(context, PersistentWebSocketService::class.java)
+
+        var isServiceStarted = false
     }
 }

@@ -41,10 +41,12 @@ class StartServiceReceiver : BroadcastReceiver() {
                     is ObservePersistentWebSocketConnectionStatusUseCase.Result.Success -> {
                         it.persistentWebSocketStatusListFlow.collect {
                             if (it.map { it.isPersistentWebSocketEnabled }.contains(true)) {
-                                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                                    context?.startForegroundService(persistentWebSocketServiceIntent)
-                                } else {
-                                    context?.startService(persistentWebSocketServiceIntent)
+                                if (!PersistentWebSocketService.isServiceStarted) {
+                                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                                        context?.startForegroundService(persistentWebSocketServiceIntent)
+                                    } else {
+                                        context?.startService(persistentWebSocketServiceIntent)
+                                    }
                                 }
                             } else {
                                 context?.stopService(persistentWebSocketServiceIntent)

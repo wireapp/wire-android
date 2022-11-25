@@ -29,7 +29,7 @@ class FakeKaliumFileSystem(
 
     private val fakeFileSystem = FakeFileSystem()
 
-    private val dataStoragePaths = DataStoragePaths(rootFileSystemPath, rootCacheSystemPath, )
+    private val dataStoragePaths = DataStoragePaths(rootFileSystemPath, rootCacheSystemPath, rootDBSystemPath)
 
     init {
         fakeFileSystem.allowDeletingOpenFiles = true
@@ -52,6 +52,8 @@ class FakeKaliumFileSystem(
     override fun createDirectory(dir: Path, mustCreate: Boolean) = fakeFileSystem.createDirectory(dir, mustCreate)
 
     override fun delete(path: Path, mustExist: Boolean) = fakeFileSystem.delete(path, mustExist)
+
+    override fun deleteContents(dir: Path, mustExist: Boolean) = fakeFileSystem.deleteRecursively(dir, mustExist)
 
     override fun exists(path: Path): Boolean = fakeFileSystem.exists(path)
 
@@ -83,4 +85,7 @@ class FakeKaliumFileSystem(
     }
 
     override fun selfUserAvatarPath(): Path = providePersistentAssetPath("self_user_avatar.jpg")
+
+    override suspend fun list(dir: Path): List<Path> = fakeFileSystem.list(dir)
+
 }

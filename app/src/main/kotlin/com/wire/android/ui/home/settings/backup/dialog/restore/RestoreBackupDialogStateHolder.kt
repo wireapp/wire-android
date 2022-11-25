@@ -21,14 +21,8 @@ class RestoreDialogStateHolder {
 
     var isRestoreCompleted: Boolean by mutableStateOf(false)
 
-    var isRestorePasswordValid: Boolean by mutableStateOf(false)
-
     fun toEnterPassword() {
         currentRestoreDialogStep = RestoreDialogStep.EnterPassword
-    }
-
-    fun test() {
-        isRestorePasswordValid = true
     }
 
     fun toRestoreFailure(restoreFailure: RestoreFailure) {
@@ -64,7 +58,7 @@ enum class RestoreFailure(@StringRes val title: Int, @StringRes val message: Int
     ),
     WrongBackup(
         R.string.backup_dialog_restore_wrong_user_error_title,
-        R.string.backup_dialog_restore_wrong_user__error_message
+        R.string.backup_dialog_restore_wrong_user_error_message
     ),
     GeneralFailure(
         R.string.backup_dialog_restore_general_error_title,

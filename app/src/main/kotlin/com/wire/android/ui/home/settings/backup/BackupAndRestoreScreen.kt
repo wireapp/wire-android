@@ -26,6 +26,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
+import com.wire.android.appLogger
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
@@ -49,11 +50,11 @@ import com.wire.android.ui.theme.wireTypography
 fun BackupAndRestoreScreen(viewModel: BackupAndRestoreViewModel = hiltViewModel()) {
     BackupAndRestoreContent(
         backUpAndRestoreState = viewModel.state,
-        onValidateBackupPassword = viewModel::validateBackupPassword,
+        onValidateBackupPassword = viewModel::validateBackupCreationPassword,
         onCreateBackup = viewModel::createBackup,
         onSaveBackup = viewModel::saveBackup,
         onChooseBackupFile = viewModel::chooseBackupFileToRestore,
-        onRestoreBackup = viewModel::restoreBackup,
+        onRestoreBackup = viewModel::restorePasswordProtectedBackup,
         onCancelBackupRestore = viewModel::cancelBackupRestore,
         onCancelBackupCreation = viewModel::cancelBackupCreation,
         onOpenConversations = viewModel::navigateToConversations,
@@ -191,12 +192,12 @@ fun CreateBackupDialogFlow(
             }
 
             BackUpDialogStep.CreatingBackup -> {
-                LaunchedEffect(backUpAndRestoreState.backupProgress) {
-                    when (val progress = backUpAndRestoreState.backupProgress) {
-                        BackupProgress.Pending -> {}
-                        BackupProgress.Failed -> backupDialogStateHolder.toBackupFailure()
-                        BackupProgress.Finished -> backupDialogStateHolder.toFinished()
-                        is BackupProgress.InProgress -> {
+                LaunchedEffect(backUpAndRestoreState.backupCreationProgress) {
+                    when (val progress = backUpAndRestoreState.backupCreationProgress) {
+                        BackupCreationProgress.Pending -> {}
+                        BackupCreationProgress.Failed -> backupDialogStateHolder.toBackupFailure()
+                        BackupCreationProgress.Finished -> backupDialogStateHolder.toFinished()
+                        is BackupCreationProgress.InProgress -> {
                             backupDialogStateHolder.backupProgress = progress.value
                         }
                     }
@@ -212,8 +213,8 @@ fun CreateBackupDialogFlow(
 
             BackUpDialogStep.Failure -> {
                 FailureDialog(
-                    title = "test",
-                    message = "restoreDialogStep.restoreFailure.messag"
+                    title = stringResource(R.string.backup_dialog_create_error_title),
+                    message = stringResource(R.string.backup_dialog_create_error_subtitle)
                 )
             }
         }
@@ -253,7 +254,7 @@ fun RestoreBackupDialogFlow(
                             restoreDialogStateHolder.toRestoreFailure(RestoreFailure.WrongBackup)
                         }
 
-                        RestoreFileValidation.PasswordRequired -> {
+                        is RestoreFileValidation.PasswordRequired -> {
                             restoreDialogStateHolder.toEnterPassword()
                         }
                     }
@@ -269,6 +270,7 @@ fun RestoreBackupDialogFlow(
                 var showWrongPassword by remember { mutableStateOf(false) }
 
                 LaunchedEffect(backUpAndRestoreState.restorePasswordValidation) {
+                    appLogger.d("Password status changed: -> ${backUpAndRestoreState.restorePasswordValidation}")
                     when (backUpAndRestoreState.restorePasswordValidation) {
                         PasswordValidation.NotValid -> showWrongPassword = true
                         PasswordValidation.NotVerified -> showWrongPassword = false
@@ -285,12 +287,12 @@ fun RestoreBackupDialogFlow(
             }
 
             RestoreDialogStep.RestoreBackup -> {
-                LaunchedEffect(backUpAndRestoreState.restoreProgress) {
-                    when (val progress = backUpAndRestoreState.restoreProgress) {
-                        RestoreProgress.Pending -> {}
-                        RestoreProgress.Failed -> restoreDialogStateHolder.toRestoreFailure(RestoreFailure.GeneralFailure)
-                        RestoreProgress.Finished -> restoreDialogStateHolder.toFinished()
-                        is RestoreProgress.InProgress -> {
+                LaunchedEffect(backUpAndRestoreState.backupRestoreProgress) {
+                    when (val progress = backUpAndRestoreState.backupRestoreProgress) {
+                        BackupRestoreProgress.Pending -> {}
+                        BackupRestoreProgress.Failed -> restoreDialogStateHolder.toRestoreFailure(RestoreFailure.GeneralFailure)
+                        BackupRestoreProgress.Finished -> restoreDialogStateHolder.toFinished()
+                        is BackupRestoreProgress.InProgress -> {
                             restoreDialogStateHolder.restoreProgress = progress.value
                         }
                     }

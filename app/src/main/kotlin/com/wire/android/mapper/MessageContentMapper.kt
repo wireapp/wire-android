@@ -7,12 +7,13 @@ import com.wire.android.ui.home.conversations.findUser
 import com.wire.android.ui.home.conversations.model.AttachmentType
 import com.wire.android.ui.home.conversations.model.MessageBody
 import com.wire.android.ui.home.conversations.model.QuotedMessageUIData
+import com.wire.android.ui.home.conversations.model.UILastMessageContent
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.util.time.ISOFormatter
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
-import com.wire.kalium.logic.data.conversation.UnreadEventCount
 import com.wire.kalium.logic.data.asset.isDisplayableImageMimeType
+import com.wire.kalium.logic.data.conversation.UnreadEventCount
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.message.AssetContent
 import com.wire.kalium.logic.data.message.Message
@@ -260,9 +261,9 @@ class MessageContentMapper @Inject constructor(
 fun Message?.toUIPreview(
     unreadEventCount: UnreadEventCount,
     unreadMentionsCount: Long,
-): UIMessageContent {
+): UILastMessageContent {
     if (this == null) {
-        return UIMessageContent.None
+        return UILastMessageContent.None
     }
 
     val sortedUnreadContent = unreadEventCount
@@ -297,17 +298,17 @@ fun Message?.toUIPreview(
         if (unreadContentTexts.size > 1) {
             val first = unreadContentTexts.first()
             val second = unreadContentTexts.elementAt(1)
-            return UIMessageContent.MultipleMessage(first, second)
+            return UILastMessageContent.MultipleMessage(first, second)
         } else if (unreadContentTexts.isNotEmpty()) {
-            return UIMessageContent.TextMessage(MessageBody(unreadContentTexts.first()))
+            return UILastMessageContent.TextMessage(MessageBody(unreadContentTexts.first()))
         }
     }
 
-    return uiMessageContent()
+    return uiLastMessageContent()
 }
 
 @Suppress("LongMethod", "ComplexMethod")
-private fun Message.uiMessageContent(): UIMessageContent {
+private fun Message.uiLastMessageContent(): UILastMessageContent {
     val senderUIText = when {
         isSelfMessage -> UIText.StringResource(R.string.member_name_you_label_titlecase)
         senderUserName != null -> UIText.DynamicString(senderUserName!!)
@@ -320,44 +321,42 @@ private fun Message.uiMessageContent(): UIMessageContent {
             is Asset ->
                 when ((content as Asset).value.metadata) {
                     is AssetContent.AssetMetadata.Audio ->
-                        UIMessageContent.SenderWithMessage(senderUIText, UIText.StringResource(R.string.last_message_audio))
+                        UILastMessageContent.SenderWithMessage(senderUIText, UIText.StringResource(R.string.last_message_audio))
                     is AssetContent.AssetMetadata.Image ->
-                        UIMessageContent.SenderWithMessage(senderUIText, UIText.StringResource(R.string.last_message_image))
+                        UILastMessageContent.SenderWithMessage(senderUIText, UIText.StringResource(R.string.last_message_image))
                     is AssetContent.AssetMetadata.Video ->
-                        UIMessageContent.SenderWithMessage(senderUIText, UIText.StringResource(R.string.last_message_video))
+                        UILastMessageContent.SenderWithMessage(senderUIText, UIText.StringResource(R.string.last_message_video))
                     null ->
-                        UIMessageContent.SenderWithMessage(senderUIText, UIText.StringResource(R.string.last_message_asset))
+                        UILastMessageContent.SenderWithMessage(senderUIText, UIText.StringResource(R.string.last_message_asset))
                 }
-            is MessageContent.Calling -> UIMessageContent.TextMessage(MessageBody(UIText.StringResource(R.string.last_message_calling)))
-            is MessageContent.Cleared -> UIMessageContent.None
-            is MessageContent.DeleteForMe -> UIMessageContent.None
-            is MessageContent.DeleteMessage -> UIMessageContent.None
-            MessageContent.Empty -> UIMessageContent.None
-            is MessageContent.FailedDecryption -> UIMessageContent.None
-            is MessageContent.Knock -> UIMessageContent.SenderWithMessage(
+            is MessageContent.Calling -> UILastMessageContent.TextMessage(MessageBody(UIText.StringResource(R.string.last_message_calling)))
+            is MessageContent.Cleared -> UILastMessageContent.None
+            is MessageContent.DeleteForMe -> UILastMessageContent.None
+            is MessageContent.DeleteMessage -> UILastMessageContent.None
+            MessageContent.Empty -> UILastMessageContent.None
+            is MessageContent.FailedDecryption -> UILastMessageContent.None
+            is MessageContent.Knock -> UILastMessageContent.SenderWithMessage(
                 senderUIText,
                 UIText.StringResource(R.string.last_message_knock)
             )
-            is MessageContent.LastRead -> UIMessageContent.None
-            is MessageContent.Reaction -> UIMessageContent.None
+            is MessageContent.LastRead -> UILastMessageContent.None
+            is MessageContent.Reaction -> UILastMessageContent.None
             is MessageContent.RestrictedAsset ->
-                UIMessageContent.SenderWithMessage(senderUIText, UIText.StringResource(R.string.last_message_asset))
-            is MessageContent.Text -> UIMessageContent.SenderWithMessage(
-                senderUIText,
-                UIText.StringResource(
-                    R.string.last_message_colon_text,
-                    (content as MessageContent.Text).value
-                )
+                UILastMessageContent.SenderWithMessage(senderUIText, UIText.StringResource(R.string.last_message_asset))
+            is MessageContent.Text -> UILastMessageContent.SenderWithMessage(
+                sender = senderUIText,
+                message = UIText.DynamicString((content as MessageContent.Text).value),
+                separator = ": "
             )
-            is MessageContent.TextEdited -> UIMessageContent.None
-            is MessageContent.Unknown -> UIMessageContent.None
+            is MessageContent.TextEdited -> UILastMessageContent.None
+            is MessageContent.Unknown -> UILastMessageContent.None
         }
         is Message.System -> when (content) {
-            is MessageContent.ConversationRenamed -> UIMessageContent.SenderWithMessage(
+            is MessageContent.ConversationRenamed -> UILastMessageContent.SenderWithMessage(
                 senderUIText,
                 UIText.StringResource(R.string.last_message_change_conversation_name)
             )
-            is Added -> UIMessageContent.SenderWithMessage(
+            is Added -> UILastMessageContent.SenderWithMessage(
                 senderUIText,
                 UIText.PluralResource(
                     R.plurals.last_message_people_added,
@@ -365,7 +364,7 @@ private fun Message.uiMessageContent(): UIMessageContent {
                     (content as Added).members.size
                 )
             )
-            is Removed -> UIMessageContent.SenderWithMessage(
+            is Removed -> UILastMessageContent.SenderWithMessage(
                 senderUIText,
                 UIText.PluralResource(
                     R.plurals.last_message_people_removed,
@@ -373,8 +372,11 @@ private fun Message.uiMessageContent(): UIMessageContent {
                     (content as Removed).members.size
                 )
             )
-            MessageContent.MissedCall -> UIMessageContent.SenderWithMessage(senderUIText, UIText.StringResource(R.string.last_message_call))
-            is MessageContent.TeamMemberRemoved -> UIMessageContent.None
+            MessageContent.MissedCall -> UILastMessageContent.SenderWithMessage(
+                senderUIText,
+                UIText.StringResource(R.string.last_message_call)
+            )
+            is MessageContent.TeamMemberRemoved -> UILastMessageContent.None
         }
     }
 }

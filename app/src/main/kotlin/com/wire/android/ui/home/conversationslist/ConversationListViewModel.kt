@@ -7,7 +7,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.mapper.toUIPreview
@@ -19,18 +18,16 @@ import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.common.bottomsheet.conversation.ConversationTypeDetail
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
 import com.wire.android.ui.home.HomeSnackbarState
-import com.wire.android.ui.home.conversations.model.UIMessageContent
+import com.wire.android.ui.home.conversations.model.UILastMessageContent
 import com.wire.android.ui.home.conversations.search.SearchPeopleViewModel
 import com.wire.android.ui.home.conversationslist.model.BadgeEventType
 import com.wire.android.ui.home.conversationslist.model.BlockState
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
-import com.wire.android.ui.home.conversationslist.model.ConversationLastEvent
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.ConversationDetails.Connection
@@ -377,7 +374,7 @@ private fun ConversationDetails.toConversationItem(
             conversationId = conversation.id,
             mutedStatus = conversation.mutedStatus,
             isLegalHold = legalHoldStatus.showLegalHoldIndicator(),
-            lastMessageContent = lastMessage.toUIPreview( unreadEventCount, unreadMentionsCount),
+            lastMessageContent = lastMessage.toUIPreview(unreadEventCount, unreadMentionsCount),
             badgeEventType = parseConversationEventType(conversation.mutedStatus, unreadMentionsCount, unreadEventCount),
             hasOnGoingCall = hasOngoingCall,
             isSelfUserCreator = isSelfUserCreator,
@@ -421,7 +418,7 @@ private fun ConversationDetails.toConversationItem(
                 name = otherUser?.name.orEmpty(),
                 membership = userTypeMapper.toMembership(userType)
             ),
-            lastMessageContent = UIMessageContent.Connection(
+            lastMessageContent = UILastMessageContent.Connection(
                 connection.status,
                 connection.qualifiedToId
             ),

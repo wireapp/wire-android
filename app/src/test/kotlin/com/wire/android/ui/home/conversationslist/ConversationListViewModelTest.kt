@@ -10,12 +10,11 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.common.dialogs.BlockUserDialogState
-import com.wire.android.ui.home.conversations.model.UIMessageContent
+import com.wire.android.ui.home.conversations.model.UILastMessageContent
 import com.wire.android.ui.home.conversationslist.model.BadgeEventType
 import com.wire.android.ui.home.conversationslist.model.BlockingState
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
-import com.wire.android.ui.home.conversationslist.model.ConversationLastEvent
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
@@ -191,7 +190,7 @@ class ConversationListViewModelTest {
             conversationId = conversationId,
             mutedStatus = MutedConversationStatus.AllAllowed,
             isLegalHold = false,
-            lastMessageContent = UIMessageContent.None,
+            lastMessageContent = UILastMessageContent.None,
             badgeEventType = BadgeEventType.None,
             userId = userId,
             blockingState = BlockingState.CAN_NOT_BE_BLOCKED

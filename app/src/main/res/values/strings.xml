@@ -462,7 +462,6 @@
     <string name="last_message_audio">shared an audio message.</string>
     <string name="last_message_knock">pinged.</string>
     <string name="last_message_call">called.</string>
-    <string name="last_message_colon_text">: %1$s</string>
     <string name="last_message_replied">%1$s replied to you</string>
     <string name="last_message_change_conversation_name">changed conversation name</string>
     <string name="last_message_calling">%1$s calling...</string>

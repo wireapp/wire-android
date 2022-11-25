@@ -12,19 +12,19 @@ import com.wire.android.util.ui.UIText
 @Composable
 fun LastMessageSubtitle(text: UIText) {
     Text(
-            text = text.asString(LocalContext.current.resources),
-            style = MaterialTheme.wireTypography.subline01.copy(
-                color = MaterialTheme.wireColorScheme.secondaryText
-            ),
-            maxLines = 1,
-            overflow = TextOverflow.Ellipsis
-        )
+        text = text.asString(LocalContext.current.resources),
+        style = MaterialTheme.wireTypography.subline01.copy(
+            color = MaterialTheme.wireColorScheme.secondaryText
+        ),
+        maxLines = 1,
+        overflow = TextOverflow.Ellipsis
+    )
 }
 
 @Composable
-fun LastMessageSubtitleWithAuthor(author: UIText, text: UIText ) {
+fun LastMessageSubtitleWithAuthor(author: UIText, text: UIText, separator: String) {
     Text(
-        text = "${author.asString(LocalContext.current.resources)} ${text.asString(LocalContext.current.resources)}",
+        text = "${author.asString(LocalContext.current.resources)}$separator${text.asString(LocalContext.current.resources)}",
         style = MaterialTheme.wireTypography.subline01.copy(
             color = MaterialTheme.wireColorScheme.secondaryText
         ),

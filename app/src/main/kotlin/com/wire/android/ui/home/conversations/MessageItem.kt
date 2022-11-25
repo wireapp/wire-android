@@ -305,10 +305,6 @@ private fun MessageContent(
         null -> {
             throw NullPointerException("messageContent is null")
         }
-        is UIMessageContent.Connection -> {}
-        is UIMessageContent.MultipleMessage -> {}
-        UIMessageContent.None -> {}
-        is UIMessageContent.SenderWithMessage -> {}
     }
 }
 

@@ -9,7 +9,7 @@ import com.wire.android.ui.calling.controlbuttons.JoinButton
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.conversationColor
-import com.wire.android.ui.home.conversations.model.UIMessageContent
+import com.wire.android.ui.home.conversations.model.UILastMessageContent
 import com.wire.android.ui.home.conversationslist.MutedConversationBadge
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
 import com.wire.android.ui.home.conversationslist.model.toUserInfoLabel
@@ -32,13 +32,13 @@ fun ConversationItemFactory(
             enabled = true,
             onClick = {
                 when (val lastEvent = conversation.lastMessageContent) {
-                    is UIMessageContent.Connection -> openUserProfile(lastEvent.userId)
+                    is UILastMessageContent.Connection -> openUserProfile(lastEvent.userId)
                     else -> openConversation(conversation.conversationId)
                 }
             },
             onLongClick = {
                 when (conversation.lastMessageContent) {
-                    is UIMessageContent.Connection -> {
+                    is UILastMessageContent.Connection -> {
                     }
 
                     else -> openMenu(conversation)
@@ -51,9 +51,13 @@ fun ConversationItemFactory(
         searchQuery = searchQuery,
         subTitle = {
             when (val messageContent = conversation.lastMessageContent) {
-                is UIMessageContent.TextMessage -> LastMessageSubtitle(messageContent.messageBody.message)
-                is UIMessageContent.MultipleMessage -> LastMessagesSubtitle(messageContent.firstMessage, messageContent.secondMessage)
-                is UIMessageContent.SenderWithMessage -> LastMessageSubtitleWithAuthor(messageContent.sender, messageContent.message)
+                is UILastMessageContent.TextMessage -> LastMessageSubtitle(messageContent.messageBody.message)
+                is UILastMessageContent.MultipleMessage -> LastMessagesSubtitle(messageContent.firstMessage, messageContent.secondMessage)
+                is UILastMessageContent.SenderWithMessage -> LastMessageSubtitleWithAuthor(
+                    messageContent.sender,
+                    messageContent.message,
+                    messageContent.separator
+                )
                 else -> {}
             }
         },

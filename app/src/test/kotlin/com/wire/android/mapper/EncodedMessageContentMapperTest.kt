@@ -86,8 +86,7 @@ class EncodedMessageContentMapperTest {
         val resultNonText = mapper.toText(TestConversation.ID, nonTextContent)
         with(resultText) {
             assertTrue(
-                messageBody.message is UIText.DynamicString &&
-                        (messageBody.message as UIText.DynamicString).value == textContent.value
+                messageBody.message is UIText.DynamicString && (messageBody.message as UIText.DynamicString).value == textContent.value
             )
         }
         with(resultNonText) {
@@ -185,7 +184,7 @@ class EncodedMessageContentMapperTest {
         with(arrangement) {
             // When - Then
             val resultContentOther =
-                mapper.toUIMessageContent(AssetMessageContentMetadata(unknownImageMessageContent), testMessage1, sender)
+                mapper.toUIAssetMessageContent(AssetMessageContentMetadata(unknownImageMessageContent), testMessage1, sender)
             coVerify(exactly = 0) { arrangement.getMessageAssetUseCase.invoke(any(), any()) }
             assertTrue(
                 resultContentOther is AssetMessage
@@ -193,7 +192,7 @@ class EncodedMessageContentMapperTest {
             )
 
             // When - Then
-            val resultContentImage = mapper.toUIMessageContent(AssetMessageContentMetadata(correctJPGImage), testMessage2, sender)
+            val resultContentImage = mapper.toUIAssetMessageContent(AssetMessageContentMetadata(correctJPGImage), testMessage2, sender)
             assertTrue(resultContentImage is PreviewAssetMessage)
         }
     }
@@ -214,7 +213,7 @@ class EncodedMessageContentMapperTest {
         val testMessage = buildAssetMessage(contentImage)
 
         // When
-        val resultContentImage = mapper.toUIMessageContent(AssetMessageContentMetadata(contentImage), testMessage, sender)
+        val resultContentImage = mapper.toUIAssetMessageContent(AssetMessageContentMetadata(contentImage), testMessage, sender)
 
         // Then
         coVerify(inverse = true) { arrangement.getMessageAssetUseCase.invoke(any(), any()) }
@@ -251,8 +250,8 @@ class EncodedMessageContentMapperTest {
 
         // When
         with(arrangement) {
-            val resultContentImage1 = mapper.toUIMessageContent(AssetMessageContentMetadata(contentImage1), testMessage1, sender)
-            val resultContentImage2 = mapper.toUIMessageContent(AssetMessageContentMetadata(contentImage2), testMessage2, sender)
+            val resultContentImage1 = mapper.toUIAssetMessageContent(AssetMessageContentMetadata(contentImage1), testMessage1, sender)
+            val resultContentImage2 = mapper.toUIAssetMessageContent(AssetMessageContentMetadata(contentImage2), testMessage2, sender)
 
             // Then
             assertTrue(resultContentImage1 is AssetMessage)

@@ -1,4 +1,4 @@
-package com.wire.android.ui.home.conversationslist
+package com.wire.android.ui.home.conversationslist.common
 
 import androidx.annotation.StringRes
 import androidx.compose.material.Text

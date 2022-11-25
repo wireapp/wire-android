@@ -1,4 +1,4 @@
-package com.wire.android.ui.home.conversationslist
+package com.wire.android.ui.home.conversationslist.mention
 
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text

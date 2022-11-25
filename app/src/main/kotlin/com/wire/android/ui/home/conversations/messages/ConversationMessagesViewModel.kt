@@ -17,7 +17,6 @@ import com.wire.android.ui.home.conversations.DownloadedAssetDialogVisibilitySta
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
 import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.message.Message
@@ -60,7 +59,7 @@ class ConversationMessagesViewModel @Inject constructor(
 
     init {
         loadPaginatedMessages()
-        loadLastMessageInstant()
+        loadConversationFirstUnreadInstant()
     }
 
     private fun loadPaginatedMessages() = viewModelScope.launch {
@@ -70,20 +69,15 @@ class ConversationMessagesViewModel @Inject constructor(
         conversationViewState = conversationViewState.copy(messages = paginatedMessagesFlow)
     }
 
-    private fun loadLastMessageInstant() = viewModelScope.launch {
+    private fun loadConversationFirstUnreadInstant() = viewModelScope.launch {
         observeConversationDetails(conversationId)
             .flowOn(dispatchers.io())
             .collect { conversationDetailsResult ->
                 if (conversationDetailsResult is ObserveConversationDetailsUseCase.Result.Success) {
-                    val lastUnreadMessage = when (val details = conversationDetailsResult.conversationDetails) {
-                        is ConversationDetails.OneOne -> details.lastUnreadMessage
-                        is ConversationDetails.Group -> details.lastUnreadMessage
-                        else -> null
+                    val lastUnreadInstant = conversationDetailsResult.conversationDetails.conversation.firstUnreadMessageDate?.let {
+                        Instant.parse(it)
                     }
-                    val lastUnreadInstant = lastUnreadMessage?.let {
-                        Instant.parse(lastUnreadMessage.date)
-                    }
-                    conversationViewState = conversationViewState.copy(lastUnreadMessageInstant = lastUnreadInstant)
+                    conversationViewState = conversationViewState.copy(firstUnreadInstant = lastUnreadInstant)
                 }
             }
     }

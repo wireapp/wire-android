@@ -260,12 +260,11 @@ private fun MessageContent(
                 QuotedMessage(it)
             }
             MessageBody(
-                messageBody = messageContent.messageBody,
+                message = messageContent.messageBody.message,
                 onLongClick = onLongClick,
                 onOpenProfile = onOpenProfile
             )
         }
-
         is UIMessageContent.AssetMessage -> MessageGenericAsset(
             assetName = messageContent.assetName,
             assetExtension = messageContent.assetExtension,

@@ -10,7 +10,7 @@ import kotlinx.datetime.Instant
 
 data class ConversationMessagesViewState(
     val messages: Flow<PagingData<UIMessage>> = emptyFlow(),
-    val firstUnreadInstant: Instant? = null,
+    val lastUnreadMessageInstant: Instant? = null,
     val snackbarMessage: ConversationSnackbarMessages? = null,
     val downloadedAssetDialogState: DownloadedAssetDialogVisibilityState = DownloadedAssetDialogVisibilityState.Hidden
 )

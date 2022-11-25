@@ -9,6 +9,10 @@ import com.wire.android.ui.home.conversations.DownloadedAssetDialogVisibilitySta
 import com.wire.android.ui.home.conversations.mockConversationDetailsGroup
 import com.wire.android.ui.home.conversations.mockUITextMessage
 import com.wire.kalium.logic.data.conversation.ConversationDetails
+import com.wire.kalium.logic.data.id.PlainId
+import com.wire.kalium.logic.data.id.QualifiedID
+import com.wire.kalium.logic.data.message.Message
+import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.util.fileExtension
 import io.mockk.coVerify
 import io.mockk.verify
@@ -105,20 +109,30 @@ class ConversationMessagesViewModelTest {
                 .withConversationDetailUpdate(groupDetails)
                 .arrange()
 
-            val sendDate = Instant.fromEpochSeconds(1000L, 0).toString()
-
-            arrangement.conversationDetailsChannel.send(
-                groupDetails.copy(conversation = groupDetails.conversation.copy(firstUnreadMessageDate = sendDate))
+            val sendMessage = Message.Regular(
+                id = "commonId",
+                content = MessageContent.Text("some Text", listOf(), null, null),
+                conversationId = QualifiedID("someValue", "someId"),
+                date = Instant.fromEpochSeconds(1000L, 0).toString(),
+                senderUserId = QualifiedID("someValue", "someId"),
+                status = Message.Status.SENT,
+                visibility = Message.Visibility.VISIBLE,
+                senderClientId = PlainId(value = "someValue"),
+                editStatus = Message.EditStatus.NotEdited
             )
 
-            viewModel.conversationViewState.firstUnreadInstant.shouldNotBeNull()
-            viewModel.conversationViewState.firstUnreadInstant.toString() shouldBeEqualTo sendDate
-
             arrangement.conversationDetailsChannel.send(
-                groupDetails.copy(conversation = groupDetails.conversation.copy(firstUnreadMessageDate = null))
+                groupDetails.copy(lastUnreadMessage = sendMessage)
             )
 
-            viewModel.conversationViewState.firstUnreadInstant.shouldBeNull()
+            viewModel.conversationViewState.lastUnreadMessageInstant.shouldNotBeNull()
+            viewModel.conversationViewState.lastUnreadMessageInstant.toString() shouldBeEqualTo sendMessage.date
+
+            arrangement.conversationDetailsChannel.send(
+                groupDetails.copy(lastUnreadMessage = null)
+            )
+
+            viewModel.conversationViewState.lastUnreadMessageInstant.shouldBeNull()
         }
 
     @Test
@@ -130,21 +144,30 @@ class ConversationMessagesViewModelTest {
                 .withConversationDetailUpdate(groupDetails)
                 .arrange()
 
-            val sendDate = Instant.fromEpochSeconds(1000L, 0).toString()
-
-            arrangement.conversationDetailsChannel.send(
-                groupDetails.copy(conversation = groupDetails.conversation.copy(firstUnreadMessageDate = null))
+            val sendMessage = Message.Regular(
+                id = "commonId",
+                content = MessageContent.Text("some Text", listOf(), null, null),
+                conversationId = QualifiedID("someValue", "someId"),
+                date = Instant.fromEpochSeconds(1000L, 0).toString(),
+                senderUserId = QualifiedID("someValue", "someId"),
+                status = Message.Status.SENT,
+                visibility = Message.Visibility.VISIBLE,
+                senderClientId = PlainId(value = "someValue"),
+                editStatus = Message.EditStatus.NotEdited
             )
 
-
-            viewModel.conversationViewState.firstUnreadInstant.shouldBeNull()
-
             arrangement.conversationDetailsChannel.send(
-                groupDetails.copy(conversation = groupDetails.conversation.copy(firstUnreadMessageDate = sendDate))
+                groupDetails.copy(lastUnreadMessage = null)
             )
 
-            viewModel.conversationViewState.firstUnreadInstant.shouldNotBeNull()
-            viewModel.conversationViewState.firstUnreadInstant.toString() shouldBeEqualTo sendDate
+            viewModel.conversationViewState.lastUnreadMessageInstant.shouldBeNull()
+
+            arrangement.conversationDetailsChannel.send(
+                groupDetails.copy(lastUnreadMessage = sendMessage)
+            )
+
+            viewModel.conversationViewState.lastUnreadMessageInstant.shouldNotBeNull()
+            viewModel.conversationViewState.lastUnreadMessageInstant.toString() shouldBeEqualTo sendMessage.date
         }
 
     @Test

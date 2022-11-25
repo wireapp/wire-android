@@ -25,7 +25,6 @@ import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMess
 import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMessageParams
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
-import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.DOWNLOAD_IN_PROGRESS
 import com.wire.kalium.logic.data.message.Message.DownloadStatus.FAILED_DOWNLOAD
@@ -36,12 +35,12 @@ import com.wire.kalium.logic.data.message.Message.UploadStatus.UPLOAD_IN_PROGRES
 //       waiting for the backend to implement mapping logic for the MessageBody
 @Composable
 internal fun MessageBody(
-    message: UIText,
+    messageBody: MessageBody,
     onLongClick: (() -> Unit)? = null,
     onOpenProfile: (String) -> Unit,
 ) {
     LinkifyText(
-        text = message,
+        text = messageBody.message,
         mask = Linkify.WEB_URLS or Linkify.EMAIL_ADDRESSES,
         color = MaterialTheme.colorScheme.onBackground,
         onLongClick = onLongClick,

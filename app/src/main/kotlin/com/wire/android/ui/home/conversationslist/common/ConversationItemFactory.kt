@@ -9,9 +9,12 @@ import com.wire.android.ui.calling.controlbuttons.JoinButton
 import com.wire.android.ui.common.RowItemTemplate
 import com.wire.android.ui.common.colorsScheme
 import com.wire.android.ui.common.conversationColor
-import com.wire.android.ui.home.conversations.model.UILastMessageContent
+import com.wire.android.ui.home.conversationslist.CallLabel
+import com.wire.android.ui.home.conversationslist.ConnectionLabel
+import com.wire.android.ui.home.conversationslist.MentionLabel
 import com.wire.android.ui.home.conversationslist.MutedConversationBadge
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
+import com.wire.android.ui.home.conversationslist.model.ConversationLastEvent
 import com.wire.android.ui.home.conversationslist.model.toUserInfoLabel
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
@@ -31,14 +34,14 @@ fun ConversationItemFactory(
         Clickable(
             enabled = true,
             onClick = {
-                when (val lastEvent = conversation.lastMessageContent) {
-                    is UILastMessageContent.Connection -> openUserProfile(lastEvent.userId)
+                when (val lastEvent = conversation.lastEvent) {
+                    is ConversationLastEvent.Connection -> openUserProfile(lastEvent.userId)
                     else -> openConversation(conversation.conversationId)
                 }
             },
             onLongClick = {
-                when (conversation.lastMessageContent) {
-                    is UILastMessageContent.Connection -> {
+                when (conversation.lastEvent) {
+                    is ConversationLastEvent.Connection -> {
                     }
 
                     else -> openMenu(conversation)
@@ -50,15 +53,12 @@ fun ConversationItemFactory(
         conversation = conversation,
         searchQuery = searchQuery,
         subTitle = {
-            when (val messageContent = conversation.lastMessageContent) {
-                is UILastMessageContent.TextMessage -> LastMessageSubtitle(messageContent.messageBody.message)
-                is UILastMessageContent.MultipleMessage -> LastMessagesSubtitle(messageContent.firstMessage, messageContent.secondMessage)
-                is UILastMessageContent.SenderWithMessage -> LastMessageSubtitleWithAuthor(
-                    messageContent.sender,
-                    messageContent.message,
-                    messageContent.separator
-                )
-                else -> {}
+            when (val lastEvent = conversation.lastEvent) {
+                is ConversationLastEvent.Call -> CallLabel(callInfo = lastEvent)
+                is ConversationLastEvent.Mention -> MentionLabel(mentionMessage = lastEvent.mentionMessage)
+                is ConversationLastEvent.Connection -> ConnectionLabel(lastEvent)
+                is ConversationLastEvent.None -> {
+                }
             }
         },
         onConversationItemClick = onConversationItemClick,

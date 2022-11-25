@@ -65,7 +65,7 @@ class PersistentWebSocketService : Service() {
 
     override fun onCreate() {
         super.onCreate()
-        var isServiceStarted = true
+        isServiceStarted = true
     }
 
     @OptIn(ExperimentalCoroutinesApi::class)
@@ -140,14 +140,13 @@ class PersistentWebSocketService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         scope.cancel("PersistentWebSocketService was destroyed")
-        var isServiceStarted = false
+        isServiceStarted = false
 
     }
 
     companion object {
         fun newIntent(context: Context?): Intent =
             Intent(context, PersistentWebSocketService::class.java)
-
         var isServiceStarted = false
     }
 }

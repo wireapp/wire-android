@@ -109,6 +109,9 @@
     <string name="content_description_more_emojis">More emojis</string>
     <!-- Non translatable strings-->
     <string name="url_decryption_failure_learn_more" translatable="false">https://support.wire.com/hc/en-us/articles/207948115-Why-was-I-notified-that-a-message-from-a-contact-was-not-received-</string>
+    <string name="url_welcome_to_new_android" translatable="false">https://support.wire.com/hc/en-us/articles/6655706999581-What-s-new-on-Android-</string>
+    <string name="url_message_details_reactions_learn_more" translatable="false">https://support.wire.com/hc/en-us/articles/212053645-Like-a-message</string>
+    <string name="url_message_details_read_receipts_learn_more" translatable="false">https://support.wire.com/hc/en-us/articles/360000665277-Activate-or-deactivate-read-receipts</string>
     <!-- Navigation -->
     <string name="vault_screen_title">Vault</string>
     <string name="archive_screen_title">Archive</string>
@@ -141,6 +144,10 @@
     <string name="welcome_button_create_team">Create a Team</string>
     <string name="server_details_dialog_body">Backend name:\n%1$s\n\nBackend URL:\n%2$s</string>
     <string name="server_details_dialog_title">On-premises Backend</string>
+    <string name="welcome_migration_dialog_title">Welcome To Our New Android App 👋</string>
+    <string name="welcome_migration_dialog_content">We rebuilt the app to make it more usable for everyone.\n\nFind out more about Wire’s redesigned app—new options and improved accessibility, with the same strong security.</string>
+    <string name="welcome_migration_dialog_continue">Start Using Wire</string>
+
     <!-- API Versioning Dialogs -->
     <string name="api_versioning_client_update_required_title">Update required</string>
     <string name="api_versioning_client_update_required_message">You are missing out on new features. Update to the latest version of Wire to continue using the app with this account.</string>
@@ -338,6 +345,10 @@
     <string name="message_details_title">Message Details</string>
     <string name="message_details_reactions_tab">REACTIONS (%s)</string>
     <string name="message_details_read_receipts_tab">READ RECEIPTS (%s)</string>
+    <string name="message_details_reactions_empty_text">No one reacted on this message yet 😱</string>
+    <string name="message_details_reactions_empty_learn_more">Learn more about reactions</string>
+    <string name="message_details_read_receipts_empty_text">No one read this message yet 👀</string>
+    <string name="message_details_read_receipts_empty_learn_more">Learn more about read receipts</string>
 
     <!-- Attachment options -->
     <string name="attachment_share_file">Attach File</string>
@@ -703,5 +714,6 @@
     <string name="dialog_clear_content_title">Clear content?</string>
     <string name="dialog_clear_content_option">Clear content</string>
     <string name="dialog_clear_content_text">"This will clear the previous conversation history on all your devices. You remain in the %1$s and have access to all new %1$s activity</string>
+    <string name="content_description_reply_to_messge">Reply to the message</string>
 
 </resources>

@@ -2,7 +2,6 @@ package com.wire.android.ui.common.bottomsheet.conversation
 
 import MutingOptionsSheetContent
 import androidx.activity.compose.BackHandler
-import androidx.annotation.StringRes
 import androidx.compose.runtime.Composable
 import com.wire.android.R
 import com.wire.android.model.ImageAsset.UserAvatarAsset
@@ -27,6 +26,7 @@ fun ConversationSheetContent(
     unblockUser: (UnblockUserDialogState) -> Unit,
     leaveGroup: (GroupDialogState) -> Unit,
     deleteGroup: (GroupDialogState) -> Unit,
+    closeBottomSheet: () -> Unit = {},
     isBottomSheetVisible: () -> Boolean = { true }
 ) {
     // it may be null as initial state
@@ -50,20 +50,27 @@ fun ConversationSheetContent(
             )
         }
         ConversationOptionNavigation.MutingNotificationOption -> {
+            val goBack: () -> Unit = {
+                if (conversationSheetState.startOptionNavigation == ConversationOptionNavigation.Home)
+                    conversationSheetState.toHome()
+                else
+                    closeBottomSheet()
+            }
             MutingOptionsSheetContent(
                 mutingConversationState = conversationSheetState.conversationSheetContent!!.mutingConversationState,
                 onMuteConversation = { mutedStatus ->
                     conversationSheetState.muteConversation(mutedStatus)
                     onMutingConversationStatusChange()
-                    conversationSheetState.toHome()
+                    goBack()
                 },
-                onBackClick = conversationSheetState::toHome
+                onBackClick = goBack
             )
         }
     }
 
     BackHandler(
-        conversationSheetState.currentOptionNavigation is ConversationOptionNavigation.MutingNotificationOption
+        conversationSheetState.currentOptionNavigation == ConversationOptionNavigation.MutingNotificationOption
+                && conversationSheetState.startOptionNavigation != ConversationOptionNavigation.MutingNotificationOption
                 && isBottomSheetVisible()
     ) {
         conversationSheetState.toHome()

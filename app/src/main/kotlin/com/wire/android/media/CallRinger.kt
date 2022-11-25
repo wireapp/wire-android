@@ -49,11 +49,16 @@ class CallRinger @Inject constructor(private val context: Context) {
         mediaPlayer?.isLooping = isLooping
     }
 
-    fun ring(resource: Int, isLooping: Boolean = true) {
+    fun ring(
+        resource: Int,
+        isLooping: Boolean = true,
+        isIncomingCall: Boolean = true
+    ) {
         stop()
-        vibrateIfNeeded()
+        if (isIncomingCall)
+            vibrateIfNeeded()
         createMediaPlayer(resource, isLooping)
-        appLogger.i("Starting ringing");
+        appLogger.i("Starting ringing | isIncomingCall: $isIncomingCall");
         mediaPlayer?.start()
     }
 

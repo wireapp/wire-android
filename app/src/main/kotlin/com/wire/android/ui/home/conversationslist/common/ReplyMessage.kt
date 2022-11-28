@@ -35,6 +35,7 @@ import com.wire.android.ui.theme.wireTypography
 @Composable
 fun ReplyMessage(
     messageReplyType: MessageReplyType,
+    modifier: Modifier = Modifier,
     onCancelReply: () -> Unit
 ) {
     when (messageReplyType) {
@@ -42,6 +43,7 @@ fun ReplyMessage(
             ReplyContainer(
                 replyAuthor = messageReplyType.author,
                 replyBody = messageReplyType.assetName,
+                modifier = modifier,
                 onCancelReply = onCancelReply
             )
         }
@@ -50,6 +52,7 @@ fun ReplyMessage(
             ReplyContainer(
                 replyAuthor = messageReplyType.author,
                 replyBody = "Picture",
+                modifier = modifier,
                 replyIcon = {
                     Image(
                         painter = messageReplyType.imagePath!!.paint(),
@@ -70,6 +73,7 @@ fun ReplyMessage(
             ReplyContainer(
                 replyAuthor = messageReplyType.author,
                 replyBody = messageReplyType.textBody,
+                modifier = modifier,
                 onCancelReply = onCancelReply
             )
         }
@@ -80,13 +84,14 @@ fun ReplyMessage(
 private fun ReplyContainer(
     replyAuthor: String,
     replyBody: String,
+    modifier: Modifier = Modifier,
     replyIcon: @Composable (() -> Unit)? = null,
     onCancelReply: () -> Unit
 ) {
     Row(
         horizontalArrangement = Arrangement.Center,
         verticalAlignment = Alignment.CenterVertically,
-        modifier = Modifier
+        modifier = modifier
             .padding(8.dp)
             .wrapContentHeight()
             .fillMaxWidth()

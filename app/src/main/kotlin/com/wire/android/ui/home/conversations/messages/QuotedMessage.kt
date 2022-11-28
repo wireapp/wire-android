@@ -112,11 +112,12 @@ private fun QuotedMessageContent(
 
 @Composable
 private fun QuotedMessageTopRow(senderName: String?) {
-    Row(horizontalArrangement = Arrangement.spacedBy(dimensions().spacing4x)) {
+    Row(horizontalArrangement = Arrangement.spacedBy(dimensions().spacing2x)) {
         Icon(
-            painter = painterResource(id = R.drawable.ic_event_badge_unread_reply),
+            painter = painterResource(id = R.drawable.ic_reply),
             tint = colorsScheme().secondaryText,
-            contentDescription = null
+            contentDescription = null,
+            modifier = Modifier.size(dimensions().messageQuoteIconSize)
         )
         senderName?.let {
             Text(text = senderName, style = typography().label02, color = colorsScheme().secondaryText)

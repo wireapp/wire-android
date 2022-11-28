@@ -279,12 +279,10 @@ private fun MessageComposer(
                                     messageComposerState = messageComposerState
                                 )
                                 if (messageReplyState != null) {
-                                    VerticalSpace.x4()
                                     ReplyMessage(
                                         messageReplyType = messageReplyState,
                                         onCancelReply = messageComposerState::cancelReply
                                     )
-                                    VerticalSpace.x4()
                                 }
                                 // Row wrapping the AdditionalOptionButton() when we are in Enabled state and MessageComposerInput()
                                 // when we are in the Fullscreen state, we want to align the TextField to Top of the Row,

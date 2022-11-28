@@ -104,7 +104,7 @@ class ConversationListViewModel @Inject constructor(
         .debounce(SearchPeopleViewModel.DEFAULT_SEARCH_QUERY_DEBOUNCE)
 
     init {
-        viewModelScope.launch(dispatcher.io()) {
+        viewModelScope.launch {
             searchQueryFlow.combine(observeConversationListDetails().onEach(::conversationListDetailsToState))
                 .flatMapLatest { (searchQuery, conversationDetails) ->
                     flow {

@@ -112,7 +112,10 @@ private fun QuotedMessageContent(
 
 @Composable
 private fun QuotedMessageTopRow(senderName: String?) {
-    Row(horizontalArrangement = Arrangement.spacedBy(dimensions().spacing2x)) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(dimensions().spacing2x),
+        verticalAlignment = Alignment.CenterVertically
+    ) {
         Icon(
             painter = painterResource(id = R.drawable.ic_reply),
             tint = colorsScheme().secondaryText,

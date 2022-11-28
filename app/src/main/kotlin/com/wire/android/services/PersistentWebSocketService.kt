@@ -24,6 +24,7 @@ import com.wire.android.notification.openAppPendingIntent
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.sync.ConnectionPolicy
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
 import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import dagger.hilt.android.AndroidEntryPoint
@@ -31,7 +32,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @AndroidEntryPoint
@@ -80,12 +83,12 @@ class PersistentWebSocketService : Service() {
                         it.persistentWebSocketStatusListFlow.collect {
                             it.map { persistentWebSocketStatus ->
                                 if (persistentWebSocketStatus.isPersistentWebSocketEnabled) {
-                                    kotlinx.coroutines.runBlocking {
+                                    runBlocking {
                                         coreLogic.getSessionScope(persistentWebSocketStatus.userId)
-                                            .setConnectionPolicy(com.wire.kalium.logic.data.sync.ConnectionPolicy.KEEP_ALIVE)
+                                            .setConnectionPolicy(ConnectionPolicy.KEEP_ALIVE)
                                     }
                                     notificationManager.observeNotificationsAndCalls(
-                                        kotlinx.coroutines.flow.flowOf(
+                                        flowOf(
                                             persistentWebSocketStatus.userId
                                         ), scope
                                     ) {
@@ -93,9 +96,9 @@ class PersistentWebSocketService : Service() {
                                     }
 
                                 } else {
-                                    kotlinx.coroutines.runBlocking {
+                                    runBlocking {
                                         coreLogic.getSessionScope(persistentWebSocketStatus.userId)
-                                            .setConnectionPolicy(com.wire.kalium.logic.data.sync.ConnectionPolicy.DISCONNECT_AFTER_PENDING_EVENTS)
+                                            .setConnectionPolicy(ConnectionPolicy.DISCONNECT_AFTER_PENDING_EVENTS)
                                     }
                                 }
                             }

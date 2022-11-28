@@ -4,6 +4,7 @@ import android.app.NotificationManager
 import android.content.Context
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.core.app.NotificationManagerCompat
+import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.mapper.MessageResourceProvider
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.deeplink.DeepLinkProcessor
@@ -34,7 +35,8 @@ object AppModule {
     fun provideDefaultDispatchers(): DispatcherProvider = DefaultDispatcherProvider()
 
     @Provides
-    fun provideDeepLinkProcessor(): DeepLinkProcessor = DeepLinkProcessor()
+    fun provideDeepLinkProcessor(accountSwitchUseCase: AccountSwitchUseCase): DeepLinkProcessor =
+        DeepLinkProcessor(accountSwitchUseCase)
 
     @Provides
     fun provideMessageResourceProvider(): MessageResourceProvider = MessageResourceProvider()

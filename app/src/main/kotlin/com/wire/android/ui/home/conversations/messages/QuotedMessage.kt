@@ -23,6 +23,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.model.ImageAsset
@@ -33,6 +34,8 @@ import com.wire.android.ui.common.typography
 import com.wire.android.ui.home.conversations.model.QuotedMessageUIData
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.ui.UIText
+
+private const val TEXT_QUOTE_MAX_LINES = 7
 
 @Composable
 internal fun QuotedMessage(
@@ -203,7 +206,7 @@ private fun QuotedImage(
 
 @Composable
 private fun MainContentText(text: String) {
-    Text(text = text, style = typography().subline01)
+    Text(text = text, style = typography().subline01, maxLines = TEXT_QUOTE_MAX_LINES, overflow = TextOverflow.Ellipsis)
 }
 
 @Composable

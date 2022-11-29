@@ -207,7 +207,7 @@ private fun CallingControls(
             .fillMaxWidth()
             .padding(top = dimensions().spacing16x)
     ) {
-        MicrophoneButton(isMuted) { toggleMute() }
+        MicrophoneButton(isMuted = isMuted) { toggleMute() }
         CameraButton(
             isCameraOn = isCameraOn,
             onCameraPermissionDenied = { },

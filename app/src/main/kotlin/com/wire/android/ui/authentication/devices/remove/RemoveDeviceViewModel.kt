@@ -19,6 +19,7 @@ import com.wire.kalium.logic.feature.client.DeleteClientResult
 import com.wire.kalium.logic.feature.client.DeleteClientUseCase
 import com.wire.kalium.logic.feature.client.RegisterClientResult
 import com.wire.kalium.logic.feature.client.RegisterClientUseCase
+import com.wire.kalium.logic.feature.client.GetOrRegisterClientUseCase
 import com.wire.kalium.logic.feature.client.SelfClientsResult
 import com.wire.kalium.logic.feature.client.SelfClientsUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
@@ -33,7 +34,7 @@ class RemoveDeviceViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val selfClientsUseCase: SelfClientsUseCase,
     private val deleteClientUseCase: DeleteClientUseCase,
-    private val registerClientUseCase: RegisterClientUseCase,
+    private val registerClientUseCase: GetOrRegisterClientUseCase,
     private val isPasswordRequired: IsPasswordRequiredUseCase,
     private val userDataStore: UserDataStore
 ) : ViewModel() {

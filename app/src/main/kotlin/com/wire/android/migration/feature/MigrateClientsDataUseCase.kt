@@ -44,6 +44,9 @@ class MigrateClientsDataUseCase @Inject constructor(
 
             // add registered client id, sync will start when the registered id is persisted
             coreLogic.sessionScope(userId) {
+                // NOTE we are passing in an RegisterClientParam will null values
+                // because we don't support deleting any existing clients when migrating
+                // from the old scala app.
                 when (val result = this.client.importClient(clientId, RegisterClientParam(
                     password = null,
                     capabilities = null

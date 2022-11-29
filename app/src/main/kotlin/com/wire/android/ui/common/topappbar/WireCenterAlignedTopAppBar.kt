@@ -50,7 +50,7 @@ fun WireCenterAlignedTopAppBar(
                         subtitleContent()
                     }
                 },
-                navigationIcon = { navigationIconType?.let { NavigationIconButton(iconType = it) { onNavigationPressed() } } },
+                navigationIcon = { navigationIconType?.let { NavigationIconButton(iconType = it, onClick = onNavigationPressed) } },
                 colors = colors,
                 actions = actions
             )

@@ -15,7 +15,6 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserId
 import io.mockk.coEvery
 import io.mockk.coVerify
-import io.mockk.every
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
@@ -104,7 +103,6 @@ class ConversationInfoViewModelTest {
         }
     }
 
-
     @Test
     fun `given a 1 on 1 conversation, when solving the conversation name, then the name of the other user is used`() = runTest {
         // Given
@@ -138,7 +136,6 @@ class ConversationInfoViewModelTest {
         // When - Then
         assert(viewModel.conversationInfoViewState.conversationName is UIText.StringResource)
     }
-
 
     @Test
     fun `given a group conversation, when solving the conversation name, then the name of the conversation is used`() = runTest {
@@ -184,7 +181,6 @@ class ConversationInfoViewModelTest {
             (viewModel.conversationInfoViewState.conversationName as UIText.DynamicString).value
         )
     }
-
 
     @Test
     fun `given the initial state, when solving the conversation name before the data is received, the name should be an empty string`() =

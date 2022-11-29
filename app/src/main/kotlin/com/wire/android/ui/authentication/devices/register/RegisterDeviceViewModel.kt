@@ -11,7 +11,7 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.kalium.logic.feature.client.RegisterClientResult
-import com.wire.kalium.logic.feature.client.RegisterClientUseCase
+import com.wire.kalium.logic.feature.client.GetOrRegisterClientUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
@@ -21,7 +21,7 @@ import javax.inject.Inject
 @HiltViewModel
 class RegisterDeviceViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
-    private val registerClientUseCase: RegisterClientUseCase,
+    private val registerClientUseCase: GetOrRegisterClientUseCase,
     private val isPasswordRequired: IsPasswordRequiredUseCase,
 ) : ViewModel() {
 

@@ -58,7 +58,6 @@ class MigrationMapper @Inject constructor() {
                 removedBy = null,
                 lastReadDate = LocalDateTime.MIN.toString(),
                 lastModifiedDate = LocalDateTime.MIN.toString(),
-                firstUnreadMessageDate = LocalDateTime.MIN.toString(),
                 lastNotificationDate = LocalDateTime.MIN.toString(),
                 creatorId = creatorId
             )

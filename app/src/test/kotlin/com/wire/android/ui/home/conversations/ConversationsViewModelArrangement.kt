@@ -228,10 +228,9 @@ internal fun withMockConversationDetailsOneOnOne(
 internal fun mockConversationDetailsGroup(
     conversationName: String,
     mockedConversationId: ConversationId = ConversationId("someId", "someDomain"),
-    mockedFirstUnreadMessageDate: String? = null
 ) = ConversationDetails.Group(
     conversation = TestConversation.GROUP()
-        .copy(name = conversationName, id = mockedConversationId, firstUnreadMessageDate = mockedFirstUnreadMessageDate),
+        .copy(name = conversationName, id = mockedConversationId),
     legalHoldStatus = mockk(),
     hasOngoingCall = false,
     unreadMessagesCount = 0,

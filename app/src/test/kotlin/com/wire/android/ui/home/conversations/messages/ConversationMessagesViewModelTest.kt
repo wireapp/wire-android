@@ -97,57 +97,6 @@ class ConversationMessagesViewModelTest {
     }
 
     @Test
-    fun `given group conversation, when lastUnreadMessage is cleared, then correctly propagate it up to state`() =
-        runTest {
-            val groupDetails: ConversationDetails.Group = mockConversationDetailsGroup("Conversation Name Goes Here")
-
-            val (arrangement, viewModel) = ConversationMessagesViewModelArrangement()
-                .withConversationDetailUpdate(groupDetails)
-                .arrange()
-
-            val sendDate = Instant.fromEpochSeconds(1000L, 0).toString()
-
-            arrangement.conversationDetailsChannel.send(
-                groupDetails.copy(conversation = groupDetails.conversation.copy(firstUnreadMessageDate = sendDate))
-            )
-
-            viewModel.conversationViewState.firstUnreadInstant.shouldNotBeNull()
-            viewModel.conversationViewState.firstUnreadInstant.toString() shouldBeEqualTo sendDate
-
-            arrangement.conversationDetailsChannel.send(
-                groupDetails.copy(conversation = groupDetails.conversation.copy(firstUnreadMessageDate = null))
-            )
-
-            viewModel.conversationViewState.firstUnreadInstant.shouldBeNull()
-        }
-
-    @Test
-    fun `given group conversation, when new lastUnreadMessage arrive, then correctly propagate it up to state`() =
-        runTest {
-            val groupDetails: ConversationDetails.Group = mockConversationDetailsGroup("Conversation Name Goes Here")
-
-            val (arrangement, viewModel) = ConversationMessagesViewModelArrangement()
-                .withConversationDetailUpdate(groupDetails)
-                .arrange()
-
-            val sendDate = Instant.fromEpochSeconds(1000L, 0).toString()
-
-            arrangement.conversationDetailsChannel.send(
-                groupDetails.copy(conversation = groupDetails.conversation.copy(firstUnreadMessageDate = null))
-            )
-
-
-            viewModel.conversationViewState.firstUnreadInstant.shouldBeNull()
-
-            arrangement.conversationDetailsChannel.send(
-                groupDetails.copy(conversation = groupDetails.conversation.copy(firstUnreadMessageDate = sendDate))
-            )
-
-            viewModel.conversationViewState.firstUnreadInstant.shouldNotBeNull()
-            viewModel.conversationViewState.firstUnreadInstant.toString() shouldBeEqualTo sendDate
-        }
-
-    @Test
     fun `given a message and a reaction, when toggleReaction is called, then should call ToggleReactionUseCase`() = runTest {
         val (arrangement, viewModel) = ConversationMessagesViewModelArrangement().arrange()
 

@@ -39,16 +39,18 @@ class DeepLinkProcessor(private val accountSwitchUseCase: AccountSwitchUseCase) 
         else -> DeepLinkResult.Unknown
     }
 
+    @Suppress("TooGenericExceptionCaught")
     private suspend fun getOpenConversationDeepLinkResult(uri: Uri): DeepLinkResult {
         return try {
-            val conversationId = uri.pathSegments[0]?.toQualifiedID(qualifiedIdMapper) ?: return DeepLinkResult.Unknown
-            val userId = uri.pathSegments[1]?.toQualifiedID(qualifiedIdMapper) ?: return DeepLinkResult.Unknown
+            val conversationId = uri.pathSegments[0]?.toQualifiedID(qualifiedIdMapper)
+            val userId = uri.pathSegments[1]?.toQualifiedID(qualifiedIdMapper)
+            if (conversationId == null || userId == null) return DeepLinkResult.Unknown
+
             runBlocking {
                 accountSwitchUseCase(SwitchAccountParam.SwitchToAccount(userId))
             }
 
             DeepLinkResult.OpenConversation(conversationId)
-
         } catch (e: IndexOutOfBoundsException) {
             appLogger.e("unknown segment")
             DeepLinkResult.Unknown

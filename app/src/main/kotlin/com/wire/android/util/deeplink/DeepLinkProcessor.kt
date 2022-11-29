@@ -9,7 +9,10 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapperImpl
 import com.wire.kalium.logic.data.id.toQualifiedID
-import kotlinx.coroutines.runBlocking
+import com.wire.kalium.logic.feature.session.CurrentSessionResult
+import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
+import javax.inject.Inject
+import javax.inject.Singleton
 
 sealed class DeepLinkResult {
     object Unknown : DeepLinkResult()
@@ -26,7 +29,11 @@ sealed class DeepLinkResult {
     data class OpenOtherUserProfile(val userId: QualifiedID) : DeepLinkResult()
 }
 
-class DeepLinkProcessor(private val accountSwitchUseCase: AccountSwitchUseCase) {
+@Singleton
+class DeepLinkProcessor @Inject constructor(
+    private val accountSwitch: AccountSwitchUseCase,
+    private val currentSession: CurrentSessionUseCase
+) {
     private val qualifiedIdMapper = QualifiedIdMapperImpl(null)
 
     suspend operator fun invoke(uri: Uri): DeepLinkResult = when (uri.host) {
@@ -46,8 +53,17 @@ class DeepLinkProcessor(private val accountSwitchUseCase: AccountSwitchUseCase) 
             val userId = uri.pathSegments[1]?.toQualifiedID(qualifiedIdMapper)
             if (conversationId == null || userId == null) return DeepLinkResult.Unknown
 
-            runBlocking {
-                accountSwitchUseCase(SwitchAccountParam.SwitchToAccount(userId))
+            val shouldSwitchAccount = currentSession().let {
+                when (it) {
+                    is CurrentSessionResult.Failure.Generic -> true
+                    CurrentSessionResult.Failure.SessionNotFound -> true
+                    is CurrentSessionResult.Success -> {
+                        it.accountInfo.userId != userId
+                    }
+                }
+            }
+            if (shouldSwitchAccount) {
+                accountSwitch(SwitchAccountParam.SwitchToAccount(userId))
             }
 
             DeepLinkResult.OpenConversation(conversationId)

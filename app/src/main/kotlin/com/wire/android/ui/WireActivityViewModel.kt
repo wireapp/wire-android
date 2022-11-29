@@ -18,6 +18,7 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.notification.WireNotificationManager
+import com.wire.android.services.ServicesManager
 import com.wire.android.ui.common.dialogs.CustomBEDeeplinkDialogState
 import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
@@ -68,6 +69,7 @@ class WireActivityViewModel @Inject constructor(
     private val accountSwitch: AccountSwitchUseCase,
     private val observePersistentWebSocketConnectionStatus: ObservePersistentWebSocketConnectionStatusUseCase,
     private val migrationManager: MigrationManager,
+    private val servicesManager: ServicesManager,
     private val observeSyncStateUseCaseProviderFactory: ObserveSyncStateUseCaseProvider.Factory
 ) : ViewModel() {
 
@@ -113,6 +115,14 @@ class WireActivityViewModel @Inject constructor(
                                     notificationManager.observeNotificationsAndCalls(observeUserId, viewModelScope)
                                     { openIncomingCall(it.conversationId) }
                                 }
+                            }
+
+                            if (it.map { it.isPersistentWebSocketEnabled }.contains(true)) {
+                                if (!servicesManager.isPersistentWebSocketServiceRunning()) {
+                                    servicesManager.startPersistentWebSocketService()
+                                }
+                            } else {
+                                servicesManager.stopPersistentWebSocketService()
                             }
                         }
                     }

@@ -1,21 +1,25 @@
 package com.wire.android.util
 
 import android.net.Uri
+import com.wire.android.feature.AccountSwitchUseCase
 import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.deeplink.SSOFailureCodes
+import com.wire.kalium.logic.data.id.ConversationId
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
-import org.junit.jupiter.api.Test
+import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Assertions.assertInstanceOf
 import org.junit.jupiter.api.BeforeEach
-import com.wire.kalium.logic.data.id.ConversationId
+import org.junit.jupiter.api.Test
 
 class DeepLinkProcessorTest {
+    @MockK
+    private lateinit var accountSwitchUseCase: AccountSwitchUseCase
 
-    private val deepLinkProcessor = DeepLinkProcessor()
+    private lateinit var deepLinkProcessor: DeepLinkProcessor
 
     @MockK
     private lateinit var uri: Uri
@@ -23,10 +27,11 @@ class DeepLinkProcessorTest {
     @BeforeEach
     fun setup() {
         MockKAnnotations.init(this)
+        deepLinkProcessor = DeepLinkProcessor(accountSwitchUseCase)
     }
 
     @Test
-    fun `given a valid remote config deeplink, returns CustomServerConfig object`() {
+    fun `given a valid remote config deeplink, returns CustomServerConfig object`() = runTest {
         setupWithRemoteConfigDeeplink(FAKE_REMOTE_SERVER_URL)
         val result = deepLinkProcessor(uri)
         assertInstanceOf(DeepLinkResult.CustomServerConfig::class.java, result)
@@ -34,7 +39,7 @@ class DeepLinkProcessorTest {
     }
 
     @Test
-    fun `given a remote config deeplink with null parameters, returns DeeplinkResult-Unknown `() {
+    fun `given a remote config deeplink with null parameters, returns DeeplinkResult-Unknown `() = runTest {
         setupWithRemoteConfigDeeplink(null)
         val result = deepLinkProcessor(uri)
         assertInstanceOf(DeepLinkResult.Unknown::class.java, result)
@@ -42,7 +47,7 @@ class DeepLinkProcessorTest {
     }
 
     @Test
-    fun `given a valid success sso login deeplink, returns SSOLogin-Success object`() {
+    fun `given a valid success sso login deeplink, returns SSOLogin-Success object`() = runTest {
         setupWithSSOLoginSuccessDeeplink(FAKE_COOKIE, FAKE_REMOTE_SERVER_ID)
         val result = deepLinkProcessor(uri)
         assertInstanceOf(DeepLinkResult.SSOLogin.Success::class.java, result)
@@ -50,7 +55,7 @@ class DeepLinkProcessorTest {
     }
 
     @Test
-    fun `given a sso login success deeplink with null parameters, returns SSOLogin-Failure with unknown error`() {
+    fun `given a sso login success deeplink with null parameters, returns SSOLogin-Failure with unknown error`() = runTest {
         setupWithSSOLoginSuccessDeeplink(null, null)
         val loginSuccessNullResult = deepLinkProcessor(uri)
         assertInstanceOf(DeepLinkResult.SSOLogin.Failure::class.java, loginSuccessNullResult)
@@ -61,7 +66,7 @@ class DeepLinkProcessorTest {
     }
 
     @Test
-    fun `given a valid failed sso login deeplink, returns SSOLogin-Failure object`() {
+    fun `given a valid failed sso login deeplink, returns SSOLogin-Failure object`() = runTest {
         setupWithSSOLoginFailureDeeplink(FAKE_ERROR)
         val result = deepLinkProcessor(uri)
         assertInstanceOf(DeepLinkResult.SSOLogin.Failure::class.java, result)
@@ -69,7 +74,7 @@ class DeepLinkProcessorTest {
     }
 
     @Test
-    fun `given a sso login failure deeplink with null parameters, returns SSOLogin-Failure with unknown error`() {
+    fun `given a sso login failure deeplink with null parameters, returns SSOLogin-Failure with unknown error`() = runTest {
         setupWithSSOLoginFailureDeeplink(null)
         val loginFailureNullResult = deepLinkProcessor(uri)
         assertInstanceOf(DeepLinkResult.SSOLogin.Failure::class.java, loginFailureNullResult)
@@ -80,7 +85,7 @@ class DeepLinkProcessorTest {
     }
 
     @Test
-    fun `given a incoming call deeplink, returns IncomingCall with conversationId`() {
+    fun `given a incoming call deeplink, returns IncomingCall with conversationId`() = runTest {
         setupWithIncomingCallDeepLink()
         val incomingCallResult = deepLinkProcessor(uri)
         assertInstanceOf(DeepLinkResult.IncomingCall::class.java, incomingCallResult)
@@ -91,7 +96,7 @@ class DeepLinkProcessorTest {
     }
 
     @Test
-    fun `given a invalid deeplink, returns Unknown object`() {
+    fun `given a invalid deeplink, returns Unknown object`() = runTest {
         setupWithInvalidDeeplink()
         val result = deepLinkProcessor(uri)
         assertInstanceOf(DeepLinkResult.Unknown::class.java, result)

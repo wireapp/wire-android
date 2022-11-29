@@ -101,6 +101,8 @@
     <string name="content_description_calling_turn_speaker_on">Turn speaker on</string>
     <string name="content_description_calling_turn_speaker_off">Turn speaker off</string>
     <string name="content_description_show_more_options">Show more options</string>
+    <string name="content_description_reply_to_messge">Reply to the message</string>
+    <string name="content_description_reply_cancel">Cancel message reply</string>
     <string name="content_description_copy">Copy</string>
     <string name="content_description_edit">Edit</string>
     <string name="content_description_calling_call_muted">Call Muted</string>
@@ -687,6 +689,5 @@
     <string name="dialog_clear_content_title">Clear content?</string>
     <string name="dialog_clear_content_option">Clear content</string>
     <string name="dialog_clear_content_text">"This will clear the previous conversation history on all your devices. You remain in the %1$s and have access to all new %1$s activity</string>
-    <string name="content_description_reply_to_messge">Reply to the message</string>
 
 </resources>

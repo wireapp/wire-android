@@ -12,6 +12,7 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -52,8 +53,8 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.mention.MemberItemToMention
+import com.wire.android.ui.home.conversations.messages.QuotedMessagePreview
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
-import com.wire.android.ui.home.conversationslist.common.ReplyMessage
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.messagecomposer.attachment.AttachmentOptions
 import com.wire.android.ui.home.newconversation.model.Contact
@@ -85,9 +86,9 @@ fun MessageComposer(
                 onSendTextMessage(
                     messageComposerState.messageText.text,
                     messageComposerState.mentions,
-                    messageComposerState.messageReplyType?.messageId
+                    messageComposerState.quotedMessageData?.messageId,
                 )
-                messageComposerState.messageReplyType = null
+                messageComposerState.quotedMessageData = null
                 messageComposerState.setMessageTextValue(TextFieldValue(""))
             }
         }
@@ -150,7 +151,7 @@ private fun MessageComposer(
     onMentionPicked: (Contact) -> Unit
 ) {
     val focusManager = LocalFocusManager.current
-    val messageReplyState = messageComposerState.messageReplyType
+    val messageReplyState = messageComposerState.quotedMessageData
 
     Surface {
         val transition = updateTransition(
@@ -279,10 +280,12 @@ private fun MessageComposer(
                                     messageComposerState = messageComposerState
                                 )
                                 if (messageReplyState != null) {
-                                    ReplyMessage(
-                                        messageReplyType = messageReplyState,
-                                        onCancelReply = messageComposerState::cancelReply
-                                    )
+                                    Row(modifier = Modifier.padding(horizontal = dimensions().spacing8x)) {
+                                        QuotedMessagePreview(
+                                            quotedMessageData = messageReplyState,
+                                            onCancelReply = messageComposerState::cancelReply
+                                        )
+                                    }
                                 }
                                 // Row wrapping the AdditionalOptionButton() when we are in Enabled state and MessageComposerInput()
                                 // when we are in the Fullscreen state, we want to align the TextField to Top of the Row,

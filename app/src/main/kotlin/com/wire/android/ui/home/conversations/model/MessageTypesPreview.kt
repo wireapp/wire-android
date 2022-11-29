@@ -50,6 +50,7 @@ fun PreviewMessageWithReply() {
                 MessageBody(
                     message = UIText.DynamicString("Sure, go ahead!"),
                     quotedMessage = QuotedMessageUIData(
+                        messageId = "asdoij",
                         senderId = previewUserId,
                         senderName = "John Doe",
                         originalMessageDateDescription = UIText.StringResource(R.string.label_quote_original_message_date, "10:30"),

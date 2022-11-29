@@ -63,6 +63,7 @@ sealed class MessageStatus(val text: UIText) {
     object DecryptionFailure : MessageStatus(UIText.StringResource(R.string.label_message_decryption_failure_message))
 }
 
+@Stable
 sealed class UILastMessageContent {
     object None : UILastMessageContent()
 

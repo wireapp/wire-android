@@ -10,9 +10,9 @@ import com.wire.android.ui.home.conversations.mock.mockAssetMessage
 import com.wire.android.ui.home.conversations.mock.mockMessageWithText
 import com.wire.android.ui.home.conversations.mock.mockedImageUIMessage
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.user.UserId
-
 
 private val previewUserId = UserId("value", "domain")
 
@@ -33,7 +33,7 @@ fun PreviewMessage() {
         onImageMessageClicked = { _, _ -> },
         onOpenProfile = { _ -> },
         onReactionClicked = { _, _ -> },
-        conversationType = conversationType
+        conversationType = Conversation.Type.ONE_ON_ONE
     )
 }
 
@@ -66,7 +66,7 @@ fun PreviewMessageWithReply() {
         onImageMessageClicked = { _, _ -> },
         onOpenProfile = { _ -> },
         onReactionClicked = { _, _ -> },
-        conversationType = conversationType
+        conversationType = Conversation.Type.ONE_ON_ONE
     )
 }
 
@@ -82,7 +82,7 @@ fun PreviewDeletedMessage() {
         onImageMessageClicked = { _, _ -> },
         onOpenProfile = { _ -> },
         onReactionClicked = { _, _ -> },
-        conversationType = conversationType
+        conversationType = Conversation.Type.ONE_ON_ONE
     )
 }
 
@@ -96,7 +96,7 @@ fun PreviewAssetMessage() {
         onImageMessageClicked = { _, _ -> },
         onOpenProfile = { _ -> },
         onReactionClicked = { _, _ -> },
-        conversationType = conversationType
+        conversationType = Conversation.Type.ONE_ON_ONE
     )
 }
 
@@ -110,7 +110,7 @@ fun PreviewImageMessageUploaded() {
         onImageMessageClicked = { _, _ -> },
         onOpenProfile = { _ -> },
         onReactionClicked = { _, _ -> },
-        conversationType = conversationType
+        conversationType = Conversation.Type.ONE_ON_ONE
     )
 }
 
@@ -124,7 +124,7 @@ fun PreviewImageMessageUploading() {
         onImageMessageClicked = { _, _ -> },
         onOpenProfile = { _ -> },
         onReactionClicked = { _, _ -> },
-        conversationType = conversationType
+        conversationType = Conversation.Type.ONE_ON_ONE
     )
 }
 
@@ -138,7 +138,7 @@ fun PreviewImageMessageFailedUpload() {
         onImageMessageClicked = { _, _ -> },
         onOpenProfile = { _ -> },
         onReactionClicked = { _, _ -> },
-        conversationType = conversationType
+        conversationType = Conversation.Type.ONE_ON_ONE
     )
 }
 
@@ -153,7 +153,7 @@ fun PreviewMessageWithSystemMessage() {
             onImageMessageClicked = { _, _ -> },
             onOpenProfile = { _ -> },
             onReactionClicked = { _, _ -> },
-            conversationType = conversationType
+            conversationType = Conversation.Type.ONE_ON_ONE
         )
         SystemMessageItem(UIMessageContent.SystemMessage.MissedCall.YouCalled(UIText.DynamicString("You")))
         SystemMessageItem(

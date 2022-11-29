@@ -47,19 +47,25 @@ class MigrateClientsDataUseCase @Inject constructor(
                 // NOTE we are passing in an RegisterClientParam will null values
                 // because we don't support deleting any existing clients when migrating
                 // from the old scala app.
-                when (val result = this.client.importClient(clientId, RegisterClientParam(
-                    password = null,
-                    capabilities = null
-                ))) {
+                when (val result = this.client.importClient(
+                    clientId, RegisterClientParam(
+                        password = null,
+                        capabilities = null
+                    )
+                )) {
                     is RegisterClientResult.Failure.Generic ->
                         Either.Left(result.genericFailure)
+
                     is RegisterClientResult.Failure.TooManyClients ->
                         Either.Left(MigrationFailure.ClientNotRegistered)
+
                     is RegisterClientResult.Failure.InvalidCredentials ->
                         Either.Left(MigrationFailure.ClientNotRegistered)
+
                     is RegisterClientResult.Failure.PasswordAuthRequired -> {
                         Either.Left(MigrationFailure.ClientNotRegistered)
                     }
+
                     is RegisterClientResult.Success ->
                         withTimeoutOrNull(SYNC_START_TIMEOUT) {
                             syncManager.waitUntilStartedOrFailure()
@@ -70,6 +76,7 @@ class MigrateClientsDataUseCase @Inject constructor(
                                 .map { acc + userId }
                                 .onSuccess { userDataStoreProvider.getOrCreate(userId).setInitialSyncCompleted() }
                         }
+                    else -> Either.Left(MigrationFailure.ClientNotRegistered)
                 }
             }
         }

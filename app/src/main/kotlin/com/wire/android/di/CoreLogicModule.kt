@@ -821,8 +821,8 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun provideIsReadReceiptsEnabled(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
-        coreLogic.getSessionScope(currentAccount).users.isReadReceiptsEnabled
+    fun provideObserveReadReceiptsEnabled(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).users.observeReadReceiptsEnabled
 
     @ViewModelScoped
     @Provides

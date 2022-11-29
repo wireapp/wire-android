@@ -8,7 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.wire.android.appLogger
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.kalium.logic.feature.user.readReceipts.IsReadReceiptsEnabledUseCase
+import com.wire.kalium.logic.feature.user.readReceipts.ObserveReadReceiptsEnabledUseCase
 import com.wire.kalium.logic.feature.user.readReceipts.PersistReadReceiptsStatusConfigUseCase
 import com.wire.kalium.logic.feature.user.readReceipts.ReadReceiptStatusConfigResult
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -21,7 +21,7 @@ class PrivacySettingsViewModel @Inject constructor(
     private val navigationManager: NavigationManager,
     private val dispatchers: DispatcherProvider,
     private val persistReadReceiptsStatusConfig: PersistReadReceiptsStatusConfigUseCase,
-    private val isReadReceiptsEnabled: IsReadReceiptsEnabledUseCase,
+    private val observeReadReceiptsEnabled: ObserveReadReceiptsEnabledUseCase,
 ) : ViewModel() {
 
     var state by mutableStateOf(PrivacySettingsState())
@@ -29,8 +29,9 @@ class PrivacySettingsViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            val isReadReceiptsEnabled = isReadReceiptsEnabled()
-            state = state.copy(isReadReceiptsEnabled = isReadReceiptsEnabled)
+            observeReadReceiptsEnabled().collect {
+                state = state.copy(isReadReceiptsEnabled = it)
+            }
         }
     }
 

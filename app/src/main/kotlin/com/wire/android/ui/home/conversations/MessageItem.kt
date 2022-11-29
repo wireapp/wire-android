@@ -52,6 +52,8 @@ import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMess
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
+import com.wire.kalium.logic.data.call.ConversationType
+import com.wire.kalium.logic.data.conversation.Conversation
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -61,7 +63,8 @@ fun MessageItem(
     onAssetMessageClicked: (String) -> Unit,
     onImageMessageClicked: (String, Boolean) -> Unit,
     onOpenProfile: (String) -> Unit,
-    onReactionClicked: (String, String) -> Unit
+    onReactionClicked: (String, String) -> Unit,
+    conversationType: Conversation.Type
 ) {
     with(message) {
         val fullAvatarOuterPadding = dimensions().userAvatarClickablePadding + dimensions().userAvatarStatusBorderSize
@@ -83,8 +86,12 @@ fun MessageItem(
                 }
         ) {
             Spacer(Modifier.padding(start = dimensions().spacing8x - fullAvatarOuterPadding))
+
+            val isProfileRedirectEnabled =
+                message.messageHeader.userId != null && (message.messageHeader.isDeleted && conversationType == Conversation.Type.GROUP)
+
             val avatarClickable = remember {
-                Clickable(enabled = message.messageHeader.userId != null) {
+                Clickable(enabled = isProfileRedirectEnabled) {
                     onOpenProfile(message.messageHeader.userId!!.toString())
                 }
             }

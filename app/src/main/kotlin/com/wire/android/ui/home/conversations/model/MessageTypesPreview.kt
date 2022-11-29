@@ -32,7 +32,8 @@ fun PreviewMessage() {
         onAssetMessageClicked = {},
         onImageMessageClicked = { _, _ -> },
         onOpenProfile = { _ -> },
-        onReactionClicked = { _, _ -> }
+        onReactionClicked = { _, _ -> },
+        conversationType = conversationType
     )
 }
 
@@ -64,7 +65,8 @@ fun PreviewMessageWithReply() {
         onAssetMessageClicked = {},
         onImageMessageClicked = { _, _ -> },
         onOpenProfile = { _ -> },
-        onReactionClicked = { _, _ -> }
+        onReactionClicked = { _, _ -> },
+        conversationType = conversationType
     )
 }
 
@@ -79,7 +81,8 @@ fun PreviewDeletedMessage() {
         onAssetMessageClicked = {},
         onImageMessageClicked = { _, _ -> },
         onOpenProfile = { _ -> },
-        onReactionClicked = { _, _ -> }
+        onReactionClicked = { _, _ -> },
+        conversationType = conversationType
     )
 }
 
@@ -92,7 +95,8 @@ fun PreviewAssetMessage() {
         onAssetMessageClicked = {},
         onImageMessageClicked = { _, _ -> },
         onOpenProfile = { _ -> },
-        onReactionClicked = { _, _ -> }
+        onReactionClicked = { _, _ -> },
+        conversationType = conversationType
     )
 }
 
@@ -105,7 +109,8 @@ fun PreviewImageMessageUploaded() {
         onAssetMessageClicked = {},
         onImageMessageClicked = { _, _ -> },
         onOpenProfile = { _ -> },
-        onReactionClicked = { _, _ -> }
+        onReactionClicked = { _, _ -> },
+        conversationType = conversationType
     )
 }
 
@@ -118,7 +123,8 @@ fun PreviewImageMessageUploading() {
         onAssetMessageClicked = {},
         onImageMessageClicked = { _, _ -> },
         onOpenProfile = { _ -> },
-        onReactionClicked = { _, _ -> }
+        onReactionClicked = { _, _ -> },
+        conversationType = conversationType
     )
 }
 
@@ -131,7 +137,8 @@ fun PreviewImageMessageFailedUpload() {
         onAssetMessageClicked = {},
         onImageMessageClicked = { _, _ -> },
         onOpenProfile = { _ -> },
-        onReactionClicked = { _, _ -> }
+        onReactionClicked = { _, _ -> },
+        conversationType = conversationType
     )
 }
 
@@ -145,7 +152,8 @@ fun PreviewMessageWithSystemMessage() {
             onAssetMessageClicked = {},
             onImageMessageClicked = { _, _ -> },
             onOpenProfile = { _ -> },
-            onReactionClicked = { _, _ -> }
+            onReactionClicked = { _, _ -> },
+            conversationType = conversationType
         )
         SystemMessageItem(UIMessageContent.SystemMessage.MissedCall.YouCalled(UIText.DynamicString("You")))
         SystemMessageItem(

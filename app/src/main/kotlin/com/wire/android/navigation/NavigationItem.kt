@@ -243,7 +243,7 @@ enum class NavigationItem(
                         "{$EXTRA_CONVERSATION_ID}"
             }
         ),
-        content = { ConversationScreen(it.navBackStackEntry.savedStateHandle.getBackNavArgs()) },
+        content = { ConversationScreen(backNavArgs = it.navBackStackEntry.savedStateHandle.getBackNavArgs()) },
         animationConfig = NavigationAnimationConfig.NoAnimation
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {

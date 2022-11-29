@@ -98,12 +98,12 @@ private const val MAXIMUM_SCROLLED_MESSAGES_UNTIL_AUTOSCROLL_STOPS = 5
 @Composable
 fun ConversationScreen(
     backNavArgs: ImmutableMap<String, Any>,
-    messageComposerViewModel: MessageComposerViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs),
-    conversationCallViewModel: ConversationCallViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs),
-    conversationInfoViewModel: ConversationInfoViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs),
-    conversationMessagesViewModel: ConversationMessagesViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs),
-    conversationBannerViewModel: ConversationBannerViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs),
     commonTopAppBarViewModel: CommonTopAppBarViewModel = hiltViewModel(),
+    conversationInfoViewModel: ConversationInfoViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs),
+    conversationBannerViewModel: ConversationBannerViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs),
+    conversationCallViewModel: ConversationCallViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs),
+    conversationMessagesViewModel: ConversationMessagesViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs),
+    messageComposerViewModel: MessageComposerViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs),
 ) {
     val coroutineScope = rememberCoroutineScope()
     val showDialog = remember { mutableStateOf(ConversationScreenDialogType.NONE) }
@@ -370,6 +370,7 @@ private fun ConversationScreen(
                 content = { internalPadding ->
                     Box(modifier = Modifier.padding(internalPadding)) {
                         ConversationScreenContent(
+                            conversationInfoViewState = conversationInfoViewState,
                             messageComposerInnerState = messageComposerInnerState,
                             keyboardHeight = keyboardHeight,
                             snackbarMessage = conversationViewState.snackbarMessage ?: conversationMessagesViewState.snackbarMessage,
@@ -403,6 +404,7 @@ private fun ConversationScreen(
 @Suppress("LongParameterList")
 @Composable
 private fun ConversationScreenContent(
+    conversationInfoViewState: ConversationInfoViewState,
     messageComposerInnerState: MessageComposerInnerState,
     conversationScreenState: ConversationScreenState,
     snackbarMessage: ConversationSnackbarMessages?,
@@ -438,6 +440,7 @@ private fun ConversationScreenContent(
         keyboardHeight = keyboardHeight,
         content = {
             MessageList(
+                conversationType = conversationInfoViewState.conversationType,
                 lazyPagingMessages = lazyPagingMessages,
                 lazyListState = lazyListState,
                 lastUnreadMessageInstant = lastUnreadMessageInstant,
@@ -516,7 +519,8 @@ fun MessageList(
     onImageFullScreenMode: (String, Boolean) -> Unit,
     onOpenProfile: (String) -> Unit,
     onUpdateConversationReadDate: (String) -> Unit,
-    onReactionClicked: (String, String) -> Unit
+    onReactionClicked: (String, String) -> Unit,
+    conversationType: Conversation.Type
 ) {
     val mostRecentMessage = lazyPagingMessages.itemCount.takeIf { it > 0 }?.let { lazyPagingMessages[0] }
     LaunchedEffect(mostRecentMessage) {
@@ -558,6 +562,7 @@ fun MessageList(
                 SystemMessageItem(message = message.messageContent)
             } else {
                 MessageItem(
+                    conversationType = conversationType,
                     message = message,
                     onLongClicked = onShowContextMenu,
                     onAssetMessageClicked = onDownloadAsset,

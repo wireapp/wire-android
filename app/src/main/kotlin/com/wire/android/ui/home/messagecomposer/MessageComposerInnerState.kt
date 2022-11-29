@@ -19,6 +19,7 @@ import com.wire.android.appLogger
 import com.wire.android.model.ImageAsset
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
+import com.wire.android.ui.home.conversations.model.QuotedMessageUIData
 import com.wire.android.ui.home.conversations.model.UIMessage
 import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.newconversation.model.Contact
@@ -33,6 +34,7 @@ import com.wire.android.util.getFileName
 import com.wire.android.util.getMimeType
 import com.wire.android.util.orDefault
 import com.wire.android.util.resampleImageAndCopyToTempPath
+import com.wire.android.util.ui.toUIText
 import com.wire.kalium.logic.data.message.mention.MessageMention
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -92,7 +94,7 @@ data class MessageComposerInnerState(
 
     var mentions by mutableStateOf(listOf<UiMention>())
 
-    var messageReplyType: MessageReplyType? by mutableStateOf(null)
+    var quotedMessageData: QuotedMessageUIData? by mutableStateOf(null)
 
     fun setMessageTextValue(text: TextFieldValue) {
         updateMentionsIfNeeded(text)
@@ -246,70 +248,48 @@ data class MessageComposerInnerState(
 
     fun reply(uiMessage: UIMessage) {
         val authorName = uiMessage.messageHeader.username.asString(context.resources)
+        val authorId = uiMessage.messageHeader.userId ?: return
 
-        when (val content = uiMessage.messageContent) {
-            is UIMessageContent.AssetMessage -> {
-                messageReplyType = MessageReplyType.AssetReply(
-                    messageId = uiMessage.messageHeader.messageId,
-                    author = authorName,
-                    assetName = content.assetName
-                )
+        val content = when (val content = uiMessage.messageContent) {
+            is UIMessageContent.AssetMessage -> QuotedMessageUIData.GenericAsset(
+                assetName = content.assetName,
+                assetMimeType = content.assetExtension
+            )
+
+            is UIMessageContent.RestrictedAsset -> QuotedMessageUIData.GenericAsset(
+                assetName = content.assetName,
+                assetMimeType = content.mimeType
+            )
+
+            is UIMessageContent.TextMessage -> QuotedMessageUIData.Text(
+                value = content.messageBody.message.asString(context.resources)
+            )
+
+            is UIMessageContent.ImageMessage -> content.asset?.let {
+                QuotedMessageUIData.DisplayableImage(displayable = content.asset)
             }
 
-            is UIMessageContent.RestrictedAsset -> {
-                messageReplyType = MessageReplyType.AssetReply(
-                    messageId = uiMessage.messageHeader.messageId,
-                    author = authorName,
-                    assetName = content.assetName
-                )
+            else -> {
+                appLogger.w("Attempting to reply to an unsupported message type of content = $content")
+                null
             }
-
-            is UIMessageContent.TextMessage -> {
-                messageReplyType = MessageReplyType.TextReply(
-                    messageId = uiMessage.messageHeader.messageId,
-                    author = authorName,
-                    textBody = content.messageBody.message.asString(context.resources)
-                )
-            }
-
-            is UIMessageContent.ImageMessage -> {
-                messageReplyType = MessageReplyType.ImageReply(
-                    messageId = uiMessage.messageHeader.messageId,
-                    author = authorName,
-                    imagePath = content.asset
-                )
-            }
-
-            else -> return
         }
-
+        content?.let { quotedContent ->
+            quotedMessageData = QuotedMessageUIData(
+                messageId = uiMessage.messageHeader.messageId,
+                senderId = authorId,
+                senderName = authorName,
+                originalMessageDateDescription = "".toUIText(),
+                editedTimeDescription = "".toUIText(),
+                quotedContent = quotedContent
+            )
+        }
         toActive()
     }
 
     fun cancelReply() {
-        messageReplyType = null
+        quotedMessageData = null
     }
-
-}
-
-sealed class MessageReplyType(open val messageId: String) {
-    data class AssetReply(
-        override val messageId: String,
-        val author: String,
-        val assetName: String
-    ) : MessageReplyType(messageId)
-
-    data class TextReply(
-        override val messageId: String,
-        val author: String,
-        val textBody: String
-    ) : MessageReplyType(messageId)
-
-    data class ImageReply(
-        override val messageId: String,
-        val author: String,
-        val imagePath: ImageAsset.PrivateAsset?
-    ) : MessageReplyType(messageId)
 
 }
 

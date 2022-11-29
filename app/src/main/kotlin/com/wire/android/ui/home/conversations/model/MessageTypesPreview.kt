@@ -13,6 +13,7 @@ import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.user.UserId
 
+
 private val previewUserId = UserId("value", "domain")
 
 @Preview(showBackground = true)
@@ -49,6 +50,7 @@ fun PreviewMessageWithReply() {
                 MessageBody(
                     message = UIText.DynamicString("Sure, go ahead!"),
                     quotedMessage = QuotedMessageUIData(
+                        messageId = "asdoij",
                         senderId = previewUserId,
                         senderName = "John Doe",
                         originalMessageDateDescription = UIText.StringResource(R.string.label_quote_original_message_date, "10:30"),

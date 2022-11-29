@@ -17,6 +17,7 @@ import com.wire.android.ui.home.conversations.DownloadedAssetDialogVisibilitySta
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
 import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
+import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.message.Message
@@ -59,7 +60,7 @@ class ConversationMessagesViewModel @Inject constructor(
 
     init {
         loadPaginatedMessages()
-        loadConversationFirstUnreadInstant()
+        loadLastMessageInstant()
     }
 
     private fun loadPaginatedMessages() = viewModelScope.launch {
@@ -69,7 +70,7 @@ class ConversationMessagesViewModel @Inject constructor(
         conversationViewState = conversationViewState.copy(messages = paginatedMessagesFlow)
     }
 
-    private fun loadConversationFirstUnreadInstant() = viewModelScope.launch {
+    private fun loadLastMessageInstant() = viewModelScope.launch {
         observeConversationDetails(conversationId)
             .flowOn(dispatchers.io())
             .collect { conversationDetailsResult ->

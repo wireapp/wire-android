@@ -40,10 +40,10 @@ class MessageContentMapper @Inject constructor(
 ) {
 
     fun fromMessage(
-        message: Message?,
+        message: Message,
         userList: List<User>
     ): UIMessageContent? {
-        return when (message?.visibility) {
+        return when (message.visibility) {
             Message.Visibility.VISIBLE ->
                 return when (message) {
                     is Message.Regular -> mapRegularMessage(message, userList.findUser(message.senderUserId))
@@ -52,7 +52,6 @@ class MessageContentMapper @Inject constructor(
 
             Message.Visibility.DELETED, // for deleted, there is a state label displayed only
             Message.Visibility.HIDDEN -> null // we don't want to show hidden nor deleted message content in any way
-            null -> null
         }
     }
 
@@ -136,7 +135,7 @@ class MessageContentMapper @Inject constructor(
     ) = when (val content = message.content) {
         is Asset -> {
             val assetMessageContentMetadata = AssetMessageContentMetadata(content.value)
-            toUIAssetMessageContent(assetMessageContentMetadata, message, sender)
+            toUIMessageContent(assetMessageContentMetadata, message, sender)
         }
 
         is MessageContent.RestrictedAsset -> toRestrictedAsset(content.mimeType, content.sizeInBytes, content.name)
@@ -157,6 +156,7 @@ class MessageContentMapper @Inject constructor(
     ).let { messageBody -> UIMessageContent.TextMessage(messageBody = messageBody) }
 
     private fun mapQuoteData(conversationId: ConversationId, it: MessageContent.QuotedMessageDetails) = QuotedMessageUIData(
+        it.messageId,
         it.senderId,
         it.senderName,
         UIText.StringResource(R.string.label_quote_original_message_date, isoFormatter.fromISO8601ToTimeFormat(it.timeInstant.toString())),
@@ -186,11 +186,7 @@ class MessageContentMapper @Inject constructor(
         }
     )
 
-    fun toUIAssetMessageContent(
-        assetMessageContentMetadata: AssetMessageContentMetadata,
-        message: Message,
-        sender: User?
-    ): UIMessageContent =
+    fun toUIMessageContent(assetMessageContentMetadata: AssetMessageContentMetadata, message: Message, sender: User?): UIMessageContent =
         with(assetMessageContentMetadata.assetMessageContent) {
             when {
                 assetMessageContentMetadata.isDisplayableImage() && !assetMessageContentMetadata.assetMessageContent.hasValidRemoteData() ->

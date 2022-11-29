@@ -34,6 +34,7 @@ import com.wire.android.ui.common.StatusBox
 import com.wire.android.ui.common.UserBadge
 import com.wire.android.ui.common.UserProfileAvatar
 import com.wire.android.ui.common.dimensions
+import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversations.messages.QuotedMessage
 import com.wire.android.ui.home.conversations.messages.ReactionPill
 import com.wire.android.ui.home.conversations.model.MessageBody
@@ -257,14 +258,17 @@ private fun MessageContent(
 
         is UIMessageContent.TextMessage -> {
             messageContent.messageBody.quotedMessage?.let {
+                VerticalSpace.x4()
                 QuotedMessage(it)
+                VerticalSpace.x4()
             }
             MessageBody(
-                message = messageContent.messageBody.message,
+                messageBody = messageContent.messageBody,
                 onLongClick = onLongClick,
                 onOpenProfile = onOpenProfile
             )
         }
+
         is UIMessageContent.AssetMessage -> MessageGenericAsset(
             assetName = messageContent.assetName,
             assetExtension = messageContent.assetExtension,

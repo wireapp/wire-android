@@ -154,6 +154,7 @@ data class MessageBody(
 )
 
 data class QuotedMessageUIData(
+    val messageId: String,
     val senderId: UserId,
     val senderName: String,
     val originalMessageDateDescription: UIText,

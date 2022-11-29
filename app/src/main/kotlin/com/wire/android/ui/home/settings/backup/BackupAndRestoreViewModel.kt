@@ -95,7 +95,7 @@ class BackupAndRestoreViewModel
             onBackupRestoreError("Error extracting backup file")
         }, {
             kaliumFileSystem.delete(importedBackupPath)
-            val encryptedFilePath = kaliumFileSystem.list(extractedBackupFilesRootPath).firstOrNull { it.name.contains(".cc20") }
+            val encryptedFilePath = kaliumFileSystem.listDirectories(extractedBackupFilesRootPath).firstOrNull { it.name.contains(".cc20") }
             val isPasswordProtected = encryptedFilePath != null
 
             if (isPasswordProtected) {
@@ -134,7 +134,6 @@ class BackupAndRestoreViewModel
                         backupRestoreProgress = BackupRestoreProgress.Finished,
                         backupPasswordValidation = PasswordValidation.Valid
                     )
-//                    state = BackupAndRestoreState.INITIAL_STATE
                     Toast.makeText(context, context.getString(R.string.backup_label_conversation_successfully_saved), Toast.LENGTH_LONG)
                         .show()
                 }

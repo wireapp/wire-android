@@ -36,11 +36,22 @@ import com.wire.android.ui.common.shimmerPlaceholder
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
+import com.wire.android.util.extension.formatAsString
 import com.wire.android.util.formatMediumDateTime
 
 @Composable
-fun DeviceItem(device: Device, placeholder: Boolean, onRemoveDeviceClick: ((Device) -> Unit)? = null, background: Color? = null) {
-    DeviceItemContent(device = device, placeholder = placeholder, onRemoveDeviceClick = onRemoveDeviceClick, background = background)
+fun DeviceItem(
+    device: Device,
+    placeholder: Boolean,
+    background: Color? = null,
+    onRemoveDeviceClick: ((Device) -> Unit)? = null
+) {
+    DeviceItemContent(
+        device = device,
+        placeholder = placeholder,
+        background = background,
+        onRemoveDeviceClick = onRemoveDeviceClick
+    )
 }
 
 @Composable
@@ -50,7 +61,10 @@ private fun DeviceItemContent(
     background: Color? = null,
     onRemoveDeviceClick: ((Device) -> Unit)?
 ) {
-    Row(verticalAlignment = Alignment.Top, modifier = if (background != null) Modifier.background(color = background) else Modifier) {
+    Row(
+        verticalAlignment = Alignment.Top,
+        modifier = if (background != null) Modifier.background(color = background) else Modifier
+    ) {
         Row(
             modifier = Modifier
                 .padding(MaterialTheme.wireDimensions.removeDeviceItemPadding)
@@ -132,13 +146,13 @@ private fun DeviceItemTexts(device: Device, placeholder: Boolean, isDebug: Boole
     val details: String = if (device.registrationTime.isNotBlank()) {
         stringResource(
             R.string.remove_device_id_and_time_label,
-            device.clientId.value.chunked(2).joinToString(separator = " "),
+            device.clientId.formatAsString(),
             device.registrationTime.formatMediumDateTime() ?: ""
         )
     } else {
         stringResource(
             R.string.remove_device_id_label,
-            device.clientId.value.chunked(2).joinToString(separator = " ")
+            device.clientId.formatAsString()
         )
     }
     Text(
@@ -156,7 +170,10 @@ private fun DeviceItemTexts(device: Device, placeholder: Boolean, isDebug: Boole
 private fun DeviceItemPreview() {
     Box(modifier = Modifier.fillMaxWidth()) {
         DeviceItem(
-            device = Device(), placeholder = false, {}, null
+            device = Device(),
+            placeholder = false,
+            background = null,
+            {}
         )
     }
 }

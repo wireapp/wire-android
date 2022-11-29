@@ -153,6 +153,7 @@ class MessageContentMapper @Inject constructor(
     ).let { messageBody -> UIMessageContent.TextMessage(messageBody = messageBody) }
 
     private fun mapQuoteData(conversationId: ConversationId, it: MessageContent.QuotedMessageDetails) = QuotedMessageUIData(
+        it.messageId,
         it.senderId,
         it.senderName,
         UIText.StringResource(R.string.label_quote_original_message_date, isoFormatter.fromISO8601ToTimeFormat(it.timeInstant.toString())),

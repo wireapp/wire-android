@@ -38,7 +38,8 @@ val mockMessageWithText = UIMessage(
         messageStatus = MessageStatus.Untouched,
         messageId = "",
         connectionState = ConnectionState.ACCEPTED,
-        isDeleted = false
+        isDeleted = false,
+        isUnavailable = false
     ),
     messageContent = UIMessageContent.TextMessage(
         messageBody = MessageBody(
@@ -79,7 +80,8 @@ fun mockAssetMessage(uploadStatus: Message.UploadStatus = Message.UploadStatus.U
         messageStatus = MessageStatus.Untouched,
         messageId = "",
         connectionState = ConnectionState.ACCEPTED,
-        isDeleted = false
+        isDeleted = false,
+        isUnavailable = false
         ),
     messageContent = UIMessageContent.AssetMessage(
         assetName = "This is some test asset message",
@@ -112,7 +114,8 @@ fun mockedImageUIMessage(uploadStatus: Message.UploadStatus = Message.UploadStat
         messageStatus = MessageStatus.Edited("May 31, 2022 12.24pm"),
         messageId = "4",
         connectionState = ConnectionState.ACCEPTED,
-        isDeleted = false
+        isDeleted = false,
+        isUnavailable = false
         ),
     messageContent = mockedImg(uploadStatus),
     messageFooter = mockFooter,
@@ -131,8 +134,9 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             messageStatus = MessageStatus.Untouched,
             messageId = "1",
             connectionState = ConnectionState.ACCEPTED,
-            isDeleted = false
-            ),
+            isDeleted = false,
+            isUnavailable = false
+        ),
         messageContent = UIMessageContent.TextMessage(
             messageBody = MessageBody(
                 UIText.DynamicString(
@@ -156,7 +160,8 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             messageStatus = MessageStatus.Deleted,
             messageId = "2",
             connectionState = ConnectionState.ACCEPTED,
-            isDeleted = false
+            isDeleted = false,
+            isUnavailable = false
         ),
         messageContent = mockedImg(),
         messageSource = MessageSource.Self,
@@ -172,7 +177,8 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             messageStatus = MessageStatus.Edited("May 31, 2022 12.24pm"),
             messageId = "3",
             connectionState = ConnectionState.ACCEPTED,
-            isDeleted = false
+            isDeleted = false,
+            isUnavailable = false
         ),
         messageContent = mockedImg(),
         messageSource = MessageSource.Self,
@@ -188,7 +194,8 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             messageStatus = MessageStatus.Edited("May 31, 2022 12.24pm"),
             messageId = "4",
             connectionState = ConnectionState.ACCEPTED,
-            isDeleted = false
+            isDeleted = false,
+            isUnavailable = false
         ),
         messageContent = mockedImg(),
         messageSource = MessageSource.Self,
@@ -204,7 +211,8 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             messageStatus = MessageStatus.Deleted,
             messageId = "5",
             connectionState = ConnectionState.ACCEPTED,
-            isDeleted = false
+            isDeleted = false,
+            isUnavailable = false
         ),
         messageContent = UIMessageContent.TextMessage(
             messageBody = MessageBody(
@@ -229,7 +237,8 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             messageStatus = MessageStatus.Edited("May 31, 2022 12.24pm"),
             messageId = "6",
             connectionState = ConnectionState.ACCEPTED,
-            isDeleted = false
+            isDeleted = false,
+            isUnavailable = false
         ),
         messageContent = mockedImg(),
         messageSource = MessageSource.Self,
@@ -245,7 +254,8 @@ fun getMockedMessages(): List<UIMessage> = listOf(
             messageStatus = MessageStatus.Edited("May 31, 2022 12.24pm"),
             messageId = "7",
             connectionState = ConnectionState.ACCEPTED,
-            isDeleted = false
+            isDeleted = false,
+            isUnavailable = false
         ),
         messageContent = UIMessageContent.TextMessage(
             messageBody = MessageBody(

@@ -377,7 +377,6 @@ private fun ConversationScreen(
                             isFileSharingEnabled = conversationViewState.isFileSharingEnabled,
                             lastUnreadMessageInstant = conversationMessagesViewState.lastUnreadMessageInstant,
                             conversationState = conversationViewState,
-                            conversationInfoViewState = conversationInfoViewState,
                             conversationScreenState = conversationScreenState,
                             messageComposerInnerState = messageComposerInnerState,
                             messages = conversationMessagesViewState.messages,
@@ -411,7 +410,6 @@ private fun ConversationScreenContent(
     isFileSharingEnabled: Boolean,
     lastUnreadMessageInstant: Instant?,
     conversationState: ConversationViewState,
-    conversationInfoViewState: ConversationInfoViewState,
     conversationScreenState: ConversationScreenState,
     messageComposerInnerState: MessageComposerInnerState,
     messages: Flow<PagingData<UIMessage>>,
@@ -440,7 +438,6 @@ private fun ConversationScreenContent(
         keyboardHeight = keyboardHeight,
         content = {
             MessageList(
-                conversationType = conversationInfoViewState.conversationType,
                 lazyPagingMessages = lazyPagingMessages,
                 lazyListState = lazyListState,
                 lastUnreadMessageInstant = lastUnreadMessageInstant,
@@ -476,7 +473,10 @@ private fun SnackBarMessage(
     val (message, actionLabel) = getSnackbarMessage(messageCode)
     val context = LocalContext.current
     LaunchedEffect(conversationState.snackbarMessage) {
-        val snackbarResult = conversationScreenState.snackBarHostState.showSnackbar(message = message, actionLabel = actionLabel)
+        val snackbarResult = conversationScreenState.snackBarHostState.showSnackbar(
+            message = message,
+            actionLabel = actionLabel
+        )
         when {
             // Show downloads folder when clicking on Snackbar cta button
             messageCode is OnFileDownloaded && snackbarResult == SnackbarResult.ActionPerformed -> {
@@ -511,7 +511,6 @@ private fun getSnackbarMessage(messageCode: ConversationSnackbarMessages): Pair<
 
 @Composable
 fun MessageList(
-    conversationType: Conversation.Type,
     lazyPagingMessages: LazyPagingItems<UIMessage>,
     lazyListState: LazyListState,
     lastUnreadMessageInstant: Instant?,
@@ -523,6 +522,7 @@ fun MessageList(
     onShowContextMenu: (UIMessage) -> Unit
 ) {
     val mostRecentMessage = lazyPagingMessages.itemCount.takeIf { it > 0 }?.let { lazyPagingMessages[0] }
+
     LaunchedEffect(mostRecentMessage) {
         // Most recent message changed, if the user didn't scroll up, we automatically scroll down to reveal the new message
         if (lazyListState.firstVisibleItemIndex < MAXIMUM_SCROLLED_MESSAGES_UNTIL_AUTOSCROLL_STOPS) {
@@ -562,7 +562,6 @@ fun MessageList(
                 SystemMessageItem(message = message.messageContent)
             } else {
                 MessageItem(
-                    conversationType = conversationType,
                     message = message,
                     onLongClicked = onShowContextMenu,
                     onAssetMessageClicked = onDownloadAsset,

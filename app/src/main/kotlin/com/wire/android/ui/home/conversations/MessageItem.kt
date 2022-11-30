@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
-
 package com.wire.android.ui.home.conversations
 
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -63,8 +61,7 @@ fun MessageItem(
     onAssetMessageClicked: (String) -> Unit,
     onImageMessageClicked: (String, Boolean) -> Unit,
     onOpenProfile: (String) -> Unit,
-    onReactionClicked: (String, String) -> Unit,
-    conversationType: Conversation.Type
+    onReactionClicked: (String, String) -> Unit
 ) {
     with(message) {
         val fullAvatarOuterPadding = dimensions().userAvatarClickablePadding + dimensions().userAvatarStatusBorderSize
@@ -88,7 +85,7 @@ fun MessageItem(
             Spacer(Modifier.padding(start = dimensions().spacing8x - fullAvatarOuterPadding))
 
             val isProfileRedirectEnabled =
-                message.messageHeader.userId != null && (message.messageHeader.isDeleted && conversationType == Conversation.Type.GROUP)
+                message.messageHeader.userId != null && !(message.messageHeader.isDeleted || message.messageHeader.isUnavailable)
 
             val avatarClickable = remember {
                 Clickable(enabled = isProfileRedirectEnabled) {

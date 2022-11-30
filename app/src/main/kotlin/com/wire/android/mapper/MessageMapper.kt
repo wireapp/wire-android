@@ -115,6 +115,10 @@ class MessageMapper @Inject constructor(
         isDeleted = when (sender) {
             is OtherUser -> sender.deleted
             is SelfUser, null -> false
+        },
+        isUnavailable = when (sender) {
+            is OtherUser -> sender.isUnavailableUser
+            is SelfUser, null -> false
         }
     )
 
@@ -127,6 +131,7 @@ class MessageMapper @Inject constructor(
                     utcISO = (message.editStatus as Message.EditStatus.Edited).lastTimeStamp
                 )
             )
+
         else -> MessageStatus.Untouched
     }
 

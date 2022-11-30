@@ -27,6 +27,7 @@ import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.EMPTY
+import com.wire.android.util.uiReadReceiptDateTime
 import com.wire.kalium.logic.data.user.UserId
 
 @Composable
@@ -71,8 +72,11 @@ fun ConversationParticipantItem(
             HighlightSubtitle(
                 subTitle = if (uiParticipant.unavailable) {
                     stringResource(R.string.username_unavailable_label)
-                } else uiParticipant.handle,
-                searchQuery = searchQuery
+                } else uiParticipant.readReceiptDate?.let {
+                    it.uiReadReceiptDateTime()
+                } ?: uiParticipant.handle,
+                searchQuery = searchQuery,
+                suffix = uiParticipant.readReceiptDate?.let { "" } ?: "@"
             )
         },
         actions = {

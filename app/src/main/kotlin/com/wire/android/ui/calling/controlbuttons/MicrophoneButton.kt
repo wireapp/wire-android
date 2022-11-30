@@ -20,10 +20,12 @@ import com.wire.android.ui.common.dimensions
 
 @Composable
 fun MicrophoneButton(
-    isMuted: Boolean, onMicrophoneButtonClicked: () -> Unit
+    modifier: Modifier = Modifier.size(dimensions().defaultCallingControlsSize),
+    isMuted: Boolean,
+    onMicrophoneButtonClicked: () -> Unit
 ) {
     IconButton(
-        modifier = Modifier.size(dimensions().defaultCallingControlsSize),
+        modifier = modifier,
         onClick = {}
     ) {
         Icon(

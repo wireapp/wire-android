@@ -4,6 +4,7 @@ import android.app.Notification
 import android.app.Service
 import android.content.Context
 import android.content.Intent
+import android.location.Location
 import android.os.IBinder
 import androidx.core.app.NotificationChannelCompat
 import androidx.core.app.NotificationCompat
@@ -25,18 +26,13 @@ import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.sync.ConnectionPolicy
 import com.wire.kalium.logic.feature.session.CurrentSessionFlowUseCase
-import com.wire.kalium.logic.feature.session.CurrentSessionResult
-import com.wire.kalium.logic.functional.fold
+import com.wire.kalium.logic.feature.user.webSocketStatus.ObservePersistentWebSocketConnectionStatusUseCase
 import dagger.hilt.android.AndroidEntryPoint
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.distinctUntilChanged
-import kotlinx.coroutines.flow.flowOn
-import kotlinx.coroutines.flow.map
-import kotlinx.coroutines.flow.shareIn
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
@@ -70,32 +66,48 @@ class PersistentWebSocketService : Service() {
         return null
     }
 
+    override fun onCreate() {
+        super.onCreate()
+        isServiceStarted = true
+    }
+
     @OptIn(ExperimentalCoroutinesApi::class)
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        // TODO: repository should not be exposed to the app
-        coreLogic.globalScope { sessionRepository.currentSession() }.fold({
-            appLogger.e("error while getting the current session from persistent web socket service $it")
-        }, { currentAccount ->
-            runBlocking {
-                coreLogic.getSessionScope(currentAccount.userId)
-                    .setConnectionPolicy(ConnectionPolicy.KEEP_ALIVE)
+        scope.launch {
+            coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus().let {
+                when (it) {
+                    is ObservePersistentWebSocketConnectionStatusUseCase.Result.Failure -> {
+                        appLogger.e("Failure while fetching persistent web socket status flow from service")
+                    }
+                    is ObservePersistentWebSocketConnectionStatusUseCase.Result.Success -> {
+                        it.persistentWebSocketStatusListFlow.collect {
+                            it.map { persistentWebSocketStatus ->
+                                if (persistentWebSocketStatus.isPersistentWebSocketEnabled) {
+                                    runBlocking {
+                                        coreLogic.getSessionScope(persistentWebSocketStatus.userId)
+                                            .setConnectionPolicy(ConnectionPolicy.KEEP_ALIVE)
+                                    }
+                                    notificationManager.observeNotificationsAndCalls(
+                                        flowOf(
+                                            persistentWebSocketStatus.userId
+                                        ), scope
+                                    ) {
+                                        openIncomingCall(it.conversationId)
+                                    }
+
+                                } else {
+                                    runBlocking {
+                                        coreLogic.getSessionScope(persistentWebSocketStatus.userId)
+                                            .setConnectionPolicy(ConnectionPolicy.DISCONNECT_AFTER_PENDING_EVENTS)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
             }
 
-            val observeUserId = currentSessionFlow()
-                .map { result ->
-                    if (result is CurrentSessionResult.Success) result.accountInfo.userId
-                    else null
-                }
-                .distinctUntilChanged()
-                .flowOn(dispatcherProvider.io())
-                .shareIn(scope, SharingStarted.WhileSubscribed(), 1)
-
-            scope.launch {
-                notificationManager.observeNotificationsAndCalls(observeUserId, scope) {
-                    openIncomingCall(it.conversationId)
-                }
-            }
-        })
+        }
         generateForegroundNotification()
         return START_STICKY
 
@@ -131,10 +143,13 @@ class PersistentWebSocketService : Service() {
     override fun onDestroy() {
         super.onDestroy()
         scope.cancel("PersistentWebSocketService was destroyed")
+        isServiceStarted = false
+
     }
 
     companion object {
         fun newIntent(context: Context?): Intent =
             Intent(context, PersistentWebSocketService::class.java)
+        var isServiceStarted = false
     }
 }

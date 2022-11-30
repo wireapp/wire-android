@@ -4,6 +4,7 @@ import androidx.lifecycle.SavedStateHandle
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
 import com.wire.android.framework.FakeKaliumFileSystem
+import com.wire.android.framework.TestConversation
 import com.wire.android.mapper.ContactMapper
 import com.wire.android.model.UserAvatarData
 import com.wire.android.navigation.NavigationManager
@@ -207,9 +208,7 @@ internal fun withMockConversationDetailsOneOnOne(
     connectionState: ConnectionState = ConnectionState.ACCEPTED,
     unavailable: Boolean = false
 ) = ConversationDetails.OneOne(
-    conversation = mockk<Conversation>().apply {
-        every { type } returns Conversation.Type.ONE_ON_ONE
-    },
+    conversation = TestConversation.ONE_ON_ONE,
     otherUser = mockk<OtherUser>().apply {
         every { id } returns senderId
         every { name } returns senderName
@@ -222,26 +221,23 @@ internal fun withMockConversationDetailsOneOnOne(
     legalHoldStatus = LegalHoldStatus.DISABLED,
     userType = UserType.INTERNAL,
     unreadMessagesCount = 0,
-    lastUnreadMessage = null,
-    unreadContentCount = emptyMap()
+    lastMessage = null,
+    unreadEventCount = emptyMap()
 )
 
 internal fun mockConversationDetailsGroup(
     conversationName: String,
-    mockedConversationId: ConversationId = ConversationId("someId", "someDomain")
+    mockedConversationId: ConversationId = ConversationId("someId", "someDomain"),
 ) = ConversationDetails.Group(
-    conversation = mockk<Conversation>().apply {
-        every { name } returns conversationName
-        every { id } returns mockedConversationId
-        every { type } returns Conversation.Type.GROUP
-    },
+    conversation = TestConversation.GROUP()
+        .copy(name = conversationName, id = mockedConversationId),
     legalHoldStatus = mockk(),
     hasOngoingCall = false,
     unreadMessagesCount = 0,
-    lastUnreadMessage = null,
+    lastMessage = null,
     isSelfUserCreator = true,
     isSelfUserMember = true,
-    unreadContentCount = emptyMap()
+    unreadEventCount = emptyMap()
 )
 
 internal fun mockUITextMessage(id: String = "someId", userName: String = "mockUserName"): UIMessage {

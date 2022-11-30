@@ -45,6 +45,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withTimeout
+import kotlinx.datetime.Clock
 import javax.inject.Inject
 import javax.inject.Singleton
 import kotlin.time.Duration.Companion.seconds
@@ -394,11 +395,10 @@ class WireNotificationManager @Inject constructor(
         }
 
     private suspend fun markMessagesAsNotified(userId: QualifiedID?, conversationId: ConversationId?) {
-        appLogger.d("$TAG markMessagesAsNotified")
         userId?.let {
             coreLogic.getSessionScope(it)
                 .messages
-                .markMessagesAsNotified(conversationId, System.currentTimeMillis().toStringDate())
+                .markMessagesAsNotified(conversationId, Clock.System.now().toString())
         }
     }
 

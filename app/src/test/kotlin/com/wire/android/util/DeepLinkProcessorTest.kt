@@ -6,6 +6,7 @@ import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.deeplink.SSOFailureCodes
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.impl.annotations.MockK
@@ -19,6 +20,9 @@ class DeepLinkProcessorTest {
     @MockK
     private lateinit var accountSwitchUseCase: AccountSwitchUseCase
 
+    @MockK
+    private lateinit var currentSession: CurrentSessionUseCase
+
     private lateinit var deepLinkProcessor: DeepLinkProcessor
 
     @MockK
@@ -27,7 +31,7 @@ class DeepLinkProcessorTest {
     @BeforeEach
     fun setup() {
         MockKAnnotations.init(this)
-        deepLinkProcessor = DeepLinkProcessor(accountSwitchUseCase)
+        deepLinkProcessor = DeepLinkProcessor(accountSwitchUseCase, currentSession)
     }
 
     @Test

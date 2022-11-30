@@ -13,6 +13,7 @@ import com.wire.android.navigation.NavigationCommand
 import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.notification.WireNotificationManager
+import com.wire.android.services.ServicesManager
 import com.wire.android.util.deeplink.DeepLinkProcessor
 import com.wire.android.util.deeplink.DeepLinkResult
 import com.wire.android.util.newServerConfig
@@ -407,6 +408,9 @@ class WireActivityViewModelTest {
         @MockK
         private lateinit var observeSyncStateUseCaseProviderFactory: ObserveSyncStateUseCaseProvider.Factory
 
+        @MockK
+        lateinit var servicesManager: ServicesManager
+
         private val viewModel by lazy {
             WireActivityViewModel(
                 dispatchers = TestDispatcherProvider(),
@@ -420,7 +424,8 @@ class WireActivityViewModelTest {
                 getSessions = getSessionsUseCase,
                 accountSwitch = switchAccount,
                 migrationManager = migrationManager,
-                observeSyncStateUseCaseProviderFactory = observeSyncStateUseCaseProviderFactory
+                observeSyncStateUseCaseProviderFactory = observeSyncStateUseCaseProviderFactory,
+                servicesManager = servicesManager
             )
         }
 

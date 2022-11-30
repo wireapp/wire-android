@@ -347,7 +347,7 @@ abstract class CreateAccountBaseViewModel(
     }
 
     private suspend fun registerClient(userId: UserId, password: String) =
-        clientScopeProviderFactory.create(userId).clientScope.register(
+        clientScopeProviderFactory.create(userId).clientScope.getOrRegister(
             RegisterClientParam(
                 password = password,
                 capabilities = null

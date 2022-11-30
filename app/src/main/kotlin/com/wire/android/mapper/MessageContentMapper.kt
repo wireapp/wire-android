@@ -40,7 +40,7 @@ class MessageContentMapper @Inject constructor(
 ) {
 
     fun fromMessage(
-        message: Message,
+        message: Message.Standalone,
         userList: List<User>
     ): UIMessageContent? {
         return when (message.visibility) {
@@ -254,7 +254,7 @@ class MessageContentMapper @Inject constructor(
 }
 
 @Suppress("ReturnCount")
-fun Message?.toUIPreview(
+fun Message.Standalone?.toUIPreview(
     unreadEventCount: UnreadEventCount,
     unreadMentionsCount: Long,
 ): UILastMessageContent {
@@ -304,12 +304,18 @@ fun Message?.toUIPreview(
 }
 
 @Suppress("LongMethod", "ComplexMethod")
-private fun Message.uiLastMessageContent(): UILastMessageContent {
-    val senderUIText = when {
-        isSelfMessage -> UIText.StringResource(R.string.member_name_you_label_titlecase)
-        senderUserName != null -> UIText.DynamicString(senderUserName!!)
-        else -> UIText.StringResource(R.string.username_unavailable_label)
+private fun Message.Standalone.uiLastMessageContent(): UILastMessageContent {
+    val senderUIText = when(this) {
+        is Message.Regular -> when {
+            isSelfMessage -> UIText.StringResource(R.string.member_name_you_label_titlecase)
+            senderUserName != null -> UIText.DynamicString(senderUserName!!)
+            else -> UIText.StringResource(R.string.username_unavailable_label)
+        }
 
+        is Message.System -> when {
+            senderUserName != null -> UIText.DynamicString(senderUserName!!)
+            else -> UIText.StringResource(R.string.username_unavailable_label)
+        }
     }
 
     return when (this) {
@@ -325,18 +331,11 @@ private fun Message.uiLastMessageContent(): UILastMessageContent {
                     null ->
                         UILastMessageContent.SenderWithMessage(senderUIText, UIText.StringResource(R.string.last_message_asset))
                 }
-            is MessageContent.Calling -> UILastMessageContent.TextMessage(MessageBody(UIText.StringResource(R.string.last_message_calling)))
-            is MessageContent.Cleared -> UILastMessageContent.None
-            is MessageContent.DeleteForMe -> UILastMessageContent.None
-            is MessageContent.DeleteMessage -> UILastMessageContent.None
-            MessageContent.Empty -> UILastMessageContent.None
             is MessageContent.FailedDecryption -> UILastMessageContent.None
             is MessageContent.Knock -> UILastMessageContent.SenderWithMessage(
                 senderUIText,
                 UIText.StringResource(R.string.last_message_knock)
             )
-            is MessageContent.LastRead -> UILastMessageContent.None
-            is MessageContent.Reaction -> UILastMessageContent.None
             is MessageContent.RestrictedAsset ->
                 UILastMessageContent.SenderWithMessage(senderUIText, UIText.StringResource(R.string.last_message_asset))
             is MessageContent.Text -> UILastMessageContent.SenderWithMessage(
@@ -344,7 +343,6 @@ private fun Message.uiLastMessageContent(): UILastMessageContent {
                 message = UIText.DynamicString((content as MessageContent.Text).value),
                 separator = ": "
             )
-            is MessageContent.TextEdited -> UILastMessageContent.None
             is MessageContent.Unknown -> UILastMessageContent.None
         }
         is Message.System -> when (content) {

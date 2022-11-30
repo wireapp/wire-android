@@ -30,6 +30,11 @@ import com.wire.android.appLogger
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.home.settings.backup.RestoreFileValidation.GeneralFailure
+import com.wire.android.ui.home.settings.backup.RestoreFileValidation.IncompatibleBackup
+import com.wire.android.ui.home.settings.backup.RestoreFileValidation.PasswordRequired
+import com.wire.android.ui.home.settings.backup.RestoreFileValidation.Pending
+import com.wire.android.ui.home.settings.backup.RestoreFileValidation.WrongBackup
 import com.wire.android.ui.home.settings.backup.dialog.common.FailureDialog
 import com.wire.android.ui.home.settings.backup.dialog.create.BackUpDialogStep
 import com.wire.android.ui.home.settings.backup.dialog.create.CreateBackupDialog
@@ -181,7 +186,7 @@ fun CreateBackupDialogFlow(
 
             BackUpDialogStep.SetPassword -> {
                 SetBackupPasswordDialog(
-                    isBackupPasswordValid = backUpAndRestoreState.backupPasswordValidation is PasswordValidation.Valid,
+                    isBackupPasswordValid = backUpAndRestoreState.backupCreationPasswordValidation is PasswordValidation.Valid,
                     onBackupPasswordChanged = onValidateBackupPassword,
                     onCreateBackup = { password ->
                         toCreateBackup()
@@ -242,20 +247,20 @@ fun RestoreBackupDialogFlow(
             is RestoreDialogStep.ChooseBackupFile -> {
                 LaunchedEffect(backUpAndRestoreState.restoreFileValidation) {
                     when (backUpAndRestoreState.restoreFileValidation) {
-                        RestoreFileValidation.Pending -> {}
-                        RestoreFileValidation.GeneralFailure -> {
+                        Pending -> {}
+                        GeneralFailure -> {
                             restoreDialogStateHolder.toRestoreFailure(RestoreFailure.GeneralFailure)
                         }
 
-                        RestoreFileValidation.IncompatibleBackup -> {
+                        IncompatibleBackup -> {
                             restoreDialogStateHolder.toRestoreFailure(RestoreFailure.IncompatibleBackup)
                         }
 
-                        RestoreFileValidation.WrongBackup -> {
+                        WrongBackup -> {
                             restoreDialogStateHolder.toRestoreFailure(RestoreFailure.WrongBackup)
                         }
 
-                        is RestoreFileValidation.PasswordRequired -> {
+                        is PasswordRequired -> {
                             restoreDialogStateHolder.toEnterPassword()
                         }
                     }
@@ -294,7 +299,14 @@ fun RestoreBackupDialogFlow(
                 LaunchedEffect(backUpAndRestoreState.backupRestoreProgress) {
                     when (val progress = backUpAndRestoreState.backupRestoreProgress) {
                         BackupRestoreProgress.Pending -> {}
-                        BackupRestoreProgress.Failed -> restoreDialogStateHolder.toRestoreFailure(RestoreFailure.GeneralFailure)
+                        BackupRestoreProgress.Failed -> {
+                            val failureType = when (backUpAndRestoreState.restoreFileValidation) {
+                                is PasswordRequired, GeneralFailure, Pending -> RestoreFailure.GeneralFailure
+                                IncompatibleBackup -> RestoreFailure.IncompatibleBackup
+                                WrongBackup -> RestoreFailure.WrongBackup
+                            }
+                            restoreDialogStateHolder.toRestoreFailure(failureType)
+                        }
                         BackupRestoreProgress.Finished -> restoreDialogStateHolder.toFinished()
                         is BackupRestoreProgress.InProgress -> {
                             restoreDialogStateHolder.restoreProgress = progress.value

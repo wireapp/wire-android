@@ -23,6 +23,7 @@ import com.wire.kalium.logic.feature.backup.CreateBackupUseCase
 import com.wire.kalium.logic.feature.backup.RestoreBackupResult
 import com.wire.kalium.logic.feature.backup.RestoreBackupResult.BackupRestoreFailure.BackupIOFailure
 import com.wire.kalium.logic.feature.backup.RestoreBackupResult.BackupRestoreFailure.DecryptionFailure
+import com.wire.kalium.logic.feature.backup.RestoreBackupResult.BackupRestoreFailure.IncompatibleBackup
 import com.wire.kalium.logic.feature.backup.RestoreBackupResult.BackupRestoreFailure.InvalidPassword
 import com.wire.kalium.logic.feature.backup.RestoreBackupResult.BackupRestoreFailure.InvalidUserId
 import com.wire.kalium.logic.feature.backup.RestoreBackupUseCase
@@ -132,7 +133,7 @@ class BackupAndRestoreViewModel
                 RestoreBackupResult.Success -> {
                     state = state.copy(
                         backupRestoreProgress = BackupRestoreProgress.Finished,
-                        backupPasswordValidation = PasswordValidation.Valid
+                        restorePasswordValidation = PasswordValidation.Valid
                     )
                     Toast.makeText(context, context.getString(R.string.backup_label_conversation_successfully_saved), Toast.LENGTH_LONG)
                         .show()
@@ -146,12 +147,20 @@ class BackupAndRestoreViewModel
 
                         InvalidUserId -> state = state.copy(
                             backupRestoreProgress = BackupRestoreProgress.Failed,
-                            restoreFileValidation = RestoreFileValidation.WrongBackup
+                            restoreFileValidation = RestoreFileValidation.WrongBackup,
+                            restorePasswordValidation = PasswordValidation.Valid
+                        )
+
+                        is IncompatibleBackup -> state = state.copy(
+                            backupRestoreProgress = BackupRestoreProgress.Failed,
+                            restoreFileValidation = RestoreFileValidation.IncompatibleBackup,
+                            restorePasswordValidation = PasswordValidation.Valid
                         )
 
                         is BackupIOFailure, is DecryptionFailure -> state = state.copy(
                             backupRestoreProgress = BackupRestoreProgress.Failed,
-                            restoreFileValidation = RestoreFileValidation.GeneralFailure
+                            restoreFileValidation = RestoreFileValidation.GeneralFailure,
+                            restorePasswordValidation = PasswordValidation.Valid
                         )
                     }
                 }
@@ -193,7 +202,7 @@ data class BackupAndRestoreState(
     val restoreFileValidation: RestoreFileValidation,
     val restorePasswordValidation: PasswordValidation,
     val backupCreationProgress: BackupCreationProgress,
-    val backupPasswordValidation: PasswordValidation,
+    val backupCreationPasswordValidation: PasswordValidation,
     val createdBackup: CreatedBackup?
 ) {
 
@@ -204,7 +213,7 @@ data class BackupAndRestoreState(
             restoreFileValidation = RestoreFileValidation.Pending,
             backupCreationProgress = BackupCreationProgress.Pending,
             restorePasswordValidation = PasswordValidation.NotVerified,
-            backupPasswordValidation = PasswordValidation.Valid,
+            backupCreationPasswordValidation = PasswordValidation.Valid,
             createdBackup = null
         )
     }
@@ -234,6 +243,6 @@ sealed class RestoreFileValidation {
     object Pending : RestoreFileValidation()
     object IncompatibleBackup : RestoreFileValidation()
     object WrongBackup : RestoreFileValidation()
-    data class PasswordRequired(val extractedBackupFilesRootPath: Path) : RestoreFileValidation()
     object GeneralFailure : RestoreFileValidation()
+    data class PasswordRequired(val extractedBackupFilesRootPath: Path) : RestoreFileValidation()
 }

@@ -151,8 +151,15 @@ data class MessageComposerInnerState(
         }
     }
 
-    fun toActive() {
+    fun showAttachmentOptions() {
+        attachmentOptionsDisplayed = true
+    }
+
+    fun hideAttachmentOptions() {
         attachmentOptionsDisplayed = false
+    }
+
+    fun toActive() {
         messageComposeInputState = MessageComposeInputState.Active
     }
 

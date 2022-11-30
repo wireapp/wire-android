@@ -127,7 +127,7 @@ internal class NewConversationViewModelArrangement {
             access = listOf(Conversation.Access.INVITE),
             accessRole = listOf(Conversation.AccessRole.NON_TEAM_MEMBER),
             creatorId = null
-        )
+            )
 
         val PUBLIC_USER = OtherUser(
             TestUser.USER_ID.copy(value = "publicValue"),

@@ -3,7 +3,9 @@ package com.wire.android.ui.home.conversationslist.common
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
@@ -14,6 +16,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.BlockedLabel
 import com.wire.android.ui.common.DeletedLabel
@@ -35,8 +38,7 @@ fun EventBadgeFactory(eventType: BadgeEventType, modifier: Modifier = Modifier) 
         BadgeEventType.SentConnectRequest -> ConnectPendingRequestBadge(modifier)
         BadgeEventType.Blocked -> BlockedLabel(modifier)
         BadgeEventType.Deleted -> DeletedLabel(modifier)
-        // TODO BadgeEventType.Knock -> KnockBadge(modifier)
-        BadgeEventType.Knock -> {}
+        BadgeEventType.Knock -> UnreadKnockBadge(modifier)
         BadgeEventType.None -> {}
     }
 }
@@ -44,6 +46,7 @@ fun EventBadgeFactory(eventType: BadgeEventType, modifier: Modifier = Modifier) 
 @Composable
 private fun MissedCallBadge(modifier: Modifier = Modifier) {
     NotificationBadgeContainer(
+        modifier = Modifier.width(24.dp).height(18.dp),
         notificationIcon = {
             Image(
                 painter = painterResource(id = R.drawable.ic_event_badge_missed_call),
@@ -58,6 +61,7 @@ private fun MissedCallBadge(modifier: Modifier = Modifier) {
 @Composable
 private fun UnreadMentionBadge(modifier: Modifier = Modifier) {
     NotificationBadgeContainer(
+        modifier = Modifier.width(24.dp).height(18.dp),
         notificationIcon = {
             Image(
                 painter = painterResource(id = R.drawable.ic_event_badge_unread_mention),
@@ -72,6 +76,7 @@ private fun UnreadMentionBadge(modifier: Modifier = Modifier) {
 @Composable
 private fun UnreadReplyBadge(modifier: Modifier = Modifier) {
     NotificationBadgeContainer(
+        modifier = Modifier.width(24.dp).height(18.dp),
         notificationIcon = {
             Image(
                 painter = painterResource(id = R.drawable.ic_event_badge_unread_reply),
@@ -84,8 +89,24 @@ private fun UnreadReplyBadge(modifier: Modifier = Modifier) {
 }
 
 @Composable
+fun UnreadKnockBadge(modifier: Modifier = Modifier) {
+    NotificationBadgeContainer(
+        modifier = Modifier.width(24.dp).height(18.dp),
+        notificationIcon = {
+            Image(
+                painter = painterResource(id = R.drawable.ic_event_badge_unread_knock),
+                contentDescription = null,
+                colorFilter = ColorFilter.tint(MaterialTheme.wireColorScheme.onBadge),
+                modifier = modifier
+            )
+        }
+    )
+}
+
+@Composable
 fun ConnectRequestBadge(modifier: Modifier = Modifier) {
     NotificationBadgeContainer(
+        modifier = Modifier.width(24.dp).height(18.dp),
         notificationIcon = {
             Image(
                 painter = painterResource(id = R.drawable.ic_event_badge_connect_request),

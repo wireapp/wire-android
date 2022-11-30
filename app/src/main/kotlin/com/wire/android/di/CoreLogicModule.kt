@@ -138,12 +138,6 @@ class CoreLogicModule {
     @Provides
     fun provideNoSessionQualifiedIdMapper(): QualifiedIdMapper = QualifiedIdMapperImpl(null)
 
-    @NoSession
-    @Singleton
-    @Provides
-    fun provideObservePersistentWebSocketConnectionStatusUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
-        coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus
-
     @Singleton
     @Provides
     fun provideWorkManager(@ApplicationContext applicationContext: Context) = WorkManager.getInstance(applicationContext)
@@ -344,11 +338,6 @@ class UseCaseModule {
     @Provides
     fun provideDeleteClientUseCase(@CurrentAccount currentAccount: UserId, clientScopeProviderFactory: ClientScopeProvider.Factory) =
         clientScopeProviderFactory.create(currentAccount).clientScope.deleteClient
-
-    @ViewModelScoped
-    @Provides
-    fun provideRegisterClientUseCase(@CurrentAccount currentAccount: UserId, clientScopeProviderFactory: ClientScopeProvider.Factory) =
-        clientScopeProviderFactory.create(currentAccount).clientScope.register
 
     @ViewModelScoped
     @Provides
@@ -638,13 +627,21 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun provideObservePersistentWebSocketConnectionStatusUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
-        coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus
+    fun provideObservePersistentWebSocketConnectionStatusUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic
+    ) = coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus
 
     @ViewModelScoped
     @Provides
-    fun providePersistPersistentWebSocketConnectionStatusUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
-        coreLogic.getGlobalScope().persistPersistentWebSocketConnectionStatus
+    fun providePersistPersistentWebSocketConnectionStatusUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId
+    ) = coreLogic.getSessionScope(currentAccount).persistPersistentWebSocketConnectionStatus
+
+    @ViewModelScoped
+    @Provides
+    fun provideGetPersistentWebSocketStatusUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId
+    ) = coreLogic.getSessionScope(currentAccount).getPersistentWebSocketStatus
 
     @ViewModelScoped
     @Provides

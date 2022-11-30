@@ -2,14 +2,12 @@ package com.wire.android.ui.home.settings.backup
 
 import android.content.Context
 import android.net.Uri
-import android.widget.Toast
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.navigation.BackStackMode
 import com.wire.android.navigation.NavigationCommand
@@ -29,6 +27,7 @@ import com.wire.kalium.logic.feature.backup.RestoreBackupResult.BackupRestoreFai
 import com.wire.kalium.logic.feature.backup.RestoreBackupUseCase
 import com.wire.kalium.logic.functional.fold
 import com.wire.kalium.logic.util.extractCompressedFile
+import com.wire.kalium.logic.util.fileExtension
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -47,56 +46,61 @@ class BackupAndRestoreViewModel
 ) : ViewModel() {
 
     var state by mutableStateOf(BackupAndRestoreState.INITIAL_STATE)
+    private var latestCreatedBackup: BackupAndRestoreState.CreatedBackup? = null
 
     @Suppress("MagicNumber")
     fun createBackup(password: String) {
         viewModelScope.launch {
+            // TODO: Find a way to update the create progress more faithfully. For now we will just show this small delays to mimic the
+            //  progress also for small backups
             state = state.copy(backupCreationProgress = BackupCreationProgress.InProgress(0.25f))
             delay(300)
             state = state.copy(backupCreationProgress = BackupCreationProgress.InProgress(0.50f))
             delay(300)
-            val result = createBackupUseCase.invoke(password)
 
-            state = if (result is CreateBackupResult.Success) {
-                state.copy(
-                    createdBackup = BackupAndRestoreState.CreatedBackup(
+            when (val result = createBackupUseCase.invoke(password)) {
+                is CreateBackupResult.Success -> {
+                    state = state.copy(backupCreationProgress = BackupCreationProgress.Finished)
+                    latestCreatedBackup = BackupAndRestoreState.CreatedBackup(
                         result.backupFilePath,
                         result.backupFileName,
                         result.backupFileSize,
                         password.isNotEmpty()
-                    ),
-                    backupCreationProgress = BackupCreationProgress.Finished
-                )
-            } else state.copy(backupCreationProgress = BackupCreationProgress.Failed)
+                    )
+                }
+                is CreateBackupResult.Failure -> {
+                    state = state.copy(backupCreationProgress = BackupCreationProgress.Failed)
+                    appLogger.e("Failed to create backup: ${result.coreFailure}")
+                }
+            }
         }
     }
 
     fun saveBackup() = viewModelScope.launch {
-        state.createdBackup?.let { backupData ->
-            fileManager.saveToExternalStorage(backupData.assetName, backupData.path, backupData.assetSize) {
-                Toast.makeText(context, context.getString(R.string.backup_label_conversation_successfully_saved), Toast.LENGTH_SHORT).show()
-            }
+        latestCreatedBackup?.let { backupData ->
+            fileManager.shareWithExternalApp(backupData.path, backupData.assetName.fileExtension()) {}
         }
         state = BackupAndRestoreState.INITIAL_STATE
     }
 
     fun chooseBackupFileToRestore(uri: Uri) = viewModelScope.launch {
-        val importedBackupPath = kaliumFileSystem.tempFilePath("tempImportedBackup.zip")
+        val importedBackupPath = kaliumFileSystem.tempFilePath(TEMP_IMPORTED_BACKUP_FILE_NAME)
         uri.copyToTempPath(context, importedBackupPath)
-        val tempCompressedBackupFileSource = kaliumFileSystem.source(importedBackupPath)
-        val extractedBackupFilesRootPath = kaliumFileSystem.tempFilePath("extractedBackup")
 
-        // Delete any previously existing files in the extractedBackupRootFilesPath
-        if (kaliumFileSystem.exists(extractedBackupFilesRootPath)) {
-            kaliumFileSystem.deleteContents(extractedBackupFilesRootPath)
-        }
-        kaliumFileSystem.createDirectory(extractedBackupFilesRootPath)
+        extractBackupFiles(importedBackupPath)
+
+        // Delete the imported backup file
+        kaliumFileSystem.delete(importedBackupPath)
+    }
+
+    private suspend fun extractBackupFiles(importedBackupPath: Path) {
+        val tempCompressedBackupFileSource = kaliumFileSystem.source(importedBackupPath)
+        val extractedBackupFilesRootPath = createExtractedBackupFilesRootPath()
 
         extractCompressedFile(tempCompressedBackupFileSource, extractedBackupFilesRootPath, kaliumFileSystem).fold({
             onBackupRestoreError("Error extracting backup file")
         }, {
-            kaliumFileSystem.delete(importedBackupPath)
-            val encryptedFilePath = kaliumFileSystem.listDirectories(extractedBackupFilesRootPath).firstOrNull { it.name.contains(".cc20") }
+            val encryptedFilePath = getEncryptedBackupFilePath(extractedBackupFilesRootPath)
             val isPasswordProtected = encryptedFilePath != null
 
             if (isPasswordProtected) {
@@ -104,15 +108,34 @@ class BackupAndRestoreViewModel
                 state = state.copy(restoreFileValidation = RestoreFileValidation.PasswordRequired(extractedBackupFilesRootPath))
             } else {
                 // If it's not password protected, we can restore the backup
+                state = state.copy(
+                    restoreFileValidation = RestoreFileValidation.ValidNonEncryptedBackup,
+                    backupRestoreProgress = BackupRestoreProgress.InProgress(0.75f)
+                )
                 val result = importBackup(extractedBackupFilesRootPath, null)
                 if (result is RestoreBackupResult.Success) {
-                    Toast.makeText(context, context.getString(R.string.backup_label_conversation_successfully_saved), Toast.LENGTH_LONG)
-                        .show()
+                    state = state.copy(backupRestoreProgress = BackupRestoreProgress.InProgress(0.75f))
+                    delay(300)
+                    state = state.copy(backupRestoreProgress = BackupRestoreProgress.Finished)
                 } else {
                     onBackupRestoreError("Error when restoring the db file", RestoreFileValidation.IncompatibleBackup)
                 }
             }
         })
+    }
+
+    private suspend fun getEncryptedBackupFilePath(extractedBackupFilesRootPath: Path): Path? =
+        kaliumFileSystem.listDirectories(extractedBackupFilesRootPath).firstOrNull { it.name.contains(".cc20") }
+
+    private fun createExtractedBackupFilesRootPath(): Path {
+        val extractedBackupFilesRootPath = kaliumFileSystem.tempFilePath(TEMP_EXTRACTED_BACKUP_FILES_PATH)
+
+        // Delete any previously existing files in the extractedBackupRootFilesPath
+        if (kaliumFileSystem.exists(extractedBackupFilesRootPath)) {
+            kaliumFileSystem.deleteContents(extractedBackupFilesRootPath)
+        }
+        kaliumFileSystem.createDirectory(extractedBackupFilesRootPath)
+        return extractedBackupFilesRootPath
     }
 
     private fun onBackupRestoreError(errorMessage: String, errorType: RestoreFileValidation = RestoreFileValidation.GeneralFailure) {
@@ -135,8 +158,6 @@ class BackupAndRestoreViewModel
                         backupRestoreProgress = BackupRestoreProgress.Finished,
                         restorePasswordValidation = PasswordValidation.Valid
                     )
-                    Toast.makeText(context, context.getString(R.string.backup_label_conversation_successfully_saved), Toast.LENGTH_LONG)
-                        .show()
                 }
                 is RestoreBackupResult.Failure -> {
                     when (result.failure) {
@@ -195,6 +216,11 @@ class BackupAndRestoreViewModel
     }
 
     fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }
+
+    private companion object {
+        const val TEMP_EXTRACTED_BACKUP_FILES_PATH = "extractedBackupFiles"
+        const val TEMP_IMPORTED_BACKUP_FILE_NAME = "tempImportedBackup.zip"
+    }
 }
 
 data class BackupAndRestoreState(
@@ -202,8 +228,7 @@ data class BackupAndRestoreState(
     val restoreFileValidation: RestoreFileValidation,
     val restorePasswordValidation: PasswordValidation,
     val backupCreationProgress: BackupCreationProgress,
-    val backupCreationPasswordValidation: PasswordValidation,
-    val createdBackup: CreatedBackup?
+    val backupCreationPasswordValidation: PasswordValidation
 ) {
 
     data class CreatedBackup(val path: Path, val assetName: String, val assetSize: Long, val isEncrypted: Boolean)
@@ -214,7 +239,6 @@ data class BackupAndRestoreState(
             backupCreationProgress = BackupCreationProgress.Pending,
             restorePasswordValidation = PasswordValidation.NotVerified,
             backupCreationPasswordValidation = PasswordValidation.Valid,
-            createdBackup = null
         )
     }
 }
@@ -241,6 +265,7 @@ sealed interface BackupRestoreProgress {
 
 sealed class RestoreFileValidation {
     object Pending : RestoreFileValidation()
+    object ValidNonEncryptedBackup : RestoreFileValidation()
     object IncompatibleBackup : RestoreFileValidation()
     object WrongBackup : RestoreFileValidation()
     object GeneralFailure : RestoreFileValidation()

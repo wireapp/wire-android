@@ -34,6 +34,7 @@ import com.wire.android.ui.home.settings.backup.RestoreFileValidation.GeneralFai
 import com.wire.android.ui.home.settings.backup.RestoreFileValidation.IncompatibleBackup
 import com.wire.android.ui.home.settings.backup.RestoreFileValidation.PasswordRequired
 import com.wire.android.ui.home.settings.backup.RestoreFileValidation.Pending
+import com.wire.android.ui.home.settings.backup.RestoreFileValidation.ValidNonEncryptedBackup
 import com.wire.android.ui.home.settings.backup.RestoreFileValidation.WrongBackup
 import com.wire.android.ui.home.settings.backup.dialog.common.FailureDialog
 import com.wire.android.ui.home.settings.backup.dialog.create.BackUpDialogStep
@@ -248,6 +249,9 @@ fun RestoreBackupDialogFlow(
                 LaunchedEffect(backUpAndRestoreState.restoreFileValidation) {
                     when (backUpAndRestoreState.restoreFileValidation) {
                         Pending -> {}
+                        ValidNonEncryptedBackup -> {
+                            restoreDialogStateHolder.toRestoreBackup()
+                        }
                         GeneralFailure -> {
                             restoreDialogStateHolder.toRestoreFailure(RestoreFailure.GeneralFailure)
                         }
@@ -301,7 +305,7 @@ fun RestoreBackupDialogFlow(
                         BackupRestoreProgress.Pending -> {}
                         BackupRestoreProgress.Failed -> {
                             val failureType = when (backUpAndRestoreState.restoreFileValidation) {
-                                is PasswordRequired, GeneralFailure, Pending -> RestoreFailure.GeneralFailure
+                                is PasswordRequired, GeneralFailure, Pending, ValidNonEncryptedBackup -> RestoreFailure.GeneralFailure
                                 IncompatibleBackup -> RestoreFailure.IncompatibleBackup
                                 WrongBackup -> RestoreFailure.WrongBackup
                             }

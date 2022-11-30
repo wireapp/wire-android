@@ -217,6 +217,29 @@ fun openAssetFileWithExternalApp(assetDataPath: Path, context: Context, assetExt
     }
 }
 
+fun shareAssetFileWithExternalApp(assetDataPath: Path, context: Context, assetExtension: String?, onError: () -> Unit) {
+    try {
+        val assetUri = context.pathToUri(assetDataPath)
+        val mimeType = MimeTypeMap.getSingleton().getMimeTypeFromExtension(assetExtension)
+        // Set intent and launch
+        val intent = Intent()
+        intent.apply {
+            action = Intent.ACTION_SEND
+            addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+            setDataAndType(assetUri, mimeType)
+            putExtra(Intent.EXTRA_STREAM, assetUri)
+        }
+        context.startActivity(intent)
+    } catch (e: java.lang.IllegalArgumentException) {
+        appLogger.e("The file couldn't be found on the internal storage \n$e")
+        onError()
+    } catch (noActivityFoundException: ActivityNotFoundException) {
+        appLogger.e("Couldn't find a proper app to process the asset")
+        onError()
+    }
+}
+
 @Suppress("MagicNumber")
 fun Context.getDeviceId(): String? {
     

@@ -33,6 +33,9 @@ class ServicesManager @Inject constructor(private val context: Context) {
         stopService(PersistentWebSocketService::class)
     }
 
+    fun isPersistentWebSocketServiceRunning(): Boolean =
+        PersistentWebSocketService.isServiceStarted
+
     private fun startService(intent: Intent) {
         context.startService(intent)
     }

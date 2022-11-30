@@ -18,10 +18,13 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryIconButton
 import com.wire.android.ui.common.dimensions
+import com.wire.android.util.debug.FeatureVisibilityFlags
 import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 
 @ExperimentalAnimationApi
@@ -137,4 +140,23 @@ private fun PingAction() {
         iconResource = R.drawable.ic_ping,
         contentDescription = R.string.content_description_ping_everyone
     )
+}
+
+@Preview
+@Composable
+private fun MessageActionsBoxPreview() {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceEvenly,
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(dimensions().spacing56x)
+    ) {
+        AdditionalOptionButton(isSelected = false, onClick = {})
+        RichTextEditingAction()
+        AddEmojiAction()
+        AddGifAction()
+        AddMentionAction(isSelected = false, addMentionAction = {})
+        PingAction()
+    }
 }

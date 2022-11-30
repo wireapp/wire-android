@@ -61,7 +61,15 @@ fun OtherUserDevicesScreen(
             }
 
             itemsIndexed(otherUserClients) { index, item ->
-                DeviceItem(Device(item.deviceType.name, ClientId(item.id), isValid = item.isValid ), false, null)
+                DeviceItem(
+                    Device(
+                        name = item.deviceType.name,
+                        clientId = ClientId(item.id),
+                        isValid = item.isValid
+                    ),
+                    placeholder = false,
+                    background = null
+                )
                 if (index < otherUserClients.lastIndex) Divider()
             }
         }

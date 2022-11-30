@@ -59,8 +59,6 @@ fun RemoveDeviceScreen() {
     )
 }
 
-typealias HideKeyboard = () -> Unit
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun RemoveDeviceContent(
@@ -120,7 +118,11 @@ private fun RemoveDeviceItemsList(
             modifier = Modifier.fillMaxWidth()
         ) {
             itemsIndexed(items) { index, device ->
-                DeviceItem(device, placeholders, onItemClicked)
+                DeviceItem(
+                    device = device,
+                    placeholder = placeholders,
+                    onRemoveDeviceClick = onItemClicked
+                )
                 if (index < items.lastIndex) Divider()
             }
         }
@@ -176,6 +178,7 @@ private fun RemoveDeviceDialog(
                 state = when {
                     errorState is RemoveDeviceError.InvalidCredentialsError ->
                         WireTextFieldState.Error(stringResource(id = R.string.remove_device_invalid_password))
+
                     state.loading -> WireTextFieldState.Disabled
                     else -> WireTextFieldState.Default
                 },

@@ -9,10 +9,6 @@ import com.wire.android.ui.home.conversations.DownloadedAssetDialogVisibilitySta
 import com.wire.android.ui.home.conversations.mockConversationDetailsGroup
 import com.wire.android.ui.home.conversations.mockUITextMessage
 import com.wire.kalium.logic.data.conversation.ConversationDetails
-import com.wire.kalium.logic.data.id.PlainId
-import com.wire.kalium.logic.data.id.QualifiedID
-import com.wire.kalium.logic.data.message.Message
-import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.util.fileExtension
 import io.mockk.coVerify
 import io.mockk.verify
@@ -99,76 +95,6 @@ class ConversationMessagesViewModelTest {
             awaitItem().map { it shouldBeEqualTo secondMessage }
         }
     }
-
-    @Test
-    fun `given group conversation, when lastUnreadMessage is cleared, then correctly propagate it up to state`() =
-        runTest {
-            val groupDetails: ConversationDetails.Group = mockConversationDetailsGroup("Conversation Name Goes Here")
-
-            val (arrangement, viewModel) = ConversationMessagesViewModelArrangement()
-                .withConversationDetailUpdate(groupDetails)
-                .arrange()
-
-            val sendMessage = Message.Regular(
-                id = "commonId",
-                content = MessageContent.Text("some Text", listOf(), null, null),
-                conversationId = QualifiedID("someValue", "someId"),
-                date = Instant.fromEpochSeconds(1000L, 0).toString(),
-                senderUserId = QualifiedID("someValue", "someId"),
-                status = Message.Status.SENT,
-                visibility = Message.Visibility.VISIBLE,
-                senderClientId = PlainId(value = "someValue"),
-                editStatus = Message.EditStatus.NotEdited
-            )
-
-            arrangement.conversationDetailsChannel.send(
-                groupDetails.copy(lastUnreadMessage = sendMessage)
-            )
-
-            viewModel.conversationViewState.lastUnreadMessageInstant.shouldNotBeNull()
-            viewModel.conversationViewState.lastUnreadMessageInstant.toString() shouldBeEqualTo sendMessage.date
-
-            arrangement.conversationDetailsChannel.send(
-                groupDetails.copy(lastUnreadMessage = null)
-            )
-
-            viewModel.conversationViewState.lastUnreadMessageInstant.shouldBeNull()
-        }
-
-    @Test
-    fun `given group conversation, when new lastUnreadMessage arrive, then correctly propagate it up to state`() =
-        runTest {
-            val groupDetails: ConversationDetails.Group = mockConversationDetailsGroup("Conversation Name Goes Here")
-
-            val (arrangement, viewModel) = ConversationMessagesViewModelArrangement()
-                .withConversationDetailUpdate(groupDetails)
-                .arrange()
-
-            val sendMessage = Message.Regular(
-                id = "commonId",
-                content = MessageContent.Text("some Text", listOf(), null, null),
-                conversationId = QualifiedID("someValue", "someId"),
-                date = Instant.fromEpochSeconds(1000L, 0).toString(),
-                senderUserId = QualifiedID("someValue", "someId"),
-                status = Message.Status.SENT,
-                visibility = Message.Visibility.VISIBLE,
-                senderClientId = PlainId(value = "someValue"),
-                editStatus = Message.EditStatus.NotEdited
-            )
-
-            arrangement.conversationDetailsChannel.send(
-                groupDetails.copy(lastUnreadMessage = null)
-            )
-
-            viewModel.conversationViewState.lastUnreadMessageInstant.shouldBeNull()
-
-            arrangement.conversationDetailsChannel.send(
-                groupDetails.copy(lastUnreadMessage = sendMessage)
-            )
-
-            viewModel.conversationViewState.lastUnreadMessageInstant.shouldNotBeNull()
-            viewModel.conversationViewState.lastUnreadMessageInstant.toString() shouldBeEqualTo sendMessage.date
-        }
 
     @Test
     fun `given a message and a reaction, when toggleReaction is called, then should call ToggleReactionUseCase`() = runTest {

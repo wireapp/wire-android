@@ -5,10 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
-import com.wire.android.navigation.EXTRA_CONVERSATION_ID
-import com.wire.android.navigation.EXTRA_MESSAGE_ID
-import com.wire.android.navigation.NavigationManager
-import com.wire.android.navigation.SavedStateViewModel
+import com.wire.android.navigation.*
 import com.wire.android.ui.home.conversations.messagedetails.usecase.ObserveReactionsForMessageUseCase
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
@@ -29,9 +26,16 @@ class MessageDetailsViewModel @Inject constructor(
 
     private val messageId: String = savedStateHandle.get<String>(EXTRA_MESSAGE_ID)!!
 
+    private val isSelfMessage: Boolean = savedStateHandle.get<String>(EXTRA_IS_SELF_MESSAGE)!!.toBoolean()
+
     var messageDetailsState: MessageDetailsState by mutableStateOf(MessageDetailsState())
 
     init {
+        viewModelScope.launch {
+            messageDetailsState = messageDetailsState.copy(
+                isSelfMessage = isSelfMessage
+            )
+        }
         viewModelScope.launch {
             observeReactionsForMessage(
                 conversationId = conversationId,

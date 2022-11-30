@@ -253,7 +253,7 @@ private fun ConversationScreen(
     onBackButtonClick: () -> Unit,
     onDeleteMessage: (String, Boolean) -> Unit,
     onReactionClick: (messageId: String, reactionEmoji: String) -> Unit,
-    onMessageDetailsClick: (messageId: String) -> Unit,
+    onMessageDetailsClick: (messageId: String, isSelfMessage: Boolean) -> Unit,
     onStartCall: () -> Unit,
     onJoinCall: () -> Unit,
     onSnackbarMessage: (ConversationSnackbarMessages) -> Unit,
@@ -295,7 +295,8 @@ private fun ConversationScreen(
         {
             conversationScreenState.hideEditContextMenu {
                 onMessageDetailsClick(
-                    conversationScreenState.selectedMessage?.messageHeader!!.messageId
+                    conversationScreenState.selectedMessage?.messageHeader!!.messageId,
+                    conversationScreenState.isMyMessage
                 )
             }
         }
@@ -599,6 +600,6 @@ fun ConversationScreenPreview() {
         onUpdateConversationReadDate = { },
         interactionAvailability = InteractionAvailability.ENABLED,
         membersToMention = listOf(),
-        onMessageDetailsClick = { }
+        onMessageDetailsClick = { _, _ -> }
     )
 }

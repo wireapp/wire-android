@@ -173,12 +173,12 @@ class ConversationMessagesViewModel @Inject constructor(
         }
     }
 
-    fun openMessageDetails(messageId: String) {
+    fun openMessageDetails(messageId: String, isSelfMessage: Boolean) {
         viewModelScope.launch {
             navigationManager.navigate(
                 command = NavigationCommand(
                     destination = NavigationItem.MessageDetails.getRouteWithArgs(
-                        listOf(conversationId, messageId)
+                        listOf(conversationId, messageId, isSelfMessage)
                     )
                 )
             )

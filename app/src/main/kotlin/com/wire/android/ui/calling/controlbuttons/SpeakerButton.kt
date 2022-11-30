@@ -20,11 +20,12 @@ import com.wire.android.ui.common.dimensions
 
 @Composable
 fun SpeakerButton(
+    modifier: Modifier = Modifier.size(dimensions().defaultCallingControlsSize),
     isSpeakerOn: Boolean,
     onSpeakerButtonClicked: () -> Unit
 ) {
     IconButton(
-        modifier = Modifier.size(dimensions().defaultCallingControlsSize),
+        modifier = modifier,
         onClick = {}
     ) {
         Icon(

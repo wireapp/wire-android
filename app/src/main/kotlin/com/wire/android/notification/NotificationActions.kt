@@ -17,9 +17,9 @@ fun getActionReply(context: Context, conversationId: String, userId: String?): N
         .build()
 }
 
-fun getActionCall(context: Context, conversationId: String) = getAction(
+fun getActionCall(context: Context, conversationId: String, userId: String?) = getAction(
     context.getString(R.string.notification_action_call),
-    callMessagePendingIntent(context, conversationId)
+    callMessagePendingIntent(context, conversationId, userId)
 )
 
 fun getOpenIncomingCallAction(context: Context, conversationId: String) = getAction(

@@ -818,4 +818,9 @@ class UseCaseModule {
     @Provides
     fun provideUpdateApiVersionsScheduler(@KaliumCoreLogic coreLogic: CoreLogic) =
         coreLogic.updateApiVersionsScheduler
+
+    @ViewModelScoped
+    @Provides
+    fun provideObserveIfAppFreshEnoughUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
+        coreLogic.getGlobalScope().observeIfAppUpdateRequired
 }

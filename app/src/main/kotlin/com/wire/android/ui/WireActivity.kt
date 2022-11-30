@@ -18,6 +18,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.window.DialogProperties
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavHostController
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
@@ -106,6 +107,10 @@ class WireActivity : AppCompatActivity() {
                         viewModel::dismissMaxAccountDialog,
                         viewModel.globalAppState.maxAccountDialog
                     )
+                    updateAppDialog(
+                        { /*TODO*/ },
+                        viewModel.globalAppState.updateAppDialog
+                    )
                     AccountLongedOutDialog(viewModel.globalAppState.blockUserUI, viewModel::navigateToNextAccountOrWelcome)
                 }
             }
@@ -126,6 +131,27 @@ class WireActivity : AppCompatActivity() {
                 onConfirm = onConfirm,
                 onDismiss = onDismiss,
                 buttonText = R.string.max_account_reached_dialog_button_open_profile
+            )
+        }
+    }
+
+    @Composable
+    private fun updateAppDialog(onUpdateClick: () -> Unit, shouldShow: Boolean) {
+        if (shouldShow) {
+            WireDialog(
+                title = stringResource(id = R.string.update_app_dialog_title),
+                text = stringResource(id = R.string.update_app_dialog_body),
+                onDismiss = { },
+                optionButton1Properties = WireDialogButtonProperties(
+                    text = stringResource(id = R.string.update_app_dialog_button),
+                    onClick = onUpdateClick,
+                    type = WireDialogButtonType.Primary
+                ),
+                properties = DialogProperties(
+                    dismissOnBackPress = true, //TODO cyka make it false
+                    dismissOnClickOutside = false,
+                    usePlatformDefaultWidth = true
+                )
             )
         }
     }

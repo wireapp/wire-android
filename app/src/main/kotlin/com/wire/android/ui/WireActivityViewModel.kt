@@ -27,6 +27,7 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.sync.SyncState
+import com.wire.kalium.logic.feature.appVersioning.ObserveIfAppUpdateRequiredUseCase
 import com.wire.kalium.logic.feature.auth.AccountInfo
 import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
@@ -68,7 +69,8 @@ class WireActivityViewModel @Inject constructor(
     private val accountSwitch: AccountSwitchUseCase,
     private val observePersistentWebSocketConnectionStatus: ObservePersistentWebSocketConnectionStatusUseCase,
     private val migrationManager: MigrationManager,
-    private val observeSyncStateUseCaseProviderFactory: ObserveSyncStateUseCaseProvider.Factory
+    private val observeSyncStateUseCaseProviderFactory: ObserveSyncStateUseCaseProvider.Factory,
+    private val observeIfAppUpdateRequired: ObserveIfAppUpdateRequiredUseCase
 ) : ViewModel() {
 
     private val navigationArguments = mutableMapOf<String, Any>(SERVER_CONFIG_ARG to ServerConfig.DEFAULT)
@@ -115,6 +117,13 @@ class WireActivityViewModel @Inject constructor(
                 }
                 .distinctUntilChanged()
                 .collect { _observeSyncFlowState.emit(it) }
+        }
+        viewModelScope.launch(dispatchers.io()) {
+            observeIfAppUpdateRequired(BuildConfig.VERSION_CODE)
+                .distinctUntilChanged()
+                .collect {
+                    globalAppState = globalAppState.copy(updateAppDialog = it)
+                }
         }
     }
 
@@ -381,5 +390,6 @@ sealed class CurrentSessionErrorState {
 data class GlobalAppState(
     val customBackendDialog: CustomBEDeeplinkDialogState = CustomBEDeeplinkDialogState(),
     val maxAccountDialog: Boolean = false,
-    val blockUserUI: CurrentSessionErrorState? = null
+    val blockUserUI: CurrentSessionErrorState? = null,
+    val updateAppDialog: Boolean = false
 )

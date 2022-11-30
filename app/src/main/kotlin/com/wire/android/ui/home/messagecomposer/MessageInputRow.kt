@@ -67,7 +67,8 @@ fun ColumnScope.MessageComposerInputRow(
         ) {
             Box(modifier = Modifier.padding(start = dimensions().spacing8x)) {
                 AdditionalOptionButton(messageComposerState.attachmentOptionsDisplayed) {
-                    messageComposerState.toggleAttachmentOptionsVisibility()
+                    messageComposerState.toActive()
+                    messageComposerState.showAttachmentOptions()
                 }
             }
         }
@@ -82,6 +83,7 @@ fun ColumnScope.MessageComposerInputRow(
             messageComposerInputState = messageComposerState.messageComposeInputState,
             onIsFocused = {
                 messageComposerState.toActive()
+                messageComposerState.hideAttachmentOptions()
             },
             modifier = Modifier
                 .fillMaxWidth()

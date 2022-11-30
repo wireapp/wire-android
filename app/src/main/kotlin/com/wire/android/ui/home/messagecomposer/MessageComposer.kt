@@ -12,6 +12,7 @@ import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -52,8 +53,8 @@ import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
 import com.wire.android.ui.home.conversations.mention.MemberItemToMention
+import com.wire.android.ui.home.conversations.messages.QuotedMessagePreview
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
-import com.wire.android.ui.home.conversationslist.common.ReplyMessage
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.messagecomposer.attachment.AttachmentOptions
 import com.wire.android.ui.home.newconversation.model.Contact
@@ -85,9 +86,9 @@ fun MessageComposer(
                 onSendTextMessage(
                     messageComposerState.messageText.text,
                     messageComposerState.mentions,
-                    messageComposerState.messageReplyType?.messageId
+                    messageComposerState.quotedMessageData?.messageId,
                 )
-                messageComposerState.messageReplyType = null
+                messageComposerState.quotedMessageData = null
                 messageComposerState.setMessageTextValue(TextFieldValue(""))
             }
         }
@@ -150,18 +151,13 @@ private fun MessageComposer(
     onMentionPicked: (Contact) -> Unit
 ) {
     val focusManager = LocalFocusManager.current
-    val messageReplyState = messageComposerState.messageReplyType
+    val messageReplyState = messageComposerState.quotedMessageData
 
     Surface {
         val transition = updateTransition(
             targetState = messageComposerState.messageComposeInputState,
             label = stringResource(R.string.animation_label_messagecomposeinput_state_transistion)
         )
-
-        BackHandler(enabled = messageComposerState.attachmentOptionsDisplayed) {
-            messageComposerState.toggleAttachmentOptionsVisibility()
-        }
-
         // ConstraintLayout wrapping the whole content to give us the possibility to constrain SendButton to top of AdditionalOptions, which
         // constrains to bottom of MessageComposerInput
         // so that MessageComposerInput is the only component animating freely, when going to Fullscreen mode
@@ -279,10 +275,12 @@ private fun MessageComposer(
                                     messageComposerState = messageComposerState
                                 )
                                 if (messageReplyState != null) {
-                                    ReplyMessage(
-                                        messageReplyType = messageReplyState,
-                                        onCancelReply = messageComposerState::cancelReply
-                                    )
+                                    Row(modifier = Modifier.padding(horizontal = dimensions().spacing8x)) {
+                                        QuotedMessagePreview(
+                                            quotedMessageData = messageReplyState,
+                                            onCancelReply = messageComposerState::cancelReply
+                                        )
+                                    }
                                 }
                                 // Row wrapping the AdditionalOptionButton() when we are in Enabled state and MessageComposerInput()
                                 // when we are in the Fullscreen state, we want to align the TextField to Top of the Row,
@@ -304,7 +302,7 @@ private fun MessageComposer(
                     // changed which is applied only for
                     // MessageComposerInput and CollapsingButton
                     SendActions(
-                        Modifier.Companion.constrainAs(sendActions) {
+                        Modifier.constrainAs(sendActions) {
                             bottom.linkTo(additionalActions.top)
                             end.linkTo(parent.end)
                         },
@@ -315,7 +313,7 @@ private fun MessageComposer(
                     // Box wrapping MessageComposeActions() so that we can constrain it to the bottom of MessageComposerInput and after that
                     // constrain our SendActions to it
                     MessageComposeActionsBox(
-                        Modifier.Companion
+                        Modifier
                             .constrainAs(additionalActions) {
                                 top.linkTo(messageInput.bottom)
                                 bottom.linkTo(parent.bottom)
@@ -342,6 +340,10 @@ private fun MessageComposer(
                 )
             }
         }
+    }
+
+    BackHandler(enabled = messageComposerState.attachmentOptionsDisplayed) {
+        messageComposerState.toggleAttachmentOptionsVisibility()
     }
 }
 

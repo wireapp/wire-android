@@ -54,6 +54,7 @@ data class WireDimensions(
     val messageImageMaxWidth: Dp,
     val messageQuoteBorderWidth: Dp,
     val messageQuoteBorderRadius: Dp,
+    val messageQuoteIconSize: Dp,
     val messageAssetBorderRadius: Dp,
     // Message composer
     val messageComposerActiveInputMaxHeight: Dp,
@@ -201,6 +202,7 @@ private val DefaultPhonePortraitWireDimensions: WireDimensions = WireDimensions(
     messageImageMaxWidth = 200.dp,
     messageQuoteBorderWidth = 1.dp,
     messageQuoteBorderRadius = 1.dp,
+    messageQuoteIconSize = 10.dp,
     messageAssetBorderRadius = 10.dp,
     messageComposerActiveInputMaxHeight = 168.dp,
     attachmentButtonSize = 40.dp,

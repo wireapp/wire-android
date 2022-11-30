@@ -129,8 +129,8 @@ class MessageNotificationManager
                             setContentIntent(openAppPendingIntent(context))
                         }
                         else -> {
-                            setContentIntent(messagePendingIntent(context, conversation.id))
-                            addAction(getActionCall(context, conversation.id))
+                            setContentIntent(messagePendingIntent(context, conversation.id, userId))
+                            addAction(getActionCall(context, conversation.id, userId))
                             addAction(getActionReply(context, conversation.id, userId))
                         }
                     }
@@ -272,8 +272,8 @@ class MessageNotificationManager
             }
 
             val notification = setUpNotificationBuilder(context).apply {
-                setContentIntent(messagePendingIntent(context, conversationId))
-                addAction(getActionCall(context, conversationId))
+                setContentIntent(messagePendingIntent(context, conversationId, userId))
+                addAction(getActionCall(context, conversationId, userId))
                 addAction(getActionReply(context, conversationId, userId))
 
                 setWhen(System.currentTimeMillis())

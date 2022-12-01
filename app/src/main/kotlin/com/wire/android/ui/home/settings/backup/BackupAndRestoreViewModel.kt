@@ -93,6 +93,7 @@ class BackupAndRestoreViewModel
         kaliumFileSystem.delete(importedBackupPath)
     }
 
+    @Suppress("MagicNumber")
     private suspend fun extractBackupFiles(importedBackupPath: Path) {
         val tempCompressedBackupFileSource = kaliumFileSystem.source(importedBackupPath)
         val extractedBackupFilesRootPath = createExtractedBackupFilesRootPath()

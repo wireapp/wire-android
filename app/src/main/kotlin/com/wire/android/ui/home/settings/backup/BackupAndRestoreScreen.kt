@@ -19,7 +19,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.TextFieldValue
@@ -27,9 +26,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.wire.android.R
+import com.wire.android.appLogger
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.home.settings.backup.RestoreFileValidation.GeneralFailure
+import com.wire.android.ui.home.settings.backup.RestoreFileValidation.IncompatibleBackup
+import com.wire.android.ui.home.settings.backup.RestoreFileValidation.PasswordRequired
+import com.wire.android.ui.home.settings.backup.RestoreFileValidation.Pending
+import com.wire.android.ui.home.settings.backup.RestoreFileValidation.ValidNonEncryptedBackup
+import com.wire.android.ui.home.settings.backup.RestoreFileValidation.WrongBackup
 import com.wire.android.ui.home.settings.backup.dialog.common.FailureDialog
 import com.wire.android.ui.home.settings.backup.dialog.create.BackUpDialogStep
 import com.wire.android.ui.home.settings.backup.dialog.create.CreateBackupDialog
@@ -45,17 +51,16 @@ import com.wire.android.ui.home.settings.backup.dialog.restore.rememberRestoreDi
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
-import kotlinx.coroutines.InternalCoroutinesApi
 
 @Composable
 fun BackupAndRestoreScreen(viewModel: BackupAndRestoreViewModel = hiltViewModel()) {
     BackupAndRestoreContent(
         backUpAndRestoreState = viewModel.state,
-        onValidateBackupPassword = viewModel::validateBackupPassword,
+        onValidateBackupPassword = viewModel::validateBackupCreationPassword,
         onCreateBackup = viewModel::createBackup,
         onSaveBackup = viewModel::saveBackup,
         onChooseBackupFile = viewModel::chooseBackupFileToRestore,
-        onRestoreBackup = viewModel::restoreBackup,
+        onRestoreBackup = viewModel::restorePasswordProtectedBackup,
         onCancelBackupRestore = viewModel::cancelBackupRestore,
         onCancelBackupCreation = viewModel::cancelBackupCreation,
         onOpenConversations = viewModel::navigateToConversations,
@@ -63,12 +68,12 @@ fun BackupAndRestoreScreen(viewModel: BackupAndRestoreViewModel = hiltViewModel(
     )
 }
 
-@OptIn(ExperimentalMaterial3Api::class, InternalCoroutinesApi::class, ExperimentalComposeUiApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun BackupAndRestoreContent(
     backUpAndRestoreState: BackupAndRestoreState,
     onValidateBackupPassword: (TextFieldValue) -> Unit,
-    onCreateBackup: () -> Unit,
+    onCreateBackup: (String) -> Unit,
     onSaveBackup: () -> Unit,
     onCancelBackupCreation: () -> Unit,
     onCancelBackupRestore: () -> Unit,
@@ -155,6 +160,8 @@ fun BackupAndRestoreContent(
                     onOpenConversations = onOpenConversations
                 )
             }
+
+            BackupAndRestoreDialog.None -> {}
         }
     }
 }
@@ -163,7 +170,7 @@ fun BackupAndRestoreContent(
 fun CreateBackupDialogFlow(
     backUpAndRestoreState: BackupAndRestoreState,
     onValidateBackupPassword: (TextFieldValue) -> Unit,
-    onCreateBackup: () -> Unit,
+    onCreateBackup: (String) -> Unit,
     onSaveBackup: () -> Unit,
     onCancelCreateBackup: () -> Unit
 ) {
@@ -180,19 +187,23 @@ fun CreateBackupDialogFlow(
 
             BackUpDialogStep.SetPassword -> {
                 SetBackupPasswordDialog(
-                    isBackupPasswordValid = backUpAndRestoreState.backupPasswordValidation is PasswordValidation.Valid,
+                    isBackupPasswordValid = backUpAndRestoreState.backupCreationPasswordValidation is PasswordValidation.Valid,
                     onBackupPasswordChanged = onValidateBackupPassword,
-                    onCreateBackup = { toCreateBackup(); onCreateBackup() },
+                    onCreateBackup = { password ->
+                        toCreateBackup()
+                        onCreateBackup(password)
+                    },
                     onDismissDialog = onCancelCreateBackup
                 )
             }
 
             BackUpDialogStep.CreatingBackup -> {
-                LaunchedEffect(backUpAndRestoreState.backupProgress) {
-                    when (val progress = backUpAndRestoreState.backupProgress) {
-                        BackupProgress.Failed -> backupDialogStateHolder.toBackupFailure()
-                        BackupProgress.Finished -> backupDialogStateHolder.toFinished()
-                        is BackupProgress.InProgress -> {
+                LaunchedEffect(backUpAndRestoreState.backupCreationProgress) {
+                    when (val progress = backUpAndRestoreState.backupCreationProgress) {
+                        BackupCreationProgress.Pending -> {}
+                        BackupCreationProgress.Failed -> backupDialogStateHolder.toBackupFailure()
+                        BackupCreationProgress.Finished -> backupDialogStateHolder.toFinished()
+                        is BackupCreationProgress.InProgress -> {
                             backupDialogStateHolder.backupProgress = progress.value
                         }
                     }
@@ -208,8 +219,9 @@ fun CreateBackupDialogFlow(
 
             BackUpDialogStep.Failure -> {
                 FailureDialog(
-                    title = "test",
-                    message = "restoreDialogStep.restoreFailure.messag"
+                    title = stringResource(R.string.backup_dialog_create_error_title),
+                    message = stringResource(R.string.backup_dialog_create_error_subtitle),
+                    onDismiss = onCancelCreateBackup
                 )
             }
         }
@@ -236,19 +248,23 @@ fun RestoreBackupDialogFlow(
             is RestoreDialogStep.ChooseBackupFile -> {
                 LaunchedEffect(backUpAndRestoreState.restoreFileValidation) {
                     when (backUpAndRestoreState.restoreFileValidation) {
-                        RestoreFileValidation.GeneralFailure -> {
+                        Pending -> {}
+                        ValidNonEncryptedBackup -> {
+                            restoreDialogStateHolder.toRestoreBackup()
+                        }
+                        GeneralFailure -> {
                             restoreDialogStateHolder.toRestoreFailure(RestoreFailure.GeneralFailure)
                         }
 
-                        RestoreFileValidation.IncompatibleBackup -> {
+                        IncompatibleBackup -> {
                             restoreDialogStateHolder.toRestoreFailure(RestoreFailure.IncompatibleBackup)
                         }
 
-                        RestoreFileValidation.WrongBackup -> {
+                        WrongBackup -> {
                             restoreDialogStateHolder.toRestoreFailure(RestoreFailure.WrongBackup)
                         }
 
-                        RestoreFileValidation.PasswordRequired -> {
+                        is PasswordRequired -> {
                             restoreDialogStateHolder.toEnterPassword()
                         }
                     }
@@ -264,6 +280,7 @@ fun RestoreBackupDialogFlow(
                 var showWrongPassword by remember { mutableStateOf(false) }
 
                 LaunchedEffect(backUpAndRestoreState.restorePasswordValidation) {
+                    appLogger.d("Password status changed: -> ${backUpAndRestoreState.restorePasswordValidation}")
                     when (backUpAndRestoreState.restorePasswordValidation) {
                         PasswordValidation.NotValid -> showWrongPassword = true
                         PasswordValidation.NotVerified -> showWrongPassword = false
@@ -273,18 +290,29 @@ fun RestoreBackupDialogFlow(
 
                 EnterRestorePasswordDialog(
                     isWrongPassword = showWrongPassword,
-                    onRestoreBackupFile = onRestoreBackup,
+                    onRestoreBackupFile = { password ->
+                        showWrongPassword = false
+                        onRestoreBackup(password)
+                    },
                     onAcknowledgeWrongPassword = { showWrongPassword = false },
                     onCancelBackupRestore = onCancelBackupRestore
                 )
             }
 
             RestoreDialogStep.RestoreBackup -> {
-                LaunchedEffect(backUpAndRestoreState.restoreProgress) {
-                    when (val progress = backUpAndRestoreState.restoreProgress) {
-                        RestoreProgress.Failed -> restoreDialogStateHolder.toRestoreFailure(RestoreFailure.GeneralFailure)
-                        RestoreProgress.Finished -> restoreDialogStateHolder.toFinished()
-                        is RestoreProgress.InProgress -> {
+                LaunchedEffect(backUpAndRestoreState.backupRestoreProgress) {
+                    when (val progress = backUpAndRestoreState.backupRestoreProgress) {
+                        BackupRestoreProgress.Pending -> {}
+                        BackupRestoreProgress.Failed -> {
+                            val failureType = when (backUpAndRestoreState.restoreFileValidation) {
+                                is PasswordRequired, GeneralFailure, Pending, ValidNonEncryptedBackup -> RestoreFailure.GeneralFailure
+                                IncompatibleBackup -> RestoreFailure.IncompatibleBackup
+                                WrongBackup -> RestoreFailure.WrongBackup
+                            }
+                            restoreDialogStateHolder.toRestoreFailure(failureType)
+                        }
+                        BackupRestoreProgress.Finished -> restoreDialogStateHolder.toFinished()
+                        is BackupRestoreProgress.InProgress -> {
                             restoreDialogStateHolder.restoreProgress = progress.value
                         }
                     }
@@ -301,7 +329,8 @@ fun RestoreBackupDialogFlow(
             is RestoreDialogStep.Failure -> {
                 FailureDialog(
                     title = stringResource(id = restoreDialogStep.restoreFailure.title),
-                    message = stringResource(id = restoreDialogStep.restoreFailure.message)
+                    message = stringResource(id = restoreDialogStep.restoreFailure.message),
+                    onDismiss = onCancelBackupRestore
                 )
             }
         }

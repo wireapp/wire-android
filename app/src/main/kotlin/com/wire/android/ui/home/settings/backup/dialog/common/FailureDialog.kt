@@ -8,13 +8,13 @@ import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 
 @Composable
-fun FailureDialog(title: String, message: String) {
+fun FailureDialog(title: String, message: String, onDismiss: () -> Unit) {
     WireDialog(
         title = title,
         text = message,
-        onDismiss = { },
+        onDismiss = onDismiss,
         optionButton1Properties = WireDialogButtonProperties(
-            onClick = { },
+            onClick = onDismiss,
             text = stringResource(id = R.string.label_ok),
             type = WireDialogButtonType.Primary,
         )

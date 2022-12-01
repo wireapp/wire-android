@@ -62,6 +62,7 @@ class CallRinger @Inject constructor(private val context: Context) {
     }
 
 
+    @Suppress("NestedBlockDepth")
     private fun vibrateIfNeeded(isIncomingCall: Boolean) {
         if (isIncomingCall) {
             vibrator?.let {

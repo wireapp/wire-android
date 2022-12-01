@@ -4,6 +4,7 @@ import android.content.Context
 import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -15,6 +16,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -42,11 +44,13 @@ import com.wire.android.ui.authentication.login.LoginState
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WirePrimaryButton
 import com.wire.android.ui.common.colorsScheme
+import com.wire.android.ui.common.rememberBottomBarElevationState
 import com.wire.android.ui.common.textfield.AutoFillTextField
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.common.textfield.clearAutofillTree
 import com.wire.android.ui.theme.WireTheme
+import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
@@ -94,59 +98,72 @@ private fun LoginEmailContent(
     Column(
         modifier = Modifier
             .fillMaxHeight()
-            .verticalScroll(scrollState)
-            .padding(MaterialTheme.wireDimensions.spacing16x)
     ) {
-        if (loginState.isProxyAuthRequired) {
-            Text(
-                text = stringResource(R.string.label_wire_credentials),
-                style = MaterialTheme.wireTypography.title03.copy(
-                    color = colorsScheme().labelText
-                ),
+
+        Column(
+            modifier = Modifier
+                .weight(weight = 1f, fill = true)
+                .verticalScroll(scrollState)
+                .padding(MaterialTheme.wireDimensions.spacing16x)
+        ) {
+            if (loginState.isProxyAuthRequired) {
+                Text(
+                    text = stringResource(R.string.label_wire_credentials),
+                    style = MaterialTheme.wireTypography.title03.copy(
+                        color = colorsScheme().labelText
+                    ),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(
+                            vertical = MaterialTheme.wireDimensions.spacing16x
+                        )
+                )
+            }
+            UserIdentifierInput(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(
-                        vertical = MaterialTheme.wireDimensions.spacing16x
-                    )
+                    .padding(bottom = MaterialTheme.wireDimensions.spacing16x),
+                userIdentifier = loginState.userIdentifier,
+                onUserIdentifierChange = onUserIdentifierChange,
+                error = when (loginState.loginError) {
+                    LoginError.TextFieldError.InvalidValue -> stringResource(R.string.login_error_invalid_user_identifier)
+                    else -> null
+                }
             )
-        }
-        UserIdentifierInput(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = MaterialTheme.wireDimensions.spacing16x),
-            userIdentifier = loginState.userIdentifier,
-            onUserIdentifierChange = onUserIdentifierChange,
-            error = when (loginState.loginError) {
-                LoginError.TextFieldError.InvalidValue -> stringResource(R.string.login_error_invalid_user_identifier)
-                else -> null
+            PasswordInput(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = MaterialTheme.wireDimensions.spacing16x),
+                password = loginState.password,
+                onPasswordChange = onPasswordChange
+            )
+            ForgotPasswordLabel(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = MaterialTheme.wireDimensions.spacing16x),
+                forgotPasswordUrl = forgotPasswordUrl
+            )
+            if (loginState.isProxyAuthRequired) {
+                ProxyScreen()
             }
-        )
-        PasswordInput(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = MaterialTheme.wireDimensions.spacing16x),
-            password = loginState.password,
-            onPasswordChange = onPasswordChange
-        )
-        ForgotPasswordLabel(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = MaterialTheme.wireDimensions.spacing16x),
-            forgotPasswordUrl = forgotPasswordUrl
-        )
-        if (loginState.isProxyAuthRequired) {
-            ProxyScreen()
+
+            Spacer(modifier = Modifier.weight(1f))
         }
 
-        Spacer(modifier = Modifier.weight(1f))
-
-        LoginButton(
-            modifier = Modifier.fillMaxWidth(),
-            loading = loginState.emailLoginLoading,
-            enabled = loginState.emailLoginEnabled
+        Surface(
+            shadowElevation = scrollState.rememberBottomBarElevationState().value,
+            color = MaterialTheme.wireColorScheme.background
         ) {
-            scope.launch {
-                onLoginButtonClick()
+            Box(modifier = Modifier.padding(MaterialTheme.wireDimensions.spacing16x)) {
+                LoginButton(
+                    modifier = Modifier.fillMaxWidth(),
+                    loading = loginState.emailLoginLoading,
+                    enabled = loginState.emailLoginEnabled
+                ) {
+                    scope.launch {
+                        onLoginButtonClick()
+                    }
+                }
             }
         }
     }

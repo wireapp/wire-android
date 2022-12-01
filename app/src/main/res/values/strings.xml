@@ -460,6 +460,47 @@
     <string name="label_system_message_team_member_left">%1$s was removed from the team</string>
     <string name="label_system_message_user_not_available">This user is no longer available</string>
 
+    <!-- Last messages -->
+    <string name="last_message_asset">shared an asset.</string>
+    <string name="last_message_image">shared an image.</string>
+    <string name="last_message_video">shared a video.</string>
+    <string name="last_message_audio">shared an audio message.</string>
+    <string name="last_message_knock">pinged.</string>
+    <string name="last_message_call">called.</string>
+    <string name="last_message_replied">%1$s replied to you</string>
+    <string name="last_message_change_conversation_name">changed conversation name</string>
+    <string name="last_message_calling">%1$s calling...</string>
+    <plurals name="last_message_people_added">
+        <item quantity="one">added %1$d person</item>
+        <item quantity="other">added %1$d people</item>
+    </plurals>
+    <plurals name="last_message_people_removed">
+        <item quantity="one">removed %1$d person</item>
+        <item quantity="other">removed %1$d people</item>
+    </plurals>
+
+    <!-- Unread Events -->
+    <plurals name="unread_event_knock">
+        <item quantity="one">%1$d ping</item>
+        <item quantity="other">%1$d pings</item>
+    </plurals>
+    <plurals name="unread_event_call">
+        <item quantity="one">%1$d call</item>
+        <item quantity="other">%1$d calls</item>
+    </plurals>
+    <plurals name="unread_event_mention">
+        <item quantity="one">%1$d mention</item>
+        <item quantity="other">%1$d mentions</item>
+    </plurals>
+    <plurals name="unread_event_reply">
+        <item quantity="one">%1$d reply</item>
+        <item quantity="other">%1$d replies</item>
+    </plurals>
+    <plurals name="unread_event_message">
+        <item quantity="one">%1$d message</item>
+        <item quantity="other">%1$d messages</item>
+    </plurals>
+
     <!--Search Contact-->
     <string name="label_contacts">CONTACTS</string>
     <string name="label_new_group">New Group</string>

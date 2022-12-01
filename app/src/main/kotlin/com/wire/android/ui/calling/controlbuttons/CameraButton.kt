@@ -26,7 +26,10 @@ import com.wire.android.util.extension.checkPermission
 
 @Composable
 fun CameraButton(
-    isCameraOn: Boolean = false, onCameraPermissionDenied: () -> Unit, onCameraButtonClicked: () -> Unit
+    modifier: Modifier = Modifier.size(dimensions().defaultCallingControlsSize),
+    isCameraOn: Boolean = false,
+    onCameraPermissionDenied: () -> Unit,
+    onCameraButtonClicked: () -> Unit
 ) {
     val context = LocalContext.current
 
@@ -41,7 +44,7 @@ fun CameraButton(
     }
 
     IconButton(
-        modifier = Modifier.size(dimensions().defaultCallingControlsSize),
+        modifier = modifier,
         onClick = { }
     ) {
         Icon(

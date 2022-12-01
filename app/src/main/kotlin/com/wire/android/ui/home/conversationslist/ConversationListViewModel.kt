@@ -25,7 +25,6 @@ import com.wire.android.ui.home.conversationslist.model.BlockState
 import com.wire.android.ui.home.conversationslist.model.ConversationFolder
 import com.wire.android.ui.home.conversationslist.model.ConversationInfo
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
-import com.wire.android.ui.home.conversationslist.model.ConversationLastEvent
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
 import com.wire.android.util.dispatchers.DispatcherProvider
@@ -58,7 +57,6 @@ import com.wire.kalium.logic.feature.team.DeleteTeamConversationUseCase
 import com.wire.kalium.logic.feature.team.Result
 import com.wire.kalium.logic.functional.combine
 import dagger.hilt.android.lifecycle.HiltViewModel
-import kotlinx.collections.immutable.toImmutableList
 import kotlinx.collections.immutable.toImmutableMap
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -380,7 +378,8 @@ private fun ConversationDetails.toConversationItem(
             badgeEventType = parseConversationEventType(conversation.mutedStatus, unreadMentionsCount, unreadEventCount),
             hasOnGoingCall = hasOngoingCall,
             isSelfUserCreator = isSelfUserCreator,
-            isSelfUserMember = isSelfUserMember
+            isSelfUserMember = isSelfUserMember,
+            teamId = conversation.teamId
         )
     }
 
@@ -406,7 +405,8 @@ private fun ConversationDetails.toConversationItem(
                 parseConversationEventType(conversation.mutedStatus, unreadMentionsCount, unreadEventCount)
             ),
             userId = otherUser.id,
-            blockingState = otherUser.BlockState
+            blockingState = otherUser.BlockState,
+            teamId = otherUser.teamId
         )
     }
 

@@ -49,6 +49,7 @@ fun ConversationSheetContent(
                 navigateToNotification = conversationSheetState::toMutingNotificationOption
             )
         }
+
         ConversationOptionNavigation.MutingNotificationOption -> {
             val goBack: () -> Unit = {
                 if (conversationSheetState.startOptionNavigation == ConversationOptionNavigation.Home)
@@ -101,14 +102,16 @@ data class ConversationSheetContent(
     val conversationId: ConversationId,
     val mutingConversationState: MutedConversationStatus,
     val conversationTypeDetail: ConversationTypeDetail,
-    val isSelfUserMember: Boolean = true
+    val isSelfUserMember: Boolean = true,
+    val isTeamConversation: Boolean
 ) {
     fun canEditNotifications(): Boolean = isSelfUserMember
             && ((conversationTypeDetail is ConversationTypeDetail.Private
             && (conversationTypeDetail.blockingState != BlockingState.BLOCKED))
             || conversationTypeDetail is ConversationTypeDetail.Group)
 
-    fun canDeleteGroup(): Boolean = conversationTypeDetail is ConversationTypeDetail.Group && conversationTypeDetail.isCreator
+    fun canDeleteGroup(): Boolean =
+        conversationTypeDetail is ConversationTypeDetail.Group && isSelfUserMember && conversationTypeDetail.isCreator && isTeamConversation
 
     fun canLeaveTheGroup(): Boolean = conversationTypeDetail is ConversationTypeDetail.Group && isSelfUserMember
 

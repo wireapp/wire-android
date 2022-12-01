@@ -65,7 +65,7 @@ enum class HomeNavigationItem(
                     onSnackBarStateChanged = homeState::setSnackBarState,
                     searchBarState = homeState.searchBarState,
                     isBottomSheetVisible = homeState::isBottomSheetVisible
-                )
+                 )
             }
         }
     ),

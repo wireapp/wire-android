@@ -22,8 +22,14 @@ object BuildTypes {
 object ProductFlavors {
     const val DEV = "dev"
     const val INTERNAL = "internal"
+    const val INTERNAL_SCALA = "internal_scala" // to be removed when we production id to be com.wire
     const val PUBLIC = "public"
     const val FDROID = "fdroid"
+}
+
+object ApplicationId {
+    const val DEV = "com.waz.zclient.dev"
+    const val INTERNAL_SCALA = "com.wire.internal"
 }
 
 private object FlavorDimensions {
@@ -79,8 +85,13 @@ android {
     productFlavors {
         create(ProductFlavors.DEV) {
             dimension = FlavorDimensions.DEFAULT
-            applicationIdSuffix = ".${ProductFlavors.DEV}"
+            applicationId = ApplicationId.DEV
             versionNameSuffix = "-${ProductFlavors.DEV}"
+        }
+        create(ProductFlavors.INTERNAL_SCALA) {
+            dimension = FlavorDimensions.DEFAULT
+            applicationId = ApplicationId.INTERNAL_SCALA
+            versionNameSuffix = "-${ProductFlavors.INTERNAL_SCALA}"
         }
         create(ProductFlavors.INTERNAL) {
             dimension = FlavorDimensions.DEFAULT
@@ -154,7 +165,11 @@ android {
 
 }
 
-fun buildFlavorConfig(productFlavour: ProductFlavor, configs: FeatureConfigs, buildTimeConfiguration: Customization.BuildTimeConfiguration?) {
+fun buildFlavorConfig(
+    productFlavour: ProductFlavor,
+    configs: FeatureConfigs,
+    buildTimeConfiguration: Customization.BuildTimeConfiguration?
+) {
     if (configs.value == productFlavour.name.toLowerCase()) {
         val falvourMap = buildTimeConfiguration?.configuration?.get(productFlavour.name.toLowerCase()) as Map<*, *>
 

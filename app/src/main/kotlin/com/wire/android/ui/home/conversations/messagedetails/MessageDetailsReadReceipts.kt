@@ -35,7 +35,7 @@ fun MessageDetailsReadReceipts(
                 modifier = Modifier.weight(weight = 1f, fill = true)
             ) {
                 folderWithElements(
-                    header = "", // TODO: double check what should go here
+                    header = "",
                     items = readReceiptsData.readReceipts,
                     onRowItemClicked = { },
                     showRightArrow = false

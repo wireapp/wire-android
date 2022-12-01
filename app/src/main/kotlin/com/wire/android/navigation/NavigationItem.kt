@@ -255,7 +255,8 @@ enum class NavigationItem(
 
     MessageDetails(
         primaryRoute = MESSAGE_DETAILS,
-        canonicalRoute = "$MESSAGE_DETAILS?$EXTRA_CONVERSATION_ID={$EXTRA_CONVERSATION_ID}&$EXTRA_MESSAGE_ID={$EXTRA_MESSAGE_ID}",
+        canonicalRoute = "$MESSAGE_DETAILS?$EXTRA_CONVERSATION_ID={$EXTRA_CONVERSATION_ID}" +
+                "&$EXTRA_MESSAGE_ID={$EXTRA_MESSAGE_ID}&$EXTRA_IS_SELF_MESSAGE={$EXTRA_IS_SELF_MESSAGE}",
         content = { MessageDetailsScreen() }
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
@@ -263,7 +264,9 @@ enum class NavigationItem(
                 ?: "{$EXTRA_CONVERSATION_ID}"
             val messageIdString: String = arguments.filterIsInstance<String>().firstOrNull()?.toString()
                 ?: "{$EXTRA_MESSAGE_ID}"
-            return "$MESSAGE_DETAILS?$EXTRA_CONVERSATION_ID=$conversationIdString&$EXTRA_MESSAGE_ID=$messageIdString"
+            val isSelfMessage: String = arguments.filterIsInstance<Boolean>().firstOrNull()?.toString() ?: "{$EXTRA_IS_SELF_MESSAGE}"
+            return "$MESSAGE_DETAILS?$EXTRA_CONVERSATION_ID=$conversationIdString" +
+                    "&$EXTRA_MESSAGE_ID=$messageIdString&$EXTRA_IS_SELF_MESSAGE=$isSelfMessage"
         }
     },
 
@@ -431,6 +434,7 @@ const val EXTRA_CONVERSATION_ID = "extra_conversation_id"
 const val EXTRA_CREATE_ACCOUNT_FLOW_TYPE = "extra_create_account_flow_type"
 const val EXTRA_IMAGE_DATA = "extra_image_data"
 const val EXTRA_MESSAGE_ID = "extra_message_id"
+const val EXTRA_IS_SELF_MESSAGE = "extra_is_self_message"
 const val EXTRA_MESSAGE_TO_DELETE_ID = "extra_message_to_delete"
 const val EXTRA_MESSAGE_TO_DELETE_IS_SELF = "extra_message_to_delete_is_self"
 

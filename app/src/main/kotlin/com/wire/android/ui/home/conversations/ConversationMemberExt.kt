@@ -5,6 +5,7 @@ import com.wire.android.model.UserAvatarData
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.data.conversation.MemberDetails
 import com.wire.kalium.logic.data.message.reaction.MessageReaction
+import com.wire.kalium.logic.data.message.receipt.DetailedReceipt
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.SelfUser
@@ -52,7 +53,15 @@ val MemberDetails.userType: UserType
 fun MessageReaction.previewAsset(
     wireSessionImageLoader: WireSessionImageLoader
 ) = UserAvatarData(
-    asset = this.previewAssetId?.let { UserAvatarAsset(wireSessionImageLoader, it) },
-    availabilityStatus = userAvailabilityStatus,
-    connectionState = connectionStatus
+    asset = this.userSummary.userPreviewAssetId?.let { UserAvatarAsset(wireSessionImageLoader, it) },
+    availabilityStatus = userSummary.availabilityStatus,
+    connectionState = userSummary.connectionStatus
+)
+
+fun DetailedReceipt.previewAsset(
+    wireSessionImageLoader: WireSessionImageLoader
+) = UserAvatarData(
+    asset = this.userSummary.userPreviewAssetId?.let { UserAvatarAsset(wireSessionImageLoader, it) },
+    availabilityStatus = userSummary.availabilityStatus,
+    connectionState = userSummary.connectionStatus
 )

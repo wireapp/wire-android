@@ -75,15 +75,10 @@ class ConversationMessagesViewModel @Inject constructor(
             .flowOn(dispatchers.io())
             .collect { conversationDetailsResult ->
                 if (conversationDetailsResult is ObserveConversationDetailsUseCase.Result.Success) {
-                    val lastUnreadMessage = when (val details = conversationDetailsResult.conversationDetails) {
-                        is ConversationDetails.OneOne -> details.lastUnreadMessage
-                        is ConversationDetails.Group -> details.lastUnreadMessage
-                        else -> null
+                    val lastUnreadInstant = conversationDetailsResult.conversationDetails.conversation.lastReadDate.let {
+                        Instant.parse(it)
                     }
-                    val lastUnreadInstant = lastUnreadMessage?.let {
-                        Instant.parse(lastUnreadMessage.date)
-                    }
-                    conversationViewState = conversationViewState.copy(lastUnreadMessageInstant = lastUnreadInstant)
+                    conversationViewState = conversationViewState.copy(firstUnreadInstant = lastUnreadInstant)
                 }
             }
     }

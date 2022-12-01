@@ -2,6 +2,7 @@ package com.wire.android.util
 
 import android.text.format.DateUtils
 import com.wire.android.appLogger
+import kotlinx.datetime.Instant
 import java.text.DateFormat
 import java.text.ParseException
 import java.text.SimpleDateFormat
@@ -21,6 +22,11 @@ private val messageTimeFormatter = DateFormat
 private val messageDateTimeFormatter = DateFormat
     .getDateTimeInstance(DateFormat.SHORT, DateFormat.SHORT)
     .apply { timeZone = TimeZone.getDefault() }
+
+private val readReceiptDateTimeFormat = SimpleDateFormat(
+    "MMM dd yyyy,  hh:mm a",
+    Locale.getDefault()
+).apply { timeZone = TimeZone.getDefault() }
 
 fun String.formatMediumDateTime(): String? =
     try {
@@ -43,6 +49,8 @@ fun String.uiMessageDateTime(): String? = this
             false -> messageDateTimeFormatter.format(serverDate)
         }
     }
+
+fun Instant.uiReadReceiptDateTime(): String = readReceiptDateTimeFormat.format(Date(this.toEpochMilliseconds()))
 
 fun getCurrentParsedDateTime(): String = mediumDateTimeFormat.format(System.currentTimeMillis())
 

@@ -112,9 +112,15 @@ private fun MessagePreview.uiLastMessageContent(): UILastMessageContent {
                         (content as WithUser.MembersRemoved).count
                     )
                 )
-                is WithUser.MentionedSelf -> TODO()
-                is WithUser.QuotedSelf -> TODO()
-                is WithUser.TeamMemberRemoved -> TODO()
+                is WithUser.MentionedSelf -> UILastMessageContent.SenderWithMessage(
+                    userUIText,
+                    UIText.StringResource(R.string.last_message_mentioned)
+                )
+                is WithUser.QuotedSelf -> UILastMessageContent.SenderWithMessage(
+                    userUIText,
+                    UIText.StringResource(R.string.last_message_replied)
+                )
+                is WithUser.TeamMemberRemoved -> UILastMessageContent.None // TODO
                 is WithUser.Text -> UILastMessageContent.SenderWithMessage(
                     sender = userUIText,
                     message = UIText.DynamicString((content as WithUser.Text).messageBody),

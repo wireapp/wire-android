@@ -112,6 +112,7 @@ dependencies {
     implementation(Libraries.splashscreen)
     implementation(Libraries.exifInterface)
     implementation(Libraries.Kotlin.serialization)
+    implementation(Libraries.Kotlin.playServices)
     implementation(Libraries.ktxImmutableCollections)
 
     // Image handling
@@ -203,6 +204,9 @@ dependencies {
     androidTestUtil(TestLibraries.testOrchestrator)
 
     implementation(Libraries.Hilt.hiltWork)
+
+    implementation(Libraries.appUpdate)
+    implementation(Libraries.ktxAppUpdate)
 
     // Development dependencies
     debugImplementation(DevLibraries.leakCanary)

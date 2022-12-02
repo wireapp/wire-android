@@ -24,6 +24,7 @@ import androidx.navigation.NavHostController
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
 import com.wire.android.R
 import com.wire.android.appLogger
+import com.wire.android.appUpdate.WireAppUpdateManager
 import com.wire.android.navigation.NavigationGraph
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.navigateToItem
@@ -57,6 +58,9 @@ import javax.inject.Inject
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @AndroidEntryPoint
 class WireActivity : AppCompatActivity() {
+
+    @Inject
+    lateinit var appUpdateManager: WireAppUpdateManager
 
     @Inject
     lateinit var navigationManager: NavigationManager
@@ -108,7 +112,7 @@ class WireActivity : AppCompatActivity() {
                         viewModel.globalAppState.maxAccountDialog
                     )
                     updateAppDialog(
-                        { /*TODO*/ },
+                        { appUpdateManager.updateTheApp(this) },
                         viewModel.globalAppState.updateAppDialog
                     )
                     AccountLongedOutDialog(viewModel.globalAppState.blockUserUI, viewModel::navigateToNextAccountOrWelcome)
@@ -148,7 +152,7 @@ class WireActivity : AppCompatActivity() {
                     type = WireDialogButtonType.Primary
                 ),
                 properties = DialogProperties(
-                    dismissOnBackPress = true, //TODO cyka make it false
+                    dismissOnBackPress = false,
                     dismissOnClickOutside = false,
                     usePlatformDefaultWidth = true
                 )
@@ -220,6 +224,18 @@ class WireActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         proximitySensorManager.unRegisterListener()
+    }
+
+    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
+        // FIXME do not use deprecated onActivityResult
+        //  when the issue https://issuetracker.google.com/issues/181785653 will be fixed
+        if (requestCode == WireAppUpdateManager.REQUEST_CODE) {
+            if (resultCode != RESULT_OK) {
+                viewModel.appWasUpdate()
+            }
+        } else {
+            super.onActivityResult(requestCode, resultCode, data)
+        }
     }
 }
 

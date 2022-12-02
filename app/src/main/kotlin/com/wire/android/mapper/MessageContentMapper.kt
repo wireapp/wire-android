@@ -37,7 +37,7 @@ class MessageContentMapper @Inject constructor(
 ) {
 
     fun fromMessage(
-        message: Message,
+        message: Message.Standalone,
         userList: List<User>
     ): UIMessageContent? {
         return when (message.visibility) {

@@ -68,7 +68,7 @@ object Libraries {
         const val composeMaterial3 = "1.0.0-alpha11"
         const val composeActivity = "1.4.0"
         const val composeNavigation = "2.4.2"
-        const val accompanist = "0.25.0"
+        const val accompanist = "0.27.0"
         const val composeConstraint = "1.0.0"
         const val hilt = "2.43.2"
         const val hiltWork = "1.0.0"

@@ -88,7 +88,7 @@ class MigrationMapper @Inject constructor() {
     }
 
     private fun mapMutedStatus(status: Int): MutedConversationStatus = when (status) {
-        1 -> MutedConversationStatus.OnlyMentionsAllowed
+        1 -> MutedConversationStatus.OnlyMentionsAndRepliesAllowed
         2 -> MutedConversationStatus.AllAllowed
         3 -> MutedConversationStatus.AllMuted
         else -> MutedConversationStatus.AllAllowed

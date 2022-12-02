@@ -41,6 +41,7 @@ fun EditMessageMenuItems(
     onCopyMessage: () -> Unit,
     onDeleteMessage: () -> Unit,
     onReactionClick: (emoji: String) -> Unit,
+    onReply: () -> Unit,
     onMessageDetailsClick: () -> Unit
 ): List<@Composable () -> Unit> {
     return buildList {
@@ -59,6 +60,18 @@ fun EditMessageMenuItems(
                     onItemClick = onCopyMessage
                 )
             }
+        }
+        add {
+            MenuBottomSheetItem(
+                icon = {
+                    MenuItemIcon(
+                        id = R.drawable.ic_reply,
+                        contentDescription = stringResource(R.string.content_description_reply_to_messge),
+                    )
+                },
+                title = stringResource(R.string.notification_action_reply),
+                onItemClick = onReply
+            )
         }
         if (isEditable) {
             add {

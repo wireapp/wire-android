@@ -13,9 +13,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -67,7 +67,8 @@ fun ColumnScope.MessageComposerInputRow(
         ) {
             Box(modifier = Modifier.padding(start = dimensions().spacing8x)) {
                 AdditionalOptionButton(messageComposerState.attachmentOptionsDisplayed) {
-                    messageComposerState.toggleAttachmentOptionsVisibility()
+                    messageComposerState.toActive()
+                    messageComposerState.showAttachmentOptions()
                 }
             }
         }
@@ -82,9 +83,7 @@ fun ColumnScope.MessageComposerInputRow(
             messageComposerInputState = messageComposerState.messageComposeInputState,
             onIsFocused = {
                 messageComposerState.toActive()
-            },
-            onNotFocused = {
-                messageComposerState.hasFocus = false
+                messageComposerState.hideAttachmentOptions()
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -94,6 +93,7 @@ fun ColumnScope.MessageComposerInputRow(
                             Modifier
                                 .fillMaxHeight()
                                 .padding(end = dimensions().messageComposerPaddingEnd)
+
                         MessageComposeInputState.Active -> {
                             Modifier
                                 .heightIn(
@@ -103,6 +103,7 @@ fun ColumnScope.MessageComposerInputRow(
                                     end = dimensions().messageComposerPaddingEnd
                                 )
                         }
+
                         else -> Modifier.wrapContentHeight()
                     }
                 ),
@@ -125,7 +126,6 @@ private fun MessageComposerInput(
     onMessageTextChanged: (TextFieldValue) -> Unit,
     messageComposerInputState: MessageComposeInputState,
     onIsFocused: () -> Unit,
-    onNotFocused: () -> Unit,
     modifier: Modifier = Modifier,
     onSelectedLineIndexChanged: (Int) -> Unit = { },
     onLineBottomYCoordinateChanged: (Float) -> Unit = { }
@@ -143,13 +143,12 @@ private fun MessageComposerInput(
         // Add a extra space so that the a cursor is placed one space before "Type a message"
         placeholderText = " " + stringResource(R.string.label_type_a_message),
         modifier = modifier.then(
-            Modifier.onFocusChanged { focusState ->
-                if (focusState.isFocused) {
-                    onIsFocused()
-                } else {
-                    onNotFocused()
+            Modifier
+                .onFocusChanged { focusState ->
+                    if (focusState.isFocused) {
+                        onIsFocused()
+                    }
                 }
-            }
         ),
         onSelectedLineIndexChanged = onSelectedLineIndexChanged,
         onLineBottomYCoordinateChanged = onLineBottomYCoordinateChanged

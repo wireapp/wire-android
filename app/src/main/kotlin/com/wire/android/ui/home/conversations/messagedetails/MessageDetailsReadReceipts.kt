@@ -11,37 +11,35 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
 import com.wire.android.R
 import com.wire.android.ui.home.conversations.details.participants.folderWithElements
-import com.wire.android.ui.home.conversations.messagedetails.model.MessageDetailsReactionsData
+import com.wire.android.ui.home.conversations.messagedetails.model.MessageDetailsReadReceiptsData
 
 @Composable
-fun MessageDetailsReactions(
-    reactionsData: MessageDetailsReactionsData,
+fun MessageDetailsReadReceipts(
+    readReceiptsData: MessageDetailsReadReceiptsData,
     lazyListState: LazyListState = rememberLazyListState(),
-    onReactionsLearnMore: () -> Unit
+    onReadReceiptsLearnMore: () -> Unit
 ) {
     Column {
-        if (reactionsData.reactions.isEmpty()) {
+        if (readReceiptsData.readReceipts.isEmpty()) {
             MessageDetailsEmptyScreenText(
-                onClick = onReactionsLearnMore,
+                onClick = onReadReceiptsLearnMore,
                 modifier = Modifier
                     .weight(weight = 1f, fill = true)
                     .align(Alignment.CenterHorizontally),
-                text = stringResource(id = R.string.message_details_reactions_empty_text),
-                learnMoreText = stringResource(id = R.string.message_details_reactions_empty_learn_more)
+                text = stringResource(id = R.string.message_details_read_receipts_empty_text),
+                learnMoreText = stringResource(id = R.string.message_details_read_receipts_empty_learn_more)
             )
         } else {
             LazyColumn(
                 state = lazyListState,
                 modifier = Modifier.weight(weight = 1f, fill = true)
             ) {
-                reactionsData.reactions.forEach {
-                    folderWithElements(
-                        header = "${it.key} ${it.value.size}",
-                        items = it.value,
-                        onRowItemClicked = { },
-                        showRightArrow = false
-                    )
-                }
+                folderWithElements(
+                    header = "",
+                    items = readReceiptsData.readReceipts,
+                    onRowItemClicked = { },
+                    showRightArrow = false
+                )
             }
         }
     }
@@ -49,9 +47,9 @@ fun MessageDetailsReactions(
 
 @Preview(showBackground = true)
 @Composable
-fun MessageDetailsReactionsPreview() {
-    MessageDetailsReactions(
-        reactionsData = MessageDetailsReactionsData(),
-        onReactionsLearnMore = {}
+fun MessageDetailsReadReceiptsPreview() {
+    MessageDetailsReadReceipts(
+        readReceiptsData = MessageDetailsReadReceiptsData(),
+        onReadReceiptsLearnMore = {}
     )
 }

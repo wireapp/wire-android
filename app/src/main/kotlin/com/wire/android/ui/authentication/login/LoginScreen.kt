@@ -97,8 +97,7 @@ private fun LoginContent(
                     onTabChange = { scope.launch { pagerState.animateScrollToPage(it) } },
                     modifier = Modifier.padding(
                         start = MaterialTheme.wireDimensions.spacing16x,
-                        end = MaterialTheme.wireDimensions.spacing16x,
-                        top = MaterialTheme.wireDimensions.spacing16x
+                        end = MaterialTheme.wireDimensions.spacing16x
                     ),
                     divider = {} // no divider
                 )

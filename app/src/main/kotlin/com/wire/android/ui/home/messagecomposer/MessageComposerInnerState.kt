@@ -14,9 +14,14 @@ import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextRange
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.unit.Dp
+import androidx.compose.ui.unit.dp
 import com.wire.android.appLogger
+import com.wire.android.model.ImageAsset
 import com.wire.android.ui.home.conversations.model.AttachmentBundle
 import com.wire.android.ui.home.conversations.model.AttachmentType
+import com.wire.android.ui.home.conversations.model.QuotedMessageUIData
+import com.wire.android.ui.home.conversations.model.UIMessage
+import com.wire.android.ui.home.conversations.model.UIMessageContent
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.util.DEFAULT_FILE_MIME_TYPE
@@ -29,7 +34,7 @@ import com.wire.android.util.getFileName
 import com.wire.android.util.getMimeType
 import com.wire.android.util.orDefault
 import com.wire.android.util.resampleImageAndCopyToTempPath
-import com.wire.kalium.logic.data.asset.isDisplayableImageMimeType
+import com.wire.android.util.ui.toUIText
 import com.wire.kalium.logic.data.message.mention.MessageMention
 import com.wire.kalium.logic.data.user.UserId
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -40,11 +45,10 @@ import java.io.IOException
 import java.util.UUID
 
 @Composable
-fun rememberMessageComposerInnerState(
-    fullScreenHeight: Dp,
-    onMessageComposeInputStateChanged: (MessageComposerStateTransition) -> Unit
-): MessageComposerInnerState {
-    val defaultAttachmentInnerState = AttachmentInnerState(LocalContext.current)
+fun rememberMessageComposerInnerState(): MessageComposerInnerState {
+    val context = LocalContext.current
+
+    val defaultAttachmentInnerState = AttachmentInnerState(context)
 
     val mentionSpanStyle = SpanStyle(
         color = MaterialTheme.wireColorScheme.messageMentionText,
@@ -53,30 +57,44 @@ fun rememberMessageComposerInnerState(
 
     return remember {
         MessageComposerInnerState(
-            fullScreenHeight = fullScreenHeight,
+            context = context,
             attachmentInnerState = defaultAttachmentInnerState,
-            onMessageComposeInputStateChanged = onMessageComposeInputStateChanged,
             mentionSpanStyle = mentionSpanStyle
         )
     }
 }
 
+@Suppress("TooManyFunctions")
 data class MessageComposerInnerState(
-    val fullScreenHeight: Dp,
+    val context: Context,
     val attachmentInnerState: AttachmentInnerState,
-    private val onMessageComposeInputStateChanged: (MessageComposerStateTransition) -> Unit,
     private val mentionSpanStyle: SpanStyle
 ) {
+    var messageComposeInputState by mutableStateOf(MessageComposeInputState.Enabled)
+        private set
 
-    var hasFocus by mutableStateOf(false)
+    var attachmentOptionsDisplayed by mutableStateOf(false)
+        private set
 
-    var isKeyboardShown by mutableStateOf(false)
+    val sendButtonEnabled: Boolean
+        get() = if (messageComposeInputState == MessageComposeInputState.Enabled) {
+            false
+        } else {
+            messageText.text.filter { !it.isWhitespace() }
+                .isNotBlank()
+        }
+
+    var fullScreenHeight: Dp by mutableStateOf(0.0.dp)
 
     var messageText by mutableStateOf(TextFieldValue(""))
         private set
-
     private val _mentionQueryFlowState: MutableStateFlow<String?> = MutableStateFlow(null)
+
     val mentionQueryFlowState: StateFlow<String?> = _mentionQueryFlowState
+
+    var mentions by mutableStateOf(listOf<UiMention>())
+
+    var quotedMessageData: QuotedMessageUIData? by mutableStateOf(null)
 
     fun setMessageTextValue(text: TextFieldValue) {
         updateMentionsIfNeeded(text)
@@ -119,33 +137,11 @@ data class MessageComposerInnerState(
         _mentionQueryFlowState.value = null
     }
 
-    var mentions by mutableStateOf(listOf<UiMention>())
-
-    var messageComposeInputState by mutableStateOf(MessageComposeInputState.Enabled)
-        private set
-
-    val sendButtonEnabled: Boolean
-        @Composable get() = if (messageComposeInputState == MessageComposeInputState.Enabled) {
-            false
-        } else {
-            messageText.text.filter { !it.isWhitespace() }
-                .isNotBlank()
-        }
-
-    var attachmentOptionsDisplayed by mutableStateOf(false)
-        private set
-
     fun toggleAttachmentOptionsVisibility() {
         attachmentOptionsDisplayed = !attachmentOptionsDisplayed
     }
 
     private fun toEnabled() {
-        onMessageComposeInputStateChanged(
-            MessageComposerStateTransition(
-                from = messageComposeInputState,
-                to = MessageComposeInputState.Enabled
-            )
-        )
         messageComposeInputState = MessageComposeInputState.Enabled
     }
 
@@ -155,29 +151,21 @@ data class MessageComposerInnerState(
         }
     }
 
-    fun toActive() {
-        onMessageComposeInputStateChanged(
-            MessageComposerStateTransition(
-                from = messageComposeInputState,
-                to = MessageComposeInputState.Active
-            )
-        )
+    fun showAttachmentOptions() {
+        attachmentOptionsDisplayed = true
+    }
 
-        hasFocus = true
+    fun hideAttachmentOptions() {
         attachmentOptionsDisplayed = false
+    }
+
+    fun toActive() {
         messageComposeInputState = MessageComposeInputState.Active
     }
 
     fun toggleFullScreen() {
         val newState = if (messageComposeInputState == MessageComposeInputState.Active)
             MessageComposeInputState.FullScreen else MessageComposeInputState.Active
-
-        onMessageComposeInputStateChanged(
-            MessageComposerStateTransition(
-                from = messageComposeInputState,
-                to = newState
-            )
-        )
 
         messageComposeInputState = newState
     }
@@ -265,6 +253,51 @@ data class MessageComposerInnerState(
         }
     }
 
+    fun reply(uiMessage: UIMessage) {
+        val authorName = uiMessage.messageHeader.username.asString(context.resources)
+        val authorId = uiMessage.messageHeader.userId ?: return
+
+        val content = when (val content = uiMessage.messageContent) {
+            is UIMessageContent.AssetMessage -> QuotedMessageUIData.GenericAsset(
+                assetName = content.assetName,
+                assetMimeType = content.assetExtension
+            )
+
+            is UIMessageContent.RestrictedAsset -> QuotedMessageUIData.GenericAsset(
+                assetName = content.assetName,
+                assetMimeType = content.mimeType
+            )
+
+            is UIMessageContent.TextMessage -> QuotedMessageUIData.Text(
+                value = content.messageBody.message.asString(context.resources)
+            )
+
+            is UIMessageContent.ImageMessage -> content.asset?.let {
+                QuotedMessageUIData.DisplayableImage(displayable = content.asset)
+            }
+
+            else -> {
+                appLogger.w("Attempting to reply to an unsupported message type of content = $content")
+                null
+            }
+        }
+        content?.let { quotedContent ->
+            quotedMessageData = QuotedMessageUIData(
+                messageId = uiMessage.messageHeader.messageId,
+                senderId = authorId,
+                senderName = authorName,
+                originalMessageDateDescription = "".toUIText(),
+                editedTimeDescription = "".toUIText(),
+                quotedContent = quotedContent
+            )
+        }
+        toActive()
+    }
+
+    fun cancelReply() {
+        quotedMessageData = null
+    }
+
 }
 
 private fun TextFieldValue.currentMentionStartIndex(): Int {
@@ -273,6 +306,7 @@ private fun TextFieldValue.currentMentionStartIndex(): Int {
     return when {
         (lastIndexOfAt <= 0) ||
                 (text[lastIndexOfAt - 1].toString() in listOf(String.WHITE_SPACE, String.NEW_LINE_SYMBOL)) -> lastIndexOfAt
+
         else -> -1
     }
 }
@@ -320,5 +354,3 @@ sealed class AttachmentState {
     class Picked(val attachmentBundle: AttachmentBundle) : AttachmentState()
     object Error : AttachmentState()
 }
-
-data class MessageComposerStateTransition(val from: MessageComposeInputState, val to: MessageComposeInputState)

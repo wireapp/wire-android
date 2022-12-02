@@ -3,6 +3,7 @@ package com.wire.android.ui.calling
 import androidx.lifecycle.SavedStateHandle
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.ui.calling.ongoing.OngoingCallViewModel
+import com.wire.android.util.CurrentScreenManager
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.feature.call.usecase.ObserveEstablishedCallsUseCase
 import com.wire.kalium.logic.feature.call.usecase.RequestVideoStreamsUseCase
@@ -36,6 +37,10 @@ class OngoingCallViewModelTest {
     @MockK
     private lateinit var qualifiedIdMapper: QualifiedIdMapper
 
+    @MockK
+    private lateinit var currentScreenManager: CurrentScreenManager
+
+
     private lateinit var ongoingCallViewModel: OngoingCallViewModel
 
     @BeforeEach
@@ -52,7 +57,8 @@ class OngoingCallViewModelTest {
             qualifiedIdMapper = qualifiedIdMapper,
             navigationManager = navigationManager,
             establishedCall = establishedCall,
-            requestVideoStreams= requestVideoStreams
+            requestVideoStreams = requestVideoStreams,
+            currentScreenManager = currentScreenManager
         )
     }
 

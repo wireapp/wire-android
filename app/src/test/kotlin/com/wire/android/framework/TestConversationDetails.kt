@@ -24,7 +24,7 @@ object TestConversationDetails {
         TestUser.OTHER_USER,
         LegalHoldStatus.DISABLED,
         UserType.EXTERNAL,
-        unreadMessagesCount = 0,
+        unreadRepliesCount = 0,
         lastMessage = null,
         unreadEventCount = emptyMap()
     )
@@ -32,7 +32,7 @@ object TestConversationDetails {
     val GROUP = ConversationDetails.Group(
         TestConversation.ONE_ON_ONE,
         LegalHoldStatus.DISABLED,
-        unreadMessagesCount = 0,
+        unreadRepliesCount = 0,
         lastMessage = null,
         isSelfUserCreator = true,
         isSelfUserMember = true,

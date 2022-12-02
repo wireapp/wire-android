@@ -1,4 +1,4 @@
-package com.wire.android.ui.home.conversationslist
+package com.wire.android.ui.home.conversationslist.call
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Row

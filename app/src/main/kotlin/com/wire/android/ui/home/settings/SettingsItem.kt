@@ -15,12 +15,6 @@ enum class SettingsItem(val id: String, val title: UIText, val navigationItem: N
         title = UIText.StringResource(R.string.settings_your_account_label),
         navigationItem = NavigationItem.MyAccount
     ),
-//    Privacy(
-//        id = "privacy_settings",
-//        title = UIText.StringResource(R.string.settings_privacy_settings_label),
-//        navigationItem =
-//    ),
-
     NetworkSettings(
         id = "network_settings",
         title = UIText.StringResource(R.string.settings_network_settings_label),
@@ -30,6 +24,11 @@ enum class SettingsItem(val id: String, val title: UIText, val navigationItem: N
         id = "manage_devices",
         title = UIText.StringResource(R.string.settings_manage_devices_label),
         navigationItem = NavigationItem.SelfDevices
+    ),
+    PrivacySettings(
+        id = "privacy_settings",
+        title = UIText.StringResource(R.string.settings_privacy_settings_label),
+        navigationItem = NavigationItem.PrivacySettings
     ),
 
     BackupAndRestore(

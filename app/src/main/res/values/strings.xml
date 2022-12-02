@@ -681,6 +681,10 @@
     <string name="settings_myaccount_domain">DOMAIN</string>
     <string name="settings_myaccount_reset_password">Reset Password</string>
 
+    <!--Privacy Settings -->
+    <string name="settings_send_read_receipts">Send read receipts</string>
+    <string name="settings_send_read_receipts_description">If this is OFF, you won’t be able to see read receipts from other people. This can be overwritten by the read receipts setting in a conversation.</string>
+
     <!--Devices -->
     <string name="devices_title">Your Devices</string>
     <string name="current_device_label">Current Device</string>

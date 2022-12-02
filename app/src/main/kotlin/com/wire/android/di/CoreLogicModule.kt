@@ -823,4 +823,14 @@ class UseCaseModule {
     @Provides
     fun provideUpdateApiVersionsScheduler(@KaliumCoreLogic coreLogic: CoreLogic) =
         coreLogic.updateApiVersionsScheduler
+
+    @ViewModelScoped
+    @Provides
+    fun provideObserveReadReceiptsEnabled(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).users.observeReadReceiptsEnabled
+
+    @ViewModelScoped
+    @Provides
+    fun providePersistReadReceiptsStatusConfig(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).users.persistReadReceiptsStatusConfig
 }

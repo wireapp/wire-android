@@ -302,7 +302,7 @@ class MediaGalleryViewModelTest {
             ),
             legalHoldStatus = LegalHoldStatus.DISABLED,
             userType = UserType.INTERNAL,
-            unreadMessagesCount = 0,
+            unreadRepliesCount = 0,
             lastMessage = null,
             unreadEventCount = emptyMap()
         )

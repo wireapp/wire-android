@@ -60,7 +60,7 @@ fun MessageDetailsScreen(viewModel: MessageDetailsViewModel = hiltViewModel()) {
             )
         }
     }
-    
+
     val readReceiptsLearnMoreUrl = stringResource(id = R.string.url_message_details_read_receipts_learn_more)
     val onReadReceiptsLearnMore = remember {
         {
@@ -195,7 +195,7 @@ private fun provideMessageDetailsTabItems(
     )
     val readReceipts = MessageDetailsTabItem(
         titleResId = MessageDetailsTab.READ_RECEIPTS.titleResId,
-        count = 0 // Default is 0 as Read Receipts is yet not implemented
+        count = messageDetailsState.readReceiptsData.readReceipts.size
     )
 
     return if (isSelfMessage) listOf(reactions, readReceipts) else listOf(reactions)

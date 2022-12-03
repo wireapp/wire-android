@@ -150,15 +150,15 @@ class ConversationListViewModel @Inject constructor(
             when (it.conversation.mutedStatus) {
                 MutedConversationStatus.AllAllowed ->
                     when (it) {
-                        is Group -> it.unreadMessagesCount > 0
-                        is OneOne -> it.unreadMessagesCount > 0
+                        is Group -> it.unreadEventCount.isNotEmpty()
+                        is OneOne -> it.unreadEventCount.isNotEmpty()
                         else -> false  // TODO should connection requests also be listed on "new activities"?
                     }
 
-                MutedConversationStatus.OnlyMentionsAllowed ->
+                MutedConversationStatus.OnlyMentionsAndRepliesAllowed ->
                     when (it) {
-                        is Group -> it.unreadMentionsCount > 0
-                        is OneOne -> it.unreadMentionsCount > 0
+                        is Group -> it.unreadMentionsCount > 0 || it.unreadRepliesCount > 0
+                        is OneOne -> it.unreadMentionsCount > 0 || it.unreadRepliesCount > 0
                         else -> false
                     }
 
@@ -375,7 +375,12 @@ private fun ConversationDetails.toConversationItem(
             mutedStatus = conversation.mutedStatus,
             isLegalHold = legalHoldStatus.showLegalHoldIndicator(),
             lastMessageContent = lastMessage.toUIPreview(unreadEventCount, unreadMentionsCount),
-            badgeEventType = parseConversationEventType(conversation.mutedStatus, unreadMentionsCount, unreadEventCount),
+            badgeEventType = parseConversationEventType(
+                conversation.mutedStatus,
+                unreadMentionsCount,
+                unreadRepliesCount,
+                unreadEventCount
+            ),
             hasOnGoingCall = hasOngoingCall,
             isSelfUserCreator = isSelfUserCreator,
             isSelfUserMember = isSelfUserMember,
@@ -402,7 +407,12 @@ private fun ConversationDetails.toConversationItem(
             badgeEventType = parsePrivateConversationEventType(
                 otherUser.connectionStatus,
                 otherUser.deleted,
-                parseConversationEventType(conversation.mutedStatus, unreadMentionsCount, unreadEventCount)
+                parseConversationEventType(
+                    conversation.mutedStatus,
+                    unreadMentionsCount,
+                    unreadRepliesCount,
+                    unreadEventCount
+                )
             ),
             userId = otherUser.id,
             blockingState = otherUser.BlockState,
@@ -450,20 +460,23 @@ private fun parsePrivateConversationEventType(connectionState: ConnectionState, 
 private fun parseConversationEventType(
     mutedStatus: MutedConversationStatus,
     unreadMentionsCount: Long,
+    unreadRepliesCount: Long,
     unreadEventCount: UnreadEventCount
 ): BadgeEventType = when (mutedStatus) {
     MutedConversationStatus.AllMuted -> BadgeEventType.None
-    MutedConversationStatus.OnlyMentionsAllowed ->
-        if (unreadMentionsCount > 0) BadgeEventType.UnreadMention
-        else BadgeEventType.None
-
+    MutedConversationStatus.OnlyMentionsAndRepliesAllowed ->
+        when {
+            unreadMentionsCount > 0 -> BadgeEventType.UnreadMention
+            unreadRepliesCount > 0 -> BadgeEventType.UnreadReply
+            else -> BadgeEventType.None
+        }
     else -> {
         val unreadMessagesCount = unreadEventCount.values.sum()
         when {
             unreadEventCount.containsKey(UnreadEventType.KNOCK) -> BadgeEventType.Knock
             unreadEventCount.containsKey(UnreadEventType.MISSED_CALL) -> BadgeEventType.MissedCall
             unreadMentionsCount > 0 -> BadgeEventType.UnreadMention
-            // TODO handle replies
+            unreadRepliesCount > 0 -> BadgeEventType.UnreadReply
             unreadMessagesCount > 0 -> BadgeEventType.UnreadMessage(unreadMessagesCount)
             else -> BadgeEventType.None
         }

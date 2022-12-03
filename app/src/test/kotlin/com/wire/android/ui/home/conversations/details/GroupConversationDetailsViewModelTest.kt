@@ -387,7 +387,8 @@ class GroupConversationDetailsViewModelTest {
             conversationId = details.conversation.id,
             mutingConversationState = details.conversation.mutedStatus,
             conversationTypeDetail = ConversationTypeDetail.Group(details.conversation.id, details.isSelfUserCreator),
-            isSelfUserMember = true
+            isSelfUserMember = true,
+            isTeamConversation = false
         )
         // When - Then
         assertEquals(expected, viewModel.conversationSheetContent)

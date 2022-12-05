@@ -469,7 +469,7 @@
     <string name="last_message_knock">pinged.</string>
     <string name="last_message_call">called.</string>
     <string name="last_message_mentioned">mentioned you</string>
-    <string name="last_message_replied">%1$s replied to you</string>
+    <string name="last_message_replied">replied to you</string>
     <string name="last_message_change_conversation_name">changed conversation name</string>
     <string name="last_message_calling">%1$s calling...</string>
     <plurals name="last_message_people_added">

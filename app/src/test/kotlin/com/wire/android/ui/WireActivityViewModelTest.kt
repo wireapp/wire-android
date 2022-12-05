@@ -1,6 +1,7 @@
 package com.wire.android.ui
 
 import android.content.Intent
+import com.wire.android.appUpdate.WireAppUpdateManager
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.config.TestDispatcherProvider
 import com.wire.android.config.mockUri
@@ -20,6 +21,7 @@ import com.wire.android.util.newServerConfig
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.appVersioning.ObserveIfAppUpdateRequiredUseCase
 import com.wire.kalium.logic.feature.auth.AccountInfo
 import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
@@ -352,6 +354,28 @@ class WireActivityViewModelTest {
         coVerify(exactly = 0) { arrangement.navigationManager.navigate(any()) }
     }
 
+    @Test
+    fun `given appUpdate is required and it's available, then should show the appUpdate dialog`() {
+        val (_, viewModel) = Arrangement()
+            .withNoCurrentSession()
+            .withAppUpdateRequired(true)
+            .withAppUpdateAvailability(true)
+            .arrange()
+
+        assertEquals(true, viewModel.globalAppState.updateAppDialog)
+    }
+
+    @Test
+    fun `given appUpdate is required but it's not available, then do not show the appUpdate dialog`() {
+        val (_, viewModel) = Arrangement()
+            .withNoCurrentSession()
+            .withAppUpdateRequired(true)
+            .withAppUpdateAvailability(false)
+            .arrange()
+
+        assertEquals(false, viewModel.globalAppState.updateAppDialog)
+    }
+
     private class Arrangement {
         init {
             // Tests setup
@@ -370,6 +394,10 @@ class WireActivityViewModelTest {
                     )
             coEvery { getSessionsUseCase.invoke() }
             coEvery { migrationManager.shouldMigrate() } returns false
+            every { observeSyncStateUseCaseProviderFactory.create(any()).observeSyncState } returns observeSyncStateUseCase
+            every { observeSyncStateUseCase() } returns emptyFlow()
+            every { appUpdateManager.updateTheApp(any()) } returns Unit
+            coEvery { observeIfAppUpdateRequired(any()) } returns flowOf(false)
         }
 
         @MockK
@@ -411,8 +439,15 @@ class WireActivityViewModelTest {
         @MockK
         lateinit var servicesManager: ServicesManager
 
+        @MockK
+        lateinit var observeIfAppUpdateRequired: ObserveIfAppUpdateRequiredUseCase
+
+        @MockK
+        lateinit var appUpdateManager: WireAppUpdateManager
+
         private val viewModel by lazy {
             WireActivityViewModel(
+                appUpdateManager = appUpdateManager,
                 dispatchers = TestDispatcherProvider(),
                 currentSessionFlow = currentSessionFlow,
                 getServerConfigUseCase = getServerConfigUseCase,
@@ -425,13 +460,9 @@ class WireActivityViewModelTest {
                 accountSwitch = switchAccount,
                 migrationManager = migrationManager,
                 observeSyncStateUseCaseProviderFactory = observeSyncStateUseCaseProviderFactory,
-                servicesManager = servicesManager
+                servicesManager = servicesManager,
+                observeIfAppUpdateRequired = observeIfAppUpdateRequired
             )
-        }
-
-        init {
-            every { observeSyncStateUseCaseProviderFactory.create(any()).observeSyncState } returns observeSyncStateUseCase
-            every { observeSyncStateUseCase() } returns emptyFlow()
         }
 
         fun withSomeCurrentSession(): Arrangement {
@@ -447,6 +478,14 @@ class WireActivityViewModelTest {
         fun withDeepLinkResult(result: DeepLinkResult): Arrangement {
             coEvery { deepLinkProcessor(any()) } returns result
             return this
+        }
+
+        fun withAppUpdateAvailability(result: Boolean): Arrangement = apply {
+            coEvery { appUpdateManager.isAppUpdateAvailable() } returns result
+        }
+
+        fun withAppUpdateRequired(result: Boolean): Arrangement = apply {
+            coEvery { observeIfAppUpdateRequired(any()) } returns flowOf(result)
         }
 
         fun arrange() = this to viewModel

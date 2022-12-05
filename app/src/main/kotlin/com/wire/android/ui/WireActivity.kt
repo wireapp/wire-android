@@ -230,7 +230,7 @@ class WireActivity : AppCompatActivity() {
         // FIXME do not use deprecated onActivityResult
         //  when the issue https://issuetracker.google.com/issues/181785653 will be fixed
         if (requestCode == WireAppUpdateManager.REQUEST_CODE) {
-            if (resultCode != RESULT_OK) {
+            if (resultCode == RESULT_OK) {
                 viewModel.appWasUpdate()
             }
         } else {

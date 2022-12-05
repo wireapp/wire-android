@@ -14,6 +14,7 @@ import javax.inject.Singleton
 class WireAppUpdateManager @Inject constructor(context: Context) {
     private val appUpdateManager = AppUpdateManagerFactory.create(context)
 
+    @Suppress("TooGenericExceptionCaught")
     suspend fun isAppUpdateAvailable(): Boolean = try {
         appLogger.i("$TAG Getting AppUpdateInfo")
         val appUpdateInfo = appUpdateManager.appUpdateInfo.await()

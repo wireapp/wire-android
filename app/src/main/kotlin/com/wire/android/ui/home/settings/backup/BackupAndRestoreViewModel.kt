@@ -18,6 +18,8 @@ import com.wire.android.util.copyToTempPath
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.feature.backup.CreateBackupResult
 import com.wire.kalium.logic.feature.backup.CreateBackupUseCase
+import com.wire.kalium.logic.feature.backup.ExtractCompressedFileUseCase
+import com.wire.kalium.logic.feature.backup.ExtractCompressedFileResult
 import com.wire.kalium.logic.feature.backup.RestoreBackupResult
 import com.wire.kalium.logic.feature.backup.RestoreBackupResult.BackupRestoreFailure.BackupIOFailure
 import com.wire.kalium.logic.feature.backup.RestoreBackupResult.BackupRestoreFailure.DecryptionFailure
@@ -25,8 +27,6 @@ import com.wire.kalium.logic.feature.backup.RestoreBackupResult.BackupRestoreFai
 import com.wire.kalium.logic.feature.backup.RestoreBackupResult.BackupRestoreFailure.InvalidPassword
 import com.wire.kalium.logic.feature.backup.RestoreBackupResult.BackupRestoreFailure.InvalidUserId
 import com.wire.kalium.logic.feature.backup.RestoreBackupUseCase
-import com.wire.kalium.logic.functional.fold
-import com.wire.kalium.logic.util.extractCompressedFile
 import com.wire.kalium.logic.util.fileExtension
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
@@ -40,6 +40,7 @@ class BackupAndRestoreViewModel
     private val navigationManager: NavigationManager,
     private val importBackup: RestoreBackupUseCase,
     private val createBackupUseCase: CreateBackupUseCase,
+    private val extractCompressedFileUseCase: ExtractCompressedFileUseCase,
     private val fileManager: FileManager,
     private val kaliumFileSystem: KaliumFileSystem,
     private val context: Context
@@ -93,55 +94,46 @@ class BackupAndRestoreViewModel
         kaliumFileSystem.delete(importedBackupPath)
     }
 
+    private fun showPasswordDialog(extractedBackupRootPath: Path) {
+        state = state.copy(restoreFileValidation = RestoreFileValidation.PasswordRequired(extractedBackupRootPath))
+    }
+
     @Suppress("MagicNumber")
     private suspend fun extractBackupFiles(importedBackupPath: Path) {
-        val tempCompressedBackupFileSource = kaliumFileSystem.source(importedBackupPath)
-        val extractedBackupFilesRootPath = createExtractedBackupFilesRootPath()
-
-        extractCompressedFile(tempCompressedBackupFileSource, extractedBackupFilesRootPath, kaliumFileSystem).fold({
-            onBackupRestoreError("Error extracting backup file")
-        }, {
-            val encryptedFilePath = getEncryptedBackupFilePath(extractedBackupFilesRootPath)
-            val isPasswordProtected = encryptedFilePath != null
-
-            if (isPasswordProtected) {
-                // If it's password protected, we need to ask the user for the password
-                state = state.copy(restoreFileValidation = RestoreFileValidation.PasswordRequired(extractedBackupFilesRootPath))
-            } else {
-                // If it's not password protected, we can restore the backup
-                state = state.copy(
-                    restoreFileValidation = RestoreFileValidation.ValidNonEncryptedBackup,
-                    backupRestoreProgress = BackupRestoreProgress.InProgress(0.75f)
-                )
-                val result = importBackup(extractedBackupFilesRootPath, null)
-                if (result is RestoreBackupResult.Success) {
-                    state = state.copy(backupRestoreProgress = BackupRestoreProgress.InProgress(0.75f))
-                    delay(300)
-                    state = state.copy(backupRestoreProgress = BackupRestoreProgress.Finished)
+        when (val result = extractCompressedFileUseCase.invoke(importedBackupPath)) {
+            is ExtractCompressedFileResult.Success -> {
+                if (result.isEncrypted) {
+                    showPasswordDialog(result.extractedFilesRootPath)
                 } else {
-                    onBackupRestoreError("Error when restoring the db file", RestoreFileValidation.IncompatibleBackup)
+                    importDatabase(result.extractedFilesRootPath)
                 }
             }
-        })
-    }
-
-    private suspend fun getEncryptedBackupFilePath(extractedBackupFilesRootPath: Path): Path? =
-        kaliumFileSystem.listDirectories(extractedBackupFilesRootPath).firstOrNull { it.name.contains(".cc20") }
-
-    private fun createExtractedBackupFilesRootPath(): Path {
-        val extractedBackupFilesRootPath = kaliumFileSystem.tempFilePath(TEMP_EXTRACTED_BACKUP_FILES_PATH)
-
-        // Delete any previously existing files in the extractedBackupRootFilesPath
-        if (kaliumFileSystem.exists(extractedBackupFilesRootPath)) {
-            kaliumFileSystem.deleteContents(extractedBackupFilesRootPath)
+            is ExtractCompressedFileResult.Failure -> {}
         }
-        kaliumFileSystem.createDirectory(extractedBackupFilesRootPath)
-        return extractedBackupFilesRootPath
     }
 
-    private fun onBackupRestoreError(errorMessage: String, errorType: RestoreFileValidation = RestoreFileValidation.GeneralFailure) {
-        appLogger.e(errorMessage)
-        state = state.copy(restoreFileValidation = errorType)
+    private suspend fun importDatabase(extractedBackupRootPath: Path) {
+        state = state.copy(
+            restoreFileValidation = RestoreFileValidation.ValidNonEncryptedBackup,
+            backupRestoreProgress = BackupRestoreProgress.InProgress(0.75f)
+        )
+        when (importBackup(extractedBackupRootPath, null)) {
+            RestoreBackupResult.Success -> {
+                state = state.copy(backupRestoreProgress = BackupRestoreProgress.InProgress(0.75f))
+                delay(300)
+                state = state.copy(backupRestoreProgress = BackupRestoreProgress.Finished)
+            }
+            is RestoreBackupResult.Failure -> {
+                appLogger.e(
+                    "Error when restoring the db file. The format or version of the backup is not compatible with this " +
+                            "version of the app"
+                )
+                state = state.copy(
+                    restoreFileValidation = RestoreFileValidation.IncompatibleBackup,
+                    backupRestoreProgress = BackupRestoreProgress.Failed
+                )
+            }
+        }
     }
 
     @Suppress("MagicNumber")
@@ -161,35 +153,37 @@ class BackupAndRestoreViewModel
                     )
                 }
                 is RestoreBackupResult.Failure -> {
-                    when (result.failure) {
-                        InvalidPassword -> state = state.copy(
-                            backupRestoreProgress = BackupRestoreProgress.Failed,
-                            restorePasswordValidation = PasswordValidation.NotValid,
-                        )
-
-                        InvalidUserId -> state = state.copy(
-                            backupRestoreProgress = BackupRestoreProgress.Failed,
-                            restoreFileValidation = RestoreFileValidation.WrongBackup,
-                            restorePasswordValidation = PasswordValidation.Valid
-                        )
-
-                        is IncompatibleBackup -> state = state.copy(
-                            backupRestoreProgress = BackupRestoreProgress.Failed,
-                            restoreFileValidation = RestoreFileValidation.IncompatibleBackup,
-                            restorePasswordValidation = PasswordValidation.Valid
-                        )
-
-                        is BackupIOFailure, is DecryptionFailure -> state = state.copy(
-                            backupRestoreProgress = BackupRestoreProgress.Failed,
-                            restoreFileValidation = RestoreFileValidation.GeneralFailure,
-                            restorePasswordValidation = PasswordValidation.Valid
-                        )
-                    }
+                    mapBackupRestoreFailure(result.failure)
                 }
             }
         } else {
             state = state.copy(backupRestoreProgress = BackupRestoreProgress.Failed)
         }
+    }
+
+    private fun mapBackupRestoreFailure(failure: RestoreBackupResult.BackupRestoreFailure) = when (failure) {
+        InvalidPassword -> state = state.copy(
+            backupRestoreProgress = BackupRestoreProgress.Failed,
+            restorePasswordValidation = PasswordValidation.NotValid,
+        )
+
+        InvalidUserId -> state = state.copy(
+            backupRestoreProgress = BackupRestoreProgress.Failed,
+            restoreFileValidation = RestoreFileValidation.WrongBackup,
+            restorePasswordValidation = PasswordValidation.Valid
+        )
+
+        is IncompatibleBackup -> state = state.copy(
+            backupRestoreProgress = BackupRestoreProgress.Failed,
+            restoreFileValidation = RestoreFileValidation.IncompatibleBackup,
+            restorePasswordValidation = PasswordValidation.Valid
+        )
+
+        is BackupIOFailure, is DecryptionFailure -> state = state.copy(
+            backupRestoreProgress = BackupRestoreProgress.Failed,
+            restoreFileValidation = RestoreFileValidation.GeneralFailure,
+            restorePasswordValidation = PasswordValidation.Valid
+        )
     }
 
     fun validateBackupCreationPassword(backupPassword: TextFieldValue) {
@@ -219,7 +213,6 @@ class BackupAndRestoreViewModel
     fun navigateBack() = viewModelScope.launch { navigationManager.navigateBack() }
 
     private companion object {
-        const val TEMP_EXTRACTED_BACKUP_FILES_PATH = "extractedBackupFiles"
         const val TEMP_IMPORTED_BACKUP_FILE_NAME = "tempImportedBackup.zip"
     }
 }

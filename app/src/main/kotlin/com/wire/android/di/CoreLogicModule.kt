@@ -809,6 +809,11 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun provideExtractInitialBackupFileUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).extractCompressedFileUseCase
+
+    @ViewModelScoped
+    @Provides
     fun provideRestoreBackupUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).restoreBackup
 

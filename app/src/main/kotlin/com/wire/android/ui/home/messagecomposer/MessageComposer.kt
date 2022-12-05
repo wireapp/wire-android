@@ -158,11 +158,6 @@ private fun MessageComposer(
             targetState = messageComposerState.messageComposeInputState,
             label = stringResource(R.string.animation_label_messagecomposeinput_state_transistion)
         )
-
-        BackHandler(enabled = messageComposerState.attachmentOptionsDisplayed) {
-            messageComposerState.toggleAttachmentOptionsVisibility()
-        }
-
         // ConstraintLayout wrapping the whole content to give us the possibility to constrain SendButton to top of AdditionalOptions, which
         // constrains to bottom of MessageComposerInput
         // so that MessageComposerInput is the only component animating freely, when going to Fullscreen mode
@@ -307,7 +302,7 @@ private fun MessageComposer(
                     // changed which is applied only for
                     // MessageComposerInput and CollapsingButton
                     SendActions(
-                        Modifier.Companion.constrainAs(sendActions) {
+                        Modifier.constrainAs(sendActions) {
                             bottom.linkTo(additionalActions.top)
                             end.linkTo(parent.end)
                         },
@@ -318,7 +313,7 @@ private fun MessageComposer(
                     // Box wrapping MessageComposeActions() so that we can constrain it to the bottom of MessageComposerInput and after that
                     // constrain our SendActions to it
                     MessageComposeActionsBox(
-                        Modifier.Companion
+                        Modifier
                             .constrainAs(additionalActions) {
                                 top.linkTo(messageInput.bottom)
                                 bottom.linkTo(parent.bottom)
@@ -345,6 +340,10 @@ private fun MessageComposer(
                 )
             }
         }
+    }
+
+    BackHandler(enabled = messageComposerState.attachmentOptionsDisplayed) {
+        messageComposerState.toggleAttachmentOptionsVisibility()
     }
 }
 

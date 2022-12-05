@@ -46,6 +46,7 @@ import com.wire.kalium.logic.feature.conversation.UpdateConversationReadDateUseC
 import com.wire.kalium.logic.feature.message.DeleteMessageUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.ObserveMessageReactionsUseCase
+import com.wire.kalium.logic.feature.message.ObserveMessageReceiptsUseCase
 import com.wire.kalium.logic.feature.message.SendTextMessageUseCase
 import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
 import com.wire.kalium.logic.feature.message.getPaginatedFlowOfMessagesByConversation
@@ -137,12 +138,6 @@ class CoreLogicModule {
     @Singleton
     @Provides
     fun provideNoSessionQualifiedIdMapper(): QualifiedIdMapper = QualifiedIdMapperImpl(null)
-
-    @NoSession
-    @Singleton
-    @Provides
-    fun provideObservePersistentWebSocketConnectionStatusUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
-        coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus
 
     @Singleton
     @Provides
@@ -428,6 +423,13 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
+    fun provideObserveMessageReceiptsUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): ObserveMessageReceiptsUseCase = coreLogic.getSessionScope(currentAccount).messages.observeMessageReceipts
+
+    @ViewModelScoped
+    @Provides
     fun providesSendAssetMessageUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
@@ -633,13 +635,21 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun provideObservePersistentWebSocketConnectionStatusUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
-        coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus
+    fun provideObservePersistentWebSocketConnectionStatusUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic
+    ) = coreLogic.getGlobalScope().observePersistentWebSocketConnectionStatus
 
     @ViewModelScoped
     @Provides
-    fun providePersistPersistentWebSocketConnectionStatusUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
-        coreLogic.getGlobalScope().persistPersistentWebSocketConnectionStatus
+    fun providePersistPersistentWebSocketConnectionStatusUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId
+    ) = coreLogic.getSessionScope(currentAccount).persistPersistentWebSocketConnectionStatus
+
+    @ViewModelScoped
+    @Provides
+    fun provideGetPersistentWebSocketStatusUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId
+    ) = coreLogic.getSessionScope(currentAccount).getPersistentWebSocketStatus
 
     @ViewModelScoped
     @Provides
@@ -813,4 +823,14 @@ class UseCaseModule {
     @Provides
     fun provideUpdateApiVersionsScheduler(@KaliumCoreLogic coreLogic: CoreLogic) =
         coreLogic.updateApiVersionsScheduler
+
+    @ViewModelScoped
+    @Provides
+    fun provideObserveReadReceiptsEnabled(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).users.observeReadReceiptsEnabled
+
+    @ViewModelScoped
+    @Provides
+    fun providePersistReadReceiptsStatusConfig(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).users.persistReadReceiptsStatusConfig
 }

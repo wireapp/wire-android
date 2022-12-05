@@ -53,7 +53,8 @@ fun rememberConversationSheetState(
                         conversationId = conversationId,
                         isCreator = isSelfUserCreator
                     ),
-                    isSelfUserMember = isSelfUserMember
+                    isSelfUserMember = isSelfUserMember,
+                    isTeamConversation = teamId != null
                 )
             }
         }
@@ -69,7 +70,8 @@ fun rememberConversationSheetState(
                         userAvatarData.asset,
                         userId,
                         blockingState
-                    )
+                    ),
+                    isTeamConversation = isTeamConversation
                 )
             }
         }
@@ -81,7 +83,8 @@ fun rememberConversationSheetState(
                     mutingConversationState = mutedStatus,
                     conversationTypeDetail = ConversationTypeDetail.Connection(
                         userAvatarData.asset
-                    )
+                    ),
+                    isTeamConversation = isTeamConversation
                 )
             }
         }

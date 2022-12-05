@@ -51,7 +51,8 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
     // Channels
     private fun createIncomingCallsNotificationChannel() {
         val audioAttributes = AudioAttributes.Builder()
-            .setContentType(AudioAttributes.CONTENT_TYPE_MUSIC)
+            .setContentType(AudioAttributes.CONTENT_TYPE_SONIFICATION)
+            .setUsage(AudioAttributes.USAGE_NOTIFICATION_RINGTONE)
             .setUsage(getAudioAttributeUsageByOsLevel())
             .build()
 
@@ -100,6 +101,7 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
             .setContentText(content)
             .setAutoCancel(true)
             .setOngoing(true)
+            .setVibrate(VIBRATE_PATTERN)
             .setTimeoutAfter(INCOMING_CALL_TIMEOUT)
             .setFullScreenIntent(fullScreenIncomingCallPendingIntent(context, conversationIdString), true)
             .addAction(getDeclineCallAction(context, conversationIdString, userIdString))
@@ -153,6 +155,7 @@ class CallNotificationManager @Inject constructor(private val context: Context) 
     companion object {
         private const val TAG = "CallNotificationManager"
         private const val INCOMING_CALL_TIMEOUT: Long = 30 * 1000
+        private val VIBRATE_PATTERN = longArrayOf(0, 1000, 1000)
 
         fun hideIncomingCallNotification(context: Context) {
             NotificationManagerCompat.from(context).cancel(NotificationConstants.CALL_INCOMING_NOTIFICATION_ID)

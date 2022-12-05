@@ -49,33 +49,40 @@ class CallRinger @Inject constructor(private val context: Context) {
         mediaPlayer?.isLooping = isLooping
     }
 
-    fun ring(resource: Int, isLooping: Boolean = true) {
+    fun ring(
+        resource: Int,
+        isLooping: Boolean = true,
+        isIncomingCall: Boolean = true
+    ) {
         stop()
-        vibrateIfNeeded()
+        vibrateIfNeeded(isIncomingCall)
         createMediaPlayer(resource, isLooping)
-        appLogger.i("Starting ringing");
+        appLogger.i("Starting ringing | isIncomingCall: $isIncomingCall");
         mediaPlayer?.start()
     }
 
 
-    private fun vibrateIfNeeded() {
-        vibrator?.let {
-            if (!it.hasVibrator()) {
-                appLogger.i("Device does not support vibration");
-                return
-            }
-            val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager?
-            val ringerMode = audioManager?.ringerMode
-            if (ringerMode == AudioManager.RINGER_MODE_VIBRATE) {
-                appLogger.i("Starting vibration");
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    it.vibrate(VibrationEffect.createWaveform(VIBRATE_PATTERN, VibrationEffect.EFFECT_DOUBLE_CLICK))
-                } else {
-                    @Suppress("DEPRECATION")
-                    it.vibrate(VIBRATE_PATTERN, VibrationEffect.EFFECT_DOUBLE_CLICK)
+    @Suppress("NestedBlockDepth")
+    private fun vibrateIfNeeded(isIncomingCall: Boolean) {
+        if (isIncomingCall) {
+            vibrator?.let {
+                if (!it.hasVibrator()) {
+                    appLogger.i("Device does not support vibration");
+                    return
                 }
-            } else {
-                appLogger.i("Skipping vibration");
+                val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager?
+                val ringerMode = audioManager?.ringerMode
+                if (ringerMode == AudioManager.RINGER_MODE_VIBRATE) {
+                    appLogger.i("Starting vibration");
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        it.vibrate(VibrationEffect.createWaveform(VIBRATE_PATTERN, VibrationEffect.EFFECT_DOUBLE_CLICK))
+                    } else {
+                        @Suppress("DEPRECATION")
+                        it.vibrate(VIBRATE_PATTERN, VibrationEffect.EFFECT_DOUBLE_CLICK)
+                    }
+                } else {
+                    appLogger.i("Skipping vibration");
+                }
             }
         }
     }

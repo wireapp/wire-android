@@ -248,7 +248,7 @@ private fun ConversationScreen(
     conversationInfoViewState: ConversationInfoViewState,
     conversationMessagesViewState: ConversationMessagesViewState,
     onOpenProfile: (String) -> Unit,
-    onMessageDetailsClick: (messageId: String) -> Unit,
+    onMessageDetailsClick: (messageId: String, isSelfMessage: Boolean) -> Unit,
     onSendMessage: (String, List<UiMention>, String?) -> Unit,
     onDeleteMessage: (String, Boolean) -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
@@ -295,7 +295,8 @@ private fun ConversationScreen(
         {
             conversationScreenState.hideEditContextMenu {
                 onMessageDetailsClick(
-                    conversationScreenState.selectedMessage?.messageHeader!!.messageId
+                    conversationScreenState.selectedMessage?.messageHeader!!.messageId,
+                    conversationScreenState.isMyMessage,
                 )
             }
         }
@@ -375,7 +376,7 @@ private fun ConversationScreen(
                             keyboardHeight = keyboardHeight,
                             membersToMention = membersToMention,
                             isFileSharingEnabled = conversationViewState.isFileSharingEnabled,
-                            lastUnreadMessageInstant = conversationMessagesViewState.lastUnreadMessageInstant,
+                            lastUnreadMessageInstant = conversationMessagesViewState.firstUnreadInstant,
                             conversationState = conversationViewState,
                             conversationScreenState = conversationScreenState,
                             messageComposerInnerState = messageComposerInnerState,
@@ -588,7 +589,7 @@ fun ConversationScreenPreview() {
         conversationInfoViewState = ConversationInfoViewState(conversationName = UIText.DynamicString("Some test conversation")),
         conversationMessagesViewState = ConversationMessagesViewState(),
         onOpenProfile = { _ -> },
-        onMessageDetailsClick = { },
+        onMessageDetailsClick = { _, _ -> },
         onSendMessage = { _, _, _ -> },
         onDeleteMessage = { _, _ -> },
         onSendAttachment = { },

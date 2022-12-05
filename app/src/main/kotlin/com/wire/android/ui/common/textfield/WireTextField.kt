@@ -36,9 +36,11 @@ import androidx.compose.ui.res.vectorResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.TextFieldValue
 import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextDirection
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
@@ -56,7 +58,7 @@ internal fun WireTextField(
     readOnly: Boolean = false,
     singleLine: Boolean = true,
     maxLines: Int = 1,
-    keyboardOptions: KeyboardOptions = KeyboardOptions.Default,
+    keyboardOptions: KeyboardOptions = KeyboardOptions(capitalization = KeyboardCapitalization.Sentences, autoCorrect = true),
     keyboardActions: KeyboardActions = KeyboardActions(),
     leadingIcon: @Composable (() -> Unit)? = null,
     trailingIcon: @Composable (() -> Unit)? = null,
@@ -75,7 +77,7 @@ internal fun WireTextField(
     modifier: Modifier = Modifier,
     onSelectedLineIndexChanged: (Int) -> Unit = { },
     onLineBottomYCoordinateChanged: (Float) -> Unit = { },
-) {
+    ) {
     val enabled = state !is WireTextFieldState.Disabled
 
     Column(modifier = modifier) {
@@ -89,7 +91,7 @@ internal fun WireTextField(
                     else it
                 )
             },
-            textStyle = textStyle.copy(color = colors.textColor(state = state).value),
+            textStyle = textStyle.copy(color = colors.textColor(state = state).value, textDirection = TextDirection.ContentOrLtr),
             keyboardOptions = keyboardOptions,
             keyboardActions = keyboardActions,
             singleLine = singleLine,

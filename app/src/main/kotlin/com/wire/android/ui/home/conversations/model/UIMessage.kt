@@ -64,8 +64,21 @@ sealed class MessageStatus(val text: UIText) {
     object DecryptionFailure : MessageStatus(UIText.StringResource(R.string.label_message_decryption_failure_message))
 }
 
-sealed class UIMessageContent {
+@Stable
+sealed class UILastMessageContent {
+    object None : UILastMessageContent()
 
+    data class TextMessage(val messageBody: MessageBody) : UILastMessageContent()
+
+    data class SenderWithMessage(val sender: UIText, val message: UIText, val separator: String = " ") : UILastMessageContent()
+
+    data class MultipleMessage(val firstMessage: UIText, val secondMessage: UIText) : UILastMessageContent()
+
+    data class Connection(val connectionState: ConnectionState, val userId: UserId) : UILastMessageContent()
+
+}
+
+sealed class UIMessageContent {
     sealed class ClientMessage : UIMessageContent()
 
     object PreviewAssetMessage : UIMessageContent()

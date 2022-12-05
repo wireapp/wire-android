@@ -383,7 +383,8 @@ private fun ConversationDetails.toConversationItem(
             ),
             hasOnGoingCall = hasOngoingCall,
             isSelfUserCreator = isSelfUserCreator,
-            isSelfUserMember = isSelfUserMember
+            isSelfUserMember = isSelfUserMember,
+            teamId = conversation.teamId
         )
     }
 
@@ -414,7 +415,8 @@ private fun ConversationDetails.toConversationItem(
                 )
             ),
             userId = otherUser.id,
-            blockingState = otherUser.BlockState
+            blockingState = otherUser.BlockState,
+            teamId = otherUser.teamId
         )
     }
 

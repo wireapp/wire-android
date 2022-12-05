@@ -10,6 +10,7 @@ import com.wire.android.ui.common.dialogs.UnblockUserDialogState
 import com.wire.android.ui.home.conversationslist.model.BlockingState
 import com.wire.android.ui.home.conversationslist.model.DialogState
 import com.wire.android.ui.home.conversationslist.model.GroupDialogState
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.user.UserId
@@ -102,16 +103,21 @@ data class ConversationSheetContent(
     val conversationId: ConversationId,
     val mutingConversationState: MutedConversationStatus,
     val conversationTypeDetail: ConversationTypeDetail,
-    val isSelfUserMember: Boolean = true,
+    val selfMemberRole: Conversation.Member.Role?,
     val isTeamConversation: Boolean
 ) {
+
+    private val isSelfUserMember: Boolean get() = selfMemberRole != null
+
     fun canEditNotifications(): Boolean = isSelfUserMember
             && ((conversationTypeDetail is ConversationTypeDetail.Private
             && (conversationTypeDetail.blockingState != BlockingState.BLOCKED))
             || conversationTypeDetail is ConversationTypeDetail.Group)
 
     fun canDeleteGroup(): Boolean =
-        conversationTypeDetail is ConversationTypeDetail.Group && isSelfUserMember && conversationTypeDetail.isCreator && isTeamConversation
+        conversationTypeDetail is ConversationTypeDetail.Group &&
+                selfMemberRole == Conversation.Member.Role.Admin &&
+                conversationTypeDetail.isCreator && isTeamConversation
 
     fun canLeaveTheGroup(): Boolean = conversationTypeDetail is ConversationTypeDetail.Group && isSelfUserMember
 

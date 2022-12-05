@@ -17,7 +17,6 @@ import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.configuration.FileSharingStatus
-import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.LegalHoldStatus
 import com.wire.kalium.logic.data.id.ConversationId
@@ -220,7 +219,7 @@ internal fun withMockConversationDetailsOneOnOne(
     },
     legalHoldStatus = LegalHoldStatus.DISABLED,
     userType = UserType.INTERNAL,
-    unreadMessagesCount = 0,
+    unreadRepliesCount = 0,
     lastMessage = null,
     unreadEventCount = emptyMap()
 )
@@ -233,7 +232,7 @@ internal fun mockConversationDetailsGroup(
         .copy(name = conversationName, id = mockedConversationId),
     legalHoldStatus = mockk(),
     hasOngoingCall = false,
-    unreadMessagesCount = 0,
+    unreadRepliesCount = 0,
     lastMessage = null,
     isSelfUserCreator = true,
     isSelfUserMember = true,

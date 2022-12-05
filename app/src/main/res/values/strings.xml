@@ -465,8 +465,10 @@
     <string name="last_message_image">shared an image.</string>
     <string name="last_message_video">shared a video.</string>
     <string name="last_message_audio">shared an audio message.</string>
+    <string name="last_message_file">shared a file.</string>
     <string name="last_message_knock">pinged.</string>
     <string name="last_message_call">called.</string>
+    <string name="last_message_mentioned">mentioned you</string>
     <string name="last_message_replied">%1$s replied to you</string>
     <string name="last_message_change_conversation_name">changed conversation name</string>
     <string name="last_message_calling">%1$s calling...</string>
@@ -678,6 +680,10 @@
     <string name="settings_myaccount_team">TEAM</string>
     <string name="settings_myaccount_domain">DOMAIN</string>
     <string name="settings_myaccount_reset_password">Reset Password</string>
+
+    <!--Privacy Settings -->
+    <string name="settings_send_read_receipts">Send read receipts</string>
+    <string name="settings_send_read_receipts_description">If this is OFF, you won’t be able to see read receipts from other people. This can be overwritten by the read receipts setting in a conversation.</string>
 
     <!--Devices -->
     <string name="devices_title">Your Devices</string>

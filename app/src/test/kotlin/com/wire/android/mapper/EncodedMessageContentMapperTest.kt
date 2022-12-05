@@ -261,17 +261,17 @@ class EncodedMessageContentMapperTest {
     }
 
     @Test
-    fun givenMessage_whenMappingToUIMessageContent_thenCorrectValuesShouldBeReturned() = runTest {
+    fun givenMessagesWithDifferentVisibilities_whenMappingToUIMessageContent_thenCorrectValuesShouldBeReturned() = runTest {
         // Given
         val (_, mapper) = Arrangement().arrange()
         val visibleMessage = TestMessage.TEXT_MESSAGE.copy(visibility = Message.Visibility.VISIBLE)
         val deletedMessage = TestMessage.TEXT_MESSAGE.copy(
             visibility = Message.Visibility.DELETED,
-            content = MessageContent.DeleteMessage("")
+            content = MessageContent.Text("")
         )
         val hiddenMessage = TestMessage.TEXT_MESSAGE.copy(
             visibility = Message.Visibility.HIDDEN,
-            content = MessageContent.DeleteMessage("")
+            content = MessageContent.Text("")
         )
         // When
         val resultContentVisible = mapper.fromMessage(visibleMessage, listOf())

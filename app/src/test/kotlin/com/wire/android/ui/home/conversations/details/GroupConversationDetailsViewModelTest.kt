@@ -44,7 +44,6 @@ import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
-
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
 class GroupConversationDetailsViewModelTest {
@@ -387,7 +386,8 @@ class GroupConversationDetailsViewModelTest {
             conversationId = details.conversation.id,
             mutingConversationState = details.conversation.mutedStatus,
             conversationTypeDetail = ConversationTypeDetail.Group(details.conversation.id, details.isSelfUserCreator),
-            isSelfUserMember = true
+            isSelfUserMember = true,
+            isTeamConversation = details.conversation.isTeamGroup()
         )
         // When - Then
         assertEquals(expected, viewModel.conversationSheetContent)

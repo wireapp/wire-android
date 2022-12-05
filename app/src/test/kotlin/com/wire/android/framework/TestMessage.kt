@@ -97,7 +97,7 @@ object TestMessage {
         messageStatus = MessageStatus.Untouched,
         messageId = "messageID",
         connectionState = null,
-        isDeleted = false
+        isSenderDeleted = false
     )
     val UI_TEXT_MESSAGE = UIMessage(
         userAvatarData = UserAvatarData(asset = null, availabilityStatus = UserAvailabilityStatus.NONE),

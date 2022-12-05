@@ -11,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -50,8 +49,6 @@ import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMess
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
-import com.wire.kalium.logic.data.call.ConversationType
-import com.wire.kalium.logic.data.conversation.Conversation
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -85,7 +82,7 @@ fun MessageItem(
             Spacer(Modifier.padding(start = dimensions().spacing8x - fullAvatarOuterPadding))
 
             val isProfileRedirectEnabled =
-                message.messageHeader.userId != null && !(message.messageHeader.isDeleted || message.messageHeader.isUnavailable)
+                message.messageHeader.userId != null && !(message.messageHeader.isSenderDeleted || message.messageHeader.isUnavailable)
 
             val avatarClickable = remember {
                 Clickable(enabled = isProfileRedirectEnabled) {
@@ -174,7 +171,7 @@ private fun MessageHeader(
                         membership = membership,
                         connectionState = connectionState,
                         startPadding = dimensions().spacing6x,
-                        isDeleted = isDeleted
+                        isDeleted = isSenderDeleted
                     )
 
                     if (isLegalHold) {

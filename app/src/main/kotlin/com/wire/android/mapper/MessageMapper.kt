@@ -112,7 +112,7 @@ class MessageMapper @Inject constructor(
         messageStatus = getMessageStatus(message),
         messageId = message.id,
         userId = sender?.id,
-        isDeleted = when (sender) {
+        isSenderDeleted = when (sender) {
             is OtherUser -> sender.deleted
             is SelfUser, null -> false
         },

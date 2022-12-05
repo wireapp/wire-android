@@ -19,7 +19,7 @@ class WireAppUpdateManager @Inject constructor(context: Context) {
         val appUpdateInfo = appUpdateManager.appUpdateInfo.await()
         appLogger.i("$TAG Got AppUpdateInfo $appUpdateInfo")
         appUpdateInfo.updateAvailability() == UpdateAvailability.UPDATE_AVAILABLE
-    } catch (e: Exception) {
+    } catch (e: Throwable) {
         appLogger.e("$TAG Failure while getting AppUpdateInfo", e)
         false
     }

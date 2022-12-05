@@ -413,7 +413,7 @@ class GroupConversationDetailsViewModelTest {
             ),
             legalHoldStatus = LegalHoldStatus.DISABLED,
             hasOngoingCall = false,
-            unreadMessagesCount = 0,
+            unreadRepliesCount = 0,
             lastMessage = null,
             isSelfUserCreator = false,
             isSelfUserMember = true,

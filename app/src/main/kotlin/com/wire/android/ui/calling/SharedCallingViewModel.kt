@@ -226,6 +226,7 @@ class SharedCallingViewModel @Inject constructor(
 
     fun hangUpCall() {
         viewModelScope.launch {
+            navigateBack()
             endCall(conversationId)
             muteCall(conversationId)
             callRinger.stop()

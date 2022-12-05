@@ -58,6 +58,7 @@ fun ConversationItemFactory(
                     messageContent.message,
                     messageContent.separator
                 )
+                is UILastMessageContent.Connection -> ConnectionLabel(connectionInfo = messageContent)
                 else -> {}
             }
         },

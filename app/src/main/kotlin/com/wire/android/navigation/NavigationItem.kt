@@ -34,6 +34,7 @@ import com.wire.android.navigation.NavigationItemDestinationsRoutes.NETWORK_SETT
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.NEW_CONVERSATION
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.ONGOING_CALL
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.OTHER_USER_PROFILE
+import com.wire.android.navigation.NavigationItemDestinationsRoutes.PRIVACY_SETTINGS
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.REGISTER_DEVICE
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.REMOVE_DEVICES
 import com.wire.android.navigation.NavigationItemDestinationsRoutes.SELF_DEVICES
@@ -65,6 +66,7 @@ import com.wire.android.ui.home.settings.account.MyAccountScreen
 import com.wire.android.ui.home.settings.appsettings.AppSettingsScreen
 import com.wire.android.ui.home.settings.appsettings.networkSettings.NetworkSettingsScreen
 import com.wire.android.ui.home.settings.backup.BackupAndRestoreScreen
+import com.wire.android.ui.home.settings.privacy.PrivacySettingsConfigScreen
 import com.wire.android.ui.initialsync.InitialSyncScreen
 import com.wire.android.ui.migration.MigrationScreen
 import com.wire.android.ui.settings.devices.SelfDevicesScreen
@@ -176,6 +178,11 @@ enum class NavigationItem(
         content = { SelfDevicesScreen() }
     ),
 
+    PrivacySettings(
+        primaryRoute = PRIVACY_SETTINGS,
+        content = { PrivacySettingsConfigScreen() }
+    ),
+
     BackupAndRestore(
         primaryRoute = BACKUP_AND_RESTORE,
         content = { BackupAndRestoreScreen() }
@@ -255,7 +262,8 @@ enum class NavigationItem(
 
     MessageDetails(
         primaryRoute = MESSAGE_DETAILS,
-        canonicalRoute = "$MESSAGE_DETAILS?$EXTRA_CONVERSATION_ID={$EXTRA_CONVERSATION_ID}&$EXTRA_MESSAGE_ID={$EXTRA_MESSAGE_ID}",
+        canonicalRoute = "$MESSAGE_DETAILS?$EXTRA_CONVERSATION_ID={$EXTRA_CONVERSATION_ID}" +
+                "&$EXTRA_MESSAGE_ID={$EXTRA_MESSAGE_ID}&$EXTRA_IS_SELF_MESSAGE={$EXTRA_IS_SELF_MESSAGE}",
         content = { MessageDetailsScreen() }
     ) {
         override fun getRouteWithArgs(arguments: List<Any>): String {
@@ -263,7 +271,9 @@ enum class NavigationItem(
                 ?: "{$EXTRA_CONVERSATION_ID}"
             val messageIdString: String = arguments.filterIsInstance<String>().firstOrNull()?.toString()
                 ?: "{$EXTRA_MESSAGE_ID}"
-            return "$MESSAGE_DETAILS?$EXTRA_CONVERSATION_ID=$conversationIdString&$EXTRA_MESSAGE_ID=$messageIdString"
+            val isSelfMessage: String = arguments.filterIsInstance<Boolean>().firstOrNull()?.toString() ?: "{$EXTRA_IS_SELF_MESSAGE}"
+            return "$MESSAGE_DETAILS?$EXTRA_CONVERSATION_ID=$conversationIdString" +
+                    "&$EXTRA_MESSAGE_ID=$messageIdString&$EXTRA_IS_SELF_MESSAGE=$isSelfMessage"
         }
     },
 
@@ -410,6 +420,7 @@ object NavigationItemDestinationsRoutes {
     const val ADD_CONVERSATION_PARTICIPANTS = "add_conversation_participants"
     const val APP_SETTINGS = "app_settings_screen"
     const val SELF_DEVICES = "self_devices_screen"
+    const val PRIVACY_SETTINGS = "privacy_settings"
     const val BACKUP_AND_RESTORE = "backup_and_restore_screen"
     const val MY_ACCOUNT = "my_account_screen"
     const val DEBUG = "debug_screen"
@@ -431,6 +442,7 @@ const val EXTRA_CONVERSATION_ID = "extra_conversation_id"
 const val EXTRA_CREATE_ACCOUNT_FLOW_TYPE = "extra_create_account_flow_type"
 const val EXTRA_IMAGE_DATA = "extra_image_data"
 const val EXTRA_MESSAGE_ID = "extra_message_id"
+const val EXTRA_IS_SELF_MESSAGE = "extra_is_self_message"
 const val EXTRA_MESSAGE_TO_DELETE_ID = "extra_message_to_delete"
 const val EXTRA_MESSAGE_TO_DELETE_IS_SELF = "extra_message_to_delete_is_self"
 

@@ -5,6 +5,7 @@ import com.wire.android.ui.home.conversations.model.UILastMessageContent
 import com.wire.android.ui.home.conversationslist.common.UserInfoLabel
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
+import com.wire.kalium.logic.data.id.TeamId
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.OtherUser
 import com.wire.kalium.logic.data.user.UserId
@@ -16,6 +17,10 @@ sealed class ConversationItem {
     abstract val isLegalHold: Boolean
     abstract val lastMessageContent: UILastMessageContent?
     abstract val badgeEventType: BadgeEventType
+    abstract val teamId: TeamId?
+
+    val isTeamConversation get() = teamId != null
+
     data class GroupConversation(
         val groupName: String,
         override val conversationId: ConversationId,
@@ -23,9 +28,10 @@ sealed class ConversationItem {
         override val isLegalHold: Boolean = false,
         override val lastMessageContent: UILastMessageContent?,
         override val badgeEventType: BadgeEventType,
+        override val teamId: TeamId?,
         val hasOnGoingCall: Boolean = false,
         val isSelfUserCreator: Boolean = false,
-        val isSelfUserMember: Boolean = true
+        val isSelfUserMember: Boolean = true,
     ) : ConversationItem()
 
     data class PrivateConversation(
@@ -38,6 +44,7 @@ sealed class ConversationItem {
         override val isLegalHold: Boolean = false,
         override val lastMessageContent: UILastMessageContent?,
         override val badgeEventType: BadgeEventType,
+        override val teamId: TeamId?
     ) : ConversationItem()
 
     data class ConnectionConversation(
@@ -47,14 +54,16 @@ sealed class ConversationItem {
         override val mutedStatus: MutedConversationStatus,
         override val isLegalHold: Boolean = false,
         override val lastMessageContent: UILastMessageContent?,
-        override val badgeEventType: BadgeEventType
-    ) : ConversationItem()
+        override val badgeEventType: BadgeEventType,
+    ) : ConversationItem() {
+        override val teamId: TeamId? = null
+    }
 }
 
 data class ConversationInfo(
     val name: String,
     val membership: Membership = Membership.None,
-    val unavailable: Boolean = false
+    val isSenderUnavailable: Boolean = false
 )
 
 enum class BlockingState {
@@ -76,7 +85,7 @@ fun ConversationItem.PrivateConversation.toUserInfoLabel() =
         labelName = conversationInfo.name,
         isLegalHold = isLegalHold,
         membership = conversationInfo.membership,
-        unavailable = conversationInfo.unavailable
+        unavailable = conversationInfo.isSenderUnavailable
     )
 
 fun ConversationItem.ConnectionConversation.toUserInfoLabel() =

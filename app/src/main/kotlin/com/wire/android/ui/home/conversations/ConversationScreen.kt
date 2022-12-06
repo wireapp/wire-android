@@ -98,12 +98,12 @@ private const val MAXIMUM_SCROLLED_MESSAGES_UNTIL_AUTOSCROLL_STOPS = 5
 @Composable
 fun ConversationScreen(
     backNavArgs: ImmutableMap<String, Any>,
-    messageComposerViewModel: MessageComposerViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs),
-    conversationCallViewModel: ConversationCallViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs),
-    conversationInfoViewModel: ConversationInfoViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs),
-    conversationMessagesViewModel: ConversationMessagesViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs),
-    conversationBannerViewModel: ConversationBannerViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs),
     commonTopAppBarViewModel: CommonTopAppBarViewModel = hiltViewModel(),
+    conversationInfoViewModel: ConversationInfoViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs),
+    conversationBannerViewModel: ConversationBannerViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs),
+    conversationCallViewModel: ConversationCallViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs),
+    conversationMessagesViewModel: ConversationMessagesViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs),
+    messageComposerViewModel: MessageComposerViewModel = hiltSavedStateViewModel(backNavArgs = backNavArgs)
 ) {
     val coroutineScope = rememberCoroutineScope()
     val showDialog = remember { mutableStateOf(ConversationScreenDialogType.NONE) }
@@ -143,22 +143,23 @@ fun ConversationScreen(
     }
 
     ConversationScreen(
+        tempCachePath = messageComposerViewModel.provideTempCachePath(),
+        bannerMessage = conversationBannerViewModel.bannerState,
+        connectivityUIState = commonTopAppBarViewModel.connectivityState,
+        interactionAvailability = messageComposerViewModel.interactionAvailability,
+        membersToMention = messageComposerViewModel.mentionsToSelect,
         conversationViewState = uiState,
         conversationCallViewState = conversationCallViewModel.conversationCallViewState,
         conversationInfoViewState = conversationInfoViewModel.conversationInfoViewState,
         conversationMessagesViewState = conversationMessagesViewModel.conversationViewState,
-        bannerMessage = conversationBannerViewModel.bannerState,
-        connectivityUIState = commonTopAppBarViewModel.connectivityState,
-        onOpenOngoingCallScreen = commonTopAppBarViewModel::openOngoingCallScreen,
+        onOpenProfile = conversationInfoViewModel::navigateToProfile,
+        onMessageDetailsClick = conversationMessagesViewModel::openMessageDetails,
         onSendMessage = messageComposerViewModel::sendMessage,
+        onDeleteMessage = messageComposerViewModel::showDeleteMessageDialog,
         onSendAttachment = messageComposerViewModel::sendAttachmentMessage,
-        onMentionMember = messageComposerViewModel::mentionMember,
         onDownloadAsset = conversationMessagesViewModel::downloadOrFetchAssetToInternalStorage,
         onImageFullScreenMode = messageComposerViewModel::navigateToGallery,
-        onBackButtonClick = messageComposerViewModel::navigateBack,
-        onDeleteMessage = messageComposerViewModel::showDeleteMessageDialog,
-        onReactionClick = conversationMessagesViewModel::toggleReaction,
-        onMessageDetailsClick = conversationMessagesViewModel::openMessageDetails,
+        onOpenOngoingCallScreen = commonTopAppBarViewModel::openOngoingCallScreen,
         onStartCall = {
             startCallIfPossible(
                 conversationCallViewModel,
@@ -170,14 +171,13 @@ fun ConversationScreen(
             )
         },
         onJoinCall = conversationCallViewModel::joinOngoingCall,
+        onReactionClick = conversationMessagesViewModel::toggleReaction,
+        onMentionMember = messageComposerViewModel::mentionMember,
+        onUpdateConversationReadDate = messageComposerViewModel::updateConversationReadDate,
+        onDropDownClick = conversationInfoViewModel::navigateToDetails,
         onSnackbarMessage = messageComposerViewModel::onSnackbarMessage,
         onSnackbarMessageShown = messageComposerViewModel::clearSnackbarMessage,
-        onDropDownClick = conversationInfoViewModel::navigateToDetails,
-        tempCachePath = messageComposerViewModel.provideTempCachePath(),
-        onOpenProfile = conversationInfoViewModel::navigateToProfile,
-        onUpdateConversationReadDate = messageComposerViewModel::updateConversationReadDate,
-        interactionAvailability = messageComposerViewModel.interactionAvailability,
-        membersToMention = messageComposerViewModel.mentionsToSelect,
+        onBackButtonClick = messageComposerViewModel::navigateBack,
     )
     DeleteMessageDialog(
         state = messageComposerViewModel.deleteMessageDialogsState,
@@ -238,32 +238,32 @@ private fun StartCallAudioBluetoothPermissionCheckFlow(
 @Suppress("LongParameterList")
 @Composable
 private fun ConversationScreen(
+    tempCachePath: Path,
+    bannerMessage: UIText?,
+    connectivityUIState: ConnectivityUIState,
+    interactionAvailability: InteractionAvailability,
+    membersToMention: List<Contact>,
     conversationViewState: ConversationViewState,
     conversationCallViewState: ConversationCallViewState,
     conversationInfoViewState: ConversationInfoViewState,
     conversationMessagesViewState: ConversationMessagesViewState,
-    bannerMessage: UIText?,
-    connectivityUIState: ConnectivityUIState,
-    onOpenOngoingCallScreen: () -> Unit,
+    onOpenProfile: (String) -> Unit,
+    onMessageDetailsClick: (messageId: String, isSelfMessage: Boolean) -> Unit,
     onSendMessage: (String, List<UiMention>, String?) -> Unit,
+    onDeleteMessage: (String, Boolean) -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
-    onMentionMember: (String?) -> Unit,
     onDownloadAsset: (String) -> Unit,
     onImageFullScreenMode: (String, Boolean) -> Unit,
-    onBackButtonClick: () -> Unit,
-    onDeleteMessage: (String, Boolean) -> Unit,
-    onReactionClick: (messageId: String, reactionEmoji: String) -> Unit,
-    onMessageDetailsClick: (messageId: String, isSelfMessage: Boolean) -> Unit,
+    onOpenOngoingCallScreen: () -> Unit,
     onStartCall: () -> Unit,
     onJoinCall: () -> Unit,
+    onReactionClick: (messageId: String, reactionEmoji: String) -> Unit,
+    onMentionMember: (String?) -> Unit,
+    onUpdateConversationReadDate: (String) -> Unit,
+    onDropDownClick: () -> Unit,
     onSnackbarMessage: (ConversationSnackbarMessages) -> Unit,
     onSnackbarMessageShown: () -> Unit,
-    onDropDownClick: () -> Unit,
-    tempCachePath: Path,
-    onOpenProfile: (String) -> Unit,
-    onUpdateConversationReadDate: (String) -> Unit,
-    interactionAvailability: InteractionAvailability,
-    membersToMention: List<Contact>
+    onBackButtonClick: () -> Unit
 ) {
     val conversationScreenState = rememberConversationScreenState()
 
@@ -296,7 +296,7 @@ private fun ConversationScreen(
             conversationScreenState.hideEditContextMenu {
                 onMessageDetailsClick(
                     conversationScreenState.selectedMessage?.messageHeader!!.messageId,
-                    conversationScreenState.isMyMessage
+                    conversationScreenState.isMyMessage,
                 )
             }
         }
@@ -371,28 +371,28 @@ private fun ConversationScreen(
                 content = { internalPadding ->
                     Box(modifier = Modifier.padding(internalPadding)) {
                         ConversationScreenContent(
-                            messageComposerInnerState = messageComposerInnerState,
+                            interactionAvailability = interactionAvailability,
+                            tempCachePath = tempCachePath,
                             keyboardHeight = keyboardHeight,
-                            snackbarMessage = conversationViewState.snackbarMessage ?: conversationMessagesViewState.snackbarMessage,
-                            messages = conversationMessagesViewState.messages,
+                            membersToMention = membersToMention,
+                            isFileSharingEnabled = conversationViewState.isFileSharingEnabled,
                             lastUnreadMessageInstant = conversationMessagesViewState.firstUnreadInstant,
+                            conversationState = conversationViewState,
+                            conversationScreenState = conversationScreenState,
+                            messageComposerInnerState = messageComposerInnerState,
+                            messages = conversationMessagesViewState.messages,
                             onSendMessage = onSendMessage,
-                            onShowContextMenu = conversationScreenState::showEditContextMenu,
                             onSendAttachment = onSendAttachment,
                             onMentionMember = onMentionMember,
                             onDownloadAsset = onDownloadAsset,
-                            onReactionClicked = onReactionClick,
                             onImageFullScreenMode = onImageFullScreenMode,
-                            conversationState = conversationViewState,
-                            onMessageComposerError = onSnackbarMessage,
-                            onSnackbarMessageShown = onSnackbarMessageShown,
-                            conversationScreenState = conversationScreenState,
-                            isFileSharingEnabled = conversationViewState.isFileSharingEnabled,
-                            tempCachePath = tempCachePath,
-                            interactionAvailability = interactionAvailability,
+                            onReactionClicked = onReactionClick,
                             onOpenProfile = onOpenProfile,
                             onUpdateConversationReadDate = onUpdateConversationReadDate,
-                            membersToMention = membersToMention
+                            onMessageComposerError = onSnackbarMessage,
+                            onShowContextMenu = conversationScreenState::showEditContextMenu,
+                            onSnackbarMessageShown = onSnackbarMessageShown,
+                            snackbarMessage = conversationViewState.snackbarMessage ?: conversationMessagesViewState.snackbarMessage
                         )
                     }
                 }
@@ -404,28 +404,28 @@ private fun ConversationScreen(
 @Suppress("LongParameterList")
 @Composable
 private fun ConversationScreenContent(
-    messageComposerInnerState: MessageComposerInnerState,
-    conversationScreenState: ConversationScreenState,
-    snackbarMessage: ConversationSnackbarMessages?,
+    interactionAvailability: InteractionAvailability,
+    tempCachePath: Path,
     keyboardHeight: KeyboardHeight,
-    messages: Flow<PagingData<UIMessage>>,
+    membersToMention: List<Contact>,
+    isFileSharingEnabled: Boolean,
     lastUnreadMessageInstant: Instant?,
+    conversationState: ConversationViewState,
+    conversationScreenState: ConversationScreenState,
+    messageComposerInnerState: MessageComposerInnerState,
+    messages: Flow<PagingData<UIMessage>>,
     onSendMessage: (String, List<UiMention>, String?) -> Unit,
-    onShowContextMenu: (UIMessage) -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onMentionMember: (String?) -> Unit,
     onDownloadAsset: (String) -> Unit,
-    onReactionClicked: (String, String) -> Unit,
     onImageFullScreenMode: (String, Boolean) -> Unit,
+    onReactionClicked: (String, String) -> Unit,
     onOpenProfile: (String) -> Unit,
-    onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
-    conversationState: ConversationViewState,
-    onSnackbarMessageShown: () -> Unit,
-    isFileSharingEnabled: Boolean,
-    tempCachePath: Path,
-    interactionAvailability: InteractionAvailability,
     onUpdateConversationReadDate: (String) -> Unit,
-    membersToMention: List<Contact>
+    onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
+    onShowContextMenu: (UIMessage) -> Unit,
+    onSnackbarMessageShown: () -> Unit,
+    snackbarMessage: ConversationSnackbarMessages?
 ) {
     val lazyPagingMessages = messages.collectAsLazyPagingItems()
 
@@ -442,12 +442,12 @@ private fun ConversationScreenContent(
                 lazyPagingMessages = lazyPagingMessages,
                 lazyListState = lazyListState,
                 lastUnreadMessageInstant = lastUnreadMessageInstant,
-                onShowContextMenu = onShowContextMenu,
+                onUpdateConversationReadDate = onUpdateConversationReadDate,
                 onDownloadAsset = onDownloadAsset,
                 onImageFullScreenMode = onImageFullScreenMode,
                 onOpenProfile = onOpenProfile,
-                onUpdateConversationReadDate = onUpdateConversationReadDate,
-                onReactionClicked = onReactionClicked
+                onReactionClicked = onReactionClicked,
+                onShowContextMenu = onShowContextMenu
             )
         },
         onSendTextMessage = onSendMessage,
@@ -474,7 +474,10 @@ private fun SnackBarMessage(
     val (message, actionLabel) = getSnackbarMessage(messageCode)
     val context = LocalContext.current
     LaunchedEffect(conversationState.snackbarMessage) {
-        val snackbarResult = conversationScreenState.snackBarHostState.showSnackbar(message = message, actionLabel = actionLabel)
+        val snackbarResult = conversationScreenState.snackBarHostState.showSnackbar(
+            message = message,
+            actionLabel = actionLabel
+        )
         when {
             // Show downloads folder when clicking on Snackbar cta button
             messageCode is OnFileDownloaded && snackbarResult == SnackbarResult.ActionPerformed -> {
@@ -512,14 +515,15 @@ fun MessageList(
     lazyPagingMessages: LazyPagingItems<UIMessage>,
     lazyListState: LazyListState,
     lastUnreadMessageInstant: Instant?,
-    onShowContextMenu: (UIMessage) -> Unit,
+    onUpdateConversationReadDate: (String) -> Unit,
     onDownloadAsset: (String) -> Unit,
     onImageFullScreenMode: (String, Boolean) -> Unit,
     onOpenProfile: (String) -> Unit,
-    onUpdateConversationReadDate: (String) -> Unit,
-    onReactionClicked: (String, String) -> Unit
+    onReactionClicked: (String, String) -> Unit,
+    onShowContextMenu: (UIMessage) -> Unit
 ) {
     val mostRecentMessage = lazyPagingMessages.itemCount.takeIf { it > 0 }?.let { lazyPagingMessages[0] }
+
     LaunchedEffect(mostRecentMessage) {
         // Most recent message changed, if the user didn't scroll up, we automatically scroll down to reveal the new message
         if (lazyListState.firstVisibleItemIndex < MAXIMUM_SCROLLED_MESSAGES_UNTIL_AUTOSCROLL_STOPS) {
@@ -575,31 +579,30 @@ fun MessageList(
 @Composable
 fun ConversationScreenPreview() {
     ConversationScreen(
+        tempCachePath = "".toPath(),
+        bannerMessage = null,
+        connectivityUIState = ConnectivityUIState(info = ConnectivityUIState.Info.None),
+        interactionAvailability = InteractionAvailability.ENABLED,
+        membersToMention = listOf(),
         conversationViewState = ConversationViewState(),
         conversationCallViewState = ConversationCallViewState(),
         conversationInfoViewState = ConversationInfoViewState(conversationName = UIText.DynamicString("Some test conversation")),
         conversationMessagesViewState = ConversationMessagesViewState(),
-        connectivityUIState = ConnectivityUIState(info = ConnectivityUIState.Info.None),
-        bannerMessage = null,
-        onOpenOngoingCallScreen = { },
+        onOpenProfile = { _ -> },
+        onMessageDetailsClick = { _, _ -> },
         onSendMessage = { _, _, _ -> },
-        onSendAttachment = { },
-        onMentionMember = { },
-        onDownloadAsset = { },
-        onReactionClick = { _, _ -> },
-        onImageFullScreenMode = { _, _ -> },
-        onBackButtonClick = { },
         onDeleteMessage = { _, _ -> },
+        onSendAttachment = { },
+        onDownloadAsset = { },
+        onImageFullScreenMode = { _, _ -> },
+        onOpenOngoingCallScreen = { },
         onStartCall = { },
         onJoinCall = { },
-        onSnackbarMessage = { },
-        onSnackbarMessageShown = { },
-        onDropDownClick = { },
-        tempCachePath = "".toPath(),
-        onOpenProfile = { _ -> },
+        onReactionClick = { _, _ -> },
+        onMentionMember = { },
         onUpdateConversationReadDate = { },
-        interactionAvailability = InteractionAvailability.ENABLED,
-        membersToMention = listOf(),
-        onMessageDetailsClick = { _, _ -> }
-    )
+        onDropDownClick = { },
+        onSnackbarMessage = { },
+        onSnackbarMessageShown = { }
+    ) { }
 }

@@ -193,7 +193,8 @@ class ConversationListViewModelTest {
             lastMessageContent = UILastMessageContent.None,
             badgeEventType = BadgeEventType.None,
             userId = userId,
-            blockingState = BlockingState.CAN_NOT_BE_BLOCKED
+            blockingState = BlockingState.CAN_NOT_BE_BLOCKED,
+            teamId = null
         )
     }
 }

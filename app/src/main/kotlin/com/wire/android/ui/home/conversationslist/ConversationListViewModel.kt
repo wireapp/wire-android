@@ -398,7 +398,7 @@ private fun ConversationDetails.toConversationItem(
             conversationInfo = ConversationInfo(
                 name = otherUser.name.orEmpty(),
                 membership = userTypeMapper.toMembership(userType),
-                unavailable = otherUser.isUnavailableUser
+                isSenderUnavailable = otherUser.isUnavailableUser
             ),
             conversationId = conversation.id,
             mutedStatus = conversation.mutedStatus,

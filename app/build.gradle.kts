@@ -112,7 +112,6 @@ dependencies {
     implementation(Libraries.splashscreen)
     implementation(Libraries.exifInterface)
     implementation(Libraries.Kotlin.serialization)
-    implementation(Libraries.Kotlin.playServices)
     implementation(Libraries.ktxImmutableCollections)
 
     // Image handling

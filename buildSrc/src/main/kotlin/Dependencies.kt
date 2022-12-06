@@ -150,7 +150,6 @@ object Libraries {
         const val coroutinesCore    = "org.jetbrains.kotlinx:kotlinx-coroutines-core:${Versions.coroutines}"
         const val coroutinesAndroid = "org.jetbrains.kotlinx:kotlinx-coroutines-android:${Versions.coroutines}"
         const val serialization     = "org.jetbrains.kotlinx:kotlinx-serialization-json:${Versions.ktxSerialization}"
-        const val playServices     = "org.jetbrains.kotlinx:kotlinx-coroutines-play-services:${Versions.ktxSerialization}"
     }
 
     object Firebase {

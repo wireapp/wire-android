@@ -2,6 +2,7 @@ package com.wire.android.ui
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
@@ -22,9 +23,9 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.navigation.NavHostController
 import com.google.accompanist.navigation.animation.rememberAnimatedNavController
+import com.wire.android.BuildConfig
 import com.wire.android.R
 import com.wire.android.appLogger
-import com.wire.android.appUpdate.WireAppUpdateManager
 import com.wire.android.navigation.NavigationGraph
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.navigateToItem
@@ -58,9 +59,6 @@ import javax.inject.Inject
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @AndroidEntryPoint
 class WireActivity : AppCompatActivity() {
-
-    @Inject
-    lateinit var appUpdateManager: WireAppUpdateManager
 
     @Inject
     lateinit var navigationManager: NavigationManager
@@ -112,7 +110,7 @@ class WireActivity : AppCompatActivity() {
                         viewModel.globalAppState.maxAccountDialog
                     )
                     updateAppDialog(
-                        { appUpdateManager.updateTheApp(this) },
+                        { updateTheApp() },
                         viewModel.globalAppState.updateAppDialog
                     )
                     AccountLongedOutDialog(viewModel.globalAppState.blockUserUI, viewModel::navigateToNextAccountOrWelcome)
@@ -216,6 +214,12 @@ class WireActivity : AppCompatActivity() {
         }
     }
 
+    private fun updateTheApp() {
+        val intent = Intent(Intent.ACTION_VIEW, Uri.parse(BuildConfig.UPDATE_APP_URL))
+        intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+        startActivity(intent)
+    }
+
     override fun onResume() {
         super.onResume()
         proximitySensorManager.registerListener()
@@ -224,18 +228,6 @@ class WireActivity : AppCompatActivity() {
     override fun onPause() {
         super.onPause()
         proximitySensorManager.unRegisterListener()
-    }
-
-    override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
-        // FIXME do not use deprecated onActivityResult
-        //  when the issue https://issuetracker.google.com/issues/181785653 will be fixed
-        if (requestCode == WireAppUpdateManager.REQUEST_CODE) {
-            if (resultCode == RESULT_OK) {
-                viewModel.appWasUpdate()
-            }
-        } else {
-            super.onActivityResult(requestCode, resultCode, data)
-        }
     }
 }
 

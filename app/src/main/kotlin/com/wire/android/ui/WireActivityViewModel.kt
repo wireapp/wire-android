@@ -8,7 +8,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.wire.android.BuildConfig
 import com.wire.android.appLogger
-import com.wire.android.appUpdate.WireAppUpdateManager
 import com.wire.android.di.AuthServerConfigProvider
 import com.wire.android.di.ObserveSyncStateUseCaseProvider
 import com.wire.android.feature.AccountSwitchUseCase
@@ -60,7 +59,6 @@ import javax.inject.Inject
 @OptIn(ExperimentalCoroutinesApi::class)
 @HiltViewModel
 class WireActivityViewModel @Inject constructor(
-    private val appUpdateManager: WireAppUpdateManager,
     private val dispatchers: DispatcherProvider,
     val currentSessionFlow: CurrentSessionFlowUseCase,
     private val getServerConfigUseCase: GetServerConfigUseCase,
@@ -144,11 +142,6 @@ class WireActivityViewModel @Inject constructor(
         viewModelScope.launch(dispatchers.io()) {
             observeIfAppUpdateRequired(BuildConfig.VERSION_CODE)
                 .distinctUntilChanged()
-                .map {
-                    // if update required, need to make sure that it's actually available
-                    if (it) appUpdateManager.isAppUpdateAvailable()
-                    else it
-                }
                 .collect {
                     globalAppState = globalAppState.copy(updateAppDialog = it)
                 }

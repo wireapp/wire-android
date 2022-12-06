@@ -18,8 +18,8 @@ import com.wire.android.util.copyToTempPath
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.feature.backup.CreateBackupResult
 import com.wire.kalium.logic.feature.backup.CreateBackupUseCase
+import com.wire.kalium.logic.feature.backup.ExtractCompressedBackupFileResult
 import com.wire.kalium.logic.feature.backup.ExtractCompressedFileUseCase
-import com.wire.kalium.logic.feature.backup.ExtractCompressedFileResult
 import com.wire.kalium.logic.feature.backup.RestoreBackupResult
 import com.wire.kalium.logic.feature.backup.RestoreBackupResult.BackupRestoreFailure.BackupIOFailure
 import com.wire.kalium.logic.feature.backup.RestoreBackupResult.BackupRestoreFailure.DecryptionFailure
@@ -48,6 +48,7 @@ class BackupAndRestoreViewModel
 
     var state by mutableStateOf(BackupAndRestoreState.INITIAL_STATE)
     private var latestCreatedBackup: BackupAndRestoreState.CreatedBackup? = null
+    private lateinit var latestExtractedBackupRootPath: Path
 
     @Suppress("MagicNumber")
     fun createBackup(password: String) {
@@ -94,21 +95,25 @@ class BackupAndRestoreViewModel
         kaliumFileSystem.delete(importedBackupPath)
     }
 
-    private fun showPasswordDialog(extractedBackupRootPath: Path) {
-        state = state.copy(restoreFileValidation = RestoreFileValidation.PasswordRequired(extractedBackupRootPath))
+    private fun showPasswordDialog() {
+        state = state.copy(restoreFileValidation = RestoreFileValidation.PasswordRequired)
     }
 
     @Suppress("MagicNumber")
     private suspend fun extractBackupFiles(importedBackupPath: Path) {
         when (val result = extractCompressedFileUseCase.invoke(importedBackupPath)) {
-            is ExtractCompressedFileResult.Success -> {
+            is ExtractCompressedBackupFileResult.Success -> {
                 if (result.isEncrypted) {
-                    showPasswordDialog(result.extractedFilesRootPath)
+                    latestExtractedBackupRootPath = result.extractedFilesRootPath
+                    showPasswordDialog()
                 } else {
                     importDatabase(result.extractedFilesRootPath)
                 }
             }
-            is ExtractCompressedFileResult.Failure -> {}
+            is ExtractCompressedBackupFileResult.Failure -> {
+                state = state.copy(restoreFileValidation = RestoreFileValidation.IncompatibleBackup)
+                appLogger.e("Failed to extract backup files: ${result.error}")
+            }
         }
     }
 
@@ -145,7 +150,7 @@ class BackupAndRestoreViewModel
         delay(250)
         val fileValidationState = state.restoreFileValidation
         if (fileValidationState is RestoreFileValidation.PasswordRequired) {
-            when (val result = importBackup(fileValidationState.extractedBackupFilesRootPath, restorePassword.text)) {
+            when (val result = importBackup(latestExtractedBackupRootPath, restorePassword.text)) {
                 RestoreBackupResult.Success -> {
                     state = state.copy(
                         backupRestoreProgress = BackupRestoreProgress.Finished,
@@ -263,5 +268,5 @@ sealed class RestoreFileValidation {
     object IncompatibleBackup : RestoreFileValidation()
     object WrongBackup : RestoreFileValidation()
     object GeneralFailure : RestoreFileValidation()
-    data class PasswordRequired(val extractedBackupFilesRootPath: Path) : RestoreFileValidation()
+    object PasswordRequired : RestoreFileValidation()
 }

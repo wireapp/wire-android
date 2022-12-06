@@ -87,7 +87,6 @@ object Libraries {
         const val ktxDateTime = "0.4.0"
         const val ktxSerialization = "1.3.2"
         const val ktxImmutableCollections = "0.3.5"
-        const val appUpdate = "2.0.1"
     }
 
     // AndroidX Dependencies
@@ -111,10 +110,6 @@ object Libraries {
     const val exifInterface             = "androidx.exifinterface:exifinterface:${Versions.exif}"
     const val ktxDateTime               = "org.jetbrains.kotlinx:kotlinx-datetime:${Versions.ktxDateTime}"
     const val ktxImmutableCollections   = "org.jetbrains.kotlinx:kotlinx-collections-immutable:${Versions.ktxImmutableCollections}"
-
-    // App Update
-    const val appUpdate                 = "com.google.android.play:app-update:${Versions.appUpdate}"
-    const val ktxAppUpdate              = "com.google.android.play:app-update-ktx:${Versions.appUpdate}"
 
     // Other dependencies
     const val desugaring                = "com.android.tools:desugar_jdk_libs:${Versions.desugaring}"

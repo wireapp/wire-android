@@ -205,9 +205,6 @@ dependencies {
 
     implementation(Libraries.Hilt.hiltWork)
 
-    implementation(Libraries.appUpdate)
-    implementation(Libraries.ktxAppUpdate)
-
     // Development dependencies
     debugImplementation(DevLibraries.leakCanary)
 

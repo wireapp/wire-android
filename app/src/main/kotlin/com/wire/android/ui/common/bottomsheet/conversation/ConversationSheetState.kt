@@ -53,7 +53,8 @@ fun rememberConversationSheetState(
                         conversationId = conversationId,
                         isCreator = isSelfUserCreator
                     ),
-                    isSelfUserMember = isSelfUserMember
+                    isSelfUserMember = isSelfUserMember,
+                    isTeamConversation = teamId != null
                 )
             }
         }
@@ -61,7 +62,7 @@ fun rememberConversationSheetState(
             with(conversationItem) {
                 ConversationSheetContent(
                     conversationId = conversationId,
-                    title = if (conversationInfo.unavailable) {
+                    title = if (conversationInfo.isSenderUnavailable) {
                         stringResource(id = R.string.username_unavailable_label)
                     } else conversationInfo.name,
                     mutingConversationState = mutedStatus,
@@ -69,7 +70,8 @@ fun rememberConversationSheetState(
                         userAvatarData.asset,
                         userId,
                         blockingState
-                    )
+                    ),
+                    isTeamConversation = isTeamConversation
                 )
             }
         }
@@ -81,7 +83,8 @@ fun rememberConversationSheetState(
                     mutingConversationState = mutedStatus,
                     conversationTypeDetail = ConversationTypeDetail.Connection(
                         userAvatarData.asset
-                    )
+                    ),
+                    isTeamConversation = isTeamConversation
                 )
             }
         }

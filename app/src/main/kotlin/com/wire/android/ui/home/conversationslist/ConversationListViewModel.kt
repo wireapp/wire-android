@@ -383,7 +383,8 @@ private fun ConversationDetails.toConversationItem(
             ),
             hasOnGoingCall = hasOngoingCall,
             isSelfUserCreator = isSelfUserCreator,
-            isSelfUserMember = isSelfUserMember
+            isSelfUserMember = isSelfUserMember,
+            teamId = conversation.teamId
         )
     }
 
@@ -397,7 +398,7 @@ private fun ConversationDetails.toConversationItem(
             conversationInfo = ConversationInfo(
                 name = otherUser.name.orEmpty(),
                 membership = userTypeMapper.toMembership(userType),
-                unavailable = otherUser.isUnavailableUser
+                isSenderUnavailable = otherUser.isUnavailableUser
             ),
             conversationId = conversation.id,
             mutedStatus = conversation.mutedStatus,
@@ -414,7 +415,8 @@ private fun ConversationDetails.toConversationItem(
                 )
             ),
             userId = otherUser.id,
-            blockingState = otherUser.BlockState
+            blockingState = otherUser.BlockState,
+            teamId = otherUser.teamId
         )
     }
 

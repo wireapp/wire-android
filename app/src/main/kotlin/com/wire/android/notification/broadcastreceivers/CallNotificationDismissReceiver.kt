@@ -14,7 +14,7 @@ import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.id.toQualifiedID
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import dagger.hilt.android.AndroidEntryPoint
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -35,28 +35,24 @@ class CallNotificationDismissReceiver : BroadcastReceiver() {  // requires zero 
     override fun onReceive(context: Context, intent: Intent) {
         val conversationId: String = intent.getStringExtra(EXTRA_CONVERSATION_ID) ?: return
         appLogger.i("CallNotificationDismissReceiver: onReceive, conversationId: $conversationId")
-
         val userId: QualifiedID? = intent.getStringExtra(EXTRA_RECEIVER_USER_ID)?.toQualifiedID(qualifiedIdMapper)
-
-        // TODO: use the CoroutineScope from the user session
-        GlobalScope.launch(dispatcherProvider.io()) {
-            val sessionScope =
-                if (userId != null) {
-                    coreLogic.getSessionScope(userId)
+        val sessionScope =
+            if (userId != null) {
+                coreLogic.getSessionScope(userId)
+            } else {
+                val currentSession = coreLogic.globalScope { session.currentSession() }
+                if (currentSession is CurrentSessionResult.Success) {
+                    coreLogic.getSessionScope(currentSession.accountInfo.userId)
                 } else {
-                    val currentSession = coreLogic.globalScope { session.currentSession() }
-                    if (currentSession is CurrentSessionResult.Success) {
-                        coreLogic.getSessionScope(currentSession.accountInfo.userId)
-                    } else {
-                        null
-                    }
+                    null
                 }
-
-            sessionScope?.let {
+            }
+        sessionScope?.let {
+            it.launch(Dispatchers.IO) {
                 it.calls.rejectCall(qualifiedIdMapper.fromStringToQualifiedID(conversationId))
             }
-            CallNotificationManager.hideIncomingCallNotification(context)
         }
+        CallNotificationManager.hideIncomingCallNotification(context)
     }
 
     companion object {

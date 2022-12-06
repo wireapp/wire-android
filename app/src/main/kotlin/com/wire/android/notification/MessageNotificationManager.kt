@@ -125,9 +125,11 @@ class MessageNotificationManager
                         is NotificationMessage.ConnectionRequest -> {
                             setContentIntent(otherUserProfilePendingIntent(context, it.authorId))
                         }
+
                         is NotificationMessage.ConversationDeleted -> {
                             setContentIntent(openAppPendingIntent(context))
                         }
+
                         else -> {
                             setContentIntent(messagePendingIntent(context, conversation.id, userId))
                             addAction(getActionCall(context, conversation.id, userId))
@@ -194,9 +196,22 @@ class MessageNotificationManager
     private fun getConversationTitle(conversation: NotificationConversation): String? =
         if (conversation.isOneToOneConversation) null else conversation.name
 
-    private fun italicTextFromResId(@StringRes stringResId: Int) =
-        context.getString(stringResId).toSpannable()
-            .apply { setSpan(StyleSpan(Typeface.ITALIC), 0, length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE) }
+    private fun italicTextFromResId(@StringRes stringResId: Int): Spannable {
+        return context.getString(stringResId)
+            .let {
+                val typeface = Typeface.defaultFromStyle(Typeface.ITALIC)
+                val isItalicFaked = !typeface.isItalic
+                // Default typeface doesn't support italic, system will fake it by skewing the glyphs using `textPaint.textSkewX = -0.25f`,
+                // but the width won't be adjusted so we have to add a space after the text.
+                // https://saket.me/android-fake-vs-true-bold-and-italic/
+                if (isItalicFaked) "$it\u00A0" else it
+            }
+            .toSpannable()
+            .apply {
+                setSpan(StyleSpan(Typeface.ITALIC), 0, length, Spannable.SPAN_EXCLUSIVE_EXCLUSIVE)
+            }
+    }
+
 
     private fun NotificationMessage.intoStyledMessage(): NotificationCompat.MessagingStyle.Message {
         val sender = Person.Builder()

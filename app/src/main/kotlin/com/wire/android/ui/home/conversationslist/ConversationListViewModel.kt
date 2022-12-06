@@ -203,8 +203,10 @@ class ConversationListViewModel @Inject constructor(
 
                 MutedConversationStatus.OnlyMentionsAndRepliesAllowed ->
                     when (it) {
-                        is Group -> it.unreadMentionsCount > 0 || it.unreadRepliesCount > 0
-                        is OneOne -> it.unreadMentionsCount > 0 || it.unreadRepliesCount > 0
+                        is Group -> it.unreadEventCount.containsKey(UnreadEventType.MENTION)
+                                || it.unreadEventCount.containsKey(UnreadEventType.REPLY)
+                        is OneOne -> it.unreadEventCount.containsKey(UnreadEventType.MENTION)
+                                || it.unreadEventCount.containsKey(UnreadEventType.REPLY)
                         else -> false
                     }
 

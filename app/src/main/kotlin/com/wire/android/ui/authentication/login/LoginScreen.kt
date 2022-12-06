@@ -41,8 +41,11 @@ import com.wire.android.ui.common.WireDialogButtonProperties
 import com.wire.android.ui.common.WireDialogButtonType
 import com.wire.android.ui.common.WireTabRow
 import com.wire.android.ui.common.calculateCurrentTab
+import com.wire.android.ui.common.dialogs.FeatureDisabledWithProxyDialogContent
+import com.wire.android.ui.common.dialogs.FeatureDisabledWithProxyDialogState
 import com.wire.android.ui.common.rememberTopBarElevationState
 import com.wire.android.ui.common.topappbar.WireCenterAlignedTopAppBar
+import com.wire.android.ui.common.visbility.rememberVisibilityState
 import com.wire.android.ui.theme.WireTheme
 import com.wire.android.ui.theme.wireDimensions
 import com.wire.android.ui.theme.wireTypography
@@ -76,6 +79,10 @@ private fun LoginContent(
     val scrollState = rememberScrollState()
     val initialPageIndex = if (ssoLoginResult == null) LoginTabItem.EMAIL.ordinal else LoginTabItem.SSO.ordinal
     val pagerState = rememberPagerState(initialPage = initialPageIndex)
+
+    val ssoDisabledWithProxyDialogState = rememberVisibilityState<FeatureDisabledWithProxyDialogState>()
+    FeatureDisabledWithProxyDialogContent(dialogState = ssoDisabledWithProxyDialogState)
+
     Scaffold(
         topBar = {
             WireCenterAlignedTopAppBar(
@@ -94,7 +101,21 @@ private fun LoginContent(
                 WireTabRow(
                     tabs = LoginTabItem.values().toList(),
                     selectedTabIndex = pagerState.calculateCurrentTab(),
-                    onTabChange = { scope.launch { pagerState.animateScrollToPage(it) } },
+                    onTabChange = {
+
+                        if (viewModel.serverConfig.apiProxy != null) {
+                            if (pagerState.currentPage != LoginTabItem.SSO.ordinal) {
+                                ssoDisabledWithProxyDialogState.show(
+                                    ssoDisabledWithProxyDialogState.savedState ?: FeatureDisabledWithProxyDialogState(
+                                        R.string.sso_not_supported_dialog_description
+                                    )
+                                )
+                            }
+                        } else {
+                            scope.launch { pagerState.animateScrollToPage(it) }
+                        }
+
+                    },
                     modifier = Modifier.padding(
                         start = MaterialTheme.wireDimensions.spacing16x,
                         end = MaterialTheme.wireDimensions.spacing16x

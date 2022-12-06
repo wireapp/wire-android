@@ -116,7 +116,7 @@ class MessageMapper @Inject constructor(
             is OtherUser -> sender.deleted
             is SelfUser, null -> false
         },
-        isUnavailable = when (sender) {
+        isSenderUnavailable = when (sender) {
             is OtherUser -> sender.isUnavailableUser
             is SelfUser, null -> false
         }

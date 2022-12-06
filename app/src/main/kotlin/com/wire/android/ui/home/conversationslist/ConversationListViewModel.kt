@@ -114,11 +114,9 @@ class ConversationListViewModel @Inject constructor(
                         )
                     }
                 }
-                .flowOn(dispatcher.io())
             )
-                .map { (searchQuery, conversationItems) ->
-                    conversationItems.withFolders().toImmutableMap() to searchQuery
-                }
+                .map { (searchQuery, conversationItems) -> conversationItems.withFolders().toImmutableMap() to searchQuery }
+                .flowOn(dispatcher.io())
                 .collect { (conversationsWithFolders, searchQuery) ->
                     conversationListState = conversationListState.copy(
                         conversationSearchResult = if (searchQuery.isEmpty()) conversationsWithFolders else searchConversation(
@@ -429,7 +427,8 @@ private fun ConversationDetails.toConversationItem(
             ),
             hasOnGoingCall = hasOngoingCall,
             isSelfUserCreator = isSelfUserCreator,
-            isSelfUserMember = isSelfUserMember
+            isSelfUserMember = isSelfUserMember,
+            teamId = conversation.teamId
         )
     }
 
@@ -458,7 +457,8 @@ private fun ConversationDetails.toConversationItem(
                 )
             ),
             userId = otherUser.id,
-            blockingState = otherUser.BlockState
+            blockingState = otherUser.BlockState,
+            teamId = otherUser.teamId
         )
     }
 

@@ -7,11 +7,12 @@ import android.hardware.SensorEventListener
 import android.hardware.SensorManager
 import android.os.PowerManager
 import androidx.appcompat.app.AppCompatActivity
+import com.wire.android.di.ApplicationScope
 import com.wire.android.di.KaliumCoreLogic
 import com.wire.kalium.logic.CoreLogic
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.CurrentSessionUseCase
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -20,7 +21,8 @@ import javax.inject.Singleton
 class ProximitySensorManager @Inject constructor(
     private val context: Context,
     private val currentSession: CurrentSessionUseCase,
-    @KaliumCoreLogic private val coreLogic: CoreLogic
+    @KaliumCoreLogic private val coreLogic: CoreLogic,
+    @ApplicationScope private val appCoroutineScope: CoroutineScope
 ) {
 
     private lateinit var sensorManager: SensorManager
@@ -47,7 +49,7 @@ class ProximitySensorManager @Inject constructor(
     private val sensorEventListener = object : SensorEventListener {
 
         override fun onSensorChanged(event: SensorEvent) {
-            GlobalScope.launch {
+            appCoroutineScope.launch {
                 coreLogic.globalScope {
                     when (val currentSession = currentSession()) {
                         is CurrentSessionResult.Success -> {
@@ -61,6 +63,7 @@ class ProximitySensorManager @Inject constructor(
                                 wakeLock.release()
                             }
                         }
+
                         else -> {
                             // NO SESSION - Nothing to do
                         }

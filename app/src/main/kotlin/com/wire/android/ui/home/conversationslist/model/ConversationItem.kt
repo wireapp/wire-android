@@ -65,7 +65,7 @@ sealed class ConversationItem {
 data class ConversationInfo(
     val name: String,
     val membership: Membership = Membership.None,
-    val unavailable: Boolean = false
+    val isSenderUnavailable: Boolean = false
 )
 
 enum class BlockingState {
@@ -87,7 +87,7 @@ fun ConversationItem.PrivateConversation.toUserInfoLabel() =
         labelName = conversationInfo.name,
         isLegalHold = isLegalHold,
         membership = conversationInfo.membership,
-        unavailable = conversationInfo.unavailable
+        unavailable = conversationInfo.isSenderUnavailable
     )
 
 fun ConversationItem.ConnectionConversation.toUserInfoLabel() =

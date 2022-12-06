@@ -1,5 +1,3 @@
-@file:OptIn(ExperimentalMaterial3Api::class)
-
 package com.wire.android.ui.home.conversations
 
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -13,7 +11,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.LocalTextStyle
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -83,8 +80,13 @@ fun MessageItem(
                 }
         ) {
             Spacer(Modifier.padding(start = dimensions().spacing8x - fullAvatarOuterPadding))
+
+            val isProfileRedirectEnabled =
+                message.messageHeader.userId != null
+                        && !(message.messageHeader.isSenderDeleted || message.messageHeader.isSenderUnavailable)
+
             val avatarClickable = remember {
-                Clickable(enabled = message.messageHeader.userId != null) {
+                Clickable(enabled = isProfileRedirectEnabled) {
                     onOpenProfile(message.messageHeader.userId!!.toString())
                 }
             }
@@ -170,7 +172,7 @@ private fun MessageHeader(
                         membership = membership,
                         connectionState = connectionState,
                         startPadding = dimensions().spacing6x,
-                        isDeleted = isDeleted
+                        isDeleted = isSenderDeleted
                     )
 
                     if (isLegalHold) {

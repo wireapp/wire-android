@@ -63,7 +63,7 @@ fun rememberConversationSheetState(
             with(conversationItem) {
                 ConversationSheetContent(
                     conversationId = conversationId,
-                    title = if (conversationInfo.unavailable) {
+                    title = if (conversationInfo.isSenderUnavailable) {
                         stringResource(id = R.string.username_unavailable_label)
                     } else conversationInfo.name,
                     mutingConversationState = mutedStatus,

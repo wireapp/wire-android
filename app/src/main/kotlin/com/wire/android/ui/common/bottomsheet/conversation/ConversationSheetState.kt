@@ -55,7 +55,7 @@ fun rememberConversationSheetState(
                         isCreator = isSelfUserCreator
                     ),
                     isTeamConversation = teamId != null,
-                    selfMemberRole = selfMemberRole
+                    selfRole = selfMemberRole
                 )
             }
         }
@@ -73,7 +73,7 @@ fun rememberConversationSheetState(
                         blockingState
                     ),
                     isTeamConversation = isTeamConversation,
-                    selfMemberRole = Conversation.Member.Role.Member
+                    selfRole = Conversation.Member.Role.Member
                 )
             }
         }
@@ -87,7 +87,7 @@ fun rememberConversationSheetState(
                         userAvatarData.asset
                     ),
                     isTeamConversation = isTeamConversation,
-                    selfMemberRole = Conversation.Member.Role.Member
+                    selfRole = Conversation.Member.Role.Member
                 )
             }
         }

@@ -103,11 +103,11 @@ data class ConversationSheetContent(
     val conversationId: ConversationId,
     val mutingConversationState: MutedConversationStatus,
     val conversationTypeDetail: ConversationTypeDetail,
-    val selfMemberRole: Conversation.Member.Role?,
+    val selfRole: Conversation.Member.Role?,
     val isTeamConversation: Boolean
 ) {
 
-    private val isSelfUserMember: Boolean get() = selfMemberRole != null
+    private val isSelfUserMember: Boolean get() = selfRole != null
 
     fun canEditNotifications(): Boolean = isSelfUserMember
             && ((conversationTypeDetail is ConversationTypeDetail.Private
@@ -116,7 +116,7 @@ data class ConversationSheetContent(
 
     fun canDeleteGroup(): Boolean =
         conversationTypeDetail is ConversationTypeDetail.Group &&
-                selfMemberRole == Conversation.Member.Role.Admin &&
+                selfRole == Conversation.Member.Role.Admin &&
                 conversationTypeDetail.isCreator && isTeamConversation
 
     fun canLeaveTheGroup(): Boolean = conversationTypeDetail is ConversationTypeDetail.Group && isSelfUserMember

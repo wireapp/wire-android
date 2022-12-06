@@ -208,7 +208,7 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                                         otherUser.BlockState
                                     ),
                                     isTeamConversation = conversationResult.conversation.isTeamGroup(),
-                                    selfMemberRole = Conversation.Member.Role.Member
+                                    selfRole = Conversation.Member.Role.Member
                                 )
                             )
                         }

@@ -36,7 +36,8 @@ object TestConversationDetails {
         lastMessage = null,
         isSelfUserCreator = true,
         isSelfUserMember = true,
-        unreadEventCount = emptyMap()
+        unreadEventCount = emptyMap(),
+        selfRole = Conversation.Member.Role.Member
     )
 
 }

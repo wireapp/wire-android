@@ -82,7 +82,8 @@ fun MessageItem(
             Spacer(Modifier.padding(start = dimensions().spacing8x - fullAvatarOuterPadding))
 
             val isProfileRedirectEnabled =
-                message.messageHeader.userId != null && !(message.messageHeader.isSenderDeleted || message.messageHeader.isSenderUnavailable)
+                message.messageHeader.userId != null
+                        && !(message.messageHeader.isSenderDeleted || message.messageHeader.isSenderUnavailable)
 
             val avatarClickable = remember {
                 Clickable(enabled = isProfileRedirectEnabled) {

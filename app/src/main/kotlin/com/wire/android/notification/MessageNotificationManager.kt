@@ -84,7 +84,7 @@ class MessageNotificationManager
         userId: String?,
         activeNotifications: Array<StatusBarNotification>
     ) {
-        val notificationId = getConversationNotificationId(conversation.id)
+        val notificationId = getConversationNotificationId(conversation.id + userId)
         getConversationNotification(conversation, userId, activeNotifications)?.let { notification ->
             appLogger.i("$TAG adding ConversationNotification")
             notificationManagerCompat.notify(notificationId, notification)
@@ -115,7 +115,7 @@ class MessageNotificationManager
         activeNotifications: Array<StatusBarNotification>
     ): Notification? {
 
-        val updatedMessageStyle = getUpdatedMessageStyle(conversation, activeNotifications) ?: return null
+        val updatedMessageStyle = getUpdatedMessageStyle(conversation, userId, activeNotifications) ?: return null
 
         return setUpNotificationBuilder(context).apply {
             conversation.messages
@@ -152,11 +152,12 @@ class MessageNotificationManager
      */
     private fun getUpdatedMessageStyle(
         conversation: NotificationConversation,
+        userId: String?,
         activeNotifications: Array<StatusBarNotification>
     ): NotificationCompat.Style? {
 
         val activeMessages = activeNotifications
-            .find { it.id == getConversationNotificationId(conversation.id) }
+            .find { it.id == getConversationNotificationId(conversation.id + userId) }
             ?.notification
             ?.let { NotificationCompat.MessagingStyle.extractMessagingStyleFromNotification(it) }
             ?.messages

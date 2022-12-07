@@ -16,9 +16,7 @@ import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.notification.LocalNotificationConversation
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.Call
-import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.GetAllSessionsResult
-import com.wire.kalium.logic.util.toStringDate
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.CoroutineStart
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -81,10 +79,6 @@ class WireNotificationManager @Inject constructor(
     suspend fun fetchAndShowNotificationsOnce(userIdValue: String) {
         val jobForUser = fetchOnceMutex.withLock {
             // Use the lock to create a new coroutine if needed
-            if (isNotCurrentUser(userIdValue)) {
-                appLogger.d("$TAG Ignoring notification for user=${userIdValue.obfuscateId()}, because not current user")
-                return@withLock null
-            }
             val currentJobForUser = fetchOnceJobs[userIdValue]
             val isJobRunningForUser = currentJobForUser?.run {
                 // Coroutine started, or didn't start yet, and it's waiting to be started
@@ -109,13 +103,6 @@ class WireNotificationManager @Inject constructor(
         // Join the job for the user, waiting for its completion
         jobForUser?.start()
         jobForUser?.join()
-    }
-
-    private fun isNotCurrentUser(userId: String): Boolean {
-        return when (val result = coreLogic.getGlobalScope().session.currentSession()) {
-            is CurrentSessionResult.Success -> result.accountInfo.userId.value != userId
-            else -> true // Fallback to display notifications anyway in case of unexpected error
-        }
     }
 
     private suspend fun triggerSyncForUserIfAuthenticated(userIdValue: String) {

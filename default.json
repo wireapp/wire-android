@@ -19,7 +19,7 @@
         "appName": "Wire Dev",
         "launcherIcon": "ic_launcher_wire_dev",
         "version_name_postfix": "-dev",
-        "developer_features_enabled": false,
+        "developer_features_enabled": true,
         "logging_enabled": true,
         "safe_logging": false,
         "private_build": true,
@@ -121,6 +121,6 @@
     "force_constant_bitrate_calls": false,
     "web_link_preview": true,
     "keep_websocket_on": false,
-    "mls_support_enabled": false,
+    "mls_support_enabled": true,
     "encrypt_proteus_storage": false
 }

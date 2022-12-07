@@ -386,7 +386,7 @@ class GroupConversationDetailsViewModelTest {
             conversationId = details.conversation.id,
             mutingConversationState = details.conversation.mutedStatus,
             conversationTypeDetail = ConversationTypeDetail.Group(details.conversation.id, details.isSelfUserCreator),
-            isSelfUserMember = true,
+            selfRole = Conversation.Member.Role.Member,
             isTeamConversation = details.conversation.isTeamGroup()
         )
         // When - Then
@@ -417,7 +417,8 @@ class GroupConversationDetailsViewModelTest {
             lastMessage = null,
             isSelfUserCreator = false,
             isSelfUserMember = true,
-            unreadEventCount = emptyMap()
+            unreadEventCount = emptyMap(),
+            selfRole = Conversation.Member.Role.Member
         )
     }
 }

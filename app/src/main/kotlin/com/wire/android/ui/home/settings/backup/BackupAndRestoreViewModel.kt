@@ -19,7 +19,7 @@ import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.feature.backup.CreateBackupResult
 import com.wire.kalium.logic.feature.backup.CreateBackupUseCase
 import com.wire.kalium.logic.feature.backup.ExtractCompressedBackupFileResult
-import com.wire.kalium.logic.feature.backup.ExtractCompressedFileUseCase
+import com.wire.kalium.logic.feature.backup.ExtractCompressedBackupUseCase
 import com.wire.kalium.logic.feature.backup.RestoreBackupResult
 import com.wire.kalium.logic.feature.backup.RestoreBackupResult.BackupRestoreFailure.BackupIOFailure
 import com.wire.kalium.logic.feature.backup.RestoreBackupResult.BackupRestoreFailure.DecryptionFailure
@@ -40,7 +40,7 @@ class BackupAndRestoreViewModel
     private val navigationManager: NavigationManager,
     private val importBackup: RestoreBackupUseCase,
     private val createBackupUseCase: CreateBackupUseCase,
-    private val extractCompressedFileUseCase: ExtractCompressedFileUseCase,
+    private val extractCompressedFileUseCase: ExtractCompressedBackupUseCase,
     private val fileManager: FileManager,
     private val kaliumFileSystem: KaliumFileSystem,
     private val context: Context

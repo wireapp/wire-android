@@ -220,7 +220,6 @@ internal fun withMockConversationDetailsOneOnOne(
     },
     legalHoldStatus = LegalHoldStatus.DISABLED,
     userType = UserType.INTERNAL,
-    unreadRepliesCount = 0,
     lastMessage = null,
     unreadEventCount = emptyMap()
 )
@@ -233,7 +232,6 @@ internal fun mockConversationDetailsGroup(
         .copy(name = conversationName, id = mockedConversationId),
     legalHoldStatus = mockk(),
     hasOngoingCall = false,
-    unreadRepliesCount = 0,
     lastMessage = null,
     isSelfUserCreator = true,
     isSelfUserMember = true,

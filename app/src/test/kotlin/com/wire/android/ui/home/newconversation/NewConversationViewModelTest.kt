@@ -31,7 +31,9 @@ class NewConversationViewModelTest {
     fun `when search with search query, return results for known and public search`() {
         runTest {
             // Given
-            val (arrangement, viewModel) = NewConversationViewModelArrangement().arrange()
+            val (arrangement, viewModel) = NewConversationViewModelArrangement()
+                .withIsSelfTeamMember(true)
+                .arrange()
 
             // When
             viewModel.searchQueryChanged(TextFieldValue("search"))
@@ -89,6 +91,7 @@ class NewConversationViewModelTest {
     @Test
     fun `given sync failure, when creating group, then should update options state with connectivity error`() = runTest {
         val (_, viewModel) = NewConversationViewModelArrangement()
+            .withIsSelfTeamMember(true)
             .withSyncFailureOnCreatingGroup()
             .arrange()
 
@@ -101,6 +104,7 @@ class NewConversationViewModelTest {
     @Test
     fun `given unknown failure, when creating group, then should update options state with unknown error`() = runTest {
         val (_, viewModel) = NewConversationViewModelArrangement()
+            .withIsSelfTeamMember(true)
             .withUnknownFailureOnCreatingGroup()
             .arrange()
 
@@ -112,7 +116,9 @@ class NewConversationViewModelTest {
 
     @Test
     fun `given no failure, when creating group, then options state should have no error`() = runTest {
-        val (_, viewModel) = NewConversationViewModelArrangement().arrange()
+        val (_, viewModel) = NewConversationViewModelArrangement()
+            .withIsSelfTeamMember(true)
+            .arrange()
 
         viewModel.createGroupWithCustomOptions()
         advanceUntilIdle()
@@ -125,6 +131,7 @@ class NewConversationViewModelTest {
         runTest {
             // Given
             val (_, viewModel) = NewConversationViewModelArrangement()
+                .withIsSelfTeamMember(true)
                 .withFailureKnownSearchResponse()
                 .withFailurePublicSearchResponse()
                 .arrange()

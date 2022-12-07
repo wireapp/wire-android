@@ -11,7 +11,7 @@ import kotlinx.collections.immutable.persistentMapOf
 data class ConversationListState(
     val searchQuery: String = "",
     private val allConversations: List<ConversationItem> = persistentListOf(),
-    val conversations: ImmutableMap<ConversationFolder, List<ConversationItem>> = persistentMapOf(),
+    val foldersWithConversations: ImmutableMap<ConversationFolder, List<ConversationItem>> = persistentMapOf(),
     val hasNoConversations: Boolean = false,
     val conversationSearchResult: ImmutableMap<ConversationFolder, List<ConversationItem>> = persistentMapOf(),
     val missedCalls: ImmutableList<ConversationItem> = persistentListOf(),

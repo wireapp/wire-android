@@ -147,7 +147,7 @@ fun ConversationRouterHomeBridge(
             when (conversationRouterHomeState.conversationItemType) {
                 ConversationItemType.ALL_CONVERSATIONS ->
                     AllConversationScreen(
-                        conversations = conversations,
+                        conversations = foldersWithConversations,
                         hasNoConversations = hasNoConversations,
                         onOpenConversation = viewModel::openConversation,
                         onEditConversation = onEditConversationItem,

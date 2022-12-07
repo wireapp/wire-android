@@ -6,7 +6,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.mapper.UserTypeMapper
 import com.wire.android.model.ImageAsset
@@ -82,7 +81,6 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.asSharedFlow
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.flowOn
@@ -208,7 +206,9 @@ class OtherUserProfileScreenViewModel @Inject constructor(
                                         userAvatarAsset,
                                         userId,
                                         otherUser.BlockState
-                                    )
+                                    ),
+                                    isTeamConversation = conversationResult.conversation.isTeamGroup(),
+                                    selfRole = Conversation.Member.Role.Member
                                 )
                             )
                         }

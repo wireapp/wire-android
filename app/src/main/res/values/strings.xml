@@ -469,7 +469,7 @@
     <string name="last_message_knock">pinged.</string>
     <string name="last_message_call">called.</string>
     <string name="last_message_mentioned">mentioned you</string>
-    <string name="last_message_replied">%1$s replied to you</string>
+    <string name="last_message_replied">replied to you</string>
     <string name="last_message_change_conversation_name">changed conversation name</string>
     <string name="last_message_calling">%1$s calling...</string>
     <plurals name="last_message_people_added">
@@ -766,5 +766,15 @@
     <string name="dialog_clear_content_title">Clear content?</string>
     <string name="dialog_clear_content_option">Clear content</string>
     <string name="dialog_clear_content_text">"This will clear the previous conversation history on all your devices. You remain in the %1$s and have access to all new %1$s activity</string>
+    <string name="not_supported_dialog_title">Not supported</string>
+    <string name="sso_not_supported_dialog_description">Log in via SSO on an on-premise backend with proxy support is currently not possible.</string>
+    <string name="create_personal_account_not_supported_dialog_description">Creating a new personal account on an on-premise backend with proxy support is currently not possible.</string>
+    <string name="create_team_not_supported_dialog_description">Creating a new Team on an on-premise backend with proxy support is currently not possible in the Wire app.\nPlease use the Team Management (%1$s) to create a new Team on this backend.</string>
+    <string name="to_team_management_action">To Team Management</string>
+
+    <!-- Update App dialog -->
+    <string name="update_app_dialog_title">Update required</string>
+    <string name="update_app_dialog_body">You are missing out on new features. Update to the latest version of Wire to continue using the app with this account.</string>
+    <string name="update_app_dialog_button">Update</string>
 
 </resources>

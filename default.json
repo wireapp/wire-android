@@ -23,7 +23,8 @@
         "logging_enabled": true,
         "safe_logging": false,
         "private_build": true,
-        "development_api_enabled": true
+        "development_api_enabled": true,
+        "mls_support_enabled": false
     },
     "candidate": {
         "applicationId": "com.wire.candidate",
@@ -121,5 +122,6 @@
     "web_link_preview": true,
     "keep_websocket_on": false,
     "mls_support_enabled": true,
-    "encrypt_proteus_storage": false
+    "encrypt_proteus_storage": false,
+    "update_app_url": "https://wire.com/en/download/"
 }

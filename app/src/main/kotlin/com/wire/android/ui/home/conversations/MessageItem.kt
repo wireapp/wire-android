@@ -23,13 +23,16 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
+import androidx.compose.ui.tooling.preview.Preview
 import com.google.accompanist.flowlayout.FlowRow
 import com.wire.android.R
+import com.wire.android.appLogger
 import com.wire.android.model.Clickable
 import com.wire.android.ui.common.LegalHoldIndicator
 import com.wire.android.ui.common.StatusBox
 import com.wire.android.ui.common.UserBadge
 import com.wire.android.ui.common.UserProfileAvatar
+import com.wire.android.ui.common.button.WireSecondaryButton
 import com.wire.android.ui.common.dimensions
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.home.conversations.messages.QuotedMessage
@@ -358,22 +361,38 @@ private fun MessageDecryptionFailure() {
     CompositionLocalProvider(
         LocalTextStyle provides MaterialTheme.typography.labelSmall
     ) {
-        Row {
-            Spacer(Modifier.height(dimensions().spacing4x))
-            Text(
-                text = MessageStatus.DecryptionFailure.text.asString(),
-                style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.error)
-            )
-            Spacer(Modifier.width(dimensions().spacing4x))
-            Text(
-                modifier = Modifier
-                    .clickable { CustomTabsHelper.launchUrl(context, learnMoreUrl) },
-                style = LocalTextStyle.current.copy(
-                    color = MaterialTheme.wireColorScheme.onTertiaryButtonSelected,
-                    textDecoration = TextDecoration.Underline
-                ),
-                text = stringResource(R.string.label_learn_more),
-            )
+        Column {
+            Row {
+                Spacer(Modifier.height(dimensions().spacing4x))
+                Text(
+                    text = MessageStatus.DecryptionFailure.text.asString(),
+                    style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.error)
+                )
+                Spacer(Modifier.width(dimensions().spacing4x))
+                Text(
+                    modifier = Modifier
+                        .clickable { CustomTabsHelper.launchUrl(context, learnMoreUrl) },
+                    style = LocalTextStyle.current.copy(
+                        color = MaterialTheme.wireColorScheme.onTertiaryButtonSelected,
+                        textDecoration = TextDecoration.Underline
+                    ),
+                    text = stringResource(R.string.label_learn_more),
+                )
+            }
+            Row {
+                WireSecondaryButton(
+                    text = stringResource(R.string.label_reset_session),
+                    onClick = { appLogger.d("Call to reset session...") },
+                    minHeight = dimensions().spacing32x,
+                    fillMaxWidth = false,
+                )
+            }
         }
     }
+}
+
+@Preview(name = "Decrypt error component message")
+@Composable
+private fun WireTertiaryDecryptError() {
+    MessageDecryptionFailure()
 }

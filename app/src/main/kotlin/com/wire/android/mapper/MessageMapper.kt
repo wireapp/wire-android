@@ -131,7 +131,8 @@ class MessageMapper @Inject constructor(
                     utcISO = (message.editStatus as Message.EditStatus.Edited).lastTimeStamp
                 )
             )
-
+        message is Message.Regular && message.content is MessageContent.FailedDecryption ->
+            MessageStatus.DecryptionFailure
         else -> MessageStatus.Untouched
     }
 

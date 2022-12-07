@@ -8,6 +8,64 @@
     "client": [
         {
             "client_info": {
+                "mobilesdk_app_id": "1:782078216207:android:242acafc4b2517d9217b7a",
+                "android_client_info": {
+                    "package_name": "com.waz.zclient.dev"
+                }
+            },
+            "oauth_client": [
+                {
+                    "client_id": "782078216207-l786kltfj3q9b1t8grcu2lpaj6hhf1m8.apps.googleusercontent.com",
+                    "client_type": 3
+                }
+            ],
+            "api_key": [
+                {
+                    "current_key": "AIzaSyDm5X3eLROMO9tM-jc2-RVUZqaYbNByg2I"
+                }
+            ],
+            "services": {
+                "appinvite_service": {
+                    "other_platform_oauth_client": [
+                        {
+                            "client_id": "782078216207-l786kltfj3q9b1t8grcu2lpaj6hhf1m8.apps.googleusercontent.com",
+                            "client_type": 3
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "client_info": {
+                "mobilesdk_app_id": "1:782078216207:android:76cc521b037a34c8217b7a",
+                "android_client_info": {
+                    "package_name": "com.waz.zclient.dev.debug"
+                }
+            },
+            "oauth_client": [
+                {
+                    "client_id": "782078216207-l786kltfj3q9b1t8grcu2lpaj6hhf1m8.apps.googleusercontent.com",
+                    "client_type": 3
+                }
+            ],
+            "api_key": [
+                {
+                    "current_key": "AIzaSyDm5X3eLROMO9tM-jc2-RVUZqaYbNByg2I"
+                }
+            ],
+            "services": {
+                "appinvite_service": {
+                    "other_platform_oauth_client": [
+                        {
+                            "client_id": "782078216207-l786kltfj3q9b1t8grcu2lpaj6hhf1m8.apps.googleusercontent.com",
+                            "client_type": 3
+                        }
+                    ]
+                }
+            }
+        },
+        {
+            "client_info": {
                 "mobilesdk_app_id": "1:782078216207:android:d3db2443512d2055",
                 "android_client_info": {
                     "package_name": "com.wire"

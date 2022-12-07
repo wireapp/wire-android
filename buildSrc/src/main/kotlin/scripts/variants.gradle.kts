@@ -26,6 +26,10 @@ object ProductFlavors {
     const val FDROID = "fdroid"
 }
 
+object ApplicationId {
+    const val DEV = "com.waz.zclient.dev"
+}
+
 private object FlavorDimensions {
     const val DEFAULT = "default"
 }
@@ -79,7 +83,7 @@ android {
     productFlavors {
         create(ProductFlavors.DEV) {
             dimension = FlavorDimensions.DEFAULT
-            applicationIdSuffix = ".${ProductFlavors.DEV}"
+            applicationId = ApplicationId.DEV
             versionNameSuffix = "-${ProductFlavors.DEV}"
         }
         create(ProductFlavors.INTERNAL) {
@@ -154,7 +158,11 @@ android {
 
 }
 
-fun buildFlavorConfig(productFlavour: ProductFlavor, configs: FeatureConfigs, buildTimeConfiguration: Customization.BuildTimeConfiguration?) {
+fun buildFlavorConfig(
+    productFlavour: ProductFlavor,
+    configs: FeatureConfigs,
+    buildTimeConfiguration: Customization.BuildTimeConfiguration?
+) {
     if (configs.value == productFlavour.name.toLowerCase()) {
         val falvourMap = buildTimeConfiguration?.configuration?.get(productFlavour.name.toLowerCase()) as Map<*, *>
 

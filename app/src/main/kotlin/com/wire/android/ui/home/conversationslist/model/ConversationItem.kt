@@ -3,6 +3,7 @@ package com.wire.android.ui.home.conversationslist.model
 import com.wire.android.model.UserAvatarData
 import com.wire.android.ui.home.conversations.model.UILastMessageContent
 import com.wire.android.ui.home.conversationslist.common.UserInfoLabel
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.TeamId
@@ -31,6 +32,7 @@ sealed class ConversationItem {
         override val teamId: TeamId?,
         val hasOnGoingCall: Boolean = false,
         val isSelfUserCreator: Boolean = false,
+        val selfMemberRole: Conversation.Member.Role?,
         val isSelfUserMember: Boolean = true,
     ) : ConversationItem()
 
@@ -63,7 +65,7 @@ sealed class ConversationItem {
 data class ConversationInfo(
     val name: String,
     val membership: Membership = Membership.None,
-    val unavailable: Boolean = false
+    val isSenderUnavailable: Boolean = false
 )
 
 enum class BlockingState {
@@ -85,7 +87,7 @@ fun ConversationItem.PrivateConversation.toUserInfoLabel() =
         labelName = conversationInfo.name,
         isLegalHold = isLegalHold,
         membership = conversationInfo.membership,
-        unavailable = conversationInfo.unavailable
+        unavailable = conversationInfo.isSenderUnavailable
     )
 
 fun ConversationItem.ConnectionConversation.toUserInfoLabel() =

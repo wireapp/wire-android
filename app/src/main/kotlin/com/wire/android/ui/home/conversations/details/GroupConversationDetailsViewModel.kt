@@ -125,8 +125,8 @@ class GroupConversationDetailsViewModel @Inject constructor(
                     conversationId = conversationId,
                     mutingConversationState = groupDetails.conversation.mutedStatus,
                     conversationTypeDetail = ConversationTypeDetail.Group(conversationId, groupDetails.isSelfUserCreator),
-                    isSelfUserMember = groupDetails.isSelfUserMember,
-                    isTeamConversation = groupDetails.conversation.teamId?.value != null
+                    isTeamConversation = groupDetails.conversation.teamId?.value != null,
+                    selfRole = groupDetails.selfRole
                 )
                 val isGuestAllowed = groupDetails.conversation.isGuestAllowed() || groupDetails.conversation.isNonTeamMemberAllowed()
 

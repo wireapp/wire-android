@@ -14,7 +14,6 @@ import com.wire.kalium.logic.feature.session.GetAllSessionsResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 import javax.inject.Inject
 
 @HiltViewModel
@@ -65,6 +64,8 @@ class WelcomeViewModel @Inject constructor(
             navigationManager.navigateBack()
         }
     }
+
+    fun isProxyEnabled() = state.apiProxy != null
 
     fun goToLogin() {
         navigate(NavigationCommand(NavigationItem.Login.getRouteWithArgs()))

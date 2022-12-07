@@ -65,6 +65,8 @@ class WelcomeViewModel @Inject constructor(
         }
     }
 
+    fun isProxyEnabled() = state.apiProxy != null
+
     fun goToLogin() {
         navigate(NavigationCommand(NavigationItem.Login.getRouteWithArgs()))
     }

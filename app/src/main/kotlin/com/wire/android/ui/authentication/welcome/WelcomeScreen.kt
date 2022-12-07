@@ -130,7 +130,7 @@ private fun WelcomeContent(viewModel: WelcomeViewModel) {
                 FeatureDisabledWithProxyDialogContent(dialogState = createPersonalAccountDisabledWithProxyDialogState)
 
                 CreateEnterpriseAccountButton {
-                    if (viewModel.state.apiProxy != null) {
+                    if (viewModel.isProxyEnabled()) {
                         enterpriseDisabledWithProxyDialogState.show(
                             enterpriseDisabledWithProxyDialogState.savedState ?: FeatureDisabledWithProxyDialogState(
                                 R.string.create_team_not_supported_dialog_description, viewModel.state.teams
@@ -144,7 +144,7 @@ private fun WelcomeContent(viewModel: WelcomeViewModel) {
 
             WelcomeFooter(modifier = Modifier.padding(horizontal = MaterialTheme.wireDimensions.welcomeTextHorizontalPadding),
                 onPrivateAccountClick = {
-                    if (viewModel.state.apiProxy != null) {
+                    if (viewModel.isProxyEnabled()) {
                         createPersonalAccountDisabledWithProxyDialogState.show(
                             createPersonalAccountDisabledWithProxyDialogState.savedState ?: FeatureDisabledWithProxyDialogState(
                                 R.string.create_personal_account_not_supported_dialog_description

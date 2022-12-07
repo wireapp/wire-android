@@ -103,7 +103,7 @@ private fun LoginContent(
                     selectedTabIndex = pagerState.calculateCurrentTab(),
                     onTabChange = {
 
-                        if (viewModel.serverConfig.apiProxy != null) {
+                        if (viewModel.loginState.isProxyEnabled) {
                             if (pagerState.currentPage != LoginTabItem.SSO.ordinal) {
                                 ssoDisabledWithProxyDialogState.show(
                                     ssoDisabledWithProxyDialogState.savedState ?: FeatureDisabledWithProxyDialogState(

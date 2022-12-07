@@ -92,7 +92,7 @@ class NewConversationViewModelTest {
             .withSyncFailureOnCreatingGroup()
             .arrange()
 
-        viewModel.createGroup()
+        viewModel.createGroupWithCustomOptions()
         advanceUntilIdle()
 
         viewModel.groupOptionsState.error shouldBeEqualTo GroupOptionState.Error.LackingConnection
@@ -104,7 +104,7 @@ class NewConversationViewModelTest {
             .withUnknownFailureOnCreatingGroup()
             .arrange()
 
-        viewModel.createGroup()
+        viewModel.createGroupWithCustomOptions()
         advanceUntilIdle()
 
         viewModel.groupOptionsState.error shouldBeEqualTo GroupOptionState.Error.Unknown
@@ -114,7 +114,7 @@ class NewConversationViewModelTest {
     fun `given no failure, when creating group, then options state should have no error`() = runTest {
         val (_, viewModel) = NewConversationViewModelArrangement().arrange()
 
-        viewModel.createGroup()
+        viewModel.createGroupWithCustomOptions()
         advanceUntilIdle()
 
         viewModel.groupOptionsState.error.shouldBeNull()

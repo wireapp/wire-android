@@ -26,14 +26,17 @@ import com.wire.kalium.logic.feature.publicuser.GetAllContactsUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchKnownUsersUseCase
 import com.wire.kalium.logic.feature.publicuser.search.SearchPublicUsersUseCase
 import com.wire.kalium.logic.feature.user.IsMLSEnabledUseCase
+import com.wire.kalium.logic.feature.user.IsSelfATeamMemberUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
-import javax.inject.Inject
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
+import javax.inject.Inject
 
 @Suppress("LongParameterList", "TooManyFunctions")
 @HiltViewModel
 class NewConversationViewModel @Inject constructor(
     private val createGroupConversation: CreateGroupConversationUseCase,
+    private val isSelfATeamMemberUseCase: IsSelfATeamMemberUseCase,
     getAllKnownUsers: GetAllContactsUseCase,
     searchKnownUsers: SearchKnownUsersUseCase,
     searchPublicUsers: SearchPublicUsersUseCase,
@@ -52,7 +55,11 @@ class NewConversationViewModel @Inject constructor(
     navigationManager = navigationManager
 ) {
 
-    var newGroupState: GroupMetadataState by mutableStateOf(GroupMetadataState(mlsEnabled = isMLSEnabled()))
+    var newGroupState: GroupMetadataState by mutableStateOf(
+        GroupMetadataState(
+            mlsEnabled = isMLSEnabled(),
+            isSelfTeamMember = runBlocking { isSelfATeamMemberUseCase() })
+    )
 
     var groupOptionsState: GroupOptionState by mutableStateOf(GroupOptionState())
 
@@ -95,14 +102,14 @@ class NewConversationViewModel @Inject constructor(
     fun onAllowGuestsClicked() {
         onAllowGuestsDialogDismissed()
         onAllowGuestStatusChanged(true)
-        createGroup(false)
+        createGroupWithCustomOptions(false)
     }
 
     fun onNotAllowGuestClicked() {
         onAllowGuestsDialogDismissed()
         onAllowGuestStatusChanged(false)
         removeGuestsIfNotAllowed()
-        createGroup(false)
+        createGroupWithCustomOptions(false)
     }
 
     private fun removeGuestsIfNotAllowed() {
@@ -131,7 +138,24 @@ class NewConversationViewModel @Inject constructor(
         return false
     }
 
-    fun createGroup(shouldCheckGuests: Boolean = true) {
+    fun createGroupWithoutOption() {
+        viewModelScope.launch {
+            newGroupState = newGroupState.copy(isLoading = true)
+            val result = createGroupConversation(
+                name = newGroupState.groupName.text,
+                // TODO: change the id in Contact to UserId instead of String
+                userIdList = state.contactsAddedToGroup.map { contact -> UserId(contact.id, contact.domain) },
+                options = ConversationOptions().copy(
+                    protocol = ConversationOptions.Protocol.PROTEUS,
+                    readReceiptsEnabled = null,
+                    accessRole = null
+                )
+            )
+            handleNewGroupCreationResult(result)
+        }
+    }
+
+    fun createGroupWithCustomOptions(shouldCheckGuests: Boolean = true) {
         if (shouldCheckGuests && checkIfGuestAdded())
             return
         viewModelScope.launch {

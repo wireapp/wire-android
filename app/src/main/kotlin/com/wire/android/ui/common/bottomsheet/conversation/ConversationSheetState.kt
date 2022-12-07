@@ -8,6 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
 import com.wire.android.R
 import com.wire.android.ui.home.conversationslist.model.ConversationItem
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.MutedConversationStatus
 import com.wire.kalium.logic.data.id.ConversationId
 
@@ -53,8 +54,8 @@ fun rememberConversationSheetState(
                         conversationId = conversationId,
                         isCreator = isSelfUserCreator
                     ),
-                    isSelfUserMember = isSelfUserMember,
-                    isTeamConversation = teamId != null
+                    isTeamConversation = teamId != null,
+                    selfRole = selfMemberRole
                 )
             }
         }
@@ -71,7 +72,8 @@ fun rememberConversationSheetState(
                         userId,
                         blockingState
                     ),
-                    isTeamConversation = isTeamConversation
+                    isTeamConversation = isTeamConversation,
+                    selfRole = Conversation.Member.Role.Member
                 )
             }
         }
@@ -84,7 +86,8 @@ fun rememberConversationSheetState(
                     conversationTypeDetail = ConversationTypeDetail.Connection(
                         userAvatarData.asset
                     ),
-                    isTeamConversation = isTeamConversation
+                    isTeamConversation = isTeamConversation,
+                    selfRole = Conversation.Member.Role.Member
                 )
             }
         }

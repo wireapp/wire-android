@@ -17,6 +17,7 @@ import com.wire.android.util.ui.UIText
 import com.wire.android.util.ui.WireSessionImageLoader
 import com.wire.kalium.logic.CoreFailure
 import com.wire.kalium.logic.configuration.FileSharingStatus
+import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.conversation.ConversationDetails
 import com.wire.kalium.logic.data.conversation.LegalHoldStatus
 import com.wire.kalium.logic.data.id.ConversationId
@@ -236,7 +237,8 @@ internal fun mockConversationDetailsGroup(
     lastMessage = null,
     isSelfUserCreator = true,
     isSelfUserMember = true,
-    unreadEventCount = emptyMap()
+    unreadEventCount = emptyMap(),
+    selfRole = Conversation.Member.Role.Member
 )
 
 internal fun mockUITextMessage(id: String = "someId", userName: String = "mockUserName"): UIMessage {

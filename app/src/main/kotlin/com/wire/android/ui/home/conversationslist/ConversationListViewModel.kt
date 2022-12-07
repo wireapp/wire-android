@@ -384,7 +384,8 @@ private fun ConversationDetails.toConversationItem(
             hasOnGoingCall = hasOngoingCall,
             isSelfUserCreator = isSelfUserCreator,
             isSelfUserMember = isSelfUserMember,
-            teamId = conversation.teamId
+            teamId = conversation.teamId,
+            selfMemberRole = selfRole
         )
     }
 

@@ -45,6 +45,7 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     WEBSITE_URL("websiteUrl", ConfigType.STRING),
     WEB_SOCKET_URL("websocketUrl", ConfigType.STRING),
     ENCRYPT_PROTEUS_STORAGE("encrypt_proteus_storage", ConfigType.BOOLEAN),
+    UPDATE_APP_URL("update_app_url", ConfigType.STRING),
 
     CERTIFICATE_PIN("certificatePin", ConfigType.CERTIFICATE_PIN),
 
@@ -55,7 +56,6 @@ enum class FeatureConfigs(val value: String, val configType: ConfigType) {
     DEV("dev", ConfigType.FLAVOUR_CONFIG),
     INTERNAL("internal", ConfigType.FLAVOUR_CONFIG),
     PROD("prod", ConfigType.FLAVOUR_CONFIG);
-
 }
 
 enum class CertificatePin(val value: String, val configType: ConfigType) {

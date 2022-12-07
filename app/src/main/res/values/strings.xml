@@ -742,4 +742,9 @@
     <string name="create_team_not_supported_dialog_description">Creating a new Team on an on-premise backend with proxy support is currently not possible in the Wire app.\nPlease use the Team Management (%1$s) to create a new Team on this backend.</string>
     <string name="to_team_management_action">To Team Management</string>
 
+    <!-- Update App dialog -->
+    <string name="update_app_dialog_title">Update required</string>
+    <string name="update_app_dialog_body">You are missing out on new features. Update to the latest version of Wire to continue using the app with this account.</string>
+    <string name="update_app_dialog_button">Update</string>
+
 </resources>

@@ -393,6 +393,12 @@ private fun MessageDecryptionFailure() {
 
 @Preview(name = "Decrypt error component message")
 @Composable
-private fun WireTertiaryDecryptError() {
+private fun PreviewDecryptMessageError() {
     MessageDecryptionFailure()
+}
+
+@Preview(name = "Message send failure warning")
+@Composable
+private fun PreviewMessageSendFailureWarning() {
+    MessageSendFailureWarning()
 }

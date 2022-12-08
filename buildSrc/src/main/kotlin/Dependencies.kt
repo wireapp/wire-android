@@ -64,7 +64,8 @@ object Libraries {
         const val workManager = "2.7.1"
         const val fragment = "1.5.0"
         const val compose = "1.3.1"
-        const val composeMaterial = compose
+        const val composeCompiler = "1.3.2"
+        const val composeMaterial = "1.3.1"
         const val composeMaterial3 = "1.0.0-alpha11"
         const val composeActivity = "1.4.0"
         const val composeNavigation = "2.4.2"

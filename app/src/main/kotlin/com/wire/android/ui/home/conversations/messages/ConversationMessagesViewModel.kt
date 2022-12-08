@@ -14,6 +14,7 @@ import com.wire.android.navigation.NavigationItem
 import com.wire.android.navigation.NavigationManager
 import com.wire.android.navigation.SavedStateViewModel
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages
+import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnResetSession
 import com.wire.android.ui.home.conversations.DownloadedAssetDialogVisibilityState
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
 import com.wire.android.util.FileManager
@@ -189,12 +190,10 @@ class ConversationMessagesViewModel @Inject constructor(
         viewModelScope.launch {
             conversationViewState = when (withContext(dispatchers.io()) { resolveFailedDecryptedMessages(conversationId) }) {
                 is ResolveDecryptedErrorResult.Failure ->
-                    conversationViewState.copy(
-                        snackbarMessage = ConversationSnackbarMessages.OnResetSession(UIText.StringResource(R.string.label_general_error))
-                    )
+                    conversationViewState.copy(snackbarMessage = OnResetSession(UIText.StringResource(R.string.label_general_error)))
                 is ResolveDecryptedErrorResult.Success ->
                     conversationViewState.copy(
-                        snackbarMessage = ConversationSnackbarMessages.OnResetSession(UIText.StringResource(R.string.label_reset_session_success))
+                        snackbarMessage = OnResetSession(UIText.StringResource(R.string.label_reset_session_success))
                     )
             }
         }

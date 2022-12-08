@@ -111,7 +111,6 @@ object Libraries {
     const val ktxDateTime               = "org.jetbrains.kotlinx:kotlinx-datetime:${Versions.ktxDateTime}"
     const val ktxImmutableCollections   = "org.jetbrains.kotlinx:kotlinx-collections-immutable:${Versions.ktxImmutableCollections}"
 
-
     // Other dependencies
     const val desugaring                = "com.android.tools:desugar_jdk_libs:${Versions.desugaring}"
     const val accompanistPager          = "com.google.accompanist:accompanist-pager:${Versions.accompanist}"

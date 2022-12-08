@@ -58,13 +58,13 @@ import com.wire.kalium.logic.feature.team.Result
 import com.wire.kalium.logic.functional.combine
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.collections.immutable.toImmutableMap
+import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.debounce
-import kotlinx.coroutines.flow.flatMapLatest
-import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.flowOn
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Date
@@ -105,43 +105,89 @@ class ConversationListViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            searchQueryFlow.combine(observeConversationListDetails().onEach(::conversationListDetailsToState))
-                .flatMapLatest { (searchQuery, conversationDetails) ->
-                    flow {
-                        if (searchQuery.isEmpty()) {
-                            emit(conversationDetails to searchQuery)
-                        } else {
-                            emit(searchConversation(conversationDetails, searchQuery) to searchQuery)
-                        }
+            searchQueryFlow.combine(observeConversationListDetails()
+                .map {
+                    it.map { conversationDetails ->
+                        conversationDetails.toConversationItem(
+                            wireSessionImageLoader,
+                            userTypeMapper
+                        )
                     }
-                }.collect { (conversationSearchResult, searchQuery) ->
+                }
+            )
+                .map { (searchQuery, conversationItems) -> conversationItems.withFolders().toImmutableMap() to searchQuery }
+                .flowOn(dispatcher.io())
+                .collect { (conversationsWithFolders, searchQuery) ->
                     conversationListState = conversationListState.copy(
-                        conversationSearchResult = conversationSearchResult.toConversationsFoldersMap().toImmutableMap(),
-                        searchQuery = searchQuery
-                    )
+                        conversationSearchResult = if (searchQuery.isEmpty()) conversationsWithFolders else searchConversation(
+                            conversationsWithFolders.values.flatten(),
+                            searchQuery
+                        ).withFolders().toImmutableMap(),
+                        hasNoConversations = conversationsWithFolders.isEmpty(),
+                        foldersWithConversations = conversationsWithFolders,
+                        searchQuery = searchQuery,
+
+                        )
                 }
         }
     }
 
     // Mateusz : First iteration, just filter stuff
     // next iteration : SQL- query ?
-    private fun searchConversation(conversationDetails: List<ConversationDetails>, searchQuery: String): List<ConversationDetails> {
+    private fun searchConversation(conversationDetails: List<ConversationItem>, searchQuery: String): List<ConversationItem> {
         val matchingConversations = conversationDetails.filter { details ->
-            details.conversation.name?.contains(searchQuery, true) ?: false
+            when (details) {
+                is ConversationItem.ConnectionConversation -> details.conversationInfo.name.contains(searchQuery, true)
+                is ConversationItem.GroupConversation -> details.groupName.contains(searchQuery, true)
+                is ConversationItem.PrivateConversation -> details.conversationInfo.name.contains(searchQuery, true)
+            }
         }
-
         return matchingConversations
     }
 
     private fun conversationListDetailsToState(conversationListDetails: List<ConversationDetails>) {
         conversationListState = conversationListState.copy(
             allConversations = conversationListDetails.map { it.toConversationItem(wireSessionImageLoader, userTypeMapper) },
-            conversations = conversationListDetails.toConversationsFoldersMap().toImmutableMap(),
+            foldersWithConversations = conversationListDetails.toConversationsFoldersMap().toImmutableMap(),
             hasNoConversations = conversationListDetails.none { it !is Self },
             newActivityCount = 0L,
             unreadMentionsCount = 0L, // TODO: needs to be implemented on Kalium side
             missedCallsCount = 0L // TODO: needs to be implemented on Kalium side
         )
+    }
+
+    @Suppress("ComplexMethod")
+    private fun List<ConversationItem>.withFolders(): Map<ConversationFolder, List<ConversationItem>> {
+        val unreadConversations = filter {
+            when (it.mutedStatus) {
+                MutedConversationStatus.AllAllowed -> when (it.badgeEventType) {
+                    BadgeEventType.Blocked -> false
+                    BadgeEventType.Deleted -> false
+                    BadgeEventType.Knock -> true
+                    BadgeEventType.MissedCall -> true
+                    BadgeEventType.None -> false
+                    BadgeEventType.ReceivedConnectionRequest -> true
+                    BadgeEventType.SentConnectRequest -> false
+                    BadgeEventType.UnreadMention -> true
+                    is BadgeEventType.UnreadMessage -> true
+                    BadgeEventType.UnreadReply -> true
+                }
+                MutedConversationStatus.OnlyMentionsAndRepliesAllowed -> when (it.badgeEventType) {
+                    BadgeEventType.UnreadReply -> true
+                    BadgeEventType.UnreadMention -> true
+                    BadgeEventType.ReceivedConnectionRequest -> true
+                    else -> false
+                }
+                MutedConversationStatus.AllMuted -> false
+            } || (it is ConversationItem.GroupConversation && it.hasOnGoingCall)
+        }
+
+        val remainingConversations = this - unreadConversations.toSet()
+
+        return buildMap {
+            if (unreadConversations.isNotEmpty()) put(ConversationFolder.Predefined.NewActivities, unreadConversations)
+            if (remainingConversations.isNotEmpty()) put(ConversationFolder.Predefined.Conversations, remainingConversations)
+        }
     }
 
     @Suppress("ComplexMethod")
@@ -157,8 +203,10 @@ class ConversationListViewModel @Inject constructor(
 
                 MutedConversationStatus.OnlyMentionsAndRepliesAllowed ->
                     when (it) {
-                        is Group -> it.unreadMentionsCount > 0 || it.unreadRepliesCount > 0
-                        is OneOne -> it.unreadMentionsCount > 0 || it.unreadRepliesCount > 0
+                        is Group -> it.unreadEventCount.containsKey(UnreadEventType.MENTION)
+                                || it.unreadEventCount.containsKey(UnreadEventType.REPLY)
+                        is OneOne -> it.unreadEventCount.containsKey(UnreadEventType.MENTION)
+                                || it.unreadEventCount.containsKey(UnreadEventType.REPLY)
                         else -> false
                     }
 
@@ -374,17 +422,16 @@ private fun ConversationDetails.toConversationItem(
             conversationId = conversation.id,
             mutedStatus = conversation.mutedStatus,
             isLegalHold = legalHoldStatus.showLegalHoldIndicator(),
-            lastMessageContent = lastMessage.toUIPreview(unreadEventCount, unreadMentionsCount),
+            lastMessageContent = lastMessage.toUIPreview(unreadEventCount),
             badgeEventType = parseConversationEventType(
                 conversation.mutedStatus,
-                unreadMentionsCount,
-                unreadRepliesCount,
                 unreadEventCount
             ),
             hasOnGoingCall = hasOngoingCall,
             isSelfUserCreator = isSelfUserCreator,
             isSelfUserMember = isSelfUserMember,
-            teamId = conversation.teamId
+            teamId = conversation.teamId,
+            selfMemberRole = selfRole
         )
     }
 
@@ -403,14 +450,12 @@ private fun ConversationDetails.toConversationItem(
             conversationId = conversation.id,
             mutedStatus = conversation.mutedStatus,
             isLegalHold = legalHoldStatus.showLegalHoldIndicator(),
-            lastMessageContent = lastMessage.toUIPreview(unreadEventCount, unreadMentionsCount),
+            lastMessageContent = lastMessage.toUIPreview(unreadEventCount),
             badgeEventType = parsePrivateConversationEventType(
                 otherUser.connectionStatus,
                 otherUser.deleted,
                 parseConversationEventType(
                     conversation.mutedStatus,
-                    unreadMentionsCount,
-                    unreadRepliesCount,
                     unreadEventCount
                 )
             ),
@@ -459,15 +504,13 @@ private fun parsePrivateConversationEventType(connectionState: ConnectionState, 
 
 private fun parseConversationEventType(
     mutedStatus: MutedConversationStatus,
-    unreadMentionsCount: Long,
-    unreadRepliesCount: Long,
     unreadEventCount: UnreadEventCount
 ): BadgeEventType = when (mutedStatus) {
     MutedConversationStatus.AllMuted -> BadgeEventType.None
     MutedConversationStatus.OnlyMentionsAndRepliesAllowed ->
         when {
-            unreadMentionsCount > 0 -> BadgeEventType.UnreadMention
-            unreadRepliesCount > 0 -> BadgeEventType.UnreadReply
+            unreadEventCount.containsKey(UnreadEventType.MENTION) -> BadgeEventType.UnreadMention
+            unreadEventCount.containsKey(UnreadEventType.REPLY) -> BadgeEventType.UnreadReply
             else -> BadgeEventType.None
         }
     else -> {
@@ -475,8 +518,8 @@ private fun parseConversationEventType(
         when {
             unreadEventCount.containsKey(UnreadEventType.KNOCK) -> BadgeEventType.Knock
             unreadEventCount.containsKey(UnreadEventType.MISSED_CALL) -> BadgeEventType.MissedCall
-            unreadMentionsCount > 0 -> BadgeEventType.UnreadMention
-            unreadRepliesCount > 0 -> BadgeEventType.UnreadReply
+            unreadEventCount.containsKey(UnreadEventType.MENTION) -> BadgeEventType.UnreadMention
+            unreadEventCount.containsKey(UnreadEventType.REPLY) -> BadgeEventType.UnreadReply
             unreadMessagesCount > 0 -> BadgeEventType.UnreadMessage(unreadMessagesCount)
             else -> BadgeEventType.None
         }

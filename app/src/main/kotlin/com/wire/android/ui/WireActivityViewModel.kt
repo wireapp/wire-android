@@ -28,6 +28,7 @@ import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.logout.LogoutReason
 import com.wire.kalium.logic.data.sync.SyncState
+import com.wire.kalium.logic.feature.appVersioning.ObserveIfAppUpdateRequiredUseCase
 import com.wire.kalium.logic.feature.auth.AccountInfo
 import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
@@ -70,7 +71,8 @@ class WireActivityViewModel @Inject constructor(
     private val observePersistentWebSocketConnectionStatus: ObservePersistentWebSocketConnectionStatusUseCase,
     private val migrationManager: MigrationManager,
     private val servicesManager: ServicesManager,
-    private val observeSyncStateUseCaseProviderFactory: ObserveSyncStateUseCaseProvider.Factory
+    private val observeSyncStateUseCaseProviderFactory: ObserveSyncStateUseCaseProvider.Factory,
+    private val observeIfAppUpdateRequired: ObserveIfAppUpdateRequiredUseCase
 ) : ViewModel() {
 
     private val navigationArguments = mutableMapOf<String, Any>(SERVER_CONFIG_ARG to ServerConfig.DEFAULT)
@@ -128,7 +130,6 @@ class WireActivityViewModel @Inject constructor(
                     }
                 }
             }
-
         }
         viewModelScope.launch(dispatchers.io()) {
             observeUserId
@@ -137,6 +138,13 @@ class WireActivityViewModel @Inject constructor(
                 }
                 .distinctUntilChanged()
                 .collect { _observeSyncFlowState.emit(it) }
+        }
+        viewModelScope.launch(dispatchers.io()) {
+            observeIfAppUpdateRequired(BuildConfig.VERSION_CODE)
+                .distinctUntilChanged()
+                .collect {
+                    globalAppState = globalAppState.copy(updateAppDialog = it)
+                }
         }
     }
 
@@ -384,6 +392,10 @@ class WireActivityViewModel @Inject constructor(
         globalAppState = globalAppState.copy(maxAccountDialog = false)
     }
 
+    fun appWasUpdate() {
+        globalAppState = globalAppState.copy(updateAppDialog = false)
+    }
+
     companion object {
         private const val SERVER_CONFIG_ARG = "server_config"
         private const val SSO_DEEPLINK_ARG = "sso_deeplink"
@@ -403,5 +415,6 @@ sealed class CurrentSessionErrorState {
 data class GlobalAppState(
     val customBackendDialog: CustomBEDeeplinkDialogState = CustomBEDeeplinkDialogState(),
     val maxAccountDialog: Boolean = false,
-    val blockUserUI: CurrentSessionErrorState? = null
+    val blockUserUI: CurrentSessionErrorState? = null,
+    val updateAppDialog: Boolean = false
 )

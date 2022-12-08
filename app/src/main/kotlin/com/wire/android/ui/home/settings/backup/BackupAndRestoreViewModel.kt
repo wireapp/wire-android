@@ -39,8 +39,8 @@ class BackupAndRestoreViewModel
 @Inject constructor(
     private val navigationManager: NavigationManager,
     private val importBackup: RestoreBackupUseCase,
-    private val createBackupUseCase: CreateBackupUseCase,
-    private val extractCompressedFileUseCase: ExtractCompressedBackupUseCase,
+    private val createBackupFile: CreateBackupUseCase,
+    private val extractCompressedFile: ExtractCompressedBackupUseCase,
     private val fileManager: FileManager,
     private val kaliumFileSystem: KaliumFileSystem,
     private val context: Context
@@ -60,7 +60,7 @@ class BackupAndRestoreViewModel
             state = state.copy(backupCreationProgress = BackupCreationProgress.InProgress(0.50f))
             delay(300)
 
-            when (val result = createBackupUseCase(password)) {
+            when (val result = createBackupFile(password)) {
                 is CreateBackupResult.Success -> {
                     state = state.copy(backupCreationProgress = BackupCreationProgress.Finished)
                     latestCreatedBackup = BackupAndRestoreState.CreatedBackup(
@@ -104,7 +104,7 @@ class BackupAndRestoreViewModel
 
     @Suppress("MagicNumber")
     private suspend fun extractBackupFiles(importedBackupPath: Path) {
-        when (val result = extractCompressedFileUseCase(importedBackupPath)) {
+        when (val result = extractCompressedFile(importedBackupPath)) {
             is ExtractCompressedBackupFileResult.Success -> {
                 if (result.isEncrypted) {
                     latestExtractedBackupRootPath = result.extractedFilesRootPath

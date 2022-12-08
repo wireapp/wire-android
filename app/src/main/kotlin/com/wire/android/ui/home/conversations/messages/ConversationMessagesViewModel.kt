@@ -189,9 +189,13 @@ class ConversationMessagesViewModel @Inject constructor(
         viewModelScope.launch {
             conversationViewState = when (withContext(dispatchers.io()) { resolveFailedDecryptedMessages(conversationId) }) {
                 is ResolveDecryptedErrorResult.Failure ->
-                    conversationViewState.copy(snackbarMessage = ConversationSnackbarMessages.OnResetSession(UIText.StringResource(R.string.label_general_error)))
+                    conversationViewState.copy(
+                        snackbarMessage = ConversationSnackbarMessages.OnResetSession(UIText.StringResource(R.string.label_general_error))
+                    )
                 is ResolveDecryptedErrorResult.Success ->
-                    conversationViewState.copy(snackbarMessage = ConversationSnackbarMessages.OnResetSession(UIText.StringResource(R.string.label_reset_session_success)))
+                    conversationViewState.copy(
+                        snackbarMessage = ConversationSnackbarMessages.OnResetSession(UIText.StringResource(R.string.label_reset_session_success))
+                    )
             }
         }
     }

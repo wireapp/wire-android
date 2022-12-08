@@ -25,6 +25,7 @@ import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
 import com.wire.android.ui.theme.wireTypography
+import java.util.Locale
 import kotlin.math.roundToInt
 
 @Composable
@@ -71,7 +72,7 @@ fun SetBackupPasswordDialog(
         )
     ) {
         WirePasswordTextField(
-            labelText = stringResource(R.string.label_textfield_optional_password),
+            labelText = stringResource(R.string.label_textfield_optional_password).uppercase(Locale.getDefault()),
             state = if (!isBackupPasswordValid) WireTextFieldState.Error("some error") else WireTextFieldState.Default,
             value = backupPassword,
             onValueChange = {

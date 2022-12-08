@@ -6,6 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.SavedStateHandle
 import androidx.lifecycle.viewModelScope
 import androidx.paging.cachedIn
+import com.wire.android.R
 import com.wire.android.appLogger
 import com.wire.android.navigation.EXTRA_CONVERSATION_ID
 import com.wire.android.navigation.NavigationCommand
@@ -17,7 +18,7 @@ import com.wire.android.ui.home.conversations.DownloadedAssetDialogVisibilitySta
 import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversationUseCase
 import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
-import com.wire.kalium.logic.data.conversation.ConversationDetails
+import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.message.Message
@@ -27,6 +28,8 @@ import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
+import com.wire.kalium.logic.feature.message.ResolveDecryptedErrorResult
+import com.wire.kalium.logic.feature.message.ResolveFailedDecryptedMessagesUseCase
 import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.flowOn
@@ -49,7 +52,8 @@ class ConversationMessagesViewModel @Inject constructor(
     private val fileManager: FileManager,
     private val dispatchers: DispatcherProvider,
     private val getMessageForConversation: GetMessagesForConversationUseCase,
-    private val toggleReaction: ToggleReactionUseCase
+    private val toggleReaction: ToggleReactionUseCase,
+    private val resolveFailedDecryptedMessages: ResolveFailedDecryptedMessagesUseCase,
 ) : SavedStateViewModel(savedStateHandle) {
 
     var conversationViewState by mutableStateOf(ConversationMessagesViewState())
@@ -177,6 +181,18 @@ class ConversationMessagesViewModel @Inject constructor(
                     )
                 )
             )
+        }
+    }
+
+    // todo: call correct use case, part 3 reset session on kalium
+    fun onResetSession() {
+        viewModelScope.launch {
+            conversationViewState = when (withContext(dispatchers.io()) { resolveFailedDecryptedMessages(conversationId) }) {
+                is ResolveDecryptedErrorResult.Failure ->
+                    conversationViewState.copy(snackbarMessage = ConversationSnackbarMessages.OnResetSession(UIText.StringResource(R.string.label_general_error)))
+                is ResolveDecryptedErrorResult.Success ->
+                    conversationViewState.copy(snackbarMessage = ConversationSnackbarMessages.OnResetSession(UIText.StringResource(R.string.label_reset_session_success)))
+            }
         }
     }
 

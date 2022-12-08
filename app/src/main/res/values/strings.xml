@@ -25,6 +25,7 @@
     <string name="label_message_decryption_failure_message">Message could not be decrypted.</string>
     <string name="label_try_again">Try again</string>
     <string name="label_reset_session">Reset Session</string>
+    <string name="label_reset_session_success">Session successfully reset</string>
     <string name="label_federated_membership">Federated</string>
     <string name="label_update">Update</string>
     <string name="label_close">Close</string>

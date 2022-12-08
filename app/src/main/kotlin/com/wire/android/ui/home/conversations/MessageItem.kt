@@ -379,7 +379,7 @@ private fun MessageDecryptionFailure(decryptionStatus: MessageStatus.DecryptionF
                     text = stringResource(R.string.label_learn_more),
                 )
             }
-            if (!decryptionStatus.isSessionResolved) {
+            if (!decryptionStatus.isDecryptionResolved) {
                 Row {
                     WireSecondaryButton(
                         text = stringResource(R.string.label_reset_session),

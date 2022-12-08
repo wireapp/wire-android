@@ -132,7 +132,7 @@ class MessageMapper @Inject constructor(
                 )
             )
         message is Message.Regular && message.content is MessageContent.FailedDecryption ->
-            MessageStatus.DecryptionFailure((message.content as MessageContent.FailedDecryption).isSessionResolved)
+            MessageStatus.DecryptionFailure((message.content as MessageContent.FailedDecryption).isDecryptionResolved)
         else -> MessageStatus.Untouched
     }
 

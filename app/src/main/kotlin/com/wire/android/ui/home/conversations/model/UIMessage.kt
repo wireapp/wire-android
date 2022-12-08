@@ -61,7 +61,7 @@ sealed class MessageStatus(val text: UIText) {
 
     object SendFailure : MessageStatus(UIText.StringResource(R.string.label_message_sent_failure))
     object ReceiveFailure : MessageStatus(UIText.StringResource(R.string.label_message_receive_failure))
-    data class DecryptionFailure(val isSessionResolved: Boolean) :
+    data class DecryptionFailure(val isDecryptionResolved: Boolean) :
         MessageStatus(UIText.StringResource(R.string.label_message_decryption_failure_message))
 }
 

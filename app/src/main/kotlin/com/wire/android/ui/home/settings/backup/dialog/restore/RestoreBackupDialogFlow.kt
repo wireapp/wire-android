@@ -48,27 +48,10 @@ fun RestoreBackupDialogFlow(
             }
 
             RestoreDialogStep.RestoreBackup -> {
-                LaunchedEffect(backUpAndRestoreState.backupRestoreProgress) {
-                    when (val progress = backUpAndRestoreState.backupRestoreProgress) {
-                        BackupRestoreProgress.Failed -> {
-                            val failureType = when (backUpAndRestoreState.restoreFileValidation) {
-                                is RestoreFileValidation.PasswordRequired, RestoreFileValidation.GeneralFailure, RestoreFileValidation.Pending, RestoreFileValidation.ValidNonEncryptedBackup -> RestoreFailure.GeneralFailure
-                                RestoreFileValidation.IncompatibleBackup -> RestoreFailure.IncompatibleBackup
-                                RestoreFileValidation.WrongBackup -> RestoreFailure.WrongBackup
-                            }
-                            restoreDialogStateHolder.toRestoreFailure(failureType)
-                        }
-                        BackupRestoreProgress.Finished -> restoreDialogStateHolder.toFinished()
-                        is BackupRestoreProgress.InProgress -> {
-                            restoreDialogStateHolder.restoreProgress = progress.value
-                        }
-                    }
-                }
-
-                RestoreProgressDialog(
-                    isRestoreCompleted = isRestoreCompleted,
-                    restoreProgress = restoreProgress,
-                    onOpenConversation = onOpenConversations,
+                RestoreBackupStep(
+                    backUpAndRestoreState = backUpAndRestoreState,
+                    restoreDialogStateHolder = restoreDialogStateHolder,
+                    onOpenConversations = onOpenConversations,
                     onCancelBackupRestore = onCancelBackupRestore
                 )
             }
@@ -86,35 +69,6 @@ fun RestoreBackupDialogFlow(
     BackHandler(restoreDialogStateHolder.currentRestoreDialogStep != RestoreDialogStep.RestoreBackup) {
         onCancelBackupRestore()
     }
-}
-
-@Composable
-fun EnterPasswordStep(
-    backUpAndRestoreState: BackupAndRestoreState,
-    restoreDialogStateHolder: RestoreDialogStateHolder,
-    onRestoreBackup: (TextFieldValue) -> Unit,
-    onCancelBackupRestore: () -> Unit
-) {
-    var showWrongPassword by remember { mutableStateOf(false) }
-
-    LaunchedEffect(backUpAndRestoreState.restorePasswordValidation) {
-        appLogger.d("Password status changed: -> ${backUpAndRestoreState.restorePasswordValidation}")
-        when (backUpAndRestoreState.restorePasswordValidation) {
-            PasswordValidation.NotValid -> showWrongPassword = true
-            PasswordValidation.NotVerified -> showWrongPassword = false
-            PasswordValidation.Valid -> restoreDialogStateHolder.toRestoreBackup()
-        }
-    }
-
-    EnterRestorePasswordDialog(
-        isWrongPassword = showWrongPassword,
-        onRestoreBackupFile = { password ->
-            showWrongPassword = false
-            onRestoreBackup(password)
-        },
-        onAcknowledgeWrongPassword = { showWrongPassword = false },
-        onCancelBackupRestore = onCancelBackupRestore
-    )
 }
 
 @Composable
@@ -153,3 +107,67 @@ private fun ChooseBackupFileStep(
         onCancelBackupRestore = onCancelBackupRestore
     )
 }
+
+@Composable
+fun EnterPasswordStep(
+    backUpAndRestoreState: BackupAndRestoreState,
+    restoreDialogStateHolder: RestoreDialogStateHolder,
+    onRestoreBackup: (TextFieldValue) -> Unit,
+    onCancelBackupRestore: () -> Unit
+) {
+    var showWrongPassword by remember { mutableStateOf(false) }
+
+    LaunchedEffect(backUpAndRestoreState.restorePasswordValidation) {
+        appLogger.d("Password status changed: -> ${backUpAndRestoreState.restorePasswordValidation}")
+        when (backUpAndRestoreState.restorePasswordValidation) {
+            PasswordValidation.NotValid -> showWrongPassword = true
+            PasswordValidation.NotVerified -> showWrongPassword = false
+            PasswordValidation.Valid -> restoreDialogStateHolder.toRestoreBackup()
+        }
+    }
+
+    EnterRestorePasswordDialog(
+        isWrongPassword = showWrongPassword,
+        onRestoreBackupFile = { password ->
+            showWrongPassword = false
+            onRestoreBackup(password)
+        },
+        onAcknowledgeWrongPassword = { showWrongPassword = false },
+        onCancelBackupRestore = onCancelBackupRestore
+    )
+}
+
+@Composable
+fun RestoreBackupStep(
+    backUpAndRestoreState: BackupAndRestoreState,
+    restoreDialogStateHolder: RestoreDialogStateHolder,
+    onOpenConversations: () -> Unit,
+    onCancelBackupRestore: () -> Unit
+) {
+    with(restoreDialogStateHolder) {
+        LaunchedEffect(backUpAndRestoreState.backupRestoreProgress) {
+            when (val progress = backUpAndRestoreState.backupRestoreProgress) {
+                BackupRestoreProgress.Failed -> {
+                    val failureType = when (backUpAndRestoreState.restoreFileValidation) {
+                        is RestoreFileValidation.PasswordRequired, RestoreFileValidation.GeneralFailure, RestoreFileValidation.Pending, RestoreFileValidation.ValidNonEncryptedBackup -> RestoreFailure.GeneralFailure
+                        RestoreFileValidation.IncompatibleBackup -> RestoreFailure.IncompatibleBackup
+                        RestoreFileValidation.WrongBackup -> RestoreFailure.WrongBackup
+                    }
+                    restoreDialogStateHolder.toRestoreFailure(failureType)
+                }
+                BackupRestoreProgress.Finished -> restoreDialogStateHolder.toFinished()
+                is BackupRestoreProgress.InProgress -> {
+                    restoreDialogStateHolder.restoreProgress = progress.value
+                }
+            }
+        }
+
+        RestoreProgressDialog(
+            isRestoreCompleted = isRestoreCompleted,
+            restoreProgress = restoreProgress,
+            onOpenConversation = onOpenConversations,
+            onCancelBackupRestore = onCancelBackupRestore
+        )
+    }
+}
+

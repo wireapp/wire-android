@@ -1,5 +1,6 @@
 package com.wire.android.ui.home.settings.backup.dialog.create
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -7,6 +8,7 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -24,8 +26,77 @@ import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.spacers.VerticalSpace
 import com.wire.android.ui.common.textfield.WirePasswordTextField
 import com.wire.android.ui.common.textfield.WireTextFieldState
+import com.wire.android.ui.home.settings.backup.BackupAndRestoreState
+import com.wire.android.ui.home.settings.backup.BackupCreationProgress
+import com.wire.android.ui.home.settings.backup.PasswordValidation
+import com.wire.android.ui.home.settings.backup.dialog.common.FailureDialog
 import com.wire.android.ui.theme.wireTypography
 import kotlin.math.roundToInt
+
+@Composable
+fun CreateBackupDialogFlow(
+    backUpAndRestoreState: BackupAndRestoreState,
+    onValidateBackupPassword: (TextFieldValue) -> Unit,
+    onCreateBackup: (String) -> Unit,
+    onSaveBackup: () -> Unit,
+    onCancelCreateBackup: () -> Unit
+) {
+    val backupDialogStateHolder = rememberBackUpDialogState()
+
+    with(backupDialogStateHolder) {
+        when (currentBackupDialogStep) {
+            BackUpDialogStep.Inform -> {
+                InformBackupDialog(
+                    onAcknowledgeBackup = ::toBackupPassword,
+                    onDismissDialog = onCancelCreateBackup
+                )
+            }
+
+            BackUpDialogStep.SetPassword -> {
+                SetBackupPasswordDialog(
+                    isBackupPasswordValid = backUpAndRestoreState.backupCreationPasswordValidation is PasswordValidation.Valid,
+                    onBackupPasswordChanged = onValidateBackupPassword,
+                    onCreateBackup = { password ->
+                        toCreateBackup()
+                        onCreateBackup(password)
+                    },
+                    onDismissDialog = onCancelCreateBackup
+                )
+            }
+
+            BackUpDialogStep.CreatingBackup -> {
+                LaunchedEffect(backUpAndRestoreState.backupCreationProgress) {
+                    when (val progress = backUpAndRestoreState.backupCreationProgress) {
+                        BackupCreationProgress.Failed -> toBackupFailure()
+                        BackupCreationProgress.Finished -> toFinished()
+                        is BackupCreationProgress.InProgress -> {
+                            backupProgress = progress.value
+                        }
+                    }
+                }
+
+                CreateBackupDialog(
+                    isBackupCreationCompleted = isBackupFinished,
+                    createBackupProgress = backupProgress,
+                    onSaveBackup = onSaveBackup,
+                    onDismissDialog = onCancelCreateBackup
+                )
+            }
+
+            BackUpDialogStep.Failure -> {
+                FailureDialog(
+                    title = stringResource(R.string.backup_dialog_create_error_title),
+                    message = stringResource(R.string.backup_dialog_create_error_subtitle),
+                    onDismiss = onCancelCreateBackup
+                )
+            }
+        }
+    }
+
+    BackHandler(backupDialogStateHolder.currentBackupDialogStep != BackUpDialogStep.CreatingBackup) {
+        onCancelCreateBackup()
+    }
+}
 
 @Composable
 fun InformBackupDialog(

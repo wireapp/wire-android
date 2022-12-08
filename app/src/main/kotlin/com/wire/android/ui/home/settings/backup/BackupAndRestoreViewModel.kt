@@ -60,7 +60,7 @@ class BackupAndRestoreViewModel
             state = state.copy(backupCreationProgress = BackupCreationProgress.InProgress(0.50f))
             delay(300)
 
-            when (val result = createBackupUseCase.invoke(password)) {
+            when (val result = createBackupUseCase(password)) {
                 is CreateBackupResult.Success -> {
                     state = state.copy(backupCreationProgress = BackupCreationProgress.Finished)
                     latestCreatedBackup = BackupAndRestoreState.CreatedBackup(
@@ -78,21 +78,24 @@ class BackupAndRestoreViewModel
         }
     }
 
-    fun saveBackup() = viewModelScope.launch {
-        latestCreatedBackup?.let { backupData ->
-            fileManager.shareWithExternalApp(backupData.path, backupData.assetName.fileExtension()) {}
+    fun saveBackup() {
+        viewModelScope.launch {
+            latestCreatedBackup?.let { backupData ->
+                fileManager.shareWithExternalApp(backupData.path, backupData.assetName.fileExtension()) {}
+            }
+            state = BackupAndRestoreState.INITIAL_STATE
         }
-        state = BackupAndRestoreState.INITIAL_STATE
     }
 
-    fun chooseBackupFileToRestore(uri: Uri) = viewModelScope.launch {
-        val importedBackupPath = kaliumFileSystem.tempFilePath(TEMP_IMPORTED_BACKUP_FILE_NAME)
-        uri.copyToTempPath(context, importedBackupPath)
+    fun chooseBackupFileToRestore(uri: Uri) {
+        viewModelScope.launch {
+            val importedBackupPath = kaliumFileSystem.tempFilePath(TEMP_IMPORTED_BACKUP_FILE_NAME)
+            uri.copyToTempPath(context, importedBackupPath)
 
-        extractBackupFiles(importedBackupPath)
+            extractBackupFiles(importedBackupPath)
 
-        // Delete the imported backup file
-        kaliumFileSystem.delete(importedBackupPath)
+            kaliumFileSystem.delete(importedBackupPath)
+        }
     }
 
     private fun showPasswordDialog() {
@@ -101,7 +104,7 @@ class BackupAndRestoreViewModel
 
     @Suppress("MagicNumber")
     private suspend fun extractBackupFiles(importedBackupPath: Path) {
-        when (val result = extractCompressedFileUseCase.invoke(importedBackupPath)) {
+        when (val result = extractCompressedFileUseCase(importedBackupPath)) {
             is ExtractCompressedBackupFileResult.Success -> {
                 if (result.isEncrypted) {
                     latestExtractedBackupRootPath = result.extractedFilesRootPath
@@ -197,14 +200,14 @@ class BackupAndRestoreViewModel
 
     fun cancelBackupCreation() {
         state = state.copy(
-            backupCreationProgress = BackupCreationProgress.Pending,
+            backupCreationProgress = BackupCreationProgress.InProgress(),
         )
     }
 
     fun cancelBackupRestore() {
         state = state.copy(
             restoreFileValidation = RestoreFileValidation.Pending,
-            backupRestoreProgress = BackupRestoreProgress.Pending,
+            backupRestoreProgress = BackupRestoreProgress.InProgress(),
             restorePasswordValidation = PasswordValidation.NotVerified
         )
     }
@@ -233,9 +236,9 @@ data class BackupAndRestoreState(
     data class CreatedBackup(val path: Path, val assetName: String, val assetSize: Long, val isEncrypted: Boolean)
     companion object {
         val INITIAL_STATE = BackupAndRestoreState(
-            backupRestoreProgress = BackupRestoreProgress.Pending,
+            backupRestoreProgress = BackupRestoreProgress.InProgress(),
             restoreFileValidation = RestoreFileValidation.Pending,
-            backupCreationProgress = BackupCreationProgress.Pending,
+            backupCreationProgress = BackupCreationProgress.InProgress(),
             restorePasswordValidation = PasswordValidation.NotVerified,
             backupCreationPasswordValidation = PasswordValidation.Valid,
         )
@@ -249,14 +252,12 @@ sealed interface PasswordValidation {
 }
 
 sealed interface BackupCreationProgress {
-    object Pending : BackupCreationProgress
     object Finished : BackupCreationProgress
     data class InProgress(val value: Float = 0f) : BackupCreationProgress
     object Failed : BackupCreationProgress
 }
 
 sealed interface BackupRestoreProgress {
-    object Pending : BackupRestoreProgress
     object Finished : BackupRestoreProgress
     data class InProgress(val value: Float = 0f) : BackupRestoreProgress
     object Failed : BackupRestoreProgress

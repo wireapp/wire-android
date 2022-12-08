@@ -32,7 +32,7 @@ fun PreviewMessage() {
         onImageMessageClicked = { _, _ -> },
         onOpenProfile = { _ -> },
         onReactionClicked = { _, _ -> },
-        onSessionResetClick = { }
+        onResetSessionClicked = { }
     )
 }
 
@@ -65,7 +65,7 @@ fun PreviewMessageWithReply() {
         onImageMessageClicked = { _, _ -> },
         onOpenProfile = { _ -> },
         onReactionClicked = { _, _ -> },
-        onSessionResetClick = {}
+        onResetSessionClicked = {}
     )
 }
 
@@ -81,7 +81,7 @@ fun PreviewDeletedMessage() {
         onImageMessageClicked = { _, _ -> },
         onOpenProfile = { _ -> },
         onReactionClicked = { _, _ -> },
-        onSessionResetClick = { }
+        onResetSessionClicked = { }
     )
 }
 
@@ -95,7 +95,7 @@ fun PreviewAssetMessage() {
         onImageMessageClicked = { _, _ -> },
         onOpenProfile = { _ -> },
         onReactionClicked = { _, _ -> },
-        onSessionResetClick = {}
+        onResetSessionClicked = {}
     )
 }
 
@@ -109,7 +109,7 @@ fun PreviewImageMessageUploaded() {
         onImageMessageClicked = { _, _ -> },
         onOpenProfile = { _ -> },
         onReactionClicked = { _, _ -> },
-        onSessionResetClick = {}
+        onResetSessionClicked = {}
     )
 }
 
@@ -123,7 +123,7 @@ fun PreviewImageMessageUploading() {
         onImageMessageClicked = { _, _ -> },
         onOpenProfile = { _ -> },
         onReactionClicked = { _, _ -> },
-        onSessionResetClick = {}
+        onResetSessionClicked = {}
     )
 }
 
@@ -137,7 +137,7 @@ fun PreviewImageMessageFailedUpload() {
         onImageMessageClicked = { _, _ -> },
         onOpenProfile = { _ -> },
         onReactionClicked = { _, _ -> },
-        onSessionResetClick = {}
+        onResetSessionClicked = {}
     )
 }
 
@@ -152,7 +152,7 @@ fun PreviewMessageWithSystemMessage() {
             onImageMessageClicked = { _, _ -> },
             onOpenProfile = { _ -> },
             onReactionClicked = { _, _ -> },
-            onSessionResetClick = {}
+            onResetSessionClicked = {}
         )
         SystemMessageItem(UIMessageContent.SystemMessage.MissedCall.YouCalled(UIText.DynamicString("You")))
         SystemMessageItem(

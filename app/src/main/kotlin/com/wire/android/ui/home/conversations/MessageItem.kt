@@ -61,7 +61,7 @@ fun MessageItem(
     onImageMessageClicked: (String, Boolean) -> Unit,
     onOpenProfile: (String) -> Unit,
     onReactionClicked: (String, String) -> Unit,
-    onSessionResetClick: () -> Unit
+    onResetSessionClicked: () -> Unit
 ) {
     with(message) {
         val fullAvatarOuterPadding = dimensions().userAvatarClickablePadding + dimensions().userAvatarStatusBorderSize
@@ -138,7 +138,7 @@ fun MessageItem(
                     } else {
                         MessageDecryptionFailure(
                             decryptionStatus = messageHeader.messageStatus as MessageStatus.DecryptionFailure,
-                            onSessionResetClick = onSessionResetClick
+                            onResetSessionClicked = onResetSessionClicked
                         )
                     }
                 }
@@ -358,7 +358,7 @@ private fun MessageSendFailureWarning() {
 }
 
 @Composable
-private fun MessageDecryptionFailure(decryptionStatus: MessageStatus.DecryptionFailure, onSessionResetClick: () -> Unit) {
+private fun MessageDecryptionFailure(decryptionStatus: MessageStatus.DecryptionFailure, onResetSessionClicked: () -> Unit) {
     val context = LocalContext.current
     val learnMoreUrl = stringResource(R.string.url_decryption_failure_learn_more)
     CompositionLocalProvider(
@@ -386,7 +386,7 @@ private fun MessageDecryptionFailure(decryptionStatus: MessageStatus.DecryptionF
                 Row {
                     WireSecondaryButton(
                         text = stringResource(R.string.label_reset_session),
-                        onClick = onSessionResetClick,
+                        onClick = onResetSessionClicked,
                         minHeight = dimensions().spacing32x,
                         fillMaxWidth = false,
                     )

@@ -173,7 +173,7 @@ fun ConversationScreen(
         },
         onJoinCall = conversationCallViewModel::joinOngoingCall,
         onReactionClick = conversationMessagesViewModel::toggleReaction,
-        onSessionResetClick = conversationMessagesViewModel::onResetSession,
+        onResetSessionClick = conversationMessagesViewModel::onResetSession,
         onMentionMember = messageComposerViewModel::mentionMember,
         onUpdateConversationReadDate = messageComposerViewModel::updateConversationReadDate,
         onDropDownClick = conversationInfoViewModel::navigateToDetails,
@@ -260,7 +260,7 @@ private fun ConversationScreen(
     onStartCall: () -> Unit,
     onJoinCall: () -> Unit,
     onReactionClick: (messageId: String, reactionEmoji: String) -> Unit,
-    onSessionResetClick: () -> Unit,
+    onResetSessionClick: () -> Unit,
     onMentionMember: (String?) -> Unit,
     onUpdateConversationReadDate: (String) -> Unit,
     onDropDownClick: () -> Unit,
@@ -390,7 +390,7 @@ private fun ConversationScreen(
                             onDownloadAsset = onDownloadAsset,
                             onImageFullScreenMode = onImageFullScreenMode,
                             onReactionClicked = onReactionClick,
-                            onSessionResetClick = onSessionResetClick,
+                            onResetSessionClicked = onResetSessionClick,
                             onOpenProfile = onOpenProfile,
                             onUpdateConversationReadDate = onUpdateConversationReadDate,
                             onMessageComposerError = onSnackbarMessage,
@@ -424,7 +424,7 @@ private fun ConversationScreenContent(
     onDownloadAsset: (String) -> Unit,
     onImageFullScreenMode: (String, Boolean) -> Unit,
     onReactionClicked: (String, String) -> Unit,
-    onSessionResetClick: () -> Unit,
+    onResetSessionClicked: () -> Unit,
     onOpenProfile: (String) -> Unit,
     onUpdateConversationReadDate: (String) -> Unit,
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
@@ -452,7 +452,7 @@ private fun ConversationScreenContent(
                 onImageFullScreenMode = onImageFullScreenMode,
                 onOpenProfile = onOpenProfile,
                 onReactionClicked = onReactionClicked,
-                onSessionResetClick = onSessionResetClick,
+                onResetSessionClicked = onResetSessionClicked,
                 onShowContextMenu = onShowContextMenu
             )
         },
@@ -527,7 +527,7 @@ fun MessageList(
     onImageFullScreenMode: (String, Boolean) -> Unit,
     onOpenProfile: (String) -> Unit,
     onReactionClicked: (String, String) -> Unit,
-    onSessionResetClick: () -> Unit,
+    onResetSessionClicked: () -> Unit,
     onShowContextMenu: (UIMessage) -> Unit
 ) {
     val mostRecentMessage = lazyPagingMessages.itemCount.takeIf { it > 0 }?.let { lazyPagingMessages[0] }
@@ -577,7 +577,7 @@ fun MessageList(
                     onImageMessageClicked = onImageFullScreenMode,
                     onOpenProfile = onOpenProfile,
                     onReactionClicked = onReactionClicked,
-                    onSessionResetClick = onSessionResetClick
+                    onResetSessionClicked = onResetSessionClicked
                 )
             }
         }
@@ -613,6 +613,6 @@ fun ConversationScreenPreview() {
         onDropDownClick = { },
         onSnackbarMessage = { },
         onSnackbarMessageShown = { },
-        onSessionResetClick = { },
+        onResetSessionClick = { },
     ) { }
 }

@@ -838,4 +838,10 @@ class UseCaseModule {
     @Provides
     fun provideObserveIfAppFreshEnoughUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
         coreLogic.getGlobalScope().observeIfAppUpdateRequired
+
+    @ViewModelScoped
+    @Provides
+    fun provideResolveFailedDecryptedMessages(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).messages.resolveFailedDecryptedMessages
+
 }

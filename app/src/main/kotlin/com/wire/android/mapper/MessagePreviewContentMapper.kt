@@ -12,39 +12,24 @@ import com.wire.kalium.logic.data.message.MessagePreviewContent.WithUser
 import com.wire.kalium.logic.data.message.UnreadEventType
 
 @Suppress("ReturnCount")
-fun MessagePreview?.toUIPreview(
-    unreadEventCount: UnreadEventCount,
-    unreadMentionsCount: Long,
-): UILastMessageContent {
+fun MessagePreview?.toUIPreview(unreadEventCount: UnreadEventCount): UILastMessageContent {
     if (this == null) {
         return UILastMessageContent.None
     }
 
     val sortedUnreadContent = unreadEventCount
-        .plus(if (unreadMentionsCount > 0) mapOf(Pair(UnreadEventType.MENTION, unreadMentionsCount.toInt())) else mapOf())
         .toSortedMap()
 
-    // we want to show last text message content instead of counter when there are only unread text messages
-    if (!(sortedUnreadContent.size == 1 && sortedUnreadContent.contains(UnreadEventType.MESSAGE))) {
+    // we want to show last message content instead of counter when there are only one type of unread events
+    if (sortedUnreadContent.size > 1) {
         val unreadContentTexts = sortedUnreadContent
             .mapNotNull { type ->
                 when (type.key) {
                     UnreadEventType.KNOCK -> UIText.PluralResource(R.plurals.unread_event_knock, type.value, type.value)
                     UnreadEventType.MISSED_CALL -> UIText.PluralResource(R.plurals.unread_event_call, type.value, type.value)
                     UnreadEventType.MENTION -> UIText.PluralResource(R.plurals.unread_event_mention, type.value, type.value)
-                    // TODO we need to decrease number of text messages by mentions count because currently they contain them
-                    UnreadEventType.MESSAGE -> {
-                        val messagesWithoutMentions = type.value - unreadMentionsCount.toInt()
-                        if (messagesWithoutMentions > 0) {
-                            UIText.PluralResource(
-                                R.plurals.unread_event_message,
-                                messagesWithoutMentions,
-                                messagesWithoutMentions
-                            )
-                        } else {
-                            null
-                        }
-                    }
+                    UnreadEventType.REPLY -> UIText.PluralResource(R.plurals.unread_event_reply, type.value, type.value)
+                    UnreadEventType.MESSAGE -> UIText.PluralResource(R.plurals.unread_event_message, type.value, type.value)
                     UnreadEventType.IGNORED -> null
                     null -> null
                 }

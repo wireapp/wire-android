@@ -44,6 +44,7 @@ import kotlinx.coroutines.test.runTest
 import org.amshove.kluent.internal.assertEquals
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
+
 @OptIn(ExperimentalCoroutinesApi::class)
 @ExtendWith(CoroutineTestExtension::class)
 class GroupConversationDetailsViewModelTest {
@@ -413,7 +414,6 @@ class GroupConversationDetailsViewModelTest {
             ),
             legalHoldStatus = LegalHoldStatus.DISABLED,
             hasOngoingCall = false,
-            unreadRepliesCount = 0,
             lastMessage = null,
             isSelfUserCreator = false,
             isSelfUserMember = true,

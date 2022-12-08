@@ -833,4 +833,9 @@ class UseCaseModule {
     @Provides
     fun providePersistReadReceiptsStatusConfig(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).users.persistReadReceiptsStatusConfig
+
+    @ViewModelScoped
+    @Provides
+    fun provideObserveIfAppFreshEnoughUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
+        coreLogic.getGlobalScope().observeIfAppUpdateRequired
 }

@@ -20,6 +20,7 @@ import com.wire.android.util.newServerConfig
 import com.wire.kalium.logic.data.id.ConversationId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.user.UserId
+import com.wire.kalium.logic.feature.appVersioning.ObserveIfAppUpdateRequiredUseCase
 import com.wire.kalium.logic.feature.auth.AccountInfo
 import com.wire.kalium.logic.feature.server.GetServerConfigResult
 import com.wire.kalium.logic.feature.server.GetServerConfigUseCase
@@ -352,6 +353,16 @@ class WireActivityViewModelTest {
         coVerify(exactly = 0) { arrangement.navigationManager.navigate(any()) }
     }
 
+    @Test
+    fun `given appUpdate is required, then should show the appUpdate dialog`() {
+        val (_, viewModel) = Arrangement()
+            .withNoCurrentSession()
+            .withAppUpdateRequired(true)
+            .arrange()
+
+        assertEquals(true, viewModel.globalAppState.updateAppDialog)
+    }
+
     private class Arrangement {
         init {
             // Tests setup
@@ -370,6 +381,9 @@ class WireActivityViewModelTest {
                     )
             coEvery { getSessionsUseCase.invoke() }
             coEvery { migrationManager.shouldMigrate() } returns false
+            every { observeSyncStateUseCaseProviderFactory.create(any()).observeSyncState } returns observeSyncStateUseCase
+            every { observeSyncStateUseCase() } returns emptyFlow()
+            coEvery { observeIfAppUpdateRequired(any()) } returns flowOf(false)
         }
 
         @MockK
@@ -411,6 +425,9 @@ class WireActivityViewModelTest {
         @MockK
         lateinit var servicesManager: ServicesManager
 
+        @MockK
+        lateinit var observeIfAppUpdateRequired: ObserveIfAppUpdateRequiredUseCase
+
         private val viewModel by lazy {
             WireActivityViewModel(
                 dispatchers = TestDispatcherProvider(),
@@ -425,13 +442,9 @@ class WireActivityViewModelTest {
                 accountSwitch = switchAccount,
                 migrationManager = migrationManager,
                 observeSyncStateUseCaseProviderFactory = observeSyncStateUseCaseProviderFactory,
-                servicesManager = servicesManager
+                servicesManager = servicesManager,
+                observeIfAppUpdateRequired = observeIfAppUpdateRequired
             )
-        }
-
-        init {
-            every { observeSyncStateUseCaseProviderFactory.create(any()).observeSyncState } returns observeSyncStateUseCase
-            every { observeSyncStateUseCase() } returns emptyFlow()
         }
 
         fun withSomeCurrentSession(): Arrangement {
@@ -447,6 +460,10 @@ class WireActivityViewModelTest {
         fun withDeepLinkResult(result: DeepLinkResult): Arrangement {
             coEvery { deepLinkProcessor(any()) } returns result
             return this
+        }
+
+        fun withAppUpdateRequired(result: Boolean): Arrangement = apply {
+            coEvery { observeIfAppUpdateRequired(any()) } returns flowOf(result)
         }
 
         fun arrange() = this to viewModel

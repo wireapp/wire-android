@@ -28,7 +28,7 @@ data class UIMessage(
 ) {
     val isDeleted: Boolean = messageHeader.messageStatus == Deleted
     val sendingFailed: Boolean = messageHeader.messageStatus == SendFailure
-    val decryptionFailed: Boolean = messageHeader.messageStatus == DecryptionFailure
+    val decryptionFailed: Boolean = messageHeader.messageStatus is DecryptionFailure
     val receivingFailed: Boolean = messageHeader.messageStatus == ReceiveFailure || decryptionFailed
 }
 
@@ -61,7 +61,8 @@ sealed class MessageStatus(val text: UIText) {
 
     object SendFailure : MessageStatus(UIText.StringResource(R.string.label_message_sent_failure))
     object ReceiveFailure : MessageStatus(UIText.StringResource(R.string.label_message_receive_failure))
-    object DecryptionFailure : MessageStatus(UIText.StringResource(R.string.label_message_decryption_failure_message))
+    data class DecryptionFailure(val isSessionResolved: Boolean) :
+        MessageStatus(UIText.StringResource(R.string.label_message_decryption_failure_message))
 }
 
 @Stable

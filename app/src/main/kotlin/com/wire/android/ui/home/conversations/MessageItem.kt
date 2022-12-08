@@ -136,8 +136,7 @@ fun MessageItem(
                             onReactionClicked
                         )
                     } else {
-                        // Decryption failed for this message
-                        MessageDecryptionFailure()
+                        MessageDecryptionFailure(messageHeader.messageStatus as MessageStatus.DecryptionFailure)
                     }
                 }
 
@@ -324,7 +323,8 @@ private fun MessageStatusLabel(messageStatus: MessageStatus) {
         is MessageStatus.Edited,
         MessageStatus.ReceiveFailure -> StatusBox(messageStatus.text.asString())
 
-        MessageStatus.SendFailure, MessageStatus.Untouched, MessageStatus.DecryptionFailure -> {
+        is MessageStatus.DecryptionFailure,
+        MessageStatus.SendFailure, MessageStatus.Untouched -> {
             /** Don't display anything **/
         }
     }
@@ -355,7 +355,7 @@ private fun MessageSendFailureWarning() {
 }
 
 @Composable
-private fun MessageDecryptionFailure() {
+private fun MessageDecryptionFailure(decryptionStatus: MessageStatus.DecryptionFailure) {
     val context = LocalContext.current
     val learnMoreUrl = stringResource(R.string.url_decryption_failure_learn_more)
     CompositionLocalProvider(
@@ -365,7 +365,7 @@ private fun MessageDecryptionFailure() {
             Row {
                 Spacer(Modifier.height(dimensions().spacing4x))
                 Text(
-                    text = MessageStatus.DecryptionFailure.text.asString(),
+                    text = decryptionStatus.text.asString(),
                     style = LocalTextStyle.current.copy(color = MaterialTheme.colorScheme.error)
                 )
                 Spacer(Modifier.width(dimensions().spacing4x))
@@ -379,13 +379,17 @@ private fun MessageDecryptionFailure() {
                     text = stringResource(R.string.label_learn_more),
                 )
             }
-            Row {
-                WireSecondaryButton(
-                    text = stringResource(R.string.label_reset_session),
-                    onClick = { appLogger.d("Call to reset session...") },
-                    minHeight = dimensions().spacing32x,
-                    fillMaxWidth = false,
-                )
+            if (!decryptionStatus.isSessionResolved) {
+                Row {
+                    WireSecondaryButton(
+                        text = stringResource(R.string.label_reset_session),
+                        onClick = { appLogger.d("Call to reset session...") },
+                        minHeight = dimensions().spacing32x,
+                        fillMaxWidth = false,
+                    )
+                }
+            } else {
+                VerticalSpace.x8()
             }
         }
     }
@@ -394,7 +398,13 @@ private fun MessageDecryptionFailure() {
 @Preview(name = "Decrypt error component message")
 @Composable
 private fun PreviewDecryptMessageError() {
-    MessageDecryptionFailure()
+    MessageDecryptionFailure(MessageStatus.DecryptionFailure(true))
+}
+
+@Preview(name = "Decrypt error component message with reset button")
+@Composable
+private fun PreviewDecryptMessageErrorResetOption() {
+    MessageDecryptionFailure(MessageStatus.DecryptionFailure(false))
 }
 
 @Preview(name = "Message send failure warning")

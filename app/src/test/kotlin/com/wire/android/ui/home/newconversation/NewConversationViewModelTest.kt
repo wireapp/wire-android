@@ -10,9 +10,12 @@ import com.wire.android.ui.home.conversations.search.SearchResultTitle
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.ui.home.newconversation.groupOptions.GroupOptionState
 import com.wire.android.ui.home.newconversation.model.Contact
+import com.wire.kalium.logic.data.conversation.ConversationOptions
 import com.wire.kalium.logic.data.user.ConnectionState
 import com.wire.kalium.logic.data.user.UserAssetId
 import com.wire.kalium.logic.data.user.UserAvailabilityStatus
+import com.wire.kalium.logic.data.user.UserId
+import io.mockk.coVerify
 import kotlinx.collections.immutable.persistentListOf
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.advanceUntilIdle
@@ -95,7 +98,7 @@ class NewConversationViewModelTest {
             .withSyncFailureOnCreatingGroup()
             .arrange()
 
-        viewModel.createGroupWithCustomOptions()
+        viewModel.createGroup()
         advanceUntilIdle()
 
         viewModel.groupOptionsState.error shouldBeEqualTo GroupOptionState.Error.LackingConnection
@@ -108,7 +111,7 @@ class NewConversationViewModelTest {
             .withUnknownFailureOnCreatingGroup()
             .arrange()
 
-        viewModel.createGroupWithCustomOptions()
+        viewModel.createGroup()
         advanceUntilIdle()
 
         viewModel.groupOptionsState.error shouldBeEqualTo GroupOptionState.Error.Unknown
@@ -120,10 +123,30 @@ class NewConversationViewModelTest {
             .withIsSelfTeamMember(true)
             .arrange()
 
-        viewModel.createGroupWithCustomOptions()
+        viewModel.createGroup()
         advanceUntilIdle()
 
         viewModel.groupOptionsState.error.shouldBeNull()
+    }
+
+    @Test
+    fun `given self is not a team member, when creating group, then the group is created with the correct values`() = runTest {
+        val (arrangement, viewModel) = NewConversationViewModelArrangement()
+            .withIsSelfTeamMember(false)
+            .arrange()
+
+        viewModel.createGroup()
+        advanceUntilIdle()
+
+        viewModel.groupOptionsState.error.shouldBeNull()
+
+        coVerify {
+            arrangement.createGroupConversation(
+                viewModel.newGroupState.groupName.text,
+                viewModel.state.contactsAddedToGroup.map { contact -> UserId(contact.id, contact.domain) },
+                ConversationOptions(null, null, null, ConversationOptions.Protocol.PROTEUS, null)
+                )
+        }
     }
 
     @Test

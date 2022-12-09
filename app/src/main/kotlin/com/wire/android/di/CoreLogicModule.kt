@@ -847,6 +847,7 @@ class UseCaseModule {
         @CurrentAccount currentAccount: UserId
     ): IsSelfATeamMemberUseCase = coreLogic.getSessionScope(currentAccount).team.isSelfATeamMember
 
+    @ViewModelScoped
     @Provides
     fun provideResetSession(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).messages.resetSession

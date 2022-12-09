@@ -6,19 +6,16 @@ import app.cash.turbine.test
 import com.wire.android.config.CoroutineTestExtension
 import com.wire.android.framework.TestMessage
 import com.wire.android.ui.home.conversations.DownloadedAssetDialogVisibilityState
-import com.wire.android.ui.home.conversations.mockConversationDetailsGroup
 import com.wire.android.ui.home.conversations.mockUITextMessage
-import com.wire.kalium.logic.data.conversation.ConversationDetails
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.util.fileExtension
 import io.mockk.coVerify
+import io.mockk.confirmVerified
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
-import kotlinx.datetime.Instant
 import okio.Path.Companion.toPath
 import org.amshove.kluent.shouldBeEqualTo
-import org.amshove.kluent.shouldBeNull
-import org.amshove.kluent.shouldNotBeNull
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -108,5 +105,18 @@ class ConversationMessagesViewModelTest {
         coVerify(exactly = 1) {
             arrangement.toggleReaction(arrangement.conversationId, messageId, reaction)
         }
+    }
+
+    @Test
+    fun `given a message with failed decryption, when resetting the session, then should call ResetSessionUseCase`() = runTest {
+        val userId = UserId("someID", "someDomain")
+        val clientId = "someClientId"
+        val (arrangement, viewModel) = ConversationMessagesViewModelArrangement()
+            .withSuccessfulResetSessionCall()
+            .arrange()
+
+        viewModel.onResetSession(userId, clientId)
+
+        coVerify(exactly = 1) { arrangement.resetSession(any(), any(), any()) }
     }
 }

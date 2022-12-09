@@ -78,7 +78,9 @@ import com.wire.android.util.permission.CallingAudioRequestFlow
 import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.NetworkFailure
+import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.conversation.Conversation
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.ConferenceCallingResult
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import kotlinx.collections.immutable.ImmutableMap
@@ -260,7 +262,7 @@ private fun ConversationScreen(
     onStartCall: () -> Unit,
     onJoinCall: () -> Unit,
     onReactionClick: (messageId: String, reactionEmoji: String) -> Unit,
-    onResetSessionClick: () -> Unit,
+    onResetSessionClick: (senderUserId: UserId, clientId: String?) -> Unit,
     onMentionMember: (String?) -> Unit,
     onUpdateConversationReadDate: (String) -> Unit,
     onDropDownClick: () -> Unit,
@@ -424,7 +426,7 @@ private fun ConversationScreenContent(
     onDownloadAsset: (String) -> Unit,
     onImageFullScreenMode: (String, Boolean) -> Unit,
     onReactionClicked: (String, String) -> Unit,
-    onResetSessionClicked: () -> Unit,
+    onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit,
     onOpenProfile: (String) -> Unit,
     onUpdateConversationReadDate: (String) -> Unit,
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
@@ -527,7 +529,7 @@ fun MessageList(
     onImageFullScreenMode: (String, Boolean) -> Unit,
     onOpenProfile: (String) -> Unit,
     onReactionClicked: (String, String) -> Unit,
-    onResetSessionClicked: () -> Unit,
+    onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit,
     onShowContextMenu: (UIMessage) -> Unit
 ) {
     val mostRecentMessage = lazyPagingMessages.itemCount.takeIf { it > 0 }?.let { lazyPagingMessages[0] }
@@ -613,6 +615,6 @@ fun ConversationScreenPreview() {
         onDropDownClick = { },
         onSnackbarMessage = { },
         onSnackbarMessageShown = { },
-        onResetSessionClick = { },
+        onResetSessionClick = { _, _ -> },
     ) { }
 }

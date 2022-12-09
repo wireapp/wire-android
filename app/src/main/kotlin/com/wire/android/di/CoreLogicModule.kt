@@ -842,7 +842,7 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun providesIsSelfTeamMemberUseCase(
+    fun provideIsSelfTeamMemberUseCase(
         @KaliumCoreLogic coreLogic: CoreLogic,
         @CurrentAccount currentAccount: UserId
     ): IsSelfATeamMemberUseCase = coreLogic.getSessionScope(currentAccount).team.isSelfATeamMember
@@ -850,4 +850,8 @@ class UseCaseModule {
     @Provides
     fun provideResolveFailedDecryptedMessages(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).messages.resolveFailedDecryptedMessages
+
+    @Provides
+    fun provideResetSession(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
+        coreLogic.getSessionScope(currentAccount).messages.resetSession
 }

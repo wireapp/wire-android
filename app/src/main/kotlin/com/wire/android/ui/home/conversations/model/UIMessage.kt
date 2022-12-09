@@ -13,6 +13,7 @@ import com.wire.android.ui.home.conversations.model.MessageStatus.SendFailure
 import com.wire.android.ui.home.conversationslist.model.Membership
 import com.wire.android.util.ui.UIText
 import com.wire.android.util.uiMessageDateTime
+import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
 import com.wire.kalium.logic.data.user.AssetId
@@ -43,7 +44,8 @@ data class MessageHeader(
     val userId: UserId? = null,
     val connectionState: ConnectionState?,
     val isSenderDeleted: Boolean,
-    val isSenderUnavailable: Boolean
+    val isSenderUnavailable: Boolean,
+    val clientId: ClientId? = null
 )
 
 @Stable

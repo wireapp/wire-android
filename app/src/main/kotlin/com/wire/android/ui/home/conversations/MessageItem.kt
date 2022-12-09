@@ -23,7 +23,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import com.google.accompanist.flowlayout.FlowRow
 import com.wire.android.R
 import com.wire.android.model.Clickable
@@ -51,6 +50,8 @@ import com.wire.android.ui.home.conversations.model.messagetypes.image.ImageMess
 import com.wire.android.ui.theme.wireColorScheme
 import com.wire.android.ui.theme.wireTypography
 import com.wire.android.util.CustomTabsHelper
+import com.wire.kalium.logic.data.conversation.ClientId
+import com.wire.kalium.logic.data.user.UserId
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
@@ -61,7 +62,7 @@ fun MessageItem(
     onImageMessageClicked: (String, Boolean) -> Unit,
     onOpenProfile: (String) -> Unit,
     onReactionClicked: (String, String) -> Unit,
-    onResetSessionClicked: () -> Unit
+    onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit
 ) {
     with(message) {
         val fullAvatarOuterPadding = dimensions().userAvatarClickablePadding + dimensions().userAvatarStatusBorderSize
@@ -137,6 +138,7 @@ fun MessageItem(
                         )
                     } else {
                         MessageDecryptionFailure(
+                            messageHeader = messageHeader,
                             decryptionStatus = messageHeader.messageStatus as MessageStatus.DecryptionFailure,
                             onResetSessionClicked = onResetSessionClicked
                         )
@@ -358,7 +360,11 @@ private fun MessageSendFailureWarning() {
 }
 
 @Composable
-private fun MessageDecryptionFailure(decryptionStatus: MessageStatus.DecryptionFailure, onResetSessionClicked: () -> Unit) {
+private fun MessageDecryptionFailure(
+    messageHeader: MessageHeader,
+    decryptionStatus: MessageStatus.DecryptionFailure,
+    onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit
+) {
     val context = LocalContext.current
     val learnMoreUrl = stringResource(R.string.url_decryption_failure_learn_more)
     CompositionLocalProvider(
@@ -386,7 +392,7 @@ private fun MessageDecryptionFailure(decryptionStatus: MessageStatus.DecryptionF
                 Row {
                     WireSecondaryButton(
                         text = stringResource(R.string.label_reset_session),
-                        onClick = onResetSessionClicked,
+                        onClick = { messageHeader.userId?.let { userId -> onResetSessionClicked(userId, messageHeader.clientId?.value) } },
                         minHeight = dimensions().spacing32x,
                         fillMaxWidth = false,
                     )
@@ -396,22 +402,4 @@ private fun MessageDecryptionFailure(decryptionStatus: MessageStatus.DecryptionF
             }
         }
     }
-}
-
-@Preview(name = "Decrypt error component message")
-@Composable
-private fun PreviewDecryptMessageError() {
-    MessageDecryptionFailure(MessageStatus.DecryptionFailure(true)) {}
-}
-
-@Preview(name = "Decrypt error component message with reset button")
-@Composable
-private fun PreviewDecryptMessageErrorResetOption() {
-    MessageDecryptionFailure(MessageStatus.DecryptionFailure(false)) {}
-}
-
-@Preview(name = "Message send failure warning")
-@Composable
-private fun PreviewMessageSendFailureWarning() {
-    MessageSendFailureWarning()
 }

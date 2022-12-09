@@ -32,7 +32,7 @@ fun PreviewMessage() {
         onImageMessageClicked = { _, _ -> },
         onOpenProfile = { _ -> },
         onReactionClicked = { _, _ -> },
-        onResetSessionClicked = { }
+        onResetSessionClicked = { _, _ -> }
     )
 }
 
@@ -65,7 +65,7 @@ fun PreviewMessageWithReply() {
         onImageMessageClicked = { _, _ -> },
         onOpenProfile = { _ -> },
         onReactionClicked = { _, _ -> },
-        onResetSessionClicked = {}
+        onResetSessionClicked = { _, _ -> }
     )
 }
 
@@ -81,7 +81,7 @@ fun PreviewDeletedMessage() {
         onImageMessageClicked = { _, _ -> },
         onOpenProfile = { _ -> },
         onReactionClicked = { _, _ -> },
-        onResetSessionClicked = { }
+        onResetSessionClicked = { _, _ -> }
     )
 }
 
@@ -95,7 +95,7 @@ fun PreviewAssetMessage() {
         onImageMessageClicked = { _, _ -> },
         onOpenProfile = { _ -> },
         onReactionClicked = { _, _ -> },
-        onResetSessionClicked = {}
+        onResetSessionClicked = { _, _ -> }
     )
 }
 
@@ -109,7 +109,7 @@ fun PreviewImageMessageUploaded() {
         onImageMessageClicked = { _, _ -> },
         onOpenProfile = { _ -> },
         onReactionClicked = { _, _ -> },
-        onResetSessionClicked = {}
+        onResetSessionClicked = { _, _ -> }
     )
 }
 
@@ -123,7 +123,7 @@ fun PreviewImageMessageUploading() {
         onImageMessageClicked = { _, _ -> },
         onOpenProfile = { _ -> },
         onReactionClicked = { _, _ -> },
-        onResetSessionClicked = {}
+        onResetSessionClicked = { _, _ -> }
     )
 }
 
@@ -137,7 +137,7 @@ fun PreviewImageMessageFailedUpload() {
         onImageMessageClicked = { _, _ -> },
         onOpenProfile = { _ -> },
         onReactionClicked = { _, _ -> },
-        onResetSessionClicked = {}
+        onResetSessionClicked = { _, _ -> }
     )
 }
 
@@ -152,7 +152,7 @@ fun PreviewMessageWithSystemMessage() {
             onImageMessageClicked = { _, _ -> },
             onOpenProfile = { _ -> },
             onReactionClicked = { _, _ -> },
-            onResetSessionClicked = {}
+            onResetSessionClicked = { _, _ -> }
         )
         SystemMessageItem(UIMessageContent.SystemMessage.MissedCall.YouCalled(UIText.DynamicString("You")))
         SystemMessageItem(

@@ -287,7 +287,9 @@
     <string name="sent_a_message_with_content">sent a message with %s content</string>
     <string name="new_group_title">New Group</string>
     <string name="new_group_description">Up to 500 people can join a group conversation.</string>
-    <string name="group_name">Group name</string>
+    <string name="group_name_title">Group Name</string>
+    <string name="group_name_placeholder">Enter a name</string>
+    <string name="group_name_description">Give this group a meaningful name.</string>
     <string name="protocol">Protocol</string>
     <string name="mls">MLS</string>
     <string name="cipher_suite">Cipher Suite</string>

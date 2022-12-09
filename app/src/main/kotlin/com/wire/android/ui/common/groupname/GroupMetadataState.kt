@@ -12,6 +12,7 @@ data class GroupMetadataState(
     val isLoading: Boolean = false,
     val error: NewGroupError = NewGroupError.None,
     val mode: GroupNameMode = GroupNameMode.CREATION,
+    val isSelfTeamMember: Boolean = false
 ) {
     sealed interface NewGroupError {
         object None : NewGroupError

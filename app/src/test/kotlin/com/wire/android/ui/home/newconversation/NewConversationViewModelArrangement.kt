@@ -178,7 +178,7 @@ internal class NewConversationViewModelArrangement {
             sendConnectionRequest = sendConnectionRequestUseCase,
             dispatchers = TestDispatcherProvider(),
             isMLSEnabled = isMLSEnabledUseCase,
-            isSelfATeamMemberUseCase = isSelfTeamMember
+            isSelfATeamMember = isSelfTeamMember
         )
     }
 

@@ -36,7 +36,7 @@ import javax.inject.Inject
 @HiltViewModel
 class NewConversationViewModel @Inject constructor(
     private val createGroupConversation: CreateGroupConversationUseCase,
-    private val isSelfATeamMemberUseCase: IsSelfATeamMemberUseCase,
+    private val isSelfATeamMember: IsSelfATeamMemberUseCase,
     getAllKnownUsers: GetAllContactsUseCase,
     searchKnownUsers: SearchKnownUsersUseCase,
     searchPublicUsers: SearchPublicUsersUseCase,
@@ -58,7 +58,7 @@ class NewConversationViewModel @Inject constructor(
     var newGroupState: GroupMetadataState by mutableStateOf(
         GroupMetadataState(
             mlsEnabled = isMLSEnabled(),
-            isSelfTeamMember = runBlocking { isSelfATeamMemberUseCase() })
+            isSelfTeamMember = runBlocking { isSelfATeamMember() })
     )
 
     var groupOptionsState: GroupOptionState by mutableStateOf(GroupOptionState())
@@ -138,7 +138,15 @@ class NewConversationViewModel @Inject constructor(
         return false
     }
 
-    fun createGroupWithoutOption() {
+    fun createGroup() {
+        if (newGroupState.isSelfTeamMember) {
+            createGroupWithCustomOptions(true)
+        } else {
+            createGroupWithoutOption()
+        }
+    }
+
+    private fun createGroupWithoutOption() {
         viewModelScope.launch {
             newGroupState = newGroupState.copy(isLoading = true)
             val result = createGroupConversation(
@@ -155,7 +163,7 @@ class NewConversationViewModel @Inject constructor(
         }
     }
 
-    fun createGroupWithCustomOptions(shouldCheckGuests: Boolean = true) {
+    private fun createGroupWithCustomOptions(shouldCheckGuests: Boolean = true) {
         if (shouldCheckGuests && checkIfGuestAdded())
             return
         viewModelScope.launch {

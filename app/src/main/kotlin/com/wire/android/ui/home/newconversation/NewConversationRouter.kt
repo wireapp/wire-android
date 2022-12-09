@@ -66,7 +66,7 @@ fun NewConversationRouter() {
                             if (newConversationViewModel.newGroupState.isSelfTeamMember) {
                                 newConversationNavController.navigate(Screen.GroupOptionsScreen.route)
                             } else {
-                                newConversationViewModel.createGroupWithCustomOptions()
+                                newConversationViewModel.createGroup()
                             }
                         },
                         onGroupNameErrorAnimated = newConversationViewModel::onGroupNameErrorAnimated
@@ -78,7 +78,7 @@ fun NewConversationRouter() {
                 content = {
                     GroupOptionScreen(
                         onBackPressed = newConversationNavController::popBackStack,
-                        onCreateGroup = newConversationViewModel::createGroupWithCustomOptions,
+                        onCreateGroup = newConversationViewModel::createGroup,
                         groupOptionState = newConversationViewModel.groupOptionsState,
                         onAllowGuestChanged = newConversationViewModel::onAllowGuestStatusChanged,
                         onAllowServicesChanged = newConversationViewModel::onAllowServicesStatusChanged,

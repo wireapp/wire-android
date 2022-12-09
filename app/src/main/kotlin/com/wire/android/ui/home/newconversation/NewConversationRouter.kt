@@ -62,7 +62,13 @@ fun NewConversationRouter() {
                         onBackPressed = newConversationNavController::popBackStack,
                         newGroupState = newConversationViewModel.newGroupState,
                         onGroupNameChange = newConversationViewModel::onGroupNameChange,
-                        onContinuePressed = { newConversationNavController.navigate(Screen.GroupOptionsScreen.route) },
+                        onContinuePressed = {
+                            if (newConversationViewModel.newGroupState.isSelfTeamMember) {
+                                newConversationNavController.navigate(Screen.GroupOptionsScreen.route)
+                            } else {
+                                newConversationViewModel.createGroup()
+                            }
+                        },
                         onGroupNameErrorAnimated = newConversationViewModel::onGroupNameErrorAnimated
                     )
                 }
@@ -98,6 +104,7 @@ private fun handleSnackBarMessage(
         val message = when (messageType) {
             is NewConversationSnackbarState.SuccessSendConnectionRequest ->
                 stringResource(id = R.string.connection_request_sent)
+
             NewConversationSnackbarState.None -> ""
         }
         LaunchedEffect(messageType) {

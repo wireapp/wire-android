@@ -20,18 +20,20 @@ import com.wire.android.ui.home.conversations.usecase.GetMessagesForConversation
 import com.wire.android.util.FileManager
 import com.wire.android.util.dispatchers.DispatcherProvider
 import com.wire.android.util.ui.UIText
+import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.id.QualifiedID
 import com.wire.kalium.logic.data.id.QualifiedIdMapper
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.message.MessageContent
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.asset.GetMessageAssetUseCase
 import com.wire.kalium.logic.feature.asset.MessageAssetResult
 import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCase
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
-import com.wire.kalium.logic.feature.message.ResolveDecryptedErrorResult
-import com.wire.kalium.logic.feature.message.ResolveFailedDecryptedMessagesUseCase
 import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
+import com.wire.kalium.logic.feature.sessionreset.ResetSessionUseCase
+import com.wire.kalium.logic.functional.Either
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
@@ -54,7 +56,7 @@ class ConversationMessagesViewModel @Inject constructor(
     private val dispatchers: DispatcherProvider,
     private val getMessageForConversation: GetMessagesForConversationUseCase,
     private val toggleReaction: ToggleReactionUseCase,
-    private val resolveFailedDecryptedMessages: ResolveFailedDecryptedMessagesUseCase,
+    private val resetSession: ResetSessionUseCase
 ) : SavedStateViewModel(savedStateHandle) {
 
     var conversationViewState by mutableStateOf(ConversationMessagesViewState())
@@ -185,16 +187,13 @@ class ConversationMessagesViewModel @Inject constructor(
         }
     }
 
-    // todo: call correct use case, part 3 reset session on kalium
-    fun onResetSession() {
+    fun onResetSession(userId: UserId, clientId: String?) {
         viewModelScope.launch {
-            conversationViewState = when (withContext(dispatchers.io()) { resolveFailedDecryptedMessages(conversationId) }) {
-                is ResolveDecryptedErrorResult.Failure ->
-                    conversationViewState.copy(snackbarMessage = OnResetSession(UIText.StringResource(R.string.label_general_error)))
-                is ResolveDecryptedErrorResult.Success ->
-                    conversationViewState.copy(
-                        snackbarMessage = OnResetSession(UIText.StringResource(R.string.label_reset_session_success))
-                    )
+            conversationViewState = when (withContext(dispatchers.io()) { resetSession(userId, ClientId(clientId.orEmpty())) }) {
+                is Either.Left -> conversationViewState.copy(snackbarMessage = OnResetSession(UIText.StringResource(R.string.label_general_error)))
+                is Either.Right -> conversationViewState.copy(
+                    snackbarMessage = OnResetSession(UIText.StringResource(R.string.label_reset_session_success))
+                )
             }
         }
     }

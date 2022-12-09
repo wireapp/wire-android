@@ -848,10 +848,6 @@ class UseCaseModule {
     ): IsSelfATeamMemberUseCase = coreLogic.getSessionScope(currentAccount).team.isSelfATeamMember
 
     @Provides
-    fun provideResolveFailedDecryptedMessages(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
-        coreLogic.getSessionScope(currentAccount).messages.resolveFailedDecryptedMessages
-
-    @Provides
     fun provideResetSession(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId) =
         coreLogic.getSessionScope(currentAccount).messages.resetSession
 }

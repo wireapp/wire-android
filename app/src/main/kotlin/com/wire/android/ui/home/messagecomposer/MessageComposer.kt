@@ -111,6 +111,15 @@ fun MessageComposer(
                 .collect { onMentionMember(it) }
         }
 
+
+
+        LaunchedEffect(keyboardHeight) {
+            if (keyboardHeight is KeyboardHeight.Known) {
+
+                val test = messageComposerState.fullScreenHeight
+            }
+
+        }
         MessageComposer(
             content = content,
             keyboardHeight = keyboardHeight,
@@ -207,7 +216,7 @@ private fun MessageComposer(
                                 detectTapGestures(
                                     onPress = {
                                         focusManager.clearFocus()
-                                        messageComposerState.clickOutSideMessageComposer()
+                                        messageComposerState.toEnabled()
                                     },
                                     onDoubleTap = { /* Called on Double Tap */ },
                                     onLongPress = { /* Called on Long Press */ },
@@ -342,8 +351,8 @@ private fun MessageComposer(
         }
     }
 
-    BackHandler(enabled = messageComposerState.attachmentOptionsDisplayed) {
-        messageComposerState.toggleAttachmentOptionsVisibility()
+    BackHandler(messageComposerState.attachmentOptionsDisplayed) {
+        messageComposerState.hideAttachmentOptions()
     }
 }
 
@@ -369,7 +378,7 @@ private fun CollapseIconButtonBox(
                 }
             }
             CollapseIconButton(
-                onCollapseClick = { messageComposerState.toggleFullScreen() },
+                onCollapseClick = messageComposerState::toggleFullScreen,
                 collapseRotation = collapseButtonRotationDegree
             )
         }

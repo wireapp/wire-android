@@ -84,6 +84,12 @@ data class MessageComposerInnerState(
                 .isNotBlank()
         }
 
+    val isActive: Boolean
+        get() = messageComposeInputState == MessageComposeInputState.Active
+
+    val isEnabled: Boolean
+        get() = messageComposeInputState == MessageComposeInputState.Enabled
+
     var fullScreenHeight: Dp by mutableStateOf(0.0.dp)
 
     var messageText by mutableStateOf(TextFieldValue(""))
@@ -141,14 +147,8 @@ data class MessageComposerInnerState(
         attachmentOptionsDisplayed = !attachmentOptionsDisplayed
     }
 
-    private fun toEnabled() {
+    fun toEnabled() {
         messageComposeInputState = MessageComposeInputState.Enabled
-    }
-
-    fun clickOutSideMessageComposer() {
-        if (messageText.text.filter { !it.isWhitespace() }.isBlank()) {
-            toEnabled()
-        }
     }
 
     fun showAttachmentOptions() {

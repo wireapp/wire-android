@@ -336,9 +336,8 @@ private fun ConversationScreen(
             // and we don't know the keyboard height yet
             // calculated at the first composition of the ConversationScreen, then we know the keyboard size
             if (keyboardHeight is KeyboardHeight.NotKnown && currentScreenHeight < fullScreenHeight) {
-                val difference = fullScreenHeight - currentScreenHeight
-                if (difference > KeyboardHeight.DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET)
-                    keyboardHeight = KeyboardHeight.Known(difference)
+                val keyboardOffset = fullScreenHeight - currentScreenHeight
+                keyboardHeight = KeyboardHeight.Known(keyboardOffset)
             }
 
             Scaffold(

@@ -2,6 +2,7 @@ package com.wire.android.ui.home.messagecomposer
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
+import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.Transition
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -116,7 +117,8 @@ fun ColumnScope.MessageComposerInputRow(
 
                             else -> Modifier.wrapContentHeight()
                         }
-                    ),
+                    )
+                    .animateContentSize(),
                 onSelectedLineIndexChanged = {
                     currentSelectedLineIndex = it
                 },

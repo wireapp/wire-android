@@ -255,7 +255,6 @@ private fun MessageComposer(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .wrapContentHeight()
-                                .animateContentSize()
                         ) {
                             val isClassifiedConversation = securityClassificationType != SecurityClassificationType.NONE
                             if (isClassifiedConversation) {

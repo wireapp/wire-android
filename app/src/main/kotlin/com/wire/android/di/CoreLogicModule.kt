@@ -850,6 +850,6 @@ class UseCaseModule {
 
     @ViewModelScoped
     @Provides
-    fun provideResetSession(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): ResetSessionUseCase =
+    fun provideResetSessionUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): ResetSessionUseCase =
         coreLogic.getSessionScope(currentAccount).messages.resetSession
 }

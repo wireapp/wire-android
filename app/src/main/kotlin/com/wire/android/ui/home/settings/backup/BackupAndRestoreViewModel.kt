@@ -18,8 +18,9 @@ import com.wire.android.util.copyToTempPath
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.feature.backup.CreateBackupResult
 import com.wire.kalium.logic.feature.backup.CreateBackupUseCase
-import com.wire.kalium.logic.feature.backup.ExtractCompressedBackupFileResult
 import com.wire.kalium.logic.feature.backup.ExtractCompressedBackupUseCase
+import com.wire.kalium.logic.feature.backup.IsBackupEncryptedResult
+import com.wire.kalium.logic.feature.backup.IsBackupEncryptedUseCase
 import com.wire.kalium.logic.feature.backup.RestoreBackupResult
 import com.wire.kalium.logic.feature.backup.RestoreBackupResult.BackupRestoreFailure.BackupIOFailure
 import com.wire.kalium.logic.feature.backup.RestoreBackupResult.BackupRestoreFailure.DecryptionFailure
@@ -40,7 +41,7 @@ class BackupAndRestoreViewModel
     private val navigationManager: NavigationManager,
     private val importBackup: RestoreBackupUseCase,
     private val createBackupFile: CreateBackupUseCase,
-    private val extractCompressedFile: ExtractCompressedBackupUseCase,
+    private val isBackupEncrypted: IsBackupEncryptedUseCase,
     private val fileManager: FileManager,
     private val kaliumFileSystem: KaliumFileSystem,
     private val context: Context
@@ -48,7 +49,7 @@ class BackupAndRestoreViewModel
 
     var state by mutableStateOf(BackupAndRestoreState.INITIAL_STATE)
     private var latestCreatedBackup: BackupAndRestoreState.CreatedBackup? = null
-    private lateinit var latestExtractedBackupRootPath: Path
+    private lateinit var latestImportedBackupTempPath: Path
 
     @Suppress("MagicNumber")
     fun createBackup(password: String) {
@@ -89,12 +90,9 @@ class BackupAndRestoreViewModel
 
     fun chooseBackupFileToRestore(uri: Uri) {
         viewModelScope.launch {
-            val importedBackupPath = kaliumFileSystem.tempFilePath(TEMP_IMPORTED_BACKUP_FILE_NAME)
-            uri.copyToTempPath(context, importedBackupPath)
-
-            extractBackupFiles(importedBackupPath)
-
-            kaliumFileSystem.delete(importedBackupPath)
+            latestImportedBackupTempPath = kaliumFileSystem.tempFilePath(TEMP_IMPORTED_BACKUP_FILE_NAME)
+            uri.copyToTempPath(context, latestImportedBackupTempPath)
+            checkIfBackupEncrypted(latestImportedBackupTempPath)
         }
     }
 
@@ -102,29 +100,29 @@ class BackupAndRestoreViewModel
         state = state.copy(restoreFileValidation = RestoreFileValidation.PasswordRequired)
     }
 
-    private suspend fun extractBackupFiles(importedBackupPath: Path) {
-        when (val result = extractCompressedFile(importedBackupPath)) {
-            is ExtractCompressedBackupFileResult.Success -> {
+    private suspend fun checkIfBackupEncrypted(importedBackupPath: Path) {
+        when (val result = isBackupEncrypted(importedBackupPath)) {
+            is IsBackupEncryptedResult.Success -> {
                 if (result.isEncrypted) {
-                    latestExtractedBackupRootPath = result.extractedFilesRootPath
                     showPasswordDialog()
                 } else {
-                    importDatabase(result.extractedFilesRootPath)
+                    importDatabase(importedBackupPath)
                 }
             }
-            is ExtractCompressedBackupFileResult.Failure -> {
+            is IsBackupEncryptedResult.Failure -> {
                 state = state.copy(restoreFileValidation = RestoreFileValidation.IncompatibleBackup)
                 appLogger.e("Failed to extract backup files: ${result.error}")
             }
         }
+        importDatabase(importedBackupPath)
     }
 
-    private suspend fun importDatabase(extractedBackupRootPath: Path) {
+    private suspend fun importDatabase(importedBackupPath: Path) {
         state = state.copy(
             restoreFileValidation = RestoreFileValidation.ValidNonEncryptedBackup,
             backupRestoreProgress = BackupRestoreProgress.InProgress(0.75f)
         )
-        when (importBackup(extractedBackupRootPath, null)) {
+        when (importBackup(importedBackupPath, null)) {
             RestoreBackupResult.Success -> {
                 state = state.copy(backupRestoreProgress = BackupRestoreProgress.InProgress(0.75f))
                 delay(300)
@@ -141,6 +139,7 @@ class BackupAndRestoreViewModel
                 )
             }
         }
+        kaliumFileSystem.delete(importedBackupPath)
     }
 
     @Suppress("MagicNumber")
@@ -152,7 +151,7 @@ class BackupAndRestoreViewModel
         delay(250)
         val fileValidationState = state.restoreFileValidation
         if (fileValidationState is RestoreFileValidation.PasswordRequired) {
-            when (val result = importBackup(latestExtractedBackupRootPath, restorePassword.text)) {
+            when (val result = importBackup(latestImportedBackupTempPath, restorePassword.text)) {
                 RestoreBackupResult.Success -> {
                     state = state.copy(
                         backupRestoreProgress = BackupRestoreProgress.Finished,
@@ -166,6 +165,7 @@ class BackupAndRestoreViewModel
         } else {
             state = state.copy(backupRestoreProgress = BackupRestoreProgress.Failed)
         }
+        kaliumFileSystem.delete(latestImportedBackupTempPath)
     }
 
     private fun mapBackupRestoreFailure(failure: RestoreBackupResult.BackupRestoreFailure) = when (failure) {

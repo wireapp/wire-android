@@ -5,6 +5,7 @@ import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.Transition
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,8 +19,10 @@ import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusManager
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.wire.android.R
 import com.wire.android.ui.common.button.WireButtonState
 import com.wire.android.ui.common.button.WireSecondaryIconButton
@@ -39,6 +42,7 @@ fun MessageComposeActionsBox(
     Column(
         modifier
             .wrapContentSize()
+            .background(Color.Yellow)
     ) {
         Divider()
         Box(Modifier.wrapContentSize()) {
@@ -68,7 +72,8 @@ private fun MessageComposeActions(
         horizontalArrangement = Arrangement.SpaceEvenly,
         modifier = Modifier
             .fillMaxWidth()
-            .height(dimensions().spacing56x)
+            .height(1500.dp)
+            .background(Color.Cyan)
     ) {
         with(localFeatureVisibilityFlags) {
             AdditionalOptionButton(messageComposerState.attachmentOptionsDisplayed) {

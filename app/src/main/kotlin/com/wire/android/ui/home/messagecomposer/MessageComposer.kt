@@ -13,14 +13,12 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
@@ -38,7 +36,6 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
-import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -81,123 +78,60 @@ fun MessageComposer(
     securityClassificationType: SecurityClassificationType,
     membersToMention: List<Contact>
 ) {
-    ConstraintLayout(
-        Modifier
-            .fillMaxSize()
-            .background(Color.Yellow)
-    ) {
-        val (additionalActions, sendActions, messageInput) = createRefs()
+    messageComposerState.fullScreenHeight = fullScreenHeight
+    messageComposerState.keyboardHeight = keyboardHeight
 
-        Box(
-            Modifier
-                .constrainAs(messageInput) {
-                    // we want to align the elements to the guideline only when we display attachmentOptions
-                    // or we are having focus on the TextInput field
-                    bottom.linkTo(sendActions.top)
-
-                    end.linkTo(parent.end)
-                    start.linkTo(parent.start)
-
-                    height = Dimension.preferredWrapContent
-                }
-                .fillMaxWidth()
-                .background(Color.Black)) {
-            Box(
-                Modifier
-                    .height(50.dp)
-                    .width(20.dp)
-            )
+    BoxWithConstraints {
+        val onSendButtonClicked = remember {
+            {
+                onSendTextMessage(
+                    messageComposerState.messageText.text,
+                    messageComposerState.mentions,
+                    messageComposerState.quotedMessageData?.messageId,
+                )
+                messageComposerState.quotedMessageData = null
+                messageComposerState.setMessageTextValue(TextFieldValue(""))
+            }
         }
-        Box(
-            Modifier
-                .constrainAs(sendActions) {
-                    top.linkTo(messageInput.bottom)
-                    // we want to align the elements to the guideline only when we display attachmentOptions
-                    // or we are having focus on the TextInput field
-                    bottom.linkTo(parent.bottom)
-                    end.linkTo(parent.end)
-                    start.linkTo(parent.start)
 
-                    height = Dimension.fillToConstraints
-                }
-                .fillMaxWidth()
-                .background(Color.Green)) {
-            Box(
-                Modifier
-                    .height(150.dp)
-                    .width(20.dp)
-            )
+        val onSendAttachmentClicked = remember {
+            { attachmentBundle: AttachmentBundle? ->
+                onSendAttachment(attachmentBundle)
+                messageComposerState.toggleAttachmentOptionsVisibility()
+            }
         }
-//        Box(
-//            Modifier
-//                .constrainAs(additionalActions) {
-//                    top.linkTo(sendActions.bottom)
-//                    // we want to align the elements to the guideline only when we display attachmentOptions
-//                    // or we are having focus on the TextInput field
-//                    bottom.linkTo(parent.bottom)
-//                    end.linkTo(parent.end)
-//                    start.linkTo(parent.start)
-//                }
-//                .height(20.dp)
-//                .fillMaxWidth()
-//                .background(Color.Red))
+
+        val onMentionPicked = remember {
+            { contact: Contact ->
+                messageComposerState.addMention(contact)
+            }
+        }
+
+        LaunchedEffect(Unit) {
+            messageComposerState.mentionQueryFlowState
+                .collect { onMentionMember(it) }
+        }
+
+        LaunchedEffect(keyboardHeight) {
+            if (keyboardHeight is KeyboardHeight.Known) {
+                val test = messageComposerState.fullScreenHeight
+            }
+        }
+
+        MessageComposer(
+            content = content,
+            messageComposerState = messageComposerState,
+            onSendButtonClicked = onSendButtonClicked,
+            onSendAttachmentClicked = onSendAttachmentClicked,
+            onMessageComposerError = onMessageComposerError,
+            isFileSharingEnabled = isFileSharingEnabled,
+            interactionAvailability = interactionAvailability,
+            tempCachePath = tempCachePath,
+            securityClassificationType = securityClassificationType,
+            membersToMention = membersToMention,
+            onMentionPicked = onMentionPicked
+        )
     }
-
-
-//    messageComposerState.fullScreenHeight = fullScreenHeight
-//    messageComposerState.keyboardHeight = keyboardHeight
-//
-//    BoxWithConstraints {
-//        val onSendButtonClicked = remember {
-//            {
-//                onSendTextMessage(
-//                    messageComposerState.messageText.text,
-//                    messageComposerState.mentions,
-//                    messageComposerState.quotedMessageData?.messageId,
-//                )
-//                messageComposerState.quotedMessageData = null
-//                messageComposerState.setMessageTextValue(TextFieldValue(""))
-//            }
-//        }
-//
-//        val onSendAttachmentClicked = remember {
-//            { attachmentBundle: AttachmentBundle? ->
-//                onSendAttachment(attachmentBundle)
-//                messageComposerState.toggleAttachmentOptionsVisibility()
-//            }
-//        }
-//
-//        val onMentionPicked = remember {
-//            { contact: Contact ->
-//                messageComposerState.addMention(contact)
-//            }
-//        }
-//
-//        LaunchedEffect(Unit) {
-//            messageComposerState.mentionQueryFlowState
-//                .collect { onMentionMember(it) }
-//        }
-//
-//        LaunchedEffect(keyboardHeight) {
-//            if (keyboardHeight is KeyboardHeight.Known) {
-//                val test = messageComposerState.fullScreenHeight
-//            }
-//        }
-//
-//        MessageComposer(
-//            content = content,
-//            messageComposerState = messageComposerState,
-//            onSendButtonClicked = onSendButtonClicked,
-//            onSendAttachmentClicked = onSendAttachmentClicked,
-//            onMessageComposerError = onMessageComposerError,
-//            isFileSharingEnabled = isFileSharingEnabled,
-//            interactionAvailability = interactionAvailability,
-//            tempCachePath = tempCachePath,
-//            securityClassificationType = securityClassificationType,
-//            membersToMention = membersToMention,
-//            onMentionPicked = onMentionPicked
-//        )
-//    }
 }
 
 /*
@@ -248,7 +182,6 @@ private fun MessageComposer(
 
             ConstraintLayout(
                 Modifier
-                    .wrapContentSize()
                     .constrainAs(messageComposer) {
                         top.linkTo(parent.top)
 
@@ -257,143 +190,156 @@ private fun MessageComposer(
                         } else {
                             bottom.linkTo(parent.bottom)
                         }
-                    }) {
 
-                val (additionalActions, sendActions, messageInput) = createRefs()
-                // Column wrapping the content passed as Box with weight = 1f as @Composable lambda and the MessageComposerInput with
-                // CollapseIconButton
-                Column(
-                    Modifier.constrainAs(messageInput) {
-                        top.linkTo(parent.top)
-                        // we want to align the elements to the guideline only when we display attachmentOptions
-                        // or we are having focus on the TextInput field
-                        bottom.linkTo(additionalActions.top)
+                        height = Dimension.fillToConstraints
+                    }.background(Color.Black)
+            ) {
 
-                        Dimension.fillToConstraints
-                    }
-                ) {
-                    Box(
-                        Modifier
-                            .pointerInput(Unit) {
-                                detectTapGestures(
-                                    onPress = {
-                                        focusManager.clearFocus()
-                                        messageComposerState.toEnabled()
-                                    },
-                                    onDoubleTap = { /* Called on Double Tap */ },
-                                    onLongPress = { /* Called on Long Press */ },
-                                    onTap = {  /* Called on Tap */ }
-                                )
-                            }
-                            .background(color = Color.Magenta)
-                            .padding(bottom = dimensions().spacing8x)
-                            .weight(1f)) {
-                        content()
-                        Column(
-                            modifier = Modifier
-                                .fillMaxHeight()
-                                .animateContentSize()
-                        ) {
-                            Spacer(modifier = Modifier.weight(1f))
-                            LazyColumn(
-                                modifier = Modifier.background(Color.White),
-                                reverseLayout = true
-                            ) {
-                                membersToMention.forEach {
-                                    if (it.membership != Membership.Service) {
-                                        item {
-                                            MemberItemToMention(
-                                                avatarData = it.avatarData,
-                                                name = it.name,
-                                                label = it.label,
-                                                membership = it.membership,
-                                                clickable = Clickable(enabled = true) { onMentionPicked(it) },
-                                                modifier = Modifier
-                                            )
-                                            Divider(
-                                                color = MaterialTheme.wireColorScheme.divider,
-                                                thickness = Dp.Hairline
-                                            )
-                                        }
-                                    }
-                                }
-                            }
+                val (additionalActions, sendActions, content, messageInput) = createRefs()
+
+                Box(
+                    Modifier
+                        .pointerInput(Unit) {
+                            detectTapGestures(
+                                onPress = {
+                                    focusManager.clearFocus()
+                                    messageComposerState.toEnabled()
+                                },
+                                onDoubleTap = { /* Called on Double Tap */ },
+                                onLongPress = { /* Called on Long Press */ },
+                                onTap = { /* Called on Tap */ }
+                            )
                         }
-                    }
-                    when (interactionAvailability) {
-                        InteractionAvailability.BLOCKED_USER -> BlockedUserMessage()
-                        InteractionAvailability.DELETED_USER -> DeletedUserMessage()
-                        InteractionAvailability.NOT_MEMBER, InteractionAvailability.DISABLED -> {}
-                        InteractionAvailability.ENABLED -> {
-                            // Column wrapping CollapseIconButton and MessageComposerInput
-                            Column(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .wrapContentHeight()
-                                    .animateContentSize()
-                            ) {
-                                val isClassifiedConversation = securityClassificationType != SecurityClassificationType.NONE
-                                if (isClassifiedConversation) {
-                                    Box(Modifier.wrapContentSize()) {
-                                        VerticalSpace.x8()
-                                        SecurityClassificationBanner(securityClassificationType = securityClassificationType)
-                                    }
-                                }
-                                Divider()
-                                CollapseIconButtonBox(
-                                    transition = transition,
-                                    messageComposerState = messageComposerState
-                                )
-                                if (messageReplyState != null) {
-                                    Row(modifier = Modifier.padding(horizontal = dimensions().spacing8x)) {
-                                        QuotedMessagePreview(
-                                            quotedMessageData = messageReplyState,
-                                            onCancelReply = messageComposerState::cancelReply
+                        .constrainAs(content) {
+                            top.linkTo(parent.top)
+                            // we want to align the elements to the guideline only when we display attachmentOptions
+                            // or we are having focus on the TextInput field
+                            bottom.linkTo(messageInput.top)
+
+                            height = Dimension.fillToConstraints
+                        }
+
+                        .background(color = Color.Magenta)
+                        .fillMaxWidth()
+                        .padding(bottom = dimensions().spacing8x)
+                ) {
+                    content()
+                    Column(
+                        modifier = Modifier
+                            .fillMaxHeight()
+                            .animateContentSize()
+                            .background(Color.Yellow)
+                    ) {
+                        LazyColumn(
+                            modifier = Modifier.background(Color.White),
+                            reverseLayout = true
+                        ) {
+                            membersToMention.forEach {
+                                if (it.membership != Membership.Service) {
+                                    item {
+                                        MemberItemToMention(
+                                            avatarData = it.avatarData,
+                                            name = it.name,
+                                            label = it.label,
+                                            membership = it.membership,
+                                            clickable = Clickable(enabled = true) { onMentionPicked(it) },
+                                            modifier = Modifier
+                                        )
+                                        Divider(
+                                            color = MaterialTheme.wireColorScheme.divider,
+                                            thickness = Dp.Hairline
                                         )
                                     }
                                 }
-                                // Row wrapping the AdditionalOptionButton() when we are in Enabled state and MessageComposerInput()
-                                // when we are in the Fullscreen state, we want to align the TextField to Top of the Row,
-                                // when other we center it vertically. Once we go to Fullscreen, we set the weight to 1f
-                                // so that it fills the whole Row which is = height of the whole screen - height of TopBar -
-                                // - height of container with additional options
-                                MessageComposerInputRow(
-                                    transition = transition,
-                                    messageComposerState = messageComposerState,
-                                    membersToMention = membersToMention,
-                                    onMentionPicked = onMentionPicked
-                                )
                             }
                         }
                     }
                 }
+
+                // THIS IS MESSAGE COMPOSE INPUT
+                when (interactionAvailability) {
+                    InteractionAvailability.BLOCKED_USER -> BlockedUserMessage()
+                    InteractionAvailability.DELETED_USER -> DeletedUserMessage()
+                    InteractionAvailability.NOT_MEMBER, InteractionAvailability.DISABLED -> {}
+                    InteractionAvailability.ENABLED -> {
+                        // Column wrapping CollapseIconButton and MessageComposerInput
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .animateContentSize()
+                                .background(Color.Green)
+                                .constrainAs(messageInput) {
+                                    top.linkTo(content.bottom)
+                                    // we want to align the elements to the guideline only when we display attachmentOptions
+                                    // or we are having focus on the TextInput field
+                                    bottom.linkTo(parent.bottom)
+
+                                    height = Dimension.wrapContent
+                                }
+                        ) {
+                            val isClassifiedConversation = securityClassificationType != SecurityClassificationType.NONE
+                            if (isClassifiedConversation) {
+                                Box(Modifier.wrapContentSize()) {
+                                    VerticalSpace.x8()
+                                    SecurityClassificationBanner(securityClassificationType = securityClassificationType)
+                                }
+                            }
+                            Divider()
+                            CollapseIconButtonBox(
+                                transition = transition,
+                                messageComposerState = messageComposerState
+                            )
+                            if (messageReplyState != null) {
+                                Row(modifier = Modifier.padding(horizontal = dimensions().spacing8x)) {
+                                    QuotedMessagePreview(
+                                        quotedMessageData = messageReplyState,
+                                        onCancelReply = messageComposerState::cancelReply
+                                    )
+                                }
+                            }
+                            // Row wrapping the AdditionalOptionButton() when we are in Enabled state and MessageComposerInput()
+                            // when we are in the Fullscreen state, we want to align the TextField to Top of the Row,
+                            // when other we center it vertically. Once we go to Fullscreen, we set the weight to 1f
+                            // so that it fills the whole Row which is = height of the whole screen - height of TopBar -
+                            // - height of container with additional options
+                            MessageComposerInputRow(
+                                transition = transition,
+                                messageComposerState = messageComposerState,
+                                membersToMention = membersToMention,
+                                onMentionPicked = onMentionPicked
+                            )
+
+                            // THIS IS MESSAGE COMPOSE ACTIONS
+                            // Box wrapping MessageComposeActions() so that we can constrain it to the bottom of MessageComposerInput and after that
+                            // constrain our SendActions to it
+                            MessageComposeActionsBox(
+
+                                    Modifier.height(56.dp),
+                                transition,
+                                messageComposerState,
+                                focusManager,
+                                membersToMention.isNotEmpty()
+                            )
+                        }
+                    }
+                }
+
+                // This is a SEND ACTIONS
                 if (interactionAvailability == InteractionAvailability.ENABLED) {
                     // Box wrapping the SendActions so that we do not include it in the animationContentSize
                     // changed which is applied only for
                     // MessageComposerInput and CollapsingButton
                     SendActions(
                         Modifier.constrainAs(sendActions) {
-                            bottom.linkTo(additionalActions.top)
+                            bottom.linkTo(messageInput.bottom)
                             end.linkTo(parent.end)
                         },
                         messageComposerState,
                         transition,
                         onSendButtonClicked
                     )
-                    // Box wrapping MessageComposeActions() so that we can constrain it to the bottom of MessageComposerInput and after that
-                    // constrain our SendActions to it
-                    MessageComposeActionsBox(
-                        Modifier
-                            .constrainAs(additionalActions) {
-                                top.linkTo(messageInput.bottom)
-                                bottom.linkTo(parent.bottom)
-                            }
-                            .height(56.dp),
-                        transition,
-                        messageComposerState,
-                        focusManager,
-                        membersToMention.isNotEmpty()
-                    )
+
+
                 }
             }
             // Box wrapping for additional options content

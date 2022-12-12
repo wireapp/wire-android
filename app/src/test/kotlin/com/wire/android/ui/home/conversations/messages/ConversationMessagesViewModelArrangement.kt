@@ -20,6 +20,7 @@ import com.wire.kalium.logic.feature.asset.UpdateDownloadStatusResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
+import com.wire.kalium.logic.feature.sessionreset.ResetSessionResult
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionUseCase
 import com.wire.kalium.logic.functional.Either
 import io.mockk.MockKAnnotations
@@ -102,7 +103,7 @@ class ConversationMessagesViewModelArrangement {
         coEvery { observeConversationDetails(any()) } returns flowOf()
         coEvery { getMessagesForConversationUseCase(any()) } returns messagesChannel.consumeAsFlow()
         coEvery { updateAssetMessageDownloadStatus(any(), any(), any()) } returns UpdateDownloadStatusResult.Success
-        coEvery { resetSession(any(), any(), any()) } returns Either.Right(Unit)
+        coEvery { resetSession(any(), any(), any()) } returns ResetSessionResult.Success
     }
 
     fun withSuccessfulOpenAssetMessage(
@@ -139,10 +140,6 @@ class ConversationMessagesViewModelArrangement {
         coEvery { fileManager.saveToExternalStorage(any(), any(), any(), any()) }.answers {
             viewModel.hideOnAssetDownloadedDialog()
         }
-    }
-
-    fun withSuccessfulResetSessionCall() = apply {
-        coEvery { resetSession(any(), any(), any()) } returns Either.Right(Unit)
     }
 
     suspend fun withConversationDetailUpdate(conversationDetails: ConversationDetails) = apply {

@@ -112,7 +112,6 @@ class ConversationMessagesViewModelTest {
         val userId = UserId("someID", "someDomain")
         val clientId = "someClientId"
         val (arrangement, viewModel) = ConversationMessagesViewModelArrangement()
-            .withSuccessfulResetSessionCall()
             .arrange()
 
         viewModel.onResetSession(userId, clientId)

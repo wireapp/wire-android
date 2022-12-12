@@ -19,9 +19,8 @@ import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCa
 import com.wire.kalium.logic.feature.asset.UpdateDownloadStatusResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
-import com.wire.kalium.logic.feature.message.ResolveDecryptedErrorResult
-import com.wire.kalium.logic.feature.message.ResolveFailedDecryptedMessagesUseCase
 import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
+import com.wire.kalium.logic.feature.sessionreset.ResetSessionUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
@@ -72,7 +71,7 @@ class ConversationMessagesViewModelArrangement {
     lateinit var toggleReaction: ToggleReactionUseCase
 
     @MockK
-    lateinit var resolveFailedDecryptedMessages: ResolveFailedDecryptedMessagesUseCase
+    lateinit var resetSession: ResetSessionUseCase
 
     private val viewModel: ConversationMessagesViewModel by lazy {
         ConversationMessagesViewModel(
@@ -87,7 +86,7 @@ class ConversationMessagesViewModelArrangement {
             TestDispatcherProvider(),
             getMessagesForConversationUseCase,
             toggleReaction,
-            resolveFailedDecryptedMessages
+            resetSession
         )
     }
 
@@ -102,7 +101,6 @@ class ConversationMessagesViewModelArrangement {
         coEvery { observeConversationDetails(any()) } returns flowOf()
         coEvery { getMessagesForConversationUseCase(any()) } returns messagesChannel.consumeAsFlow()
         coEvery { updateAssetMessageDownloadStatus(any(), any(), any()) } returns UpdateDownloadStatusResult.Success
-        coEvery { resolveFailedDecryptedMessages(any()) } returns ResolveDecryptedErrorResult.Success
     }
 
     fun withSuccessfulOpenAssetMessage(

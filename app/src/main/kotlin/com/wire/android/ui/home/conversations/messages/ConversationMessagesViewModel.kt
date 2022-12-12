@@ -32,8 +32,8 @@ import com.wire.kalium.logic.feature.asset.UpdateAssetMessageDownloadStatusUseCa
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
+import com.wire.kalium.logic.feature.sessionreset.ResetSessionResult
 import com.wire.kalium.logic.feature.sessionreset.ResetSessionUseCase
-import com.wire.kalium.logic.functional.Either
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
@@ -190,13 +190,12 @@ class ConversationMessagesViewModel @Inject constructor(
     fun onResetSession(userId: UserId, clientId: String?) {
         viewModelScope.launch {
             conversationViewState =
-                when (withContext(dispatchers.io()) { resetSession(conversationId, userId, ClientId(clientId.orEmpty())) }) {
-                    is Either.Left ->
+                when (resetSession(conversationId, userId, ClientId(clientId.orEmpty()))) {
+                    is ResetSessionResult.Failure ->
                         conversationViewState.copy(snackbarMessage = OnResetSession(UIText.StringResource(R.string.label_general_error)))
-                    is Either.Right ->
-                        conversationViewState.copy(
-                            snackbarMessage = OnResetSession(UIText.StringResource(R.string.label_reset_session_success))
-                        )
+                    is ResetSessionResult.Success -> conversationViewState.copy(
+                        snackbarMessage = OnResetSession(UIText.StringResource(R.string.label_reset_session_success))
+                    )
                 }
         }
     }

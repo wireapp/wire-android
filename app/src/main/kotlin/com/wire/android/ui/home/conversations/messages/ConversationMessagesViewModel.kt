@@ -190,7 +190,7 @@ class ConversationMessagesViewModel @Inject constructor(
     fun onResetSession(userId: UserId, clientId: String?) {
         viewModelScope.launch {
             conversationViewState =
-                when (withContext(dispatchers.io()) { resetSession(conversationId, userId, ClientId(clientId.orEmpty())) }) {
+                when (resetSession(conversationId, userId, ClientId(clientId.orEmpty()))) {
                     is Either.Left ->
                         conversationViewState.copy(snackbarMessage = OnResetSession(UIText.StringResource(R.string.label_general_error)))
                     is Either.Right ->

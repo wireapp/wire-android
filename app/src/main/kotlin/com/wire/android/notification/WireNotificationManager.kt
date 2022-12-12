@@ -315,7 +315,7 @@ class WireNotificationManager @Inject constructor(
                             )
                             // combining all the data that is necessary for Notifications into small data class,
                             // just to make it more readable than
-                            // Pair<List<LocalNotificationConversation>, QualifiedID?>
+                            // Pair<List<LocalNotificationConversation>, QualifiedID>
                             MessagesNotificationsData(notificationsList, userId)
                         }
                 } ?: flowOf(null)
@@ -420,7 +420,7 @@ class WireNotificationManager @Inject constructor(
 
     data class MessagesNotificationsData(
         val newNotifications: List<LocalNotificationConversation>,
-        val userId: QualifiedID?
+        val userId: QualifiedID
     )
 
     private data class OngoingCallData(val notificationTitle: String, val conversationId: ConversationId, val userId: UserId)

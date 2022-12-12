@@ -24,6 +24,9 @@ object NotificationConstants {
     const val OTHER_CHANNEL_ID = "com.wire.android.other"
     const val OTHER_CHANNEL_NAME = "Other essential actions"
 
+    const val CHANNEL_GROUP_ID = "com.wire.notification_channel_group"
+    const val CHANNEL_GROUP_NAME = "Notifications for"
+
     //Notification IDs (has to be unique!)
     val MESSAGE_SUMMARY_ID = "wire_messages_summary_notification".hashCode()
     val CALL_INCOMING_NOTIFICATION_ID = "wire_incoming_call_notification".hashCode()

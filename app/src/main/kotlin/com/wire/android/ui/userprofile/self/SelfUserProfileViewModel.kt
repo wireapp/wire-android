@@ -175,9 +175,20 @@ class SelfUserProfileViewModel @Inject constructor(
                 }
             }.join()
 
+            launch {
+                getSelf()
+                    .collect {
+                        // TODO delete notificationChannelGroup
+                        println("cyka logout selfUser: ${it.id}")
+                    }
+            }
+
             val logoutReason = if (wipeData) LogoutReason.SELF_HARD_LOGOUT else LogoutReason.SELF_SOFT_LOGOUT
             logout(logoutReason)
-            if (wipeData) dataStore.clear() // TODO this should be moved to some service that will clear all the data in the app
+            if (wipeData) {
+                // TODO this should be moved to some service that will clear all the data in the app
+                dataStore.clear()
+            }
             accountSwitch(SwitchAccountParam.SwitchToNextAccountOrWelcome)
         }
     }

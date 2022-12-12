@@ -105,7 +105,7 @@ class InitiatingCallViewModel @Inject constructor(
     }
 
     private suspend fun onCallEstablished() {
-        callRinger.ring(R.raw.ready_to_talk, isLooping = false)
+        callRinger.ring(R.raw.ready_to_talk, isLooping = false, isIncomingCall = false)
         navigationManager.navigate(
             command = NavigationCommand(
                 destination = NavigationItem.OngoingCall.getRouteWithArgs(listOf(conversationId)),

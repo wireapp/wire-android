@@ -18,7 +18,6 @@ import com.wire.android.util.copyToTempPath
 import com.wire.kalium.logic.data.asset.KaliumFileSystem
 import com.wire.kalium.logic.feature.backup.CreateBackupResult
 import com.wire.kalium.logic.feature.backup.CreateBackupUseCase
-import com.wire.kalium.logic.feature.backup.ExtractCompressedBackupUseCase
 import com.wire.kalium.logic.feature.backup.IsBackupEncryptedResult
 import com.wire.kalium.logic.feature.backup.IsBackupEncryptedUseCase
 import com.wire.kalium.logic.feature.backup.RestoreBackupResult
@@ -114,7 +113,6 @@ class BackupAndRestoreViewModel
                 appLogger.e("Failed to extract backup files: ${result.error}")
             }
         }
-        importDatabase(importedBackupPath)
     }
 
     private suspend fun importDatabase(importedBackupPath: Path) {

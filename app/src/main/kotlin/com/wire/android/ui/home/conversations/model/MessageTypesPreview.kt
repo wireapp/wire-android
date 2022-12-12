@@ -10,7 +10,6 @@ import com.wire.android.ui.home.conversations.mock.mockAssetMessage
 import com.wire.android.ui.home.conversations.mock.mockMessageWithText
 import com.wire.android.ui.home.conversations.mock.mockedImageUIMessage
 import com.wire.android.util.ui.UIText
-import com.wire.kalium.logic.data.conversation.Conversation
 import com.wire.kalium.logic.data.message.Message
 import com.wire.kalium.logic.data.user.UserId
 
@@ -32,7 +31,8 @@ fun PreviewMessage() {
         onAssetMessageClicked = {},
         onImageMessageClicked = { _, _ -> },
         onOpenProfile = { _ -> },
-        onReactionClicked = { _, _ -> }
+        onReactionClicked = { _, _ -> },
+        onResetSessionClicked = { _, _ -> }
     )
 }
 
@@ -64,7 +64,8 @@ fun PreviewMessageWithReply() {
         onAssetMessageClicked = {},
         onImageMessageClicked = { _, _ -> },
         onOpenProfile = { _ -> },
-        onReactionClicked = { _, _ -> }
+        onReactionClicked = { _, _ -> },
+        onResetSessionClicked = { _, _ -> }
     )
 }
 
@@ -79,7 +80,8 @@ fun PreviewDeletedMessage() {
         onAssetMessageClicked = {},
         onImageMessageClicked = { _, _ -> },
         onOpenProfile = { _ -> },
-        onReactionClicked = { _, _ -> }
+        onReactionClicked = { _, _ -> },
+        onResetSessionClicked = { _, _ -> }
     )
 }
 
@@ -92,7 +94,8 @@ fun PreviewAssetMessage() {
         onAssetMessageClicked = {},
         onImageMessageClicked = { _, _ -> },
         onOpenProfile = { _ -> },
-        onReactionClicked = { _, _ -> }
+        onReactionClicked = { _, _ -> },
+        onResetSessionClicked = { _, _ -> }
     )
 }
 
@@ -105,7 +108,8 @@ fun PreviewImageMessageUploaded() {
         onAssetMessageClicked = {},
         onImageMessageClicked = { _, _ -> },
         onOpenProfile = { _ -> },
-        onReactionClicked = { _, _ -> }
+        onReactionClicked = { _, _ -> },
+        onResetSessionClicked = { _, _ -> }
     )
 }
 
@@ -118,7 +122,8 @@ fun PreviewImageMessageUploading() {
         onAssetMessageClicked = {},
         onImageMessageClicked = { _, _ -> },
         onOpenProfile = { _ -> },
-        onReactionClicked = { _, _ -> }
+        onReactionClicked = { _, _ -> },
+        onResetSessionClicked = { _, _ -> }
     )
 }
 
@@ -131,7 +136,8 @@ fun PreviewImageMessageFailedUpload() {
         onAssetMessageClicked = {},
         onImageMessageClicked = { _, _ -> },
         onOpenProfile = { _ -> },
-        onReactionClicked = { _, _ -> }
+        onReactionClicked = { _, _ -> },
+        onResetSessionClicked = { _, _ -> }
     )
 }
 
@@ -145,7 +151,8 @@ fun PreviewMessageWithSystemMessage() {
             onAssetMessageClicked = {},
             onImageMessageClicked = { _, _ -> },
             onOpenProfile = { _ -> },
-            onReactionClicked = { _, _ -> }
+            onReactionClicked = { _, _ -> },
+            onResetSessionClicked = { _, _ -> }
         )
         SystemMessageItem(UIMessageContent.SystemMessage.MissedCall.YouCalled(UIText.DynamicString("You")))
         SystemMessageItem(

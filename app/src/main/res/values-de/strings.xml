@@ -266,7 +266,7 @@
     <string name="sent_a_message_with_content">hat eine Nachricht mit %s Inhalt gesendet</string>
     <string name="new_group_title">Neue Gruppe</string>
     <string name="new_group_description">Bis zu 500 Personen können an einer Gruppenunterhaltung teilnehmen.</string>
-    <string name="group_name">Gruppenname</string>
+    <string name="group_name_title">Gruppenname</string>
     <string name="protocol">Protokoll</string>
     <string name="mls">MLS</string>
     <string name="cipher_suite">Cipher Suite</string>

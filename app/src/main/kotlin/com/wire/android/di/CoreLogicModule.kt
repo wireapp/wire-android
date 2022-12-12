@@ -58,10 +58,12 @@ import com.wire.kalium.logic.feature.server.ServerConfigForAccountUseCase
 import com.wire.kalium.logic.feature.session.CurrentSessionResult
 import com.wire.kalium.logic.feature.session.GetSessionsUseCase
 import com.wire.kalium.logic.feature.session.UpdateCurrentSessionUseCase
+import com.wire.kalium.logic.feature.sessionreset.ResetSessionUseCase
 import com.wire.kalium.logic.feature.team.GetSelfTeamUseCase
 import com.wire.kalium.logic.feature.user.GetSelfUserUseCase
 import com.wire.kalium.logic.feature.user.GetUserInfoUseCase
 import com.wire.kalium.logic.feature.user.IsPasswordRequiredUseCase
+import com.wire.kalium.logic.feature.user.IsSelfATeamMemberUseCase
 import com.wire.kalium.logic.feature.user.ObserveUserInfoUseCase
 import com.wire.kalium.logic.feature.user.ObserveValidAccountsUseCase
 import com.wire.kalium.logic.feature.user.SelfServerConfigUseCase
@@ -838,4 +840,16 @@ class UseCaseModule {
     @Provides
     fun provideObserveIfAppFreshEnoughUseCase(@KaliumCoreLogic coreLogic: CoreLogic) =
         coreLogic.getGlobalScope().observeIfAppUpdateRequired
+
+    @ViewModelScoped
+    @Provides
+    fun provideIsSelfTeamMemberUseCase(
+        @KaliumCoreLogic coreLogic: CoreLogic,
+        @CurrentAccount currentAccount: UserId
+    ): IsSelfATeamMemberUseCase = coreLogic.getSessionScope(currentAccount).team.isSelfATeamMember
+
+    @ViewModelScoped
+    @Provides
+    fun provideResetSessionUseCase(@KaliumCoreLogic coreLogic: CoreLogic, @CurrentAccount currentAccount: UserId): ResetSessionUseCase =
+        coreLogic.getSessionScope(currentAccount).messages.resetSession
 }

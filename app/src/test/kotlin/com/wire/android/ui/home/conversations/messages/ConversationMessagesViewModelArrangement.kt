@@ -20,6 +20,7 @@ import com.wire.kalium.logic.feature.asset.UpdateDownloadStatusResult
 import com.wire.kalium.logic.feature.conversation.ObserveConversationDetailsUseCase
 import com.wire.kalium.logic.feature.message.GetMessageByIdUseCase
 import com.wire.kalium.logic.feature.message.ToggleReactionUseCase
+import com.wire.kalium.logic.feature.sessionreset.ResetSessionUseCase
 import io.mockk.MockKAnnotations
 import io.mockk.coEvery
 import io.mockk.every
@@ -69,6 +70,9 @@ class ConversationMessagesViewModelArrangement {
     @MockK
     lateinit var toggleReaction: ToggleReactionUseCase
 
+    @MockK
+    lateinit var resetSession: ResetSessionUseCase
+
     private val viewModel: ConversationMessagesViewModel by lazy {
         ConversationMessagesViewModel(
             navigationManager,
@@ -81,7 +85,8 @@ class ConversationMessagesViewModelArrangement {
             fileManager,
             TestDispatcherProvider(),
             getMessagesForConversationUseCase,
-            toggleReaction
+            toggleReaction,
+            resetSession
         )
     }
 

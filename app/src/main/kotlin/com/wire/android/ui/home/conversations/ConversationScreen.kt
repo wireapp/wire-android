@@ -53,6 +53,7 @@ import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.Error
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorSendingAsset
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.ErrorSendingImage
 import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnFileDownloaded
+import com.wire.android.ui.home.conversations.ConversationSnackbarMessages.OnResetSession
 import com.wire.android.ui.home.conversations.banner.ConversationBanner
 import com.wire.android.ui.home.conversations.banner.ConversationBannerViewModel
 import com.wire.android.ui.home.conversations.call.ConversationCallViewModel
@@ -77,7 +78,9 @@ import com.wire.android.util.permission.CallingAudioRequestFlow
 import com.wire.android.util.permission.rememberCallingRecordAudioBluetoothRequestFlow
 import com.wire.android.util.ui.UIText
 import com.wire.kalium.logic.NetworkFailure
+import com.wire.kalium.logic.data.conversation.ClientId
 import com.wire.kalium.logic.data.conversation.Conversation
+import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.feature.call.usecase.ConferenceCallingResult
 import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 import kotlinx.collections.immutable.ImmutableMap
@@ -172,6 +175,7 @@ fun ConversationScreen(
         },
         onJoinCall = conversationCallViewModel::joinOngoingCall,
         onReactionClick = conversationMessagesViewModel::toggleReaction,
+        onResetSessionClick = conversationMessagesViewModel::onResetSession,
         onMentionMember = messageComposerViewModel::mentionMember,
         onUpdateConversationReadDate = messageComposerViewModel::updateConversationReadDate,
         onDropDownClick = conversationInfoViewModel::navigateToDetails,
@@ -258,6 +262,7 @@ private fun ConversationScreen(
     onStartCall: () -> Unit,
     onJoinCall: () -> Unit,
     onReactionClick: (messageId: String, reactionEmoji: String) -> Unit,
+    onResetSessionClick: (senderUserId: UserId, clientId: String?) -> Unit,
     onMentionMember: (String?) -> Unit,
     onUpdateConversationReadDate: (String) -> Unit,
     onDropDownClick: () -> Unit,
@@ -387,6 +392,7 @@ private fun ConversationScreen(
                             onDownloadAsset = onDownloadAsset,
                             onImageFullScreenMode = onImageFullScreenMode,
                             onReactionClicked = onReactionClick,
+                            onResetSessionClicked = onResetSessionClick,
                             onOpenProfile = onOpenProfile,
                             onUpdateConversationReadDate = onUpdateConversationReadDate,
                             onMessageComposerError = onSnackbarMessage,
@@ -420,6 +426,7 @@ private fun ConversationScreenContent(
     onDownloadAsset: (String) -> Unit,
     onImageFullScreenMode: (String, Boolean) -> Unit,
     onReactionClicked: (String, String) -> Unit,
+    onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit,
     onOpenProfile: (String) -> Unit,
     onUpdateConversationReadDate: (String) -> Unit,
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
@@ -447,6 +454,7 @@ private fun ConversationScreenContent(
                 onImageFullScreenMode = onImageFullScreenMode,
                 onOpenProfile = onOpenProfile,
                 onReactionClicked = onReactionClicked,
+                onResetSessionClicked = onResetSessionClicked,
                 onShowContextMenu = onShowContextMenu
             )
         },
@@ -493,6 +501,7 @@ private fun SnackBarMessage(
 @Composable
 private fun getSnackbarMessage(messageCode: ConversationSnackbarMessages): Pair<String, String?> {
     val msg = when (messageCode) {
+        is OnResetSession -> messageCode.text.asString()
         is OnFileDownloaded -> stringResource(R.string.conversation_on_file_downloaded, messageCode.assetName ?: "")
         is ErrorMaxAssetSize -> stringResource(R.string.error_conversation_max_asset_size_limit, messageCode.maxLimitInMB)
         ErrorMaxImageSize -> stringResource(R.string.error_conversation_max_image_size_limit)
@@ -520,6 +529,7 @@ fun MessageList(
     onImageFullScreenMode: (String, Boolean) -> Unit,
     onOpenProfile: (String) -> Unit,
     onReactionClicked: (String, String) -> Unit,
+    onResetSessionClicked: (senderUserId: UserId, clientId: String?) -> Unit,
     onShowContextMenu: (UIMessage) -> Unit
 ) {
     val mostRecentMessage = lazyPagingMessages.itemCount.takeIf { it > 0 }?.let { lazyPagingMessages[0] }
@@ -568,7 +578,8 @@ fun MessageList(
                     onAssetMessageClicked = onDownloadAsset,
                     onImageMessageClicked = onImageFullScreenMode,
                     onOpenProfile = onOpenProfile,
-                    onReactionClicked = onReactionClicked
+                    onReactionClicked = onReactionClicked,
+                    onResetSessionClicked = onResetSessionClicked
                 )
             }
         }
@@ -603,6 +614,7 @@ fun ConversationScreenPreview() {
         onUpdateConversationReadDate = { },
         onDropDownClick = { },
         onSnackbarMessage = { },
-        onSnackbarMessageShown = { }
+        onSnackbarMessageShown = { },
+        onResetSessionClick = { _, _ -> },
     ) { }
 }

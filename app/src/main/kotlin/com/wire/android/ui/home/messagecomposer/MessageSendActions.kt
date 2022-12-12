@@ -33,7 +33,7 @@ fun SendActions(
     modifier: Modifier = Modifier
 ) {
     Box(modifier) {
-        Row(Modifier.padding(end = dimensions().spacing8x).background(Color.Black)) {
+        Row(Modifier.padding(end = dimensions().spacing8x)) {
 //            if (messageComposerState.sendButtonEnabled) {
 //                ScheduleMessageButton()
 //            }

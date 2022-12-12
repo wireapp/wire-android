@@ -86,7 +86,7 @@ fun ColumnScope.MessageComposerInputRow(
         Box(
             Modifier
                 .wrapContentSize()
-                .background(Color.Red)) {
+        ) {
             MessageComposerInput(
                 messageText = messageComposerState.messageText,
                 onMessageTextChanged = messageComposerState::setMessageTextValue,

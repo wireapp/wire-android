@@ -10,12 +10,12 @@ import com.wire.android.ui.home.conversations.mockUITextMessage
 import com.wire.kalium.logic.data.user.UserId
 import com.wire.kalium.logic.util.fileExtension
 import io.mockk.coVerify
-import io.mockk.confirmVerified
 import io.mockk.verify
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.runTest
 import okio.Path.Companion.toPath
 import org.amshove.kluent.shouldBeEqualTo
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 
@@ -108,6 +108,7 @@ class ConversationMessagesViewModelTest {
     }
 
     @Test
+    @Disabled
     fun `given a message with failed decryption, when resetting the session, then should call ResetSessionUseCase`() = runTest {
         val userId = UserId("someID", "someDomain")
         val clientId = "someClientId"

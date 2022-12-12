@@ -38,22 +38,11 @@ import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 @Composable
 fun ColumnScope.MessageComposerInputRow(
     transition: Transition<MessageComposeInputState>,
-    interactionAvailability: InteractionAvailability,
     messageComposerState: MessageComposerInnerState,
-    membersToMention: List<Contact>,
-    onMentionPicked: (Contact) -> Unit,
-    onSendButtonClicked: () -> Unit,
-    modifier: Modifier = Modifier
+    onSendButtonClicked: () -> Unit = { },
+    onSelectedLineIndexChanged: (Int) -> Unit = { },
+    onLineBottomYCoordinateChanged: (Float) -> Unit = { }
 ) {
-
-    var currentSelectedLineIndex by remember {
-        mutableStateOf(0)
-    }
-
-    var cursorCoordinateY by remember {
-        mutableStateOf(0F)
-    }
-
     Row(
         verticalAlignment =
         if (messageComposerState.messageComposeInputState == MessageComposeInputState.FullScreen)
@@ -127,18 +116,12 @@ fun ColumnScope.MessageComposerInputRow(
                 }
             )
 
-            // This is a SEND ACTIONS
-            if (interactionAvailability == InteractionAvailability.ENABLED) {
-                // Box wrapping the SendActions so that we do not include it in the animationContentSize
-                // changed which is applied only for
-                // MessageComposerInput and CollapsingButton
-                SendActions(
-                    messageComposerState = messageComposerState,
-                    transition = transition,
-                    onSendButtonClicked = onSendButtonClicked,
-                    modifier = Modifier.align(Alignment.BottomEnd)
-                )
-            }
+            SendActions(
+                messageComposerState = messageComposerState,
+                transition = transition,
+                onSendButtonClicked = onSendButtonClicked,
+                modifier = Modifier.align(Alignment.BottomEnd)
+            )
         }
     }
 }

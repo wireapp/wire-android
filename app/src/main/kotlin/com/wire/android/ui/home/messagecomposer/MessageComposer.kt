@@ -31,7 +31,9 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.rotate
@@ -219,7 +221,6 @@ private fun MessageComposer(
                     )
                 }
 
-                // THIS IS MESSAGE COMPOSE INPUT
                 when (interactionAvailability) {
                     InteractionAvailability.BLOCKED_USER -> BlockedUserMessage()
                     InteractionAvailability.DELETED_USER -> DeletedUserMessage()
@@ -255,27 +256,28 @@ private fun MessageComposer(
                             // when other we center it vertically. Once we go to Fullscreen, we set the weight to 1f
                             // so that it fills the whole Row which is = height of the whole screen - height of TopBar -
                             // - height of container with additional options
-                            MessageComposerInputRow(
-                                transition = transition,
-                                messageComposerState = messageComposerState,
-                                membersToMention = membersToMention,
-                                onMentionPicked = onMentionPicked,
-                                interactionAvailability = interactionAvailability,
-                                onSendButtonClicked = onSendButtonClicked,
-                            )
                         }
                         Column {
+                            var currentSelectedLineIndex by remember {
+                                mutableStateOf(0)
+                            }
+
+                            var cursorCoordinateY by remember {
+                                mutableStateOf(0F)
+                            }
 
                             MessageInput(
                                 transition = transition,
-                                securityClassificationType = securityClassificationType,
+                                messageComposerState = messageComposerState,
+                                interactionAvailability = interactionAvailability,
+                                onSendButtonClicked = onSendButtonClicked,
+                                onLineBottomYCoordinateChanged = { },
+                                onSelectedLineIndexChanged = { }
                             )
 
                             if (membersToMention.isNotEmpty() && messageComposerState.messageComposeInputState == MessageComposeInputState.FullScreen)
                                 DropDownMentionsSuggestions(currentSelectedLineIndex, cursorCoordinateY, membersToMention, onMentionPicked)
                         }
-
-
                     }
                 }
             }

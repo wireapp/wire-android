@@ -17,8 +17,10 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.foundation.lazy.LazyColumn
@@ -67,6 +69,7 @@ import okio.Path
 fun MessageComposer(
     messageComposerState: MessageComposerInnerState,
     keyboardHeight: KeyboardHeight,
+    fullScreenHeight: Dp,
     content: @Composable () -> Unit,
     onSendTextMessage: (String, List<UiMention>, messageId: String?) -> Unit,
     onSendAttachment: (AttachmentBundle?) -> Unit,
@@ -78,63 +81,123 @@ fun MessageComposer(
     securityClassificationType: SecurityClassificationType,
     membersToMention: List<Contact>
 ) {
-    BoxWithConstraints {
-        messageComposerState.fullScreenHeight = with(LocalDensity.current) { constraints.maxHeight.toDp() }
+    ConstraintLayout(
+        Modifier
+            .fillMaxSize()
+            .background(Color.Yellow)
+    ) {
+        val (additionalActions, sendActions, messageInput) = createRefs()
 
-        val onSendButtonClicked = remember {
-            {
-                onSendTextMessage(
-                    messageComposerState.messageText.text,
-                    messageComposerState.mentions,
-                    messageComposerState.quotedMessageData?.messageId,
-                )
-                messageComposerState.quotedMessageData = null
-                messageComposerState.setMessageTextValue(TextFieldValue(""))
-            }
+        Box(
+            Modifier
+                .constrainAs(messageInput) {
+                    // we want to align the elements to the guideline only when we display attachmentOptions
+                    // or we are having focus on the TextInput field
+                    bottom.linkTo(sendActions.top)
+
+                    end.linkTo(parent.end)
+                    start.linkTo(parent.start)
+
+                    height = Dimension.preferredWrapContent
+                }
+                .fillMaxWidth()
+                .background(Color.Black)) {
+            Box(
+                Modifier
+                    .height(50.dp)
+                    .width(20.dp)
+            )
         }
+        Box(
+            Modifier
+                .constrainAs(sendActions) {
+                    top.linkTo(messageInput.bottom)
+                    // we want to align the elements to the guideline only when we display attachmentOptions
+                    // or we are having focus on the TextInput field
+                    bottom.linkTo(parent.bottom)
+                    end.linkTo(parent.end)
+                    start.linkTo(parent.start)
 
-        val onSendAttachmentClicked = remember {
-            { attachmentBundle: AttachmentBundle? ->
-                onSendAttachment(attachmentBundle)
-                messageComposerState.toggleAttachmentOptionsVisibility()
-            }
+                    height = Dimension.fillToConstraints
+                }
+                .fillMaxWidth()
+                .background(Color.Green)) {
+            Box(
+                Modifier
+                    .height(150.dp)
+                    .width(20.dp)
+            )
         }
-
-        val onMentionPicked = remember {
-            { contact: Contact ->
-                messageComposerState.addMention(contact)
-            }
-        }
-
-        LaunchedEffect(Unit) {
-            messageComposerState.mentionQueryFlowState
-                .collect { onMentionMember(it) }
-        }
-
-
-
-        LaunchedEffect(keyboardHeight) {
-            if (keyboardHeight is KeyboardHeight.Known) {
-
-                val test = messageComposerState.fullScreenHeight
-            }
-
-        }
-        MessageComposer(
-            content = content,
-            keyboardHeight = keyboardHeight,
-            messageComposerState = messageComposerState,
-            onSendButtonClicked = onSendButtonClicked,
-            onSendAttachmentClicked = onSendAttachmentClicked,
-            onMessageComposerError = onMessageComposerError,
-            isFileSharingEnabled = isFileSharingEnabled,
-            interactionAvailability = interactionAvailability,
-            tempCachePath = tempCachePath,
-            securityClassificationType = securityClassificationType,
-            membersToMention = membersToMention,
-            onMentionPicked = onMentionPicked
-        )
+//        Box(
+//            Modifier
+//                .constrainAs(additionalActions) {
+//                    top.linkTo(sendActions.bottom)
+//                    // we want to align the elements to the guideline only when we display attachmentOptions
+//                    // or we are having focus on the TextInput field
+//                    bottom.linkTo(parent.bottom)
+//                    end.linkTo(parent.end)
+//                    start.linkTo(parent.start)
+//                }
+//                .height(20.dp)
+//                .fillMaxWidth()
+//                .background(Color.Red))
     }
+
+
+//    messageComposerState.fullScreenHeight = fullScreenHeight
+//    messageComposerState.keyboardHeight = keyboardHeight
+//
+//    BoxWithConstraints {
+//        val onSendButtonClicked = remember {
+//            {
+//                onSendTextMessage(
+//                    messageComposerState.messageText.text,
+//                    messageComposerState.mentions,
+//                    messageComposerState.quotedMessageData?.messageId,
+//                )
+//                messageComposerState.quotedMessageData = null
+//                messageComposerState.setMessageTextValue(TextFieldValue(""))
+//            }
+//        }
+//
+//        val onSendAttachmentClicked = remember {
+//            { attachmentBundle: AttachmentBundle? ->
+//                onSendAttachment(attachmentBundle)
+//                messageComposerState.toggleAttachmentOptionsVisibility()
+//            }
+//        }
+//
+//        val onMentionPicked = remember {
+//            { contact: Contact ->
+//                messageComposerState.addMention(contact)
+//            }
+//        }
+//
+//        LaunchedEffect(Unit) {
+//            messageComposerState.mentionQueryFlowState
+//                .collect { onMentionMember(it) }
+//        }
+//
+//        LaunchedEffect(keyboardHeight) {
+//            if (keyboardHeight is KeyboardHeight.Known) {
+//                val test = messageComposerState.fullScreenHeight
+//            }
+//        }
+//
+//        MessageComposer(
+//            content = content,
+//            messageComposerState = messageComposerState,
+//            onSendButtonClicked = onSendButtonClicked,
+//            onSendAttachmentClicked = onSendAttachmentClicked,
+//            onMessageComposerError = onMessageComposerError,
+//            isFileSharingEnabled = isFileSharingEnabled,
+//            interactionAvailability = interactionAvailability,
+//            tempCachePath = tempCachePath,
+//            securityClassificationType = securityClassificationType,
+//            membersToMention = membersToMention,
+//            onMentionPicked = onMentionPicked
+//        )
+//    }
 }
 
 /*
@@ -147,7 +210,6 @@ fun MessageComposer(
 @Composable
 private fun MessageComposer(
     content: @Composable () -> Unit,
-    keyboardHeight: KeyboardHeight,
     messageComposerState: MessageComposerInnerState,
     onSendButtonClicked: () -> Unit,
     onSendAttachmentClicked: (AttachmentBundle?) -> Unit,
@@ -170,14 +232,16 @@ private fun MessageComposer(
         // ConstraintLayout wrapping the whole content to give us the possibility to constrain SendButton to top of AdditionalOptions, which
         // constrains to bottom of MessageComposerInput
         // so that MessageComposerInput is the only component animating freely, when going to Fullscreen mode
-        ConstraintLayout(Modifier.fillMaxSize()) {
+        ConstraintLayout(
+            Modifier.fillMaxSize()
+        ) {
             // This guide line is used was when the attachment options are visible
             // we need to use it to correctly offset the MessageComposerInput so that it is on a static place on the screen
             // to avoid reposition when the keyboard is hiding, this guideline makes space for the keyboard as well as for the
             // AttachmentOptions, the offset is set to DEFAULT_KEYBOARD_TOP_SCREEN_OFFSET as default, whenever the keyboard pops up
             // we are able to calculate the actual needed offset, so that it is equal to the height of the keyboard the user is using
             val topOfKeyboardGuideLine = createGuidelineFromTop(
-                offset = messageComposerState.fullScreenHeight - keyboardHeight.height
+                offset = messageComposerState.fullScreenHeight - messageComposerState.keyboardHeight.height
             )
 
             val messageComposer = createRef()
@@ -193,8 +257,6 @@ private fun MessageComposer(
                         } else {
                             bottom.linkTo(parent.bottom)
                         }
-
-                        height = Dimension.fillToConstraints
                     }) {
 
                 val (additionalActions, sendActions, messageInput) = createRefs()
@@ -207,7 +269,7 @@ private fun MessageComposer(
                         // or we are having focus on the TextInput field
                         bottom.linkTo(additionalActions.top)
 
-                        height = Dimension.preferredWrapContent
+                        Dimension.fillToConstraints
                     }
                 ) {
                     Box(
@@ -223,7 +285,7 @@ private fun MessageComposer(
                                     onTap = {  /* Called on Tap */ }
                                 )
                             }
-                            .background(color = colorsScheme().backgroundVariant)
+                            .background(color = Color.Magenta)
                             .padding(bottom = dimensions().spacing8x)
                             .weight(1f)) {
                         content()
@@ -233,7 +295,6 @@ private fun MessageComposer(
                                 .animateContentSize()
                         ) {
                             Spacer(modifier = Modifier.weight(1f))
-
                             LazyColumn(
                                 modifier = Modifier.background(Color.White),
                                 reverseLayout = true
@@ -326,7 +387,8 @@ private fun MessageComposer(
                             .constrainAs(additionalActions) {
                                 top.linkTo(messageInput.bottom)
                                 bottom.linkTo(parent.bottom)
-                            },
+                            }
+                            .height(56.dp),
                         transition,
                         messageComposerState,
                         focusManager,
@@ -340,7 +402,6 @@ private fun MessageComposer(
             // we get the effect of overlapping it
             if (messageComposerState.attachmentOptionsDisplayed && interactionAvailability == InteractionAvailability.ENABLED) {
                 AttachmentOptions(
-                    keyboardHeight = keyboardHeight,
                     messageComposerState = messageComposerState,
                     onSendAttachment = onSendAttachmentClicked,
                     onMessageComposerError = onMessageComposerError,

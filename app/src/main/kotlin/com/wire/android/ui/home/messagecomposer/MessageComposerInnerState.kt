@@ -92,6 +92,8 @@ data class MessageComposerInnerState(
 
     var fullScreenHeight: Dp by mutableStateOf(0.0.dp)
 
+    var keyboardHeight: KeyboardHeight by mutableStateOf(KeyboardHeight.NotKnown)
+
     var messageText by mutableStateOf(TextFieldValue(""))
         private set
     private val _mentionQueryFlowState: MutableStateFlow<String?> = MutableStateFlow(null)

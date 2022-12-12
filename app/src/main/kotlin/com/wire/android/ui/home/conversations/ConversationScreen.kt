@@ -266,7 +266,6 @@ private fun ConversationScreen(
     onBackButtonClick: () -> Unit
 ) {
     val conversationScreenState = rememberConversationScreenState()
-
     val messageComposerInnerState = rememberMessageComposerInnerState()
 
     val menuModalOnDeleteMessage = remember {
@@ -335,7 +334,7 @@ private fun ConversationScreen(
             // if the currentScreenHeight is smaller than the initial fullScreenHeight,
             // and we don't know the keyboard height yet
             // calculated at the first composition of the ConversationScreen, then we know the keyboard size
-            if (keyboardHeight is KeyboardHeight.NotKnown && currentScreenHeight < fullScreenHeight) {
+            if (currentScreenHeight < fullScreenHeight) {
                 val keyboardOffset = fullScreenHeight - currentScreenHeight
                 keyboardHeight = KeyboardHeight.Known(keyboardOffset)
             }
@@ -372,6 +371,7 @@ private fun ConversationScreen(
                         ConversationScreenContent(
                             interactionAvailability = interactionAvailability,
                             tempCachePath = tempCachePath,
+                            fullScreenHeight = fullScreenHeight,
                             keyboardHeight = keyboardHeight,
                             membersToMention = membersToMention,
                             isFileSharingEnabled = conversationViewState.isFileSharingEnabled,
@@ -406,6 +406,7 @@ private fun ConversationScreenContent(
     interactionAvailability: InteractionAvailability,
     tempCachePath: Path,
     keyboardHeight: KeyboardHeight,
+    fullScreenHeight: Dp,
     membersToMention: List<Contact>,
     isFileSharingEnabled: Boolean,
     lastUnreadMessageInstant: Instant?,
@@ -436,6 +437,7 @@ private fun ConversationScreenContent(
     MessageComposer(
         messageComposerState = messageComposerInnerState,
         keyboardHeight = keyboardHeight,
+        fullScreenHeight = fullScreenHeight,
         content = {
             MessageList(
                 lazyPagingMessages = lazyPagingMessages,
@@ -472,6 +474,7 @@ private fun SnackBarMessage(
 ): Unit? = snackbarMessage?.let { messageCode ->
     val (message, actionLabel) = getSnackbarMessage(messageCode)
     val context = LocalContext.current
+
     LaunchedEffect(conversationState.snackbarMessage) {
         val snackbarResult = conversationScreenState.snackBarHostState.showSnackbar(
             message = message,

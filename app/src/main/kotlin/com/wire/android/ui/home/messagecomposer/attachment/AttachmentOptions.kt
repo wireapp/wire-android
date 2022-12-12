@@ -3,6 +3,7 @@ package com.wire.android.ui.home.messagecomposer.attachment
 import android.net.Uri
 import androidx.annotation.DrawableRes
 import androidx.annotation.StringRes
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
@@ -16,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.tooling.preview.Preview
@@ -47,7 +49,6 @@ import okio.Path.Companion.toPath
 
 @Composable
 fun AttachmentOptions(
-    keyboardHeight: KeyboardHeight,
     messageComposerState: MessageComposerInnerState,
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
@@ -57,8 +58,9 @@ fun AttachmentOptions(
     Box(
         Modifier
             .fillMaxWidth()
-            .height(keyboardHeight.height)
-            .absoluteOffset(y = messageComposerState.fullScreenHeight - keyboardHeight.height)
+            .height(messageComposerState.keyboardHeight.height)
+            .absoluteOffset(y = messageComposerState.fullScreenHeight - messageComposerState.keyboardHeight.height)
+            .background(Color.Red)
     ) {
         Divider()
         AttachmentOptionsComponent(
@@ -66,8 +68,7 @@ fun AttachmentOptions(
             onSendAttachment,
             onMessageComposerError,
             isFileSharingEnabled,
-            tempCachePath,
-            Modifier.align(Alignment.Center)
+            tempCachePath
         )
     }
 }
@@ -94,7 +95,7 @@ private fun AttachmentOptionsComponent(
         modifier = modifier.fillMaxWidth(),
         contentPadding = PaddingValues(dimensions().spacing8x),
         verticalArrangement = Arrangement.SpaceEvenly,
-        horizontalArrangement = Arrangement.SpaceEvenly
+        horizontalArrangement = Arrangement.Center
     ) {
         attachmentOptions.forEach { option ->
             if (option.shouldShow) {

@@ -33,16 +33,14 @@ import com.wire.android.util.debug.LocalFeatureVisibilityFlags
 @ExperimentalAnimationApi
 @Composable
 fun MessageComposeActionsBox(
-    modifier: Modifier,
     transition: Transition<MessageComposeInputState>,
     messageComposerState: MessageComposerInnerState,
     focusManager: FocusManager,
     isMentionActive: Boolean
 ) {
     Column(
-        modifier
+        Modifier
             .wrapContentSize()
-            .background(Color.Yellow)
     ) {
         Divider()
         Box(Modifier.wrapContentSize()) {
@@ -72,8 +70,7 @@ private fun MessageComposeActions(
         horizontalArrangement = Arrangement.SpaceEvenly,
         modifier = Modifier
             .fillMaxWidth()
-            .height(1500.dp)
-            .background(Color.Cyan)
+            .height(dimensions().spacing56x)
     ) {
         with(localFeatureVisibilityFlags) {
             AdditionalOptionButton(messageComposerState.attachmentOptionsDisplayed) {

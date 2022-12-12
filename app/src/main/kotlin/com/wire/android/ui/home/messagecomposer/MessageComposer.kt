@@ -119,7 +119,7 @@ fun MessageComposer(
         }
 
         MessageComposer(
-            content = content,
+            messageContent = content,
             messageComposerState = messageComposerState,
             onSendButtonClicked = onSendButtonClicked,
             onSendAttachmentClicked = onSendAttachmentClicked,
@@ -143,7 +143,7 @@ fun MessageComposer(
 @OptIn(ExperimentalAnimationApi::class)
 @Composable
 private fun MessageComposer(
-    content: @Composable () -> Unit,
+    messageContent: @Composable () -> Unit,
     messageComposerState: MessageComposerInnerState,
     onSendButtonClicked: () -> Unit,
     onSendAttachmentClicked: (AttachmentBundle?) -> Unit,
@@ -192,10 +192,9 @@ private fun MessageComposer(
                         }
 
                         height = Dimension.fillToConstraints
-                    }.background(Color.Black)
+                    }
             ) {
-
-                val (additionalActions, sendActions, content, messageInput) = createRefs()
+                val (sendActions, messageContent, messageInput) = createRefs()
 
                 Box(
                     Modifier
@@ -210,7 +209,7 @@ private fun MessageComposer(
                                 onTap = { /* Called on Tap */ }
                             )
                         }
-                        .constrainAs(content) {
+                        .constrainAs(messageContent) {
                             top.linkTo(parent.top)
                             // we want to align the elements to the guideline only when we display attachmentOptions
                             // or we are having focus on the TextInput field
@@ -219,16 +218,15 @@ private fun MessageComposer(
                             height = Dimension.fillToConstraints
                         }
 
-                        .background(color = Color.Magenta)
+//                        .background(color = Color.Magenta)
                         .fillMaxWidth()
-                        .padding(bottom = dimensions().spacing8x)
+//                        .padding(bottom = dimensions().spacing8x)
                 ) {
-                    content()
+                    messageContent()
                     Column(
                         modifier = Modifier
                             .fillMaxHeight()
                             .animateContentSize()
-                            .background(Color.Yellow)
                     ) {
                         LazyColumn(
                             modifier = Modifier.background(Color.White),
@@ -265,17 +263,17 @@ private fun MessageComposer(
                         // Column wrapping CollapseIconButton and MessageComposerInput
                         Column(
                             modifier = Modifier
-                                .fillMaxWidth()
-                                .animateContentSize()
-                                .background(Color.Green)
+//                                .background(Color.Green)
                                 .constrainAs(messageInput) {
-                                    top.linkTo(content.bottom)
+                                    top.linkTo(messageContent.bottom)
                                     // we want to align the elements to the guideline only when we display attachmentOptions
                                     // or we are having focus on the TextInput field
                                     bottom.linkTo(parent.bottom)
 
                                     height = Dimension.wrapContent
                                 }
+                                .fillMaxWidth()
+                                .animateContentSize()
                         ) {
                             val isClassifiedConversation = securityClassificationType != SecurityClassificationType.NONE
                             if (isClassifiedConversation) {
@@ -313,8 +311,6 @@ private fun MessageComposer(
                             // Box wrapping MessageComposeActions() so that we can constrain it to the bottom of MessageComposerInput and after that
                             // constrain our SendActions to it
                             MessageComposeActionsBox(
-
-                                    Modifier.height(56.dp),
                                 transition,
                                 messageComposerState,
                                 focusManager,
@@ -338,8 +334,6 @@ private fun MessageComposer(
                         transition,
                         onSendButtonClicked
                     )
-
-
                 }
             }
             // Box wrapping for additional options content

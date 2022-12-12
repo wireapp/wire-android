@@ -27,10 +27,10 @@ import com.wire.android.ui.common.dimensions
 @ExperimentalAnimationApi
 @Composable
 fun SendActions(
-    modifier: Modifier,
     messageComposerState: MessageComposerInnerState,
     transition: Transition<MessageComposeInputState>,
-    onSendButtonClicked: () -> Unit
+    onSendButtonClicked: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
     Box(modifier) {
         Row(Modifier.padding(end = dimensions().spacing8x).background(Color.Black)) {

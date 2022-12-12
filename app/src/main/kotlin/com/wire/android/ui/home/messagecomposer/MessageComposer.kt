@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.absoluteOffset
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -194,7 +195,7 @@ private fun MessageComposer(
                         height = Dimension.fillToConstraints
                     }
             ) {
-                val (sendActions, messageContent, messageInput) = createRefs()
+                val (messageContent, messageInput) = createRefs()
 
                 Box(
                     Modifier
@@ -217,10 +218,8 @@ private fun MessageComposer(
 
                             height = Dimension.fillToConstraints
                         }
-
-//                        .background(color = Color.Magenta)
                         .fillMaxWidth()
-//                        .padding(bottom = dimensions().spacing8x)
+                        .padding(bottom = dimensions().spacing8x)
                 ) {
                     messageContent()
                     Column(
@@ -263,7 +262,6 @@ private fun MessageComposer(
                         // Column wrapping CollapseIconButton and MessageComposerInput
                         Column(
                             modifier = Modifier
-//                                .background(Color.Green)
                                 .constrainAs(messageInput) {
                                     top.linkTo(messageContent.bottom)
                                     // we want to align the elements to the guideline only when we display attachmentOptions
@@ -304,37 +302,25 @@ private fun MessageComposer(
                                 transition = transition,
                                 messageComposerState = messageComposerState,
                                 membersToMention = membersToMention,
-                                onMentionPicked = onMentionPicked
+                                onMentionPicked = onMentionPicked,
+                                interactionAvailability = interactionAvailability,
+                                onSendButtonClicked = onSendButtonClicked,
                             )
 
                             // THIS IS MESSAGE COMPOSE ACTIONS
                             // Box wrapping MessageComposeActions() so that we can constrain it to the bottom of MessageComposerInput and after that
                             // constrain our SendActions to it
                             MessageComposeActionsBox(
-                                transition,
-                                messageComposerState,
-                                focusManager,
-                                membersToMention.isNotEmpty()
+                                transition = transition,
+                                messageComposerState = messageComposerState,
+                                focusManager = focusManager,
+                                isMentionActive = membersToMention.isNotEmpty()
                             )
                         }
                     }
                 }
 
-                // This is a SEND ACTIONS
-                if (interactionAvailability == InteractionAvailability.ENABLED) {
-                    // Box wrapping the SendActions so that we do not include it in the animationContentSize
-                    // changed which is applied only for
-                    // MessageComposerInput and CollapsingButton
-                    SendActions(
-                        Modifier.constrainAs(sendActions) {
-                            bottom.linkTo(messageInput.bottom)
-                            end.linkTo(parent.end)
-                        },
-                        messageComposerState,
-                        transition,
-                        onSendButtonClicked
-                    )
-                }
+
             }
             // Box wrapping for additional options content
             // we want to offset the AttachmentOptionsComponent equal to where
@@ -346,7 +332,11 @@ private fun MessageComposer(
                     onSendAttachment = onSendAttachmentClicked,
                     onMessageComposerError = onMessageComposerError,
                     isFileSharingEnabled = isFileSharingEnabled,
-                    tempCachePath = tempCachePath
+                    tempCachePath = tempCachePath,
+                    Modifier
+                        .fillMaxWidth()
+                        .height(messageComposerState.keyboardHeight.height)
+                        .absoluteOffset(y = messageComposerState.fullScreenHeight - messageComposerState.keyboardHeight.height)
                 )
             }
         }

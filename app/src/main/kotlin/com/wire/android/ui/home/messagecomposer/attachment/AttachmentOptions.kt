@@ -53,14 +53,11 @@ fun AttachmentOptions(
     onSendAttachment: (AttachmentBundle?) -> Unit,
     onMessageComposerError: (ConversationSnackbarMessages) -> Unit,
     isFileSharingEnabled: Boolean,
-    tempCachePath: Path
+    tempCachePath: Path,
+    modifier: Modifier = Modifier
 ) {
     Box(
-        Modifier
-            .fillMaxWidth()
-            .height(messageComposerState.keyboardHeight.height)
-            .absoluteOffset(y = messageComposerState.fullScreenHeight - messageComposerState.keyboardHeight.height)
-            .background(Color.Red)
+        modifier
     ) {
         Divider()
         AttachmentOptionsComponent(
@@ -117,6 +114,7 @@ private fun configureStateHandling(
             onSendAttachment(state.attachmentBundle)
             attachmentInnerState.resetAttachmentState()
         }
+
         is AttachmentState.Error -> {
             onError(ErrorPickingAttachment)
             attachmentInnerState.resetAttachmentState()

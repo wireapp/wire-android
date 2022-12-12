@@ -3,6 +3,7 @@ package com.wire.android.ui.home.messagecomposer
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.ExperimentalAnimationApi
 import androidx.compose.animation.core.Transition
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.ColumnScope
 import androidx.compose.foundation.layout.Row
@@ -11,6 +12,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
@@ -29,14 +31,18 @@ import com.wire.android.ui.common.textfield.WireTextField
 import com.wire.android.ui.common.textfield.wireTextFieldColors
 import com.wire.android.ui.home.newconversation.model.Contact
 import com.wire.android.ui.theme.wireTypography
+import com.wire.kalium.logic.feature.conversation.InteractionAvailability
 
 @ExperimentalAnimationApi
 @Composable
 fun ColumnScope.MessageComposerInputRow(
     transition: Transition<MessageComposeInputState>,
+    interactionAvailability: InteractionAvailability,
     messageComposerState: MessageComposerInnerState,
     membersToMention: List<Contact>,
-    onMentionPicked: (Contact) -> Unit
+    onMentionPicked: (Contact) -> Unit,
+    onSendButtonClicked: () -> Unit,
+    modifier: Modifier = Modifier
 ) {
 
     var currentSelectedLineIndex by remember {
@@ -77,43 +83,57 @@ fun ColumnScope.MessageComposerInputRow(
         // wrapping the whole content when in the FullScreen state we are giving it max height
         // when in active state we limit the height to max 82.dp
         // other we let it wrap the content of the height, which will be equivalent to the text
-        MessageComposerInput(
-            messageText = messageComposerState.messageText,
-            onMessageTextChanged = messageComposerState::setMessageTextValue,
-            messageComposerInputState = messageComposerState.messageComposeInputState,
-            onIsFocused = {
-                messageComposerState.toActive()
-                messageComposerState.hideAttachmentOptions()
-            },
-            modifier = Modifier
-                .fillMaxWidth()
-                .then(
-                    when (messageComposerState.messageComposeInputState) {
-                        MessageComposeInputState.FullScreen ->
-                            Modifier
-                                .fillMaxHeight()
-                                .padding(end = dimensions().messageComposerPaddingEnd)
+        Box(Modifier.wrapContentSize().background(Color.Red)) {
+            MessageComposerInput(
+                messageText = messageComposerState.messageText,
+                onMessageTextChanged = messageComposerState::setMessageTextValue,
+                messageComposerInputState = messageComposerState.messageComposeInputState,
+                onIsFocused = {
+                    messageComposerState.toActive()
+                    messageComposerState.hideAttachmentOptions()
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .then(
+                        when (messageComposerState.messageComposeInputState) {
+                            MessageComposeInputState.FullScreen ->
+                                Modifier
+                                    .fillMaxHeight()
+                                    .padding(end = dimensions().messageComposerPaddingEnd)
 
-                        MessageComposeInputState.Active -> {
-                            Modifier
-                                .heightIn(
-                                    max = dimensions().messageComposerActiveInputMaxHeight
-                                )
-                                .padding(
-                                    end = dimensions().messageComposerPaddingEnd
-                                )
+                            MessageComposeInputState.Active -> {
+                                Modifier
+                                    .heightIn(
+                                        max = dimensions().messageComposerActiveInputMaxHeight
+                                    )
+                                    .padding(
+                                        end = dimensions().messageComposerPaddingEnd
+                                    )
+                            }
+
+                            else -> Modifier.wrapContentHeight()
                         }
+                    ),
+                onSelectedLineIndexChanged = {
+                    currentSelectedLineIndex = it
+                },
+                onLineBottomYCoordinateChanged = {
+                    cursorCoordinateY = it
+                }
+            )
 
-                        else -> Modifier.wrapContentHeight()
-                    }
-                ),
-            onSelectedLineIndexChanged = {
-                currentSelectedLineIndex = it
-            },
-            onLineBottomYCoordinateChanged = {
-                cursorCoordinateY = it
+            // This is a SEND ACTIONS
+            if (interactionAvailability == InteractionAvailability.ENABLED) {
+                // Box wrapping the SendActions so that we do not include it in the animationContentSize
+                // changed which is applied only for
+                // MessageComposerInput and CollapsingButton
+                SendActions(
+                    messageComposerState = messageComposerState,
+                    transition = transition,
+                    onSendButtonClicked = onSendButtonClicked
+                )
             }
-        )
+        }
         if (membersToMention.isNotEmpty() && messageComposerState.messageComposeInputState == MessageComposeInputState.FullScreen)
             DropDownMentionsSuggestions(currentSelectedLineIndex, cursorCoordinateY, membersToMention, onMentionPicked)
 
